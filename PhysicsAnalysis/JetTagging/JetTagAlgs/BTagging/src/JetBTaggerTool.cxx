@@ -30,13 +30,14 @@ namespace Analysis {
 
   JetBTaggerTool::JetBTaggerTool(const std::string& n) :
     asg::AsgTool(n),
+    m_JetName(""),
     m_bTagTool("Analysis::BTagTool",this),
     m_BTagTrackAssocTool("Analysis::BTagTrackAssociation", this),
     m_bTagSecVtxTool("Analysis::BTagSecVertexing", this),
     m_augment(false),
     m_magFieldSvc("AtlasFieldSvc",n)
   {
-
+    declareProperty( "JetCalibrationName", m_JetName);
     declareProperty( "BTagTool", m_bTagTool);
     declareProperty( "BTagTrackAssocTool", m_BTagTrackAssocTool);
     declareProperty( "BTagSecVertexing", m_bTagSecVtxTool);
@@ -162,7 +163,7 @@ namespace Analysis {
     }
 
     //Tag the jets
-    SV = m_bTagTool->tagJet( h_JetCollectionName.ptr(), h_BTaggingCollectionName.ptr());
+    SV = m_bTagTool->tagJet( h_JetCollectionName.ptr(), h_BTaggingCollectionName.ptr(), m_JetName);
     if (SV.isFailure()) {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
     }
@@ -254,7 +255,7 @@ namespace Analysis {
     }
 
     //Tag the jets
-    SV = m_bTagTool->tagJet( &jets, h_BTaggingCollectionName.ptr());
+    SV = m_bTagTool->tagJet( &jets, h_BTaggingCollectionName.ptr(), m_JetName);
     if (SV.isFailure()) {
       ATH_MSG_WARNING("#BTAG# Failed to tag the jets");
     }

@@ -13,7 +13,6 @@ groupsMatcherFactoryMT_MaxBipartite (ConditionsMT&& conditions){
   
   if (conditions.size() == 1) {
     return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
-    // return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
   } else {
     return std::make_unique<MaximumBipartiteGroupsMatcherMT>(std::move(conditions));
   }

@@ -8,6 +8,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrkParameters/TrackParameters.h"
@@ -16,6 +17,7 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <string>
 
@@ -36,7 +38,6 @@ namespace Trk {
 namespace Muon{
   
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonSegment;
   class MuonSegmentCombination;
   class MuonPattern;
@@ -137,7 +138,9 @@ namespace Muon{
   private:
     
     ToolHandle<MuonIdHelperTool>  m_idHelper;
-    ToolHandle<MuonEDMHelperTool> m_helper;
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelper;
     ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
 

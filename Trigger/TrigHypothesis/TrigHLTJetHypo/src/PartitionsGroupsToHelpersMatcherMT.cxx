@@ -103,7 +103,8 @@ std::string PartitionsGroupsToHelpersMatcherMT::toString() const noexcept {
   std::stringstream ss;
 
   ss << "PartitionsGroupsToHelpersMatcherMT. "
-     << "Passes each hypojet vector to all helpers in turn."
+     << "Create a 1-1 matching between HypoJetVectors and child helpers\n"
+     << "Pass each hypojetvector to its correponding child."
      << "\n No of helpers: "
      << m_helpers.size() << "\n\n";
 

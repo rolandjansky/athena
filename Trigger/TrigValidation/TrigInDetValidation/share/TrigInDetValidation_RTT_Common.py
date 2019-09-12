@@ -206,12 +206,10 @@ if 'disablePixelLayer' in dir() and disablePixelLayer == True:
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
   svcMgr += tpmdsvc
 
-  from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
+  from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-  InDetTrigPixelConditionsSummarySvc = PixelConditionsSummarySvc(PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'))
-  InDetTrigPixelConditionsSummarySvc.UseTDAQ = True
-  InDetTrigPixelConditionsSummarySvc.TDAQSvcName = "TestPixelModuleDisablingSvc/TestPixelModuleDisablingSvc"
-
+  InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
+  InDetTrigPixelConditionsSummaryTool.UseTDAQ = True
 
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 Service ("StoreGateSvc" ).ActivateHistory=False

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@
 class IIncidentSvc;
 
 namespace Trk {
-  class HitInfo;
+  struct HitInfo;
 }
 
 namespace ISF {
@@ -60,13 +60,14 @@ namespace iFatras
       virtual ~TransportEngine ();
       
       /** AlgTool initialize method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       
       /** AlgTool finalize method */
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       
       /** Creates a new ParticleState from a given ParticleState, universal transport tool */
-      ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*);
+      virtual
+      ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*) const override;
 
     private:
       
@@ -76,7 +77,7 @@ namespace iFatras
                                                   const Amg::Vector3D& position,
                                                   const Amg::Vector3D& momentum,
 						  double stime,
-						  Trk::GeometrySignature geoID);
+						  Trk::GeometrySignature geoID) const;
       
       /** templated Tool retrieval - gives unique handling & look and feel */
       template <class T> StatusCode retrieveTool(ToolHandle<T>& thandle)
@@ -95,7 +96,7 @@ namespace iFatras
                                                             Trk::ParticleHypothesis pHypo,
                                                             double pLimit,
                                                             double x0Limit,
-                                                            double l0Limit);
+                                                            double l0Limit) const;
       
       /*---------------------------------------------------------------------
        *  Private members
@@ -134,7 +135,7 @@ namespace iFatras
                                                                          Trk::ParticleHypothesis pHypo,
                                                                          double pLimit,
                                                                          double x0Limit,
-                                                                         double l0Limit)
+                                                                         double l0Limit) const
     {
         // if it reaches the boundary - it has to stop there
         ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);

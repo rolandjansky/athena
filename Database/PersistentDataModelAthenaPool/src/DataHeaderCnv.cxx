@@ -83,7 +83,10 @@ StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObjec
 {
    if( m_sharedWriterCachedDH ) {
       MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::ERROR << "updateRep called but the prevoius DataHeader was not yet processed" << endmsg;
+      log << MSG::ERROR << "updateRep called but the previous DataHeader was not yet processed."
+          << " cached DH Key=" << m_sharedWriterCachedDHKey
+          << " cached DH Ref=" << m_sharedWriterCachedDHToken
+          << endmsg;
       return StatusCode::FAILURE;
    }
    // remember this DH and finish processing in updateRepRefs()
@@ -206,7 +209,7 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
       log << MSG::DEBUG << "wrote new DHForm with " << dhForm->sizeObj() << " SG object data" << endmsg;
    }
    
-   m_persObjList.push_back(persObj);
+   keepPoolObj(persObj);
 
    const coral::AttributeList* list = obj->getAttributeList();
    if (list != nullptr) {

@@ -3,12 +3,14 @@
 import pickle
 import subprocess
 import unittest
+import os
 
 
 class TestDigitizationMC16a(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ["TRF_ECHO"] = "1"
         config_picklefilename = 'DigitizationMC16a_config.pkl'
         command = [
             'Digi_tf.py',
@@ -310,7 +312,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MdtDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MdtDigitizationTool'
-        expected_property_list = ['CalibrationDbTool', 'DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MDTCondSummarySvc', 'MaskedStations', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
+        expected_property_list = ['CalibrationDbTool', 'DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MaskedStations', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-800'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
@@ -322,7 +324,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___RpcDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.RpcDigitizationTool'
-        expected_property_list = ['ClusterSize1_2uncorr', 'ClusterSize_fromCOOL', 'CutProjectedTracks', 'DeadTime', 'DetStore', 'DumpFromDbFirst', 'EfficiencyPatchForBMShighEta', 'Efficiency_fromCOOL', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FracClusterSize1_A', 'FracClusterSize1_C', 'FracClusterSize2_A', 'FracClusterSize2_C', 'FracClusterSizeTail_A', 'FracClusterSizeTail_C', 'IgnoreRunDependentConfig', 'LastXing', 'MeanClusterSizeTail_A', 'MeanClusterSizeTail_C', 'OnlyEtaEff_A', 'OnlyEtaEff_C', 'OnlyPhiEff_A', 'OnlyPhiEff_C', 'OutputObjectName', 'OutputSDOName', 'PanelId_OFF_fromlist', 'PanelId_OK_fromlist', 'PatchForRpcTime', 'PatchForRpcTimeShift', 'PhiAndEtaEff_A', 'PhiAndEtaEff_C', 'PileUpMergeSvc', 'PrintCalibrationVector', 'RPCCondSummarySvc', 'RPCInfoFromDb', 'RndmSvc', 'testbeam_clustersize', 'turnON_clustersize', 'turnON_efficiency']
+        expected_property_list = ['ClusterSize1_2uncorr', 'ClusterSize_fromCOOL', 'CutProjectedTracks', 'DeadTime', 'DetStore', 'DumpFromDbFirst', 'EfficiencyPatchForBMShighEta', 'Efficiency_fromCOOL', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FracClusterSize1_A', 'FracClusterSize1_C', 'FracClusterSize2_A', 'FracClusterSize2_C', 'FracClusterSizeTail_A', 'FracClusterSizeTail_C', 'IgnoreRunDependentConfig', 'LastXing', 'MeanClusterSizeTail_A', 'MeanClusterSizeTail_C', 'OnlyEtaEff_A', 'OnlyEtaEff_C', 'OnlyPhiEff_A', 'OnlyPhiEff_C', 'OutputObjectName', 'OutputSDOName', 'PanelId_OFF_fromlist', 'PanelId_OK_fromlist', 'PatchForRpcTime', 'PatchForRpcTimeShift', 'PhiAndEtaEff_A', 'PhiAndEtaEff_C', 'PileUpMergeSvc', 'PrintCalibrationVector', 'RPCInfoFromDb', 'RndmSvc', 'testbeam_clustersize', 'turnON_clustersize', 'turnON_efficiency']
         expected_nonstring_properties = {'LastXing': '125', 'FirstXing': '-150'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(

@@ -14,7 +14,6 @@
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 #include <math.h>

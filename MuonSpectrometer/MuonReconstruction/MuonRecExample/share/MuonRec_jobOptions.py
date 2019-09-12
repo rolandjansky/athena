@@ -25,9 +25,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
 from AthenaCommon.AppMgr import ToolSvc
 
-## MT-safe conditions access
-import MuonCondAlg.AllCondDbAlgConfig
-
 muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
@@ -132,6 +129,7 @@ if muonRecFlags.doStandalone():
     #
     from MuonRecExample.MuonRec import muonRec
 
+    import MuonCondAlg.MdtCondDbAlgConfig # MT-safe conditions access
 
     if rec.doTruth():   
         from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker

@@ -98,9 +98,9 @@ namespace Muon
   // return globalPosition:
   inline const Amg::Vector3D& sTgcPrepData::globalPosition() const
   {
-    if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition());
+    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
 
-    if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
+    if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
     return *m_globalPosition;
   }
 

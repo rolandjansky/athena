@@ -890,9 +890,6 @@ TrackFitter::compute_truth(const unsigned int& /*ibank*/,const FTKRoad& road,FTK
     }
   } // end if dump debugging info to stdout
   for( unsigned int i=0, f=road.getNPlanes(); i!=f; ++i ) {
-    //const int ssid = road.getSSID(i);
-    //FTKSS& ss = const_cast<FTKSS&>( m_roadinput->getSS(ibank,i,ssid) );
-    //const std::vector<FTKHit>& hits(ss.getHits());
     const std::vector<FTKHit>& hits = road.getHits(i);
     // retrieve the coordinate in the final array
     const int ix = m_pmap->getDim(i,0);

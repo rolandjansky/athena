@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSSERVICES_PIXELMAPTESTALG_H
@@ -7,17 +7,14 @@
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 
 class ISpecialPixelMapSvc;
 class IInDetConditionsTool;
 class PixelID;
-
-namespace InDetDD{ 
-  class PixelDetectorManager; 
-}
 
 /**
  * Illustrates the usage of the SpecialPixelMapSvc.
@@ -51,7 +48,7 @@ class PixelMapTestAlg: public AthAlgorithm{
   bool m_overlay;
   
   const PixelID* m_pixelID;
-  const InDetDD::PixelDetectorManager* m_pixman;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
 };
 

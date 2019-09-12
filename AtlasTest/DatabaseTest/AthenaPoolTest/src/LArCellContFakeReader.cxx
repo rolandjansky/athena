@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,9 +24,6 @@
 // DetDescr includes
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-
-// TES include
-#include "StoreGate/StoreGateSvc.h"
 
 // test includes
 #include "LArCellContFakeCreator.h"

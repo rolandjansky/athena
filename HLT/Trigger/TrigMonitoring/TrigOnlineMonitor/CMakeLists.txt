@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
                           Event/ByteStreamCnvSvcBase
                           Event/EventInfo
+                          MagneticField/MagFieldInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigDataAccess/TrigROBDataProviderSvc
                           Trigger/TrigEvent/TrigSteeringEvent
@@ -30,17 +31,18 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common )
-
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( TrigOnlineMonitor
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData ByteStreamData_test GaudiKernel AthenaKernel ByteStreamCnvSvcBaseLib EventInfo TrigConfL1Data TrigROBDataProviderSvcLib TrigSteeringEvent TrigMonitorBaseLib TrigSteeringLib L1TopoConfig L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData ByteStreamData_test GaudiKernel AthenaKernel ByteStreamCnvSvcBaseLib EventInfo MagFieldInterfaces TrigConfL1Data TrigROBDataProviderSvcLib TrigSteeringEvent TrigMonitorBaseLib TrigSteeringLib L1TopoConfig L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
 
 # Install files from the package:
 atlas_install_headers( TrigOnlineMonitor )
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 atlas_install_scripts( share/plotL1TopoROBMonHist.py )
 

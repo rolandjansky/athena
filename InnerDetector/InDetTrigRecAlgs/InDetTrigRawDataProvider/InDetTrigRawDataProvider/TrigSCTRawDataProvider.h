@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,6 @@
 
 #include <string>
 
-class StoreGateSvc;
 class TrigRoiDescriptor;
 class SCT_ID;
 class IRegSelSvc;
@@ -71,8 +70,6 @@ namespace InDet {
     ServiceHandle<IRegSelSvc>           m_regionSelector;     
     ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
     ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
-    ServiceHandle<StoreGateSvc>         m_storeGate;
-    ServiceHandle<StoreGateSvc>         m_detStore; 
     ToolHandle<ISCT_CablingTool>        m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
     const SCT_ID*                       m_id; 
     //! the RDO container

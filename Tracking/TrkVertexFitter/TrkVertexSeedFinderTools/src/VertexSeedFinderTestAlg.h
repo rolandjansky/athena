@@ -51,6 +51,19 @@ private:
   Gaudi::Property<std::vector<double> > m_expected3
   { this, "Expected3", {}, "Third expected result" };
 
+  Gaudi::Property<std::vector<float> > m_expected1PhiModes
+  { this, "Expected1PhiModes", {}, "" };
+  Gaudi::Property<std::vector<float> > m_expected1RModes
+  { this, "Expected1RModes", {}, "" };
+  Gaudi::Property<std::vector<float> > m_expected1ZModes
+  { this, "Expected1ZModes", {}, "" };
+  Gaudi::Property<std::vector<float> > m_expected1Weights
+  { this, "Expected1Weights", {}, "" };
+  Gaudi::Property<std::vector<int> > m_expected1Indices
+  { this, "Expected1Indices", {}, "" };
+  Gaudi::Property<std::vector<double> > m_expected1CorrDist
+  { this, "Expected1CorrDist", {}, "" };
+  
   Gaudi::Property<unsigned int> m_npart3
   { this, "NPart3", 1000, "Number of test particles." };
 

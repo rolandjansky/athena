@@ -3,7 +3,6 @@
 */
 
 #include "eflowRec/PFEGammaPFOAssoc.h" 
-#include "StoreGate/StoreGateSvc.h" 
 #include "StoreGate/WriteDecorHandle.h" 
 #include "xAODEgamma/ElectronContainer.h" 
 #include "xAODEgamma/Electron.h" 

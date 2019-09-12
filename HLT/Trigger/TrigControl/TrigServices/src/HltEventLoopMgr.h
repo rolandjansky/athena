@@ -241,6 +241,12 @@ private:
   Gaudi::Property<bool> m_setMagFieldFromPtree{
     this, "setMagFieldFromPtree", false, "Read magnet currents from ptree"};
 
+  Gaudi::Property<unsigned int> m_forceRunNumber{
+    this, "forceRunNumber", 0, "Override run number during prepareForRun"};
+
+  Gaudi::Property<unsigned long long> m_forceSOR_ns{
+    this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
+
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 

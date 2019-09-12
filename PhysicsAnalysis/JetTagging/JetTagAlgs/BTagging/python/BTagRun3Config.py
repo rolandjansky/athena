@@ -44,6 +44,51 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
 
     return result
 
+
+def registerOutputContainersForJetCollection(flags, JetCollection, prefix):
+      """Registers the jet collection to various containers in BTaggingFlags which govern which
+      containers will be parsed to the output xAOD and ESD files. This used to happen in
+      ./share/BTagging_jobOptions.py.
+
+      input: JetCollection:       The name of the jet collection."""
+      ItemList = []
+      OutputFilesSVname = "SecVtx"
+      OutputFilesJFVxname = "JFVtx"
+
+      OutputFilesBaseName = "xAOD::BTaggingContainer#"
+      OutputFilesBaseAuxName = "xAOD::BTaggingAuxContainer#"
+      OutputFilesBaseNameSecVtx = "xAOD::VertexContainer#"
+      OutputFilesBaseAuxNameSecVtx = "xAOD::VertexAuxContainer#"
+      OutputFilesBaseNameJFSecVtx = "xAOD::BTagVertexContainer#"
+      OutputFilesBaseAuxNameJFSecVtx= "xAOD::BTagVertexAuxContainer#"
+
+      author = prefix + JetCollection
+      ItemList.append(OutputFilesBaseName + author)
+      ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
+      # SeCVert
+      ItemList.append(OutputFilesBaseNameSecVtx + author + OutputFilesSVname)
+      ItemList.append(OutputFilesBaseAuxNameSecVtx + author + OutputFilesSVname + 'Aux.-vxTrackAtVertex')
+      # JFSeCVert
+      ItemList.append(OutputFilesBaseNameJFSecVtx + author + OutputFilesJFVxname)
+      ItemList.append(OutputFilesBaseAuxNameJFSecVtx + author + OutputFilesJFVxname + 'Aux.')
+
+      return ItemList
+
+
+def BTagESDtoESDCfg(flags, jet, new):
+    acc=ComponentAccumulator()
+
+    #Register input ESD container in output
+    ESDItemList = registerOutputContainersForJetCollection(flags, jet, flags.BTagging.OutputFiles.Prefix)
+
+    #Register new ouput ESD container
+    ESDnewItemList = registerOutputContainersForJetCollection(flags, jet, new)
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList+ESDnewItemList))
+
+    return acc
+
 def BTagCfg(inputFlags,**kwargs):
 
     #This is monolithic for now. 
@@ -52,7 +97,7 @@ def BTagCfg(inputFlags,**kwargs):
     result=ComponentAccumulator()
 
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
+    acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -64,18 +109,16 @@ def BTagCfg(inputFlags,**kwargs):
     from AthenaCommon import CfgGetter
     result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline,IOVDbSvcCfg
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
     #result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_ONL'))
     #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
-    iovDbSvc=result.getService("IOVDbSvc")
-    iovDbSvc.FoldersToMetaData+=['/GLOBAL/BField/Maps']
-
     from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
+    del kwargs['UseDCS']
 
     #load folders needed for Run2 ID alignment
     result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
@@ -84,28 +127,24 @@ def BTagCfg(inputFlags,**kwargs):
     #load folders needed for IBL
     result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
-    #BTagging part 
-    from BTagging.BTaggingConfiguration import getConfiguration
-    ConfInstance = getConfiguration()
-
     #Should be parameters
     jet = 'AntiKt4EMTopo'
     #jet = 'AntiKt4LCTopo'
-    #Register input ESD container
-    ConfInstance.RegisterOutputContainersForJetCollection(JetCollection = jet, Verbose=True)
-    #Create BTagging containers with prefix "New" and register containers
-    ConfInstance.setOutputFilesPrefix('New'+ConfInstance.getOutputFilesPrefix())
-    ConfInstance.RegisterOutputContainersForJetCollection(JetCollection = jet, Verbose=True)
+    taggerList = inputFlags.BTagging.run2TaggersList
+    taggerList += ['MultiSVbb1','MultiSVbb2']
 
+    result.merge(BTagESDtoESDCfg(inputFlags, jet, "NewBTagging_"))
+
+    #If those lines are moved in BTagESDtoESDCfg, it fails
     #Rename the element link of the BTagging container from the Jet container
     from SGComps.SGCompsConf import AddressRemappingSvc
     AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.oldbtaggingLink']
     result.addService(AddressRemappingSvc)    
     result.getService('ProxyProviderSvc').ProviderNames += [ "AddressRemappingSvc" ]
-   
-    taggerList = ['IP2D','IP3D','MultiSVbb1','MultiSVbb2','SV1','SoftMu','JetFitterNN','MV2c10','MV2c10mu','MV2c10rnn','MV2c100','MV2cl100','RNNIP','DL1','DL1mu','DL1rnn','JetVertexCharge']
-    result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList))
+
+    kwargs['new_prefix'] = 'NewBTagging_'
+    result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
 
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList))
 
@@ -142,29 +181,22 @@ if __name__=="__main__":
         cfgFlags.Scheduler.ShowControlFlow = True
         cfgFlags.Concurrency.NumConcurrentEvents = args.nThreads
         from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-        cfg=MainServicesThreadedCfg(cfgFlags) 
+        acc=MainServicesThreadedCfg(cfgFlags)
     else:
         from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-        cfg=MainServicesSerialCfg() 
+        acc=MainServicesSerialCfg()
 
     # Prevent the flags from being modified
     cfgFlags.lock()
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.merge(PoolReadCfg(cfgFlags))
+    acc.merge(PoolReadCfg(cfgFlags))
 
-    cfg.merge(BTagCfg(cfgFlags)) 
+    acc.merge(BTagCfg(cfgFlags))
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    cfg.merge(OutputStreamCfg(cfgFlags,"ESD", ItemList=BTaggingFlags.btaggingESDList))
-    cfg.getEventAlgo("OutputStreamESD").ForceRead = True
+    acc.setAppProperty("EvtMax",-1)
 
-
-    #cfg.getService("StoreGateSvc").Dump=True
-
-    cfg.setAppProperty("EvtMax",10)
-
-    cfg.run()
+    acc.run()
     f=open("BTag.pkl","w")
-    cfg.store(f)
+    acc.store(f)
     f.close()

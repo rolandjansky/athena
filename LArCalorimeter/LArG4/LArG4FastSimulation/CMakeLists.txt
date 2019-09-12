@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Geant4 )
 find_package( HepMC )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 find_package( XercesC )
 find_package( GeoModel )
 

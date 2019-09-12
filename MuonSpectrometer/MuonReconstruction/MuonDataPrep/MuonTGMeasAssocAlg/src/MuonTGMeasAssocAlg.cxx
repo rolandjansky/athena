@@ -65,7 +65,6 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string &name, ISvcLocato
   m_inputRpcPrdCollection("RPC_Measurements"),  
   m_inputTgcPrdCollection("TGC_Measurements"),  
   m_inputCscPrdCollection("CSC_Clusters"),  
-  m_StoreGate(0),
   m_activeStore(0),
   m_mdtHits(0),
   m_rpcHits(0),
@@ -109,54 +108,41 @@ StatusCode Muon::MuonTGMeasAssocAlg::initialize()
   StatusCode sc;
 
   // Get an Identifier helper object
-  StoreGateSvc* detStore(0);
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Detector service not found !");
-    return StatusCode::FAILURE;
-  } 
-
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("StoreGate service not found !");
-    return StatusCode::FAILURE;
-  } 
-
   sc=service("ActiveStoreSvc",m_activeStore);
   if (sc.isFailure()) {
     ATH_MSG_FATAL("ActiveStore service not found !");
     return StatusCode::FAILURE;
   } 
 
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
+  sc = detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
     return sc;
   }
 
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
+  sc = detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER");
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
     return sc;
   }
 
-  sc = detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
+  sc = detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER");
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Cannot retrieve cscIdHelper");
     return sc;
   }
 
-  sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
+  sc = detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER");
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Cannot retrieve TgcIdHelper");
     return sc;
   }
   
-  sc = detStore->retrieve(m_muonMgr);
+  sc = detStore()->retrieve(m_muonMgr);
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
@@ -216,13 +202,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::execute()
 
   if (!m_trackingGeometry) {
  
-    StoreGateSvc* detStore(0);
-    sc = service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Detector service not found !");
-      return StatusCode::FAILURE;
-    } 
-    sc = detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
+    sc = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Could not find tool "<< m_trackingGeometryName<<". Exiting.");
       return sc;
@@ -278,7 +258,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeMeasurements() {
  
   if ( m_allHits ) {
     std::string key = "MUON_TG_HITS";
-    sc = m_StoreGate->record(m_allHits,key);
+    sc = evtStore()->record(m_allHits,key);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("MuonTGMeasAssocAlg::storeMeasurements():recording  of hit collection failed");
     } else {
@@ -297,7 +277,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
  
   if ( m_allSegments ) {
     std::string key = "MUON_TG_SEGMENTS";
-    sc = m_StoreGate->record(m_allSegments,key);
+    sc = evtStore()->record(m_allSegments,key);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("MuonTGMeasAssocAlg::storeSegments():recording of segment collection failed");
     } else {
@@ -424,7 +404,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   std::vector<const Trk::SegmentCollection*> segmColls;
   if (m_inputSegmentCollectionMoore != "") {
     const Trk::SegmentCollection* mooreColl = 0;
-    sc = m_StoreGate->retrieve(mooreColl, m_inputSegmentCollectionMoore );
+    sc = evtStore()->retrieve(mooreColl, m_inputSegmentCollectionMoore );
     if (!sc.isFailure()) {
       ATH_MSG_INFO(" retrieved segment collection " << m_inputSegmentCollectionMoore );
       segmColls.push_back(mooreColl);
@@ -435,7 +415,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   }
   if (m_inputSegmentCollectionMoMu != "") {
     const Trk::SegmentCollection* momuColl = 0;
-    sc = m_StoreGate->retrieve(momuColl, m_inputSegmentCollectionMoMu );
+    sc = evtStore()->retrieve(momuColl, m_inputSegmentCollectionMoMu );
     if (!sc.isFailure()) {
       ATH_MSG_INFO(" retrieved segment collection " << m_inputSegmentCollectionMoMu );
       segmColls.push_back(momuColl);
@@ -446,7 +426,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
   }
   if (m_inputSegmentCollectionMBoy != "") {
     const Trk::SegmentCollection* mboyColl = 0;
-    sc = m_StoreGate->retrieve(mboyColl, m_inputSegmentCollectionMBoy );
+    sc = evtStore()->retrieve(mboyColl, m_inputSegmentCollectionMBoy );
     if (!sc.isFailure()) {
       ATH_MSG_INFO(" retrieved segment collection " << m_inputSegmentCollectionMBoy );
       segmColls.push_back(mboyColl);
@@ -573,7 +553,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
  
   //Try to retrieve the MDT hit collection
   const Muon::MdtPrepDataContainer* mdt_container;
-  StatusCode sc_read = m_StoreGate->retrieve(mdt_container, m_inputMdtPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(mdt_container, m_inputMdtPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve MDT PrepData Container " );
     delete vec_alllayer;
@@ -583,7 +563,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
   const DataHandle<Muon::MdtPrepDataCollection> mdtCollection;
   const DataHandle<Muon::MdtPrepDataCollection> lastColl;
 
-  if (m_StoreGate->retrieve(mdtCollection,lastColl) ==StatusCode::SUCCESS) {
+  if (evtStore()->retrieve(mdtCollection,lastColl) ==StatusCode::SUCCESS) {
     for ( ; mdtCollection != lastColl ; ++mdtCollection ) {
        if (mdtCollection->size()>0) {
          for (Muon::MdtPrepDataCollection::const_iterator mdtPrd = mdtCollection->begin(); 
@@ -658,7 +638,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   //Try to retrieve the RPC hit collection
   const Muon::RpcPrepDataContainer* rpc_container;
-  StatusCode sc_read = m_StoreGate->retrieve(rpc_container, m_inputRpcPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(rpc_container, m_inputRpcPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve RPC PrepData Container " );
     return vec_alllayer;
@@ -671,7 +651,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   int layerid;
 
-  if (m_StoreGate->retrieve(rpcCollection,lastColl) ==StatusCode::SUCCESS) {
+  if (evtStore()->retrieve(rpcCollection,lastColl) ==StatusCode::SUCCESS) {
     for ( ; rpcCollection != lastColl ; ++rpcCollection ) {
        if (rpcCollection->size()>0) {
          for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = rpcCollection->begin(); 
@@ -761,7 +741,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   //Try to retrieve the CSC cluster collection
   const DataHandle<CscPrepDataContainer> csc_container ;
-  StatusCode sc_read = m_StoreGate->retrieve(csc_container, m_inputCscPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(csc_container, m_inputCscPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve CSC Cluster Container " );
     return vec_alllayer;
@@ -851,7 +831,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   //Try to retrieve the TGC hit collection
   const Muon::TgcPrepDataContainer* tgc_container;
-  StatusCode sc_read = m_StoreGate->retrieve(tgc_container, m_inputTgcPrdCollection);
+  StatusCode sc_read = evtStore()->retrieve(tgc_container, m_inputTgcPrdCollection);
   if (sc_read.isFailure()) {
     ATH_MSG_ERROR( " Cannot retrieve TGC PrepData Container " );
     return vec_alllayer;
@@ -864,7 +844,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
   int layerid;
 
-  if (m_StoreGate->retrieve(tgcCollection,lastColl) ==StatusCode::SUCCESS) {
+  if (evtStore()->retrieve(tgcCollection,lastColl) ==StatusCode::SUCCESS) {
     for ( ; tgcCollection != lastColl ; ++tgcCollection ) {
        if (tgcCollection->size()>0) {
          for (Muon::TgcPrepDataCollection::const_iterator tgcPrd = tgcCollection->begin(); 

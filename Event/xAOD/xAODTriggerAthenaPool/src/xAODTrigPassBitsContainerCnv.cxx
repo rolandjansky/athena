@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigPassBitsContainerCnv.cxx 755768 2016-06-17 13:43:10Z krasznaa $
@@ -16,11 +16,12 @@ xAODTrigPassBitsContainerCnv( ISvcLocator* svcLoc )
 
 }
 
-xAOD::TrigPassBitsContainer* xAODTrigPassBitsContainerCnv::createTransient() {
+xAOD::TrigPassBitsContainer*
+xAODTrigPassBitsContainerCnv::createTransientWithKey (const std::string& key) {
 
    // Get the object using the base class:
    std::unique_ptr< xAOD::TrigPassBitsContainer >
-         ondisk( xAODTrigPassBitsContainerCnvBase::createTransient() );
+         ondisk( xAODTrigPassBitsContainerCnvBase::createTransientWithKey (key) );
 
    // Create a copy of it:
    xAOD::TrigPassBitsContainer* result = new xAOD::TrigPassBitsContainer();

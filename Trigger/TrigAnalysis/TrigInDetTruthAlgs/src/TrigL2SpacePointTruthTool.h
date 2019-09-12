@@ -11,9 +11,6 @@
 #include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
 #include <vector>
 
-//#include "InDetIdentifier/PixelID.h" 
-//#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
 // detector geometry and helper classes
 #include "InDetSimData/InDetSimDataCollection.h"
 class SCT_ID;

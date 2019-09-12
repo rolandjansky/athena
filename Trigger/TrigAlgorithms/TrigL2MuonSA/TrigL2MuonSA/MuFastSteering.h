@@ -30,6 +30,7 @@
 #include "StoreGate/ReadHandleKey.h"    
 #include "StoreGate/WriteHandleKey.h"   
 
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -151,8 +152,6 @@ class MuFastSteering : public HLT::FexAlgo,
  protected:
   
   // Services
-  /** A service handle to StoreGate */
-  ServiceHandle<StoreGateSvc> m_storeGate;
   
   /** Timers */
   ServiceHandle<ITrigTimerSvc> m_timerSvc;
@@ -239,6 +238,10 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};
 
   //adding a part of DataHandle for AthenaMT
+  //ReadHandle xAOD::EventInfo
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{
+	this, "EventInfo", "EventInfo", "Name of the xAOD::EventInfo object"};
+
   //ReadHandle MURoIs
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
 	this, "MuRoIs", "MURoIs", "Name of the input data from L1Decoder"};

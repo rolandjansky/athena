@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,7 +23,6 @@
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/Holder.icc"
 #include "TrigSteeringEvent/HLTResult.h"
-#include "CxxUtils/make_unique.h"
 
 
 HLT_BEGIN_TYPE_REGISTRATION
@@ -91,7 +90,7 @@ StatusCode HLTResultWriter::initialize()
 StatusCode HLTResultWriter::execute()
 {
   SG::WriteHandle<HLT::HLTResult> result (m_resultKey);
-  ATH_CHECK( result.record (CxxUtils::make_unique<HLT::HLTResult>()) );
+  ATH_CHECK( result.record (std::make_unique<HLT::HLTResult>()) );
 
   m_nav->prepare();
   if (!m_nav->serialize (result->getNavigationResult(),

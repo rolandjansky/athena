@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of RpcROD_Decoder class 
@@ -33,7 +33,6 @@
 
 Muon::RpcROD_Decoder::RpcROD_Decoder ( const std::string& type, const std::string& name,const IInterface* parent ) :  AthAlgTool(type,name,parent),
 														      //m_hashfunc(0),
-														      //m_storeGate("StoreGateSvc" ,name),
 														      //niko
 														      m_decodeSL(false),
 														      //m_byteStreamErrSvc("RPC_ByteStreamErrorSvc",name),
@@ -85,7 +84,6 @@ StatusCode Muon::RpcROD_Decoder::initialize() {
 
   //==LBTAG initialize vector and variables for format failure check
   for(int i=0; i<13; i++) m_RPCcheckfail[i]=0;
-  m_previous=0;
   m_printerror=0;
 
   return StatusCode::SUCCESS;

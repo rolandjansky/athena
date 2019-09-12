@@ -276,10 +276,11 @@ if jobproperties.Beam.beamType()=='cosmics':
     m_deltaPhi2D             = [ 0.02, 0.02, 0.02, 0.02,0.05]
     m_deltaQoverPt           = [ 0.05,  0.2, 0.05, 0.04, 0.1]
     m_deltaQoverPt2D         = [ 0.05,  0.2, 0.05, 0.04, 0.1]
-
+    from AthenaCommon import CfgGetter
+    indet_track_fitter = CfgGetter.getPublicTool('InDetTrackFitter')
     for i in range(5):
         m_trackSplitter.append(InDet__InDetTrackSplitterTool(name                  = m_trackSplitterName[i],
-                                                             TrackFitter           = InDetTrackFitter,
+                                                             TrackFitter           = indet_track_fitter,
                                                              OutputUpperTracksName = m_upperTracksName[i],
                                                              OutputLowerTracksName = m_lowerTracksName[i]))
         

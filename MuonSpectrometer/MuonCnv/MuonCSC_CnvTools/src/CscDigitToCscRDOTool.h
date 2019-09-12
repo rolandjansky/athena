@@ -59,7 +59,7 @@ class CscDigitToCscRDOTool final : public extends<AthAlgTool, IMuonDigitizationT
   SG::ReadHandleKey<CscDigitContainer> m_digitContainerKey{this,"InputObjectName","CSC_DIGITS","ReadHandleKey for Input CscDigitContainer"};
   const CscIdHelper   * m_cscHelper{};
   ServiceHandle<CSCcablingSvc> m_cscCablingSvc{this, "CSCcablingSvc", "CSCcablingSvc", ""};
-  PublicToolHandle<ICscCalibTool>  m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", ""};
+  ToolHandle<ICscCalibTool> m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", ""};
 
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
 };

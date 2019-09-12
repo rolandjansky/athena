@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // PACKAGE
 

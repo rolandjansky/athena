@@ -145,6 +145,8 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     }
     else {
       xTau.setP4(xAOD::TauJetParameters::FinalCalib, 1., m_etaConstituent, xTau.phiPanTauCellBased(), 0);
+      // apply MVA calibration as default
+      xTau.setP4(1., m_etaConstituent, xTau.phiPanTauCellBased(), 0);
       return StatusCode::SUCCESS;
     }
 
@@ -161,6 +163,9 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     float ptMVA = float( m_ptCombined * m_reader->GetResponse() );
     if(ptMVA<1) ptMVA=1;
     xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, m_etaConstituent, xTau.phiPanTauCellBased(), 0);
+
+    // apply MVA calibration as default
+    xTau.setP4(ptMVA, m_etaConstituent, xTau.phiPanTauCellBased(), 0);
   }
   else {
 

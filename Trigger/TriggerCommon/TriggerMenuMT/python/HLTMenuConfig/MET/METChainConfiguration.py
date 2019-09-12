@@ -7,7 +7,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metCellMenuSequence, metClusterPufitMenuSequence#, metJetMenuSequence
+from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metCellMenuSequence, metClusterPufitMenuSequence, metJetMenuSequence
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -21,8 +21,8 @@ def MetCellSequenceCfg( flags ):
 def MetClusterPufitSequenceCfg( flags ):    
     return metClusterPufitMenuSequence()
 
-#def MetJetSequenceCfg( flags ):    
-#    return metJetMenuSequence()
+def MetJetSequenceCfg( flags ):    
+   return metJetMenuSequence()
 
 
 
@@ -46,7 +46,7 @@ class MetChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "cell":[self.getMetCellStep()],
             "tcpufit":[self.getMetClusterPufitStep()],
- #           "mht":[self.getMetJetStep()],
+            "mht":[self.getMetJetStep()],
         }
         
 
@@ -70,13 +70,8 @@ class MetChainConfiguration(ChainConfigurationBase):
     # --------------------
     # Configuration of Jet chain
     # --------------------
- #   def getMetJetStep(self):
- #       stepName = "Step1_met_Jet"
- #       log.debug("Configuring step " + stepName)
- #       metJetSeq = metJetMenuSequence()
- #       chainStep =ChainStep(stepName, [metJetSeq])
- #       log.debug("Returning chainStep from getMetJetStep function: " + stepName)
- #       return chainStep
+    def getMetJetStep(self):
+       return self.getStep(1, "met_jets", [MetJetSequenceCfg])
             
     # --------------------
     # Configuration of pufit chain

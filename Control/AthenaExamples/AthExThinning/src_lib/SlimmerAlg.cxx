@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // SlimmerAlg.cxx 
@@ -23,9 +23,6 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "AthenaKernel/IThinningSvc.h"
-
-// storegate
-#include "StoreGate/StoreGateSvc.h"
 
 namespace AthExThinning {
 

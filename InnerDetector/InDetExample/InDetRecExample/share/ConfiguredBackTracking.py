@@ -109,17 +109,7 @@ class ConfiguredBackTracking:
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
                from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-               # Copied from InDetAlignFolders.py
-               useDynamicAlignFolders = False
-               try:
-                  from InDetRecExample.InDetJobProperties import InDetFlags
-                  from IOVDbSvc.CondDB import conddb
-                  if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-                     useDynamicAlignFolders = True
-               except ImportError:
-                  pass
-               condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                             UseDynamicAlignFolders = useDynamicAlignFolders)
+               condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
       
          ToolSvc += InDetTRT_SeededSiRoadMaker
          if (InDetFlags.doPrintConfigurables()):
@@ -158,9 +148,10 @@ class ConfiguredBackTracking:
          #
          # TRT seeded back tracking algorithm
          #
+         from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
          InDetTRT_SeededTrackFinder = InDet__TRT_SeededTrackFinder(name                  = 'InDetTRT_SeededTrackFinder',
-                                                                   RefitterTool          = InDetTrackFitter,
+                                                                   RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                    TrackTool             = InDetTRT_SeededTrackTool,
                                                                    TrackExtensionTool    = InDetTRTExtensionTool,
                                                                    MinTRTonSegment       = NewTrackingCuts.minSecondaryTRTonTrk(),
@@ -279,7 +270,7 @@ class ConfiguredBackTracking:
          #
          from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
          InDetTRT_SeededAmbiguityProcessor = Trk__SimpleAmbiguityProcessorTool(name               = 'InDetTRT_SeededAmbiguityProcessor',
-                                                                               Fitter             = InDetTrackFitter,          
+                                                                               Fitter             = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                                SelectionTool      = InDetTRT_SeededAmbiTrackSelectionTool,
                                                                                RefitPrds          = not InDetFlags.refitROT(),
                                                                                SuppressTrackFit   = False,
@@ -295,14 +286,23 @@ class ConfiguredBackTracking:
          if (InDetFlags.doPrintConfigurables()):
             print InDetTRT_SeededAmbiguityProcessor
 
+
          #
          # --- load the algorithm
          #
+
+         from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+         InDetAmbiguityScore = Trk__TrkAmbiguityScore(name               = 'InDetTRT_SeededAmbiguityScore',
+                                                      TrackInput         = [ self.__TRTSeededTracks ],
+                                                      TrackOutput        = 'ScoredMap'+'InDetTRT_SeededAmbiguityScore')
+         topSequence += InDetAmbiguityScore
+
+
          self.__ResolvedTRTSeededTracks = InDetKeys.ResolvedTRTSeededTracks() 
          #
          from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
          InDetTRT_SeededAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = 'InDetTRT_SeededAmbiguitySolver',
-                                                                  TrackInput         = [ self.__TRTSeededTracks ],
+                                                                  TrackInput         = 'ScoredMap'+'InDetTRT_SeededAmbiguityScore',
                                                                   TrackOutput        = self.__ResolvedTRTSeededTracks,
                                                                   AmbiguityProcessor = InDetTRT_SeededAmbiguityProcessor)
          topSequence += InDetTRT_SeededAmbiguitySolver

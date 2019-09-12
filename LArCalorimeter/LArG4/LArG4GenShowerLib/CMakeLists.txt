@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasInterfaces
                           LArCalorimeter/LArG4/LArG4Code
                           PRIVATE
-			  Control/CxxUtils
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/EventInfo
                           Generators/GeneratorObjects

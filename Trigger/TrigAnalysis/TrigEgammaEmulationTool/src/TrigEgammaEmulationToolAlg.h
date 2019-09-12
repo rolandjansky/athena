@@ -35,7 +35,6 @@ namespace Trig {
       ToolHandle<Trig::TrigDecisionTool>   m_trigdec;
       ToolHandle<ITrigEgammaMatchingTool>  m_matchTool;
       ToolHandle<ITrigEgammaEmulationTool> m_emulationTool;
-      StoreGateSvc              *m_storeGate;
       //
   };
 }

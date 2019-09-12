@@ -16,127 +16,129 @@ decription           : Class for merging components of a multi-state based on
 #ifndef TrkQuickCloseComponentsMultiStateMerger_H
 #define TrkQuickCloseComponentsMultiStateMerger_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 
+typedef float* __restrict__ floatPtrRestrict;
 
-typedef float * __restrict__ floatPtrRestrict ;
+namespace Trk {
 
-namespace Trk{
+class IMultiComponentStateCombiner;
+class TrackStateOnSurface;
 
-  class IMultiComponentStateCombiner;
-  class TrackStateOnSurface;
+class QuickCloseComponentsMultiStateMerger
+  : public AthAlgTool
+  , virtual public IMultiComponentStateMerger
+{
 
-  class QuickCloseComponentsMultiStateMerger : public AthAlgTool, virtual public IMultiComponentStateMerger {
+public:
+  /** Constructor with parameters to be passed to AlgTool */
+  QuickCloseComponentsMultiStateMerger(const std::string&, const std::string&, const IInterface*);
 
-  public:
+  /** Virtual destructor */
+  virtual ~QuickCloseComponentsMultiStateMerger();
 
-    /** Constructor with parameters to be passed to AlgTool */
-    QuickCloseComponentsMultiStateMerger(const std::string&, const std::string&, const IInterface*);
+  /** AlgTool initialise method */
+  StatusCode initialize() override final;
 
-    /** Virtual destructor */
-    virtual ~QuickCloseComponentsMultiStateMerger();
+  /** AlgTool finalise method */
+  StatusCode finalize() override final;
 
-    /** AlgTool initialise method */
-    StatusCode initialize() override final;
+  virtual std::unique_ptr<MultiComponentState> merge(const MultiComponentState&) const override final;
 
-    /** AlgTool finalise method */
-    StatusCode finalize() override final;
+private:
+  Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
+                                                             "MaximumNumberOfComponents",
+                                                             12,
+                                                             "Maximum number of components" };
 
-    virtual const MultiComponentState* merge(const MultiComponentState&) const override final;
-
-  private:
-    Gaudi::Property <unsigned int>                  m_maximumNumberOfComponents {this,
-      "MaximumNumberOfComponents", 12 , "Maximum number of components"};
-   
-    ToolHandle<Trk::IMultiComponentStateCombiner>   m_stateCombiner {this,
-      "CombinerTool","Trk::MultiComponentStateCombiner/CloseComponentsCombiner"," Combonent combiner"};
-    
-    ToolHandle<Trk::IMultiComponentStateAssembler>  m_stateAssembler {this,
-      "MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler"," "};
-    
-    ServiceHandle<IChronoStatSvc>                  m_chronoSvc;   //!< Timing: The Gaudi time auditing service
-
-
-    
-    const MultiComponentState* mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
-                                                  const MultiComponentState&) const;
-
-    //Recalculate the distances for a row of pairs and return the index of the minimum pair
-    int  recalculateDistances(  floatPtrRestrict qonpIn,
-                                floatPtrRestrict qonpCovIn,
-                                floatPtrRestrict qonpGIn,
-                                floatPtrRestrict distancesIn,
-                                int mini,
-                                int n) const;
-
-    //Calculate the distances for all pairs
-    void calculateAllDistances( floatPtrRestrict qonpIn,
-                                floatPtrRestrict qonpCovIn,
-                                floatPtrRestrict qonpGIn,
-                                floatPtrRestrict distancesIn,
-                                int  n) const;
-
-
-    //Reset the distances for a row
-    void resetDistances( floatPtrRestrict  distancesIn,const int mini,const int  n) const;
-
-
-    //Find the 2 pairs with the smallest distance
-    std::pair<int, int> findMinimumPair( const floatPtrRestrict distancesIn,
-                                         const std::vector<const ComponentParameters*>& comp,
-                                         const int n) const;
-
-    //Finds the index of the  pair with the smallest distance
-    std::pair<int, int> findMinimumIndex( const floatPtrRestrict distancesIn,
-                         const int n) const;
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////////
-
+  ToolHandle<Trk::IMultiComponentStateCombiner> m_stateCombiner{
+    this,
+    "CombinerTool",
+    "Trk::MultiComponentStateCombiner/CloseComponentsCombiner",
+    " Combonent combiner"
   };
 
+  ToolHandle<Trk::IMultiComponentStateAssembler> m_stateAssembler{
+    this,
+    "MultiComponentStateAssembler",
+    "Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler",
+    " "
+  };
 
- template <typename T>
-  class Aligned {
-  public:
-    Aligned(Aligned const&) = delete;
-    Aligned& operator=(Aligned const&) = delete;
+  ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
 
-    explicit Aligned(size_t n):m_ad(nullptr)
-    {
-      size_t const size = n*sizeof(T) + alignof(T);
-      m_size = n;
-      posix_memalign( &m_ad,32, size );
-      m_storage  =  new (m_ad) T[n];
-    };
+  std::unique_ptr<MultiComponentState> mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
+                                                          const MultiComponentState&) const;
 
-    ~Aligned(){
-      for(std::size_t pos = 0; pos < m_size; ++pos) {
-        reinterpret_cast<const T*>(m_storage+pos)->~T();
-      }
+  // Recalculate the distances for a row of pairs and return the index of the minimum pair
+  int recalculateDistances(floatPtrRestrict qonpIn,
+                           floatPtrRestrict qonpCovIn,
+                           floatPtrRestrict qonpGIn,
+                           floatPtrRestrict distancesIn,
+                           int mini,
+                           int n) const;
 
-      free( m_storage );
+  // Calculate the distances for all pairs
+  void calculateAllDistances(floatPtrRestrict qonpIn,
+                             floatPtrRestrict qonpCovIn,
+                             floatPtrRestrict qonpGIn,
+                             floatPtrRestrict distancesIn,
+                             int n) const;
+
+  // Reset the distances for a row
+  void resetDistances(floatPtrRestrict distancesIn, const int mini, const int n) const;
+
+  // Find the 2 pairs with the smallest distance
+  std::pair<int, int> findMinimumPair(const floatPtrRestrict distancesIn,
+                                      const std::vector<const ComponentParameters*>& comp,
+                                      const int n) const;
+
+  // Finds the index of the  pair with the smallest distance
+  std::pair<int, int> findMinimumIndex(const floatPtrRestrict distancesIn, const int n) const;
+
+  //////////////////////////////////////////////////////////////////////////////////////
+};
+
+template<typename T>
+class Aligned
+{
+public:
+  Aligned(Aligned const&) = delete;
+  Aligned& operator=(Aligned const&) = delete;
+
+  explicit Aligned(size_t n)
+    : m_ad(nullptr)
+  {
+    size_t const size = n * sizeof(T) + alignof(T);
+    m_size = n;
+    posix_memalign(&m_ad, 32, size);
+    m_storage = new (m_ad) T[n];
+  };
+
+  ~Aligned()
+  {
+    for (std::size_t pos = 0; pos < m_size; ++pos) {
+      reinterpret_cast<const T*>(m_storage + pos)->~T();
     }
 
-    operator T*() {return  m_storage;}
+    free(m_storage);
+  }
 
-    T& operator[](std::size_t pos)
-    {
-      return *reinterpret_cast<T*>(m_storage+pos);
-    }
+  operator T*() { return m_storage; }
 
-  private:
-    T*     m_storage;
-    void*  m_ad;
-    size_t m_size;
-  }; // class Aligned
+  T& operator[](std::size_t pos) { return *reinterpret_cast<T*>(m_storage + pos); }
+
+private:
+  T* m_storage;
+  void* m_ad;
+  size_t m_size;
+}; // class Aligned
 
 }
 

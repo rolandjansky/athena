@@ -14,21 +14,28 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders
 from AthenaCommon.Logging import logging
 
 
-def LuminosityCondAlgCfg (configFlags):
+def LuminosityCondAlgCfg (configFlags, useOnlineLumi=None, suffix=None):
+    # This function, without the useOnlineLumi and suffix arguments,  will set up a default configuration 
+    # appropriate to the job; the conditions object will be called LuminosityCondData
+    # Can override whether it sets up the online lumi (but then you are strongly urged to use the suffix
+    # argument!)
+    # Suffix will allow you to make an object with a different name, e.g. LuminosityCondDataOnline
     log = logging.getLogger ('LuminosityCondAlgCfg')
     name = 'LuminosityCondAlg'
     result = ComponentAccumulator()
 
-    if configFlags.Common.useOnlineLumi:
+    if suffix is None: suffix = ''
+    if useOnlineLumi is not None and suffix is None:
+        log.warning('useOnlineLumi argument is provided but not a suffix for the lumi object name. Is this really intended?')
+
+    if configFlags.Input.isMC:
+        log.info ("LuminosityCondAlgCfg called for MC!")
+        kwargs = luminosityCondAlgMCCfg (configFlags, name, result)
+    elif ((useOnlineLumi is None and configFlags.Common.useOnlineLumi)
+          or (useOnlineLumi is not None and useOnlineLumi)):
         kwargs = luminosityCondAlgOnlineCfg (configFlags, name, result)
-
-    elif configFlags.Input.isMC:
-         log.info ("LuminosityCondAlgCfg called for MC!")
-         kwargs = luminosityCondAlgMCCfg (configFlags, name, result)
-
     elif configFlags.IOVDb.DatabaseInstance == 'COMP200':
         kwargs = luminosityCondAlgRun1Cfg (configFlags, name, result)
-
     elif configFlags.IOVDb.DatabaseInstance == 'CONDBR2':
         kwargs = luminosityCondAlgRun2Cfg (configFlags, name, result)
 
@@ -39,7 +46,7 @@ def LuminosityCondAlgCfg (configFlags):
     from LumiBlockComps.LumiBlockCompsConf import \
         LuminosityCondAlg
     alg = LuminosityCondAlg (name,
-                             LuminosityOutputKey = 'LuminosityCondData',
+                             LuminosityOutputKey = 'LuminosityCondData' + suffix,
                              **kwargs)
 
     result.addCondAlgo (alg)
@@ -156,7 +163,7 @@ def luminosityCondAlgOnlineCfg (configFlags, name, result):
                                   className = 'CondAttrListCollection'))
       
     else: #  Run 2
-        if configFlags.IOVDb.DatabaseInstance == 'CONDBR2':
+        if configFlags.IOVDb.DatabaseInstance != 'CONDBR2':
             log.warning("LuminosityCondAlgOnlineCfg can't resolve DatabaseInstance = %s, assume Run2!", configFlags.IOVDb.DatabaseInstance)
             log.info("Using Run 2 configuration")
 
@@ -245,3 +252,11 @@ if __name__ == "__main__":
     acc6 = LuminosityCondAlgCfg (flags6)
     acc6.printCondAlgs(summariseProps=True)
     acc6.wasMerged()
+
+    print ('--- forced online')
+    flags7 = ConfigFlags.clone()
+    flags7.Input.Files = defaultTestFiles.RAW
+    flags7.lock()
+    acc7 = LuminosityCondAlgCfg (flags7, useOnlineLumi=True, suffix='Online')
+    acc7.printCondAlgs(summariseProps=True)
+    acc7.wasMerged()

@@ -37,10 +37,12 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
   public:
     FrontEndSimTool( const std::string& type, const std::string& name,const IInterface* parent):
       AthAlgTool(type,name,parent),
-      m_BarrelEC(0)
+      m_BarrelEC(0),
+      m_doNoise(true)
   {
     declareInterface<FrontEndSimTool>(this);
     declareProperty("BarrelEC",                  m_BarrelEC,       "Index of barrel or endcap");
+    declareProperty("DoNoise",                   m_doNoise);
   }
 
     static const InterfaceID& interfaceID() { return IID_IFrontEndSimTool; }
@@ -168,6 +170,7 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
     int m_BarrelEC;
+    bool   m_doNoise;
 
     double getG4Time(const SiTotalCharge &totalCharge) const {
       // If there is one single charge, return its time:

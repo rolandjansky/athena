@@ -33,7 +33,6 @@ atlas_depends_on_subdirs(
    PRIVATE
    AtlasTest/TestTools
    Control/AthenaKernel
-   Control/CxxUtils
    Control/StoreGate
    Database/TPTools
    DetectorDescription/AGDD/AGDDKernel
@@ -71,7 +70,7 @@ atlas_add_tpcnv_library( MuonEventTPCnv
    MuonDigitContainer MuonChamberT0s MuonCompetingRIOsOnTrack MuonPrepRawData
    MuonRIO_OnTrack MuonSegment MuonTrigCoinData MuonSimData MuonRDO TrkSurfaces
    TrkRIO_OnTrack TrkEventTPCnv
-   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils StoreGateLib GeoPrimitives
+   PRIVATE_LINK_LIBRARIES AthenaKernel StoreGateLib GeoPrimitives
    EventPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkEventPrimitives
    TrkMeasurementBase )
 
@@ -126,7 +125,7 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
-      CxxUtils StoreGateLib TPTools AGDDKernel AtlasDetDescr 
+      StoreGateLib TPTools AGDDKernel AtlasDetDescr 
       IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
       TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv

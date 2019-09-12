@@ -46,6 +46,7 @@ globalflags.DataSource = 'data'
 ## input file parameters
 import PyUtils.MetaReader import read_metadata
 inputfile = read_metadata(collection[0])
+inputfile = inputfile[collection[0]]  # promote keys stored under input filename key one level up to access them directly
 
 if inputfile['file_type'] == 'BS':
   globalflags.InputFormat = 'bytestream'

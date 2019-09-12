@@ -25,7 +25,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
-class StoreGateSvc;
 class EventInfo;
 class IIOVRegistrationSvc;
 class IAthenaOutputStreamTool;

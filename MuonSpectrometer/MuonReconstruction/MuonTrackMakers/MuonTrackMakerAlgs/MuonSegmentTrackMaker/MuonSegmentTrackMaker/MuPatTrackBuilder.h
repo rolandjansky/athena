@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATTRACKBUILDER_H
@@ -8,13 +8,14 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Muon {
   class IMuonTrackFinder;
-  class MuonEDMHelperTool;
 }
 //class IMuonboyToParticleTool;
 //namespace Muon {
@@ -44,7 +45,9 @@ class MuPatTrackBuilder : public AthAlgorithm
   ToolHandle<Muon::IMuonTrackFinder> m_trackMaker;  //!< Actual tool to do the track finding
 //  ToolHandle<IMuonboyToParticleTool> m_convTool;    //!< Tool for converting from tracks to track particles (acts as a flag)
 //  ToolHandle<Muon::IMuonBackTracker> p_IMuonBackTracker;    //!< Tool for extrapolating tracks
-  ToolHandle<Muon::MuonEDMHelperTool> m_helper;    //!< helper Tool 
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };    //!< helper Tool 
 };
 
 #endif 

@@ -18,9 +18,7 @@ def JetFitterSequentialVertexFitterCfg(name, useBTagFlagsDefaults = True, **opti
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accJetFitterFullLinearizedTrackFactory = JetFitterFullLinearizedTrackFactoryCfg('JFFullLinearizedTrackFactory')
-        jetFitterFullLinearizedTrackFactory = accJetFitterFullLinearizedTrackFactory.popPrivateTools()
-        acc.merge(accJetFitterFullLinearizedTrackFactory)
+        jetFitterFullLinearizedTrackFactory = acc.popToolsAndMerge(JetFitterFullLinearizedTrackFactoryCfg('JFFullLinearizedTrackFactory'))
         jetFitterSequentialVertexSmoother = acc.popToolsAndMerge(JetFitterSequentialVertexSmootherCfg('JFSequentialVertexSmoother'))
         defaults = { 'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory,
                      'VertexSmoother'         : jetFitterSequentialVertexSmoother, }

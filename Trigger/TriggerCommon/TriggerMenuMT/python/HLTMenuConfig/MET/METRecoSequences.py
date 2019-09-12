@@ -28,7 +28,7 @@ def metCellRecoSequence():
     #################################################
     metAlg = EFMissingETAlgMT( name="EFMET_cell" )
     flagsTool = EFMissingETFlagsMT("theFlagsTool")
-    metAlg.METContainerKey = recordable("HLT_MET")
+    metAlg.METContainerKey = recordable("HLT_MET_cell")
     metAlg.MonTool = getMETMonTool()
 
     #///////////////////////////////////////////
@@ -130,8 +130,9 @@ def metJetAthSequence(ConfigFlags):
 
 def metJetRecoSequence(RoIs = 'FSJetRoI'):
 
-    from TrigUpgradeTest.jetDefs import jetRecoSequence
-    (recoSequence, JetsName) = RecoFragmentsPool.retrieve(jetRecoSequence, RoIs)
+    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
+    jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjes"}
+    (recoSequence, sequenceOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
 
 
     #################################################
@@ -147,7 +148,7 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromJetsMT
     mhtTool = EFMissingETFromJetsMT( name="METFromJetsTool" )
 
-    mhtTool.JetsCollection=JetsName
+    mhtTool.JetsCollection=sequenceOut
     
     metAlg.METTools = [mhtTool]
 

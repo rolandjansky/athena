@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKSELECTIONPROCESSORTOOL_H
@@ -43,8 +43,8 @@ namespace Trk {
       // default methods
       TrackSelectionProcessorTool(const std::string&,const std::string&,const IInterface*);
       virtual ~TrackSelectionProcessorTool ();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       /**Returns a processed TrackCollection from the passed 'tracks' WITHOUT copying or refitting the input tracks.
 	 The pointers of the tracks in the input collection are copied into the output collection which does NOT 
@@ -56,8 +56,10 @@ namespace Trk {
 	 @return new collections of tracks, with ambiguities resolved. 
 	  The returned track collection is a SG::VIEW_ELEMENTS container, meaning that it should NOT be written to disk. 
 	  Ownership of the collection is passed on (i.e. client handles deletion)*/
-      virtual TrackCollection*  process(const TrackCollection* tracks);
-    
+      virtual TrackCollection*  process(const TrackCollection* tracksCol) override;
+
+      virtual TrackCollection*  process(TracksScores* /*trackScoreTrackMap*/) override { return nullptr; }
+
     private:
       
       void reset();
@@ -66,7 +68,7 @@ namespace Trk {
 	 @param tracks the TrackCollection is looped over, 
 	 and each Trk::Track is added to the various caches. 
 	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(const TrackCollection* tracks );
+      void addNewTracks(std::vector<const Track*>* tracks );
 
 
       void solveTracks();

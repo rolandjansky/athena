@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRKPHYSMONITORING_MUONGENERICTRACKSMON_H
@@ -39,7 +39,7 @@
 #include "FourMomUtils/P4Helpers.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonancePairingTool.h"
@@ -146,7 +146,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
   // ToolHandle idHelper
   //ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls
-  //ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+  //ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc;
   //ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   // MCP muon quality tool
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;

@@ -40,14 +40,20 @@ class TrigBjetEtHypoAlgMT : public TrigBjetHypoAlgBaseMT {
 				 std::vector< TrigCompositeUtils::Decision* >& ) const;
   
   virtual const TrigCompositeUtils::Decision* getPreviousDecision( const TrigCompositeUtils::DecisionContainer*,unsigned int ) const;
+
+  virtual StatusCode attachLinkToDecisions( const EventContext&,
+                                            const TrigCompositeUtils::DecisionContainer*,
+                                            std::vector< TrigCompositeUtils::Decision* >& ) const;
   
  protected:
   ToolHandleArray< TrigBjetEtHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
   
-  Gaudi::Property< std::string > m_roiLink {this,"RoILink","roi","RoI link to attach to the output decision"};
+  Gaudi::Property< std::string > m_roiLink {this,"RoILink","Undefined","RoI link to attach to the output decision"};
+  Gaudi::Property< std::string > m_prmVtxLink {this,"PrmVtxLink","Undefined","PrmVtx link to attach to the output decision"};
   
   SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Undefined","Input Jet Container Key"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_inputRoIKey {this,"RoIs","Undefined","Input RoIs that will be linked to the output decision"};
+  SG::ReadHandleKey< xAOD::VertexContainer > m_inputPrmVtx {this,"PrmVtx","Undefined","Primary vertex to be linked to the output decision"};
 }; 
 
 #endif 

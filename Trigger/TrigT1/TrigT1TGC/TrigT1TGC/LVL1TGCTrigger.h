@@ -16,7 +16,6 @@
 // Gaudi includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -109,8 +108,6 @@ class LVL1TGCTrigger : public AthAlgorithm
   std::map<Identifier, int> m_MaskedChannel;   
 
   // pointers to various external services
-  ServiceHandle<StoreGateSvc> m_sgSvc;  
-  StoreGateSvc *m_detectorStore;
   const ITGCcablingSvc*       m_cabling ;
 
   // useful functions
@@ -174,7 +171,6 @@ class LVL1TGCTrigger : public AthAlgorithm
   StatusCode getCabling();
 
   // log 
-  mutable MsgStream   m_log;
   bool                m_debuglevel;
 
   SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;

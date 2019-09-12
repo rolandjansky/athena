@@ -13,8 +13,6 @@
 #include <vector>
 #include <string>
 
-class StoreGateSvc;
-
 class IOVDbTestCoolDCS: public AthReentrantAlgorithm
 {
  public:

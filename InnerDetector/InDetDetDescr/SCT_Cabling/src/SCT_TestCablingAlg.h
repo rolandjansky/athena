@@ -46,6 +46,7 @@ class SCT_TestCablingAlg:public AthReentrantAlgorithm {
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_idHelper{nullptr}; //!< helper for offlineId/hash conversions
   std::string coordString(const Identifier& offlineId) const;
+  UnsignedIntegerProperty m_POSIXtime{this, "POSIXtime", 0, "POSIX time for database"};
 
 };
 #endif // SCT_TestCablingAlg_h

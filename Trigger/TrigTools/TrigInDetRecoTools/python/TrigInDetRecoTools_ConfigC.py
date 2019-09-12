@@ -78,13 +78,24 @@ class FactoryForStrategyC() :
                                                                   SCT_ClusterContainer = 'SCT_ClusterCache',
                                                                   PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                   SctSummaryTool = InDetTrigSCTConditionsSummaryTool)
+             if DetFlags.haveRIO.pixel_on():
+                 # Condition algorithm for SiCombinatorialTrackFinder_xk
+                 from AthenaCommon.AlgSequence import AthSequencer
+                 condSeq = AthSequencer("AthCondSeq")
+                 if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+                     from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+                     condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                           ReadKey = "PixelDetectorElementCollection",
+                                                                           WriteKey = "PixelDetElementBoundaryLinks_xk")
              if DetFlags.haveRIO.SCT_on():
                  # Condition algorithm for SiCombinatorialTrackFinder_xk
                  from AthenaCommon.AlgSequence import AthSequencer
                  condSeq = AthSequencer("AthCondSeq")
-                 if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+                 if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
                      from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-                     condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+                     condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                           ReadKey = "SCT_DetectorElementCollection",
+                                                                           WriteKey = "SCT_DetElementBoundaryLinks_xk")
              
              from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 

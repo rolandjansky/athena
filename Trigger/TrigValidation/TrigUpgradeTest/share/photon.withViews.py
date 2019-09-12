@@ -142,7 +142,7 @@ def addTC(name):
 for tc in edmCreator.TrigCompositeContainer:
    addTC( tc )
 
-addTC("HLTSummary")
+addTC("HLTNav_Summary")
 
 StreamESD.ItemList += [ "xAOD::TrigPhotonContainer#HLT_photons"]
 

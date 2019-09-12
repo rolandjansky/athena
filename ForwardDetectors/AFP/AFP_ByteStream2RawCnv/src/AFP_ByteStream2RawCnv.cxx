@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AFP_ByteStream2RawCnv includes
@@ -54,12 +54,6 @@ StatusCode AFP_ByteStream2RawCnv::initialize() {
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider << "...");
-  }
-
-  if (StatusCode::SUCCESS !=
-      serviceLocator()->service("StoreGateSvc", m_EvtStore)) {
-    ATH_MSG_WARNING("Can't get StoreGateSvc");
-    return StatusCode::SUCCESS;
   }
 
   m_fragment_number = 0;

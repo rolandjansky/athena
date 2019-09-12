@@ -25,28 +25,32 @@ void test1 (Trk::IVertexAnnealingMaker& tool)
 {
   std::cout << "test1\n";
 
-  tool.reset();
-  assert (!tool.isEquilibrium());
-  assert (tool.actualTemp() == 3);
-  assert (Athena_test::isEqual (tool.getWeight (1), 0.791391));
-  assert (Athena_test::isEqual (tool.getWeight (1, std::vector<double>{1,2,3}),
+  Trk::IVertexAnnealingMaker::AnnealingState astate;
+  tool.reset(astate);
+  assert (!tool.isEquilibrium(astate));
+  assert (tool.actualTemp(astate) == 3);
+  assert (Athena_test::isEqual (tool.getWeight (astate, 1), 0.791391));
+  assert (Athena_test::isEqual (tool.getWeight (astate,
+                                                1, std::vector<double>{1,2,3}),
                                 0.353781));
 
-  tool.anneal();
-  assert (!tool.isEquilibrium());
-  assert (tool.actualTemp() == 2);
-  assert (Athena_test::isEqual (tool.getWeight (1), 0.880797));
-  assert (Athena_test::isEqual (tool.getWeight (1, std::vector<double>{1,2,3}),
+  tool.anneal(astate);
+  assert (!tool.isEquilibrium(astate));
+  assert (tool.actualTemp(astate) == 2);
+  assert (Athena_test::isEqual (tool.getWeight (astate, 1), 0.880797));
+  assert (Athena_test::isEqual (tool.getWeight (astate,
+                                                1, std::vector<double>{1,2,3}),
                                 0.39672));
 
-  tool.anneal();
-  assert (!tool.isEquilibrium());
-  assert (tool.actualTemp() == 1);
-  assert (Athena_test::isEqual (tool.getWeight (1), 0.982014));
-  assert (Athena_test::isEqual (tool.getWeight (1, std::vector<double>{1,2,3}),
+  tool.anneal(astate);
+  assert (!tool.isEquilibrium(astate));
+  assert (tool.actualTemp(astate) == 1);
+  assert (Athena_test::isEqual (tool.getWeight (astate, 1), 0.982014));
+  assert (Athena_test::isEqual (tool.getWeight (astate,
+                                                1, std::vector<double>{1,2,3}),
                                 0.501825));
-  tool.anneal();
-  assert (tool.isEquilibrium());
+  tool.anneal(astate);
+  assert (tool.isEquilibrium(astate));
 }
 
 

@@ -12,13 +12,14 @@
 
 #include "eformat/SourceIdentifier.h"
 
+#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
+
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class IPixelCablingSvc;
 class PixelID;
-class IPixelByteStreamErrorsSvc;
 
 class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
@@ -40,6 +41,8 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, 
         std::vector<IdentifierHash>* vecHash = NULL) override;
+
+    StatusCode StoreBSError() override;
 
     inline void setDet( const eformat::SubDetector det );
     bool m_is_ibl_present;
@@ -137,7 +140,8 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     const PixelID*              m_pixel_id;   
     eformat::SubDetector        m_det;
 
-    ServiceHandle<IPixelByteStreamErrorsSvc>   m_errors;
+    ToolHandle<IPixelByteStreamErrorsTool> m_errors
+    {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
 
     SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           Tester.h  -  description
@@ -24,7 +24,6 @@
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/SmartRefVector.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //TrigT1Calo includes
 #include "TrigT1CaloEvent/TriggerTower.h"

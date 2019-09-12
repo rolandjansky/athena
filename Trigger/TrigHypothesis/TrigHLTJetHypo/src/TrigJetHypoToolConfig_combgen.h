@@ -61,8 +61,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   Gaudi::Property<std::vector<int>>
     m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
 
-  Gaudi::Property<unsigned int>
-    m_size{this, "groupSize", {}, "Jet group size"};
+  std::size_t m_size{0};  // size of jet groups to pass to children
 
   ToolHandleArray<ITrigJetHypoToolHelperMT> m_children {
     this, "children", {}, "list of child jet hypo helpers"};

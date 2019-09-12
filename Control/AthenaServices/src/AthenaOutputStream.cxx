@@ -15,6 +15,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/FileIncident.h"
+#include "GaudiKernel/AlgTool.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
@@ -38,6 +39,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <sstream>
 
 using std::string;
 using std::vector;
@@ -139,11 +141,12 @@ namespace {
 
 // Standard Constructor
 AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLocator)
-        : FilteredAlgorithm(name, pSvcLocator),
+      : FilteredAlgorithm(name, pSvcLocator),
         m_dataStore("StoreGateSvc", name),
         m_metadataStore("MetaDataStore", name),
         m_currentStore(&m_dataStore),
         m_itemSvc("ItemListSvc", name),
+	m_metaDataSvc("MetaDataSvc", name),
 	m_outputAttributes(),
         m_pCLIDSvc("ClassIDSvc", name),
         m_outSeqSvc("OutputStreamSequencerSvc", name),
@@ -152,7 +155,8 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_transient(string("SG::Folder/") + name + string("_transient"), this),
         m_events(0),
         m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
-   m_helperTools(this) {
+        m_helperTools(this)
+{
    assert(pSvcLocator);
    declareProperty("ItemList",               m_itemList);
    declareProperty("MetadataItemList",       m_metadataItemList);
@@ -162,7 +166,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("WritingTool",            m_streamer);
    declareProperty("Store",                  m_dataStore);
    declareProperty("MetadataStore",          m_metadataStore);
-   declareProperty("ForceRead",              m_forceRead=false);
+   declareProperty("ForceRead",              m_forceRead=true);
    declareProperty("ExtendProvenanceRecord", m_extendProvenanceRecord=true);
    declareProperty("WriteOnExecute",         m_writeOnExecute=true);
    declareProperty("WriteOnFinalize",        m_writeOnFinalize=false);
@@ -170,7 +174,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("CheckNumberOfWrites",    m_checkNumberOfWrites=true);
    declareProperty("ExcludeList",            m_excludeList);
    declareProperty("HelperTools",            m_helperTools);
-
+   
    // Associate action handlers with the AcceptAlgs,
    // RequireAlgs & VetoAlgs properties
    m_itemList.declareUpdateHandler(&AthenaOutputStream::itemListHandler, this);
@@ -179,6 +183,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
 
 // Standard Destructor
 AthenaOutputStream::~AthenaOutputStream() {
+   m_streamerMap.clear();
 }
 
 // initialize data writer
@@ -310,6 +315,17 @@ StatusCode AthenaOutputStream::initialize() {
      }
    }
 
+   // listen to event range incidents if incident name is configured
+   if( !m_outSeqSvc->incidentName().empty() ) {
+      ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
+      if (!incsvc.retrieve().isSuccess()) {
+         ATH_MSG_FATAL("Cannot get IncidentSvc.");
+         return(StatusCode::FAILURE);
+      }
+      incsvc->addListener(this, IncidentType::BeginProcessing, 100);
+      incsvc->addListener(this, IncidentType::EndProcessing, 100);
+   }
+   
    ATH_MSG_DEBUG("End initialize");
    if (baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
    return(status);
@@ -321,9 +337,24 @@ StatusCode AthenaOutputStream::stop()
    return StatusCode::SUCCESS;
 }
 
-void AthenaOutputStream::handle(const Incident& inc) {
-   ATH_MSG_DEBUG("handle() incident type: " << inc.type());
-   if (inc.type() == "MetaDataStop") {
+
+void AthenaOutputStream::handle(const Incident& inc)
+{
+   EventContext::ContextID_t slot = inc.context().slot();
+   ATH_MSG_DEBUG("slot " << slot << "  handle() incident type: " << inc.type());
+
+   std::unique_lock<mutex_t>  lock(m_mutex);
+   if( inc.type() == "MetaDataStop" )  {
+      if( slot == EventContext::INVALID_CONTEXT_ID && !m_outSeqSvc->incidentName().empty() ) {
+         ATH_MSG_WARNING("INVALID_CONTEXT_ID during MetaDataStop - ignoring incident!");
+         return;
+      }
+      IAthenaOutputStreamTool* streamer = &*m_streamer;
+      std::string outputFN = m_outputName;
+      if( !m_slotRangeMap.empty() && slot != EventContext::INVALID_CONTEXT_ID ) {
+         outputFN = m_slotRangeMap[ slot ];
+         streamer = m_streamerMap[ outputFN ].get();
+      }
       // Moved preFinalize of helper tools to stop - want to optimize the
       // output file in finalize RDS 12/2009
       for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
@@ -332,15 +363,8 @@ void AthenaOutputStream::handle(const Incident& inc) {
             ATH_MSG_ERROR("Cannot finalize helper tool");
          }
       }
-      // Make sure the metadata tools finalize their output
-      ServiceHandle<MetaDataSvc> mdsvc("MetaDataSvc", name());
-      if (mdsvc.retrieve().isFailure()) {
-         ATH_MSG_ERROR("Could not retrieve MetaDataSvc for stop actions");
-      }
-      else {
-         if (mdsvc->prepareOutput().isFailure()) {
-            ATH_MSG_ERROR("Failed on MetaDataSvc prepareOutput");
-         }
+      if( m_metaDataSvc->prepareOutput().isFailure() ) {
+         ATH_MSG_ERROR("Failed on MetaDataSvc prepareOutput");
       }
       // Always force a final commit in stop - mainly applies to AthenaPool
       if (m_writeOnFinalize) {
@@ -352,7 +376,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
 
       if (!m_metadataItemList.value().empty()) {
          m_currentStore = &m_metadataStore;
-         StatusCode status = m_streamer->connectServices(m_metadataStore.type(), m_persName, false);
+         StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
          if (status.isFailure()) {
             throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
          }
@@ -402,7 +426,43 @@ void AthenaOutputStream::handle(const Incident& inc) {
        return;
      }
    }
-   ATH_MSG_DEBUG("Leaving handle");
+
+   if( inc.type() == IncidentType::BeginProcessing ) {
+      // remember which seaquence this event belongs to
+      m_outSeqSvc->setMetaTransOnNextRange( false );
+      m_slotRangeMap[ slot ] = m_outSeqSvc->buildSequenceFileName(m_outputName);
+      ATH_MSG_DEBUG("slot " << slot << " assigned to rangeFN: " << m_slotRangeMap[ slot ] );
+      return;
+   }
+
+   if( inc.type() == IncidentType::EndProcessing ) {
+      std::string rangeFN = m_slotRangeMap[ slot ];
+      if( !rangeFN.empty() ) {
+         int n = 0;
+         for( auto& elem : m_slotRangeMap ) {
+            if( elem.second == rangeFN ) n++;
+         }
+         if( n == 1 ) {
+            // this was the last event in this range, finalize it
+            ATH_MSG_DEBUG("slot " << slot << " starting transition MetaData");
+            if( !m_metaDataSvc->transitionMetaDataFile( m_outSeqSvc->ignoringInputBoundary() ).isSuccess() ) {
+               ATH_MSG_FATAL("Cannot transition MetaDataSvc");
+            }
+            ATH_MSG_INFO("Finished writing to " << rangeFN );
+            auto strm_iter = m_streamerMap.find( rangeFN );
+            strm_iter->second->finalizeOutput().ignore();
+            strm_iter->second->finalize().ignore();
+            m_streamerMap.erase(strm_iter);
+            m_toolMutexMap.erase( rangeFN );
+            
+         }
+         m_slotRangeMap[ slot ].clear();   
+      } else {
+         ATH_MSG_ERROR("Failed to handle EndProcessing incident");
+      }
+      return;
+   }
+   ATH_MSG_DEBUG("Leaving incident handler for " << inc.type());
 }
 
 // terminate data writer
@@ -459,69 +519,100 @@ StatusCode AthenaOutputStream::execute() {
 // Work entry point
 StatusCode AthenaOutputStream::write() {
    bool failed = false;
-   // Clear any previously existing item list
-   clearSelection();
-   // Connect the output file to the service
-   // FIXME: this double looping sucks... got to query the
-   // data store for object of a given type/key.
-   std::lock_guard<std::mutex> lock(m_itemSvc->streamMutex());
-   if (m_streamer->connectOutput(m_outSeqSvc->buildSequenceFileName(m_outputName) + m_outputAttributes).isSuccess()) {
-      // First check if there are any new items in the list
-      collectAllObjects();
-      // print out info about objects collected
-      if (m_checkNumberOfWrites) {
-         bool checkCountError = false;
-         ATH_MSG_DEBUG(" Collected objects:");
-         bool first = true;
-         unsigned int lastCount = 0;
-         for (CounterMapType::iterator cit = m_objectWriteCounter.begin(),
-                 clast = m_objectWriteCounter.end(); cit != clast; ++cit) {
-            bool isError = false;
-            if (first) {
-               lastCount = (*cit).second;
-               first = false;
-            } else if (lastCount != (*cit).second) {
-               isError = true;
-               //Complain, but don't abort
-               checkCountError = true;
-            }
-            if (isError) {
-               ATH_MSG_ERROR(" INCORRECT Object/count: "
-                       << (*cit).first << ", " << (*cit).second << " should be: " << lastCount);
-            } else {
-               ATH_MSG_DEBUG(" Object/count: " << (*cit).first << ", " << (*cit).second);
-            }
-         }
-         if (checkCountError) {
-            ATH_MSG_FATAL("Check number of writes failed. See messages above "
-                    "to identify which container is not always written");
-            return(StatusCode::FAILURE);
-         }
-      }
+   EventContext::ContextID_t slot = Gaudi::Hive::currentContext().slot();
+   IAthenaOutputStreamTool* streamer = &*m_streamer;
+   std::string outputFN = m_outSeqSvc->buildSequenceFileName(m_outputName);
 
-      StatusCode currentStatus = m_streamer->streamObjects(m_objects);
-      // Do final check of streaming
-      if (!currentStatus.isSuccess()) {
-         if (!currentStatus.isRecoverable()) {
-            ATH_MSG_FATAL("streamObjects failed.");
-            failed = true;
-         } else {
-            ATH_MSG_DEBUG("streamObjects failed.");
+   std::unique_lock<mutex_t>  lock(m_mutex);
+
+   // Handle Event Ranges in AthenaMT
+   if( !m_slotRangeMap.empty() && slot != EventContext::INVALID_CONTEXT_ID ) {
+      outputFN = m_slotRangeMap[ slot ];
+      ATH_MSG_DEBUG( "Writing event to " << outputFN );
+      
+      streamer = m_streamerMap[ outputFN ].get();
+      if( !streamer ) {
+         // new range, needs a new streamer tool
+         IAlgTool* st = AlgTool::Factory::create( m_streamer->type(), m_streamer->type(), m_streamer->name(), this ).release();
+         st->addRef();
+         streamer = dynamic_cast<IAthenaOutputStreamTool*>( st );
+         if( streamer->initialize().isFailure()
+             || streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord).isFailure() ) {
+            ATH_MSG_FATAL("Unable to initialize OutputStreamTool for " << outputFN );
+            return StatusCode::FAILURE;
          }
-      }
-      currentStatus = m_streamer->commitOutput();
-      if (!currentStatus.isSuccess()) {
-         ATH_MSG_FATAL("commitOutput failed.");
-         failed = true;
-      }
-      clearSelection();
-      if (!failed) {
-         m_events++;
+         m_streamerMap[ outputFN ].reset( streamer );
       }
    }
-   if (failed) {
+
+   // Clear any previously existing item list
+   clearSelection();
+   collectAllObjects();
+
+   // keep a local copy of the object lists so they are not overwritten when we release the lock
+   IDataSelector objects = std::move( m_objects );
+   IDataSelector altObjects = std::move( m_altObjects );
+   std::vector<std::unique_ptr<DataObject> > ownedObjects = std::move( m_ownedObjects );
+   
+   // print out info about objects collected
+   if (m_checkNumberOfWrites) {
+      bool checkCountError = false;
+      ATH_MSG_DEBUG(" Collected objects:");
+      bool first = true;
+      unsigned int lastCount = 0;
+      for (CounterMapType::iterator cit = m_objectWriteCounter.begin(),
+              clast = m_objectWriteCounter.end(); cit != clast; ++cit) {
+         bool isError = false;
+         if (first) {
+            lastCount = (*cit).second;
+            first = false;
+         } else if (lastCount != (*cit).second) {
+            isError = true;
+            //Complain, but don't abort
+            checkCountError = true;
+         }
+         if (isError) {
+            ATH_MSG_ERROR(" INCORRECT Object/count: "
+                          << (*cit).first << ", " << (*cit).second << " should be: " << lastCount);
+         } else {
+            ATH_MSG_DEBUG(" Object/count: " << (*cit).first << ", " << (*cit).second);
+         }
+      }
+      if (checkCountError) {
+         ATH_MSG_FATAL("Check number of writes failed. See messages above "
+                       "to identify which container is not always written");
+         return(StatusCode::FAILURE);
+      }
+   }
+   // prepare before releasing lock because m_outputAttributes change in metadataStop
+   const std::string connectStr = outputFN + m_outputAttributes;  
+   // switch to locking on streamerTool level to allow parallelism
+   lock.unlock();
+   // MN: maybe a mutex in the tool is better?
+   std::lock_guard<std::mutex>   tool_lock( m_toolMutexMap[outputFN] );
+
+   // Connect the output file to the service
+   if( !streamer->connectOutput( connectStr ).isSuccess()) {
       ATH_MSG_ERROR("Could not connectOutput");
-      return(StatusCode::FAILURE);
+      return StatusCode::FAILURE;
+   }
+   ATH_MSG_DEBUG("connectOutput done for " + outputFN );
+   StatusCode currentStatus = streamer->streamObjects(objects);
+   // Do final check of streaming
+   if (!currentStatus.isSuccess()) {
+      if (!currentStatus.isRecoverable()) {
+         ATH_MSG_FATAL("streamObjects failed.");
+         failed = true;
+      } else {
+         ATH_MSG_DEBUG("streamObjects failed.");
+      }
+   }
+   if( !streamer->commitOutput().isSuccess() ) {
+      ATH_MSG_FATAL("commitOutput failed.");
+      failed = true;
+   }
+   if (!failed) {
+      m_events++;
    }
    return(StatusCode::SUCCESS);
 }

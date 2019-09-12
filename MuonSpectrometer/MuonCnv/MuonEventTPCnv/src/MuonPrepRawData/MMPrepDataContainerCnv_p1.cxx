@@ -9,7 +9,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataContainerCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -242,7 +241,7 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
         continue;
       }
 
-      auto chan = CxxUtils::make_unique<MMPrepData>
+      auto chan = std::make_unique<MMPrepData>
         (chanCnv.createMMPrepData (pchan, clusId, detEl, log));
 
       if ( m_MMId->valid(chan->identify())!=true ) {

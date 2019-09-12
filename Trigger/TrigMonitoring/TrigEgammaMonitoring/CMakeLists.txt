@@ -25,4 +25,3 @@ atlas_add_component( TrigEgammaMonitoring
 atlas_install_headers( TrigEgammaMonitoring )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

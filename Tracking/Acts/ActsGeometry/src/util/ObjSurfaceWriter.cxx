@@ -10,12 +10,12 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "Acts/Layers/Layer.hpp"
+#include "Acts/Geometry/Layer.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
 #include "Acts/Surfaces/SurfaceBounds.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 
 #include "Acts/Surfaces/PolyhedronRepresentation.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"

@@ -56,7 +56,10 @@ partition
     'and([]simple([(81et)(81et)])combgen([(2)(50et)(70et)]dijet([(34mass,26dphi)])))',
     'simple([(70et,0eta240)(70et,0eta240)(70et,0eta240)(70et,0eta240)(70et,0eta240)])',
     'partgen([(20et,0eta320)]simple([(40et,0eta320)(50et,0eta320)])simple([(35et,0eta240)(55et,0eta240)]))',
+    'simple([(10et, neta0)(20et, peta)])', # missing low value for eta - take default
+
 ]
+
 
 if __name__ == '__main__':
     print 'There are %d test cases' % len(test_strings)

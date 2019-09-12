@@ -134,6 +134,7 @@ def triggerSummaryCfg(flags, hypos):
     """
     acc = ComponentAccumulator()
     from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = {}
     for stepName, stepHypos in sorted( hypos.items() ):
@@ -145,9 +146,10 @@ def triggerSummaryCfg(flags, hypos):
         __log.info("Final decision of chain  " + c + " will be red from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
-    decisionSummaryAlg.DecisionsSummaryKey = "HLTSummary" # Output
+    decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
+    decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
+    decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
     return acc, decisionSummaryAlg
-
 
 
 def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
@@ -158,7 +160,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
     mon = TrigSignatureMoniMT()
     mon.L1Decisions = "L1DecoderSummary"
-    mon.FinalDecisionKey = "HLTSummary" # Input
+    mon.FinalDecisionKey = "HLTNav_Summary" # Input
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
@@ -199,7 +201,7 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
         return [ "xAOD::TrigCompositeContainer#%s" % name, "xAOD::TrigCompositeAuxContainer#%sAux." % name]
     [ itemsToRecord.extend( __TCKeys(d) ) for d in decObj ]
     # the rest of triger EDM
-    itemsToRecord.extend( __TCKeys( "HLTSummary" ) )
+    itemsToRecord.extend( __TCKeys( "HLTNav_Summary" ) )
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
     EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTListRun3 )
@@ -209,7 +211,7 @@ def triggerOutputStreamCfg( flags, decObj, outputType ):
     __log.info( outputType + " trigger content "+str( itemsToRecord ) )
     acc = OutputStreamCfg( flags, outputType, ItemList=itemsToRecord )
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTSummary")] # OutputStream has a data dependency on HLTSummary
+    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTNav_Summary")] # OutputStream has a data dependency on HLTNav_Summary
 
     return acc
 
@@ -275,9 +277,18 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
             collType, collName = coll[0].split("#")
             collType = collType.split(":")[-1]
             viewsColl = coll[3].split(":")[-1]
-            setattr(tool, collType+"Views", [ viewsColl ] )
-            setattr(tool, collType+"InViews", [ collName ] )
-            setattr(tool, collType, [ collName ] )
+            # Get existing property, or return empty list if not set.
+            attrView = getattr(tool, collType+"Views", [])
+            attrInView = getattr(tool, collType+"InViews", [])
+            attrName = getattr(tool, collType, [])
+            #
+            attrView.append( viewsColl )
+            attrInView.append( collName )
+            attrName.append( collName )
+            #
+            setattr(tool, collType+"Views", attrView )
+            setattr(tool, collType+"InViews", attrInView )
+            setattr(tool, collType, attrName )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
                 __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( viewsColl ) )
@@ -369,6 +380,9 @@ def triggerRunCfg( flags, menu=None ):
 
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc )
+
+    from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+    acc.merge( TrigCostMonitorMTCfg( flags ) )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )

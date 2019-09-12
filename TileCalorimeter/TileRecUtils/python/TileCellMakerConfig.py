@@ -4,28 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-
-def CaloCellNeighborsAverageCorrCfg(flags):
-    """Return component accumulator with configured private Calo cell neighbors average correction tool
-
-    Arguments:
-        flags  -- Athena configuration flags (ConfigFlags)
-    """
-
-    acc = ComponentAccumulator()
-
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    acc.merge(LArGMCfg(flags))
-
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    acc.merge(TileGMCfg(flags))
-
-    from CaloCellCorrection.CaloCellCorrectionConf import CaloCellNeighborsAverageCorr
-    caloCellNeighborsAverageCorrection = CaloCellNeighborsAverageCorr(testMode = False)
-
-    acc.setPrivateTools( caloCellNeighborsAverageCorrection )
-
-    return acc
+from CaloCellCorrection.CaloCellCorrectionConfig import CaloCellNeighborsAverageCorrCfg
 
 
 def CaloCellContainerCheckerToolCfg(flags):
@@ -43,7 +22,7 @@ def CaloCellContainerCheckerToolCfg(flags):
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge(TileGMCfg(flags))
 
-    from CaloCellCorrection.CaloCellCorrectionConf import CaloCellContainerCheckerTool
+    from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
     acc.setPrivateTools( CaloCellContainerCheckerTool() )
 
     return acc
@@ -86,7 +65,7 @@ def TileCellMakerCfg(flags, **kwargs):
         acc.merge( TileRawChannelMakerCfg(flags) )
 
     from CaloRec.CaloRecConf import CaloCellMaker, CaloCellContainerFinalizerTool
-    from TileCellBuilderConfig import TileCellBuilderCfg
+    from TileRecUtils.TileCellBuilderConfig import TileCellBuilderCfg
     tileCellBuilder = acc.popToolsAndMerge( TileCellBuilderCfg(flags, SkipGain = skipGain) )
 
     cellMakerTools = [tileCellBuilder, CaloCellContainerFinalizerTool()]
@@ -104,7 +83,7 @@ def TileCellMakerCfg(flags, **kwargs):
 
     if doCellNoiseFilter == 100:
         msg.info('Use Tile cell noise filter')
-        from TileCellNoiseFilterConfig import TileCellNoiseFilterCfg
+        from TileRecUtils.TileCellNoiseFilterConfig import TileCellNoiseFilterCfg
         cellNoiseFilter = acc.popToolsAndMerge( TileCellNoiseFilterCfg(flags) )
         cellMakerTools += [ cellNoiseFilter ]
 
@@ -114,7 +93,7 @@ def TileCellMakerCfg(flags, **kwargs):
         cellMakerTools += [caloCellNeighborsAverageCorrection]
 
 
-    caloCellContainerChecker = acc.popToolsAndMerge( CaloCellNeighborsAverageCorrCfg(flags) )
+    caloCellContainerChecker = acc.popToolsAndMerge( CaloCellContainerCheckerToolCfg(flags) )
     cellMakerTools += [caloCellContainerChecker]
 
     cellMakerAlg = CaloCellMaker(name = name, CaloCellMakerToolNames = cellMakerTools,

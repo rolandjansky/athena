@@ -5,7 +5,7 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/MuonEDMHelperSvc.h"
 
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
@@ -47,13 +47,11 @@ namespace Muon {
   MuonEDMPrinterTool::MuonEDMPrinterTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa), 
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   {
     declareInterface<MuonEDMPrinterTool>(this);
     declareProperty( "MuonIdHelperTool",    m_idHelper);
-    declareProperty( "MuonEDMHelperTool",   m_helper);
     declareProperty( "MuonTrackSummaryHelperTool", m_summaryHelper);
   }
 
@@ -71,8 +69,8 @@ namespace Muon {
     }
 
     
-    if (m_helper.retrieve().isFailure()){
-      ATH_MSG_WARNING("Could not get " << m_helper); 
+    if (m_edmHelperSvc.retrieve().isFailure()){
+      ATH_MSG_WARNING("Could not get " << m_edmHelperSvc); 
       return StatusCode::FAILURE;
     }
 
@@ -205,7 +203,7 @@ namespace Muon {
             for (; it2 != it2_end; ++it2 ) {
                 m = (*it2)->measurementOnTrack();
                 if (m) {
-                    Identifier id = m_helper->getIdentifier(*m);
+                    Identifier id = m_edmHelperSvc->getIdentifier(*m);
                     if ( ( id.is_valid() && (std::find(identifiers.begin(), identifiers.end(), id)!=identifiers.end() ) ) 
                        ||  (aeot->effectsLastFromNowOn() && it2>it) ) {
                         // Either this measurement is explicitly listed, OR it is in a TSOS after an AEOT whose effects last from now on. 
@@ -322,7 +320,7 @@ namespace Muon {
     std::ostringstream sout;
     
     // get first none-trigger id 
-    Identifier chid = m_helper->chamberId(segment);
+    Identifier chid = m_edmHelperSvc->chamberId(segment);
     int nphi = 0;
     int ntrigEta = 0;
     int neta    = 0;
@@ -550,7 +548,7 @@ namespace Muon {
       if( !stationSegs || stationSegs->empty() ) continue;
   
       // get chamber identifier, chamber index and station index
-      //Identifier chid = m_helper->chamberId( *stationSegs->front() );
+      //Identifier chid = m_edmHelperSvc->chamberId( *stationSegs->front() );
       sout << print(*stationSegs);
       if( i != nstations-1 ) sout << std::endl;
     }
@@ -746,58 +744,53 @@ namespace Muon {
     unsigned int nchHitsPhi = 0;
 
 
-    StoreGateSvc* storeGate = 0;
-    if (service("StoreGateSvc", storeGate).isFailure() || !storeGate ){
-      ATH_MSG_DEBUG("Cannot retrieve StoreGateSvc ");
-    }else{
-      if( isMdt ){
-	const MdtPrepDataContainer* mdtPrdContainer = 0;
-	std::string key = "MDT_DriftCircles";
-	if(storeGate->retrieve(mdtPrdContainer,key).isFailure()) {
-	  ATH_MSG_DEBUG("Cannot retrieve " << key);
-	}else{
-	  IdentifierHash hash_id;
-	  m_idHelper->mdtIdHelper().get_module_hash(chId,hash_id );
-	  MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
-	  if( colIt != mdtPrdContainer->end() ) nchHitsEta = (*colIt)->size();
-	  else 	  ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
-	}
-      }else if( m_idHelper->isRpc(chId) ){
-	const RpcPrepDataContainer* rpcPrdContainer = 0;
-	std::string key = "RPC_Measurements";
-	if(storeGate->retrieve(rpcPrdContainer,key).isFailure()) {
-	  ATH_MSG_DEBUG("Cannot retrieve " << key);
-	}else{
-	  IdentifierHash hash_id;
-	  m_idHelper->rpcIdHelper().get_module_hash(chId,hash_id );
-	  RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
-	  if( colIt != rpcPrdContainer->end() ) {
-	    RpcPrepDataCollection::const_iterator rpcIt = (*colIt)->begin();
-	    RpcPrepDataCollection::const_iterator rpcIt_end = (*colIt)->end();
-	    for( ;rpcIt!=rpcIt_end;++rpcIt ){
-	      if( m_idHelper->measuresPhi((*rpcIt)->identify()) ) ++nchHitsPhi;
-	      else                                                ++nchHitsEta;
-	    }
-	  }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
-	}
-      }else if( m_idHelper->isTgc(chId) ){
-	const TgcPrepDataContainer* tgcPrdContainer = 0;
-	std::string key = "TGC_Measurements";
-	if(storeGate->retrieve(tgcPrdContainer,key).isFailure()) {
-	  ATH_MSG_DEBUG("Cannot retrieve " << key);
-	}else{
-	  IdentifierHash hash_id;
-	  m_idHelper->tgcIdHelper().get_module_hash(chId,hash_id );
-	  TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
-	  if( colIt != tgcPrdContainer->end() ) {
-	    TgcPrepDataCollection::const_iterator tgcIt = (*colIt)->begin();
-	    TgcPrepDataCollection::const_iterator tgcIt_end = (*colIt)->end();
-	    for( ;tgcIt!=tgcIt_end;++tgcIt ){
-	      if( m_idHelper->measuresPhi((*tgcIt)->identify()) ) ++nchHitsPhi;
-	      else                                                ++nchHitsEta;
-	    }
-	  }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
-	}
+    if( isMdt ){
+      const MdtPrepDataContainer* mdtPrdContainer = 0;
+      std::string key = "MDT_DriftCircles";
+      if(evtStore()->retrieve(mdtPrdContainer,key).isFailure()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      }else{
+        IdentifierHash hash_id;
+        m_idHelper->mdtIdHelper().get_module_hash(chId,hash_id );
+        MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
+        if( colIt != mdtPrdContainer->end() ) nchHitsEta = (*colIt)->size();
+        else 	  ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
+      }
+    }else if( m_idHelper->isRpc(chId) ){
+      const RpcPrepDataContainer* rpcPrdContainer = 0;
+      std::string key = "RPC_Measurements";
+      if(evtStore()->retrieve(rpcPrdContainer,key).isFailure()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      }else{
+        IdentifierHash hash_id;
+        m_idHelper->rpcIdHelper().get_module_hash(chId,hash_id );
+        RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
+        if( colIt != rpcPrdContainer->end() ) {
+          RpcPrepDataCollection::const_iterator rpcIt = (*colIt)->begin();
+          RpcPrepDataCollection::const_iterator rpcIt_end = (*colIt)->end();
+          for( ;rpcIt!=rpcIt_end;++rpcIt ){
+            if( m_idHelper->measuresPhi((*rpcIt)->identify()) ) ++nchHitsPhi;
+            else                                                ++nchHitsEta;
+          }
+        }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
+      }
+    }else if( m_idHelper->isTgc(chId) ){
+      const TgcPrepDataContainer* tgcPrdContainer = 0;
+      std::string key = "TGC_Measurements";
+      if(evtStore()->retrieve(tgcPrdContainer,key).isFailure()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      }else{
+        IdentifierHash hash_id;
+        m_idHelper->tgcIdHelper().get_module_hash(chId,hash_id );
+        TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
+        if( colIt != tgcPrdContainer->end() ) {
+          TgcPrepDataCollection::const_iterator tgcIt = (*colIt)->begin();
+          TgcPrepDataCollection::const_iterator tgcIt_end = (*colIt)->end();
+          for( ;tgcIt!=tgcIt_end;++tgcIt ){
+            if( m_idHelper->measuresPhi((*tgcIt)->identify()) ) ++nchHitsPhi;
+            else                                                ++nchHitsEta;
+          }
+        }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
       }
     }
 
@@ -916,7 +909,7 @@ namespace Muon {
 
   std::string MuonEDMPrinterTool::printId( const Trk::MeasurementBase& measurement ) const {
     std::string idStr;
-    Identifier id = m_helper->getIdentifier( measurement );
+    Identifier id = m_edmHelperSvc->getIdentifier( measurement );
     if( !id.is_valid() ) {
       const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(&measurement);
       if( pseudo ) idStr = "pseudo measurement";

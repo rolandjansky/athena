@@ -52,4 +52,13 @@ atlas_add_component( InDetVKalVxInJetTool
 # Install files from the package:
 atlas_install_headers( InDetVKalVxInJetTool )
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.txt )
 
+
+atlas_add_test( InDetTrkInJetType_test
+                SOURCES test/InDetTrkInJetType_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
+		InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
+		TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver
+                EXTRA_PATTERNS "Booking|AtlasFieldSvc|weight file" )

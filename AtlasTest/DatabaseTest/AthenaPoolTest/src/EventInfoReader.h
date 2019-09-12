@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_EVENTINFOREADER_H
@@ -29,8 +29,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-
-class StoreGateSvc;
 
 class EventInfoReader : public AthAlgorithm {
 public:

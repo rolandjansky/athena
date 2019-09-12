@@ -29,7 +29,6 @@
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MuonSegment/MuonSegment.h"
 
@@ -48,7 +47,6 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 //root includes
@@ -81,7 +79,6 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
 :ManagedMonitorToolBase( type, name, parent ),
  m_mg(0),
  m_masked_tubes(NULL),
- m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
@@ -266,14 +263,6 @@ StatusCode MdtRawDataValAlg::initialize()
   else {
     ATH_MSG_DEBUG(" Found the MdtIdHelper. " );
   }
-
-
-  if (m_idHelper.retrieve().isFailure()){
-    ATH_MSG_WARNING("Could not get " << m_idHelper); 
-    return StatusCode::FAILURE;
-  }  else {
-    ATH_MSG_DEBUG(" Found the MuonIdHelper. " );
-  }  
   
   sc = m_DQFilterTools.retrieve();
   if( !sc ) {
@@ -457,21 +446,22 @@ StatusCode MdtRawDataValAlg::fillHistograms()
   //
   // Retrieve the LVL1 Muon RoIs:
   //
-  StoreTriggerType(L1_UNKNOWN);  
+   StoreTriggerType(L1_UNKNOWN);  
+  try{
+    SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiKey);
+    if(muonRoIs.isPresent() && muonRoIs.isValid()){
+    //sroe: was verbose
+      ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key() ); 
+      xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
+      xAOD::MuonRoIContainer::const_iterator mu_it_end= muonRoIs->end();
 
-  SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiKey);
-
-  if(muonRoIs.isPresent() && muonRoIs.isValid()){
-    ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key() ); 
-    xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
-    xAOD::MuonRoIContainer::const_iterator mu_it_end= muonRoIs->end();
-
-    for( ; mu_it != mu_it_end; mu_it++){
-      //ATH_MSG_ERROR( "(*mu_it)->getSource(): " << (*mu_it)->getSource() << ", is Muon_ROI::Endcap: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Endcap)) << ", is Muon_ROI::Barrel: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Barrel)) );
-      if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel) StoreTriggerType(L1_BARREL);
-      if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ) StoreTriggerType(L1_ENDCAP);
+      for( ; mu_it != mu_it_end; mu_it++){
+        if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel) StoreTriggerType(L1_BARREL);
+        if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ) StoreTriggerType(L1_ENDCAP);
+      }
     }
-    //   ATH_MSG_ERROR( "Stored m_trigtype: " << GetTriggerType() << " " << (GetTriggerType()==L1_UNKNOWN) << " " << (GetTriggerType()==L1_BARREL) << " " << (GetTriggerType()==L1_ENDCAP) );
+  } catch (SG::ExcNoAuxStore & excpt){
+    ATH_MSG_INFO("SG::ExcNoAuxStore caught, "<<m_l1RoiKey.key()<<" not available.");
   }
   //declare MDT stuff 
   SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_container(m_key_mdt);
@@ -541,7 +531,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 	    if(!rot_from_track) continue;
 	    //              rot_from_track->dump(msg());
 	    Identifier rotId = rot_from_track->identify();
-	    if(!m_idHelper->isMdt(rotId)) continue;
+	    if(!m_mdtIdHelper->is_mdt(rotId)) continue;
 	    IdentifierHash mdt_idHash;
 	    MDTChamber* mdt_chamber = 0;
 	    m_mdtIdHelper->get_module_hash( rotId, mdt_idHash );

@@ -6,7 +6,6 @@
 
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#include "StoreGate/StoreGateSvc.h"
 
 MergeCalibHitsTool::MergeCalibHitsTool(const std::string& type,
                                        const std::string& name,

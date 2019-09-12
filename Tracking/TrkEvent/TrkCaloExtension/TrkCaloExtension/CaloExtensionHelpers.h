@@ -49,7 +49,7 @@ namespace CaloExtensionHelpers {
         }
 
 
-      void entryExitPerLayerVector( const Trk::CaloExtension& extension, EntryExitPerLayerVector& result, LayersToSelect* selection = 0 )
+      void entryExitPerLayerVector( const Trk::CaloExtension& extension, EntryExitPerLayerVector& result, const LayersToSelect* selection = nullptr )
 
       - fills a vector with a tuple for every crossed layer. The first element is in the tuple is the Sampling enum,
         the second the entry position, the third the exit position
@@ -60,7 +60,7 @@ namespace CaloExtensionHelpers {
         std::cout << " number of crossed layers " << result.size() << std::endl;
 
 
-      void entryExitLayerMap( const Trk::CaloExtension& extension, EntryExitLayerMap& result, LayersToSelect* selection = 0 )
+      void entryExitLayerMap( const Trk::CaloExtension& extension, EntryExitLayerMap& result, const LayersToSelect* selection = nullptr )
       
       - fills a map with the CaloSampling as key and a pair of entry/exit positions as content
 
@@ -88,7 +88,7 @@ namespace CaloExtensionHelpers {
         }
 
       
-      void entryEtaPhiPerLayerVector( const Trk::CaloExtension& extension, EtaPhiPerLayerVector& result, LayersToSelect* selection = 0 )
+      void entryEtaPhiPerLayerVector( const Trk::CaloExtension& extension, EtaPhiPerLayerVector& result, const LayersToSelect* selection = nullptr )
 
       - fills  a vector with a tuple for every crossed layer. The first element is in the tuple is the Sampling enum,
         the second the entry position, the third the exit position
@@ -116,7 +116,7 @@ namespace CaloExtensionHelpers {
         }
 
 
-      void midPointEtaPhiPerLayerVector( const Trk::CaloExtension& extension, EtaPhiPerLayerVector& result, LayersToSelect* selection = 0 ) 
+      void midPointEtaPhiPerLayerVector( const Trk::CaloExtension& extension, EtaPhiPerLayerVector& result, const LayersToSelect* selection = nullptr ) 
 
       - fills  a vector with a tuple for every crossed layer. The first element is in the tuple is the Sampling enum,
         the second the entry position, the third the exit position
@@ -133,7 +133,9 @@ namespace CaloExtensionHelpers {
 
 
   template< class T, class O>
-  inline void entryExitProcessor( const Trk::CaloExtension& extension, T& result, O oper, LayersToSelect* selection = 0 ){
+  inline void entryExitProcessor( const Trk::CaloExtension& extension, 
+                                  T& result, O oper, 
+                                  const LayersToSelect* selection = nullptr ){
 
     Trk::TrackParametersIdHelper  parsIdHelper;
     // loop over calo layers, keep track of previous layer
@@ -172,7 +174,9 @@ namespace CaloExtensionHelpers {
   }
 
 
-  inline void entryExitPerLayerVector( const Trk::CaloExtension& extension, EntryExitPerLayerVector& result, LayersToSelect* selection = 0 ) {
+  inline void entryExitPerLayerVector( const Trk::CaloExtension& extension, 
+                                       EntryExitPerLayerVector& result, 
+                                       const LayersToSelect* selection = nullptr ) {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
       void operator()(EntryExitPerLayerVector& vec, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
@@ -184,7 +188,9 @@ namespace CaloExtensionHelpers {
     entryExitProcessor(extension,result,extract,selection);
   }
 
-  inline void entryExitLayerMap( const Trk::CaloExtension& extension, EntryExitLayerMap& result, LayersToSelect* selection = 0 ) {
+  inline void entryExitLayerMap( const Trk::CaloExtension& extension, 
+                                 EntryExitLayerMap& result, 
+                                 const LayersToSelect* selection = nullptr ) {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
       void operator()(EntryExitLayerMap& thisResult, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
@@ -232,7 +238,9 @@ namespace CaloExtensionHelpers {
     entryExitProcessor(extension,result,extract);
   }
   
-  inline void entryEtaPhiPerLayerVector( const Trk::CaloExtension& extension, EtaPhiPerLayerVector& result, LayersToSelect* selection = 0 ) {
+  inline void entryEtaPhiPerLayerVector( const Trk::CaloExtension& extension, 
+                                         EtaPhiPerLayerVector& result, 
+                                         const LayersToSelect* selection = nullptr ) {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
       void operator()(EtaPhiPerLayerVector& vec, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters&  ){
@@ -261,7 +269,9 @@ namespace CaloExtensionHelpers {
     entryExitProcessor(extension,result,extract);
   }
 
-  inline void midPointEtaPhiPerLayerVector( const Trk::CaloExtension& extension, EtaPhiPerLayerVector& result, LayersToSelect* selection = 0 ) {
+  inline void midPointEtaPhiPerLayerVector( const Trk::CaloExtension& extension, 
+                                            EtaPhiPerLayerVector& result, 
+                                            const LayersToSelect* selection = nullptr ) {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
       void operator()(EtaPhiPerLayerVector& vec, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){

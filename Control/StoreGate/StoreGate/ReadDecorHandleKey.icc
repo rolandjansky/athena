@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -36,8 +36,10 @@ ReadDecorHandleKey<T>::ReadDecorHandleKey (const std::string& key /*= ""*/,
 
 /**
  * @brief auto-declaring Property Constructor.
+ * @param owner Owning component.
  * @param name name of the Property
  * @param key  default StoreGate key for the object.
+ * @param doc Documentation string.
  *
  * will associate the named Property with this RHK via declareProperty
  *

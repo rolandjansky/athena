@@ -22,7 +22,6 @@ class IPFSubtractionTool : virtual public IAlgTool {
   virtual void execute(eflowCaloObjectContainer*, eflowRecTrackContainer*, eflowRecClusterContainer*) = 0;
 
   DeclareInterfaceID(IPFSubtractionTool,1,0);
-  
-};
 
+};
 #endif

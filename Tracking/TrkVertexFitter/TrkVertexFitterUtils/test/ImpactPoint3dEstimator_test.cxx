@@ -88,15 +88,17 @@ void test1 (Trk::IImpactPoint3dEstimator& tool)
   Amg::Vector3D mom1 { 400*MeV, 600*MeV, 200*MeV };
   Amg::Vector3D vert { 1.2*mm, 0.8*mm, -7*mm };
 
+  double distance = 0;
   Trk::Perigee p1 (pos1, mom1, 1, pos1, cov5().release());
-  std::unique_ptr<Trk::PlaneSurface> s1 (tool.Estimate3dIP (&p1, &vert));
+  std::unique_ptr<Trk::PlaneSurface> s1 (tool.Estimate3dIP (&p1, &vert, distance));
   checkPlaneSurface (*s1, vert, {0.53466, 0.801692, 0.267261});
-  assert( Athena_test::isEqual (tool.getDistance(), 3.10391, 1e-5) );
-  
+  assert( Athena_test::isEqual (distance, 3.10391, 1e-5) );
+
+  distance = 0;
   Trk::NeutralPerigee p2 (pos1, mom1, 1, pos1, cov5().release());
-  std::unique_ptr<Trk::PlaneSurface> s2 (tool.Estimate3dIP (&p2, &vert));
+  std::unique_ptr<Trk::PlaneSurface> s2 (tool.Estimate3dIP (&p2, &vert, distance));
   checkPlaneSurface (*s2, vert, {0.534522, 0.801784, 0.267261});
-  assert( Athena_test::isEqual (tool.getDistance(), 3.10391, 1e-5) );
+  assert( Athena_test::isEqual (distance, 3.10391, 1e-5) );
 
   // Other methods require full Extrapolator / TrackingGeometry machinery;
   // not tested here.

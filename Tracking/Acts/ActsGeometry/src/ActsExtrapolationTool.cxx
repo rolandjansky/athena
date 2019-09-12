@@ -16,7 +16,7 @@
 // ACTS
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/BoundaryCheck.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 
@@ -27,7 +27,7 @@
 
 ActsExtrapolationTool::ActsExtrapolationTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_fieldServiceHandle("AtlasFieldSvc", name)
 {
 

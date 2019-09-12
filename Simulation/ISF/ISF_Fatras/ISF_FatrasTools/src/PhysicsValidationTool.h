@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -103,7 +103,6 @@ namespace iFatras
     mutable int                                                           m_scEnd;
     mutable int                                                           m_gen;
     mutable int                                                           m_geoID;  
-    mutable float                                                         m_theta;
     mutable float                                                         m_pth;
     mutable float                                                         m_pph;
     mutable float                                                         m_p;

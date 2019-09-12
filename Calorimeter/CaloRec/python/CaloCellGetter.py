@@ -49,8 +49,6 @@ class CaloCellGetter (Configured)  :
             from LArROD.LArRODFlags import larRODFlags
             from AthenaCommon.GlobalFlags import globalflags
             if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
-                if "LArRawChannelContainer/LArRawChannels" not in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
                 from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
                 LArRawChannelBuilderDefault()
           
@@ -132,7 +130,6 @@ class CaloCellGetter (Configured)  :
                         and not (jobproperties.TileRecFlags.doTileFlat        \
                                  or jobproperties.TileRecFlags.doTileFit      \
                                  or jobproperties.TileRecFlags.doTileFitCool  \
-                                 or jobproperties.TileRecFlags.doTileOpt      \
                                  or jobproperties.TileRecFlags.doTileOF1      \
                                  or jobproperties.TileRecFlags.doTileOpt2     \
                                  or jobproperties.TileRecFlags.doTileOptATLAS \
@@ -260,14 +257,8 @@ class CaloCellGetter (Configured)  :
             doFastCaloSimNoise=jobproperties.CaloCellFlags.doFastCaloSimNoise()
             if doFastCaloSimNoise:
                 try:
-                    from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
-                    theAddNoiseCellBuilderTool=AddNoiseCellBuilderTool()
-                    
-                    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-                    theCaloNoiseTool = CaloNoiseToolDefault()
-                    ToolSvc += theCaloNoiseTool
-                    
-                    theAddNoiseCellBuilderTool.CaloNoiseTool=theCaloNoiseTool.getFullName()
+                    from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault
+                    theAddNoiseCellBuilderTool=AddNoiseCellBuilderToolDefault()
                     
                     print(theAddNoiseCellBuilderTool)
 
@@ -495,20 +486,11 @@ class CaloCellGetter (Configured)  :
        
 
         if doHVCorr:
-            from LArCellRec.LArCellRecConf import LArCellHVCorrAlg
-            theLArCellHVCorrAlg = LArCellHVCorrAlg()
-            try:
-                from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
-                from CaloIdentifier import SUBCALO 
-                theHVCorrTool = CaloCellContainerCorrectorTool("HVCorrTool",
-                        CaloNums=[ SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.LARFCAL ],
-                        CellCorrectionToolNames=[ theLArCellHVCorrAlg])
-            except Exception:
-                mlog.error("could not get handle to HVCorrTool Quit")
-                print(traceback.format_exc())
-                return False
-            theCaloCellMaker += theHVCorrTool
-            theCaloCellMaker.CaloCellMakerToolNames += [theHVCorrTool]
+            from LArCellRec.LArCellRecConf import LArCellContHVCorrTool
+            theLArCellHVCorrTool = LArCellContHVCorrTool()
+    
+            #theCaloCellMaker += theHVCorrTool
+            theCaloCellMaker.CaloCellMakerToolNames += [theLArCellHVCorrTool]
 
         #
         # correction to undo online calibration and apply new LAr electronics calibration for ADC->MeV conversion
@@ -668,7 +650,7 @@ class CaloCellGetter (Configured)  :
                 theCCERescalerTool.Folder = "/LAR/CellCorrOfl/EnergyCorr"
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/CellCorrOfl/EnergyCorr<tag>EnergyScale-00</tag><db>sqlite://;schema=escale.db;dbname=COMP200</db>")
-                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr")
+                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr",className="AthenaAttributeList")
                 theCaloCellMaker += theCCERescalerTool
                 theCaloCellMaker.CaloCellMakerToolNames += [theCCERescalerTool]
             except Exception:
@@ -680,18 +662,13 @@ class CaloCellGetter (Configured)  :
 
         if jobproperties.CaloCellFlags.doCaloCellTimeCorr() and globalflags.DataSource() == 'data' and not athenaCommonFlags.isOnline():
             try:
-                from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
                 from CaloCellCorrection.CaloCellCorrectionConf import CaloCellTimeCorrTool
                 theLArTimeCorr = CaloCellTimeCorrTool()
                 theLArTimeCorr.Folder = "/LAR/TimeCorrectionOfl/CellTimeOffset"
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/TimeCorrectionOfl/CellTimeOffset<tag>LARTimeCorrectionOflCellTimeOffset-empty</tag><db>sqlite://;schema=timecorr.db;dbname=COMP200</db>")
-                conddb.addFolder("LAR_OFL", "/LAR/TimeCorrectionOfl/CellTimeOffset")
-                theCaloTimeCorrTool = CaloCellContainerCorrectorTool("LArTimeCorrTool",
-                                                                   CellCorrectionToolNames=[theLArTimeCorr]
-                                                                   )
-                theCaloCellMaker += theCaloTimeCorrTool
-                theCaloCellMaker.CaloCellMakerToolNames += [theCaloTimeCorrTool]
+                conddb.addFolder("LAR_OFL", "/LAR/TimeCorrectionOfl/CellTimeOffset",className="AthenaAttributeList")
+                theCaloCellMaker.CaloCellMakerToolNames += [theLArTimeCorr]
                 
             except Exception:
                 mlog.error("could not get handle to CaloCellTimeCorrTool Quit")

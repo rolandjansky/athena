@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -16,7 +16,6 @@
 #include <string>
 
 namespace InDetDD {
-  class InDetDetectorManager;
   class PixelDetectorManager;
   class SCT_DetectorManager;
   class TRT_DetectorManager;
@@ -24,7 +23,6 @@ namespace InDetDD {
 
 class EventInfo;
 class ICondSvc;
-class StoreGateSvc;
 class IActsTrackingGeometrySvc;
 class ActsAlignmentStore;
 class GeoAlignableTransform;
@@ -55,7 +53,6 @@ private:
   ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
-  ServiceHandle<StoreGateSvc> m_detStore;
   const InDetDD::PixelDetectorManager* p_pixelManager;
   const InDetDD::SCT_DetectorManager* p_SCTManager;
   const InDetDD::TRT_DetectorManager* p_TRTManager;

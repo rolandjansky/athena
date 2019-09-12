@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -172,7 +172,7 @@ StatusCode LArHitFilter::execute()
           return StatusCode::FAILURE;
         }
       ATH_MSG_DEBUG( "Found EMB LArHitsContainer");
-      if (!m_outputEMBHits.isValid()) m_outputEMBHits = CxxUtils::make_unique<LArHitContainer>();
+      if (!m_outputEMBHits.isValid()) m_outputEMBHits = std::make_unique<LArHitContainer>();
       ATH_CHECK(this->filterContainer(m_inputEMBHits,m_outputEMBHits,0));
       nhit_tot+= m_inputEMBHits->size();
       nhit_out+= m_outputEMBHits->size();
@@ -186,7 +186,7 @@ StatusCode LArHitFilter::execute()
           return StatusCode::FAILURE;
         }
       ATH_MSG_DEBUG( "Found EMEC LArHitsContainer");
-      if (!m_outputEMECHits.isValid()) m_outputEMECHits = CxxUtils::make_unique<LArHitContainer>();
+      if (!m_outputEMECHits.isValid()) m_outputEMECHits = std::make_unique<LArHitContainer>();
       ATH_CHECK(this->filterContainer(m_inputEMECHits,m_outputEMECHits,1));
       nhit_tot+= m_inputEMECHits->size();
       nhit_out+= m_outputEMECHits->size();
@@ -200,7 +200,7 @@ StatusCode LArHitFilter::execute()
           return StatusCode::FAILURE;
         }
       ATH_MSG_DEBUG( "Found HEC LArHitsContainer");
-      if (!m_outputHECHits.isValid()) m_outputHECHits = CxxUtils::make_unique<LArHitContainer>();
+      if (!m_outputHECHits.isValid()) m_outputHECHits = std::make_unique<LArHitContainer>();
       ATH_CHECK(this->filterContainer(m_inputHECHits,m_outputHECHits,1));
       nhit_tot+= m_inputHECHits->size();
       nhit_out+= m_outputHECHits->size();
@@ -214,7 +214,7 @@ StatusCode LArHitFilter::execute()
           return StatusCode::FAILURE;
         }
       ATH_MSG_DEBUG( "Found FCAL LArHitsContainer");
-      if (!m_outputFCALHits.isValid()) m_outputFCALHits = CxxUtils::make_unique<LArHitContainer>();
+      if (!m_outputFCALHits.isValid()) m_outputFCALHits = std::make_unique<LArHitContainer>();
       ATH_CHECK(this->filterContainer(m_inputFCALHits,m_outputFCALHits,1));
       nhit_tot+= m_inputFCALHits->size();
       nhit_out+= m_outputFCALHits->size();

@@ -869,8 +869,10 @@ StatusCode TrkVKalVrtFitterTestAlg::test7()
 
   xAODTPUVec_t tracks1 = makexAODTP (makePerigees2());
 
+  std::unique_ptr<IVKalState> state (fitter->makeState());
   Trk::VertexID v1 = fitter->startVertex (asVec (tracks1),
                                           std::vector<double> {100*MeV, 150*MeV, 200*MeV},
+                                          *state,
                                           930*MeV);
 
   xAODTPUVec_t tracks2 = makexAODTP (makePerigees3());
@@ -878,9 +880,10 @@ StatusCode TrkVKalVrtFitterTestAlg::test7()
   fitter->nextVertex (asVec (tracks2),
                       std::vector<double> {130*MeV, 160*MeV},
                       std::vector<Trk::VertexID> {v1},
+                      *state,
                       2000*MeV);
 
-  std::unique_ptr<Trk::VxCascadeInfo> info1 (fitter->fitCascade());
+  std::unique_ptr<Trk::VxCascadeInfo> info1 (fitter->fitCascade(*state));
   info1->setSVOwnership (true);
 
 #if 0

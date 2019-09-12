@@ -129,8 +129,7 @@ namespace met {
 
     ATH_CHECK( m_metMap.isValid() );
 
-    MissingETAssociationMap* metMap = new MissingETAssociationMap((*m_metMap));
-    MissingETAssociationHelper metHelper(metMap);
+    MissingETAssociationHelper metHelper(&(*m_metMap));
     // Retrieve containers ***********************************************
 
     /// MET

@@ -1,6 +1,11 @@
+Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [const120.FastCaloSim-20190905/133346da1078] -- built on [2019-09-06T2051]
 --- data
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:LuminosityCondAlg    INFO luminosityCondAlgRun2Config requested /TRIGGER/OFLLUMI/OflPrefLumi
+Py:LuminosityCondAlg    INFO Created Run2 LuminosityCondAlg using folder /TRIGGER/OFLLUMI/OflPrefLumi
 Py:ComponentAccumulator    INFO Event Inputs
-Py:ComponentAccumulator    INFO set([])
 Py:ComponentAccumulator    INFO Event Algorithm Sequences
 Py:ComponentAccumulator    INFO Top sequence 0
 Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
@@ -13,7 +18,7 @@ Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS')]
+Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS'), ('LArShape32MC', '/LAR/ElecCalibOfl/LArPileupShape'), ('LArMinBiasAverageMC', '/LAR/ElecCalibOfl/LArPileupAverage')]
 Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
 Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
@@ -32,14 +37,23 @@ Py:ComponentAccumulator    INFO      * ReadKey: LArShape32
 Py:ComponentAccumulator    INFO      * WriteKey: LArShape32Sym
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'DBReplicaSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc']
-Py:ComponentAccumulator    INFO Outputs
-Py:ComponentAccumulator    INFO {}
 Py:ComponentAccumulator    INFO Public Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
 --- mc
+Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
+Py:BunchCrossingTool    INFO Selecting MCBunchCrossingTool for this job
+Py:MCBunchCrossingTool    INFO Set the default values for the MCBunchCrossingTool configuration
+Py:ConfigurableDb    INFO Read module info for 5536 configurables from 7 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+EventInfoMgtInit: Got release version  Athena-22.0.5
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:MCBunchCrossingTool    INFO Adding folder to IOVDbSvc: /Digitization/Parameters
 Py:ComponentAccumulator    INFO Event Inputs
-Py:ComponentAccumulator    INFO set([])
 Py:ComponentAccumulator    INFO Event Algorithm Sequences
 Py:ComponentAccumulator    INFO Top sequence 0
 Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
@@ -51,35 +65,65 @@ Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap')]
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArRampMC', '/LAR/ElecCalibMC/Ramp'), ('LArDAC2uAMC', '/LAR/ElecCalibMC/DAC2uA'), ('LAruA2MeVMC', '/LAR/ElecCalibMC/uA2MeV'), ('LArMphysOverMcalMC', '/LAR/ElecCalibMC/MphysOverMcal'), ('LArHVScaleCorrComplete', '/LAR/ElecCalibMC/HVScaleCorr'), ('LArShape32MC', '/LAR/ElecCalibMC/Shape'), ('LArNoiseMC', '/LAR/ElecCalibMC/Noise'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'), ('LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'), ('LArfSamplMC', '/LAR/ElecCalibMC/fSampl'), ('LArMinBiasMC', '/LAR/ElecCalibMC/MinBias'), ('LArMinBiasAverageMC', '/LAR/ElecCalibMC/LArPileupAverage')]
 Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArRampMC, LArRampSym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArRamp
+Py:ComponentAccumulator    INFO      * WriteKey: LArRampSym
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArDAC2uAMC, LArDAC2uASym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArDAC2uA
+Py:ComponentAccumulator    INFO      * WriteKey: LArDAC2uASym
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LAruA2MeVMC, LAruA2MeVSym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LAruA2MeV
+Py:ComponentAccumulator    INFO      * WriteKey: LAruA2MeVSym
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArMphysOverMcalMC, LArMphysOverMcalSym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArMphysOverMcal
+Py:ComponentAccumulator    INFO      * WriteKey: LArMphysOverMcalSym
 Py:ComponentAccumulator    INFO  \__ LArADC2MeVCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * LArDAC2uAKey: LArDAC2uASym
+Py:ComponentAccumulator    INFO      * LArHVScaleCorrKey: LArHVScaleCorr
 Py:ComponentAccumulator    INFO      * LArMphysOverMcalKey: LArMphysOverMcalSym
 Py:ComponentAccumulator    INFO      * LArRampKey: LArRampSym
 Py:ComponentAccumulator    INFO      * LAruA2MeVKey: LAruA2MeVSym
 Py:ComponentAccumulator    INFO      * UseFEBGainTresholds: False
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArShape32MC, LArShape32Sym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArShape
+Py:ComponentAccumulator    INFO      * WriteKey: LArShapeSym
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArNoiseMC, LArNoiseSym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArNoise
+Py:ComponentAccumulator    INFO      * WriteKey: LArNoiseSym
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArAutoCorrMC, LArAutoCorrSym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArAutoCorr
+Py:ComponentAccumulator    INFO      * WriteKey: LArAutoCorrSym
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArfSamplMC, LArfSamplSym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArfSampl
+Py:ComponentAccumulator    INFO      * WriteKey: LArfSamplSym
+Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArMinBiasMC, LArMinBiasSym> (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArMinBias
+Py:ComponentAccumulator    INFO      * WriteKey: LArMinBiasSym
+Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * Nsamples: 5
 Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * UseDelta: 0
 Py:ComponentAccumulator    INFO      * firstSample: 0
 Py:ComponentAccumulator    INFO      * isMC: True
 Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
-Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * Nsamples: 5
 Py:ComponentAccumulator    INFO  \__ LArPileUpAvgSymCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: LArPileupAverage
 Py:ComponentAccumulator    INFO      * WriteKey: LArPileupAverageSym
 Py:ComponentAccumulator    INFO Services
-Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc']
-Py:ComponentAccumulator    INFO Outputs
-Py:ComponentAccumulator    INFO {}
+Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc', 'DetDescrCnvSvc']
 Py:ComponentAccumulator    INFO Public Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
 --- online
+Py:LuminosityCondAlg    INFO Created online LuminosityCondAlg using folder /TRIGGER/LUMI/HLTPrefLumi
 Py:ComponentAccumulator    INFO Event Inputs
-Py:ComponentAccumulator    INFO set([])
 Py:ComponentAccumulator    INFO Event Algorithm Sequences
 Py:ComponentAccumulator    INFO Top sequence 0
 Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
@@ -92,7 +136,7 @@ Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS')]
+Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/LUMI/HLTPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS'), ('LArShape32MC', '/LAR/LArPileup/LArPileupShape'), ('LArMinBiasAverageMC', '/LAR/LArPileup/LArPileupAverage')]
 Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
 Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
@@ -100,9 +144,10 @@ Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
 Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
 Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
-Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/LUMI/HLTPrefLumi
 Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO      * SkipInvalid: False
 Py:ComponentAccumulator    INFO  \__ LArPileUpAvgSymCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: LArPileupAverage
 Py:ComponentAccumulator    INFO      * WriteKey: LArPileupAverageSym
@@ -111,8 +156,10 @@ Py:ComponentAccumulator    INFO      * ReadKey: LArShape32
 Py:ComponentAccumulator    INFO      * WriteKey: LArShape32Sym
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'DBReplicaSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc']
-Py:ComponentAccumulator    INFO Outputs
-Py:ComponentAccumulator    INFO {}
 Py:ComponentAccumulator    INFO Public Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties

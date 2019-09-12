@@ -9,13 +9,13 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -31,7 +31,9 @@ class PixelChargeCalibCondAlg : public AthAlgorithm {
 
   private:
     const PixelID* m_pixelID;
-    const InDetDD::PixelDetectorManager * m_detManager;
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
+    {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
     SG::ReadCondHandleKey<PixelModuleData> m_configKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};

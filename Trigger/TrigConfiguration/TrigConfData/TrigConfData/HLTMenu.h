@@ -37,7 +37,7 @@ namespace TrigConf {
       std::size_t size() const;
 
       /** Iterator over the HLT chains */
-      using const_iterator = ConstIter<ptree, HLTChain>;
+      using const_iterator = ConstIter<ptree, Chain>;
 
       /** Begin of the HLT chains list
        *

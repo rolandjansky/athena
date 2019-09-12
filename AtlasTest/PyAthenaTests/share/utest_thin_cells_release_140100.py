@@ -31,7 +31,6 @@ def filter_fct(x):
 job.Thinner.filter_fct = filter_fct
 
 job.OutStream.TakeItemsFromInput = True
-job.OutStream.ForceRead = True
 
 # make sure our thinned stream is the only one
 del job.StreamESD

@@ -11,6 +11,7 @@
 #include "CoolKernel/IFolder.h"
 #include "CoolKernel/pointers.h" //IFolderPtr etc, typdefs
 #include <string>
+#include <vector>
 
 class IClassIDSvc;
 class CondAttrListCollection;
@@ -33,6 +34,10 @@ namespace IOVDbNamespace{
     JSON,
     NUM_FOLDER_TYPES
    };
+   
+   ///Determine folder type with optional check using clid service to check clid matches typename
+   FolderType
+   determineFolderType(const std::string & folderDescription, const std::string & spec, const std::vector<cool::ChannelId> & chans);
    
    ///Determine folder type with optional check using clid service to check clid matches typename
    FolderType
@@ -64,6 +69,9 @@ namespace IOVDbNamespace{
    
    bool
    poolCompatible(const CondAttrListCollection & pAttrListColl);
+   
+   bool
+   poolCompatible(const std::string & specString);
    //@}
 }
 

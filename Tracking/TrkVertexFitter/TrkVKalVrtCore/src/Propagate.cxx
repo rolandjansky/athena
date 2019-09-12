@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Creates interface vkalPropagator object which contains pointers to real 
@@ -167,7 +167,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 	if( Charge == 0 ) {
 	  Trk::PropagateSTD( TrkID,Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl);
 	}else{
-          FitControl->vk_objProp->Propagate( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
+          FitControl->vk_objProp->Propagate( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, *FitControl->vk_istate);     
 	  if( ParNew[0]==0. && ParNew[1]==0. && ParNew[2]==0. && ParNew[3]==0. && ParNew[4]==0.){
             Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl);
 	  }
@@ -207,7 +207,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 	if( Charge == 0 ) {
 	  Trk::PropagateSTD( TrkID,Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl);
 	}else{
-          FitControl->vk_objProp->Propagate( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
+          FitControl->vk_objProp->Propagate( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, *FitControl->vk_istate);
 	  if( ParNew[0]==0. && ParNew[1]==0. && ParNew[2]==0. && ParNew[3]==0. && ParNew[4]==0.){
             Trk::PropagateRKM( Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl);
 	  }

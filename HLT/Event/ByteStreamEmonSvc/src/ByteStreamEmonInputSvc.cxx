@@ -12,9 +12,10 @@
 #include "eformat/Version.h"
 #include "eformat/HeaderMarker.h"
 #include "eformat/DetectorMask.h"
+#include "oh/OHRootProvider.h"
+#include "rc/RunParamsNamed.h"
 
 #include "GaudiKernel/ITHistSvc.h"
-#include "oh/OHRootProvider.h"
 
 #include "TrigConfL1ItemsNamed.h"
 
@@ -24,8 +25,6 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "CxxUtils/checker_macros.h"
 #include "PersistentDataModel/DataHeader.h"
-
-#include "rc/RunParamsNamed.h"
 
 #include <cstdlib>
 #include <csignal>

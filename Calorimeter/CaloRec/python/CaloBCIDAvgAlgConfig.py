@@ -10,7 +10,7 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def CaloBCIDAvgAlgCfg (flags):
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    from IOVDbSvc.IOVDbSvcConfig import addFolderList
     from CaloRec.CaloRecConf import CaloBCIDAvgAlg
 
     result = ComponentAccumulator()
@@ -23,17 +23,15 @@ def CaloBCIDAvgAlgCfg (flags):
         result.merge (LuminosityCondAlgCfg (flags))
         lumiAlg = result.getCondAlgo ('LuminosityCondAlg')
 
-        if flags.Common.isOnline:
-            result.merge(addFolders(flags, ['/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 
-                                            '/LAR/LArPileup/LArPileupAverage'], 'LAR_ONL'))
-        else:
-            result.merge(addFolders(flags, ['/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>',
-                                            '/LAR/ElecCalibOfl/LArPileupAverage'], 'LAR_OFL'))
-
-
         #For data, the regular shape is the 4-sample one used to Q-factor computation by LArRawChannelBuilder
         #Here we need a 32-sample, symmetrized shape. Therfore the re-key'ing and the dedicated LArPileUpShapeSymCondAlg
 
+        if flags.Common.isOnline:
+            result.merge(addFolderList(flags, (('/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 'LAR_ONL', 'LArShape32MC'),
+                                               ('/LAR/LArPileup/LArPileupAverage','LAR_ONL','LArMinBiasAverageMC')) ))
+        else:
+            result.merge(addFolderList(flags, (('/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>','LAR_OFL','LArShape32MC'),
+                                               ('/LAR/ElecCalibOfl/LArPileupAverage','LAR_OFL','LArMinBiasAverageMC')) ))
 
         from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
         result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
@@ -56,8 +54,9 @@ def CaloBCIDAvgAlgCfg (flags):
         from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
         theBunchCrossingTool = BunchCrossingTool()
 
-        result.merge(addFolders(flags, ['/LAR/ElecCalibMC/Shape',
-                                        '/LAR/ElecCalibMC/LArPileupAverage'], 'LAR_OFL'))
+        result.merge(addFolderList(flags, (('/LAR/ElecCalibMC/Shape','LAR_OFL','LArShape32MC'), 
+                                           ('/LAR/ElecCalibMC/LArPileupAverage', 'LAR_OFL', 'LArMinBiasAverageMC')) ))
+                               
 
         from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
         result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))

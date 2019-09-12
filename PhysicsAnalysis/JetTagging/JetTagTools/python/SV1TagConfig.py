@@ -7,12 +7,12 @@ from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 # import the SVTag configurable
 from JetTagTools.JetTagToolsConf import Analysis__SVTag
 
-def SV1TagCfg( name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True, **options ):
+def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a SV1Tag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     referenceType                       default: BTaggingFlags.ReferenceType
     SVAlgType                           default: "SV1"
     jetCollectionList                   default: BTaggingFlags.Jets
@@ -28,12 +28,10 @@ def SV1TagCfg( name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True, **opti
     options['name'] = name
     options['xAODBaseName'] = 'SV1'
     if useBTagFlagsDefaults:
-        accLikelihood = NewLikelihoodToolCfg('SV1NewLikelihoodTool', 'SV1')
-        likelihood = accLikelihood.popPrivateTools()
-        acc.merge(accLikelihood)
-        defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SV1NewLikelihoodTool', 'SV1'))
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
-                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
+                     'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'SVAlgType'                        : 'SV1',
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'SV1',

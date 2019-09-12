@@ -181,7 +181,6 @@ Stream1.ItemList+=["RPCSimHitCollection#RPC_Hits"]
 #TGC
 Stream1.ItemList+=["TGCSimHitCollection#TGC_Hits"]
 
-Stream1.ForceRead = True
 
 #--------------------------------------------------------------
 # the Tile, LAr and Calo detector description package

@@ -4,8 +4,8 @@ TrigSignatureMoniMT                                INFO HLT_3j200_L1J20         
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J20 decisions                         0         
 TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L1J20        20        20        0         0         
 TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L1J20 decisions                    0         
-TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    0         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        1         1         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    2         
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20      20        20        0         0         
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20 decisions                    0         
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20                20        20        0         0         

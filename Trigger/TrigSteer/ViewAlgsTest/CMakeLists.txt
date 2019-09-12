@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Control/AthenaBaseComps
                           Event/FourMomUtils
-                          Control/CxxUtils
                           Control/AthViews
                           Event/xAOD/xAODTrigger
                           Event/xAOD/xAODTracking
@@ -28,7 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ViewAlgsTest
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps CxxUtils xAODTrigger xAODTracking TrigConfHLTData TrigSteeringEvent ViewAlgsLib AthContainers FourMomUtils)
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODTrigger xAODTracking TrigConfHLTData TrigSteeringEvent ViewAlgsLib AthContainers FourMomUtils)
 
 atlas_install_joboptions( share/*.py )
 

@@ -14,8 +14,6 @@
 // For root version ifdef
 #include "TROOT.h"
 
-#include "G4Polycone.hh"
-
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "LArWheelSolid.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -51,7 +49,7 @@ void LArWheelSolid::set_failover_point(G4ThreeVector &p,
 #endif
   }
 
-static void get_r(const G4Polycone *p, G4double z,
+static void get_r(const G4VSolid *p, G4double z,
                   G4double &rmin, G4double &rmax
                   )
 {
@@ -102,7 +100,7 @@ void LArWheelSolid::get_point_on_accordion_surface(G4ThreeVector &p) const
   p[2] = rnd->Uniform(m_Zmin, m_Zmax);
 
   G4double rmin, rmax;
-  get_r(m_BoundingPolycone, p[2], rmin, rmax);
+  get_r(m_BoundingShape, p[2], rmin, rmax);
 
   p[1] = rnd->Uniform(rmin, rmax);
   p.setPhi(rnd->Uniform(m_MinPhi, m_MaxPhi));
@@ -120,12 +118,12 @@ void LArWheelSolid::get_point_on_accordion_surface(G4ThreeVector &p) const
 
   p.rotateZ(dphi);
 
-  if(m_BoundingPolycone->Inside(p) == kOutside){
+  if(m_BoundingShape->Inside(p) == kOutside){
     G4ThreeVector D = p; D[2] = 0.;
-    G4double d1 = m_BoundingPolycone->DistanceToIn(p, D);
+    G4double d1 = m_BoundingShape->DistanceToIn(p, D);
     if(d1 > 10.*CLHEP::m){
       D *= -1;
-      d1 = m_BoundingPolycone->DistanceToIn(p, D);
+      d1 = m_BoundingShape->DistanceToIn(p, D);
     }
     if(d1 > 10.*CLHEP::m){
       set_failover_point(p, "acc fail0");
@@ -141,7 +139,7 @@ void LArWheelSolid::get_point_on_accordion_surface(G4ThreeVector &p) const
 
     B[0] = GetCalculator()->AmplitudeOfSurface(B, side, B_fan);
     B.rotateZ(dphi);
-    EInside Bi = m_BoundingPolycone->Inside(B);
+    EInside Bi = m_BoundingShape->Inside(B);
     if(Bi == kSurface){
       p = B;
       return;
@@ -151,7 +149,7 @@ void LArWheelSolid::get_point_on_accordion_surface(G4ThreeVector &p) const
       return;
     }
     G4ThreeVector D1 = (p - B).unit();
-    G4ThreeVector X = B + D1 * m_BoundingPolycone->DistanceToOut(B, D1);
+    G4ThreeVector X = B + D1 * m_BoundingShape->DistanceToOut(B, D1);
     if(Inside(X) == kSurface){
       p = X;
     } else { // failed
@@ -165,7 +163,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
 {
   const G4double z = rnd->Uniform(m_Zmin, m_Zmax);
   G4double rmin, rmax;
-  get_r(m_BoundingPolycone, z, rmin, rmax);
+  get_r(m_BoundingShape, z, rmin, rmax);
   const bool inner = rnd->Uniform() > 0.5? true: false;
 
   p[0] = 0.; p[1] = inner? rmin: rmax; p[2] = z;
@@ -180,7 +178,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   G4ThreeVector A1(0., r, z);
   A1[0] = GetCalculator()->AmplitudeOfSurface(A1, -1, p_fan);
   A1.rotateZ(dphi);
-  EInside A1i = m_BoundingPolycone->Inside(A1);
+  EInside A1i = m_BoundingShape->Inside(A1);
   //	EInside A1a = Inside_accordion(A1);
   //std::cout << "A1: " << A1i << " " << A1a << std::endl;
   if(A1i == kSurface){
@@ -192,7 +190,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   G4ThreeVector A2(0., r, z);
   A2[0] = GetCalculator()->AmplitudeOfSurface(A2, 1, p_fan);
   A2.rotateZ(dphi);
-  EInside A2i = m_BoundingPolycone->Inside(A2);
+  EInside A2i = m_BoundingShape->Inside(A2);
   //	EInside A2a = Inside_accordion(A2);
   //std::cout << "A2: " << A2i << " " << A2a << std::endl;
   if(A2i == kSurface){
@@ -208,7 +206,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
     }
     // here A1 is outside BP, A2 is inside BP
     G4ThreeVector d = (A2 - A1).unit();
-    p = A1 + d * m_BoundingPolycone->DistanceToIn(A1, d);
+    p = A1 + d * m_BoundingShape->DistanceToIn(A1, d);
     //std::cout << "got A1<->A2" << std::endl;
     return;
   }
@@ -216,14 +214,14 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
 
   G4double step;
   if(A1i == kInside){
-    G4double d1 = m_BoundingPolycone->DistanceToOut(A1);
-    G4double d2 = m_BoundingPolycone->DistanceToOut(A2);
+    G4double d1 = m_BoundingShape->DistanceToOut(A1);
+    G4double d2 = m_BoundingShape->DistanceToOut(A2);
     step = d1 > d2? d1 : d2;
     if(inner) step *= -2;
     else step *= 2;
   } else {
-    G4double d1 = m_BoundingPolycone->DistanceToIn(A1);
-    G4double d2 = m_BoundingPolycone->DistanceToIn(A2);
+    G4double d1 = m_BoundingShape->DistanceToIn(A1);
+    G4double d2 = m_BoundingShape->DistanceToIn(A2);
     step = d1 > d2? d1 : d2;
     if(inner) step *= 2;
     else step *= -2;
@@ -232,7 +230,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   G4ThreeVector B1(0., r + step, z);
   B1[0] = GetCalculator()->AmplitudeOfSurface(B1, -1, p_fan);
   B1.rotateZ(dphi);
-  EInside B1i = m_BoundingPolycone->Inside(B1);
+  EInside B1i = m_BoundingShape->Inside(B1);
   //	EInside B1a = Inside_accordion(B1);
   //std::cout << "B1: " << B1i << " " << B1a << std::endl;
   if(B1i == kSurface){
@@ -243,7 +241,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   G4ThreeVector B2(0., r + step, z);
   B2[0] = GetCalculator()->AmplitudeOfSurface(B2, 1, p_fan);
   B2.rotateZ(dphi);
-  EInside B2i = m_BoundingPolycone->Inside(B2);
+  EInside B2i = m_BoundingShape->Inside(B2);
   //	EInside B2a = Inside_accordion(B2);
   //std::cout << "B2: " << B2i << " " << B2a << std::endl;
   if(B2i == kSurface){
@@ -265,9 +263,9 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   // here A* outside, B* inside, all on accordion surface
 
   G4ThreeVector d1 = (A1 - B1).unit();
-  G4ThreeVector X1 = B1 + d1 * m_BoundingPolycone->DistanceToOut(B1, d1);
+  G4ThreeVector X1 = B1 + d1 * m_BoundingShape->DistanceToOut(B1, d1);
   G4ThreeVector d2 = (A2 - B2).unit();
-  G4ThreeVector X2 = B2 + d2 * m_BoundingPolycone->DistanceToOut(B2, d2);
+  G4ThreeVector X2 = B2 + d2 * m_BoundingShape->DistanceToOut(B2, d2);
 
   G4ThreeVector X = X1;
   G4double phi1 = X1.phi(), phi2 = X2.phi();
@@ -291,7 +289,7 @@ void LArWheelSolid::get_point_on_flat_surface(G4ThreeVector &p) const
   p[2] = rnd->Uniform() > 0.5? m_Zmin: m_Zmax;
 
   G4double rmin, rmax;
-  get_r(m_BoundingPolycone, p[2], rmin, rmax);
+  get_r(m_BoundingShape, p[2], rmin, rmax);
 
   p[1] = rnd->Uniform(rmin, rmax);
   p.setPhi(rnd->Uniform(m_MinPhi, m_MaxPhi));
@@ -307,7 +305,7 @@ void LArWheelSolid::get_point_on_flat_surface(G4ThreeVector &p) const
 
   p.rotateZ(dphi);
 
-  if(m_BoundingPolycone->Inside(p) != kSurface){
+  if(m_BoundingShape->Inside(p) != kSurface){
     set_failover_point(p, "flat fail");
   }
 }
@@ -339,9 +337,9 @@ G4double LArWheelSolid::get_area_on_face(void) const
 {
   G4double result = 0.;
   G4double rmin, rmax;
-  get_r(m_BoundingPolycone, m_Zmin, rmin, rmax);
+  get_r(m_BoundingShape, m_Zmin, rmin, rmax);
   result += rmax - rmin;
-  get_r(m_BoundingPolycone, m_Zmax, rmin, rmax);
+  get_r(m_BoundingShape, m_Zmax, rmin, rmax);
   result += rmax - rmin;
   result *= GetCalculator()->GetFanHalfThickness() * 2.;
   return result;
@@ -351,11 +349,11 @@ G4double LArWheelSolid::get_length_at_r(G4double r) const
 {
   m_f_length->SetParameter(0, r);
 
-  double zmin = m_BoundingPolycone->DistanceToIn(
-                                               G4ThreeVector(0., r, -m_Zmin), G4ThreeVector(0., 0., 1.)
-                                               );
+  double zmin = m_BoundingShape->DistanceToIn(
+    G4ThreeVector(0., r, -m_Zmin), G4ThreeVector(0., 0., 1.)
+  );
   zmin -= m_Zmin * 2.;
-  double zmax = m_BoundingPolycone->DistanceToIn(
+  double zmax = m_BoundingShape->DistanceToIn(
                                                G4ThreeVector(0., r, m_Zmax), G4ThreeVector(0., 0., -1.)
                                                );
   zmax = m_Zmax - zmax;
@@ -521,10 +519,10 @@ G4double LArWheelSolid::get_area_at_r(G4double r) const
 {
   m_f_area->SetParameter(0, r);
 
-  double zmin = m_BoundingPolycone->DistanceToIn(
+  double zmin = m_BoundingShape->DistanceToIn(
                                                G4ThreeVector(0., r, m_Zmin), G4ThreeVector(0., 0., 1.)
                                                );
-  double zmax = m_BoundingPolycone->DistanceToIn(
+  double zmax = m_BoundingShape->DistanceToIn(
                                                G4ThreeVector(0., r, m_Zmax), G4ThreeVector(0., 0., -1.)
                                                );
   zmax = m_Zmax - zmax;
@@ -562,7 +560,7 @@ double LArWheelSolid_fcn_area_on_pc(double *x, double *p)
   const double &index = p[0];
 
   G4double rmin, rmax;
-  get_r(solid[index]->m_BoundingPolycone, z, rmin, rmax);
+  get_r(solid[index]->m_BoundingShape, z, rmin, rmax);
 
   double result = 0.;
   G4ThreeVector a(0., rmin, z);

@@ -6,7 +6,6 @@
 
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetIdentifier/PixelID.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "ExtractCondensedIBLhits.h"
 #include "PixelByteStreamModuleMask.h"
@@ -52,11 +51,9 @@ PixelRodDecoder::PixelRodDecoder
       m_maxNumBCIDWarnings(50),
       m_pixelCabling("PixelCablingSvc",name),
       m_pixel_id(nullptr),
-      m_det(eformat::SubDetector()),
-      m_errors("PixelByteStreamErrorsSvc",name)
+      m_det(eformat::SubDetector())
 {
     declareInterface< IPixelRodDecoder  >( this );
-    declareProperty ("ErrorsSvc",m_errors);
 }
 
 //--------------------------------------------------------------------------- destructor
@@ -86,11 +83,7 @@ StatusCode PixelRodDecoder::initialize() {
     ATH_MSG_DEBUG( "m_is_ibl_present = " << m_is_ibl_present );
 
     // Retrieve Pixel Errors Service
-    if (m_errors.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve ByteStream Errors tool " << m_errors );
-        return StatusCode::FAILURE;
-    } else
-        ATH_MSG_INFO( "Retrieved ByteStream Errors tool " << m_errors);
+    ATH_CHECK(m_errors.retrieve());
 
     m_masked_errors = 0;
 
@@ -1108,7 +1101,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         }
     }
 
-
     if (sc == StatusCode::RECOVERABLE) {
 
         if (errorcode == (3 << 20) ){  // Fix for M8, this error always occurs, masked out REMOVE FIXME !!
@@ -1121,6 +1113,10 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     return sc;
 }
 
+StatusCode PixelRodDecoder::StoreBSError() {
+  ATH_CHECK(m_errors->recordData());
+  return StatusCode::SUCCESS; 
+}
 
 
 // ****************************************************************************************************** DECODING FUNCTIONS

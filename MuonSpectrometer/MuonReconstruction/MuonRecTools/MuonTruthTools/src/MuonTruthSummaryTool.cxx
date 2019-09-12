@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTruthSummaryTool.h"
@@ -17,7 +17,6 @@ namespace Muon {
   MuonTruthSummaryTool::MuonTruthSummaryTool(const std::string& t, const std::string& n, const IInterface* p) : 
     AthAlgTool(t,n,p),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_incidentSvc("IncidentSvc",n),
     m_wasInit(false),
@@ -40,7 +39,7 @@ namespace Muon {
     ATH_MSG_VERBOSE("Initializing ...");
     ATH_CHECK( m_idHelper.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_incidentSvc.retrieve() );      
 
     m_incidentSvc->addListener( this, std::string("EndEvent"));
@@ -144,7 +143,7 @@ namespace Muon {
 
   void MuonTruthSummaryTool::add( const std::vector<const Trk::MeasurementBase*>& measurements, int level ) {
     for( std::vector<const Trk::MeasurementBase*>::const_iterator it = measurements.begin();it!=measurements.end();++it ){
-      Identifier id = m_helper->getIdentifier(**it);
+      Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( id.is_valid() && m_idHelper->isMuon(id) ) add(id,level);
     }
   }

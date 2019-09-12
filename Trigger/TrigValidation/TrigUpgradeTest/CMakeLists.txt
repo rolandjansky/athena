@@ -23,7 +23,7 @@ atlas_add_component( TrigUpgradeTest
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref share/*.conf )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/exec*.sh test/test*.sh )
+atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
 
 # Check python syntax:
 atlas_add_test( flake8
@@ -55,3 +55,11 @@ _add_test( emu_l1_decoding POST_EXEC_SCRIPT nopost.sh ) # should be moved to the
 _add_test( emu_scaling_CF  EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
 _add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
 
+# Unit tests of the test scripts
+atlas_add_test( flake8_test_dir
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/test
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TrigValSteeringUT
+                SCRIPT trigvalsteering-unit-tester.py ${CMAKE_CURRENT_SOURCE_DIR}/test
+                POST_EXEC_SCRIPT nopost.sh )

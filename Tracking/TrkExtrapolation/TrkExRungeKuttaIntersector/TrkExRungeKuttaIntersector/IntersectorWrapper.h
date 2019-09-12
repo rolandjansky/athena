@@ -43,7 +43,7 @@ class IntersectorWrapper: public AthAlgTool,
       - returns a ParametersBase object as well, 0 if the extrapolation did not succeed
       */
     /// implemented
-    virtual const NeutralParameters* propagate(const NeutralParameters&,
+    virtual  NeutralParameters* propagate(const NeutralParameters&,
                                        const Surface&,
                                        PropDirection,
                                        BoundaryCheck,
@@ -57,14 +57,14 @@ class IntersectorWrapper: public AthAlgTool,
       is responsible for the underlying logic of which surface to go to.
       */
     /// implemented
-    virtual const TrackParameters*      propagate( const TrackParameters& parm,
-                                           const Surface& sf,
-                                           PropDirection dir,
-                                           BoundaryCheck bcheck,
-                                           const MagneticFieldProperties& mprop,
-                                           ParticleHypothesis particle,
-                                           bool returnCurv,
-                                           const TrackingVolume*) const override;
+    virtual  TrackParameters*      propagate( const TrackParameters& parm,
+                                              const Surface& sf,
+                                              PropDirection dir,
+                                              BoundaryCheck bcheck,
+                                              const MagneticFieldProperties& mprop,
+                                              ParticleHypothesis particle,
+                                              bool returnCurv,
+                                              const TrackingVolume*) const override;
 
 
     /** Propagation interface:
@@ -72,7 +72,7 @@ class IntersectorWrapper: public AthAlgTool,
       The propagation method called by the TrkExtrapolator. The propagator
       finds the closest surface.
       */
-    virtual const TrackParameters* propagate( const TrackParameters&,
+    virtual TrackParameters* propagate( const TrackParameters&,
                                       std::vector<DestSurf>&,
                                       PropDirection,
                                       const MagneticFieldProperties&,
@@ -88,7 +88,7 @@ class IntersectorWrapper: public AthAlgTool,
       The propagation method called by the TrkExtrapolator. The propagator
       finds the closest surface. Timing included.
       */
-    virtual const TrackParameters* propagateT( const TrackParameters&,
+    virtual  TrackParameters* propagateT( const TrackParameters&,
                                        std::vector<DestSurf>&,
                                        PropDirection,
                                        const MagneticFieldProperties&,
@@ -106,7 +106,7 @@ class IntersectorWrapper: public AthAlgTool,
 
 */
     /// implemented
-    virtual const TrackParameters*      propagate( const TrackParameters&,
+    virtual  TrackParameters*      propagate( const TrackParameters&,
                                            const Surface&,
                                            PropDirection,
                                            BoundaryCheck,
@@ -122,7 +122,7 @@ class IntersectorWrapper: public AthAlgTool,
       the pathlength has to be returned for eventual following propagateCovariance
       */
     /// implemented
-    virtual const TrackParameters*      propagateParameters( const TrackParameters& parm,
+    virtual  TrackParameters*      propagateParameters( const TrackParameters& parm,
                                                      const Surface& sf,
                                                      PropDirection dir,
                                                      BoundaryCheck bcheck,
@@ -132,7 +132,7 @@ class IntersectorWrapper: public AthAlgTool,
                                                      const TrackingVolume* tVol=0) const override;
 
     /// implemented
-    virtual const TrackParameters*      propagateParameters( const TrackParameters& parm,
+    virtual  TrackParameters*      propagateParameters( const TrackParameters& parm,
                                                      const Surface& sf,
                                                      PropDirection dir,
                                                      BoundaryCheck bcheck,
@@ -188,7 +188,7 @@ class IntersectorWrapper: public AthAlgTool,
       double			                                    m_charge;
       double			                                    m_qOverP;
       std::unique_ptr<const TrackSurfaceIntersection> m_intersection;
-      const TrackParameters*                  	      m_parameters;
+      TrackParameters*                         	      m_parameters;
       Amg::Vector3D		                                m_position;
       Amg::Vector3D		                                m_momentum;
 

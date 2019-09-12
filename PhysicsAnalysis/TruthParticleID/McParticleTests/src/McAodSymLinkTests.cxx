@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // McAodSymLinkTests.cxx 
@@ -15,9 +15,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 
 // NavFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"

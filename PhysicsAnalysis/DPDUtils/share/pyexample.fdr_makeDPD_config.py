@@ -43,7 +43,6 @@ StreamDPD.ItemList += ['Rec::TrackParticleContainer#TrackParticleCandidate']
 StreamDPD.ItemList += ['Rec::TrackParticleContainer#StacoTrackParticles']
 StreamDPD.ItemList += ['VxContainer#*']
 
-StreamDPD.ForceRead=TRUE;  #force read of output data objs
 
 #electron Filter 
 StreamDPD.AcceptAlgs=["ElectronFilter"]

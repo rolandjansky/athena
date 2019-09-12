@@ -2,18 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <algorithm>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/Monitored.h"
-
 #include "DecisionHandling/Combinators.h"
-
-#include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/versions/L2CombinedMuonContainer_v1.h"
-#include "xAODTrigMuon/L2CombinedMuon.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigmuCombHypoTool.h"
 
@@ -37,13 +27,13 @@ TrigmuCombHypoTool::~TrigmuCombHypoTool(){
 
 StatusCode TrigmuCombHypoTool::initialize()
 {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
  
    ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
  
    if (m_acceptAll) {
       ATH_MSG_DEBUG("AcceptAll = True");
-      ATH_MSG_INFO("Accepting all the events with not cut!");
+      ATH_MSG_INFO("Accepting all the events!");
    } else {
       ATH_MSG_DEBUG("AcceptAll = False");
       m_bins.resize (m_ptBins.size());
@@ -212,14 +202,9 @@ StatusCode TrigmuCombHypoTool::decide(std::vector<TrigmuCombHypoTool::CombinedMu
       ATH_MSG_DEBUG("Applying selection of single << " << m_decisionId );
       return inclusiveSelection(toolInput); 
    } else {			// in case of HLT_2mu6 and so on.
-      if ( numMuon == 1 ) {	// If RoIs have only 1 muon, multipul selection wouldn't run.
-         ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-         ATH_MSG_DEBUG("Not applying selection " << m_decisionId << " because of " << numMuon << " muon" );
-      } else {			// IF RoIs have some muon, multipul selection would run.
-         ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-         ATH_MSG_DEBUG("Applying selection of multiplicity << " << m_decisionId );
-         return multiplicitySelection(toolInput);
-      }
+     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
+     ATH_MSG_DEBUG("Applying selection of multiplicity << " << m_decisionId );
+     return multiplicitySelection(toolInput);
    }
  
    return StatusCode::SUCCESS;
@@ -248,7 +233,7 @@ StatusCode TrigmuCombHypoTool::inclusiveSelection(std::vector<TrigmuCombHypoTool
 
 StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const
 {
-   HLT::Index2DVec passingSelection( input.size() );
+   HLT::Index2DVec passingSelection( m_ptBins.size() );
 
    for ( size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex ) {
       size_t elementIndex{ 0 };      

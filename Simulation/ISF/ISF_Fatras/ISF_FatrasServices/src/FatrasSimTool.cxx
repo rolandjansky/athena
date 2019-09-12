@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./FatrasSimTool.h"
@@ -37,7 +37,7 @@ StatusCode ISF::FatrasSimTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FatrasSimTool::simulate( const ISFParticle& isp, ISFParticleContainer& secondaries, McEventCollection* ) {
+StatusCode ISF::FatrasSimTool::simulate( const ISFParticle& isp, ISFParticleContainer& secondaries, McEventCollection* ) const {
 
   // give a screen output that you entered FatrasSimSvc
   ATH_MSG_VERBOSE( "Particle " << isp << " received for simulation." );

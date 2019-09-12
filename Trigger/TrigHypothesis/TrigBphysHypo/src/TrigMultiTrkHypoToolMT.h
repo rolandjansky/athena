@@ -22,7 +22,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
@@ -35,8 +35,6 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 #include "DecisionHandling/Combinators.h"
-
-class StoreGateSvc;
 
 
 class TrigMultiTrkHypoToolMT: public ::AthAlgTool  {

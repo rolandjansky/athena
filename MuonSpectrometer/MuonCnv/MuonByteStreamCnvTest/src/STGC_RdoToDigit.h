@@ -28,7 +28,6 @@ class STGC_RdoToDigit : public AthAlgorithm {
 
   ToolHandle<Muon::ISTGC_RDO_Decoder> m_stgcRdoDecoderTool{this, "sTgcRdoDecoderTool", "Muon::STGC_RDO_Decoder", ""};
   const sTgcIdHelper *   m_stgcHelper{};
-  sTgcDigitContainer *   m_stgcContainer{};
   SG::ReadHandleKey<Muon::STGC_RawDataContainer> m_stgcRdoKey{this, "sTgcRdoContainer", "sTGCRDO", "sTGC RDO Input"};
   SG::WriteHandleKey<sTgcDigitContainer> m_stgcDigitKey{this, "sTgcDigitContainer", "sTGC_DIGITS", "sTGC Digit Output"};
 };

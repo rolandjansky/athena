@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,6 +25,7 @@
 #include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -46,7 +47,6 @@ namespace Muon {
   
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
   class MuonSegment;
   class MuonClusterOnTrack;
   /**
@@ -125,7 +125,9 @@ namespace Muon {
     ToolHandle<IMuonClusterOnTrackCreator>      m_muonClusterCreator;
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_muonCompRotCreator;
     ToolHandle<MuonIdHelperTool>                m_idHelper;
-    ToolHandle<MuonEDMHelperTool>               m_helper;
+    ServiceHandle<IMuonEDMHelperSvc>            m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool>              m_printer;
     ToolHandle<IMuonTrackExtrapolationTool>     m_trackExtrapolationTool;
     ToolHandle<IMuonTrackCleaner>               m_trackCleaner;

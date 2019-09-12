@@ -15,44 +15,15 @@ decription           : Definition of component parameters for use in a mixture
 
 #ifndef TrkComponentParameters
 #define TrkComponentParameters
-#include "TrkParameters/TrackParameters.h" 
-
-
-/* 
- * Note that this class does not own/delete the Trk::TrackParameters ptr.
- * Deletion happens only if you push it in a MultiComponentState. In which
- * case it takes ownership
- * This needs some care and can be target of furhter refactoring .... 
- */
+#include "TrkParameters/TrackParameters.h"
 
 namespace Trk{
-class ComponentParameters : public std::pair<const TrackParameters*, double>{
-public:
 
-  /** Default constructor */
-  ComponentParameters() = default;
-  /** Constructor with pointer to track parameters and weighting double */
-  ComponentParameters(const Trk::TrackParameters* trackParameters, double weight):
-      std::pair<const Trk::TrackParameters*, double>(trackParameters, weight)
-  {}
-  /** Default constructor */
-  ComponentParameters(const Trk::ComponentParameters& componentParameters) = default;
-  /** Default assignment **/
-  ComponentParameters & operator=(const ComponentParameters&) = default;
+typedef std::pair<const TrackParameters*, double> ComponentParameters; //Used by the MultiComponentState
 
-  /** Destructor */
-  ~ComponentParameters() = default;
+typedef std::pair<std::unique_ptr<Trk::TrackParameters>, double> SimpleComponentParameters;
 
-  /** Clone method */
-  const Trk::ComponentParameters clone() const
-  {
-    return ComponentParameters( (this->first)->clone(), this->second );
-  }
-
-};
-
+typedef std::vector<SimpleComponentParameters> SimpleMultiComponentState;
 } // end Trk namespace
 
 #endif
-
-

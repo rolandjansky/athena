@@ -68,7 +68,6 @@ class SimSkeleton(object):
         #import EventInfoMgt.EventInfoMgtInit
 
         ## EventInfo & TruthEvent always written by default
-        stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]

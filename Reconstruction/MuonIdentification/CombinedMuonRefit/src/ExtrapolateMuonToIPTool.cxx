@@ -11,7 +11,7 @@
 
 #include "ExtrapolateMuonToIPTool.h"
 #include "TrkParameters/TrackParameters.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 
@@ -22,7 +22,7 @@
 ExtrapolateMuonToIPTool::ExtrapolateMuonToIPTool(const std::string& t, const std::string& n,const IInterface* p)  :  
   AthAlgTool(t,n,p),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
+  m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   m_nextrapolations(0),
   m_failedClosestPars(0),
@@ -47,12 +47,17 @@ StatusCode ExtrapolateMuonToIPTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if(!m_helper.empty()) {
-    if(m_helper.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve helper " << m_helper);
+  if( m_muonExtrapolator.retrieve().isFailure() ){
+    ATH_MSG_ERROR( "failed to retrieve " << m_muonExtrapolator );
+    return StatusCode::FAILURE;
+  }
+
+  if(!m_edmHelperSvc.empty()) {
+    if(m_edmHelperSvc.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Failed to retrieve helper " << m_edmHelperSvc);
       return StatusCode::FAILURE;
     }else {
-      ATH_MSG_DEBUG( "Retrieved helper " << m_helper );
+      ATH_MSG_DEBUG( "Retrieved helper " << m_edmHelperSvc );
     }  
   }
 
@@ -169,9 +174,9 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
 	
   // create the new track
   // create new perigee
-  const Trk::Perigee* ipPerigee = dynamic_cast<const Trk::Perigee*>(ipPars);
+  std::unique_ptr<const Trk::Perigee> ipPerigee { dynamic_cast<const Trk::Perigee*>(ipPars) };
   if( !ipPerigee ){
-    ipPerigee = m_helper->createPerigee(*ipPars);
+    ipPerigee = createPerigee(*ipPars);
     delete ipPars;
   }
 	
@@ -188,7 +193,6 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
   unsigned int newSize = oldTSOT->size() + 1;
   trackStateOnSurfaces->reserve( newSize );
 	   
-  bool perigeeWasInserted = false;
   Amg::Vector3D perDir = ipPerigee->momentum().unit();
 	
   // if we didn't start from a parameter in the muon system add perigee to the front
@@ -203,24 +207,25 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
 	   
     const Trk::TrackParameters* pars = (*tsit)->trackParameters();
     if( !pars ) continue;
-	
-    double distanceOfPerigeeToCurrent = perDir.dot(pars->position() - ipPerigee->position());
+
+    if (ipPerigee) {
+      double distanceOfPerigeeToCurrent = perDir.dot(pars->position() - ipPerigee->position());
 	     
-    if( !perigeeWasInserted && distanceOfPerigeeToCurrent > 0. ){
-      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-      typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,typePattern) );
-      perigeeWasInserted = true;
+      if( distanceOfPerigeeToCurrent > 0. ){
+        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+        typePattern.set(Trk::TrackStateOnSurface::Perigee);
+        trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee.release(),0,0,typePattern) );
+      }
     }
 	
     // copy remainging TSOS
     trackStateOnSurfaces->push_back( (*tsit)->clone() );
   }
 	
-  if( !perigeeWasInserted ) {
+  if( ipPerigee ) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
-    trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,typePattern) );
+    trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee.release(),0,0,typePattern) );
   }
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << " creating new track " << endmsg;
@@ -272,6 +277,23 @@ const Trk::TrackParameters* ExtrapolateMuonToIPTool::findMeasuredParametersClose
     msg(MSG::DEBUG) << " No measured closest parameters found, using none measured parameters" << endmsg;
   }
   return closestPars;
+}
+
+std::unique_ptr<const Trk::Perigee> ExtrapolateMuonToIPTool::createPerigee( const Trk::TrackParameters& pars ) const {
+  std::unique_ptr<const Trk::Perigee> perigee;
+  if( m_muonExtrapolator.empty() ) { 
+    return perigee;
+  }
+  Trk::PerigeeSurface persurf(pars.position());
+  const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(pars,persurf);
+  const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
+  if( !pp ) {
+    ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");
+    delete exPars;
+    return perigee;
+  }
+  perigee.reset(pp);
+  return perigee;
 }
 
 

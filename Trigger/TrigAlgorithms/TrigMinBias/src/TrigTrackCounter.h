@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,8 +15,6 @@
 #include <string>
 #include "TrkTrack/TrackCollection.h"
 #include "xAODTrigMinBias/TrigHisto2D.h"
-
-class StoreGateSvc;
 
 /** @class TrigTrackCounter
 

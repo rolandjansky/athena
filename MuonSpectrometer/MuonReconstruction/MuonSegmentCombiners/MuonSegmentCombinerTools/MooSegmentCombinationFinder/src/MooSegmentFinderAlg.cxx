@@ -12,8 +12,6 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
   m_keyTgc("TGC_Measurements"),

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCnvAlg.cxx 298303 2013-12-05 08:41:30Z emoyse $
@@ -16,7 +16,6 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 
-#include "CxxUtils/make_unique.h"
 // Local include(s):
 #include "TrackParticleCnvAlg.h"
 #include "xAODTrackingCnv/ITrackCollectionCnvTool.h"

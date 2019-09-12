@@ -24,22 +24,25 @@
 namespace Analysis {
   class IMultivariateJetTagger;
 
-  class MultivariateTagManager: public AthAlgTool, virtual public ITagTool
+  class MultivariateTagManager: public extends<AthAlgTool, ITagTool>
   {
   public:
 
     MultivariateTagManager(const std::string&,
-		     const std::string&,
-		     const IInterface*);
+                           const std::string&,
+                           const IInterface*);
 
     virtual ~MultivariateTagManager(){};
 
-    StatusCode initialize();
-    StatusCode finalize();
-    void setOrigin(const xAOD::Vertex* priVtx);
-    void finalizeHistos() {};
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual void finalizeHistos()  override {};
 
-    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag);
+
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag,
+                              const std::string &jetName) const override;
 
 
   private:
@@ -48,17 +51,17 @@ namespace Analysis {
     typedef std::map<std::string, double> var_map;
 
     // load input variables from xAOD
-    void fill_ip2d(var_map& inputs, xAOD::BTagging* BTag) const;
-    void fill_ip3d(var_map& inputs, xAOD::BTagging* BTag) const;
-    void fill_sv0(var_map& inputs, xAOD::BTagging* BTag) const;
-    void fill_sv1(var_map& inputs, xAOD::BTagging* BTag) const;
-    void fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag) const;
-    void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging* BTag) const;
-    void fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag) const;
-    void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag) const;
-    void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_ip2d(var_map& inputs, xAOD::BTagging& BTag) const;
+    void fill_ip3d(var_map& inputs, xAOD::BTagging& BTag) const;
+    void fill_sv0(const xAOD::Vertex& priVtx, var_map& inputs, xAOD::BTagging& BTag) const;
+    void fill_sv1(var_map& inputs, xAOD::BTagging& BTag) const;
+    void fill_jetfitter(var_map& inputs, xAOD::BTagging& BTag) const;
+    void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging& BTag) const;
+    void fill_mv2cl100(var_map& inputs, xAOD::BTagging& BTag) const;
+    void fill_trkSum(var_map& inputs, xAOD::BTagging& BTag) const;
+    void fill_softmuon(var_map& inputs, xAOD::BTagging& BTag) const;
 
-    void fill_arbitrary_aux_data(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_arbitrary_aux_data(var_map& inputs, xAOD::BTagging& BTag) const;
 
     // container information
     std::string m_ip2d_infosource;
@@ -73,14 +76,8 @@ namespace Analysis {
     std::map<std::string, std::string> m_aux_data_name_map;
 
     ToolHandleArray< IMultivariateJetTagger > m_MultivariateTaggerHandleArray;
-
-    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
-    // this pointer does not need to be deleted in the destructor (because it
-    // points to something in storegate)
-    const xAOD::Vertex* m_priVtx = 0;
   }; // end class
 
-  inline void MultivariateTagManager::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 } //end Analysis namespace
 
 #endif // BTAGTOOL_MULTIVARIATETAGMANAGER_C

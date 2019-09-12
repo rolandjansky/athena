@@ -18,12 +18,12 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCo
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
 from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
+from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
 
 InDetTrigTrackSummaryHelperToolCosmics = \
     InDet__InDetTrackSummaryHelperTool(name = "InDetTrigSummaryHelperCosmics",
                                        HoleSearch   = InDetTrigHoleSearchTool,
-                                       TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                       TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                        DoSharedHits = False)
 ToolSvc += InDetTrigTrackSummaryHelperToolCosmics
 
@@ -89,17 +89,7 @@ if DetFlags.haveRIO.SCT_on():
   condSeq = AthSequencer("AthCondSeq")
   if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
     from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-    # Copied from InDetAlignFolders.py
-    useDynamicAlignFolders = False
-    try:
-      from InDetRecExample.InDetJobProperties import InDetFlags
-      from IOVDbSvc.CondDB import conddb
-      if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-        useDynamicAlignFolders = True
-    except ImportError:
-      pass
-    condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                  UseDynamicAlignFolders = useDynamicAlignFolders)
+    condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
 
 #SP formation
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool

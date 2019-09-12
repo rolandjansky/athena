@@ -192,12 +192,12 @@ if InDetTrigFlags.loadRotCreator():
   #
   if InDetTrigFlags.redoTRT_LR():
 
-    from InDetRecExample.TrackingCommon import getTRT_DriftCircleOnTrackTool
+    from InDetRecExample.TrackingCommon import getInDetTRT_DriftCircleOnTrackTool
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import \
         InDet__TRT_DriftCircleOnTrackUniversalTool
     InDetTrigTRT_RefitRotCreator = \
         InDet__TRT_DriftCircleOnTrackUniversalTool(name  = 'InDetTrigTRT_RefitRotCreator',
-                                                   RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
+                                                   RIOonTrackToolDrift = getInDetTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
                                                    ScaleHitUncertainty = 2.5) # fix from Thijs
 #    if InDetTrigFlags.doCommissioning():    #introduced for cosmics do not use for collisions
 #      InDetTrigTRT_RefitRotCreator.ScaleHitUncertainty = 5.
@@ -708,12 +708,9 @@ if InDetTrigFlags.loadSummaryTool():
   # Configrable version of loading the InDetTrackSummaryHelperTool
   #
   from AthenaCommon.GlobalFlags import globalflags
-  # Straw status DB Tool
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-  InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                                              isGEANT4=(globalflags.DataSource == 'geant4'))
-
-
+  
+  from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
+  
   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
@@ -911,17 +908,7 @@ if InDetTrigFlags.doNewTracking():
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
       from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-      # Copied from InDetAlignFolders.py
-      useDynamicAlignFolders = False
-      try:
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        from IOVDbSvc.CondDB import conddb
-        if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-          useDynamicAlignFolders = True
-      except ImportError:
-        pass
-      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                    UseDynamicAlignFolders = useDynamicAlignFolders)
+      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
 
   # Local combinatorial track finding using space point seed and detector element road
   #
@@ -939,14 +926,25 @@ if InDetTrigFlags.doNewTracking():
                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                  SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
+  if DetFlags.haveRIO.pixel_on():
+    # Condition algorithm for SiCombinatorialTrackFinder_xk
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+      from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                            ReadKey = "PixelDetectorElementCollection",
+                                                            WriteKey = "PixelDetElementBoundaryLinks_xk")
   if DetFlags.haveRIO.SCT_on():
     # Condition algorithm for SiCombinatorialTrackFinder_xk
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
       from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
-  #to here
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                            ReadKey = "SCT_DetectorElementCollection",
+                                                            WriteKey = "SCT_DetElementBoundaryLinks_xk")
+      #to here
 
 from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
 InDetTrigAmbiTrackSelectionTool = \

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -17,13 +17,14 @@
 #include <cmath>
 #include <iomanip>
 #include <vector>
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidTrackBuilder/MuidMuonRecovery.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
@@ -48,7 +49,6 @@ MuidMuonRecovery::MuidMuonRecovery (const std::string&	type,
 				    const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
 	m_extrapolator          ("Trk::Extrapolator/AtlasExtrapolator"),
-	m_helper                ("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
 	m_idHelper              ("Muon::MuonIdHelperTool/MuonIdHelperTool"),
 	m_printer               ("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
 	m_residualCalculator    ("Trk::ResidualPullCalculator/ResidualPullCalculator"),
@@ -87,14 +87,14 @@ MuidMuonRecovery::initialize()
     {
 	ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
     }
-    if (m_helper.retrieve().isFailure())
+    if (m_edmHelperSvc.retrieve().isFailure())
     {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_helper );
+	ATH_MSG_FATAL( "Failed to retrieve tool " << m_edmHelperSvc );
 	return StatusCode::FAILURE;
     }
     else
     {
-	ATH_MSG_INFO( "Retrieved tool " << m_helper );
+	ATH_MSG_INFO( "Retrieved tool " << m_edmHelperSvc );
     }
     if (m_idHelper.retrieve().isFailure())
     {
@@ -201,7 +201,7 @@ MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 	if ( ! meas ) continue;
 	if ( (*tsosit)->type(Trk::TrackStateOnSurface::Outlier ) ) continue;
 	
-	Identifier id = m_helper->getIdentifier(*meas);
+	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	if ( !id.is_valid() ) continue;
 	Muon::MuonStationIndex::StIndex index = m_idHelper->stationIndex(id);
 	bool measuresPhi = m_idHelper->measuresPhi(id);
@@ -370,7 +370,7 @@ if (msgLvl(MSG::DEBUG))
 	if ( !meas ) continue;
 	if ( (*tsosit)->type(Trk::TrackStateOnSurface::Outlier ) ) continue;
     
-	Identifier id = m_helper->getIdentifier(*meas);
+	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	if ( !id.is_valid() ) continue;
 	Muon::MuonStationIndex::StIndex index = m_idHelper->stationIndex(id);
 	bool measuresPhi = m_idHelper->measuresPhi(id);

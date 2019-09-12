@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
@@ -20,7 +20,7 @@ namespace InDet {
 InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent):
-  AthAlgTool(type,name,parent),
+  base_class(type,name,parent),
   m_tmvaReader(nullptr),
   m_localBDT(nullptr),
   m_trkSctHitsCut(4),
@@ -36,7 +36,6 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
   m_calibFileName("TrackClassif_3cl.v02.xml"),
   m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
   {
-     declareInterface<IInDetTrkInJetType>(this);
      declareProperty("trkSctHits",   m_trkSctHitsCut   ,  "Cut on track SCT hits number" );
      declareProperty("trkPixelHits", m_trkPixelHitsCut ,  "Cut on track Pixel hits number" );
      declareProperty("trkChi2",   m_trkChi2Cut   ,  "Cut on track Chi2/Ndf" );
@@ -120,10 +119,10 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
     return StatusCode::SUCCESS; 
    }
 
-   std::vector<float> InDetTrkInJetType::trkTypeWgts(const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &)
+   std::vector<float> InDetTrkInJetType::trkTypeWgts(const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const
    {   return std::vector<float>(3,0.); }
 
-   std::vector<float> InDetTrkInJetType::trkTypeWgts(const xAOD::TrackParticle * Trk, const xAOD::Vertex & PV, const TLorentzVector & Jet)
+   std::vector<float> InDetTrkInJetType::trkTypeWgts(const xAOD::TrackParticle * Trk, const xAOD::Vertex & PV, const TLorentzVector & Jet) const
    {  
 //-- Track quality checks
       std::vector<float> safeReturn(3,0.);
@@ -140,7 +139,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
       if( SctHits   < m_trkSctHitsCut )   return safeReturn;
  
       std::vector<double> Impact,ImpactError;
-      m_Sig3D=m_fitSvc->VKalGetImpact(Trk, PV.position(), 1, Impact, ImpactError);
+      float Sig3D=m_fitSvc->VKalGetImpact(Trk, PV.position(), 1, Impact, ImpactError);
       AmgVector(5) tmpPerigee = Trk->perigeeParameters().parameters(); 
       if( sin(tmpPerigee[2]-Jet.Phi())*Impact[0] < 0 ){ Impact[0] = -fabs(Impact[0]);}
                                                   else{ Impact[0] =  fabs(Impact[0]);}
@@ -182,36 +181,34 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
 //====================== BDT weights
      double coeffPt=10.;
      double pfrac=(Trk->pt()-m_trkMinPtCut)/sqrt(Jet.Perp());
-     m_prbP= pfrac/(coeffPt+pfrac);
-     m_etatrk=Trk->eta();
+     float prbP= pfrac/(coeffPt+pfrac);
+     float etatrk=Trk->eta();
 //---
      double coeffSig=1.0;
      if(trkSignif<coeffSig) return safeReturn;
-     m_prbS=(trkSignif-coeffSig)/trkSignif;
-     if(m_prbS<0.) return safeReturn;
+     float prbS=(trkSignif-coeffSig)/trkSignif;
+     if(prbS<0.) return safeReturn;
 //---
-     m_d0=Impact[0];
-     m_SigZ=SignifZ;
-     m_SigR=SignifR;
+     float d0=Impact[0];
+     float SigZ=SignifZ;
+     float SigR=SignifR;
 //---
-     m_ptjet=Jet.Perp();
-     if(m_ptjet<m_jetMinPtCut)m_ptjet=m_jetMinPtCut; //Very low jet pt is replaced by Pt=35GeV
-     m_etajet=fabs(Jet.Eta());
+     float ptjet=Jet.Perp();
+     if(ptjet<m_jetMinPtCut)ptjet=m_jetMinPtCut; //Very low jet pt is replaced by Pt=35GeV
 //---
-     m_ibl = (float)hitIBL;
-     m_bl  = (float)hitBL;
+     float ibl = (float)hitIBL;
+     float bl  = (float)hitBL;
 //---
      TLorentzVector TLV; 
      TLV.SetPtEtaPhiE(Trk->pt(),Trk->eta(),Trk->phi(),Trk->e());
-     m_pTvsJet=TLV.Perp(Jet.Vect());
+     float pTvsJet=TLV.Perp(Jet.Vect());
 //---
      TLorentzVector normJ;  normJ.SetPtEtaPhiM(1.,Jet.Eta(),Jet.Phi(),0.);
-     m_prodTJ=sqrt(TLV.Dot(normJ));
 //---
      if(m_timingProfile)m_timingProfile->chronoStart("InDet_TrkInJetType");
      //std::vector<float> weights=m_tmvaReader->EvaluateMulticlass("BDTG");
      //-----Use MVAUtils to save CPU
-     std::vector<float> bdt_vars={m_Sig3D, m_prbP, m_pTvsJet, m_d0, m_SigR, m_SigZ, m_ptjet, m_ibl, m_bl, m_etatrk};
+     std::vector<float> bdt_vars={Sig3D, prbP, pTvsJet, d0, SigR, SigZ, ptjet, ibl, bl, etatrk};
      std::vector<float> weights=m_localBDT->GetMultiResponse(bdt_vars,3);
      //-----
      if(m_timingProfile)m_timingProfile->chronoStop("InDet_TrkInJetType");

@@ -25,7 +25,6 @@
 //#include "eformat/ROBFragment.h"
 //class ROBFragment;
 
-using namespace OFFLINE_FRAGMENTS_NAMESPACE ; 
 
 class LArABBADecoder : public AthAlgTool {
 
@@ -39,15 +38,16 @@ public:
    */ 
   virtual ~LArABBADecoder(); 
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
 
   StatusCode convert(const RawEvent* re, LArDigitContainer* coll);
 
 private:
 
-  void fillCollection(const ROBFragment* pROB, LArDigitContainer* coll);
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* pROB,
+                      LArDigitContainer* coll);
 }; 
 
 #endif

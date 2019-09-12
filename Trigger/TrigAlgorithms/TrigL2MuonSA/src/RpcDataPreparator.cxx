@@ -31,6 +31,7 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 {
+
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
@@ -38,8 +39,15 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( detStore()->retrieve( m_muonMgr ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_rpcIdHelper = m_muonMgr->rpcIdHelper();
-  
-   ATH_CHECK( m_rpcPrepDataProvider.retrieve() );
+ 
+   // consistency check for decoding flag settings
+   if(m_decodeBS && !m_doDecoding) {
+     ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
+     return StatusCode::FAILURE;
+   }
+ 
+   // disable the RDO->PRD decoding tool if we don't do the RPC data decoding
+   ATH_CHECK( m_rpcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
 
    ATH_CHECK( m_idHelperTool.retrieve() );
@@ -47,7 +55,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 
    // Retreive PRC raw data provider tool
    ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
-   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }) );
+   // disable the BS->RDO decoding tool if we don't do the RPC data decoding
+   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }) );
    ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
 
    // Retrieve the RPC cabling service
@@ -132,14 +141,16 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
-     if(m_decodeBS) {
+     if(m_doDecoding) {
+       if(m_decodeBS) {
          if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
              ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
          }
-     }
-     if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
-       ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
-     }
+       }
+       if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
+         ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
+       }
+     }//do decoding
      
    } else {
      
@@ -150,14 +161,16 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, rpcRobList);
-     if(m_decodeBS) {
+     if(m_doDecoding) {
+       if(m_decodeBS) {
          if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
              ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
          }
-     }
-     if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
-       ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
-     }
+       }
+       if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
+         ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
+       }
+     }//do decoding
      
    }
    

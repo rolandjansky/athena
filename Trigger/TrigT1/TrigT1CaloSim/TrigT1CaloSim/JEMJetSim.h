@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  /***************************************************************************
@@ -27,7 +27,6 @@
  
  #include "AthContainers/DataVector.h"
  #include "GaudiKernel/DataSvc.h"
- #include "StoreGate/StoreGateSvc.h"
 
 // Include for the configuration service:
  #include "TrigConfInterfaces/ILVL1ConfigSvc.h"

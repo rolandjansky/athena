@@ -16,39 +16,39 @@ decription           : Bethe-Heitler material effects for the GSF
 
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
+namespace Trk {
 
-namespace Trk{
+class GsfBetheHeitlerEffects
+  : public AthAlgTool
+  , virtual public IMultiStateMaterialEffects
+{
 
-class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMaterialEffects {
-
- private:
-
+private:
   /** Helper class for construction and evaluation of polynomial */
-  class Polynomial {
+  class Polynomial
+  {
   public:
     // Default constructor
-    Polynomial () {};
+    Polynomial(){};
 
     /** Constructor from a vector of coefficients (in decreasing order of powers of x */
-    Polynomial (const std::vector<double>& coefficients)
-      :
-      m_coefficients(coefficients)
-      {};
+    Polynomial(const std::vector<double>& coefficients)
+      : m_coefficients(coefficients){};
 
     // Evaluation of the polynomial for given material thickness (t)
-    double operator () (const double& t) const
+    double operator()(const double& t) const
     {
       double sum(0.);
       std::vector<double>::const_iterator coefficient = m_coefficients.begin();
-    
-      for ( ; coefficient != m_coefficients.end(); ++coefficient)
+
+      for (; coefficient != m_coefficients.end(); ++coefficient)
         sum = t * sum + (*coefficient);
-    
+
       return sum;
     }
 
@@ -56,16 +56,17 @@ class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMate
     std::vector<double> m_coefficients;
   };
 
-  struct ComponentValues {
+  struct ComponentValues
+  {
     double weight;
     double mean;
     double variance;
   };
 
- public:
+public:
   GsfBetheHeitlerEffects(const std::string&, const std::string&, const IInterface*);
 
-  virtual ~GsfBetheHeitlerEffects() {};
+  virtual ~GsfBetheHeitlerEffects(){};
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
@@ -73,22 +74,21 @@ class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMate
   /** AlgTool finalise method */
   virtual StatusCode finalize() override final;
 
-  virtual void compute ( Cache&,
-       const ComponentParameters&,
-       const MaterialProperties&,
-       double,
-       PropDirection direction = anyDirection,
-       ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
+  virtual void compute(Cache&,
+                       const ComponentParameters&,
+                       const MaterialProperties&,
+                       double,
+                       PropDirection direction = anyDirection,
+                       ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
-
- private:
+private:
   typedef std::vector<ComponentValues> MixtureParameters;
 
   // Read polynomial fit parameters from a specified file
   bool readParameters();
 
   // Read coeffients for a single polynomial fit
-  Polynomial readPolynomial (std::ifstream&, const int);
+  Polynomial readPolynomial(std::ifstream&, const int);
 
   // Get mixture parameters
   void getMixtureParameters(const double, MixtureParameters&) const;
@@ -106,22 +106,15 @@ class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMate
   double correctedFirstVariance(const double, const MixtureParameters&) const;
 
   // Logistic function - needed for transformation of weight and mean
-  inline double logisticFunction (const double x) const {
-    return (double) 1. / (1. + exp(-x) );
-  }
+  inline double logisticFunction(const double x) const { return (double)1. / (1. + exp(-x)); }
 
   // First moment of the Bethe-Heitler distribution
-  inline double betheHeitlerMean (const double r) const {
-    return (double) exp(-r);
-  }
+  inline double betheHeitlerMean(const double r) const { return (double)exp(-r); }
 
   // Second moment of the Bethe-Heitler distribution
-  inline double betheHeitlerVariance ( const double r) const {
-    return (double) exp( -r * log(3.)/log(2.) ) - exp(-2 * r);
-  }
+  inline double betheHeitlerVariance(const double r) const { return (double)exp(-r * log(3.) / log(2.)) - exp(-2 * r); }
 
-  private:
-
+private:
   std::string m_parameterisationFileName;
 
   int m_numberOfComponents;
@@ -129,7 +122,6 @@ class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMate
   std::vector<Polynomial> m_polynomialWeights;
   std::vector<Polynomial> m_polynomialMeans;
   std::vector<Polynomial> m_polynomialVariances;
-
 
   int m_correctionFlag;
 
@@ -145,10 +137,8 @@ class GsfBetheHeitlerEffects : public AthAlgTool, virtual public IMultiStateMate
   double m_lowerRange;
   double m_xOverRange;
   double m_upperRange;
-  bool   m_useHighX0;
+  bool m_useHighX0;
   double m_componentMeanCut;
-
-
 };
 
 }

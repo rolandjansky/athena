@@ -1,12 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from BTagging.BTaggingFlags import BTaggingFlags
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # import the NewLikelihoodTool configurable
 from JetTagTools.JetTagToolsConf import Analysis__NewLikelihoodTool
 
-def NewLikelihoodToolCfg( name = 'NewLikelihoodTool', taggername = 'IP2D', useBTagFlagsDefaults = True, **options):
+def NewLikelihoodToolCfg( flags, name = 'NewLikelihoodTool', taggername = 'IP2D', useBTagFlagsDefaults = True, **options):
     """Sets up a NewLikelihoodTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -26,7 +25,7 @@ def NewLikelihoodToolCfg( name = 'NewLikelihoodTool', taggername = 'IP2D', useBT
                         'smoothNTimes'                        : 0,
                         'normalizedProb'                      : True,
                         'interpolate'                         : True }
-            if(BTaggingFlags.Runmodus == 'reference'):
+            if(flags.BTagging.RunModus == 'reference'):
                 defaults['smoothNTimes'] = 1
         for option in defaults:
             options.setdefault(option, defaults[option])

@@ -26,14 +26,11 @@ def remember_cwd():
 
 def package_prefix(package):
     '''Returns a prefix included in names of all tests from the given package'''
-    dict = {'TriggerTest':      'trig_',
-            'TrigP1Test':       'trigP1_',
-            'TrigAnalysisTest': 'trigAna_',
-            'TrigUpgradeTest':  'trigUpgr_'}
+    from TrigValTools.TrigValSteering.Common import package_prefix_dict
     if package=='ALL':
-        return '({})'.format('|'.join(dict.values()))
-    elif package in dict:
-        return dict[package]
+        return '({})'.format('|'.join(package_prefix_dict.values()))
+    elif package in package_prefix_dict.keys():
+        return package_prefix_dict[package]
     else:
         return None
 
@@ -224,24 +221,26 @@ def main():
             target = 'test/' + os.path.basename(script_path)
             os.symlink(script_path, target)
 
-        # Run ART
-        cmd = ["art.py", "run", "-q",
-               "--max-jobs=%d" % args.maxJobs,
-               "--type=%s" % args.artType,
-               ".", "results"]
-        s = " "
-        logging.info("Executing ART command: %s", s.join(cmd))
-        subprocess.call(cmd)
+        # Set up and run ART
+        commands = [
+            'export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"',
+            'source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet',
+            'lsetup -q art']
+        art_cmd = 'art.py run -q --max-jobs={:d} --type={:s} . results'.format(args.maxJobs, args.artType)
+        commands.append(art_cmd)
+        cmd = ' && '.join(commands)
+        logging.info("Executing ART command: %s", art_cmd)
+        subprocess.call(cmd, shell=True)
         logging.info("ART finished, analysing the results\n")
 
         # Read the result summary from JSON
-        statusfile = 'results/status.json'
+        statusfile = 'results/{:s}-status.json'.format(topdir)
         if not os.path.isfile(statusfile):
             logging.error("ART status.json file is missing - likely the ART runner failed!")
             exit(1)
         with open(statusfile, 'r') as f:
             status_data = json.load(f)
-            all_test_results = status_data['.']
+            all_test_results = status_data[topdir]
             if len(all_test_results) != len(scripts):
                 logging.warning("Selected %d tests but ART executed only %d. Please check why some tests did not run!")
             failed_tests, failed_rootcomp = analyse_results(all_test_results)

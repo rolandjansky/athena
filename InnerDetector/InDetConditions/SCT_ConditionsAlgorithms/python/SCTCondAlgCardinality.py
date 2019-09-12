@@ -34,7 +34,7 @@ class SCTCondAlgCardinality:
             # InnerDetector/InDetRecAlgs/SiSpacePointFormation package
             "InDetSiElementPropertiesTableCondAlg",
             # InnerDetector/InDetRecTools/SiCombinatorialTrackFinderTool_xk package
-            "InDetSiDetElementBoundaryLinksCondAlg",
+            "InDetSiDetElementBoundaryLinksSCTCondAlg",
             # InnerDetector/InDetRecTools/SiDetElementsRoadTool_xk package
             "InDet__SiDetElementsRoadCondAlg_xk"
         ]

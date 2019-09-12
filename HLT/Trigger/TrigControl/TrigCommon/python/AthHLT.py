@@ -31,12 +31,12 @@ def get_sor_params(run_number):
       d = pickle.load(open(cool_cache, 'rb'))
       if d['RunNumber'] != run_number:
          raise Exception('Cache does not contain current run')
-      log.info('Reading cached SOR record for run %s from %s' % (run_number, cool_cache))
+      log.info('Reading cached SOR record for run %s from %s', run_number, cool_cache)
       return d
    except Exception as e:
       d = {}
       log.verbose('Could not read SOR reacord from cache: %s' % e)
-      log.info('Reading SOR record for run %s from COOL' % run_number)
+      log.info('Reading SOR record for run %s from COOL', run_number)
 
    from CoolConvUtilities import AtlCoolLib
    cdb = CondDB(run_number)
@@ -57,7 +57,7 @@ def get_sor_params(run_number):
    try:
       pickle.dump(d, open(cool_cache, 'wb'))
    except Exception:
-      log.info('Could not store SOR record in cache %s' % cool_cache)
+      log.info('Could not store SOR record in cache %s', cool_cache)
 
    return d
 
@@ -66,6 +66,13 @@ def get_sor_params(run_number):
 # Testing (used as ctest)
 #
 if __name__=='__main__':
+   # Can be used as script, e.g.: python -m TrigCommon.AthHLT 327265
+   import sys
+   if len(sys.argv)>1:
+      log.info('SOR parameters: %s', get_sor_params(int(sys.argv[1])))
+      sys.exit(0)
+
+   # Unit testing case:
    d = get_sor_params(327265)  # Run-2
    print(d)
    assert(d['DetectorMask']=='0000000000000000c10069fffffffff7')

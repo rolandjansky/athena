@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -26,7 +26,6 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
-#include "StoreGate/StoreGateSvc.h"
 
 LArTBClusterBuilder::LArTBClusterBuilder(const std::string& type, 
 					 const std::string& name,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,8 +46,6 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkGeometrySurfaces/SlidingCylinderSurface.h"
 #include "TrkGeometrySurfaces/SlidingDiscSurface.h"
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 using Gaudi::Units::mm;

@@ -26,7 +26,7 @@ StatusCode TriggerBitsMakerTool::initialize() {
 StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
   if (!chainsHandle.isValid()) {
-    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 
@@ -39,7 +39,7 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   }
 
   if (passRawChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 

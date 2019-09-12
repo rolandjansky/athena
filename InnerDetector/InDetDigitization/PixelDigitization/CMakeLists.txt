@@ -18,7 +18,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/InDetCondTools
-                          InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/SiPropertiesTool
@@ -42,7 +41,7 @@ atlas_add_component( PixelDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel CommissionEvent AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier xAODEventInfo GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry SiDigitization InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel CommissionEvent AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry SiDigitization InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver )
 
 # Install files from the package:
 atlas_install_headers( PixelDigitization )

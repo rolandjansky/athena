@@ -6,7 +6,7 @@
 #define TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H 1
 
 #include "TrigBjetHypoAlgBaseMT.h"
-#include "TrigBjetHypoTool.h"
+#include "TrigBjetBtagHypoTool.h"
 
 #include <string>
 
@@ -33,14 +33,19 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  private: 
   TrigBjetBtagHypoAlgMT();
 
-  ToolHandleArray< TrigBjetHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
+  StatusCode retrieveBtagging( const EventContext&,
+			       ElementLinkVector< xAOD::BTaggingContainer >&,
+			       const SG::ReadHandleKey< xAOD::BTaggingContainer >&,
+			       const TrigCompositeUtils::DecisionContainer*) const;
+
+  virtual StatusCode attachLinkToDecisions( const EventContext&,
+                                            const TrigCompositeUtils::DecisionContainer*,
+                                            std::vector< TrigCompositeUtils::Decision* >& ) const;
 
  private:
-  SG::ReadHandleKey< xAOD::JetContainer > m_jetKey {this,"Jets","SplitJet","Input Jet Collection"};
+  ToolHandleArray< TrigBjetBtagHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey {this,"RoIsKey","RoIs","Key for RoIs"};
   SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
-
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
 

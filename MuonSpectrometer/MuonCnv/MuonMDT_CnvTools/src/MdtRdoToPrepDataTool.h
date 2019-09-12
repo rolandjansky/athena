@@ -31,7 +31,6 @@ class MdtCalibrationSvcSettings;
 class MdtCalibHit;
 //class MdtRDO_Decoder;
 class MdtCsm;
-class StoreGateSvc;
 
 
 namespace MuonGM

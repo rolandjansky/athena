@@ -7,7 +7,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 

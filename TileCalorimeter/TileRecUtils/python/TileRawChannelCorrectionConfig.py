@@ -13,39 +13,39 @@ def TileRawChannelOF1CorrectorCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
+    kwargs.setdefault('CorrectPedestalDifference', flags.Tile.correctPedestalDifference)
+    kwargs.setdefault('ZeroAmplitudeWithoutDigits', flags.Tile.zeroAmplitudeWithoutDigits)
+    kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
+
+    if kwargs['CorrectPedestalDifference']:
+        if 'TileCondToolNoiseSample' not in kwargs:
+            from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
+            sampleNoiseAcc = TileCondToolNoiseSampleCfg(flags, TileSampleNoise = 'TileSampleNoise',
+                                                        TileOnlineSampleNoise = 'TileOnlineSampleNoise')
+
+            kwargs['TileCondToolNoiseSample'] = acc.popToolsAndMerge( sampleNoiseAcc )
+
+        if 'TileCondToolTiming' not in kwargs:
+            from TileConditions.TileTimingConfig import TileCondToolOnlineTimingCfg
+            kwargs['TileCondToolTiming'] = acc.popToolsAndMerge( TileCondToolOnlineTimingCfg(flags) )
+
+        if 'TileCondToolOfc' not in kwargs:
+            from TileConditions.TileOFCConfig import TileCondToolOfcCoolCfg
+            kwargs['TileCondToolOfc'] = acc.popToolsAndMerge( TileCondToolOfcCoolCfg(flags, OfcType = 'OF1') )
+
+    if kwargs['ZeroAmplitudeWithoutDigits']:
+
+        if 'TileCondToolDspThreshold' not in kwargs:
+            from TileConditions.TileDSPThresholdConfig import TileCondToolDspThresholdCfg
+            kwargs['TileCondToolDspThreshold'] = acc.popToolsAndMerge( TileCondToolDspThresholdCfg(flags) )
+
+        if 'TileCondToolEmscale' not in kwargs:
+            from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
+            kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
+
+
     from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector
-    tileRawChannelOF1Corrector = TileRawChannelOF1Corrector()
-    tileRawChannelOF1Corrector.CorrectPedestalDifference = flags.Tile.correctPedestalDifference
-    tileRawChannelOF1Corrector.ZeroAmplitudeWithoutDigits = flags.Tile.zeroAmplitudeWithoutDigits
-
-    if flags.Tile.correctPedestalDifference:
-        from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
-        sampleNoiseAcc = TileCondToolNoiseSampleCfg(flags, TileSampleNoise = 'TileSampleNoise',
-                                                    TileOnlineSampleNoise = 'TileOnlineSampleNoise')
-
-        sampleNoiseTool = acc.popToolsAndMerge( sampleNoiseAcc )
-        tileRawChannelOF1Corrector.TileCondToolNoiseSample = sampleNoiseTool
-
-        from TileConditions.TileTimingConfig import TileCondToolOnlineTimingCfg
-        onlineTimingTool = acc.popToolsAndMerge( TileCondToolOnlineTimingCfg(flags) )
-        tileRawChannelOF1Corrector.TileCondToolTiming = onlineTimingTool
-
-        from TileConditions.TileOFCConfig import TileCondToolOfcCoolCfg
-        ofcOF1CoolTool = acc.popToolsAndMerge( TileCondToolOfcCoolCfg(flags, OfcType = 'OF1') )
-        tileRawChannelOF1Corrector.TileCondToolOfc = ofcOF1CoolTool
-
-
-    if flags.Tile.zeroAmplitudeWithoutDigits:
-        from TileConditions.TileDSPThresholdConfig import TileCondToolDspThresholdCfg
-        dspThresholdTool = acc.popToolsAndMerge( TileCondToolDspThresholdCfg(flags) )
-        tileRawChannelOF1Corrector.TileCondToolDspThreshold = dspThresholdTool
-
-        from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
-        emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
-        tileRawChannelOF1Corrector.TileCondToolEmscale = emScaleTool
-
-
-    acc.setPrivateTools( tileRawChannelOF1Corrector )
+    acc.setPrivateTools( TileRawChannelOF1Corrector(**kwargs) )
 
     return acc
 
@@ -63,22 +63,23 @@ def TileRawChannelNoiseFilterCfg(flags, **kwargs):
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
     acc.merge( TileDQstatusAlgCfg(flags) )
 
+    if 'TileCondToolEmscale' not in kwargs:
+        from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
+        emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
+        kwargs['TileCondToolEmscale'] = emScaleTool
+
+    if 'TileCondToolNoiseSample' not in kwargs:
+        from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
+        sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
+        kwargs['TileCondToolNoiseSample'] = sampleNoiseTool
+
+    if 'TileBadChanTool' not in kwargs:
+        from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
+        badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
+        kwargs['TileBadChanTool'] = badChanTool
+
     from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
-    tileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
-
-    from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
-    emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
-    tileRawChannelNoiseFilter.TileCondToolEmscale = emScaleTool
-
-    from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
-    sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
-    tileRawChannelNoiseFilter.TileCondToolNoiseSample = sampleNoiseTool
-
-    from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
-    badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
-    tileRawChannelNoiseFilter.TileBadChanTool = badChanTool
-
-    acc.setPrivateTools( tileRawChannelNoiseFilter )
+    acc.setPrivateTools( TileRawChannelNoiseFilter(**kwargs) )
 
     return acc
 
@@ -118,18 +119,14 @@ def TileRawChannelCorrectionAlgCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
-    inputRawChannelContainer = kwargs.get('InputRawChannelContainer', 'TileRawChannelCnt')
-    outputRawChannelContainer = kwargs.get('OutputRawChannelContainer', 'TileRawChannelCntCorrected')
+    kwargs.setdefault('InputRawChannelContainer', 'TileRawChannelCnt')
+    kwargs.setdefault('OutputRawChannelContainer', 'TileRawChannelCntCorrected')
 
-    correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
+    if 'NoiseFilterTools' not in kwargs:
+        kwargs['NoiseFilterTools'] = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
 
     from TileRecUtils.TileRecUtilsConf import TileRawChannelCorrectionAlg
-    tileRawChannelCorrectionAlg = TileRawChannelCorrectionAlg(InputRawChannelContainer = inputRawChannelContainer,
-                                                              OutputRawChannelContainer = outputRawChannelContainer)
-
-    tileRawChannelCorrectionAlg.NoiseFilterTools = correctionTools
-
-    acc.addEventAlgo(tileRawChannelCorrectionAlg, primary = True)
+    acc.addEventAlgo(TileRawChannelCorrectionAlg(**kwargs), primary = True)
 
     return acc
 

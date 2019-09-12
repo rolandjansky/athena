@@ -13,7 +13,7 @@
  */
 
 #include "CxxUtils/checker_macros.h"
-
+#include <iostream>
 #include <functional>
 
 namespace TrigConf {
@@ -42,7 +42,7 @@ namespace TrigConf {
        * Iterators pointing to the front and back of the container, assuming that T can be created from the elements of V are created like this
        *@code
        ConstIter<V, T> begin( v );
-       ConstIter<V, T> end( v, v.size() );       
+       ConstIter<V, T> end( v, v.size() );
        @endcode
        *
        * An example for iterating over chains of an HLTMenu
@@ -122,7 +122,7 @@ namespace std {
         using value_type = const T;
         using pointer = const T*;
         using reference = const T&;
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = std::forward_iterator_tag;
     };
 }
 

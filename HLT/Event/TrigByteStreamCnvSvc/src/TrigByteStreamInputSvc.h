@@ -45,7 +45,7 @@ private:
 
   // ------------------------- Private data members ----------------------------
   struct EventCache {
-    ~EventCache();
+    ~EventCache() = default;
     void releaseEvent();
     std::unique_ptr<RawEvent> fullEventFragment {nullptr}; //!< Current event fragment
     std::unique_ptr<uint32_t[]> rawData {nullptr}; //!< Underlying data structure

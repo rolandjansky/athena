@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -547,19 +547,21 @@ namespace InDet{
 //  Needed translation from Rec::TrackParticle to Trk::TrackParticleBase
 //
   StatusCode InDetVKalVxInJetTool::VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listTrk,
-                                                      Amg::Vector3D  & FitVertex)
+                                                      Amg::Vector3D  & FitVertex,
+                                                      Trk::IVKalState& istate)
   const
-  {  return m_fitSvc->VKalVrtFitFast(listTrk,FitVertex);  }
+  {  return m_fitSvc->VKalVrtFitFast(listTrk,FitVertex,istate);  }
 
   StatusCode InDetVKalVxInJetTool::VKalVrtFitFastBase(const std::vector<const Rec::TrackParticle*>& listPart,
-                                                      Amg::Vector3D  & FitVertex)
+                                                      Amg::Vector3D  & FitVertex,
+                                                      Trk::IVKalState& istate)
   const
   {  
      std::vector <const Trk::TrackParticleBase*> listBase;
      for(int i=0; i<(int)listPart.size(); i++) {
        listBase.push_back( (const Trk::TrackParticleBase*)listPart[i]); 
      }
-     return m_fitSvc->VKalVrtFitFast(listBase,FitVertex);    /* Fast crude estimation */
+     return m_fitSvc->VKalVrtFitFast(listBase,FitVertex,istate);    /* Fast crude estimation */
   }
 
 
@@ -570,10 +572,13 @@ namespace InDet{
                                                   std::vector<double>&             ErrorMatrix,
                                                   std::vector<double>&             Chi2PerTrk,
                                                   std::vector< std::vector<double> >& TrkAtVrt,
-                                                  double& Chi2 ) const
+                                                  double& Chi2,
+                                                  Trk::IVKalState& istate,
+                                                  bool ifCovV0) const
   {
      return m_fitSvc->VKalVrtFit( PartToBase(listPart), Vertex, Momentum, Charge,
-                                  ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
+                                  ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2,
+                                  istate, ifCovV0 );
 
   }
 
@@ -584,17 +589,21 @@ namespace InDet{
                                                   std::vector<double>&             ErrorMatrix,
                                                   std::vector<double>&             Chi2PerTrk,
                                                   std::vector< std::vector<double> >& TrkAtVrt,
-                                                  double& Chi2 ) const
+                                                  double& Chi2,
+                                                  Trk::IVKalState& istate,
+                                                  bool ifCovV0) const
   {
      std::vector<const xAOD::NeutralParticle*> netralPartDummy(0);
      return m_fitSvc->VKalVrtFit( listPart, netralPartDummy,Vertex, Momentum, Charge,
-                                  ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
+                                  ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2,
+                                  istate, ifCovV0 );
 
   }
 
-  StatusCode InDetVKalVxInJetTool::GetTrkFitWeights(std::vector<double> & wgt) const
+  StatusCode InDetVKalVxInJetTool::GetTrkFitWeights(std::vector<double> & wgt,
+                                                    const Trk::IVKalState& istate) const
   {
-    return m_fitSvc->VKalGetTrkWeights(wgt);
+    return m_fitSvc->VKalGetTrkWeights(wgt, istate);
   }
 /*************************************************************************************************************/
   void   InDetVKalVxInJetTool::getPixelLayers(const Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLays  ) const

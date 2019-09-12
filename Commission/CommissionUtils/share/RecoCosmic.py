@@ -115,7 +115,6 @@ Stream1 = Algorithm( "Stream1" )
 Stream1.EvtConversionSvc = "AthenaPoolCnvSvc"
 # allows objects to be copied in output even if not read in
 Stream1 = Algorithm( "Stream1" )
-Stream1.ForceRead= True
 Stream1.ItemList +=["EventInfo#*"] 
 
 Stream1.ItemList +=["McEventCollection#*"] 

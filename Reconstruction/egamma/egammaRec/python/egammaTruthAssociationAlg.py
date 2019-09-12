@@ -7,7 +7,7 @@ from egammaRec.Factories import ToolFactory, PublicToolFactory, AlgFactory, FcnW
 from AthenaCommon.BeamFlags import jobproperties
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
-from egammaTools.InDetTools import egammaExtrapolator
+from egammaTools.InDetTools import egammaCaloExtrapolator
 from MCTruthClassifier import MCTruthClassifierConf
 import AthenaCommon.CfgMgr as CfgMgr
 
@@ -29,7 +29,7 @@ def getSimBarcodeOffset1():
 
 EMClassifierParticleCaloExtensionTool =  PublicToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
                                                             name="EMClassifierParticleCaloExtensionTool",
-                                                            Extrapolator = egammaExtrapolator)
+                                                            Extrapolator = egammaCaloExtrapolator)
 
 EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name = 'EMMCTruthClassifier',
                                    ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool,

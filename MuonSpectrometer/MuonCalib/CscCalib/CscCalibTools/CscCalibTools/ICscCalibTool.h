@@ -97,7 +97,6 @@ public:
 
   virtual std::pair<double,double> addBipfunc(const double driftTime0, const double stripCharge0,
                                               const double driftTime1, const double stripCharge1) const =0;
-  virtual std::string getDetDescr() const =0;
 
   virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) const =0;
   virtual double getLatency() const =0;

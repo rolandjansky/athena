@@ -14,8 +14,11 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     cdaSvc = cdaSvcAcc.getService("TrigCaloDataAccessSvc")
     acc.merge( cdaSvcAcc )
 
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    acc.merge( tileCondCfg( flags ) )    
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
+
+    from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
+    acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
     # configure tools (this can be simplified further,
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex, EgammaReHadEnFex, EgammaReSamp1Fex, EgammaReSamp2Fex

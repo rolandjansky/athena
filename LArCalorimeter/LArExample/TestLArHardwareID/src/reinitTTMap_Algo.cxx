@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdlib.h>
@@ -16,7 +16,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
@@ -25,7 +24,6 @@
 
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
-#include "CxxUtils/make_unique.h"
 
 /********************************************************/
 reinitTTMap_Algo::reinitTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -327,12 +325,12 @@ StatusCode reinitTTMap_Algo::testStruct(){
   std::string fcalFile="initDumpFCAL.txt";
   std::string otherFile="initDumpOther.txt";
   if(m_dumpMap) {
-    dumpFcal=CxxUtils::make_unique<std::ofstream>(fcalFile.c_str());   
+    dumpFcal=std::make_unique<std::ofstream>(fcalFile.c_str());   
     if (dumpFcal==0) {
       std::cout << "Problem opening FCAL dump file" << std::endl;
       return StatusCode::SUCCESS;
     }
-    dumpOther=CxxUtils::make_unique<std::ofstream>(otherFile.c_str());   
+    dumpOther=std::make_unique<std::ofstream>(otherFile.c_str());   
     if (dumpOther==0) {
       std::cout << "Problem opening other dump file" << std::endl;
       return StatusCode::SUCCESS;
