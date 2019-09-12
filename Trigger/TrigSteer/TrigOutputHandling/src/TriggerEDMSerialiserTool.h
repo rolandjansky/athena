@@ -128,6 +128,13 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * Adds dynamic variables to the payload
    */
   StatusCode serialiseDynAux( DataObject* dObject, const Address& address, std::vector<uint32_t>& buffer, size_t& nDynWritten ) const;
+
+
+  /**
+   * Obtain version from the actaul type name
+   */
+  std::string version( const std::string& name ) const;
+
 };
 
 

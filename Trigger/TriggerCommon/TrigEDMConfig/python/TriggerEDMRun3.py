@@ -290,7 +290,7 @@ def persistent( transient ):
     """
     if transient in EDMDetails:
         return EDMDetails[transient]['persistent']
-    return transient+"_v1"
+    return transient
 
 
 def tpMap():
