@@ -23,9 +23,6 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 
-// ATLAS C++
-#include "CxxUtils/make_unique.h"
-
 //#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <algorithm>
@@ -127,7 +124,7 @@ void test1() {
   assert( detStore->retrieve(tileID).isSuccess() );
 
 
-  std::unique_ptr<TileDigitsThresholdFilter> alg = CxxUtils::make_unique<TileDigitsThresholdFilter>("TileDigitsThresholdFilterTest", svcLoc);
+  std::unique_ptr<TileDigitsThresholdFilter> alg = std::make_unique<TileDigitsThresholdFilter>("TileDigitsThresholdFilterTest", svcLoc);
   assert( (alg->setProperty("TileCondToolDspThreshold", "TileCondToolDspThresholdMock/TileCondToolDspThresholdMock")).isSuccess() );
   assert( (alg->initialize()).isSuccess() );
 
