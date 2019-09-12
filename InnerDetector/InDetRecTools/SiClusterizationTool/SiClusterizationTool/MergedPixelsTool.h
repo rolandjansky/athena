@@ -31,7 +31,6 @@
 #include <atomic>
 #include <vector>
 
-class IIncidentSvc;
 class PixelID;
 
 namespace InDetDD {
@@ -152,7 +151,6 @@ namespace InDet {
     //------- end of declaration of new functions
 
 
-    ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
     ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;
     /// for cluster splitting
     BooleanProperty m_emulateSplitter{this, "EmulateSplitting", false, "don't split - only emulate the split"};

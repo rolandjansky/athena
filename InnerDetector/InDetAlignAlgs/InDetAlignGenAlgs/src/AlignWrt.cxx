@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AlignWrt.cxx
@@ -10,7 +10,6 @@
 #include <fstream>
 #include "AthenaBaseComps/AthCheckMacros.h" 	
 #include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h" 

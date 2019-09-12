@@ -38,8 +38,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-#include "GaudiKernel/Incident.h"
-
 using CLHEP::micrometer;
 
 
@@ -50,7 +48,6 @@ namespace InDet {
         const std::string &name,
         const IInterface *parent) :
     PixelClusteringToolBase(type,name,parent),
-    m_incidentSvc("IncidentSvc", name),
     m_IBLParameterSvc("IBLParameterSvc",name)
     {
       declareInterface<IPixelClusteringTool>(this);
