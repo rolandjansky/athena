@@ -40,7 +40,6 @@ atlas_add_component( LArGeoAlgsNV
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} ${EIGEN_LIBRARIES} GeoModelUtilities LArReadoutGeometry SGTools StoreGateLib SGtests DetDescrConditions GaudiKernel LArGeoBarrel LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBBarrel LArHV )
 
 # Install files from the package:
-atlas_install_headers( LArGeoAlgsNV )
 atlas_install_python_modules( python/*.py )
 
 if( NOT SIMULATIONBASE )

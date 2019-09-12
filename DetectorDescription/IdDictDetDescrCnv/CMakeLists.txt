@@ -31,6 +31,5 @@ atlas_add_component( IdDictDetDescrCnv
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr DetDescrCnvSvcLib GeoModelUtilities IdDictDetDescr IdDictParser Identifier GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( IdDictDetDescrCnv )
 atlas_install_joboptions( share/*.py )
 

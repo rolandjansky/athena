@@ -36,6 +36,5 @@ atlas_add_component( LArGeoH62004Algs
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} StoreGateLib SGtests GeoModelUtilities LArReadoutGeometry CaloDetDescrLib AthContainers GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoH6Cryostats LArGeoTBECLib )
 
 # Install files from the package:
-atlas_install_headers( LArGeoH62004Algs )
 atlas_install_joboptions( share/*.py )
 

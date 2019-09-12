@@ -58,7 +58,6 @@ atlas_add_component( egammaTrackTools
 		     TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces )
 
 # Install files from the package:
-atlas_install_headers( egammaTrackTools )
 atlas_install_python_modules( python/*.py )
 
 # Check python syntax on Config files

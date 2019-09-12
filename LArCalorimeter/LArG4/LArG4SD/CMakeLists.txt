@@ -30,5 +30,4 @@ atlas_add_test( LArG4SDToolConfig_test
                 PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
-#atlas_install_headers( LArG4SD )
 atlas_install_python_modules( python/*.py )

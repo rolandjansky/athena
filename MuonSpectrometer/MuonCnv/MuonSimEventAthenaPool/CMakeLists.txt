@@ -25,7 +25,6 @@ atlas_add_poolcnv_library( MuonSimEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities AtlasSealCLHEP StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel MuonSimEventTPCnv MuonSimEvent HitManagement )
 
 # Install files from the package:
-atlas_install_headers( MuonSimEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

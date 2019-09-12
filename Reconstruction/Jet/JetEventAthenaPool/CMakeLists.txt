@@ -24,7 +24,6 @@ atlas_add_poolcnv_library( JetEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities GaudiKernel AthenaPoolCnvSvcLib JetEvent JetEventTPCnv )
 
 # Install files from the package:
-atlas_install_headers( JetEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

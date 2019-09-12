@@ -48,6 +48,5 @@ atlas_add_component( TrigTauMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent AthenaMonitoringLib StoreGateLib SGtests EventInfo xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTrigger xAODTruth GaudiKernel AnalysisUtilsLib tauEvent VxVertex TrigDecisionToolLib  TrigConfL1Data TrigHLTMonitoringLib )
 
 # Install files from the package:
-atlas_install_headers( TrigTauMonitoring )
 atlas_install_python_modules( python/*.py )
 
