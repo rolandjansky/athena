@@ -22,15 +22,9 @@ def ImprovedJetFitterRoutinesCfg(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accImprovedJetFitterInitializationHelper = ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper')
-        improvedJetFitterInitializationHelper = accImprovedJetFitterInitializationHelper.popPrivateTools()
-        acc.merge(accImprovedJetFitterInitializationHelper)
-        accTrkDistanceFinderNeutralNeutral = TrkDistanceFinderNeutralNeutralCfg('TrkDistFinderNeutralNeutral')
-        trkDistanceFinderNeutralNeutral = accTrkDistanceFinderNeutralNeutral.popPrivateTools()
-        acc.merge(accTrkDistanceFinderNeutralNeutral)
-        accTrkDistanceFinderNeutralCharged = TrkDistanceFinderNeutralChargedCfg('TrkDistFinderNeutralCharged')
-        trkDistanceFinderNeutralCharged = accTrkDistanceFinderNeutralCharged.popPrivateTools()
-        acc.merge(accTrkDistanceFinderNeutralCharged)
+        improvedJetFitterInitializationHelper = acc.popToolsAndMerge(ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper'))
+        trkDistanceFinderNeutralNeutral = acc.popToolsAndMerge(TrkDistanceFinderNeutralNeutralCfg('TrkDistFinderNeutralNeutral'))
+        trkDistanceFinderNeutralCharged = acc.popToolsAndMerge(TrkDistanceFinderNeutralChargedCfg('TrkDistFinderNeutralCharged'))
         #JFKalmanVertexOnJetAxisSmoother = acc.popToolsAndMerge(KalmanVertexOnJetAxisSmootherCfg('JFKalmanVertexOnJetAxisSmoother')
         defaults = {
                      'BeFast'               : False,
