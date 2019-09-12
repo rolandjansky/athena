@@ -51,7 +51,7 @@ StatusCode JetECPSFractionTool::decorate(const xAOD::JetContainer& jets) const {
     return StatusCode::FAILURE;
   }
 
-  for(const xAOD::Jet* jet : jets) fracHandle(*jet) = energyFraction(jet);
+  for(const xAOD::Jet* jet : jets) fracHandle(*jet) = energyFraction(*jet);
   return StatusCode::SUCCESS;
 }
 
