@@ -5,6 +5,7 @@
 #include "TrigConfData/L1Menu.h"
 using namespace std;
 
+#include <iterator>
 
 TrigConf::L1Menu::L1Menu()
 {}
@@ -61,27 +62,48 @@ TrigConf::L1Menu::end() const
 std::vector<TrigConf::L1Threshold> 
 TrigConf::L1Menu::thresholds(const std::string & type) const
 {
+
    std::vector<TrigConf::L1Threshold> thrlist;
 
-   std::string fullPath = "thresholds." + type;
-   std::string fullLegacyPath = "thresholds.legacyCalo." + type;
-   std::string path = "thresholds.";
+   if(type == "ALL") {
+      auto allTypes = thresholdTypes();
+      for ( const std::string & type : allTypes ) {
+         const auto & thrOfType = thresholds(type);
+         std::move(thrOfType.begin(), thrOfType.end(), std::back_inserter(thrlist));
+      }
 
-   if( hasChild(path+type) ) {
-      path += type;
-   } else if ( hasChild(path + "legacyCalo." + type) ){
-      path += std::string("legacyCalo.") + type;
+   } else if ( type == "internal" ) {
+
+      std::string path = "thresholds.internal.names";
+      
+      const auto & thresholds = m_data.get_child(path);
+      thrlist.reserve(thresholds.size());
+
+      for( auto & thr : thresholds ) {
+         thrlist.emplace_back( thr.second.data(), thr.second );
+      }
+      
    } else {
-      cerr << "unknown threshold type " << type << endl;
-      return thrlist;
-   }
-   path += ".thresholds";
 
-   const auto & thresholds = m_data.get_child(path);
-   thrlist.reserve(thresholds.size());
+      std::string path = "thresholds.";
 
-   for( auto & thr : thresholds ) {
-      thrlist.emplace_back( thr.first, thr.second );
+      if( hasChild(path+type) ) {
+         path += type;
+      } else if ( hasChild(path + "legacyCalo." + type) ){
+         path += std::string("legacyCalo.") + type;
+      } else {
+         cerr << "unknown threshold type " << type << endl;
+         return thrlist;
+      }
+      path += ".thresholds";
+
+      const auto & thresholds = m_data.get_child(path);
+      thrlist.reserve(thresholds.size());
+
+      for( auto & thr : thresholds ) {
+         thrlist.emplace_back( thr.first, thr.second );
+      }
+
    }
    return thrlist;
 }
@@ -115,7 +137,7 @@ TrigConf::L1Menu::printStats() const
 {
    cout << "L1 menu '" << name() << "'" << endl;
    cout << "Items: " << size() << endl;
-   cout << "Threshold types: " << thresholdTypes().size() << endl;
+   cout << "Thresholds: " << thresholds().size() << "(of " << thresholdTypes().size() << " different types)" << endl;
    cout << "Topo algorithms: " << endl;
    cout << "    new   : " << m_data.get_child("topoAlgorithms.TOPO.decisionAlgorithms").size() << endl;
    cout << "    muon  : " << m_data.get_child("topoAlgorithms.MUTOPO.decisionAlgorithms").size() << endl;
