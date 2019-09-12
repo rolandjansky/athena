@@ -19,9 +19,9 @@
 #include "../src/TriggerEDMSerialiserTool.h"
 #include "../src/TriggerEDMDeserialiserAlg.h"
 
+#include "CxxUtils/checker_macros.h"
 
-
-std::vector<uint32_t> serialisedData;
+std::vector<uint32_t> serialisedData ATLAS_THREAD_SAFE; //Only used in test program
 StatusCode tester( TriggerEDMSerialiserTool* ser) {
     auto em = new xAOD::TrigEMClusterContainer();
     auto emAux = new xAOD::TrigEMClusterAuxContainer_v1();
