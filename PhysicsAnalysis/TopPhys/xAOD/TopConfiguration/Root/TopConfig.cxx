@@ -542,7 +542,8 @@ namespace top{
         }
         // try to parse the derivation release, we need the release number
       } catch (std::logic_error& e) {
-        std::cout << "WARNING: Could not obtain derivation release from the file metadata We cannot check that correct jet collection is used for b-tagging. You are on your own." << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << "WARNING: Could not obtain derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own." << std::endl;
       }
     }
 
