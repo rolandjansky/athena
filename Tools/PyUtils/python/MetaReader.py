@@ -291,11 +291,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 #O: no beam
                 #1: protons
                 #2: ions
-                print beamTypeNbr
                 if (beamTypeNbr==0): bs_metadata['beamType'] = 'cosmics'
                 elif (beamTypeNbr==1 or beamTypeNbr==2):  bs_metadata['beamType'] = 'collisions'
                 else: bs_metadata['beamType'] = 'unknown'
-                print  bs_metadata['beamType']
 
                 bs_metadata['beamEnergy'] = getattr(data_reader, 'beamEnergy')()
 
