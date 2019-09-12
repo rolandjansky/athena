@@ -15,7 +15,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "TRT_ConditionsServices/ITRT_DAQ_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
