@@ -23,7 +23,8 @@ Tree::Tree(const std::vector<std::size_t>& parents) :
 
   for(auto i = 0u; i < nParents; ++i){
     if (i == 0){continue;}
-    if(parents[i] == 0){m_firstGeneration.push_back(i);}
+    // tree numbering (tree[1] corresponds to Conditions[0]
+    if(parents[i] == 0){m_firstGeneration.push_back(i);}  
   }
 }
 

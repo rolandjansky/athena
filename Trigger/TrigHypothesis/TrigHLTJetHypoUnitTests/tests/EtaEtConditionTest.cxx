@@ -4,9 +4,9 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "./MockJetWithLorentzVector.h"
+#include "../src/MockJetWithLorentzVector.h"
 #include "gtest/gtest.h"
-#include "./TLorentzVectorFactory.h"
+#include "../src/TLorentzVectorFactory.h"
 #include <TLorentzVector.h>
 #include "gmock/gmock.h"
 #include <array>

@@ -15,6 +15,7 @@ atlas_depends_on_subdirs(
 find_package( ROOT COMPONENTS Core Physics )
 
 atlas_add_library( TrigHLTJetHypoUnitTestsLib
+                   src/*.cxx
                    exerciser/*.cxx
                    PUBLIC_HEADERS TrigHLTJetHypoUnitTests
                    # PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -30,34 +31,36 @@ atlas_install_headers( TrigHLTJetHypoUnitTests )
 
 # Test(s) in the package:
 atlas_add_test( TrigHLTJetHypoTimerTest
-   SOURCES src/Timer.cxx
+   SOURCES tests/Timer.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} TrigHLTJetHypoLib )
 
 atlas_add_test( TrigHLTJetHypoUnitTests
-   SOURCES src/all_tests.cxx
-   src/CombinationsGenTest.cxx
-   src/DijetDEtaMassConditionTest.cxx
-   src/EtaEtConditionTest.cxx
-   src/FlowEdgeTest.cxx
-   src/FlowNetworkTest.cxx
-   src/LlpCleanerTest.cxx
-   src/LooseCleanerTest.cxx
-   src/MaximumBipartiteGroupsMatcherTest.cxx
-   src/MaximumBipartiteGroupsMatcherMTTest.cxx
-   src/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
-   src/MultiJetMatcherTest.cxx
-   src/PartitionsGenTest.cxx
-   src/PartitionsGroupsMatcherMTTest.cxx
-   src/OrderedCollectionsMatcherTest.cxx
-   src/SelectedJetsMatcherTest.cxx
-   src/TLorentzVectorFactoryTest.cxx
-   src/TightCleanerTest.cxx
-   src/xAODJetCollectorTest.cxx
-   src/PartitionsGrouperTest.cxx
+   SOURCES tests/all_tests.cxx
+   tests/CombinationsGenTest.cxx
+   tests/DijetDEtaMassConditionTest.cxx
+   tests/EtaEtConditionTest.cxx
+   tests/FlowEdgeTest.cxx
+   tests/FlowNetworkTest.cxx
+   tests/LlpCleanerTest.cxx
+   tests/LooseCleanerTest.cxx
+   tests/MaximumBipartiteGroupsMatcherTest.cxx
+   tests/MaximumBipartiteGroupsMatcherMTTest.cxx
+   tests/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
+   tests/UnifiedFlowNetworkMatcherTest.cxx
+   tests/MultiJetMatcherTest.cxx
+   tests/PartitionsGenTest.cxx
+   tests/PartitionsGroupsMatcherMTTest.cxx
+   tests/OrderedCollectionsMatcherTest.cxx
+   tests/SelectedJetsMatcherTest.cxx
+   tests/TLorentzVectorFactoryTest.cxx
+   tests/TightCleanerTest.cxx
+   tests/xAODJetCollectorTest.cxx
+   tests/PartitionsGrouperTest.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools
-   TrigHLTJetHypoLib )
+   TrigHLTJetHypoLib
+   TrigHLTJetHypoUnitTestsLib)
    
 # Install files from the package:
 atlas_install_python_modules( python/*.py ) 

@@ -10,8 +10,8 @@
 #include "TrigHLTJetHypo/../src/xAODJetCollector.h"
 #include "TrigHLTJetHypo/../src/DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
-#include "./MockJetWithLorentzVector.h"
-#include "./TLorentzVectorFactory.h"
+#include "../src/MockJetWithLorentzVector.h"
+#include "../src//TLorentzVectorFactory.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -66,12 +66,14 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, zeroInputJets){
   HypoJetGroupVector groups;
 
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
+
   matcher.reset(new MaximumBipartiteGroupsMatcherMT(std::move(m_conditions)));
   xAODJetCollector j_collector;
   std::unique_ptr<ITrigJetHypoInfoCollector> d_collector(nullptr);
 
   bool pass = *(matcher->match(groups.cbegin(), groups.cend(),
   			       j_collector, d_collector));
+
 
   EXPECT_FALSE(pass);
 }

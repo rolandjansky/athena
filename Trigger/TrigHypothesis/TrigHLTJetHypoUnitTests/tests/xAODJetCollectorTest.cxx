@@ -4,7 +4,7 @@
 
 #include "xAODJet/Jet.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"
-#include "./TLorentzVectorAsIJet.h"
+#include "../src/TLorentzVectorAsIJet.h"
 #include "TrigHLTJetHypo/../src/xAODJetCollector.h"
 #include <TLorentzVector.h>
 #include "gtest/gtest.h"

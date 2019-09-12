@@ -33,28 +33,29 @@ UnifiedFlowNetworkMatcher::UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
   // nodes - first generation nodes - that will be connected to the source.
 
   // obtain the node ids, then the nodes, then their capacities
-  auto firstGenConditions = tree.firstGeneration();
+
+  //  array of indices for the Conditions vector
+  auto firstGenerations = tree.firstGeneration();
+    
   double totalCapacity =
-    std::accumulate(firstGenConditions.begin(),
-		    firstGenConditions.end(),
+    std::accumulate(firstGenerations.begin(),
+		    firstGenerations.end(),
 		    0.,
-		    [&cs](auto sum, auto index) {
-		      return  sum + cs[index]->capacity();});
-
+		    [&cs](auto sum, auto ind) {
+		      //cnvrt from tree indices to Condition vector inds by -1:
+		      return  sum + cs[ind-1]->capacity();});  
   setTotalCapacity(totalCapacity);
-
   setFlowNetworkBuilder(
 			std::move(std::make_unique<UnifiedFlowNetworkBuilder>(std::move(cs),
 									      tree))
 			);			
-  
 }
 
 std::string UnifiedFlowNetworkMatcher::toString() const  {
   std::stringstream ss;
 
   ss << "UnifiedFlowNetworkMatcher \n";
-  // ss << m_flowNetworkBuilder -> toString(); 
+  ss <<  FlowNetworkMatcherBase::toString(); 
 
   return ss.str();
 }

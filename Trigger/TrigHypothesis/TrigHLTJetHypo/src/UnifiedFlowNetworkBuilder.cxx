@@ -23,12 +23,12 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
                                            int& V,
                                            std::map<int, pHypoJet>& nodeToJet) const{
 
-
-  std::size_t cur_jg = m_tree.size() - 1;  // (first node - 1)  for jets
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 0\n";
+  std::size_t cur_jg = m_tree.size();  // (first node - 1)  for jets
 
   // container for edges to be constructed.
   std::vector<std::shared_ptr<FlowEdge>> edges;
-  std::vector<std::shared_ptr<FlowEdge>> leafToJobGroupInEdges;  
+  std::vector<std::shared_ptr<FlowEdge>> leafToJetGroupInEdges;  
 
 
   // Flow network to be build as source -> conditiosnANDjetGroups ->sink.
@@ -40,54 +40,77 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   // the previous layer of conditions.
   //
   // At this point, connect the sink to the  first generation conditions.
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 100\n";
+  for(const auto& i : m_tree.firstGeneration()){
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 101 " << i <<'\n';
+  }
   for(const auto& i : m_tree.firstGeneration()){
     edges.push_back(std::make_shared<FlowEdge>(0,
 					       i,
-					       m_conditions[i]->capacity()));
+					       //tree->conditions: -1
+					       m_conditions[i-1]->capacity()));
   }
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 200\n";
 
-  // keep track of which jet groups satisfy condition (by node id)
+  // create map to keep track of which jet groups
+  // satisfy condition (by node id)
   std::map<std::size_t, HypoJetGroupVector> satisfiedBy;
 
-  auto leaves = m_tree.leaves();
+  auto leaves = m_tree.leaves();  // indices into Conditions vector
 
   // first edges - single jets - single jet conditions
   // keep track of input jet groups to be connected toi the sink node.
   // we do not knoiw the sink node ID yet.
-  std::vector<std::size_t> toSink;
+  std::set<std::size_t> toSink;
 
   // node number for contributing JetGroups
   using IDJetGroup = std::map<std::size_t, HypoJetVector>;
   IDJetGroup jetgroups;
   
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 300\n";
   for(auto iter = groups_b; iter != groups_e; ++iter){
     auto jg = *iter;
 
     if(jg.size() != 1){
       
-      // input job groups of size 1 (for now....). This used
+      // input jet groups of size 1 (for now....). This used
       // to establish which jets participated in a passing hypo.
-      std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
+      return std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
     }
-    
-    for(const auto& l: leaves){
-      if (m_conditions[l]->isSatisfied(jg, collector)){
-	++cur_jg;
-	satisfiedBy[l].push_back(jg);
-	toSink.push_back(cur_jg);
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 400\n";
+
+    bool jg_is_used{false};
+    for(const auto& leaf: leaves){
+      std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 410\n";
+      if (m_conditions[leaf-1]->isSatisfied(jg, collector)){
+	jg_is_used = true;
+	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 420\n";
+	satisfiedBy[leaf-1].push_back(jg);  //leaf-1: conditions index
+	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 430\n";
+	toSink.insert(cur_jg);
+	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 440\n";
 	jetgroups.insert(IDJetGroup::value_type(cur_jg, jg));
-	auto edge = std::make_shared<FlowEdge>(l, cur_jg, jg.size());
+	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 450\n";
+	auto edge = std::make_shared<FlowEdge>(leaf, cur_jg, jg.size());
+	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 460\n";
 	edges.push_back(edge);
+	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 470\n";
 	nodeToJet[cur_jg] = jg[0];
+	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 480\n";
       }
     }
+    if(jg_is_used){++cur_jg;}
   }
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 500\n";
+  for(const auto& e: edges){
+    std::cerr<< *e << '\n';
+  }
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 510\n";
 
-
-  // construct job groups according from job groups that pass child
+  // construct jet groups according from jet groups that pass child
   // conditions. The parent of the next condition to be processed
   // is found, and from the parent the condition's siblings are found,
-  // all combinations if the job groups passing the sibings are
+  // all combinations of the jet groups passing the sibings are
   // constructed. One by one these combinations are tested for
   // parent satisfaction. If the parent is satisfied, it is placed in the
   // queue for later processing.
@@ -99,13 +122,16 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   // initialise the queue with satisfied leaf conditions.
   for(const auto& l : leaves){to_process.push(l);}
 
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 600\n";
   while(!to_process.empty()){
     auto k = to_process.front();
     if (checked[k]){
       // condition taken into account when process one of its siblings.
       to_process.pop();
+      std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 650  skipping " << k <<"\n";
       continue;
     }
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges \n";
 
     // find the siblings of the condition being processed.
     auto siblings = m_tree.getSiblings(k);
@@ -113,26 +139,31 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
     // mark the siblings as having been processed.
     for(const auto& s : siblings){checked[s] = true;}
 
-    // get the passing job group(s) for each satisfied sibling
+    // get the passing jet group(s) for each satisfied sibling
     std::vector<HypoJetGroupVector> sibling_jgroups;
 
     
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 800\n";
     for(const auto& s : siblings){
       sibling_jgroups.push_back(satisfiedBy[s]);
     }
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 900\n";
 
-    // calculate the external product of the job groups
+    // calculate the external product of the jet groups
     // eg if condition c1 is satisfied by jg11 and jg12, while its only
-    // sibling c2 is satisfied by jg21, the external job groups are
+    // sibling c2 is satisfied by jg21, the external jet groups are
     // jg11jg21, jg12jg21. Each of these  are flattened.
     auto jg_product = JetGroupProduct(sibling_jgroups);
     auto next = jg_product.next();
     auto par = m_tree.getParent(k);
 
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 1000\n";
     while (next.has_value()){
       auto jg = *next;
+      std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 950 \n";
       if (m_conditions[par]->isSatisfied(jg, collector)){
 	++cur_jg;
+      std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 960 cur_jg " << cur_jg <<"\n";
 	satisfiedBy[par].push_back(jg);
 
 	edges.push_back(std::make_shared<FlowEdge>(par, cur_jg, jg.size()));
@@ -149,15 +180,18 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   
     to_process.pop();
   }
-  V = ++cur_jg;
-  auto& sink = V;
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 1100\n";
+  auto sink = ++cur_jg;
   for(const auto& n : toSink){
     edges.push_back(std::make_shared<FlowEdge>(n, sink, 1));
   }
+  V = ++ sink;
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 1200\n";
 
   for(const auto& e : edges){
-    std::cout << "UnifiedFlowNetworkBuilder Edge " << e  << '\n';
+    std::cout << "UnifiedFlowNetworkBuilder Edge " << *e  << '\n';
   }
+  std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 1300\n";
   return std::make_optional<std::vector<std::shared_ptr<FlowEdge>>>(edges);
 }
 

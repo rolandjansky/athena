@@ -111,7 +111,10 @@ class FlowNetworkSetter(object):
         node.tool = helper_tool
 
     def mod_simple(self, node):
-        """Set the HypoConfigTool instance in a hypo tree node"""
+        """Set the TrigJetHypoToolHelperMT instance in a hypo tree node.
+        This Algtool will have a TrigJetHypoToolConfig_flownetwork
+        instance as an attribute, which it will use to configure itself.
+        """
 
         scen = node.scenario
         klass = self.tool_factories[scen][0]
@@ -120,7 +123,7 @@ class FlowNetworkSetter(object):
         
         self.tool_factories[scen][1] += 1
 
-        config_tool = klass(name=name+'_config')
+        config_tool = TrigJetHypoToolConfig_flownetwork
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
         
         helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')

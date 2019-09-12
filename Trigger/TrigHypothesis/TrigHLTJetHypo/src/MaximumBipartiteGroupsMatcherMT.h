@@ -25,7 +25,6 @@ public virtual IGroupsMatcherMT, private FlowNetworkMatcherBase {
 
 public:
   MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs);
-  ~MaximumBipartiteGroupsMatcherMT(){}
   virtual std::string toString() const override;
 };
 

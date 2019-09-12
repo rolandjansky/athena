@@ -4,7 +4,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/LlpCleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/UncleanableJet.h"  // exception class
-#include "./MockJet.h"
+#include "../src/MockJet.h"
 #include "gtest/gtest.h"
 // #include <TLorentzVector.h>
 #include "gmock/gmock.h"
