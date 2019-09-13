@@ -14,9 +14,9 @@ def CopyMcEventCollectionCfg(flags, name = "CopyMcEventCollection", **kwargs):
         # Disable background for data overlay
         kwargs.setdefault("BkgInputKey", "")
     else:
-        kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + flags.Overlay.BkgPrefix + "TruthEvent")
-    kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TruthEvent")
-    kwargs.setdefault("OutputKey", "StoreGateSvc+TruthEvent")
+        kwargs.setdefault("BkgInputKey", "" + flags.Overlay.BkgPrefix + "TruthEvent")
+    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "TruthEvent")
+    kwargs.setdefault("OutputKey", "TruthEvent")
 
     # Merge and copy McEventCollection
     from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyMcEventCollection
