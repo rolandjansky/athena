@@ -19,13 +19,11 @@
 
 #include <TLorentzVector.h>
 #include <memory>
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <limits>
 #include <algorithm>
 
-#include <iostream>
 /*
  * UnifiedFlowNetworkMatcher functionality tested:
  * 0 fail if no jet vector indices
