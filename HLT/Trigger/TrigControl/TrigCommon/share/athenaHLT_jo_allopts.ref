@@ -115,7 +115,7 @@
               <logLevel>ERROR</logLevel>
               <logLevel>FATAL</logLevel>
             </logLevels>
-            <pythonSetupFile>mysetup.py</pythonSetupFile>
+            <pythonSetupFile>TrigPSC/TrigPSCPythonSetup.py</pythonSetupFile>
             <jobOptionsPath>dummy.py</jobOptionsPath>
           </HLTImplementationJobOptions>
         </hlt>

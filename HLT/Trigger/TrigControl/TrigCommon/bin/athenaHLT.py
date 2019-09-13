@@ -212,7 +212,7 @@ def HLTMPPy_cfgdict(args):
    if not args.use_database:      # job options
       cdict['trigger'].update({
          'module': 'joboptions',
-         'pythonSetupFile' : args.python_setup,
+         'pythonSetupFile' : 'TrigPSC/TrigPSCPythonSetup.py',
          'joFile': args.jobOptions,
          'SMK': None,
          'l1PSK': None,
@@ -225,11 +225,11 @@ def HLTMPPy_cfgdict(args):
    else:
       cdict['trigger'].update({
          'module': 'DBPython',
-         'pythonSetupFile' : args.python_setup,
+         'pythonSetupFile' : 'TrigPSC/TrigPSCPythonDbSetup.py',
          'db_alias': args.db_server,
          'SMK': args.smk,
-         'l1PSK': args.l1pks,
-         'HLTPSK': args.hltpks,
+         'l1PSK': args.l1psk,
+         'HLTPSK': args.hltpsk,
          'l1BG': 0,
          'l1MenuConfig': 'DB',
          'precommand' : args.precommand,
@@ -337,7 +337,6 @@ def main():
    parser.expert_groups.append(g)
    g.add_argument('--joboptionsvc-type', metavar='TYPE', default='JobOptionsSvc', help='JobOptionsSvc type')
    g.add_argument('--msgsvc-type', metavar='TYPE', default='TrigMessageSvc', help='MessageSvc type')
-   g.add_argument('--python-setup', default='TrigPSC/TrigPSCPythonSetup.py', help='Python bootstrap/setup file')
    g.add_argument('--partition', '-p', metavar='NAME', default='athenaHLT', help='partition name')
    g.add_argument('--no-ers-signal-handlers', action='store_true', help='disable ERS signal handlers')
    g.add_argument('--preloadlib', metavar='LIB', help='preload an arbitrary library')
