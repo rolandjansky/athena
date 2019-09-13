@@ -10,7 +10,6 @@ from egammaRec import egammaKeys
 from InDetRecExample.InDetKeys import InDetKeys
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-from egammaCaloTools.egammaCaloToolsFactories import egammaCheckEnergyDepositTool
 from egammaCaloTools import egammaCaloToolsConf
 
 egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
