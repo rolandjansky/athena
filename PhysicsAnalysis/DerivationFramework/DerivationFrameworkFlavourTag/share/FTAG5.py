@@ -278,6 +278,12 @@ FTAG5SlimmingHelper.ExtraVariables += [
 ]
 FTAG5SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 
+# adding default b-tag alg varibles for antikt2 collection (smart collection no longer supported)
+akt2variables_btag = ['.'.join(["BTagging_AntiKt2Track"] + bvars.BTaggingStandardAux)]
+akt2variables_kin = ['.'.join(["AntiKt2PV0TrackJets"] + bvars.JetStandardAux)]
+FTAG5SlimmingHelper.ExtraVariables += akt2variables_btag
+FTAG5SlimmingHelper.ExtraVariables += akt2variables_kin
+
 # add the extra variables that come from the BTagJetAugmenterAlg
 extra_btag = list(complex_jet_discriminants)
 extra_btag += ['JetFitter_JFvertices', 'SV1_vertices']
