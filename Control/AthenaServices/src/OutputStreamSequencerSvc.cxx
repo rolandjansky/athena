@@ -12,13 +12,14 @@
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 #include <sstream>
 
 //________________________________________________________________________________
 OutputStreamSequencerSvc::OutputStreamSequencerSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::AthService(name, pSvcLocator),
 	m_metaDataSvc("MetaDataSvc", name),
-	m_fileSequenceNumber(0)
+	m_fileSequenceNumber(-1)
 {
    // declare properties
    declareProperty("SequenceIncidentName", m_incidentName = "");
@@ -49,6 +50,11 @@ StatusCode OutputStreamSequencerSvc::initialize() {
    if( !incidentName().empty() ) {
       incsvc->addListener(this, incidentName(), 100);
    }
+   if( inConcurrentEventsMode() ) {
+      ATH_MSG_DEBUG("Concurrent events mode");
+   } else {
+      ATH_MSG_DEBUG("Sequential events mode");
+   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -70,12 +76,35 @@ StatusCode OutputStreamSequencerSvc::queryInterface(const InterfaceID& riid, voi
    addRef();
    return(StatusCode::SUCCESS);
 }
+
+//__________________________________________________________________________
+bool    OutputStreamSequencerSvc::inConcurrentEventsMode() const {
+   return Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1;
+}
+
+//__________________________________________________________________________
+bool    OutputStreamSequencerSvc::inUse() const {
+   return m_fileSequenceNumber >= 0;
+}
+
 //__________________________________________________________________________
 void OutputStreamSequencerSvc::handle(const Incident& inc)
 {
    // process NextEventRange 
-   ATH_MSG_INFO("handle " << name() << " incident type " << inc.type());
+   ATH_MSG_INFO("handle incident type " << inc.type());
+
+   // finish the old range if needed
+   if( m_fileSequenceNumber >= 0 and !inConcurrentEventsMode() ) {
+      // When processing events sequentially (threads<2) write metadata on the NextRange incident
+      // but ignore the first incident because it only starts the first sequence
+      ATH_MSG_DEBUG("MetaData transition");
+      if (!m_metaDataSvc->transitionMetaDataFile( ignoringInputBoundary() ).isSuccess()) {
+         ATH_MSG_FATAL("Cannot transition MetaDataSvc.");
+      }
+   }
+   // start a new range
    m_currentRangeID.clear();
+   m_fileSequenceNumber++;
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
    if (fileInc != nullptr) {
       m_currentRangeID = fileInc->fileName();
@@ -86,22 +115,14 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
       n << "_" << std::setw(4) << std::setfill('0') << m_fileSequenceNumber;
       m_currentRangeID = n.str();
       ATH_MSG_DEBUG("Default next event range filename extension: " << m_currentRangeID);
-   }
-   m_fileSequenceNumber++;
-   if( m_fileSequenceNumber > 1 && m_metaTransOnNextRange ) {
-      // End of the previous event range in AthenaMP
-      ATH_MSG_DEBUG("MetaData transition");
-      if (!m_metaDataSvc->transitionMetaDataFile( ignoringInputBoundary() ).isSuccess()) {
-         ATH_MSG_FATAL("Cannot transition MetaDataSvc.");
-      }
-   }
+   } 
 }
 
 //__________________________________________________________________________
 std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& orgFileName) const
 {
-   if( incidentName().empty() ) {
-      // output sequences not configures, just return the original filename
+   if( !inUse() ) {
+      // Event sequences not in use, just return the original filename
       return orgFileName;
    }
    // build the full output file name for this event range

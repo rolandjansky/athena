@@ -35,6 +35,7 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/FileIncident.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
@@ -638,6 +639,12 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent( EventContext &&ctx )
     return (StatusCode::FAILURE);
   }
 
+  // remove #include fileIncident.h too
+  static int event_counter = 0;
+  if( event_counter++ %3 == 0 ) {
+     m_incidentSvc->fireIncident(FileIncident(name(), "NextEventRange",""));
+  }
+  
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != ctx.eventID().run_number()) ) {
     // Fire EndRun incident unless this is the first run
