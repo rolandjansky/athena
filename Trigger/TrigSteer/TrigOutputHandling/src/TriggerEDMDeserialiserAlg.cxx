@@ -154,6 +154,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       ATH_CHECK( decodedTransientName == transientTypeName );      
       classDesc.Destruct( obj );
       obj = converted;      
+
     }
 
     if ( isxAODInterfaceContainer or isxAODAuxContainer or isTPContainer ) {
@@ -224,7 +225,7 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
     ATH_MSG_ERROR( "Could not recognise the kind of container " << transientTypeName );
     return StatusCode::FAILURE;
   } else if (count > 1 ) {
-    ATH_MSG_ERROR( "Ambigous kind serialised content deduced from the transient type name " << transientTypeName );
+    ATH_MSG_ERROR( "Ambigous container kind deduced from the transient type name " << transientTypeName );
     ATH_MSG_ERROR( "Recognised type as: " 
 		   << (isxAODInterfaceContainer ?" xAOD Interface Context":"" ) 
 		   << (isxAODAuxContainer ?" xAOD Aux Container ":"" ) 
