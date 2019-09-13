@@ -129,14 +129,6 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
     // eg if condition c1 is satisfied by jg11 and jg12, while its only
     // sibling c2 is satisfied by jg21, the external jet groups are
     // jg11jg21, jg12jg21. Each of these  are flattened.
-    for(const auto& i : sibling_jgroups){
-      std::cout<< "outer vector sibling job groups size: " << i.size() << '\n';
-
-      for(const auto& j : i){
-	std::cout<< "sibling job group: " << j << '\n';
-      }
-    }
-    
     
     auto jg_product = JetGroupProduct(sibling_jgroups);
     auto next = jg_product.next();
@@ -168,9 +160,6 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   }
   V = ++ sink;
 
-  for(const auto& e : edges){
-    std::cout << "UnifiedFlowNetworkBuilder Edge " << *e  << '\n';
-  }
   return std::make_optional<std::vector<std::shared_ptr<FlowEdge>>>(edges);
 }
 
