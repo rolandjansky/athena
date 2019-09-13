@@ -43,9 +43,7 @@ using namespace Acts::UnitLiterals;
 constexpr double length_unit = 1_mm;
 
 ActsDetectorElement::ActsDetectorElement(
-    const InDetDD::SiDetectorElement* detElem,
-    const ActsTrackingGeometrySvc* trkSvc)
-  : m_trackingGeometrySvc(trkSvc)
+    const InDetDD::SiDetectorElement* detElem)
 {
   m_detElement = detElem;
 
@@ -94,9 +92,7 @@ ActsDetectorElement::ActsDetectorElement(
 ActsDetectorElement::ActsDetectorElement(
     std::shared_ptr<const Transform3D> trf,
     const InDetDD::TRT_BaseElement* detElem,
-    const Identifier& id,
-    const ActsTrackingGeometrySvc* trkSvc)
-  : m_trackingGeometrySvc(trkSvc)
+    const Identifier& id)
 {
   m_detElement = detElem;
   m_defTransform = trf;
