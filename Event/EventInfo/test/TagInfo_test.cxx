@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_SUITE(TagInfoTest)
     BOOST_TEST(t.getTags() == tagPairs);
     BOOST_TEST(t.getInputTags() == inputTagPairs);
     std::string stringRep="TagInfo tag: extendedInterfaceTest\nCurrent tags: \n";
-    auto tagPairFormat=[](std::string & s, const TagInfo::NameTagPair & p)->std::string{return s + "    "+p.first+" "+p.second+"\n";};
+    auto tagPairFormat=[](const std::string & s, const TagInfo::NameTagPair & p)->std::string{return s + "    "+p.first+" "+p.second+"\n";};
     stringRep=std::accumulate(tagPairs.begin(),tagPairs.end(),stringRep,tagPairFormat);
     stringRep+="Input tags: \n";
     stringRep=std::accumulate(inputTagPairs.begin(),inputTagPairs.end(),stringRep,tagPairFormat);
