@@ -303,6 +303,7 @@ void LArCellCont::applyBCIDCorrection(const unsigned int& rodid){
   m_it = (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
   LArCellCollection* col = (*m_it);
   unsigned int itsize = col->size();
+  std::cout << "in LArCellCont::applyBCIDCorrection " << itsize << std::endl;
   std::vector<int>& hashTab = m_hashSym[idx];
   if ( !m_BCIDcache ) { updateBCID(); m_BCIDcache=true; m_corrBCIDref = m_corrBCID[0]; }
   for(unsigned int i=0; i< itsize; ++i){
@@ -334,6 +335,7 @@ void LArCellCont::lumiBlock_BCID(const unsigned int lumi_block, const unsigned i
 }
 
 void LArCellCont::updateBCID() {
+  return;
   //std::clock_t startT,endT;
   //startT = clock();
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
@@ -378,7 +380,6 @@ void LArCellCont::updateBCID( const CaloBCIDAverage& avg  ) {
 
 bool LArCellCont::lumiBCIDCheck( const EventContext& context ) {
      uint32_t bcid = context.eventID().bunch_crossing_id();
-     std::cout << "bcid : " << bcid << std::endl;
      if ( bcid == m_bcid ) return false;
      m_bcid = bcid;
      return true;
