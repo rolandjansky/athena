@@ -25,7 +25,7 @@ class ITrigJetHypoInfoCollector;
 
 class SpecifiedJetsCondition: public IConditionMT{
  public:
-  SpecifiedJetsCondition(const HypoJetVector&,
+  SpecifiedJetsCondition(const HypoJetGroupVector&,
 			 std::size_t conditionID=0);
   ~SpecifiedJetsCondition() override {}
 
@@ -38,9 +38,15 @@ class SpecifiedJetsCondition: public IConditionMT{
 
   std::string toString() const noexcept override;
  private:
-  HypoJetVector m_acceptedJets;
+  HypoJetGroupVector m_acceptedJetGroups;
   std::size_t m_capacity;
   std::size_t m_conditionID{0};
+
+
+  bool
+    groupIsSatisfied(const HypoJetVector& ips,
+		     const HypoJetVector& group,
+		     const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
   
 };
 
