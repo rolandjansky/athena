@@ -17,6 +17,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "LArElecCalib/ILArMCSymTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 #include <iostream>
 //#include <time.h>
 
@@ -351,4 +353,33 @@ void LArCellCont::updateBCID() {
   //endT = clock();
   //std::cout << "Total time [ms] " << (double)(endT-startT) << " for " << m_indexset.size() << " x " << maxBCID << std::endl;
   return; 
+}
+
+void LArCellCont::updateBCID( const CaloBCIDAverage& avg  ) {
+
+  std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
+  int indexsetmax = m_indexset.size();
+
+  if ( m_larCablingSvc == 0  ) return;
+    std::vector<float>& BCID0=m_corrBCID[0];
+    BCID0.resize(indexsetmax+1);
+    std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
+    for( ; beg != end ; ++beg ) {
+      HWIdentifier hwid = (*beg).first;
+      int idx = (*beg).second;
+      if ( idx < (int)BCID0.size() ){
+        Identifier id = m_larCablingSvc->cnvToIdentifier(hwid);
+	float corr = avg.average(id);
+	BCID0[idx] = corr;
+      }
+    } // end of HWID
+  return; 
+}
+
+bool LArCellCont::lumiBCIDCheck( const EventContext& context ) {
+     uint32_t bcid = context.eventID().bunch_crossing_id();
+     std::cout << "bcid : " << bcid << std::endl;
+     if ( bcid == m_bcid ) return false;
+     m_bcid = bcid;
+     return true;
 }

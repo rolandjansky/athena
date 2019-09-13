@@ -40,6 +40,8 @@ StatusCode T2CaloEgammaReFastAlgo::initialize()
 
 StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 {
+
+  std::cout << " T2CaloEgammaReFastAlgo::execute" << std::endl;
   SG::WriteHandle<xAOD::TrigEMClusterContainer> trigEmClusterCollection(m_clusterContainerKey, context);
   ATH_CHECK( trigEmClusterCollection.record(std::make_unique<xAOD::TrigEMClusterContainer>(),
                                             std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
@@ -164,6 +166,11 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
     */
     float calZ0 = 0;
 
+    std::cout << "CHECK OUT : " << ptrigEmCluster->energy() << " " << ptrigEmCluster->eta() << " " << ptrigEmCluster->phi() << std::endl;
+    if (msgLvl(MSG::DEBUG)) 
+	std::cout << "message DEBUG" << std::endl;
+    else
+	std::cout << "message not DEBUG" << std::endl;
     // Print out Cluster produced
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG(" Values of Cluster produced: ");
