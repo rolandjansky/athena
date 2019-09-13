@@ -4,12 +4,55 @@
 
 #undef NDEBUG
 
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
 
 #include "StoreGate/setupStoreGate.h"
 
 #include "TileCablingService_common_test.cxx"
+
+
+using Tile = TileCalibUtils;
+
+namespace {
+
+  enum {LBA = 1, LBC = 2, EBA = 3, EBC = 4};
+
+  // Tells if a channel is disconnected or not
+  // Special modules are considered too.
+  bool isDisconnected(int ros, int drawer, int channel) {
+
+    static const int chMapLB[Tile::MAX_CHAN] = {   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                                                 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                                                 , 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0
+                                                 , 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 };
+
+    static const int chMapEB[Tile::MAX_CHAN] = {   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                                                 , 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0
+                                                 , 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0
+                                                 , 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 };
+
+    static const int chMapEBsp[Tile::MAX_CHAN] = {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
+                                                   , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                                                   , 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0
+                                                   , 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 };
+
+
+    if (ros < EBA) { // LB, all standard. Channels 30,31,43 are disconnected
+      return chMapLB[channel];
+    } else {
+      // EB, EBA15 and EBC18 are special
+      if (((ros == EBA) && (drawer == 14)) || ((ros == EBC) && (drawer == 17))) {
+        return chMapEBsp[channel];
+      } else  {//EB standard module
+        return chMapEB[channel];
+      }
+    } //end if LB else EB
+
+  }
+}
 
 void test1() {
 
@@ -131,6 +174,18 @@ void test1() {
             assert(hwid == hwid2);
           }
         }
+      }
+    }
+  }
+
+
+
+  // TEST: disconnected channels
+
+  for (unsigned int ros = 1; ros < Tile::MAX_ROS; ++ros) {
+    for (unsigned int drawer = 0; drawer < Tile::MAX_DRAWER; ++drawer) {
+      for (unsigned int channel = 0; channel < Tile::MAX_CHAN; ++channel) {
+        assert(cabling->isDisconnected(ros, drawer, channel) == isDisconnected(ros, drawer, channel));
       }
     }
   }
