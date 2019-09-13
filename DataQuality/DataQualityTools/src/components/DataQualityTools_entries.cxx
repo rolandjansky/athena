@@ -7,6 +7,7 @@
 #include "DataQualityTools/DQTGlobalWZFinderTool.h"
 #include "DataQualityTools/DQTLumiMonTool.h"
 #include "DataQualityTools/DQTDataFlowMonAlg.h"
+#include "DataQualityTools/DQTDetSynchMonAlg.h"
 
 DECLARE_COMPONENT( DataQualityFatherMonTool )
 DECLARE_COMPONENT( DQTDetSynchMonTool )
@@ -17,4 +18,5 @@ DECLARE_COMPONENT( DQTDataFlowMonTool )
 DECLARE_COMPONENT( DQTGlobalWZFinderTool )
 DECLARE_COMPONENT( DQTLumiMonTool )
 DECLARE_COMPONENT( DQTDataFlowMonAlg )
+DECLARE_COMPONENT( DQTDetSynchMonAlg )
 
