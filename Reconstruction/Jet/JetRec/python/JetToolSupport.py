@@ -134,20 +134,36 @@ class JetToolManager:
       self.msg(0, "Error adding jet builder without area.")
       raise LookupError
 
+  # Configures any tools in the given modifier list with the property
+  # "JetContainer" to set that property to the given string containerName.
+  def configureContainerName(modifiers, containerName):
+    for mod in modifiers:
+      if hasattr(mod, "JetContainer"):
+        mod.JetContainer = containerName
+
+  # Makes a deep copy of the input modifier list.
+  # Any tools in it with the property "JetContainer" have that property
+  # configured to the given string containerName.
+  def containerConfiguredCopy(modifiers, containerName):
+    outmods = modifiers
+    configureContainerName(outmods, containerName)
+    return outmods
+
   # Return the list of modifiers associated with a name.
-  # If the argument is a list, it is returned directly.
-  def getModifiers(self, modifiersin, altname =None):
+  # If the argument is a list, a copy is returned directly.
+  # Also configures any necessary container names in the copy.
+  def getModifiers(self, modifiersin, output, altname =None):
     if modifiersin == None:
       if altname in ["lctopo","emtopo"]:
-        return self.modifiersMap[altname+"_ungroomed"]
+        return containerConfiguredCopy(self.modifiersMap[altname+"_ungroomed"], output)
       elif "pflow" in altname:
-        return self.modifiersMap["pflow_ungroomed"]
+        return containerConfiguredCopy(self.modifiersMap["pflow_ungroomed"], output)
       else:
-        return self.modifiersMap[altname]
+        return containerConfiguredCopy(self.modifiersMap[altname], output)
     if type(modifiersin) == str:
-        return self.modifiersMap[modifiersin]
+        return containerConfiguredCopy(self.modifiersMap[modifiersin, output)]
         
-    return modifiersin
+    return containerConfiguredCopy(modifiersin, output)
 
   # Build the list of modifiers, replacing the string "calib:XXX:CALIB" with
   # the appropriate calibration tool.
@@ -285,7 +301,7 @@ class JetToolManager:
         jetlog.info( self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers." )
         raise Exception
 
-        
+    configureContainerName(outmods, output)
     return outmods
 
   # Create a jet finder without a JetRecToosl.
@@ -797,7 +813,6 @@ class JetToolManager:
     self += builder
     return builder
 
-
   def addTriggerJetTrimmer(self,
                            name,
                            rclus,
@@ -866,5 +881,4 @@ class JetToolManager:
 
     self.trigjetrecs += [triggerGroomerTool]
     return triggerGroomerTool
-
 
