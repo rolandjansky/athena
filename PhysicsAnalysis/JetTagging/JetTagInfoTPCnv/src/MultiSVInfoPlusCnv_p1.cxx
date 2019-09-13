@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagInfo/MultiSVInfoPlus.h"
 #include "JetTagInfoTPCnv/MultiSVInfoPlusCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 
 
@@ -55,7 +54,7 @@ namespace Analysis {
 
     for (const TPObjRef& ref : persObj->m_vtxInfo) {
       /// allocate the memory before filling
-      auto info = CxxUtils::make_unique<MSVVtxInfo>();
+      auto info = std::make_unique<MSVVtxInfo>();
       fillTransFromPStore(&m_mSVVtxInfoCnv, ref, info.get(), msg);
       transObj->addVtxInfo (std::move(info));
     }
