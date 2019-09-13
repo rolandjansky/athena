@@ -31,7 +31,8 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import (
-    addVRJets, addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
+    buildVRJets, linkPseudoJetGettersToExistingJetCollection,
+    addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
@@ -171,19 +172,36 @@ replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5", extendedFlag)
 addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 addTCCTrimmedJets(FTAG5Seq,"FTAG5")
 
+# These are the jet collections considered below for adding links to track-jets, smart slimming lists and extra JSS variables
+fatJetCollections = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+]
+
 #===================================================================
 # Variable Radius (VR) Jets
 #===================================================================
 
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
-# Note that the ghost association to the 'AntiKt10LCTopo' jets is
-# hardcoded within this function "for now".
-addVRJets(FTAG5Seq, logger=ftag5_log)
-addVRJets(FTAG5Seq, logger=ftag5_log, do_ghost=True)
+# Create variable-R trackjets (with cone and ghost-association for FTAG tracks)
+vrTrackJets, vrTrackJetGhosts = buildVRJets(sequence = FTAG5Seq, do_ghost = False, logger = ftag5_log)
+vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = buildVRJets(sequence = FTAG5Seq, do_ghost = True, logger = ftag5_log)
 
 # alias for VR
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo",
+                                            "AntiKtVR30Rmax4Rmin02TrackGhostTag->AntiKtVR30Rmax4Rmin02TrackGhostTag,AntiKt4EMTopo",]
 
+
+#===================================================================
+# Link VR jets to large-R jets 
+#===================================================================
+toAssociate = {
+  vrTrackJetGhosts : vrTrackJetGhosts.lower(),
+  vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower()
+}
+for collection in fatJetCollections: 
+  ungroomed, labels = linkPseudoJetGettersToExistingJetCollection(
+      FTAG5Seq, collection, toAssociate)
+    
 #===================================================================
 # ExKt subjets for each trimmed large-R jet
 #===================================================================
@@ -245,10 +263,6 @@ FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
 
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
-fatJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-]
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
@@ -271,6 +285,8 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostAntiKt2TrackJet",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
