@@ -10,8 +10,6 @@
 #include <stdexcept>
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Incident.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Local include(s):
@@ -37,7 +35,6 @@ namespace xAODMaker {
       declareProperty( "OutputKey", m_outputKey = "EventFormat" );
 
       declareInterface< ::IMetaDataTool >( this );
-      //declareInterface< ::IIncidentListener >( this );
    }
 
    StatusCode EventFormatMetaDataTool::initialize() {

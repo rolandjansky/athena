@@ -25,9 +25,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMessaging.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Incident.h"
 
 // #include <time.h>
 

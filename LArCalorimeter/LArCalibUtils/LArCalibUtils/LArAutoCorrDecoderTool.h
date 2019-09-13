@@ -9,7 +9,6 @@
 #define LARCALIBUTILS_LARAUTOCORRDECODERTOOL_H
 
 #include "LArElecCalib/ILArAutoCorrDecoderTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "GaudiKernel/ToolHandle.h"
 

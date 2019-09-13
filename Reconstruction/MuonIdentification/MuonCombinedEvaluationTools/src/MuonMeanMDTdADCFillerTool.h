@@ -22,7 +22,6 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
-// class IIncidentSvc;
 namespace Trk {}
 
 namespace Rec
