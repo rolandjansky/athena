@@ -11,14 +11,12 @@ from egammaRec import egammaKeys
 from egammaTools.egammaToolsFactories import \
     EMTrackMatchBuilder, EMConversionBuilder, egammaSwTool, egammaMVASvc
 
-from egammaCaloTools.egammaCaloToolsFactories import egammaCheckEnergyDepositTool
 
 electronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperClusterBuilder,
                                           name = 'electronSuperClusterBuilder',
                                           InputEgammaRecContainerName=egammaKeys.EgammaRecKey(),
                                           SuperElectronRecCollectionName=egammaKeys.ElectronSuperRecKey(),
                                           ClusterCorrectionTool=egammaSwTool,
-                                          egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
                                           MVACalibSvc=egammaMVASvc,
                                           TrackMatchBuilderTool = EMTrackMatchBuilder
                                          )
@@ -28,7 +26,6 @@ photonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBuilder
                                         InputEgammaRecContainerName=egammaKeys.EgammaRecKey(),
                                         SuperPhotonRecCollectionName=egammaKeys.PhotonSuperRecKey(),
                                         ClusterCorrectionTool=egammaSwTool,
-                                        egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
                                         MVACalibSvc= egammaMVASvc,
                                         ConversionBuilderTool = EMConversionBuilder
                                         )
