@@ -4,8 +4,10 @@ jetlog = Logging.logging.getLogger("GenerateTruthJets")
 # Attach jet algorithms
 def PrepareTruthJetInputs(algseq):
     print "will prepare thruth jets"
-    if "JetTruthCopyAlg" in algseq: return
-    print "it was not returned"
+#    if "JetTruthCopyAlg" in algseq:
+    if hasattr( algseq, "JetTruthCopyAlg" ): 
+        "JetTruthCopyAlg already present, no need to add again"
+        return
     from AthenaCommon.AppMgr import ToolSvc
     from MCTruthClassifier import MCTruthClassifierConf
     from ParticleJetTools import ParticleJetToolsConf
