@@ -172,13 +172,15 @@ def move_files(main_dir,tmp_dir,whitelist):
 
 def getTransform():
     exeSet = set()
-    print "Transform arguments %s " % sys.argv[1:]
+    msg.info("Transform arguments %s" % sys.argv[1:])
     if "--outputEVNTFile" in str(sys.argv[1:]):
        exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT"]))
-       print 'output EVNT'
-    else:
+       msg.info("Output EVNT file")
+    elif "--outputTXTFile" in str(sys.argv[1:]):
        exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoTXT.py", inData=["inNULL"], outData=["TXT"]))
-       print 'output TXT'
+       msg.info("Output TXT file")
+    else:
+       msg.error("Output cannot be recognised")
 
     exeSet.add(EvgenExecutor(name="afterburn", skeleton="EvgenJobTransforms/skeleton.ABtoEVGEN.py", inData=["EVNT_Pre"], outData=["EVNT"]))
     exeSet.add(athenaExecutor(name = "AODtoDPD", skeletonFile = "PATJobTransforms/skeleton.AODtoDPD_tf.py",
