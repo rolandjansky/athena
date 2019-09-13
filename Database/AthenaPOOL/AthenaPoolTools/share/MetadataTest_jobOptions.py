@@ -51,9 +51,8 @@ include ("AthenaPoolTools/EventCount_jobOptions.py")
 from AthenaPoolTools.AthenaPoolToolsConf import MetadataTest
 topSequence += MetadataTest( OutputLevel = INFO, InputStream="StreamAOD" )
 
-import PyUtils.AthFile as af
 from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=False )
+CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=False )
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 
