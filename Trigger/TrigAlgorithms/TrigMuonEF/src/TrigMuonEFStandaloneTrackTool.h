@@ -83,7 +83,6 @@ class TrigMuonEFInfoContainer;
 class TrigTimer;
 class ActiveStoreSvc;
 class IRegSelSvc;
-class IIncidentSvc;
 
 class MdtIdHelper;
 class CscIdHelper;

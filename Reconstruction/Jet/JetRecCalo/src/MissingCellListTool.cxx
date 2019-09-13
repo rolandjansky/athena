@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MissingCellListTool.cxx 
@@ -76,9 +76,6 @@ StatusCode MissingCellListTool::initialize()
   //m_badandmissingCellsGeomMap.init(m_rmax);
 
 
-  // ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
-  // CHECK(incidentSvc.retrieve());
-  
   // Register listener for BeginEvent
   //incidentSvc->addListener(this, "BeginEvent");
 

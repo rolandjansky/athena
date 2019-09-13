@@ -37,7 +37,6 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Gaudi includes
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
