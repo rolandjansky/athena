@@ -53,7 +53,7 @@ StatusCode OutputStreamSequencerSvc::initialize() {
    if( inConcurrentEventsMode() ) {
       ATH_MSG_DEBUG("Concurrent events mode");
    } else {
-      ATH_MSG_DEBUG("Sequential events mode");
+      ATH_MSG_VERBOSE("Sequential events mode");
    }
    return(StatusCode::SUCCESS);
 }
