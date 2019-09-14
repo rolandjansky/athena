@@ -30,12 +30,16 @@ class MdtCondDbAlg(CfgMgr.MdtCondDbAlg):
             if globalflags.DataSource == 'data':
                 kwargs['isData'] = True
                 kwargs['isRun1'] = conddb.dbname == 'COMP200'
+                kwargs['useRun1SetPoints'] = False
         super(MdtCondDbAlg,self).__init__(name,**kwargs)
         if globalflags.DataSource == 'data':
             if kwargs['isRun1']:
                 addFolder(self, "DCS_OFL", "/MDT/DCS/PSHVMLSTATE")
                 addFolder(self, "DCS_OFL", "/MDT/DCS/PSLVCHSTATE")
                 addFolder(self, "DCS_OFL", "/MDT/DCS/DROPPEDCH")
+                if kwargs['useRun1SetPoints']:
+                    addFolder(self, "DCS_OFL", "/MDT/DCS/PSV0SETPOINTS")
+                    addFolder(self, "DCS_OFL", "/MDT/DCS/PSV1SETPOINTS")
             else:
                 addFolder(self, "DCS_OFL", "/MDT/DCS/HV")
                 addFolder(self, "DCS_OFL", "/MDT/DCS/LV")
@@ -54,7 +58,7 @@ class RpcCondDbAlg(CfgMgr.RpcCondDbAlg):
                 kwargs['isData'] = False
             if globalflags.DataSource == 'data':
                 kwargs['isData'] = True
-                kwargs['isRun1'] = False
+                kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(RpcCondDbAlg,self).__init__(name,**kwargs)
         if globalflags.DataSource == 'data':
             addFolder(self, "DCS_OFL", "/RPC/DCS/DeadRopanels"   )
@@ -73,7 +77,7 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
                 kwargs['isData'] = False
             if globalflags.DataSource == 'data':
                 kwargs['isData'] = True
-                kwargs['isRun1'] = False
+                kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(CscCondDbAlg,self).__init__(name,**kwargs)
         addFolder(self, "CSC_OFL", "/CSC/STAT")
 
@@ -87,7 +91,7 @@ class TgcCondDbAlg(CfgMgr.TgcCondDbAlg):
                 kwargs['isData'] = False
             if globalflags.DataSource == 'data':
                 kwargs['isData'] = True
-                kwargs['isRun1'] = False
+                kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(TgcCondDbAlg,self).__init__(name,**kwargs)
         addFolder(self, "", "") # which folder?
 
