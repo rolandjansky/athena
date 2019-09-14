@@ -54,7 +54,7 @@ def RpcCondDbAlgCfg(flags, **kwargs):
 
 def CscCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
-    folders = ["/CSC/STAT"]
+    folders = ["/CSC/FTHOLD", "/CSC/NOISE", "/CSC/PED", "/CSC/PSLOPE", "/CSC/RMS", "/CSC/STAT", "/CSC/T0BASE", "/CSC/T0PHASE"]
     if flags.Common.isOnline:
         return result ## avoid adding algo to the component accumulator
         kwargs["isOnline"] = True

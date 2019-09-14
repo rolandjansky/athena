@@ -5,7 +5,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
+from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 from CSC_Digitization.CSC_DigitizationConf import (
     CscDigitizationTool, CscDigitBuilder,
 )
@@ -70,7 +70,7 @@ def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**k
 def CSC_DigitBuilderBasicCfg(toolCfg, flags, name, **kwargs):
     """Return a ComponentAccumulator with toolCfg configured CscDigitBuilder algorithm"""
     acc = MuonGeoModelCfg(flags)
-    acc.merge(CscCoolStrSvcCfg(flags))
+    acc.merge(CscCondDbAlgCfg(flags))
     tool = acc.popToolsAndMerge(toolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))

@@ -2,7 +2,7 @@
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
-from MuonCondSvc.MuonCondSvcConf import MuonCalib__CscCoolStrSvc
+from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbSvc, MdtCalibrationSvc
 from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MuonCalib__MdtCalibDbCoolStrTool
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
@@ -21,7 +21,7 @@ log = logging.getLogger('MuonCalibConfig')
 def CscCalibToolCfg(flags, name="CscCalibTool", **kwargs):
     """Return ComponentAccumulator configured for CSC calibration with CscCalibTool as PrivateTools"""
 
-    acc = CscCoolStrSvcCfg(flags)
+    acc = CscCondDbAlgCfg(flags)
 
     kwargs.setdefault("Slope", 0.19)
     kwargs.setdefault("Noise", 3.5)

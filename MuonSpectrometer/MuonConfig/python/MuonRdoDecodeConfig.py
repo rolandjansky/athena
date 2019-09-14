@@ -138,8 +138,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg # Not yet been prepared
     acc.merge( CSCCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
-    acc.merge( CscCoolStrSvcCfg(flags)  )
+    from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
+    acc.merge( CscCondDbAlgCfg(flags)  )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg

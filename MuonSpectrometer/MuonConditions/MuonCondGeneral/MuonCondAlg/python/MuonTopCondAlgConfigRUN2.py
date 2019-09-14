@@ -82,7 +82,14 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
                 kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(CscCondDbAlg,self).__init__(name,**kwargs)
         if athenaCommonFlags.isOnline: return
-        addFolder(self, "CSC_OFL", "/CSC/STAT")
+        addFolder(self, "CSC_OFL", "/CSC/FTHOLD" )
+        addFolder(self, "CSC_OFL", "/CSC/NOISE"  )
+        addFolder(self, "CSC_OFL", "/CSC/PED"    )
+        addFolder(self, "CSC_OFL", "/CSC/PSLOPE" )
+        addFolder(self, "CSC_OFL", "/CSC/RMS"    )
+        addFolder(self, "CSC_OFL", "/CSC/STAT"   )
+        addFolder(self, "CSC_OFL", "/CSC/T0BASE" )
+        addFolder(self, "CSC_OFL", "/CSC/T0PHASE")
 
 class TgcCondDbAlg(CfgMgr.TgcCondDbAlg):
     def __init__(self,name="TgcCondDbAlg",**kwargs):

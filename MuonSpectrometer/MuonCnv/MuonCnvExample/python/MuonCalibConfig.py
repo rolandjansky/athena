@@ -107,8 +107,7 @@ def setupCscCondDB():
 
 
 def CscCalibTool(name,**kwargs):
-    # setup condDB folders
-    setupCscCondDB()
+    import MuonCondAlg.CscCondDbAlgConfig # MT-safe conditions access
     # make tool
     return CfgMgr.CscCalibTool(
         Slope=0.19,
