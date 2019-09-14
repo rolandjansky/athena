@@ -51,8 +51,6 @@ public:
  
 private:
 
-    //virtual StatusCode prepareCollections() const;
-
     virtual StatusCode loadDataHv     (EventIDRange &, std::unique_ptr<CscCondDbData>&);
 
     virtual StatusCode loadData       (EventIDRange &, std::unique_ptr<CscCondDbData>&, SG::ReadCondHandle<CondAttrListCollection>, const std::string, bool = false);
@@ -81,31 +79,12 @@ private:
 	virtual StatusCode recordParameterT0Base (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
 	virtual StatusCode recordParameterT0Phase(IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
 
-    //virtual StatusCode indexToStringId(const unsigned int &, const std::string &, std::string &) const;
-    //virtual StatusCode layerHashToOnlineId(const unsigned int &, unsigned int &) const;
-    //virtual StatusCode offlineElementToOnlineId(const Identifier &, unsigned int &) const;
-    //virtual StatusCode offlineToOnlineId(const Identifier &, unsigned int &) const;
-    //virtual StatusCode onlineToOfflineElementId(const unsigned int &, Identifier &) const;
-    //virtual StatusCode onlineToOfflineChannelId(const unsigned int &, Identifier &) const;
-	//virtual StatusCode onlineToOfflineIds(const unsigned int &, Identifier &, Identifier &) const;
-
     bool m_isOnline{false};
     bool m_isData{false};  
     bool m_isRun1{false};   
 
     bool m_phiSwapVersion1Strings{false};
     bool m_onlineOfflinePhiFlip{false};
-
-    //unsigned int m_layerHashes[2][2][8][4][2];
-    //std::vector<unsigned int> m_onlineChannelIdsFromLayerHash;
-    //unsigned int m_chamberCoolChannels[2][2][8];
-    //std::vector<unsigned int> m_onlineChannelIdsFromChamberCoolChannel;
-
-    //const unsigned int m_maxChanHash; 
-    //const unsigned int m_maxChamberCoolChannel;
-    //const unsigned int m_maxLayerHash;
-
-    //IdContext m_channelContext, m_moduleContext;
 
     ServiceHandle<ICondSvc> m_condSvc;
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
