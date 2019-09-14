@@ -32,6 +32,7 @@ class MdtCondDbAlg(CfgMgr.MdtCondDbAlg):
                 kwargs['isRun1'] = conddb.dbname == 'COMP200'
                 kwargs['useRun1SetPoints'] = False
         super(MdtCondDbAlg,self).__init__(name,**kwargs)
+        if athenaCommonFlags.isOnline: return
         if globalflags.DataSource == 'data':
             if kwargs['isRun1']:
                 addFolder(self, "DCS_OFL", "/MDT/DCS/PSHVMLSTATE")
@@ -60,6 +61,7 @@ class RpcCondDbAlg(CfgMgr.RpcCondDbAlg):
                 kwargs['isData'] = True
                 kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(RpcCondDbAlg,self).__init__(name,**kwargs)
+        if athenaCommonFlags.isOnline: return
         if globalflags.DataSource == 'data':
             addFolder(self, "DCS_OFL", "/RPC/DCS/DeadRopanels"   )
             addFolder(self, "DCS_OFL", "/RPC/DCS/OffRopanels"    )
@@ -79,6 +81,7 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
                 kwargs['isData'] = True
                 kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(CscCondDbAlg,self).__init__(name,**kwargs)
+        if athenaCommonFlags.isOnline: return
         addFolder(self, "CSC_OFL", "/CSC/STAT")
 
 class TgcCondDbAlg(CfgMgr.TgcCondDbAlg):
@@ -93,5 +96,6 @@ class TgcCondDbAlg(CfgMgr.TgcCondDbAlg):
                 kwargs['isData'] = True
                 kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(TgcCondDbAlg,self).__init__(name,**kwargs)
+        if athenaCommonFlags.isOnline: return
         addFolder(self, "", "") # which folder?
 
