@@ -344,6 +344,16 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info, const x
 
   size_t origIndex = Info.origIndex;
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
+  
+  //copy over dead sensors
+  uint8_t dummyDeadPixel(0);
+  uint8_t deadPixel= original->summaryValue(dummyDeadPixel,xAOD::numberOfPixelDeadSensors)?dummyDeadPixel:0;
+  summary->update(Trk::numberOfPixelDeadSensors,deadPixel);
+
+  uint8_t dummyDeadSCT(0);
+  uint8_t deadSCT= original->summaryValue(dummyDeadSCT,xAOD::numberOfSCTDeadSensors)?dummyDeadSCT:0;
+  summary->update(Trk::numberOfSCTDeadSensors,deadSCT); 
+ 
   uint8_t dummy(0);
   if (m_doPix) {
     int nPixHitsRefitted = summary->get(Trk::numberOfPixelHits);
