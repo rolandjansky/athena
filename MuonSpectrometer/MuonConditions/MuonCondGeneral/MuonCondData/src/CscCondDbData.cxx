@@ -9,10 +9,16 @@ CscCondDbData::CscCondDbData() :
     m_maxChanHash(61440),
     m_maxChamberCoolChannel(32),
     m_maxLayerHash(255){
+}
+
+
+// loadParameters
+void
+CscCondDbData::loadParameters(const CscIdHelper* idHelper){
 
     // prepare contexts
-    m_moduleContext  = m_idHelper->module_context();
-    m_channelContext = m_idHelper->channel_context();
+    m_moduleContext  = idHelper->module_context();
+    m_channelContext = idHelper->channel_context();
 
     //prepare layer hash array
     int hash = 0;
@@ -22,7 +28,7 @@ CscCondDbData::CscCondDbData() :
         for(int stationPhi = 0; stationPhi <8; stationPhi++){
           for(int wireLayer = 0; wireLayer <4; wireLayer++){
             for(int measuresPhi = 0; measuresPhi <2; measuresPhi++){
-              Identifier id = m_idHelper->channelID(
+              Identifier id = idHelper->channelID(
                   stationName+1,
                   (stationEta? 1:-1),
                   stationPhi+1,
@@ -32,7 +38,7 @@ CscCondDbData::CscCondDbData() :
                   1 //channel doesn't matter. We'll just use first
                   );
               unsigned int onlineId;
-              if(!offlineToOnlineId(id, onlineId).isSuccess()) {
+              if(!offlineToOnlineId(idHelper, id, onlineId).isSuccess()) {
                 std::cout << "Failed at geting online id!" << std::endl;
               }
               else {
@@ -55,7 +61,7 @@ CscCondDbData::CscCondDbData() :
     for(int stationName  = 0; stationName < 2; stationName++){
       for(int stationEta =0; stationEta <2; stationEta++){
         for(int stationPhi = 0; stationPhi <8; stationPhi++){
-          Identifier id = m_idHelper->channelID(
+          Identifier id = idHelper->channelID(
               stationName+1,
               (stationEta? 1:-1),
               stationPhi+1,
@@ -65,7 +71,7 @@ CscCondDbData::CscCondDbData() :
               1 //channel doesn't matter. We'll just use first
               );
           unsigned int onlineId;
-          if(!offlineToOnlineId(id, onlineId).isSuccess()) {
+          if(!offlineToOnlineId(idHelper, id, onlineId).isSuccess()) {
             std::cout << "Failed at geting online id!" << std::endl;
           }
           else {
@@ -76,7 +82,7 @@ CscCondDbData::CscCondDbData() :
       }
     }
     *(const_cast<unsigned int*>(&m_maxChamberCoolChannel)) = hash - 1; //-1 because hash overshoots in loop
-    *(const_cast<unsigned int*>(&m_maxChanHash)) = m_idHelper->channel_hash_max() - 1;
+    *(const_cast<unsigned int*>(&m_maxChanHash)) = idHelper->channel_hash_max() - 1;
 
 
     std::cout << "Maximum Chamber COOL Channel is " << m_maxChamberCoolChannel << std::endl;
@@ -84,6 +90,8 @@ CscCondDbData::CscCondDbData() :
     std::cout << "Maximum Channel hash is " << m_maxChanHash << std::endl;
 }
 
+
+// set Parameters
 void
 CscCondDbData::setParameters(bool onlineOfflinePhiFlip){
     m_onlineOfflinePhiFlip = onlineOfflinePhiFlip;
@@ -382,7 +390,7 @@ CscCondDbData::isGoodStation(const Identifier & Id) const{
 
 // indexToStringId
 StatusCode 
-CscCondDbData::indexToStringId(const unsigned int & index, const std::string & cat, std::string & idString) const {
+CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int & index, const std::string & cat, std::string & idString) const {
     // copy-paste from CscCoolStrSvc
 
     //There is no string id for the CSC category.
@@ -406,8 +414,8 @@ CscCondDbData::indexToStringId(const unsigned int & index, const std::string & c
     std::stringstream ss;
     if(cat == "CHAMBER"){
         Identifier chamberId;
-        m_idHelper->get_id(IdentifierHash(index), chamberId, &m_moduleContext);
-        if(!offlineElementToOnlineId(chamberId, onlineId).isSuccess()) {
+        idHelper->get_id(IdentifierHash(index), chamberId, &m_moduleContext);
+        if(!offlineElementToOnlineId(idHelper, chamberId, onlineId).isSuccess()) {
             std::cout << "Failed converting chamber identifier to online id during stringId gen." << std::endl;
             return StatusCode::RECOVERABLE;
         }
@@ -420,8 +428,8 @@ CscCondDbData::indexToStringId(const unsigned int & index, const std::string & c
     }
     else if(cat == "CHANNEL"){
         Identifier channelId;
-        m_idHelper->get_id(IdentifierHash(index), channelId, &m_channelContext);
-        if(!offlineToOnlineId(channelId, onlineId).isSuccess()) {
+        idHelper->get_id(IdentifierHash(index), channelId, &m_channelContext);
+        if(!offlineToOnlineId(idHelper, channelId, onlineId).isSuccess()) {
             std::cout << "Failed converting chamber identifier to online id during stringId gen." << std::endl;
             return StatusCode::RECOVERABLE;
         }
@@ -449,16 +457,16 @@ CscCondDbData::layerHashToOnlineId(const unsigned int & layerHash, unsigned int 
 
 // offlineElementToOnlineId
 StatusCode 
-CscCondDbData::offlineElementToOnlineId(const Identifier & id, unsigned int &onlineId) const {
+CscCondDbData::offlineElementToOnlineId(const CscIdHelper* idHelper, const Identifier & id, unsigned int &onlineId) const {
     // copy-paste from CscCoolStrSvc
 
     onlineId = 0;
     //Phi,wireLayer,and strip all are offset by one between the two schemes.
     //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
     //the online id.
-    int stationName  	((m_idHelper->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
-    int phi =   		(m_idHelper->stationPhi(id) - 1)&0x7  ;		// 0000 1110 0000 0000 0000
-    int eta = 		((m_idHelper->stationEta(id) == 1) ? 1:0) &0x1;  	// 0000 0001 0000 0000 0000
+    int stationName  	((idHelper->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(idHelper->stationPhi(id) - 1)&0x7  ;		// 0000 1110 0000 0000 0000
+    int eta = 		((idHelper->stationEta(id) == 1) ? 1:0) &0x1;  	// 0000 0001 0000 0000 0000
     int chamLay = 		1;		// 0000 0000 1000 0000 0000
     int wireLay = 		0;		// 0000 0000 0110 0000 0000
     int measuresPhi = 0;		// 0000 0000 0001 0000 0000
@@ -477,27 +485,27 @@ CscCondDbData::offlineElementToOnlineId(const Identifier & id, unsigned int &onl
 
 // offlineToOnlineId
 StatusCode 
-CscCondDbData::offlineToOnlineId(const Identifier & id, unsigned int &onlineId) const {
+CscCondDbData::offlineToOnlineId(const CscIdHelper* idHelper, const Identifier & id, unsigned int &onlineId) const {
     // copy-paste from CscCoolStrSvc
 
     onlineId = 0;
     //Phi,wireLayer,and strip all are offset by one between the two schemes.
     //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
     //the online id.
-    int stationName  	((m_idHelper->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
-    int phi =   		(m_idHelper->stationPhi(id) - 1)&0x7  ;		    // 0000 1110 0000 0000 0000
-    int eta = 		((m_idHelper->stationEta(id) == 1) ? 1:0) &0x1;  // 0000 0001 0000 0000 0000
-    int chamLay = 		(m_idHelper->chamberLayer(id)-1) &0x1;		    // 0000 0000 1000 0000 0000
-    int wireLay = 		(m_idHelper->wireLayer(id)-1) &0x3;		      // 0000 0000 0110 0000 0000
-    int measuresPhi = 	(m_idHelper->measuresPhi(id) &0x1);		    // 0000 0000 0001 0000 0000
+    int stationName  	((idHelper->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(idHelper->stationPhi(id) - 1)&0x7  ;		    // 0000 1110 0000 0000 0000
+    int eta = 		((idHelper->stationEta(id) == 1) ? 1:0) &0x1;  // 0000 0001 0000 0000 0000
+    int chamLay = 		(idHelper->chamberLayer(id)-1) &0x1;		    // 0000 0000 1000 0000 0000
+    int wireLay = 		(idHelper->wireLayer(id)-1) &0x3;		      // 0000 0000 0110 0000 0000
+    int measuresPhi = 	(idHelper->measuresPhi(id) &0x1);		    // 0000 0000 0001 0000 0000
     int strip;     		                                          // 0000 0000 0000 1111 1111
 
     //Online and offline phi ids are flipped on A wheel
     if(m_onlineOfflinePhiFlip && measuresPhi && eta == 1){
-        strip = (48 - (m_idHelper->strip(id))) & 0xff;  
+        strip = (48 - (idHelper->strip(id))) & 0xff;  
     }
     else {
-        strip = (m_idHelper->strip(id)-1) & 0xff;     		     
+        strip = (idHelper->strip(id)-1) & 0xff;     		     
     }
 
 
@@ -514,21 +522,21 @@ CscCondDbData::offlineToOnlineId(const Identifier & id, unsigned int &onlineId) 
 
 // onlineToOfflineElementId
 StatusCode 
-CscCondDbData::onlineToOfflineElementId(const unsigned int & onlineId, Identifier &elementId) const {
+CscCondDbData::onlineToOfflineElementId(const CscIdHelper* idHelper, const unsigned int & onlineId, Identifier &elementId) const {
     // copy-paste from CscCoolStrSvc
 
     int stationName =       ((onlineId >> 16)&0x1) + 50;
     int phi =               ((onlineId >> 13)&0x7)+1;
     int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
 
-    elementId = m_idHelper->elementID(stationName,eta,phi);
+    elementId = idHelper->elementID(stationName,eta,phi);
     return StatusCode::SUCCESS;
 }
 
 
 // onlineToOfflineChannelId
 StatusCode 
-CscCondDbData::onlineToOfflineChannelId(const unsigned int & onlineId, Identifier &chanId) const {
+CscCondDbData::onlineToOfflineChannelId(const CscIdHelper* idHelper, const unsigned int & onlineId, Identifier &chanId) const {
     // copy-paste from CscCoolStrSvc
 
     int stationName =       ((onlineId >> 16)&0x1) + 50;
@@ -547,14 +555,14 @@ CscCondDbData::onlineToOfflineChannelId(const unsigned int & onlineId, Identifie
         strip = ((onlineId)&0xff) +1;
     }
 
-    chanId = m_idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+    chanId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
     return StatusCode::SUCCESS;
 }
 
 
 // onlineToOfflineIds
 StatusCode 
-CscCondDbData::onlineToOfflineIds(const unsigned int & onlineId, Identifier &elementId, Identifier &channelId) const {
+CscCondDbData::onlineToOfflineIds(const CscIdHelper* idHelper, const unsigned int & onlineId, Identifier &elementId, Identifier &channelId) const {
     // copy-paste from CscCoolStrSvc
 
     int stationName =       ((onlineId >> 16)&0x1) + 50;
@@ -573,8 +581,8 @@ CscCondDbData::onlineToOfflineIds(const unsigned int & onlineId, Identifier &ele
       strip = ((onlineId)&0xff) +1;
     }
   
-    elementId = m_idHelper->elementID(stationName,eta,phi);
-    channelId = m_idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+    elementId = idHelper->elementID(stationName,eta,phi);
+    channelId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
   
     return StatusCode::SUCCESS;
 }

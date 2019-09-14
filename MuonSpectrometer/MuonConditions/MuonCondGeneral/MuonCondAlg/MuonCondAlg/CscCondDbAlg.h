@@ -31,6 +31,7 @@ class Identifier;
 class IdentifierHash;
 class MuonIdHelper;
 class StatusCode;
+class CscCondDbData;
 
 namespace Muon {
   class MuonIdHelperTool;

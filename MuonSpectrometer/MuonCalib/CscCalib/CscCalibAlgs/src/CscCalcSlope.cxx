@@ -1144,7 +1144,7 @@ cerr << "done init services" << endl;
       double value = (*resItr)->value();
       std::string idString;
 
-      readCdo->indexToStringId(hashId, "CHANNEL", idString);
+      readCdo->indexToStringId(m_cscId, hashId, "CHANNEL", idString);
 
       out << idString << " " << value << "\n";
     }

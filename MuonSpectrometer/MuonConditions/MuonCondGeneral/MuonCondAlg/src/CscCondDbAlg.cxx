@@ -151,6 +151,7 @@ CscCondDbAlg::execute(){
         return StatusCode::SUCCESS; 
     }
     std::unique_ptr<CscCondDbData> writeCdo{std::make_unique<CscCondDbData>()};
+    writeCdo->loadParameters(&m_idHelper->cscIdHelper());
     writeCdo->setParameters(m_onlineOfflinePhiFlip);
 
     EventIDRange rangeW;
@@ -419,33 +420,28 @@ CscCondDbAlg::loadData(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& wr
 StatusCode 
 CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName){
 
-	// ATTENTION: careful, this is untested yet! (lack of data)
-	ATH_MSG_WARNING("Running cacheVersion1 function for parameter "<<parName<<", which is not properly implemented for folders other than /CSC/STAT/ nor properly tested!");
-
+    std::istringstream ss(data);
     std::string valueStr;
-	std::istringstream ss(data);
+    ss >> valueStr; // first element is the '1' for the string version
+    unsigned int chanAddress = 0;
 
-	bool started = false;
+    bool hasAddress = false;
     while(ss.good()) {
         ss >> valueStr;
-  
-		if(valueStr == "END") break;
- 
-        if(valueStr == "<BEGIN_DATA>"){
-            started = true;
-			continue;
-		}
-		if(!started) continue;
+        ATH_MSG_DEBUG("current element " << valueStr);
 
-		ATH_MSG_DEBUG("current element " << valueStr);
-
-        int index = atoi(valueStr.c_str());
+        // need the next string as token
+        if(!hasAddress){
+            chanAddress = atoi(valueStr.c_str());
+            hasAddress = true;
+            continue;
+        }
 
 		// swapping version 1 strings
         if(m_phiSwapVersion1Strings){
             Identifier chanId;
             IdContext channelContext = m_idHelper->cscIdHelper().channel_context();
-            m_idHelper->cscIdHelper().get_id((IdentifierHash)index, chanId, &channelContext);
+            m_idHelper->cscIdHelper().get_id((IdentifierHash) chanAddress, chanId, &channelContext);
             int stationEta  = m_idHelper->cscIdHelper().stationEta (chanId); // +1 Wheel A   -1 Wheel C
             int measuresPhi = m_idHelper->cscIdHelper().measuresPhi(chanId); // 0 eta 1 phi
 
@@ -461,21 +457,26 @@ CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& wr
                 m_idHelper->cscIdHelper().get_channel_hash(newId, hash);
 
 				ATH_MSG_VERBOSE("Swapped phi strip "<< m_idHelper->cscIdHelper().show_to_string(chanId) << 
-                                " (" << index << ") to " << m_idHelper->cscIdHelper().show_to_string(newId) << 
+                                " (" << chanAddress << ") to " << m_idHelper->cscIdHelper().show_to_string(newId) << 
                                 " (" << hash << ")");
-                index = hash;
+                chanAddress = hash;
             }
             else {
                 ATH_MSG_VERBOSE("Not swapping " << m_idHelper->cscIdHelper().show_to_string(chanId));
             }
         }
 
-        writeCdo->setDeadChannelHash((IdentifierHash) index);
+        // record parameter
+        if(recordParameter(chanAddress, valueStr, writeCdo, parName).isFailure())
+        	return StatusCode::FAILURE;
 
+        // reset the address
+        chanAddress = 0;
+        hasAddress = false;
     }
+
     return StatusCode::SUCCESS;
 }
-
 
 
 // cacheVersion2
@@ -676,7 +677,7 @@ CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, std::u
     // retrieve channel hash
     Identifier chamberId;
     Identifier channelId;
-    if(!writeCdo->onlineToOfflineIds(chanAddress, chamberId, channelId).isSuccess())
+    if(!writeCdo->onlineToOfflineIds(&m_idHelper->cscIdHelper(), chanAddress, chamberId, channelId).isSuccess())
         ATH_MSG_ERROR("Cannon get offline Ids from online Id" << std::hex << chanAddress << std::dec);
     
     IdentifierHash chanHash;

@@ -13,6 +13,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaKernel/CondCont.h" 
 #include "Identifier/Identifier.h"
+#include "Identifier/IdContext.h"
 #include "Identifier/IdentifierHash.h"
 #include "AthenaKernel/BaseInfo.h" 
 #include "MuonIdHelpers/CscIdHelper.h"
@@ -33,7 +34,8 @@ public:
     CscCondDbData();
     virtual ~CscCondDbData() = default;
 
-    void setParameters(bool);
+    void loadParameters(const CscIdHelper*);
+    void setParameters(bool); // keep in plural for future development
 
     void setChannelF001   (IdentifierHash, float);
     void setChannelNoise  (IdentifierHash, float);
@@ -82,17 +84,15 @@ public:
 
     bool isGoodChannelHash(const IdentifierHash &) const;
 
-    StatusCode indexToStringId(const unsigned int &, const std::string &, std::string &) const;
+    StatusCode indexToStringId(const CscIdHelper*, const unsigned int &, const std::string &, std::string &) const;
     StatusCode layerHashToOnlineId(const unsigned int &, unsigned int &) const;
-    StatusCode offlineElementToOnlineId(const Identifier &, unsigned int &) const;
-    StatusCode offlineToOnlineId(const Identifier &, unsigned int &) const;
-    StatusCode onlineToOfflineElementId(const unsigned int &, Identifier &) const;
-    StatusCode onlineToOfflineChannelId(const unsigned int &, Identifier &) const;
-    StatusCode onlineToOfflineIds(const unsigned int &, Identifier &, Identifier &) const;
+    StatusCode offlineElementToOnlineId(const CscIdHelper*, const Identifier &, unsigned int &) const;
+    StatusCode offlineToOnlineId(const CscIdHelper*, const Identifier &, unsigned int &) const;
+    StatusCode onlineToOfflineElementId(const CscIdHelper*, const unsigned int &, Identifier &) const;
+    StatusCode onlineToOfflineChannelId(const CscIdHelper*, const unsigned int &, Identifier &) const;
+    StatusCode onlineToOfflineIds(const CscIdHelper*, const unsigned int &, Identifier &, Identifier &) const;
  
 private:
-
-    const CscIdHelper * m_idHelper;
 
     IdContext m_channelContext, m_moduleContext;
 
