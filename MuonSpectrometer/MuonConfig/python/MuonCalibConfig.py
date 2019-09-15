@@ -2,6 +2,7 @@
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
+from MuonCondSvc.MuonCondSvcConf import MuonCalib__CscCoolStrSvc
 from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbSvc, MdtCalibrationSvc
 from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MuonCalib__MdtCalibDbCoolStrTool
