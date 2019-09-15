@@ -9,6 +9,43 @@ to instantiate a condiguration AlgTool, which, by convention, will have a
 name TrigJetHypoToolConfig_XXX.
 """
 from constants import logicals
+import copy
+
+def rotate_(node):
+    """define rotable nodes. replace each rotatable node in a tree
+    by a vertical (by generation) linear sequence of nodes.
+    """
+    
+    to_rotate = ('and', 'combgen')
+    newchildren = []
+
+    while node.scenario in to_rotate:
+        print 'starting scenario', node.scenario
+        print 'rotating ', node.scenario
+        newnodes = copy.deepcopy(node.children) # grandchildren
+        newnode0 = newnodes[0]
+        curnode = newnodes[0]
+        for n in newnodes[1:]:
+            curnode.children.append(n)
+            curnode = n
+        node = newnode0
+        print 'scenario now', node.scenario
+
+    print 'len children', len(node.children)
+    node.children = [rotate_(cn) for cn in node.children]
+
+    return node
+
+def rotate(node):
+
+    
+    node_id = node.node_id
+    parent_id = node.parent_id
+
+    node = rotate_(node)
+    node.set_ids(node_id, parent_id)
+
+    return node
     
 class Node(object):
     
@@ -86,3 +123,5 @@ class Node(object):
 
         return s
         
+    def __str__(self):
+        return self.dump()

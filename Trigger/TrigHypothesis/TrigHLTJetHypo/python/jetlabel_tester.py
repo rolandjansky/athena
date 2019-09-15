@@ -6,7 +6,11 @@ from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from  TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
 
+from node import rotate
+
 def compile(label, setter=None, expand=False, dump=False):
+    print 'compile:',  label
+
     parser = ChainLabelParser(label, debug=False)
     tree = parser.parse()
 
@@ -17,6 +21,7 @@ def compile(label, setter=None, expand=False, dump=False):
         tree.accept(visitor)
         print visitor.report()
 
+    print 'compile: tree.scenario', tree.scenario
     if setter is not None:
         tree.accept(setter)
     
@@ -102,6 +107,24 @@ if __name__ == '__main__':
           [(10et)(20et)]
         )"""
 
+    label =  """partgen([] 
+                       simple([(10et)(20et)])
+                       simple([(12et)(22et)])
+                )"""
+    label = """and([]
+                   combgen([(2)]
+                                simple([(10et)(20et)])
+                                simple([(12et)(22et)])
+                           )
+                   and([]
+                          simple([(32et)(42et)])
+                          simple([(32et)(42et)])
+                       )
+                  )"""
+
     
     setter = FlowNetworkSetter('flowNetworkSetter')
-    compile(label, setter=setter, expand=True, dump=True)
+    tree = compile(label, expand=True, dump=False)
+    tree = rotate(tree)
+    print tree.accept(setter)
+    print setter
