@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // Primary include
 #include "AssociationUtils/DeltaROverlapTool.h"
-
-// Framework includes
-#include "CxxUtils/make_unique.h"
 
 namespace ORUtils
 {
@@ -31,7 +28,7 @@ namespace ORUtils
     ATH_MSG_DEBUG("Setting up dR matching with cone size " << m_dR);
 
     // Initialize the dR matcher
-    m_dRMatcher = CxxUtils::make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
+    m_dRMatcher = std::make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
     return StatusCode::SUCCESS;
   }
 
