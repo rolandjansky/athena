@@ -30,10 +30,10 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
   G4NistManager* man = G4NistManager::Instance();
   G4Material* material = man->FindOrBuildMaterial("G4_AIR");
   G4String name = "logicalName";
-  G4LogicalVolume fLogical(box, material, name);
+  G4LogicalVolume* fLogical = new G4LogicalVolume(box, material, name);
   G4String PhysicalName = physicalname;//para
   G4VPhysicalVolume* pPhysical = NULL;
-  G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName, &fLogical, pPhysical);
+  G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName, fLogical, pPhysical);
   G4int CopyNo = copyno;
   physicalVolume->SetCopyNo(copyno);//para
   G4int nReplica = 2;
