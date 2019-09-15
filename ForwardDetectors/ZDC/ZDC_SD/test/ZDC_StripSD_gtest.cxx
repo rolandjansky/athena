@@ -25,7 +25,7 @@ ISvcLocator* g_svcLoc = nullptr;
 class GaudiEnvironment : public ::testing::Environment {
   protected:
     virtual void SetUp() override {
-   Athena_test::initGaudi("/afs/cern.ch/user/l/lihan/private/repo/athena/ForwardDetectors/ZDC/ZDC_SD/share/optionForTest.txt", g_svcLoc);
+   Athena_test::initGaudi("ZDC_SD/optionForTest.txt", g_svcLoc);
   }
 };
 class ZDC_StripSDtest : public ::testing::Test {	
