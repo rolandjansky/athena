@@ -4,7 +4,6 @@
 
 #include "LArCalibUtils/LArCaliWaveSelector.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthenaKernel/errorcheck.h"

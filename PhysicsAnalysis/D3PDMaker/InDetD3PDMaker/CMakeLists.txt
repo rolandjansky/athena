@@ -63,6 +63,5 @@ atlas_add_component( InDetD3PDMaker
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} ${HEPPDT_LIBRARIES}  GaudiKernel CommissionEvent AthContainers AthenaKernel StoreGateLib AtlasDetDescr GeoAdaptors Identifier EventPrimitives xAODEventInfo xAODTracking InDetBeamSpotService SCT_ConditionsToolsLib TRT_ConditionsServices InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetSimEvent D3PDMakerUtils MCTruthClassifier ParticleTruth ITrackToVertex muonEvent Particle TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParameters TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex VxVertex TrkToolInterfaces TrkVertexFitterValidationUtils )
 
 # Install files from the package:
-atlas_install_headers( InDetD3PDMaker )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

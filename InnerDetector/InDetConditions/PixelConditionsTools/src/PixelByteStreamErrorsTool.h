@@ -16,7 +16,6 @@
 
 //Gaudi includes
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 //Athena includes

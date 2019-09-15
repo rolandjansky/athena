@@ -30,7 +30,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <limits>
 
 namespace InDetDD {
   using Trk::distPhi;
@@ -47,39 +46,12 @@ namespace InDetDD {
     m_id(id),
     m_design(design),
     m_commonItems(commonItems),
-    m_nextInEta(nullptr),
-    m_prevInEta(nullptr),
-    m_nextInPhi(nullptr),
-    m_prevInPhi(nullptr),
-    m_otherSide(nullptr),
-    m_cacheValid(false),
-    m_firstTime(true),
-    m_stereoCacheValid(false),
-    m_surfacesValid(false),
-    m_isStereo(false),
-    m_mutex(),
-    m_surface{},
-    m_surfaces{},
+    m_surface(),
     m_geoAlignStore(geoAlignStore)
     {
-      //The following are fixes for coverity bug 11955, uninitialized scalars:
-      const bool boolDefault(true);
-      m_depthDirection=boolDefault;
-      m_phiDirection=boolDefault;
-      m_etaDirection=boolDefault;
-      const double defaultMin(std::numeric_limits<double>::max());
-      const double defaultMax(std::numeric_limits<double>::lowest());
-      m_minZ=defaultMin;
-      m_maxZ=defaultMax;
-      m_minR=defaultMin;
-      m_maxR=defaultMax;
-      m_minPhi=defaultMin;
-      m_maxPhi=defaultMax;
-
       m_hitEta = m_design->etaAxis();
       m_hitPhi = m_design->phiAxis();
       m_hitDepth = m_design->depthAxis();
-      ///
   
       commonConstructor();
     }
@@ -823,7 +795,7 @@ namespace InDetDD {
     double oneOverRadius = (maxWidth() - minWidth()) / (width() * length());
     double x = localPos[distPhi];
     double y = localPos[distEta];
-    return -x*oneOverRadius / sqrt( (1+y*oneOverRadius)*(1+y*oneOverRadius) + x*oneOverRadius*x*oneOverRadius );
+    return -x*oneOverRadius / sqrt( (1.+y*oneOverRadius)*(1.+y*oneOverRadius) + x*oneOverRadius*x*oneOverRadius );
   }
 
   double

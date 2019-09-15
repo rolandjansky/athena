@@ -76,7 +76,7 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
     if (not m_pixeldedxtool.empty()) ATH_MSG_INFO("Retrieved tool " << m_pixeldedxtool);
   }
 
-  if ( m_holeSearchTool.retrieve().isFailure() ) {
+  if ( not m_holeSearchTool.empty() && m_holeSearchTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_holeSearchTool);
     return StatusCode::FAILURE;
   } else {

@@ -30,7 +30,6 @@ atlas_add_component( TrigInDetTruthAlgs
                      LINK_LIBRARIES ${HEPMC_LIBRARIES} TrigInDetEvent AthenaBaseComps GaudiKernel GenzModuleEvent InDetIdentifier InDetSimData InDetPrepRawData TrkTruthData TrigInDetTruthEvent )
 
 # Install files from the package:
-atlas_install_headers( TrigInDetTruthAlgs )
 atlas_install_python_modules( python/__init__.py python/TrigInDetTruthAlgsConfig.py )
 atlas_install_joboptions( share/jobOfragment*.py )
 

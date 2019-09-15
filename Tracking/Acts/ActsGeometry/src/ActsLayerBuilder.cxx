@@ -74,10 +74,9 @@ ActsLayerBuilder::getDetectorElements() const
       iter != siDetMng->getDetectorElementEnd();
       ++iter) {
     const InDetDD::SiDetectorElement* siDetElement = *iter;
-    //elements.emplace_back(siDetElement, m_cfg.trackingGeometrySvc);
     elements.push_back(
         std::make_shared<const ActsDetectorElement>(
-          siDetElement, m_cfg.trackingGeometrySvc));
+          siDetElement));
   }
 
   return elements;

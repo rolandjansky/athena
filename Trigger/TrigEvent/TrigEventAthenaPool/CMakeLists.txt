@@ -43,7 +43,6 @@ atlas_add_poolcnv_library( TrigEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities GaudiKernel AthenaPoolCnvSvcLib RootConversions TrigBphysicsEvent TrigCaloEvent TrigCaloEventTPCnv TrigCombinedEvent TrigCombinedEventTPCnv TrigDecisionEvent TrigDecisionEventTPCnv TrigInDetEvent TrigInDetEventTPCnv TrigMissingEtEvent TrigMissingEtEventTPCnv TrigMonitoringEvent TrigMonitoringEventTPCnv TrigMuonEvent TrigMuonEventTPCnv TrigParticle TrigParticleTPCnv TrigTopoEvent TrigTopoEventTPCnv TrigFTK_RawData TrigFTK_RawDataTPCnv )
 
 # Install files from the package:
-atlas_install_headers( TrigEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

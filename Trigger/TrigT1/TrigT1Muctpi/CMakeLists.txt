@@ -37,6 +37,5 @@ atlas_add_component( TrigT1Muctpi
                      LINK_LIBRARIES ${XERCESC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel AnalysisTriggerEvent PathResolver TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
-atlas_install_headers( TrigT1Muctpi )
 atlas_install_python_modules( python/*.py )
 

@@ -9,7 +9,6 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
-//#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -32,7 +31,6 @@ static const InterfaceID IID_IMuonMDT_CablingSvc("MuonMDT_CablingSvc", 1, 0);
 
 class MuonMDT_CablingSvc : public AthService 
 			   //			   virtual public IInterface, 
-			   // virtual public IIncidentListener 
 
 {
 

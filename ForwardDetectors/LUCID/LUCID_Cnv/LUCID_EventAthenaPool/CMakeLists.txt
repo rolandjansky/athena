@@ -19,7 +19,3 @@ atlas_add_poolcnv_library( LUCID_EventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES LUCID_SimEvent/LUCID_SimHitCollection.h LUCID_RawEvent/LUCID_DigitContainer.h LUCID_RawEvent/LUCID_RawDataContainer.h
                            LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities LUCID_EventTPCnv LUCID_RawEvent LUCID_SimEvent GaudiKernel )
-
-# Install files from the package:
-atlas_install_headers( LUCID_EventAthenaPool )
-

@@ -24,7 +24,6 @@
 // Trigger include(s):
 #include "TrigDecisionTool/TrigDecisionTool.h"
 class EventInfo;
-class IIncidentSvc;
 
 class TrigExpressStreamAlg : public AthAlgorithm
 {

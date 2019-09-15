@@ -16,7 +16,6 @@
 #include "TRT_ConditionsServices/ITRT_HWMappingSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TRT_ConditionsData/HWMap.h"

@@ -29,6 +29,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 
 #include <atomic>
+#include <limits>
 #include <memory>
 #include <mutex>
 
@@ -37,7 +38,6 @@ class GeoAlignmentStore;
 class GeoVFullPhysVol;
 
 namespace Trk {
-  class Surface;
   class SurfaceBounds;
 }
 
@@ -628,11 +628,11 @@ namespace InDetDD {
     //const AtlasDetectorID* m_idHelper; // id helper
     const SiCommonItems* m_commonItems;
     
-    const SiDetectorElement* m_nextInEta;
-    const SiDetectorElement* m_prevInEta;
-    const SiDetectorElement* m_nextInPhi;
-    const SiDetectorElement* m_prevInPhi;
-    const SiDetectorElement* m_otherSide;
+    const SiDetectorElement* m_nextInEta{nullptr};
+    const SiDetectorElement* m_prevInEta{nullptr};
+    const SiDetectorElement* m_nextInPhi{nullptr};
+    const SiDetectorElement* m_prevInPhi{nullptr};
+    const SiDetectorElement* m_otherSide{nullptr};
     
     bool m_isPixel;
     bool m_isBarrel;
@@ -648,20 +648,20 @@ namespace InDetDD {
 
     // Directions of axes. These are true if the hit/simulation and reconstruction local frames are
     // in the same direction and false if they are opposite.
-    mutable bool m_depthDirection ATLAS_THREAD_SAFE; // Guarded by m_mutex // Direction of depth axis. 
+    mutable bool m_depthDirection ATLAS_THREAD_SAFE {true}; // Guarded by m_mutex // Direction of depth axis. 
     // Also direction of readout implant (n+ for pixel, p+ for SCT).
-    mutable bool m_phiDirection ATLAS_THREAD_SAFE;
-    mutable bool m_etaDirection ATLAS_THREAD_SAFE;
+    mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
+    mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
 
-    mutable std::atomic_bool m_cacheValid; // Alignment associated quatities.
-    mutable std::atomic_bool m_firstTime;
+    mutable std::atomic_bool m_cacheValid{false}; // Alignment associated quatities.
+    mutable std::atomic_bool m_firstTime{true};
     // Since m_isStereo depends on m_otherSide->sinStereo(), a dedicated validity variable is needed.
-    mutable std::atomic_bool m_stereoCacheValid;
+    mutable std::atomic_bool m_stereoCacheValid{false};
     // Since m_surfaces depends on m_otherSide->surface(), a dedicated validity variable is needed.
-    mutable std::atomic_bool m_surfacesValid;
-    mutable bool m_isStereo ATLAS_THREAD_SAFE;
+    mutable std::atomic_bool m_surfacesValid{false};
+    mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
 
-    mutable std::mutex m_mutex;
+    mutable std::mutex m_mutex{};
 
     mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE; // Guarded by m_mutex
     mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
@@ -674,15 +674,15 @@ namespace InDetDD {
     mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE; // Guarded by m_mutex
     mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
-    mutable double m_minZ   ATLAS_THREAD_SAFE;// Guarded by m_mutex
-    mutable double m_maxZ   ATLAS_THREAD_SAFE;// Guarded by m_mutex
-    mutable double m_minR   ATLAS_THREAD_SAFE;// Guarded by m_mutex
-    mutable double m_maxR   ATLAS_THREAD_SAFE;// Guarded by m_mutex
-    mutable double m_minPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
-    mutable double m_maxPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
+    mutable double m_minZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
+    mutable double m_maxZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
+    mutable double m_minR ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
+    mutable double m_maxR ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
+    mutable double m_minPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
+    mutable double m_maxPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
 
     std::unique_ptr<Trk::Surface> m_surface;
-    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {}; // Guarded by m_mutex
 
     const GeoAlignmentStore* m_geoAlignStore{};
   };

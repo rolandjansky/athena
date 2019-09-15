@@ -220,6 +220,7 @@ class AthMonitorCfgHelperOld(object):
         alg -- algorithm Configurable object (e.g. one returned from addAlgorithm)
         name -- name of the group
         topPath -- directory name in the output ROOT file under which histograms will be produced
+        defaultDuration -- default duration of histograms produced under this group; can be overridden for each specific histogram
 
         Returns:
         tool -- a GenericMonitoringTool Configurable object. This can be used to define histograms

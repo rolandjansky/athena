@@ -12,8 +12,6 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 // Gaudi includes
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/GaudiException.h" 
 #include "GaudiKernel/ThreadLocalContext.h"
 
@@ -78,33 +76,6 @@ StatusCode PixeldEdxTestAlg::initialize(){
 
     ATH_MSG_INFO ( "Tag to be used: " << m_tagID  );
     
-    StatusCode sc( readWithBeginRun() );
-    if (sc.isFailure()) {
-      ATH_MSG_INFO ( "Unable to find read with BeginRun "  );
-      return StatusCode::FAILURE;
-    }  
-    else {
-      ATH_MSG_DEBUG ( "Read with BeginRun "   );
-    }
-    
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode PixeldEdxTestAlg::readWithBeginRun(){
-    ATH_MSG_INFO ( "in readWithBeginRun()"  );
-
-    // As a result of the restructuring the EventIncident class (dropping the reference to EventInfo)
-    // the old mechanism of overriding run&event&time is no longer working.
-    // If we need this functionality, then we need to find a new way of implementing it.
-    // For the time being this function simply fires a BeginRun incident using the EventContext, without overriding anything
-
-    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
-    ATH_CHECK( incSvc.retrieve() );
-
-    incSvc->fireIncident( Incident(name(), IncidentType::BeginRun, getContext()) );
-
     return StatusCode::SUCCESS;
 }
 

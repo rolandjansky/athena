@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTDIGITTOMDTRDO_H
 #define MDTDIGITTOMDTRDO_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonDigitContainer/MdtDigitContainer.h"
@@ -18,23 +18,24 @@ class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class MdtDigitToMdtRDO : public AthAlgorithm {
+class MdtDigitToMdtRDO : public AthReentrantAlgorithm {
 
  public:
 
   MdtDigitToMdtRDO (const std::string& name, ISvcLocator* pSvcLocator);
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual ~MdtDigitToMdtRDO() = default;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
 
-  StatusCode fill_MDTdata() const;
+  StatusCode fill_MDTdata(const EventContext& ctx) const;
   StatusCode fillTagInfo() const;
 
  protected:
 
-  const MdtIdHelper*   m_mdtIdHelper;
-  bool m_BMEpresent;
+  const MdtIdHelper*   m_mdtIdHelper{};
+  bool m_BMEpresent{false};
   SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};
   SG::ReadHandleKey<MdtDigitContainer> m_digitContainerKey{this,"InputObjectName","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
   SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};

@@ -94,7 +94,7 @@ StatusCode GenericMonitoringTool::book() {
   return StatusCode::SUCCESS;
 }
 
-namespace GaudiUtils {
+namespace Monitored {
     std::ostream& operator<< ( std::ostream& os, const std::reference_wrapper<Monitored::IMonitoredVariable>& rmv ) {
         std::string s = rmv.get().name();
         return os << s;

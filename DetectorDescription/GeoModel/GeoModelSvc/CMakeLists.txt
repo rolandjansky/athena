@@ -35,6 +35,5 @@ atlas_add_component( GeoModelSvc
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GeoModelUtilities EventInfo GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( GeoModelSvc )
 atlas_install_joboptions( share/*.py )
 

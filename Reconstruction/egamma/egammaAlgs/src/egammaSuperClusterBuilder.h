@@ -19,7 +19,6 @@
 #include "xAODEgamma/EgammaEnums.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaMVASvc.h"
-#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 
 #include <memory>
 
@@ -188,7 +187,11 @@ private:
   /** @brief Whether to run cluster calibration */
   Gaudi::Property<bool> m_calibrateClusters {this, "CalibrateClusters", true, 
       "Whether to run cluster calibrations"};
-
+ 
+  /** @brief Threshold on minimum energy reconstructed in 2nd sampling */
+  Gaudi::Property<double> m_thrE2min{this, "ThrE2min", 400.,
+    "Threshold on minimum  energy reconstructed in 2nd sampling"};
+  
   /** @brief Handle to the MVA calibration service **/
   ServiceHandle<IegammaMVASvc>  m_MVACalibSvc {this,
       "MVACalibSvc", "egammaMVASvc", "calibration service"};
@@ -197,11 +200,6 @@ private:
   ToolHandle<IegammaSwTool>   m_clusterCorrectionTool {this,
       "ClusterCorrectionTool", "egammaSwTool/egammaswtool", 
       "tool that applies cluster corrections"};
-
-  /** @brief Pointer to the egammaCheckEnergyDepositTool*/
-  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this,
-      "egammaCheckEnergyDepositTool", "",
-      "Optional tool that performs basic checks of viability of cluster"};
 
   /** @brief Position in Calo frame**/  
   CaloCellDetPos m_caloCellDetPos;

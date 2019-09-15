@@ -46,11 +46,13 @@ atlas_add_library( ActsGeometryLib
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
                      src/ActsWriteTrackingGeometry.cxx
+                     src/ActsWriteTrackingGeometryTransforms.cxx
                      src/ActsExtrapolationTool.cxx
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
                      #src/ActsMaterialTrackWriterSvc.cxx
                      #src/GeomShiftCondAlg.cxx
+                     src/ActsAlignmentCondAlg.cxx
                      src/NominalAlignmentCondAlg.cxx
                      src/ActsTrackingGeometryTool.cxx
                      src/ActsPropStepRootWriterSvc.cxx

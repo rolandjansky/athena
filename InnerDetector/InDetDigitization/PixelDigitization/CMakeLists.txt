@@ -44,7 +44,6 @@ atlas_add_component( PixelDigitization
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel CommissionEvent AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier GeneratorObjects PixelConditionsData SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry SiDigitization InDetRawData InDetSimData InDetSimEvent HitManagement PathResolver )
 
 # Install files from the package:
-atlas_install_headers( PixelDigitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/PixelDigitization_jobOptions.py share/PixelDigiTool_jobOptions.py )
 

@@ -22,7 +22,6 @@ atlas_add_poolcnv_library( ZdcEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities ZDC_SimEvent ZdcEventTPCnv ZdcEvent GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( ZdcEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

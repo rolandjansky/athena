@@ -32,7 +32,6 @@ atlas_add_component( TRT_TR_Process
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests IdDictDetDescr G4AtlasInterfaces GeoMaterial2G4 PathResolver )
 
 # Install files from the package:
-atlas_install_headers( TRT_TR_Process )
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( data/*.dtd data/*.xml )
 

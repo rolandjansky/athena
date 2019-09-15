@@ -11,9 +11,6 @@
 // STL include
 #include <algorithm>
 
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/MetaCont.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/errorcheck.h"

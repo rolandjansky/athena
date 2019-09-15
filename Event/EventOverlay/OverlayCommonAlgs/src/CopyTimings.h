@@ -18,9 +18,9 @@ public:
   virtual StatusCode execute();
 
 private:
-  SG::ReadHandleKey<RecoTimingObj> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+EVNTtoHITS_timings", "ReadHandleKey for Background EVNTtoHITS Timings" };
-  SG::ReadHandleKey<RecoTimingObj> m_signalInputKey{ this, "SignalInputKey", "BkgEvent_0_SG+EVNTtoHITS_timings", "ReadHandleKey for Signal EVNTtoHITS Timings" };
-  SG::WriteHandleKey<RecoTimingObj> m_outputKey{ this, "OutputKey", "StoreGateSvc+EVNTtoHITS_timings", "WriteHandleKey for Output EVNTtoHITS Timings" };
+  SG::ReadHandleKey<RecoTimingObj> m_bkgInputKey{ this, "BkgInputKey", "", "ReadHandleKey for Background EVNTtoHITS Timings" };
+  SG::ReadHandleKey<RecoTimingObj> m_signalInputKey{ this, "SignalInputKey", "Sig_EVNTtoHITS_timings", "ReadHandleKey for Signal EVNTtoHITS Timings" };
+  SG::WriteHandleKey<RecoTimingObj> m_outputKey{ this, "OutputKey", "EVNTtoHITS_timings", "WriteHandleKey for Output EVNTtoHITS Timings" };
 
 };
 

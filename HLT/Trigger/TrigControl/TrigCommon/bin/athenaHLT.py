@@ -311,6 +311,7 @@ def main():
    g.add_argument('--smk', type=int, default=0, help='Super Master Key')
    g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
    g.add_argument('--hltpsk', type=int, default=0, help='HLT prescale key')
+   g.add_argument('--dump-config', action='store_true', help='Dump joboptions JSON file')
 
    ## Online histogramming
    g = parser.add_argument_group('Online Histogramming')
@@ -378,9 +379,10 @@ def main():
    # Modify pre/postcommands if necessary
    update_pcommands(args, cdict)
 
-   # Tell the PSC if we are in interactive mode (relevant for state machine)
-   import TrigPSC.PscConfig
-   TrigPSC.PscConfig.interactive = args.interactive
+   # Extra Psc configuration
+   from TrigPSC import PscConfig
+   PscConfig.interactive = args.interactive          # interactive mode
+   PscConfig.dumpJobProperties = args.dump_config    # dump job options
 
    # Select the correct THistSvc
    from TrigServices.TriggerUnixStandardSetup import _Conf
