@@ -19,6 +19,7 @@
 #include "G4SystemOfUnits.hh"
 
 #include "G4AtlasTools/G4MyPhysicalVolume.h"
+#include "G4AtlasTools/DerivedG4SensitiveDetectorTestSetting.h"
 
 //set environment
 ISvcLocator* g_svcLoc = nullptr;
@@ -55,6 +56,25 @@ TEST_F( ZDC_StripSDtest, ProcessHits )
   G4Step sp;
   G4TouchableHistory th;
 
+  G4double totalenergydeposit = 0.8;
+  G4String physicalname = "physicsTDQuarticBar[9]";
+  G4int copyno = 11000;
+  G4ThreeVector preStepPos = G4ThreeVector(0,0,1);
+  G4ThreeVector postStepPos = G4ThreeVector(0,0,2);
+  G4double globaltime0 = 0.5;
+  G4double kineticenergy0 = 1.5;
+  G4double velocity0 = 2500;
+  G4double globaltime1 = 5;
+  G4double kineticenergy1 = 0.5;
+  G4double velocity1 = 2500;
+  G4double steplength = 1.0;
+  G4double charge = 1.0;
+  G4int encoding = 22;
+  G4int antiencoding = 22;
+  G4String astring = "Cerenkov";
+  G4ProcessType atype = (G4ProcessType)0;
+  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, copyno, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype);
+/*
 //decorate sp with the variable called TotalEnergyDeposit
   sp.SetTotalEnergyDeposit( 0.8 );
 //end
@@ -147,7 +167,7 @@ G4ParticleDefinition particle("anyon",         0.0*MeV,       0.0*MeV,         1
 
   sp.SetTrack(track);
 //end
-
+*/
   ZDC_StripSD sd2("name2", "name2");
   sd2.Initialize(&hce);
   sd2.StartOfAthenaEvent();
