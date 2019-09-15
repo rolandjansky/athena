@@ -555,13 +555,29 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    }
 	  } else {
 	    // not "same_name" - assign properly
-	    newRefId=CS.getNewReferenceName(algRefName,true);
-	    if(newRefId.empty()){
-	      std::cerr<<"Warning New reference id is empty for refId=\""
-		       <<refID<<"\", cond=\""<<cond<<"\", assessorName=\""
-		       <<assessorName<<"\", algRefName=\""
-		       <<algRefName<<"\""<<std::endl;
-	      std::cerr << "AlgRefPath=" << algRefPath << " AlgRefInfo=" << algRefInfo << std::endl;
+	    absAlgRefName=algRefName;
+	    if (isMultiRef) {
+	      newRefId=CS.getNewReferenceName(absAlgRefName,true);
+              TObject* obj = m_outfile->Get(newRefId.c_str());
+	      if (obj) {
+		TNamed* hobj = dynamic_cast<TNamed*>(obj);
+		if (hobj) {
+		  hobj->SetName(algRefInfo != "" ? algRefInfo.c_str() : "Reference");
+		}
+		toarray->Add(obj);
+	      } else {
+		std::cerr << "Internal error retrieving stored reference " << absAlgRefName << std::endl;
+	      }
+	    } else {
+	      newRefId=CS.getNewReferenceName(algRefName,true);
+	      
+	      if(newRefId.empty()){
+		std::cerr<<"Warning New reference id is empty for refId=\""
+			 <<refID<<"\", cond=\""<<cond<<"\", assessorName=\""
+			 <<assessorName<<"\", algRefName=\""
+			 <<algRefName<<"\""<<std::endl;
+		std::cerr << "AlgRefPath=" << algRefPath << " AlgRefInfo=" << algRefInfo << std::endl;
+	      }
 	    }
 	  }
 	} 
