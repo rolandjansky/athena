@@ -42,6 +42,11 @@ atlas_add_test( ZDC_StripSD_gtest
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES TestTools ZDC_SDLib G4AtlasToolsLib ${GTEST_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES})
 
+atlas_add_test( ZDC_PixelSD_gtest
+                SOURCES test/ZDC_PixelSD_gtest.cxx
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES TestTools ZDC_SDLib G4AtlasToolsLib ${GTEST_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES})
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/optionForTest.txt )
