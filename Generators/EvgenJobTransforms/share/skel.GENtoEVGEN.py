@@ -746,6 +746,8 @@ if _checkattr("hardPDF"):
     print "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
 if _checkattr("softPDF"):
     print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
+if _checkattr("nEventsPerJob"):
+    print "MetaData: %s = %s" % ("nEventsPerJob", evgenConfig.nEventsPerJob)
 if _checkattr("keywords"):
     print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())      
 if _checkattr("categories"):
