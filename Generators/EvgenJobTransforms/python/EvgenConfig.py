@@ -27,7 +27,7 @@ mainGenerators += ["Exhume", "Phojet", "Epos", "QGSJet"]
 mainGenerators += ["ParticleGenerator", "ParticleGun"]
 mainGenerators += ["CosmicGenerator", "BeamHaloGenerator"]
 ## Heavy ion generators
-mainGenerators += ["Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
+mainGenerators += ["Superchic","Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
 ## Misc generators
 mainGenerators += ["AcerMC", "TopRex", "LPair"]
 ## Reading in fully-formed events
@@ -42,7 +42,7 @@ afterburnerGenerators = ["Photos", "Photospp", "Tauola", "TauolaPP", "Tauolapp",
 knownGenerators = inputGenerators + mainGenerators + afterburnerGenerators
 
 ## Note which generators should NOT be sanity tested by the TestHepMC alg
-notesthepmcGenerators = ["ParticleDecayer", "ParticleGun", "CosmicGenerator", "BeamHaloGenerator", "FPMC",
+notesthepmcGenerators = ["Superchic","ParticleDecayer", "ParticleGun", "CosmicGenerator", "BeamHaloGenerator", "FPMC",
                          "Hijing", "Hydjet", "Starlight", "PythiaRhad"]
 
 ## Generators with no flexibility/concept of a tune or PDF choice
