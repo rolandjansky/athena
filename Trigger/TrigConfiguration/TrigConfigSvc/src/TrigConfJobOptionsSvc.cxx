@@ -2,6 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
@@ -25,12 +26,14 @@ StatusCode TrigConf::JobOptionsSvc::initialize()
   ATH_CHECK(joprop->setProperty("TYPE", "NONE"));
 
   if (m_sourceType == "FILE") {
-    // Read job options from JSON file
+    ATH_MSG_INFO("Reading joboptions from " << m_sourcePath.value());
     ATH_CHECK(readOptions(m_sourcePath));
   }
   else if (m_sourceType == "DB") {
-    // Here goes the code reading from the DB...
-    ATH_CHECK(readOptions(m_sourcePath));
+    parseDBString(m_sourcePath);
+    ATH_MSG_INFO("Reading SMK " << m_smk << " from '" << m_server << "'");
+    ATH_MSG_FATAL("Reading from DB not implemented yet");
+    return StatusCode::FAILURE;
   }
   else if (m_sourceType == "PYTHON") {
     /* "PYTHON" refers to loading properties directly from Python files
@@ -41,6 +44,28 @@ StatusCode TrigConf::JobOptionsSvc::initialize()
   }
 
   return StatusCode::SUCCESS;
+}
+
+/**
+ * Parse DB connection string and fill private members.
+ * Format: `server=TRIGGERDB;smkey=42;lvl1key=43;hltkey=44`
+ */
+void TrigConf::JobOptionsSvc::parseDBString(const std::string& s)
+{
+  std::string key, val;
+  std::istringstream iss(s);
+  while (std::getline(std::getline(iss, key, '='), val, ';')) {
+    boost::trim(key);
+    boost::trim(val);
+    if (key == "smkey")
+      m_smk = std::stoi(val);
+    else if (key == "server")
+      m_server = val;
+    else if (key == "lvl1key")
+      m_l1psk = std::stoi(val);
+    else if (key == "hltkey")
+      m_hltpsk = std::stoi(val);
+  }
 }
 
 StatusCode TrigConf::JobOptionsSvc::start()
@@ -61,7 +86,6 @@ StatusCode TrigConf::JobOptionsSvc::readOptions(const std::string& file, const s
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO("Reading joboptions from " << file);
   nlohmann::json json;
   f >> json;
 
