@@ -48,7 +48,7 @@ RDOindex::RDOindex(unsigned int PAD,unsigned int code,std::string Name,
                                                          m_status(false)
 {
 #ifndef LVL1_STANDALONE
-    if(s_rpcHelper) m_stationName = s_rpcHelper->stationNameIndex(Name);
+    if(s_muonIdHelperTool) m_stationName = s_muonIdHelperTool->rpcIdHelper().stationNameIndex(Name);
 #endif
     set_indexes();
 }
@@ -140,12 +140,12 @@ RDOindex::set_hash(unsigned int h) {
 #ifndef LVL1_STANDALONE
 
 //const RPCGeometry* RDOindex::s_rpcgeo    = 0;
-const RpcIdHelper* RDOindex::s_rpcHelper = 0;
+const Muon::MuonIdHelperTool* RDOindex::s_muonIdHelperTool = 0;
 
 
 void
-RDOindex::setRpcIdHelper(const RpcIdHelper* helper) {
-    s_rpcHelper = helper;
+RDOindex::setMuonIdHelperTool(const Muon::MuonIdHelperTool* muonIdHelperTool) {
+    s_muonIdHelperTool = muonIdHelperTool;
 }
 
 
@@ -218,9 +218,9 @@ RDOindex::pad_identifier(Identifier& id ) const
 //	    name = Jtyp - 1;
 //	}   
 
-        if(s_rpcHelper!=0)
-	id = s_rpcHelper->padID(name,eta,phi,doublet_r,doublet_z,doublet_phi);
-	//id = s_rpcHelper->padID(1,2,3,4,5,6);
+        if(s_muonIdHelperTool!=0)
+	id = s_muonIdHelperTool->rpcIdHelper().padID(name,eta,phi,doublet_r,doublet_z,doublet_phi);
+	//id = s_muonIdHelperTool->rpcIdHelper().padID(1,2,3,4,5,6);
     }
 }
 

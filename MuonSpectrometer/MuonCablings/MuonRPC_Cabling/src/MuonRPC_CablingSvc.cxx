@@ -76,6 +76,9 @@ StatusCode MuonRPC_CablingSvc::initialize()
       if( m_muonIdHelperTool.retrieve().isFailure() ){
         ATH_MSG_FATAL("Could not get " << m_muonIdHelperTool);      
         return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_DEBUG("Found the MuonIdHelperTool");
+        RDOindex::setMuonIdHelperTool(m_muonIdHelperTool.get());
       }
     }    
     
