@@ -34,7 +34,6 @@ namespace InDetDD {
         m_mutex{}
     {
         m_idHash = m_idHelper->straw_layer_hash(id);  
-        m_conditions->ref();
     }
 
     Identifier TRT_BaseElement::identify() const
@@ -341,9 +340,6 @@ namespace InDetDD {
         }
         delete m_strawSurfaces;
         deleteCache();
-        
-        m_conditions->unref();
-
     }
 
     void TRT_BaseElement::createStrawSurfaces() const {
