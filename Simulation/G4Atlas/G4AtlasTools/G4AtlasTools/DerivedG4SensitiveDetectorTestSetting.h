@@ -14,7 +14,7 @@
 
 #include "G4MyProcess.h"
 
-void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydeposit, G4String& physicalname, G4int& copyno, G4ThreeVector& preStepPos, G4ThreeVector& postStepPos, G4double& globaltime0, G4double& kineticenergy0, G4double& velocity0, G4double& globaltime1, G4double& kineticenergy1, G4double& velocity1, G4double& steplength, G4double& charge, G4int& encoding, G4int& antiencoding, G4String& astring, G4ProcessType& atype)
+void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydeposit, G4String& physicalname, G4String& logicalname1, G4int& copyno, G4ThreeVector& preStepPos, G4ThreeVector& postStepPos, G4double& globaltime0/*for preSP*/, G4double& kineticenergy0/*for preSP*/, G4double& velocity0/*for preSP*/, G4double& globaltime/*for track*/, G4double& kineticenergy/*for track*/, G4double& globaltime1/*for postSP*/, G4double& kineticenergy1/*for postSP*/, G4double& velocity1/*for postSP*/, G4double& steplength, G4double& charge, G4int& encoding, G4int& antiencoding, G4String& astring, G4ProcessType& atype, G4String& nop1, G4String& nop2, G4String& nop3)
 {
 //decorate sp with the variable called TotalEnergyDeposit
   G4double TotalEnergyDeposit = totalenergydeposit;//para
@@ -35,7 +35,7 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
   G4VPhysicalVolume* pPhysical = NULL;
   G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName, fLogical, pPhysical);
   G4int CopyNo = copyno;
-  physicalVolume->SetCopyNo(copyno);//para
+  physicalVolume->SetCopyNo(CopyNo);//para
   G4int nReplica = 2;
   navigationHistory->SetFirstEntry(physicalVolume);
   navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
@@ -60,7 +60,11 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
   G4StepPoint* stepPoint1 = new G4StepPoint();
 //  G4ThreeVector postStepPos(0, 0, 2);
   stepPoint1->SetPosition(postStepPos);//para
+  G4double GlobalTime1 = globaltime1;
+  G4double KineticEnergy1 = kineticenergy1;
   G4double Velocity1 = velocity1;
+  stepPoint1->SetGlobalTime(GlobalTime1);//para
+  stepPoint1->SetKineticEnergy(KineticEnergy1);//para
   stepPoint1->SetVelocity(Velocity1);//para
 
   sp.SetPostStepPoint(stepPoint1);
@@ -75,20 +79,23 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
 G4double Charge = charge;
 G4int Encoding = encoding;
 G4int Antiencoding = antiencoding;
-G4ParticleDefinition* particle = new G4ParticleDefinition("anyon",         0.0*MeV,       0.0*MeV,         Charge,//para
+G4String NOP1 = nop1;
+G4String NOP2 = nop2;
+G4String NOP3 = nop3;
+G4ParticleDefinition* particle = new G4ParticleDefinition(NOP1,         0.0*MeV,       0.0*MeV,         Charge,//para
                     2,              -1,            -1,
                     0,               0,             0,
-              "anyon",               0,             0,          Encoding,//para
+              NOP2,               0,             0,          Encoding,//para
               true,               -1.0,          NULL,
-             false,           "anyon",          Antiencoding//para
+             false,           NOP3,          Antiencoding//para
               );
   G4ThreeVector aMomentumDirection(0,0,0);
-  G4double aKineticEnergy = kineticenergy1;//para
+  G4double aKineticEnergy = kineticenergy;//para
   G4DynamicParticle* dynamicPar = new G4DynamicParticle(particle, aMomentumDirection, aKineticEnergy);
   G4double aValueTime = 1;
   G4ThreeVector ValuePosition(1.0, 1.0, 1.0);
   G4Track* track = new G4Track(dynamicPar, aValueTime, ValuePosition);
-  G4double globalTime = globaltime1;
+  G4double globalTime = globaltime;
   track->SetGlobalTime(globalTime);//para
   int trackID = 3;
   track->SetTrackID(trackID);
@@ -96,7 +103,7 @@ G4ParticleDefinition* particle = new G4ParticleDefinition("anyon",         0.0*M
   G4Box* box1 = new G4Box(boxName1, 1.0, 1.0, 1.0);
   G4NistManager* man1 = G4NistManager::Instance();
   G4Material* material1 = man1->FindOrBuildMaterial("G4_AIR");
-  G4String name2 = "name2";
+  G4String name2 = logicalname1;//para
   G4LogicalVolume* fLogical1 = new G4LogicalVolume(box1, material1, name2);
   track->SetLogicalVolumeAtVertex(fLogical1);
   G4Step* stepForTrack = new G4Step();
@@ -119,6 +126,8 @@ G4ParticleDefinition* particle = new G4ParticleDefinition("anyon",         0.0*M
   G4String aString = astring;
   G4MyProcess* process = new G4MyProcess( aString, aType );//para para
   track->SetCreatorProcess( process );
+
+  track->SetTouchableHandle(touchableHandle);
 
   sp.SetTrack(track);
 //end
