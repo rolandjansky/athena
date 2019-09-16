@@ -9,12 +9,10 @@
 #include "MuonCondInterface/IMuonAlignmentDbTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-class Identifier; 
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class IIOVSvc;
 class StatusCode;
 
@@ -73,10 +71,7 @@ private:
   void setLastIOVforThisFolder(std::string& folderName, long int iov);
     
   IIOVSvc* m_IOVSvc;
-  const MdtIdHelper* m_mdtIdHelper;
-  const CscIdHelper* m_cscIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
 
   std::string m_geometryVersion;    
     
