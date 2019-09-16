@@ -255,15 +255,18 @@ namespace SH
 
 
   std::vector<std::string>
-  rucioDirectAccessGlob (const std::string& name, const std::string& filter)
+  rucioDirectAccessGlob (const std::string& name, const std::string& filter,
+                         const std::string& selectOptions)
   {
-    return rucioDirectAccessRegex (name, RCU::glob_to_regexp (filter));
+    return rucioDirectAccessRegex (name, RCU::glob_to_regexp (filter),
+                                   selectOptions);
   }
 
 
 
   std::vector<std::string>
-  rucioDirectAccessRegex (const std::string& name, const std::string& filter)
+  rucioDirectAccessRegex (const std::string& name, const std::string& filter,
+                          const std::string& selectOptions)
   {
     RCU_REQUIRE_SOFT (!name.empty());
     RCU_REQUIRE_SOFT (name.find('*') == std::string::npos);
@@ -274,7 +277,7 @@ namespace SH
     static const std::string separator = "------- SampleHandler Split -------";
 
     ANA_MSG_INFO ("querying rucio for dataset " << name);
-    std::string output = sh::exec_read (rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas --pfns --protocols root " + sh::quote (name));
+    std::string output = sh::exec_read (rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas --pfns --protocols root " + selectOptions + " " + sh::quote (name));
     auto split = output.rfind (separator + "\n");
     if (split == std::string::npos)
       RCU_THROW_MSG ("couldn't find separator in: " + output);
@@ -335,7 +338,7 @@ namespace SH
       RCU_THROW_MSG ("couldn't find separator in: " + output);
 
     std::istringstream str (output.substr (split + separator.size() + 1));
-    boost::regex pattern ("^\\| ([a-zA-Z0-9_.]+):([a-zA-Z0-9_.]+) +\\| ([a-zA-Z0-9_.]+) +\\| *$");
+    boost::regex pattern ("^\\| ([a-zA-Z0-9_.-]+):([a-zA-Z0-9_.-]+) +\\| ([a-zA-Z0-9_.-]+) +\\| *$");
     std::string line;
     while (std::getline (str, line))
     {
