@@ -44,7 +44,7 @@ int main( int argc, char* argv[] ) {
   char* APP_NAME = argv[ 0 ];
 
   // arguments
-  TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
+  TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.18172962._000001.pool.root.1";
   int  ievent=-1;
   int  nevents=-1;
   bool verbose=false;
@@ -116,14 +116,14 @@ int main( int argc, char* argv[] ) {
   xAOD::TReturnCode::enableFailure();
 
   // Open the input file:
-  std::unique_ptr<TFile> ifile( TFile::Open( fileName, "READ" ) );
+  TFile* ifile( TFile::Open( fileName, "READ" ) );
   if( !ifile ) Error( APP_NAME, "Cannot find file %s",fileName.Data() );
 
-  std::unique_ptr<TChain> chain(new TChain ("CollectionTree","CollectionTree"));
+  TChain *chain = new TChain ("CollectionTree","CollectionTree");
   chain->Add(fileName);
 
   // Create a TEvent object:
-  xAOD::TEvent event(chain.get(), xAOD::TEvent::kAthenaAccess );
+  xAOD::TEvent event( (TTree*)chain, xAOD::TEvent::kAthenaAccess );
   Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
 
   // Create a transient object store. Needed for the tools.
@@ -135,8 +135,12 @@ int main( int argc, char* argv[] ) {
   // Fill a validation true with the tag return value
   std::unique_ptr<TFile> outputFile(TFile::Open( "output_MassDecoXbbTagger.root", "recreate" ));
   int pass;
-  std::unique_ptr<TTree> Tree(new TTree( "tree", "test_tree" ));
+  double QCDScore, HiggsScore, TopScore;
+  TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
+  Tree->Branch( "QCDSorce", &QCDScore, "QCDScore/D" );
+  Tree->Branch( "HiggsSorce", &HiggsScore, "HiggsScore/D" );
+  Tree->Branch( "TopSorce", &TopScore, "TopScore/D" );
 
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -151,8 +155,9 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<MassDecoXbbTagger> m_Tagger; //!
   m_Tagger.setTypeAndName("MassDecoXbbTagger","MassDecoXbbTagger");
 
-  if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "neuralNetworkFile","BoostedJetTaggers/MassDecoXbbTagger/WeiAdm3bStd1_OptSave2.json");
+  if(verbose) m_Tagger.setProperty("OutputLevel", MSG::VERBOSE);
+  m_Tagger.setProperty( "neuralNetworkFile","/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/WeiAdm3bStd1_OptSave2.json");
+  //m_Tagger.setProperty( "configurationFile","/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/test_config.json");
   m_Tagger.setProperty( "tagThreshold", 0.5);
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
@@ -188,10 +193,20 @@ int main( int argc, char* argv[] ) {
     for(const xAOD::Jet* jet : *myJets ){
 
       if (m_Tagger->n_subjets(*jet) >= 2 && jet->pt() > 250e3) {
-        double score = m_Tagger->getScore(*jet);
-        if (verbose) std::cout << " Score: " << score << std::endl;
+        auto scores = m_Tagger->getScores(*jet);
+        if (verbose) {
+	  std::cout << "QCD Score: " << scores.at("out_0") << std::endl;
+	  std::cout << "Higgs Score: " << scores.at("out_1") << std::endl;
+	  std::cout << "Top Score: " << scores.at("out_2") << std::endl;
+	}
         bool res = m_Tagger->keep( *jet );
         pass = res;
+	QCDScore = scores.at("out_0");
+	HiggsScore = scores.at("out_1");
+	TopScore = scores.at("out_2");
+	//QCDScore = scores.at("MassDecoXbbScoreQCD");
+	//HiggsScore = scores.at("MassDecoXbbScoreHiggs");
+	//TopScore = scores.at("MassDecoXbbScoreTop");
         Tree->Fill();
       }
     }
@@ -207,6 +222,9 @@ int main( int argc, char* argv[] ) {
   outputFile->cd();
   Tree->Write();
   outputFile->Close();
+
+  // cleanup
+  delete chain;
 
   // print the branches that were used for help with smart slimming
   std::cout<<std::endl<<std::endl;

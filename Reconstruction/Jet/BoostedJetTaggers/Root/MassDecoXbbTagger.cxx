@@ -30,8 +30,6 @@
 namespace MassDecoXbb {
 // internal class to read a jet and build an std::map of intputs that
 // will be passed to lwtnn.
-  struct SubstructureAccessors;
-
   class MassDecoXbbInputBuilder
   {
   public:
@@ -46,8 +44,7 @@ namespace MassDecoXbb {
     typedef std::vector<ElementLink<xAOD::IParticleContainer> > ParticleLinks;
     SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
     double m_subjet_pt_threshold;
-    std::string m_fat_jet_node_name;
-    std::vector<std::string> m_subjet_node_names;
+    std::string m_node_name;
     typedef SG::AuxElement::ConstAccessor<float> FloatAcc;
     typedef SG::AuxElement::ConstAccessor<double> DoubleAcc;
     typedef SG::AuxElement::ConstAccessor<int> IntAcc;
@@ -57,37 +54,6 @@ namespace MassDecoXbb {
     std::vector<std::string> m_float_subjet_inputs;
     std::vector<std::string> m_int_subjet_inputs;
     std::map<std::string, double> m_dummy_values;
-
-    // grab substructure info
-    std::unique_ptr<SubstructureAccessors> m_ssa;
-  };
-
-  // set of accessors for JSS input variables
-  struct SubstructureAccessors {
-    typedef SG::AuxElement AE;
-    SubstructureAccessors();
-    std::map<std::string, double> get_map(const xAOD::Jet&) const;
-  private:
-    float c2(const xAOD::Jet&) const;
-    float d2(const xAOD::Jet&) const;
-    float e3(const xAOD::Jet&) const;
-    float tau21(const xAOD::Jet&) const;
-    float tau32(const xAOD::Jet&) const;
-    float fw20(const xAOD::Jet&) const;
-
-    AE::ConstAccessor<float> ecf1;
-    AE::ConstAccessor<float> ecf2;
-    AE::ConstAccessor<float> ecf3;
-
-    AE::ConstAccessor<float> tau1wta;
-    AE::ConstAccessor<float> tau2wta;
-    AE::ConstAccessor<float> tau3wta;
-
-    AE::ConstAccessor<float> fw2;
-    AE::ConstAccessor<float> fw0;
-
-    // other accessors used by get_map
-    std::vector<std::pair<std::string, AE::ConstAccessor<float> > > m_acc;
   };
 
 }
@@ -95,7 +61,7 @@ namespace MassDecoXbb {
 namespace {
   // constants, default configuration files
   const std::string NN_CONFIG = (
-    "BoostedJetTaggers/MassDecoXbbTagger/WeiAdm3bStd1_OptSave2.json");
+    "BoostedJetTaggers/MassDecoXbbTagger/test_config.json");
 }
 
 
@@ -197,6 +163,7 @@ StatusCode MassDecoXbbTagger::initialize(){
       ATH_MSG_INFO("Output names read from NN file ");
     }
   }
+  
   // now build the decoration vectors
   for (const std::string& name: out_names) {
     std::string dec_name = name;
@@ -205,7 +172,7 @@ StatusCode MassDecoXbbTagger::initialize(){
     if (m_decoration_names.size() > 0) {
       if (!m_decoration_names.count(name)) {
         ATH_MSG_ERROR("NN output " + name + " has no decoration name");
-        return StatusCode::FAILURE;
+        //return StatusCode::FAILURE;
       }
       dec_name = m_decoration_names.at(name);
     }
@@ -247,16 +214,17 @@ std::map<std::string, double> MassDecoXbbTagger::getScores(const xAOD::Jet& jet)
   }
 
   auto nn_output = m_lwnn->compute(cleaned);
+  ATH_MSG_VERBOSE("Mass decorrelated Xbb QCD score " << nn_output.at(m_output_value_names.at(0)));
+  ATH_MSG_VERBOSE("Mass decorrelated Xbb Higgs score " << nn_output.at(m_output_value_names.at(1)));
+  ATH_MSG_VERBOSE("Mass decorrelated Xbb Top score " << nn_output.at(m_output_value_names.at(2)));
   return nn_output;
 }
 
 double MassDecoXbbTagger::getScore(const xAOD::Jet& jet) const {
   if (m_output_value_names.size() > 1) {
-    throw std::logic_error(
-      "asked for a single tagger score from a multi-class tagger");
+    ATH_MSG_DEBUG("asked for the first tagger score from a multi-class tagger");
   }
   auto nn_output = getScores(jet);
-  ATH_MSG_VERBOSE("Mass decorrelated Xbb score " << nn_output.at(m_output_value_names.at(0)));
   return nn_output.at(m_output_value_names.at(0));
 }
 
@@ -292,14 +260,6 @@ size_t MassDecoXbbTagger::n_subjets(const xAOD::Jet& jet) const {
 
 namespace {
 
-  // Some things can't be accessed by name from the EDM. This includes
-  // things which are part of a lorentz vector and derived things like
-  // deltaR. Since we build the list things to read from the EDM from
-  // the NN configuration we have to specify which ones are skipped.
-  static const std::set<std::string> NON_STRING_ACCESSOR{
-    "pt", "eta", "mass", "deta", "dphi", "dr"
-  };
-
   // For things that we do access from the EDM, we need to know the
   // type. We use regexes to assign these.
   typedef std::vector<std::pair<std::regex, std::string> > TypeRegexes;
@@ -326,13 +286,12 @@ namespace MassDecoXbb {
     const std::string& input_file,
     const lwt::GraphConfig& network_config):
     m_acc_parent("Parent"),
-    m_acc_subjets("catKittyCat"),
-    m_ssa(nullptr)
+    m_acc_subjets("catKittyCat")
   {
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(input_file, pt);
 
-    m_fat_jet_node_name = pt.get<std::string>("fatjet.node_name");
+    m_node_name = pt.get<std::string>("node_name");
 
     auto sjets = pt.get<std::string>("subjet.collection");
     m_subjet_pt_threshold = pt.get<double>("subjet.pt_threshold");
@@ -346,42 +305,30 @@ namespace MassDecoXbb {
       std::regex regex(regex_str);
       type_regexes.emplace_back(regex, type);
     }
-    // build input accessors
-    std::set<std::string> valid_subjet_nodes;
-    for (auto& subjet_node_name: pt.get_child("subjet.node_names")) {
-      valid_subjet_nodes.insert(subjet_node_name.second.data());
+
+    std::vector<std::string> subjet_var;
+    for (auto& var: pt.get_child("subjet.variables")) {
+       subjet_var.emplace_back(var.second.data());
     }
+
+    // build input accessors
     std::set<std::string> float_subjet_inputs;
     std::set<std::string> int_subjet_inputs;
-    for (const lwt::InputNodeConfig& node_config: network_config.inputs) {
-      if (node_config.name == m_fat_jet_node_name) {
-        m_ssa.reset(new SubstructureAccessors);
-      } else if (valid_subjet_nodes.count(node_config.name)) {
-        for (const lwt::Input input: node_config.variables) {
-          if (NON_STRING_ACCESSOR.count(input.name)) {
-            continue;
-            // todo: other jet variables
-          }
-          std::string type = get_var_type(type_regexes, input.name);
+    for (const std::string& var_name: subjet_var)  { 
+          std::string type = get_var_type(type_regexes, var_name);
           if (type == "double") {
-            m_acc_btag_doubles.emplace_back(input.name, input.name);
-            float_subjet_inputs.insert(input.name);
+            m_acc_btag_doubles.emplace_back(var_name, var_name);
+            float_subjet_inputs.insert(var_name);
           } else if (type == "int") {
-            m_acc_btag_ints.emplace_back(input.name, input.name);
-            int_subjet_inputs.insert(input.name);
+            m_acc_btag_ints.emplace_back(var_name, var_name);
+            int_subjet_inputs.insert(var_name);
           } else if (type == "float") {
-            m_acc_btag_floats.emplace_back(input.name, input.name);
-            float_subjet_inputs.insert(input.name);
+            m_acc_btag_floats.emplace_back(var_name, var_name);
+            float_subjet_inputs.insert(var_name);
           } else {
-            throw std::logic_error("don't know how to access " + input.name);
+            throw std::logic_error("don't know how to access " + var_name);
           }
-        }
-        m_subjet_node_names.push_back(node_config.name);
-      } else {
-        throw std::logic_error(
-          "not sure how to find node " + node_config.name);
-      }
-    }
+      } 
 
     // In cases where inputs aren't defined, we need to fill them with
     // dummy values. Keep track of all the values that need defaults
@@ -389,9 +336,6 @@ namespace MassDecoXbb {
     m_float_subjet_inputs.insert(
       m_float_subjet_inputs.end(),
       float_subjet_inputs.begin(), float_subjet_inputs.end());
-    m_float_subjet_inputs.insert(
-      m_float_subjet_inputs.end(),
-      NON_STRING_ACCESSOR.begin(), NON_STRING_ACCESSOR.end());
     m_int_subjet_inputs.insert(
       m_int_subjet_inputs.end(),
       int_subjet_inputs.begin(), int_subjet_inputs.end());
@@ -401,10 +345,12 @@ namespace MassDecoXbb {
     const xAOD::Jet& jet) const {
 
     // inputs dict
-    std::map<std::string, std::map<std::string, double> > inputs;
+    std::map<std::string, std::map<std::string, double> > node_input;
+    std::map<std::string, double> inputs;
 
     // fat jet inputs
-    if (m_ssa) inputs[m_fat_jet_node_name] = m_ssa->get_map(jet);
+    inputs["pt"] = jet.pt();
+    inputs["eta"] = jet.eta();
 
     // get subjets
     const xAOD::Jet* parent_jet = *m_acc_parent(jet);
@@ -420,39 +366,35 @@ namespace MassDecoXbb {
       return sj1->pt() > sj2->pt();
     };
     std::sort(subjets.begin(), subjets.end(), pt_sort);
-    size_t n_subjets = m_subjet_node_names.size();
-    for (size_t subjet_n = 0; subjet_n < n_subjets; subjet_n++) {
+    for (size_t subjet_n = 0; subjet_n < 3; subjet_n++) {
       bool have_jet = subjet_n < subjets.size();
       std::map<std::string, double> subjet_inputs;
+      std::string order = "_" + std::to_string(subjet_n+1);
       if (have_jet && subjets.at(subjet_n)->pt() > m_subjet_pt_threshold) {
         const xAOD::Jet* subjet = subjets.at(subjet_n);
-        subjet_inputs["pt"] = subjet->pt();
-        subjet_inputs["eta"] = subjet->eta();
-        subjet_inputs["deta"] = subjet->eta() - jet.eta();
-        subjet_inputs["dphi"] = subjet->p4().DeltaPhi(jet.p4());
-        subjet_inputs["dr"] = subjet->p4().DeltaR(jet.p4());
         const auto* btag = subjet->btagging();
         for (const auto& pair: m_acc_btag_floats) {
-          subjet_inputs[pair.first] = pair.second(*btag);
+          inputs[pair.first + order] = pair.second(*btag);
         }
         for (const auto& pair: m_acc_btag_doubles) {
-          subjet_inputs[pair.first] = pair.second(*btag);
+          inputs[pair.first + order] = pair.second(*btag);
         }
         for (const auto& pair: m_acc_btag_ints) {
-          subjet_inputs[pair.first] = pair.second(*btag);
+          inputs[pair.first + order] = pair.second(*btag);
         }
       } else {
         for (const std::string& input_name: m_float_subjet_inputs) {
-          subjet_inputs[input_name] = NAN;
+          inputs[input_name + order] = 0.0;
         }
         for (const std::string& input_name: m_int_subjet_inputs) {
-          subjet_inputs[input_name] = -1;
+          inputs[input_name + order] = 0;
         }
       }
-      inputs[m_subjet_node_names.at(subjet_n)] = subjet_inputs;
     }
+    
+    node_input[m_node_name] = inputs;
 
-    return inputs;
+    return node_input;
   }
 
   size_t MassDecoXbbInputBuilder::n_subjets(const xAOD::Jet& jet) const {
@@ -460,77 +402,6 @@ namespace MassDecoXbb {
     if (!parent_jet) throw std::logic_error("no valid parent");
     auto subjet_links = m_acc_subjets(*parent_jet);
     return subjet_links.size();
-  }
-
-
-  // definitions for substructure accessors
-  SubstructureAccessors::SubstructureAccessors():
-    ecf1("ECF1"), ecf2("ECF2"), ecf3("ECF3"),
-    tau1wta("Tau1_wta"), tau2wta("Tau2_wta"), tau3wta("Tau3_wta"),
-    fw2("FoxWolfram2"), fw0("FoxWolfram0")
-  {
-    for (const std::string& name: {"Split12", "Split23",
-          "Qw", "PlanarFlow", "Angularity", "Aplanarity", "ZCut12", "KtDR"}) {
-      m_acc.emplace_back(std::make_pair(name, name));
-    }
-  }
-  std::map<std::string, double>
-  SubstructureAccessors::get_map(const xAOD::Jet& j) const {
-    std::map<std::string, double> map {
-      {"pt", j.pt()}, {"eta", j.eta()}, {"mass", j.m()},
-      {"C2", c2(j)},
-      {"D2", d2(j)},
-      {"e3", e3(j)},
-      {"Tau21_wta", tau21(j)},
-      {"Tau32_wta", tau32(j)},
-      {"FoxWolfram20", fw20(j)},
-    };
-    for (const auto& pair: m_acc) {
-      map[pair.first] = pair.second(j);
-    }
-    return map;
-  }
-
-  float SubstructureAccessors::c2(const xAOD::Jet& j) const {
-    // ECF functions return zero if there N < numConstituents,
-    // need this check to prevent div by zero
-    //
-    if (j.numConstituents() < 2) return NAN;
-    return ecf3(j) * ecf1(j) / pow(ecf2(j), 2.0);
-  }
-  float SubstructureAccessors::d2(const xAOD::Jet& j) const {
-    // See comment for C2
-    //
-    if (j.numConstituents() < 2) return NAN;
-    return ecf3(j) * pow(ecf1(j), 3.0) / pow(ecf2(j), 3.0);
-  }
-  float SubstructureAccessors::e3(const xAOD::Jet& j) const {
-    // ECF1 should always be nonzero
-    //
-    return ecf3(j)/pow(ecf1(j),3.0);
-  }
-  float SubstructureAccessors::tau21(const xAOD::Jet& j) const {
-    // Tau variables return zero when N < numConstituents. Here we
-    // should be safe since we should always have one constituent.
-    //
-    return tau2wta(j) / tau1wta(j);
-  }
-  float SubstructureAccessors::tau32(const xAOD::Jet& j) const {
-    // Tau variables return zero when N < numConstituents, need this
-    // check to prevent div by zero
-    //
-    if (j.numConstituents() < 2) return NAN;
-    return tau3wta(j) / tau2wta(j);
-  }
-  float SubstructureAccessors::fw20(const xAOD::Jet& j) const {
-    // Fox Wolfram variables aren't defined for numConstituents < 1,
-    // but we also have the problem of FW0 being zero if
-    // numConstituents is equal to 1, see here:
-    //
-    // https://gitlab.cern.ch/atlas/athena/blob/21.2/Reconstruction/Jet/JetSubStructureUtils/Root/FoxWolfram.cxx
-    //
-    if (j.numConstituents() < 2) return NAN;
-    return fw2(j) / fw0(j);
   }
 
 
