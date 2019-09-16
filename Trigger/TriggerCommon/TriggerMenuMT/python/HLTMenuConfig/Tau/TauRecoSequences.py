@@ -217,8 +217,6 @@ def tauFTFCoreSequence(ConfigFlags):
     ftfCoreViewsMaker.RequireParentView = True
     ftfCoreViewsMaker.ViewNodeName      = RecoSequenceName
 
-    #tauFTFCoreRecoSequence, sequenceOutCore = tauFTFCoreSequence( ftfCoreViewsMaker.InViewRoIs, "RoIs")
-
     (tauFTFCoreInViewSequence, sequenceOut) = tauCoreTrackSequence( ftfCoreViewsMaker.InViewRoIs, RecoSequenceName)
 
     tauFastTrackCoreSequence = seqAND("tauFastTrackCoreSequence", [ftfCoreViewsMaker, tauFTFCoreInViewSequence ])
@@ -235,8 +233,6 @@ def tauFTFIsoSequence(ConfigFlags):
     ftfIsoViewsMaker.ViewFallThrough   = True
     ftfIsoViewsMaker.RequireParentView = True
     ftfIsoViewsMaker.ViewNodeName      = RecoSequenceName
-
-    #tauFTFIsoRecoSequence, sequenceOutIso = tauFTFIsoSequence( ftfIsoViewsMaker.InViewRoIs, "RoIs")                          
 
     (tauFTFIsoInViewSequence, sequenceOut) = tauIsoTrackSequence( ftfIsoViewsMaker.InViewRoIs, RecoSequenceName)
 
