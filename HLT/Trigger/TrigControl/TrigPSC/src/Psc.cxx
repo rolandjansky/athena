@@ -158,7 +158,8 @@ bool psc::Psc::configure(const ptree& config)
   if ( m_config->getOption("JOBOPTIONSTYPE") == "NONE" ) {
     jobOptConfig = needPython = true;
   }
-  else if ( m_config->getOption("JOBOPTIONSTYPE") == "DB" ) {
+  else if ( m_config->getOption("JOBOPTIONSTYPE") == "DB" ||
+            m_config->getOption("JOBOPTIONSTYPE") == "FILE") {
     jobOptConfig = needPython = false;
     if ( (m_config->getOption("PRECOMMAND")!="") || (m_config->getOption("POSTCOMMAND")!="") ) {
       needPython = true;

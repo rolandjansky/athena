@@ -222,11 +222,16 @@ def HLTMPPy_cfgdict(args):
          'postcommand' : args.postcommand,
          'logLevels' : args.log_level
       })
+      # Special case for running from a json file
+      if os.path.splitext(args.jobOptions)[1].lower()=='json':
+         cdict['trigger']['pythonSetupFile'] = 'TrigPSC/TrigPSCPythonDbSetup.py'
    else:
       cdict['trigger'].update({
          'module': 'DBPython',
          'pythonSetupFile' : 'TrigPSC/TrigPSCPythonDbSetup.py',
          'db_alias': args.db_server,
+         'coral_server': args.db_server,
+         'use_coral': True,
          'SMK': args.smk,
          'l1PSK': args.l1psk,
          'HLTPSK': args.hltpsk,
@@ -236,16 +241,6 @@ def HLTMPPy_cfgdict(args):
          'postcommand' : args.postcommand,
          'logLevels' : args.log_level
       })
-      if args.db_type == "Coral":           # DBPython (with CORAL)
-         cdict['trigger'].update({
-            'use_coral': True,
-            'coral_server': args.db_server
-         })
-      else:                                 # DBPython (without CORAL)
-         cdict['trigger'].update({
-            'use_coral': False,
-            'db_alias': args.db_server
-         })
 
    return cdict
 
@@ -274,7 +269,7 @@ def main():
 
    ## Global options
    g = parser.add_argument_group('Options')
-   g.add_argument('jobOptions', help='job options file')
+   g.add_argument('jobOptions', help='job options (or JSON) file')
    g.add_argument('--file', '-f', action='append', required=True, help='input RAW file')
    g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
    g.add_argument('--number-of-events', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
@@ -306,7 +301,6 @@ def main():
    ## Database
    g = parser.add_argument_group('Database')
    g.add_argument('--use-database', '-b', action='store_true', help='configure from trigger database')
-   g.add_argument('--db-type', default='Coral', choices=['MySQL','Oracle','SQLite','Coral'], help='database type')
    g.add_argument('--db-server', metavar='DB', default='TRIGGERDB', help='DB server name')
    g.add_argument('--smk', type=int, default=0, help='Super Master Key')
    g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
