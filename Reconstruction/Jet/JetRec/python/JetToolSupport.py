@@ -138,7 +138,7 @@ class JetToolManager:
   # "JetContainer" to set that property to the given string containerName.
   def configureContainerName(modifiers, containerName):
     for mod in modifiers:
-      if hasattr(mod, "JetContainer"):
+      if "JetContainer" in mod.properties:
         mod.JetContainer = containerName
 
   # Makes a deep copy of the input modifier list.
@@ -161,7 +161,7 @@ class JetToolManager:
       else:
         return containerConfiguredCopy(self.modifiersMap[altname], output)
     if type(modifiersin) == str:
-        return containerConfiguredCopy(self.modifiersMap[modifiersin, output)]
+        return containerConfiguredCopy(self.modifiersMap[modifiersin], output)
         
     return containerConfiguredCopy(modifiersin, output)
 
