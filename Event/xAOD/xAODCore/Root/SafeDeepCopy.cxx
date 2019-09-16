@@ -5,9 +5,9 @@
 // $Id: SafeDeepCopy.cxx 676241 2015-06-18 06:15:44Z krasznaa $
 
 // EDM include(s):
-#define protected public
+//#define protected public
 #   include "AthContainers/AuxElement.h"
-#undef protected
+//#undef protected
 #include "AthContainers/exceptions.h"
 #include "AthContainers/AuxTypeRegistry.h"
 
