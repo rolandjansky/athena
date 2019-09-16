@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -38,8 +38,7 @@ namespace InDetDD {
         m_ownsIdHelper(false),
         m_gasType(unknown),
         m_digvers(9999),
-        m_digversname("ERROR:DIGVERSNOTSET!"),
-        m_conditions(0)
+        m_digversname("ERROR:DIGVERSNOTSET!")
     {
 
     // If detstore no passed then get it from bootstrap.
@@ -71,6 +70,8 @@ namespace InDetDD {
         }
         m_barrelXF[0]=m_barrelXF[1]=m_barrelXF[2]=NULL;
         m_endcapXF[0]=m_endcapXF[1]=m_endcapXF[2]=NULL;
+
+        m_conditions = std::make_unique<InDetDD::TRT_Conditions>();
     }
 
 
@@ -118,8 +119,6 @@ namespace InDetDD {
                 delete j->second;
             }
         }
-
-        if (m_conditions) m_conditions->unref();
 
     }
 
@@ -637,20 +636,9 @@ namespace InDetDD {
     }
 
 
-    void TRT_DetectorManager::setConditions(TRT_Conditions * conditions)
-    {
-    // Should only be set once.
-        if (m_conditions) {
-            msg(MSG::WARNING) << "TRT_DetectorManager: Attempt to reset TRT_Conditions" << endmsg;
-            return;
-        }
-        m_conditions = conditions;
-        m_conditions->ref();
-    }
-
     const TRT_Conditions* TRT_DetectorManager::conditions() const
     {
-        return m_conditions;
+      return m_conditions.get();
     }
 
   // New global alignment filders
