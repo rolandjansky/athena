@@ -152,7 +152,7 @@ StatusCode MuonCreatorAlg::execute()
   //---------------------------------------------------------------------------------------------------------------------//
 
   // Only run monitoring for online algorithms
-  //if ( not m_monTool.name().empty() ) {
+  if ( not m_monTool.name().empty() ) {
     // Variables to initialize and keep for monitoring
     std::vector<double> ini_mupt(0);
     std::vector<double> ini_mueta(0);
@@ -164,20 +164,21 @@ StatusCode MuonCreatorAlg::execute()
     auto muon_phi = Monitored::Collection("muon_phi", ini_muphi);
 
     auto monitorIt = Monitored::Group(m_monTool, muon_pt, muon_eta, muon_phi);
-    
+
     // Muon
     for (auto const& muon : *(wh_muons.ptr())) {
       ini_mupt.push_back(muon->pt()/1000.0); // converted to GeV
       ini_mueta.push_back(muon->eta());
       ini_muphi.push_back(muon->phi());
     }
+
     /*
     // Segments
     for (auto const& seg : *(wh_segment.ptr())) {
       
     }
     */
-    //}
+  }
 
   return StatusCode::SUCCESS;
 }
