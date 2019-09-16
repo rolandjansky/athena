@@ -41,91 +41,78 @@ if TriggerFlags.doID:
 
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg
-    if "RoIs" in viewAlg.properties():
-        viewAlg.RoIs = "EMViewRoIs"
 
-   #
-   # --- Ambiguity solver algorithm
-   #
- 
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
-  from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-  InDetTrigMTAmbiScoringTool =  InDet__InDetAmbiScoringTool( name                        = 'InDetTrigMTScoringTool',
-                                                             Extrapolator                = InDetTrigExtrapolator,
-                                                             InputEmClusterContainerName = '', #need to be reset to empty string
-                                                             doEmCaloSeed                = False,
-                                                             SummaryTool                 = InDetTrigTrackSummaryTool)
+   #Adding precision tracking
+    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks" )
 
+  allViewAlgorithms += PTAlgs
 
+   #Testing BeamSpotAlg in Run3 configuration
+  prefixName = "InDetTrigMT"
+  from TrigVertexFitter.TrigVertexFitterConf import TrigPrimaryVertexFitter
+  primaryVertexFitter = TrigPrimaryVertexFitter(  name = prefixName + "VertexFitter",
+                                                   zVariance=3.0, 
+                                                   CreateTrackLists=True )
 
-  ToolSvc += InDetTrigMTAmbiScoringTool
+  #Can it be added to the service when we need to make it private?
+  ToolSvc += primaryVertexFitter
 
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
-  from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
-  InDetTrigMTAmbiguityProcessor = ProcessorTool(name          = 'InDetTrigMTAmbiguityProcessor',
-                                                Fitter        = InDetTrigTrackFitter,
-                                                ScoringTool   = InDetTrigMTAmbiScoringTool,
-                                                SelectionTool = InDetTrigAmbiTrackSelectionTool)
+  from TrigT2BeamSpot.T2VertexBeamSpotMonitoring import  T2VertexBeamSpotAlgMonitoring, T2VertexBeamSpotToolMonitoring
+  alg = T2VertexBeamSpotAlgMonitoring()
+  toolMon = T2VertexBeamSpotToolMonitoring()
 
-
-  ToolSvc += InDetTrigMTAmbiguityProcessor
-
-
-  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
-  InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name         = 'InDetTrigMTAmbiguitySolver',
-                                                 TrackInput         =['TrigFastTrackFinder_Tracks_FS'], #FTF default
-                                                 TrackOutput        = 'AmbiSolver_Tracks' , #Change
-                                                 AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
-
-
-  allViewAlgorithms += InDetTrigMTAmbiguitySolver
-
-
-  #
-  # --- Track particle conversion algorithm
-  #
-
-
-  from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-  InDetTrigMTxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name =  "InDetTrigMTxAODParticleCreatorTool",
-                                                                     Extrapolator = InDetTrigExtrapolator,
-                                                                     #TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits) 
-                                                                     TrackSummaryTool = InDetTrigTrackSummaryTool)
-
-  ToolSvc += InDetTrigMTxAODParticleCreatorTool
-  print InDetTrigMTxAODParticleCreatorTool
-
-
-  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
-  InDetTrigMTxAODTrackCollectionCnvTool= xAODMaker__TrackCollectionCnvTool(name = "InDetTrigMTxAODTrackCollectionCnvTool",
-                                                                           TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
-
-  ToolSvc += InDetTrigMTxAODTrackCollectionCnvTool
-  print InDetTrigMTxAODTrackCollectionCnvTool
-
-  from xAODTrackingCnv.xAODTrackingCnvConf import  xAODMaker__RecTrackParticleContainerCnvTool
-  InDetTrigMTRecTrackParticleContainerCnvTool=  xAODMaker__RecTrackParticleContainerCnvTool(name = "InDetTrigMTRecTrackContainerCnvTool",
-                                                                           TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
-
-  ToolSvc += InDetTrigMTRecTrackParticleContainerCnvTool
-  print InDetTrigMTRecTrackParticleContainerCnvTool
-
-  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
-  InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetTrigMTxAODParticleCreatorAlg",
-                                                                      TrackContainerName = 'InDetTrigMTAmbiSolTracks',
-                                                                      xAODContainerName = 'InDetTrigMTAmbiSolxAODTracks',
-                                                                      TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
-                                                                      RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
-                                                                      TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
-                                                                            )
+  from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpotTool
+  InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool( name = "TestBeamSpotTool",
+                                                        OutputLevel = DEBUG,
+                                                        MonTool = toolMon,
+                                                        nSplitVertices      = 1,        # Turn on (>1) or off vertex splitting
+                                                        ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
+                                                        WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed            
+                                                        
+                                                        TotalNTrackMin      = 4,        # Minimum number of tracks required in an event
+                                                        TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
+                                                        TrackSeedPt         = 0.7,      # Minimum track pT to be considered for seeding a vertex fit
+                                                        TrackClusterDZ      = 0.35,      # Maximum distance between tracks considered as a cluster
+                                                        TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
+                                                        TrackMaxD0          = 10.0,     # Maximum track d0 to be considered for vertexing
+                                                        TrackMaxZ0err       = 5.0,      # Maximum track Z0 error to be considered for vertexing
+                                                        TrackMaxD0err       = 5.0,      # Maximum track d0 error to be considered for vertexing
+                                                        TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
+                                                        TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
+                                                        TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
+                                                        TrackMinChi2Prob    = -10.0,    # Minimum track cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh 
+                                                        TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+                                                        TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+                                                        TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+                                                        TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
+                                                        
+                                                        VertexMinNTrk       = 2,        # Minimum # tracks in a cluster to be considered for vertexing
+                                                        VertexMaxNTrk       = 100,      # Maximum # tracks in a cluster to be considered for vertexing (saves on time!)
+                                                        VertexMaxXerr       = 1.,       # Maximum resulting X error on vertex fit for "good" vertices
+                                                        VertexMaxYerr       = 1.,       # Maximum resulting Y error on vertex fit for "good" vertices
+                                                        VertexMaxZerr       = 10.,      # Maximum resulting Z error on vertex fit for "good" vertices
+                                                        VertexMinQual       = 0.0,      # Minimum resulting chi^2/NDF on vertex fit for "good" vertices
+                                                        VertexMaxQual       = 100.0,    # Maximum resulting chi^2/NDF on vertex fit for "good" vertices
+                                                        VertexMinChi2Prob   = -10.0,    # Minimum cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh      
+                                                        VertexBCIDMinNTrk   = 10,       # Minimum # tracks in a vertex to be used for per-BCID monitoring
+                                                        PrimaryVertexFitter = primaryVertexFitter )
+      
+  ToolSvc += InDetTrigMTBeamSpotTool 
 
 
-  allViewAlgorithms += InDetTrigMTxAODTrackParticleCnvAlg
-  print  InDetTrigMTxAODTrackParticleCnvAlg
+
+#Testing base default class
+  from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
+  InDetTrigMTBeamSpotAlg = PESA__T2VertexBeamSpot( name = "TestBeamSpotAlg",
+                                                   OutputLevel =DEBUG,
+                                                   MonTool = alg,
+                                                   vertexCollName      = "TrigBeamSpotVertex", # Output vertex collection Name
+                                                   BeamSpotTool = InDetTrigMTBeamSpotTool )   
 
 
+
+  allViewAlgorithms += InDetTrigMTBeamSpotAlg
 
 if TriggerFlags.doCalo:
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
