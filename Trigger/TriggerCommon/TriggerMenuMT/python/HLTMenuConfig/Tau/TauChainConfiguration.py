@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauCoreTrackSequence, tauPrecisionSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauCoreTrackSequence, tauPrecisionSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -25,6 +25,12 @@ def getTauCaloMVACfg(flags):
 
 def getTauCoreTrackCfg(flags):
     return tauCoreTrackSequence()
+
+def getTauFastTrackCfg(flags):
+    return tauTwoStepTrackSeqCore()
+
+def getTauIsoTrackCfg(flags):
+    return tauTwoStepTrackSeqIso()
 
 def getTauPrecisionCfg(flags):
     return tauPrecisionSequence()
@@ -50,7 +56,9 @@ class TauChainConfiguration(ChainConfigurationBase):
         # --------------------
         stepDictionary = {
             "ptonly":[self.getCaloSeq(), self.getTrackCore()],
-            "tracktwo":[self.getCaloSeq(), self.getTrackCore()],
+            #"tracktwo":[self.getCaloSeq(), self.getFastTrack()],
+            "tracktwo":[self.getCaloSeq(), self.getFastTrack(), self.getTrackIso()],
+            #"tracktwo":[self.getCaloSeq(), self.getTrackCore()],
             "tracktwoMVA":[self.getCaloMVASeq(), self.getPrecision()],
         }
 
@@ -83,6 +91,20 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'Step2TP_tau'
         log.debug("Configuring step " + stepName)
         tauSeq = RecoFragmentsPool.retrieve( getTauCoreTrackCfg, None)
+        return ChainStep(stepName, [tauSeq])
+
+    # --------------------
+    def getFastTrack(self):
+        stepName = 'Step2FT_tau'
+        log.debug("Configuring step " + stepName)
+        tauSeq = RecoFragmentsPool.retrieve( getTauFastTrackCfg, None)
+        return ChainStep(stepName, [tauSeq])
+
+    # --------------------                                                                                                       
+    def getTrackIso(self):
+        stepName = 'Step2FTIso_tau'
+        log.debug("Configuring step " + stepName)
+        tauSeq = RecoFragmentsPool.retrieve( getTauIsoTrackCfg, None)
         return ChainStep(stepName, [tauSeq])
         
     # --------------------

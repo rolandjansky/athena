@@ -69,13 +69,13 @@ StatusCode TrigTauTrackRoiUpdaterMT::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG( "Found " << foundTracks->size() << " fast Tracks found, updating the corresponding RoI ... " );
 
   if(foundTracks) {
-    ATH_MSG_DEBUG( "REGTEST: Size of vector CaloCluster container is " << foundTracks->size());
+    ATH_MSG_DEBUG( "REGTEST: Size of vector track container is " << foundTracks->size());
     if(foundTracks->size()==0) {
-      ATH_MSG_DEBUG( "Cannot proceed, size of vector CaloCluster container is " << foundTracks->size());
+      ATH_MSG_DEBUG( "Cannot proceed, size of vector track container is " << foundTracks->size());
       return StatusCode::SUCCESS;
     }
   }else {
-    ATH_MSG_DEBUG( "no CaloCluster container found " );
+    ATH_MSG_DEBUG( "no track container found " );
     return StatusCode::SUCCESS;
   }
 
