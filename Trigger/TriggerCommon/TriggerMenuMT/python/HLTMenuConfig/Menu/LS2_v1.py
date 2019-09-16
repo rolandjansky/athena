@@ -65,6 +65,8 @@ def setupMenu():
         ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
 
+        # ATR-19360
+        ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU20', stream=['RPCSecondaryReadout'], groups=SingleMuonGroup), # TODO: Move to Detector slice
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -90,7 +92,10 @@ def setupMenu():
         ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),  
         #ChainProp(name='HLT_g35_etcut_g25_etcut_L12EM20VH', groups=MultiPhotonGroup),  # Not working due ATR-19962
         ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),  
-        ChainProp(name='HLT_g5_etcut_larpeb_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),  
+
+        # ATR-19360
+        ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_etcut_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = [
@@ -180,7 +185,7 @@ def setupMenu():
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
         ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
-        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream, 'LArCells'], groups=EgammaStreamersGroup),  # FIXME: LArCells stream added just for testing, to be removed
+        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
     TriggerFlags.MonitorSlice.signatures   = []
 

@@ -145,7 +145,8 @@ serialiser.addCollectionListToMainResult([
 
 # This is the Data Scouting part! Let's add L2 electrons to the main result AND to the "electron DS" result
 from TrigUpgradeTest.pebMenuDefs import dataScoutingResultIDFromName
-electronDSModuleIDs = [serialiser.fullResultID(), dataScoutingResultIDFromName('dataScoutingElectronTest')] # 0 is main (full) result; we get the other ID from the EDM configuration
+from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
+electronDSModuleIDs = [getFullHLTResultID(), dataScoutingResultIDFromName('dataScoutingElectronTest')] # 0 is main (full) result; we get the other ID from the EDM configuration
 serialiser.addCollectionListToResults([
     "xAOD::TrigElectronContainer_v1#HLT_L2Electrons",
     "xAOD::TrigElectronAuxContainer_v1#HLT_L2ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
