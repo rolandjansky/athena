@@ -98,10 +98,12 @@ namespace SH
   {
     RCU_READ_INVARIANT (this);
 
-    const std::string sample_name
+    const std::string sampleName
       = meta()->castString (MetaFields::gridName, name());
-    const std::string file_filter
+    const std::string fileFilter
       = meta()->castString (MetaFields::gridFilter, MetaFields::gridFilter_default);
-    return rucioDirectAccessGlob (sample_name, file_filter);
+    const std::string sourceOptions
+      = meta()->castString (MetaFields::gridSourceOptions);
+    return rucioDirectAccessGlob (sampleName, fileFilter, sourceOptions);
   }
 }
