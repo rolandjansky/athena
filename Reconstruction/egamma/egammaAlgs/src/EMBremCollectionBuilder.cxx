@@ -344,8 +344,13 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info, const x
 
   size_t origIndex = Info.origIndex;
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
+  
   uint8_t dummy(0);
   if (m_doPix) {
+    //copy over dead sensors
+    uint8_t deadPixel= original->summaryValue(dummy,xAOD::numberOfPixelDeadSensors)?dummy:0;
+    summary->update(Trk::numberOfPixelDeadSensors,deadPixel);
+ 
     int nPixHitsRefitted = summary->get(Trk::numberOfPixelHits);
     int nPixHitsOriginal = original->summaryValue(dummy,xAOD::numberOfPixelHits) ? dummy:-1;
     int nPixHolesOriginal = original->summaryValue(dummy,xAOD::numberOfPixelHoles)? dummy:-1;
@@ -355,6 +360,9 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info, const x
                     -nPixOutliersRefitted-nPixHitsRefitted);
   }
   if (m_doSCT) {
+    uint8_t deadSCT= original->summaryValue(dummy,xAOD::numberOfSCTDeadSensors)?dummy:0;
+    summary->update(Trk::numberOfSCTDeadSensors,deadSCT); 
+ 
     int nSCTHitsRefitted = summary->get(Trk::numberOfSCTHits);
     int nSCTHitsOriginal = original->summaryValue(dummy,xAOD::numberOfSCTHits) ? dummy:-1;
     int nSCTHolesOriginal = original->summaryValue(dummy,xAOD::numberOfSCTHoles) ? dummy:-1;
