@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Athena runs topoclustering from an ESD file
+# art-description: Athena (serial mode only) runs particle flow reconstruction, using the new Run 3 job configuration, from an ESD file
 # art-type: grid
 # art-include: master/Athena
 
