@@ -23,6 +23,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigParticle
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack )
 
+# External dependencies:
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Matrix TreePlayer )
+
 # Component(s) in the package:
 atlas_add_component( TrigFTK_RecAlgs
                      src/*.cxx

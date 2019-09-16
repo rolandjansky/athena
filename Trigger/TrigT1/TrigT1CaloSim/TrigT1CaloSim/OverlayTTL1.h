@@ -65,22 +65,22 @@ public:
 
 private:
   // locations of background TTL1 data
-  SG::ReadHandleKey<LArTTL1Container> m_bkgEmTTL1Key{this,"BkgEmTTL1Key","OriginalEvent_SG+LArTTL1EM","ReadHandleKey for Background Input EM LArTTL1Container"};
-  SG::ReadHandleKey<LArTTL1Container> m_bkgHadTTL1Key{this,"BkgHadTTL1Key","OriginalEvent_SG+LArTTL1HAD","ReadHandleKey for Background Input Had LArTTL1Container"};
-  SG::ReadHandleKey<TileTTL1Container> m_bkgTileTTL1Key{this,"BkgTileTTL1Key","OriginalEvent_SG+TileTTL1Cnt","ReadHandleKey for Background Input TileTTL1Container"};
-  SG::ReadHandleKey<TileTTL1Container> m_bkgTileMBTSTTL1Key{this,"BkgTileMBTSTTL1Key","OriginalEvent_SG+TileTTL1MBTS","ReadHandleKey for Background Input MBTS TileTTL1Container"};
+  SG::ReadHandleKey<LArTTL1Container> m_bkgEmTTL1Key{this,"BkgEmTTL1Key","Bkg_LArTTL1EM","ReadHandleKey for Background Input EM LArTTL1Container"};
+  SG::ReadHandleKey<LArTTL1Container> m_bkgHadTTL1Key{this,"BkgHadTTL1Key","Bkg_LArTTL1HAD","ReadHandleKey for Background Input Had LArTTL1Container"};
+  SG::ReadHandleKey<TileTTL1Container> m_bkgTileTTL1Key{this,"BkgTileTTL1Key","Bkg_TileTTL1Cnt","ReadHandleKey for Background Input TileTTL1Container"};
+  SG::ReadHandleKey<TileTTL1Container> m_bkgTileMBTSTTL1Key{this,"BkgTileMBTSTTL1Key","Bkg_TileTTL1MBTS","ReadHandleKey for Background Input MBTS TileTTL1Container"};
 
   // locations of signal TTL1 data
-  SG::ReadHandleKey<LArTTL1Container> m_signalEmTTL1Key{this,"SignalEmTTL1Key","BkgEvent_0_SG+LArTTL1EM","ReadHandleKey for Signal Input EM LArTTL1Container"};
-  SG::ReadHandleKey<LArTTL1Container> m_signalHadTTL1Key{this,"SignalHadTTL1Key","BkgEvent_0_SG+LArTTL1HAD","ReadHandleKey for Signal Input Had LArTTL1Container"};
-  SG::ReadHandleKey<TileTTL1Container> m_signalTileTTL1Key{this,"SignalTileTTL1Key","BkgEvent_0_SG+TileTTL1Cnt","ReadHandleKey for Signal Input TileTTL1Container"};
-  SG::ReadHandleKey<TileTTL1Container> m_signalTileMBTSTTL1Key{this,"SignalTileMBTSTTL1Key","BkgEvent_0_SG+TileTTL1MBTS","ReadHandleKey for Signal Input MBTS TileTTL1Container"};
+  SG::ReadHandleKey<LArTTL1Container> m_signalEmTTL1Key{this,"SignalEmTTL1Key","Sig_LArTTL1EM","ReadHandleKey for Signal Input EM LArTTL1Container"};
+  SG::ReadHandleKey<LArTTL1Container> m_signalHadTTL1Key{this,"SignalHadTTL1Key","Sig_LArTTL1HAD","ReadHandleKey for Signal Input Had LArTTL1Container"};
+  SG::ReadHandleKey<TileTTL1Container> m_signalTileTTL1Key{this,"SignalTileTTL1Key","Sig_TileTTL1Cnt","ReadHandleKey for Signal Input TileTTL1Container"};
+  SG::ReadHandleKey<TileTTL1Container> m_signalTileMBTSTTL1Key{this,"SignalTileMBTSTTL1Key","Sig_TileTTL1MBTS","ReadHandleKey for Signal Input MBTS TileTTL1Container"};
 
   // locations of output TTL1 data
-  SG::WriteHandleKey<LArTTL1Container> m_outputEmTTL1Key{this,"OutputEmTTL1Key","StoreGateSvc+LArTTL1EM","WriteHandleKey for Output EM LArTTL1Container"};
-  SG::WriteHandleKey<LArTTL1Container> m_outputHadTTL1Key{this,"OutputHadTTL1Key","StoreGateSvc+LArTTL1HAD","WriteHandleKey for Output Had LArTTL1Container"};
-  SG::WriteHandleKey<TileTTL1Container> m_outputTileTTL1Key{this,"OutputTileTTL1Key","StoreGateSvc+TileTTL1Cnt","WriteHandleKey for Output TileTTL1Container"};
-  SG::WriteHandleKey<TileTTL1Container> m_outputTileMBTSTTL1Key{this,"OutputTileMBTSTTL1Key","StoreGateSvc+TileTTL1MBTS","WriteHandleKey for Output MBTS TileTTL1Container"};
+  SG::WriteHandleKey<LArTTL1Container> m_outputEmTTL1Key{this,"OutputEmTTL1Key","LArTTL1EM","WriteHandleKey for Output EM LArTTL1Container"};
+  SG::WriteHandleKey<LArTTL1Container> m_outputHadTTL1Key{this,"OutputHadTTL1Key","LArTTL1HAD","WriteHandleKey for Output Had LArTTL1Container"};
+  SG::WriteHandleKey<TileTTL1Container> m_outputTileTTL1Key{this,"OutputTileTTL1Key","TileTTL1Cnt","WriteHandleKey for Output TileTTL1Container"};
+  SG::WriteHandleKey<TileTTL1Container> m_outputTileMBTSTTL1Key{this,"OutputTileMBTSTTL1Key","TileTTL1MBTS","WriteHandleKey for Output MBTS TileTTL1Container"};
 
   /** overlay amplitudes from other TTL1 */
   void groupLArTowers(SG::ReadHandle<LArTTL1Container>& towers, std::map<Identifier, std::vector<const LArTTL1*>> &towerMap) const;

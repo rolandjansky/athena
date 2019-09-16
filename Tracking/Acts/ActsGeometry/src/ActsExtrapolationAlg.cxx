@@ -20,7 +20,8 @@
 #include "Acts/Utilities/Units.hpp"
 
 // PACKAGE
-#include "ActsGeometry/ActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 //#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"

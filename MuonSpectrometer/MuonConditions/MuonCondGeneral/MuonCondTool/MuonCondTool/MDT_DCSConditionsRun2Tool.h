@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_MDT_DCSCONDITIONSRUN2TOOL_H
@@ -13,10 +13,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "StoreGate/StoreGateSvc.h"
 
 class Identifier;
-class StoreGateSvc;
 
 class MdtHelper;
 class IIOVSvc;

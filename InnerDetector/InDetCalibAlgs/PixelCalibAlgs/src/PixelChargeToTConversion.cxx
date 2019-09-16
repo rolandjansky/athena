@@ -38,6 +38,7 @@ StatusCode PixelChargeToTConversion::initialize(){
   ATH_CHECK(m_pixelCabling.retrieve());
   ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_chargeDataKey.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }

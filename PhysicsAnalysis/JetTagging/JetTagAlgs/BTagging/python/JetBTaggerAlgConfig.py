@@ -6,41 +6,37 @@ from BTagging.BTaggingFlags import BTaggingFlags
 # import the JetBTaggerAlg configurable
 from BTagging.BTaggingConf import Analysis__JetBTaggerAlg as JetBTaggerAlg
 
-def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", Verbose = True, options={}, StripJetsSuffix = True):
+def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", **options):
 
     acc=ComponentAccumulator()
     jetcol = JetCollection
 
-    from BTagging.BTaggingConfiguration import getConfiguration
-    ConfInstance = getConfiguration()
     from BTagging.BTagToolConfig import BTagToolCfg
-    #accBTagTool = BTagToolCfg(ConfigFlags, jetcol, TaggerList,  Verbose = Verbose, options=options)
-    #options.setdefault('BTagTool', accBTagTool.popPrivateTools())
-    #acc.merge(accBTagTool)
-    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, jetcol, TaggerList,  Verbose = Verbose, options=options)))
+    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, jetcol, TaggerList, options)))
 
     objs = {}
-    options = dict(options)
+    #options = dict(options)
     options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
     
     # setup the Analysis__BTagTrackAssociation tool
     from BTagging.BTagTrackAssociationConfig import BTagTrackAssociationCfg
-    accBTagTrackAssociation = BTagTrackAssociationCfg(ConfigFlags, 'TrackAssociation', jetcol, TaggerList, Verbose = Verbose)
-    thisBTagTrackAssociation = accBTagTrackAssociation.popPrivateTools()
-    options.setdefault('BTagTrackAssocTool', thisBTagTrackAssociation)
-    acc.merge(accBTagTrackAssociation)
+    options.setdefault('BTagTrackAssocTool', acc.popToolsAndMerge(BTagTrackAssociationCfg(ConfigFlags, 'TrackAssociation'+ ConfigFlags.BTagging.GeneralToolSuffix, jetcol, TaggerList )))
     
     # setup the secondary vertexing tool
     from BTagging.BTagSecVertexingConfig import BTagSecVtxToolCfg
-    accSecVtxTool = BTagSecVtxToolCfg(ConfigFlags, 'SecVx'+ConfInstance.GeneralToolSuffix(), jetcol, Verbose, outputObjs = objs)
-    thisSecVtxTool = accSecVtxTool.popPrivateTools()
-    options.setdefault('BTagSecVertexing', thisSecVtxTool)
-    acc.merge(accSecVtxTool)
+    options.setdefault('BTagSecVertexing', acc.popToolsAndMerge(BTagSecVtxToolCfg(ConfigFlags, 'SecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, outputObjs = objs, **options)))
+
+    new_prefix = options.get('new_prefix', None)
+    if new_prefix:
+        btagname = new_prefix + jetcol
+        del options['new_prefix']
+    else:
+        btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
 
     # Set remaining options
-    btagname = ConfInstance.getOutputFilesPrefix() + jetcol
-    options.setdefault('name', 'btagging_antikt4emtopo')
+    options.setdefault('name', (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower())
     options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
+    options.setdefault('JetCalibrationName', jetcol.replace('Track','PV0Track'))
     options.setdefault('BTaggingCollectionName', btagname)
 
     # -- create main BTagging algorithm

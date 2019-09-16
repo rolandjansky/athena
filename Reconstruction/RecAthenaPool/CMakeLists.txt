@@ -26,7 +26,6 @@ atlas_add_poolcnv_library( RecAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel MissingETEvent muonEvent RecTPCnv )
 
 # Install files from the package:
-atlas_install_headers( RecAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

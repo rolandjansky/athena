@@ -25,8 +25,6 @@ class DQTDataFlowMonAlg: public AthMonitorAlgorithm
 
   virtual ~DQTDataFlowMonAlg() {};
 
-  virtual StatusCode initialize() override;
-    
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
  
 };

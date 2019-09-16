@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -36,14 +36,12 @@ TileEopFilterAlg::TileEopFilterAlg( const std::string& name, ISvcLocator* pSvcLo
   declareProperty("TrackCellR",      m_trackCellR      = 1.0);  
   declareProperty("DumpLArCells",    m_dumpLarCells    = false);
   declareProperty("TrackTools",   m_trackInCalo);
-  m_storeGate =	0;
 } 
 
 //=======================================
 StatusCode TileEopFilterAlg::initialize(){
 //=======================================
       
-  CHECK(service("StoreGateSvc",m_storeGate));
   CHECK(m_trackInCalo.retrieve());
   //CHECK(m_trackIsoTool.retrieve());
   
@@ -56,7 +54,7 @@ StatusCode TileEopFilterAlg::execute(){
 
   //Get the input tracks
   const TRACKCONTAINER* inputTracks = 0;
-  CHECK( m_storeGate->retrieve( inputTracks, m_inputTracks ) );
+  CHECK( evtStore()->retrieve( inputTracks, m_inputTracks ) );
   
   //Allocate the output tracks container
   TRACKCONTAINER * outputTracks = new TRACKCONTAINER;
@@ -139,7 +137,7 @@ StatusCode TileEopFilterAlg::execute(){
 
   //Allocate output association between tracks and clusters  
   ASSOCCONTAINER* trackClusters = new ASSOCCONTAINER_CONSTRUCTOR(outputTracks->size());
-  CHECK( m_storeGate->record( trackClusters, m_trackClusters ) );
+  CHECK( evtStore()->record( trackClusters, m_trackClusters ) );
 
   //Select clusters that match a track
   //For each cluster loop over all selected tracks
@@ -203,11 +201,11 @@ StatusCode TileEopFilterAlg::execute(){
 
   //Allocate output cells container
   ConstDataVector<CELLCONTAINER>* outputCells = new ConstDataVector<CELLCONTAINER>( SG::VIEW_ELEMENTS );
-  CHECK( m_storeGate->record( outputCells, m_outputCells ) );
+  CHECK( evtStore()->record( outputCells, m_outputCells ) );
 
   //Allocate output association between clusters and cells  
   ASSOCCONTAINER* clusterCells = new ASSOCCONTAINER_CONSTRUCTOR(outputClusters->size());
-  CHECK( m_storeGate->record( clusterCells, m_clusterCells ) );
+  CHECK( evtStore()->record( clusterCells, m_clusterCells ) );
 
   //Select cells associated to clusters
   clusterItr = outputClusters->begin();
@@ -235,7 +233,7 @@ StatusCode TileEopFilterAlg::execute(){
   
   //Allocate output association between tracks and cells  
   ASSOCCONTAINER* trackCells = new ASSOCCONTAINER_CONSTRUCTOR(outputTracks->size());
-  CHECK( m_storeGate->record( trackCells, m_trackCells ) );
+  CHECK( evtStore()->record( trackCells, m_trackCells ) );
 
   //Also select cells associated to tracks 
   //cell matches track in a cone of DeltaR and is not in ouputCells already

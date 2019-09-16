@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Particle/TrackParticle.h"
 #include "TrackParticleTPCnv/Particle/TrackParticleCnv_p3.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "CxxUtils/make_unique.h"
 #include <cmath>
 #include <typeinfo>
 
@@ -35,7 +34,7 @@ void  TrackParticleCnv_p3::persToTrans(const Rec::TrackParticle_p3 * persObj, Re
       parameters[index] = createTransFromPStore(&m_parameterCnv,(persObj->m_trackParameters)[index],log);   
     }
       
-    auto fq = CxxUtils::make_unique<Trk::FitQuality>
+    auto fq = std::make_unique<Trk::FitQuality>
       (persObj->m_fitQuality_m_chiSquared,
        persObj->m_fitQuality_m_numberDoF);
 

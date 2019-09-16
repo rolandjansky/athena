@@ -155,7 +155,6 @@ if InDetFlags.doPRDFormation():
       InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                             clusteringTool          = InDetMergedPixelsTool,
                                                             gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                            DetectorManagerName     = InDetKeys.PixelManager(), 
                                                             DataObjectName          = InDetKeys.PixelRDOs(),
                                                             ClustersName            = InDetKeys.PixelClusters())
       topSequence += InDetPixelClusterization
@@ -166,7 +165,6 @@ if InDetFlags.doPRDFormation():
         InDetPixelClusterizationPU = InDet__PixelClusterization(name                    = "InDetPixelClusterizationPU",
                                                                 clusteringTool          = InDetMergedPixelsTool,
                                                                 gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                                DetectorManagerName     = InDetKeys.PixelManager(),
                                                                 DataObjectName          = InDetKeys.PixelPURDOs(),
                                                                 ClustersName            = InDetKeys.PixelPUClusters(),
                                                                 AmbiguitiesMap = "PixelClusterAmbiguitiesMapPU")

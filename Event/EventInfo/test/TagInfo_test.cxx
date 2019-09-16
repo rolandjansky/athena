@@ -27,6 +27,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include <string>
 
 
+// cppcheck-suppress unknownMacro
 BOOST_AUTO_TEST_SUITE(TagInfoTest)
   BOOST_AUTO_TEST_CASE(Constructor){
     BOOST_CHECK_NO_THROW(TagInfo());

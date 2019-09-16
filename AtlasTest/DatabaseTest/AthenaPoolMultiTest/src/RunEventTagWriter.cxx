@@ -12,7 +12,6 @@
 
 #include "RunEventTagWriter.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "CoralBase/AttributeListSpecification.h"
 
 #include "CxxUtils/make_unique.h"

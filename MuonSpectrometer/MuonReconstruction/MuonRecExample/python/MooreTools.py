@@ -18,6 +18,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.BFieldFlags import jobproperties
 from AthenaCommon import CfgMgr
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 from RecExConfig.RecFlags import rec
 
@@ -185,7 +186,6 @@ def MooTrackFitter(name="MooTrackFitter", extraFlags=None, **kwargs):
     kwargs.setdefault("Propagator",      "MuonPropagator")
     kwargs.setdefault("SLFit" ,          not jobproperties.BField.allToroidOn())
     kwargs.setdefault("ReducedChi2Cut",  muonStandaloneFlags.Chi2NDofCut())
-    kwargs.setdefault("FitEtaStrips",    True)
     kwargs.setdefault("SegmentMomentum", "MuonSegmentMomentumFromField")
     kwargs.setdefault("CleanPhiHits",              True)
     kwargs.setdefault("UsePreciseHits",            True)
@@ -419,21 +419,33 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
         kwargs.setdefault("sTgcPrepDataContainer","")
         kwargs.setdefault("MMPrepDataContainer","")
 
+    #MDT conditions information not available online
+    if(athenaCommonFlags.isOnline):
+        kwargs.setdefault("MdtCondKey","")
+
     return CfgMgr.Muon__MuonChamberHoleRecoveryTool(name,**kwargs)
 # end of factory function MuonChamberHoleRecoveryTool
 
+def MuonTrackToSegmentTool(name="MuonTrackToSegmentTool",extraFlags=None,**kwargs):
+    #MDT conditions information not available online
+    if(athenaCommonFlags.isOnline):
+        kwargs.setdefault("MdtCondKey","")
+    return CfgMgr.Muon__MuonTrackToSegmentTool(name,**kwargs)
 
 class MuonSegmentRegionRecoveryTool(CfgMgr.Muon__MuonSegmentRegionRecoveryTool,ConfiguredBase):
   __slots__ = ()
 
   def __init__(self,name="MuonSegmentRegionRecoveryTool",**kwargs):
-     self.applyUserDefaults(kwargs,name)
-     super(MuonSegmentRegionRecoveryTool,self).__init__(name,**kwargs)
-     global ServiceMgr
-     from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-     SegRecoveryRegSelSvc = RegSelSvcDefault()
-     SegRecoveryRegSelSvc.enableMuon = True
-     ServiceMgr += SegRecoveryRegSelSvc
+      #MDT conditions information not available online
+      if(athenaCommonFlags.isOnline):
+          kwargs.setdefault("MdtCondKey","")
+      self.applyUserDefaults(kwargs,name)
+      super(MuonSegmentRegionRecoveryTool,self).__init__(name,**kwargs)
+      global ServiceMgr
+      from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+      SegRecoveryRegSelSvc = RegSelSvcDefault()
+      SegRecoveryRegSelSvc.enableMuon = True
+      ServiceMgr += SegRecoveryRegSelSvc
 #     self.RegionSelector = SegRecoveryRegSelSvc
 
 MuonSegmentRegionRecoveryTool.setDefaultProperties (

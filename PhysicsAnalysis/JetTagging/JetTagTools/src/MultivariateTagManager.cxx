@@ -17,7 +17,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "JetTagTools/JetTagUtils.h"
 #include "JetTagTools/MultivariateTagManager.h"
 #include "JetTagTools/BTagVariables.h"
 
@@ -98,12 +97,12 @@ namespace Analysis {
 
   StatusCode MultivariateTagManager::tagJet(const xAOD::Vertex& priVtx,
                                             const xAOD::Jet& jetToTag,
-                                            xAOD::BTagging& BTag) const
+                                            xAOD::BTagging& BTag,
+                                            const std::string &jetName) const
   {
-    std::string jetauthor = JetTagUtils::getJetAuthor(&jetToTag); // determine the jet's channel
-    ATH_MSG_DEBUG("#BTAG# Jet author: " << jetauthor );
+    ATH_MSG_DEBUG("#BTAG# Jet author: " << jetName );
 
-    if ( jetauthor.empty() ) {
+    if ( jetName.empty() ) {
       ATH_MSG_WARNING(" #BTAG# Hypothesis or jetauthor is empty."
           " No likelihood value given back. ");
     }
@@ -135,7 +134,7 @@ namespace Analysis {
 
     for (auto& itr: m_MultivariateTaggerHandleArray) {
 
-      itr->assignProbability(&BTag, inputs, jetauthor);
+      itr->assignProbability(&BTag, inputs, jetName);
 
     }
 

@@ -1071,13 +1071,19 @@ namespace Muon {
       bool isOutlier = isOutsideOnTrackCut(id,residual,pull, 1 );
       bool isRecoverable = m_recoverOutliers && !isOutlier && !isOutsideOnTrackCut(id,residual,pull, m_associationScaleFactor );
       bool flippedIsRecoverable = isMDT && flippedPull < pull - 0.1 && !isOutsideOnTrackCut(id,flippedResidual,flippedPull,m_associationScaleFactor);
-      bool isDelta = isOutlier && isMDT && rTrackAbs < 14.6 && rTrackAbs > fabs(rDrift);
+      double innerRadius = 14.6;
+      if( isMDT ) {
+	const MdtDriftCircleOnTrack* mdtdc = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
+	if(mdtdc) innerRadius = mdtdc->detectorElement()->innerTubeRadius();
+      }
+
+      bool isDelta = isOutlier && isMDT && rTrackAbs < innerRadius && rTrackAbs > fabs(rDrift);
 
       // remove all outliers that are too far from the track
       if( isOutlier ){
 	if( isMDT ){
-	  if( rTrackAbs > 14.6 ) inBounds = false;
-	}else if( pull > 10 ) {
+	  if( rTrackAbs > innerRadius ) inBounds = false;
+	}else if( pull > 10. ) {
 	  inBounds = false;
 	}
       }

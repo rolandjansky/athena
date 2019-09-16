@@ -10,7 +10,6 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
@@ -517,7 +516,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdt( const MdtCsm * rdoColl, MdtDigitCo
 		  ATH_MSG_WARNING( "Couldn't record MdtDigitCollection with key=" << coll_hash 
                                    << " in StoreGate!"  );
 	      } else {  
-		MdtDigitCollection * oldCollection = (MdtDigitCollection*) *it_coll;
+		MdtDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MdtDigitCollection*>(*it_coll); //FIXME
 		oldCollection->push_back(newDigit);
 		collection = oldCollection;
 	      }
@@ -609,7 +608,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
 		  ATH_MSG_WARNING( "Couldn't record CscDigitCollection with key=" << coll_hash 
                                    << " in StoreGate!"  );
 	    } else {  
-		  CscDigitCollection * oldCollection = (CscDigitCollection*) *it_coll;
+              CscDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<CscDigitCollection*>(*it_coll); // FIXME
 	      oldCollection->push_back(newDigit);
 	      collection = oldCollection;
 	    }
@@ -699,7 +698,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc( const RpcPad * rdoColl, RpcDigitCo
                         }
                         else
                         {
-		               RpcDigitCollection * oldCollection = (RpcDigitCollection*) *it_coll;
+                           RpcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<RpcDigitCollection*>(*it_coll); // FIXME
 	                   oldCollection->push_back(newDigit);
                            collection = oldCollection;
                         }
@@ -893,7 +892,8 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
                   m_acSvc->setStore( &*evtStore() );
                   TgcDigitContainer::const_iterator it_coll = m_tgcContainer->indexFind(coll_hash);
                   if (m_tgcContainer->end() !=  it_coll) {
-		               collection = (TgcDigitCollection*) *it_coll;
+                    TgcDigitCollection* aCollection ATLAS_THREAD_SAFE = const_cast<TgcDigitCollection*>(*it_coll); // FIXME
+                    collection = aCollection;
 		    }
 		  else
 		    {
@@ -973,7 +973,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeSTGC( const Muon::STGC_RawDataCollectio
 		        ATH_MSG_WARNING( "Couldn't record sTgcDigitCollection with key=" << coll_hash 
                                    << " in StoreGate!"  );
 	          } else {
-                sTgcDigitCollection * oldCollection = (sTgcDigitCollection*) *it_coll;
+                sTgcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<sTgcDigitCollection*>(*it_coll); //FIXME
 		        oldCollection->push_back(newDigit);
 		        collection = oldCollection;
 	          }
@@ -1025,7 +1025,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeMM( const Muon::MM_RawDataCollection * 
 		        ATH_MSG_WARNING( "Couldn't record MmDigitCollection with key=" << coll_hash
                                    << " in StoreGate!"  );
 	          } else {
-		        MmDigitCollection * oldCollection = (MmDigitCollection*) *it_coll;
+                        MmDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MmDigitCollection*>(*it_coll); // FIXME
 		        oldCollection->push_back(newDigit);
 		        collection = oldCollection;
 	          }

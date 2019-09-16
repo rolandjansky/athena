@@ -52,6 +52,5 @@ atlas_add_component( TrigT1CaloMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthenaMonitoringLib AthContainers SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier EventInfo xAODJet xAODTrigL1Calo xAODEgamma GaudiKernel AnalysisTriggerEvent JetInterface TileConditionsLib TileEvent LWHists VxVertex TrigDecisionToolLib TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolsLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces TrigT1CaloCondSvcLib )
 
 # Install files from the package:
-atlas_install_headers( TrigT1CaloMonitoring )
 atlas_install_joboptions( share/*.py )
 

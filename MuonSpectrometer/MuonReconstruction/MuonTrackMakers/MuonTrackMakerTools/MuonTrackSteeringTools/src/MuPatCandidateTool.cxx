@@ -37,7 +37,6 @@
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
 #include <sstream>
 #include <string>
 #include <set>
@@ -57,8 +56,7 @@ namespace Muon {
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_hitHandler("Muon::MuPatHitTool/MuPatHitTool"),
       m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
-      m_segmentExtender("Muon::MuonSegmentInfoExtender/MuonSegmentInfoExtender"),
-      m_incidentSvc("IncidentSvc",n)
+      m_segmentExtender("Muon::MuonSegmentInfoExtender/MuonSegmentInfoExtender")
   {
     declareInterface<MuPatCandidateTool>(this);
     declareProperty("MdtRotCreator",          m_mdtRotCreator);
@@ -82,9 +80,6 @@ namespace Muon {
     ATH_CHECK( m_hitHandler.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_incidentSvc.retrieve() );
-
-    m_incidentSvc->addListener( this, std::string("EndEvent"));
 
     ATH_CHECK( m_segmentSelector.retrieve() );
     if( !m_segmentExtender.empty() && m_segmentExtender.retrieve().isFailure() ){
@@ -248,6 +243,14 @@ namespace Muon {
   void MuPatCandidateTool::updateHits( MuPatCandidateBase& entry, const MuPatCandidateTool::MeasVec& measurements, 
 				     bool recreateMDT, bool recreateCSC, bool createComp ) const {
 
+    std::lock_guard<std::mutex> lock{m_mutex};    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt != ctx.evt()) {
+      ent->m_evt = ctx.evt();
+      ent->cleanUp();
+    }
+
     MeasVec etaHits;
     MeasVec phiHits;
     MeasVec fakePhiHits;
@@ -323,7 +326,7 @@ namespace Muon {
 	    }
 	    ATH_MSG_DEBUG(" recreating MdtDriftCircleOnTrack " );
 	    const MdtDriftCircleOnTrack* newMdt = m_mdtRotCreator->createRIO_OnTrack(*mdt->prepRawData(),mdt->globalPosition());
-	    m_measurementsToBeDelete.push_back(newMdt);
+	    ent->m_measurementsToBeDeleted.push_back(newMdt);
 	    meas = newMdt;
 	  }
 	}
@@ -366,7 +369,7 @@ namespace Muon {
 	    }
 	    ATH_MSG_DEBUG(" recreating CscClusterOnTrack " );
 	    const MuonClusterOnTrack* newCsc = m_cscRotCreator->createRIO_OnTrack(*csc->prepRawData(),csc->globalPosition());
-	    m_measurementsToBeDelete.push_back(newCsc);
+	    ent->m_measurementsToBeDeleted.push_back(newCsc);
 	    meas = newCsc;
 
 	  }
@@ -397,8 +400,8 @@ namespace Muon {
     }
     
     if( createComp ){
-      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta,etaHits,allHits);
-      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi,phiHits,allHits);
+      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta, etaHits, allHits, ent->m_measurementsToBeDeleted);
+      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi, phiHits, allHits, ent->m_measurementsToBeDeleted);
     }
 
     entry.nmdtHitsMl1 = nmdtHitsMl1;
@@ -435,8 +438,9 @@ namespace Muon {
   }
 
   void MuPatCandidateTool::createAndAddCompetingROTs( const std::vector<const MuonClusterOnTrack*>& rots, 
-						    MuPatCandidateTool::MeasVec& hits,
-						    MuPatCandidateTool::MeasVec& allHits ) const {
+                                                      MuPatCandidateTool::MeasVec& hits,
+                                                      MuPatCandidateTool::MeasVec& allHits,
+                                                      MuPatCandidateTool::MeasVec& measurementsToBeDeleted ) const {
 
     typedef std::map<Identifier, std::vector<const MuonClusterOnTrack*> > IdClusMap;
     typedef IdClusMap::iterator IdClusIt;
@@ -504,7 +508,7 @@ namespace Muon {
       allHits.push_back(comprot);
       
       // add to garbage collection
-      m_measurementsToBeDelete.push_back(comprot);
+      measurementsToBeDeleted.push_back(comprot);
     }
   }
 
@@ -604,8 +608,13 @@ namespace Muon {
   
   void MuPatCandidateTool::cleanUp() const {
     // delete segments and clear vector
-    std::for_each( m_measurementsToBeDelete.begin(),m_measurementsToBeDelete.end(),MuonDeleteObject<const Trk::MeasurementBase>() );
-    m_measurementsToBeDelete.clear();
+    std::lock_guard<std::mutex> lock{m_mutex};
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt != ctx.evt()) {
+      ent->m_evt = ctx.evt();
+    }
+    ent->cleanUp();
   }
 
   std::string MuPatCandidateTool::print( const MuPatSegment& segment, int level ) const {
@@ -664,15 +673,6 @@ namespace Muon {
 
     return "Unknown candidate type";
   }
-
-  
-  void MuPatCandidateTool::handle(const Incident& inc) {
-    // Only clear cache for EndEvent incident
-    if (inc.type() != "EndEvent") return;
-    
-    cleanUp();
-    
-  }  
 
 } // namespace Muon
 

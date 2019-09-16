@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,10 +20,6 @@
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
-
-// Framework
-#include "StoreGate/StoreGateSvc.h"
 
 //================ Constructor =================================================
 

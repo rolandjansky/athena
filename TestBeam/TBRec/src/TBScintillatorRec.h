@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBSCINTREC_H
@@ -15,8 +15,6 @@
 
 #include <string>
 #include <vector>
-
-class StoreGateSvc;
 
 class TBScintillatorRec : public AthAlgorithm
 {

@@ -33,6 +33,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
     from RootUtils import PyROOTFixes
 
     # Check if the input is a file or a list of files.
+    from past.builtins import basestring
     if isinstance(filenames, basestring):
         filenames = [filenames]
 
@@ -66,7 +67,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 with open(filename, 'rb') as binary_file:
                     magic_file = binary_file.read(4)
 
-                    if magic_file == 'root':
+                    if magic_file == 'root' or magic_file == b'root':
                         current_file_type = 'POOL'
                         meta_dict[filename]['file_type'] = 'POOL'
 
@@ -284,7 +285,16 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 bs_metadata['lumiBlockNumbers'] = getattr(data_reader, 'lumiblockNumber')()
                 bs_metadata['projectTag'] = getattr(data_reader, 'projectTag')()
                 bs_metadata['stream'] = getattr(data_reader, 'stream')()
-                bs_metadata['beamType'] = getattr(data_reader, 'beamType')()
+                #bs_metadata['beamType'] = getattr(data_reader, 'beamType')()
+                beamTypeNbr= getattr(data_reader, 'beamType')()
+                #According to info from Rainer and Guiseppe the beam type is 
+                #O: no beam
+                #1: protons
+                #2: ions
+                if (beamTypeNbr==0): bs_metadata['beamType'] = 'cosmics'
+                elif (beamTypeNbr==1 or beamTypeNbr==2):  bs_metadata['beamType'] = 'collisions'
+                else: bs_metadata['beamType'] = 'unknown'
+
                 bs_metadata['beamEnergy'] = getattr(data_reader, 'beamEnergy')()
 
                 meta_dict[filename]['eventTypes'] = bs_metadata.get('eventTypes', [])
@@ -294,7 +304,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 # Promote up one level
                 meta_dict[filename]['runNumbers'] = [bs_metadata.get('runNumbers', None)]
                 meta_dict[filename]['lumiBlockNumbers'] = [bs_metadata.get('lumiBlockNumbers', None)]
-                meta_dict[filename]['beam_type'] = [bs_metadata.get('beamType', None)]
+                meta_dict[filename]['beam_type'] = bs_metadata.get('beamType', None)
                 meta_dict[filename]['beam_energy'] = bs_metadata.get('beamEnergy', None)
                 meta_dict[filename]['stream'] = bs_metadata.get('stream', None)
 
@@ -304,7 +314,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     meta_dict[filename]['lumiBlockNumbers'].append(bs_metadata.get('LumiBlock', 0))
 
                 ievt = iter(bs)
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check()  # may raise a RuntimeError
                 processing_tags = [dict(stream_type = tag.type, stream_name = tag.name, obeys_lbk = bool(tag.obeys_lumiblock)) for tag in evt.stream_tag()]
                 meta_dict[filename]['processingTags'] = [x['stream_name'] for x in processing_tags]
@@ -381,8 +391,11 @@ def _read_guid(filename):
     regex = re.compile(r'^\[NAME=([a-zA-Z0-9_]+)\]\[VALUE=(.*)\]')
 
     for i in range(params.GetEntries()):
-        params.GetEntry(i)
-        param = params.db_string
+        # Work around apparent pyroot issue:
+        # If we try to access params.db_string directly, we see trailing
+        # garbage, which can confuse python's bytes->utf8 conversion
+        # and result in an error.
+        param = params.GetLeaf('db_string').GetValueString()
 
         result = regex.match(param)
         if result:

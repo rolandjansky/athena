@@ -13,7 +13,6 @@ StreamBS = AthenaOutputStream("StreamBS",
                                              ('PixelHitDiscCnfgData','ConditionStore+PixelHitDiscCnfgData'),
                                              ('MuonMDT_CablingMap','ConditionStore+MuonMDT_CablingMap') 
                                              ])
-StreamBS.ForceRead=True
 if not TriggerFlags.fakeLVL1():
    #LVL1
    theApp.Dlls += [ "TrigT1ResultByteStream" ]

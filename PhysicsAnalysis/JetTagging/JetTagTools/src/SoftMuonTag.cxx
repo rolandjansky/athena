@@ -33,7 +33,6 @@ PURPOSE:  b-tagging based on soft muon identification
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
-#include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TruthInfo.h"
 #include "JetTagInfo/SoftMuonInfo.h"
@@ -48,9 +47,6 @@ PURPOSE:  b-tagging based on soft muon identification
 
 #include "AthenaKernel/Units.h"
 
-#include "TObjArray.h"
-#include "TObjString.h"
-#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>
@@ -278,12 +274,13 @@ namespace Analysis
 
   StatusCode SoftMuonTag::tagJet(const xAOD::Vertex& priVtx,
                                  const xAOD::Jet& jetToTag,
-                                 xAOD::BTagging& BTag) const
+                                 xAOD::BTagging& BTag,
+                                 const std::string &jetName) const
   {
     ATH_MSG_DEBUG( "#BTAG# Starting tagJet");
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
+    std::string author = jetName;
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
@@ -328,28 +325,8 @@ namespace Analysis
       return StatusCode::SUCCESS;
     }
 
-    TObjArray* toa=readCdo->retrieveTObject<TObjArray>("SoftMu",author, m_taggerNameBase+"Calib/"+m_varStrName);
-    std::string commaSepVars="";
-    if (toa) {
-      TObjString *tos= nullptr;
-      if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
-      commaSepVars=tos->GetString().Data();
-    } else {
-      ATH_MSG_WARNING("#BTAG# calibVariables has no elements! PLEASE CHECK OUT!");
-      m_disableAlgo=true;
-      return StatusCode::SUCCESS;
-    }
-
-    //prepare inputVars
-    std::vector<std::string> inputVars; inputVars.clear();
-    while (commaSepVars.find(",")!=std::string::npos) {
-      inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
-      commaSepVars.erase(0,commaSepVars.find(",")+1);
-    }
-    inputVars.push_back(commaSepVars.substr(0,-1));
-
-    ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
-    for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
+    //Retrieve input variables of BDT from cond object
+    std::vector<std::string> inputVars = readCdo->retrieveInputVars(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_varStrName);
 
     std::string alias = readCdo->getChannelAlias(author);
     std::vector<float*>  inputPointers; inputPointers.clear();

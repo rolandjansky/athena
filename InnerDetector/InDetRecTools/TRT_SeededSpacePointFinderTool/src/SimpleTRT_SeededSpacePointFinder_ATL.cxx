@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,6 @@
 #include <iomanip>
 #include <set>
 #include "GaudiKernel/MsgStream.h"
-//#include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h" 

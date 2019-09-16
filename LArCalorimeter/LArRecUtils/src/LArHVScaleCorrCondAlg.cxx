@@ -4,7 +4,6 @@
 
 #include "LArHVScaleCorrCondAlg.h"
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 

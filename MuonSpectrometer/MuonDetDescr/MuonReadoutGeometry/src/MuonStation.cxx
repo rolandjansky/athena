@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -507,6 +507,7 @@ double MuonStation::RsizeMdtStation() const
   double Rsize = 0.;
 
   Amg::Vector3D  RposFirst;
+  RposFirst.setZero();
   Amg::Vector3D  Rpos;
   bool first = true;
   int nmdt=0;
@@ -547,6 +548,7 @@ double MuonStation::ZsizeMdtStation() const
   double Zsize = 0.;
 
   Amg::Vector3D  ZposFirst;
+  ZposFirst.setZero();
   Amg::Vector3D  Zpos;
   bool first = true;
   //std::cout<<" n. of comp.s "<<nMuonReadoutElements()<<std::endl;

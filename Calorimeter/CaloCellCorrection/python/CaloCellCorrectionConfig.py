@@ -1,16 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from CaloCellCorrection.CaloCellCorrectionConf import CaloCellPedestalCorr
 from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def CaloCellPedestalCorrCfg(configFlags):
+   from CaloCellCorrection.CaloCellCorrectionConf import CaloCellPedestalCorr
 
    result=DetDescrCnvSvcCfg(configFlags)
-
    isMC=configFlags.Input.isMC
-
    theCaloCellPedestalCorr=CaloCellPedestalCorr()
 
    if not isMC:
@@ -64,3 +62,22 @@ def CaloCellNeighborsAverageCorrCfg(flags):
 
     acc.setPrivateTools( caloCellNeighborsAverageCorrection )
     return acc
+
+
+def CaloCellTimeCorrCfg(configFlags):
+   from CaloCellCorrection.CaloCellCorrectionConf import CaloCellTimeCorrTool
+   result=ComponentAccumulator()
+   folder= "/LAR/TimeCorrectionOfl/CellTimeOffset"
+   result.merge(addFolders(configFlags,[folder,], "LAR_OFL", className="AthenaAttributeList"))
+   result.setPrivateTools(CaloCellTimeCorrTool(Folder=folder))
+   return result
+
+
+def CaloEnergyRescalerCfg(configFlags):
+   from CaloCellCorrection.CaloCellCorrectionConf import CaloCellEnergyRescaler
+   result=ComponentAccumulator()
+   folder="/LAR/CellCorrOfl/EnergyCorr"
+   result.merge(addFolders(configFlags,[folder,], "LAR_OFL", className="AthenaAttributeList"))
+   result.setPrivateTools(CaloCellEnergyRescaler(Folder=folder))
+   return result
+   

@@ -35,7 +35,8 @@ namespace Analysis
 
       virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
                                 const xAOD::Jet& jetToTag,
-                                xAOD::BTagging& BTag) const override;
+                                xAOD::BTagging& BTag,
+                                const std::string &jetName) const override;
 
       virtual void finalizeHistos() override;
       

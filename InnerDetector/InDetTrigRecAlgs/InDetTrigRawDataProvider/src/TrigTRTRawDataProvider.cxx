@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigTRTRawDataProvider.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "AthenaKernel/getMessageSvc.h"
@@ -28,8 +27,6 @@ namespace InDet {
     m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("TRTRawDataProviderTool/InDetTrigTRTRawDataProviderTool"),
-    m_storeGate       ("StoreGateSvc",name),
-    m_detStore        ("DetectorStore",name),
     m_IdMapping       ("TRT_CablingSvc",name),
     m_id(0),
     m_container(0)
@@ -69,27 +66,13 @@ namespace InDet {
     } else
       msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endmsg;
  
-    // Get an detector store
-    if (m_detStore.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_detStore << endmsg;
-      return StatusCode::FAILURE;
-    } else
-      msg(MSG::INFO) << "Retrieved service " << m_detStore << endmsg;
- 
-    StatusCode sc = m_detStore->retrieve(m_id,"TRT_ID"); 
+    StatusCode sc = detStore()->retrieve(m_id,"TRT_ID"); 
     if (sc.isFailure()) {
       msg(MSG::FATAL) << "Cannot retrieve TRT ID helper!"      
 	    << endmsg;
       return StatusCode::FAILURE;
     } 
 
-    // Get StoreGateSvc 
-    if (m_storeGate.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_storeGate << endmsg;
-      return StatusCode::FAILURE;
-    } else
-      msg(MSG::INFO) << "Retrieved service " << m_storeGate << endmsg;
-  
     // Retrieve id mapping 
     if (m_IdMapping.retrieve().isFailure()) {
       msg(MSG::FATAL) << "Failed to retrieve service " << m_IdMapping << endmsg;
@@ -107,19 +90,19 @@ namespace InDet {
 
     StatusCode sc = StatusCode::SUCCESS;
 
-    if(!m_storeGate->transientContains<TRT_RDO_Container>(m_RDO_Key)){
+    if(!evtStore()->transientContains<TRT_RDO_Container>(m_RDO_Key)){
 
       msg(MSG::DEBUG) << "Create TRT RDO Container on first event" << endmsg;
       // now create the container and register the collections
       // write into StoreGate
-      if (m_storeGate->record(m_container, m_RDO_Key).isFailure()) {
+      if (evtStore()->record(m_container, m_RDO_Key).isFailure()) {
 	msg(MSG::FATAL) << "Unable to record TRT RDO Container" << endmsg;
 	return StatusCode::FAILURE;
       } else {
 	msg(MSG::DEBUG) << "TRT RDO Container recorded into SG" << endmsg;
       }
     } else {
-      if (!m_storeGate->retrieve(m_container,m_RDO_Key)){
+      if (!evtStore()->retrieve(m_container,m_RDO_Key)){
 	msg(MSG::FATAL) << "Unable to retrieve existing TRT RDO Container" << endmsg;
 	return StatusCode::FAILURE;
       } else {

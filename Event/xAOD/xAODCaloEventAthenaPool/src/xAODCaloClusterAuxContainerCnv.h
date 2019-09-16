@@ -9,12 +9,14 @@
 #define XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 // EDM include(s):
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#ifndef XAOD_ANALYSIS
 #include "CaloInterface/IxAODClusterCompressor.h"
+#endif
 
 /// Base class for the converter
 typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterAuxContainer,
@@ -52,11 +54,11 @@ protected:
 
 private:
 #ifndef XAOD_ANALYSIS
-  /// AlgTool compressing the cluster for storage on disk
-  ToolHandle<IxAODClusterCompressor> m_compressor;
+  /// Service compressing the cluster for storage on disk
+  ServiceHandle<IxAODClusterCompressor> m_compressor;
 #endif
 
-  /// Flag set to false if the retrieval of the compression tool failed
+  /// Flag set to false if the retrieval of the compression service failed
   bool m_doCompression;
 
 }; // class xAODCaloClusterAuxContainerCnv

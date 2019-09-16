@@ -39,15 +39,14 @@ class ActsDetectorElement : public Acts::DetectorElementBase
 public:
   enum class Subdetector { Pixel, SCT, TRT };
 
-  ActsDetectorElement(const InDetDD::SiDetectorElement* detElem,
-                          const ActsTrackingGeometrySvc* trkSvc);
+  ActsDetectorElement(const InDetDD::SiDetectorElement* detElem);
 
   /// Constructor for a straw surface.
   /// @param transform Transform to the straw system
-  ActsDetectorElement(std::shared_ptr<const Acts::Transform3D> trf, 
+  ActsDetectorElement(std::shared_ptr<const Acts::Transform3D> trf,
                           const InDetDD::TRT_BaseElement* detElem,
-                          const Identifier& id, // we need explicit ID here b/c of straws
-                          const ActsTrackingGeometrySvc* trkSvc);
+                          const Identifier& id // we need explicit ID here b/c of straws
+                          );
 
   ///  Destructor
   virtual ~ActsDetectorElement() {}
@@ -71,6 +70,22 @@ public:
   /// Returns the thickness of the module
   virtual double
   thickness() const final override;
+
+  // optimize this, it doesn't ever change so can be saved on construction
+  Subdetector getSubdetector() const {
+    if(m_detElement.which() == 1) {
+      return Subdetector::TRT;
+    }
+
+    // this should be Pixel or SCT
+    const auto& de = *boost::get<const InDetDD::SiDetectorElement*>(m_detElement);
+    if(de.isPixel()) {
+      return Subdetector::Pixel;
+    }
+    else {
+      return Subdetector::SCT;
+    }
+  }
 
   IdentityHelper identityHelper() const;
 

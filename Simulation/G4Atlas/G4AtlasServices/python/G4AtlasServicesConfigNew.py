@@ -3,20 +3,20 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, HECPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg
 
 #the geometry tools
 from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
 #the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 
+
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
-
-    isUpgrade = ConfigFlags.GeoModel.Run =="RUN4" 
+    isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
 
     from G4AtlasApps.SimFlags import simFlags
@@ -75,26 +75,10 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     #<<migrate above
     return regionCreatorList
 
-#not called anywhere?
-def getCTB_RegionCreatorList(ConfigFlags):
-    regionCreatorList = []
-    from G4AtlasApps.SimFlags import simFlags
-    ## FIXME _initPR never called for SCT??
-    #if DetFlags.ID_on():
-    #    if DetFlags.geometry.SCT_on():
-    #        regionCreatorList += ['SCTSiliconPhysicsRegionTool']
-    if ConfigFlags.Detector.SimulateCalo:
-        eta=simFlags.Eta.get_Value()
-        if eta>=0 and eta<1.201:
-            if ConfigFlags.Detector.SimulateLAr:
-                regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags)]
-    if ConfigFlags.Detector.SimulateMuon:
-        regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
-    return regionCreatorList
 
 def getTB_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
-    from G4AtlasApps.SimFlags import simFlags
+    #from G4AtlasApps.SimFlags import simFlags
 
     #TODO - migrate below>>
     #if (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2003"):
@@ -115,6 +99,7 @@ def getTB_RegionCreatorList(ConfigFlags):
     #        regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
     #<<migrate above
     return regionCreatorList
+
 
 #########################################################################
 def ATLAS_FieldMgrListCfg(ConfigFlags):
@@ -218,18 +203,15 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
                                                        toolQ5HKickFwdFieldManager,
                                                        toolQ6VKickFwdFieldManager,
                                                        toolFwdRegionFieldManager]
-          
+
     result.setPrivateTools(fieldMgrList)
     return result
 
-#called?
-def getCTB_FieldMgrList(ConfigFlags):
-    fieldMgrList = []
-    return fieldMgrList
 
 def getTB_FieldMgrList(ConfigFlags):
     fieldMgrList = []
     return fieldMgrList
+
 
 def getGeometryConfigurationTools(ConfigFlags):
     geoConfigToolList = []
@@ -237,6 +219,7 @@ def getGeometryConfigurationTools(ConfigFlags):
     # package containing each tool, so G4AtlasTools in this case
     geoConfigToolList += [MaterialDescriptionToolCfg(ConfigFlags)]
     return geoConfigToolList
+
 
 def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     result = ComponentAccumulator()
@@ -267,10 +250,11 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         if True:
             acc = ATLAS_FieldMgrListCfg(ConfigFlags)
             fieldMgrList = result.popToolsAndMerge(acc)
-            kwargs.setdefault("FieldManagers", fieldMgrList) 
+            kwargs.setdefault("FieldManagers", fieldMgrList)
 
     result.addService(DetectorGeometrySvc(name, **kwargs))
     return result
+
 
 def G4AtlasSvcCfg(ConfigFlags, name="G4AtlasSvc", **kwargs):
     if ConfigFlags.Concurrency.NumThreads > 0:
@@ -280,6 +264,7 @@ def G4AtlasSvcCfg(ConfigFlags, name="G4AtlasSvc", **kwargs):
     kwargs.setdefault("isMT", is_hive)
     kwargs.setdefault("DetectorGeometrySvc", 'DetectorGeometrySvc')
     return G4AtlasSvc(name, **kwargs)
+
 
 def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs):
     kwargs.setdefault("ActivateLVNotifier", True)

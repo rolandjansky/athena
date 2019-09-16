@@ -11,7 +11,6 @@ TileUseCOOL=False; # do not use COOL DB
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.OFPhysicsNSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
 
 msg.info("Adjusting TileInfo to return cell noise for Fit Method")
@@ -30,14 +29,4 @@ if not 'Tile2004' in dir() or Tile2004: # 2004 configuration by default
 if 'Tile2003Noise' in dir() and Tile2003Noise: # special testbeam noise values
     from TileConditions.TileCondProxyConf import getTileCondProxy
     ToolSvc.TileCondToolNoiseSample.ProxyNoiseSample = getTileCondProxy('FILE','Flt','Tile2003.ped','TileCondProxyFile_NoiseSample')
-
-# load optimal filter weights if needed
-if ('doTileOpt' in dir()) and (doTileOpt):
-    tileInfoConfigurator.LoadOptFilterWeights=True
-    tileInfoConfigurator.filenameDeltaCISSuffix="of2_Delta_CIS_7Samples"
-    if TileFrameLength==9:
-        tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Phys_9Samples"
-    if TileFrameLength==7:
-        tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
-
 

@@ -7,12 +7,12 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "IdDictDetDescr/IdDictManager.h"
@@ -33,17 +33,15 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(const std::string& t,
                                             const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_pixMgrLocation("Pixel"),
-  m_pixMgr(0),
   m_trtMgrLocation("TRT"),
   m_trtMgr(0),
   m_setPrepRawDataLink(false),
   m_IDHelper(nullptr),
+  m_pixelHelper(nullptr),
   m_SCTHelper(nullptr),
   m_idDictMgr(nullptr)
 {
   declareInterface<ITrkEventCnvTool>(this);
-  declareProperty("PixelMgrLocation", m_pixMgrLocation);
   declareProperty("TRT_MgrLocation", m_trtMgrLocation);
   declareProperty("RecreatePRDLinks", m_setPrepRawDataLink);
   
@@ -54,17 +52,6 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure()) return sc;
   
-  // get Pixel Detector Description Manager
-  if (detStore()->contains<InDetDD::PixelDetectorManager>(m_pixMgrLocation)) {
-    sc = detStore()->retrieve(m_pixMgr, m_pixMgrLocation);
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Could not get PixelDetectorDescription");
-      return sc;
-    }
-  } else {
-    ATH_MSG_INFO("No Pixels? Could not get PixelDetectorDescription");
-  }
-        
   // check if SLHC geo is used (TRT not implemented) 
   // if not SLHC, get the TRT Det Descr manager
   sc = detStore()->retrieve(m_idDictMgr, "IdDict");
@@ -103,12 +90,14 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( detStore()->retrieve(m_pixelHelper, "PixelID") );
   ATH_CHECK( detStore()->retrieve(m_SCTHelper, "SCT_ID") );
 
   ATH_CHECK( m_pixClusContName.initialize() );
   ATH_CHECK( m_sctClusContName.initialize() );
   ATH_CHECK( m_trtDriftCircleContName.initialize() );
 
+  ATH_CHECK( m_pixelDetEleCollKey.initialize() );
   ATH_CHECK( m_SCTDetEleCollKey.initialize() );
 
   return sc;
@@ -141,7 +130,7 @@ InDet::InDetEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const
   if (m_IDHelper->is_pixel(id) ) {
     ATH_MSG_DEBUG ("Set Pixel detector element.");
     // use IdentifierHash for speed
-    detEl = m_pixMgr->getDetectorElement( rioOnTrack.idDE() ) ;
+    detEl = getPixelDetectorElement( rioOnTrack.idDE() ) ;
     if (m_setPrepRawDataLink) prd = pixelClusterLink( id, rioOnTrack.idDE() );
   } else if (m_IDHelper->is_sct(id)) {
     ATH_MSG_DEBUG("Set SCT detector element" );
@@ -197,7 +186,7 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const Identif
 
     ATH_MSG_DEBUG("Set Pixel detector element.");
     // use IdentifierHash for speed
-    detEl = m_pixMgr->getDetectorElement( idHash ) ;
+    detEl = getPixelDetectorElement( idHash ) ;
   } else if (m_IDHelper->is_sct(id)) {
 
     ATH_MSG_DEBUG("Set SCT detector element" );
@@ -226,7 +215,8 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id) const {
   
     ATH_MSG_DEBUG("Set Pixel detector element.");
     // use IdentifierHash for speed
-    detEl = m_pixMgr->getDetectorElement( id ) ;
+    const IdentifierHash wafer_hash = m_pixelHelper->wafer_hash(id);
+    detEl = getPixelDetectorElement( wafer_hash ) ;
   } else if (m_IDHelper->is_sct(id)) {
 
     ATH_MSG_DEBUG("Set SCT detector element" );
@@ -335,6 +325,12 @@ InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const Ident
   }
   ATH_MSG_DEBUG("No matching PRD found" );
   return 0;
+}
+
+const InDetDD::SiDetectorElement* InDet::InDetEventCnvTool::getPixelDetectorElement(const IdentifierHash& waferHash) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle{m_pixelDetEleCollKey};
+  if (not pixelDetEle.isValid()) return nullptr;
+  return pixelDetEle->getDetectorElement(waferHash);
 }
 
 const InDetDD::SiDetectorElement* InDet::InDetEventCnvTool::getSCTDetectorElement(const IdentifierHash& waferHash) const {

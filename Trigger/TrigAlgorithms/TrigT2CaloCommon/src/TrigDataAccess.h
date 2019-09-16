@@ -70,7 +70,6 @@ class IRegSelSvc;
 // class ITrigRegionSelector;
 class LArRoI_Map;
 class IROBDataProviderSvc;
-class StoreGateSvc;
 class T2CaloConfig;
 
 /** Class that provides access to data for

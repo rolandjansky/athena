@@ -12,7 +12,7 @@ if( NOT SIMULATIONBASE )
   # DO NOT ADD A DEPENDENCY ON PixelConditionsServices UNLESS YOU ALSO REMOVE
   # THE DEPENDENCY OF PixelConditionsServices ON THIS PACKAGE!!!!
   set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetDetDescr/PixelGeoModel InnerDetector/InDetConditions/InDetByteStreamErrors )
-set( extra_lib PixelGeoModelLib InDetByteStreamErrors )
+  set( extra_lib PixelGeoModelLib InDetByteStreamErrors )
 endif()
 
 # Declare the package's dependencies:

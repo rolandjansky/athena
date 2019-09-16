@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,8 +19,10 @@
 #include <list>
 #include <map>
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
@@ -98,7 +100,7 @@ namespace InDet{
       std::string                            m_fieldmode       ; // Mode of magnetic field
 
       std::string                            m_ntrtmanager     ; // Name of TRT det. manager 
-      std::string                            m_callbackString  ;
+      ServiceHandle<IGeoModelSvc>            m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
       ToolHandle<Trk::IPropagator>           m_propTool        ; // Propagator            tool
       ToolHandle<ITRT_TrackExtensionTool>    m_extensionTool   ; // TRT track extension   tool
       ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool        ; // Track-PRD association tool

@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSensitiveDetector.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -28,7 +27,7 @@ MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::s
 // Implemenation of memebr functions
 void MDTSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-  if (!m_MDTHitColl.isValid()) m_MDTHitColl = CxxUtils::make_unique<MDTSimHitCollection>();
+  if (!m_MDTHitColl.isValid()) m_MDTHitColl = std::make_unique<MDTSimHitCollection>();
   m_driftRadius = m_DEFAULT_TUBE_RADIUS;
 }
 

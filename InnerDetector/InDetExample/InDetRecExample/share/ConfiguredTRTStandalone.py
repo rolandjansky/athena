@@ -77,17 +77,18 @@ class ConfiguredTRTStandalone:
     #
     # set up TRT_SegmentToTrackTool
     #
+    from AthenaCommon import CfgGetter
     from TRT_SegmentToTrackTool.TRT_SegmentToTrackToolConf import InDet__TRT_SegmentToTrackTool
     InDetTRT_SegmentToTrackTool = InDet__TRT_SegmentToTrackTool(name = 'InDetTRT_SegmentToTrackTool'+extension,
-                                                                    RefitterTool          = InDetTrackFitterTRT,
-                                                                    UseAssociationTool    = usePrdAssociationTool,
-                                                                    AssociationTool       = InDetPrdAssociationTool,
-                                                                    ScoringTool           = InDetTRT_StandaloneScoringTool,
-                                                                    Extrapolator          = InDetExtrapolator,
-                                                                    FinalRefit            = True,
-                                                                    MaxSharedHitsFraction = NewTrackingCuts.maxTRTonlyShared(),
-                                                                    SuppressHoleSearch    = True
-                                                                    )
+                                                                RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
+                                                                UseAssociationTool    = usePrdAssociationTool,
+                                                                AssociationTool       = InDetPrdAssociationTool,
+                                                                ScoringTool           = InDetTRT_StandaloneScoringTool,
+                                                                Extrapolator          = InDetExtrapolator,
+                                                                FinalRefit            = True,
+                                                                MaxSharedHitsFraction = NewTrackingCuts.maxTRTonlyShared(),
+                                                                SuppressHoleSearch    = True)
+
     ToolSvc += InDetTRT_SegmentToTrackTool
     if (InDetFlags.doPrintConfigurables()):
       print InDetTRT_SegmentToTrackTool
@@ -121,12 +122,12 @@ class ConfiguredTRTStandalone:
       #
       # --- cosmics segment to track conversion for Barrel
       #
-
+      from AthenaCommon import CfgGetter
       from TRT_SegmentsToTrack.TRT_SegmentsToTrackConf import InDet__TRT_SegmentsToTrack
       InDetTrkSegmenttoTrk = InDet__TRT_SegmentsToTrack(name                      = "InDetTRT_SegmentsToTrack_Barrel"+extension,
                                                         InputSegmentsCollection   = BarrelSegments,
                                                         OutputTrackCollection     = self.__TRTStandaloneTracks,
-                                                        TrackFitter               = InDetTrackFitter,
+                                                        TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         MinNHit                   = NewTrackingCuts.minTRTonly(),
                                                         CombineTracks             = False,
                                                         OutputCombiCollection     = "",

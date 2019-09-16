@@ -16,7 +16,6 @@
 #include <algorithm>
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/phihelper.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -232,17 +231,11 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
   }
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    msg() << MSG::ERROR << "DetStore service not found" << endmsg;
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
     msg() << MSG::ERROR << "Could not get Pixel ID helper" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
     msg() << MSG::ERROR << "Could not get SCT ID helper" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }

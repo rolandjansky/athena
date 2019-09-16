@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/InDetCondTools
-                          InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRawEvent/InDetSimData

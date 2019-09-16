@@ -24,9 +24,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
-#include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
 #include "EventPrimitives/EventPrimitives.h"
 
 #include "StoreGate/ReadCondHandle.h"
@@ -53,8 +50,6 @@ GetDetectorLocalFrames::GetDetectorLocalFrames(std::string const&  name, ISvcLoc
   m_trt_straw(0),
 
   /** ID Tools */
-  m_PixelHelper(0),
-  m_pixelDetectorManager(0),
   m_TRTHelper(0),
   m_TRTDetectorManager(0)
 
@@ -82,16 +77,7 @@ StatusCode GetDetectorLocalFrames::initialize(){
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   /** Retrive Pixel info */
-  if (detStore()->retrieve(m_PixelHelper, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
-    return StatusCode::FAILURE;
-    }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the Pixel ID" << endmsg;
-  
-  if ((detStore()->retrieve(m_pixelDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving PixelDetectorManager" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   
   /** Output text File */
   m_outputFile.open((m_outputFileName).c_str());
@@ -141,15 +127,16 @@ StatusCode GetDetectorLocalFrames::finalize() {
 void GetDetectorLocalFrames::writePixelFames(){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writePixelFames()" << endmsg;
 
-  //Loop over pixel elements
-  std::vector<Identifier>::const_iterator pixIt = m_PixelHelper->wafer_begin();
-  std::vector<Identifier>::const_iterator pixItE = m_PixelHelper-> wafer_end();
-  for(; pixIt != pixItE; pixIt++  ) {
-    
-    //InDetDD::SiDetectorElement* si_hit = m_pixelDetectorManager->getDetectorElement( *pixIt );
-    // Get local Frame
-  
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements{*pixelDetEleHandle};
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_ERROR(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return;
   }
+  //Loop over pixel elements
+  //  for (const InDetDD::SiDetectorElement* element: *elements) {
+    // Get local Frame
+  //  }
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writePixelFames()" << endmsg;
   return;

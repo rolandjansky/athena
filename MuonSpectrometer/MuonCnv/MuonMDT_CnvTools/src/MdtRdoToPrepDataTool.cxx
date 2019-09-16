@@ -8,8 +8,6 @@
 
 #include "MdtRdoToPrepDataTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonStation.h"

@@ -62,7 +62,8 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
    std::lock_guard<CallMutex> lock(m_conv_mut);
    m_i_poolToken = tokAddr->getToken();
    try {
-      if (!PoolToDataObject(pObj, tokAddr->getToken()).isSuccess()) {
+      std::string key = pAddr->par()[1];
+      if (!PoolToDataObject(pObj, tokAddr->getToken(), key).isSuccess()) {
          ATH_MSG_ERROR("createObj PoolToDataObject() failed, Token = " << (tokAddr->getToken() ? tokAddr->getToken()->toString() : "NULL"));
          pObj = nullptr;
       }

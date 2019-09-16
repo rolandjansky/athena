@@ -139,7 +139,7 @@ namespace Trk{
 //
   Track* TrkVKalVrtFitter::CreateTrkTrack( const std::vector<double>& VKPerigee,
                                            const std::vector<double>& VKCov,
-                                           IVKalState& istate)
+                                           const IVKalState& istate) const
   {
     const State& state = dynamic_cast<const State&> (istate);
     const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov, state);
@@ -166,7 +166,7 @@ namespace Trk{
   Perigee * TrkVKalVrtFitter::CreatePerigee(double vX, double vY, double vZ,
      			  	            const std::vector<double>& VKPerigee,
                                             const std::vector<double>& VKCov,
-                                            const State& state)
+                                            const State& state) const
   {
 //
 // ------  Magnetic field access

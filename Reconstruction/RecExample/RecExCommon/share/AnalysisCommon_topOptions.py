@@ -10,24 +10,6 @@ import traceback
 from AthenaCommon.Logging import logging
 logAnaCommon_topOptions = logging.getLogger( 'AnalysisCommon_topOptions' )
 
-## try to load a catalogue of AthFiles from a cache (to speed-up tests)
-try:
-    import PyUtils.AthFile as af
-    # this is the cache for the most current test files (saving 15 second initialisation, worth it for atn test)
-    # it should be updated as follow. In a clean directory run RecExCommon_links.sh, then
-    # run dump-athfile.py LFN:top_GEO-10-00-00_RDO_extract.pool (or whatever file now used in PoolFileCatalog.xml)
-    # run dump-athfile.py on input file for GetCommand.py AMI=q121
-    # run dump-athfile.py for any other frequently used test file
-    # then cp athfile-cache.ascii.gz RecExCommon/data/recexcommon-afserver-cache.ascii.gz
-    af.server.load_cache('recexcommon-afserver-cache.ascii.gz')
-    # reenable caching (this was preventing cache for non standard test file e.g. user file to be saved)
-    # af.server.disable_pers_cache()
-    pass
-except Exception:
-    logAnaCommon_topOptions.warning("Could not load or disable athfile cache")
-    pass
-
-
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ToolSvc,theApp,ServiceMgr
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -359,7 +341,7 @@ if rec.doFileMetaData():
     #EventBookkeepers
     if not hasattr(svcMgr,"CutFlowSvc"):
         from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-        CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=False )
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=False )
         #from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
         #svcMgr+=CutFlowSvc()
         pass

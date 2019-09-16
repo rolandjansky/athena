@@ -72,11 +72,11 @@ class TileRawChannelGetter ( Configured)  :
             tileDigitsContainer=""
             tileRawChannelContainer=""
 
-        from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-        TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
-                                TileDigitsContainer = tileDigitsContainer,
-                                TileBeamElemContainer = tileBeamElemContainer)
-                                
+        if not globalflags.isOverlay():
+            from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+            TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
+                                    TileDigitsContainer = tileDigitsContainer,
+                                    TileBeamElemContainer = tileBeamElemContainer)
 
         # set time window for amplitude correction if it was not set correctly before
         if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
@@ -355,35 +355,6 @@ class TileRawChannelGetter ( Configured)  :
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderMF]
 
-            if jobproperties.TileRecFlags.doTileOpt():
-                try:
-                    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOptFilter
-                    theTileRawChannelBuilderOptFilter= TileRawChannelBuilderOptFilter()
-                except Exception:
-                    mlog.error("could not get handle to TileRawChannelBuilderOptFilter Quit")
-                    traceback.print_exc()
-                    return False
-                
-                #TileRawChannelBuilderOptFilter Options:
-                jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelOpt"
-                theTileRawChannelBuilderOptFilter.TileRawChannelContainer = "TileRawChannelOpt"
-                theTileRawChannelBuilderOptFilter.RunType = jobproperties.TileRecFlags.TileRunType()
-                theTileRawChannelBuilderOptFilter.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
-                theTileRawChannelBuilderOptFilter.correctTime     = jobproperties.TileRecFlags.correctTime()
-                theTileRawChannelBuilderOptFilter.OF2 = True
-                theTileRawChannelBuilderOptFilter.PedestalMode = 1
-                theTileRawChannelBuilderOptFilter.MaxIterations = 5
-                theTileRawChannelBuilderOptFilter.Minus1Iteration = True
-                theTileRawChannelBuilderOptFilter.AmplitudeCorrection = False # don't need correction after iterations
-                theTileRawChannelBuilderOptFilter.TimeCorrection = False # don't need correction after iterations
-                theTileRawChannelBuilderOptFilter.DSPContainer = TileRawChannelContainerDSP
-                
-                ServiceMgr.TileInfoLoader.LoadOptFilterWeights=True
-                
-                mlog.info(" adding now TileRawChannelBuilderOptFilter to the algorithm: %s", theTileRawChannelMaker.name())
-      
-                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptFilter]
-      
             if jobproperties.TileRecFlags.doTileOF1():
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
@@ -572,7 +543,6 @@ class TileRawChannelGetter ( Configured)  :
             jobproperties.TileRecFlags.doTileFlat = False
             jobproperties.TileRecFlags.doTileFit = False
             jobproperties.TileRecFlags.doTileFitCool = False
-            jobproperties.TileRecFlags.doTileOpt = False
             jobproperties.TileRecFlags.doTileOpt2 = False
             jobproperties.TileRecFlags.doTileOptATLAS = False
             jobproperties.TileRecFlags.doTileManyAmps = False

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinDataContainerCnv_p3.h"
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp3.h"
 #include "TestTools/leakcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -101,10 +100,10 @@ void testit (const Muon::TgcCoinDataContainer& trans1)
 std::unique_ptr<const Muon::TgcCoinDataContainer>
 makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
 {
-  auto cont = CxxUtils::make_unique<Muon::TgcCoinDataContainer>(5);
+  auto cont = std::make_unique<Muon::TgcCoinDataContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<Muon::TgcCoinDataCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<Muon::TgcCoinDataCollection>(IdentifierHash(hash));
     coll->setIdentifier (muo_dd.tgcIdHelper()->elementID (43, 1, hash));
 
     for (int i=0; i < 10; i++) {
@@ -121,7 +120,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
       Amg::MatrixX cov(1,1);
       cov(0,0) = 101;
 
-      auto cl = CxxUtils::make_unique<Muon::TgcCoinData>
+      auto cl = std::make_unique<Muon::TgcCoinData>
         (clusId1,
          clusId2,
          clusHash,

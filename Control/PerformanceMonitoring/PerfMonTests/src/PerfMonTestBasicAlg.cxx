@@ -16,8 +16,6 @@
 #include "GaudiKernel/Property.h"
 #include "PerfMonKernel/IPerfMonSvc.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
 // PerfMonTests includes

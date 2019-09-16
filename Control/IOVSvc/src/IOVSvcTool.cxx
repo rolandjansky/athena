@@ -18,7 +18,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Guards.h"

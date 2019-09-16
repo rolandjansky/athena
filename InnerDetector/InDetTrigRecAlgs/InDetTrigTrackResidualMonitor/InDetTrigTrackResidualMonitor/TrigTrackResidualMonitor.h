@@ -34,7 +34,6 @@ class PixelID;
 class SCT_ID;
 
 class SvcLocator;
-class StoreGateSvc;
 class SCT_NeighboursTable;
 
 class IInDetAlignHitQualSelTool; 

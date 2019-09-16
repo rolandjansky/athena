@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Include import Include, IncludeError, include
 from IOVDbSvc.CondDB import conddb
@@ -21,7 +21,7 @@ def LArADC2MeVCondAlgDefault():
     if hasattr (condSeq,"LArADC2MeVCondAlg"):
         return getattr(condSeq,"LArADC2MeVCondAlg")
 
-    theADC2MeVCondAlg=LArADC2MeVCondAlg()
+    theADC2MeVCondAlg=LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeV')
  
     if conddb.isMC:
         from LArConditionsCommon.LArCondFlags import larCondFlags 

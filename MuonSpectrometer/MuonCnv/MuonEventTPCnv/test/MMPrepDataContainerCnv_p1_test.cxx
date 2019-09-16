@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataContainerCnv_p1.h"
 #include "TestTools/leakcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -90,10 +89,10 @@ void testit (const Muon::MMPrepDataContainer& trans1)
 std::unique_ptr<const Muon::MMPrepDataContainer>
 makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
 {
-  auto cont = CxxUtils::make_unique<Muon::MMPrepDataContainer>(5);
+  auto cont = std::make_unique<Muon::MMPrepDataContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<Muon::MMPrepDataCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<Muon::MMPrepDataCollection>(IdentifierHash(hash));
 
     coll->setIdentifier (muo_dd.mmIdHelper()->elementID (55, 1, hash));
 
@@ -109,7 +108,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
       Amg::MatrixX cov(1,1);
       cov(0,0) = 101 + offs;
 
-      auto cl = CxxUtils::make_unique<Muon::MMPrepData>
+      auto cl = std::make_unique<Muon::MMPrepData>
         (clusId,
          clusHash,
          locpos,

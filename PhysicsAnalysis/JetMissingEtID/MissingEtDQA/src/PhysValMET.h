@@ -120,6 +120,7 @@ class PhysValMET
   TH1D *m_MET_Track, *m_MET_Track_x, *m_MET_Track_y, *m_MET_Track_phi, *m_MET_Track_sum;
   TH1D *m_MET_PVTrack_Nominal, *m_MET_PVTrack_Nominal_x, *m_MET_PVTrack_Nominal_y, *m_MET_PVTrack_Nominal_phi, *m_MET_PVTrack_Nominal_sum;
   TH1D *m_MET_PVTrack_Pileup, *m_MET_PVTrack_Pileup_x, *m_MET_PVTrack_Pileup_y, *m_MET_PVTrack_Pileup_phi, *m_MET_PVTrack_Pileup_sum;
+  TH1D *m_MET_Calo, *m_MET_Calo_x, *m_MET_Calo_y, *m_MET_Calo_phi, *m_MET_Calo_sum;
 
   //Maps
   std::map<std::string,std::vector<TH1D*> > m_MET_Ref;

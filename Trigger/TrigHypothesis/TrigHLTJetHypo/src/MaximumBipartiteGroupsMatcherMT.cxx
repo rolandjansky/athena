@@ -30,7 +30,7 @@ MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(ConditionsMT&& 
     m_totalCapacity += cond->capacity();
   }
   m_flowNetworkBuilder =
-    std::move(std::make_unique<MultijetFlowNetworkBuilder>(std::move(cs)));
+    std::make_unique<MultijetFlowNetworkBuilder>(std::move(cs));
 }
 
 std::optional<bool>

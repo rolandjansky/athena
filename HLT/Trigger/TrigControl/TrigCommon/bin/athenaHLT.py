@@ -115,7 +115,8 @@ def update_run_params(args):
       args.run_number = EventStorage.pickDataReader(args.file[0]).runNumber()
 
    if args.sor_time is None:
-      args.sort_time = arg_sor_time(str(AthHLT.get_sor_params(args.run_number)['SORTime']))
+      args.sor_time = arg_sor_time(str(AthHLT.get_sor_params(args.run_number)['SORTime']))
+      log.debug('SOR parameters: %s', AthHLT.get_sor_params(args.run_number))
 
    if args.detector_mask is None:
       dmask = AthHLT.get_sor_params(args.run_number)['DetectorMask']
@@ -211,7 +212,7 @@ def HLTMPPy_cfgdict(args):
    if not args.use_database:      # job options
       cdict['trigger'].update({
          'module': 'joboptions',
-         'pythonSetupFile' : args.python_setup,
+         'pythonSetupFile' : 'TrigPSC/TrigPSCPythonSetup.py',
          'joFile': args.jobOptions,
          'SMK': None,
          'l1PSK': None,
@@ -224,11 +225,11 @@ def HLTMPPy_cfgdict(args):
    else:
       cdict['trigger'].update({
          'module': 'DBPython',
-         'pythonSetupFile' : args.python_setup,
+         'pythonSetupFile' : 'TrigPSC/TrigPSCPythonDbSetup.py',
          'db_alias': args.db_server,
          'SMK': args.smk,
-         'l1PSK': args.l1pks,
-         'HLTPSK': args.hltpks,
+         'l1PSK': args.l1psk,
+         'HLTPSK': args.hltpsk,
          'l1BG': 0,
          'l1MenuConfig': 'DB',
          'precommand' : args.precommand,
@@ -310,6 +311,7 @@ def main():
    g.add_argument('--smk', type=int, default=0, help='Super Master Key')
    g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
    g.add_argument('--hltpsk', type=int, default=0, help='HLT prescale key')
+   g.add_argument('--dump-config', action='store_true', help='Dump joboptions JSON file')
 
    ## Online histogramming
    g = parser.add_argument_group('Online Histogramming')
@@ -335,7 +337,6 @@ def main():
    parser.expert_groups.append(g)
    g.add_argument('--joboptionsvc-type', metavar='TYPE', default='JobOptionsSvc', help='JobOptionsSvc type')
    g.add_argument('--msgsvc-type', metavar='TYPE', default='TrigMessageSvc', help='MessageSvc type')
-   g.add_argument('--python-setup', default='TrigPSC/TrigPSCPythonSetup.py', help='Python bootstrap/setup file')
    g.add_argument('--partition', '-p', metavar='NAME', default='athenaHLT', help='partition name')
    g.add_argument('--no-ers-signal-handlers', action='store_true', help='disable ERS signal handlers')
    g.add_argument('--preloadlib', metavar='LIB', help='preload an arbitrary library')
@@ -377,9 +378,10 @@ def main():
    # Modify pre/postcommands if necessary
    update_pcommands(args, cdict)
 
-   # Tell the PSC if we are in interactive mode (relevant for state machine)
-   import TrigPSC.PscConfig
-   TrigPSC.PscConfig.interactive = args.interactive
+   # Extra Psc configuration
+   from TrigPSC import PscConfig
+   PscConfig.interactive = args.interactive          # interactive mode
+   PscConfig.dumpJobProperties = args.dump_config    # dump job options
 
    # Select the correct THistSvc
    from TrigServices.TriggerUnixStandardSetup import _Conf

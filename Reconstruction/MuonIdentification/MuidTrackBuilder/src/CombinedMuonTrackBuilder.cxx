@@ -62,6 +62,8 @@
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AthenaKernel/Units.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "EventPrimitives/EventPrimitivesToStringConverter.h"
 
 namespace Units = Athena::Units;
 
@@ -5088,6 +5090,15 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
 //    } else {
 //        ATH_MSG_DEBUG( txt << " checkTrack track OK position " << (*it)->position() << " direction " << (*it)->momentum().unit());
 //    }
+
+    for(const auto& par : *pars){
+      if(!par->covariance()) continue;
+      if((*par->covariance())(0,0)<0 || (*par->covariance())(1,1)<0 || (*par->covariance())(2,2)<0 || (*par->covariance())(3,3)<0 || (*par->covariance())(4,4)<0){
+	ATH_MSG_DEBUG(Amg::toString(*par->covariance()));
+	ATH_MSG_DEBUG("covariance matrix has negative diagonal element, killing track");
+	return false;
+      }
+    }
 
     return newTrackOK;
   }

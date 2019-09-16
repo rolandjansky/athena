@@ -70,7 +70,7 @@ namespace Trk {
     /* set the list of Vertices */
     void setVertices(const std::vector<xAOD::Vertex*> &);
 
-    /* non MT safe seeter with getter on its name ...*/
+    /* non MT safe setter with get in its name ...*/
     void getSVOwnership ATLAS_NOT_THREAD_SAFE(bool Ownership) const { 
       const_cast<bool&> (m_SVOwnership)=Ownership;/*Marked ATLAS_NOT_THREAD_SAFE*/ 
     }

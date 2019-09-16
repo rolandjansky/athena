@@ -11,7 +11,7 @@
 
 CBNT_TBRecBase::CBNT_TBRecBase(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL), m_log(NULL), 
-  m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL)
+  m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL)
 {
 }
 
@@ -24,12 +24,6 @@ StatusCode CBNT_TBRecBase::initialize() {
   
   *m_log << MSG::DEBUG << "Initializing CBNT_TBRecBase base class" << endmsg;
   
-  StatusCode sc=service("DetectorStore",m_detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
-    return sc;
-  }
-
   const CaloCell_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
   m_emId=idHelper->em_idHelper();
@@ -50,7 +44,7 @@ StatusCode CBNT_TBRecBase::initialize() {
     return StatusCode::FAILURE;
   }
 
-  sc = m_detStore->retrieve(m_onlineId, "LArOnlineID");
+  StatusCode sc = detStore()->retrieve(m_onlineId, "LArOnlineID");
   if (sc.isFailure()) {
     (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;

@@ -1,18 +1,17 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from BTagging.BTaggingFlags import BTaggingFlags
 
 # import the MultiSVTag configurable
 
 from JetTagTools.JetTagToolsConf import Analysis__MultiSVTag
 
-def MultiSVTagCfg( name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', useBTagFlagsDefaults = True, **options):
+def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', useBTagFlagsDefaults = True, **options):
     """Sets up a MultiSVTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     taggerNameBase                      default: "MultiSVbb1"
     SecVxFinderName                     default: "MSV"
 
@@ -24,7 +23,7 @@ def MultiSVTagCfg( name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', useBTa
     options['name'] = name
     options['xAODBaseName'] = 'MSV'
     if useBTagFlagsDefaults:
-        defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'taggerNameBase'                   : taggerNameBase,
                      'SecVxFinderName'                  : 'MSV' }
         for option in defaults:

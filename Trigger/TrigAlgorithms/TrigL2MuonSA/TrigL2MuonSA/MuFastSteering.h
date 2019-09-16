@@ -152,8 +152,6 @@ class MuFastSteering : public HLT::FexAlgo,
  protected:
   
   // Services
-  /** A service handle to StoreGate */
-  ServiceHandle<StoreGateSvc> m_storeGate;
   
   /** Timers */
   ServiceHandle<ITrigTimerSvc> m_timerSvc;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -39,8 +39,6 @@ namespace MuonCalib {
 
   CscCalcPed::CscCalcPed(const string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_storeGate(NULL),
-    m_detStore(NULL),
     m_cscId(NULL),
     m_muon_mgr(NULL),
     m_chronoSvc(0),
@@ -116,23 +114,11 @@ namespace MuonCalib {
 
     //*******Register services and tools *********/ 	
     /// Store Gate active store
-    StatusCode sc = serviceLocator()->service("StoreGateSvc", m_storeGate);
-    if (sc != StatusCode::SUCCESS )
+    StatusCode sc = detStore()->retrieve(m_cscId,"CSCIDHELPER");
+    if( sc.isFailure())
     {
-      mLog << MSG::ERROR << " Cannot get StoreGateSvc " << endmsg;
-      return sc ;
-    }
-
-    sc = serviceLocator()->service("DetectorStore", m_detStore);
-
-    if(sc.isSuccess()) 
-    {
-      sc = m_detStore->retrieve(m_cscId,"CSCIDHELPER");
-      if( sc.isFailure())
-      {
-        mLog << MSG::ERROR << " Cannot retrieve CscIdHelper " << endmsg;
-        return sc;
-      }
+      mLog << MSG::ERROR << " Cannot retrieve CscIdHelper " << endmsg;
+      return sc;
     }	
     else
     {
@@ -449,7 +435,7 @@ namespace MuonCalib {
     if(m_debug) mLog << MSG::DEBUG <<"Collecting event info for event " << m_eventCnt << endmsg;
     //Below might need to be changed depending on how we get data
     const CscRawDataContainer* rawDataContainter;
-    StatusCode sc_read = m_storeGate->retrieve(rawDataContainter, "CSCRDO"); 
+    StatusCode sc_read = evtStore()->retrieve(rawDataContainter, "CSCRDO"); 
     if (sc_read != StatusCode::SUCCESS)
     {
       mLog << MSG::FATAL << "Could not find event" << endmsg;
@@ -966,7 +952,7 @@ namespace MuonCalib {
       CscCalibReportContainer * repCont = new CscCalibReportContainer(histKey);
       repCont->push_back(report);  
 
-      sc = m_storeGate->record(repCont, histKey);
+      sc = evtStore()->record(repCont, histKey);
       if(!sc.isSuccess())
       {
         mLog << MSG::ERROR << "Failed to record CscCalibReportPed to storegate" << endmsg;
@@ -989,7 +975,7 @@ namespace MuonCalib {
       if(m_doOnlineDbFile)
         calibResults->push_back(m_onlineTHoldBreaches);
 
-      sc = m_storeGate->record(calibResults,key);
+      sc = evtStore()->record(calibResults,key);
       if(!sc.isSuccess())
       {
         mLog << MSG::ERROR << "Failed to record data to storegate" << endmsg;

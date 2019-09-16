@@ -17,8 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "PixelGeoModel/IIBLParameterSvc.h"
@@ -67,7 +65,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
   m_pixDistoTool("PixelDistortionsTool", this),
-  m_detStore(nullptr),
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
@@ -75,7 +72,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_NNIBLcorrection(false),
   m_IBLAbsent(true),
   m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
-  m_storeGate("StoreGateSvc", n),
   m_IBLParameterSvc("IBLParameterSvc", n),
   m_dRMap(""),
   m_dRMapName("dRMap"),
@@ -91,7 +87,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("Release13like", m_rel13like, "Activate release-13 like settigs");
   declareProperty("applydRcorrection", m_applydRcorrection);
   declareProperty("NNIBLcorrection", m_NNIBLcorrection);
-  declareProperty("EventStore", m_storeGate);
   declareProperty("NnClusterizationFactory", m_NnClusterizationFactory);
   declareProperty("SplitClusterAmbiguityMap", m_splitClusterMapKey);//Remove Later
   declareProperty("dRMapName", m_dRMapName);  //This is a string to prevent the scheduler seeing trkAmbSolver as both creating and requiring the map
@@ -151,10 +146,6 @@ InDet::PixelClusterOnTrackTool::initialize() {
 
   ATH_CHECK (detStore()->retrieve(m_pixelid, "PixelID"));
 
-  ATH_CHECK( service("DetectorStore", m_detStore));
-  
-  ATH_CHECK (m_storeGate.retrieve());
-   
   m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
   ATH_CHECK( m_dRMap.initialize() );
 
@@ -195,7 +186,7 @@ void
 InDet::PixelClusterOnTrackTool::FillFromDataBase() const{
     if (m_fX.empty()) {
       const CondAttrListCollection *atrlistcol = nullptr;
-      if (StatusCode::SUCCESS == m_detStore->retrieve(atrlistcol, "/PIXEL/PixelClustering/PixelCovCorr")) {
+      if (StatusCode::SUCCESS == detStore()->retrieve(atrlistcol, "/PIXEL/PixelClustering/PixelCovCorr")) {
         // loop over objects in collection
         for (CondAttrListCollection::const_iterator citr = atrlistcol->begin(); citr != atrlistcol->end(); ++citr) {
           std::vector<float> fx, fy, fb, fc, fd;

@@ -18,26 +18,42 @@ if (nThreads < 1) :
     msg.fatal('numThreads must be >0. Did you set the --threads=N option?')
     sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput = [
+    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/esd/100evts10lumiblocks.ESD.root"
+]
+
+import AthenaPoolCnvSvc.ReadAthenaPool
+
+# build GeoModel
+import AthenaPython.ConfigLib as apcl
+cfg = apcl.AutoCfg(name = 'TrackingGeometryTest', input_files=athenaCommonFlags.FilesInput())
+
+cfg.configure_job()
+
+from AthenaCommon.GlobalFlags import globalflags
+if len(globalflags.ConditionsTag())!=0:
+  from IOVDbSvc.CondDB import conddb
+  conddb.setGlobalTag(globalflags.ConditionsTag())
+
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+InDetGeometryFlags.useDynamicAlignFolders=True
+
 # Just the pixel and SCT
 DetFlags.ID_setOn()
-DetFlags.detdescr.pixel_setOn()
-DetFlags.detdescr.SCT_setOn()
 
-# MC or data - affects which conditions database instance is used
-globalflags.DataSource='geant4'
-
-# Select the geometry version. 
-globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
 
 # Initialize geometry
 # THIS ACTUALLY DOES STUFF!!
 from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
 
-# For misalignments
-from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
-conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.EnableConditions( True )
+AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
 
 ## SET UP ALIGNMENT CONDITIONS ALGORITHM
 from IOVSvc.IOVSvcConf import CondSvc
@@ -47,9 +63,11 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
 # nominal alignment: all deltas are identity
-condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
-                                                     OutputLevel=VERBOSE)
+# condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
+                                                     # OutputLevel=VERBOSE)
 
+condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
+                                                 OutputLevel=VERBOSE)
 # periodic shift alignment. Configurable z-shift per lumiblock.
 # (currently pixel only)
 # condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
@@ -69,28 +87,11 @@ trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.OutputLevel = INFO
 ServiceMgr += trkGeomSvc
 
-
 # We need the Magnetic fiels
 import MagFieldServices.SetupField
 
-# setup the McEventSelector
-# This enables pseudo LBs. Required for the conditions algorithms,
-# and thus the whole extrapolation alg to work
-import AthenaCommon.AtlasUnixGeneratorJob
-svcMgr.EventSelector.FirstEvent=0
-svcMgr.EventSelector.RunNumber=1
-svcMgr.EventSelector.InitialTimeStamp=0
-svcMgr.EventSelector.TimeStampInterval=1
-svcMgr.EventSelector.FirstLB=1
-svcMgr.EventSelector.EventsPerLB = 100
-
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.PoolEvgenInput.set_Off()
-athenaCommonFlags.EvtMax = 1
-
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
-
 
 # This is the main extrapolation demo algorithm
 from ActsGeometry.ActsGeometryConf import ActsExtrapolationAlg

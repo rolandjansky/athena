@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -84,8 +84,6 @@ namespace InDet {
       bool                               m_resetPRD{}           ;  /** Reset PRD association tool during the sub-detector pattern */
 
       int                                m_matEffects{}         ;  //!< Particle hypothesis for track fitting
-
-      //StoreGateSvc*                         m_store_gate    ;  //!< Pointer to store gate 
 
       ToolHandle< ITRT_SegmentToTrackTool > m_segToTrackTool; //!< Segment to track tool
       

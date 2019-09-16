@@ -8,8 +8,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
@@ -25,8 +23,7 @@
 MdtCalibrationDbTool::MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent)
   : base_class(type, name, parent),
     m_regionSvc("MdtCalibrationRegionSvc", name),
-    m_mdtIdHelper(0),
-    m_detStore("StoreGateSvc/DetectorStore", name)
+    m_mdtIdHelper(0)
 {
   declareProperty("AccessTubeConstants", m_getTubeConstants = true,
 		  "configure the Tool to retrieve the constants per tube (t0)");
@@ -49,13 +46,8 @@ StatusCode MdtCalibrationDbTool::initialize() {
     return StatusCode::FAILURE;
   }
   
-  if ( m_detStore.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Can't locate the DetectorStore" ); 
-    return StatusCode::FAILURE;
-  }
-
   // initialize the MdtIdHelper
-  if (m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" ).isFailure()) {
+  if (detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ).isFailure()) {
     ATH_MSG_ERROR( "Can't retrieve MdtIdHelper" );
     return StatusCode::FAILURE;
   }

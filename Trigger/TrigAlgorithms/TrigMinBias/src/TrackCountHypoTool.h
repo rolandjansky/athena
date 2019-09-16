@@ -31,7 +31,7 @@ public:
   private:
 
     HLT::Identifier m_decisionId;
-    Gaudi::Property<float> m_min_pt{this, "min_pt",100, "Accept events with momentum higher than this limit in MeV"};
+    Gaudi::Property<float> m_min_pt{this, "min_pt",0.1, "Accept events with momentum higher than this limit in MeV"};
     Gaudi::Property<float> m_max_z0{this, "max_z0",100, "Accept events with absolute value of vertex lower than this limit in mm"};
     Gaudi::Property<float> m_required_ntrks{this, "required_ntrks", 1, "Accept events with minimum of this number of tracks"};
     Gaudi::Property<float> m_max_required_ntrks{this, "max_required_ntrks", -1, "Accept events with maximum of this number of tracks"};

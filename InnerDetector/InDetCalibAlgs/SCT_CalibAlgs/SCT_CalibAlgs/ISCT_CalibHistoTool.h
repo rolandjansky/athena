@@ -14,7 +14,6 @@
 //Gaudi includes
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include <string>

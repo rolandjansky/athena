@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,6 @@ PACKAGE:  offline/LArCalorimeter/LArClusterRec
 #ifndef LARTBCLUSTERBUILDER_H
 #define LARTBCLUSTERBUILDER_H
 
-#include "StoreGate/StoreGateSvc.h"
 #include "LArRecEvent/LArCell.h"
 #include "CaloEvent/CaloCell.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

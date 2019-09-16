@@ -17,7 +17,7 @@
 
 
 #include "LArCollisionTimeMonAlg.h"
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
@@ -30,9 +30,6 @@ using namespace std;
 /*---------------------------------------------------------*/
 LArCollisionTimeMonAlg::LArCollisionTimeMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  ,m_timeCut(5.0)
-  ,m_minCells(2)
-  ,m_eWeighted(true)
   ,m_LArCollisionTimeKey("LArCollisionTime")
   ,m_bunchCrossingTool("BunchCrossingTool")
 {
@@ -111,10 +108,11 @@ LArCollisionTimeMonAlg::fillHistograms( const EventContext& ctx ) const
   if(!event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3)) { // Do not fill histo if noise burst suspected
 
     // Calculate the time diff between ECC and ECA
-    ecTimeDiff = larTime->timeC() - larTime->timeA();
-    ecTimeAvg  = (larTime->timeC() + larTime->timeA()) / 2.0;
+    ecTimeDiff = (larTime->timeC() - larTime->timeA()) * Gaudi::Units::picosecond;
+    ecTimeAvg  = (larTime->timeC() + larTime->timeA()) * Gaudi::Units::picosecond / 2.0;
     if (larTime->ncellA() > m_minCells && larTime->ncellC() > m_minCells && std::fabs(ecTimeDiff) < m_timeCut ) { // Only fill histograms if a minimum number of cells were found and time difference was sensible
 
+      ATH_MSG_DEBUG( "filling !" );
       //set the weight if needed
       if (m_eWeighted) weight = (larTime->energyA()+larTime->energyC())*1e-3; 
 
@@ -145,6 +143,8 @@ LArCollisionTimeMonAlg::fillHistograms( const EventContext& ctx ) const
 	}
 	else ATH_MSG_WARNING( "I should be filling the 'inTrain' group now, but it looks undefined. Did you remember to set 'm_InTrain_MonGroupName' in the python?" );
       }
+    } else {
+      ATH_MSG_DEBUG( "LAr bellow cuts ncells: " << larTime->ncellA() << " " << larTime->ncellC() << " times:  " << larTime->timeA() << " " <<larTime->timeC() << " " << std::fabs(ecTimeDiff) <<", not filling !" );
     }
   }
   

@@ -131,7 +131,6 @@ multipleELM = Service("MultipleEventLoopMgr")
 #Stream1.EvtConversionSvc     ="AthenaPoolCnvSvc"
 #Stream1.OutputFile = "MultiplePassFile.root"; # ** mandatory parameter ** 
 #// The output file name
-#Stream1.ForceRead=TRUE  #force read of output data objs
 #Stream1.ItemList=["EventInfo#*", "McEventCollection#*"]
 
 

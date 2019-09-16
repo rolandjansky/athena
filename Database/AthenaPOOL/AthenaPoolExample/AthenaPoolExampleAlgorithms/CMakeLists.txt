@@ -27,7 +27,6 @@ atlas_add_component( AthenaPoolExampleAlgorithms
                      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolExampleData AthenaPoolUtilities DBDataModel ByteStreamData ByteStreamData_test EventBookkeeperMetaData EventInfo GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( AthenaPoolExampleAlgorithms )
 atlas_install_joboptions( share/*.py )
 
 # Function helping to set up the integration tests

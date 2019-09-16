@@ -35,7 +35,6 @@
 
 
 #include "GaudiKernel/IAuditor.h"
-#include "StoreGate/StoreGateSvc.h"
 
   //================ Constructor =================================================
 

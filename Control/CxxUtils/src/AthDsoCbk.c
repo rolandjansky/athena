@@ -8,6 +8,12 @@
 #include "CxxUtils/AthDsoCbk.h"
 #include "CxxUtils/unused.h"
 
+#ifdef __GNUC__
+// Suppress a couple unused argument warnings we get with -Wpedantic.
+// The usual methods won't work since this is C, not C++.
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 #ifndef __linux__
 
 /* stubs for macosx */

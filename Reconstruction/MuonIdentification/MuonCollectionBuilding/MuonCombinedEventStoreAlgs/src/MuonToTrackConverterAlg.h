@@ -55,7 +55,6 @@ class MuonToTrackConverterAlg : public AthAlgorithm {
   std::string              m_muonTrackLocation;
   bool                     m_useMuonHitsOnly;
 
-  ServiceHandle<StoreGateSvc>			m_storeGate;
   ToolHandle<Muon::MuonEDMPrinterTool> m_edmPrinter;
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

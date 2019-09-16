@@ -24,7 +24,6 @@
 //#include "CxxUtils/PageAccessControl.h"
 #include "GaudiKernel/IHistorySvc.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IOpaqueAddress.h"

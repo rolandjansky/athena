@@ -25,6 +25,5 @@ atlas_add_component( ISF_Tools
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps AtlasDetDescr GeneratorObjects ISF_Event ISF_Interfaces )
 
 # Install files from the package:
-atlas_install_headers( ISF_Tools )
 atlas_install_python_modules( python/*.py )
 

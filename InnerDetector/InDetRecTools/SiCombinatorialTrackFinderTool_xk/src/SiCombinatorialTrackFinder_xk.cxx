@@ -13,7 +13,6 @@
 
 #include "SiCombinatorialTrackFinderTool_xk/SiCombinatorialTrackFinder_xk.h"
 
-#include "EventInfo/TagInfo.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"

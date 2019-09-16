@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRawDataProviderTool.h"
-
-#include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -17,16 +14,12 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 PixelRawDataProviderTool::PixelRawDataProviderTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_decoder("PixelRodDecoder"),
-  m_bsErrSvc("PixelByteStreamErrorsSvc",name),
   m_robIdSet(),
   m_LVL1CollectionKey("PixelLVL1ID"),
   m_BCIDCollectionKey("PixelBCID"),
   m_DecodeErrCount(0),
   m_LastLvl1ID(0xffffffff)
 {
-  declareProperty("Decoder", m_decoder);
-  declareProperty("ErrorsSvc", m_bsErrSvc);
   declareProperty("LVL1CollectionName",m_LVL1CollectionKey);
   declareProperty("BCIDCollectionName",m_BCIDCollectionKey);
   declareInterface<IPixelRawDataProviderTool>(this);   
@@ -37,7 +30,7 @@ PixelRawDataProviderTool::~PixelRawDataProviderTool() {}
 StatusCode PixelRawDataProviderTool::initialize() {
   CHECK(AthAlgTool::initialize());
   ATH_MSG_DEBUG("PixelRawDataProviderTool::initialize()");
-  CHECK(m_decoder.retrieve());
+  ATH_CHECK(m_decoder.retrieve());
   ATH_MSG_INFO("Retrieved tool " << m_decoder);
   
   ATH_CHECK(m_LVL1CollectionKey.initialize());
@@ -131,7 +124,7 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
     }
   }
   if (isNewEvent) {
-    CHECK(m_bsErrSvc->recordData());
+    ATH_CHECK(m_decoder->StoreBSError());
   }
   return StatusCode::SUCCESS; 
 }

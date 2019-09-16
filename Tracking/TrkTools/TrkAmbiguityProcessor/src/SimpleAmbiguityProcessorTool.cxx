@@ -487,21 +487,23 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
 }
 
 
-TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(std::multimap<const Track*, float >* tracksScores){
+TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(TracksScores* tracksScores){
   std::vector<const Track*> tracks;
   tracks.reserve(tracksScores->size());
   for(auto& e: *tracksScores){
     tracks.push_back(e.first);
   }
-  
-  return process_vector(tracks);
 
+  TrackCollection* re_tracks = process_vector(tracks);
+
+  for(auto& e: *tracksScores){
+    delete e.first;
+  }
+  return re_tracks;
 }
 
 
 TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process_vector(std::vector<const Track*> &tracks){
-  //TODO: make sure the ownership; delete origin tracks from map?
-
   using namespace std;
 
 #if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE

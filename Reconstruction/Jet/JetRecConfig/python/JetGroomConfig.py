@@ -75,7 +75,7 @@ def JetGroomCfg(groomdef, configFlags, jetnameprefix="",jetnamesuffix=""):
     # Check if the ungroomed jets exist in the input file.
     # If not, we need to configure their reconstruction.
     filecontents = configFlags.Input.Collections
-    if not groomdef.ungroomedname in filecontents:
+    if groomdef.ungroomedname not in filecontents:
         from JetRecConfig import JetRecCfg
         components.merge(JetRecCfg(groomdef.ungroomeddef, configFlags,
                                    jetnameoverride=groomdef.ungroomedname))

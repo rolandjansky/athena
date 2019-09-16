@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -18,12 +18,9 @@ AUTHOR:  martin.spousta@cern.ch
 #include "TrigInterfaces/FexAlgo.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "HIGlobal/IHIEventShapeFiller.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include <string>
 
-
-//class StoreGateSvc;
 
 class TrigHIEventShapeMaker : public HLT::FexAlgo
 {

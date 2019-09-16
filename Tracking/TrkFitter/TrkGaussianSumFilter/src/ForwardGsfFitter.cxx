@@ -309,7 +309,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   // =======================
   // Measurement Preparation
   // =======================
-  const Trk::TrackParameters* combinedState = 0;
+  std::unique_ptr<Trk::TrackParameters> combinedState = nullptr;
   const Trk::MeasurementBase* measurement = 0;
 
   if (originalMeasurement) {
@@ -329,8 +329,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     // Create a new MeasurementBase object from PrepRawData using new calibration
     measurement = m_rioOnTrackCreator->correct(*originalPrepRawData, *combinedState);
 
-    delete combinedState;
-    combinedState = 0;
+    combinedState.reset();
   }
 
   // ==========================
@@ -343,7 +342,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   }
 
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  updatedState = m_updator->update(*extrapolatedState, *measurement, fitQuality);
+  updatedState = m_updator->update(*extrapolatedState, *measurement, fitQuality).release();
 
   if (!updatedState) {
     delete measurement;

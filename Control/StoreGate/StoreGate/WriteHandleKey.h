@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -51,10 +51,13 @@ public:
   WriteHandleKey (const std::string& key = "",
                   const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
+
   /**
    * @brief auto-declaring Property Constructor.
+   * @param owner Owning component.
    * @param name name of the Property
    * @param key  default StoreGate key for the object.
+   * @param doc Documentation string.
    *
    * will associate the named Property with this WHK via declareProperty
    *
@@ -64,15 +67,12 @@ public:
    */
   template <class OWNER, class K,
             typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
-  inline WriteHandleKey( OWNER* owner,
-                        std::string name,
-                        const K& key={},
-                        std::string doc="") :
-    WriteHandleKey<T>(key) {
-    auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
-    p->template setOwnerType<OWNER>();
-  }
+  inline WriteHandleKey (OWNER* owner,
+                         std::string name,
+                         const K& key={},
+                         std::string doc="");
 
+  
   /**
    * @brief Change the key of the object to which we're referring.
    * @param sgkey The StoreGate key for the object.

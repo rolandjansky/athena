@@ -60,7 +60,7 @@ TrigCaloFillRectangularCluster = PublicToolFactory( Cccc.CaloFillRectangularClus
 
 if not hasattr(ServiceMgr,"TrackingVolumesSvc"):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
+    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc")
 
 def TMEF_MaterialEffectsUpdator(name='TMEF_MaterialEffectsUpdator',**kwargs):
     return CfgMgr.Trk__MaterialEffectsUpdator(name,**kwargs)
@@ -523,6 +523,8 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.MuonCandidateTool = "TMEF_MuonCandidateTool"
 
         self.TrackToTrackParticleConvTool = "MuonParticleCreatorTool"
+
+        import MuonCondAlg.MdtCondDbAlgConfig #MDT conditions, needed for the MuonStationIntersectSvc
 
         #from MuonRecExample.MuonRecTools import MuonSTEP_Propagator
         #MuonSTEP_Propagator.OutputLevel=5

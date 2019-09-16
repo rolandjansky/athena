@@ -8,7 +8,8 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
     TrigMuisoHypoAlg, TrigMuisoHypoTool,
     TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool,
     TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
-    TrigL2MuonOverlapRemoverMufastAlg, TrigL2MuonOverlapRemoverMucombAlg, TrigL2MuonOverlapRemoverTool
+    TrigL2MuonOverlapRemoverMufastAlg, TrigL2MuonOverlapRemoverMucombAlg, TrigL2MuonOverlapRemoverTool,
+    TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoTool
 )
 
 # import monitoring
@@ -19,7 +20,8 @@ from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
     TrigMuisoHypoMonitoring,
     TrigMuonEFCombinerHypoMonitoring,
     TrigL2MuonOverlapRemoverMonitoringMufast,
-    TrigL2MuonOverlapRemoverMonitoringMucomb
+    TrigL2MuonOverlapRemoverMonitoringMucomb,
+    TrigMuonEFInvMassHypoMonitoring
 )
 
 # other imports
@@ -213,6 +215,12 @@ trigMuonEFTrkIsoThresholds = {
     }
 
 
+#Possible dimuon mass window cuts
+#Fomat is [lower bound, upper bound] in GeV
+# <0 for no cut
+trigMuonEFInvMassThresholds = {
+    '10invm70' : [10., 70.]
+}
 
 def addMonitoring(tool, monClass, name, thresholdHLT ):
     try:
@@ -242,9 +250,9 @@ class TrigMufastHypoConfig(object):
 
     log = logging.getLogger('TrigMufastHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+    def ConfigurationHypoTool( self, toolName, thresholds ):
 
-        tool = TrigMufastHypoTool( thresholdHLT )  
+        tool = TrigMufastHypoTool( toolName )  
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
@@ -254,7 +262,14 @@ class TrigMufastHypoConfig(object):
         tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV_v15a'
+            if "idperf" in toolName or thvalue < 5:
+                thvaluename =  thvalue + 'GeV_v15a'
+            elif "0eta105" in toolName:
+                thvaluename = thvalue+ "GeV_barrelOnly_v15a"
+            else:
+                thvaluename = '6GeV_v15a'
+
+
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
@@ -396,7 +411,10 @@ class TrigmuCombHypoConfig(object):
         tool.PtThresholds = [ [ 5.83 * GeV ] ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV_v15a'
+            if thvalue >= 24:
+                thvaluename = '22GeV_v15a'
+            else:
+                thvaluename = thvalue + 'GeV_v15a'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
@@ -471,10 +489,10 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
     log = logging.getLogger('TrigMuonEFMSonlyHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+    def ConfigurationHypoTool( self, toolName, thresholds ):
 
         log = logging.getLogger(self.__class__.__name__)
-        tool = TrigMuonEFMSonlyHypoTool( thresholdHLT )  
+        tool = TrigMuonEFMSonlyHypoTool( toolName )  
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
@@ -482,9 +500,13 @@ class TrigMuonEFMSonlyHypoConfig(object):
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
 
- 
+        if '3layersEC' in toolName:
+            tool.RequireThreeStations=True
         for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV'
+            if "0eta105" in toolName:
+                thvaluename = thvalue+ "GeV_barrelOnly"
+            else:
+                thvaluename = thvalue + 'GeV'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
@@ -583,6 +605,38 @@ class TrigMuonEFTrackIsolationHypoConfig(object) :
                 tool.AcceptAll = True
             else:
                 log.error('isoCut = ', isoCut)
+                raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
+        return tool
+
+def TrigMuonEFInvMassHypoToolFromDict( chainDict ) :
+    cparts = [i for i in chainDict['chainParts'] if i['signature']=='Muon']
+    thresholds = cparts[0]['invMassInfo']
+    config = TrigMuonEFInvMassHypoConfig()
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    addMonitoring( tool, TrigMuonEFInvMassHypoMonitoring, "TrigMuonEFInvMassHypoTool", chainDict['chainName'] )
+    return tool
+
+class TrigMuonEFInvMassHypoConfig(object) :
+
+    log = logging.getLogger('TrigMuonEFInvMassHypoConfig')
+
+    def ConfigurationHypoTool(self, toolName, thresholds):
+
+        tool=TrigMuonEFInvMassHypoTool(toolName)
+
+        try:
+            massWindow = trigMuonEFInvMassThresholds[thresholds] 
+
+            tool.InvMassLow = massWindow[0]
+            tool.InvMassHigh = massWindow[1]
+            tool.AcceptAll = False
+
+        except LookupError:
+            if(thresholds=='passthrough') :
+                log.debug('Setting passthrough')
+                tool.AcceptAll = True
+            else:
+                log.error('threshokds = ', thresholds)
                 raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
         return tool
 

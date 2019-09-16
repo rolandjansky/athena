@@ -35,7 +35,7 @@
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 
 class TrigBphysHelperUtilsTool;

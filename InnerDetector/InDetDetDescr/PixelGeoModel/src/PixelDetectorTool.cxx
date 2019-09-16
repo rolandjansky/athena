@@ -16,7 +16,6 @@
 #include "PixelGeoModelAthenaComps.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
 

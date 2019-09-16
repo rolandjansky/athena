@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthExJobOptions/TopAlgorithm.h"
@@ -9,9 +9,6 @@
 
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/IRndmEngine.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
 
 /////////////////////////////////////////////////////////////////////////////
 

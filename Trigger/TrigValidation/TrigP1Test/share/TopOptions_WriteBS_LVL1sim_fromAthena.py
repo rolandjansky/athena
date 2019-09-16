@@ -109,7 +109,6 @@ lvl1 = Lvl1SimulationGetter()
 include( "ByteStreamCnvSvc/WriteByteStream_EventStorage_jobOptions.py" )
 StreamBS = AthenaOutputStream("StreamBS",
                               EvtConversionSvc = "ByteStreamCnvSvc")
-StreamBS.ForceRead=True
 StreamBS.ItemList  += [ "ROIB::RoIBResult#*" ]
 StreamBS.ItemList += [ "TRT_RDO_Container#*" ]
 StreamBS.ItemList += [ "SCT_RDO_Container#*" ]

@@ -10,22 +10,6 @@ import traceback
 from AthenaCommon.Logging import logging
 logRecExCommon_topOptions = logging.getLogger( 'RecExCommon_topOptions' )
 
-## try to load a catalogue of AthFiles from a cache (to speed-up tests)
-try:
-    import PyUtils.AthFile as af
-    # this is the cache for the most current test files (saving 15 second initialisation, worth it for atn test)
-    # it should be updated as follow. In a clean directory run RecExCommon_links.sh, then
-    # run dump-athfile.py LFN:top_GEO-10-00-00_RDO_extract.pool (or whatever file now used in PoolFileCatalog.xml)
-    # run dump-athfile.py on input file for GetCommand.py AMI=q121
-    # run dump-athfile.py for any other frequently used test file
-    # then cp athfile-cache.ascii.gz RecExCommon/data/recexcommon-afserver-cache.ascii.gz
-    af.server.load_cache('recexcommon-afserver-cache.ascii.gz')
-    # reenable caching (this was preventing cache for non standard test file e.g. user file to be saved)
-    # af.server.disable_pers_cache()
-except Exception:
-    logRecExCommon_topOptions.warning("Could not load or disable athfile cache")
-
-
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ToolSvc,theApp,ServiceMgr
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -602,6 +586,10 @@ if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
 AODFix_postAtlfast()
 
+# functionality : FTK  truth-based FastSim
+if rec.doTruth() and DetFlags.detdescr.FTK_on():
+    protectedInclude("TrigFTKFastSimTruth/TrigFTKFastSimTruth_jobOptions.py")
+
 
 pdr.flag_domain('trig')
 # no trigger, if readESD _and_ doESD ! (from Simon George, #87654)
@@ -1025,7 +1013,7 @@ if rec.doFileMetaData():
     # Only the configurables that are not already present will be created
     from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
     logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
-    CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True ) 
+    CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
         theApp.CreateSvc+=['CutFlowSvc']
@@ -1308,7 +1296,7 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             # Only the configurables that are not already present will be created
             from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
             logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
-            CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True )
+            CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
             from PyUtils.MetaReaderPeeker import convert_metadata_items
             #Explicitely add file metadata from input and from transient store

@@ -10,6 +10,7 @@ log = logging.getLogger('MuonSetup')
 ### Output data name ###
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.DetFlags import DetFlags
+from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 theFTF_name = "FTFTracks_Muons"
@@ -32,7 +33,7 @@ class muonNames(object):
     self.EFCBOutInName = recordable("HLT_MuonsCBOutsideIn")
     self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = recordable("HLT_MuonL2ISInfo")
-    self.EFIsoMuonName = "MuonsIso"
+    self.EFIsoMuonName = recordable("HLT_MuonsIso")
 
   def getNames(self, name):
 
@@ -70,6 +71,7 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
   MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name        = "CSC_RawDataProviderToolMT",
+                                                               CscContainerCacheKey = MuonCacheNames.CscCache,
                                                                Decoder     = CSCRodDecoder )
   ToolSvc += MuonCscRawDataProviderTool
 
@@ -115,7 +117,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderToolMT
   MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name        = "MDT_RawDataProviderToolMT",
-                                                             Decoder     = MDTRodDecoder )
+                                                               CsmContainerCacheKey = MuonCacheNames.MdtCsmCache,
+                                                               Decoder     = MDTRodDecoder )
   ToolSvc += MuonMdtRawDataProviderTool
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
@@ -151,7 +154,9 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
   MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
-                                                             Decoder = RPCRodDecoder )
+                                                               RpcContainerCacheKey = MuonCacheNames.RpcCache,
+                                                               WriteOutRpcSectorLogic = False, # we don't need the RPC sector logic when running the trigger and can't write it out if we want to use the IDC cache for the RDOs
+                                                               Decoder = RPCRodDecoder )
   ToolSvc += MuonRpcRawDataProviderTool
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
@@ -188,7 +193,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderToolMT
   MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
-                                                             Decoder = TGCRodDecoder )
+                                                               TgcContainerCacheKey = MuonCacheNames.TgcCache,
+                                                               Decoder = TGCRodDecoder )
   ToolSvc += MuonTgcRawDataProviderTool
 
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
@@ -466,7 +472,15 @@ def muEFSARecoSequence( RoIs, name ):
       efAlgs.append( viewAlg_MuonPRD )
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-  ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
+  ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc")
+
+  #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
+  from AthenaCommon.AlgSequence import AthSequencer
+  from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
+  if not athenaCommonFlags.isOnline:
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence,"MdtCondDbAlg"):
+        condSequence += MdtCondDbAlg("MdtCondDbAlg")
 
   theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
   CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False

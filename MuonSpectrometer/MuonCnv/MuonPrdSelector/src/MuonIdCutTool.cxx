@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrdSelector/MuonIdCutTool.h"
@@ -7,7 +7,6 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"

@@ -2,11 +2,16 @@
 from AthenaCommon.GlobalFlags import globalflags
 
 if globalflags.DataSource() == 'geant4':
-    from PyUtils import AthFile
-    af = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
+    from PyUtils.MetaReader import read_metadata
+    input_file = svcMgr.EventSelector.InputCollections[0]
+    metadata = read_metadata(input_file)
+    metadata = metadata[input_file]  # promote all keys one level up
 
-    from EventBookkeeperTools.CutFlowHelpers import GetInputStreamNameFromMetaDataItemList
-    inputStreamName = GetInputStreamNameFromMetaDataItemList(af.fileinfos["metadata_items"] )
+    inputStreamName = 'unknownStream'
+    for class_name, name in metadata['metadata_items'].items():
+        if name == 'EventStreamInfo':
+            inputStreamName = class_name
+            break
 
     name = "PDFSumOfWeights"
     cutflowsvc = CfgMgr.CutFlowSvc("CutFlowSvc"+name)

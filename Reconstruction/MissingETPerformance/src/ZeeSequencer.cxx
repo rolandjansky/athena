@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MissingETPerformance/ZeeSequencer.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include <algorithm>

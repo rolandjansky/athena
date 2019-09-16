@@ -583,7 +583,7 @@ namespace InDet {
      const std::vector<const Rec::TrackParticle*> 
                BaseToPart(const std::vector<const Trk::TrackParticleBase*> & listBase) const;
      StatusCode GetTrkFitWeights(std::vector<double> & wgt,
-                                 Trk::IVKalState& istate) const;
+                                 const Trk::IVKalState& istate) const;
    };
 
 

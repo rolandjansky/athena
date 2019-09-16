@@ -31,7 +31,6 @@ from AthenaServices.AthenaServicesConf import AthenaOutputStream
 StreamBS = AthenaOutputStream("StreamBS",
                               EvtConversionSvc = "ByteStreamCnvSvc")
 # Force reading of output stream (ostream set externally)
-StreamBS.ForceRead = TRUE
 StreamBS.ItemList += [ "TRT_RDO_Container#*" ]
 StreamBS.ItemList += [ "SCT_RDO_Container#*" ]
 StreamBS.ItemList += [ "PixelRDO_Container#*" ]

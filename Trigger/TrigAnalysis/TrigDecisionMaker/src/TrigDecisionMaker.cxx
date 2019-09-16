@@ -35,7 +35,6 @@
 #include "TrigConfL1Data/BunchGroupSet.h"
 
 
-#include "GaudiKernel/Incident.h"
 // all Trigger EDM ()
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -12,7 +12,6 @@
 #ifndef TILEHITFILLERTOOL_H
 #define	TILEHITFILLERTOOL_H
 
-#include "StoreGate/StoreGateSvc.h"
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "TileSimEvent/TileHit.h"
 
@@ -49,9 +48,6 @@ public:
     virtual StatusCode fill (const TileHit& p);
     
 private:
-    /** A data member to retain a connection to the Detector Store. */
-    StoreGateSvc* m_detStore;
-    
     const TileID* m_tileID;
     
     std::vector<float>* m_energy;

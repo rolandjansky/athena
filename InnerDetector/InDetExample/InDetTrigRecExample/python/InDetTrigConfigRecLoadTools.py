@@ -192,12 +192,12 @@ if InDetTrigFlags.loadRotCreator():
   #
   if InDetTrigFlags.redoTRT_LR():
 
-    from InDetRecExample.TrackingCommon import getTRT_DriftCircleOnTrackTool
+    from InDetRecExample.TrackingCommon import getInDetTRT_DriftCircleOnTrackTool
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import \
         InDet__TRT_DriftCircleOnTrackUniversalTool
     InDetTrigTRT_RefitRotCreator = \
         InDet__TRT_DriftCircleOnTrackUniversalTool(name  = 'InDetTrigTRT_RefitRotCreator',
-                                                   RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
+                                                   RIOonTrackToolDrift = getInDetTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
                                                    ScaleHitUncertainty = 2.5) # fix from Thijs
 #    if InDetTrigFlags.doCommissioning():    #introduced for cosmics do not use for collisions
 #      InDetTrigTRT_RefitRotCreator.ScaleHitUncertainty = 5.
@@ -934,8 +934,7 @@ if InDetTrigFlags.doNewTracking():
       from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
       condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
                                                             ReadKey = "PixelDetectorElementCollection",
-                                                            WriteKey = "PixelDetElementBoundaryLinks_xk",
-                                                            UsePixelDetectorManager = True)
+                                                            WriteKey = "PixelDetElementBoundaryLinks_xk")
   if DetFlags.haveRIO.SCT_on():
     # Condition algorithm for SiCombinatorialTrackFinder_xk
     from AthenaCommon.AlgSequence import AthSequencer

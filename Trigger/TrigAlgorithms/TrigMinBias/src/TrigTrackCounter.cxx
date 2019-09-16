@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // executes after event accept track reconstruction
@@ -11,7 +11,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrigInterfaces/FexAlgo.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "xAODTrigMinBias/TrigTrackCounts.h"
 //---------------------------------------------------------------------------------
 

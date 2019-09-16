@@ -24,12 +24,6 @@ DQTDataFlowMonAlg::DQTDataFlowMonAlg( const std::string& name,
 }
 
 
-StatusCode DQTDataFlowMonAlg::initialize()
-{
-  return AthMonitorAlgorithm::initialize();
-}
-
-
 StatusCode 
 DQTDataFlowMonAlg::fillHistograms( const EventContext& ctx ) const
 {

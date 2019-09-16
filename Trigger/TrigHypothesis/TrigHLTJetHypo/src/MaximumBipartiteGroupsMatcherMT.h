@@ -49,7 +49,6 @@ public:
 
 private:
   ConditionsMT m_conditions;
-  bool m_compound;  // true if jet group size >1
   std::size_t m_nConditions{0};
     
   std::unique_ptr<IFlowNetworkBuilder> m_flowNetworkBuilder;

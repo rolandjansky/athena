@@ -28,7 +28,6 @@
 
 #include <string>
 
-class StoreGateSvc;
 class IRoiDescriptor;
 class PixelID;
 class IROBDataProviderSvc;
@@ -59,8 +58,6 @@ namespace InDet {
     ServiceHandle<IRegSelSvc>             m_regionSelector;     
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;
     ToolHandle<IPixelRawDataProviderTool>  m_rawDataTool;
-    ServiceHandle<StoreGateSvc>           m_storeGate;
-    ServiceHandle<StoreGateSvc>           m_detStore; 
     const PixelID*                        m_id; 
 
     PixelRDO_Container*                   m_container;

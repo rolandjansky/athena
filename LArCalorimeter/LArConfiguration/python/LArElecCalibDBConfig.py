@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList
 
@@ -91,9 +93,9 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
 
     _larCondDBFoldersDataR1 = {"Ramp":("/LAR/ElecCalibOnl/Ramp","LAR_ONL","LArRampComplete",None),
                                "DAC2uA":("/LAR/ElecCalibOfl/DAC2uA","LAr_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
-                               "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL""LArPedestalComplete",None),
+                               "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL","LArPedestalComplete",None),
                                "uA2MeV":("/LAR/ElecCalibOfl/uA2MeV/Symmetry","LAr_OFL", "LAruA2MeVMC",LAruA2MeVSymAlg),
-                               "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAr_OFL","LArMphysOverMcalComplete".None),
+                               "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAr_OFL","LArMphysOverMcalComplete",None),
                                "HVScale":("/LAR/ElecCalibOnl/HVScaleCorr","LAR_ONL","LArHVScaleCorrComplete",None),
                                "OFC":("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArOFCComplete",None),
                                "Shape":("/LAR/ElecCalibOfl/Shape/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArShapeComplete",None),
@@ -104,11 +106,11 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
     result=ComponentAccumulator()
     folderlist=[]
     for condData in condObjs:
-        folder,db,obj,calg=condData
         try:
-            folderlist.append(_larCondDBFoldersDataR1[(folder,db,obj)])
+            folder,db,obj,calg=_larCondDBFoldersDataR1[condData]
         except KeyError:
             raise ConfigurationError("No conditions data %s found for Run-1 data" % condData)
+        folderlist.append((folder,db,obj))
         if (calg):
             result.addCondAlgo(calg(ReadKey="LAr"+obj,WriteKey="LAr"+obj+"Sym"))
     result.merge(addFolderList(ConfigFlags,folderlist))
@@ -128,7 +130,7 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
                            "Shape":("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape",LArShapeSymAlg),
                            "MinBiasAvc":("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg),
                            "MphysOverMcal":("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal","LArMphysOverMcal",LArMPhysOverMcalSymAlg),
-                           "HVScale" : ("LArHVScaleCorrComplete", '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None) 
+                           "HVScaleCorr" : ("LArHVScaleCorrComplete", '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None) 
                        }
 
 
@@ -159,12 +161,33 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.loadAllDynamicFlags (quiet = True)
 
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.lock()
+    print ('--- run2')
+    flags1 = ConfigFlags.clone()
+    flags1.Input.Files = defaultTestFiles.RAW
+    flags1.lock()
+    acc1 = LArElecCalibDbCfg (flags1, ['Ramp', 'Pedestal'])
+    acc1.printCondAlgs(summariseProps=True)
+    print ('IOVDbSvc:', acc1.getService('IOVDbSvc').Folders)
+    acc1.wasMerged()
 
-    acc  = LArElecCalibDbCfg(ConfigFlags,("Ramp",))#,"OFC","uA2MeV","MphysOverMcal"))
+    print ('--- run1')
+    flags2 = ConfigFlags.clone()
+    flags2.Input.Files = defaultTestFiles.RAW
+    flags2.Input.ProjectName = 'data12_8TeV'
+    flags2.lock()
+    acc2 = LArElecCalibDbCfg (flags2, ['Ramp', 'Pedestal'])
+    acc2.printCondAlgs(summariseProps=True)
+    print ('IOVDbSvc:', acc2.getService('IOVDbSvc').Folders)
+    acc2.wasMerged()
 
-    f=open('test.pkl','w')
-    acc.store(f)
-    f.close()
+    print ('--- mc')
+    flags3 = ConfigFlags.clone()
+    flags3.Input.Files = defaultTestFiles.ESD
+    flags3.lock()
+    acc3 = LArElecCalibDbCfg (flags3, ['Ramp', 'Pedestal'])
+    acc3.printCondAlgs(summariseProps=True)
+    print ('IOVDbSvc:', acc3.getService('IOVDbSvc').Folders)
+    acc3.wasMerged()
+    

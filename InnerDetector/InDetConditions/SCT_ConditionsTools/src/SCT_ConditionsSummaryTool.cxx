@@ -101,3 +101,15 @@ SCT_ConditionsSummaryTool::goodFraction(const IdentifierHash& /*elementHash*/, c
   ATH_MSG_WARNING("goodFraction is a deprecated function always returning 1.0 ");
   return result;
 }
+
+bool
+SCT_ConditionsSummaryTool::isBSActive(const IdentifierHash& /*elementHash*/) const {
+  ATH_MSG_WARNING("isBSActive() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
+}
+
+bool
+SCT_ConditionsSummaryTool::isBSError(const IdentifierHash& /*elementHash*/) const {
+  ATH_MSG_WARNING("isBSError() is not implemented for SCT_ConditionsSummaryTool");
+  return false;
+}

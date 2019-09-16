@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEXPRESSSTREAMALG_H
@@ -24,8 +24,6 @@
 // Trigger include(s):
 #include "TrigDecisionTool/TrigDecisionTool.h"
 class EventInfo;
-class StoreGateSvc;
-class IIncidentSvc;
 
 class TrigExpressStreamAlg : public AthAlgorithm
 {

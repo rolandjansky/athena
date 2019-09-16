@@ -25,7 +25,6 @@
 
 #include "xAODMuon/MuonContainer.h"
 
-#include "JetTagTools/JetTagUtils.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "TMVA/Reader.h"
@@ -137,14 +136,15 @@ namespace Analysis {
 //////////////////////////////////////////////////////////////////  
 StatusCode JetVertexCharge::tagJet( const xAOD::Vertex& priVtx,
                                     const xAOD::Jet& jetToTag,
-                                    xAOD::BTagging& BTag) const
+                                    xAOD::BTagging& BTag,
+                                    const std::string &jetName) const
 {
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
 
     /** author to know which jet algorithm: */ 
-    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
+    std::string author = jetName;
     if (m_doForcedCalib) author = m_ForcedCalibName;
     std::string alias = readCdo->getChannelAlias(author);
 

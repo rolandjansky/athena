@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecUtils/LArOFPeakRecoTool.h"
@@ -45,7 +45,6 @@ StatusCode LArOFPeakRecoTool::initialize() {
   
 // call back for OFC 
   
-//  sc = m_detStore->regFcn(&LArOFPeakRecoTool::LoadCalibration,this,m_dd_ofc,m_keyOFC);
   ATH_CHECK(  detStore()->regHandle(m_dd_ofc,m_keyOFC) );
   ATH_MSG_INFO( " register callback for OFC "  );
 

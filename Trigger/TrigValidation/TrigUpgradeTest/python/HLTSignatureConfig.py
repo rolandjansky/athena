@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg, HLTTest__TestHypoAlg
 from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence

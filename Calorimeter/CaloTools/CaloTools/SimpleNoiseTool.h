@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -12,7 +12,6 @@
 #define CALOTOOLS_SIMPLENOISETOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "CaloGeoHelpers/CaloSampling.h"
 
@@ -25,8 +24,6 @@
 #include <string>
 
 class CaloCell;
-
-class StoreGateSvc;
 
 class SimpleNoiseTool : public AthAlgTool,
 			virtual public ICalorimeterNoiseTool

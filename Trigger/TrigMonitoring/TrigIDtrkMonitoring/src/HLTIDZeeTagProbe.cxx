@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #if 0
 
@@ -10,7 +10,6 @@
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "Particle/TrackParticleContainer.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "TLorentzVector.h"
@@ -97,13 +96,8 @@ StatusCode HLTIDZeeTagProbe::init()
 
   ATH_MSG_DEBUG("initialize()");
 
-  /// Locate the StoreGateSvc and initialize our local ptr
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (!sc.isSuccess() || 0 == m_storeGate)
-    ATH_MSG_ERROR("Could not find StoreGateSvc");
-
   /// Retrieve the TrigDecisionTool
-  sc =  TrigDec.retrieve();
+  StatusCode sc =  TrigDec.retrieve();
   if (sc.isFailure() ) {
     ATH_MSG_ERROR("Could not retrieve TrigDecisionTool");
     return sc;
@@ -532,7 +526,7 @@ StatusCode HLTIDZeeTagProbe::fill()
     //bool istightelectron = false;
 
      if (do_debugging){
-      sc_offlinetracks = m_storeGate->retrieve(trackCollectionOFF,m_offlineCollection);
+      sc_offlinetracks = evtStore()->retrieve(trackCollectionOFF,m_offlineCollection);
       if (sc_offlinetracks.isFailure()) {
 	      ATH_MSG_DEBUG(" Failed to retrieve offline tracks!");
       }
@@ -542,7 +536,7 @@ StatusCode HLTIDZeeTagProbe::fill()
       const DataHandle<ElectronContainer> ElectronCollection;
       std::string m_ElectronCollection = "ElectronAODCollection";
 
-      StatusCode sc_electrons=m_storeGate->retrieve( ElectronCollection, m_ElectronCollection);
+      StatusCode sc_electrons=evtStore()->retrieve( ElectronCollection, m_ElectronCollection);
       if (sc_electrons.isFailure()){
 	      ATH_MSG_DEBUG("No Electrons of type " << m_ElectronCollection << " found in storeGate");
 	//	ElectronCollection = 0;
@@ -996,7 +990,7 @@ StatusCode HLTIDZeeTagProbe::fill()
 
 
 	   //yvonne: test to check the inefficient events
-	  sc_offlinetracks = m_storeGate->retrieve(trackCollectionOFF,m_offlineCollection);
+	  sc_offlinetracks = evtStore()->retrieve(trackCollectionOFF,m_offlineCollection);
 	  if (sc_offlinetracks.isFailure()) {
 	      ATH_MSG_INFO(" Failed to retrieve offline tracks!");
 	  }

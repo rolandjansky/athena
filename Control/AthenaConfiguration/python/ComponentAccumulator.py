@@ -46,7 +46,7 @@ def printProperties(msg, c, nestLevel = 0):
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,ConfigurableAlgTool):
             propstr = propval.getFullName()
-        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr))
     return
 
 
@@ -77,12 +77,18 @@ class ComponentAccumulator(object):
         self._isMergable=True
         self._lastAddedComponent="Unknown" 
 
+    def setAsTopLevel(self):
+        self._isMergable = False
+
 
     def _inspect(self): #Create a string some basic info about this CA, useful for debugging
         summary="This CA contains {0} service, {1} conditions algorithms, {2} event algorithms and {3} public tools\n"\
             .format(len(self._services),len(self._conditionsAlgs),len(self._algorithms),len(self._publicTools))
         if (self._privateTools): 
-            summary+="  Private AlgTool: "+ self._privateTools[-1].getFullName()+"\n" 
+            if (isinstance(self._privateTools, list)):
+                summary+="  Private AlgTool: "+ self._privateTools[-1].getFullName()+"\n"
+            else:
+                summary+="  Private AlgTool: "+ self._privateTools.getFullName()+"\n"
         if (self._primaryComp): 
             summary+="  Primary Component: " + self._primaryComp.getFullName()+"\n" 
         summary+="  Last component added: "+self._lastAddedComponent+"\n" 
@@ -100,7 +106,9 @@ class ComponentAccumulator(object):
              log.error("This ComponentAccumulator was never merged!")
              log.error(self._inspect())
          if getattr(self,'_privateTools',None) is not None:
-             raise RuntimeError("Deleting a ComponentAccumulator with dangling private tool(s)")
+             log = logging.getLogger("ComponentAccumulator")
+             log.error("Deleting a ComponentAccumulator with dangling private tool(s)")
+
         #pass
 
 
@@ -154,6 +162,23 @@ class ComponentAccumulator(object):
             if summariseProps:
                 printProperties(self._msg, t)
         self._msg.info( "]" )
+        self._msg.info( "Private Tools")
+        self._msg.info( "[" )
+        if (isinstance(self._privateTools, list)):
+            for t in self._privateTools:
+                self._msg.info( "  {0},".format(t.getFullName()) )
+                # Not nested, for now
+                if summariseProps:
+                    printProperties(self._msg, t)
+        else:
+            if self._privateTools is not None:
+                self._msg.info( "  {0},".format(self._privateTools.getFullName()) )
+                if summariseProps:
+                    printProperties(self._msg, self._privateTools)
+        self._msg.info( "]" )
+        self._msg.info( "TheApp properties" )
+        for k,v in six.iteritems(self._theAppProps):
+            self._msg.info("  {} : {}".format(k,v))
 
 
     def addSequence(self, newseq, parentName = None ):
@@ -344,10 +369,10 @@ class ComponentAccumulator(object):
 
 
     def getPrimary(self):
-        if self._primaryComp:
-            return self._primaryComp
-        elif self._privateTools:
+        if self._privateTools:
             return self.popPrivateTools()
+        elif self._primaryComp:
+            return self._primaryComp
         else:
             raise ConfigurationError("Called getPrimary() but no primary component nor private AlgTool is known.\n"\
                                      +self._inspect())
@@ -413,7 +438,7 @@ class ComponentAccumulator(object):
                 raise RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools")
         
         if not other._isMergable:
-            raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")
+            raise ConfigurationError("Attempted to merge the ComponentAccumulator that was unsafely manipulated (likely with foreach_component, ...) or is a top level ComponentAccumulator, in such case revert the order")
 
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
@@ -501,6 +526,7 @@ class ComponentAccumulator(object):
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
+        self._lastAddedComponent = other._lastAddedComponent+' (Merged)'
 
 
     def appendToGlobals(self):
@@ -729,6 +755,12 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
     def createApp(self,OutputLevel=3):
+        # Create the Gaudi object early.
+        # Without this here, pyroot can sometimes get confused
+        # and report spurious type mismatch errors about this object.
+        import ROOT
+        ROOT.Gaudi
+
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
         bsh=BootstrapHelper()
@@ -791,6 +823,14 @@ class ComponentAccumulator(object):
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
+
+            seq = self.getSequence(seqName)
+            for k, v in seq.getValuedProperties().items():
+                if k!="Members": #This property his handled separatly
+                    self._msg.debug("Adding "+seqName+"."+k+" = "+str(v))
+                    bsh.addPropertyToCatalogue(jos,seqName.encode(),k.encode(),str(v).encode())
+                pass
+
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)

@@ -49,19 +49,11 @@ def ExampleMonitoringConfig(inputFlags):
     # some generic property
     # exampleMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
-    exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+    #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
-
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # exampleMonAlg.CaloNoiseTool = caloNoiseTool
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
@@ -83,7 +75,7 @@ def ExampleMonitoringConfig(inputFlags):
     ### STEP 5 ###
     # Configure histograms
     myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
-                            path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
+                            path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
     myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
     myGroup.defineHistogram('random', title='LB;x;Events',

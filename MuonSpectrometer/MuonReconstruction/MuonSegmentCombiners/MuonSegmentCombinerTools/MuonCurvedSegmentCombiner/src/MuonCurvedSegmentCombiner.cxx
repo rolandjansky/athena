@@ -38,8 +38,6 @@
 
 #include "TrkEventPrimitives/FitQuality.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 
 //================ Constructor =================================================
 
@@ -100,22 +98,15 @@ StatusCode Muon::MuonCurvedSegmentCombiner::initialize()
     StatusCode sc = AlgTool::initialize();
     if (sc.isFailure()) return sc;
 
-    StoreGateSvc* detStore=0;
-    sc = serviceLocator()->service("DetectorStore", detStore);
-
-    if ( sc.isSuccess() ) {
-        sc = detStore->retrieve( m_detMgr );
-        if ( sc.isFailure() ) {
-            ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-        } else {
-            m_mdtIdHelper = m_detMgr->mdtIdHelper();
-            m_cscIdHelper = m_detMgr->cscIdHelper();
-            m_rpcIdHelper = m_detMgr->rpcIdHelper();
-            m_tgcIdHelper = m_detMgr->tgcIdHelper();
-            ATH_MSG_DEBUG(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
-        }
+    sc = detStore()->retrieve( m_detMgr );
+    if ( sc.isFailure() ) {
+        ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
     } else {
-        ATH_MSG_ERROR(" MuonDetDescrMgr not found in DetectorStore ");
+        m_mdtIdHelper = m_detMgr->mdtIdHelper();
+        m_cscIdHelper = m_detMgr->cscIdHelper();
+        m_rpcIdHelper = m_detMgr->rpcIdHelper();
+        m_tgcIdHelper = m_detMgr->tgcIdHelper();
+        ATH_MSG_DEBUG(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
     }
 
     sc = m_printer.retrieve();

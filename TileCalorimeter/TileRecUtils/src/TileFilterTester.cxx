@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **************************************************************************************************
@@ -45,21 +45,6 @@ TileFilterTester::TileFilterTester(TileFilterManager* filterManager, int filterM
 {
 
   std::cout << " Enter TileFilterTester constructor.  April" << std::endl;
-
-  // Get TileInfo from detStore
-  /* ********* Unable to retrieve detStor.  Needs to be fixed.
-   StatusCode sc = service("DetectorStore", m_detStore);
-   if(sc.isFailure()) {
-   std::cout << "TileFilterTester: Unable to retrieve pointer to Detector Store" << std::endl;
-   return sc;
-   }
-   sc = m_detStore->retrieve(m_tileInfo, m_infoName);
-   if(sc.isFailure()) {
-   std::cout << "TileFilterTester: Unableto retrieve TileInfo from DetectorStore" << std::endl;
-   return sc;
-   }
-   */// ********** Unable to get preceding part working.  Must be fixed.
-  //
 
   m_nPileup = m_filterTest - 2;
   if (m_nPileup < 0) m_nPileup = 0;

@@ -7,7 +7,7 @@
 
 CscRdoToCscDigit::CscRdoToCscDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -22,11 +22,11 @@ StatusCode CscRdoToCscDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CscRdoToCscDigit::execute()
+StatusCode CscRdoToCscDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
   // retrieve the collection of RDO
-  SG::ReadHandle<CscRawDataContainer> rdoRH(m_cscRdoKey);
+  SG::ReadHandle<CscRawDataContainer> rdoRH(m_cscRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No CSC RDO container found!"  );
     return StatusCode::SUCCESS;
@@ -34,7 +34,7 @@ StatusCode CscRdoToCscDigit::execute()
   const CscRawDataContainer* rdoContainer=rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " CSC RDOs." );
 
-  SG::WriteHandle<CscDigitContainer> wh_cscDigit(m_cscDigitKey);
+  SG::WriteHandle<CscDigitContainer> wh_cscDigit(m_cscDigitKey, ctx);
   ATH_CHECK(wh_cscDigit.record(std::make_unique<CscDigitContainer> (m_cscHelper->module_hash_max())));
   ATH_MSG_DEBUG( "Decoding CSC RDO into CSC Digit"  );
 
@@ -128,7 +128,7 @@ StatusCode CscRdoToCscDigit::decodeCsc(const CscRawDataCollection *rdoColl, CscD
           }
         }
         else {
-          CscDigitCollection *oldCollection = const_cast<CscDigitCollection*>( *it_coll );
+          CscDigitCollection *oldCollection ATLAS_THREAD_SAFE = const_cast<CscDigitCollection*>( *it_coll ); // FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

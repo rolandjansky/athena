@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolxAODCnv.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -17,42 +15,23 @@
  */
 template <class XAOD, class ... TPCNVS>
 T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::T_AthenaPoolxAODCnv( ISvcLocator* svcLoc )
-  : Base( svcLoc )
+  : Base( svcLoc ),
+    m_guid (AthenaPoolCnvSvc::guidFromTypeinfo (typeid (XAOD)))
 {
-  m_guid = AthenaPoolCnvSvc::guidFromTypeinfo (typeid (XAOD));
-}
-
-
-/**
- * @brief Read an object from persistent storage.
- * @param pAddr Address of the object to read.
- * @param pObj[out] Pointer to the read object.
- *
- * This is overridden here in order to be able to pass the SG key
- * from the address to @c createTransient.
- */
-template <class XAOD, class ... TPCNVS>
-StatusCode
-T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createObj( IOpaqueAddress* pAddr,
-                                                 DataObject*& pObj )
-{
-   // Get the key of the container that we'll be creating:
-   m_key = pAddr->par()[1];
-   ATH_MSG_VERBOSE( "Key of " << ClassName<XAOD>::name() << ": " << m_key );
-
-   // Let the base class do its thing now:
-   return AthenaPoolConverter::createObj( pAddr, pObj );
 }
 
 
 /**
  * @brief Convert a transient object to persistent form.
  * @param trans The transient object to convert.
+ * @param key The SG key of the object being written.
  *
  * Returns a newly-allocated persistent object.
  */
 template <class XAOD, class ... TPCNVS>
-XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistent( XAOD* trans )
+XAOD*
+T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistentWithKey( XAOD* trans,
+                                                               const std::string& /*key*/)
 {
   AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<XAOD>::ID());
   return new XAOD (*trans);
@@ -61,12 +40,14 @@ XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistent( XAOD* trans )
 
 /**
  * @brief Read the persistent object and convert it to transient.
+ * @param key The SG key of the object being read.
  *
  * Returns a newly-allocated transient object.
  * Errors are reported by raising exceptions.
  */
 template <class XAOD, class ... TPCNVS>
-XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransient()
+XAOD*
+T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransientWithKey (const std::string& key)
 {
   AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<XAOD>::ID());
   XAOD* c = nullptr;
@@ -81,9 +62,11 @@ XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransient()
   }
 
   if (c) {
-    DataLink< SG::IConstAuxStore > dl;
-    dl.toTransient (m_key + "Aux.");
-    c->setStore( dl );
+    if (c->trackIndices()) {
+      DataLink< SG::IConstAuxStore > dl;
+      dl.toTransient (key + "Aux.");
+      c->setStore( dl );
+    }
     return c;
   }
 

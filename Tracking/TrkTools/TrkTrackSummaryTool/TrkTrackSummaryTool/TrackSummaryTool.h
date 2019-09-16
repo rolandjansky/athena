@@ -51,29 +51,30 @@ namespace Trk {
 
       /** create a summary object from passed Track. The summary object belongs to
       you, the user, and so you must take care of deletion of it.
-      Note that if the track has a summary already a clone is returned back.
       @param onlyUpdateTrack If false (default) then the summary is cloned and added to the track, 
       and a separate summary returned. If true, only update track and return 0*/
       virtual const Trk::TrackSummary* createSummary ATLAS_NOT_THREAD_SAFE ( const Track& track, 
                                                                              bool onlyUpdateTrack=false ) const override final;
 
       /** create a summary object of passed track without doing the tedious hole search.
-      Note that if the track has already a summary return a clone of it is returned.
       Same comments as for createSummary apply here, of course, too. */	   
       virtual const Trk::TrackSummary* createSummaryNoHoleSearch ATLAS_NOT_THREAD_SAFE ( const Track& track ) const override final;
       
-      /** create a summary object from a passed Track. If the track has a summary it is returned back*/
+      /** create a summary object from passed Track.*/
       virtual std::unique_ptr<Trk::TrackSummary> summary( const Track& track ) const override final;
 
-      /** create a summary object from a passed track without doing the tedious hole search.if the track has 
-        a summary a clone is returned back */	   
+      /** create a summary object of passed track without doing the tedious hole search. */	   
       virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch( const Track& track ) const override final;
   
       /** use this method to update a track. this means a tracksummary is created for
-      this track but not returned. The summary can then be obtained from the track.
+      this track but not returned. the summary can then be obtained from the track.
       Because it is taken from the track the ownership stays with the track */
       virtual void updateTrack(Track& track) const override final;
-      
+ 
+      /** method which can be used to update the track and add a summary to it,without doing the tedious hole search.
+      This can be used to add a summary to a track and then retrieve it from it without the need to clone. */
+      virtual void updateTrackNoHoleSearch(Track& track) const override final;
+   
       /** method to update the shared hit content only, this is optimised for track collection merging. */
       virtual void updateSharedHitCount(Track& track) const override final;
       

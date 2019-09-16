@@ -45,8 +45,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "AIDA/IHistogram1D.h"
-#include "EventInfo/TagInfo.h"
-#include "EventInfoMgt/ITagInfoMgr.h"
 
 //Geometry
 #include "MuonReadoutGeometry/MuonDetectorManager.h"

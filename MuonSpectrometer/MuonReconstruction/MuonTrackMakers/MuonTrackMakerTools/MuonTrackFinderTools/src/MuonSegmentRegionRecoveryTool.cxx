@@ -136,6 +136,8 @@ StatusCode MuonSegmentRegionRecoveryTool::initialize()
   ATH_CHECK( m_hitSummaryTool.retrieve() );
   ATH_CHECK( m_regionSelector.retrieve() );
 
+  if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -522,7 +524,13 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     ATH_MSG_DEBUG("Reached " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
 
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack(chId , exPars->position(), exPars->momentum().unit() );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chId , exPars->position(), exPars->momentum().unit(), dbData, m_detMgr );
 
     // clear hole vector
     for ( unsigned int ii = 0; ii < intersect.tubeIntersects().size(); ++ii ) {
@@ -553,9 +561,9 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
         // perform bound check do not count holes with 100. mm of bound edge
         inBounds = surf.bounds().insideLoc2(*locPos, -100.);
-        if ( inBounds ) {
-          if ( fabs( (*locPos)[Trk::locR] ) > 14.4 ) inBounds = false;
-        }
+	if( inBounds ) {
+	  if( fabs((*locPos)[Trk::locR]) > detElLoc->innerTubeRadius() ) inBounds = false;
+	}
         delete locPos;
       }
       if ( !inBounds ) {

@@ -11,7 +11,6 @@
 #include "JetTagTools/GradedTrack.h"
 #include "JetTagTools/SVForIPTool.h"
 #include "JetTagTools/ITrackGradeFactory.h"
-#include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TrackGrade.h"
 #include "JetTagInfo/TrackGradesDefinition.h"
@@ -27,8 +26,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GaudiKernel/IToolSvc.h"
-
-#include "TObjString.h"
 
 #include <cmath>
 #include <fstream>
@@ -180,7 +177,7 @@ namespace Analysis {
                     m_trackAssociationName = "BTagTrackToJetAssociator");
     declareProperty("originalTPCollectionName",
                     m_originalTPCollectionName = "InDetTrackParticles");
-    declareProperty("ForcedCalibrationName"   , m_ForcedCalibName = "");
+    declareProperty("ForcedCalibrationName"   , m_ForcedCalibName = "AntiKt4EMTopo");
     declareProperty("NetworkConfig"           , m_network_cfg);
 
     declareProperty("trackGradePartitions"    ,
@@ -287,10 +284,11 @@ namespace Analysis {
 
   StatusCode RNNIPTag::tagJet(const xAOD::Vertex& priVtx,
                               const xAOD::Jet& jetToTag,
-                              xAOD::BTagging& BTag) const
+                              xAOD::BTagging& BTag,
+                              const std::string &jetName) const
   {
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
+    std::string author = jetName;
     if (m_ForcedCalibName.size() > 0) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations");
 
@@ -471,22 +469,7 @@ namespace Analysis {
     }
 
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey); 
-
-    const auto string = readCdo->retrieveTObject<TObject>(
-      m_calibrationDirectory, author, name);
-    TObjString* cal_string = dynamic_cast<TObjString*>(string);
-
-    if (cal_string == 0){  //catch if no string was found
-      std::string fuller_name = m_calibrationDirectory + "/" + author +
-        "/" + name;
-      if (string) {
-        fuller_name.append(" [but an object was found]");
-      }
-      ATH_MSG_WARNING("can't retreve calibration: " + fuller_name);
-      return std::string();
-    }
-    std::string calibration(cal_string->GetString().Data());
-    return calibration;
+    return readCdo->retrieveIPRNN(m_calibrationDirectory , author);
   }
 
 

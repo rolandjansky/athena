@@ -64,6 +64,8 @@ DerivationFramework::HnlSkimmingTool::HnlSkimmingTool(const std::string& t,
   declareProperty("El2IsoCutIsRel", m_el2IsoCutIsRel=true, "Cut is on relative isolation");
   declareProperty("El2IsoCut", m_el2IsoCut=1.);
   declareProperty("El2d0Min", m_el2d0Min=1.0, "Unit is mm");
+
+  declareProperty("dPhiMin", m_dPhiMin=0.0, "Unit is radian");
 }
 
 // Athena initialize and finalize
@@ -167,9 +169,13 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
   if (m_isPromptMuon and m_isDisplacedMuon) {
     // mu-mu
     for (const xAOD::Muon* promptMuonCandidate : promptMuonCandidates) {
-      if (m_isDisplacedMuon) {
-        for (const xAOD::Muon* displacedMuonCandidate : displacedMuonCandidates) {
-          if (promptMuonCandidate!=displacedMuonCandidate) {
+      for (const xAOD::Muon* displacedMuonCandidate : displacedMuonCandidates) {
+        if (promptMuonCandidate!=displacedMuonCandidate) {
+          double dPhi = promptMuonCandidate->phi() - displacedMuonCandidate->phi();
+          while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+          while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+          dPhi = std::abs(dPhi);
+          if (dPhi>=m_dPhiMin) {
             acceptEvent = true;
             break;
           }
@@ -178,21 +184,45 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
     }
   } else if (m_isPromptMuon and (not m_isDisplacedMuon)) {
     // mu-e
-    if ((not promptMuonCandidates.empty()) and (not displacedElectronCandidates.empty())) {
-      acceptEvent = true;
+    for (const xAOD::Muon* promptMuonCandidate : promptMuonCandidates) {
+      for (const xAOD::Electron* displacedElectronCandidate : displacedElectronCandidates) {
+        double dPhi = promptMuonCandidate->phi() - displacedElectronCandidate->phi();
+        while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+        while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+        dPhi = std::abs(dPhi);
+        if (dPhi>=m_dPhiMin) {
+          acceptEvent = true;
+          break;
+        }
+      }
     }
   } else if ((not m_isPromptMuon) and m_isDisplacedMuon) {
     // e-mu
-    if ((not promptElectronCandidates.empty()) and (not displacedMuonCandidates.empty())) {
-      acceptEvent = true;
+    for (const xAOD::Electron* promptElectronCandidate : promptElectronCandidates) {
+      for (const xAOD::Muon* displacedMuonCandidate : displacedMuonCandidates) {
+        double dPhi = promptElectronCandidate->phi() - displacedMuonCandidate->phi();
+        while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+        while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+        dPhi = std::abs(dPhi);
+        if (dPhi>=m_dPhiMin) {
+          acceptEvent = true;
+          break;
+        }
+      }
     }
   } else if ((not m_isPromptMuon) and (not m_isDisplacedMuon)) {
     // e-e
     for (const xAOD::Electron* promptElectronCandidate : promptElectronCandidates) {
       for (const xAOD::Electron* displacedElectronCandidate : displacedElectronCandidates) {
         if (promptElectronCandidate!=displacedElectronCandidate) {
-          acceptEvent = true;
-          break;
+          double dPhi = promptElectronCandidate->phi() - displacedElectronCandidate->phi();
+          while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+          while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+          dPhi = std::abs(dPhi);
+          if (dPhi>=m_dPhiMin) {
+            acceptEvent = true;
+            break;
+          }
         }
       }
     }

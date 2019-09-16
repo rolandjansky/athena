@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBLArCalibDigitContainerCnv_H
@@ -18,17 +18,15 @@ class TBLArCalibDigitContainerCnv : public TBLArCalibDigitContainerCnvBase
   virtual ~TBLArCalibDigitContainerCnv();
 
   /// initialization
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /// Extend base-class conversion method to modify when reading in
-  virtual StatusCode     PoolToDataObject(DataObject*& pObj, const Token* token);
+  virtual StatusCode     PoolToDataObject(DataObject*& pObj,
+                                          const Token* token,
+                                          const std::string& key) override;
 
   /// Extend base-class conversion method for writing
-  virtual StatusCode     DataObjectToPool(DataObject*  pObj,const std::string &tname);
-
- private:
-  /// For your private attributes
-
+  virtual StatusCode     DataObjectToPool(DataObject*  pObj,const std::string &tname) override;
 };
 
 #endif

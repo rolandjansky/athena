@@ -27,6 +27,7 @@
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 class VxContainer;
 
 namespace Trk{
@@ -83,6 +84,9 @@ private:
   unsigned int                        m_constrainFitMode;       //!< 0 - not constrained, 1 - vertex, 2 - beamspot
   SG::ReadHandleKey<VxContainer>      m_vxContainerName;   
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+  // For P->T conversion ID tracks
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   ToolHandle<Trk::IExtrapolator>      m_extrapolator;           //!< the extrapolator for the consistent measurement frame
   
   bool m_usetrackhypo;                                       //!< Fit using particle hypothesis from input track    

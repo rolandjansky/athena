@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -360,7 +360,7 @@ StatusCode FixLArIdMap::fix1() {
 /*
     // retrieve LArOnlineID
     LArOnlineID* onlineID; 
-    sc = m_detStore->retrieve(onlineID); 
+    sc = detStore()->retrieve(onlineID); 
     if (sc.isFailure()) {
  	log << MSG::ERROR
  	    << "Unable to retrieve pointer to LArOnlineID  "
@@ -568,7 +568,7 @@ StatusCode FixLArIdMap::fix2() {
 /*
     // retrieve LArOnlineID
     LArOnlineID* onlineID; 
-    sc = m_detStore->retrieve(onlineID); 
+    sc = detStore()->retrieve(onlineID); 
     if (sc.isFailure()) {
  	log << MSG::ERROR
  	    << "Unable to retrieve pointer to LArOnlineID  "

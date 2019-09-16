@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetAlignCog.cxx
@@ -11,7 +11,6 @@
 
 
 #include "InDetAlignGenAlgs/InDetAlignCog.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "Identifier/Identifier.h"
@@ -83,7 +82,6 @@ static const double onemrad  = 0.001;
 
 InDetAlignCog::InDetAlignCog(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), 
-    m_Pixel_Manager(0),
     m_TRT_Manager(0),
     m_pixid(0),
     m_sctid(0),
@@ -197,9 +195,7 @@ StatusCode InDetAlignCog::initialize(){
   // Get DetectorStore service 
   ATH_CHECK( detStore().retrieve() );
 
-  // get Pixel manager and helper
-  ATH_CHECK( detStore()->retrieve(m_Pixel_Manager, "Pixel"));
-
+  // get Pixel helper
   ATH_CHECK(  detStore()->retrieve(m_pixid));
   
   // get SCT helper
@@ -218,7 +214,8 @@ StatusCode InDetAlignCog::initialize(){
   ATH_CHECK( m_TRTAlignDbTool.retrieve() );
 
   // ReadCondHandleKey
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize(m_det==99 || m_det==1 || m_det==12));
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(m_det==99 || m_det==2 || m_det==12));
 
   ATH_MSG_DEBUG ( "Retrieved tool " << m_TRTAlignDbTool );
   
@@ -232,8 +229,18 @@ StatusCode InDetAlignCog::initialize(){
 StatusCode InDetAlignCog::execute() {
   ATH_MSG_DEBUG( "execute()" );
 
+  const InDetDD::SiDetectorElementCollection* pixelElements(nullptr);
+  if (m_det==99 || m_det==1 || m_det==12) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    pixelElements = *pixelDetEleHandle;
+    if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
+  }
+
   const InDetDD::SiDetectorElementCollection* sctElements(nullptr);
-  if (m_det==2) {
+  if (m_det==99 || m_det==2 || m_det==12) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
     sctElements = *sctDetEleHandle;
     if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
@@ -262,7 +269,7 @@ StatusCode InDetAlignCog::execute() {
     
     // first loop to calculate cog
     //StatusCode sc;
-    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager->getDetectorElementCollection(),false,params) );
+    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(pixelElements,false,params) );
     if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(sctElements,false,params) );
     if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(false, params) );
     //if(sc.isFailure())
@@ -324,7 +331,7 @@ StatusCode InDetAlignCog::execute() {
     m_counter=0;
 
     // second loop to compute residual transform after substracting cog
-    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager->getDetectorElementCollection(),true, params) );
+    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(pixelElements,true, params) );
     if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(sctElements,true, params) );
     if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(true, params) );
     // if(sc.isFailure())

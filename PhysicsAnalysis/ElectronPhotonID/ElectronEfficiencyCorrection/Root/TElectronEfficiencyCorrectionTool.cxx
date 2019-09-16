@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -14,7 +14,6 @@
 // STL includes
 #include <iostream>
 #include <cmath>
-#include "CxxUtils/make_unique.h"
 #include <memory>
 // ROOT includes
 #include "TSystem.h"
@@ -137,7 +136,7 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
     if (m_seed == 0) {
     // Use the name of the correction  for auto-setting of the seed based on the md5-sum of the file
       const std::unique_ptr<char[]> fname(gSystem->ExpandPathName(m_corrFileNameList[0].c_str()));
-      std::unique_ptr<TMD5> tmd=CxxUtils::make_unique<TMD5>();
+      std::unique_ptr<TMD5> tmd=std::make_unique<TMD5>();
       const char* tmd_as_string=tmd->FileChecksum(fname.get())->AsString();
       m_seed = *(reinterpret_cast<const unsigned long int*>(tmd_as_string));
       ATH_MSG_DEBUG("Seed (automatically) set to " << m_seed);

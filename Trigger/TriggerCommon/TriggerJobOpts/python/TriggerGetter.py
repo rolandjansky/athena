@@ -113,7 +113,6 @@ class TriggerGetter(Configured):
                 # Transient BS construction and intialization
                 from ByteStreamCnvSvc import WriteByteStream
                 StreamBS = WriteByteStream.getStream("Transient","StreamBS")
-                StreamBS.ForceRead=True
                 StreamBS.ItemList += [ "DataVector<LVL1::TriggerTower>#TriggerTowers" ]
                 StreamBS.ItemList += [ "TRT_RDO_Container#TRT_RDOs" ]
                 StreamBS.ItemList += [ "SCT_RDO_Container#SCT_RDOs" ]

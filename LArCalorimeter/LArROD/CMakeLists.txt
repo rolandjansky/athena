@@ -56,4 +56,4 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( LArRawChannelBuilderAlg 
 		SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/LArRawChannelBuilderAlgConfig.py
-		POST_EXEC_SCRIPT " diff LArRawChannels.txt ${CMAKE_CURRENT_SOURCE_DIR}/share/LArRawChannels.txt.ref > diff.log " )
+		POST_EXEC_SCRIPT " /usr/bin/diff LArRawChannels.txt ${CMAKE_CURRENT_SOURCE_DIR}/share/LArRawChannels.txt.ref > diff.log " )

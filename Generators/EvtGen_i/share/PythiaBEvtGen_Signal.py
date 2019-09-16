@@ -125,7 +125,6 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 include( "GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py" )
 
 Stream1 = AthenaPoolOutputStream( "Stream1" )
-Stream1.ForceRead=TRUE
 Stream1.OutputFile = "pythiaB.pool.root"
 # 2101 = EventInfo
 # 133273 = MCTruth (HepMC)

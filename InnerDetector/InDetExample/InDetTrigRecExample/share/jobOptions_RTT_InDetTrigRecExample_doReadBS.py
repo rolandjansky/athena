@@ -437,7 +437,6 @@ if doWriteAOD:
    StreamAOD.OutputFile    = "InDetTrigRecAOD.root"
    
    #force read of input data to write in output data
-   StreamAOD.ForceRead = True
 
    #  EventInfo - needs to be always saved.
    StreamAOD.ItemList=[]
@@ -454,7 +453,6 @@ if doWriteESD:
    StreamESD.OutputFile    = "InDetTrigRecESD.root"
    
    #force read of input data to write in output data
-   StreamESD.ForceRead = True
 
    #  EventInfo - needs to be always saved.
    StreamESD.ItemList=[]

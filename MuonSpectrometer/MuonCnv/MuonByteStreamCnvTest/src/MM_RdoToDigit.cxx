@@ -7,7 +7,7 @@
 
 MM_RdoToDigit::MM_RdoToDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -20,10 +20,10 @@ StatusCode MM_RdoToDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MM_RdoToDigit::execute()
+StatusCode MM_RdoToDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
-  SG::ReadHandle<Muon::MM_RawDataContainer> rdoRH(m_mmRdoKey);
+  SG::ReadHandle<Muon::MM_RawDataContainer> rdoRH(m_mmRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_ERROR( "No MM RDO container found!"  );
     return StatusCode::FAILURE;
@@ -31,7 +31,7 @@ StatusCode MM_RdoToDigit::execute()
   const Muon::MM_RawDataContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " MM RDOs." );
 
-  SG::WriteHandle<MmDigitContainer> wh_mmDigit(m_mmDigitKey);
+  SG::WriteHandle<MmDigitContainer> wh_mmDigit(m_mmDigitKey, ctx);
   ATH_CHECK(wh_mmDigit.record(std::make_unique<MmDigitContainer>(m_mmHelper->module_hash_max())));
   ATH_MSG_DEBUG( "Decoding MM RDO into MM Digit"  );
 
@@ -88,7 +88,7 @@ StatusCode MM_RdoToDigit::decodeMM( const Muon::MM_RawDataCollection * rdoColl, 
                              << " in StoreGate!"  );
         }
         else {
-          MmDigitCollection * oldCollection = (MmDigitCollection*) *it_coll;
+          MmDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MmDigitCollection*>(*it_coll); // FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

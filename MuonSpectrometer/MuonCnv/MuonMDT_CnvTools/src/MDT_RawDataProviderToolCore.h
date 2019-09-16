@@ -20,7 +20,6 @@
 
 
 class MdtCsmContainer;
-class StoreGateSvc;
 class IROBDataProviderSvc;
 
 namespace MuonGM {

@@ -203,7 +203,15 @@ if( newRunFlag() || newLowStatFlag()){
     addHistogram( new TH1F("L2MuonSA_effi_toRecMuonCB_phi_numer",     "L2MuonSA effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
     addHistogram( new TH1F("L2MuonSA_effi_toRecMuonCB_phi_denom",     "L2MuonSA effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
 
-
+    // single chain histograms
+    std::vector<string> triggerlist;
+    triggerlist.insert(triggerlist.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());
+    triggerlist.insert(triggerlist.end(), m_chainsMSonly.begin(), m_chainsMSonly.end());
+    for(auto trig : triggerlist) {
+      addHistogram( new TH1D(Form("L2_pt_%s",trig.c_str()), Form("L2MuonSA pT for chain %s; p_{T} [GeV]; Entries",trig.c_str()), 26, 0, 52), m_histdirmufast );
+      addHistogram( new TH1D(Form("L2_eta_%s",trig.c_str()), Form("L2MuonSA eta for chain %s; #eta; Entries",trig.c_str()), 32, -3.2, 3.2), m_histdirmufast );
+      addHistogram( new TH1D(Form("L2_phi_%s",trig.c_str()), Form("L2MuonSA phi for chain %s; #phi [rad]; Entries",trig.c_str()), 32, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
+    }
   }
   //else if( newLumiBlockFlag() ){   }
 
@@ -242,6 +250,7 @@ StatusCode HLTMuonMonTool::fillL2MuonSADQA()
   }
 
   ATH_MSG_DEBUG( " ====== START HLTMuon L2MuonSA MonTool ====== " );
+
 
   // -----------------------------
   // Dump muonFeature info
@@ -605,6 +614,18 @@ StatusCode HLTMuonMonTool::fillL2MuonSADQA()
     
   } // end of loop MuonFeture
 
+  // ----------------------------
+  // Fill per chain histograms
+  // ----------------------------
+
+  //single chain monitoring
+  std::vector<string> triggerlist;
+  triggerlist.insert(triggerlist.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());
+  triggerlist.insert(triggerlist.end(), m_chainsMSonly.begin(), m_chainsMSonly.end());
+  if( fillL2SASingleChainHistos(triggerlist).isFailure() ){
+    ATH_MSG_WARNING( "fillL2SASingleChainHistos() failed." );
+  }
+
   //std:: cout << " nMF " << nmf << " nMFD "<< nmfd << " nMFD10 " << nmfd10 << " matching nMF==nMFD10 " << (nmf==nmfd10) << std::endl;
 
   
@@ -874,6 +895,39 @@ StatusCode HLTMuonMonTool::fillL2MuonSADQA()
   return StatusCode::SUCCESS;
 }
 
+StatusCode HLTMuonMonTool::fillL2SASingleChainHistos(const std::vector<std::string>& triggerlist) {
+
+    for(std::string trig : triggerlist){
+      if (getTDT()->getNavigationFormat() == "TriggerElement") { // run 2 access
+        const Trig::FeatureContainer fc = getTDT()->features( trig );
+        const std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs = fc.get<xAOD::L2StandAloneMuonContainer>( );
+        for(const Trig::Feature<xAOD::L2StandAloneMuonContainer>& f : fs) {
+          for(const xAOD::L2StandAloneMuon* muon : *(f.cptr())) {
+            hist(Form("L2_pt_%s",trig.c_str()), m_histdirmufast)->Fill( fabs(muon->pt()) );
+            hist(Form("L2_eta_%s",trig.c_str()), m_histdirmufast)->Fill( muon->eta() );
+            hist(Form("L2_phi_%s",trig.c_str()), m_histdirmufast)->Fill( muon->phi() );
+          }
+        }
+      }//run 2 access
+      else { // run 3 MT access
+        ATH_MSG_DEBUG("Run 3 access to L2 " << trig.c_str() << " = " << getTDT()->isPassed(trig));
+        const std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> > fc = getTDT()->features<xAOD::L2StandAloneMuonContainer>(trig);
+        ATH_MSG_DEBUG("N(L2SA LinkInfo) for chain " << trig << " = " << fc.size());
+        for(auto muonLinkInfo : fc) {
+          ATH_CHECK( muonLinkInfo.isValid() );
+          ElementLink<xAOD::L2StandAloneMuonContainer> muonLink = muonLinkInfo.link;
+          ATH_CHECK( muonLink.isValid() );
+          hist(Form("L2_pt_%s",trig.c_str()), m_histdirmufast)->Fill( fabs((*muonLink)->pt()) );
+          hist(Form("L2_eta_%s",trig.c_str()), m_histdirmufast)->Fill( (*muonLink)->eta() );
+          hist(Form("L2_phi_%s",trig.c_str()), m_histdirmufast)->Fill( (*muonLink)->phi() );
+        }//loop on muons
+        
+      }// run 3 access
+    }// loop on triggers      
+    
+    return StatusCode::SUCCESS;
+
+}//fillL2SASingleChainHistos
 
 StatusCode HLTMuonMonTool::procL2MuonSADQA()
 {

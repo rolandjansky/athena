@@ -9,7 +9,6 @@
 #define LARCALIBUTILS_LARAUTOCORRDECODERTOOL_H
 
 #include "LArElecCalib/ILArAutoCorrDecoderTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -23,8 +22,6 @@
 #include "LArRawConditions/LArConditionsContainer.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
-class StoreGateSvc;
 
 class LArAutoCorrDecoderTool: public AthAlgTool,
 			      virtual public ILArAutoCorrDecoderTool

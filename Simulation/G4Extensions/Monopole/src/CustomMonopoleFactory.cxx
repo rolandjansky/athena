@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -53,6 +53,7 @@ void CustomMonopoleFactory::loadCustomMonopoles()
     {
       std::string::size_type beg_idx,end_idx;
       bool isQball = false;
+      bool isFCP = false; // Wendy Taylor: fractionally charged particle
 
       beg_idx = line.find_first_not_of("\t #");
       if(beg_idx > 0 && line[beg_idx-1] == '#') continue;
@@ -61,22 +62,26 @@ void CustomMonopoleFactory::loadCustomMonopoles()
       char *endptr;
       pdgCode  = strtol(line.substr( beg_idx, end_idx - beg_idx ).c_str(), &endptr, 0);
       if (endptr[0] != '\0') {
-        throw std::invalid_argument("Could not convert string to int: " + line.substr( beg_idx, end_idx - beg_idx ));
+        throw std::invalid_argument("CustomMonopoleFactory::loadCustomMonopoles: Could not convert string to int: " + line.substr( beg_idx, end_idx - beg_idx ));
       }
 
+      G4cout << "CustomMonopoleFactory: pdgCode = " << pdgCode << G4endl;
 
       beg_idx = line.find_first_not_of("\t ",end_idx);
       end_idx = line.find_first_of( "\t #", beg_idx);
       if (end_idx == std::string::npos) continue;
+
       mass  = atof(line.substr( beg_idx, end_idx - beg_idx ).c_str());
 
       beg_idx = line.find_first_not_of("\t ",end_idx);
       end_idx = line.find_first_of( "\t #", beg_idx);
       if (end_idx == std::string::npos) continue;
+
       elCharge  = atof(line.substr( beg_idx, end_idx - beg_idx ).c_str());
 
       beg_idx = line.find_first_not_of("\t ",end_idx);
       end_idx = line.find_first_of( "\t #", beg_idx);
+
       if (end_idx == std::string::npos) continue;
       magCharge  = atof(line.substr( beg_idx, end_idx - beg_idx ).c_str());
 
@@ -89,37 +94,51 @@ void CustomMonopoleFactory::loadCustomMonopoles()
       for(unsigned int il=0; il < lowerCaseName.length(); ++il) lowerCaseName[il] = std::tolower(lowerCaseName[il]);
       isQball = (lowerCaseName.find("qball") != std::string::npos) ? true : false;
 
-      //      std::cout << name << std::endl;
+      isFCP = (lowerCaseName.find("fcp") != std::string::npos) ? true : false;
+
+      G4cout << "CustomMonopoleFactory: name = " << name << G4endl;
 
       if(abs(pdgCode) / 1000000 == 0)
         {
-          std::cout << "Pdg code too low " << pdgCode << " "<<abs(pdgCode) / 1000000  << std::endl;
+          G4cout << "CustomMonopoleFactory: pdgCode too low: " << pdgCode << " " << abs(pdgCode) / 1000000  << G4endl;
           continue;
         }
       else
         {
 
-          std::cout << "code=" << (int)(pdgCode/10000) << std::endl;
-          //	double elChargeFromPDGcode = (isQball) ? (pdgCode/10)%10000/10. : (pdgCode/10)%1000/10. ;
-          //	double elChargeFromPDGcode = (isQball) ? (pdgCode/10)%10000/1. : (pdgCode/10)%1000/1. ;
           double elChargeFromPDGcode = (isQball) ? (pdgCode/10)%10000/10. : (pdgCode/10)%1000/1. ;
-          if (!isQball && abs((int)(pdgCode/10000)) == 412) elChargeFromPDGcode = -elChargeFromPDGcode;
+
+          if (isFCP) 
+	    {
+	      // pdgCode charge encoding scheme developed by quanyin.li@cern.ch
+	      float XX, YY; // XX = numerator, YY = denominator
+	      XX = (abs(pdgCode)/1000)%100;
+	      YY = (abs(pdgCode)/10)%100;
+	      G4cout << "CustomMonopoleFactory: XX = " << XX << ", YY = " << YY << G4endl;
+
+	      elChargeFromPDGcode = (pdgCode>0) ? round(100.*XX/YY)/100. : -round(100.*XX/YY)/100.;
+	      G4cout << "CustomMonopoleFactory: elChargeFromPDGcode = " << elChargeFromPDGcode << G4endl;
+	    }
+
+          if (!isQball && !isFCP && abs((int)(pdgCode/10000)) == 412) elChargeFromPDGcode = -elChargeFromPDGcode;
+
+
           if (elChargeFromPDGcode != elCharge) {
-            std::cout << "CustomMonopoleFactory: El. charges for "<< name <<" from PDGcode and 3d col. of particles.txt file do not agree: " <<  elChargeFromPDGcode << " / " << elCharge << std::endl;
+            G4cout << "CustomMonopoleFactory: El. charges for "<< name <<" from PDGcode and 3d col. of particles.txt file do not agree: " <<  elChargeFromPDGcode << " / " << elCharge << G4endl;
             G4Exception("CustomMonopoleFactory::loadCustomMonopoles","WrongElCharges",FatalException,"El charge from PDGcode and 3d col. of particles.txt file do not agree");
           }
           if (elCharge == 0.0 && magCharge == 0.0) {
-            std::cout << "CustomMonopoleFactory: Both electric and magnetic charges are ZEROs. Skip the particle. " << std::endl;
+            G4cout << "CustomMonopoleFactory: Both electric and magnetic charges are ZEROs. Skip the particle. " << G4endl;
             continue;
           }
 
         }
 
-      std::cout<<"pType: "<<pType<<std::endl;
-      std::cout<<"PDGcode of "  <<name<<" is "<<pdgCode<<std::endl;
-      std::cout<<"Mass of "     <<name<<" is "<<mass   <<std::endl;
-      std::cout<<"Electrical Charge of "   <<name<<" is "<<elCharge <<std::endl;
-      std::cout<<"Magnetic Charge of "   <<name<<" is "<<magCharge <<std::endl;
+      G4cout << "CustomMonopoleFactory: pType is " << pType << G4endl;
+      G4cout << "CustomMonopoleFactory: PDGcode of "  << name << " is " << pdgCode << G4endl;
+      G4cout << "CustomMonopoleFactory: Mass of "     << name << " is " << mass   << G4endl;
+      G4cout << "CustomMonopoleFactory: Electrical Charge of " << name << " is "<< elCharge << G4endl;
+      G4cout << "CustomMonopoleFactory: Magnetic Charge of " << name << " is "<< magCharge << G4endl;
 
       //      CustomMonopole *particle  = CustomMonopole::MonopoleDefinition(
       CustomMonopole *particle  = new CustomMonopole(
@@ -138,7 +157,7 @@ void CustomMonopoleFactory::loadCustomMonopoles()
   configFile.close();
 
   if (m_particles.empty())  {
-    std::cout << "CustomMonopoleFactory:  No particles have been loaded." << std::endl;
+    G4cout << "CustomMonopoleFactory:  No particles have been loaded." << G4endl;
     G4Exception("CustomMonopoleFactory::loadCustomMonopoles","NoParticlesLoaded",FatalException,"No particles have been loaded");
   }
   return;

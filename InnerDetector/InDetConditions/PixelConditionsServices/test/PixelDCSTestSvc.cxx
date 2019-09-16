@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDCSTestSvc.h"
 
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetIdentifier/PixelID.h"
 
 #include "PixelConditionsData/PixelDCSData.h"
@@ -17,7 +14,6 @@
 PixelDCSTestSvc::PixelDCSTestSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_pixid(nullptr),
-  m_pixman(nullptr),
   m_pixelDCSSvc("PixelDCSSvc", name),
   m_pixelSvc("PixelConditionsSummaryTool", this)
 {
@@ -37,12 +33,6 @@ StatusCode PixelDCSTestSvc::initialize()
 
    msg(MSG::INFO) << "Entering PixelDCSTestReadWrite::initialize()" << endmsg;
 
-
-   if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel") || m_pixman==0){
-     msg(MSG::FATAL) << "Could not find Pixel manager "<<endmsg; 
-     return StatusCode::FAILURE; 
-   }
-   msg(MSG::INFO)  << "Pixel manager  retrieved" << endmsg;
 
    if( StatusCode::SUCCESS != detStore()->retrieve( m_pixid,"PixelID") ){
      ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
@@ -84,36 +74,28 @@ StatusCode PixelDCSTestSvc::execute(){
     return(StatusCode::FAILURE);
   }
 
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
-
-  itermin = m_pixman->getDetectorElementBegin(); 
-  itermax = m_pixman->getDetectorElementEnd(); 
-
-  for( iter=itermin; iter !=itermax; ++iter){ 
-    const InDetDD::SiDetectorElement* element = *iter; 
-    if(element !=0){ 
-      Identifier ident = element->identify(); 
-      if(m_pixid->is_pixel(ident)){
+  for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
+    Identifier ident = *wafer_it;
+    if(m_pixid->is_pixel(ident)){
 
 
-	IdentifierHash id_hash = m_pixid->wafer_hash(ident);
+      IdentifierHash id_hash = m_pixid->wafer_hash(ident);
 
-	msg(MSG::ALWAYS) << "Identifier:   " << ident.get_compact()  << endmsg
-			 << "                 temperature: " << m_pixelDCSSvc->getTemperature(ident) << endmsg
-			 << "                 HV         : " << m_pixelDCSSvc->getHV(ident)          << endmsg
-			 << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(ident)    << endmsg
-			 << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(ident)    << endmsg;
+      msg(MSG::ALWAYS) << "Identifier:   " << ident.get_compact()  << endmsg
+                       << "                 temperature: " << m_pixelDCSSvc->getTemperature(ident) << endmsg
+                       << "                 HV         : " << m_pixelDCSSvc->getHV(ident)          << endmsg
+                       << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(ident)    << endmsg
+                       << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(ident)    << endmsg;
 
-	msg(MSG::ALWAYS) << "IdentifierHash:   " <<(unsigned int)id_hash << endmsg
-			 << "                 temperature: " << m_pixelDCSSvc->getTemperature(id_hash) << endmsg
-			 << "                 HV         : " << m_pixelDCSSvc->getHV(id_hash)          << endmsg
-			 << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(id_hash)    << endmsg
-			 << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(id_hash)    << endmsg;
+      msg(MSG::ALWAYS) << "IdentifierHash:   " <<(unsigned int)id_hash << endmsg
+                       << "                 temperature: " << m_pixelDCSSvc->getTemperature(id_hash) << endmsg
+                       << "                 HV         : " << m_pixelDCSSvc->getHV(id_hash)          << endmsg
+                       << "                 FSMStatus  : " << m_pixelDCSSvc->getFSMStatus(id_hash)    << endmsg
+                       << "                 FSMState   : " << m_pixelDCSSvc->getFSMState(id_hash)    << endmsg;
 
-	msg(MSG::ALWAYS) << "isActive  " << m_pixelSvc->isActive(id_hash) << endmsg;
-	msg(MSG::ALWAYS) << "isGood  " << m_pixelSvc->isGood(id_hash) << endmsg;
+      msg(MSG::ALWAYS) << "isActive  " << m_pixelSvc->isActive(id_hash) << endmsg;
+      msg(MSG::ALWAYS) << "isGood  " << m_pixelSvc->isGood(id_hash) << endmsg;
   
-      }
     }
   }
 

@@ -6,7 +6,6 @@
 
 #include "SiDetElementsRoadUtils_xk.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 
@@ -19,7 +18,6 @@
 
 InDet::SiDetElementsRoadCondAlg_xk::SiDetElementsRoadCondAlg_xk(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_pixmgr{nullptr},
   m_condSvc{"CondSvc", name}
 {
 }
@@ -35,13 +33,7 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Get Pixel Detector Manager and Pixel ID helper
-  if (m_usePIX and m_usePixelDetectorManager) {
-    ATH_CHECK(detStore()->retrieve(m_pixmgr, m_pix));
-  }
-  ATH_CHECK(m_PixelDetEleCollKey.initialize(m_usePIX));
-  
-  // Get  SCT Detector Manager and SCT ID helper
+  ATH_CHECK(m_pixelDetEleCollKey.initialize(m_usePIX));
   ATH_CHECK(m_SCTDetEleCollKey.initialize(m_useSCT));
 
   ATH_CHECK(m_writeKey.initialize());
@@ -85,14 +77,11 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) 
   EventIDRange rangePixel;
   if (m_usePIX) {
     // Loop over each wafer of pixels
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_PixelDetEleCollKey, ctx);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
     const InDetDD::SiDetectorElementCollection* pixelDetEle{*pixelDetEleHandle};
     if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
-      ATH_MSG_FATAL(m_PixelDetEleCollKey.fullKey() << " is not available.");
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
       return StatusCode::FAILURE;
-    }
-    if (m_usePixelDetectorManager) {
-      pixelDetEle = m_pixmgr->getDetectorElementCollection();
     }
     for (const InDetDD::SiDetectorElement* s: *pixelDetEle) {
       if      (s->isBarrel()       ) pW[1].push_back(s); // Barrel

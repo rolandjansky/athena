@@ -17,12 +17,6 @@
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-
-namespace InDetDD
-{
-    class PixelDetectorManager;
-}
 
 class PixelID;
 class SCT_ID;
@@ -57,15 +51,14 @@ private:
     void FillModule( moduleGeo_t module, TH2F * histo );
     
     const PixelID * m_pixID;
-    const InDetDD::PixelDetectorManager * m_pixManager;
     const SCT_ID * m_sctID;
     
     ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
     ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
         "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
     ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
-    ServiceHandle<IPixelByteStreamErrorsSvc> m_ErrorSvc;
 
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     geoContainer_t m_errorGeoPixel;

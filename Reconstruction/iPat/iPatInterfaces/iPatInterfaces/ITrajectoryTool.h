@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,9 +44,6 @@ public:
     /** AlgTool and IAlgTool interface methods */
     static const InterfaceID&	interfaceID() { return IID_ITrajectoryTool; }
 
-    /** register this method for the callback chain */
-    virtual StatusCode		magneticFieldInitialize(IOVSVC_CALLBACK_ARGS) = 0;
-         
     /**ITrajectoryTool interface:
        central field value in MagFieldAthenaSvc units (kGauss) */
     virtual double		centralField (void) const = 0;

@@ -12,11 +12,11 @@ decription           : Implementation code for MultiStateMaterialEffectsAdapter 
 **************************************************************************************/
 
 #include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
 
 void
 Trk::MultiStateMaterialEffectsAdapter::compute(Trk::IMultiStateMaterialEffects::Cache& cache,
-                                               const ToolHandle<IMaterialEffectsUpdator>& tool,
+                                               const ToolHandle<IGSFMaterialEffects>& tool,
                                                const ComponentParameters& componentParameters,
                                                const MaterialProperties& materialProperties,
                                                double pathLength,
@@ -25,20 +25,17 @@ Trk::MultiStateMaterialEffectsAdapter::compute(Trk::IMultiStateMaterialEffects::
 {
   // Reset the cache
   cache.reset();
-
   // Request track parameters from component parameters
   const Trk::TrackParameters* originalTrackParameters = componentParameters.first;
 
   // Update this track parameters object
-  const Trk::TrackParameters* updatedTrackParameters =
+  std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
     tool->update(*originalTrackParameters, materialProperties, pathLength, direction, particleHypothesis);
-
   /* Extract the required values for the Gsf Material Effects Updator
      - weight = 1 for single state
      - deltaP
      - deltaSigma
   */
-
   double deltaP =
     Trk::MultiStateMaterialEffectsAdapter::extractDeltaP(*updatedTrackParameters, *originalTrackParameters);
   std::unique_ptr<const AmgSymMatrix(5)> deltaErrorMatrix(
@@ -49,8 +46,6 @@ Trk::MultiStateMaterialEffectsAdapter::compute(Trk::IMultiStateMaterialEffects::
   if (deltaErrorMatrix) {
     cache.deltaCovariances.push_back(std::move(deltaErrorMatrix));
   }
-  // Clean up memory
-  delete updatedTrackParameters;
 }
 
 double

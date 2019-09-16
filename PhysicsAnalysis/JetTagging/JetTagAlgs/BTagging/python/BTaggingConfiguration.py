@@ -509,6 +509,7 @@ class Configuration:
           btagname = self.getOutputFilesPrefix() + jetcol
           options.setdefault('name', (btagname + self.GeneralToolSuffix()).lower())
           options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
+          options.setdefault('JetCalibrationName', jetcol.replace('Track','PV0Track'))
           options.setdefault('BTaggingCollectionName', btagname)
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
           objs['xAOD::BTaggingContainer'] = options['BTaggingCollectionName']
@@ -608,6 +609,7 @@ class Configuration:
           # Set remaining options
           options.setdefault('name', (self.getOutputFilesPrefix() + jetcol + self.GeneralToolSuffix()).lower())
           options.setdefault('JetCollectionName', jetcol + "Jets")
+          options.setdefault('JetCalibrationName', jetcol.replace('Track','PV0Track'))
           options.setdefault('BTaggingCollectionName', self.getOutputFilesPrefix() + jetcol)
           #options.setdefault('BTagJFVtxCollectionName', self._OutputFilesJFVxname)
           #options.setdefault('BTagSVCollectionName', self._OutputFilesSVname)

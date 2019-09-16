@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,6 @@
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
 
-class StoreGateSvc;
 class MdtIdHelper;
 
 class CscIdHelper;
@@ -61,9 +60,8 @@ namespace MuonCalib {
 
     /**
        Algorithm initialize:
-       - retrieves StoreGateSvc
        - retrieves MuonCalibTool
-       - retrieves auxillairy classes to construct Calib EDM classes (IdHelpers, IdToFixedIdTool, DetectorStore)
+       - retrieves auxillairy classes to construct Calib EDM classes (IdHelpers, IdToFixedIdTool)
        
      */
     StatusCode initialize();     
@@ -105,7 +103,6 @@ namespace MuonCalib {
     const MuonCalibTriggerTimeInfo* retrieveTriggerTimeInfo() const;
 
     const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to MuonDetectorManager 
-    StoreGateSvc* p_StoreGateSvc;                   //!< Pointer to StoreGateSvc 
     std::string m_globalPatternLocation;            //!< Location of the MuonCalibPattern in StoreGate
 
     /* RtCalibration initialization */

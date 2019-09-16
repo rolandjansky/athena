@@ -398,7 +398,6 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    if (!m_allowMetaDataStop && !ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
-
    // Make sure metadata is ready for writing
    ATH_CHECK(this->prepareOutput());
 

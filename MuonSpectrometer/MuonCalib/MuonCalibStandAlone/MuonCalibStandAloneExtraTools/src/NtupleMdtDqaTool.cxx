@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -23,7 +23,6 @@
 
 // Athena //
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -161,25 +160,14 @@ StatusCode NtupleMdtDqaTool::initialize() {
 	
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "Initializing NtupleMdtDqaTool" << endmsg;
-
-  //-----------------------------//
-  //-- Get the StoreGate Stuff --//
-  //-----------------------------//
-
-  StoreGateSvc *detStore;
-  StatusCode sc=service("DetectorStore", detStore);
-  if(!sc.isSuccess()){
-    log << MSG::FATAL << "Cannot retrieve Store Gate!" << endmsg;
-    return sc;
-  }
   
-  sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (!sc.isSuccess()) {
     log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endmsg;
     return sc;
   }
   
-  sc = detStore->retrieve( m_detMgr );
+  sc = detStore()->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
     log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endmsg;
     return sc;

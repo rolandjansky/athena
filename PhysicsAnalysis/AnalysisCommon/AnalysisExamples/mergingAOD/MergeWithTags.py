@@ -59,7 +59,6 @@ OutMerge        = Algorithm( "OutMerge" )
 OutMerge.Output = OUTPUT+".pool.root"
 OutMerge.EvtConversionSvc = "AthenaPoolCnvSvc"
 OutMerge.ItemList  = AOD_ItemList
-OutMerge.ForceRead = TRUE;  #force read of output data objs
 OutMerge.ExtendProvenanceRecord = TRUE
 
 cName = "Rome"

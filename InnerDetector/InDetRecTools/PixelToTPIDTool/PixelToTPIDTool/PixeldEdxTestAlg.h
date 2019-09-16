@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVDBTESTALG_PIXELDEDXTESTALG_H
@@ -11,12 +11,10 @@
 #define NPAR   9
 
 #include "StoreGate/DataHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
-class StoreGateSvc;
 class EventInfo;
 class IIOVRegistrationSvc;
 class IAthenaOutputStreamTool;
@@ -41,7 +39,6 @@ private:
     StatusCode printCondObjects();
     StatusCode streamOutCondObjects();
     StatusCode registerCondObjects();
-    StatusCode readWithBeginRun();
 	StatusCode testCallBack(  IOVSVC_CALLBACK_ARGS  );
 
     std::string               m_tagID;    

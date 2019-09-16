@@ -79,7 +79,7 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
     ATH_MSG_ERROR("Unknown exception caught when reading stream tags");
     return StatusCode::FAILURE;
   }
-  resultToFill.setStreamTags(streamTags);
+  ATH_CHECK(resultToFill.setStreamTags(streamTags));
   ATH_MSG_DEBUG("Successfully read " << streamTags.size() << " stream tags");
 
   // ---------------------------------------------------------------------------
@@ -129,7 +129,7 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodePayload(const std::vector<con
       ATH_MSG_ERROR("Unknown exception caught when reading HLT result payload");
       return StatusCode::FAILURE;
     }
-    resultToFill.addSerialisedDataWithCheck(sid.module_id(), data);
+    ATH_CHECK( resultToFill.addSerialisedDataWithCheck(sid.module_id(), data) );
     ATH_MSG_DEBUG("Successfully read " << data.size() << " words of HLT result payload for module ID "
                   << sid.module_id());
   }

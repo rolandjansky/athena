@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 #include "RecExAlgs/SimpleCookedObjMaker.h"
 #include "RecExAlgs/SimpleCookedObj.h"
 #include "RecExAlgs/SimpleRawObj.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //================ Constructor =================================================
 
@@ -57,14 +56,6 @@ StatusCode SimpleCookedObjMaker::initialize()
 
   ATH_MSG_INFO(" will write out CookedObj with key " << m_cookedObjOutputName);
 
-  // retrieve the StoreGate Service (delete if not needed)
-  if (!evtStore().retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not retrieve StoreGateSvc!");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("StoreGateSvc retrieved!");
-  }
-  
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }

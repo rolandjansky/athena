@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TestCoolRecRead.cxx
@@ -8,7 +8,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IOVRange.h"
 
 #include "AthenaDBTestRec/TestCoolRecRead.h"
