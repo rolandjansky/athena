@@ -169,15 +169,14 @@ def CscClusterBuildCfg(flags, forTrigger=False):
 
     # Get cluster creator tool
     from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
-    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThesholdClusterBuilderTool" )
+    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThresholdClusterBuilderTool" )
     acc.addPublicTool( CscClusterBuilderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
   
     #CSC cluster building
-    if not forTrigger:
-        from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-        CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
-                                                       cluster_builder = CscClusterBuilderTool )
-        acc.addEventAlgo(CscClusterBuilder)
+    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+    CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
+                                                   cluster_builder = CscClusterBuilderTool )
+    acc.addEventAlgo(CscClusterBuilder)
 
     return acc
 
