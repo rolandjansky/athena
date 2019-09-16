@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // System includes
 #include <limits>
 
 // ROOT includes
 #include "TError.h"
-
-// Framework includes
-#include "CxxUtils/make_unique.h"
 
 // Local includes
 #include "AssociationUtils/OverlapRemovalInit.h"
@@ -157,7 +154,7 @@ namespace ORUtils
                               bool outputPassValue,
                               bool doTaus, bool doPhotons)
   {
-    using CxxUtils::make_unique;
+    using std::make_unique;
 
     // The master tool
     tbox.setMasterTool( make_unique<OverlapRemovalTool>(name) );
@@ -252,7 +249,7 @@ namespace ORUtils
 
     // Fill the tau loose-lepton OR recommendations
     if(doTaus) {
-      using CxxUtils::make_unique;
+      using std::make_unique;
       // Tau-ele overlap tool
       auto tauEleORT = make_unique<TauLooseEleOverlapTool>(name + "_TauEleORT");
       ORT_CHECK( tauEleORT->setProperty("InputLabel", inputLabel) );
