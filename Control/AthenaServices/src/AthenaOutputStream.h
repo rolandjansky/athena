@@ -134,7 +134,8 @@ protected:
    typedef std::recursive_mutex mutex_t;
    mutable mutex_t  m_mutex;    // mutable so const functions can lock
    /// mutexes for streamerTools
-   std::map< std::string, std::mutex > m_toolMutexMap;
+  //std::map< std::string, std::mutex > m_toolMutexMap;
+   std::map< std::string, mutex_t > m_toolMutexMap;
 
 protected:
    /// Handler for ItemNames Property
