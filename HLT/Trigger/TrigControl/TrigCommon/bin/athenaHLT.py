@@ -329,7 +329,7 @@ def main():
    ## Expert options
    g = parser.add_argument_group('Expert')
    parser.expert_groups.append(g)
-   g.add_argument('--joboptionsvc-type', metavar='TYPE', default='JobOptionsSvc', help='JobOptionsSvc type')
+   g.add_argument('--joboptionsvc-type', metavar='TYPE', default='TrigConf::JobOptionsSvc', help='JobOptionsSvc type')
    g.add_argument('--msgsvc-type', metavar='TYPE', default='TrigMessageSvc', help='MessageSvc type')
    g.add_argument('--partition', '-p', metavar='NAME', default='athenaHLT', help='partition name')
    g.add_argument('--no-ers-signal-handlers', action='store_true', help='disable ERS signal handlers')
