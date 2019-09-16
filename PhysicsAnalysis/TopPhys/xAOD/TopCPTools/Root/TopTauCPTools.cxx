@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopCPTools/TopTauCPTools.h"
@@ -85,6 +85,10 @@ StatusCode TauCPTools::setupCalibration() {
     if (s == "LooseNotTight") return TauAnalysisTools::JETIDBDTLOOSENOTTIGHT;
     if (s == "MediumNotTight") return TauAnalysisTools::JETIDBDTMEDIUMNOTTIGHT;
     if (s == "NotLoose") return TauAnalysisTools::JETIDBDTNOTLOOSE;
+
+    if (s == "RNNLoose") return TauAnalysisTools::JETIDRNNLOOSE;
+    if (s == "RNNMedium") return TauAnalysisTools::JETIDRNNMEDIUM;
+    if (s == "RNNTight") return TauAnalysisTools::JETIDRNNTIGHT;
 
     // If we haven't found the correct WP, then return -1
     return TauAnalysisTools::JETIDNONEUNCONFIGURED;
@@ -213,6 +217,9 @@ StatusCode TauCPTools::setupCalibration() {
         top::check( m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool" );
         top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
                     "Failed to set PileupReweightingTool for " + tauEffCorrName);
+
+        top::check(asg::setProperty(tauEffCorrTool, "UseTauSubstructure", m_config->tauSubstructureSF()),
+                    "Failed to set UseTauSubstructure for " + tauEffCorrName);
       }
       top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionTool),
                   "Failed to set TauSelectionTool for " + tauEffCorrName);
@@ -276,9 +283,12 @@ StatusCode TauCPTools::setupCalibration() {
         top::check( m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool" );
         top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
                   "Failed to set PileupReweightingTool for " + tauEffCorrNameLoose);
+        top::check(asg::setProperty(tauEffCorrTool, "UseTauSubstructure", m_config->tauSubstructureSFLoose()),
+                    "Failed to set UseTauSubstructure for " + tauEffCorrNameLoose);
       }
       top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionToolLoose),
                   "Failed to set TauSelectionTool for " + tauEffCorrNameLoose);
+
       top::check(tauEffCorrTool->initialize() , "Failed to initialize");
       m_tauEffCorrToolLoose = tauEffCorrTool;
     }

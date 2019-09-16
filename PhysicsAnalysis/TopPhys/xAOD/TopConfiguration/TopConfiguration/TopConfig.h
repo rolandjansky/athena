@@ -678,6 +678,14 @@ class TopConfig final {
     if(!m_configFixed)
       m_tau_configuration_loose.fileName = s;
   }
+  inline virtual void tauSubstructureSF(bool do_tau_substructure_sf) {
+    if(!m_configFixed)
+      m_tau_configuration.substructureSF = do_tau_substructure_sf;
+  }
+  inline virtual void tauSubstructureSFLoose(bool do_tau_substructure_sf) {
+    if(!m_configFixed)
+      m_tau_configuration_loose.substructureSF = do_tau_substructure_sf;
+  }
 
   // Tau configuration getters
   inline virtual float tauPtcut() const {
@@ -706,6 +714,12 @@ class TopConfig final {
   }
   inline const std::string& tauJetConfigFileLoose() {
     return m_tau_configuration_loose.fileName;
+  }
+  inline virtual bool tauSubstructureSF() {
+    return m_tau_configuration.substructureSF;
+  }
+  inline virtual bool tauSubstructureSFLoose() {
+    return m_tau_configuration_loose.substructureSF;
   }
   // Applying new tau energy calibration
   inline bool applyTauMVATES() {
@@ -1325,6 +1339,7 @@ class TopConfig final {
     std::string jetIDWP = "Medium";
     // the electron BDTWP
     std::string eleBDTWP = "Medium";
+    bool substructureSF = false;
     // Whether to perform electron overlap removal
     bool eleOLR = false;
     // pT cut on taus
