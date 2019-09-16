@@ -33,7 +33,7 @@ class TriggerConfigHLT(object):
 
         cls.__allChainConfigs[chainConfig.name] = chainConfig
         cls.__allChainDicts[chainDict['chainName']] = chainDict
-        log.debug("Registered chain ", chainConfig.name ) 
+        log.debug("Registered chain %s", chainConfig.name ) 
 
     @classmethod
     def dicts(cls):

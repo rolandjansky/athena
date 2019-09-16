@@ -36,10 +36,12 @@ TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3      
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      104       6354      121       0         0
 TrigSignatureMoniMT                                INFO HLT_g140_etcut_L1EM24VHI      11        11        0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_g140_etcut_L1EM24VHI decisions                    0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15   15        15        14        14        11        11        0         11
+TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15 decisions                    24        24        21        21        0
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        20        20        20        0         0         20
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      154       154       223       0         0
-TrigSignatureMoniMT                                INFO HLT_g5_etcut_larpeb_L1EM3     20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_g5_etcut_larpeb_L1EM3 decisions                    154       154       223       0         0
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3     20        20        20        20        20        20        0         20
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3 decisions                    154       154       223       223       0
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2019        19        17        0         0         0         0         17
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    50        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j175_gsc225_bmv2c1040_split_L1J1004         4         1         0         0         0         0         0
@@ -84,6 +86,8 @@ TrigSignatureMoniMT                                INFO HLT_mu26_ivarmedium_L1MU
 TrigSignatureMoniMT                                INFO HLT_mu26_ivarmedium_L1MU20 decisions                    10        6         5         4         2
 TrigSignatureMoniMT                                INFO HLT_mu50_L1MU20               8         8         8         5         1         1         0         1
 TrigSignatureMoniMT                                INFO HLT_mu50_L1MU20 decisions                         10        6         1         1         0
+TrigSignatureMoniMT                                INFO HLT_mu50_RPCPEBSecondaryReadout_L1MU208         8         8         5         1         1         1         1
+TrigSignatureMoniMT                                INFO HLT_mu50_RPCPEBSecondaryReadout_L1MU20 decisions                    10        6         1         1         1
 TrigSignatureMoniMT                                INFO HLT_mu60_0eta105_msonly_L1MU208         8         1         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_mu60_0eta105_msonly_L1MU20 decisions                    2         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_mu6Comb_L1MU6             10        10        10        5         0         0         0         5

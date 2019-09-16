@@ -298,7 +298,14 @@ class GenerateMenuMT(object):
 
         else:
             theChainConfig = listOfChainConfigs[0]
-            
+        
+        # Configure event building strategy
+        eventBuildType = mainChainDict['eventBuildType']
+        if eventBuildType:
+            log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
+            from TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup import addEventBuildingSequence
+            addEventBuildingSequence(theChainConfig, eventBuildType)
+
         return theChainConfig
 
 
