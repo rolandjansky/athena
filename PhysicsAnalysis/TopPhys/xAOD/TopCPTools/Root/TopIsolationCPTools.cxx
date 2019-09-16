@@ -54,7 +54,15 @@ StatusCode IsolationCPTools::setupIsolation() {
   } else {
     CP::IIsolationCorrectionTool* isolationCorr = new CP::IsolationCorrectionTool(iso_corr_tool_name);
     top::check(asg::setProperty(isolationCorr, "IsMC", m_config->isMC()),
-                "Failed to setProperty");  // if MC, else false
+	       "Failed to setProperty IsMC");  // if MC, else false
+    top::check(asg::setProperty(isolationCorr, "AFII_corr", m_config->isAFII()),
+	       "Failed to setProperty AFII_corr"); // if AFII, else false
+    top::check(asg::setProperty(isolationCorr, "Apply_SC_leakcorr", true),
+	       "Failed to setProperty Apply_SC_leakcorr"); // super cluster based core correction
+    top::check(asg::setProperty(isolationCorr, "Apply_etaEDParPU_correction", true),
+	       "Failed to setProperty Apply_etaEDParPU_correction"); // improved energy density based pileup correction with eta variations
+    top::check(asg::setProperty(isolationCorr, "Apply_etaEDPar_mc_correction", m_config->isMC()),
+	       "Failed to setProperty Apply_etaEDPar_mc_correction"); // pileup dependent correction to MC
     top::check(isolationCorr->initialize(), "Failed to initialize");
 
     m_isolationCorr = isolationCorr;
