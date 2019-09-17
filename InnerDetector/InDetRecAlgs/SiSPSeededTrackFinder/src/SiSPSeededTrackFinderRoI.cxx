@@ -91,13 +91,15 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::initialize()
     ATH_MSG_DEBUG("Retrieved tool " << m_ZWindowRoISeedTool);
   }
 
-  
-  if( m_RandomRoISeedTool.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Failed to retrieve tool "<< m_RandomRoISeedTool);
-    return StatusCode::FAILURE;
-  }
-  else{
-    ATH_MSG_DEBUG("Retrieved tool " << m_RandomRoISeedTool);
+
+  if(m_doRandomSpot){
+    if( m_RandomRoISeedTool.retrieve().isFailure() ){
+      ATH_MSG_FATAL("Failed to retrieve tool "<< m_RandomRoISeedTool);
+      return StatusCode::FAILURE;
+    }
+    else{
+      ATH_MSG_DEBUG("Retrieved tool " << m_RandomRoISeedTool);
+    }
   }
 
 
@@ -213,34 +215,37 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
   }
   
-  //Finding Random Spot in beamspot
-  m_listRandRoIs =  m_RandomRoISeedTool->getRoIs();
 
-  while( std::abs( m_listRoIs[0].z_reference - m_listRandRoIs[0].z_reference ) < 5. || std::abs(m_listRandRoIs[0].z_reference) > 250.0 ){
-    m_listRandRoIs.clear();
+  if(m_doRandomSpot){
+    //Finding Random Spot in beamspot
     m_listRandRoIs =  m_RandomRoISeedTool->getRoIs();
-  }
 
-  double RandZBoundary[2];
-  RandZBoundary[0] = m_listRandRoIs[0].z_window[0];
-  RandZBoundary[1] = m_listRandRoIs[0].z_window[1];
-  std::vector<xAOD::Vertex *> dummyxAODVertices_vector_rand;
-  for( int r = 0; r < m_listRandRoIs.size(); r++ ){
+    while( std::abs( m_listRoIs[0].z_reference - m_listRandRoIs[0].z_reference ) < 5. || std::abs(m_listRandRoIs[0].z_reference) > 250.0 ){
+      m_listRandRoIs.clear();
+      m_listRandRoIs =  m_RandomRoISeedTool->getRoIs();
+    }
 
-    xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+    double RandZBoundary[2];
+    RandZBoundary[0] = m_listRandRoIs[0].z_window[0];
+    RandZBoundary[1] = m_listRandRoIs[0].z_window[1];
+    std::vector<xAOD::Vertex *> dummyxAODVertices_vector_rand;
+    for( int r = 0; r < m_listRandRoIs.size(); r++ ){
 
-    dummyxAODVertices_vector_rand.push_back(dummyxAODVertex);
+      xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
 
-    theVertexContainer->push_back( dummyxAODVertices_vector_rand.at(r) );
+      dummyxAODVertices_vector_rand.push_back(dummyxAODVertex);
 
-    dummyxAODVertices_vector_rand.at(r)->setZ( m_listRandRoIs[r].z_reference );
-    dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("boundary_low") = m_listRandRoIs[r].z_window[0];
-    dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("boundary_high") = m_listRandRoIs[r].z_window[1];
+      theVertexContainer->push_back( dummyxAODVertices_vector_rand.at(r) );
 
-    dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("perigee_z0_lead") = m_listRandRoIs[r].z_perigee_pos[0];
-    dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("perigee_z0_sublead") = m_listRandRoIs[r].z_perigee_pos[1];
-    dummyxAODVertices_vector_rand.at(r)->auxdecor<int>("IsHS") = 0;
+      dummyxAODVertices_vector_rand.at(r)->setZ( m_listRandRoIs[r].z_reference );
+      dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("boundary_low") = m_listRandRoIs[r].z_window[0];
+      dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("boundary_high") = m_listRandRoIs[r].z_window[1];
 
+      dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("perigee_z0_lead") = m_listRandRoIs[r].z_perigee_pos[0];
+      dummyxAODVertices_vector_rand.at(r)->auxdecor<double>("perigee_z0_sublead") = m_listRandRoIs[r].z_perigee_pos[1];
+      dummyxAODVertices_vector_rand.at(r)->auxdecor<int>("IsHS") = 0;
+
+    }
   }
   
   if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
@@ -257,7 +262,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   m_seedsmaker  ->newEvent(-1); 
   std::list<Trk::Vertex> VZ; 
   m_seedsmaker->find3Sp(VZ, ZBoundary); 
-  m_seedsmaker->find3Sp(VZ, RandZBoundary); 
+  if(m_doRandomSpot) m_seedsmaker->find3Sp(VZ, RandZBoundary); 
   m_trackmaker->newEvent(PIX,SCT);
 
   // Loop through all seed and create track candidates
