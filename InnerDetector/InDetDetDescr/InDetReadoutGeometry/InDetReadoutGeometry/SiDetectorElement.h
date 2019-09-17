@@ -628,68 +628,117 @@ namespace InDetDD {
     // Protected data:
     ///////////////////////////////////////////////////////////////////
   protected:
-    Identifier m_id; // identifier of this detector element
-    IdentifierHash m_idHash; // hash id
-    const SiDetectorDesign* m_design; // local description of this detector element
-    const SiCommonItems* m_commonItems;
-    
-    const SiDetectorElement* m_nextInEta{nullptr};
-    const SiDetectorElement* m_prevInEta{nullptr};
-    const SiDetectorElement* m_nextInPhi{nullptr};
-    const SiDetectorElement* m_prevInPhi{nullptr};
-    const SiDetectorElement* m_otherSide{nullptr};
-    
-    bool m_isPixel;
-    bool m_isBarrel;
-    bool m_isDBM;
-      
-    //
-    // Cached values.
-    //
-    // Axes
-    SiDetectorDesign::Axis m_hitEta;
-    SiDetectorDesign::Axis m_hitPhi;
-    SiDetectorDesign::Axis m_hitDepth;
 
-    // Directions of axes. These are true if the hit/simulation and reconstruction local frames are
-    // in the same direction and false if they are opposite.
-    mutable bool m_depthDirection ATLAS_THREAD_SAFE {true}; // Guarded by m_mutex // Direction of depth axis. 
-    // Also direction of readout implant (n+ for pixel, p+ for SCT).
-    mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
-    mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
+    ///////////////////////////////////////////////////////////////////
+    // Variables for cache validities
+    ///////////////////////////////////////////////////////////////////
 
-    mutable std::atomic_bool m_cacheValid{false}; // Alignment associated quatities.
+    // For alignment associated quatities.
+    mutable std::atomic_bool m_cacheValid{false};
+    // For alignment independent quantities
     mutable std::atomic_bool m_firstTime{true};
     // Since m_isStereo depends on m_otherSide->sinStereo(), a dedicated validity variable is needed.
     mutable std::atomic_bool m_stereoCacheValid{false};
     // Since m_surfaces depends on m_otherSide->surface(), a dedicated validity variable is needed.
     mutable std::atomic_bool m_surfacesValid{false};
-    mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Mutex guard to update mutable variables in const methods
+    ///////////////////////////////////////////////////////////////////
 
     mutable std::mutex m_mutex{};
 
-    mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
-    mutable Amg::Vector3D m_normal ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable Amg::Vector3D m_etaAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Vector3D<double> m_etaAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable Amg::Vector3D m_phiAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Vector3D<double> m_phiAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by constructor
+    ///////////////////////////////////////////////////////////////////
 
-    mutable double m_minZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
-    mutable double m_maxZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
-    mutable double m_minR ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
-    mutable double m_maxR ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
-    mutable double m_minPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
-    mutable double m_maxPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
-
+    Identifier m_id{}; // identifier of this detector element
+    const SiDetectorDesign* m_design{nullptr}; // local description of this detector element
+    const SiCommonItems* m_commonItems{nullptr};
     std::unique_ptr<Trk::Surface> m_surface;
-    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {}; // Guarded by m_mutex
-
     const GeoAlignmentStore* m_geoAlignStore{};
+
+    // Axes
+    SiDetectorDesign::Axis m_hitEta;
+    SiDetectorDesign::Axis m_hitPhi;
+    SiDetectorDesign::Axis m_hitDepth;
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by commonConstructor
+    ///////////////////////////////////////////////////////////////////
+
+    IdentifierHash m_idHash{}; // hash id
+
+    bool m_isPixel{false};
+    bool m_isDBM{false};
+    bool m_isBarrel{false};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by individual set methods
+    ///////////////////////////////////////////////////////////////////
+
+    const SiDetectorElement* m_nextInEta{nullptr}; // set by setNextInEta
+    const SiDetectorElement* m_prevInEta{nullptr}; // set by setPrevInEta
+    const SiDetectorElement* m_nextInPhi{nullptr}; // set by setNextInPhi
+    const SiDetectorElement* m_prevInPhi{nullptr}; // set by setPrevInPhi
+    const SiDetectorElement* m_otherSide{nullptr}; // set by setOtherSide
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by updateCache with m_firstTime of true
+    // Happens only once
+    ///////////////////////////////////////////////////////////////////
+
+    // Directions of axes. These are true if the hit/simulation and reconstruction local
+    // frames are in the same direction and false if they are opposite.
+    mutable bool m_depthDirection ATLAS_THREAD_SAFE {true}; // Direction of depth axis.
+    // Also direction of readout implant (n+ for pixel, p+ for SCT).
+    mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
+    mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by updateCache
+    ///////////////////////////////////////////////////////////////////
+
+    mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE;
+    mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE;
+
+    mutable Amg::Vector3D m_normal ATLAS_THREAD_SAFE;
+    mutable Amg::Vector3D m_etaAxis ATLAS_THREAD_SAFE;
+    mutable HepGeom::Vector3D<double> m_etaAxisCLHEP ATLAS_THREAD_SAFE;
+    mutable Amg::Vector3D m_phiAxis ATLAS_THREAD_SAFE;
+    mutable HepGeom::Vector3D<double> m_phiAxisCLHEP ATLAS_THREAD_SAFE;
+    mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE;
+    mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE;
+
+    mutable double m_minZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
+    mutable double m_maxZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
+    mutable double m_minR ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
+    mutable double m_maxR ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
+    mutable double m_minPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
+    mutable double m_maxPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variable set by determineStereo with m_stereoCacheValid of false
+    // Happens only once
+    ///////////////////////////////////////////////////////////////////
+
+    mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variable set by surfaces ith m_surfacesValid of false
+    // Happens only once
+    ///////////////////////////////////////////////////////////////////
+
+    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {};
+
   };
     
 } // namespace InDetDD
