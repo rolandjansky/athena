@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsObjWriterTool.h"
@@ -37,7 +37,7 @@ ActsObjWriterTool::initialize()
 }
 
 void
-ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg)
+ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg) const
 {
 
   const auto& ctx = Gaudi::Hive::currentContext();
