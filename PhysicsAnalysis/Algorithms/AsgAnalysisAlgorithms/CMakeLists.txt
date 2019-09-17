@@ -57,48 +57,48 @@ atlas_install_scripts( share/*_eljob.py )
 if( XAOD_STANDALONE )
   atlas_add_test( EventAlgsTestJobData
      SCRIPT EventAlgorithmsTest_eljob.py --data-type data --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( EventAlgsTestJobFullSim
      SCRIPT EventAlgorithmsTest_eljob.py --data-type mc --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( EventAlgsTestJobFastSim
      SCRIPT EventAlgorithmsTest_eljob.py --data-type afii --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( OverlapRemovalTestJobData
      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type data --unit-test
-     PROPERTIES TIMEOUT 400 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( OverlapRemovalTestJobFullSim
      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type mc --unit-test
-     PROPERTIES TIMEOUT 400 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( OverlapRemovalTestJobFastSim
      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type afii --unit-test
-     PROPERTIES TIMEOUT 400 )
+     PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( EventAlgsTestJobData
       SCRIPT athena.py
              AsgAnalysisAlgorithms/EventAlgorithmsTest_jobOptions.py - --data-type data
-      PROPERTIES TIMEOUT 300 )
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( EventAlgsTestJobFullSim
       SCRIPT athena.py
              AsgAnalysisAlgorithms/EventAlgorithmsTest_jobOptions.py - --data-type mc
-      PROPERTIES TIMEOUT 300 )
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( EventAlgsTestJobFastSim
       SCRIPT athena.py
              AsgAnalysisAlgorithms/EventAlgorithmsTest_jobOptions.py - --data-type afii
-      PROPERTIES TIMEOUT 300 )
+      PROPERTIES TIMEOUT 600 )
 
    if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
       atlas_add_test( OverlapRemovalTestJobData
          SCRIPT athena.py
                 AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py - --data-type data
-         PROPERTIES TIMEOUT 400 )
+         PROPERTIES TIMEOUT 600 )
       atlas_add_test( OverlapRemovalTestJobFullSim
          SCRIPT athena.py
                 AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py - --data-type mc
-         PROPERTIES TIMEOUT 400 )
+         PROPERTIES TIMEOUT 600 )
       atlas_add_test( OverlapRemovalTestJobFastSim
          SCRIPT athena.py
                 AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py - --data-type afii
-         PROPERTIES TIMEOUT 400 )
+         PROPERTIES TIMEOUT 600 )
    endif()
 endif()
