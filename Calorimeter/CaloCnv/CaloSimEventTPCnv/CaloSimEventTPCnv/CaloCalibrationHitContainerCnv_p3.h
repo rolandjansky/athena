@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOSIMEVENTTPCNV_CALOCALIBRATIONHITCONTAINERCNV_P3_H
 #define CALOSIMEVENTTPCNV_CALOCALIBRATIONHITCONTAINERCNV_P3_H
 
-#define private public
 #include "CaloSimEventTPCnv/CaloCalibrationHitContainer_p3.h"
-#undef private 
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 

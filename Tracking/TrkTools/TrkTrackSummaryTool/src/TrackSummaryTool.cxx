@@ -157,14 +157,14 @@ StatusCode
 
 const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const Track& track )  const
 {
-  // first check if track has summary already and then return a clone
-  // (remember the TrackSummaryTool is a factory!)
+  //Clone and return the clone, do not install a new value 
   if (track.trackSummary()!=nullptr) {
     ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
     return new Trk::TrackSummary(*(track.trackSummary()));
   }
- 
+             
   Trk::TrackSummary* ts= createSummary(track,false,false ).release();
+  //Install a new value as null ptr was there 
   Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
   nonConstTrack.m_trackSummary = new Trk::TrackSummary(*ts);
   return ts;
@@ -173,14 +173,13 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const
 const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& track, 
                                                                bool onlyUpdateTrack ) const
 {
-  // first check if track has summary already and then return a clone
-  // (remember the TrackSummaryTool is a factory!)
+  //Clone and return the clone, do not install a new value 
   if (track.trackSummary()!=nullptr) {
     ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
     return new Trk::TrackSummary(*(track.trackSummary()));
   }
- 
   Trk::TrackSummary* ts= createSummary(track,m_doHolesInDet, m_doHolesMuon ).release();
+  //Install a new value as null ptr was there  
   Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
   if (onlyUpdateTrack) {
     // not returning summary. Add it directly the track
@@ -209,7 +208,6 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
                                       bool doHolesMuon) const
 {
   // first check if track has summary already and then return a clone
-  // (remember the TrackSummaryTool is a factory!)
   if (track.trackSummary()!=nullptr) {
     ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
     return std::make_unique<Trk::TrackSummary>(*(track.trackSummary()));
@@ -374,6 +372,17 @@ void Trk::TrackSummaryTool::updateTrack(Track& track) const
   return;
 }
 
+void Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track) const
+{
+  // first check if track has summary already.
+  if (track.m_trackSummary!=nullptr) {
+    delete track.m_trackSummary;
+    track.m_trackSummary = nullptr;
+  }
+  track.m_trackSummary=summaryNoHoleSearch(track).release();
+  return;
+}
+ 
 void Trk::TrackSummaryTool::updateSharedHitCount(Track& track) const
 {
   // first check if track has no summary - then it is recreated

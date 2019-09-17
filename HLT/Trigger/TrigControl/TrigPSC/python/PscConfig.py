@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file   PscConfig.py
 ## @brief  Python flags that are used to configure C++ Psc
@@ -9,6 +9,9 @@
 
 ## In interactive mode, call AppMgr::initialize() in connect instead of configure
 interactive = False
+
+## Dump job properties (used in TrigPSCPythonSetup.py)
+dumpJobProperties = False
 
 ## string:string map equivalent to TrigPsc/Config.h (filled in TrigPsc.cxx)
 optmap = {}

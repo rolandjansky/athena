@@ -4068,7 +4068,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
               const auto_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,
                                                              trackParameters,
                                                              resType));
-              fillPixelTrackPullHistos(surfaceID, *TSOSItr, residualPull, elements);
+              if (m_idHelper->is_pixel(surfaceID)) {
+                 fillPixelTrackPullHistos(surfaceID, *TSOSItr, residualPull, elements);
+              }
 
               if (msgLvl(MSG::VERBOSE)) msg() << "obtained Hit Residual and Pull " << endmsg;
               residualLocX = 1000*residualPull->residual()[Trk::loc1]; // residuals in microns
@@ -4811,7 +4813,8 @@ IDStandardPerformance::fillPixelTrackPullHistos(const Identifier& elementID
                                               , const InDetDD::SiDetectorElementCollection* elements)
 {
   if (not m_idHelper->is_pixel(elementID)) {
-    msg(MSG::FATAL) << "This is not a pixel" << endmsg;
+    ATH_MSG_FATAL( "This is not a pixel" );
+    throw std::logic_error("fillPixelTrackPullHistos called for a non-Pixel detector element.");
   }
   const InDetDD::SiDetectorElement* element = elements->getDetectorElement(m_pixelID->wafer_hash(elementID));
   if (not element) {

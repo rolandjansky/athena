@@ -13,11 +13,6 @@
 #include "GaudiKernel/IDataProviderSvc.h"
 
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
@@ -86,10 +81,6 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   , p_StoreGateSvc(0)
   , m_detMgr(0)
-  , m_mdtIdHelper(0)
-  , m_cscIdHelper(0)
-  , m_rpcIdHelper(0)
-  , m_tgcIdHelper(0)
 {
   declareInterface<IMuTagMatchingTool>(this);
   declareProperty( "IExtrapolator" , p_IExtrapolator ) ;
@@ -172,19 +163,6 @@ StatusCode MuTagMatchingTool::initialize()
   ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
   ATH_CHECK( m_pullCalculator.retrieve() );
-
-  // initialize MuonIdHelpers
-  if (m_detMgr) {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-  } else {
-    m_mdtIdHelper = 0;
-    m_cscIdHelper = 0;
-    m_rpcIdHelper = 0;
-    m_tgcIdHelper = 0;
-  }
   
   return StatusCode::SUCCESS;
 
@@ -223,11 +201,11 @@ std::string MuTagMatchingTool::segmentStationString( const Muon::MuonSegment* se
   
   for( unsigned int i = 0; i<segment->numberOfContainedROTs(); ++i ){
     Identifier segID = segment->rioOnTrack(i)->identify();
-    if( m_mdtIdHelper->is_mdt(segID) ){
-      station = m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName( segID ) );
+    if( m_idHelper->isMdt(segID) ){
+      station = m_idHelper->mdtIdHelper().stationNameString( m_idHelper->mdtIdHelper().stationName( segID ) );
       break;
-    } else if( m_cscIdHelper->is_csc(segID) ){
-      station = m_cscIdHelper->stationNameString( m_cscIdHelper->stationName( segID ) );
+    } else if( m_idHelper->isCsc(segID) ){
+      station = m_idHelper->cscIdHelper().stationNameString( m_idHelper->cscIdHelper().stationName( segID ) );
       break ;
     }
   }
@@ -723,8 +701,8 @@ void MuTagMatchingTool::nrTriggerHits( const Muon::MuonSegment* seg, int& nRPC, 
     if( !rot ) {
       continue;
     }
-    if( m_rpcIdHelper->is_rpc( rot->identify() ) ) ++nRPC;
-    if( m_tgcIdHelper->is_tgc( rot->identify() ) ) ++nTGC;
+    if( m_idHelper->isRpc( rot->identify() ) ) ++nRPC;
+    if( m_idHelper->isTgc( rot->identify() ) ) ++nTGC;
   }
   
 }
@@ -1167,7 +1145,7 @@ bool MuTagMatchingTool::isCscSegment( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_cscIdHelper->is_csc( rot->identify() ) ) isCsc=true;
+    if( m_idHelper->isCsc( rot->identify() ) ) isCsc=true;
   }
 
   return isCsc;
@@ -1188,7 +1166,7 @@ unsigned int MuTagMatchingTool::cscHits( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_cscIdHelper->is_csc( rot->identify() ) ) ++nrHits;
+    if( m_idHelper->isCsc( rot->identify() ) ) ++nrHits;
   }
   
   return nrHits ;

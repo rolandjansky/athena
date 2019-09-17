@@ -18,7 +18,6 @@
 #ifdef ASGTOOL_ATHENA
 #include "AthenaKernel/IMetaDataTool.h"
 #endif // ASGTOOL_ATHENA
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/ICutFlowSvc.h"
 
@@ -42,7 +41,6 @@ public: // Constructor and Destructor
    virtual ~BookkeeperTool();
 
 public:
-   //void handle(const Incident& incident);
    virtual StatusCode metaDataStop() override;
    virtual StatusCode beginInputFile() override {return StatusCode::SUCCESS;}
    virtual StatusCode endInputFile() override {return StatusCode::SUCCESS;}

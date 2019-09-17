@@ -51,8 +51,8 @@ namespace Trk {
       // default methods
       DenseEnvironmentsAmbiguityScoreProcessorTool(const std::string&,const std::string&,const IInterface*);
       virtual ~DenseEnvironmentsAmbiguityScoreProcessorTool();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       virtual void process(std::vector<const Track*>* tracks,
                            TracksScores* trackScoreTrackMap) override;
@@ -106,11 +106,6 @@ namespace Trk {
 
       /**NN split sprob cut for 3 particle clusters */      
       float m_sharedProbCut2;
-
-      /** by default drop double tracks before refit*/
-      bool m_dropDouble;
-    
-      bool m_rejectInvalidTracks; 
   };
 } //end ns
 

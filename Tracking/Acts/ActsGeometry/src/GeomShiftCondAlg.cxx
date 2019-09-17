@@ -32,8 +32,8 @@
 // STL
 #include <memory>
 
-GeomShiftCondAlg::GeomShiftCondAlg( const std::string& name, 
-            ISvcLocator* pSvcLocator ) : 
+GeomShiftCondAlg::GeomShiftCondAlg( const std::string& name,
+            ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_cs("CondSvc",name),
   m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
@@ -62,7 +62,7 @@ StatusCode GeomShiftCondAlg::initialize() {
   }
 
   if (m_cs->regHandle(this, m_wchk).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey() 
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey()
                   << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -104,8 +104,8 @@ StatusCode GeomShiftCondAlg::execute() {
 
   } else {
 
-    ATH_MSG_DEBUG("  CondHandle " << wch.key() 
-                  << " not valid now (" << now << "). Getting new info for dbKey \"" 
+    ATH_MSG_DEBUG("  CondHandle " << wch.key()
+                  << " not valid now (" << now << "). Getting new info for dbKey \""
                   << wch.dbKey() << "\" from CondDb");
 
     ATH_MSG_ALWAYS("SG evt: " << *(evt->event_ID()));
@@ -126,8 +126,8 @@ StatusCode GeomShiftCondAlg::execute() {
     EventIDRange r(start, end);
 
     ActsAlignmentStore* alignStore = new ActsAlignmentStore();
-    
-    InDetDD::PixelDetectorManager::AlignableTransformMap& atMatL1 
+
+    InDetDD::PixelDetectorManager::AlignableTransformMap& atMatL1
       = const_cast<InDetDD::PixelDetectorManager::AlignableTransformMap&>(
           p_pixelManager->m_higherAlignableTransforms.at(1));
 
@@ -145,7 +145,7 @@ StatusCode GeomShiftCondAlg::execute() {
       //std::cout << idHelper.phi_index(id) << " ";
       //std::cout << idHelper.eta_index(id) << " ";
       //std::cout << std::endl;
-    
+
 
       InDetDD::ExtendedAlignableTransform* eat = eat_item.second;
       GeoAlignableTransform* alTrf = eat->alignableTransform();
@@ -154,7 +154,7 @@ StatusCode GeomShiftCondAlg::execute() {
       ATH_MSG_DEBUG("add delta: " << alTrf << " -> (z=" << val << ")");
       alignStore->setDelta(alTrf, Amg::EigenTransformToCLHEP(delta));
     }
-    
+
     auto trkGeom = m_trackingGeometrySvc->trackingGeometry();
 
     // deltas are set, now populate sensitive element transforms
@@ -171,7 +171,7 @@ StatusCode GeomShiftCondAlg::execute() {
 
 
     if (wch.record(r, alignStore).isFailure()) {
-      ATH_MSG_ERROR("could not record shift " << wch.key() 
+      ATH_MSG_ERROR("could not record shift " << wch.key()
 		    << " = " << alignStore
                     << " with EventRange " << r);
       return StatusCode::FAILURE;
@@ -190,4 +190,3 @@ StatusCode GeomShiftCondAlg::execute() {
   return StatusCode::SUCCESS;
 
 }
-

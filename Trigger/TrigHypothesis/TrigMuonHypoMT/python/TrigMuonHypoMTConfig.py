@@ -250,9 +250,9 @@ class TrigMufastHypoConfig(object):
 
     log = logging.getLogger('TrigMufastHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+    def ConfigurationHypoTool( self, toolName, thresholds ):
 
-        tool = TrigMufastHypoTool( thresholdHLT )  
+        tool = TrigMufastHypoTool( toolName )  
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
@@ -262,7 +262,14 @@ class TrigMufastHypoConfig(object):
         tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV_v15a'
+            if "idperf" in toolName or thvalue < 5:
+                thvaluename =  thvalue + 'GeV_v15a'
+            elif "0eta105" in toolName:
+                thvaluename = thvalue+ "GeV_barrelOnly_v15a"
+            else:
+                thvaluename = '6GeV_v15a'
+
+
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
@@ -404,7 +411,10 @@ class TrigmuCombHypoConfig(object):
         tool.PtThresholds = [ [ 5.83 * GeV ] ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV_v15a'
+            if thvalue >= 24:
+                thvaluename = '22GeV_v15a'
+            else:
+                thvaluename = thvalue + 'GeV_v15a'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
@@ -493,7 +503,10 @@ class TrigMuonEFMSonlyHypoConfig(object):
         if '3layersEC' in toolName:
             tool.RequireThreeStations=True
         for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV'
+            if "0eta105" in toolName:
+                thvaluename = thvalue+ "GeV_barrelOnly"
+            else:
+                thvaluename = thvalue + 'GeV'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:

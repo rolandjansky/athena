@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,8 @@ namespace DerivationFramework {
     private:
       std::string m_tauContainerName;
 
-      ToolHandle < TauAnalysisTools::ITauTruthMatchingTool > m_tTauTruthMatchingTool;
+#warning FIXME mutable to work around ToolHandle constness problem.
+      mutable ToolHandle < TauAnalysisTools::ITauTruthMatchingTool > m_tTauTruthMatchingTool;
 
   }; 
 }

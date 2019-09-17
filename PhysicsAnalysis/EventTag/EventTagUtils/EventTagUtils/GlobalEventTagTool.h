@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GLOBALEVENTTAGTOOL_H 
@@ -30,7 +30,6 @@ Purpose : Tool to buid the Global Event Tags
 static const InterfaceID IID_GlobalEventTagTool("GlobalEventTagTool", 1, 0);
 
 //class GlobalEventTagTool : public AlgTool {
-//class GlobalEventTagTool : public EventInfoTagTool, virtual public IIncidentListener {
 class GlobalEventTagTool : public EventInfoTagTool {
 
 public:

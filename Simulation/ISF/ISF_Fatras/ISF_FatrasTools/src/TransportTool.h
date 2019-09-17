@@ -27,7 +27,6 @@
 // ROOT forward declarations
 class TTree;
 
-class IIncidentSvc;
 //class AtlasDetectorID;
 
 namespace ISF {

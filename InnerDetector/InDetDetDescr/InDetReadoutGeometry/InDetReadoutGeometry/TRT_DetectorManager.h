@@ -11,6 +11,7 @@
 #ifndef TRT_DetectorManager_h
 #define TRT_DetectorManager_h 1
 #include "InDetReadoutGeometry/InDetDetectorManager.h"
+#include "InDetReadoutGeometry/TRT_Conditions.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
@@ -27,9 +28,10 @@
 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
-#include <vector>
-#include <string>
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 class Identifier;     
 class GeoAlignableTransform;
@@ -137,7 +139,6 @@ namespace InDetDD {
     //-----------------------------------------------------------------------------//
 
     /** Conditions interface (mostly for internal use):----------------------------*/
-    void setConditions(TRT_Conditions * conditions);                               //
     const TRT_Conditions * conditions() const;                                     //
     //-----------------------------------------------------------------------------//    
     
@@ -261,7 +262,7 @@ namespace InDetDD {
     unsigned int m_digvers;                                                        //
     std::string m_digversname;                                                     //
 
-    TRT_Conditions * m_conditions;
+    std::unique_ptr<TRT_Conditions> m_conditions;
 
     // Alignment stuff
     typedef std::map<Identifier, ExtendedAlignableTransform *> AlignableTransformMap;

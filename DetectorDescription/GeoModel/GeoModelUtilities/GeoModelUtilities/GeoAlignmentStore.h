@@ -28,10 +28,20 @@ class GeoAlignmentStore : public GeoVAlignmentStore
   virtual const GeoTrf::Transform3D* getDefAbsPosition(const GeoVFullPhysVol*) const override;
 
 
- private:
+ protected:
   TransformMap<GeoAlignableTransform,GeoTrf::Transform3D> m_deltas;
   TransformMap<GeoVFullPhysVol,GeoTrf::Transform3D> m_absPositions;
   TransformMap<GeoVFullPhysVol,GeoTrf::Transform3D> m_defAbsPositions;
+
+ public:
+  const TransformMap<GeoAlignableTransform,GeoTrf::Transform3D>&
+  getDeltas() const;
+
+  const TransformMap<GeoVFullPhysVol,GeoTrf::Transform3D>&
+  getAbsPositions() const;
+
+  const TransformMap<GeoVFullPhysVol,GeoTrf::Transform3D>&
+  getDefAbsPositions() const;
 };
 
 CLASS_DEF(GeoAlignmentStore, 135648236, 1)
@@ -46,6 +56,18 @@ class ExcAlignmentStore : public std::runtime_error {
     : std::runtime_error (what)
     {}  
 };
+
+inline
+const TransformMap<GeoAlignableTransform,GeoTrf::Transform3D>&
+GeoAlignmentStore::getDeltas() const { return m_deltas; }
+
+inline
+const TransformMap<GeoVFullPhysVol,GeoTrf::Transform3D>&
+GeoAlignmentStore::getAbsPositions() const { return m_absPositions; }
+
+inline
+const TransformMap<GeoVFullPhysVol,GeoTrf::Transform3D>&
+GeoAlignmentStore::getDefAbsPositions() const { return m_defAbsPositions; }
 
 #endif 
 

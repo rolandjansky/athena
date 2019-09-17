@@ -69,6 +69,11 @@ atlas_add_test( TPCnvList_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaPoolCnvSvcLib )
 
+atlas_add_test( T_AthenaPoolCreateFuncs_test
+   SOURCES test/T_AthenaPoolCreateFuncs_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaPoolCnvSvcLib )
+
 atlas_add_test( T_AthenaPoolViewVectorCnv_test
    SOURCES test/T_AthenaPoolViewVectorCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

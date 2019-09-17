@@ -1,49 +1,30 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # Creation: Karsten Koeneke
-
-def GetInputStreamNameFromMetaDataItemList( metaDataItemList ):
-    inputStreamName = ""
-    try:
-        #metaDataItemList=inputFileSummary['metadata_itemsList']
-        for item in metaDataItemList:
-            if item[0] == "EventStreamInfo" :
-                inputStreamName = item[1]
-                pass
-            pass
-        pass
-    except:
-        print "WARNING Unable to determine input stream name from metadata_itemList."
-        pass
-    if inputStreamName == "" : inputStreamName = "unknownStream"
-    return inputStreamName
-
-
-
-
-def GetCurrentStreamName( msg, athFile=None ):
+def GetCurrentStreamName( msg ):
     """ Helper to decide where to get the input stream name from."""
     # First, try to get the info from the RecFlags
     try:
         from RecExConfig.RecFlags import rec
         msg.debug("Got the stream name from the RecFlags: %s" % rec.mergingStreamName())
         streamName = rec.mergingStreamName()
-        if streamName == "" : streamName = "unknownStream"
+        if streamName == "":
+            streamName = "unknownStream"
         return streamName
     except ImportError:
         msg.info("Couldn't get input stream name from the RecFlags... trying AthFile directly.")
-        pass
-    # Import the reading of in-file metadata
-    if athFile :
-        return GetInputStreamNameFromMetaDataItemList( athFile.fileinfos["metadata_items"] )
-    from PyUtils import AthFile
-    af = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
-    return GetInputStreamNameFromMetaDataItemList( af.fileinfos["metadata_items"] )
 
+    from PyUtils.MetaReader import read_metadata
+    input_file = svcMgr.EventSelector.InputCollections[0]
+    metadata = read_metadata(input_file)
+    metadata = metadata[input_file]  # promote all keys one level up
 
+    for class_name, name in metadata['metadata_items'].items():
+        if name == 'EventStreamInfo':
+            return class_name
+    return 'unknownStream'
 
-
-def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True, SGkey="CutBookkeepers" ):
+def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True, SGkey="CutBookkeepers" ):
     """
     Helper to create the CutFlowSvc, extract the needed information from
     the input file, and also schedule all the needed stuff.
@@ -56,7 +37,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
     # Determine current input stream name
-    inputStreamName = GetCurrentStreamName( msg=msg, athFile=athFile )
+    inputStreamName = GetCurrentStreamName( msg=msg )
     msg.debug("CreateCutFlowSvc: Have inputStreamName = %s" % (inputStreamName) )
 
     # Create the CutFlowSvc instance(s)
@@ -79,7 +60,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     outname = "CutBookkeepers"
     cutflowtool = BookkeeperTool(outname+"Tool",
                                  InputCollName = inname,
-                                 OutputCollName= outname) 
+                                 OutputCollName= outname)
     svcMgr.ToolSvc += cutflowtool
 
     # Add tool to MetaDataSvc
@@ -94,7 +75,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         # PDF
         name = "PDFSumOfWeights"
         pdfweighttool = BookkeeperTool(name,
-                                       OutputCollName= name, 
+                                       OutputCollName= name,
                                        InputCollName = name)
         svcMgr.ToolSvc += pdfweighttool
 

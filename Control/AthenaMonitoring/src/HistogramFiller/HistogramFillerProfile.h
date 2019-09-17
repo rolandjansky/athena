@@ -39,6 +39,11 @@ namespace Monitored {
 
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
+      if (m_histDef->opt.find("kAddBinsDynamically") != std::string::npos) {
+	const auto xmax = std::max_element(begin(valuesVector1), end(valuesVector1));
+	if (shouldRebinHistogram(*xmax)) { rebinHistogram(*xmax); }
+      }
+      
       if (areVectorsSameSize) { // Two equal-size vectors
         if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector1.size() ) {
           // Weighted fill
@@ -90,6 +95,42 @@ namespace Monitored {
         }
       }
       return i;
+    }
+    
+  private:
+        /**
+     * Method checks if histogram should be rebinned. It should happen when the new value 
+     * is greater or equal to the greatest value of the histogram.
+     */
+    bool shouldRebinHistogram(const double value) {
+      const auto histogram = this->histogram<TProfile>();
+      const double xMax = histogram->GetXaxis()->GetXmax();
+
+      return xMax <= value;
+    }
+    
+    /**
+     * Method that actualy rebin entire histogram.
+     * 
+     * Algorithm will increase a size of the histogram until `value` can be included in new range of values.
+     * Examples for xMin=1.0, xMax=3.0;
+     *  value=2.9, xMax will be unchanged
+     *  value=3.0, xMax will be doubled
+     *  value=4.9, xMax will be doubled
+     *  value=5.0, xMax will be quadrupled
+     *  value=5.1, xMax will be quadrupled
+     *  value=8.9, xMax will be quadrupled
+     *  value=9.0, xMax will be octupled
+     *  value=9.1, xMax will be octupled
+     */
+    void rebinHistogram(const double value) {
+      auto histogram = this->histogram<TProfile>();
+      
+      histogram->SetCanExtend(TH1::kAllAxes);
+
+      do {
+        histogram->LabelsInflate("X");
+      } while (shouldRebinHistogram(value));
     }
   };
 }

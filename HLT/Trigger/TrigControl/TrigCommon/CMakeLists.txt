@@ -30,4 +30,4 @@ atlas_add_test( athenaHLT_jo_noopts
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/test_athenaHLT.sh dummy.py)
 
 atlas_add_test( athenaHLT_jo_allopts
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/test_athenaHLT.sh --number-of-events 3 --skip-events 7 -l ERROR,FATAL -c 'x=1' -c 'y=2' -C 'x=2' -o out.data --threads 2 --nprocs 4 --timeout 777 --oh-monitoring --python-setup mysetup.py --partition mypart dummy.py)
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/share/test_athenaHLT.sh --number-of-events 3 --skip-events 7 -l ERROR,FATAL -c 'x=1' -c 'y=2' -C 'x=2' -o out.data --threads 2 --nprocs 4 --timeout 777 --oh-monitoring --partition mypart dummy.py)

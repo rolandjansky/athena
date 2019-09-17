@@ -29,23 +29,23 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/L1Topo/L1TopoConfig )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 find_package( COOL COMPONENTS CoolKernel )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread PyROOT )
+find_package( ROOT COMPONENTS Hist )
 find_package( cx_Oracle )
+find_package( nlohmann_json )
 
 # Component(s) in the package:
 atlas_add_library( TrigConfigSvcLib
-                   src/*.cxx
+                   src/*.cxx src/*.h
                    PUBLIC_HEADERS TrigConfigSvc
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent StoreGateLib SGtests TrigMonitorBaseLib EventContainers AthAnalysisBaseCompsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} AthenaKernel AthenaPoolUtilities IOVDbDataModel EventInfo PathResolver TrigConfBase TrigConfJobOptData TrigConfStorage L1TopoConfig )
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib TrigConfHLTData TrigConfInterfaces TrigConfL1Data
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib AthenaMonitoringLib AthenaPoolUtilities EventInfo IOVDbDataModel L1TopoConfig PathResolver TrigConfBase TrigConfStorage nlohmann_json::nlohmann_json )
 
 atlas_add_component( TrigConfigSvc
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent AthenaKernel AthenaPoolUtilities IOVDbDataModel EventInfo PathResolver TrigConfBase TrigConfJobOptData TrigConfStorage TrigMonitorBaseLib L1TopoConfig TrigConfigSvcLib )
+                     LINK_LIBRARIES TrigConfigSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

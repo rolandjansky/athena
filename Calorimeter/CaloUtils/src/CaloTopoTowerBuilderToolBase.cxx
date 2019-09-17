@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/AlgTool.h"
 
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ListItem.h"
 
 #include "CaloUtils/CaloTopoTowerBuilderToolBase.h"

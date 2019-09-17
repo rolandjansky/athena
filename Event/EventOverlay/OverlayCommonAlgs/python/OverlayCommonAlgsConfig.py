@@ -24,8 +24,8 @@ def getCopyCaloCalibrationHitContainer(name, collectionName="", **kwargs):
 
     kwargs.setdefault("collectionName", collectionName)
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + overlayFlags.sigPrefix() + collectionName)
-        kwargs.setdefault("OutputKey", "StoreGateSvc+" + collectionName)
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + collectionName)
+        kwargs.setdefault("OutputKey", collectionName)
     else:
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+" + collectionName)
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)
@@ -37,8 +37,8 @@ def getCopyInTimeJetTruthInfo(name="CopyInTimeJetTruthInfo", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + overlayFlags.bkgPrefix() + "InTimeAntiKt4TruthJets")
-        kwargs.setdefault("OutputKey", "StoreGateSvc+" + "InTimeAntiKt4TruthJets")
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "InTimeAntiKt4TruthJets")
+        kwargs.setdefault("OutputKey", "InTimeAntiKt4TruthJets")
     else:
         kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+InTimeAntiKt4TruthJets")
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+InTimeAntiKt4TruthJets")
@@ -50,8 +50,8 @@ def getCopyOutOfTimeJetTruthInfo(name="CopyOutOfTimeJetTruthInfo", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + overlayFlags.bkgPrefix() + "OutOfTimeAntiKt4TruthJets")
-        kwargs.setdefault("OutputKey", "StoreGateSvc+" + "OutOfTimeAntiKt4TruthJets")
+        kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "OutOfTimeAntiKt4TruthJets")
+        kwargs.setdefault("OutputKey", "OutOfTimeAntiKt4TruthJets")
     else:
         kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+OutOfTimeAntiKt4TruthJets")
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+OutOfTimeAntiKt4TruthJets")        
@@ -69,9 +69,9 @@ def getCopyMcEventCollection(name="CopyMcEventCollection", **kwargs):
             # Disable background for data overlay
             kwargs.setdefault("BkgInputKey", "")
         else:
-            kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + overlayFlags.bkgPrefix() + "TruthEvent")
-        kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + overlayFlags.sigPrefix() + "TruthEvent")
-        kwargs.setdefault("OutputKey", "StoreGateSvc+TruthEvent")
+            kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "TruthEvent")
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "TruthEvent")
+        kwargs.setdefault("OutputKey", "TruthEvent")
     else:
         if overlayFlags.isDataOverlay():
             # Disable background for data overlay
@@ -91,8 +91,8 @@ def getCopyTimings(name="CopyTimings", **kwargs):
     kwargs.setdefault("BkgInputKey", "")
 
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + overlayFlags.sigPrefix() + "EVNTtoHITS_timings")
-        kwargs.setdefault("OutputKey", "StoreGateSvc+EVNTtoHITS_timings")
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "EVNTtoHITS_timings")
+        kwargs.setdefault("OutputKey", "EVNTtoHITS_timings")
     else:
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+EVNTtoHITS_timings")
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+EVNTtoHITS_timings")
@@ -108,8 +108,8 @@ def getCopyTrackRecordCollection(name, collectionName="", **kwargs):
 
     kwargs.setdefault("collectionName", collectionName)
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + overlayFlags.sigPrefix() + collectionName)
-        kwargs.setdefault("OutputKey", "StoreGateSvc+" + collectionName)
+        kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + collectionName)
+        kwargs.setdefault("OutputKey", collectionName)
     else:
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+" + collectionName)
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)

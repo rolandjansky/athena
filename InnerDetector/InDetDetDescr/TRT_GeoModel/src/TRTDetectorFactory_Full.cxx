@@ -13,7 +13,6 @@
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/TRT_Conditions.h"
 
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -348,11 +347,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   }
                                                
   
-
-  // Interface to conditions
-  InDetDD::TRT_Conditions * conditions = new InDetDD::TRT_Conditions;
-  m_detectorManager->setConditions(conditions);
-
 
   //Uncomment for testing:
   //  m_data->ShowValues();
@@ -1031,8 +1025,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 	  InDetDD::TRT_BarrelDescriptor *bD=bDescriptor[jStrawLayer];
 
-	  InDetDD::TRT_BarrelElement *element0 = new InDetDD::TRT_BarrelElement(pShell, bD, 0  , iABC, iMod, iStrawLayer, idHelper, conditions);
-	  InDetDD::TRT_BarrelElement *element1 = new InDetDD::TRT_BarrelElement(pShell, bD, 1  , iABC, iMod, iStrawLayer, idHelper, conditions);
+	  InDetDD::TRT_BarrelElement *element0 = new InDetDD::TRT_BarrelElement(pShell, bD, 0  , iABC, iMod, iStrawLayer, idHelper, m_detectorManager->conditions());
+	  InDetDD::TRT_BarrelElement *element1 = new InDetDD::TRT_BarrelElement(pShell, bD, 1  , iABC, iMod, iStrawLayer, idHelper, m_detectorManager->conditions());
 
 	  m_detectorManager->manageBarrelElement(element0);
 	  m_detectorManager->manageBarrelElement(element1);
@@ -1383,7 +1377,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 							     iiPlane,
 							     iiPhiOffline,
 							     idHelper,
-							     conditions);
+							     m_detectorManager->conditions());
 		    m_detectorManager->manageEndcapElement(element);
 		  }
 	      }
@@ -1666,7 +1660,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 							     iiPlane,
 							     iiPhiOffline,
 							     idHelper,
-							     conditions);
+							     m_detectorManager->conditions());
 		    m_detectorManager->manageEndcapElement(element);
 		  }
 	      }
@@ -1956,7 +1950,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 							     iiPlane,
 							     iiPhiOffline,
 							     idHelper,
-							     conditions);
+							     m_detectorManager->conditions());
 		    m_detectorManager->manageEndcapElement(element);
 		  }
 	      }

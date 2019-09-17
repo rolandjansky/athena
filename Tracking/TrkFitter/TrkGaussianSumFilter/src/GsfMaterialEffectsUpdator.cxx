@@ -315,8 +315,8 @@ Trk::GsfMaterialEffectsUpdator::compute(const Trk::ComponentParameters& componen
 
   if (momentum <= m_momentumCut) {
     ATH_MSG_DEBUG("Ignoring material effects... Momentum too low");
-    auto clonedMultiComponentState = std::unique_ptr<Trk::SimpleMultiComponentState>{ new Trk::SimpleMultiComponentState() };
-    clonedMultiComponentState->push_back(Trk::SimpleComponentParameters(componentParameters.first->clone(), componentParameters.second));
+    auto clonedMultiComponentState = std::make_unique<Trk::SimpleMultiComponentState>();
+    clonedMultiComponentState->emplace_back(componentParameters.first->clone(),componentParameters.second);
     return clonedMultiComponentState;
   }
 
@@ -342,14 +342,15 @@ Trk::GsfMaterialEffectsUpdator::compute(const Trk::ComponentParameters& componen
     ATH_MSG_DEBUG("Number of weights components: "
                   << cache.weights.size() << " Number of deltaP entries: " << cache.deltaPs.size()
                   << " number of deltaCovariance entries: " << cache.deltaCovariances.size());
-    auto clonedMultiComponentState = std::unique_ptr<Trk::SimpleMultiComponentState>{ new Trk::SimpleMultiComponentState() };
-    clonedMultiComponentState->push_back(Trk::SimpleComponentParameters(componentParameters.first->clone(), componentParameters.second));
+    auto clonedMultiComponentState = std::make_unique<Trk::SimpleMultiComponentState>();
+    clonedMultiComponentState->emplace_back(componentParameters.first->clone(), componentParameters.second);
     return clonedMultiComponentState;
   }
 
   ATH_MSG_VERBOSE("Updator found: " << cache.weights.size() << " components");
 
-  auto computedState = std::unique_ptr<Trk::SimpleMultiComponentState>{ new Trk::SimpleMultiComponentState() };
+  std::unique_ptr<Trk::SimpleMultiComponentState> computedState= std::make_unique<Trk::SimpleMultiComponentState>();
+  computedState->reserve(cache.weights.size());
 
   // Prepare  an output state
   unsigned int componentIndex = 0;
@@ -362,8 +363,8 @@ Trk::GsfMaterialEffectsUpdator::compute(const Trk::ComponentParameters& componen
     // Adjust the momentum of the component's parameters vector here. Check to make sure update is good.
     if (!updateP(updatedStateVector, cache.deltaPs[componentIndex])) {
       ATH_MSG_ERROR("Cannot update state vector momentum... returning original component");
-      auto clonedMultiComponentState = std::unique_ptr<Trk::SimpleMultiComponentState>{ new Trk::SimpleMultiComponentState() };
-      clonedMultiComponentState->push_back(Trk::SimpleComponentParameters(componentParameters.first->clone(), componentParameters.second));
+      auto clonedMultiComponentState = std::make_unique<Trk::SimpleMultiComponentState>();
+      clonedMultiComponentState->emplace_back(componentParameters.first->clone(), componentParameters.second);
       return clonedMultiComponentState;
     }
 
@@ -380,7 +381,7 @@ Trk::GsfMaterialEffectsUpdator::compute(const Trk::ComponentParameters& componen
                                                                  updatedStateVector[Trk::qOverP],
                                                                  updatedCovariance);
     double updatedWeight = componentParameters.second * cache.weights[componentIndex];
-    computedState->push_back(Trk::SimpleComponentParameters(updatedTrackParameters, updatedWeight));
+    computedState->emplace_back(updatedTrackParameters, updatedWeight);
   }
   return computedState;
 }
