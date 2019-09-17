@@ -2275,7 +2275,7 @@ namespace Muon {
     }
 
     // loop over all available RPC collection identifiers and order them per sector
-    if (&(m_muonIdHelperTool->rpcIdHelper())) {
+    if (m_muonIdHelperTool->hasRPC()) {
       it = m_muonIdHelperTool->rpcIdHelper().module_begin();
       it_end = m_muonIdHelperTool->rpcIdHelper().module_end();
       for( ;it!=it_end; ++it ){
@@ -2286,7 +2286,7 @@ namespace Muon {
     }
 
     // loop over all available CSC collection identifiers and order them per sector
-    if (&(m_muonIdHelperTool->cscIdHelper())) {
+    if (m_muonIdHelperTool->hasCSC()) {
       it = m_muonIdHelperTool->cscIdHelper().module_begin();
       it_end = m_muonIdHelperTool->cscIdHelper().module_end();
       for( ;it!=it_end; ++it ){
@@ -2297,7 +2297,7 @@ namespace Muon {
     }
 
     // loop over all available MM collection identifiers and order them per sector
-    if (&(m_muonIdHelperTool->mmIdHelper())) {
+    if (m_muonIdHelperTool->hasMM()) {
       it = m_muonIdHelperTool->mmIdHelper().detectorElement_begin();
       it_end = m_muonIdHelperTool->mmIdHelper().detectorElement_end();
       for( ;it!=it_end; ++it ){
@@ -2308,7 +2308,7 @@ namespace Muon {
     }
 
     // loop over all available STGC collection identifiers and order them per sector
-    if (&(m_muonIdHelperTool->stgcIdHelper())) {
+    if (m_muonIdHelperTool->hasSTgc()) {
       it = m_muonIdHelperTool->stgcIdHelper().detectorElement_begin();
       it_end = m_muonIdHelperTool->stgcIdHelper().detectorElement_end();
       for( ;it!=it_end; ++it ){
@@ -2324,7 +2324,7 @@ namespace Muon {
     }
 
     // loop over all available TGC collection identifiers and order them per sector
-    if (&(m_muonIdHelperTool->tgcIdHelper())) {
+    if (m_muonIdHelperTool->hasTGC()) {
       it = m_muonIdHelperTool->tgcIdHelper().module_begin();
       it_end = m_muonIdHelperTool->tgcIdHelper().module_end();
       for( ;it!=it_end; ++it ){
