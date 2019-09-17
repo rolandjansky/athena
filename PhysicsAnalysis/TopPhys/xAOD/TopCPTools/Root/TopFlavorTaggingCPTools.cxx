@@ -89,17 +89,8 @@ StatusCode FlavorTaggingCPTools::initialize() {
   top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "HybBEff_60", "HybBEff_70", "HybBEff_77", "HybBEff_85"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
 
 
-  // special stuff to use AntiKt4EMTopoJets scale-factors and tagger WPs when using AntiKt4EMPFlowJets or AntiKt4LCTopoJets, for which no SF is yet available
   std::string caloJets_type = m_config->sgKeyJetsType();
   std::string caloJets_collection = m_config->sgKeyJets();
-  if (caloJets_type == "AntiKt4LCTopoJets" || caloJets_type == "AntiKt4EMTopoNoElJets") {
-    ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize" );
-    ATH_MSG_WARNING( "     No b-tagging calibration available for jet collection " + caloJets_collection);
-    ATH_MSG_WARNING( "     We'll use the calibration for AntiKt4EMTopoJets instead");
-    ATH_MSG_WARNING("      Be careful!!" );
-    caloJets_collection = "AntiKt4EMTopoJets";
-    caloJets_type = "AntiKt4EMTopoJets";
-  }
 
   // BTagging Selectors should be created for DL1 algorithm to get the correct weight (in case charm-fraction is adjusted)
   std::vector<std::string> DL1_algorithms = {"DL1",
