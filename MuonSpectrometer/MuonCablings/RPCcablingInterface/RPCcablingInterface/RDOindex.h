@@ -166,11 +166,12 @@ class RDOindex
 			 
     void pad_identifier(Identifier& id ) const;
 
+    static void setRpcIdHelper(const RpcIdHelper*);
     static void setMuonIdHelperTool(const Muon::MuonIdHelperTool*);
     
     private:
     //static const RPCGeometry* s_rpcgeo;
-    static const Muon::MuonIdHelperTool* s_muonIdHelperTool;
+    static const RpcIdHelper* s_rpcIdHelper;
 
 #endif
 
