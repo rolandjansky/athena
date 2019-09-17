@@ -86,7 +86,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   }
 
   if (allLinearNavigationPaths.size() == 0) {
-    ATH_MSG_WARNING("No navigation paths found for this chain group of " << names().size() << " chains.");
+    ATH_MSG_DEBUG("No navigation paths found for this chain group of " << names().size() << " chains.");
   }
 
   const bool oneFeaturePerLeg = (featureCollectionMode == TrigDefs::oneFeaturePerLeg);
