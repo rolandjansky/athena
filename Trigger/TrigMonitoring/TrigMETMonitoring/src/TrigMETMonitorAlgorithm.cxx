@@ -11,20 +11,20 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_hlt_mht_met_key("HLT_MET_mht")
   , m_hlt_tc_met_key("HLT_MET_tc")
   , m_hlt_tcpufit_met_key("HLT_MET_tcPufit")
-  , m_hlt_run2_cell_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET")
-  , m_hlt_run2_mht_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht")
-  , m_hlt_run2_tc_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl")
-  , m_hlt_run2_tcpufit_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC")
+  //, m_hlt_run2_cell_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET")
+  //, m_hlt_run2_mht_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht")
+  //, m_hlt_run2_tc_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl")
+  //, m_hlt_run2_tcpufit_met_key("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC")
 {
   declareProperty("l1_roi_key", m_lvl1_roi_key);
   declareProperty("hlt_cell_key", m_hlt_cell_met_key);
   declareProperty("hlt_mht_key", m_hlt_mht_met_key);
   declareProperty("hlt_tc_key", m_hlt_tc_met_key);
   declareProperty("hlt_tcpufit_key", m_hlt_tcpufit_met_key);
-  declareProperty("hlt_run2_cell_key", m_hlt_run2_cell_met_key);
-  declareProperty("hlt_run2_mht_key", m_hlt_run2_mht_met_key);
-  declareProperty("hlt_run2_tc_key", m_hlt_run2_tc_met_key);
-  declareProperty("hlt_run2_tcpufit_key", m_hlt_run2_tcpufit_met_key);
+  //declareProperty("hlt_run2_cell_key", m_hlt_run2_cell_met_key);
+  //declareProperty("hlt_run2_mht_key", m_hlt_run2_mht_met_key);
+  //declareProperty("hlt_run2_tc_key", m_hlt_run2_tc_met_key);
+  //declareProperty("hlt_run2_tcpufit_key", m_hlt_run2_tcpufit_met_key);
 }
 
 
@@ -37,10 +37,10 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_mht_met_key.initialize() );
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
     ATH_CHECK( m_hlt_tcpufit_met_key.initialize() );
-    ATH_CHECK( m_hlt_run2_cell_met_key.initialize() );
-    ATH_CHECK( m_hlt_run2_mht_met_key.initialize() );
-    ATH_CHECK( m_hlt_run2_tc_met_key.initialize() );
-    ATH_CHECK( m_hlt_run2_tcpufit_met_key.initialize() );
+    //ATH_CHECK( m_hlt_run2_cell_met_key.initialize() );
+    //ATH_CHECK( m_hlt_run2_mht_met_key.initialize() );
+    //ATH_CHECK( m_hlt_run2_tc_met_key.initialize() );
+    //ATH_CHECK( m_hlt_run2_tcpufit_met_key.initialize() );
 
     return AthMonitorAlgorithm::initialize();
 }
@@ -52,48 +52,48 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // access met containers
     SG::ReadHandle<xAOD::EnergySumRoI> l1_roi_cont(m_lvl1_roi_key, ctx);
     if (! l1_roi_cont.isValid() ) {     
-      ATH_MSG_ERROR("evtStore() does not contain L1 MET Collection with name "<< m_lvl1_roi_key);
-      return StatusCode::FAILURE;
+      ATH_MSG_INFO("evtStore() does not contain L1 MET Collection with name "<< m_lvl1_roi_key);
+      //return StatusCode::FAILURE;
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
-    if (! hlt_cell_met_cont.isValid() ) {
-      hlt_cell_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_cell_met_key, ctx);
-      if (! hlt_cell_met_cont.isValid() ) {
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_cell_met_key);
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_cell_met_key);
-	return StatusCode::FAILURE;
-      }
+    if (hlt_cell_met_cont->size()==0 || ! hlt_cell_met_cont.isValid() ) {
+      //hlt_cell_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_cell_met_key, ctx);
+      //if (hlt_cell_met_cont->size()==0 || ! hlt_cell_met_cont.isValid() ) {
+	ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_cell_met_key);
+	//ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_cell_met_key);
+	//return StatusCode::FAILURE;
+      //}
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mht_met_cont(m_hlt_mht_met_key, ctx);
-    if (! hlt_mht_met_cont.isValid() ) {
-      hlt_mht_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_mht_met_key, ctx);
-      if (! hlt_mht_met_cont.isValid() ) {
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_mht_met_key);
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_mht_met_key);
-	return StatusCode::FAILURE;
-      }
+    if (hlt_mht_met_cont->size()==0 || ! hlt_mht_met_cont.isValid() ) {
+      //hlt_mht_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_mht_met_key, ctx);
+      //if (hlt_mht_met_cont->size()==0 || ! hlt_mht_met_cont.isValid() ) {
+	ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_mht_met_key);
+	//ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_mht_met_key);
+	//return StatusCode::FAILURE;
+      //}
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_met_cont(m_hlt_tc_met_key, ctx);
-    if (! hlt_tc_met_cont.isValid() ) {
-      hlt_tc_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_tc_met_key, ctx);
-      if (! hlt_tc_met_cont.isValid() ) {
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tc_met_key);
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_tc_met_key);
-	return StatusCode::FAILURE;
-      }
+    if (hlt_tc_met_cont->size()==0 || ! hlt_tc_met_cont.isValid() ) {
+      //hlt_tc_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_tc_met_key, ctx);
+      //if (hlt_tc_met_cont->size()==0 || ! hlt_tc_met_cont.isValid() ) {
+	ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tc_met_key);
+	//ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_tc_met_key);
+	//return StatusCode::FAILURE;
+      //}
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_met_cont(m_hlt_tcpufit_met_key, ctx);
-    if (! hlt_tcpufit_met_cont.isValid() ) {
-      hlt_tcpufit_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_tcpufit_met_key, ctx);
-      if (! hlt_tcpufit_met_cont.isValid() ) {
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tcpufit_met_key);
-	ATH_MSG_ERROR("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_tcpufit_met_key);
-	return StatusCode::FAILURE;
-      }
+    if (hlt_tcpufit_met_cont->size()==0 || ! hlt_tcpufit_met_cont.isValid() ) {
+      //hlt_tcpufit_met_cont = SG::ReadHandle<xAOD::TrigMissingETContainer>(m_hlt_run2_tcpufit_met_key, ctx);
+      //if (hlt_tcpufit_met_cont->size()==0 || ! hlt_tcpufit_met_cont.isValid() ) {
+	ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tcpufit_met_key);
+	//ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_run2_tcpufit_met_key);
+	//return StatusCode::FAILURE;
+      //}
     }
     
     // define TrigMissingET object
@@ -129,7 +129,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     */
 
     // access HLT cell MET values
-    if ( hlt_cell_met_cont.isValid() ) {
+    if ( hlt_cell_met_cont->size() > 0 && hlt_cell_met_cont.isValid() ) {
       hlt_met = hlt_cell_met_cont->at(0);
       cell_Ex = (hlt_met->ex())/1000.;
       cell_Ey = (hlt_met->ey())/1000.;
@@ -137,7 +137,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT mht MET values
-    if ( hlt_mht_met_cont.isValid() ) {
+    if ( hlt_mht_met_cont->size() > 0 && hlt_mht_met_cont.isValid() ) {
       hlt_met = hlt_mht_met_cont->at(0);
       mht_Ex = (hlt_met->ex())/1000.;
       mht_Ey = (hlt_met->ey())/1000.;
@@ -145,7 +145,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT tclcw MET values
-    if ( hlt_tc_met_cont.isValid() ) {
+    if ( hlt_tc_met_cont->size() > 0 && hlt_tc_met_cont.isValid() ) {
       hlt_met = hlt_tc_met_cont->at(0);
       tc_Ex = (hlt_met->ex())/1000.;
       tc_Ey = (hlt_met->ey())/1000.;
@@ -153,7 +153,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access HLT tcPufit MET values
-    if ( hlt_tcpufit_met_cont.isValid() ) {
+    if ( hlt_tcpufit_met_cont->size() > 0 && hlt_tcpufit_met_cont.isValid() ) {
       hlt_met = hlt_tcpufit_met_cont->at(0);
       tcpufit_Ex = (hlt_met->ex())/1000.;
       tcpufit_Ey = (hlt_met->ey())/1000.;
