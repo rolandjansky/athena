@@ -115,7 +115,7 @@ namespace Trk {
 
   VKVertex::~VKVertex()
   {  
-       for( int i=0; i<(int)includedVrt.size(); i++) includedVrt[i]=0;  // these vertice are not owned, then must not be deleted.
+//       for( int i=0; i<(int)includedVrt.size(); i++) includedVrt[i]=0;  // these vertice are not owned, then must not be deleted.
   }
   void VKVertex::setRefV(double v[3]){ refV[0]=v[0]; refV[1]=v[1]; refV[2]=v[2];}
   void VKVertex::setRefIterV(double v[]){ refIterV[0]=v[0]; refIterV[1]=v[1]; refIterV[2]=v[2];}
