@@ -102,7 +102,6 @@ CscRdoValAlg::~CscRdoValAlg() {
 StatusCode CscRdoValAlg::initialize() {
 
   ATH_MSG_DEBUG ( "CscRdoValAlg : in initialize()"  );
-  StatusCode sc;
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_MSG_DEBUG ( " Found the CscIdHelper. "  );
