@@ -181,7 +181,7 @@ class  ConfiguredNewTrackingSiPattern:
                print "Size of the track collection ",len(InputCollections)," The collection is ",InputCollections
 
             if InDetFlags.LowPtRoIStrategy() == 1:
-               from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
+               from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedToolW
                ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
                                                                InputTracksCollection     = InputZWindowTracks,
                                                                LeadingMinTrackPt         = 18000.0,
@@ -201,6 +201,12 @@ class  ConfiguredNewTrackingSiPattern:
                                                                InputFileName = InDetFlags.LowPtRoIFile(),
                                                                TrackZ0Window             = 2.0 )
             ToolSvc += ZWindowRoISeedTool
+
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__RandomRoISeedTool
+            RandomRoISeedTool = InDet__RandomRoISeedTool(name = "RandomRoISeedTool",
+                                                         TrackZ0Window             = 2.0 )
+            ToolSvc += RandomRoISeedTool
+
             #ZWindowRoISeedTool.OutputLevel = VERBOSE
             #ServiceMgr.MessageSvc.debugLimit = 1000000
             #ServiceMgr.MessageSvc.verboseLimit = 1000000
@@ -348,7 +354,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     TracksLocation     = self.__SiTrackCollection,
                                                                     SeedsTool          = InDetSiSpacePointsSeedMaker,
                                                                     VxOutputName    = InDetKeys.xAODLowPtRoIVertexContainer(),
-                                                                    ZWindowRoISeedTool = ZWindowRoISeedTool)
+                                                                    ZWindowRoISeedTool = ZWindowRoISeedTool,
+                                                                    RandomRoISeedTool = RandomRoISeedTool)
           #InDetSiSpSeededTrackFinder.OutputLevel = DEBUG
 
          else:

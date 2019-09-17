@@ -93,7 +93,9 @@ namespace InDet {
       ToolHandle<Trk::IPatternParametersPropagator>    m_proptool ;
       Trk::MagneticFieldProperties                     m_fieldprop;
       ToolHandle<InDet::IZWindowRoISeedTool>           m_ZWindowRoISeedTool;
+      ToolHandle<InDet::IZWindowRoISeedTool>           m_RandomRoISeedTool;
       std::vector<InDet::IZWindowRoISeedTool::ZWindow> m_listRoIs;
+      std::vector<InDet::IZWindowRoISeedTool::ZWindow> m_listRandRoIs;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
