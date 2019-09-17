@@ -62,7 +62,7 @@ namespace FlavorTagDiscriminants {
         {"secondaryVtx_(.*)"_r, "$1Flip_$2"},
         {"iprnn_(.*)"_r, "iprnnflip_$1"},
         {"iprnn|smt"_r, "$&flip"},
-        {"|smt_.*|softMuon_.*"_r, "$&"},
+        {"smt_.*|softMuon_.*"_r, "$&"},
 	{"(max|min|avg)_trk_flightDirRelEta"_r, "Flip$&"}
       };
       flip_converters.insert(flip_converters.end(),
