@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -11,7 +11,6 @@
 #include "TrkDetDescrTPCnv/TrkGeometry/ElementTableCnv_p1.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/ElementTable_p1.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/MaterialCnv_p1.h"
-#include "CxxUtils/make_unique.h"
         
 void ElementTableCnv_p1::persToTrans( const Trk::ElementTable_p1 *persObj,
                                       Trk::ElementTable    *transObj,
@@ -19,7 +18,7 @@ void ElementTableCnv_p1::persToTrans( const Trk::ElementTable_p1 *persObj,
 {
     // create the transient representation of the element table
     for (size_t im = 0; im < persObj->table.size(); ++im){
-        auto tMaterial = CxxUtils::make_unique<Trk::Material>();
+        auto tMaterial = std::make_unique<Trk::Material>();
         m_materialCnv.persToTrans(  &persObj->table[im], tMaterial.get(), mlog );
         transObj->addElement (std::move (tMaterial), persObj->names[im]);
     }
