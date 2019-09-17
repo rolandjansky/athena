@@ -34,6 +34,7 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   m_maxPIXsp(150000)                                                   ,
   m_maxSCTsp(500000) 						       ,
   m_nfreeCut(1)                                                        ,
+  m_doRandomSpot(true)                                                        ,
   m_SpacePointsSCT("SCT_SpacePoints"),
   m_SpacePointsPixel("PixelSpacePoints"),
   m_outputTracks("SiSPSeededTracks"),
@@ -68,6 +69,7 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   declareProperty("SpacePointsSCTName"  ,m_SpacePointsSCT      );
   declareProperty("SpacePointsPixelName",m_SpacePointsPixel    );
   declareProperty("FreeClustersCut"     ,m_nfreeCut            );
+  declareProperty("doRandomSpot"     ,m_doRandomSpot            );
   declareProperty("PropagatorTool"      ,m_proptool            );
   declareProperty("BeamConditionsService",m_beamconditions     ); 
   declareProperty("MagneticFieldMode"   ,m_fieldmode           );

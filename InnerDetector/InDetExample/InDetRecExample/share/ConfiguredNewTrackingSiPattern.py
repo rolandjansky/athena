@@ -181,7 +181,7 @@ class  ConfiguredNewTrackingSiPattern:
                print "Size of the track collection ",len(InputCollections)," The collection is ",InputCollections
 
             if InDetFlags.LowPtRoIStrategy() == 1:
-               from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedToolW
+               from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
                ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
                                                                InputTracksCollection     = InputZWindowTracks,
                                                                LeadingMinTrackPt         = 18000.0,
@@ -355,6 +355,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     SeedsTool          = InDetSiSpacePointsSeedMaker,
                                                                     VxOutputName    = InDetKeys.xAODLowPtRoIVertexContainer(),
                                                                     ZWindowRoISeedTool = ZWindowRoISeedTool,
+                                                                    doRandomSpot = InDetKeys.LowPtRoIRandomSpot(),
                                                                     RandomRoISeedTool = RandomRoISeedTool)
           #InDetSiSpSeededTrackFinder.OutputLevel = DEBUG
 

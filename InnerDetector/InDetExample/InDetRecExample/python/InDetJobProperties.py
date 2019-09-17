@@ -279,6 +279,13 @@ class LowPtRoIStrategy(InDetFlagsJobProperty):
     allowedValues= [1,2,3]
     StoredValue  = 1
 
+class LowPtRoIRandomSpot(InDetFlagsJobProperty):
+    """Set the strategy to extract the RoI; 1 = with tracks, 2 = with HS Truth, 3 = from file
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class LowPtRoIFile(InDetFlagsJobProperty):
     """Set the strategy to extract the RoI; 1 = with tracks, 2 = with HS Truth, 3 = from file
     """
@@ -2751,6 +2758,7 @@ _list_InDetJobProperties = [Enabled,
                             doVeryLowPt,
                             doLowPtRoI,
                             LowPtRoIStrategy,
+                            LowPtRoIRandomSpot,
                             LowPtRoIFile,
                             doSLHCConversionFinding,
                             doForwardTracks,

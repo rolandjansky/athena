@@ -72,6 +72,7 @@ namespace InDet {
       int                            m_maxPIXsp           ; // Max. number pixels space points
       int                            m_maxSCTsp           ; // Max. number sct    space points
       int                            m_nfreeCut           ; // Min number free clusters
+      bool                            m_doRandomSpot          ; // Low-pT tracking in random spot?
 
       SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
       SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
