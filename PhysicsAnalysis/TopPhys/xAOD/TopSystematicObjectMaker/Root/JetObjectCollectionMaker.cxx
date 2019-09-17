@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
@@ -403,11 +403,22 @@ StatusCode JetObjectCollectionMaker::calibrate(const bool isLargeR) {
 	       "Failed to apply fJVT decoration");
   }
 
-  ///-- Save calibrated jet to TStore --///
-  ///-- set links to original objects- needed for MET calculation --///
-  bool setLinks = xAOD::setOriginalObjectLink( *xaod, *shallow_xaod_copy.first );
-  if (!setLinks)
-    ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle" );
+  if (!isLargeR) {
+    ///-- Save calibrated jet to TStore --///
+    ///-- set links to original objects- needed for MET calculation --///
+    // NOTE, if we use one of the b-tagging re-trained collections, we need to load
+    // the original uncalibrated jet container to which the b-tagging shallow-copy is pointing to
+    const xAOD::JetContainer *xaod_original(nullptr);
+    // for small-R jet collections, set links to uncalibrated *original* jets (not BTagging shallow-copy)
+    if (m_config->sgKeyJets() != m_config->sgKeyJetsType()) {
+      top::check( evtStore()->retrieve(xaod_original, m_config->sgKeyJetsType()), "Failed to retrieve uncalibrated Jets for METMaker!");
+    } else {
+      xaod_original = xaod;
+    }
+    bool setLinks = xAOD::setOriginalObjectLink( *xaod_original, *shallow_xaod_copy.first );
+    if (!setLinks)
+      ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle" );
+  }
 
   ///-- Save corrected xAOD Container to StoreGate / TStore --///
   std::string outputSGKey;

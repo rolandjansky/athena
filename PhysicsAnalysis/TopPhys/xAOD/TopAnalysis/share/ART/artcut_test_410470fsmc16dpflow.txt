@@ -15,11 +15,11 @@ PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
-JetCollectionName AntiKt4EMPFlowJets
+JetCollectionName AntiKt4EMPFlowJets_BTagging201903
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
-TrackJetCollectionName AntiKt2PV0TrackJets
+TrackJetCollectionName AntiKtVR30Rmax4Rmin02TrackJets
 JetGhostTrackDecoName GhostTrack
 
 ### Large-R configuration

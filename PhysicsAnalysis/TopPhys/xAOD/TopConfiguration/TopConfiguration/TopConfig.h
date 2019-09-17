@@ -380,6 +380,7 @@ class TopConfig final {
   inline virtual const std::string& sgKeyMuons()      const {return m_sgKeyMuons;     }
   inline virtual const std::string& sgKeyTaus()       const {return m_sgKeyTaus;      }
   inline virtual const std::string& sgKeyJets()       const {return m_sgKeyJets;      }
+  inline virtual const std::string& sgKeyJetsType()   const {return m_sgKeyJetsType;      }
   inline virtual const std::string& sgKeyLargeRJets() const {return m_sgKeyLargeRJets;}
   inline virtual const std::string& sgKeyTrackJets()  const {return m_sgKeyTrackJets; }
   inline virtual const std::string& sgKeyMissingEt()  const {return m_sgKeyMissingEt; }
@@ -1202,6 +1203,7 @@ class TopConfig final {
   std::string m_sgKeyMuons;
   std::string m_sgKeyTaus;
   std::string m_sgKeyJets;
+  std::string m_sgKeyJetsType;
   std::string m_sgKeyLargeRJets;
   std::string m_sgKeyTrackJets;
   std::string m_sgKeyMissingEt;
