@@ -215,7 +215,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
   }
   
-
+  double RandZBoundary[2];
   if(m_doRandomSpot){
     //Finding Random Spot in beamspot
     m_listRandRoIs =  m_RandomRoISeedTool->getRoIs();
@@ -225,7 +225,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
       m_listRandRoIs =  m_RandomRoISeedTool->getRoIs();
     }
 
-    double RandZBoundary[2];
+    //double RandZBoundary[2];
     RandZBoundary[0] = m_listRandRoIs[0].z_window[0];
     RandZBoundary[1] = m_listRandRoIs[0].z_window[1];
     std::vector<xAOD::Vertex *> dummyxAODVertices_vector_rand;
