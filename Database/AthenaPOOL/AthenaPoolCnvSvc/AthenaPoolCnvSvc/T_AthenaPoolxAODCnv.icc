@@ -58,7 +58,7 @@ T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransientWithKey (const std::string&
   }
   else {
     // Try a converter.
-    c = m_tpcnvs.createTransient (*this, this->msg());
+    c = m_tpcnvs.createTransient (*this, key, this->msg()).release();
   }
 
   if (c) {
