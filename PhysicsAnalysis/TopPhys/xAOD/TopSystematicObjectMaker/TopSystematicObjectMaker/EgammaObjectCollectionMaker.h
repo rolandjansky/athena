@@ -95,14 +95,20 @@ namespace top{
       ///-- Isolation --///
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_LooseTrackOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowLoose;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Tight;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowTight;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Gradient;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_GradientLoose;     
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTight;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTightTrackOnly;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_TightTrackOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTightCaloOnly;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_TightCaloOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutLoose;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutHighPtCaloOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCHighPtCaloOnly;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_HighPtCaloOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose;
 
