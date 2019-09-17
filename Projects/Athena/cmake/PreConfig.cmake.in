@@ -2,7 +2,7 @@
 # Pre-config script to propagate variables to downstream projects
 #
 
-set( ATLAS_FLAKE8 "@ATLAS_FLAKE8"
+set( ATLAS_FLAKE8 "@ATLAS_FLAKE8@"
    CACHE STRING "Default flake8 command" )
 
 set( ATLAS_PYTHON_CHECKER "@ATLAS_PYTHON_CHECKER@"
