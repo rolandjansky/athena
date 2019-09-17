@@ -48,7 +48,7 @@
     declareProperty("JetChargedp4",       m_jetchargedp4     = "JetChargedScaleMomentum" );
     declareProperty("EtaThresh",          m_etaThresh        = 2.5                       );
     declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3                      );
-    declareProperty("ForwardMaxPt",       m_forwardMaxPt     = 60e3                      );
+    declareProperty("ForwardMaxPt",       m_forwardMaxPt     = -1                        );
     declareProperty("CentralMinPt",       m_centerMinPt      = 20e3                      );
     declareProperty("CentralMaxPt",       m_centerMaxPt      = -1                        );
     declareProperty("CentralJvtThresh",   m_centerJvtThresh  = 0.2                       );
@@ -57,9 +57,10 @@
     declareProperty("RptThresValue",      m_rptCut           = 0.1                       );
     declareProperty("JVTThresValue",      m_jvtCut           = 0.2                       );
     declareProperty("DzThresValue",       m_dzCut            = 2.                        );
-    declareProperty("JetsFromVertices",   m_vertices         = 10                        );
+    declareProperty("JetsFromVertices",   m_vertices         = 10                         );
     declareProperty("JetBuildingMaxRap",  m_maxRap           = 2.5                       );
     declareProperty("NeutralMaxRap",      m_neutMaxRap       = 2.5                       );
+    declareProperty("PFOWeight",          m_weight           = 0                         );
     declareProperty("PFOToolName",        m_pfoToolName      = "PFOTool"                 );
     declareProperty("PFOWeightToolName",  m_wpfoToolName     = "WPFOTool"                );
     declareProperty("JetCalibToolName",   m_pfoJESName       = "pfoJES"                  );
@@ -111,12 +112,12 @@
   int JetForwardPFlowJvtTool::modify(xAOD::JetContainer& jetCont) const {
 
     m_pileupMomenta.clear();
+    if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
     for(const auto& jetF : jetCont) {
       (*Dec_outFjvt)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
-      if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
-      double fjvt = getFJVT(jetF)/jetF->pt();
+      double fjvt = getFJVT(jetF);
       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
       fjvt_dec(*jetF) = fjvt;
     }
@@ -124,15 +125,13 @@
   }
 
   float JetForwardPFlowJvtTool::getFJVT(const xAOD::Jet *jet) const {
-    TVector2 fjet(-jet->pt()*cos(jet->phi()),-jet->pt()*sin(jet->phi()));
+    TVector2 fjet(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()));
     double fjvt = 0;
     for (size_t pui = 0; pui < m_pileupMomenta.size(); pui++) {
-      //if (pui==pvind) continue;
       double projection = m_pileupMomenta[pui]*fjet/fjet.Mod();
-      if (projection>fjvt) fjvt = projection;
+      if (projection<fjvt) fjvt = projection;
     }
-    //fjvt += getCombinedWidth(jet);
-    return fjvt;
+    return -1*fjvt/fjet.Mod();
   }
 
   void JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *pjets, int m_pvind, int m_vertices) const {
@@ -170,13 +169,14 @@
 
         // Calculate vertex missing momentum
         if (centralJet(jet) && getRpt(jet)> m_rptCut)
-        {
+        { 
           vertex_met += TVector2(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()) ) ;
-        } else{
+        } 
+        else{
           vertex_met += TVector2(jet->jetP4(m_jetchargedp4).Pt()*cos(jet->jetP4(m_jetchargedp4).Phi()), jet->jetP4(m_jetchargedp4).Pt()*sin(jet->jetP4(m_jetchargedp4).Phi()) );
         }
       }
-      m_pileupMomenta.push_back(-1*vertex_met);
+      m_pileupMomenta.push_back(vertex_met);
       if(m_vertices!=-1 && vx->index()==m_vertices) break;
     }
   }
@@ -196,8 +196,6 @@
       if (pfo->charge()!=0) { 
         if (vx.index()==0 && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
         if (vx.index()!=0 && &vx!=pfo->track(0)->vertex()) continue;
-        float pweight = 0;
-        m_wpfotool->fillWeight(*pfo,pweight);
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
@@ -236,7 +234,7 @@
           chargedpart += constituents[j].perp(); 
         }
       }
-      xAOD::JetFourMom_t chargejetp4(1.*chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
+      xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
       jet->setJetP4(m_jetchargedp4,chargejetp4);
     }   
     m_pfoJES->modify(*vertjets);
@@ -249,14 +247,15 @@
 
     TLorentzVector pfo_p4;
     if (CP::charged == theCharge){
+      float pweight = m_weight;
+      m_wpfotool->fillWeight(*pfo,pweight);
       // Create a PSeudojet with the momentum of the selected IParticle
-      pfo_p4= pfo->p4();
+      //pfo_p4= pfo->p4();
+      pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
     } else if (CP::neutral == theCharge){ 
       pfo_p4= pfo->GetVertexCorrectedEMFourVec(*vx);
     }
-
     fastjet::PseudoJet psj(pfo_p4);
-
     // user index is used to identify the xAOD object used for the PSeudoJet
     psj.set_user_index(pfo->index());
 
@@ -265,7 +264,7 @@
 
   bool JetForwardPFlowJvtTool::forwardJet(const xAOD::Jet *jet) const {
     if (fabs(jet->eta())<m_etaThresh) return false;
-    if (jet->pt()<m_forwardMinPt || jet->pt()>m_forwardMaxPt) return false;
+    if (jet->pt()<m_forwardMinPt || (m_forwardMaxPt>0 && jet->pt()>m_forwardMaxPt) ) return false;
     return true;
   }
 

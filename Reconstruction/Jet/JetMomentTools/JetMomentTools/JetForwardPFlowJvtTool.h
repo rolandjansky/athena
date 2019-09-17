@@ -65,6 +65,7 @@
     bool centralJet(const xAOD::Jet *jet) const;
 
     static StatusCode tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets);
+    //std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets,int m_pvind, int m_vertices) const;
     void calculateVertexMomenta(const xAOD::JetContainer *jets,int m_pvind, int m_vertices) const;
     void buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
     bool hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const;
@@ -102,6 +103,7 @@
     double m_dzCut;
     double m_maxRap;
     double m_neutMaxRap;
+    float  m_weight;
     bool m_tightOP;
     mutable std::vector<TVector2> m_pileupMomenta;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
