@@ -40,6 +40,9 @@ using T_AthenaPoolTPCnvBase = TPConverterBase<TRANS, PERS>;
 template< class TRANS, class PERS >
 using T_AthenaPoolTPCnvConstBase = TPConverterConstBase<TRANS, PERS>;
 
+template< class TRANS, class PERS >
+using T_AthenaPoolTPCnvWithKeyBase = TPConverterWithKeyBase<TRANS, PERS>;
+
 
 template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPPtrVectorCnv = TPPtrVectorCnv<TRANS, PERS, CONV>;
