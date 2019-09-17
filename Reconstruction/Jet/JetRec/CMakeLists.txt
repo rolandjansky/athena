@@ -40,7 +40,7 @@ find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_library( JetRecLib
-  JetRec/*.h Root/*.cxx
+  JetRec/*.h Root/*.h Root/*.cxx
   PUBLIC_HEADERS JetRec
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}

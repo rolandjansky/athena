@@ -20,6 +20,7 @@
 #include "JetRec/JetPseudojetCopier.h"
 #include "JetRec/JetFilterTool.h"
 #include "JetRec/JetConstitRemover.h"
+#include "../../Root/JetClusterer.h"
 
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )
@@ -40,6 +41,7 @@ DECLARE_COMPONENT( JetPseudojetRetriever )
 DECLARE_COMPONENT( JetConstituentsRetriever )
 DECLARE_COMPONENT( JetPseudojetCopier )
 DECLARE_COMPONENT( JetConstitRemover )
+DECLARE_COMPONENT( JetClusterer )
 
 DECLARE_COMPONENT( JetAlgorithm )
 DECLARE_COMPONENT( PseudoJetAlgorithm )
