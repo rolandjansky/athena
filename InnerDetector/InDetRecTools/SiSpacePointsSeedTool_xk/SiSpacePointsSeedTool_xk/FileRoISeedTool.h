@@ -44,6 +44,7 @@ namespace InDet {
     /** Compute RoI */
     virtual std::vector<ZWindow> getRoIs();
 
+
     /*private:
 
     int m_runN;
