@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -72,7 +72,7 @@ public:
                                const MeasurementBase&) const override final;
 
   /** Method for determining the chi2 of the multi-component state and the number of degrees of freedom */
-  virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const;
+  virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const override;
 
 private:
   std::unique_ptr<MultiComponentState> calculateFilterStep(const MultiComponentState&,

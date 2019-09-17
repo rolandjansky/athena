@@ -191,10 +191,10 @@ class DictFromChainName(object):
 
     def analyseShortName(self, chainName, L1thresholds, L1item):
         """
-        Function to obtain the chain configuration dictionay from the short name
-        by parsing its components and finding the corrsponding properties which
-        are defined in SliceDicts
-        The naming ocnvention is defined inthis document http://
+        Function to obtain the chain configuration dictionary from the short name by parsing its
+        components and finding the corresponding properties which are defined in SignatureDicts.
+        The naming convention is defined in https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerNamingRun2
+        and https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerNamingRun3
         """
 
         # ---- dictionary with all chain properties ----
@@ -212,6 +212,20 @@ class DictFromChainName(object):
         if 'HLT' in hltChainName:
             cparts.remove('HLT')
 
+        # ---- event building identifier ----
+        from EventBuildingInfo import AllowedEventBuildingIdentifiers
+        genchainDict['eventBuildType'] = ''
+        eventBuildTypes = []
+        for ebid in AllowedEventBuildingIdentifiers:
+            if ebid in cparts:
+                eventBuildTypes.append(ebid)
+        if len(eventBuildTypes) > 1:
+            logDict.error('Chain %s has more than one Event Building identifier: %s', chainName, eventBuildTypes)
+        elif len(eventBuildTypes) == 1:
+            genchainDict['eventBuildType'] = eventBuildTypes[0]
+            cparts.remove(eventBuildTypes[0])
+
+        hltChainNameShort = '_'.join(cparts)
 
         # ---- identify the topo algorithm and add to genchainDict -----
         from SignatureDicts import AllowedTopos
@@ -225,7 +239,7 @@ class DictFromChainName(object):
                 topo = cpart
                 topoindex = cindex
                 toposIndexed.update({topo : topoindex})
-                hltChainName=hltChainName.replace('_'+cpart, '')
+                hltChainNameShort=hltChainNameShort.replace('_'+cpart, '')
                 topos.append(topo)
 
         genchainDict['topo'] = topos
@@ -267,19 +281,20 @@ class DictFromChainName(object):
                 groupdict = m.groupdict()
                 # Check whether the extra contains a special keyword
 
-                multiChainIndices = [i for i in range(len(hltChainName)) if ( hltChainName.startswith(cpart, i) ) ]
+                multiChainIndices = [i for i in range(len(hltChainNameShort)) if ( hltChainNameShort.startswith(cpart, i) ) ]
                 logDict.debug("MultiChainIndices: %s", multiChainIndices)
                 for theMultiChainIndex in multiChainIndices:
                     # this check is necessary for the bjet chains, example: j45_bloose_3j45
                     # j45 would be found in [0, 13], and 3j45 in [12]
                     # so need to make sure the multiplicities are considered here!
-                    if (theMultiChainIndex != 0) & (hltChainName[theMultiChainIndex-1] != '_'):
+                    if (theMultiChainIndex != 0) & (hltChainNameShort[theMultiChainIndex-1] != '_'):
                         continue
 
                     if theMultiChainIndex not in multichainindex:
                         multichainindex.append(theMultiChainIndex)
 
                 logDict.debug("HLTChainName: %s", hltChainName)
+                logDict.debug("HLTChainNameShort: %s", hltChainNameShort)
                 logDict.debug("cpart: %s", cpart)
                 logDict.debug("groupdict: %s", groupdict)
                 logDict.debug("multichainindex: %s", multichainindex)
@@ -291,43 +306,43 @@ class DictFromChainName(object):
 
             # TODO, move it elsewhere or streamline further
             elif cpart =='noalg':
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict( 'Streaming', 'streamer')
                 break # stop loop here so mb doesn't get picked up from min bias slice as it's streaming info
 
             elif cpart=='mb':
                 logDict.debug('Doing MB')
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict('MinBias', 'mb')
 
             elif cpart=='hi':
                 logDict.debug('Doing HI')
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict( 'HeavyIon', 'mb') # this is cloned from previous code, not sure it is correct that HI == MB
 
             elif cpart in AllowedCosmicChainIdentifiers:
                 logDict.debug('COSMIC CHAIN from CosmicDef.py')
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict('Cosmic', 'cosmic')
 
             elif cpart in AllowedCalibChainIdentifiers:
                 logDict.debug('CALIB CHAIN from Calibration')
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict('Calibration', 'calib')
 
             elif cpart in AllowedMonitorChainIdentifiers:
                 logDict.debug('Mon CHAIN from Monitor')
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict( 'Monitoring', 'calib' ) # this is cloned from previous code, not sure it is correct that Monitoring == calib
 
             elif cpart in AllowedBeamspotChainIdentifiers:
                 logDict.debug('Beamspot CHAIN from Beamspot')
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict( 'Beamspot', 'beamspot' )
 
             elif cpart=='eb':
                 logDict.debug('EnhancedBias chain')
-                multichainindex.append(hltChainName.index(cpart))
+                multichainindex.append(hltChainNameShort.index(cpart))
                 buildDict( 'EnhancedBias', 'eb')
 
 
@@ -335,15 +350,15 @@ class DictFromChainName(object):
         # part depending on the signature it belongs to
         multichainparts=[]
         multichainindex = sorted(multichainindex, key=int)
-        cN = deepcopy(hltChainName)
+        cN = deepcopy(hltChainNameShort)
         for i in reversed(multichainindex):
             if i!=0:
-                logDict.debug('Appending to multichainparts (i!=0): %s', hltChainName[i:len(cN)])
+                logDict.debug('Appending to multichainparts (i!=0): %s', hltChainNameShort[i:len(cN)])
 
-                multichainparts.append(hltChainName[i:len(cN)])
+                multichainparts.append(hltChainNameShort[i:len(cN)])
                 cN = cN[0:i-1]
             else:
-                logDict.debug('Appending to multichainparts: %s', hltChainName[i:len(cN)])
+                logDict.debug('Appending to multichainparts: %s', hltChainNameShort[i:len(cN)])
                 multichainparts.append(cN)
         logDict.debug("multichainparts: %s",multichainparts)
 
@@ -433,7 +448,7 @@ class DictFromChainName(object):
             result.update(chainProperties)
             chainProperties = result
 
-            # ---- check remaining parts for complete machtes in allowedPropertiesAndValues Dict ----
+            # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
             # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
             parts = filter(None, parts)     #removing empty strings from list
 

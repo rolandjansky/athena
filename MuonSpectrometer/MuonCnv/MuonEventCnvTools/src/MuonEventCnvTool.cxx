@@ -34,13 +34,8 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
-//Muon helpers
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <vector>
 #include <cassert>
 #include <iostream>
@@ -54,7 +49,8 @@ Muon::MuonEventCnvTool::MuonEventCnvTool(
     const IInterface*  p )
     :
     AthAlgTool(t,n,p),
-    m_muonMgr(0),
+    m_muonMgr(nullptr),
+    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_rpcClusContName("RPC_Measurements"),
     m_cscClusContName("CSC_Clusters"),
     m_tgcClusContName("TGC_Measurements"),
@@ -90,6 +86,8 @@ StatusCode Muon::MuonEventCnvTool::initialize()
     }else{
         ATH_MSG_DEBUG( "Found MuonReadoutGeometry DetectorDescription manager at :"<<m_muonMgr);
     }
+
+    ATH_CHECK(m_idHelperTool.retrieve());
 
     return StatusCode::SUCCESS;
 }
@@ -127,39 +125,30 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
 
     if ( m_muonMgr!=0) {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
-      if (m_muonMgr->rpcIdHelper()->is_rpc(id)){
+      if (m_idHelperTool->isRpc(id)){
         detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = rpcClusterLink(id, rioOnTrack.idDE());
-      } else if(m_muonMgr->cscIdHelper()->is_csc(id)){
+      } else if(m_idHelperTool->isCsc(id)){
         detEl =  m_muonMgr->getCscReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = cscClusterLink(id, rioOnTrack.idDE());
-      } else if(m_muonMgr->tgcIdHelper()->is_tgc(id)){
+      } else if(m_idHelperTool->isTgc(id)){
         detEl = m_muonMgr->getTgcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = tgcClusterLink(id, rioOnTrack.idDE());
-      }else if(m_muonMgr->mdtIdHelper()->is_mdt(id)){
+      }else if(m_idHelperTool->isMdt(id)){
         detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mdtDriftCircleLink(id, rioOnTrack.idDE());
-      } else if(m_muonMgr->mmIdHelper()->is_mm(id)){
+      } else if(m_idHelperTool->isMM(id)){
         detEl = m_muonMgr->getMMReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mmClusterLink(id, rioOnTrack.idDE());
-      } else if(m_muonMgr->stgcIdHelper()->is_stgc(id)){
+      } else if(m_idHelperTool->issTgc(id)){
         detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = stgcClusterLink(id, rioOnTrack.idDE());
       }else{
         ATH_MSG_WARNING( "Unknown type of Muon detector from identifier :"<< id);
       }
     }
-     //                         if (0==detEl) 
-//                            m_log << MSG::WARNING << "Got zero detector element from MDT with Identifier="
-//                                <<m_muonMgr->mdtIdHelper()->show_to_string(id)<<", that is station="
-//                                <<m_muonMgr->mdtIdHelper()->stationName(id)<<", st. eta="
-//                                <<m_muonMgr->mdtIdHelper()->stationEta(id)<<", st. phi="
-//                                <<m_muonMgr->mdtIdHelper()->stationPhi(id)<<", multilayer="
-//                                <<m_muonMgr->mdtIdHelper()->multilayer(id)<<endmsg;        
     if (detEl==0) ATH_MSG_ERROR( "Apparently could not find detector element for "<< id);
     ATH_MSG_VERBOSE("Found PRD at : "<<prd);    
-    ////std::cout<<"Debug: pair = ("<<detEl<<","<<prd<<")"<<std::endl;
-    
     return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd); 
 }
 
@@ -221,17 +210,17 @@ Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id) const
     if ( m_muonMgr!=0 ) 
     {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
-      if (m_muonMgr->rpcIdHelper()->is_rpc(id)) {
+      if (m_idHelperTool->isRpc(id)) {
         detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
-      }else if(m_muonMgr->cscIdHelper()->is_csc(id)){
+      }else if(m_idHelperTool->isCsc(id)){
         detEl =  m_muonMgr->getCscReadoutElement( id ) ;
-      }else if(m_muonMgr->tgcIdHelper()->is_tgc(id)){
+      }else if(m_idHelperTool->isTgc(id)){
         detEl = m_muonMgr->getTgcReadoutElement( id ) ;
-      }else if(m_muonMgr->mdtIdHelper()->is_mdt(id)) {
+      }else if(m_idHelperTool->isMdt(id)) {
         detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
-      }else if(m_muonMgr->stgcIdHelper()->is_stgc(id)){
+      }else if(m_idHelperTool->issTgc(id)){
         detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
-      }else if(m_muonMgr->mmIdHelper()->is_mm(id)){
+      }else if(m_idHelperTool->isMM(id)){
         detEl = m_muonMgr->getMMReadoutElement( id ) ;
       }
     }

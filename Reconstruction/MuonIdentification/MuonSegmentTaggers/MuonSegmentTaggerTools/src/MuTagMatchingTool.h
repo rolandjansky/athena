@@ -23,10 +23,6 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 class StoreGateSvc;
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 
   /**
      @class MuTagMatchingTool
@@ -154,10 +150,6 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
    StoreGateSvc* p_StoreGateSvc ; //!< Pointer On StoreGateSvc
    
    const MuonGM::MuonDetectorManager* m_detMgr;
-   const MdtIdHelper*  m_mdtIdHelper;
-   const CscIdHelper*  m_cscIdHelper;
-   const RpcIdHelper*  m_rpcIdHelper;
-   const TgcIdHelper*  m_tgcIdHelper;
 
    bool m_assumeLocalErrors;
    bool m_extrapolatePerigee;

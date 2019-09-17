@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOMUONDIGITTOOL_H
@@ -19,8 +19,6 @@
 #include "MuonDigitContainer/MmDigitContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-
-//class MDTcablingSvc;
 class IRPCcablingSvc;
 class ITGCcablingSvc;
 
@@ -56,6 +54,7 @@ namespace Muon {
   class ITGC_RDO_Decoder;
   class ISTGC_RDO_Decoder;
   class IMM_RDO_Decoder;
+  class MuonIdHelperTool;
 }
 // Author: Ketevi A. Assamagan
 // BNL, January 24, 2004

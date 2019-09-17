@@ -57,7 +57,6 @@ atlas_add_test( TagInfo_test
                 test/TagInfo_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthLinks EventInfo ${Boost_LIBRARIES} 
-                POST_EXEC_SCRIPT "nopost.sh"
                )
                
 set_target_properties( EventInfo_TagInfo_test  PROPERTIES ENABLE_EXPORTS True )

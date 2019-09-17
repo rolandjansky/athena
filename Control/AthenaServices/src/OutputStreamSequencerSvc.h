@@ -51,20 +51,26 @@ public: // Non-static members
    /// Returns sequenced file name for output stream
    std::string buildSequenceFileName(const std::string&) const;
 
-   std::string   incidentName() const            { return m_incidentName.value(); }
-   bool          ignoringInputBoundary() const   { return m_ignoreInputFile.value(); }
-   void          setMetaTransOnNextRange( bool val ) { m_metaTransOnNextRange = val; }
+   /// The name of the incident that starts a new event sequence
+   std::string  incidentName() const            { return m_incidentName.value(); }
+  
+   bool         ignoringInputBoundary() const   { return m_ignoreInputFile.value(); }
+
+   /// Is the service in active use? (true after the first range incident is handled)
+   bool         inUse() const;
+  
+   /// Are there concurrent events? (threads>1)
+   bool         inConcurrentEventsMode() const;
 
 private: // data
    ServiceHandle<MetaDataSvc> m_metaDataSvc;
-   unsigned int m_fileSequenceNumber;
+
+   /// The event sequence number
+   int m_fileSequenceNumber;
 
    /// Current EventRange ID constructed on the NextRange incident
    std::string  m_currentRangeID;
 
-   /// If true, do metadata transition on the NextRange incident (false for in AthenaMT)
-   bool         m_metaTransOnNextRange  { true };
-  
 private: // properties
    /// SequenceIncidentName, incident name for triggering file sequencing.
    StringProperty             m_incidentName;

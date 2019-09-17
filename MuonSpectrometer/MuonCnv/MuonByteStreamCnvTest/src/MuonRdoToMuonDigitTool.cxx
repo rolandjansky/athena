@@ -19,14 +19,8 @@
 #include "MuonSTGC_CnvTools/ISTGC_RDO_Decoder.h"
 #include "MuonMM_CnvTools/IMM_RDO_Decoder.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-//#include "MDTcabling/MDTcablingSvc.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
@@ -93,9 +87,13 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
     m_tgcRdoDecoderTool("Muon::TgcRDO_Decoder"),
     m_stgcRdoDecoderTool("Muon::STGC_RDO_Decoder"),
     m_mmRdoDecoderTool("Muon::MM_RDO_Decoder"),
-    m_tgcCabling(0), m_mdtContainer(0), m_cscContainer(0),
-    m_rpcContainer(0), m_tgcContainer(0),
-    m_stgcContainer(0),m_mmContainer(0),
+    m_tgcCabling(nullptr),
+    m_mdtContainer(nullptr),
+    m_cscContainer(nullptr),
+    m_rpcContainer(nullptr),
+    m_tgcContainer(nullptr),
+    m_stgcContainer(nullptr),
+    m_mmContainer(nullptr),
     m_is12foldTgc(true)
 {
 
@@ -118,6 +116,7 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
   declareProperty("tgcRdoDecoderTool",  m_tgcRdoDecoderTool);
   declareProperty("stgcRdoDecoderTool",  m_stgcRdoDecoderTool);
   declareProperty("mmRdoDecoderTool",  m_mmRdoDecoderTool);
+  declareProperty("MuonIdHelperTool",  m_muonIdHelperTool);
 
   declareProperty("show_warning_level_invalid_TGC_A09_SSW6_hit", m_show_warning_level_invalid_TGC_A09_SSW6_hit = false);
 }
@@ -130,18 +129,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_acSvc.retrieve() );
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-  // get MDT cablingSvc
-  //  status = service("MDTcablingSvc", m_mdtCabling);
-  //
-  //if (status.isFailure()) {
-  // ATH_MSG_WARNING( "Could not get MDTcablingSvc !"  );
-  //m_mdtCabling = 0;
-  //return StatusCode::SUCCESS;
-  //} 
-  //  else {
-  //ATH_MSG_DEBUG( " Found the MDTcablingSvc. "  );
-  //}
 
   // get RPC cablingSvc
   ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
@@ -166,13 +153,12 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK(m_mmDigitKey.initialize(m_decodeMmRDO));
 
 
-  ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_stgcRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_mmRdoDecoderTool.retrieve() );
-
+  if (m_decodeMdtRDO) ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
+  if (m_decodeCscRDO) ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
+  if (m_decodeRpcRDO) ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
+  if (m_decodeTgcRDO) ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
+  if (m_decodesTgcRDO) ATH_CHECK( m_stgcRdoDecoderTool.retrieve() );
+  if (m_decodeMmRDO) ATH_CHECK( m_mmRdoDecoderTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -287,9 +273,6 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdtRDO() {
 StatusCode MuonRdoToMuonDigitTool::decodeCscRDO() {
 
   ATH_MSG_DEBUG( "Decoding CSC RDO into CSC Digit"  );
-
-  //  CscRDO_Decoder decoder;
-  //  decoder.set(m_cscHelper);
 
   m_acSvc->setStore( &*evtStore() );
 
