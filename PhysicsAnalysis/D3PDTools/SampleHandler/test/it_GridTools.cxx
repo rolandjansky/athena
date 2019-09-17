@@ -47,7 +47,7 @@ TEST (GridToolsTest, faxListFiles)
 TEST (GridToolsTest, rucioDirectAccessGlob)
 {
   const auto files = rucioDirectAccessGlob
-    ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
+    ("user.ivukotic:user.ilijav.HCtest.1", "*.root*", "");
   ASSERT_EQ (5u, files.size());
 }
 
