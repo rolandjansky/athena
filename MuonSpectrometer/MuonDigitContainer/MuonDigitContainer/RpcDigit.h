@@ -34,6 +34,11 @@ public:  // functions
   // Is this a valid digit?
   bool is_valid(const RpcIdHelper& rpcHelper) const;
 
+  // Is this a valid digit?
+  bool is_valid(const RpcIdHelper* rpcHelper) const {
+    return is_valid(*rpcHelper);
+  }
+
   // Return the Time.
   float time() const { return m_time; }
 
