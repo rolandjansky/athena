@@ -95,12 +95,14 @@ StatusCode electronSuperClusterBuilder::execute(){
     else if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
       ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
     }
-
+    //Require minimum EMFrac
+    if(emFrac<m_EMFracThresholdCut){
+      continue;
+    }
     //Require minimum energy for supercluster seeding.
     if (clus->et()*emFrac < m_EtThresholdCut){
       continue;
     }
-
     //We need tracks
     if (egRec->getNumberOfTrackParticles()==0) {
       continue;
