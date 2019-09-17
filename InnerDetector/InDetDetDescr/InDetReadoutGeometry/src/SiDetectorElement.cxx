@@ -574,7 +574,7 @@ namespace InDetDD {
         // This offset is later removed.
         if (phiPoint < -0.5 * M_PI) {
           phiOffset = -0.5 * M_PI;
-        } else if  (phiPoint > 0.5 * M_PI) {
+        } else if (phiPoint > 0.5 * M_PI) {
           phiOffset = 0.5 * M_PI;
         }
         phiMin = phiMax = phiPoint - phiOffset;
@@ -704,8 +704,7 @@ namespace InDetDD {
       ATH_MSG_WARNING("Element id is not for pixel or SCT");
     }
 
-    // Set IdHash. Also set m_isBarrel.
-    m_isDBM = false;
+    // Set m_idHash. Also set m_isBarrel.
     if (isPixel()) {
       const PixelID* pixelId = dynamic_cast<const PixelID*>(getIdHelper());
       if (pixelId) {
@@ -732,8 +731,6 @@ namespace InDetDD {
 
     // Increase the reference count of the SiCommonItems objects.
     m_commonItems->ref();
-
-    // Should we reference count the geophysvol as well?
 
     // Set surface
     m_surface = std::make_unique<Trk::PlaneSurface>(*this);
@@ -781,7 +778,7 @@ namespace InDetDD {
     static const HepGeom::Vector3D<double>& localRecoDepthAxis = localAxes[distDepth]; // Defined to be same as z axis
 
     // We only need to calculate the rough orientation once.
-    //For it to change would require extreme unrealistic misalignment changes.
+    // For it to change would require extreme unrealistic misalignment changes.
     if (m_firstTime) {
       // Determine the unit vectors in global frame
 
@@ -934,7 +931,7 @@ namespace InDetDD {
     if (m_firstTime) updateCache();
 
     if (isSCT() && m_otherSide) {
-      double sinStereoThis = std::abs(sinStereoImpl()); //Call the private impl method
+      double sinStereoThis = std::abs(sinStereoImpl()); // Call the private impl method
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
       if (sinStereoThis == sinStereoOther) {
         // If they happend to be equal then set side0 as axial and side1 as stereo.
@@ -1037,28 +1034,28 @@ namespace InDetDD {
     // For the SCT barrel and pixel detectors minWidth and maxWidth are the same and so should 
     // work for all orientations.
 
-    double minWidth = m_design->minWidth();
-    double maxWidth = m_design->maxWidth();
-    double length   = m_design->length();
+    double tmpMinWidth = minWidth();
+    double tmpMaxWidth = maxWidth();
+    double tmpLength   = length();
   
     // Lower left
-    corners[0][distPhi] = -0.5 * minWidth;
-    corners[0][distEta] = -0.5 * length;
+    corners[0][distPhi] = -0.5 * tmpMinWidth;
+    corners[0][distEta] = -0.5 * tmpLength;
     corners[0][distDepth] = 0.;
 
     // Lower right
-    corners[1][distPhi] =  0.5 * minWidth;
-    corners[1][distEta] = -0.5 * length;
+    corners[1][distPhi] =  0.5 * tmpMinWidth;
+    corners[1][distEta] = -0.5 * tmpLength;
     corners[1][distDepth] = 0.;
 
     // Upper Right
-    corners[2][distPhi] = 0.5 * maxWidth;
-    corners[2][distEta] = 0.5 * length;
+    corners[2][distPhi] = 0.5 * tmpMaxWidth;
+    corners[2][distEta] = 0.5 * tmpLength;
     corners[2][distDepth] = 0.;
 
     // Upper left
-    corners[3][distPhi] = -0.5 * maxWidth;
-    corners[3][distEta] =  0.5 * length;
+    corners[3][distPhi] = -0.5 * tmpMaxWidth;
+    corners[3][distEta] =  0.5 * tmpLength;
     corners[3][distDepth] = 0.;
   }
 
@@ -1076,10 +1073,10 @@ namespace InDetDD {
     double r = globalPoint.perp();
     double z = globalPoint.z();
   
-    double thetaMin = atan2(r,(z + deltaZ));
-    etaMax = -log(tan(0.5 * thetaMin));
-    double thetaMax = atan2(r,(z - deltaZ));
-    etaMin = -log(tan(0.5 * thetaMax));
+    double thetaMin = std::atan2(r,(z + deltaZ));
+    etaMax = -std::log(tan(0.5 * thetaMin));
+    double thetaMax = std::atan2(r,(z - deltaZ));
+    etaMin = -std::log(tan(0.5 * thetaMax));
 
     phi = globalPoint.phi();
   }
