@@ -12,10 +12,6 @@ JetLArHVTool::JetLArHVTool(const std::string& name)
   : asg::AsgTool(name)
 {
   declareInterface<IJetDecorator>(this);
-
-  // Prepend jet container name
-  m_fracKey = m_jetContainerName + "." + m_fracKey.key();
-  m_nCellKey = m_jetContainerName + "." + m_nCellKey.key();
 }
 
 
@@ -25,6 +21,11 @@ StatusCode JetLArHVTool::initialize()
     ATH_MSG_ERROR("JetLArHVTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }
+
+  // Prepend jet container name
+  m_fracKey = m_jetContainerName + "." + m_fracKey.key();
+  m_nCellKey = m_jetContainerName + "." + m_nCellKey.key();
+
   ATH_CHECK(m_fracKey.initialize());
   ATH_CHECK(m_nCellKey.initialize());
   return StatusCode::SUCCESS;

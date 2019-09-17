@@ -24,9 +24,6 @@ JetECPSFractionTool::JetECPSFractionTool(std::string myname)
 : asg::AsgTool(myname) {
 
   declareInterface<IJetDecorator>(this);
-
-  // Prepend jet collection name
-  m_fracKey = m_jetContainerName + "." + m_fracKey.key();
 }
 
 //**********************************************************************
@@ -37,6 +34,10 @@ StatusCode JetECPSFractionTool::initialize(){
     ATH_MSG_ERROR("JetECPSFractionTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }
+
+  // Prepend jet collection name
+  m_fracKey = m_jetContainerName + "." + m_fracKey.key();
+
   ATH_CHECK(m_fracKey.initialize());
   return StatusCode::SUCCESS;
 }

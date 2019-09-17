@@ -22,10 +22,7 @@ using JetVoronoiDiagramHelpers::Diagram;
 JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
     : asg::AsgTool(name)
 {
-    declareInterface<IJetDecorator>(this);
-
-    // Prepend jet collection name
-    m_voronoiAreaKey = m_jetContainerName + "." + m_voronoiAreaKey.key();
+  declareInterface<IJetDecorator>(this);
 }
 
 StatusCode JetVoronoiMomentsTool::initialize() {
@@ -34,6 +31,9 @@ StatusCode JetVoronoiMomentsTool::initialize() {
     ATH_MSG_ERROR("JetVoronoiMomentsTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }
+
+  // Prepend jet collection name
+  m_voronoiAreaKey = m_jetContainerName + "." + m_voronoiAreaKey.key();
 
   ATH_CHECK(m_voronoiAreaKey.initialize());
   return StatusCode::SUCCESS;
