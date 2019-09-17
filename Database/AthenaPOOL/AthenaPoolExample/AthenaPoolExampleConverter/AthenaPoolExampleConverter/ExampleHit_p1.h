@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLEXAMPLECONVERTER_EXAMPLEHIT_P1_H
@@ -25,7 +25,6 @@ public: // Constructor and Destructor
    /// Destructor
    virtual ~ExampleHit_p1() {}
 
-private:
    HepGeom::Vector3D<double> m_vec;
    std::string m_detector;
 };
