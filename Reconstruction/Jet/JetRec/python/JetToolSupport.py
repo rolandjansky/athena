@@ -136,18 +136,10 @@ class JetToolManager:
 
   # Configures any tools in the given modifier list with the property
   # "JetContainer" to set that property to the given string containerName.
-  def configureContainerName(modifiers, containerName):
+  def configureContainerName(self, modifiers, containerName):
     for mod in modifiers:
-      if "JetContainer" in mod.properties:
+      if "JetContainer" in mod.properties():
         mod.JetContainer = containerName
-
-  # Makes a deep copy of the input modifier list.
-  # Any tools in it with the property "JetContainer" have that property
-  # configured to the given string containerName.
-  def containerConfiguredCopy(modifiers, containerName):
-    outmods = modifiers
-    configureContainerName(outmods, containerName)
-    return outmods
 
   # Return the list of modifiers associated with a name.
   # If the argument is a list, a copy is returned directly.
@@ -155,15 +147,15 @@ class JetToolManager:
   def getModifiers(self, modifiersin, output, altname =None):
     if modifiersin == None:
       if altname in ["lctopo","emtopo"]:
-        return containerConfiguredCopy(self.modifiersMap[altname+"_ungroomed"], output)
+        return self.modifiersMap[altname+"_ungroomed"]
       elif "pflow" in altname:
-        return containerConfiguredCopy(self.modifiersMap["pflow_ungroomed"], output)
+        return self.modifiersMap["pflow_ungroomed"]
       else:
-        return containerConfiguredCopy(self.modifiersMap[altname], output)
+        return self.modifiersMap[altname]
     if type(modifiersin) == str:
-        return containerConfiguredCopy(self.modifiersMap[modifiersin], output)
+        return self.modifiersMap[modifiersin]
         
-    return containerConfiguredCopy(modifiersin, output)
+    return modifiersin
 
   # Build the list of modifiers, replacing the string "calib:XXX:CALIB" with
   # the appropriate calibration tool.
@@ -301,7 +293,6 @@ class JetToolManager:
         jetlog.info( self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers." )
         raise Exception
 
-    configureContainerName(outmods, output)
     return outmods
 
   # Create a jet finder without a JetRecToosl.
@@ -422,6 +413,7 @@ class JetToolManager:
     ptminSave = self.ptminFilter
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
     jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt)
+    self.configureContainerName(jetrec.JetModifiers, output)
     if consumers != None:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
@@ -469,6 +461,7 @@ class JetToolManager:
     jetrec.InputContainer = input
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
@@ -503,6 +496,7 @@ class JetToolManager:
     jetrec.InputContainer = input
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     if pseudojetRetriever in self.tools:
@@ -550,6 +544,7 @@ class JetToolManager:
     jetrec.InputContainer = input
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
@@ -608,6 +603,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetGroomer = groomer
     jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(jetrec.JetModifiers, output)
     if consumers != None:
       jetrec.JetConsumers = consumers
     jetrec.Trigger = isTrigger or useTriggerStore
@@ -639,6 +635,7 @@ class JetToolManager:
       Label = inp
     getters = [get]
     jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt)
+    self.configureContainerName(jetrec.JetModifiers, output)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
