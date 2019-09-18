@@ -488,6 +488,7 @@ class TopConfig final {
   void electronIsolationSF(std::string const & iso) {if(!m_configFixed){m_electronIsolationSF = iso;}}
   void electronIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_electronIsolationSFLoose = iso;}}
   inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
+  inline virtual void useEgammaLeakageCorrection(const std::string& s){if(!m_configFixed){ m_useEgammaLeakageCorrection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
   inline virtual const std::string& electronEfficiencySystematicModel(){return m_electronEfficiencySystematicModel;}
@@ -505,6 +506,7 @@ class TopConfig final {
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
   inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
+  inline bool useEgammaLeakageCorrection() const {return m_useEgammaLeakageCorrection;}
   
   // Fwd electron
   inline virtual void fwdElectronID( const std::string& s    ){if(!m_configFixed){m_fwdElectronID    = s;}}
@@ -1254,6 +1256,7 @@ class TopConfig final {
   std::string m_electronIDDecoration;
   std::string m_electronIDLooseDecoration;
   bool m_useElectronChargeIDSelection;
+  bool m_useEgammaLeakageCorrection;
   
   //Fwd electron configuration
   float m_fwdElectronPtcut;
