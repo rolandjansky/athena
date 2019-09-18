@@ -123,8 +123,15 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     elif simflags.Calo.SCellType() == "Emulated":
         # Supercells are reconstructed from the ET sum of the constituent calo cells 
         # This sets simflags.Calo.ApplySCQual to False
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        theNoiseTool=CaloNoiseToolDefault()
+        svcMgr.ToolSvc += theNoiseTool
+        from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
+        theBCIDTool=CaloLumiBCIDToolDefault()
+        svcMgr.ToolSvc += theBCIDTool
         from LArL1Sim.LArL1SimConf import LArSCSimpleMaker
-        l1simAlgSeq += LArSCSimpleMaker( SCellContainer="SimpleSCell" )
+        l1simAlgSeq += LArSCSimpleMaker( SCellContainer="SimpleSCell", CaloNoiseTool=theNoiseTool, LumiBCIDTool=theBCIDTool )
         SCIn="SimpleSCell"
     else:
         SCIn="SCell" # default
