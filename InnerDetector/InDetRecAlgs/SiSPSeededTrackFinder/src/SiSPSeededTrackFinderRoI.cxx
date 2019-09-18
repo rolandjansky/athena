@@ -34,7 +34,7 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   m_maxPIXsp(150000)                                                   ,
   m_maxSCTsp(500000) 						       ,
   m_nfreeCut(1)                                                        ,
-  m_doRandomSpot(true)                                                        ,
+  m_doRandomSpot(false)                                                        , //see comment proceding line with "double RandZBoundary[2];"
   m_SpacePointsSCT("SCT_SpacePoints"),
   m_SpacePointsPixel("PixelSpacePoints"),
   m_outputTracks("SiSPSeededTracks"),
@@ -92,7 +92,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::initialize()
   }
 
 
-  if(m_doRandomSpot){
+  if(m_doRandomSpot){ //see comment proceding line with "double RandZBoundary[2];"
     if( m_RandomRoISeedTool.retrieve().isFailure() ){
       ATH_MSG_FATAL("Failed to retrieve tool "<< m_RandomRoISeedTool);
       return StatusCode::FAILURE;
@@ -215,6 +215,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
   }
   
+  //For the Exclusive WW analysis (and other exclusive process analyses), the production point of the exclusive process can essentially be treated as a random point in the beamspot with respect to the pileup.  The mark of an exclusive process is a lack of tracks from an underlying event, but due to pileup, some fraction of exclusive events will not be classified as "exclusive" because of nearby tracks due to pileup.  To check how often an exclusive event will be rejected due to pileup tracks, we look at a random spot in the beamspot that is displaced from the exclusive process's vertex and perform low-pt tracking in that region.  Run with postexec: ToolSvc.InDetSiSpTrackFinder_LowPtRoI.doRandomSpot = True
   double RandZBoundary[2];
   if(m_doRandomSpot){
     //Finding Random Spot in beamspot
@@ -262,7 +263,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   m_seedsmaker  ->newEvent(-1); 
   std::list<Trk::Vertex> VZ; 
   m_seedsmaker->find3Sp(VZ, ZBoundary); 
-  if(m_doRandomSpot) m_seedsmaker->find3Sp(VZ, RandZBoundary); 
+  if(m_doRandomSpot) m_seedsmaker->find3Sp(VZ, RandZBoundary); //see comment proceding line with "double RandZBoundary[2];"
   m_trackmaker->newEvent(PIX,SCT);
 
   // Loop through all seed and create track candidates

@@ -14,6 +14,8 @@
 #include "InDetRecToolInterfaces/IZWindowRoISeedTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkTrack/Track.h"
+#include "TRandom3.h"
+
 
 class MsgStream;
 
@@ -40,6 +42,9 @@ namespace InDet {
 
     /** Compute RoI */
     virtual std::vector<ZWindow> getRoIs();
+
+  private:
+    TRandom3 *m_random;
 
   protected:
 

@@ -12,7 +12,7 @@
 #include "SiSpacePointsSeedTool_xk/RandomRoISeedTool.h"
 #include "TVector2.h"
 #include <map>
-#include "TRandom.h"
+#include "TRandom3.h"
 //#include "xAODTruth/TruthEvent.h"
 //#include "xAODTruth/TruthEventContainer.h"
 
@@ -51,6 +51,10 @@ InDet::RandomRoISeedTool::~RandomRoISeedTool()
 StatusCode InDet::RandomRoISeedTool::initialize()
 {
   StatusCode sc = AlgTool::initialize();   
+
+  //TRandom3 *random = new TRandom3();
+  m_random = new TRandom3();
+
   return sc;
 }
 
@@ -71,14 +75,15 @@ StatusCode InDet::RandomRoISeedTool::finalize()
 std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::RandomRoISeedTool::getRoIs()
 {
 
-  TRandom *random = new TRandom();
-  random->SetSeed();
+  //TRandom *random = new TRandom();
+  //TRandom3 *random = new TRandom3();
+  m_random->SetSeed();
 
   float z_val;
-  z_val = random->Gaus(0,35);
+  z_val = m_random->Gaus(0,35);
 
   //while( std::abs( ZRef - z_val ) < 5 || std::abs(z_val) > 250.0 ){
-  z_val = random->Gaus(0,35);
+  z_val = m_random->Gaus(0,35);
   //}
   
   // prepare output

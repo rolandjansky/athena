@@ -355,7 +355,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     SeedsTool          = InDetSiSpacePointsSeedMaker,
                                                                     VxOutputName    = InDetKeys.xAODLowPtRoIVertexContainer(),
                                                                     ZWindowRoISeedTool = ZWindowRoISeedTool,
-                                                                    doRandomSpot = InDetKeys.LowPtRoIRandomSpot(),
+                                                                    doRandomSpot = false,
                                                                     RandomRoISeedTool = RandomRoISeedTool)
           #InDetSiSpSeededTrackFinder.OutputLevel = DEBUG
 
