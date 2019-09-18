@@ -55,8 +55,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronEfficiencySystematicModel","Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default)","TOTAL");
     registerParameter("ElectronEfficiencySystematicModelEtaBinning","Electron Efficiency Systematic model eta binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ, e.g. 0.0:1.37:4.9)","default");
     registerParameter("ElectronEfficiencySystematicModelEtBinning","Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)","default");
-    registerParameter("ElectronIsolation","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","Gradient");
-    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","None");
+    registerParameter("ElectronIsolation","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly), (DANGEROUS: PflowTight, PflowLoose), None", "Gradient");
+    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly), (DANGEROUS: PflowTight, PflowLoose), None","None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
@@ -74,8 +74,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PhotonEta", "Absolute Photon eta cut for object selection. Default 2.5.", "2.5");
     registerParameter("PhotonID","Type of photon. Definition to use : Tight, Loose and None.","Tight");
     registerParameter("PhotonIDLoose","Type of photon for background. Definition to use : Tight, Loose, None.","Loose");
-    registerParameter("PhotonIsolation","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, None.","FixedCutTight");
-    registerParameter("PhotonIsolationLoose","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, None.","FixedCutLoose");
+    registerParameter("PhotonIsolation","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, (EXPERIMENTAL: TightCaloOnly, Tight, Loose), None.","FixedCutTight");
+    registerParameter("PhotonIsolationLoose","Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, (EXPERIMENTAL: TightCaloOnly, Tight, Loose), None.","FixedCutLoose");
     registerParameter("PhotonUseRadiativeZ", "True/False. Set to True to enable photon radiative Z up to 100 GeV.", "False");
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");

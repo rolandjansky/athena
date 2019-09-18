@@ -201,6 +201,9 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   // Tidy name for e/gamma
   electronID      = mapWorkingPoints(electronID);
   electronIDLoose = mapWorkingPoints(electronIDLoose);
+  // This is hopefully only temporary
+  electronIsolation      = mapWorkingPoints(electronIsolation);
+  electronIsolationLoose = mapWorkingPoints(electronIsolationLoose);
 
   // Create electron trigger SF and Eff tools
   ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> electronEffTools, electronSFTools, electronEffToolsLoose, electronSFToolsLoose;
@@ -378,8 +381,19 @@ std::string TriggerCPTools::mapWorkingPoints(const std::string& type) {
     working_point = "Tight";
   }
 
+ // Temporary ISO map to handle the mess that is EGamma+IFF right now...
+  if(type.find("Pflow") != std::string::npos) {
+    ATH_MSG_WARNING("You selected a Pflow isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!!");
+    if(type == "PflowLoose") working_point = "FCLoose";
+    if(type == "PflowTight") working_point = "FCTight";
+  }
+  if(type == "Tight")          working_point = "FCTight";
+  if(type == "Loose")          working_point = "FCLoose";
+  if(type == "HighPtCaloOnly") working_point = "FCHighPtCaloOnly";
+  if(type == "TightTrackOnly") working_point = "Gradient";
+  if(type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient") working_point=type;
+
   return working_point;
 }
-
 
 }  // namespace top

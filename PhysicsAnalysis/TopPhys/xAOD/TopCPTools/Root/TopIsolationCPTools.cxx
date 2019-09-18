@@ -72,15 +72,18 @@ StatusCode IsolationCPTools::setupIsolation() {
       "FixedCutPflowLoose",
     }};
 
-  // Electron Isolation WPs include all of those defined for
-  // muons + FixedCutHighPtCaloOnly
+  // Electron Isolation WPs
   std::set<std::string> electron_isolations{{
       "Gradient",
-      "GradientLoose",
-      "FixedCutTightTrackOnly",
       "FCHighPtCaloOnly",
       "FCTight",
       "FCLoose",
+      "HighPtCaloOnly",
+      "Loose",
+      "Tight",
+      "TightTrackOnly",
+      "PflowTight",
+      "PflowLoose",
     }};
 
   // Photon Isolation WPs
@@ -88,6 +91,9 @@ StatusCode IsolationCPTools::setupIsolation() {
       "FixedCutTightCaloOnly",
       "FixedCutTight",
       "FixedCutLoose",
+      "TightCaloOnly",
+      "Tight",
+      "Loose",
     }};
 
   std::set<std::string> all_isolations;
