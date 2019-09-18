@@ -246,8 +246,9 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
                     //                    ATH_MSG_DEBUG("track " << itrk << " px=" <<trackPerigee->momentum()[Trk::px]<<
                     //                        " py= "<< trackPerigee->momentum()[Trk::py] );
                     ATH_MSG_VERBOSE("track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) );
-                    pBx += (*(*trkIt))->p4().Px(); // FIXME - is there a more optimal way
-                    pBy += (*(*trkIt))->p4().Py();
+                    auto vp4 = (*(*trkIt))->p4();
+                    pBx += vp4.Px(); // FIXME - is there a more optimal way
+                    pBy += vp4.Py();
                     
                     ATH_MSG_DEBUG("track " << itrk << " px=" << (*(*trkIt))->p4().Px() << " py= "<< (*(*trkIt))->p4().Py() );
 
