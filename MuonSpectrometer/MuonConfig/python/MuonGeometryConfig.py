@@ -41,7 +41,7 @@ def MuonGeoModelCfg(flags):
         MuonAlign.DumpBLines = False
         MuonAlign.DumpILines = False
 
-        acc.addCondAlgo(MuonAlignmentCondAlg)
+        acc.addCondAlgo(MuonAlign)
  
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):
