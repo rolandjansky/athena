@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+from __future__ import absolute_import
 
-from node import Node
-from constants import (lchars,
-                       digits)
+from .node import Node
+from .constants import lchars, digits
 
 def get_char(s):
     """character generator"""
@@ -47,12 +48,12 @@ def preprocess(s):
     s = ss      
 
     check_parens(s)
-    print s
-    from constants import alphabet
+    print(s)
+    from .constants import alphabet
     for c in s:
         if c not in alphabet:
             raise RuntimeError('bad character %s in string %s' % (c, s))
-    print 'end of preprocess: ', s
+    print('end of preprocess: ', s)
     check_parens(s)
     return s
 
@@ -62,7 +63,7 @@ class ChainLabelParser(object):
         self.label = label
         self.state = 'start'
         pp = preprocess(label)
-        print 'preprocessed string', pp, 'length', len(pp)
+        print('preprocessed string', pp, 'length', len(pp))
         self.gc = get_char(pp)
         self.state_history = []
         self.states = {
@@ -81,12 +82,12 @@ class ChainLabelParser(object):
     def paramAppend(self, c):
         self.parameters += c
         if self.debug:
-            print 'parameters', self.parameters
+            print('parameters', self.parameters)
 
     def scenAppend(self, c):
         self.scenario += c
         if self.debug:
-            print 'scenario', self.scenario
+            print('scenario', self.scenario)
             
     def start(self):
         "initialise"
@@ -101,7 +102,7 @@ class ChainLabelParser(object):
     def scen(self):
         """accumulate scenario name string into self.scenario"""
         
-        c = self.gc.next()
+        c = next(self.gc)
     
         if c in lchars: 
             self.scenAppend(c)
@@ -123,7 +124,7 @@ class ChainLabelParser(object):
         self.tree.append(Node(self.scenario))
         self.scenario = ''
 
-        c = self.gc.next()
+        c = next(self.gc)
     
         if c == '[':
             self.state = 'start_params_1'
@@ -137,7 +138,7 @@ class ChainLabelParser(object):
     def start_params_1(self):
         """accumulate parameter string into self.parameter"""
         
-        c = self.gc.next()
+        c = next(self.gc)
     
         if c == '(':
             self.paramAppend(c)
@@ -157,7 +158,7 @@ class ChainLabelParser(object):
     def params(self):
         """accumulate parameter string into self.parameter"""
         
-        c = self.gc.next()
+        c = next(self.gc)
     
         if c in lchars or c in digits or c ==',':
             self.paramAppend(c)
@@ -178,7 +179,7 @@ class ChainLabelParser(object):
     def end_params_0(self):
         """Check whether there are more prameters to accumulate"""
 
-        c = self.gc.next()
+        c = next(self.gc)
 
         # more parameters
         if c == '(':
@@ -203,7 +204,7 @@ class ChainLabelParser(object):
         """after accumulating params, drop white space, then add node to tree
         or process next scenario"""
         
-        c = self.gc.next()
+        c = next(self.gc)
         
         if c == ')':
             self.state = 'end_scenario'
@@ -226,7 +227,7 @@ class ChainLabelParser(object):
         self.tree[-1].add_child(n)
 
         while True:
-            c = self.gc.next()
+            c = next(self.gc)
             if c == ')':
                 n = self.tree.pop()
                 self.tree[-1].add_child(n)
@@ -244,15 +245,15 @@ class ChainLabelParser(object):
     def error(self):
         """From error state, dump error report and raise exception"""
         
-        print '---error state report ---'
-        print ' state', self.state
-        print ' scenario', self.scenario
-        print ' parameters', self.parameters
-        print ' msg', self.msg
-        print 'state history', self.state_history
-        print ' tree dump:'
-        print self.tree[0].dump()
-        print '--end error state report---'
+        print('---error state report ---')
+        print(' state', self.state)
+        print(' scenario', self.scenario)
+        print(' parameters', self.parameters)
+        print(' msg', self.msg)
+        print('state history', self.state_history)
+        print(' tree dump:')
+        print(self.tree[0].dump())
+        print('--end error state report---')
         raise RuntimeError('error state')
     
     def get_state(self):
@@ -280,14 +281,14 @@ class ChainLabelParser(object):
                 self.get_state()()
                 
         except StopIteration:  # generator has reached the end of the string
-            print 'parse terminated'
+            print('parse terminated')
             terminated = True
-        except AssertionError, e:
-            print 'assertion err'
-            print e
+        except AssertionError as e:
+            print('assertion err')
+            print(e)
             error = True
-        except RuntimeError, e:
-            print e
+        except RuntimeError as e:
+            print(e)
             error = True
             
     
@@ -295,35 +296,35 @@ class ChainLabelParser(object):
             s = ''
             try:
                 while True:
-                    s += self.gc.next()
+                    s += next(self.gc)
             except StopIteration:
                 if s:
-                    print 'error: remaining characters:', s
+                    print('error: remaining characters:', s)
      
         if len(self.tree) != 1:
             error = True
-            print 'error, stack size', len(self.tree), 'expected 2'
-            print self.state_history
+            print('error, stack size', len(self.tree), 'expected 2')
+            print(self.state_history)
             
         if len(self.tree[0].children) != 1:
             error = True
-            print 'error, top node has %d cdildren, expected 1' % (
-                len(self.tree[0].children))
+            print('error, top node has %d cdildren, expected 1' % (
+                len(self.tree[0].children)))
 
         final_state = 'end_scenario'
         if self.state != final_state:
             error = True
-            print 'error: final state is %s, expected %s' % (self.state,
-                                                             final_state)
+            print('error: final state is %s, expected %s' % (self.state,
+                                                             final_state))
         # print 'tree dump:'
         # print self.tree[0].dump()
-        print 'parse',
+        print('parse', end=' ')
         if not error:
-            print 'succeeded'
+            print('succeeded')
         else:
-            print 'state: %s scenario: %s parameters: %s stack len %d' % (
-                self.state, self.scenario, self.parameters, len(self.tree))
-            print 'failed'
+            print('state: %s scenario: %s parameters: %s stack len %d' % (
+                self.state, self.scenario, self.parameters, len(self.tree)))
+            print('failed')
 
         # Kludge: mark the tops of the trees. The visitor which
         # creates Tool instances with give the Tool for this node
@@ -336,34 +337,34 @@ class ChainLabelParser(object):
         return self.tree[0].children[0]
 
 def _test(s):
-    from ChainLabelParser import ChainLabelParser
+    from .ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s, debug=True)
     tree = parser.parse()
-    print tree.dump()
+    print(tree.dump())
 
 
 def test():
     import sys
     
-    from test_cases import test_strings
+    from .test_cases import test_strings
     c = sys.argv[1]
     index = -1
     try:
         index = int(c)
     except Exception:
-        print 'expected int in [1,%d] ]on comand line, got %s' % (
-            len(test_strings), c)
+        print('expected int in [1,%d] ]on comand line, got %s' % (
+            len(test_strings), c))
         sys.exit()
 
     if(index < 0 or index > len(test_strings) - 1):
-        print 'index %d not in range [0, %d]' % (index, len(test_strings) -1)
+        print('index %d not in range [0, %d]' % (index, len(test_strings) -1))
         sys.exit()
                                                  
             
-    print 'index', index
+    print('index', index)
     label = test_strings[index]
-    print '========== Test %d ==============' % index
-    print '========== label  %s ==============' % label
+    print('========== Test %d ==============' % index)
+    print('========== label  %s ==============' % label)
     _test(label)
 
   
