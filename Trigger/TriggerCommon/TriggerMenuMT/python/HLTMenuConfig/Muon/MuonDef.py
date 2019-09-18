@@ -9,9 +9,10 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence, muEFCBInvMassFSSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence
 
 
 
@@ -51,9 +52,6 @@ def FSmuEFSASequenceCfg(flags):
 def FSmuEFCBSequenceCfg(flags):
     return muEFCBFSSequence()
 
-def FSmuEFCBInvMSequenceCfg(flags):
-    return muEFCBInvMassFSSequence()
-
 def muEFIsoSequenceCfg(flags):
     return muEFIsoSequence()
 
@@ -84,6 +82,12 @@ class MuonChainConfiguration(ChainConfigurationBase):
             for step in step_level:
                 chainSteps+=[step]
     
+        if 'invm' in self.chainPart['invMassInfo']:
+            steps=stepDictionary['invM']
+            for step_level in steps:
+                for step in step_level:
+                    chainSteps+=[step]
+
         myChain = self.buildChain(chainSteps)
         return myChain
 
@@ -107,6 +111,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "noL1":[[],[self.getFSmuEFSA(), self.getFSmuEFCB()]],
             "msonly":[[self.getmuFast(), self.getmuMSEmpty(1)], [self.getmuEFMS()]],
             "ivarmedium":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()]],
+            "invM":[[],[self.getmuInvM()]],
         }
        
         return stepDictionary
@@ -160,10 +165,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     # --------------------
     def getmuEFCB(self):
-        if 'invm' in self.chainPart['invMassInfo']:
-            return self.getStep(4,'EFCBinvM', [muEFCBInvMSequenceCfg])
-        else:
-            return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
+        return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
  
     # --------------------
     def getFSmuEFSA(self):
@@ -171,10 +173,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     # --------------------
     def getFSmuEFCB(self):
-        if 'invm' in self.chainPart['invMassInfo']:
-            return self.getStep(2,'FSmuEFCB', [FSmuEFCBInvMSequenceCfg])
-        else:
-            return self.getStep(2,'FSmuEFCB', [FSmuEFCBSequenceCfg])
+        return self.getStep(2,'FSmuEFCB', [FSmuEFCBSequenceCfg])
 
     #---------------------
     def getmuEFIso(self):
@@ -183,5 +182,12 @@ class MuonChainConfiguration(ChainConfigurationBase):
     #--------------------
     def getmuMSEmpty(self, stepID):
         return self.getStep(stepID,'muMS_empty',[])
+
+    #--------------------
+    def getmuInvM(self):
+        stepName = 'Step5_muInvM'
+        log.debug("Configuring step " + stepName)
+        seq = RecoFragmentsPool.retrieve( muEFCBInvMSequenceCfg, None)
+        return ChainStep(stepName, [seq], multiplicity=1)
 
 
