@@ -578,16 +578,15 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
             cFactor = 1000.;
             ATH_MSG_DEBUG("Found L2StandAlone muon for IParticle: " << i << " Treating as having units of GeV" );
         } // if L2 muon
-        
-                
-            
-        px += ptls[i]->p4().Px()*cFactor;
-        py += ptls[i]->p4().Py()*cFactor;
-        pz += ptls[i]->p4().Pz()*cFactor;
+
+        auto pv4 = ptls[i]->p4();
+        px += pv4.Px()*cFactor;
+        py += pv4.Py()*cFactor;
+        pz += pv4.Pz()*cFactor;
         E  += sqrt(masses[i]*masses[i] +
-                   ptls[i]->p4().Px()*ptls[i]->p4().Px()*cFactor*cFactor +
-                   ptls[i]->p4().Py()*ptls[i]->p4().Py()*cFactor*cFactor +
-                   ptls[i]->p4().Pz()*ptls[i]->p4().Pz()*cFactor*cFactor
+                   pv4.Px()*pv4.Px()*cFactor*cFactor +
+                   pv4.Py()*pv4.Py()*cFactor*cFactor +
+                   pv4.Pz()*pv4.Pz()*cFactor*cFactor
                    );
         
     } // for
@@ -653,7 +652,7 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
         ATH_MSG_DEBUG("  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus);
     }
     
-    static const double CONST = 1000./299.792; // unit conversion for lifetime
+    constexpr double CONST = 1000./299.792; // unit conversion for lifetime
 
     
     double Dx     = bphys->fitx() - beamSpot.x();
@@ -662,8 +661,9 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
     
     double sumPx(0.), sumPy(0.), sumPt(0.);
     for (const auto& ptl: ptls) {
-        sumPx += ptl->p4().Px(); // FIXME - is there a more optimal way
-        sumPy += ptl->p4().Py();
+    	auto pv4 = ptl->p4();
+        sumPx += pv4.Px(); // FIXME - is there a more optimal way
+        sumPy += pv4.Py();
     }
     sumPt = sqrt(sumPx*sumPx + sumPy*sumPy);
     double BsLxy(-9999.);
