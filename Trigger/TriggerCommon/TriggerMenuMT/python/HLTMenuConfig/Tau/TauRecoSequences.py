@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.CFElements import parOR, seqAND, seqOR
+from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -13,7 +13,7 @@ def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
     algo.RoIInputKey  = inputRoIs
-    algo.RoIOutputKey = "RoiForTau"
+    algo.RoIOutputKey = recordable("RoiForTau")
     algo.CaloClustersKey = clusters
     return algo
 
@@ -41,7 +41,7 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     algo = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     algo.RoIInputKey   = inputRoIs
-    algo.RoIOutputKey  = "RoiForID2"
+    algo.RoIOutputKey  = recordable("RoiForID2")
     algo.fastTracksKey = tracks
     return algo
 
@@ -160,7 +160,6 @@ def tauIsoTrackSequence( RoIs , name):
     ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
     viewAlgs.append(ViewVerify)
 
-    global TrackParticlesNameIso
     global theFTFIso_name
 
     for viewAlg in viewAlgs:
@@ -231,7 +230,7 @@ def tauFTFIsoSequence(ConfigFlags):
 
     ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
     ftfIsoViewsMaker.RoIsLink          = "roi" # -||-                                                                            
-    ftfIsoViewsMaker.InViewRoIs        = "TCoreViewRoIs" # contract with the fastCalo                                            
+    ftfIsoViewsMaker.InViewRoIs        = "TCoreViewRoIs" # contract with the fast track core
     ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
     ftfIsoViewsMaker.ViewFallThrough   = True
     ftfIsoViewsMaker.RequireParentView = True
@@ -243,25 +242,3 @@ def tauFTFIsoSequence(ConfigFlags):
 
     tauFastTrackIsoSequence = seqAND("tauFastTrackIsoSequence", [ftfIsoViewsMaker, tauFTFIsoInViewSequence ])
     return (tauFastTrackIsoSequence, ftfIsoViewsMaker, sequenceOut)
-
-
-####    ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
-####    ftfIsoViewsMaker.RoIsLink          = "roi" # -||-
-####    ftfIsoViewsMaker.InViewRoIs        = "FTFIsoViewRoIs" # contract with the fastCalo
-####    ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
-####    ftfIsoViewsMaker.ViewFallThrough   = True
-####    ftfIsoViewsMaker.RequireParentView = True
-####
-####    tauFTFIsoRecoSequence  = tauFTFIsoSequence( ftfIsoViewsMaker.InViewRoIs, "RoIs")
-####
-####    tauTrackRecoSequence, sequenceOutIso = seqOR("tauTrackRecoSequence", [tauFTFIsoRecoSequence, tauFTFCoreRecoSequence])
-####
-####    tauSequence = seqAND("tauTrackRecoSequence", [ftfIsoViewsMaker, tauTrackRecoSequence])
-####
-####    return (tauSequence, ftfIsoViewsMaker, sequenceOutIso)
-####
-####    (tauCaloInViewSequence, sequenceOut) = tauCaloRecoSequence( InViewRoIs, RecoSequenceName)
-####
-####    tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
-####    return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    """
-####
