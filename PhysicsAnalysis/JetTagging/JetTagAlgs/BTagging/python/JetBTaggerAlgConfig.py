@@ -11,9 +11,6 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="
     acc=ComponentAccumulator()
     jetcol = JetCollection
 
-    from BTagging.BTagToolConfig import BTagToolCfg
-    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, jetcol, TaggerList, options)))
-
     objs = {}
     #options = dict(options)
     options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
@@ -26,12 +23,14 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="
     from BTagging.BTagSecVertexingConfig import BTagSecVtxToolCfg
     options.setdefault('BTagSecVertexing', acc.popToolsAndMerge(BTagSecVtxToolCfg(ConfigFlags, 'SecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, outputObjs = objs, **options)))
 
-    new_prefix = options.get('new_prefix', None)
-    if new_prefix:
-        btagname = new_prefix + jetcol
-        del options['new_prefix']
-    else:
-        btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
+    from BTagging.BTagToolConfig import BTagToolCfg
+    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, jetcol, TaggerList)))
+
+    btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
+    timestamp = options.get('TimeStamp', None)
+    if timestamp:
+        btagname += timestamp
+        del options['TimeStamp']
 
     # Set remaining options
     options.setdefault('name', (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower())
