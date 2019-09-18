@@ -238,17 +238,3 @@ def tauTwoStepTrackSeqIso():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 
-
-
-    # from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
-    # fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_RejectEmpty_Test")
-    # fastTrkHypo.trackcollection = sequenceOut
-
-    # from TrigTauHypo.TrigTrackPreSelHypoTool import TrigTauTrackHypoToolFromDict
-
-    # return  MenuSequence( Sequence    = sequence,
-    #                       Maker       = ftfIsoViewsMaker,
-    #                       Hypo        = fastTrkHypo,
-    #                       HypoToolGen = TrigTauTrackHypoToolFromDict )
-
-
