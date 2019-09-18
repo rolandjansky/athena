@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: athenaMT trigger test using the full LS2_v1 menu from TriggerMenuMT
+# art-description: athenaMT trigger test using the full LS2_v1 menu from TriggerMenuMT. Reverse EventView order to test their independence
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
