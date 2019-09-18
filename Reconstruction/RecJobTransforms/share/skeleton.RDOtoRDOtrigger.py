@@ -158,6 +158,7 @@ if TriggerFlags.doMT():
         TriggerFlags.TauSlice.setAll()
         TriggerFlags.BjetSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
+        TriggerFlags.BphysicsSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
     allChainConfigs = menu.generateMT()
