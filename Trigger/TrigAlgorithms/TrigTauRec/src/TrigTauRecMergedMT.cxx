@@ -155,10 +155,12 @@ StatusCode TrigTauRecMergedMT::execute()
   auto EMFrac             = Monitored::Scalar<float>("EMFrac",-10.);
   auto IsoFrac            = Monitored::Scalar<float>("IsoFrac",-1.);
   auto centFrac           = Monitored::Scalar<float>("centFrac",-10.);
+  auto nWideTrk           = Monitored::Scalar<int>("EF_nWideTrk",0);
   auto ipSigLeadTrk       = Monitored::Scalar<float>("ipSigLeadTrk",-1000.);
   auto trFlightPathSig    = Monitored::Scalar<float>("trFlightPathSig",-10.);
   auto massTrkSys         = Monitored::Scalar<float>("massTrkSys",-10.);
   auto dRmax              = Monitored::Scalar<float>("dRmax",-10.);
+  auto numTrack           = Monitored::Scalar<int>("EF_NTrk", -10);
   auto trkAvgDist         = Monitored::Scalar<float>("TrkAvgDist",-1.0);
   auto etovPtLead         = Monitored::Scalar<float>("EtovPtLead",-10.);
   auto PSSFraction        = Monitored::Scalar<float>("PSSFraction",-999.9);
@@ -181,8 +183,8 @@ StatusCode TrigTauRecMergedMT::execute()
   auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
-                                     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, ipSigLeadTrk, trFlightPathSig, massTrkSys,
-                                     dRmax, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
+                                     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
+                                     dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
                                      innerTrkAvgDist, Ncand, ActualInteractions, AvgInteractions, beamspot_x, beamspot_y, beamspot_z, EtaL1,
                                      PhiL1, EtaEF, PhiEF );
 
@@ -568,6 +570,8 @@ StatusCode TrigTauRecMergedMT::execute()
     }
 
     // get tau detail variables for Monitoring
+    numTrack = p_tau->nTracks();
+    nWideTrk = p_tau->nTracksIsolation();
     p_tau->detail(xAOD::TauJetParameters::numCells, nCells);
     p_tau->detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
     p_tau->detail(xAOD::TauJetParameters::trkAvgDist, trkAvgDist);
