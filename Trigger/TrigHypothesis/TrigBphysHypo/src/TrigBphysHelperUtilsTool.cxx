@@ -37,7 +37,6 @@ TrigBphysHelperUtilsTool::TrigBphysHelperUtilsTool( const std::string& type,
 		      const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   )
 ,  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
-, m_massMuon(105.6583715)
 {
   declareInterface< TrigBphysHelperUtilsTool >(this);
   //
@@ -282,7 +281,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 
     
     xAOD::TrackParticle::FourMom_t fourMom = (*particles[0])->p4() + (*particles[1])->p4();
-    double massMuMu = invariantMass( *particles[0], *particles[1], m_massMuon,m_massMuon); 
+    double massMuMu = invariantMass( *particles[0], *particles[1], s_massMuon,s_massMuon); 
     
     double rap      = fourMom.Rapidity();
     double phi      = fourMom.Phi();
@@ -311,7 +310,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     trks.push_back(*particles[1]);
     xAOD::Vertex * vx(0);
     std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
-    std::vector<double> masses(particles.size(), m_massMuon);
+    std::vector<double> masses(particles.size(), s_massMuon);
     m_VKVFitter->setMassInputParticles(masses, *state); // give input tracks muon mass
     if (doFit) vx =  m_VKVFitter->fit(trks,startingPoint,*state);
 
@@ -630,17 +629,9 @@ void TrigBphysHelperUtilsTool::fillTrigObjectKinematics(xAOD::TrigBphys* bphys,
      
  } // fillTrigObjectKinematics
 
-
-void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
-                             const std::vector<const xAOD::TrackParticle*> &ptls) {
-    
-    if (!bphys) {
-        ATH_MSG_WARNING("Null pointer of trigger object provided." );
-        return;
-    }
-    
-    Amg::Vector3D beamSpot(0.,0.,0.);
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+Amg::Vector3D TrigBphysHelperUtilsTool::getBeamSpot(const EventContext& ctx) const {
+	Amg::Vector3D beamSpot(0.,0.,0.);
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
     if ( !beamSpotHandle.isValid() )
     {
         ATH_MSG_DEBUG("Could not retrieve Beam Conditions Service. " );
@@ -651,6 +642,17 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
         int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
         ATH_MSG_DEBUG("  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus);
     }
+    return beamSpot;
+}
+
+void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
+                             const std::vector<const xAOD::TrackParticle*> &ptls, const Amg::Vector3D& beamSpot) {
+    
+    if (!bphys) {
+        ATH_MSG_WARNING("Null pointer of trigger object provided." );
+        return;
+    }
+    
     
     constexpr double CONST = 1000./299.792; // unit conversion for lifetime
 

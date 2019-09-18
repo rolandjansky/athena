@@ -318,7 +318,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     
     std::vector<ELVMuons>          vec_elv_muons; // for muons,
     std::vector<ELVTrackParticles> vec_elv_tps;   // for tp
-    
+    const Amg::Vector3D beamspot = m_bphysHelperTool->getBeamSpot(Gaudi::Hive::currentContext());
     
     for ( unsigned int i=0; i < m_expectNumberOfInputTE; ++i) {
         ELVMuons elvmuon;
@@ -434,7 +434,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 if (mu0 == mu1) continue; // avoid same pointers (shouldn't happen?)
                 //unsightly hack to add the muon element links:
                 auto nresults = m_resultsHolder.size();
-                buildCombination(mu0,mu1);                   //  Main method to build the muons
+                buildCombination(mu0,mu1,beamspot);                   //  Main method to build the muons
                 auto nresults_new = m_resultsHolder.size();
                 if (nresults == nresults_new) continue; // no new
                 // if here then append muons to the objects
@@ -487,7 +487,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 if (mu0 == mu1) continue; // avoid same pointers (shouldn't happen?)
                                           //unsightly hack to add the muon element links:
                 auto nresults = m_resultsHolder.size();
-                buildCombination(mu0,mu1);                   //  Main method to build the muons
+                buildCombination(mu0,mu1,beamspot);                   //  Main method to build the muons
                 auto nresults_new = m_resultsHolder.size();
                 if (nresults == nresults_new) continue; // no new
                                                         // if here then append muons to the objects
@@ -567,7 +567,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     return HLT::OK;
 }
 
-void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *mu1) {
+void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *mu1, const Amg::Vector3D& beamSpot) {
     if (!mu0 || !mu1) return;
     if ( mu0 == mu1) {
         ATH_MSG_DEBUG("Same Muon pointers" );
@@ -632,7 +632,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     if (m_bphysHelperTool->buildDiMu({tpel0,tpel1}, result, xAOD::TrigBphys::BMUMU, xAOD::TrigBphys::EF).isFailure() || !result) {
         ATH_MSG_DEBUG("Problem with Fit code" );
     }
-    m_bphysHelperTool->setBeamlineDisplacement(result,{tp0,tp1});
+    m_bphysHelperTool->setBeamlineDisplacement(result,{tp0,tp1}, beamSpot);
     
     if (result) {
         m_mon_Acceptance.push_back( ACCEPT_Dimuon_Built );
