@@ -1,7 +1,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG
+from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonPrdCacheNames(object):
@@ -200,8 +200,8 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     from AthenaCommon.Logging import log
 
-    log.setLevel(DEBUG)
-    log.info('About to setup Rpc Raw data decoding')
+    log.setLevel(INFO)
+    log.info('About to setup Raw data decoding')
     
     cfg=ComponentAccumulator()
 
@@ -218,29 +218,19 @@ def muonRdoDecodeTestData( forTrigger = False ):
     # Schedule Rpc bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    if forTrigger:
-        rpcdecodingAcc().ProviderTool.OutputLevel = DEBUG
     cfg.merge( rpcdecodingAcc )
 
     # Schedule Mdt bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    if forTrigger:
-        tgcdecodingAcc().ProviderTool.OutputLevel = DEBUG    
     cfg.merge( tgcdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
     mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
-    # Put into a verbose logging mode to check the caching
-    if forTrigger:
-        mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
     cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger) 
-    # Put into a verbose logging mode to check the caching
-    if forTrigger:
-        cscdecodingAcc().ProviderTool.OutputLevel = VERBOSE 
     cfg.merge( cscdecodingAcc )
 
     # Schedule RDO conversion 
