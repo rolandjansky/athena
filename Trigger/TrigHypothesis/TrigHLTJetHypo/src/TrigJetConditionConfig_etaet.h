@@ -38,7 +38,7 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
     m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
 
 
-  virtual StatusCode checkVals()  const override;
+  StatusCode checkVals()  const;
  
 };
 #endif

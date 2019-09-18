@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
+from TrigHLTJetHypo.TrigHLTJetHypoConf import (
+    TrigJetHypoToolMT,)
 
 from  TrigHLTJetHypo.ToolSetter import ToolSetter
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
@@ -10,6 +11,8 @@ from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 # from TrigHLTJetHypo.chainDict2jetLabel import make_simple_comb_label as make_simple_label # TIMING studies
 
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
+
+from TrigHLTJetHypo.node import rotate
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
@@ -21,7 +24,8 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     parser = ChainLabelParser(chain_label, debug=False)
 
     tree = parser.parse()
-    
+
+  
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
@@ -42,13 +46,22 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     # debug flag to be relayed to C++ objects
     # visitor = ToolSetter(chain_name)
+    tool = None
     if toolSetter is None:
         toolSetter = ToolSetter(self.chain_name)
-    tree.accept(modifier=toolSetter)
+        tree.accept(modifier=toolSetter)
+        tool = tree.tool
+    else:
+        if toolSetter.__class__.__name__ == 'FlowNetworkSetter':
+            toolSetter.mod(tree)
+            tool = toolSetter.tool
+        else:
+            tree.accept(modifier=toolSetter)
+            tool = tree.tool
 
     log.info(visitor.report())
 
-    return tree.tool
+    return tool
 
 
 def  trigJetHypoToolHelperFromDict(chain_dict):

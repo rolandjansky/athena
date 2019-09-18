@@ -14,7 +14,6 @@ public:
   DeclareInterfaceID(ITrigJetConditionConfig, 1, 0);
   virtual ~ITrigJetConditionConfig(){};
 
-  virtual StatusCode checkVals()  const = 0;
   virtual std::optional<ConditionsMT> getConditions() const = 0;
 };
 #endif

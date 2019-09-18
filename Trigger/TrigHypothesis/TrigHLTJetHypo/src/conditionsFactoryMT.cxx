@@ -13,6 +13,7 @@
 //
 
 
+#include "./AcceptAllConditionMT.h"
 #include "./EtaEtConditionMT.h"
 #include "./EtaEtAsymmetricConditionMT.h"
 #include "./DijetConditionMT.h"
@@ -20,6 +21,14 @@
 #include "./TLAConditionMT.h"
 
 #include "./conditionsFactoryMT.h"
+
+ConditionsMT conditionsFactoryAcceptAllMT(std::size_t capacity,
+					unsigned int conditionID){
+  ConditionsMT conditions;
+  conditions.push_back
+    ( std::move(std::make_unique<AcceptAllConditionMT>(capacity, conditionID)));
+  return conditions;
+}
 
 ConditionsMT conditionsFactoryEtaEtMT(const std::vector<double>& etaMins,
                                     const std::vector<double>& etaMaxs,

@@ -95,10 +95,6 @@ TrigJetHypoToolConfig_flownetwork::getMatcher () const {
 }
 
 StatusCode TrigJetHypoToolConfig_flownetwork::checkVals() const {
-  for(const auto& cm : m_conditionMakers){
-    CHECK(cm->checkVals());
-  }
-    
   return StatusCode::SUCCESS;
 }
 

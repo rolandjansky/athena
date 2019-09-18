@@ -22,6 +22,7 @@
 //
 #include "../TrigJetConditionConfig_etaet.h"
 #include "../TrigJetConditionConfig_dijet.h"
+#include "../TrigJetConditionConfig_acceptAll.h"
 //
 #include "../NotHelperTool.h"
 #include "../AndHelperTool.h"
@@ -61,6 +62,7 @@ DECLARE_COMPONENT(TrigHLTJetHypo_EtaEt)
 
 DECLARE_COMPONENT(TrigJetConditionConfig_etaet)
 DECLARE_COMPONENT(TrigJetConditionConfig_dijet)
+DECLARE_COMPONENT(TrigJetConditionConfig_acceptAll)
 
 DECLARE_COMPONENT(TrigJetHypoAlgMT)
 DECLARE_COMPONENT(TrigJetHypoToolMT)

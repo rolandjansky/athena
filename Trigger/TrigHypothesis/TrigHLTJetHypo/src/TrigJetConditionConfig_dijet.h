@@ -46,6 +46,6 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
   Gaudi::Property<std::vector<std::string>>
     m_dPhiMaxs{this, "dphi_maxs", {}, "max dPhi for jets in each dijet"};
 
-  virtual StatusCode checkVals()  const override;
+  StatusCode checkVals()  const;
 };
 #endif

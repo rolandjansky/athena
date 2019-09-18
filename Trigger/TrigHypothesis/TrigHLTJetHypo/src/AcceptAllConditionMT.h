@@ -24,7 +24,7 @@ class ITrigJetHypoInfoCollector;
 
 class AcceptAllConditionMT: public IConditionMT{
  public:
-  AcceptAllConditionMT(std::size_t, unsigned int conditionId=0);
+  AcceptAllConditionMT(std::size_t capacity, unsigned int conditionId=0);
   ~AcceptAllConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,

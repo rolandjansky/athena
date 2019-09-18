@@ -364,11 +364,71 @@ class SimpleFlowNetworkTests(CombinationsTests) :
         return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
             str(self.n_bkgd) + '.log'
 
+class FlowNetworkTests_1(CombinationsTests) :
+    """ initial tests using a singlr flow network that represents an entire
+    hypo tree"""
+
+    def __init__(self,
+                 n_sgnl=2,
+                 n_bkgd=0,
+                 bkgd_etmax=50000.,  # MeV
+    ):
+        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
+        self.chain_name = 'HLT_SimpleFlowNetwork1'
+
+    def make_helper_tool(self):
+        chain_label = """and([]
+                   combgen([]
+                                simple([(10et)(20et)])
+                                simple([(12et)(22et)])
+                           )
+                   and([]
+                          simple([(32et)(42et)])
+                          simple([(52et)(62et)])
+                       )
+                  )"""
+        toolSetter = FlowNetworkSetter(self.chain_name)
+        return trigJetHypoToolHelperFromDict_(chain_label,
+                                              self.chain_name,
+                                              toolSetter=toolSetter)
+
+    def make_event_generator(self):
+        generator = SimpleHypoJetVectorGenerator()
+
+        # setup signal so that partitions would fail, but combinations pass.
+        # for n_sgnl = 4 and 2 EtaEt conditions, this means:
+        # create 4 jets such that only one pair passes the lower EtaEt cut.
+        ets = (63000., 64000.)
+        etas = (0.0, 0.0)
+        
+        if self.n_sgnl == 2:
+            generator.ets = ets[:]
+            generator.etas = etas[:]
+        elif self.n_sgnl == 1:
+            generator.ets = ets[:1]
+            generator.etas = etas[:1]
+        else:
+            msg = self.__class__.__name__ + " n_sgnl =" + str(self.n_sgnl)
+            msg += " legal values = 2, 1"
+            raise RuntimeError(msg)
+
+        generator.ets = ets
+        generator.etas = etas
+
+        generator.n_bkgd = self.n_bkgd
+        generator.bkgd_etmax = self.bkgd_etmax
+
+        return generator
+
+    def logfile_name(self, chain_name):
+        return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
+            str(self.n_bkgd) + '.log'
 
     
 def JetHypoExerciserCfg():
 
-    test_conditions = SimpleFlowNetworkTests(n_sgnl=4, n_bkgd=0)
+    test_conditions = FlowNetworkTests_1(n_sgnl=1, n_bkgd=0)
+    # test_conditions = SimpleFlowNetworkTests(n_sgnl=4, n_bkgd=0)
     #test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=4, n_bkgd=0)
     # test_conditions = FlowNetworkVsCombinationsTests(n_sgnl=4, n_bkgd=0)
 

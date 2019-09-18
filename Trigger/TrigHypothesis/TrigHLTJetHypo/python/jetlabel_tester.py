@@ -50,7 +50,7 @@ if __name__ == '__main__':
     
     label = """
     combgen(
-    [(2)(20et, 0eta320)]
+    [(20et, 0eta320)]
     
     simple([(40et, 0eta320) (50et, 0eta320)])
     simple([(35et, 0eta240) (55et, 0et240)])
@@ -67,7 +67,7 @@ if __name__ == '__main__':
       )
       combgen
       (
-        [(2)(10et)]
+        [(10et)]
         dijet
         (
           [(34mass, 26dphi)]
@@ -112,19 +112,32 @@ if __name__ == '__main__':
                        simple([(12et)(22et)])
                 )"""
     label = """and([]
-                   combgen([(2)]
+                   combgen([]
                                 simple([(10et)(20et)])
                                 simple([(12et)(22et)])
                            )
                    and([]
                           simple([(32et)(42et)])
-                          simple([(32et)(42et)])
+                          simple([(52et)(62et)])
                        )
                   )"""
 
-    
-    setter = FlowNetworkSetter('flowNetworkSetter')
-    tree = compile(label, expand=True, dump=False)
-    tree = rotate(tree)
-    print tree.accept(setter)
-    print setter
+#   label = """and([]
+#                   combgen([]
+#                           simple([(10et)(20et)])
+#                           simple([(12et)(22et)])
+#                          )
+#                   partgen([]
+#                       simple([(32et)(42et)])
+#                       simple([(52et)(62et)])
+#                       )
+#                   )"""
+
+    label = """noshare([] a([]) b([]))"""
+    tree = compile(label, dump=True)
+    # tree = compile(label, expand=True, dump=True)
+    # print '======Rotated tree'
+    # tree = rotate(tree)
+    # setter = FlowNetworkSetter('flowNetworkSetter')
+    # tree.accept(setter)
+    # print setter

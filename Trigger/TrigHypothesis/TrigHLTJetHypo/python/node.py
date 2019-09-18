@@ -20,18 +20,19 @@ def rotate_(node):
     newchildren = []
 
     while node.scenario in to_rotate:
-        print 'starting scenario', node.scenario
-        print 'rotating ', node.scenario
-        newnodes = copy.deepcopy(node.children) # grandchildren
+        print "rotating ", node.scenario
+        newnodes = copy.deepcopy(node.children)
         newnode0 = newnodes[0]
         curnode = newnodes[0]
         for n in newnodes[1:]:
             curnode.children.append(n)
             curnode = n
+        print 'node rotation done: new node: '
+        print newnode0
+        print '===== end new node =====\n'
         node = newnode0
-        print 'scenario now', node.scenario
 
-    print 'len children', len(node.children)
+
     node.children = [rotate_(cn) for cn in node.children]
 
     return node
@@ -46,6 +47,7 @@ def rotate(node):
     node.set_ids(node_id, parent_id)
 
     return node
+
     
 class Node(object):
     
