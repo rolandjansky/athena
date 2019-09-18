@@ -59,8 +59,6 @@ namespace InDetDD {
   // Destructor:
   SiDetectorElement::~SiDetectorElement()
   {
-    // The design is reference counted so that it will not be deleted until the last element is deleted.
-    m_design->unref();
 
     m_commonItems->unref();
   }
@@ -725,9 +723,6 @@ namespace InDetDD {
     }
 
     if (!m_idHash.is_valid()) throw std::runtime_error("SiDetectorElement: Unable to set IdentifierHash");
-
-    // Increase the reference count of the SiDetectorDesign objects.
-    m_design->ref();
 
     // Increase the reference count of the SiCommonItems objects.
     m_commonItems->ref();
