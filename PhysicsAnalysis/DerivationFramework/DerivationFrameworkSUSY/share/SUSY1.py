@@ -14,8 +14,6 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from BTagging.BTaggingFlags import BTaggingFlags
 
-#BTaggingFlags.Do2019Retraining = False 
-
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
@@ -43,8 +41,6 @@ DerivationFrameworkJob += SeqSUSY1
 from DerivationFrameworkSUSY.SUSY1TriggerList import SUSY1ThinTriggers
 SUSY1ThinningHelper.TriggerChains = '|'.join(SUSY1ThinTriggers)
 SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
-
-SUSY1ThinningHelper.Actions = ['DropFeatures', 'Reload', 'SyncThinning', 'Save', 'Restore']
 
 
 #====================================================================
@@ -409,9 +405,9 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "BTagging_AntiKt4EMPFlow_201903",
                                         "AntiKt4EMTopoJets_BTagging201810",
                                         "BTagging_AntiKt4EMTopo_201810",
-                                        #"BTagging_AntiKt4EMTopo",
-                                        #"BTagging_AntiKt4EMPFlow",
-                                        # "BTagging_AntiKt2Track",
+#                                        "BTagging_AntiKt4EMTopo",
+#                                        "BTagging_AntiKt4EMPFlow",
+#                                        "BTagging_AntiKt2Track",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
   "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets",
@@ -433,8 +429,7 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				                              "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
 				                              "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                                       "InDetTrackParticles.TrkIsoPt1000_ptcone20.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone40.TrkIsoPt500_ptcone20.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone40",
-                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB.BTagBtagToJetAssociator",
-#                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB",
+                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB",
                                       "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
                                     ]
 

@@ -21,6 +21,4 @@ SUSY1AllTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1XETriggers +
 
 #just those we need the navigation thinning for
 SUSY1ThinTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1BJetTriggers
-#["HLT_.*"]
-#SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1BJetTriggers
 
