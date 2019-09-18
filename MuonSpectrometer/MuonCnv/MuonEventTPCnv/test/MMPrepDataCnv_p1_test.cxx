@@ -24,8 +24,9 @@ void compare (const Trk::PrepRawData& p1,
 {
   assert (p1.localPosition()[0] == p2.localPosition()[0]);
   assert (p1.localCovariance() == p2.localCovariance());
-  assert (p2.rdoList().size() == 1);
-  //  assert (p2.rdoList()[0] == p2.identify());
+
+  assert (p1.rdoList().size()==p2.rdoList().size());
+
 }
 
 
@@ -80,7 +81,7 @@ void test1()
                            rdoList,
                            new Amg::MatrixX(cov),
                            nullptr);
-                            
+                          
   testit (trans1);
 }
 
