@@ -33,8 +33,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkTools/TrkTrackSummaryTool )
+                          Tracking/TrkTools/TrkToolInterfaces)
 
 # External dependencies:
 find_package( CLHEP )
