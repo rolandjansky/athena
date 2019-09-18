@@ -15,10 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
 
-#include "TrkTrack/TrackCollection.h"
-#include "TrkParameters/TrackParameters.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

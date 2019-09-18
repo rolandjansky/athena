@@ -22,10 +22,6 @@
 
 #include "TrigEFBEEXFex.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -33,10 +29,6 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaKernel/Timeout.h"
 
-#include "TrkTrack/TrackCollection.h"
-#include "TrkParameters/TrackParameters.h"
-//#include "Particle/TrackParticleContainer.h"
-#include "VxVertex/VxCandidate.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"

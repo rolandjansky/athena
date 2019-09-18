@@ -15,14 +15,11 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 //#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigL2BMuMuFex.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
