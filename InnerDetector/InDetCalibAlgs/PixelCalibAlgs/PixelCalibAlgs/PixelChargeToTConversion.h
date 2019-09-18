@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#define private public
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
