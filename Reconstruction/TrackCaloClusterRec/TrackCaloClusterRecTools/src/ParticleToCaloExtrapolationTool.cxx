@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrackCaloClusterRecTools/ParticleToCaloExtrapolationTool.h"
 // forward declares
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-#define private public
+//#define private public
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
-#define public private 
+//#define public private 
 #include "xAODTracking/TrackingPrimitives.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
@@ -233,7 +233,8 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::caloExtension( const Trk::T
         cpars = p.first->covariance() ? new Trk::CurvilinearParameters(p.first->position(),p.first->momentum(),p.first->charge(),new AmgSymMatrix(5)(*p.first->covariance()),id) : new Trk::CurvilinearParameters(p.first->position(),p.first->momentum(),p.first->charge(),nullptr,id);
         delete p.first;
       }else{
-        const_cast<Trk::CurvilinearParameters*>(cpars)->m_cIdentifier = id;
+        // FIXME: const_cast!!!
+        const_cast<Trk::CurvilinearParameters*>(cpars)->setcIdentifier (id);
       }
       caloLayers.push_back( cpars );
     }      
