@@ -61,6 +61,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
     registerParameter("UseElectronChargeIDSelection", "True/False. Switch on/off electron charge ID selection (Default False).", "False");
+    registerParameter("UseEgammaLeakageCorrection", "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default False).", "False");
     
     registerParameter("FwdElectronID", "Type of fwd electron. Loose, Medium, Tight (default)","Tight");
     registerParameter("FwdElectronIDLoose", "Type of fwd loose electrons. Loose, Medium, Tight (default)","Tight");

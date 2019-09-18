@@ -187,6 +187,7 @@ namespace top{
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
+    m_useEgammaLeakageCorrection(false),
     
     // Fwd electron configuration
     m_fwdElectronPtcut(25000.),
@@ -783,6 +784,7 @@ namespace top{
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
+    this->useEgammaLeakageCorrection(settings->value("UseEgammaLeakageCorrection"));
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 
 
@@ -2760,6 +2762,7 @@ namespace top{
     out->m_electronIsolation = m_electronIsolation;
     out->m_electronIsolationLoose = m_electronIsolationLoose;
     out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
+    out->m_useEgammaLeakageCorrection = m_useEgammaLeakageCorrection;
     
     out->m_fwdElectronID = m_fwdElectronID;
 
@@ -2896,6 +2899,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_electronIsolation = settings->m_electronIsolation;
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
     m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
+    m_useEgammaLeakageCorrection = settings->m_useEgammaLeakageCorrection;
     
     m_fwdElectronID = settings->m_fwdElectronID;
 
