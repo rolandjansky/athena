@@ -339,6 +339,14 @@ replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG1D2Seq)
 
+# Augment AntiKt4 jets with QG tagging variables
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D2Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG1D2Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg)
+
 DerivationFrameworkJob += HIGG1D2Seq
 
 #====================================================================
@@ -396,6 +404,9 @@ HIGG1D2SlimmingHelper.ExtraVariables = ["PhotonsAux.DFCommonPhotonsIsEMTightPtIn
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "BTagging_AntiKt4EMTopo.MV1_discriminant",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
+                                        "DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta",
+                                        "DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+                                        "NumTrkPt500PV.PartonTruthLabelID",
                                         "MuonTruthParticles.truthOrigin.truthType"]
 
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
