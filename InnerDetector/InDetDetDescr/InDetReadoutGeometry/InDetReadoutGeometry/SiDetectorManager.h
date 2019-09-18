@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ class SiNumerology;
       SiDetectorManager(StoreGateSvc * detStore, const std::string & name);
      
       // Destructor
-      virtual ~SiDetectorManager() {};
+      virtual ~SiDetectorManager();
     
     
       //
@@ -123,7 +123,7 @@ class SiNumerology;
       /** Access Numerology */
       const SiNumerology & numerology() const {return m_numerology;}
       SiNumerology & numerology() {return m_numerology;}
-    
+
     private:
       //** Prevent copy and assignment */
       const SiDetectorManager & operator=(const SiDetectorManager &right);
