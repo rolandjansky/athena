@@ -11,6 +11,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_hlt_mht_met_key("HLT_MET_mht")
   , m_hlt_tc_met_key("HLT_MET_tc")
   , m_hlt_tcpufit_met_key("HLT_MET_tcPufit")
+  , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("l1_roi_key", m_lvl1_roi_key);
   declareProperty("hlt_cell_key", m_hlt_cell_met_key);
@@ -29,6 +30,8 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_mht_met_key.initialize() );
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
     ATH_CHECK( m_hlt_tcpufit_met_key.initialize() );
+
+    ATH_CHECK( m_trigDecTool.retrieve() );
 
     return AthMonitorAlgorithm::initialize();
 }
@@ -131,6 +134,31 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tcpufit_Ey = (hlt_met->ey())/1000.;
       tcpufit_Et = sqrt(tcpufit_Ex*tcpufit_Ex + tcpufit_Ey*tcpufit_Ey);
     }
+
+
+    // TDT test
+    if (m_trigDecTool->isPassed("HLT_xe30_cell_L1XE10")) {
+      ATH_MSG_INFO("passed HLT_xe30_cell_L1XE10");
+    } else {
+      ATH_MSG_INFO("not passed HLT_xe30_cell_L1XE10");
+    }
+    if (m_trigDecTool->isPassed("HLT_xe110_pufit_xe70_L1XE50")) {
+      ATH_MSG_INFO("passed HLT_xe110_pufit_xe70l_L1XE50");
+    } else {
+      ATH_MSG_INFO("not passed HLT_xe110_pufit_xe70_L1XE50");
+    }
+
+    // check active triggers
+    // This does not work for now
+    /*
+    auto chaingroup = m_trigDecTool->getChainGroup("HLT_xe.*");
+    for(auto &trig : chainGroup->getListOfTriggers()) {
+      auto cg = m_trigDecTool->getChainGroup(trig);
+      std::string thisTrig = trig;
+      ATH_MSG_INFO (thisTrig << " chain prescale = " << cg->getPrescale());
+    }
+     */
+
 
     // Fill. First argument is the tool (GMT) name as defined in the py file, 
     // all others are the variables to be saved.
