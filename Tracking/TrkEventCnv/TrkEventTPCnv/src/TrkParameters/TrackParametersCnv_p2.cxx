@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -26,7 +26,6 @@
 #include "TrkEventTPCnv/helpers/CLHEPHelpers.h"
 // #include "TrkEventPrimitives/Charged.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "CxxUtils/make_unique.h"
 
 #include <cassert>
 #include <iostream>
@@ -105,7 +104,7 @@ const Trk::Surface* TrackParametersCnv_p2::transSurface(const Trk :: TrackParame
   if (persObj->m_transform.size()){
     if (debug) std::cout<<"Reading in parameters with FREE surface type ="<<type<<std::endl;
 
-    auto transform = CxxUtils::make_unique<Amg::Transform3D>();
+    auto transform = std::make_unique<Amg::Transform3D>();
     EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transform.get());
 
     // recreate free surface
@@ -166,7 +165,7 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
       if (debug) log<<MSG::WARNING<<"Received parameters with non-supported surface. Will convert to curvilinear. TransObj="<<*transObj<<endmsg;
       std::unique_ptr<AmgSymMatrix(5)> newcov;
       if (transObj->covariance())
-        newcov = CxxUtils::make_unique<AmgSymMatrix(5)> (*transObj->covariance());
+        newcov = std::make_unique<AmgSymMatrix(5)> (*transObj->covariance());
       const Trk::CurvilinearParameters* curvilinear = 
         new Trk::CurvilinearParameters(transObj->position(), transObj->momentum(), transObj->charge(), 
                                        newcov.release());
