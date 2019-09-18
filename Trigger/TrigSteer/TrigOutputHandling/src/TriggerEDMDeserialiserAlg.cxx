@@ -132,6 +132,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
     start = toNextFragment( start ); // point the start to the next chunk, irrespectively of what happens in deserialisation below
         
     RootType classDesc = RootType::ByName( persistentTypeName );
+    ATH_CHECK( classDesc.IsComplete() );
     size_t usedBytes{ bsize };
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
 
@@ -153,12 +154,17 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       ATH_CHECK( converted != nullptr );
       ATH_CHECK( decodedTransientName == transientTypeName );      
       classDesc.Destruct( obj );
-      obj = converted;      
 
+      // from now on in case of T/P class we deal with a new class, the transient one
+      classDesc = RootType::ByName( transientTypeName );
+      ATH_CHECK( classDesc.IsComplete() );
+      obj = converted;
     }
 
+
+
     if ( isxAODInterfaceContainer or isxAODAuxContainer or isTPContainer ) {
-      BareDataBucket* dataBucket = new BareDataBucket( obj, clid, classDesc);
+      BareDataBucket* dataBucket = new BareDataBucket( obj, clid, classDesc );
       const std::string outputName = m_prefix + key;
       auto proxyPtr = evtStore()->recordObject( SG::DataObjectSharedPtr<BareDataBucket>( dataBucket ), outputName, false, false );
       if ( proxyPtr == nullptr )  {
