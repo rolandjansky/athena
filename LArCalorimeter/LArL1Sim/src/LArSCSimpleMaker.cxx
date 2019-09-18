@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -13,7 +13,6 @@
 // ........ includes
 //
 #include "LArL1Sim/LArSCSimpleMaker.h"
-//#include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -110,9 +109,11 @@ StatusCode LArSCSimpleMaker::execute()
     if ( m_compNoise ) {
     BOOST_FOREACH (const CaloCell* cell, *cells) {
       const CaloDetDescrElement* cdde = cell->caloDDE();
-      if ( cdde->is_tile () ) continue;
+      if ( cdde->is_tile () ) {idx++; continue;}
       std::vector<float> nn = m_noisetool->elecNoiseRMS3gains(cdde);
-      m_noise_per_cell[idx++] = sqrt( nn[1]*nn[1] - nn[0]*nn[0] );
+      float sigma_diff = nn[1]*nn[1] - nn[0]*nn[0] ;
+      if ( sigma_diff < 0.0 ) { m_noise_per_cell[idx++]=0; continue;}
+      m_noise_per_cell[idx++] = sqrt( sigma_diff );
     } // end of BOOST_FOREACH
     } // end of if m_compNoise
     m_first = false;
@@ -179,8 +180,8 @@ StatusCode LArSCSimpleMaker::execute()
       int hash1 = calo_sc_id->calo_cell_hash (sc_id1);
       int hash2 = calo_sc_id->calo_cell_hash (sc_id2);
 
-      energies[hash1] += cell->energy()/2.; 
-      energies[hash2] += cell->energy()/2.; 
+      energies[hash1] += cell->energy()*0.5; 
+      energies[hash2] += cell->energy()*0.5; 
       //ignore the rest for now
 
       /*
