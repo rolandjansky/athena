@@ -65,6 +65,7 @@ namespace met {
   METSoftTermsTool::METSoftTermsTool(const std::string& name) : 
     AsgTool(name),
     METBuilderTool(name),
+    m_pfotool(this,""),
     m_st_objtype(0),
     m_pv_inputkey("PrimaryVertices"),
     m_caloClusterKey(""),

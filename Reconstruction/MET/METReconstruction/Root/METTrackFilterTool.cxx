@@ -61,6 +61,14 @@ namespace met {
   ////////////////
   METTrackFilterTool::METTrackFilterTool(const std::string& name) : 
     AsgTool(name),
+    m_trkseltool(this,""),
+    m_trkToVertexTool(this,""),
+    m_trkIsolationTool(this,""),
+    m_caloIsolationTool(this,""),
+    m_mu_inputkey(""),
+    m_el_inputkey(""),
+    m_pv_input(""),
+    m_cl_inputkey(""),
     METRefinerTool(name)
   {
     declareProperty( "DoPVSel",            m_trk_doPVsel = true                 );
