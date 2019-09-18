@@ -47,7 +47,21 @@ def TrigMETMonConfig(inputFlags):
     # expertTrigMETMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
     #expertTrigMETMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
-    expertTrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
+
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    if TriggerFlags.EDMDecodingVersion==3:
+        expertTrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
+        expertTrigMETMonAlg.hlt_cell_key = 'HLT_MET'
+        shifterTrigMETMonAlg.hlt_cell_key = 'HLT_MET'
+        TrigMETMonitorAlgorithm.hlt_cell_key = 'HLT_MET'
+    else:
+        expertTrigMETMonAlg.TriggerChain = 'HLT_xe110_pufit_xe65_L1XE50'
+        TrigMETMonitorAlgorithm.hlt_cell_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET'
+        TrigMETMonitorAlgorithm.hlt_mt_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht'
+        TrigMETMonitorAlgorithm.hlt_tc_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl'
+        TrigMETMonitorAlgorithm.hlt_tcpufit_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC'
+        
+
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -130,7 +144,7 @@ if __name__=='__main__':
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     #ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.Files = ['/hep300/data/khamano/data18_athenaMT/fromElin/AOD.pool.root']
-    ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigMETMonitorOutput.root'
     
     ConfigFlags.lock()

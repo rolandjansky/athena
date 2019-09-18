@@ -29,12 +29,5 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tc_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tcpufit_met_key;
 
-  //SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_run2_cell_met_key;
-  //SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_run2_mht_met_key;
-  //SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_run2_tc_met_key;
-  //SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_run2_tcpufit_met_key;
-
-
-
 };
 #endif
