@@ -110,9 +110,9 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s,
   secondaryVtx_min_trk_flightDirRelEta(jfSv(f) + "_min_trk_flightDirRelEta"),
   secondaryVtx_max_trk_flightDirRelEta(jfSv(f) + "_max_trk_flightDirRelEta"),
   secondaryVtx_avg_trk_flightDirRelEta(jfSv(f) + "_avg_trk_flightDirRelEta"),
-  min_trk_flightDirRelEta(flipString(f) + "min_trk_flightDirRelEta"),
-  max_trk_flightDirRelEta(flipString(f) + "max_trk_flightDirRelEta"),
-  avg_trk_flightDirRelEta(flipString(f) + "avg_trk_flightDirRelEta"),
+  min_trk_flightDirRelEta("min_trk_flightDirRelEta" + flipString(f)),
+  max_trk_flightDirRelEta("max_trk_flightDirRelEta" + flipString(f)),
+  avg_trk_flightDirRelEta("avg_trk_flightDirRelEta" + flipString(f)),
   smt_mu_pt("SMT_mu_pt"),
   smt_isDefaults("SMT_isDefaults"),
   rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
@@ -123,9 +123,9 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s,
   new_secondaryVtx_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumTrackRelativeEta"),
   new_secondaryVtx_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumTrackRelativeEta"),
   new_secondaryVtx_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageTrackRelativeEta"),
-  new_min_trk_flightDirRelEta(flipString(f) + "minimumTrackRelativeEta"),
-  new_max_trk_flightDirRelEta(flipString(f) + "maximumTrackRelativeEta"),
-  new_avg_trk_flightDirRelEta(flipString(f) + "averageTrackRelativeEta")
+  new_min_trk_flightDirRelEta("minimumTrackRelativeEta" + flipString(f)),
+  new_max_trk_flightDirRelEta("maximumTrackRelativeEta" + flipString(f)),
+  new_avg_trk_flightDirRelEta("averageTrackRelativeEta" + flipString(f))
 {
   using namespace FlavorTagDiscriminants;
   typedef SG::AuxElement::Decorator<float> ADF;
