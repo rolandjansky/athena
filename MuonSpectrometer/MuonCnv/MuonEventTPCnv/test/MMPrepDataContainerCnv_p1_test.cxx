@@ -104,7 +104,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
       Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash,
                                                           1, 1, 1+i);
       int clusHash = 567 + offs;
-      
+
       Amg::Vector2D locpos (2.5+offs, 0);
       std::vector<Identifier> rdoList { clusId };
 
