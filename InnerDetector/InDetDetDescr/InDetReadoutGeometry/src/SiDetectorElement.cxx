@@ -59,8 +59,6 @@ namespace InDetDD {
   // Destructor:
   SiDetectorElement::~SiDetectorElement()
   {
-
-    m_commonItems->unref();
   }
 
   bool
@@ -723,9 +721,6 @@ namespace InDetDD {
     }
 
     if (!m_idHash.is_valid()) throw std::runtime_error("SiDetectorElement: Unable to set IdentifierHash");
-
-    // Increase the reference count of the SiCommonItems objects.
-    m_commonItems->ref();
 
     // Set surface
     m_surface = std::make_unique<Trk::PlaneSurface>(*this);
