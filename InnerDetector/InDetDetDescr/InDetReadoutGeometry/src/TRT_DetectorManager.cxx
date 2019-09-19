@@ -120,6 +120,12 @@ namespace InDetDD {
             }
         }
 
+        for (const TRT_BarrelDescriptor* barrelDescriptor : m_barrelDescriptors) {
+            delete barrelDescriptor;
+        }
+        for (const TRT_EndcapDescriptor* endcapDescriptor : m_endcapDescriptors) {
+            delete endcapDescriptor;
+        }
     }
 
 
@@ -706,5 +712,14 @@ namespace InDetDD {
     return alignmentChange;
   }
 
+  void TRT_DetectorManager::setBarrelDescriptor(const TRT_BarrelDescriptor* barrelDescriptor)
+  {
+    m_barrelDescriptors.insert(barrelDescriptor);
+  }
+
+  void TRT_DetectorManager::setEndcapDescriptor(const TRT_EndcapDescriptor* endcapDescriptor)
+  {
+    m_endcapDescriptors.insert(endcapDescriptor);
+  }
 
 } // namespace InDetDD
