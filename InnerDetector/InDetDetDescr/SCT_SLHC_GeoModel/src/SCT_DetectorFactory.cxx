@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -73,7 +73,9 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   // Create SiCommonItems. These are items that are shared by all elements
   SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
   m_geometryManager->setCommonItems(commonItems);
-  
+
+  // Add SiCommonItems to SCT_DetectorManager to hold and delete it.
+  m_detectorManager->setCommonItems(commonItems);
 
   // Set Version information
   // Get the geometry tag
