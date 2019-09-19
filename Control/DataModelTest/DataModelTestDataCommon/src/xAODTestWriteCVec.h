@@ -1,35 +1,33 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id$
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ */
 /**
- * @file src/xAODTestReadCVec.h
+ * @file DataModelTestDataCommon/src/xAODTestWriteCVec.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2016
- * @brief Algorithm to test reading xAOD data (CVec)
+ * @brief Algorithm to test writing xAOD classes with auxiliary data (cvec).
  */
 
 
-#ifndef DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
-#define DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
+#ifndef DATAMODELTESTDATACOMMON_XAODTESTWRITECVEC_H
+#define DATAMODELTESTDATACOMMON_XAODTESTWRITECVEC_H
 
 
 #include "DataModelTestDataCommon/CVec.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 
 namespace DMTest {
 
 
 /**
- * @brief Algorithm to test reading xAOD data (CVec).
+ * @brief Algorithm for creating test aux data.
  */
-class xAODTestReadCVec
+class xAODTestWriteCVec
   : public AthReentrantAlgorithm
 {
 public:
@@ -38,7 +36,7 @@ public:
    * @param name The algorithm name.
    * @param svc The service locator.
    */
-  xAODTestReadCVec (const std::string &name, ISvcLocator *pSvcLocator);
+  xAODTestWriteCVec (const std::string &name, ISvcLocator *pSvcLocator);
   
 
   /**
@@ -60,12 +58,12 @@ public:
 
 
 private:
-  SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
-  SG::WriteHandleKey<DMTest::CVec> m_writeKey;
+  SG::WriteHandleKey<DMTest::CVec> m_cvecKey;
+  SG::WriteDecorHandleKey<DMTest::CVec> m_cvecDecorKey;
 };
 
 
 } // namespace DMTest
 
 
-#endif // not DATAMODELTESTDATAREAD_XAODTESTREAD_H
+#endif // not DATAMODELTESTDATACOMMON_XAODTESTWRITECVEC_H
