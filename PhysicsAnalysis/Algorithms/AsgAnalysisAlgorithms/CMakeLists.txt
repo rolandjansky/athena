@@ -27,6 +27,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTau
    Event/xAOD/xAODEgamma
    Event/xAOD/xAODTracking
+   Event/xAOD/xAODTruth
    PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 atlas_add_library( AsgAnalysisAlgorithmsLib
@@ -36,7 +37,7 @@ atlas_add_library( AsgAnalysisAlgorithmsLib
      xAODEventInfo SelectionHelpersLib SystematicsHandlesLib PATCoreLib
      PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces AssociationUtilsLib
      IsolationSelectionLib
-   PRIVATE_LINK_LIBRARIES xAODCore xAODCutFlow xAODMetaData xAODJet xAODMuon xAODTau xAODEgamma xAODTracking
+   PRIVATE_LINK_LIBRARIES xAODCore xAODCutFlow xAODMetaData xAODJet xAODMuon xAODTau xAODEgamma xAODTracking xAODTruth
      RootCoreUtils )
 
 atlas_add_dictionary( AsgAnalysisAlgorithmsDict
