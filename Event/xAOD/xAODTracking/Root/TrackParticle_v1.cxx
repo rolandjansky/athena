@@ -179,7 +179,7 @@ namespace xAOD {
     offDiagVec.reserve( ( ( cov.rows() - 1 ) * cov.rows() ) / 2 );
     for( int i = 1; i < cov.rows(); ++i ) {
       for( int j = 0; j < i; ++j ) {
-        offDiagVec.push_back( cov( i, j ) );
+        offDiagVec.push_back( cov( i, j )/sqrt(cov( i, i )*cov( j, j ) );
       }
     }
     // Set the variable.
@@ -209,21 +209,52 @@ namespace xAOD {
       cov.setIdentity();
     }
 
-    // Set the off-diagonal elements of the matrix.
-    if( accCovMatrixOffDiag.isAvailable( *this ) &&
-        ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) ==
-          ( ( ( cov.rows() - 1 ) * cov.rows() ) / 2 ) ) ) {
+    bool offDiagCompr = definingParametersCovMatrixOffDiagCompr();
 
-      // Access the "raw" variable.
-      const std::vector< float >& offDiagVec = accCovMatrixOffDiag( *this );
-      // Set the off-diagonal elements using the raw variable.
-      std::size_t vecIndex = 0;
-      for( int i = 1; i < cov.rows(); ++i ) {
-        for( int j = 0; j < i; ++j, ++vecIndex ) {
-          cov.fillSymmetric( i, j, offDiagVec[ vecIndex ] );
-        }
+    // Set the off-diagonal elements of the matrix.
+    if(!offDiagCompr){
+
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) ==
+	    ( ( ( cov.rows() - 1 ) * cov.rows() ) / 2 ) ) ) {
+
+	// Access the "raw" variable.
+	const std::vector< float >& offDiagVec = accCovMatrixOffDiag( *this );
+	// Set the off-diagonal elements using the raw variable.
+	std::size_t vecIndex = 0;
+	for( int i = 1; i < cov.rows(); ++i ) {
+	  for( int j = 0; j < i; ++j, ++vecIndex ) {
+	    cov.fillSymmetric( i, j, offDiagVec[ vecIndex ]*sqrt(cov(i,i)*cov(j,j)) );
+	  }
+	}
       }
+
     }
+
+    else{ //Compressed case
+
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == m_covMatrixOffDiagVecComprSize ) ) {
+	// Access the "raw" variable.
+	const std::vector< float >& offDiagVec = accCovMatrixOffDiag( *this );
+	// Set the off-diagonal elements using the raw variable.
+	cov.fillSymmetric( d0_index, phi_index,
+			   offDiagVec[d0_phi_index]*sqrt(cov(d0_index,d0_index)*cov(phi_index,phi_index)) );
+	cov.fillSymmetric( z0_index, th_index,
+			   offDiagVec[z0_th_index]*sqrt(cov(z0_index,z0_index)*cov(th_index,th_index)) );
+	cov.fillSymmetric( d0_index, qp_index,
+			   offDiagVec[d0_qp_index]*sqrt(cov(d0_index,d0_index)*cov(qp_index,qp_index)) );
+	cov.fillSymmetric( z0_index, qp_index,
+			   offDiagVec[z0_qp_index]*sqrt(cov(z0_index,z0_index)*cov(qp_index,qp_index)) );
+	cov.fillSymmetric( phi_index, qp_index,
+			   offDiagVec[phi_qp_index]*sqrt(cov(phi_index,phi_index)*cov(qp_index,qp_index)) );
+	cov.fillSymmetric( th_index, qp_index,
+			   offDiagVec[th_qp_index]*sqrt(cov(th_index,th_index)*cov(qp_index,qp_index)) );
+
+      }
+
+    }
+
 
     // Return the filled matrix.
     return cov;
@@ -243,16 +274,38 @@ namespace xAOD {
       result.setIdentity();
     }
 
-    // Check if the off-diagonal elements are available.
-    if( accCovMatrixOffDiag.isAvailable( *this ) &&
-        ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) ==
-          ( ( result.rows() * ( result.rows() - 1 ) ) / 2 ) ) ) {
+    bool offDiagCompr = definingParametersCovMatrixOffDiagCompr();
 
-      for( int i = 1; i < result.rows(); ++i ) {
-        for( int j = 0; j < i; ++j ) {
-          result.fillSymmetric( i, j, true );
-        }
+    if(!offDiagCompr){
+
+      // Check if the off-diagonal elements are available.
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) ==
+	    ( ( result.rows() * ( result.rows() - 1 ) ) / 2 ) ) ) {
+
+	for( int i = 1; i < result.rows(); ++i ) {
+	  for( int j = 0; j < i; ++j ) {
+	    result.fillSymmetric( i, j, true );
+	  }
+	}
       }
+
+    }
+
+    else{
+
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == m_covMatrixOffDiagVecComprSize ) ){
+
+	result.fillSymmetric( d0_index, phi_index, true );
+	result.fillSymmetric( z0_index, th_index, true );
+	result.fillSymmetric( d0_index, qp_index, true );
+	result.fillSymmetric( z0_index, qp_index, true );
+	result.fillSymmetric( phi_index, qp_index, true );
+	result.fillSymmetric( th_index, qp_index, true );
+
+      }
+
     }
 
     // Return the object.
@@ -287,12 +340,42 @@ namespace xAOD {
 
   void TrackParticle_v1::setDefiningParametersCovMatrixOffDiagVec( const std::vector< float >& vec ) {
 
-    assert( vec.size() ==
-            ( ( ( ParametersCovMatrix_t::RowsAtCompileTime - 1 ) *
-                ParametersCovMatrix_t::RowsAtCompileTime ) / 2 ) );
+    bool offDiagCompr = definingParametersCovMatrixOffDiagCompr();
+
+    unsigned int uncompr_size = ( ( ( ParametersCovMatrix_t::RowsAtCompileTime - 1 ) *
+				    ParametersCovMatrix_t::RowsAtCompileTime ) / 2 );
+    unsigned int size = offDiagCompr ? m_covMatrixOffDiagVecComprSize : uncompr_size;
+
+    assert( vec.size() == size || vec.size() ==uncompr_size  ); //If off-diagonal elements are already compressed, can either set with uncompressed or compressed vector
     accCovMatrixOffDiag( *this ) = vec;
     return;
   }
+
+  bool TrackParticle_v1::definingParametersCovMatrixOffDiagCompr() const {
+
+    bool flag = false;
+    if(accCovMatrixOffDiag.isAvailable( *this )) flag = (static_cast< int >(accCovMatrixOffDiag( *this ).size())==m_covMatrixOffDiagVecComprSize);
+    return flag;
+  }
+
+  void TrackParticle_v1::compressDefiningParametersCovMatrixOffDiag() {
+
+    ParametersCovMatrix_t cov = definingParametersCovMatrix();
+    std::vector< float > offDiagVecCompr;
+    offDiagVecCompr.resize(m_covMatrixOffDiagVecComprSize);
+
+    offDiagVecCompr[d0_phi_index] = cov(d0_index, phi_index) / sqrt(cov(d0_index,d0_index)*cov(phi_index,phi_index));
+    offDiagVecCompr[z0_th_index] = cov(z0_index, th_index) / sqrt(cov(z0_index,z0_index)*cov(th_index,th_index));
+    offDiagVecCompr[d0_qp_index] = cov(d0_index, qp_index) / sqrt(cov(d0_index,d0_index)*cov(qp_index,qp_index));
+    offDiagVecCompr[z0_qp_index] = cov(z0_index, qp_index) / sqrt(cov(z0_index,z0_index)*cov(qp_index,qp_index));
+    offDiagVecCompr[phi_qp_index] = cov(phi_index, qp_index) / sqrt(cov(phi_index,phi_index)*cov(qp_index,qp_index));
+    offDiagVecCompr[th_qp_index] = cov(th_index, qp_index) / sqrt(cov(th_index,th_index)*cov(qp_index,qp_index));
+
+    accCovMatrixOffDiag( *this ) = offDiagVecCompr;
+    return;
+
+  }
+
 
   //Old schema compatibility
 

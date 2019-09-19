@@ -108,15 +108,16 @@ namespace xAOD {
         ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\end{array}\right)\f$
         DefiningParameters_t definingParameters() const;
         /// Returns the 5x5 symmetric matrix containing the defining parameters covariance matrix.
-        ParametersCovMatrix_t definingParametersCovMatrix() const;
+        const ParametersCovMatrix_t definingParametersCovMatrix() const;
         /// Returns a 5x5 matrix describing which elements of the covariance matrix are known
         ParametersCovMatrixFilled_t definingParametersCovMatrixFilled() const;
         /// Returns the diagonal elements of the defining parameters covariance matrix
         const std::vector< float >& definingParametersCovMatrixDiagVec() const;
-        /// Returns the off-diagonal elements of the defining parameters covariance matrix
+        /// Returns the correlation coefficient associated with the off-diagonal elements of the covariance matrix = cov(X,Y)/sqrt(cov(X,X)*cov(Y,Y))
         const std::vector< float >& definingParametersCovMatrixOffDiagVec() const;
         /// Returns the length 6 vector containing the elements of defining parameters covariance matrix.
         std::vector<float>& definingParametersCovMatrixVec() const;
+        bool definingParametersCovMatrixOffDiagCompr() const ;
         /// Set the defining parameters.     
         void setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP);
         /// Set the defining parameters covariance matrix.
@@ -127,6 +128,8 @@ namespace xAOD {
         /// Set the off-diagonal elements of the defining parameters covariance matrix
         void setDefiningParametersCovMatrixOffDiagVec( const std::vector< float >& vec );
         void setDefiningParametersCovMatrixVec(const std::vector<float>& cov);
+        /// Delete some off-diagonal elements for compression
+        void compressDefiningParametersCovMatrixOffDiag();
         /// The x origin for the parameters.
         float vx() const;
         /// The y origin for the parameters.
@@ -329,6 +332,11 @@ namespace xAOD {
       void resetCache();
  
 private:
+
+      enum covMatrixIndex{d0_index, z0_index, phi_index, th_index, qp_index};
+      enum covMatrixOffDiagVecComprIndex{d0_phi_index, z0_th_index, d0_qp_index, z0_qp_index, phi_qp_index, th_qp_index};
+      const int m_covMatrixOffDiagVecComprSize = 6;
+
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(__CLING__) )
       /// @brief Cached MeasuredPerigee, built from this object.

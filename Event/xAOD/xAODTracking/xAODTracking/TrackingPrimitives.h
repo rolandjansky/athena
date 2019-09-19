@@ -467,6 +467,19 @@ namespace {
   }
 }
 
+namespace xAOD {
+
+  /// Object representing a fully available covariance matrix
+  static const xAOD::ParametersCovMatrixFilled_t FullCovMatrixAvailable =
+    makeFullCovMatrix();
+  /// Object representing a covariance matrix whose diagonal elements are
+  /// available
+  static const xAOD::ParametersCovMatrixFilled_t DiagCovMatrixAvailable =
+    makeDiagCovMatrix();
+
+} // namespace xAOD
+
+
 namespace SG {
 
 
