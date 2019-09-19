@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoCnv_p4.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoContainerCnv_tlp2.h"
-#include "CxxUtils/make_unique.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/leakcheck.h"
@@ -170,11 +169,11 @@ void test1()
   trans1.setEtaPreviousLevel (4.5);
   trans1.setPhiPreviousLevel (5.5);
 
-  auto tk = CxxUtils::make_unique<TrigMuonEFInfoTrack>();
+  auto tk = std::make_unique<TrigMuonEFInfoTrack>();
   tk->setMuonType (123);
 
   {
-    auto cbtrack = CxxUtils::make_unique<TrigMuonEFCbTrack> (1./80000, 1.5, 2.5, 5000);
+    auto cbtrack = std::make_unique<TrigMuonEFCbTrack> (1./80000, 1.5, 2.5, 5000);
     cbtrack->setCharge (3.5);
     cbtrack->setD0 (4.5);
     cbtrack->setZ0 (5.5);
@@ -201,7 +200,7 @@ void test1()
   }
 
   {
-    auto sptrack = CxxUtils::make_unique<TrigMuonEFTrack> (1./85000, 1.4, 2.4, 6000);
+    auto sptrack = std::make_unique<TrigMuonEFTrack> (1./85000, 1.4, 2.4, 6000);
     sptrack->setCharge (3.5 + 20);
     sptrack->setD0 (4.5 + 20);
     sptrack->setZ0 (5.5 + 20);
@@ -222,7 +221,7 @@ void test1()
   }
 
   {
-    auto extrack = CxxUtils::make_unique<TrigMuonEFTrack> (1./87000, 1.3, 2.3, 7000);
+    auto extrack = std::make_unique<TrigMuonEFTrack> (1./87000, 1.3, 2.3, 7000);
     extrack->setCharge (3.5 + 40);
     extrack->setD0 (4.5 + 40);
     extrack->setZ0 (5.5 + 40);
