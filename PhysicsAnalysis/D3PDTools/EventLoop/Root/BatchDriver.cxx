@@ -683,7 +683,7 @@ namespace EL
     if (origHistOutput == nullptr)
     {
       origHistOutputMemory = std::make_unique<SH::DiskOutputLocal>
-        (config.location + "/fetch/hist-");
+        (location + "/fetch/hist-");
       origHistOutput = origHistOutputMemory.get();
     }
     RCU_ASSERT (origHistOutput != nullptr);
