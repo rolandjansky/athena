@@ -68,7 +68,7 @@ def pebInfoWriterToolFromDict(chainDict):
         addHLTResultToROBList(tool.ExtraROBs) # add the main (full) HLT result to the list
         return tool
     else:
-        log.error("Unknown name %s passed to pebInfoWriterToolFromDict" % name)
+        log.error("Unknown name %s passed to pebInfoWriterToolFromDict", name)
         sys.exit("Configuration error")
 
 def pebInfoWriterSequence(name,toolGenerator=pebInfoWriterToolFromDict):
@@ -91,7 +91,7 @@ def dataScoutingResultIDFromName(name):
     if "dataScoutingElectronTest" in name:
       return 3 # just an example
     else:
-      log.error("Unknown name %s, cannot assign result ID" % name)
+      log.error("Unknown name %s, cannot assign result ID", name)
       sys.exit("Configuration error")
 
 def dataScoutingInfoWriter(chainDict):

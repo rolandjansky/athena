@@ -17,7 +17,7 @@ atlas_add_alias( athenaHLT "athenaHLT.py" )
 
 # Check python syntax:
 atlas_add_test( flake8
-   SCRIPT flake8 --select=F,E7,E9,W6 --ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/bin
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --extend-ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/bin
    POST_EXEC_SCRIPT nopost.sh )
 
 # Tests:
