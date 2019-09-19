@@ -1,8 +1,11 @@
 #!/bin/sh
 #
-# art-description: Athena, with two threads in MT mode, runs muon segment finding from an ESD file
+# art-description: Athena (two thread mode only) runs muon segment finding, using the new job configuration system for Run 3, from an ESD file
 # art-type: grid
+# art-athena-mt: 8
 # art-include: master/Athena
+
+export ATHENA_CORE_NUMBER=8
 
 python $Athena_DIR/python/MuonConfig/MuonSegmentFindingConfig.py | tee temp1.log
 echo "art-result: ${PIPESTATUS[0]}"

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -47,12 +47,16 @@ class TPCnvList
   /// on each.  Stop once one succeeds.
   struct do_create_transient
   {
-    do_create_transient (CNV& parent, MsgStream& msg);
-  
+    do_create_transient (CNV& parent, const std::string& key, MsgStream& msg);
+
+    // FIXME: It would be better to pass a unique_ptr through here.
+    // But that requires the resolution of DR2055, which g++ only implements
+    // with c++20.
     template <class ELT>
     typename ELT::Trans_t* operator() (typename ELT::Trans_t* p, ELT& elt);
 
     CNV& m_parent;
+    const std::string& m_key;
     MsgStream& m_msg;
   };
 
@@ -61,13 +65,14 @@ class TPCnvList
   /// on each.  Stop once one succeeds.
   struct do_pers_to_trans
   {
-    do_pers_to_trans (CNV& parent, TRANS* trans, MsgStream& msg);
+    do_pers_to_trans (CNV& parent, TRANS* trans, const std::string& key, MsgStream& msg);
     
     template <class ELT>
     bool operator() (bool found, ELT& elt);
 
     CNV& m_parent;
     TRANS* m_trans;
+    const std::string& m_key;
     MsgStream& m_msg;
   };
 
@@ -89,6 +94,7 @@ public:
   /**
    * @brief Read the persistent object and convert it to transient.
    * @param parent The top-level pool converter object.
+   * @param key The SG key of the object being read.
    * @param msg MsgStream for error reporting.
    *
    * Returns a newly-allocated object.
@@ -96,13 +102,15 @@ public:
    * the type of any of our TP converters, return nullptr.
    * Other errors are reported by raising exceptions.
    */
-  TRANS* createTransient (CNV& parent, MsgStream& msg);
+  std::unique_ptr<TRANS>
+  createTransient (CNV& parent, const std::string& key, MsgStream& msg);
 
   
   /**
    * @brief Read the persistent object and convert it to transient.
    * @param parent The top-level pool converter object.
    * @param trans The transient object to modify.
+   * @param key The SG key of the object being read.
    * @param msg MsgStream for error reporting.
    *
    * Overwrites the provided transient object.
@@ -110,7 +118,7 @@ public:
    * the type of any of our TP converters, return false.
    * Other errors are reported by raising exceptions.
    */
-  bool persToTrans (CNV& parent, TRANS* trans, MsgStream& msg);
+  bool persToTrans (CNV& parent, TRANS* trans, const std::string& key, MsgStream& msg);
   
 
 private:

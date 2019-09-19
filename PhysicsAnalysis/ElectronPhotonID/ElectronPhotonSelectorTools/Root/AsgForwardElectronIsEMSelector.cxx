@@ -334,9 +334,12 @@ unsigned int AsgForwardElectronIsEMSelector::getNPrimVertices(const EventContext
 {
   unsigned int nVtx(0);
   SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey, ctx); 
+  if (!vtxCont.isValid()){
+    return nVtx;
+  }
   for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
-      const xAOD::Vertex* vtxcand = vtxCont->at(i);
-      if ( vtxcand->nTrackParticles() >= 3 ) nVtx++;
+    const xAOD::Vertex* vtxcand = vtxCont->at(i);
+    if ( vtxcand->nTrackParticles() >= 3 ) nVtx++;
   }
   return nVtx;
 }

@@ -3,6 +3,7 @@
 */
 
 #include <cstring>
+#include <boost/core/demangle.hpp>
 #include <boost/algorithm/string.hpp>
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/System.h"

@@ -16,63 +16,38 @@
 
 ElementTableCnv::ElementTableCnv( ISvcLocator *svcloc ) :
  ElementTableCnvBase(svcloc),
- m_msgSvc( msgSvc() ),
- m_log( m_msgSvc, "ElementTableCnv" )
+ m_msgSvc( msgSvc() )
  {}
- 
-//-----------------------------------------------------------------------------
-// Initializer
-//-----------------------------------------------------------------------------
-StatusCode ElementTableCnv::initialize()
+
+
+ElementTable_PERS*
+ElementTableCnv::createPersistentWithKey (Trk::ElementTable *etTrans,
+                                          const std::string& key)
 {
-  if (ElementTableCnvBase::initialize().isFailure() )
-  {
-    m_log << MSG::FATAL << "Could not initialize ElementTableCnvBase" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  return StatusCode::SUCCESS;
- 
-}
-
-ElementTable_PERS* ElementTableCnv::createPersistent(Trk::ElementTable *etTrans) {
-
-   // Message stream handling
-   m_log.setLevel( m_msgSvc->outputLevel() );
-   updateLog(); 
+   MsgStream log (m_msgSvc, "ElementTableCnv: " + key);
 
    // call to the converter
-   ElementTable_PERS * etPers = m_TPConverter.createPersistent(etTrans, m_log );
+   ElementTable_PERS * etPers = m_TPConverter.createPersistent(etTrans, log );
  
    return etPers;
 
 }//end of create persistent method
 
 
-Trk::ElementTable* ElementTableCnv::createTransient()
+Trk::ElementTable*
+ElementTableCnv::createTransientWithKey (const std::string& key)
 {
-   // Message stream handling
-   m_log.setLevel( m_msgSvc->outputLevel() );
-   updateLog(); 
+   MsgStream log (m_msgSvc, "ElementTableCnv: " + key);
 
-   static pool::Guid p1_guid( "B157B642-94C0-11E3-B1C2-02163E00A511" );
+   static const pool::Guid p1_guid( "B157B642-94C0-11E3-B1C2-02163E00A511" );
 
    Trk::ElementTable* tCollection = 0;
    if( compareClassGuid( p1_guid ) ) {
 
-      std::auto_ptr< ElementTable_PERS >  p_coll( poolReadObject< ElementTable_PERS >() );
-      tCollection = m_TPConverter.createTransient( p_coll.get(), m_log );
+      std::unique_ptr< ElementTable_PERS >  p_coll( poolReadObject< ElementTable_PERS >() );
+      tCollection = m_TPConverter.createTransient( p_coll.get(), log );
    }
  
    return tCollection;
 
-}
-
-void ElementTableCnv::updateLog(){ 
-    
-     const DataObject* dObj = getDataObject();
-     if (dObj==0) return; // Can't do much if this fails.
-     const std::string  key = (dObj->name());
- 
-     m_log.m_source="ElementTableCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
 }

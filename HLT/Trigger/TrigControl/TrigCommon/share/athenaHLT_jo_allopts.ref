@@ -108,7 +108,7 @@
             <HLTCommonParameters>
               <HLTCommonParameters>
                 <messageSvcType>TrigMessageSvc</messageSvcType>
-                <jobOptionsSvcType>JobOptionsSvc</jobOptionsSvcType>
+                <jobOptionsSvcType>TrigConf::JobOptionsSvc</jobOptionsSvcType>
               </HLTCommonParameters>
             </HLTCommonParameters>
             <logLevels>

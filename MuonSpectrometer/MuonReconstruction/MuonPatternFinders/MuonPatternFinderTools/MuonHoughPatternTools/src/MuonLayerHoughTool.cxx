@@ -2275,90 +2275,80 @@ namespace Muon {
     }
 
     // loop over all available RPC collection identifiers and order them per sector
-    if (m_muonIdHelperTool->hasRPC()) {
-      it = m_muonIdHelperTool->rpcIdHelper().module_begin();
-      it_end = m_muonIdHelperTool->rpcIdHelper().module_end();
-      for( ;it!=it_end; ++it ){
-        IdentifierHash hash;
-        m_muonIdHelperTool->rpcIdHelper().get_module_hash(*it,hash);
-        insertHash(hash,*it);
-      }
+    it = m_muonIdHelperTool->rpcIdHelper().module_begin();
+    it_end = m_muonIdHelperTool->rpcIdHelper().module_end();
+    for( ;it!=it_end; ++it ){
+      IdentifierHash hash;
+      m_muonIdHelperTool->rpcIdHelper().get_module_hash(*it,hash);
+      insertHash(hash,*it);
     }
 
     // loop over all available CSC collection identifiers and order them per sector
-    if (m_muonIdHelperTool->hasCSC()) {
-      it = m_muonIdHelperTool->cscIdHelper().module_begin();
-      it_end = m_muonIdHelperTool->cscIdHelper().module_end();
-      for( ;it!=it_end; ++it ){
-        IdentifierHash hash;
-        m_muonIdHelperTool->cscIdHelper().get_module_hash(*it,hash);
-        insertHash(hash,*it);
-      }
+    it = m_muonIdHelperTool->cscIdHelper().module_begin();
+    it_end = m_muonIdHelperTool->cscIdHelper().module_end();
+    for( ;it!=it_end; ++it ){
+      IdentifierHash hash;
+      m_muonIdHelperTool->cscIdHelper().get_module_hash(*it,hash);
+      insertHash(hash,*it);
     }
 
     // loop over all available MM collection identifiers and order them per sector
-    if (m_muonIdHelperTool->hasMM()) {
-      it = m_muonIdHelperTool->mmIdHelper().detectorElement_begin();
-      it_end = m_muonIdHelperTool->mmIdHelper().detectorElement_end();
-      for( ;it!=it_end; ++it ){
-        IdentifierHash hash;
-        m_muonIdHelperTool->mmIdHelper().get_module_hash(*it,hash);
-        insertHash(hash,*it);
-      }
+    it = m_muonIdHelperTool->mmIdHelper().detectorElement_begin();
+    it_end = m_muonIdHelperTool->mmIdHelper().detectorElement_end();
+    for( ;it!=it_end; ++it ){
+      IdentifierHash hash;
+      m_muonIdHelperTool->mmIdHelper().get_module_hash(*it,hash);
+      insertHash(hash,*it);
     }
 
     // loop over all available STGC collection identifiers and order them per sector
-    if (m_muonIdHelperTool->hasSTgc()) {
-      it = m_muonIdHelperTool->stgcIdHelper().detectorElement_begin();
-      it_end = m_muonIdHelperTool->stgcIdHelper().detectorElement_end();
-      for( ;it!=it_end; ++it ){
-        IdentifierHash hash;
-        m_muonIdHelperTool->stgcIdHelper().get_module_hash(*it,hash);
-        int sector = m_muonIdHelperTool->sector(*it);
-        insertHash(sector,hash,*it);
-        int sectorU = sector != 1 ? sector-1 : 16;
-        int sectorD = sector != 16 ? sector+1 : 1;
-        insertHash(sectorU,hash,*it);
-        insertHash(sectorD,hash,*it);
-      }
+    it = m_muonIdHelperTool->stgcIdHelper().detectorElement_begin();
+    it_end = m_muonIdHelperTool->stgcIdHelper().detectorElement_end();
+    for( ;it!=it_end; ++it ){
+      IdentifierHash hash;
+      m_muonIdHelperTool->stgcIdHelper().get_module_hash(*it,hash);
+      int sector = m_muonIdHelperTool->sector(*it);
+      insertHash(sector,hash,*it);
+      int sectorU = sector != 1 ? sector-1 : 16;
+      int sectorD = sector != 16 ? sector+1 : 1;
+      insertHash(sectorU,hash,*it);
+      insertHash(sectorD,hash,*it);
     }
 
     // loop over all available TGC collection identifiers and order them per sector
-    if (m_muonIdHelperTool->hasTGC()) {
-      it = m_muonIdHelperTool->tgcIdHelper().module_begin();
-      it_end = m_muonIdHelperTool->tgcIdHelper().module_end();
-      for( ;it!=it_end; ++it ){
-        const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(*it);
-        if( !detEl ) {
-          ATH_MSG_DEBUG(" No detector element found for " << m_muonIdHelperTool->toString(*it) );
-          continue;
-        }
-        IdentifierHash hash;
-        m_muonIdHelperTool->tgcIdHelper().get_module_hash(*it,hash);
-        int nstrips = detEl->getNStrips(1);
-        Amg::Vector3D p1 = detEl->channelPos(1,1,1);
-        Amg::Vector3D p2 = detEl->channelPos(1,1,nstrips);
-        std::vector<int> sectors1;
-        getSectors(p1,sectors1);
-        std::set<int> added;
-        std::vector<int>::iterator sit = sectors1.begin();
-        std::vector<int>::iterator sit_end = sectors1.end();
-        for( ;sit!=sit_end; ++sit ){
-          insertHash(*sit,hash,*it);
-          added.insert(*sit);
-        }
-
-        std::vector<int> sectors2;
-        getSectors(p2,sectors2);
-        sit = sectors2.begin();
-        sit_end = sectors2.end();
-        for( ;sit!=sit_end; ++sit ){
-          if( added.count(*sit) ) continue;
-          added.insert(*sit);
-          insertHash(*sit,hash,*it);
-        }
-
+    it = m_muonIdHelperTool->tgcIdHelper().module_begin();
+    it_end = m_muonIdHelperTool->tgcIdHelper().module_end();
+    for( ;it!=it_end; ++it ){
+      const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(*it);
+      if( !detEl ) {
+        ATH_MSG_DEBUG(" No detector element found for " << m_muonIdHelperTool->toString(*it) );
+        continue;
       }
+      IdentifierHash hash;
+      m_muonIdHelperTool->tgcIdHelper().get_module_hash(*it,hash);
+      int nstrips = detEl->getNStrips(1);
+      Amg::Vector3D p1 = detEl->channelPos(1,1,1);
+      Amg::Vector3D p2 = detEl->channelPos(1,1,nstrips);
+      std::vector<int> sectors1;
+      getSectors(p1,sectors1);
+      std::set<int> added;
+      std::vector<int>::iterator sit = sectors1.begin();
+      std::vector<int>::iterator sit_end = sectors1.end();
+      for( ;sit!=sit_end; ++sit ){
+        insertHash(*sit,hash,*it);
+        added.insert(*sit);
+      }
+
+      std::vector<int> sectors2;
+      getSectors(p2,sectors2);
+      sit = sectors2.begin();
+      sit_end = sectors2.end();
+      for( ;sit!=sit_end; ++sit ){
+        if( added.count(*sit) ) continue;
+        added.insert(*sit);
+        insertHash(*sit,hash,*it);
+      }
+
     }
 
     if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Printing collections per sector, number of technologies " << m_ntechnologies;

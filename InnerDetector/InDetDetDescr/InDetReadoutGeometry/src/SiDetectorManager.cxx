@@ -30,6 +30,13 @@ namespace InDetDD
         addFolder("/Indet/Align");
     }
 
+    SiDetectorManager::~SiDetectorManager()
+    {
+      for (const SiDetectorDesign* design : m_designs) {
+        delete design;
+      }
+    }
+
     const std::string& SiDetectorManager::tag() const
     {
         return m_tag;

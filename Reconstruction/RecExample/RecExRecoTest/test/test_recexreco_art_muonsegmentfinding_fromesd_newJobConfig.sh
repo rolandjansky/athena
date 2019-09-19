@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Athena runs muon segment finding from an ESD file
+# art-description: Athena (serial mode only) runs muon segment finding, using the new job configuration system for Run 3, from an ESD file
 # art-type: grid
 # art-include: master/Athena
 

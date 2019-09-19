@@ -12,6 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthService.h"
+#include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 namespace TrigConf {
 
@@ -22,9 +23,14 @@ namespace TrigConf {
    * and forwards most of the calls directly to it. Beyond this it provides
    * the ability to read the job configuration from JSON (file or DB) and
    * create a JSON dump of all configured properties when running from Python.
+   *
+   * The job property source is specified by the `TYPE` property:
+   *  - `NONE`: Default mode running from Python
+   *  - `FILE`: Run from JSON file (specified in `PATH`)
+   *  - `DB`:   Read properties from DB, connection string in `PATH`, see \ref parseDBString
+   *
    */
-  class JobOptionsSvc : public extends<AthService, IJobOptionsSvc>
-  {
+  class JobOptionsSvc : public extends<AthService, TrigConf::IJobOptionsSvc, ::IJobOptionsSvc> {
     using AthService::getProperties;
 
   public:
@@ -69,17 +75,31 @@ namespace TrigConf {
     virtual StatusCode readOptions(const std::string& file, const std::string& path = "") override;
     ///@}
 
+    /// @name TrigConf::IJobOptionsSvc interface
+    /// Configuration keys as provided during the job initialization
+    virtual const std::string& server() const override { return m_server; } ///< DB connection alias
+    virtual int superMasterKey() const override { return m_smk; }           ///< Return SMK (-1 if not set)
+    virtual int l1PrescaleKey() const override { return m_l1psk; }          ///< Return L1PSK (-1 if not set)
+    virtual int hltPrescaleKey() const override { return m_hltpsk; }        ///< Return HLTPSK (-1 if not set)
+    ///@}
+
   private:
     StatusCode dumpOptions(const std::string& file);
+    void parseDBString(const std::string& s);
+
+    int m_smk{-1};        ///< SuperMasterKey
+    int m_l1psk{-1};      ///< L1 prescale key
+    int m_hltpsk{-1};     ///< HLT prescale key
+    std::string m_server; ///< DB connection alias
 
     // Same properties as in Gaudi's JobOptionsSvc
     Gaudi::Property<std::string> m_sourceType{this, "TYPE", "NONE", "Configuration type (NONE, FILE, DB)"};
-    Gaudi::Property<std::string> m_sourcePath{this, "PATH", {}, "Path for FILE"};
+    Gaudi::Property<std::string> m_sourcePath{this, "PATH", {}, "Path for NONE/FILE, connection string for DB"};
     Gaudi::Property<std::string> m_searchPath{this, "SEARCHPATH", {}, "NOT SUPPORTED"};
     Gaudi::Property<std::string> m_dump{this, "DUMPFILE", {}, "Dump job properties into JSON file"};
 
     /// handle to the "real" IJobOptionsSvc
-    ServiceHandle<IJobOptionsSvc> m_josvc;
+    ServiceHandle<::IJobOptionsSvc> m_josvc;
   };
 
 } // namespace TrigConf
