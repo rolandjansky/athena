@@ -179,7 +179,7 @@ namespace xAOD {
     offDiagVec.reserve( ( ( cov.rows() - 1 ) * cov.rows() ) / 2 );
     for( int i = 1; i < cov.rows(); ++i ) {
       for( int j = 0; j < i; ++j ) {
-        offDiagVec.push_back( cov( i, j )/sqrt(cov( i, i )*cov( j, j ) );
+        offDiagVec.push_back( cov( i, j )/sqrt(cov( i, i )*cov( j, j )) );
       }
     }
     // Set the variable.
@@ -322,7 +322,7 @@ namespace xAOD {
     return accCovMatrixOffDiag( *this );
   }
 
-  const std::vector<float>& TrackParticle_v1::definingParametersCovMatrixVec() const {
+  std::vector<float>& TrackParticle_v1::definingParametersCovMatrixVec() const {
 
     std::vector< float > vec;
     AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(definingParametersCovMatrix());
@@ -382,7 +382,7 @@ namespace xAOD {
   void TrackParticle_v1::setDefiningParametersCovMatrixVec(const std::vector<float>& cov){
 
     xAOD::ParametersCovMatrix_t covMatrix;
-    if( !vec.empty() ) Amg::expand( cov.begin(), cov.end(),covMatrix );
+    if( !cov.empty() ) Amg::expand( cov.begin(), cov.end(),covMatrix );
     else covMatrix.setIdentity();
     setDefiningParametersCovMatrix( covMatrix );
 

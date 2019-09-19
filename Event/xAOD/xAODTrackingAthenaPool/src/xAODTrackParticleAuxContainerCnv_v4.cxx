@@ -17,6 +17,9 @@
 #include "xAODTrackParticleAuxContainerCnv_v4.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
+
+// Amg include
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 	
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
