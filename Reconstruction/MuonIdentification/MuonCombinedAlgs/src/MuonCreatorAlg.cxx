@@ -227,7 +227,6 @@ StatusCode MuonCreatorAlg::execute()
     int count_segs = 0;
     for (auto const& seg : *(wh_segment.ptr())) {
       count_segs++;
-      // ini_segsn.push_back(cbtrk->pt()/1000.0); // converted to GeV
       // ini_segseta.push_back(seg->eta());
       // ini_segsphi.push_back(seg->phi());
     }
