@@ -106,16 +106,26 @@ namespace xAOD {
         /// @brief Returns a SVector of the Perigee track parameters. 
         /// i.e. a vector of
         ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\end{array}\right)\f$
-        const DefiningParameters_t definingParameters() const;
+        DefiningParameters_t definingParameters() const;
         /// Returns the 5x5 symmetric matrix containing the defining parameters covariance matrix.
-        const ParametersCovMatrix_t definingParametersCovMatrix() const;  
+        ParametersCovMatrix_t definingParametersCovMatrix() const;
+        /// Returns a 5x5 matrix describing which elements of the covariance matrix are known
+        ParametersCovMatrixFilled_t definingParametersCovMatrixFilled() const;
+        /// Returns the diagonal elements of the defining parameters covariance matrix
+        const std::vector< float >& definingParametersCovMatrixDiagVec() const;
+        /// Returns the off-diagonal elements of the defining parameters covariance matrix
+        const std::vector< float >& definingParametersCovMatrixOffDiagVec() const;
         /// Returns the length 6 vector containing the elements of defining parameters covariance matrix.
-        const std::vector<float>& definingParametersCovMatrixVec() const;   
+        std::vector<float>& definingParametersCovMatrixVec() const;
         /// Set the defining parameters.     
         void setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP);
         /// Set the defining parameters covariance matrix.
         void setDefiningParametersCovMatrix(const ParametersCovMatrix_t& cov);
         /// Set the defining parameters covariance matrix using a length 15 vector.
+        /// Set the diagonal elements of the defining parameters covariance matrix
+        void setDefiningParametersCovMatrixDiagVec( const std::vector< float >& vec );
+        /// Set the off-diagonal elements of the defining parameters covariance matrix
+        void setDefiningParametersCovMatrixOffDiagVec( const std::vector< float >& vec );
         void setDefiningParametersCovMatrixVec(const std::vector<float>& cov);
         /// The x origin for the parameters.
         float vx() const;

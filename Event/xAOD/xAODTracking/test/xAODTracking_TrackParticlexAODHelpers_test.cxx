@@ -215,9 +215,9 @@ void test_d0significance() {
       double phi2 =p->phi();
       assert( checkEqual<float>(phi2, phi));
       assert( checkEqual<float>(ref_d0, p->d0()));
-      double d0_uncert2 = p->definingParametersCovMatrixVec()[0];
+      double d0_uncert2 = p->definingParametersCovMatrixDiagVec()[0];
       assert( checkEqual<float>(sqr(ref_d0_uncert), d0_uncert2));
-      expected_d0_uncert_2=p->definingParametersCovMatrixVec()[0]  + sin(phi2)*(sin(phi2)*sqr(vx_cov)-cos(phi2)*vxy_cov)+cos(phi2)*(cos(phi2)*sqr(vy_cov)-sin(phi2)*vxy_cov);
+      expected_d0_uncert_2=p->definingParametersCovMatrixDiagVec()[0]  + sin(phi2)*(sin(phi2)*sqr(vx_cov)-cos(phi2)*vxy_cov)+cos(phi2)*(cos(phi2)*sqr(vy_cov)-sin(phi2)*vxy_cov);
 
       assert( expected_d0_uncert_2 >= 0.);
       double expected_d0_significance = ref_d0 / sqrt( expected_d0_uncert_2);

@@ -31,6 +31,7 @@ namespace xAOD {
   //typedef ROOT::Math::SVector<float,5>                                       DefiningParameters_t;
   //typedef ROOT::Math::SVector<float,6>                                       CurvilinearParameters_t;
   typedef AmgSymMatrix(5)                                                       ParametersCovMatrix_t;
+  typedef Eigen::Matrix< bool, 5, 5, 0, 5, 5 >                                  ParametersCovMatrixFilled_t;
   typedef AmgVector(5)                                                          DefiningParameters_t;
   typedef AmgVector(6)                                                          CurvilinearParameters_t;
     /// Enums to identify who created this track and which properties does it have.
@@ -447,6 +448,24 @@ namespace xAOD {
   } // namespace VxType
 } //  namespace xAOD 
 
+namespace {
+  /// Helper function creating a matrix representing a fully available
+  /// covariance matrix.
+  xAOD::ParametersCovMatrixFilled_t makeFullCovMatrix() {
+    xAOD::ParametersCovMatrixFilled_t result;
+    result.setOnes();
+    return result;
+  }
+  /// Helper function creating a matrix representing a covariance matrix
+  /// for which only the diagonal elements are available.
+  xAOD::ParametersCovMatrixFilled_t makeDiagCovMatrix() {
+    xAOD::ParametersCovMatrixFilled_t result;
+    for( int i = 0; i < result.rows(); ++i ) {
+      result( i, i ) = true;
+    }
+    return result;
+  }
+}
 
 namespace SG {
 
