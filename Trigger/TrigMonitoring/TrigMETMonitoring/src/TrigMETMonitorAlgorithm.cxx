@@ -43,31 +43,31 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // access met containers
     SG::ReadHandle<xAOD::EnergySumRoI> l1_roi_cont(m_lvl1_roi_key, ctx);
     if (! l1_roi_cont.isValid() ) {     
-      ATH_MSG_INFO("evtStore() does not contain L1 MET Collection with name "<< m_lvl1_roi_key);
+      ATH_MSG_WARNING("evtStore() does not contain L1 MET Collection with name "<< m_lvl1_roi_key);
       //return StatusCode::FAILURE;
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
     if (hlt_cell_met_cont->size()==0 || ! hlt_cell_met_cont.isValid() ) {
-      ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_cell_met_key);
+      ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_cell_met_key);
       //return StatusCode::FAILURE;
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mht_met_cont(m_hlt_mht_met_key, ctx);
     if (hlt_mht_met_cont->size()==0 || ! hlt_mht_met_cont.isValid() ) {
-	ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_mht_met_key);
+	ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_mht_met_key);
 	//return StatusCode::FAILURE;
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_met_cont(m_hlt_tc_met_key, ctx);
     if (hlt_tc_met_cont->size()==0 || ! hlt_tc_met_cont.isValid() ) {
-	ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tc_met_key);
+	ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tc_met_key);
 	//return StatusCode::FAILURE;
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_met_cont(m_hlt_tcpufit_met_key, ctx);
     if (hlt_tcpufit_met_cont->size()==0 || ! hlt_tcpufit_met_cont.isValid() ) {
-	ATH_MSG_INFO("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tcpufit_met_key);
+	ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tcpufit_met_key);
 	//return StatusCode::FAILURE;
     }
     
@@ -138,14 +138,24 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // TDT test
     if (m_trigDecTool->isPassed("HLT_xe30_cell_L1XE10")) {
-      ATH_MSG_INFO("passed HLT_xe30_cell_L1XE10");
+      ATH_MSG_DEBUG("passed HLT_xe30_cell_L1XE10");
     } else {
-      ATH_MSG_INFO("not passed HLT_xe30_cell_L1XE10");
+      ATH_MSG_DEBUG("not passed HLT_xe30_cell_L1XE10");
     }
-    if (m_trigDecTool->isPassed("HLT_xe110_pufit_xe70_L1XE50")) {
-      ATH_MSG_INFO("passed HLT_xe110_pufit_xe70l_L1XE50");
+    if (m_trigDecTool->isPassed("HLT_xe30_cell_xe30_tcpufit_L1XE10")) {
+      ATH_MSG_DEBUG("passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
     } else {
-      ATH_MSG_INFO("not passed HLT_xe110_pufit_xe70_L1XE50");
+      ATH_MSG_DEBUG("not passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
+    }
+    if (m_trigDecTool->isPassed("HLT_xe30_tcpufit_L1XE10")) {
+      ATH_MSG_DEBUG("passed HLT_xe30_tcpufit_L1XE10");
+    } else {
+      ATH_MSG_DEBUG("not passed HLT_xe30_tcpufit_L1XE10");
+    }
+    if (m_trigDecTool->isPassed(m_triggerChainString)) {
+      ATH_MSG_DEBUG("passed " << m_triggerChainString);
+    } else {
+      ATH_MSG_DEBUG("not passed " << m_triggerChainString);
     }
 
     // check active triggers
@@ -155,7 +165,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecTool->getChainGroup(trig);
       std::string thisTrig = trig;
-      ATH_MSG_INFO (thisTrig << " chain prescale = " << cg->getPrescale());
+      ATH_MSG_DEBUG (thisTrig << " chain prescale = " << cg->getPrescale());
     }
      */
 

@@ -51,9 +51,10 @@ def TrigMETMonConfig(inputFlags):
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     if TriggerFlags.EDMDecodingVersion==3:
         expertTrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
-        expertTrigMETMonAlg.hlt_cell_key = 'HLT_MET'
-        shifterTrigMETMonAlg.hlt_cell_key = 'HLT_MET'
-        TrigMETMonitorAlgorithm.hlt_cell_key = 'HLT_MET'
+        #shifterTrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
+        #expertTrigMETMonAlg.hlt_cell_key = 'HLT_MET'
+        #shifterTrigMETMonAlg.hlt_cell_key = 'HLT_MET'
+        #TrigMETMonitorAlgorithm.hlt_cell_key = 'HLT_MET'
     else:
         expertTrigMETMonAlg.TriggerChain = 'HLT_xe110_pufit_xe65_L1XE50'
         TrigMETMonitorAlgorithm.hlt_cell_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET'
@@ -91,35 +92,35 @@ def TrigMETMonConfig(inputFlags):
     # Configure histograms
     #NB! The histograms defined here must match the ones in the cxx file exactly
     shifterGroup.defineHistogram('L1_Ex',title='L1 Missing E_{x};E_{x} (GeV);Events',
-                            path='L1',xbins=199,xmin=-298.5,xmax=298.5)
+                                 path='L1',xbins=199,xmin=-298.5,xmax=298.5)
     shifterGroup.defineHistogram('L1_Ey',title='L1 Missing E_{y};E_{y} (GeV);Events',
-                            path='L1',xbins=199,xmin=-298.5,xmax=298.5)
+                                 path='L1',xbins=199,xmin=-298.5,xmax=298.5)
     shifterGroup.defineHistogram('L1_Et',title='L1 Missing E_{T};E_{T} (GeV);Events',
-                            path='L1',xbins=205,xmin=-13.5,xmax=401.5)
+                                 path='L1',xbins=205,xmin=-13.5,xmax=401.5)
     shifterGroup.defineHistogram('cell_Ex',title='cell Missing E_{x};E_{x} (GeV);Events',
-                            path='cell',xbins=199,xmin=-298.5,xmax=298.5)
+                                 path='cell',xbins=199,xmin=-298.5,xmax=298.5)
     shifterGroup.defineHistogram('cell_Ey',title='cell Missing E_{y};E_{y} (GeV);Events',
-                            path='cell',xbins=199,xmin=-298.5,xmax=298.5)
+                                 path='cell',xbins=199,xmin=-298.5,xmax=298.5)
     shifterGroup.defineHistogram('cell_Et',title='cell Missing E_{T};E_{T} (GeV);Events',
-                            path='cell',xbins=205,xmin=-13.5,xmax=401.5)
+                                 path='cell',xbins=205,xmin=-13.5,xmax=401.5)
     shifterGroup.defineHistogram('tcpufit_Ex',title='tcpufit Missing E_{x};E_{x} (GeV);Events',
-                            path='tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
+                                 path='tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
     shifterGroup.defineHistogram('tcpufit_Ey',title='tcpufit Missing E_{y};E_{y} (GeV);Events',
-                            path='tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
+                                 path='tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
     shifterGroup.defineHistogram('tcpufit_Et',title='tcpufit Missing E_{T};E_{T} (GeV);Events',
-                            path='tcpufit',xbins=205,xmin=-13.5,xmax=401.5)
+                                 path='tcpufit',xbins=205,xmin=-13.5,xmax=401.5)
     expertGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} (GeV);Events',
-                         path='mht',xbins=199,xmin=-298.5,xmax=298.5)
+                                path='mht',xbins=199,xmin=-298.5,xmax=298.5)
     expertGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} (GeV);Events',
-                         path='mht',xbins=199,xmin=-298.5,xmax=298.5)
+                                path='mht',xbins=199,xmin=-298.5,xmax=298.5)
     expertGroup.defineHistogram('mht_Et', title='mht E_{T};E_{T} (GeV);Events',
-                            path='mht',xbins=205,xmin=-13.5,xmax=401.5)
+                                path='mht',xbins=205,xmin=-13.5,xmax=401.5)
     expertGroup.defineHistogram('tc_Ex',title='tc Missing E_{x};E_{x} (GeV);Events',
-                         path='tc',xbins=199,xmin=-298.5,xmax=298.5)
+                                path='tc',xbins=199,xmin=-298.5,xmax=298.5)
     expertGroup.defineHistogram('tc_Ey',title='tc Missing E_{y};E_{y} (GeV);Events',
-                         path='tc',xbins=199,xmin=-298.5,xmax=298.5)
+                                path='tc',xbins=199,xmin=-298.5,xmax=298.5)
     expertGroup.defineHistogram('tc_Et', title='tc E_{T};E_{T} (GeV);Events',
-                            path='tc',xbins=205,xmin=-13.5,xmax=401.5)
+                                path='tc',xbins=205,xmin=-13.5,xmax=401.5)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -142,9 +143,9 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
-    #ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.Files = ['/hep300/data/khamano/data18_athenaMT/fromElin/AOD.pool.root']
-    ConfigFlags.Input.isMC = True
+    ConfigFlags.Input.Files = [nightly+file]
+    #ConfigFlags.Input.Files = ['/hep300/data/khamano/data18_athenaMT/fromElin/AOD_old.pool.root']
+    ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'TrigMETMonitorOutput.root'
     
     ConfigFlags.lock()
