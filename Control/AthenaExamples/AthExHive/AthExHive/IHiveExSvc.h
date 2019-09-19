@@ -1,6 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/**
+ * @file  IHiveExSvc.h
+ * @brief Abstract Interface class for HiveExSvc, that accumualtes
+ * Algorithm run times by name
+ */
+
 
 #ifndef ATHEXHIVE_IHIVEEXSVC_H
 #define ATHEXHIVE_IHIVEEXSVC_H 1
@@ -19,13 +26,8 @@ class GAUDI_API IHiveExSvc : virtual public IService {
   
  public:
 
-  virtual int get() const = 0;
-  virtual int getTL() const = 0;
-
-  virtual void set(const int&) = 0;
-  virtual void setTL(const int&) = 0;
-
-  virtual void add(const std::string&, const int&) = 0;
+  // accumulate timing info
+  virtual void add(const std::string&, const unsigned int&) = 0;
 
 };
 
