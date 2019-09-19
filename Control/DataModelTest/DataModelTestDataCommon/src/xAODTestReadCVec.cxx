@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id$
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ */
 /**
- * @file  DataModelTestDataRead/src/xAODTestReadCVec.cxx
+ * @file  DataModelTestDataCommon/src/xAODTestReadCVec.cxx
  * @author snyder@bnl.gov
  * @date Apr, 2016
  * @brief Algorithm to test reading xAOD data (CVec).
