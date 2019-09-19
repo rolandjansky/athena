@@ -303,7 +303,6 @@ void LArCellCont::applyBCIDCorrection(const unsigned int& rodid){
   m_it = (std::vector<LArCellCollection*>::const_iterator)((*this).begin()+idx);
   LArCellCollection* col = (*m_it);
   unsigned int itsize = col->size();
-  std::cout << "in LArCellCont::applyBCIDCorrection " << itsize << std::endl;
   std::vector<int>& hashTab = m_hashSym[idx];
   if ( !m_BCIDcache ) { updateBCID(); m_BCIDcache=true; m_corrBCIDref = m_corrBCID[0]; }
   for(unsigned int i=0; i< itsize; ++i){
