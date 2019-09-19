@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHIVE_ALGL1_H
 #define ATHEXHIVE_ALGL1_H 1
 
-#include "HiveAlgBase.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
-#include "HiveAlgBase.h"
+#include "../HiveAlgBase.h"
 
 #include <string>
 
