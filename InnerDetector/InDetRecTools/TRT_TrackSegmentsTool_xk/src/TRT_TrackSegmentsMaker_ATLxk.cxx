@@ -21,7 +21,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetReadoutGeometry/TRT_Numerology.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "StoreGate/ReadHandle.h"
 ///////////////////////////////////////////////////////////////////
@@ -32,8 +31,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                                ,
     m_propTool     ("Trk::RungeKuttaPropagator"                  ),
-    m_extensionTool("InDet::TRT_TrackExtensionTool_xk"           ),
-    m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels")
+    m_extensionTool("InDet::TRT_TrackExtensionTool_xk"           )
 {
   m_fieldmode   =      "MapSolenoid" ;
   m_pTmin       =                500.;
@@ -45,7 +43,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   m_ndzdr       =                  0 ;
   m_circles     =                  0 ;
   m_clustersCut =                 10 ;
-  m_useassoTool =                true;
   m_removeNoise =                true;
   m_build       =               false;
   m_gupdate     =               false;
@@ -53,14 +50,12 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   declareInterface<ITRT_TrackSegmentsMaker>(this);
 
   declareProperty("PropagatorTool"         ,m_propTool     );
-  declareProperty("AssosiationTool"        ,m_assoTool     );
   declareProperty("TrackExtensionTool"     ,m_extensionTool);
   declareProperty("MagneticFieldMode"      ,m_fieldmode    );
   declareProperty("TrtManagerLocation"     ,m_ntrtmanager  );
   declareProperty("NumberAzimuthalChannel" ,m_nPhi         ); 
   declareProperty("NumberMomentumChannel"  ,m_nMom         ); 
   declareProperty("MinNumberDriftCircles"  ,m_clustersCut  );
-  declareProperty("UseAssosiationTool"     ,m_useassoTool  ); 
   declareProperty("RemoveNoiseDriftCircles",m_removeNoise  );
   declareProperty("pTmin"                  ,m_pTmin        );
   declareProperty("sharedFrac"             ,m_sharedfrac   );
@@ -121,16 +116,8 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_extensionTool << endmsg;
   }
 
-  // Get tool for track-prd association
-  //
-  if( m_useassoTool ) {
-    if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
-    }
-  }
+  // PRD-to-track association (optional)
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
   // Get  TRT Detector Manager
   //
@@ -205,6 +192,16 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
     return;
   }
 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   if (not trtcontainer.isValid()) return;
   // Initiate extension tool
   //
@@ -238,7 +235,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
       c  = (*w)->begin(), ce = (*w)->end();
     for(; c!=ce; ++c) {
 
-      if(m_useassoTool &&  m_assoTool->isUsed(*(*c))) continue;
+      if(prd_to_track_map_cptr &&  prd_to_track_map_cptr->isUsed(*(*c))) continue;
       if(m_removeNoise && (*c)->isNoise()           ) continue;
 
       if(n >= m_cirsize) break;
@@ -284,6 +281,16 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
     return;
   }
 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   if(not trtcontainer.isValid()) return;
   // Initiate extension tool
   //
@@ -317,7 +324,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 
       for(; c!=ce; ++c) {
 
-	if(m_useassoTool &&  m_assoTool->isUsed(*(*c))) continue;
+	if(prd_to_track_map_cptr &&  prd_to_track_map_cptr->isUsed(*(*c))) continue;
 	if(m_removeNoise && (*c)->isNoise()           ) continue;
 	
 	if(n >= m_cirsize) break;
@@ -401,12 +408,22 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find()
   if(fbin!=99999999 && nbins>=5) m_sizebin.insert(std::make_pair(nbins,fbin));
   m_sizebin_iterator = m_sizebin.rbegin();
 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   // Local reconstruction and track segments production
   //
   while(m_sizebin_iterator!=m_sizebin.rend()) {
 
     unsigned int bin =(*m_sizebin_iterator++).second; 
-    findLocaly(bin); 
+    findLocaly(bin,prd_to_track_map_cptr);
   }
 
   // Final segments preparation
@@ -463,16 +480,12 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   n     = 62-m_extensionTool.type().size();
   std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
 
-  n     = 62-m_assoTool.type().size();
-  std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
-
 
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
        <<std::endl;
   out<<"| Tool for propagation    | "<<m_propTool     .type()<<s1<<std::endl;
   out<<"| Tool tracks extension   | "<<m_extensionTool.type()<<s7<<std::endl;    
-  out<<"| Tool track-prd associa  | "<<m_assoTool     .type()<<s8<<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]       <<s3<<std::endl;
   out<<"| TRT container           | "<<m_trtname.key().size()             <<s4<<std::endl;
   out<<"| Min. number straws      | "
@@ -514,8 +527,8 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   out<<"| Number cluster links    | "
      <<std::setw(12)<<m_cirsize
      <<"                                                  |"<<std::endl;
-  out<<"| Use association tool ?  | "
-     <<std::setw(12)<<m_useassoTool 
+  out<<"| Use PRD-to-track assoc.?| "
+     <<std::setw(12)<< (!m_prdToTrackMap.key().empty() ? "yes" : "no ")
      <<"                                                  |"<<std::endl;
   out<<"| Remove noise   ?        | "
      <<std::setw(12)<<m_removeNoise
@@ -923,7 +936,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::analyseHistogramm
 // TRT seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin)
+void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk::PRDtoTrackMap *prd_to_track_map)
 {
   const double pi=M_PI, pi2 = 2.*M_PI;
    
@@ -1013,7 +1026,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin)
   std::vector<const Trk::MeasurementBase*>::const_iterator
     s = seg->containedMeasurements().begin(), se = seg->containedMeasurements().end();
 
-  if(m_useassoTool) {
+  if(prd_to_track_map) {
     
     // Test number unused drift circles 
     //
@@ -1023,7 +1036,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin)
       const Trk::RIO_OnTrack*  rio = dynamic_cast<const Trk::RIO_OnTrack*>(*s);
       if(rio) {
 	++ntot;
-	if (m_assoTool->isUsed(*rio->prepRawData())) ++nu;
+	if (prd_to_track_map->isUsed(*rio->prepRawData())) ++nu;
       }
     }
     // ME: use fraction cut

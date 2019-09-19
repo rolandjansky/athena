@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //**************************************************************************
@@ -31,6 +31,7 @@
 
 ///Needed for the TRT track segments
 #include "TrkSegment/SegmentCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 //!< Trigger specific stuff
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -104,6 +105,9 @@ namespace InDet {
       ToolHandle<ITRT_SeededTrackFinder>   m_trackmaker     ;  //Track maker tool
       ToolHandle<Trk::ITrackFitter>        m_fitterTool     ;  //Refitting tool
       ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension   ; // TRT track extension tool
+
+      StringProperty m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};                           //!< map between PRDs and tracks to identify shared hits.
 
       const Trk::SegmentCollection      *m_Segments{}         ;  // Segments to use
 

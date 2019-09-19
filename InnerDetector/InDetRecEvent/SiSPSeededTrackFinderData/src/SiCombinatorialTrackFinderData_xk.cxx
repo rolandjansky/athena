@@ -16,7 +16,6 @@ namespace InDet {
   void SiCombinatorialTrackFinderData_xk::setTools(const Trk::IPatternParametersPropagator* propTool,
                                                    const Trk::IPatternParametersUpdator* updatorTool,
                                                    const Trk::IRIO_OnTrackCreator* rioTool,
-                                                   const Trk::IPRD_AssociationTool* assoTool,
                                                    MagField::IMagFieldSvc* fieldService,
                                                    const IInDetConditionsTool* pixCondTool,
                                                    const IInDetConditionsTool* sctCondTool,
@@ -27,7 +26,6 @@ namespace InDet {
     m_tools.setTools(propTool,
                      updatorTool,
                      rioTool,
-                     assoTool,
                      fieldService);
     m_tools.setTools(pixCondTool,
                      sctCondTool);

@@ -26,6 +26,7 @@
 
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 
+#include "TrigNavigation/NavigationCore.icc"
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////
@@ -137,6 +138,33 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltInitialize() {
   return HLT::OK;
 }
 
+namespace InDet {
+    class FeatureAccessor : public HLT::FexAlgo 
+    {
+    public:
+       //make the getFeature method public
+       template<class T> HLT::ErrorCode getFeature(const HLT::TriggerElement* te, const T*&  feature, 
+                                                    const std::string& label = "") {
+           return HLT::Algo::getFeature(te,feature,label);
+       }
+    };
+
+    class ExtendedSiCombinatorialTrackFinderData_xk : public SiCombinatorialTrackFinderData_xk {
+    public:
+      ExtendedSiCombinatorialTrackFinderData_xk(HLT::FexAlgo &algo, const HLT::TriggerElement* outputTE, const std::string &key) {
+        const Trk::PRDtoTrackMap *prd_to_track_map_cptr;
+        HLT::ErrorCode stat = reinterpret_cast<FeatureAccessor &>(algo).getFeature(outputTE, prd_to_track_map_cptr, key);
+        if(stat!= HLT::OK){
+          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key);
+        }
+        setPRDtoTrackMap(prd_to_track_map_cptr);
+      }
+
+    protected:
+      void dummy() override {}
+    };
+}
+
 ///////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
@@ -207,7 +235,7 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
   }
 
   // Event dependent data of SiCombinatorialTrackFinder_xk
-  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+  InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(*this, outputTE, m_prdToTrackMap);
 
   ///Initialize the TRT seeded track tool's new event
   if(!m_doFullScan){
