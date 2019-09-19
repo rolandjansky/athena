@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -16,7 +16,6 @@ decription           : Implementation code for GsfMeasurementUpdator class
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
-#include "CxxUtils/make_unique.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
 #include "GaudiKernel/Chrono.h"
