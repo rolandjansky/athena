@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file is basically a concatenation of all the *.cxx files.
@@ -39,6 +39,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 
+#include <memory>
 #include <vector>
 
 
@@ -1192,20 +1193,20 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
   double etaPitch = m_gmt_mgr->DesignPitchZ(isBLayer);
 
  
-  PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
-  PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, bigEtaPitch); 
+  std::shared_ptr<const PixelDiodeMatrix> normalCell = PixelDiodeMatrix::construct(phiPitch, etaPitch); 
+  std::shared_ptr<const PixelDiodeMatrix> bigCell = PixelDiodeMatrix::construct(phiPitch, bigEtaPitch); 
 
-  PixelDiodeMatrix * singleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
+  std::shared_ptr<const PixelDiodeMatrix> singleChipRow = PixelDiodeMatrix::construct(PixelDiodeMatrix::etaDir,
 							  bigCell, 
 							  normalCell, 
 							  DiodeColPerCirc-2,
 							  bigCell);
 
-  PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-						      0, singleChipRow, CircPerRow, 0);
+  std::shared_ptr<const PixelDiodeMatrix> singleRow = PixelDiodeMatrix::construct(PixelDiodeMatrix::etaDir,
+						      nullptr, singleChipRow, CircPerRow, nullptr);
 
-  PixelDiodeMatrix * fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-						       0, singleRow, DiodeRowPerCirc, 0);
+  std::shared_ptr<const PixelDiodeMatrix> fullMatrix = PixelDiodeMatrix::construct(PixelDiodeMatrix::phiDir,
+						       nullptr, singleRow, DiodeRowPerCirc, nullptr);
 
   PixelModuleDesign *p_barrelDesign2 = new PixelModuleDesign(thickness,
 							     CircPerCol,
