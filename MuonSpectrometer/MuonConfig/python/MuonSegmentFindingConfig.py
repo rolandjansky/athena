@@ -701,13 +701,30 @@ def MuonSegmentFindingCfg(flags):
     result.merge(acc)
     return result
 
-if __name__=="__main__":
+if __name__=="__main__":                        
     # To run this, do e.g. 
-    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonSegmentFindingConfig.py
+    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonSegmentFindingConfig.py\
+    
+    from argparse import ArgumentParser
+    
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--threads", dest="threads",
+                        help="number of threads", default=0)
+    parser.add_argument("-e", "--concurrent-events", dest="concurrentevents",
+                        help="number of concurrent events", default=0)
+                        
+    parser.add_argument("-o", "--output", dest="output", default='newESD.pool.root',
+                        help="write ESD to FILE", metavar="FILE")
+    args = parser.parse_args()
+    
     from AthenaCommon.Configurable import Configurable
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Concurrency.NumThreads=args.threads
+    ConfigFlags.Concurrency.NumConcurrentEvents=args.concurrentevents
 
     Configurable.configurableRun3Behavior=1
 
@@ -717,7 +734,7 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryRPC   = True 
     
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    ConfigFlags.Output.ESDFileName='newESD.pool.root'
+    ConfigFlags.Output.ESDFileName=args.output
     
     # from AthenaCommon.Constants import DEBUG
     #log.setLevel(DEBUG)
@@ -725,9 +742,7 @@ if __name__=="__main__":
     
     ConfigFlags.Input.isMC = True
     ConfigFlags.lock()
-    
-    # import pdb; pdb.set_trace()
-    
+        
     from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
     cfg = MainServicesThreadedCfg(ConfigFlags)
 
@@ -736,13 +751,13 @@ if __name__=="__main__":
 
     cfg.merge(MuonSegmentFindingCfg(ConfigFlags))
 
-    # from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    # itemsToRecord = ["Trk::SegmentCollection#MuonSegments"]
-    #
-    # cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
-    # outstream = cfg.getEventAlgo("OutputStreamESD")
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    itemsToRecord = ["Trk::SegmentCollection#MuonSegments"]
+
+    cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
+    outstream = cfg.getEventAlgo("OutputStreamESD")
     # outstream.OutputLevel=DEBUG
-    # outstream.ForceRead = True
+    outstream.ForceRead = False
 
     ConfigFlags.dump()
     cfg.printConfig()
@@ -753,5 +768,5 @@ if __name__=="__main__":
     cfg.store(f)
     f.close()
 
-    # cfg.run()
+    cfg.run()
     

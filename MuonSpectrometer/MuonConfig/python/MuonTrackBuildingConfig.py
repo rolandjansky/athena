@@ -311,7 +311,7 @@ def MuonTrackBuildingCfg(flags):
     result.merge(acc)
     result.addPublicTool(track_steering)
     
-    track_builder = MuPatTrackBuilder("MuPatTrackBuilder", TrackSteering = track_steering )
+    track_builder = MuPatTrackBuilder("MuPatTrackBuilder", TrackSteering = track_steering, MuonSegmentCollection="MuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
     result.addEventAlgo( track_builder )
     return result
     
@@ -319,12 +319,28 @@ def MuonTrackBuildingCfg(flags):
 if __name__=="__main__":
     # To run this, do e.g. 
     # python ../athena/MuonSpectrometer/MuonConfig/python/MuonTrackBuildingConfig.py
+    
+    from argparse import ArgumentParser
+    
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--threads", dest="threads",
+                        help="number of threads", default=0)
+    parser.add_argument("-e", "--concurrent-events", dest="concurrentevents",
+                        help="number of concurrent events", default=0)
+                        
+    parser.add_argument("-o", "--output", dest="output", default='newESD.pool.root',
+                        help="write ESD to FILE", metavar="FILE")
+    args = parser.parse_args()
+    
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
     from AthenaCommon.Logging import log
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-   
+    
+    ConfigFlags.Concurrency.NumThreads=args.threads
+    ConfigFlags.Concurrency.NumConcurrentEvents=args.concurrentevents
+
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryCSC   = True     
@@ -332,9 +348,12 @@ if __name__=="__main__":
         
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    ConfigFlags.Output.ESDFileName='newESD.pool.root'
-    
-    from AthenaCommon.Constants import DEBUG
+    ConfigFlags.Output.ESDFileName=args.output
+
+    # from AthenaCommon.Constants import DEBUG
+    #log.setLevel(DEBUG)
+    log.debug('About to set up Muon Track Building.')    
+    # from AthenaCommon.Constants import DEBUG
     # log.setLevel(DEBUG)
     # log.info('About to set up Muon Track Building.')
     
@@ -345,11 +364,6 @@ if __name__=="__main__":
 
     from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
     cfg = MainServicesThreadedCfg(ConfigFlags)
-    
-    # cfg = ComponentAccumulator()
-    # acc = MainServicesThreadedCfg(ConfigFlags)
-    # print acc._isMergable
-    # cfg.merge(acc)
     
     log.info(cfg._allSequences)
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -366,7 +380,7 @@ if __name__=="__main__":
     log.info(cfg._allSequences)
     
     outstream = cfg.getEventAlgo("OutputStreamESD")
-    outstream.OutputLevel=DEBUG
+    # outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
     
     # cfg.printConfig(withDetails = True, summariseProps = True)
@@ -375,4 +389,4 @@ if __name__=="__main__":
     cfg.store(f)
     f.close()
 
-    # cfg.run()
+    cfg.run()
