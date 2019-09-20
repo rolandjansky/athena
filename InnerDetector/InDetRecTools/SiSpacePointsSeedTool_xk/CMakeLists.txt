@@ -18,17 +18,21 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkEvent/TrkSpacePoint			  
+			  Control/AthenaServices
                           PRIVATE
                           Tracking/TrkTools/TrkToolInterfaces 
 			  Tracking/TrkEvent/TrkTrack
                           Event/xAOD/xAODEventInfo
 			  Event/xAOD/xAODTruth )
 
+find_package( CLHEP )
+
 # Component(s) in the package:
 atlas_add_component( SiSpacePointsSeedTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed 
+		     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaServices AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed 
                      InDetRecToolInterfaces MagFieldInterfaces TrkSurfaces TrkPseudoMeasurementOnTrack TrkSpacePoint 
 		     TrkToolInterfaces xAODTruth ITrackToVertex xAODEventInfo )
 

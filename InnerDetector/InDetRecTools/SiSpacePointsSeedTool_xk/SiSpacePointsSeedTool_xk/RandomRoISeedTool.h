@@ -15,9 +15,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkTrack/Track.h"
 #include "TRandom3.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 
 class MsgStream;
+
+namespace CLHEP {
+  class RandGauss;
+}
 
 namespace InDet {
 
@@ -60,6 +66,11 @@ namespace InDet {
     //* Input track collection *//
     //std::string m_input_truth_events; ///< input truth events collection name
     float m_z0_window; ///< width of z0 window
+
+    ServiceHandle<IAtRndmGenSvc> m_atRndmSvc;
+    StringProperty m_randomStreamName;
+    CLHEP::RandGauss* m_chooseRandGauss;
+
     
   }; // RandomRoISeedTool
 } //InDet namespace
