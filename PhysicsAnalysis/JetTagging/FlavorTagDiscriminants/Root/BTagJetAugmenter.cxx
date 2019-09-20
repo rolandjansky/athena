@@ -264,8 +264,11 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
 
     uint8_t n_pixel_hits;
     uint8_t n_sct_hits;
-    track_particle.summaryValue(n_pixel_hits, xAOD::numberOfPixelHits);
-    track_particle.summaryValue(n_sct_hits, xAOD::numberOfSCTHits);
+    bool rc = true;
+    rc &= track_particle.summaryValue(n_pixel_hits, xAOD::numberOfPixelHits);
+    rc &= track_particle.summaryValue(n_sct_hits, xAOD::numberOfSCTHits);
+    if (!rc) throw std::runtime_error(
+      "track summary values are missing, can't compute b-tagging variables");
     if (n_pixel_hits + n_sct_hits < 2) continue;
 
     track_number++;
