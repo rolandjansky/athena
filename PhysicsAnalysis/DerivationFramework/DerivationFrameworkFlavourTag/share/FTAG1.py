@@ -308,7 +308,6 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt10LCTopoJets.GhostAntiKt2TrackJet.GhostAntiKt2TrackJetPt.GhostAntiKt2TrackJetCount",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag.GhostVR30Rmax4Rmin02TrackJetGhostTagPt.GhostVR30Rmax4Rmin02TrackJetGhostTagCount",
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlow_201810SecVtx.-vxTrackAtVertex",
