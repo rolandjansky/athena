@@ -78,9 +78,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   ATH_CHECK( detStore()->retrieve( m_muonMgr,"Muon" ) );
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
-   m_tgcIdHelper = m_muonMgr->tgcIdHelper();
+   ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
    ATH_CHECK( m_activeStore.retrieve() ); 
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
@@ -206,8 +204,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      for( ;cwi!=cwi_end;++cwi ){ // loop over data in the collection
        if( !*cwi ) continue;
        const Muon::TgcPrepData& prepDataWi = **cwi;
-       if (!m_tgcIdHelper->isStrip(prepDataWi.identify())) {//wire
-         int stationNumWi = m_tgcIdHelper->stationRegion(prepDataWi.identify())-1;
+       if (!m_muonIdHelperTool->tgcIdHelper().isStrip(prepDataWi.identify())) {//wire
+         int stationNumWi = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepDataWi.identify())-1;
          if (stationNumWi==-1) stationNumWi=3;
          if (stationNumWi<3 && fabs(prepDataWi.globalPosition().eta() - roi_eta) < mid_eta_test ) {
            float dphi = acos(cos(prepDataWi.globalPosition().phi()-roi_phi));
@@ -241,8 +239,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      for( ;chit!=chit_end;++chit ){ // loop over data in the collection
        if( !*chit ) continue;
        const Muon::TgcPrepData& prepDataHit = **chit;
-       if (!m_tgcIdHelper->isStrip(prepDataHit.identify())) {//strip
-         int stationNumHit = m_tgcIdHelper->stationRegion(prepDataHit.identify())-1;
+       if (!m_muonIdHelperTool->tgcIdHelper().isStrip(prepDataHit.identify())) {//strip
+         int stationNumHit = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepDataHit.identify())-1;
          if (stationNumHit==-1) stationNumHit=3;
          if (stationNumHit<3 && fabs(prepDataHit.globalPosition().eta() - roi_eta) < mid_eta_test ) {
            float dphi = acos(cos(prepDataHit.globalPosition().phi()-roi_phi));
@@ -273,9 +271,9 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        const Muon::TgcPrepData& prepData = **cit;
        
        bool isInRoad = false;
-       int stationNum = m_tgcIdHelper->stationRegion(prepData.identify())-1;
+       int stationNum = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepData.identify())-1;
        if (stationNum==-1) stationNum=3;
-       if (m_tgcIdHelper->isStrip(prepData.identify())) {
+       if (m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify())) {
 	 double dphi = fabs(prepData.globalPosition().phi() - roi_phi);
 	 if( dphi > CLHEP::pi*2 ) dphi = dphi - CLHEP::pi*2;
 	 if( dphi > CLHEP::pi ) dphi = CLHEP::pi*2 - dphi;
@@ -295,8 +293,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        if( ! isInRoad ) continue;
        
        m_tgcReadout = prepData.detectorElement();
-       gasGap = m_tgcIdHelper->gasGap(prepData.identify());
-       channel = m_tgcIdHelper->channel(prepData.identify());
+       gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(prepData.identify());
+       channel = m_muonIdHelperTool->tgcIdHelper().channel(prepData.identify());
        
        TrigL2MuonSA::TgcHitData lutDigit;
        
@@ -305,8 +303,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        lutDigit.r = prepData.globalPosition().perp();
        lutDigit.z = prepData.globalPosition().z();
        lutDigit.sta = stationNum;
-       lutDigit.isStrip = m_tgcIdHelper->isStrip(prepData.identify());
-       if(m_tgcIdHelper->isStrip(prepData.identify())){
+       lutDigit.isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify());
+       if(m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify())){
 	 lutDigit.width = m_tgcReadout->stripWidth(gasGap, channel);
        }
        else{

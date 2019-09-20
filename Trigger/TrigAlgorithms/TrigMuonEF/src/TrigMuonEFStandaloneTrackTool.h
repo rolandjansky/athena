@@ -34,6 +34,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <fstream>
 
 #include "CxxUtils/checker_macros.h"
@@ -83,11 +84,6 @@ class TrigMuonEFInfoContainer;
 class TrigTimer;
 class ActiveStoreSvc;
 class IRegSelSvc;
-
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 
 class IRoiDescriptor;
 
@@ -269,10 +265,8 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   ActiveStoreSvc* p_ActiveStore;
 
   // Muon Id Helpers
-  const CscIdHelper* m_cscIdHelper;
-  const MdtIdHelper* m_mdtIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   //Cache Rob Lists
   std::vector<uint32_t> m_MdtRobList;

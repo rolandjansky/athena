@@ -44,6 +44,8 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataCollection.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include "MuonDQAUtils/TGCDQAUtils.h"
 #include "MuonDQAUtils/MuonDQAFitFunc.h"
 //use new mdt segment container
@@ -63,7 +65,6 @@
 
 
 class TFile;
-class TgcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
 /////////////////////////////////////////////////////////////////////////////
 
@@ -98,8 +99,8 @@ public:
 
   const MuonGM::MuonDetectorManager* m_muonMgr;
 
-  const MdtIdHelper* m_mdtIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   //  const ITGCcablingSvc* m_cabling;
 
