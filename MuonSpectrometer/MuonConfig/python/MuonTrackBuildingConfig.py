@@ -161,11 +161,7 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
     mctbfitter = result.getPrimary()
     result.addPublicTool(mctbfitter)
     kwargs.setdefault("Fitter", mctbfitter)
-
-    #MDT conditions information not available online
-    if flags.Common.isOnline:
-        kwargs.setdefault("MdtCondKey","")
-
+    
     acc = MooCandidateMatchingToolCfg(flags)
     track_segment_matching_tool=acc.getPrimary()
     result.addPublicTool(track_segment_matching_tool)
@@ -219,7 +215,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     acc = MuonSegmentRegionRecoveryToolCfg(flags, name='MuonEORecoveryTool', OnlyEO = True, Fitter=mctbslfitter, UseFitterOutlierLogic=False)
     muon_eo_recovery_tool = acc.getPrimary()
     result.addPublicTool(muon_eo_recovery_tool)
-    result.merge(acc)
+    result.merge(acc) 
     
     kwargs.setdefault("HoleRecoveryTool",       muon_eo_recovery_tool)
     kwargs.setdefault("SegSeedQCut", 2)
@@ -306,6 +302,10 @@ def MuonTrackBuildingCfg(flags):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
     
+    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
+    result.addService( muon_edm_helper_svc )
+    
     acc = MuonTrackSteeringCfg(flags)
     track_steering = acc.getPrimary()
     result.merge(acc)
@@ -324,36 +324,55 @@ if __name__=="__main__":
 
     from AthenaCommon.Logging import log
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-    ConfigFlags.Concurrency.NumThreads = 1
    
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryCSC   = True     
     ConfigFlags.Detector.GeometryRPC   = True 
-    
+        
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    # from AthenaCommon.Constants import DEBUG
-    #log.setLevel(DEBUG)
-    log.debug('About to set up Muon Track Building.')
+    ConfigFlags.Output.ESDFileName='newESD.pool.root'
+    
+    from AthenaCommon.Constants import DEBUG
+    # log.setLevel(DEBUG)
+    # log.info('About to set up Muon Track Building.')
     
     ConfigFlags.Input.isMC = True
-    # ConfigFlags.Muon.doCSCs = False
     ConfigFlags.lock()
+    log.info('Flags set as follows:')
+    ConfigFlags.dump()
 
-    cfg=ComponentAccumulator()
-
-    # This is a temporary fix! Should be private!
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
-    cfg.addService( muon_edm_helper_svc )
-
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    cfg = MainServicesThreadedCfg(ConfigFlags)
+    
+    # cfg = ComponentAccumulator()
+    # acc = MainServicesThreadedCfg(ConfigFlags)
+    # print acc._isMergable
+    # cfg.merge(acc)
+    
+    log.info(cfg._allSequences)
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
+    log.info(cfg._allSequences)
 
     cfg.merge(MuonTrackBuildingCfg(ConfigFlags))
+    log.info(cfg._allSequences)
+    
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
+
+    cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
+    log.info(cfg._allSequences)
+    
+    outstream = cfg.getEventAlgo("OutputStreamESD")
+    outstream.OutputLevel=DEBUG
+    outstream.ForceRead = True
+    
+    # cfg.printConfig(withDetails = True, summariseProps = True)
               
     f=open("MuonTrackBuilding.pkl","w")
     cfg.store(f)
     f.close()
+
+    # cfg.run()
