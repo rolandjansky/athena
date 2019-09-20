@@ -198,7 +198,7 @@ if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG,WARNING
+   from AthenaCommon.Constants import DEBUG
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
@@ -222,7 +222,6 @@ if __name__=='__main__':
    from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
    cfg.merge(LArNoisyROSummaryCfg(ConfigFlags))
 
-   from LArMonitoring.LArDigitMonAlg import LArDigitMonConfig
    aff_acc = LArDigitMonConfig(ConfigFlags)
    cfg.merge(aff_acc)
 
