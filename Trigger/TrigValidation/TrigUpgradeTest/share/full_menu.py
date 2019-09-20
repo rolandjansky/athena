@@ -146,3 +146,9 @@ print m
 m.OutputLevel=DEBUG
 
 
+# Debugging for view cross-dependencies
+if opt.reverseViews:
+    from TriggerJobOpts.TriggerConfig import collectViewMakers
+    viewMakers = collectViewMakers( topSequence )
+    for alg in viewMakers:
+        alg.ReverseViewsDebug = True
