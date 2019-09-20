@@ -50,7 +50,7 @@ protected:
 
   /** @brief Seed selection requirements */
   Gaudi::Property<float> m_EtThresholdCut {this,
-      "EtThresholdCut", 1.25*Gaudi::Units::GeV,
+      "EtThresholdCut", 1.5*Gaudi::Units::GeV,
       "The minimum EM Et required of SEED clusters (not applied to secondaries)"};
 
   /** @brief Seed selection requirements */

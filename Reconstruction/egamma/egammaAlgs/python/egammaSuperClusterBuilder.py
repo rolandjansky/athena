@@ -18,6 +18,7 @@ electronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperClusterBui
                                           SuperElectronRecCollectionName=egammaKeys.ElectronSuperRecKey(),
                                           ClusterCorrectionTool=egammaSwTool,
                                           MVACalibSvc=egammaMVASvc,
+                                          EtThresholdCut=1000,
                                           TrackMatchBuilderTool = EMTrackMatchBuilder
                                          )
 
