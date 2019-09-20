@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """\
 Increment the LB number of the event. The modify() method will only be executed once
 per event. Hence this module can be used by several other modules to increase lumiblocks.
@@ -8,7 +8,6 @@ per event. Hence this module can be used by several other modules to increase lu
 Can be used as event modifier with athenaMT/PT -Z ... or as a standalone script.
 """
 
-import EventApps
 import eformat
 from eformat import helper
 import logging
@@ -26,7 +25,7 @@ class Store:
   currentL1ID = None
 
 log = logging.getLogger(__name__)
-log.info('Increasing LB every %d events' % Config.eventsPerLB)
+log.info('Increasing LB every %d events', Config.eventsPerLB)
 
 def modify(event):
 
@@ -36,12 +35,13 @@ def modify(event):
       
   Store.eventCounter += 1
   Store.currentL1ID = event.lvl1_id()
-  if (Store.eventCounter % Config.eventsPerLB)==0: Store.currentLB +=1
+  if (Store.eventCounter % Config.eventsPerLB)==0:
+    Store.currentLB +=1
 
   newevt = event if isinstance(event,eformat.write.FullEventFragment) else eformat.write.FullEventFragment(event)
 
   # Find CTP ROB
-  ctp_robs = [rob for rob in newevt.children() \
+  ctp_robs = [rob for rob in newevt.children()
               if rob.source_id().subdetector_id() == helper.SubDetector.TDAQ_CTP]
 
   # Modify LB in CTP fragmnet
@@ -51,7 +51,7 @@ def modify(event):
   # Set LB in event object header
   newevt.lumi_block(Store.currentLB)
   
-  log.info("Event %4d, L1ID %10d assigned LB = %d" % (Store.eventCounter, event.lvl1_id(), Store.currentLB))
+  log.info("Event %4d, L1ID %10d assigned LB = %d", Store.eventCounter, event.lvl1_id(), Store.currentLB)
 
   return newevt if isinstance(event,eformat.write.FullEventFragment) else newevt.readonly()
 

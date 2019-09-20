@@ -88,29 +88,16 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 
   //Get the refitting tool
   //
-  if(m_doRefit){
-    ATH_CHECK(m_fitterTool.retrieve());
-  } else {
-    m_fitterTool.disable();
-  }
+  ATH_CHECK( m_fitterTool.retrieve(      DisableTool{ !m_doRefit } ));
+  ATH_CHECK( m_extrapolator.retrieve(    DisableTool{ !m_SiExtensionCuts } ));
+  ATH_CHECK( m_beamSpotKey.initialize(   m_SiExtensionCuts) );
 
-  if (m_SiExtensionCuts) {
-    // get extrapolator
-    ATH_CHECK( m_extrapolator.retrieve());
-    // get beam spot service
-    ATH_CHECK( m_beamSpotKey.initialize() );
-  } else {
-    m_extrapolator.disable();
-    //disable m_beamSpotKey when able to
-  }
+  // optional PRD to track association map
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
 
   // Get tool for track extension to TRT
   //
-  if(m_doExtension){
-    ATH_CHECK( m_trtExtension.retrieve());
-  } else {
-    m_trtExtension.disable();
-  }
+  ATH_CHECK( m_trtExtension.retrieve(    DisableTool{ !m_doExtension} ));
 
   // Get output print level
   //
@@ -133,6 +120,29 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 
   return sc;
 
+}
+
+namespace InDet {
+  class MyPRDtoTrackMap  : public Trk::PRDtoTrackMap {
+  public:
+    unsigned int size() const {
+      return m_prepRawDataTrackMap.size();
+    }
+  };
+
+  class ExtendedSiCombinatorialTrackFinderData_xk : public InDet::SiCombinatorialTrackFinderData_xk
+  {
+  public:
+    ExtendedSiCombinatorialTrackFinderData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+      if (!key.key().empty()) {
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        setPRDtoTrackMap(m_prdToTrackMap.cptr());
+      }
+    }
+  private:
+    void dummy() {}
+    SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
+  };
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -176,7 +186,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   }
 
   // Event dependent data of SiCombinatorialTrackFinder_xk
-  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+  InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(m_prdToTrackMap);
 
   // Initialize the TRT seeded track tool's new event
   m_trackmaker  ->newEvent(combinatorialData);

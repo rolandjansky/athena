@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -14,12 +14,7 @@
 #include <string>
 
 // HepMC / CLHEP includes
-#define protected public
-#define private public
-// see bug #17665 to understand why I am doing this horrible hack
 #include "HepMC/GenParticle.h"
-#undef protected
-#undef private
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 
@@ -258,7 +253,7 @@ void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
   this->particleBase().setGenParticle( particle );
 
   if ( particle ) {
-    this->set4Mom(particle->m_momentum);
+    this->set4Mom(particle->momentum());
 
     // children
     const HepMC::GenVertex * dcyVtx = particle->end_vertex();

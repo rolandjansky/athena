@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  DataModelAthenaPool/test/NavigableCnv_p2_test.cxx
  * @author scott snyder
@@ -43,6 +41,7 @@ typedef Navigable<MyVI, int> NIpar;
 
 void test1()
 {
+  std::cout << "test1\n";
   MsgStream log (0, "test");
   NavigableCnv_p2<NI> cnv;
   NI ni1;
@@ -69,6 +68,7 @@ void test1()
 
 void test2()
 {
+  std::cout << "test2\n";
   MsgStream log (0, "test");
   NavigableCnv_p2<NIpar> cnv;
   NIpar ni1;
@@ -100,6 +100,7 @@ void test2()
 
 int main()
 {
+  std::cout << "DataModelAthenaPool/NavigableCnv_p2_test\n";
   SGTest::initTestStore();
   test1();
   test2();

@@ -494,3 +494,53 @@ def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
                                                                SearchLevelClosestParameters  = 10,
                                                                StickyConfiguration           = True,
                                                                SurfaceBasedMaterialEffects   = False ))
+
+def getInDetPRDtoTrackMapToolGangedPixels(**kwargs) :
+    tool_name = 'InDetPRDtoTrackMapToolGangedPixels'
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,tool_name) :
+        return getattr(ToolSvc,tool_name)
+
+    from InDetRecExample.InDetKeys                       import InDetKeys
+    kwargs = setDefaults( kwargs,
+                          PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
+                          addTRToutliers                 = True)
+
+    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRDtoTrackMapToolGangedPixels
+    tool=InDet__InDetPRDtoTrackMapToolGangedPixels( name=tool_name, **kwargs)
+    ToolSvc += tool
+    return tool
+
+def getInDetTrackPRD_Association(**kwargs) :
+    prefix=kwargs.pop("prefix","InDet")
+    suffix=kwargs.pop("suffix","")
+    if kwargs.get('TracksName',None) is None :
+        raise Exception('Not TracksName argument provided')
+
+    name = prefix+'PRD_Association'+suffix
+    kwargs = setDefaults( kwargs,
+                          AssociationTool    = getInDetPRDtoTrackMapToolGangedPixels() \
+                                                    if 'AssociationTool' not in kwargs else None,
+                          AssociationMapName = prefix+'PRDtoTrackMap'+suffix)
+
+    from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
+    alg = InDet__InDetTrackPRD_Association(name = name, **kwargs)
+    return alg
+
+def getConstPRD_AssociationTool(**kwargs) :
+    prefix=kwargs.pop("prefix","")
+    suffix=kwargs.pop("suffix","")
+    tool_name = prefix+'PRD_AssociationTool'+suffix
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,tool_name) :
+        return getattr(ToolSvc,tool_name)
+
+    kwargs = setDefaults( kwargs,
+                          SetupCorrect     = True,
+                          MuonIdHelperTool = "",
+                          PRDtoTrackMap    = prefix+'PRDtoTrackMap'+suffix)
+
+    from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRD_AssociationTool
+    tool=Trk__PRD_AssociationTool(name=tool_name, **kwargs)
+    ToolSvc += tool
+    return tool

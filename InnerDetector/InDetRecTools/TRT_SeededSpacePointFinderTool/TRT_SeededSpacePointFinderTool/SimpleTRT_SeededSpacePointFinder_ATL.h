@@ -20,7 +20,6 @@
 
 //Tool Handle
 //
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_SeededSpacePointFinder.h"
@@ -28,14 +27,11 @@
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
 #include "IRegionSelector/IRegSelSvc.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 class MsgStream;
 class SCT_ID;
 class TRT_ID;
-
-namespace Trk{
-  class IPRD_AssociationTool;
-}
 
 namespace InDet{
 
@@ -84,13 +80,9 @@ namespace InDet{
 
     private:
       
-      ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool              ;  //Association tool
-      //int                                    m_outputlevel           ;
-
       /** Controls, if SP have to be checked with the AssociationTool of the
           forward tracking and to avoid double use of measurements.
 	  It is set true, if an AssociationTool is specified in the setup */
-      bool                                   m_useAssoTool;
 
       /** controls if the ROI is restricted around the TRT trackparameters */
       bool                                   m_useROI;
@@ -118,8 +110,8 @@ namespace InDet{
 
       SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname {this,"SpacePointsSCTName","SCT_SpacePoints","RHK to retrieve SCT SpacePointContainer"}            ;
       SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname {this,"SpacePointsSCTName","OverlapSpacePoints","RHK to retrieve OverlapCollection"}        ;
-
-
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};
 
       /** Lookup table that contains the SCT Layers to be considered to provide
 	  SP for the pairing in dependence on the TRT part the track parameter is on */

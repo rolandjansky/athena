@@ -18,7 +18,6 @@ class AtlasDetectorID;
 #include "CxxUtils/checker_macros.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoModelKernel/RCBase.h"
 
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -42,7 +41,7 @@ namespace InDetDD {
         mondified & maintained: Nick Styles, Andreas Salzburger
         */
 
-    class SiCommonItems: public RCBase 
+    class SiCommonItems
     {
     
         public:

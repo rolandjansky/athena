@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgB.h"
@@ -10,11 +10,11 @@
 HiveAlgB::HiveAlgB( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   HiveAlgBase( name, pSvcLocator ),
-  m_di(0)
-{
-}
+  m_di(0) {}
 
 HiveAlgB::~HiveAlgB() {}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode HiveAlgB::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
@@ -25,25 +25,29 @@ StatusCode HiveAlgB::initialize() {
   ATH_MSG_INFO(" m_di was: " << m_di << " setting to -1 ");
   m_di = -1;
 
+  // dump out contents of context specific data
   dump();
-
 
   ATH_CHECK( m_wrh1.initialize() );
 
+  // initialize base class
   return HiveAlgBase::initialize();
 
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode HiveAlgB::finalize() {
   ATH_MSG_INFO("context: " << Gaudi::Hive::currentContext());
   ATH_MSG_DEBUG("finalize " << name());
 
-  MsgStream log(msgSvc(),name());
-
+  // dump out contents of context specific data
   dump();
 
   return StatusCode::SUCCESS;
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode HiveAlgB::execute() {
 
@@ -65,13 +69,14 @@ StatusCode HiveAlgB::execute() {
 
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void
 HiveAlgB::dump() {
 
-  
   std::ostringstream ost;
-  
+
+  // use a lambda to access all constituents of context specific data
   m_di.for_all([&ost] (size_t s, const int i) 
   	       { ost << " s: " << s << " v: " << i  << std::endl; } );
 

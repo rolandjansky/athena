@@ -126,6 +126,16 @@ if configureBSResult:
     stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
 
+    # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
+    import AthenaCommon.AlgSequence as acas
+    summaryMakerAlg = [s for s in acas.iter_algseq(topSequence) if s.getName() == "DecisionSummaryMakerAlg"][0]
+    chainToDecisionKeyDict = summaryMakerAlg.getProperties()['FinalStepDecisions']
+    stmaker.PEBDecisionKeys = []
+    for chain, decisionKey in chainToDecisionKeyDict.iteritems():
+        if 'PEBInfoWriter' in decisionKey:
+            __log.debug('Chain %s produces decision %s with PEBInfo', chain, decisionKey)
+            stmaker.PEBDecisionKeys.append(decisionKey)
+
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
@@ -136,3 +146,9 @@ print m
 m.OutputLevel=DEBUG
 
 
+# Debugging for view cross-dependencies
+if opt.reverseViews:
+    from TriggerJobOpts.TriggerConfig import collectViewMakers
+    viewMakers = collectViewMakers( topSequence )
+    for alg in viewMakers:
+        alg.ReverseViewsDebug = True

@@ -336,6 +336,37 @@ public:
   */  
   virtual void transToPers(const TRANS* transObj, PERS* persObj, MsgStream &log) = 0;
 
+  /** Convert persistent representation to transient one. Copies data
+      members from persistent object to an existing transient one.
+      Needs to be implemented by the developer on the actual converter. 
+      @param persObj [IN] persistent object
+      @param transObj [IN] transient object
+      @param key [IN] SG key of object being read.
+      @param log [IN] output message stream
+  */
+   virtual void persToTransWithKey(const PERS* persObj, TRANS* transObj,
+                                   const std::string& /*key*/,
+                                   MsgStream &log)
+  {
+    return persToTrans (persObj, transObj, log);
+  }
+    
+
+  /** Convert transient representation to persistent one. Copies data
+      members from transient object to an existing persistent one.
+      Needs to be implemented by the developer on the actual converter. 
+      @param transObj [IN] transient object
+      @param persObj [IN] persistent object
+      @param key [IN] SG key of object being written.
+      @param log [IN] output message stream
+  */  
+  virtual void transToPersWithKey(const TRANS* transObj, PERS* persObj,
+                                  const std::string& /*key*/,
+                                  MsgStream &log)
+  {
+    return transToPers (transObj, persObj, log);
+  }
+
   /// @copydoc ITPCnvBase::persToTransUntyped()
   virtual void persToTransUntyped(const void* pers,
                                   void* trans,
@@ -366,6 +397,17 @@ public:
       @return the created persistent representation
   */
   virtual PERS* createPersistent(const TRANS* transObj, MsgStream &log);
+
+  /** Create persistent representation of a transient object, with SG key.
+      Simply creates a new persistent object and calls transToPersWithKey()
+      @param transObj [IN] transient object
+      @param key [IN]  SG key of object being written
+      @param log [IN] output message stream
+      @return the created persistent representation
+  */
+  virtual PERS* createPersistentWithKey(const TRANS* transObj,
+                                        const std::string& key,
+                                        MsgStream &log);
 
   /** Convert transient object to persistent representation. Stores the
       result in the storage vector of the top-level object and returns
@@ -510,6 +552,15 @@ public:
   */
   virtual TRANS* createTransient(const PERS* persObj, MsgStream &log);
 
+  /** Create transient representation of a persistent object, with SG key.
+      Simply creates a new transient object and calls persToTransWithKey()
+      @param persObj [IN] persistent object
+      @param key [IN]  SG key of object being read
+      @param log [IN] output message stream
+      @return the created transient object
+  */
+  virtual TRANS* createTransientWithKey(const PERS* persObj, const std::string& key, MsgStream &log);
+
   /** Internal interface method that is used to invoke the real conversion
       method (createTransient)
       @param index [IN] index of the persistent object in the storage vector
@@ -558,13 +609,17 @@ public:
 /** @class TPConverterConstBase
     TP Converter template for a "regular" type.
     In contrast to @c TPConverterBase, this calls const methods to do
-    the conversion.  (Objects are also passed by reference rather than pointer.)
+    the conversion.
 */
 template< class TRANS, class PERS >
 class TPConverterConstBase
    : public TPConverterBase< TRANS,  PERS >
 {
 public:
+  // To shorten using declarations in derived classes.
+  using base_class = TPConverterConstBase;
+
+
   /** Convert persistent representation to transient one. Copies data
       members from persistent object to an existing transient one.
       Needs to be implemented by the developer on the actual converter. 
@@ -572,9 +627,9 @@ public:
       @param transObj [IN] transient object
       @param log [IN] output message stream
   */
-  virtual void persToTransConst (const PERS& persObj,
-                                 TRANS& transObj,
-                                 MsgStream &log) const = 0;
+  virtual void persToTrans (const PERS* persObj,
+                            TRANS* transObj,
+                            MsgStream &log) const = 0;
 
 
   /** Convert transient representation to persistent one. Copies data
@@ -584,25 +639,106 @@ public:
       @param persObj [IN] persistent object
       @param log [IN] output message stream
   */  
-  virtual void transToPersConst (const TRANS& transObj,
-                                 PERS& persObj,
-                                 MsgStream &log) const = 0;
+  virtual void transToPers (const TRANS* transObj,
+                            PERS* persObj,
+                            MsgStream &log) const = 0;
 
 
   // These call through to the const implementations.
   virtual void persToTrans(const PERS* persObj,
                            TRANS* transObj,
-                           MsgStream &log) override
+                           MsgStream &log) override final
   {
-    return persToTransConst (*persObj, *transObj, log);
+    return const_cast<const TPConverterConstBase*>(this)->persToTrans (persObj, transObj, log);
   }
 
   
   virtual void transToPers(const TRANS* transObj,
                            PERS* persObj,
-                           MsgStream &log) override
+                           MsgStream &log) override final
   {
-    return transToPersConst (*transObj, *persObj, log);
+    return const_cast<const TPConverterConstBase*>(this)->transToPers (transObj, persObj, log);
+  }
+};
+
+
+/** @class TPConverterWithKeyBase
+    TP Converter template for a "regular" type.
+    This provides interfaces allowing the SG key to be passed to the converters.
+*/
+template< class TRANS, class PERS >
+class TPConverterWithKeyBase
+   : public TPConverterConstBase< TRANS,  PERS >
+{
+public:
+  using TPConverterConstBase< TRANS,  PERS >::transToPers;
+  using TPConverterConstBase< TRANS,  PERS >::persToTrans;
+
+  // To shorten using declarations in derived classes.
+  using base_class = TPConverterWithKeyBase;
+
+
+  /** Convert persistent representation to transient one. Copies data
+      members from persistent object to an existing transient one.
+      Needs to be implemented by the developer on the actual converter. 
+      @param persObj [IN] persistent object
+      @param transObj [IN] transient object
+      @param key [IN] SG key of the object being read.
+      @param log [IN] output message stream
+  */
+  virtual void persToTransWithKey (const PERS* persObj,
+                                   TRANS* transObj,
+                                   const std::string& key,
+                                   MsgStream &log) const = 0;
+
+
+  /** Convert transient representation to persistent one. Copies data
+      members from transient object to an existing persistent one.
+      Needs to be implemented by the developer on the actual converter. 
+      @param transObj [IN] transient object
+      @param persObj [IN] persistent object
+      @param key [IN] SG key of the object being written.
+      @param log [IN] output message stream
+  */  
+  virtual void transToPersWithKey (const TRANS* transObj,
+                                   PERS* persObj,
+                                   const std::string& key,
+                                   MsgStream &log) const = 0;
+
+
+  // These call through to the const implementations.
+  virtual void persToTransWithKey (const PERS* persObj,
+                                   TRANS* transObj,
+                                   const std::string& key,
+                                   MsgStream &log) override final
+  {
+    return const_cast<const TPConverterWithKeyBase*>(this)->persToTransWithKey (persObj, transObj, key, log);
+  }
+
+
+  virtual void transToPersWithKey (const TRANS* transObj,
+                                   PERS* persObj,
+                                   const std::string& key,
+                                   MsgStream &log) override final
+  {
+    return const_cast<const TPConverterWithKeyBase*>(this)->transToPersWithKey (transObj, persObj, key, log);
+  }
+
+
+  // It's an error if the non-key versions get called.
+  virtual void persToTrans(const PERS* /*persObj*/,
+                           TRANS* /*transObj*/,
+                           MsgStream& /*log*/) const override final
+  {
+    throw std::runtime_error ("persToTrans called where persToTransWithKey required.");
+  }
+
+  
+  virtual void transToPers(const TRANS* /*transObj*/,
+                           PERS* /*persObj*/,
+                           MsgStream& /*log*/) const override final
+  {
+    throw std::runtime_error ("transToPers called where transToPersWithKey required.");
   }
 };
 
@@ -818,15 +954,19 @@ template<class TRANS, class PERS, class CONV>
 class TPCnvStdVectorConst : public TPConverterConstBase<TRANS, PERS>
 {
 public:
+  using TPConverterConstBase<TRANS, PERS>::transToPers;
+  using TPConverterConstBase<TRANS, PERS>::persToTrans;
+
+
   /// @copydoc TPPtrVectorCnv::persToTrans()
-  virtual void persToTransConst(const PERS& persVect,
-                                TRANS& transVect,
-                                MsgStream &log) const override;
+  virtual void persToTrans(const PERS* persVect,
+                           TRANS* transVect,
+                           MsgStream &log) const override;
 
   /// @copydoc TPPtrVectorCnv::transToPers()
-  virtual void transToPersConst(const TRANS& transVect,
-                                PERS& persVect,
-                                MsgStream &log) const override;
+  virtual void transToPers(const TRANS* transVect,
+                           PERS* persVect,
+                           MsgStream &log) const override;
 };
 
 

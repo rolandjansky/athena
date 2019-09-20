@@ -1,9 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 //============================================================
-//
 // $Id: T2VertexBeamSpot.cxx 793164 2017-01-20 03:59:26Z ssnyder $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
@@ -14,41 +12,18 @@
 //
 // Authors : David W. Miller, Rainer Bartoldus,   
 //           Su Dong
-//
-// Date : 11 May, 2008
-//
 //============================================================
-
-// This algorithm
 #include "TrigT2BeamSpot/T2VertexBeamSpot.h"
-#include "T2VertexBeamSpotImpl.h"
 #include "T2TrackClusterer.h"
 #include "T2Timer.h"
-
 // General ATHENA/Trigger stuff
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-// Specific to this algorithm
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackHelper.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
-
-// Related to TOOLS
-#include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
-
-// Timer service
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-
-// Standard headers
+#include <typeinfo>
 #include <cmath>
-// #include <sstream>
-// using std::ostringstream;
 
 using std::string;
 
@@ -56,242 +31,95 @@ using namespace PESA;
 using Gaudi::Units::mm;
 using Gaudi::Units::GeV;
 
+//Loads all TEs into one vector
+HLT::TEVec getAllTEs(const std::vector<HLT::TEVec>& tes_in){
 
-//-------------
+   std::vector<std::vector<HLT::TriggerElement*> >::const_iterator iTE = tes_in.begin();
+   std::vector<std::vector<HLT::TriggerElement*> >::const_iterator iTE_end = tes_in.end();
+   HLT::TEVec allTEs= *iTE;
+
+   for (;iTE!=iTE_end; ++iTE) {
+      HLT::TEVec::const_iterator inner_itEnd = (*iTE).end();
+      HLT::TEVec::const_iterator inner_it = (*iTE).begin();
+
+      for (;inner_it != inner_itEnd ; ++inner_it) {
+         allTEs.push_back(*inner_it);
+      }
+   }  
+   return allTEs;
+}
+
+void stripTrackList( TrigVertexCollection& coll )
+{
+   for ( TrigVertexCollection::iterator vertex = coll.begin(); vertex != coll.end(); ++vertex ) {
+      // Drop the track list from the vertex so we won't persist it.
+      //FIXME: There is no interface for this yet, so for the moment we'll just clear the list.
+      TrackInVertexList* vertexTracks =  (*vertex)->tracks() ;
+      if ( vertexTracks ) vertexTracks->clear();
+   }
+}
+
 // Constructor
-//-------------
-
 T2VertexBeamSpot::T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLocator )
-  : HLT::AllTEAlgo(name, pSvcLocator)
-  , m_impl( new T2VertexBeamSpotImpl( this ) )
-{
+  : HLT::AllTEAlgo(name, pSvcLocator){ 
    
-  // Read cuts 
-  declareProperty("AcceptAll",       m_impl->m_AcceptAll    = false );
-  declareProperty("TotalNTrackMin",  m_impl->m_totalNTrkMin = 2 );
-  
-  // Detail for plots
-  declareProperty("SaveAllVertices", m_impl->m_saveAllVertices = false );
-  
-  // Track clustering parameters
-  declareProperty("TrackSeedPt",       m_impl->m_trackSeedPt       =  1.0*GeV );
-  declareProperty("TrackClusterDZ",    m_impl->m_trackClusDZ       = 10.0*mm  );
-  declareProperty("WeightClusterZ",    m_impl->m_weightSeed        = true     );
-  declareProperty("ReclusterSplit",    m_impl->m_reclusterSplit    = true     );
-  declareProperty("SplitWholeCluster", m_impl->m_splitWholeCluster = false    );
-  
-  // Track Selection criteria
-  declareProperty("TrackAlgoID",     m_impl->m_TrackAlgoId      = TrigInDetTrack::IDSCANID);
-  declareProperty("TrackMinPt",      m_impl->m_minTrackPt       =  0.7*GeV );
-  declareProperty("TrackMaxPt",      m_impl->m_maxTrackPt       = 200.*GeV );
-  declareProperty("TrackMinEta",     m_impl->m_minTrackEta      =   0.     );
-  declareProperty("TrackMaxEta",     m_impl->m_maxTrackEta      =   2.5    );
-  declareProperty("TrackMaxZ0",      m_impl->m_maxTrackZ0       = 200.*mm  );
-  declareProperty("TrackMaxD0",      m_impl->m_maxTrackD0       =  10.*mm  );
-  declareProperty("TrackMaxZ0err",   m_impl->m_maxTrackZ0err    =   2.*mm  );
-  declareProperty("TrackMaxD0err",   m_impl->m_maxTrackD0err    =   2.*mm  );
-  declareProperty("TrackMinNDF",     m_impl->m_minTrackNDF      =   2      );
-  declareProperty("TrackMinQual",    m_impl->m_minTrackQual     =   0.2    );
-  declareProperty("TrackMaxQual",    m_impl->m_maxTrackQual     =   5.0    );
-  declareProperty("TrackMinChi2Prob",m_impl->m_minTrackChi2Prob = -10.0    );
-  declareProperty("TrackMinSiHits",  m_impl->m_minSiHits        =   4      );
-  declareProperty("TrackMinPIXHits", m_impl->m_minPIXHits       =   1      );
-  declareProperty("TrackMinSCTHits", m_impl->m_minSCTHits       =   3      );
-  declareProperty("TrackMinTRTHits", m_impl->m_minTRTHits       =   1      );
-  
-  // Vertex Selection criteria
-  declareProperty("VertexMinNTrk",     m_impl->m_vtxNTrkMin     =   2      );
-  declareProperty("VertexMaxNTrk",     m_impl->m_vtxNTrkMax     = 100      );
-  declareProperty("VertexMinQual",     m_impl->m_vtxQualMin     =   0.0    );
-  declareProperty("VertexMaxQual",     m_impl->m_vtxQualMax     =   5.     );
-  declareProperty("VertexMinChi2Prob", m_impl->m_vtxChi2ProbMin = -10.0    );
-  declareProperty("VertexMinMass",     m_impl->m_vtxMassMin     =  -1.*GeV );
-  declareProperty("VertexMinSumPt",    m_impl->m_vtxSumPtMin    =   0.*GeV );
-  declareProperty("VertexMaxX",        m_impl->m_vtxXposMax     =  10.*mm  );
-  declareProperty("VertexMaxXerr",     m_impl->m_vtxXerrMax     =   1.*mm  );
-  declareProperty("VertexMaxY",        m_impl->m_vtxYposMax     =  10.*mm  );
-  declareProperty("VertexMaxYerr",     m_impl->m_vtxYerrMax     =   1.*mm  );
-  declareProperty("VertexMaxZ",        m_impl->m_vtxZposMax     = 200.*mm  );
-  declareProperty("VertexMaxZerr",     m_impl->m_vtxZerrMax     =   1.*mm  );
+   declareProperty( "BeamSpotTool",  m_beamSpotTool   ); 
+   declareProperty( "TrackCollections",  m_trackCollections = {"TrigFastTrackFinder_Tracks"}  ); 
+   declareProperty( "VertexCollection",  m_outputVertexCollectionKey =  "myVertices"  ); 
 
-  // Vertex selection for use in BCID measurements
-  declareProperty("VertexBCIDMinNTrk", m_impl->m_vtxBCIDNTrkMin =   2      );
+   declareProperty("vertexCollName",     m_vertexCollName      = "TrigBeamSpotVertex"); 
 
-  // Vertexing
-  declareProperty("doVertexFit",       m_impl->m_doVertexFit = true);
 
-  // Use TrigInDetTracks instead of Trk::Tracks
-  declareProperty("doTrigInDetTrack",       m_doTrigInDetTrack = false);
-  
-  //-----------------------
-  // activate TE  
-  //-----------------------
-  declareProperty("activateTE",          m_impl->m_activateTE          = false               );
-  declareProperty("activateAllTE",       m_impl->m_activateAllTE       = false               );
-  declareProperty("attachVertices",      m_impl->m_attachVertices      = false               );
-  declareProperty("attachSplitVertices", m_impl->m_attachSplitVertices = false               );
-  declareProperty("nSplitVertices",      m_impl->m_nSplitVertices      = 1                   );           
-  declareProperty("vertexCollName",      m_impl->m_vertexCollName      = "TrigBeamSpotVertex"); 
- 
-  //---------------------------
-  // Single interaction trigger
-  //---------------------------
-  declareProperty("minNpvTrigger",  m_impl->m_minNpvTrigger  = 0);
-  declareProperty("maxNpvTrigger",  m_impl->m_maxNpvTrigger  = 2);
-  declareProperty("activateSI",     m_impl->m_activateSI     = false);
-  
-  // Number of Z blocks
-  declareProperty( "NumberZClusters", m_impl->m_nZfitBins       = 10 );
-  declareProperty( "ZLowerLimit",     m_impl->m_ZLowerLimit     = -200.*mm );
-  declareProperty( "ZUpperLimit",     m_impl->m_ZUpperLimit     =  200.*mm );
-  
-  //-----------------------
-  // Monitoring
-  //-----------------------
 
-  // Variables for monitoring histograms
-  const IMonitoredAlgo::ContainerReset reset = IMonitoredAlgo::AutoClear;
-
-  // per-Job variables, which need to be reset
-  declareMonitoredVariable("TotalEvents" ,        m_impl->m_TotalEvents);
-
-  // per-Event variables, which need to be reset
-  declareMonitoredVariable("RunID" ,              m_impl->m_RunID);
-  declareMonitoredVariable("EventID" ,            m_impl->m_EventID);
-  declareMonitoredVariable("LumiBlock",           m_impl->m_LumiBlock);
-  declareMonitoredVariable("BCID",                m_impl->m_bcid);
-                                               
-  declareMonitoredVariable("TotalTEs",            m_impl->m_TotalTEs);
-  declareMonitoredVariable("TotalROIs",           m_impl->m_TotalROIs);
-  declareMonitoredVariable("TotalTracks" ,        m_impl->m_TotalTracks);
-  declareMonitoredVariable("TotalTracksPass",     m_impl->m_TotalTracksPass);
-  declareMonitoredVariable("TotalHiPTTracks",     m_impl->m_TotalTracksPass);
-  
-  declareMonitoredVariable("NClusters",           m_impl->m_NClusters);
-  declareMonitoredVariable("Nvtx",                m_impl->m_Nvtx);
-  declareMonitoredVariable("NvtxPass",            m_impl->m_NvtxPass);
-  declareMonitoredVariable("NvtxPassBCID",        m_impl->m_NvtxPassBCID);
-
-  // Containers of per per-Event, per-TE, per-ROI variables
-  declareMonitoredStdContainer("EventStatistics", m_impl->m_eventStage, reset );
-  
-  declareMonitoredStdContainer("ROIperTE",        m_impl->m_ROIperTE        , reset );
-  declareMonitoredStdContainer("TracksPerTE",     m_impl->m_TracksPerTE     , reset );
-  declareMonitoredStdContainer("TracksPerTEPass", m_impl->m_TracksPerTEPass , reset );
-  declareMonitoredStdContainer("HiPTTracksPerTE", m_impl->m_HiPTTracksPerTE , reset );
-
-  declareMonitoredStdContainer("TracksPerROI",    m_impl->m_TracksPerROI    , reset );
-  declareMonitoredStdContainer("TracksPerROIPass",m_impl->m_TracksPerROIPass, reset );
-  declareMonitoredStdContainer("HiPTTracksPerROI",m_impl->m_HiPTTracksPerROI, reset );
-
-  declareMonitoredStdContainer("RoIEta",          m_impl->m_RoIEta, reset );
-  declareMonitoredStdContainer("RoIPhi",          m_impl->m_RoIPhi, reset );
-  declareMonitoredStdContainer("RoIID",           m_impl->m_RoIID , reset );
-  
-  declareMonitoredStdContainer("ClusterNTracks",       m_impl->m_clusterNTracks      , reset );
-  declareMonitoredStdContainer("ClusterNTracksUnused", m_impl->m_clusterNTracksUnused, reset );
-  declareMonitoredStdContainer("ClusterZ",             m_impl->m_clusterZ            , reset );
-  declareMonitoredStdContainer("ClusterDeltaZ0",       m_impl->m_clusterDeltaZ0      , reset );
-  declareMonitoredStdContainer("ClusterZ0Pull",        m_impl->m_clusterZ0Pull       , reset );
-  declareMonitoredStdContainer("ClusterDeltaVertexZ",  m_impl->m_clusterDeltaVertexZ , reset );
-  declareMonitoredStdContainer("ClusterVertexZPull",   m_impl->m_clusterVertexZPull  , reset );
-
-  m_impl->m_trackPass      .declare( this, "Track"       , "Pass"     );
-  m_impl->m_vertex         .declare( this, "Vertex"                   );
-  m_impl->m_vertexPass     .declare( this, "Vertex"      , "Pass"     );   
-  m_impl->m_vertexPassBCID .declare( this, "Vertex"      , "PassBCID" );   
-  m_impl->m_splitVertexPass.declare( this, "SplitVertex" , "Pass"     );
+   declareProperty("activateTE",          m_activateTE          = false               );
+   declareProperty("activateAllTE",       m_activateAllTE       = false               );
+   declareProperty("attachVertices",      m_attachVertices      = false               );
+   declareProperty("attachSplitVertices", m_attachSplitVertices = false               ); 
+   declareProperty("activateSI",     m_activateSI     = false);
 }
 
 
-//------------
-// Destructor
-//------------
-
-T2VertexBeamSpot::~T2VertexBeamSpot()
-{
-  delete m_impl;
-}
-
+T2VertexBeamSpot::~T2VertexBeamSpot(){}
 
 //----------------
 // Initialization
-//----------------
+HLT::ErrorCode T2VertexBeamSpot::hltInitialize() {
+   ATH_MSG_DEBUG( "Initialising BeamSpot algorithm");
 
-HLT::ErrorCode
-T2VertexBeamSpot::hltInitialize()
-{
-  StatusCode sc;
-  
-  // Vertex fitting tool
-  sc = toolSvc()->retrieveTool( "TrigPrimaryVertexFitter", "TrigPrimaryVertexFitter", m_impl->m_primaryVertexFitter );
-  if ( sc.isFailure() || ! m_impl->m_primaryVertexFitter )
-    { 
-      msg() << MSG::ERROR << "Unable to locate TrigPrimaryVertexFitter tool." << endmsg;
+   if( m_beamSpotTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Can't retrieve the beamspot tool!");
       return HLT::BAD_JOB_SETUP;
-    }
+   }
+   else ATH_MSG_DEBUG( "BeamSpotTool retrieved");
 
+   if( m_eventInfoKey.initialize().isFailure() ){
+      ATH_MSG_ERROR("Can't retrieve event info Key from SG");
+      return HLT::BAD_JOB_SETUP;
+   }
+   else ATH_MSG_DEBUG( "Event info key initialized");
 
-  // Set up execution timers
-  {
-    //      m_impl->m_timer.resize(numTimers);
-    m_impl->m_timer[total         ] = addTimer("TotalAlgoTime"     );
-    m_impl->m_timer[allTE         ] = addTimer("LoopOverInputTEs"  );
-    m_impl->m_timer[allROI        ] = addTimer("LoopOverROIs"      );
-    m_impl->m_timer[allTrack      ] = addTimer("LoopOverTracks"    );
-    m_impl->m_timer[allVertex     ] = addTimer("Vertexing"         );
-    m_impl->m_timer[allVertexSplit] = addTimer("SplitVertexing"    );
-    m_impl->m_timer[allOutput     ] = addTimer("OutputTEWriting"   );
-    m_impl->m_timer[trackSort     ] = addTimer("TrackSorting"      );
-    m_impl->m_timer[trackSortSplit] = addTimer("TrackSortingSplit" );
-    m_impl->m_timer[vertexFit     ] = addTimer("VertexFit"         );
-    m_impl->m_timer[vertexFitSplit] = addTimer("VertexFitSplit"    );
-    m_impl->m_timer[zCluster      ] = addTimer("ZClustering"       );
-    m_impl->m_timer[zClusterSplit ] = addTimer("ZClusteringSplit"  );
-  }
-
-  // Set up the track z clustering tool
-  m_impl->m_trackClusterer.reset( new T2TrackClusterer( m_impl->m_trackClusDZ, m_impl->m_trackSeedPt, m_impl->m_weightSeed, m_impl->m_vtxNTrkMax ) );
-
-  // Reset per-Job monitored variables
-  m_impl->m_TotalEvents = 0;
-
-  if(m_beamSpotKey.initialize().isFailure()) return HLT::BAD_JOB_SETUP;
-
-  msg() << MSG::INFO << "Initialization of T2VertexBeamSpot successful" << endmsg;
-  return HLT::OK;
+   if( m_monTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Can't retrieve the beamspot tool!");
+      return HLT::BAD_JOB_SETUP;
+   }
+   else ATH_MSG_DEBUG( "Monitoring tool retrieved");
+   return HLT::OK;
 }
 
 
-//------------
-// Event loop
-//------------
 
-HLT::ErrorCode
-T2VertexBeamSpot::hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
-                              unsigned int type_out )
-{
-  // Say hello
-  if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "In T2VertexBeamSpot::hltExecute" << endmsg;  
-
-  // Start monitoring
-  beforeExecMonitors().ignore();
+HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
+                              unsigned int type_out ){
+  ATH_MSG_DEBUG( "In T2VertexBeamSpot::hltExecute");  
   
   // Start the overall timer
-  T2Timer t( m_impl->m_timer[total] );
-  
+  auto tTotal = Monitored::Timer("TIME_TotalTime");
+
+  //Reset monitored variables from previous event 
+  m_beamSpotTool->resetMonitoredVariables();
   // Initialize booleans for event stats
-  m_impl->m_eventStageFlag = std::vector<bool>( numStatistics, false );
-
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-  m_impl->m_beamCondData = beamSpotHandle.retrieve();
-
-  // Reset monitored vars that are not reset by the steering
-  m_impl->resetMonitoredVariables();
-  // FIXME: this should be done by IMonitoredAlgo
-
-  m_impl->m_TotalEvents++;
-  m_impl->eventStage( allInput );
+  m_beamSpotTool->m_eventStageFlag = std::vector<bool>( numStatistics, false );
+  m_beamSpotTool->eventStage( allInput );
 
   // Initialize vertex collections
   TrigVertexCollection myVertexCollection;
@@ -303,118 +131,126 @@ T2VertexBeamSpot::hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& t
   // Process event - break to do cleanup before returning
   do 
     {
-      // Retrieve event info
-      const EventInfo* pEventInfo;
-      if ( store()->retrieve(pEventInfo).isFailure() )
-        {
-          msg() << MSG::ERROR << "Failed to get EventInfo" << endmsg;
-          errorCode = HLT::ERROR;
-          break;
-        }
 
-      m_impl->m_RunID     = pEventInfo->event_ID()->run_number();
-      m_impl->m_EventID   = pEventInfo->event_ID()->event_number();
-      m_impl->m_LumiBlock = pEventInfo->event_ID()->lumi_block();
-      m_impl->m_bcid      = pEventInfo->event_ID()->bunch_crossing_id();
-
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Run #" << m_impl->m_RunID << "; Event #" << m_impl->m_EventID
-                                      << "; Lumi block #" << m_impl->m_LumiBlock << "; BCID #" << m_impl->m_bcid << endmsg;
-
-      // Count input TEs
-      if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Number of input TEs = " << tes_in.size() << endmsg;
-      m_impl->m_TotalTEs = tes_in.size();
-
-      // Check for input TEs
-      if ( tes_in.empty() )
-        {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " No trigger elements" << endmsg;
-          break;
-        }
+      // Check for input Trigger elements
+      if ( tes_in.empty() ){
+         ATH_MSG_DEBUG( " No trigger elements" );
+         break;
+      }
+      else ATH_MSG_DEBUG( "Number of input TEs = " << tes_in.size() );
   
-      m_impl->eventStage( hasTE );
- 
+      m_beamSpotTool->eventStage( hasTE );
+      
       //-----------------
       // Track selection
-      //-----------------
 
-      // Create collections of selected tracks
-      // TrigInDetTrackCollection mySelectedTrackCollection( SG::VIEW_ELEMENTS );
-      if (m_doTrigInDetTrack) {
-        ConstDataVector<TrigInDetTrackCollection> mySelectedTrackCollection;
-        mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
-        // FIXME: TrigInDetTrackCollection neglects to forward the
-        // DataVector<TrigInDetTrack>(SG::OwnershipPolicy) constructor
+      ConstDataVector<TrackCollection> mySelectedTrackCollection;
+      mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
 
-        // Process all TEs (and in turn all ROIs in the TE, all tracks in the ROI)
-        m_impl->processTEs( tes_in, mySelectedTrackCollection );
 
-        //-------------------------
-        // Requirements for tracks
-        //-------------------------
+      unsigned nAllTracks = 0;
+      unsigned nSelectedTracks = 0;
+      unsigned nHighPtTracks = 0;
 
-        // Check for seed tracks (= high-pT tracks)
-        if ( m_impl->m_TotalHiPTTracks < 1 )
-        {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " No seed tracks for vertex" << endmsg;
-          break;
-        }
+      //Loop over all Trigger Elements
+      {
+         //Monitor total all/passed/highPt track numbers
+         auto nTotalTracks = Monitored::Scalar<unsigned>("nTotalTracks");
+         auto nTotalPassedTracks = Monitored::Scalar<unsigned>("nTotalPassedTracks");
+         auto nTotalHighPTTracks = Monitored::Scalar<unsigned>("nTotalHighPTTracks");
 
-        m_impl->eventStage( hasSeedTrack );
+         //Monitor how long does it take to loop over all trigger elements
+         auto tTEs = Monitored::Timer("TIME_LoopAllTEs");
+         for ( HLT::TEVec iTE : tes_in){
 
-        // Check for the total number of available tracks
-        if ( m_impl->m_TotalTracksPass < m_impl->m_totalNTrkMin )
-        {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Not enough total passed tracks to vertex" << endmsg;
-          break;
-        }
+            //Skip if no TE
+            if ( iTE.empty() ) continue;
 
-        m_impl->eventStage( enoughTracks );
+            //Monitor  all/passed/highPt track numbers per vector of Trigger Elements
+            auto nPerVecTETracks = Monitored::Scalar<unsigned>("nPerVecTETracks");
+            auto nPerVecTEPassedTracks = Monitored::Scalar<unsigned>("nPerVecTEPassedTracks");
+            auto nPerVecTEHighPTTracks = Monitored::Scalar<unsigned>("nPerVecTEHighPTTracks");
 
-        //-----------------------
-        // Vertex reconstruction
-        //-----------------------
+            //Loop over Trigger Elements
+            for ( HLT::TriggerElement* TE : iTE){ 
+               //Monitor how long does it take to loop over each trigger element
+               auto tTE = Monitored::Timer("TIME_EachTE");
 
-        // Cluster tracks in z around seed track and reconstruct vertices
-        m_impl->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections );
+               //Monitor  all/passed/highPt track numbers per one Trigger Element
+               auto nPerTETracks = Monitored::Scalar<unsigned>("nPerTETracks");
+               auto nPerTEPassedTracks = Monitored::Scalar<unsigned>("nPerTEPassedTracks");
+               auto nPerTEHighPTTracks = Monitored::Scalar<unsigned>("nPerTEHighPTTracks");
+
+               std::vector<const TrackCollection*> vectorOfTrackCollections;
+               //Retrieve trackCollection
+               HLT::ErrorCode status = getFeatures( TE, vectorOfTrackCollections );
+
+               if ( status != HLT::OK ) ATH_MSG_DEBUG( " Failed to get InDetTrackCollections " );
+               else ATH_MSG_DEBUG( " Got " << vectorOfTrackCollections.size() << " InDetTrackCollections" );
+
+               for( const TrackCollection* tracks : vectorOfTrackCollections){
+                  //Select tracks
+                  std::vector<unsigned> nTracks (3, 0); //returning all tracks[0]/passed tracks[1]/ hipt tracks[2] counts
+                  m_beamSpotTool->selectTracks( tracks, mySelectedTrackCollection, nTracks );
+
+                  //Increment counters per TE
+                  nPerTETracks       += nTracks[0]; 
+                  nPerTEPassedTracks += nTracks[1];
+                  nPerTEHighPTTracks += nTracks[2];
+               }
+
+               //Increment counters per vector of TE
+               nPerVecTETracks       +=nPerTETracks;
+               nPerVecTEPassedTracks += nPerTEPassedTracks;
+               nPerVecTEHighPTTracks += nPerTEHighPTTracks;
+
+            //Monitor  number of tracks per Trigger element
+               auto monitor = Monitored::Group(m_monTool, nPerTETracks, nPerTEPassedTracks, nPerTEHighPTTracks, tTE );
+            } //End loop over TEs
+
+            //Increment total track counters
+            nTotalTracks       +=nPerVecTETracks;
+            nTotalPassedTracks += nPerVecTEPassedTracks;
+            nTotalHighPTTracks += nPerVecTEHighPTTracks;
+
+            //Monitor  number of tracks per Vector of Trigger elements
+            auto monitor = Monitored::Group(m_monTool, nPerVecTETracks, nPerVecTEPassedTracks, nPerVecTEHighPTTracks, tTEs );
+         } // End loop over vector of TEs
+
+         //Store counts for all/highPt/selected tracks
+         nAllTracks = nTotalTracks;
+         nHighPtTracks = nTotalHighPTTracks;
+         nSelectedTracks = nTotalPassedTracks;
+
+         //Monitor total number of tracks
+         auto monitor = Monitored::Group(m_monTool, nTotalTracks, nTotalPassedTracks, nTotalHighPTTracks );
+      } //End part of track selection
+
+
+      ATH_MSG_DEBUG( "Number of all Tracks: "<< nAllTracks <<" Selected Tracks: " << nSelectedTracks << " highPt Tracks: " << nHighPtTracks ); 
+
+      if ( !m_beamSpotTool->isHighPTTrack( nHighPtTracks  ) ) {
+         ATH_MSG_DEBUG( " No seed tracks for vertex");
+         break;
       }
-    else {
-        ConstDataVector<TrackCollection> mySelectedTrackCollection;
-        mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
-        // FIXME: TrigInDetTrackCollection neglects to forward the
-        // DataVector<TrigInDetTrack>(SG::OwnershipPolicy) constructor
 
-        // Process all TEs (and in turn all ROIs in the TE, all tracks in the ROI)
-        m_impl->processTEs( tes_in, mySelectedTrackCollection );
+      
 
-        //-------------------------
-        // Requirements for tracks
-        //-------------------------
+      m_beamSpotTool->eventStage( hasSeedTrack );
 
-        // Check for seed tracks (= high-pT tracks)
-        if ( m_impl->m_TotalHiPTTracks < 1 )
-        {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " No seed tracks for vertex" << endmsg;
-          break;
-        }
-
-        m_impl->eventStage( hasSeedTrack );
-
-        // Check for the total number of available tracks
-        if ( m_impl->m_TotalTracksPass < m_impl->m_totalNTrkMin )
-        {
-          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Not enough total passed tracks to vertex" << endmsg;
-          break;
-        }
-
-        m_impl->eventStage( enoughTracks );
-
-        //-----------------------
-        // Vertex reconstruction
-        //-----------------------
-
-        // Cluster tracks in z around seed track and reconstruct vertices
-        m_impl->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections );
+      // Check for the total number of available tracks
+      if( m_beamSpotTool->notEnoughTracks( nSelectedTracks ) ){
+         ATH_MSG_DEBUG( " Not enough total passed tracks to vertex");
+         break;
       }
+
+      m_beamSpotTool->eventStage( enoughTracks );
+
+      //-----------------------
+      // Vertex reconstruction
+      // Cluster tracks in z around seed track and reconstruct vertices
+      m_beamSpotTool->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections );
+
     } while (false);
 
   //------------------------------------
@@ -423,41 +259,292 @@ T2VertexBeamSpot::hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& t
 
   // Add output TEs and attach vertex collections as features if requested
   // JKirk 7/7/16 Need to attach to input TEs
-  m_impl->createOutputTEs( myVertexCollection, mySplitVertexCollections, type_out , tes_in );
+      if( tes_in.size() != 1 ){
+         ATH_MSG_DEBUG( "Number of input TE vectors expected to be 1, is  " << tes_in.size());
+         return errorCode;
+      }
+   auto timeToCreateOutput = Monitored::Timer("TIME_toCreateOutput");
 
-  // Stop monitoring
-  afterExecMonitors().ignore();
+   //Saves all TEs under one vector
+   HLT::TEVec allTEs =  getAllTEs(tes_in);
+   ATH_MSG_DEBUG( "n of all TEs: " << allTEs.size() );
+
+   //Check how many vertices passed the selection 
+   unsigned int nPassedVtx = m_beamSpotTool->m_NvtxPass;
+
+   //Save all events, or only those events which pass the Npv cuts (if activated)!
+   if ( m_activateAllTE ) {
+      ATH_MSG_DEBUG( "Activate all TEs" );
+      // Create an output TE seeded by the inputs
+      HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
+      outputTE->setActiveState(true);
+   }
+
+
+   if ( ! m_activateAllTE && m_activateTE && nPassedVtx > 0 ) {
+      ATH_MSG_DEBUG( "Activate TE with "<< nPassedVtx << " vertices" );
+      // FIXME: Why do we need one TE per vertex?
+      for ( unsigned i=0; i < nPassedVtx; ++i ) {
+         // Create an output TE seeded by the inputs
+         HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
+         outputTE->setActiveState(true);
+      }
+   }
+
+   // Save all events, or only those events which pass the Npv cuts (if activated)
+   if ( ! m_activateAllTE && m_activateSI && m_beamSpotTool->m_passNpvTrigCuts){
+      ATH_MSG_DEBUG( "Activate SI with passed trig vtx cuts" );
+
+      // Create an output TE seeded by the inputs
+      HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
+      outputTE->setActiveState(true);
+   }
+
+
+   if ( m_attachVertices ){
+      //Attach vertex collection feature  to output trigger element
+      attachFeatureVertex(myVertexCollection, allTEs, type_out );
+      //Attach split vertex collection feature  to output trigger element
+      if ( m_attachSplitVertices ) attachFeatureSplitVertex(mySplitVertexCollections, allTEs, type_out );
+   }
+
+
+
+   //Monitoring eventStatistics
+   auto eventStatistics = Monitored::Collection("EventStatistics", m_beamSpotTool->m_eventStage );
+   auto mon = Monitored::Group(m_monTool,  eventStatistics, timeToCreateOutput );
 
   // Return cause you're done!
   return errorCode;
 }
 
 
-//----------
-// Finalize
-//----------
 
-HLT::ErrorCode
-T2VertexBeamSpot::hltFinalize()
-{
-  msg() << MSG::INFO << "T2VertexBeamSpot finalize:" << endmsg;
+HLT::ErrorCode T2VertexBeamSpot::attachFeatureVertex( TrigVertexCollection &myVertexCollection,  HLT::TEVec &allTEs, unsigned int type_out ){
+   ATH_MSG_DEBUG( "Saving primary vertex collection");
 
-  //typedef std::map<std::string, IMonitoredAlgo::IMonitoredVariable*> MapType;
+   // Save primary vertex collection
+   std::unique_ptr<TrigVertexCollection> newColl = std::make_unique< TrigVertexCollection>();
 
-  if ( msgLvl()<=MSG::DEBUG )
-    {
-      for ( IMonitoredAlgo::VariablesMap::const_iterator i = variables().begin(); i != variables().end(); ++i )
-        {
-          msg() << MSG::DEBUG << i->first << " =";
-	  //          const IMonitoredVariable* v = i->second;
-          for ( unsigned j = 0; j < i->second->size(); ++j )
-            msg() << " " << i->second->get(j);
-          msg() << endmsg;
-        }
-    }
+   newColl->clear( SG::VIEW_ELEMENTS );
+   newColl->swap( myVertexCollection ); // swaps ownership
+   // Strip list of tracks from the vertex so we don't persist them.
+   stripTrackList( *newColl );
 
-  msg() << MSG::INFO << "T2VertexBeamSpot done." << endmsg;
-
-  return HLT::OK;
+   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
+   const HLT::ErrorCode status = attachFeature( outputTE, newColl.release() , m_beamSpotTool->m_vertexCollName );
+   if ( status != HLT::OK ) ATH_MSG_DEBUG( "Failed to attach primary vertex collection to output trigger element");
+   return status;
 }
+
+
+HLT::ErrorCode T2VertexBeamSpot::attachFeatureSplitVertex(DataVector< TrigVertexCollection > &mySplitVertexCollections,  HLT::TEVec &allTEs, unsigned int type_out ){
+   ATH_MSG_DEBUG( "Saving split vertex collections");
+   // For each primary vertex we find, we save a group of
+   // (typically two) split vertices in a separate collection
+   // Thus we have:
+   //
+   //    VertexCollection    vector<VertexCollection>
+   //    (primary vertex)    (split vertex collection)      (split vertex 1)  (split vertex 2) ...
+   //  --------------------------------------------------------------------------------------------
+   //    |      PV1           SplitVertexCollection_1  --->      SP1_1             SP1_2       ... 
+   //    |      PV2           SplitVertexCollection_2  --->      SP2_1             SP2_2            
+   //    v      PV3           SplitVertexCollection_3  --->      SP3_1             SP3_2            
+   //           ...
+   //
+
+   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
+
+   // FIXME: This is what we would like to be able to do:
+   // Save vector of split vertex collections
+   //          TrigVertexCollectionVector* newCollVec = new TrigVertexCollectionVector;
+   //          newCollVec->clear( SG::VIEW_ELEMENTS );
+   //          newCollVec->swap( mySplitVertexCollections ); // swaps ownership
+   //          const HLT::ErrorCode status = attachFeature( outputTE, newCollVec, m_vertexCollName );
+   //          if ( status != HLT::OK )
+   //            {
+   //              msg() << MSG::WARNING << "Write of Beamspot feature into outputTE failed" );
+   //            }
+   // FIXME: The above needs a new (container) object to be registered.
+   // FIXME: For the time being we store the individual collections one by one.
+   // Save split vertex collections
+   for ( unsigned i=0; i < mySplitVertexCollections.size(); ++i ){
+      std::ostringstream collName;
+      collName << m_beamSpotTool->m_vertexCollName << "_" << i;
+      TrigVertexCollection* newColl;
+      // Wrestle back ownership of this collection from DataVector
+      mySplitVertexCollections.swapElement( i, 0, newColl );
+      // Strip list of tracks from the vertex so we don't persist them
+      stripTrackList( *newColl );
+
+      const HLT::ErrorCode status = attachFeature( outputTE, newColl, collName.str() );
+      if ( status != HLT::OK ) {
+         ATH_MSG_DEBUG( "Failed to attach split vertex collection " << i
+               << " of " << mySplitVertexCollections.size() << " to output trigger element" );
+         //Should we crash here??
+         //return HLT::Error;
+      }
+
+   }//end loop over splitVertexCollection
+   return HLT::OK;
+}
+
+
+HLT::ErrorCode T2VertexBeamSpot::hltFinalize() {
+   ATH_MSG_DEBUG( "T2VertexBeamSpot finalize:");
+   return HLT::OK;
+}
+
+
+
+
+// ===============================
+//        Run 3 configuration
+
+
+StatusCode T2VertexBeamSpot::initialize() {
+   ATH_MSG_INFO( "Initialising BeamSpot algorithm");
+
+   if( m_beamSpotTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Can't retrieve the beamspot tool!");
+      return StatusCode::FAILURE;
+   }
+
+   ATH_CHECK( m_trackCollections.initialize() ); 
+
+
+   ATH_CHECK( m_outputVertexCollectionKey.initialize() ); 
+
+
+   ATH_CHECK( m_eventInfoKey.initialize() );
+
+   ATH_CHECK( m_monTool.retrieve());
+
+   ATH_MSG_INFO( "Initialising of T2VertexBeamSpot algorithm SUCCESFUL");
+   return StatusCode::SUCCESS;
+}
+
+
+StatusCode T2VertexBeamSpot::execute(){
+   // Start the overall timer
+   auto tTotal = Monitored::Timer("TIME_TotalTime");
+
+   ATH_MSG_DEBUG( "Beam spot algorithm execute method" );
+
+
+
+   //Reset monitored variables from previous event 
+   m_beamSpotTool->resetMonitoredVariables();
+   // Initialize booleans for event stats
+   m_beamSpotTool->m_eventStageFlag = std::vector<bool>( numStatistics, false );
+   m_beamSpotTool->eventStage( allInput );
+
+   const EventContext& ctx = Algorithm::getContext();
+   ATH_MSG_DEBUG( "Run: " << ctx.eventID().run_number() <<
+         " Event Number: " << ctx.eventID().event_number() <<
+         " Lumi Block: " << ctx.eventID().lumi_block() <<
+         " Bunch Crossing ID " << ctx.eventID().bunch_crossing_id() );
+
+   //Pass event ID for vertex splitting alg, TODO: need to revisit 
+   m_beamSpotTool->m_EventID = ctx.eventID().event_number() ;
+
+   //// Initialize vertex collections
+   SG::WriteHandle<TrigVertexCollection> myVertexCollection(m_outputVertexCollectionKey);
+   myVertexCollection = std::make_unique<TrigVertexCollection>();
+
+   //Need to convert to the write handles
+   DataVector< TrigVertexCollection > mySplitVertexCollections;
+
+   ConstDataVector<TrackCollection> mySelectedTrackCollection;
+   mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+
+
+   //Counters to keep track of number of all/selected/highPt tracks
+   unsigned nAllTracks = 0;
+   unsigned nSelectedTracks = 0;
+   unsigned nHighPtTracks = 0;
+
+   ATH_MSG_DEBUG( "Selecting tracks" );
+   //Loop over trackCollections
+   {
+      //Monitor how long does it take to loop over all collections
+      auto tSelectingTracks = Monitored::Timer("TIME_SelectingTracks");
+
+      //Monitor total all/passed/highPt track numbers
+      auto nTotalTracks = Monitored::Scalar<unsigned>("nTotalTracks");
+      auto nTotalPassedTracks = Monitored::Scalar<unsigned>("nTotalPassedTracks");
+      auto nTotalHighPTTracks = Monitored::Scalar<unsigned>("nTotalHighPTTracks");
+      //Loop over track collections and select tracks
+      for (SG::ReadHandleKey<TrackCollection> trackCollectionKey : m_trackCollections) {
+         SG::ReadHandle<TrackCollection> trackCollection (trackCollectionKey); 
+
+         //Check whether collection can be retrieved if not skip the particular collection
+         if( !trackCollection.isValid() ){
+            ATH_MSG_WARNING( "Tracks: " << trackCollectionKey.key() << " Not found. Skiping the collection!" );
+            continue;
+         }
+
+         //Dereference tracks
+         const TrackCollection* tracks = trackCollection.cptr();
+
+         //Select tracks
+         std::vector<unsigned> trackCounter(3,0);//returning all tracks[0]/passed tracks[1]/ hipt tracks[2] counts
+         m_beamSpotTool->selectTracks( tracks, mySelectedTrackCollection, trackCounter );
+
+         //FIXME: make a counter class
+         nTotalTracks       += trackCounter[0];   
+         nTotalPassedTracks += trackCounter[1]; 
+         nTotalHighPTTracks += trackCounter[2];
+      }
+
+      //Store counts for all/highPt/selected tracks
+      nAllTracks = nTotalTracks;
+      nHighPtTracks = nTotalHighPTTracks;
+      nSelectedTracks = nTotalPassedTracks;
+
+      //Monitor total number of tracks
+      auto monitor = Monitored::Group(m_monTool, tSelectingTracks, nTotalTracks, nTotalPassedTracks, nTotalHighPTTracks );
+      ATH_MSG_DEBUG( "Number of all Tracks: "<< nAllTracks <<" Selected Tracks: " << nSelectedTracks << " highPt Tracks: " << nHighPtTracks );
+   }
+
+
+   // Check for seed tracks (= high-pT tracks)
+   if ( ! m_beamSpotTool->isHighPTTrack(nHighPtTracks) ) {
+      ATH_MSG_DEBUG( " No seed tracks for vertex");
+      return StatusCode::SUCCESS;
+   }
+
+   m_beamSpotTool->eventStage( hasSeedTrack );
+
+   // Check for the total number of available tracks
+   if (  ( m_beamSpotTool->notEnoughTracks(nSelectedTracks)) ) {
+      ATH_MSG_DEBUG( "Not enough total passed tracks to vertex");
+      return StatusCode::SUCCESS;
+   }
+
+   m_beamSpotTool->eventStage( enoughTracks );
+
+   ATH_MSG_DEBUG( "Reconstruct vertices" );
+   //Reconstruct vertices if passed track selection
+   {
+      //Monitor how long does it take to loop over all collections
+      auto tReconstructVertices = Monitored::Timer("TIME_ReconstructVertices");
+      m_beamSpotTool->reconstructVertices( mySelectedTrackCollection, *myVertexCollection, mySplitVertexCollections );
+      //Monitor total number of tracks
+      auto monitor = Monitored::Group(m_monTool, tReconstructVertices);
+   }
+
+   //Do i want to call createOutputTEs even if the conditions are not fulfilled?
+   ATH_MSG_DEBUG( "Number of track collection containers: " << mySelectedTrackCollection.size() );
+
+   //What should go as an output? SelectedTrackCollection and Vertices?
+   //Atm just try add vertex
+   //TODO: adding split vertices as well, will need an array
+
+
+   //Monitoring eventStatistics
+   auto eventStatistics = Monitored::Collection("EventStatistics", m_beamSpotTool->m_eventStage );
+   auto monitor = Monitored::Group(m_monTool, eventStatistics, tTotal);
+   return StatusCode::SUCCESS;
+} 
 

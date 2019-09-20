@@ -450,13 +450,11 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
     if rec.doFileMetaData():
 
         # # Determine current skimming cycle and input stream name
-        # svcMgr.CutFlowSvc.SkimmingCycle=currentCycle
         # svcMgr.CutFlowSvc.InputStream=rec.mergingStreamName()
         # #svcMgr.CutFlowSvc.OutputLevel=DEBUG
 
         #Exception for DPD pass-through mode
         if rec.doDPD.passThroughMode:
-            svcMgr.CutFlowSvc.SkimmingCycle=0
             svcMgr.CutFlowSvc.InputStream="Virtual"
             pass
 

@@ -9,6 +9,7 @@ atlas_subdir( TRT_TrigStandaloneTrackFinder )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkSegment
+                          Tracking/TrkEvent/TrkEventUtils
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
                           DetectorDescription/GeoPrimitives
@@ -30,7 +31,7 @@ atlas_add_component( TRT_TrigStandaloneTrackFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkSegment TrigInterfacesLib GeoPrimitives EventPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrigParticle )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkSegment TrigInterfacesLib GeoPrimitives EventPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrigParticle TrkEventUtils)
 
 # Install files from the package:
 atlas_install_headers( TRT_TrigStandaloneTrackFinder )

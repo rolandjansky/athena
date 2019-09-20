@@ -112,9 +112,13 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     /// Fill an xAOD object with pt, rap,phi
     void fillTrigObjectKinematics(xAOD::TrigBphys* bphys, const std::vector<const xAOD::TrackParticle*> &ptls);
     
+    Amg::Vector3D getBeamSpot(const EventContext& ctx) const;
+
     /// Use the fitted position and the beamline to determine lxy, tau, etc.
     /// call after setting the kinematic values, to do ok.
-    void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls);
+    /// Try to factor getBeamSpot outside of loop.
+    void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls,
+                       const Amg::Vector3D& beamSpot);
 
     std::unique_ptr<Trk::IVKalState> makeVKalState() const;
 
@@ -133,7 +137,7 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     ToolHandle < Trk::IVertexFitter  >       m_fitterSvc;
     Trk::TrkVKalVrtFitter*              m_VKVFitter;
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-    const double m_massMuon;
+    static constexpr double s_massMuon = 105.6583715;
 };
 
 // I/O operators

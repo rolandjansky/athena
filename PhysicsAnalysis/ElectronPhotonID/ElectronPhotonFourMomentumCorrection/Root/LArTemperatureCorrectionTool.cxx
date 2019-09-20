@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TParameter.h>
@@ -14,7 +14,7 @@ T get_value_parameter(TFile& f, const std::string& name)
   return p->GetVal();
 }
 
-LArTemperatureCorrectionTool::LArTemperatureCorrectionTool(std::string filename)
+LArTemperatureCorrectionTool::LArTemperatureCorrectionTool(const std::string& filename)
 : asg::AsgMessaging("LArTemperatureCorrectionTool"), m_file(TFile::Open(filename.c_str()))
 {
   if (!m_file or m_file->IsZombie()) { ATH_MSG_ERROR("cannot open file"); }

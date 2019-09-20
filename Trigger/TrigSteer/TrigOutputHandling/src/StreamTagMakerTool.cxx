@@ -122,6 +122,8 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     const std::vector<StreamTagInfo>& streams = mappingIter->second;
     for (const StreamTagInfo& streamTagInfo : streams) {
       auto [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
+      ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " accepted event into stream " << st_type << "_" << st_name
+                    << " (obeysLB=" << obeysLB << ", forceFullEvent=" << forceFullEvent << ")");
       std::set<uint32_t> robs;
       std::set<eformat::SubDetector> subdets;
       if (!forceFullEvent) {

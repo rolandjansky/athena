@@ -47,8 +47,9 @@ from AthenaServices.AthenaServicesConf import AthReadAlg
 topSequence += AthReadAlg ('cvecCnv',
                            Key = 'DMTest::CVec/cvec')
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestReadCVec
 from DataModelTestDataRead.DataModelTestDataReadConf import \
-     DMTest__xAODTestReadCVec, \
      DMTest__xAODTestReadCInfo, \
      DMTest__xAODTestReadCView, \
      DMTest__xAODTestReadHVec, \

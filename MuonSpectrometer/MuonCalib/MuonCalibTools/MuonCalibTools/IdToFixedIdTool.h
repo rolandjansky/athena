@@ -24,6 +24,10 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "Identifier/Identifier.h"
 
+namespace Muon {
+    class MuonIdHelperTool;
+}
+
 namespace MuonCalib {
 
 /**
@@ -54,12 +58,7 @@ class IdToFixedIdTool : public AthAlgTool, virtual public MuonCalib::IIdToFixedI
     Identifier regionKeyToId(std::string region) const;   //!< Returns an ATHENA Identifier for a given Region key. 
 
  private:
-    const MuonGM::MuonDetectorManager*  p_MuonMgr;     //!< pointer to Detector manager
-
-    const MdtIdHelper*                  p_MdtIdHelper; //!< MDT IdHelper
-    const CscIdHelper*                  p_CscIdHelper; //!< CSC IdHelper
-    const RpcIdHelper*                  p_RpcIdHelper; //!< RPC IdHelper 
-    const TgcIdHelper*                  p_TgcIdHelper; //!< TGC IdHelper 
+    ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
 
     int                                 m_print_level; //!< Sets printlevel of output
     mutable Identifier                  m_identifier;  //!< object to store ATHENA Identifier in

@@ -15,7 +15,8 @@
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/TrackData.h"
 
-class MdtIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -70,7 +71,8 @@ class MuFastPatternFinder: public AthAlgTool
       ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
 
       // Id helper
-      const MdtIdHelper* m_mdtIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+         "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
 };
 

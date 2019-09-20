@@ -59,7 +59,8 @@ calibStreams = [
                 'BeamSpot',
                 'zdcCalib',
                 'AFP',
-                'L1TopoMismatches'
+                'L1TopoMismatches',
+                'RPCSecondaryReadout'
                 ]
 
 fullEventBuildingStreams = ['Main',

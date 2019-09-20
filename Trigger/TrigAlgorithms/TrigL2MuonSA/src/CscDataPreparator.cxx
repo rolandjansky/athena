@@ -81,11 +81,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    ATH_CHECK( m_cscClusterProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
 
-   // CSC ID helper
-   ATH_CHECK( detStore()->retrieve(m_muonMgr, "Muon") );
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
-   m_cscIdHelper = m_muonMgr->cscIdHelper();
-
+   // Tool for CSC ID helper
+   ATH_CHECK( m_muonIdHelperTool.retrieve() );
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
@@ -202,13 +199,13 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 
 	// Create new digit
 	TrigL2MuonSA::CscHitData cscHit;
-	cscHit.StationName  = m_cscIdHelper->stationName( prepData.identify() );
-	cscHit.StationEta   = m_cscIdHelper->stationEta( prepData.identify() );
-	cscHit.StationPhi   = m_cscIdHelper->stationPhi( prepData.identify() );
-	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;//m_cscIdHelper->chamberLayer( prepData.identify() );
-	cscHit.WireLayer    = m_cscIdHelper->wireLayer( prepData.identify() );
-	cscHit.MeasuresPhi  = m_cscIdHelper->measuresPhi( prepData.identify() );
-	cscHit.Strip        = m_cscIdHelper->strip( prepData.identify() );
+	cscHit.StationName  = m_muonIdHelperTool->cscIdHelper().stationName( prepData.identify() );
+	cscHit.StationEta   = m_muonIdHelperTool->cscIdHelper().stationEta( prepData.identify() );
+	cscHit.StationPhi   = m_muonIdHelperTool->cscIdHelper().stationPhi( prepData.identify() );
+	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;//m_muonIdHelperTool->cscIdHelper().chamberLayer( prepData.identify() );
+	cscHit.WireLayer    = m_muonIdHelperTool->cscIdHelper().wireLayer( prepData.identify() );
+	cscHit.MeasuresPhi  = m_muonIdHelperTool->cscIdHelper().measuresPhi( prepData.identify() );
+	cscHit.Strip        = m_muonIdHelperTool->cscIdHelper().strip( prepData.identify() );
 	cscHit.Chamber      = chamber;
 	cscHit.StripId = (cscHit.StationName << 18)
 	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)

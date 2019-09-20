@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkSegment
                           Tracking/TrkEvent/TrkTrack
+                          Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Control/CxxUtils
@@ -21,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_StandaloneTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkSegment TrkTrack InDetRecToolInterfaces TrkEventPrimitives TrkParameters )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkSegment TrkTrack InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkEventUtils )
 
 # Install files from the package:
 atlas_install_headers( TRT_StandaloneTrackFinder )

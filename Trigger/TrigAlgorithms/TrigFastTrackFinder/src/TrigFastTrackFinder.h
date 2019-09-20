@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 
@@ -44,6 +45,7 @@ class Identifier;
 namespace InDet { 
   class SiSpacePointsSeed;
   class ISiTrackMaker; 
+  class SiTrackMakerEventData_xk;
 }
 
 namespace Trk {
@@ -74,7 +76,9 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
 
-  StatusCode findTracks(const TrigRoiDescriptor& roi, TrackCollection& outputTracks);
+  StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
+                        const TrigRoiDescriptor& roi,
+                        TrackCollection& outputTracks);
 
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
@@ -110,6 +114,8 @@ protected:
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<TrackCollection> m_outputTracksKey;
 
+  SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
+     {this,"PRDtoTrackMap",""};
  
   double m_shift_x, m_shift_y;
 

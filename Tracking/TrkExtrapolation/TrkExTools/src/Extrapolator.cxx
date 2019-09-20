@@ -37,7 +37,6 @@
 // #include "TrkParameters/CurvilinearParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/ExtrapolationCache.h"
-#include "CxxUtils/make_unique.h"
 // for the comparison with a pointer
 #include <stdint.h>
 // Amg
@@ -4501,7 +4500,7 @@ Trk::Extrapolator::extrapolate(
   // reset the path
   cache.m_path = 0.;
   // initialize parameters vector
-  cache.m_identifiedParameters = CxxUtils::make_unique<identifiedParameters_t>();
+  cache.m_identifiedParameters = std::make_unique<identifiedParameters_t>();
   // initialize material collection
   cache.m_matstates = material;
   // dummy input

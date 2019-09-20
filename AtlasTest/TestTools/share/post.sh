@@ -231,6 +231,9 @@ PP="$PP"'|Ran [0-9]+ tests in'
 # Verbosity cleanup in TileInfoLoader.
 PP="$PP"'|^TileInfoLoader +INFO'
 
+# Ignore new output stream helper tools.
+PP="$PP"'|Found HelperTools'
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"

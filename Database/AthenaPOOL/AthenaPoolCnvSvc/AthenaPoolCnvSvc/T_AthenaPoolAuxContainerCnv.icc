@@ -47,7 +47,7 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistentWithKey( AUXST
  */
 template <class AUXSTORE, class ... TPCNVS>
 AUXSTORE*
-T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransientWithKey (const std::string& /*key*/)
+T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransientWithKey (const std::string& key)
 {
   AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<AUXSTORE>::ID());
   if ( this->compareClassGuid( m_guid ) ) {
@@ -56,9 +56,9 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransientWithKey (const 
   }
 
   // Try a converter.
-  AUXSTORE* c = m_tpcnvs.createTransient (*this, this->msg());
+  std::unique_ptr<AUXSTORE> c = m_tpcnvs.createTransient (*this, key, this->msg());
   if (c)
-    return c;
+    return c.release();
 
   // Didn't recognize the GUID.
   AthenaPoolCnvSvc::throwExcUnsupportedVersion (typeid(AUXSTORE),

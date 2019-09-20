@@ -5,9 +5,7 @@
 #ifndef CALOSIMEVENTTPCNV_CALOCALIBRATIONHITCONTAINERCNV_P2_H
 #define CALOSIMEVENTTPCNV_CALOCALIBRATIONHITCONTAINERCNV_P2_H
 
-#define private public
 #include "CaloSimEventTPCnv/CaloCalibrationHitContainer_p2.h"
-#undef private 
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 

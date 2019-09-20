@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuGirlStau/StauFcn.h"
@@ -9,7 +9,6 @@
 #include "MuGirlStau/StauGF.h"
 #include "MuGirlStau/StauTileCal.h"
 #include "MuGirlStau/StauMDTT.h"
-#include "CxxUtils/make_unique.h"
 //================ Constructor =================================================
 
 MuGirlNS::StauFcn::StauFcn(StauTool* pStauTool, MsgStream& log) :
@@ -86,7 +85,7 @@ double MuGirlNS::StauFcn::function(double currentBeta, StauTechnology eTech)
 
     if (doMdtt)
     {
-      pFcnStep->mdttData = CxxUtils::make_unique<MdttStepData>();
+      pFcnStep->mdttData = std::make_unique<MdttStepData>();
       m_pStau->pStauMDTT()->initStepData(pFcnStep->mdttData.get(), currentBeta);
       m_pStau->pStauMDTT()->processWithBeta(currentBeta, pFcnStep->mdttData.get());
       fcnStepChi2 += pFcnStep->mdttData->chi2;

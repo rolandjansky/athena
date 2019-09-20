@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ------------------------------------------------------------
 #
@@ -57,8 +57,7 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
                                                SpacePointsPixelName   = 'SCT_CosmicsTrigSpacePoints',
                                                SpacePointsSCTName     = 'PixelCosmicsTrigSpacePoints',
                                                #SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                               UseAssociationTool     = False,
-                                               AssociationTool        =  InDetTrigPrdAssociationTool)
+                                               PRDtoTrackMap          = '')
     elif lowPt:
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsLowPt import InDetTrigSiSpacePointsSeedMakerLowPt
       InDetTrigSiSpacePointsSeedMaker = InDetTrigSiSpacePointsSeedMakerLowPt
@@ -161,7 +160,6 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
       InDetTrigSiTrackMaker.pTmin = EFIDTrackingCutsBeamGas.minPT()
       InDetTrigSiTrackMaker.nClustersMin = EFIDTrackingCutsBeamGas.minClusters()
       InDetTrigSiTrackMaker.nHolesMax = EFIDTrackingCutsBeamGas.nHolesMax()
-      InDetTrigSiTrackMaker.UseAssociationTool = True       #for BG and LowPt
     elif type=="cosmicsN":   
       #create an additional for cosmics
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics

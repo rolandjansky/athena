@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMPLEAMBIGUITYPROCESSORTOOL_H
@@ -85,8 +85,8 @@ namespace Trk {
       // default methods
       SimpleAmbiguityProcessorTool(const std::string&,const std::string&,const IInterface*);
       virtual ~SimpleAmbiguityProcessorTool ();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       /**Returns a processed TrackCollection from the passed 'tracks'
 	 @param tracks collection of tracks which will have ambiguities resolved. Will not be 
@@ -98,7 +98,7 @@ namespace Trk {
       virtual TrackCollection*  process(TracksScores* scoredTracks) override;
 
       /** statistics output */
-      virtual void statistics();
+      virtual void statistics() override;
 
     private:
       TrackCollection*  process_vector(std::vector<const Track*> &tracks);

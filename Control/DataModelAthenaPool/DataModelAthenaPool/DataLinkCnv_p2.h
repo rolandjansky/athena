@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELATHENAPOOL_DATALINKCNV_p2_H
@@ -20,18 +20,22 @@
 
 template <class DLINK_TYPE>
 class DataLinkCnv_p2
-   : public T_AthenaPoolTPCnvBase< DLINK_TYPE, DataLink_p2 > {
+   : public T_AthenaPoolTPCnvConstBase< DLINK_TYPE, DataLink_p2 > {
 public:
+  using base_class = T_AthenaPoolTPCnvConstBase< DLINK_TYPE, DataLink_p2 >;
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
   typedef	DLINK_TYPE	DLink_t;
   typedef 	DataLink_p2	PersDLink_t;
 
   DataLinkCnv_p2() {}
   
-  virtual void persToTrans(const PersDLink_t* pers, DLink_t* trans, MsgStream& log) ;
-  virtual void transToPers(const DLink_t* trans, PersDLink_t* pers, MsgStream& log) ;
+  virtual void persToTrans(const PersDLink_t& pers, DLink_t& trans, MsgStream& log) const;
+  virtual void transToPers(const DLink_t& trans, PersDLink_t& pers, MsgStream& log) const;
 
-  virtual void persToTrans(const PersDLink_t& pers, DLink_t& trans, MsgStream& log) ;
-  virtual void transToPers(const DLink_t& trans, PersDLink_t& pers, MsgStream& log) ;
+  virtual void persToTrans(const PersDLink_t* pers, DLink_t* trans, MsgStream& log) const override;
+  virtual void transToPers(const DLink_t* trans, PersDLink_t* pers, MsgStream& log) const override;
 };
 
 #ifndef __REFLEX__

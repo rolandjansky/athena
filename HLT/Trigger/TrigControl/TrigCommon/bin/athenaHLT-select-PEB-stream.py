@@ -113,39 +113,39 @@ def peb_writer(argv):
       continue
 
     if kwargs['max-events'] > 0 and totalEvents_in >= kwargs['max-events']:
-      logging.info(' Maximum number of events reached : %d' % kwargs['max-events'])
+      logging.info(' Maximum number of events reached : %d', kwargs['max-events'])
       break
 
     # find StreamTags and see if there is a match
     streamTags = e.stream_tag()
-    logging.debug(' === New Event nr = %s (Run,Global ID) = (%d,%d) === ' % (totalEvents_in,e.run_no(),e.global_id()))
+    logging.debug(' === New Event nr = %s (Run,Global ID) = (%d,%d) === ', totalEvents_in,e.run_no(),e.global_id())
     for tag in streamTags:
       if tag.name == streamName:
         # the event should be written out        
-        logging.debug(' Matching event found for stream tag = %s' % tag)
-        logging.debug('      Stream Tag:Robs = %s' % [hex(r) for r in tag.robs])
-        logging.debug('      Stream Tag:Dets = %s' % [hex(d) for d in tag.dets])
+        logging.debug(' Matching event found for stream tag = %s', tag)
+        logging.debug('      Stream Tag:Robs = %s', [hex(r) for r in tag.robs])
+        logging.debug('      Stream Tag:Dets = %s', [hex(d) for d in tag.dets])
 
         # check the lumi block number from the event against the lumi block number defined for the file
         # this check is only done if the lumi block number for the file is different from 0
         if lumiBlockNumber > 0:
           if e.lumi_block() != lumiBlockNumber:
             logging.error(' Event (Run,Global ID) = (%d,%d) has a lumi block number %d,'
-                          ' which is different from LB = %d for the output file. Event skipped.' % 
+                          ' which is different from LB = %d for the output file. Event skipped.',
                           (e.run_no(),e.global_id(),e.lumi_block(),lumiBlockNumber))
             continue
 
         # check that all events have the same run number as the output file indicates otherwise skip event
         if e.run_no() != runNumber:
             logging.error(' Event (Run,Global ID) = (%d,%d) has a run number,'
-                          ' which is different from the run number = %d for the output file. Event skipped.' % 
+                          ' which is different from the run number = %d for the output file. Event skipped.',
                           (e.run_no(),e.global_id(),runNumber))
             continue
 
         # set the overall tag type for the first match
         if streamType != tag.type:
           streamType = tag.type
-          logging.debug(' streamType set to = %s' % streamType)
+          logging.debug(' streamType set to = %s', streamType)
           # create the RAW output file name
           outRawFile = eformat.EventStorage.RawFileName(projectTag,
                                                         runNumber,
@@ -154,7 +154,7 @@ def peb_writer(argv):
                                                         lumiBlockNumber,
                                                         applicationName,
                                                         productionStep)
-          logging.debug(' set output file name = %s'% outRawFile.fileNameCore())
+          logging.debug(' set output file name = %s', outRawFile.fileNameCore())
 
           # create the output stream
           ostream = eformat.ostream(directory=outputDirectory,
@@ -195,11 +195,11 @@ def peb_writer(argv):
         totalEvents_out += 1
 
   # print final statistics
-  logging.info('Total number of events processed          = %d ' % totalEvents_in)
-  logging.info('Number of events skipped at the beginning = %d ' % totalEvents_skipped)
-  logging.info('Number of events written to output file   = %d ' % totalEvents_out)
+  logging.info('Total number of events processed          = %d ', totalEvents_in)
+  logging.info('Number of events skipped at the beginning = %d ', totalEvents_skipped)
+  logging.info('Number of events written to output file   = %d ', totalEvents_out)
   if totalEvents_out > 0:
-    logging.info('Output file                               = %s ' % ostream.last_filename())   
+    logging.info('Output file                               = %s ', ostream.last_filename())
 
   sys.exit(0)
 

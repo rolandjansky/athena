@@ -28,7 +28,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLinkN_xk.h"
-
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
@@ -37,7 +37,6 @@ class MsgStream;
 namespace Trk {
 
   class IPropagator;
-  class IPRD_AssociationTool;
 }
 
 namespace InDet{
@@ -103,16 +102,16 @@ namespace InDet{
       ServiceHandle<IGeoModelSvc>            m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
       ToolHandle<Trk::IPropagator>           m_propTool        ; // Propagator            tool
       ToolHandle<ITRT_TrackExtensionTool>    m_extensionTool   ; // TRT track extension   tool
-      ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool        ; // Track-PRD association tool
 
       Trk::MagneticFieldProperties           m_fieldprop       ; // Magnetic field properties
       const InDetDD::TRT_DetectorManager   * m_trtmgr          ;
       const TRT_ID                         * m_trtid           ; 
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; // TRTs   container ; // Name  TRT container
-      
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};
+
       bool                                   m_build           ;
       bool                                   m_gupdate         ;
-      bool                                   m_useassoTool     ;
       bool                                   m_removeNoise     ;
       int                                    m_outputlevel     ;
       int                                    m_nprint          ;
@@ -167,7 +166,7 @@ namespace InDet{
       void fillHistogramm   (float,int);
       void analyseHistogramm(unsigned char&,unsigned int&,float,int);
       unsigned int localMaximum(unsigned int);
-      void findLocaly(unsigned int); 
+      void findLocaly(unsigned int, const Trk::PRDtoTrackMap *prd_to_track_map); 
       void segmentsPreparation();
       
       MsgStream&    dumpConditions(MsgStream   & out) const;

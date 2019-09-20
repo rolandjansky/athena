@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +44,8 @@ namespace DerivationFramework {
       bool m_maxDeltaR;
       bool m_minPt;
 
-      ToolHandle < TauAnalysisTools::ITauTruthTrackMatchingTool > m_T3MT;
+#warning FIXME: ToolHandle constness workaround.
+      mutable ToolHandle < TauAnalysisTools::ITauTruthTrackMatchingTool > m_T3MT;
 
       StatusCode select(xAOD::TrackParticleContainer*& tauPVTracks) const;
 

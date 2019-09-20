@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDetectorFactory.h"
@@ -63,6 +63,9 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
   // These are items that are shared by all elements
   SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
   m_geometryManager->setCommonItems(commonItems);
+
+  // Add SiCommonItems to PixelDetectorManager to hold and delete it.
+  m_detectorManager->setCommonItems(commonItems);
  
   // Determine if initial layer and tag from the id dict are consistent
   bool initialLayoutIdDict = (m_detectorManager->tag() == "initial_layout");

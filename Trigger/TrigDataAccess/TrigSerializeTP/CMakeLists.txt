@@ -9,9 +9,7 @@ atlas_subdir( TrigSerializeTP )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          GaudiKernel
-                          PRIVATE
-                          Control/CxxUtils )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -22,10 +20,10 @@ atlas_add_library( TrigSerializeTPLib
                    PUBLIC_HEADERS TrigSerializeTP
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_component( TrigSerializeTP
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils TrigSerializeTPLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrigSerializeTPLib )
 
