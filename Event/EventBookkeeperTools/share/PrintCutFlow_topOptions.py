@@ -18,11 +18,6 @@ if not 'stream' in dir():
         print("WARNING Unable to determine input stream name. Will Print all streams.")
         stream = 'any'
 
-## if not 'cycle' in dir():
-##     from RecExConfig.InputFilePeeker import inputFileSummary
-##     from RecExConfig.RecoFunctions import GetSkimCycle
-##     cycle=GetSkimCycle(inputFileSummary)
-
 from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
 svcMgr+=CutFlowSvc()
 theApp.CreateSvc+=['CutFlowSvc']
@@ -30,9 +25,6 @@ theApp.CreateSvc+=['CutFlowSvc']
 
 svcMgr.CutFlowSvc.OutputLevel=INFO
 #svcMgr.CutFlowSvc.OutputLevel=DEBUG
-if 'cycle' in dir():
-    svcMgr.CutFlowSvc.SkimmingCycle=cycle
-    pass
 if 'virtual' in dir():
     svcMgr.CutFlowSvc.printVirtualFilters=virtual
     pass
