@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  DataModelAthenaPool/test/NavigableCnv_p1_test.cxx
  * @author scott snyder
@@ -43,6 +41,7 @@ typedef Navigable<MyVI, int> NIpar;
 
 void test1()
 {
+  std::cout << "test1\n";
   MsgStream log (0, "test");
   NavigableCnv_p1<NI> cnv;
   NI ni1;
@@ -50,13 +49,14 @@ void test1()
   ni1.insertElement (ElementLink<MyVI> ("key", 20));
   NavigableCnv_p1<NI>::PersNavigable_t p1;
   cnv.transToPers (ni1, p1, log);
-#if 0
-  assert (p1.m_links.size() == 2);
-  assert (p1.m_links[0].m_elementIndex == 10);
-  assert (p1.m_links[0].m_SGKeyHash == 152280269);
-  assert (p1.m_links[1].m_elementIndex == 20);
-  assert (p1.m_links[1].m_SGKeyHash == 152280269);
-#endif
+  assert (p1.m_links.m_links.size() == 1);
+  assert (p1.m_links.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links.m_elementRefs.size() == 2);
+  assert (p1.m_links.m_elementRefs[0].m_elementIndex == 10);
+  assert (p1.m_links.m_elementRefs[0].m_nameIndex == 0);
+  assert (p1.m_links.m_elementRefs[1].m_elementIndex == 20);
+  assert (p1.m_links.m_elementRefs[1].m_nameIndex == 0);
+
   NI ni2;
   cnv.persToTrans (p1, ni2, log);
   assert (ni2.size() == 2);
@@ -71,6 +71,7 @@ void test1()
 
 void test2()
 {
+  std::cout << "test2\n";
   MsgStream log (0, "test");
   NavigableCnv_p1<NIpar> cnv;
   NIpar ni1;
@@ -78,16 +79,17 @@ void test2()
   ni1.insertElement (ElementLink<MyVI> ("key", 20), 102);
   NavigableCnv_p1<NIpar>::PersNavigable_t p1;
   cnv.transToPers (ni1, p1, log);
-#if 0
-  assert (p1.m_links.size() == 2);
-  assert (p1.m_links[0].m_elementIndex == 10);
-  assert (p1.m_links[0].m_SGKeyHash == 152280269);
-  assert (p1.m_links[1].m_elementIndex == 20);
-  assert (p1.m_links[1].m_SGKeyHash == 152280269);
+  assert (p1.m_links.m_links.size() == 1);
+  assert (p1.m_links.m_links[0].m_SGKeyHash == 152280269);
+  assert (p1.m_links.m_elementRefs.size() == 2);
+  assert (p1.m_links.m_elementRefs[0].m_elementIndex == 10);
+  assert (p1.m_links.m_elementRefs[0].m_nameIndex == 0);
+  assert (p1.m_links.m_elementRefs[1].m_elementIndex == 20);
+  assert (p1.m_links.m_elementRefs[1].m_nameIndex == 0);
   assert (p1.m_parameters.size() == 2);
   assert (p1.m_parameters[0] == 101);
   assert (p1.m_parameters[1] == 102);
-#endif
+
   NIpar ni2;
   cnv.persToTrans (p1, ni2, log);
   assert (ni2.size() == 2);
@@ -104,6 +106,7 @@ void test2()
 
 int main()
 {
+  std::cout << "DataModelAthenaPool/NavigableCnv_p1_test\n";
   SGTest::initTestStore();
   test1();
   test2();
