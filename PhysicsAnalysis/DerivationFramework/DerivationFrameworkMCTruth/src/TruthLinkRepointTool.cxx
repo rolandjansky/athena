@@ -51,7 +51,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input); 
       int index = find_match(truthPart,target);
-      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
+      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(*target,index):ElementLink<xAOD::TruthParticleContainer>();
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Photon")){
     const DataHandle<xAOD::PhotonContainer> inputCont(nullptr);
@@ -59,7 +59,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
       int index = find_match(truthPart,target);
-      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
+      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(*target,index):ElementLink<xAOD::TruthParticleContainer>();
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Muon")){
     const DataHandle<xAOD::MuonContainer> inputCont(nullptr);
@@ -67,7 +67,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
       int index = find_match(truthPart,target);
-      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
+      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(*target,index):ElementLink<xAOD::TruthParticleContainer>();
     } // Loop over input particles
   }
 
