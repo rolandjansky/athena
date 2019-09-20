@@ -16,8 +16,6 @@
 
 #include "TrigL2TrkMassFex.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
