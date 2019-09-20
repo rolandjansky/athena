@@ -35,16 +35,7 @@ StatusCode EgammaReSamp2Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   int sampling = 2;
 
   LArTT_Selector<LArCellCont> sel;
-  struct timeval t1,t2;
-  gettimeofday(&t1,NULL);
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, TTEM, sampling, sel) );
-  gettimeofday(&t2,NULL);
-  std::cout << "From within EgammaReSamp2Fex::execute" << std::endl;
-  std::cout << t1.tv_sec << " " << t1.tv_usec << std::endl;
-  std::cout << t2.tv_sec << " " << t2.tv_usec << std::endl;
-  double timelength = (t2.tv_sec-t1.tv_sec)*1e3;
-  timelength += (t2.tv_usec-t1.tv_usec)*1e-3;
-  std::cout << "timelength : " << timelength << std::endl;
 
   double energyEta = 0.;
   double energyPhi = 0.;

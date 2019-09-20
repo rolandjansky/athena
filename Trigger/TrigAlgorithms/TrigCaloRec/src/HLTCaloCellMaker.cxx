@@ -49,7 +49,6 @@ StatusCode HLTCaloCellMaker::initialize() {
 
 StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
-  std::cout << "HLTCaloCellMaker::execute" << std::endl;
   auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
   if ( not roisHandle.isValid() ) {
     ATH_MSG_ERROR("Cell maker did not get a valid RoIs collection");
@@ -74,9 +73,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
 	cdv->setHasCalo(CaloCell_ID::TILE);
 	cdv->updateCaloIterators();
-	std::cout << cdv->size() << " ";
-	if ( cdv->size() > 0 ) std::cout << cdv->at(0)->e();
-	std::cout << std::endl;
 	
       } else {
 	// TT EM PART
@@ -115,9 +111,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	}
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
 	cdv->updateCaloIterators();
-	std::cout << cdv->size() << " ";
-	if ( cdv->size() > 0 ) std::cout << cdv->at(0)->e();
-	std::cout << std::endl;
       }
       ATH_MSG_INFO ("Producing "<<cdv->size()<<" cells");
       auto ss = cellContainer.record( std::move(cdv) );
@@ -135,9 +128,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
 	cellContainerV->push_back( c.release()->asDataVector() );
-	std::cout << c->size() << " ";
-	if ( c->size() > 0 ) std::cout << c->at(0)->e();
-	std::cout << std::endl;
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 
@@ -177,9 +167,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         }
         c->setHasCalo(CaloCell_ID::LARFCAL);
         c->updateCaloIterators();
-	std::cout << c->size() << " ";
-	if ( c->size() > 0 ) std::cout << c->at(0)->e();
-	std::cout << std::endl;
 	cellContainerV->push_back( c.release()->asDataVector() );
       }
     }
