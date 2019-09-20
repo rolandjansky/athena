@@ -91,19 +91,19 @@ void testPtErr() {
      try {
        // std::cout << "DEBUG check pTErr2 "  << *pt_err2_iter << " vs " << xAOD::TrackingHelpers::pTErr2(tp)
        //           << " -> " << std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2(tp)))/ (*pt_err2_iter)
-       //           << " <? " << std::numeric_limits<double>::epsilon()
+       //           << " <? " << std::numeric_limits<float>::epsilon()
        //           << " | qOverp=" << (tp ? tp->qOverP() : 0 ) << " theta=" << (tp ? tp->theta() : 0)
        //           << std::endl;
-       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2(tp)))/ (*pt_err2_iter) < std::numeric_limits<double>::epsilon() );
-       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErr(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<double>::epsilon() );
+       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2(tp)))/ (*pt_err2_iter) < std::numeric_limits<float>::epsilon() );
+       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErr(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<float>::epsilon() );
      }
      catch (std::exception &err) {
        assert( *valid_iter == false );
      }
 
      if (*valid_iter ) {
-       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2Unsafe(tp)))/ (*pt_err2_iter) < std::numeric_limits<double>::epsilon() );
-       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErrUnsafe(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<double>::epsilon() );
+       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2Unsafe(tp)))/ (*pt_err2_iter) < std::numeric_limits<float>::epsilon() );
+       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErrUnsafe(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<float>::epsilon() );
      }
 
      ++pt_err2_iter;
