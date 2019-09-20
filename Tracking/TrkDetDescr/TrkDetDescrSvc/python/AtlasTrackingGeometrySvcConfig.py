@@ -24,7 +24,7 @@ def _setupCondDB(flags, CoolDataBaseFolder):
     print('[ TrackingGeometrySvc ]     translated to COOL: ' + cfolder)
 
     # load the right folders
-    result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder]) )
+    result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder],splitMC=True) )
     return result
     
 def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, namePrefix='', setLayerAssociation = True, buildTrtStrawLayers = False):
