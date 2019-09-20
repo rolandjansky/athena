@@ -609,13 +609,17 @@ public:
 /** @class TPConverterConstBase
     TP Converter template for a "regular" type.
     In contrast to @c TPConverterBase, this calls const methods to do
-    the conversion.  (Objects are also passed by reference rather than pointer.)
+    the conversion.
 */
 template< class TRANS, class PERS >
 class TPConverterConstBase
    : public TPConverterBase< TRANS,  PERS >
 {
 public:
+  // To shorten using declarations in derived classes.
+  using base_class = TPConverterConstBase;
+
+
   /** Convert persistent representation to transient one. Copies data
       members from persistent object to an existing transient one.
       Needs to be implemented by the developer on the actual converter. 
@@ -623,9 +627,9 @@ public:
       @param transObj [IN] transient object
       @param log [IN] output message stream
   */
-  virtual void persToTransConst (const PERS& persObj,
-                                 TRANS& transObj,
-                                 MsgStream &log) const = 0;
+  virtual void persToTrans (const PERS* persObj,
+                            TRANS* transObj,
+                            MsgStream &log) const = 0;
 
 
   /** Convert transient representation to persistent one. Copies data
@@ -635,25 +639,25 @@ public:
       @param persObj [IN] persistent object
       @param log [IN] output message stream
   */  
-  virtual void transToPersConst (const TRANS& transObj,
-                                 PERS& persObj,
-                                 MsgStream &log) const = 0;
+  virtual void transToPers (const TRANS* transObj,
+                            PERS* persObj,
+                            MsgStream &log) const = 0;
 
 
   // These call through to the const implementations.
   virtual void persToTrans(const PERS* persObj,
                            TRANS* transObj,
-                           MsgStream &log) override
+                           MsgStream &log) override final
   {
-    return persToTransConst (*persObj, *transObj, log);
+    return const_cast<const TPConverterConstBase*>(this)->persToTrans (persObj, transObj, log);
   }
 
   
   virtual void transToPers(const TRANS* transObj,
                            PERS* persObj,
-                           MsgStream &log) override
+                           MsgStream &log) override final
   {
-    return transToPersConst (*transObj, *persObj, log);
+    return const_cast<const TPConverterConstBase*>(this)->transToPers (transObj, persObj, log);
   }
 };
 
@@ -950,15 +954,19 @@ template<class TRANS, class PERS, class CONV>
 class TPCnvStdVectorConst : public TPConverterConstBase<TRANS, PERS>
 {
 public:
+  using TPConverterConstBase<TRANS, PERS>::transToPers;
+  using TPConverterConstBase<TRANS, PERS>::persToTrans;
+
+
   /// @copydoc TPPtrVectorCnv::persToTrans()
-  virtual void persToTransConst(const PERS& persVect,
-                                TRANS& transVect,
-                                MsgStream &log) const override;
+  virtual void persToTrans(const PERS* persVect,
+                           TRANS* transVect,
+                           MsgStream &log) const override;
 
   /// @copydoc TPPtrVectorCnv::transToPers()
-  virtual void transToPersConst(const TRANS& transVect,
-                                PERS& persVect,
-                                MsgStream &log) const override;
+  virtual void transToPers(const TRANS* transVect,
+                           PERS* persVect,
+                           MsgStream &log) const override;
 };
 
 
