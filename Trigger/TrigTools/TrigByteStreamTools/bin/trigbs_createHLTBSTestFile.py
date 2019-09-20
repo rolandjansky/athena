@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 Prepare bytestream files for nightly and online tests
 
@@ -106,7 +106,7 @@ def modify(event):
 
 if __name__ == "__main__":
   if len(sys.argv)!=4:
-    print 'usage:',sys.argv[0],'<infile> <outfile> <runno>'
+    print('usage: %s <infile> <outfile> <runno>' % sys.argv[0])
     sys.exit(1)
   global runno
   
