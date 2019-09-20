@@ -179,7 +179,8 @@ namespace xAOD {
     offDiagVec.reserve( ( ( cov.rows() - 1 ) * cov.rows() ) / 2 );
     for( int i = 1; i < cov.rows(); ++i ) {
       for( int j = 0; j < i; ++j ) {
-        offDiagVec.push_back( cov( i, j )/sqrt(cov( i, i )*cov( j, j )) );
+        float offDiagCoeff = (cov( i, i )>0 && cov( j, j )>0) ? cov( i, j )/sqrt(cov( i, i )*cov( j, j )) : 0;
+        offDiagVec.push_back( offDiagCoeff );
       }
     }
     // Set the variable.
