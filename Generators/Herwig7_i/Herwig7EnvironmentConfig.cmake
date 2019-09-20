@@ -7,6 +7,7 @@
 # Set the environment variable(s):
 find_package( Herwig3 )
 find_package ( ThePEG )
+find_package ( OpenLoops )
 
 if( HERWIG3_FOUND AND THEPEG_FOUND )
   get_filename_component( _herwig3Path "${HERWIG3_LCGROOT}" DIRECTORY )
