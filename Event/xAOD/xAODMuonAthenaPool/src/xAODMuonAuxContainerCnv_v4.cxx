@@ -30,15 +30,13 @@
    } while( 0 )
 
 xAODMuonAuxContainerCnv_v4::xAODMuonAuxContainerCnv_v4()
-  : T_AthenaPoolTPCnvBase< xAOD::MuonAuxContainer,
-                           xAOD::MuonAuxContainer_v4 >() {
-
+{
 }
 
 void xAODMuonAuxContainerCnv_v4::
 persToTrans( const xAOD::MuonAuxContainer_v4* oldObj,
              xAOD::MuonAuxContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::MuonAuxContainer_v4 to current version..." );
@@ -63,7 +61,7 @@ persToTrans( const xAOD::MuonAuxContainer_v4* oldObj,
 void xAODMuonAuxContainerCnv_v4::
 transToPers( const xAOD::MuonAuxContainer*,
              xAOD::MuonAuxContainer_v4*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODMuonAuxContainerCnv_v4::transToPers"
