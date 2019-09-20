@@ -89,7 +89,7 @@ namespace FlavorTagDiscriminants {
       {"(IP[23]D_|SV[12]_|rnnip_)[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
       {"iprnn_p(b|c|u|tau)"_r, EDMType::FLOAT},
       {"smt_(b|c|u)"_r, EDMType::FLOAT},
-      {"(Flip)?(max|min|avg)_trk_flightDirRelEta"_r, EDMType::DOUBLE},
+      {"(max|min|avg)_trk_flightDirRelEta(Flip)?"_r, EDMType::DOUBLE},
       {"secondaryVtx_[mEa].*|(min_|max_|avg_)trk_.*"_r, EDMType::DOUBLE},
       {"(JetFitter_|secondaryVtx_|SV1_)[Nn].*"_r, EDMType::INT},
       {"(pt|abs_eta|eta)"_r, EDMType::CUSTOM_GETTER},
@@ -130,7 +130,8 @@ namespace FlavorTagDiscriminants {
       {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
       {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
       {".*_trk_flightDirRelEta"_r, ""}, // deprecated
-      {".*TrackRelativeEta(Flip)?"_r, ""},
+      {".*TrackRelativeEta"_r, ""},
+      {".*TrackRelativeEtaFlip"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
       {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
       {"iprnn_.*"_r, ""},
