@@ -474,11 +474,11 @@ HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
                                           "BTagging_AntiKt4EMTopo_201810",
-																					"BTagging_AntiKt4EMPFlow_201810",
-																					"BTagging_AntiKt4EMPFlow_201903",
-																					"AntiKt4EMPFlowJets_BTagging201810",
-																					"AntiKt4EMPFlowJets_BTagging201903",
-																					"AntiKt4EMTopoJets_BTagging201810",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
+                                          "AntiKt4EMPFlowJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "AntiKt4EMTopoJets_BTagging201810",
                                           "InDetTrackParticles",
                                           "PrimaryVertices",
                                           "AntiKt4EMPFlowJets"]
@@ -522,6 +522,7 @@ ExtraContentTaus=[
         "ele_match_lhscore." 
         "ele_olr_pass."
         "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
+				"jetLink.TrackWidthPt1000.TrackWidthPt500"
         #,
         #"TauNeutralParticleFlowObjects."
         #"pt."
