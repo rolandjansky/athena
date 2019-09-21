@@ -10,9 +10,7 @@
 #include <cmath>
 #include <TLorentzVector.h>
 
-SpecifiedJetsCondition::SpecifiedJetsCondition(const HypoJetGroupVector& accJets,
-					       std::size_t conditionID):
-m_acceptedJetGroups(accJets), m_conditionID(conditionID){
+SpecifiedJetsCondition::SpecifiedJetsCondition(const HypoJetGroupVector& accJets) : m_acceptedJetGroups(accJets){
   m_capacity = accJets[0].size();
 }
 

@@ -24,21 +24,18 @@ class ITrigJetHypoInfoCollector;
 
 class AcceptAllConditionMT: public IConditionMT{
  public:
-  AcceptAllConditionMT(std::size_t capacity, unsigned int conditionId=0);
+  AcceptAllConditionMT(std::size_t capacity);
   ~AcceptAllConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   virtual unsigned int capacity() const override{return m_capacity;}
-  virtual unsigned int conditionID() const override{return m_conditionID;}
-
-
   std::string toString() const noexcept override;
+  
  private:
 
   std::size_t m_capacity;
-  unsigned int m_conditionID{0}; 
 
   
 };

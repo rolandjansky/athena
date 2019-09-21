@@ -59,7 +59,7 @@ class Node(object):
         self.scenario = scenario
         self.parameters = ''
         self.children = []
-        self.conf_attrs = {}
+        self.conf_attrs = []  # list of dictionaries
         self.tool = None
 
         # self.tree_top kludge carensure top level tools get chain name
@@ -117,7 +117,9 @@ class Node(object):
         s +=  indent + 'parent node id: %s \n' % self.parent_id
         s +=  indent + 'is tree top? %s \n' % self.tree_top
         s += indent + 'parameters: %s\n' % str(self.parameters)
-        s += indent + 'conf_attrs: %s\n' % str(self.conf_attrs)
+        s += indent + 'conf_attrs [%d]:\n' % len(self.conf_attrs)
+        for ca in self.conf_attrs:
+            s += indent + str(ca) + '\n'
         s += indent + 'AlgTool: %s\n' % str(self.tool)
         s += indent + 'No of children: %d\n\n' % len(self.children)
         for c in self.children:

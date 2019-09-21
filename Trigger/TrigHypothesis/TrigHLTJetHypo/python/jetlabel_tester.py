@@ -4,7 +4,8 @@
 
 from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
+from  TrigHLTJetHypo.ConditionsToolSetter import ConditionsToolSetter
+from  TrigHLTJetHypo.ToolSetter import ToolSetter
 
 from node import rotate
 
@@ -134,10 +135,19 @@ if __name__ == '__main__':
 #                   )"""
 
     label = """noshare([] a([]) b([]))"""
-    tree = compile(label, dump=True)
-    # tree = compile(label, expand=True, dump=True)
-    # print '======Rotated tree'
-    # tree = rotate(tree)
-    # setter = FlowNetworkSetter('flowNetworkSetter')
-    # tree.accept(setter)
+    label = """ simple([(40et, 0eta320) (50et, 0eta320)])"""
+
+    label = """z([] simple([(10et)])
+                    simple([(20et)]))"""
+
+    label = """simple([(10et, 0eta320)(20et)])"""
+
+    # tree = compile(label, dump=True)
+    
+    setter = ToolSetter('toolSetter')
+
+    tree = compile(label,  expand=True, dump=True)
+    print 'tree scenario:', tree.scenario
+    # setter = ConditionsToolSetter('conditionsToolSetter')
+    # setter.mod(tree)
     # print setter

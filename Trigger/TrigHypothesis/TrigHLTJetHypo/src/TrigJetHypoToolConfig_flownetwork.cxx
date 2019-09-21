@@ -48,22 +48,16 @@ TrigJetHypoToolConfig_flownetwork::getConditions() const {
   // collect the Conditions objects from the various sources
   // return an invalid optional if any src signals a problem
   for(const auto& cm : m_conditionMakers){
-    auto opConds = cm->getConditions();
-    if(opConds.has_value()){
-      conditions.insert(conditions.end(),
-			std::make_move_iterator(opConds->begin()),
-			std::make_move_iterator(opConds->end()));
-    } else {
-      return std::optional<ConditionsMT>{};
-    }
+    conditions.push_back(cm->getCondition());
   }
     
 
+  // Conditions no longre have ID - FIXME
   // sort the conditions by the conditionID. The ordering must match the
   // that expected by the "parents" vector.
-  std::sort(conditions.begin(), conditions.end(), [](const auto& l,
-						     const auto& r){
-	      return l->conditionID() < r->conditionID();});
+  // std::sort(conditions.begin(), conditions.end(), [](const auto& l,
+  //						     const auto& r){
+  //	      return l->conditionID() < r->conditionID();});
 
   return std::make_optional<ConditionsMT>(std::move(conditions));
 }

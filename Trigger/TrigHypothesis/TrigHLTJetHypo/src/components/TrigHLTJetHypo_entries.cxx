@@ -20,9 +20,14 @@
 #include "../TrigJetHypoToolConfig_partgen.h"
 #include "../TrigJetHypoToolConfig_flownetwork.h"
 //
-#include "../TrigJetConditionConfig_etaet.h"
-#include "../TrigJetConditionConfig_dijet.h"
+#include "../TrigJetConditionConfig_eta.h"
+#include "../TrigJetConditionConfig_et.h"
+#include "../TrigJetConditionConfig_dijet_mass.h"
+#include "../TrigJetConditionConfig_dijet_dphi.h"
+#include "../TrigJetConditionConfig_dijet_deta.h"
 #include "../TrigJetConditionConfig_acceptAll.h"
+#include "../TrigJetConditionConfig_compound.h"
+
 //
 #include "../NotHelperTool.h"
 #include "../AndHelperTool.h"
@@ -60,9 +65,13 @@ DECLARE_COMPONENT(TrigHLTJetHypo_TLA)
 DECLARE_COMPONENT(TrigHLTJetHypo_EtaEt)
 
 
-DECLARE_COMPONENT(TrigJetConditionConfig_etaet)
-DECLARE_COMPONENT(TrigJetConditionConfig_dijet)
+DECLARE_COMPONENT(TrigJetConditionConfig_eta)
+DECLARE_COMPONENT(TrigJetConditionConfig_et)
+DECLARE_COMPONENT(TrigJetConditionConfig_dijet_mass)
+DECLARE_COMPONENT(TrigJetConditionConfig_dijet_deta)
+DECLARE_COMPONENT(TrigJetConditionConfig_dijet_dphi)
 DECLARE_COMPONENT(TrigJetConditionConfig_acceptAll)
+DECLARE_COMPONENT(TrigJetConditionConfig_compound)
 
 DECLARE_COMPONENT(TrigJetHypoAlgMT)
 DECLARE_COMPONENT(TrigJetHypoToolMT)

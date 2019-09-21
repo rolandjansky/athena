@@ -4,7 +4,7 @@
 
 #include "TrigJetConditionConfig_acceptAll.h"
 
-#include "./conditionsFactoryMT.h"
+#include "./AcceptAllConditionMT.h"
 
 TrigJetConditionConfig_acceptAll::TrigJetConditionConfig_acceptAll
 (const std::string& type,
@@ -13,10 +13,8 @@ TrigJetConditionConfig_acceptAll::TrigJetConditionConfig_acceptAll
 
 }
 
-std::optional<ConditionsMT>
-TrigJetConditionConfig_acceptAll::getConditions() const {
-  return
-    std::make_optional<ConditionsMT>(conditionsFactoryAcceptAllMT(m_capacity));
+ConditionMT TrigJetConditionConfig_acceptAll::getCondition() const {
+  return std::make_unique<AcceptAllConditionMT>(m_capacity);
 }
 
 

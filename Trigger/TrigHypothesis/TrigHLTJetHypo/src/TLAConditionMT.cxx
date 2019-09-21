@@ -15,10 +15,7 @@ TLAConditionMT::TLAConditionMT(const std::vector<double>& etaMins,
 			       const std::vector<double>& ystarMins,
 			       const std::vector<double>& ystarMaxs,
 			       const std::vector<double>& massMins,
-			       const std::vector<double>& massMaxs,
-			       unsigned int conditionID) :
-  m_conditionID(conditionID){
-
+			       const std::vector<double>& massMaxs) {
   m_etaMin = etaMins[0];
   m_etaMax = etaMaxs[0];
   

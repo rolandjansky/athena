@@ -2,12 +2,12 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_DIJETCONDITIONMT_H
-#define TRIGHLTJETHYPO_DIJETCONDITIONMT_H
+#ifndef TRIGHLTJETHYPO_DIJETMASSCONDITIONMT_H
+#define TRIGHLTJETHYPO_DIJETMASSCONDITIONMT_H
 
 /********************************************************************
  *
- * NAME:     DijetConditionMT.h
+ * NAME:     DijetMassConditionMT.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * Cuts on pairs of jets makling up a dijet
@@ -23,17 +23,10 @@
 
 class ITrigJetHypoInfoCollector;
 
-class DijetConditionMT: public IConditionMT{
+class DijetMassConditionMT: public IConditionMT{
  public:
-  DijetConditionMT(
-                   double massMin,
-                   double massMax,
-                   double detaMin,
-                   double detaMax,
-                   double dphiMin,
-                   double dphiMax);
-
-  ~DijetConditionMT() override {}
+  DijetMassConditionMT(double massMin,
+		       double massMax);
 
   bool isSatisfied(const HypoJetVector&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
@@ -45,21 +38,13 @@ class DijetConditionMT: public IConditionMT{
  private:
 
   bool passJetCuts(pHypoJet, pHypoJet) const;
-  bool passDijetCuts(pHypoJet, pHypoJet) const;
+  bool passDijetMassCuts(pHypoJet, pHypoJet) const;
 
-  // cuts on sum of jets
-  double m_massMin;
-  double m_massMax;
-
-  // cuts on the two jets
-  double m_detaMin;
-  double m_detaMax;
-  
-  double m_dphiMin;
-  double m_dphiMax;
+  // cuts on dijet mass
+  double m_min;
+  double m_max;
 
   const static unsigned int s_capacity{2};
-
 };
 
 #endif

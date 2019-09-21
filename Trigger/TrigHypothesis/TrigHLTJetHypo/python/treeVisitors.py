@@ -2,9 +2,10 @@
 
 from constants import lchars
 
-import re
-
 from ToolSetter import ToolSetter
+
+import re
+from collections import defaultdict
 
 def defaultParameters(parameter, default=''):  # default if parameter unknown
     defaults = {'etalo': '0',
@@ -106,7 +107,23 @@ class TreeToBooleanExpression(object):
         return s.strip()
 
 
-class ConditionsDictMakerBase(object):
+class ConditionsDictMaker(object):
+
+    """Convert parameter string into dictionary holding low, high window
+    cut vals. 
+
+    Example:  makeDict('(10et,0eta320)') 
+              returns the tuple dict, error, msgs :
+              (
+              {'eta_maxs': [3.2], 'EtThresholds': [10000.0], 'eta_mins': [0.0],               'asymmetricEtas': [0]}, 
+    
+              False, 
+              ['OK']
+              )
+
+    dijets:     parameter strings looks like '40mass, 0dphi20'
+
+    """
 
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
@@ -114,23 +131,6 @@ class ConditionsDictMakerBase(object):
     # key: substring from chain label. value: asttribute of python
     # component proxy
     
-    labelToAttribute_low = {
-        'eta': 'eta_mins',
-        'peta': 'eta_mins',
-        'neta': 'eta_mins',
-        'et': 'EtThresholds',
-        'mass': 'mass_mins',
-        'dphi': 'dphi_mins',
-        }
-
-    
-    labelToAttribute_high = {
-        'eta': 'eta_maxs',
-        'peta': 'eta_maxs',
-        'neta': 'eta_maxs',
-        'mass': 'mass_maxs',
-        'dphi': 'dhi_maxs',
-        }
     def get_conditions(self, params):
         """Split conditions string into list of condition strings
 
@@ -159,22 +159,19 @@ class ConditionsDictMakerBase(object):
 
     def makeDict(self, params):
 
+        # conditions example: ['10et,0eta320', '20et']
         conditions = self.get_conditions(params)
 
-
-        attributes = self.get_attributes()  # derived classes provide.
-
-        result = {}
+        result = []
         msgs = []
-        for a in attributes: result[a] = []
 
         for c in conditions:  # there is a parameter string for each condition
+            clist = []
+            cdict = defaultdict(dict)
+            print 'processing condition', c
             toks = c.split(',')  # parameters in par string are separated by ','
             toks = [t.strip() for t in toks]
 
-            # copy attributes...
-            # copy used to check condition parameter not set > 1 times
-            attributes2 = attributes[:]  
             for t in toks:
                 m = self.window_re.match(t)
                 if m is None:
@@ -200,165 +197,35 @@ class ConditionsDictMakerBase(object):
                 #    the defaults do not require multiplying by a scale factor.
                 #   
                 
-                attr_label = group_dict['attr']  # attribute name in label
+                attr = group_dict['attr']  # attribute name in label
                 lo = group_dict['lo']  # string: low value or ''
                 hi = group_dict['hi']  # string high value or ''
 
                 if lo == '':
-                    lo = defaultParameters(attr_label+'lo')
+                    lo = defaultParameters(attr+'lo')
                 if hi == '':
-                    hi = defaultParameters(attr_label+'hi')
+                    hi = defaultParameters(attr+'hi')
                     
-                sf = scaleFactors(attr_label)
-                if attr_label in ('eta', 'peta', 'neta'):
-                    asym = 0 if attr == 'eta' else 1
-                    result['asymmetricEtas'].append(asym)
-                    attributes2.remove('asymmetricEtas')
-
+                sf = scaleFactors(attr)
+                
                 if lo:
+                    print attr, lo
                     # find the python proxy class  name
-                    attr = self.labelToAttribute_low.get(attr_label, None)
-                    print attr, attr_label
-                    result[attr].append(str(sf * float(lo)))
+                    cdict[attr]['min'] = str(sf * float(lo))
                         
-                    if attr_label == 'neta':
-                        result[attr][-1] *= -1.  # negative eta range
-                        
-                    try:
-                        attributes2.remove(attr)
-                    except ValueError, e:
-                        print attr, 'appears twice in Conditions string?'
-                        raise e
-                    
-                if hi:
-                    attr = self.labelToAttribute_high.get(attr_label, None)
-                    if attr is None: continue  # eg et dows not have upper bound
-                    result[attr].append(str(sf * float(hi)))
                     if attr == 'neta':
-                        result[attr][-1] *= -1.  # negative eta range
+                        cdict[attr]['min'] *= -1.  # negative eta range
                         
-                    try:
-                        attributes2.remove(attr)
-                    except ValueError, e:
-                        print attr, 'appears twice in Conditions string?'
-                        raise e
-
-            # it maybe that an attribute was not present in the chain label.
-            # in this case, default values should be used.
-            for attr in attributes2: # whatever has not been removed...
-                result[attr].append(defaultParameters(attr))
-
+                if hi:
+                    cdict[attr]['max'] = str(sf * float(hi))
+                    if attr == 'neta':
+                        result[attr]['max'] *= -1.  # negative eta range
+                        
+                clist.append(cdict)
+            result.append(clist)
         msgs = ['ConditionsDict OK']
         error = False
         return result, error, msgs
-
-class SimpleConditionsDictMaker(ConditionsDictMakerBase):
-    """Convert parameter string into dictionary holding low, high window
-    cut vals. Specialistion for the 'simple' scenario
-
-    Example:  scdm.makeDict('(10et,0eta320)') 
-              returns the tuple dict, error, msgs :
-              (
-              {'eta_maxs': [3.2], 'EtThresholds': [10000.0], 'eta_mins': [0.0],               'asymmetricEtas': [0]}, 
-    
-              False, 
-              ['SimpleConditionsDict OK']
-              )
-    """
-
-    def get_attributes(self):
-        return ['EtThresholds',
-                'eta_mins',
-                'eta_maxs',
-                'asymmetricEtas',]
-
-class DijetConditionsDictMaker(ConditionsDictMakerBase):
-    """Convert parameter string into dictionary holding low, high window
-    cut vals. Specialistion for the 'dijet' scenario
-
-    parameter strings looks like '40mass, 0dphi20'
-    """
-
-    def get_attributes(self):
-        return [
-            'mass_mins', 'deta_mins', 'dphi_mins',
-            'mass_maxs', 'deta_maxs', 'dphi_maxs',
-        ]
-
-    # def makeDict(self, parameters):
-
-    #      conditions = self.get_conditions(parameters)
-
-    #      attributes = [
-    #         'mass_mins', 'deta_mins', 'dphi_mins',
-    #         'mass_maxs', 'deta_maxs', 'dphi_maxs',
-    #     ]
-
-    #      result = {}
-    #     msgs = []
-    #     error = False
-    #     
-    #     for a in attributes: result[a] = []
-
-    #      for c in conditions:
-    #         toks = c.split(',')
-    #         toks = [t.strip() for t in toks]
-
-
-    #           processed_attrs = []
-    #         for t in toks:
-    #             m = self.window_re.match(t)
-    #             if m is None:
-    #                 self.msgs.append('match failed for parameter %s' % t)
-    #                 error = True
-    #                 return {}, error, msgs
-    #             
-    #             group_dict = m.groupdict()
-    #             attr = group_dict['attr']
-    #             lo = group_dict['lo']
-    #             hi = group_dict['hi']
-    #             if lo == '':
-    #                 lo = defaultParameters(attr+'_min')
-    #             if hi == '':
-    #                 hi = defaultParameters(attr+'_max')
-
-    #              sf = scaleFactors(attr)
-    #             if lo:
-    #                 if attr == 'mass':
-    #                     result['mass_mins'].append(str(sf*float(lo)))
-    #                 elif attr == 'deta':
-    #                     result['deta_mins'].append(str(sf*float(lo)))
-    #                 elif attr == 'dphi':
-    #                     result['dphi_mins'].append(str(sf*float(lo)))
-    #                     
-    #                 processed_attrs.append(attr+'_mins')
-    #             if hi:
-    #                 if attr == 'mass':
-    #                     result['mass_maxs'].append(str(sf*float(lo)))
-    #                 elif attr == 'deta':
-    #                     result['deta_maxs'].append(str(sf*float(lo)))
-    #                 elif attr == 'dphi':
-    #                     result['dphi_maxs'].append(str(sf*float(lo)))
-    #                 
-    #                 processed_attrs.append(attr+'_maxs')
-
-
-
-    #            for a in attributes:
-    #             if a not in processed_attrs:
-    #                 result[a].append(defaultParameters(a))
-
-    #          for a in processed_attrs:
-    #             if a not in attributes:
-    #                 self.msgs.append('Unknown attribute: %s' % a)
-    #                 error = True
-    
-    #      if error:
-    #         self.msgs.append('Error')
-    #     else:
-    #         self.msgs = ['DijetConditionsDict OK']
-    
-    #      return result, error, msgs
 
 
 class TreeParameterExpander_simple(object):
@@ -376,10 +243,10 @@ class TreeParameterExpander_simple(object):
 
     def mod(self, node):
 
-        cdm = SimpleConditionsDictMaker()
+        cdm = ConditionsDictMaker()
         d, error, msgs = cdm.makeDict(node.parameters)
         self.msgs.extend(msgs)
-        node.conf_attrs.update(d)
+        node.conf_attrs = d
 
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
@@ -405,7 +272,7 @@ class TreeParameterExpander_dijet(object):
 
     def mod(self, node):
 
-        cdm = DijetConditionsDictMaker()
+        cdm = ConditionsDictMaker()
         d, error, msgs = cdm.makeDict(node.parameters)
         self.msgs.extend(msgs)
         node.conf_attrs.update(d)
@@ -439,7 +306,7 @@ class TreeParameterExpander_combgen(object):
         # remove goup info + 2 parentheses
         # parameters = parameters[len(m.groups()[0])+2:]
 
-        cdm = SimpleConditionsDictMaker()
+        cdm = ConditionsDictMaker()
         d, error, msgs = cdm.makeDict(parameters)
         self.msgs.extend(msgs)
         node.conf_attrs.update(d)
@@ -469,7 +336,7 @@ class TreeParameterExpander_partgen(object):
 
         parameters = node.parameters[:]
  
-        cdm = SimpleConditionsDictMaker()
+        cdm = ConditionsDictMaker()
 
         d, error, msgs = cdm.makeDict(parameters)
 
@@ -507,6 +374,7 @@ class TreeParameterExpander(object):
     specialised expanders."""
     
     router = {
+        'z': TreeParameterExpander_null,
         'simple': TreeParameterExpander_simple,
         'simplepartition': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,

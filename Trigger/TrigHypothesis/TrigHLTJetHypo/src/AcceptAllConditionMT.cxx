@@ -10,9 +10,9 @@
 #include <cmath>
 #include <TLorentzVector.h>
 
-AcceptAllConditionMT::AcceptAllConditionMT(std::size_t capacity,
-					   unsigned int conditionID):
-m_capacity(capacity), m_conditionID(conditionID){
+AcceptAllConditionMT::AcceptAllConditionMT(std::size_t capacity) :
+
+m_capacity(capacity){
 }
 
 

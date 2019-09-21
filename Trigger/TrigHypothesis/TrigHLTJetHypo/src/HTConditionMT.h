@@ -24,15 +24,13 @@ class ITrigJetHypoInfoCollector;
 
 class HTConditionMT: public IConditionMT{
  public:
-  HTConditionMT(double htMin, unsigned int conditionID=0);
+  HTConditionMT(double htMin);
   ~HTConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   std::string toString() const noexcept override;
-
-  virtual unsigned int conditionID() const override{return m_conditionID;}
   virtual unsigned int capacity() const override {return s_capacity;}
 
  private:
@@ -42,7 +40,6 @@ class HTConditionMT: public IConditionMT{
 
   double m_htMin;
 
-  unsigned int m_conditionID{0}; 
   const static  unsigned int s_capacity{1};
 
 };

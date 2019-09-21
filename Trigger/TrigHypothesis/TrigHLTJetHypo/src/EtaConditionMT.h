@@ -2,12 +2,12 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_ETAETCONDITIONMT_H
-#define TRIGHLTJETHYPO_ETAETCONDITIONMT_H
+#ifndef TRIGHLTJETHYPO_ETACONDITIONMT_H
+#define TRIGHLTJETHYPO_ETACONDITIONMT_H
 
 /********************************************************************
  *
- * NAME:     EtaEtConditionMT.h
+ * NAME:     EtaConditionMT.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
@@ -22,13 +22,10 @@ namespace HypoJet{
 
 class ITrigJetHypoInfoCollector;
 
-class EtaEtConditionMT: public IConditionMT{
+class EtaConditionMT: public IConditionMT{
  public:
-  EtaEtConditionMT(double etaMin,
-                 double etaMax,
-		   double threshold0);
-
-  ~EtaEtConditionMT() override {}
+  EtaConditionMT(double etaMin,
+                 double etaMax);
 
   bool isSatisfied(const HypoJetVector&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
@@ -38,10 +35,8 @@ class EtaEtConditionMT: public IConditionMT{
   
  private:
 
-  double m_etaMin;
-  double m_etaMax;
-  double m_threshold;
-
+  double m_min;
+  double m_max;
   bool isSatisfied(const pHypoJet&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
   

@@ -11,9 +11,7 @@
 #include <algorithm>
 #include <numeric>
 
-HTConditionMT::HTConditionMT(double htMin,
-			     unsigned int conditionID):
-  m_htMin(htMin), m_conditionID(conditionID){
+HTConditionMT::HTConditionMT(double htMin) :  m_htMin(htMin) {
 }
 
 

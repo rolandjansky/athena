@@ -22,11 +22,11 @@ class ITrigJetHypoInfoCollector;
 class IConditionMT {
  public:
   virtual ~IConditionMT(){}
+
   virtual bool isSatisfied(const HypoJetVector&,
                            const std::unique_ptr<ITrigJetHypoInfoCollector>&) const = 0;
   
   virtual unsigned int capacity() const = 0;
-  virtual unsigned int conditionID() const = 0;
   virtual std::string toString() const noexcept = 0;
 };
 

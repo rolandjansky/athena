@@ -22,11 +22,11 @@
 
 #include "./conditionsFactoryMT.h"
 
-ConditionsMT conditionsFactoryAcceptAllMT(std::size_t capacity,
-					unsigned int conditionID){
+ConditionsMT conditionsFactoryAcceptAllMT(std::size_t capacity){
+
   ConditionsMT conditions;
   conditions.push_back
-    ( std::move(std::make_unique<AcceptAllConditionMT>(capacity, conditionID)));
+    ( std::move(std::make_unique<AcceptAllConditionMT>(capacity)));
   return conditions;
 }
 

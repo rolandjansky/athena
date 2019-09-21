@@ -6,7 +6,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "./ConditionsDefsMT.h"
-#include <optional>
 
 class ITrigJetConditionConfig : virtual public ::IAlgTool {
     
@@ -14,6 +13,6 @@ public:
   DeclareInterfaceID(ITrigJetConditionConfig, 1, 0);
   virtual ~ITrigJetConditionConfig(){};
 
-  virtual std::optional<ConditionsMT> getConditions() const = 0;
+  virtual ConditionMT getCondition() const = 0;
 };
 #endif
