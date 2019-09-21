@@ -6,34 +6,44 @@ from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO should maybe
 from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
 from MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf import Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
+from MuonCompetingClustersOnTrackCreator.MuonCompetingClustersOnTrackCreatorConf import Muon__TriggerChamberClusterOnTrackCreator
+
+def TriggerChamberClusterOnTrackCreatorCfg(flags, **kwargs):
+    result=ComponentAccumulator()
+    acc =  MuonClusterOnTrackCreatorCfg(flags)
+    muon_cluster_creator=acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("ClusterCreator", muon_cluster_creator)
+    result.setPrivateTools(Muon__TriggerChamberClusterOnTrackCreator(**kwargs))
+    return result
+
 
 def CscClusterOnTrackCreatorCfg(flags,**kwargs):
-    from MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg
-    from MuonRecExample.MuonRecTools import getMuonRIO_OnTrackErrorScalingCondAlg
+    from MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg, CscClusterUtilToolCfg
 
-    result=ComponentAccumulator()
-    
+    result=ComponentAccumulator()    
     acc = QratCscClusterFitterCfg(flags)
+    
     qrat = acc.getPrimary()
     result.addPublicTool(qrat)
     result.merge(acc)
     
-    # TODO fix this
-    # kwargs.setdefault("CscStripFitter", getPublicTool("CalibCscStripFitter") )
     kwargs.setdefault("CscClusterFitter", qrat )
-    # kwargs.setdefault("CscClusterUtilTool", getPublicTool("CscClusterUtilTool") )
-    if False  : # enable CscClusterOnTrack error scaling :
-        from InDetRecExample.TrackingCommon import createAndAddCondAlg
-        createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
-
-        kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")
-
+    # FIXME haven't set up CscStripFitter but I don't think it (or CscClusterFitter above) should be here. Apparently only used in CscSegmentUtilToolCfg
+    
+    acc = CscClusterUtilToolCfg(flags)
+    cluster_util_tool = acc.getPrimary()
+    kwargs.setdefault("CscClusterUtilTool", cluster_util_tool )
+    result.addPublicTool(cluster_util_tool)
+    result.merge(acc)
+    
     if not flags.Input.isMC: # collisions real data or simulated first data
         # scale CSC and hit errors 
         kwargs.setdefault("ErrorScalerBeta", 0.070 )
 
     csc_cluster_creator = Muon__CscClusterOnTrackCreator(**kwargs)
     result.addPublicTool(csc_cluster_creator, primary=True)
+    
     return result
 
 

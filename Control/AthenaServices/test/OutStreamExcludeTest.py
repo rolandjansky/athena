@@ -97,7 +97,6 @@ StreamDPD.ExcludeList+=['Rec::TrackParticleContainer#TrackParticleCandidate']
 StreamDPD.OutputLevel = DEBUG
 StreamDPD.OutputFile = "SkimmedThin.AOD.pool.root"
 #StreamDPD.OutputFile = outFileName
-StreamDPD.ForceRead=TRUE;  #force read of output data objs
 StreamDPD.AcceptAlgs=["ttbarFilter"]
 
 

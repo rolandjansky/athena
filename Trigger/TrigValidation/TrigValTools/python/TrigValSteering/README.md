@@ -60,3 +60,13 @@ test.check_steps = CheckSteps.default_check_steps(test) # add default post-proce
 import sys
 sys.exit(test.run())
 ```
+
+### Dry run
+During test development, it is useful to perform a "dry run" which goes through the test configuration and prints all
+commands to be executed without executing them. Dry run can be achieved by setting the environment variable
+`TRIGVALSTEERING_DRY_RUN` to 1. It can be done globally in a shell, but typically one would set it individually for
+each execution. For example, running:
+```
+TRIGVALSTEERING_DRY_RUN=1 test_trigP1_FullMenu_build.py
+```
+will execute this particular test in a dry run mode.

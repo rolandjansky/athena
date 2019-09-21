@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,11 +15,12 @@
 #include "TestTools/leakcheck.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "IdDictParser/IdDictParser.h"
-#include "CxxUtils/make_unique.h"
+
 #include "GaudiKernel/MsgStream.h"
+
 #include <cassert>
 #include <iostream>
-
+#include <memory>
 
 void compare (const InDet::SiWidth& p1,
               const InDet::SiWidth& p2)
@@ -105,7 +106,7 @@ void test1 (const SCT_ID& sct_id)
 
 std::unique_ptr<SCT_ID> make_idhelper()
 {
-  auto sct_id = CxxUtils::make_unique<SCT_ID>();
+  auto sct_id = std::make_unique<SCT_ID>();
   IdDictParser parser;
   parser.register_external_entity ("InnerDetector",
                                    "IdDictInnerDetector.xml");

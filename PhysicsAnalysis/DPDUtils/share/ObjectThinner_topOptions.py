@@ -94,6 +94,5 @@ StreamDPD.ItemList += [ 'McEventCollection#GEN_AOD']
 StreamDPD.ItemList += ['JetCollection#Cone4TruthJets']
 
 # do the skimming
-#StreamDPD.ForceRead=True  #force read of output data objs
 StreamDPD.AcceptAlgs += ["ObjectThinner"]
 

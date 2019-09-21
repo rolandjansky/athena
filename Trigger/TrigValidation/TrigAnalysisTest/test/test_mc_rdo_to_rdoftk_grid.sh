@@ -18,6 +18,8 @@
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
 
+unset ATHENA_NPROC_NUM
+
 export NAME="mc_rdo_to_rdoftk_grid"
 export JOB_LOG="athena.log"
 export TEST="TrigAnalysisTest"

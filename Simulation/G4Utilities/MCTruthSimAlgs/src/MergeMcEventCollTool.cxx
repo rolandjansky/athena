@@ -7,7 +7,6 @@
 #include "AthenaKernel/errorcheck.h" // Handy definitions for error checking
 #include "GeneratorObjects/McEventCollection.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TruthUtils/HepMCHelpers.h"
 
 #include "GaudiKernel/PhysicalConstants.h"

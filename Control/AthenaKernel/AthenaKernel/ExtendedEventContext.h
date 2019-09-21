@@ -10,6 +10,9 @@
 #include "CxxUtils/checker_macros.h"
 
 class TrigRoiDescriptor; //!< Forward declaration
+namespace SG {
+class ThinningCache;
+}
 
 namespace Atlas {
 
@@ -43,10 +46,23 @@ namespace Atlas {
      **/
     const TrigRoiDescriptor* roiDescriptor() const { return m_roi; }
 
+
+    /**
+     * @brief Thread-local thinning cache.
+     *        Set when we are doing output with thinning' the cache
+     *        provides information about what was thinned.
+     *        This is to allow converters to get thinning information.
+     *        Unfortuneately, we don't have a better way of doing this
+     *        without changing Gaudi interfaces.
+     */
+    void setThinningCache (const SG::ThinningCache* cache) { m_thinningCache = cache; }
+    const SG::ThinningCache* thinningCache() const { return m_thinningCache; }
+
   private:
     IProxyDict* m_proxy {nullptr};
     EventIDBase::number_type m_conditionsRun {EventIDBase::UNDEFNUM};
     const TrigRoiDescriptor* m_roi {nullptr};
+    const SG::ThinningCache* m_thinningCache {nullptr};
   };
 }
 

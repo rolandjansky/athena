@@ -39,16 +39,17 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( TrkGaussianSumFilter
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMultiComponentStateOnSurface TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces CxxUtils xAODEventInfo PathResolver TrkDetElementBase TrkVolumes TrkCaloCluster_OnTrack TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack )
+                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES  ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrInterfaces TrkGeometry 
+		     TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMultiComponentStateOnSurface TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces 
+		     TrkFitterUtils TrkToolInterfaces CxxUtils xAODEventInfo PathResolver TrkDetElementBase TrkVolumes TrkCaloCluster_OnTrack TrkMeasurementBase 
+		     TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkGaussianSumFilter )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNGENALGS_INDETALIGNCOG_H
@@ -32,7 +32,6 @@ class TRT_ID;
 class ITRT_AlignDbSvc;
 
 namespace InDetDD {
-  class PixelDetectorManager;
   class TRT_DetectorManager;
   class SiDetectorElement;
 }
@@ -90,7 +89,6 @@ class InDetAlignCog : public AthAlgorithm {
 
 
   // managers
-  const InDetDD::PixelDetectorManager *m_Pixel_Manager;
   const InDetDD::TRT_DetectorManager *m_TRT_Manager;
   
   // helpers
@@ -105,6 +103,7 @@ class InDetAlignCog : public AthAlgorithm {
   // ToolHandle<ITRTAlignDbTool> m_TRTAlignDbTool; 
   ServiceHandle<ITRT_AlignDbSvc> m_TRTAlignDbTool; 
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   
   // Select which detectors will be considered for cog calculation 

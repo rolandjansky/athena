@@ -17,18 +17,18 @@ decription           : Converter class for single component material effects to
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-
+#include <memory>
 // class ISvcLocator;
 
 namespace Trk {
 
-class IMaterialEffectsUpdator;
+class IGSFMaterialEffects ;
 
 namespace MultiStateMaterialEffectsAdapter {
 
 void
 compute(IMultiStateMaterialEffects::Cache&,
-        const ToolHandle<IMaterialEffectsUpdator>&,
+        const ToolHandle<IGSFMaterialEffects>&,
         const ComponentParameters&,
         const MaterialProperties&,
         double,
@@ -38,7 +38,7 @@ compute(IMultiStateMaterialEffects::Cache&,
 double
 extractDeltaP(const TrackParameters& updatedParameters, const TrackParameters& originalParameters);
 
-const AmgSymMatrix(5) *
+std::unique_ptr<AmgSymMatrix(5)>
   extractDeltaCovariance(const TrackParameters& updatedParameters, const TrackParameters& originalParameters);
 
 } // end namespace MultiStateMaterialEffectsAdapter

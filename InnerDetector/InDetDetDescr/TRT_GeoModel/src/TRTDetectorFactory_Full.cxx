@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -13,7 +13,6 @@
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/TRT_Conditions.h"
 
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -348,11 +347,6 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   }
                                                
   
-
-  // Interface to conditions
-  InDetDD::TRT_Conditions * conditions = new InDetDD::TRT_Conditions;
-  m_detectorManager->setConditions(conditions);
-
 
   //Uncomment for testing:
   //  m_data->ShowValues();
@@ -924,6 +918,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	if (sqrt((x-oldx)*(x-oldx)+ (z-oldz)*(z-oldz))> 5*GeoModelKernelUnits::cm) {
 	  iLayer++;
 	  bDescriptor.push_back(new InDetDD::TRT_BarrelDescriptor());
+          m_detectorManager->setBarrelDescriptor(bDescriptor.back());
 	  bDescriptor.back()->setStrawTransformField(m_detectorManager->barrelTransformField(iABC),c);
 
 	  //TK: Next, we are providing information about the Z
@@ -1031,8 +1026,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 	  InDetDD::TRT_BarrelDescriptor *bD=bDescriptor[jStrawLayer];
 
-	  InDetDD::TRT_BarrelElement *element0 = new InDetDD::TRT_BarrelElement(pShell, bD, 0  , iABC, iMod, iStrawLayer, idHelper, conditions);
-	  InDetDD::TRT_BarrelElement *element1 = new InDetDD::TRT_BarrelElement(pShell, bD, 1  , iABC, iMod, iStrawLayer, idHelper, conditions);
+	  InDetDD::TRT_BarrelElement *element0 = new InDetDD::TRT_BarrelElement(pShell, bD, 0  , iABC, iMod, iStrawLayer, idHelper, m_detectorManager->conditions());
+	  InDetDD::TRT_BarrelElement *element1 = new InDetDD::TRT_BarrelElement(pShell, bD, 1  , iABC, iMod, iStrawLayer, idHelper, m_detectorManager->conditions());
 
 	  m_detectorManager->manageBarrelElement(element0);
 	  m_detectorManager->manageBarrelElement(element1);
@@ -1147,18 +1142,17 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   }
 
   // Create and initialize by 0 arrays of descriptors
-  InDetDD::TRT_EndcapDescriptor* descriptorsAB[nSides][nStrawLayMaxEc][m_data->nEndcapPhi];
-  InDetDD::TRT_EndcapDescriptor* descriptorsC[nSides][nStrawLayMaxEc][m_data->nEndcapPhi];
+  std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsAB[nSides][nStrawLayMaxEc];
+  std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsC[nSides][nStrawLayMaxEc];
   InDetDD::TRT_EndcapDescriptor* pDescriptor = 0;
   InDetDD::TRT_EndcapElement* element = 0;
 
-  for(iiSide = 0; iiSide<nSides; iiSide++)
-    for(iiPlane = 0; iiPlane < nStrawLayMaxEc; iiPlane++)
-      for(iiPhi = 0; iiPhi < m_data->nEndcapPhi; iiPhi++)
-	{
-	  descriptorsAB[iiSide][iiPlane][iiPhi] = 0;
-	  descriptorsC[iiSide][iiPlane][iiPhi] = 0;
-	}
+  for(iiSide = 0; iiSide<nSides; iiSide++) {
+    for(iiPlane = 0; iiPlane < nStrawLayMaxEc; iiPlane++) {
+      descriptorsAB[iiSide][iiPlane].resize (m_data->nEndcapPhi);
+      descriptorsC[iiSide][iiPlane].resize (m_data->nEndcapPhi);
+    }
+  }
 
 
 
@@ -1341,6 +1335,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		    {
 		
 		      pDescriptor = new InDetDD::TRT_EndcapDescriptor();
+                      m_detectorManager->setEndcapDescriptor(pDescriptor);
 
 		      pDescriptor->nStraws() = m_data->endcapNumberOfStrawsInStrawLayer_AWheels/m_data->nEndcapPhi;
 		      pDescriptor->strawPitch() = deltaPhiForStrawsA;
@@ -1384,7 +1379,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 							     iiPlane,
 							     iiPhiOffline,
 							     idHelper,
-							     conditions);
+							     m_detectorManager->conditions());
 		    m_detectorManager->manageEndcapElement(element);
 		  }
 	      }
@@ -1667,7 +1662,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 							     iiPlane,
 							     iiPhiOffline,
 							     idHelper,
-							     conditions);
+							     m_detectorManager->conditions());
 		    m_detectorManager->manageEndcapElement(element);
 		  }
 	      }
@@ -1913,6 +1908,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		  for(iiPhi = 0; iiPhi < m_data->nEndcapPhi; iiPhi++)
 		    {
 		      pDescriptor = new InDetDD::TRT_EndcapDescriptor();
+                      m_detectorManager->setEndcapDescriptor(pDescriptor);
 
 		      pDescriptor->nStraws() = m_data->endcapNumberOfStrawsInStrawLayer_CWheels/m_data->nEndcapPhi;
 		      pDescriptor->strawPitch() = deltaPhiForStrawsC;
@@ -1957,7 +1953,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 							     iiPlane,
 							     iiPhiOffline,
 							     idHelper,
-							     conditions);
+							     m_detectorManager->conditions());
 		    m_detectorManager->manageEndcapElement(element);
 		  }
 	      }

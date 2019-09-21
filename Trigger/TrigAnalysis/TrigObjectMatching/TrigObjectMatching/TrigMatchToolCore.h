@@ -61,7 +61,7 @@ public:
    template< typename trigType >
    std::vector< const trigType* >
    getTriggerObjects( const std::string& chainName,
-                      bool onlyPassedFeatures );
+                      bool onlyPassedFeatures ) const;
 
    /**************************************************
     *     Offline -> Trigger Object matching         *
@@ -78,7 +78,7 @@ public:
                           const std::string& chainName, 
                           float maxDistance,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType >* metric );
+                          const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will match using deltaR, so no metric is needed
@@ -87,7 +87,7 @@ public:
    matchToTriggerObjects( const baseType *baseObject,
                           const std::string& chainName, 
                           float maxDistance = 0.1,
-                          bool onlyPassedFeatures = false );
+                          bool onlyPassedFeatures = false ) const;
 
    /**
     * @brief matchToTriggerObject returns the object of type trigType
@@ -100,7 +100,7 @@ public:
                          const std::string& chainName, 
                          float maxDistance,
                          bool onlyPassedFeatures,
-                         const DistanceFunctor< trigType, baseType >* metric );
+                         const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will use match using deltaR, so no metric is needed
@@ -109,7 +109,7 @@ public:
    matchToTriggerObject( const baseType* baseObject,
                          const std::string& chainName, 
                          float maxDistance = 0.1,
-                         bool onlyPassedFeatures = false );
+                         bool onlyPassedFeatures = false ) const;
 
    // C++ will happily cast a bool to a float, which means you can
    // call the above like matchToTriggerObject(object, chain, false)
@@ -118,7 +118,7 @@ public:
    const trigType*
    matchToTriggerObject( const baseType * /*baseObject*/,
                          const std::string& /*chainName*/, 
-                         bool /*onlyPassedFeatures*/ ) {
+                         bool /*onlyPassedFeatures*/ ) const {
 
       this->warning( "You have called matchToTriggerObject incorrectly.");
       this->warning( "Note that the correct use is: object to match to, "
@@ -144,7 +144,7 @@ public:
                           float maxDistance,
                           bool onlyBestMatch,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType >* metric );
+                          const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will use match using deltaR, so no metric is needed
@@ -154,7 +154,7 @@ public:
                           const std::string& chainName, 
                           float maxDistance = 0.1,
                           bool onlyBestMatch = true,
-                          bool onlyPassedFeatures = false );
+                          bool onlyPassedFeatures = false ) const;
 
    // Versions with std::vector instead of DataVector
    template< typename trigType, typename baseType >
@@ -164,7 +164,7 @@ public:
                           float maxDistance,
                           bool onlyBestMatch,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType > *metric );
+                          const DistanceFunctor< trigType, baseType > *metric ) const;
 
    template< typename trigType, typename baseType >
    std::vector< const trigType* >
@@ -172,7 +172,7 @@ public:
                           const std::string& chainName, 
                           float maxDistance = 0.1,
                           bool onlyBestMatch = true,
-                          bool onlyPassedFeatures = false );
+                          bool onlyPassedFeatures = false ) const;
 
    /**
     * @brief unmatchedTriggerObjects returns a vector of trigger
@@ -189,7 +189,7 @@ public:
                             float maxDistance,
                             bool onlyBestMatch,
                             bool onlyPassedFeatures,
-                            const DistanceFunctor< trigType, baseType >* metric );
+                            const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // matching using the default metric - same as above except
    // will use match using deltaR, so no metric is needed
@@ -199,7 +199,7 @@ public:
                             const std::string& chainName, 
                             float maxDistance = 0.1,
                             bool onlyBestMatch = true,
-                            bool onlyPassedFeatures = false );
+                            bool onlyPassedFeatures = false ) const;
 
    // versions with std::vectors instead of DataVectors
    template< typename trigType, typename baseType >
@@ -209,7 +209,7 @@ public:
                             float maxDistance,
                             bool onlyBestMatch,
                             bool onlyPassedFeatures,
-                            const DistanceFunctor< trigType, baseType >* metric );
+                            const DistanceFunctor< trigType, baseType >* metric ) const;
 
    template< typename trigType, typename baseType >
    std::vector< const trigType* >
@@ -217,7 +217,7 @@ public:
                             const std::string& chainName, 
                             float maxDistance = 0.1,
                             bool onlyBestMatch = true,
-                            bool onlyPassedFeatures = false );
+                            bool onlyPassedFeatures = false ) const;
 
    /**************************************************
     *      Offline -> Trigger Chain matching         *
@@ -238,7 +238,7 @@ public:
    chainPassedByObject( const baseType* baseObject,
                         const std::string& chainName,
                         float maxDistance,
-                        const DistanceFunctor< trigType, baseType > *metric );
+                        const DistanceFunctor< trigType, baseType > *metric ) const;
 
    // default metric version - matching will be done via deltaR,
    // so it is not necessary to supply a metric
@@ -246,7 +246,7 @@ public:
    bool
    chainPassedByObject( const baseType *baseObject,
                         const std::string &chainName,
-                        float maxDistance = 0.1 );
+                        float maxDistance = 0.1 ) const;
 
    /**
     * @brief chainsPassedByObject returns a list of the chains
@@ -262,14 +262,14 @@ public:
    std::vector< std::string >
    chainsPassedByObject( const baseType* baseObject,
                          float maxDistance,
-                         const DistanceFunctor< trigType, baseType >* metric );
+                         const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // default metric version - matching will be done via
    // deltaR, so a metric is not required
    template< typename trigType, typename baseType >
    std::vector< std::string >
    chainsPassedByObject( const baseType *baseObject,
-                         float maxDistance = 0.1 );
+                         float maxDistance = 0.1 ) const;
 
    /**************************************************
     *      Trigger Chain -> Offline matching         *
@@ -289,7 +289,7 @@ public:
                    const std::string& chainName,
                    bool onlyPassedFeatures, 
                    float maxDistance,
-                   const DistanceFunctor< trigType, baseType >* metric );
+                   const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // default metric version - matching will be done via deltaR,
    // and so it is not necessary to supply a metric
@@ -298,7 +298,7 @@ public:
    objectsInChain( const std::vector< const baseType* >& baseObjects,
                    const std::string& chainName,
                    bool onlyPassedFeatures = false, 
-                   float maxDistance = 0.1 );
+                   float maxDistance = 0.1 ) const;
 
    /**
     * @brief matchToAllObjects returns a map from matched objects
@@ -310,7 +310,7 @@ public:
    matchToAllTriggerObjects( const baseType* baseObject,
                              float maxDistance,
                              bool onlyPassedFeatures,
-                             const DistanceFunctor< trigType, baseType >* metric );
+                             const DistanceFunctor< trigType, baseType >* metric ) const;
 
    // default metric version - matching will be done via deltaR,
    // and so it is not necessary to supply a metric
@@ -318,7 +318,7 @@ public:
    std::map< const trigType*, std::vector< std::string > >
    matchToAllTriggerObjects( const baseType* baseObject,
                              float maxDistance = 0.1,
-                             bool onlyPassedFeatures = false );
+                             bool onlyPassedFeatures = false ) const;
 
    /**********************************************************/
    /*           Setting running parameters                   */
@@ -441,7 +441,7 @@ private:
 
   // function for printing warnings - note that this depends on whether
    // you are in ARA or not
-   virtual void warning( const std::string& w ) = 0;
+   virtual void warning( const std::string& w ) const = 0;
 
    // status functions for determining what information we have access to
    // This allows the correct caching to take place based upon whether or
@@ -483,12 +483,12 @@ private:
    template< typename trigType >
    void getObjects( std::vector< const trigType* >& objects,
                     const std::string& chainName,
-                    bool onlyPassedFeatures );
+                    bool onlyPassedFeatures ) const;
 
    template< typename trigType >
    void getObjects( std::vector< const trigType* >& objects,
                     size_t chainIndex,
-                    bool onlyPassedFeatures );
+                    bool onlyPassedFeatures ) const;
     
    // function for loading objects that are attached directly
    // to the navigation
@@ -524,7 +524,7 @@ private:
    template< typename trigType >
    std::vector< const trigType* >
    getTriggerObjects( size_t chainIndex,
-                      bool onlyPassedFeatures );
+                      bool onlyPassedFeatures ) const;
 
    /**
     * @brief matchToTriggerObjects returns the objects of type trigType
@@ -537,14 +537,14 @@ private:
                           size_t chainIndex,
                           float maxDistance,
                           bool onlyPassedFeatures,
-                          const DistanceFunctor< trigType, baseType >* metric );
+                          const DistanceFunctor< trigType, baseType >* metric ) const;
 
    template< typename trigType, typename baseType >
    bool
    chainPassedByObject( const baseType* baseObject,
                         size_t chainIndex,
                         float maxDistance,
-                        const DistanceFunctor< trigType, baseType > *metric );
+                        const DistanceFunctor< trigType, baseType > *metric ) const;
 
    // cache from chainName and onlyPassedFeatures to std::vector<Trig::Feature<trigType> >
    class TrigFeatureCacheBase {

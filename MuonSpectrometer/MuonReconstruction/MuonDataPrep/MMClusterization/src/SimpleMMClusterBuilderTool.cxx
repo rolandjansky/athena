@@ -30,16 +30,9 @@ StatusCode Muon::SimpleMMClusterBuilderTool::initialize()
 {
 
   /// get the detector descriptor manager
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muonMgr );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR("DetectorStore not found ");
+  StatusCode sc = detStore()->retrieve( m_muonMgr );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
     return sc;
   }
   

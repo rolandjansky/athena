@@ -1,16 +1,15 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-# Definition of trigger EDM for the Run 3, mostly similar to Run 2 (TriggerEDM.py).
-# Some different sets of EDM to stream and some different functionalities are required.
+# Definition of trigger EDM for the Run 3
 
-
-# Concept of categories is kept, categories are: 
+# Concept of categories is kept similar to TriggerEDMRun2.py, categories are: 
 #   Bjet, Bphys, Egamma, ID/Tracking (to be concluded if can be merged), 
-#   Jet, L1, MET, MinBias, Muon Steer, Tau, Calo
+#   Jet, L1, MET, MinBias, Muon, Steer, Tau, Calo
 
 # Please note: 
 #   Dynamic varialbes/Container slimming: All dyn vars are removed unless explicitly specified to be kept!
+#   Please refer to ATR-20275 for discussion about policy/handling of dynamic variables
 
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
@@ -46,6 +45,18 @@ def recordable( name ):
     __log.error("ERROR in recordable() - see following stack trace.")
     raise RuntimeError( msg )
 
+
+# ------------------------------------------------------------
+# Trigger EDM list for Run 3 with all containers that should
+# be stored in the specified format as well as the category
+# ------------------------------------------------------------
+AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODVERYSLIM', 'AODBLSSLIM' 'AODLARGE', 'AODSMALL', ]
+
+JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'ActiveArea4vec_phi', 'ActiveArea4vec_pt', 'AlgorithmType', 
+                 'DetectorEta', 'DetectorPhi', 'EMFrac', 'EnergyPerSampling', 'GhostTrack', 'HECFrac', 'InputType', 
+                 'JetConstitScaleMomentum_eta', 'JetConstitScaleMomentum_m', 'JetConstitScaleMomentum_phi', 'JetConstitScaleMomentum_pt', 
+                 'Jvt', 'JVFCorr', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtTrkPt500', 'SumPtTrkPt1000', 'TrackWidthPt1000',]
+JetVars = '.'.join(JetVarsToKeep)
 
 TriggerHLTListRun3 = [
 
@@ -144,6 +155,10 @@ TriggerHLTListRun3 = [
     ('xAOD::MuonContainer#HLT_MuonsCBOutsideIn',                                'BS ESD AODFULL', 'Muon', 'inViews:MUEFCBViewRoIs'),
     ('xAOD::MuonAuxContainer#HLT_MuonsCBOutsideInAux.',                         'BS ESD AODFULL', 'Muon'),
 
+    #xAOD isolated muon
+    ('xAOD::MuonContainer#HLT_MuonsIso',                                'BS ESD AODFULL', 'Muon', 'inViews:MUEFIsoViewRoIs'),
+    ('xAOD::MuonAuxContainer#HLT_MuonsIsoAux.',                         'BS ESD AODFULL', 'Muon'),
+
     #Muon track particle containers (combined (x2: FS+RoI), extrapolated (x2: FS+RoI), MSonly (x1: FS))
     ('xAOD::TrackParticleContainer#HLT_CBCombinedMuon_RoITrackParticles',                     'BS ESD AODFULL', 'Muon', 'inViews:MUEFCBViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_CBCombinedMuon_RoITrackParticlesAux.',              'BS ESD AODFULL', 'Muon'),
@@ -183,26 +198,26 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauAux.',          'BS ESD AODFULL', 'Tau'),
 
     # Jet
-    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesISAux.',       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS',                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesISAux.'+JetVars,       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjes',                'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesAux.',         'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjes',                        'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesAux.'+JetVars,         'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_nojcalib',              'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_nojcalibAux.',       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_nojcalib',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_nojcalibAux.'+JetVars,       'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt10LCTopoJets_subjes',               'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoJets_subjesAux.',        'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoJets_subjes',                       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoJets_subjesAux.'+JetVars,        'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt10LCTopoJets_nojcalib',             'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoJets_nojcalibAux.',      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoJets_nojcalib',                     'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoJets_nojcalibAux.'+JetVars,      'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt10JetRCJets_subjesIS',              'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt10JetRCJets_subjesISAux.',       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt10JetRCJets_subjesIS',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10JetRCJets_subjesISAux.'+JetVars,       'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jesAux.', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jesAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
     # MET
     ('xAOD::TrigMissingETContainer#HLT_MET_cell',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
@@ -261,32 +276,41 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksAux.',                 'BS ESD AODFULL', 'ID'),
 
     ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
-    ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
+    ('ROIB::RoIBResult#*',                         'ESD', 'Misc'), 
 
     ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
     ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.',     'BS ESD AODFULL AODSLIM', 'MinBias'),
 ]
 
 
-EDMDetails = {}
+#-------------------------------------------------------------------------------
+# EDM details list to store the transient-persistent version
+#-------------------------------------------------------------------------------
+EDMDetailsRun3 = {}
 
-EDMDetails[ "TrigRoiDescriptorCollection" ]     = {'persistent':"TrigRoiDescriptorCollection_p3"}
+EDMDetailsRun3[ "TrigRoiDescriptorCollection" ]     = {'persistent':"TrigRoiDescriptorCollection_p3"}
+EDMDetailsRun3[ "xAOD::TrigCompositeAuxContainer" ] = {'persistent':"xAOD::TrigCompositeAuxContainer_v2"}
+EDMDetailsRun3[ "xAOD::TrigEMClusterAuxContainer" ] = {'persistent':"xAOD::TrigEMClusterAuxContainer_v2"}
 
-EDMDetails[ "xAOD::TrigCompositeAuxContainer" ] = {'persistent':"xAOD::TrigCompositeAuxContainer_v2"}
+EDMDetailsRun3[ "xAOD::TrigDecisionAuxInfo" ]         = {'parent':"xAOD::TrigDecision"}
+EDMDetailsRun3[ "xAOD::EnergySumRoIAuxInfo" ]         = {'parent':"xAOD::EnergySumRoI"}
+EDMDetailsRun3[ "xAOD::JetEtRoIAuxInfo" ]             = {'parent':"xAOD::JetEtRoI"}
+EDMDetailsRun3[ "xAOD::CaloClusterTrigAuxContainer" ] = {'parent':"xAOD::CaloClusterContainer"}
 
-EDMDetails[ "xAOD::TrigEMClusterAuxContainer" ] = {'persistent':"xAOD::TrigEMClusterAuxContainer_v2"}
 
-
-
+#-------------------------------------------------------------------------------
+# Helper functions 
+#-------------------------------------------------------------------------------
 def persistent( transient ):
     """
-    Persistent EDM claass, for xAOD it is the actual class version
+    Persistent EDM class, for xAOD it is the actual class version
 
     Uses list defined above. If absent assumes v1
     """
-    if transient in EDMDetails:
-        return EDMDetails[transient]['persistent']
-    return transient+"_v1"
+    if transient in EDMDetailsRun3:
+        if 'persistent' in EDMDetailsRun3[transient]:
+            return EDMDetailsRun3[transient]['persistent']
+    return transient
 
 
 def tpMap():
@@ -294,7 +318,7 @@ def tpMap():
     List
     """
     l = {}
-    for tr in EDMDetails.keys():
+    for tr in EDMDetailsRun3.keys():
         if "xAOD" in tr:
             continue
         l[tr] = persistent(tr)

@@ -13,7 +13,8 @@
 #include "GaudiKernel/EventContext.h"
 
 // PACKAGE
-#include "ActsGeometry/ActsTrackingGeometryTool.h"
+#include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 
@@ -45,9 +46,8 @@ class Surface;
 class BoundaryCheck;
 }
 
-static const InterfaceID IID_ActsExtrapolationTool("ActsExtrapolationTool", 1, 0);
 
-class ActsExtrapolationTool : public AthAlgTool
+class ActsExtrapolationTool : public extends<AthAlgTool, IActsExtrapolationTool>
 {
 
 public:
@@ -56,11 +56,20 @@ public:
   ActsExtrapolationTool(const std::string& type, const std::string& name,
 	           const IInterface* parent);
 
-  template <typename parameters_t>
+private:
+  // set up options for propagation
+  using SteppingLogger = Acts::detail::SteppingLogger;
+  using DebugOutput = Acts::detail::DebugOutputActor;
+  using EndOfWorld = Acts::detail::EndOfWorldReached;
+  using ResultType = Acts::Result<std::pair<std::vector<Acts::detail::Step>,
+                                            DebugOutput::result_type>>;
+
+public:
+  virtual
   std::vector<Acts::detail::Step>
   propagate(const EventContext& ctx,
-            const parameters_t& startParameters,
-            double pathLimit = std::numeric_limits<double>::max()) const
+            const Acts::BoundParameters& startParameters,
+            double pathLimit = std::numeric_limits<double>::max()) const override
   {
     using namespace Acts::UnitLiterals;
     ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
@@ -82,11 +91,22 @@ public:
 
     options.maxStepSize = m_maxStepSize * 1_m;
 
-    PropagatorVisitor<parameters_t, Options> visitor(startParameters, std::move(options));
-
     std::vector<Acts::detail::Step> steps;
     DebugOutput::result_type debugOutput;
-    auto res = boost::apply_visitor(visitor, *m_varProp);
+
+    auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
+        auto result = propagator.propagate(startParameters, options);
+        if (!result.ok()) {
+        return result.error();
+        }
+        auto& propRes = *result;
+
+        auto steppingResults = propRes.template get<SteppingLogger::result_type>();
+        auto debugOutput = propRes.template get<DebugOutput::result_type>();
+        // try to force return value optimization, not sure this is necessary
+        return std::make_pair(std::move(steppingResults.steps), std::move(debugOutput));
+        }, *m_varProp);
+
     if (!res.ok()) {
       ATH_MSG_ERROR("Got error during propagation:" << res.error()
           << ". Returning empty step vector.");
@@ -104,18 +124,15 @@ public:
     return steps;
   }
 
-  const ActsTrackingGeometryTool*
-  trackingGeometryTool() const
+  virtual
+  const IActsTrackingGeometryTool*
+  trackingGeometryTool() const override
   {
     return m_trackingGeometryTool.get();
   }
 
-private:
-  // set up options for propagation
-  using SteppingLogger = Acts::detail::SteppingLogger;
-  using DebugOutput = Acts::detail::DebugOutputActor;
-  using EndOfWorld = Acts::detail::EndOfWorldReached;
 
+private:
   // Action list and abort list
   using ActionList = Acts::ActionList<SteppingLogger, DebugOutput>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
@@ -129,40 +146,8 @@ private:
 
   std::unique_ptr<VariantPropagator> m_varProp;
 
-  using ResultType = Acts::Result<std::pair<std::vector<Acts::detail::Step>,
-                                            DebugOutput::result_type>>;
-  template <typename parameters_t, typename options_t>
-  struct PropagatorVisitor
-  : boost::static_visitor<ResultType> {
-
-    PropagatorVisitor(const parameters_t& parameters, options_t options)
-      : m_parameters(parameters), m_options(std::move(options))
-    {}
-
-    template <typename propagator_t>
-    ResultType
-    operator()(const propagator_t& propagator) const
-    {
-      auto result = propagator.propagate(m_parameters, m_options);
-      if (!result.ok()) {
-        return result.error();
-      }
-      auto& propRes = *result;
-
-      auto steppingResults = propRes.template get<SteppingLogger::result_type>();
-      auto debugOutput = propRes.template get<DebugOutput::result_type>();
-      // try to force return value optimization, not sure this is necessary
-      return std::make_pair(std::move(steppingResults.steps), std::move(debugOutput));
-    }
-
-    const parameters_t& m_parameters;
-    options_t m_options;
-
-  };
-
-
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
-  ToolHandle<ActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
+  ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
   Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS"};
   Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}};

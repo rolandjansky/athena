@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGS_NOISEMAPBUILDER_H
@@ -8,23 +8,19 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include <string>
 #include <sstream>
 #include <vector>
 #include <fstream>
 #include <utility> // pair
 
-class IInDetConditionsSvc;
-class IPixelByteStreamErrorsSvc;
 class ITHistSvc;
 class PixelID;
 class TH2D;
 class TH2C;
 class TH1D;
-
-namespace InDetDD{ 
-  class PixelDetectorManager;
-}
 
 /**
  *
@@ -65,10 +61,10 @@ class NoiseMapBuilder: public AthAlgorithm{
 
  private:
   ServiceHandle <ITHistSvc> m_tHistSvc;
-  ServiceHandle <IInDetConditionsSvc> m_pixelConditionsSummarySvc;
-  ServiceHandle <IPixelByteStreamErrorsSvc> m_BSErrorsSvc;
 
-  const InDetDD::PixelDetectorManager *m_pixman; 
+  ToolHandle<IInDetConditionsTool> m_pixelConditionsTool
+  {this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+
   const PixelID *m_pixelID;
 
   // vector of modulename and vector(barrel/endcap, layer, phi, eta)

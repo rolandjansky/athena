@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IChargeCollProbSvc_H
@@ -11,8 +11,6 @@
 #include <string>
  
 // Forward declarations
-//class IIncidentListener;
-//class Incident;
 class StatusCode; 
 
 // Declaration of the interface ID ( interface id, major version, minor version)

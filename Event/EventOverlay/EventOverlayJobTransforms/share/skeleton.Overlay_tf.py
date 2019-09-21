@@ -98,20 +98,20 @@ if 'DetFlags' in dir():
     OverlayLog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
 else:
     from AthenaCommon.DetFlags import DetFlags
-
-    DetFlags.pixel_setOn()
-    DetFlags.SCT_setOn()
-    DetFlags.TRT_setOn()
-    DetFlags.Tile_setOn()
-    DetFlags.CSC_setOn()
-    DetFlags.MDT_setOn()
-    DetFlags.RPC_setOn()
-    DetFlags.TGC_setOn()
-
-    DetFlags.Truth_setOn()
+    DetFlags.all_setOn()
+    DetFlags.bpipe_setOff()
+    DetFlags.FTK_setOff()
 
 # TODO: need to do it better
+#DetFlags.makeRIO.all_setOff() ## Currently has to be on otherwise InDetTRTStrawStatusSummarySvc is not created
 DetFlags.pileup.all_setOff()
+DetFlags.readRDOBS.all_setOff()
+DetFlags.readRDOPool.all_setOff()
+DetFlags.readRIOBS.all_setOff()
+DetFlags.readRIOPool.all_setOff()
+DetFlags.simulate.all_setOff()
+DetFlags.writeBS.all_setOff()
+DetFlags.writeRIOPool.all_setOff()
 
 DetFlags.Print()
 
@@ -125,6 +125,7 @@ else:
     from EventOverlayJobTransforms.OverlayReadMetaData import readInputFileMetadata
     readInputFileMetadata()
 
+DetFlags.Print()
 
 #-------------------------
 # Conditions
@@ -153,8 +154,17 @@ include("EventOverlayJobTransforms/OverlayInput_jobOptions.py")
 if DetFlags.overlay.Truth_on():
     include("EventOverlayJobTransforms/TruthOverlay_jobOptions.py")
 
+if DetFlags.overlay.BCM_on() or DetFlags.overlay.Lucid_on():
+    include ( "EventOverlayJobTransforms/BeamOverlay_jobOptions.py" )
+
 if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
     include("EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py")
+
+if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
+    include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
+
+if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.Micromegas_on():
+    include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 
 # save the overlay output
 include("EventOverlayJobTransforms/OverlayOutput_jobOptions.py")

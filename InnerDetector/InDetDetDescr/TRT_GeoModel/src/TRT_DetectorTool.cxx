@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetectorTool.h"
 #include "TRTDetectorFactory_Full.h" 
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"

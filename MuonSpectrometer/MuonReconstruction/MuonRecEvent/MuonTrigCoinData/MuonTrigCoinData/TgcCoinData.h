@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,18 +12,18 @@
 #ifndef MUONTRIGCOINDATA_TGCCOINDATA_H
 #define MUONTRIGCOINDATA_TGCCOINDATA_H
 
+#include "AthLinks/tools/IdentContIndex.h"
+#include "CxxUtils/CachedUniquePtr.h"
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-#include "EventPrimitives/EventPrimitives.h"
-
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "TrkSurfaces/Surface.h"
 
-#include "AthLinks/tools/IdentContIndex.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <inttypes.h>
-#include "GaudiKernel/MsgStream.h"
 #include <iostream>
 
 class TgcCoinDataContainerCnv;
@@ -258,8 +258,8 @@ namespace Muon
       int m_inner;
       bool m_isPositiveDeltaR;
 
-      mutable const Amg::Vector3D* m_globalposIn;
-      mutable const Amg::Vector3D* m_globalposOut;
+      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalposIn;
+      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalposOut;
   };
   ////////////////////////////////////////////////
   // inline methods:
@@ -353,12 +353,12 @@ namespace Muon
   
   inline const Amg::Vector3D& TgcCoinData::globalposIn() const
     {
-      if(m_globalposIn==0) {
+      if(not m_globalposIn) {
 	if(m_detElIn) {
-	  m_globalposIn = m_detElIn->surface(m_channelIdIn).Trk::Surface::localToGlobal(*m_posIn);
+	  m_globalposIn.set(std::unique_ptr<const Amg::Vector3D>(m_detElIn->surface(m_channelIdIn).Trk::Surface::localToGlobal(*m_posIn)));
 	}
 	else {
-	  m_globalposIn = new Amg::Vector3D(0., 0., 0.);
+	  m_globalposIn.set(std::make_unique<const Amg::Vector3D>(0., 0., 0.));
 	}
       }
       return *m_globalposIn;
@@ -366,12 +366,12 @@ namespace Muon
       
   inline const Amg::Vector3D& TgcCoinData::globalposOut() const
     {
-      if(m_globalposOut==0) {
+      if(not m_globalposOut) {
 	if(m_detElOut && m_posOut) {
-	  m_globalposOut = m_detElOut->surface(m_channelIdOut).Trk::Surface::localToGlobal(*m_posOut);
+	  m_globalposOut.set(std::unique_ptr<const Amg::Vector3D>(m_detElOut->surface(m_channelIdOut).Trk::Surface::localToGlobal(*m_posOut)));
 	}
 	else {
-	  m_globalposOut = new Amg::Vector3D(0., 0., 0.);
+	  m_globalposOut.set(std::make_unique<const Amg::Vector3D>(0., 0., 0.));
 	}
       } 
       return *m_globalposOut;

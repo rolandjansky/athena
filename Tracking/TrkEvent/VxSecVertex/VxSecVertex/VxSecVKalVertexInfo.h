@@ -89,14 +89,7 @@ namespace Trk {
     double dstToMatLay() const;
 
     /* set minimal distance to any material layer  */
-    void setDstToMatLay(double Value) {
-      m_dstToMatLayer=Value;
-    }
-
-    /* set minimal distance to any material layer.  const setter is not MT safe  !!!*/
-    void setDstToMatLay ATLAS_NOT_THREAD_SAFE (double Value) const {
-      const_cast<double&> (m_dstToMatLayer)=Value; /* marked ATLAS_NOT_THREAD_SAFE*/
-    }
+    void setDstToMatLay(double Value);
 
     /* get number of 2track vertices */
     int n2trackvertices() const;
@@ -151,6 +144,10 @@ namespace Trk {
   inline double VxSecVKalVertexInfo::dstToMatLay() const {
     return m_dstToMatLayer;
   }
+    /* set minimal distance to any material layer  */
+   inline void VxSecVKalVertexInfo::setDstToMatLay(double Value) {
+      m_dstToMatLayer=Value;
+    }
 
   inline int VxSecVKalVertexInfo::n2trackvertices() const {
     return m_n2trackvertices;

@@ -48,10 +48,8 @@ def getCaloNoiseTool(name="ISF_FCS_CaloNoiseTool", **kwargs):
     return CaloNoiseToolDefault(name, **kwargs )
 
 def getAddNoiseCellBuilderTool(name="ISF_AddNoiseCellBuilderTool", **kwargs):
-    kwargs.setdefault("CaloNoiseTool" , getPublicTool('ISF_FCS_CaloNoiseTool').getFullName())
-
-    from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
-    return AddNoiseCellBuilderTool(name, **kwargs )
+    from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault
+    return AddNoiseCellBuilderToolDefault(name, **kwargs )
 
 def getCaloCellContainerFinalizerTool(name="ISF_CaloCellContainerFinalizerTool", **kwargs):
     from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool     

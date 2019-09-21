@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -126,21 +125,13 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
   m_verbose = true;
   if( m_debug ) *m_log << MSG::DEBUG << "Initializing " << endmsg;
  
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) *m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    *m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (!sc.isSuccess()) {
     *m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
     return sc;
   }
   
-  sc = m_detStore->retrieve( m_detMgr );
+  sc = detStore()->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
     *m_log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
     return sc;
@@ -170,12 +161,12 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
   // initialize MdtTubeCalibContainers 
   sc=defaultT0s();
   if(sc.isFailure()) return StatusCode::FAILURE;
-  sc=m_detStore->record( m_tubeData, m_tubeDataLocation, true );
+  sc=detStore()->record( m_tubeData, m_tubeDataLocation, true );
   if(sc.isFailure()) return StatusCode::FAILURE;
 
   // Get the TransientAddress from DetectorStore and set "this" as the
   // AddressProvider
-  SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtTubeCalibContainerCollection>::ID(), m_tubeDataLocation);
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MdtTubeCalibContainerCollection>::ID(), m_tubeDataLocation);
   if (!proxy) {
     *m_log << MSG::ERROR << "Unable to get the proxy for class MdtTubeCalibContainerCollection" << endmsg;
     return StatusCode::FAILURE;
@@ -187,12 +178,12 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
 
   sc=defaultRt();
   if(sc.isFailure()) return StatusCode::FAILURE;
-  sc=m_detStore->record( m_rtData, m_rtDataLocation, true );
+  sc=detStore()->record( m_rtData, m_rtDataLocation, true );
   if(sc.isFailure()) return StatusCode::FAILURE;
 
   // Get the TransientAddress from DetectorStore and set "this" as the
   // AddressProvider
-  proxy = m_detStore->proxy(ClassID_traits<MdtRtRelationCollection>::ID(), m_rtDataLocation);
+  proxy = detStore()->proxy(ClassID_traits<MdtRtRelationCollection>::ID(), m_rtDataLocation);
   if (!proxy) {
     *m_log << MSG::ERROR << "Unable to get the proxy for class MdtRtRelationCollection" << endmsg;
     return StatusCode::FAILURE;

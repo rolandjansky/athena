@@ -12,6 +12,8 @@ from LArG4SD.LArG4SDConf import LArG4__DeadSDTool
 from LArG4SD.LArG4SDConf import LArG4__ActiveSDTool
 from LArG4SD.LArG4SDConf import LArG4__InactiveSDTool
 
+#to be migrated: getCalibrationDefaultCalculator, getDeadMaterialCalibrationHitMerger
+
 def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetector", **kwargs):
     ## Main configuration
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2003","tb_LArH6_2002"]:
@@ -318,12 +320,3 @@ def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveD
     kwargs.setdefault("OutputCollectionNames", ["LArHitMiniFCAL"])
 
     return LArG4__MiniFCALSDTool(name, **kwargs)
-
-def getCalibrationDefaultCalculator(name="CalibrationDefaultCalculator", **kwargs):
-    return CfgMgr.LArG4__CalibrationDefaultCalculator(name, **kwargs)
-
-def getDeadMaterialCalibrationHitMerger(name="DeadMaterialCalibrationHitMerger", **kwargs):
-    kwargs.setdefault("InputHits",["LArCalibrationHitDeadMaterial_DEAD","LArCalibrationHitActive_DEAD","LArCalibrationHitInactive_DEAD"])
-    kwargs.setdefault("OutputHits","LArCalibrationHitDeadMaterial")
-    return CfgMgr.LArG4__CalibrationHitMerger(name, **kwargs)
-

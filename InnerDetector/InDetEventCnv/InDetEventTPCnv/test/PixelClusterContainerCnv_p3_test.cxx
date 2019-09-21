@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,17 +13,17 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/PixelClusterContainerCnv_p3.h"
 #include "TestTools/leakcheck.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
+
 #include "GaudiKernel/MsgStream.h"
+
 #include <cassert>
 #include <iostream>
-
+#include <memory>
 
 void compare (const InDet::SiWidth& p1,
               const InDet::SiWidth& p2)
@@ -101,6 +101,7 @@ void testit (const InDet::PixelClusterContainer& trans1)
 {
   MsgStream log (0, "test");
   PixelClusterContainerCnv_p3 cnv;
+  cnv.setUseDetectorElement(false);
   InDet::PixelClusterContainer_p3 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<InDet::PixelClusterContainer> trans2
@@ -113,10 +114,10 @@ void testit (const InDet::PixelClusterContainer& trans1)
 std::unique_ptr<const InDet::PixelClusterContainer>
 makeclusts()
 {
-  auto cont = CxxUtils::make_unique<InDet::PixelClusterContainer>(5);
+  auto cont = std::make_unique<InDet::PixelClusterContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<InDet::PixelClusterCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<InDet::PixelClusterCollection>(IdentifierHash(hash));
 
     for (int i=0; i < 10; i++) {
       int offs = i*10 + hash*100;
@@ -137,7 +138,7 @@ makeclusts()
         for (int j=0; j < 2; j++)
           cov(i,j) = 100*(i+1)*(j+1) + offs;
 
-      auto cl = CxxUtils::make_unique<InDet::PixelCluster>
+      auto cl = std::make_unique<InDet::PixelCluster>
         (Identifier (offs+1234 + (hash<<17) + 0xc000),
          locpos,
          rdoList,
@@ -185,7 +186,7 @@ void test1()
 
 void make_dd()
 {
-  auto pix_id = CxxUtils::make_unique<PixelID>();
+  auto pix_id = std::make_unique<PixelID>();
   IdDictParser parser;
   parser.register_external_entity ("InnerDetector",
                                    "IdDictInnerDetector.xml");
@@ -196,9 +197,6 @@ void make_dd()
   StoreGateSvc* sg = 0;
   assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
   assert ( sg->record (std::move (pix_id), "PixelID") );
-
-  auto pix_dd = CxxUtils::make_unique<InDetDD::PixelDetectorManager>(sg);
-  assert ( sg->record (std::move (pix_dd), "PixelDetectorDescription") );
 }
 
 

@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           GaudiKernel
                           PRIVATE
-                          Control/CxxUtils
                           Control/SGTools
                           Control/StoreGate
 			  Control/AthenaBaseComps
@@ -24,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( EventInfoMgt
                      src/TagInfoMgr.cxx
                      src/EventInfoMgt_entries.cxx
-                     LINK_LIBRARIES AthenaKernel GaudiKernel CxxUtils
+                     LINK_LIBRARIES AthenaKernel GaudiKernel 
                      SGTools StoreGateLib SGtests AthenaBaseComps
                      AthenaPoolUtilities EventInfo EventInfoUtils )
 

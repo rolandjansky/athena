@@ -39,7 +39,7 @@ template<typename>
 class RootExCellWriter;
 class EventContext;
 class IAthRNGSvc;
-class ActsExtrapolationTool;
+class IActsExtrapolationTool;
 class IActsPropStepRootWriterSvc;
 
 class ActsExtrapolationAlg : public AthReentrantAlgorithm {
@@ -53,7 +53,7 @@ private:
   ServiceHandle<IActsPropStepRootWriterSvc> m_propStepWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
 
-  ToolHandle<ActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
+  ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
 
   std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
   

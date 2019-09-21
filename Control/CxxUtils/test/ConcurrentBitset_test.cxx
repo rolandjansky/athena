@@ -30,6 +30,7 @@
 #include "boost/timer/timer.hpp"
 #ifdef HAVE_CK
 extern "C" {
+#pragma GCC diagnostic ignored "-Wpedantic"
 #include "ck_hs.h"
 #include "ck_bitmap.h"
 }

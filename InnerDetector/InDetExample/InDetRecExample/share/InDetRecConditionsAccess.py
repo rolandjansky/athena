@@ -35,7 +35,7 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 
 
 #
-# --- Load PixelConditionsServices
+# --- Load PixelConditionsTools
 #
 if DetFlags.haveRIO.pixel_on():
     # Load pixel conditions summary service
@@ -80,16 +80,6 @@ if DetFlags.haveRIO.pixel_on():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
         condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
-    # Load Pixel BS errors service
-    if not (globalflags.DataSource=='geant4'):
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelByteStreamErrorsSvc
-        InDetPixelByteStreamErrorsSvc = PixelByteStreamErrorsSvc()
-        if ( globalflags.InputFormat != 'bytestream' ):
-            InDetPixelByteStreamErrorsSvc.ReadingESD = True
-        ServiceMgr += InDetPixelByteStreamErrorsSvc
-        if (InDetFlags.doPrintConfigurables()):
-            print InDetPixelByteStreamErrorsSvc
-            
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
             if (globalflags.DataSource() == 'data'):
@@ -99,7 +89,6 @@ if DetFlags.haveRIO.pixel_on():
                 
         if not conddb.folderRequested("/PIXEL/PixReco"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
-
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg

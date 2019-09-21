@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+from __future__ import absolute_import
 
-from constants import lchars
+from .constants import lchars
 
 from ToolSetter import ToolSetter
 
@@ -31,7 +33,7 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
     }
 
     if parameter not in  defaults:
-        print 'defaultParameters: unknown parameter ', parameter
+        print ('defaultParameters: unknown parameter ', parameter)
     return defaults.get(parameter, default)
 
 def scaleFactors(parameter):
@@ -128,6 +130,7 @@ class ConditionsDictMaker(object):
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
+
     # key: substring from chain label. value: asttribute of python
     # component proxy
     
@@ -157,6 +160,7 @@ class ConditionsDictMaker(object):
         conditions = [c[1:-1] for c in conditions]  # strip parens
         return conditions
 
+
     def makeDict(self, params):
 
         # conditions example: ['10et,0eta320', '20et']
@@ -168,7 +172,7 @@ class ConditionsDictMaker(object):
         for c in conditions:  # there is a parameter string for each condition
             clist = []
             cdict = defaultdict(dict)
-            print 'processing condition', c
+            print ('processing condition', c)
             toks = c.split(',')  # parameters in par string are separated by ','
             toks = [t.strip() for t in toks]
 
@@ -204,12 +208,13 @@ class ConditionsDictMaker(object):
                 if lo == '':
                     lo = defaultParameters(attr+'lo')
                 if hi == '':
+
                     hi = defaultParameters(attr+'hi')
                     
                 sf = scaleFactors(attr)
                 
                 if lo:
-                    print attr, lo
+                    print (attr, lo)
                     # find the python proxy class  name
                     cdict[attr]['min'] = str(sf * float(lo))
                         
@@ -223,6 +228,7 @@ class ConditionsDictMaker(object):
                         
                 clist.append(cdict)
             result.append(clist)
+
         msgs = ['ConditionsDict OK']
         error = False
         return result, error, msgs
@@ -265,7 +271,6 @@ class TreeParameterExpander_dijet(object):
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
-    
 
     def __init__(self):
         self.msgs = []
@@ -392,7 +397,7 @@ class TreeParameterExpander(object):
     def mod(self, node):
         self.expander = self.router[node.scenario]()
         self.expander.mod(node)
-        print self.expander.report()
+        print (self.expander.report())
 
     def report(self):
         return self.expander.report()
@@ -400,13 +405,13 @@ class TreeParameterExpander(object):
 
 def _test(s):
 
-    from ChainLabelParser import ChainLabelParser
+    from .ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s)
 
     parser.debug = True
 
     tree = parser.parse()
-    print tree.dump()
+    print(tree.dump())
     # exapnd the window cuts (strings) obtained from the chain label
     # to attributes and floating point numbers, set defaults
     # for unspecified vallues
@@ -415,32 +420,32 @@ def _test(s):
 
     tree.set_ids(0, 0)
     tree.accept(visitor)
-    print visitor.report()
-    print tree.dump()
+    print(visitor.report())
+    print(tree.dump())
 
     # set the node attribute node.tool to be the hypo  Al\gTool.
-    print 'sending in the ToolSetter visitor'
+    print('sending in the ToolSetter visitor')
     ts_visitor = ToolSetter(s)
     tree.accept_cf(ts_visitor)
-    print ts_visitor.report()
+    print(ts_visitor.report())
 
 
     # print tree.dump()
-    print tree.tool  # printing a Gaudi tool prints its nested tools
+    print(tree.tool)  # printing a Gaudi tool prints its nested tools
 
 
 def test(index):
-    from test_cases import test_strings
+    from .test_cases import test_strings
     import sys
     if index not in range(len(test_strings)):
-        print 'expected int in [0,%d) ] on comand line, got %s' % (
-            len(test_strings), c)
+        print ('expected int in [0,%d) ] on comand line, got %s' % (
+            len(test_strings), c))
         sys.exit()
 
-    print 'index', index
-    print '========== Test %d ==============' % index
+    print('index', index)
+    print('========== Test %d ==============' % index)
     s = test_strings[index]
-    print s
+    print(s)
     _test(s)
 
 
@@ -452,6 +457,6 @@ if __name__ == '__main__':
     try:
         ic = int(c)
     except Exception:
-        print 'expected int on command line, got ',c
+        print('expected int on command line, got ',c)
         sys.exit()
     test(ic)

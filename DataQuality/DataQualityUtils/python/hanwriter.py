@@ -305,13 +305,15 @@ class HanReference(Node):
     # @param histogramname: the histogram name @c histogramname: a string
     # @param file: the filename for the reference histogram @c file: a string
 
-    def __init__(self, name, histogramname, file):
+    def __init__(self, name, histogramname, file, info=None):
         """
         Creates a han reference configuration element
         """
         Node.__init__(self, name)
         self.setAttribute('name', histogramname)
         self.setAttribute('file', file)
+        if info is not None:
+            self.setAttribute('info', info)
         self.nodeType = Node.REFERENCE
         self.acceptChild = []
 
@@ -594,7 +596,8 @@ def _hanAddDQParameter(handocument, dqparameter, output=DQHanConfMaker._default_
                     refhistoname = refcompletename.rpartition(':')[
                         2].lstrip('/')
                     hanref = HanReference(
-                        ref, histogramname=refhistoname, file=filename)
+                        ref, histogramname=refhistoname, file=filename, 
+                        info=iref.getAnnotation('info'))
                     handocument.appendChild(hanref)
                     dqrefname = '_'+ref
         # build the han thresholds

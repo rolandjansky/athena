@@ -34,10 +34,7 @@ StatusCode MuonCacheCreator::initialize() {
   ATH_CHECK( m_CscCacheKey.initialize(!m_CscCacheKey.key().empty()) );
   ATH_CHECK( m_RpcCacheKey.initialize(!m_RpcCacheKey.key().empty()) );
   ATH_CHECK( m_TgcCacheKey.initialize(!m_TgcCacheKey.key().empty()) );
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -58,15 +55,15 @@ StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
      m_disableWarning = true; //only check once
   }
   // Create the MDT cache container
-  auto maxHashMDTs = m_mdtIdHelper->stationNameIndex("BME") != -1 ? m_mdtIdHelper->detectorElement_hash_max() : m_mdtIdHelper->module_hash_max();
+  auto maxHashMDTs = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1 ? m_muonIdHelperTool->mdtIdHelper().detectorElement_hash_max() : m_muonIdHelperTool->mdtIdHelper().module_hash_max();
   ATH_CHECK(createContainer(m_MdtCsmCacheKey, maxHashMDTs, ctx));
   // Create the CSC cache container
-  ATH_CHECK(createContainer(m_CscCacheKey,    m_cscIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_CscCacheKey,    m_muonIdHelperTool->cscIdHelper().module_hash_max(), ctx));
   // Create the RPC cache container
   // Max should match 600 (hardcoded in RPC_RawDataProviderTool)
-  ATH_CHECK(createContainer(m_RpcCacheKey,    m_rpcIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_RpcCacheKey,    m_muonIdHelperTool->rpcIdHelper().module_hash_max(), ctx));
   // Create the TGC cache container
-  ATH_CHECK(createContainer(m_TgcCacheKey,    m_tgcIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_TgcCacheKey,    m_muonIdHelperTool->tgcIdHelper().module_hash_max(), ctx));
 
   ATH_MSG_DEBUG("Created cache container " << m_MdtCsmCacheKey);
   ATH_MSG_DEBUG("Created cache container " << m_CscCacheKey);

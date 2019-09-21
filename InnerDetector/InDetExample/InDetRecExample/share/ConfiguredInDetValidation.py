@@ -35,7 +35,9 @@ class  ConfiguredInDetValidation:
       #
       # --- load statistics alg
       #
+      from InDetRecExample.TrackingCommon            import getInDetPRDtoTrackMapToolGangedPixels
       from InDetRecStatistics.InDetRecStatisticsConf import InDet__InDetRecStatisticsAlg
+      do_shared_hits=True
       InDetRecStatistics = InDet__InDetRecStatisticsAlg (name                     = "InDetRecStatistics"+nameExt,
                                                          TrackCollectionKeys      = TrackCollectionKeys,
                                                          TrackTruthCollectionKeys = TrackCollectionTruthKeys if InDetFlags.doTruth() else [],
@@ -43,6 +45,9 @@ class  ConfiguredInDetValidation:
                                                          PrintSecondary           = True,
                                                          TruthToTrackTool         = (InDetTruthToTrack       if InDetFlags.doTruth() else None),
                                                          UseTrackSummary          = True,
+                                                         AssociationTool          = getInDetPRDtoTrackMapToolGangedPixels() \
+                                                                                       if do_shared_hits else "",
+                                                         DoSharedHits             = do_shared_hits,
                                                          SummaryTool              = InDetTrackSummaryToolSharedHits, # this is a bug !!!
                                                          DoTruth                  = InDetFlags.doTruth(),
                                                          # maxEta                   = NewTrackingCuts.maxEta(),

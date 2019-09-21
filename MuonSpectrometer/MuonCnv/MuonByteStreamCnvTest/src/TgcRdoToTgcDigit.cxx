@@ -7,7 +7,7 @@
 
 TgcRdoToTgcDigit::TgcRdoToTgcDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -24,11 +24,11 @@ StatusCode TgcRdoToTgcDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcRdoToTgcDigit::execute()
+StatusCode TgcRdoToTgcDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
   // retrieve the collection of RDO
-  SG::ReadHandle<TgcRdoContainer> rdoRH(m_tgcRdoKey);
+  SG::ReadHandle<TgcRdoContainer> rdoRH(m_tgcRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No TGC RDO container found!"  );
     return StatusCode::SUCCESS;
@@ -36,7 +36,7 @@ StatusCode TgcRdoToTgcDigit::execute()
   const TgcRdoContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " TGC RDOs." );
 
-  SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey);
+  SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey, ctx);
   ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_tgcHelper->module_hash_max())));
   ATH_MSG_DEBUG( "Decoding TGC RDO into TGC Digit"  );
 
@@ -229,7 +229,8 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
             // get collection
             TgcDigitContainer::const_iterator it_coll = tgcContainer->indexFind(coll_hash);
             if (tgcContainer->end() !=  it_coll) {
-              collection = const_cast<TgcDigitCollection*>( *it_coll );
+              TgcDigitCollection* aCollection ATLAS_THREAD_SAFE = const_cast<TgcDigitCollection*>( *it_coll ); // FIXME
+              collection = aCollection;
             }
             else
               {

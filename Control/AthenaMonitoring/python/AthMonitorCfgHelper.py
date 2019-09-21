@@ -57,7 +57,7 @@ class AthMonitorCfgHelper(object):
             algObj = algClassOrObj(name, *args, **kwargs)
         else:
             algObj = algClassOrObj
-        
+
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.inputFlags.DQ.Environment
         algObj.DataType = self.inputFlags.DQ.DataType
@@ -80,40 +80,64 @@ class AthMonitorCfgHelper(object):
         return algObj
 
     def addGroup(self, alg, name, topPath='', defaultDuration='run'):
-        '''
-        Add a "group" (technically, a GenericMonitoringTool instance) to an algorithm. The name given
-        here can be used to retrieve the group from within the algorithm when calling the fill()
-        function.  (Note this is *not* the same thing as the Monitored::Group class.)
+        '''Add a group to an algorithm
+
+        Technically, adding a GenericMonitoringTool instance. The name given here can be
+        used to retrieve the group from within the algorithm when calling the fill()
+        function. Note this is *not* the same thing as the Monitored::Group class. To
+        avoid replication of code, this calls the more general case, getArray with an 1D
+        array of length 1.
 
         Arguments:
         alg -- algorithm Configurable object (e.g. one returned from addAlgorithm)
         name -- name of the group
-        topPath -- directory name in the output ROOT file under which histograms will be produced
-        defaultDuration -- default duration of histograms produced under this group; can be overridden for each specific histogram
+        topPath -- directory name in the output ROOT file under which histograms will be
+                   produced
+        defaultDuration -- default time between histogram reset for all histograms in
+                           group; can be overridden for each specific histogram
 
         Returns:
-        tool -- a GenericMonitoringTool Configurable object. This can be used to define histograms
-                associated with that group (using defineHistogram).
+        tool -- a GenericMonitoringTool Configurable object. This can be used to define
+                histograms associated with that group (using defineHistogram).
         '''
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
-        tool = GenericMonitoringTool(name)
+        array = self.addArray([1],alg,name,topPath=topPath,defaultDuration=defaultDuration)
+        return array[0]
+
+    def addArray(self, dimensions, alg, baseName, topPath='', defaultDuration='run'):
+        '''Add many groups to an algorithm
+
+        Arguments:
+        alg -- algorithm Configurable object
+        baseName -- base name of the group. postfixes are added by GMT Array initialize
+        topPath -- directory name in the output ROOT file under which histograms will be
+                   produced
+        duration -- default time between histogram reset for all histograms in group
+
+        Returns:
+        tool -- a GenericMonitoringToolArray object. This is used to define histograms
+                associated with each group in the array.
+        '''
+        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringArray
+        array = GenericMonitoringArray(baseName,dimensions)
+
         if self.inputFlags.DQ.isReallyOldStyle:
             from AthenaCommon.AppMgr import ServiceMgr
-            tool.THistSvc = ServiceMgr.THistSvc
+            array.broadcast('THistSvc',ServiceMgr.THistSvc)
         else:
             acc = getDQTHistSvc(self.inputFlags)
             self.resobj.merge(acc)
 
-        tool.HistPath = self.inputFlags.DQ.FileKey + ('/%s' % topPath if topPath else '')
+        pathToSet = self.inputFlags.DQ.FileKey+('/%s' % topPath if topPath else '')
+        array.broadcast('HistPath',pathToSet)
         # in the future, autodetect if we are online or not
-        tool.convention = 'OFFLINE'
-        tool.defaultDuration = defaultDuration
-        alg.GMTools += [tool]
-        return tool
+        array.broadcast('convention','OFFLINE')
+        array.broadcast('defaultDuration',defaultDuration)
+        alg.GMTools += array.toolList()
+        return array
 
     def result(self):
         '''
-        This function should be called to finalize the creation of the set of monitoring algorithms.
+        Finalize the creation of the set of monitoring algorithms.
 
         Returns:
         (resobj, monSeq) -- a tuple with a ComponentAccumulator and an AthSequencer
@@ -196,6 +220,7 @@ class AthMonitorCfgHelperOld(object):
         alg -- algorithm Configurable object (e.g. one returned from addAlgorithm)
         name -- name of the group
         topPath -- directory name in the output ROOT file under which histograms will be produced
+        defaultDuration -- default duration of histograms produced under this group; can be overridden for each specific histogram
 
         Returns:
         tool -- a GenericMonitoringTool Configurable object. This can be used to define histograms

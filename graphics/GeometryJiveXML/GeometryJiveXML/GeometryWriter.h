@@ -23,7 +23,8 @@ class SCT_ID;
 class TRT_ID;
 
 namespace InDetDD {
-	class SiDetectorManager;
+	class PixelDetectorManager;
+	class SCT_DetectorManager;
 	class TRT_DetectorManager;
 }
 
@@ -152,11 +153,11 @@ namespace JiveXML{
     
     
     /** Pixel detector manager and ID helper */
-    const InDetDD::SiDetectorManager* m_pixel_manager;
+    const InDetDD::PixelDetectorManager* m_pixel_manager;
     const PixelID * m_pixelIdHelper;   
 
     /** Silicon detector manager and ID helper */
-    const InDetDD::SiDetectorManager* m_silicon_manager;
+    const InDetDD::SCT_DetectorManager* m_silicon_manager;
     const SCT_ID * m_sctIdHelper;
     
     /** TRT detector manager and ID helper */

@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Control/CxxUtils
    Event/FourMom
    Event/xAOD/xAODCaloEvent
+   Event/xAOD/xAODCore
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
@@ -38,7 +39,7 @@ atlas_add_library( CaloUtilsLib CaloUtils/*.h CaloUtils/*.icc src/*.h src/*.cxx
    PUBLIC_HEADERS CaloUtils
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES CaloConditions CaloEvent CaloGeoHelpers CaloIdentifier
-   AthenaBaseComps AthenaKernel Navigation FourMom xAODCaloEvent GaudiKernel
+   AthenaBaseComps AthenaKernel Navigation FourMom xAODCaloEvent xAODCore GaudiKernel
    CaloDetDescrLib StoreGateLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils
    SGTools IdDictParser Identifier )

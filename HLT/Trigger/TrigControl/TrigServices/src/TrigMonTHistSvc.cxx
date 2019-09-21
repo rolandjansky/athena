@@ -133,7 +133,7 @@ LockedHandle<T> TrigMonTHistSvc::regShared_i(const std::string& id, std::unique_
     }
     else {
       lh.set(phist, h->second.mutex);
-      delete hist.release();
+      //hist is automatically deleted at end of method
     }
   }
   return lh;

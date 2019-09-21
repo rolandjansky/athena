@@ -64,7 +64,6 @@ class LArPulseShape : public AthAlgorithm {
    NTuple::Item<short> m_useHgIntercept;
    NTuple::Item<short> m_useMgIntercept;
    NTuple::Item<short> m_useLgIntercept;
-   long m_event;
    const DataHandle<CaloIdManager> m_caloIdMgr;
    int m_OffId;  
    int m_OffId_conv;     
@@ -84,14 +83,11 @@ class LArPulseShape : public AthAlgorithm {
 
    std::map<std::string, TProfile*> m_effhistos;  
    std::map<int, TProfile*> m_cellHistos;     
-   TProfile* m_TProfpulse; 
    TProfile* m_TProfpulse_diff;    
    std::map<std::string, TH1*> m_histos;
-   TProfile** m_cellsP;
    TH1D* m_BCID;
    TH1D* m_diffBCID;   
    TH1D* m_actualInt;
-   TH1D* m_;   
   void addHistogram( TH1* h ) {
     std::string name = h->GetName();
     m_histos.insert( std::map<std::string, TH1*>::value_type( name, h) );

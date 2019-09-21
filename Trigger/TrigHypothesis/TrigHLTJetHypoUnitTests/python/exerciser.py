@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 
 from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
@@ -261,7 +263,6 @@ class FlowNetworkVsPartitionsTestsDijetsExtended(CombinationsTests) :
 
         return generator
 
-
 class FlowNetworkVsCombinationsTests(CombinationsTests) :
 
     def __init__(self,
@@ -391,13 +392,13 @@ class FlowNetworkTests_1(CombinationsTests) :
         return trigJetHypoToolHelperFromDict_(chain_label,
                                               self.chain_name,
                                               toolSetter=toolSetter)
-
     def make_event_generator(self):
         generator = SimpleHypoJetVectorGenerator()
 
         # setup signal so that partitions would fail, but combinations pass.
         # for n_sgnl = 4 and 2 EtaEt conditions, this means:
         # create 4 jets such that only one pair passes the lower EtaEt cut.
+
         ets = (63000., 64000.)
         etas = (0.0, 0.0)
         
@@ -463,6 +464,7 @@ if __name__=="__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()
     cfg.merge(JetHypoExerciserCfg())
+
     cfg.setAppProperty("EvtMax", 10)
     cfg.run()
 

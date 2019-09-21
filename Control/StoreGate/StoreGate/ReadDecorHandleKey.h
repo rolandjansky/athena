@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -98,8 +98,10 @@ public:
 
   /**
    * @brief auto-declaring Property Constructor.
+   * @param owner Owning component.
    * @param name name of the Property
    * @param key  default StoreGate key for the object.
+   * @param doc Documentation string.
    *
    * will associate the named Property with this RHK via declareProperty
    *
@@ -114,6 +116,7 @@ public:
                       const K& key = {},
                       const std::string& doc = "");
 
+  
   /// Can get this from the base class.
   using Base::operator=;
 

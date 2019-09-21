@@ -25,7 +25,7 @@ namespace Trk
 {
 
   ImpactPoint3dEstimator::ImpactPoint3dEstimator(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_extrapolator("Trk::Extrapolator"),
     m_magFieldSvc("AtlasFieldSvc", n),
     m_maxiterations(20),
@@ -35,7 +35,6 @@ namespace Trk
     declareProperty("MagFieldSvc",     m_magFieldSvc);
     declareProperty("MaxIterations",m_maxiterations);
     declareProperty("Precision",m_precision);
-    declareInterface<IImpactPoint3dEstimator>(this);
   }
   
   ImpactPoint3dEstimator::~ImpactPoint3dEstimator() {
@@ -44,28 +43,32 @@ namespace Trk
   StatusCode ImpactPoint3dEstimator::initialize() 
   { 
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator  );
       return StatusCode::FAILURE;
     }
 
     if (m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not find magnetic field service." << endmsg;
+      ATH_MSG_FATAL("Could not find magnetic field service."  );
       return StatusCode::FAILURE;
     }
 
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+    ATH_MSG_DEBUG( "Initialize successful"  );
     return StatusCode::SUCCESS;
   }
   
   StatusCode ImpactPoint3dEstimator::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
+    ATH_MSG_DEBUG( "Finalize successful"  );
     return StatusCode::SUCCESS;
   }
 
 
-  template<typename T> PlaneSurface* ImpactPoint3dEstimator::_Estimate3dIPNoCurvature(const T* thePerigee,const Amg::Vector3D* theVertex, double& distance) const  {
-
+  template<typename T>
+  std::unique_ptr<PlaneSurface>
+  ImpactPoint3dEstimator::Estimate3dIPNoCurvature(const T* thePerigee,
+                                                  const Amg::Vector3D* theVertex,
+                                                  double& distance) const
+  {
       const Amg::Vector3D  momentumUnit = thePerigee->momentum().unit();
       double pathLength  =  ( *theVertex  - thePerigee->position() ).dot( momentumUnit )
                                                                        / (  momentumUnit.dot( momentumUnit )) ;
@@ -91,32 +94,40 @@ namespace Trk
       Amg::Vector3D YDir=momentumUnit.cross(DeltaRcorrected);
 
       ATH_MSG_VERBOSE( "final minimal distance is: " << distance);
+      ATH_MSG_DEBUG( "POCA in 3D is: " << POCA );
 
       //store the plane...
       ATH_MSG_VERBOSE( "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << momentumUnit);
 
-      Amg::Transform3D* thePlane = new Amg::Transform3D(DeltaRcorrected, YDir, momentumUnit, *theVertex);
+      auto thePlane = std::make_unique<Amg::Transform3D>(DeltaRcorrected, YDir, momentumUnit, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG
-      std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endmsg;
+      std::cout << "the translation is, directly from Transform3d: " << thePlane->getTranslation() << endmsg;
 #endif
 
-      return new PlaneSurface(thePlane);
+      return std::make_unique<PlaneSurface>(std::move (thePlane));
 
   }
 
-  PlaneSurface* ImpactPoint3dEstimator::Estimate3dIP(const NeutralParameters* neutralPerigee,const Amg::Vector3D* theVertex, double& distance) const {
+  std::unique_ptr<PlaneSurface>
+  ImpactPoint3dEstimator::Estimate3dIP(const NeutralParameters* neutralPerigee,
+                                       const Amg::Vector3D* theVertex,
+                                       double& distance) const
+  {
     ATH_MSG_DEBUG("Neutral particle --  propagate like a straight line");
-    return _Estimate3dIPNoCurvature(neutralPerigee, theVertex, distance);
+    return Estimate3dIPNoCurvature(neutralPerigee, theVertex, distance);
   }
 
-  PlaneSurface* 
-  ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,const Amg::Vector3D* theVertex, double& distance) const{
+  std::unique_ptr<PlaneSurface>
+  ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,
+                                       const Amg::Vector3D* theVertex,
+                                       double& distance) const
+  {
     double magnFieldVect[3];
     m_magFieldSvc->getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
     if(magnFieldVect[2] == 0 ){
       ATH_MSG_DEBUG("Magnetic field in the Z direction is 0 --  propagate like a straight line");
-      return _Estimate3dIPNoCurvature(trackPerigee, theVertex, distance);
+      return Estimate3dIPNoCurvature(trackPerigee, theVertex, distance);
     }
 
 
@@ -184,7 +195,7 @@ namespace Trk
     do {
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG
-      msg(MSG::VERBOSE)<< "Cycle number: " << ncycle << " old phi: " << phiactual << endmsg;
+      ATH_MSG_VERBOSE( "Cycle number: " << ncycle << " old phi: " << phiactual  );
 #endif
       //      distance=std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
       //                 std::pow(y0-yc+Rt*sinphiactual,2)+
@@ -193,7 +204,7 @@ namespace Trk
       derivative=(x0-xc)*(-Rt*sinphiactual)+(y0-yc)*Rt*cosphiactual+(z0-zc-Rt*phiactual*cottheta)*(-Rt*cottheta);
       secderivative=Rt*(-(x0-xc)*cosphiactual-(y0-yc)*sinphiactual+Rt*cottheta*cottheta);
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-      msg(MSG::VERBOSE)<< "derivative is: " << derivative << " sec derivative is: " << secderivative << endmsg;
+      ATH_MSG_VERBOSE( "derivative is: " << derivative << " sec derivative is: " << secderivative  );
 #endif
 
       deltaphi=-derivative/secderivative;
@@ -207,13 +218,13 @@ namespace Trk
       sinphiactual=cos(phiactual);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-      msg(MSG::VERBOSE)<< "derivative is: " << derivative << " sec derivative is: " << secderivative << endmsg;
+      ATH_MSG_VERBOSE( "derivative is: " << derivative << " sec derivative is: " << secderivative  );
       std::cout << std::setprecision(25) << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
                                                       std::pow(y0-yc+Rt*sinphiactual,2)+
                                                       std::pow(z0-zc-Rt*cottheta*phiactual,2)) << std::endl;
-      msg(MSG::VERBOSE)<< "actual distance is: " << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
+      ATH_MSG_VERBOSE( "actual distance is: " << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
                                                                  std::pow(y0-yc+Rt*sinphiactual,2)+
-                                                                 std::pow(z0-zc-Rt*cottheta*phiactual,2)) << endmsg;
+                                                           std::pow(z0-zc-Rt*cottheta*phiactual,2))  );
 #endif
 
       if (secderivative<0) throw error::ImpactPoint3dEstimatorProblem("Second derivative is negative");
@@ -223,7 +234,7 @@ namespace Trk
       ncycle+=1;
       if (ncycle>m_maxiterations||fabs(deltaphi)<m_precision) {
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-        msg(MSG::VERBOSE)<< "found minimum at: " << phiactual << endmsg;
+        ATH_MSG_VERBOSE( "found minimum at: " << phiactual  );
 #endif
         isok=true;
       }
@@ -248,31 +259,32 @@ namespace Trk
 
     if ((DeltaR-DeltaRcorrected).mag()>1e-4)
     {
-      msg(MSG::WARNING) << " DeltaR and MomentumDir are not orthogonal " << endmsg;
-      msg(MSG::DEBUG)<< std::setprecision(10) << " DeltaR-DeltaRcorrected: "  << (DeltaR-DeltaRcorrected).mag() << endmsg;
+      ATH_MSG_WARNING( " DeltaR and MomentumDir are not orthogonal "  );
+      ATH_MSG_DEBUG( std::setprecision(10) << " DeltaR-DeltaRcorrected: "  << (DeltaR-DeltaRcorrected).mag()  );
     }
 
     Amg::Vector3D YDir=MomentumDir.cross(DeltaRcorrected);
 
-    if(msgLvl(MSG::VERBOSE))
-    {
+    //store the impact 3d point
+    Amg::Vector3D vertex(x0+Rt*cosphiactual,y0+Rt*sinphiactual,z0-Rt*cottheta*phiactual);
 
-      msg(MSG::VERBOSE)<< "final minimal distance is: " << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
-                                                                     std::pow(y0-yc+Rt*sinphiactual,2)+
-                                                                     std::pow(z0-zc-Rt*cottheta*phiactual,2)) << endmsg;
-    }
+    ATH_MSG_VERBOSE( "final minimal distance is: " << std::sqrt(std::pow(x0-xc+Rt*cosphiactual,2)+
+                                                                std::pow(y0-yc+Rt*sinphiactual,2)+
+                                                                std::pow(z0-zc-Rt*cottheta*phiactual,2))  );
+
+    ATH_MSG_DEBUG( "POCA in 3D is: " << vertex  );
+
 
     //store the plane...
-    if (msgLvl(MSG::VERBOSE))
-        msg(MSG::VERBOSE)<< "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << MomentumDir << endmsg;
+    ATH_MSG_VERBOSE( "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << MomentumDir  );
 
-    Amg::Transform3D* thePlane = new Amg::Transform3D(DeltaRcorrected, YDir, MomentumDir, *theVertex);
+    auto thePlane = std::make_unique<Amg::Transform3D>(DeltaRcorrected, YDir, MomentumDir, *theVertex);
 
 #ifdef IMPACTPOINT3DESTIMATOR_DEBUG            
-    std::cout << "the translation is, directly from Transform3d: " << thePlane.getTranslation() << endmsg;
+    std::cout << "the translation is, directly from Transform3d: " << thePlane->getTranslation() << endmsg;
 #endif
 
-   return new PlaneSurface(thePlane);
+    return std::make_unique<PlaneSurface>(std::move(thePlane));
 
   }//end of estimate 3dIP method
 
@@ -300,61 +312,56 @@ namespace Trk
   const Trk::AtaPlane * ImpactPoint3dEstimator::IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     if (!vtxTrack.initialPerigee() && vtxTrack.initialNeutralPerigee())
-      msg(MSG::WARNING) << "Calling ImpactPoint3dEstimator::IP3dAtaPlane cannot return NeutralAtaPlane" << endmsg;
+      ATH_MSG_WARNING( "Calling ImpactPoint3dEstimator::IP3dAtaPlane cannot return NeutralAtaPlane"  );
 
-    const PlaneSurface* theSurfaceAtIP(0);
-
-    double distance = 0.;
+    std::unique_ptr<PlaneSurface> theSurfaceAtIP;
 
     try
     {
-      theSurfaceAtIP = Estimate3dIP(vtxTrack.initialPerigee(),&vertex, distance);
+      double distance = 0;
+      theSurfaceAtIP = Estimate3dIP(vtxTrack.initialPerigee(),&vertex,distance);
     }
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
-      msg(MSG::WARNING) << " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
+      ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p  );
       return 0;
     }
-    if(!theSurfaceAtIP) msg(MSG::WARNING) << " ImpactPoint3dEstimator failed to find minimum distance and returned 0 "
-<< endmsg;
+    if(!theSurfaceAtIP) ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
 
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
-    msg(MSG::VERBOSE) << "Original perigee was: " << *(vtxTrack.initialPerigee()) << endmsg;
-    msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endmsg;
+    ATH_MSG_VERBOSE( "Original perigee was: " << *(vtxTrack.initialPerigee())  );
+    ATH_MSG_VERBOSE( "The resulting surface is: " << *theSurfaceAtIP  );
 #endif
 
    const Trk::AtaPlane* res = dynamic_cast<const Trk::AtaPlane *>
                               (m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP));
-   delete theSurfaceAtIP;
    return res;
   }
   
 
   const Trk::NeutralAtaPlane * ImpactPoint3dEstimator::IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const
   {
-    const PlaneSurface* theSurfaceAtIP(0);
-    double distance = 0.;
+    std::unique_ptr<PlaneSurface> theSurfaceAtIP;
 
     try
     {
-      theSurfaceAtIP = Estimate3dIP(initNeutPerigee,&vertex, distance);
+        double distance = 0;
+        theSurfaceAtIP = Estimate3dIP(initNeutPerigee,&vertex,distance);
     }
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
-      msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
+      ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p  );
       return 0;
     }
-    if(!theSurfaceAtIP) msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance and returned 0 "
-<< endmsg;
+    if(!theSurfaceAtIP) ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
 
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
-    msg(MSG::VERBOSE) << "Original neutral perigee was: " << *initNeutPerigee << endmsg;
-    msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endmsg;
+    ATH_MSG_VERBOSE( "Original neutral perigee was: " << *initNeutPerigee  );
+    ATH_MSG_VERBOSE( "The resulting surface is: " << *theSurfaceAtIP  );
 #endif
 
     const Trk::NeutralAtaPlane* res = dynamic_cast<const Trk::NeutralAtaPlane *>
       (m_extrapolator->extrapolate(*initNeutPerigee,*theSurfaceAtIP));
-   delete theSurfaceAtIP;
    return res;
   }
   

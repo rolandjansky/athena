@@ -73,7 +73,6 @@ theApp.TopAlg += [ "ReadData" ]  # print out some data to chk its there
 # bit 1
 theApp.TopAlg     += [ "AthenaOutputStream/Stream1" ]
 Stream1            = Algorithm( "Stream1" )
-Stream1.ForceRead  = "true"
 Stream1.OutputFile = "ESDExplicit.root"; # The output file name
 include( "RecExCommon/RecoOutputItemList_jobOptions.py")
 ExampleStreamConfig(Stream1)

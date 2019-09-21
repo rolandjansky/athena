@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCLUSTERCONTAINERCNV_H
@@ -13,10 +13,6 @@
 
 class StoreGateSvc;
 class PixelID;
-
-namespace InDetDD {
-   class PixelDetectorManager;
-}
 
 #include "PixelClusterContainerCnv_p0.h"
 #include "InDetEventTPCnv/PixelClusterContainerCnv_tlp1.h"

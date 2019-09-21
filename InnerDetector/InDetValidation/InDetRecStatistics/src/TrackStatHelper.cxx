@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -76,12 +76,13 @@ void InDet::TrackStatHelper::SetCuts(struct cuts ct)
 
 void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTracks, 
 				      std::vector <const Trk::Track *>   & rec, 
+                                      Trk::PRDtoTrackMap *prd_to_track_map,
 				      std::vector <std::pair<HepMC::GenParticle *,int> > & gen, 
 				      const TrackTruthCollection         * truthMap, 
 				      const AtlasDetectorID              * const idHelper, 
 				      const PixelID                      * pixelID, 
 				      const SCT_ID                       * sctID,
-				      Trk::ITrackSummaryTool             * trkSummaryTool,
+				      Trk::IExtendedTrackSummaryTool     * trkSummaryTool,
 				      bool                               useTrackSummary,
 				      unsigned int                       * inTimeStart,
 				      unsigned int                       * inTimeEnd)
@@ -173,7 +174,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     const Trk::TrackSummary* summary = NULL;
     
     if (useTrackSummary) {
-      summary = trkSummaryTool->createSummary(*track);
+      summary = trkSummaryTool->createSummary(*track,prd_to_track_map);
 	
       if (summary)
 	{

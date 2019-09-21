@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@
 #include "MuidTrackBuilder/MuonTrackQuery.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
@@ -40,6 +40,7 @@
 #include "muonEvent/CaloEnergy.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "AthenaKernel/Units.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 namespace Units = Athena::Units;
 
@@ -53,7 +54,6 @@ MuonTrackQuery::MuonTrackQuery (const std::string&	type,
 				const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
 	m_fitter		(""),
-	m_helper                ("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
 	m_idHelper              ("Muon::MuonIdHelperTool/MuonIdHelperTool"),
 	m_mdtRotCreator		("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
 	m_trackingGeometrySvc   ("TrackingGeometrySvc/AtlasTrackingGeometrySvc",name)
@@ -89,14 +89,14 @@ MuonTrackQuery::initialize()
     }
 
     // multipurpose and identifier helper tools for spectrometer
-    if (m_helper.retrieve().isFailure())
+    if (m_edmHelperSvc.retrieve().isFailure())
     {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_helper );
+	ATH_MSG_FATAL( "Failed to retrieve tool " << m_edmHelperSvc );
 	return StatusCode::FAILURE;
     }
     else
     {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_helper );
+	ATH_MSG_DEBUG( "Retrieved tool " << m_edmHelperSvc );
     }
     if (m_idHelper.retrieve().isFailure())
     {
@@ -256,7 +256,7 @@ MuonTrackQuery::fieldIntegral (const Trk::Track& track) const
 	if (isPreciseHit
 	    && ! calorimeterVolume->inside((**s).trackParameters()->position()))
 	{
-	    Identifier id	= m_helper->getIdentifier(*(**s).measurementOnTrack());
+	    Identifier id	= m_edmHelperSvc->getIdentifier(*(**s).measurementOnTrack());
 	    isPreciseHit	= (id.is_valid() && ! m_idHelper->measuresPhi(id));
 	}
 	if (! (**s).materialEffectsOnTrack() && ! isPreciseHit)			continue;
@@ -1217,7 +1217,7 @@ MuonTrackQuery::spectrometerPhiQuality (const Trk::Track& track) const
 	    || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())
 	    || ! (**s).trackParameters()
 	    || calorimeterVolume->inside((**s).trackParameters()->position()))	continue;
-	Identifier id	= m_helper->getIdentifier(*(**s).measurementOnTrack());
+	Identifier id	= m_edmHelperSvc->getIdentifier(*(**s).measurementOnTrack());
 	if (! id.is_valid() || ! m_idHelper->measuresPhi(id))				continue;
 
 	// require phi measurement from CSC or CompetingROT
@@ -1237,7 +1237,7 @@ MuonTrackQuery::spectrometerPhiQuality (const Trk::Track& track) const
 	    || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**r).measurementOnTrack())
 	    || ! (**r).trackParameters())						continue;
 	if (calorimeterVolume->inside((**r).trackParameters()->position()))		break;
-	Identifier id	= m_helper->getIdentifier(*(**r).measurementOnTrack());
+	Identifier id	= m_edmHelperSvc->getIdentifier(*(**r).measurementOnTrack());
 	if (! id.is_valid() || ! m_idHelper->measuresPhi(id))				continue;
 	if (*r != leadingPhiMeasurement) trailingPhiMeasurement	= *r;
 	break;

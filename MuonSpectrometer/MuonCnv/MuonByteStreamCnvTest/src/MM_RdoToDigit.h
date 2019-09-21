@@ -6,21 +6,21 @@
 #define MUONBYTESTREAMCNVTEST_MMRDOTOMMDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonMM_CnvTools/IMM_RDO_Decoder.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
 
 class MmIdHelper;
 
-class MM_RdoToDigit : public AthAlgorithm {
+class MM_RdoToDigit : public AthReentrantAlgorithm {
 
  public:
 
   MM_RdoToDigit(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~MM_RdoToDigit() = default;
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
 
@@ -28,7 +28,6 @@ class MM_RdoToDigit : public AthAlgorithm {
 
   ToolHandle<Muon::IMM_RDO_Decoder> m_mmRdoDecoderTool{this, "mmRdoDecoderTool", "Muon::MM_RDO_Decoder", ""};
   const MmIdHelper *   m_mmHelper{};
-  MmDigitContainer *   m_mmContainer{};
   SG::ReadHandleKey<Muon::MM_RawDataContainer> m_mmRdoKey{this, "MmRdoContainer", "MMRDO", "MM RDO Input"};
   SG::WriteHandleKey<MmDigitContainer> m_mmDigitKey{this, "MmDigitContainer", "MM_DIGITS", "MM Digit Output"};
 };

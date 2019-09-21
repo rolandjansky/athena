@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileCell copy from TileIDC container to TileCellContainer
 # without any corrections using TileCellIDCToCell algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -23,7 +21,7 @@ class TileCellFromCellIDCGetter ( Configured )  :
         try:
             from TileRecAlgs.TileCellFromCellIDCGetter import TileCellFromCellIDCGetter
             theTileCellFromCellIDCGetter=TileCellFromCellIDCGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileCellFromCellIDCGetter Quit")
             print traceback.format_exc()
             return False
@@ -38,13 +36,13 @@ class TileCellFromCellIDCGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileRecAlgs.TileRecAlgsConf import TileCellIDCToCell                
-        except:
+        except Exception:
             mlog.error("could not import TileRecAlgs.TileCellIDCToCell")
             print traceback.format_exc()
             return False
 
         theTileCellIDCToCell=TileCellIDCToCell()
-        self._TileCellIDCToCellHandle = theTileCellIDCToCell ;
+        self._TileCellIDCToCellHandle = theTileCellIDCToCell
 
         # Configure TileCellIDCToCell here
         # Check TileByteStream/ReadTileCellBS_jobOptions.py for full configurability
@@ -66,7 +64,7 @@ class TileCellFromCellIDCGetter ( Configured )  :
         mlog.info(" now adding to topSequence")        
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileCellIDCToCell;
+        topSequence += theTileCellIDCToCell
         
         return True
 

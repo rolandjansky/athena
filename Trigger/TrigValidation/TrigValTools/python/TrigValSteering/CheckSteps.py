@@ -105,6 +105,7 @@ class LogMergeStep(Step):
     def __init__(self, name='LogMerge'):
         super(LogMergeStep, self).__init__(name)
         self.log_files = None
+        self.extra_log_regex = None
         self.merged_name = 'athena.merged.log'
         self.warn_if_missing = True
 
@@ -114,6 +115,14 @@ class LogMergeStep(Step):
             for step in test.exec_steps:
                 self.log_files.append(step.name)
         super(LogMergeStep, self).configure(test)
+
+    def process_extra_regex(self):
+        if self.extra_log_regex:
+            files = os.listdir('.')
+            r = re.compile(self.extra_log_regex)
+            match_files = filter(r.match, files)
+            for f in match_files:
+                self.log_files.append(f)
 
     def merge_logs(self):
         try:
@@ -136,6 +145,7 @@ class LogMergeStep(Step):
             return 1
 
     def run(self, dry_run=False):
+        self.process_extra_regex()
         self.log.info('Running %s merging logs %s into %s',
                       self.name, self.log_files, self.merged_name)
         if dry_run:
@@ -185,6 +195,8 @@ class ZipStep(Step):
 
     def configure(self, test=None):
         self.args += ' '+self.zip_output+' '+self.zip_input
+        # Remove the file after zipping
+        self.args += ' && rm ' + self.zip_input
         super(ZipStep, self).configure(test)
 
 
@@ -262,7 +274,10 @@ class RegTestStep(RefComparisonStep):
 
     def rename_ref(self):
         try:
-            new_name = os.path.basename(self.reference) + '.new'
+            if self.reference:
+                new_name = os.path.basename(self.reference) + '.new'
+            else:
+                new_name = os.path.basename(self.input_file) + '.new'
             os.rename(self.input_file, new_name)
             self.log.debug('Renamed %s to %s', self.input_file, new_name)
         except OSError:
@@ -270,15 +285,17 @@ class RegTestStep(RefComparisonStep):
                              self.input_file, new_name)
 
     def run(self, dry_run=False):
-        if self.reference is None:
-            self.log.error('Missing reference for %s', self.name)
-            self.result = 999
-            if self.auto_report_result:
-                self.report_result()
-            return self.result, '# (internal) {} -> failed'.format(self.name)
         if not dry_run and not self.prepare_inputs():
             self.log.error('%s failed in prepare_inputs()', self.name)
             self.result = 1
+            if self.auto_report_result:
+                self.report_result()
+            return self.result, '# (internal) {} -> failed'.format(self.name)
+        if self.reference is None:
+            self.log.error('Missing reference for %s', self.name)
+            if not dry_run:
+                self.rename_ref()
+            self.result = 999
             if self.auto_report_result:
                 self.report_result()
             return self.result, '# (internal) {} -> failed'.format(self.name)
@@ -379,10 +396,10 @@ class ChainDumpStep(InputDependentStep):
         super(ChainDumpStep, self).__init__(name)
         self.input_file = 'expert-monitoring.root'
         self.executable = 'chainDump.py'
-        self.args = '-S'
+        self.args = '--json'
 
     def configure(self, test):
-        self.args += ' --rootFile='+self.input_file
+        self.args += ' -f '+self.input_file
         super(ChainDumpStep, self).configure(test)
 
 
@@ -526,12 +543,13 @@ def default_check_steps(test):
             logmerge.log_files.append(exec_step.get_log_file_name())
         check_steps.append(logmerge)
     log_to_check = None
+    log_to_zip = None
     if len(check_steps) > 0 and isinstance(check_steps[-1], LogMergeStep):
         log_to_check = check_steps[-1].merged_name
+        log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
     step_types = [step.type for step in test.exec_steps]
-    log_to_zip = None
     if 'Reco_tf' in step_types:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
@@ -572,6 +590,8 @@ def default_check_steps(test):
     regtest = RegTestStep()
     if log_to_check is not None:
         regtest.input_base_name = os.path.splitext(log_to_check)[0]
+    if 'athenaHLT' in step_types:
+        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)|REGTEST)'
     check_steps.append(regtest)
 
     # Tail (probably not so useful these days)

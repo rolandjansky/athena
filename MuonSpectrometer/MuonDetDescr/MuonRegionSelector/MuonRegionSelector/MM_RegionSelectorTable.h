@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // emacs: this is -*- c++ -*-
 //
@@ -24,7 +24,6 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-// class StoreGateSvc;
 class RegSelSiLUT;
 
 /// calbliong not implemented yet

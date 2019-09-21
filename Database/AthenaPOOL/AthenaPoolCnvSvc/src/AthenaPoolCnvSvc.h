@@ -97,7 +97,7 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) const;
+   Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc);
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
@@ -239,7 +239,10 @@ private: // properties
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
    /// default = false.
    BooleanProperty m_persSvcPerOutput;
-
+   unsigned outputContextId();
+   std::map< EventContext::ContextID_t, std::string > m_outputConnectionForSlot;
+   mutable std::mutex  m_mutex;  // mutable so const functions can lock
+  
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
    /// container being committed to disk is not 'tainted' with the POOL overhead
    BooleanProperty m_skipFirstChronoCommit;

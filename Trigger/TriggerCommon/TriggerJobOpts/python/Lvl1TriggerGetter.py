@@ -79,7 +79,18 @@ class Lvl1SimulationGetter (Configured):
 
             # schedule simulation
             if TriggerFlags.doMuon() and (not DetFlags.readRIOPool.LVL1_on() ):
-                include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
+                from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
+                MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
+                                                                 DecodeRpcRDO = True,
+                                                                 DecodeTgcRDO = True,
+                                                                 DecodeCscRDO = False,
+                                                                 DecodeSTGC_RDO = False,
+                                                                 DecodeMM_RDO = False)
+                from AthenaCommon.AppMgr import ToolSvc
+                ToolSvc += MuonRdoToMuonDigitTool
+                from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit
+                topSequence += MuonRdoToMuonDigit("MuonRdoToMuonDigit",MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool)
+
                 import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig   # noqa: F401
                 import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig   # noqa: F401
                 import TrigT1RPCsteering.TrigT1RPCsteeringConfig  # noqa: F401

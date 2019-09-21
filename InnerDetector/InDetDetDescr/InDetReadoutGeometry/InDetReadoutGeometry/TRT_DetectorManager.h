@@ -11,6 +11,7 @@
 #ifndef TRT_DetectorManager_h
 #define TRT_DetectorManager_h 1
 #include "InDetReadoutGeometry/InDetDetectorManager.h"
+#include "InDetReadoutGeometry/TRT_Conditions.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
@@ -27,9 +28,11 @@
 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
-#include <vector>
-#include <string>
 #include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 class Identifier;     
 class GeoAlignableTransform;
@@ -39,10 +42,10 @@ class CondAttrListCollection;
 
 namespace InDetDD {
 
-  class TRT_Numerology;
   class ExtendedAlignableTransform;
-
-
+  class TRT_BarrelDescriptor;
+  class TRT_EndcapDescriptor;
+  class TRT_Numerology;
 
   /** class TRT_DetectorManager
   
@@ -137,7 +140,6 @@ namespace InDetDD {
     //-----------------------------------------------------------------------------//
 
     /** Conditions interface (mostly for internal use):----------------------------*/
-    void setConditions(TRT_Conditions * conditions);                               //
     const TRT_Conditions * conditions() const;                                     //
     //-----------------------------------------------------------------------------//    
     
@@ -227,6 +229,10 @@ namespace InDetDD {
                                  const CondAttrListCollection* obj=nullptr,
                                  GeoVAlignmentStore* alignStore=nullptr) const override;
 
+    /** Set TRT_Barrel/EndcapDescriptor pointer to the internal sets to delete them in the destructor */
+    void setBarrelDescriptor(const TRT_BarrelDescriptor* barrelDescriptor);
+    void setEndcapDescriptor(const TRT_EndcapDescriptor* endcapDescriptor);
+
  private:
 
 
@@ -261,11 +267,15 @@ namespace InDetDD {
     unsigned int m_digvers;                                                        //
     std::string m_digversname;                                                     //
 
-    TRT_Conditions * m_conditions;
+    std::unique_ptr<TRT_Conditions> m_conditions;
 
     // Alignment stuff
     typedef std::map<Identifier, ExtendedAlignableTransform *> AlignableTransformMap;
     std::vector< AlignableTransformMap > m_alignableTransforms;
+
+    // Descriptors are owned by TRT_DetectorManager.
+    std::set<const TRT_BarrelDescriptor*> m_barrelDescriptors;
+    std::set<const TRT_EndcapDescriptor*> m_endcapDescriptors;
 
     // here temporarily
     virtual const TRT_ID *getIdHelper() const override;                                    //

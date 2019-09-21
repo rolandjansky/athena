@@ -189,11 +189,7 @@ StatusCode
 TgcLv1RawDataValAlg::initialize(){
   ATH_MSG_INFO( "in TgcLv1RawDataValAlg initialize"  );
 
-  // Retrieve the MuonDetectorManager  
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
-  ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
-
-  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   /*
     if ( m_checkCabling ) {

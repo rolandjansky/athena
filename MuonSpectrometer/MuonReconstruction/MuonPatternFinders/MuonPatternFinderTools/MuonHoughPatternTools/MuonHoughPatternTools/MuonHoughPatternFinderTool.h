@@ -23,7 +23,6 @@ class TH1F;
 class TFile;
 
 class MuonHoughHitContainer;
-class StoreGateSvc;
 class IMuonHoughPatternTool;
 
 namespace MuonGM {

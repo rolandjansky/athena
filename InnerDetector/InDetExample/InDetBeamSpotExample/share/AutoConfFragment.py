@@ -2,7 +2,6 @@
 #
 # Job option fragment for JobRunner templates to automatically configure
 # job parameters based on information obtained from the input file using
-# PyUtils.AthFile. The primary use case for this is DetDescrVersion.
 #
 # Written by Juerg Beringer in November 2009.
 #
@@ -39,7 +38,10 @@ if autoconfparams:
     print "InDetBeamSpotExample INFO Automatically configuring parameters: ", autoconfparams
     from PyUtils.MetaReader import read_metadata
     try:
-        metadata = read_metadata(jobConfig['inputfiles'][0])
+        input_file = jobConfig['inputfiles'][0]
+        metadata = read_metadata(input_file)
+        metadata = metadata[input_file]  # promote keys stored under input filename key one level up to access them directly
+
     except:
         if len(jobConfig['inputfiles'])>0:
             print "InDetBeamSpotExample ERROR Unable to autoconfigure from input file",jobConfig['inputfiles'][0]
@@ -48,7 +50,6 @@ if autoconfparams:
     else:
         for p in autoconfparams:
             try:
-                # Below, we might also take this out of athFile.fileinfos['tag_info'] (w/different names)
                 jobConfig[p] = metadata[metaDataName(p)]
                 print "InDetBeamSpotExample INFO %s --> %s" % (p,jobConfig[p])
             except:

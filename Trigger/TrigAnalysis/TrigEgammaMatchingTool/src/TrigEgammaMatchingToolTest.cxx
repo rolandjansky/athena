@@ -37,11 +37,6 @@ namespace Trig{
             ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
             return StatusCode::FAILURE;
         }
-        StatusCode sc = service("StoreGateSvc", m_storeGate);
-        if(sc.isFailure()) {
-            ATH_MSG_ERROR( "Unable to locate Service StoreGateSvc" );
-            return sc;
-        }
         return StatusCode::SUCCESS;
     }
 
@@ -123,13 +118,13 @@ namespace Trig{
         const xAOD::ElectronContainer *offElectrons = 0;
         const xAOD::TauJetContainer *taus = 0;
         const xAOD::MuonContainer *muons = 0;
-        if ( (m_storeGate->retrieve(offElectrons,"Electrons")).isFailure() ){
+        if ( (evtStore()->retrieve(offElectrons,"Electrons")).isFailure() ){
             ATH_MSG_DEBUG("Failed to retrieve offline Electrons ");
         }
-        if ( (m_storeGate->retrieve(taus,"")).isFailure() ){
+        if ( (evtStore()->retrieve(taus,"")).isFailure() ){
             ATH_MSG_DEBUG("Failed to retrieve offline Taus ");
         }
-        if ( (m_storeGate->retrieve(muons,"Muons")).isFailure() ){
+        if ( (evtStore()->retrieve(muons,"Muons")).isFailure() ){
             ATH_MSG_DEBUG("Failed to retrieve offline Muons ");
         }
         if(offElectrons) ATH_MSG_INFO("Offline Electron container size " << offElectrons->size());

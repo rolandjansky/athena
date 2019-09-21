@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonMeanMDTdADCFillerTool.h,  Header file for class MuonMeanMDTdADCFillerTool
@@ -15,14 +15,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
-// class IIncidentSvc;
 namespace Trk {}
 
 namespace Rec
@@ -61,7 +60,9 @@ namespace Rec
  private: 
   
     // tools and services 
-	ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+	ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
 

@@ -70,6 +70,9 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
 
   for ( unsigned int index(0); index<nDecisions; index++ ) {
     // Adding b-tagging links to output decisions // TMP
+    // Adding a dummy-link (a link to self) for now to satisfy validation.
+    ElementLink<TrigCompositeUtils::DecisionContainer> dummyFeatureLink(*outputDecisions, index, context);
+    newDecisions.at( index )->setObjectLink<TrigCompositeUtils::DecisionContainer>(TrigCompositeUtils::featureString(), dummyFeatureLink);
   }
   ATH_MSG_DEBUG("   ** Added object links to output decision");
 
@@ -87,8 +90,7 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
 
     TrigCompositeUtils::DecisionIDContainer previousDecisionIDs {
       TrigCompositeUtils::decisionIDs( previousDecision ).begin(),
-        TrigCompositeUtils::decisionIDs( previousDecision ).end()
-        };
+      TrigCompositeUtils::decisionIDs( previousDecision ).end() };
 
     TrigBjetBtagHypoTool::TrigBjetBtagHypoToolInfo infoToAdd;
     infoToAdd.previousDecisionIDs = previousDecisionIDs;

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 
 #include <sstream>
-#include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "ViewAlgs/TrigCompositeTraversal.h"
@@ -40,12 +39,12 @@ StatusCode TestFEXAlg::execute() {
   }
   ATH_MSG_DEBUG("Running on " << m_roisContainer->size() << " RoIs");
   
-  m_outputClusterContainer = CxxUtils::make_unique< TestClusterContainer >();
-  m_outputClusterContainerAux = CxxUtils::make_unique< TestClusterAuxContainer>();  
+  m_outputClusterContainer = std::make_unique< TestClusterContainer >();
+  m_outputClusterContainerAux = std::make_unique< TestClusterAuxContainer>();  
   m_outputClusterContainer->setStore(m_outputClusterContainerAux.ptr());
   
-  m_outputProxyContainer = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  m_outputProxyContainerAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
+  m_outputProxyContainer = std::make_unique< xAOD::TrigCompositeContainer >();
+  m_outputProxyContainerAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_outputProxyContainer->setStore(m_outputProxyContainerAux.ptr());
 
   // collect RoIs

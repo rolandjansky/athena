@@ -12,7 +12,6 @@
 #include "AthContainers/DataVector.h"
 #include "InDetIdentifier/SiliconID.h"
 #include "InDetPrepRawData/PixelCluster.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPrepRawData/PrepRawData.h"

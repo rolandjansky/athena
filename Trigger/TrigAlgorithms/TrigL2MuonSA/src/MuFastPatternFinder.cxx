@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
 
@@ -56,14 +54,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
       return sc;
    }
    
-   // retrieve the mdtidhelper  
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
-   const MuonGM::MuonDetectorManager* muonMgr;                                                                 
-   ATH_CHECK( detStore->retrieve( muonMgr,"Muon" ) ); 
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore."); 
-   m_mdtIdHelper = muonMgr->mdtIdHelper();                                                   
+   ATH_CHECK( m_muonIdHelperTool.retrieve() );                                 
 
    return StatusCode::SUCCESS; 
 }
@@ -84,7 +75,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 		 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
 		 << Layer << "/" << Tube);
 
-   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_mdtIdHelper->channelID(StationName,StationEta,
+   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_muonIdHelperTool->mdtIdHelper().channelID(StationName,StationEta,
        StationPhi,Multilayer,Layer,Tube);
 
    int tdcCounts    = (int)mdtHit.DriftTime;

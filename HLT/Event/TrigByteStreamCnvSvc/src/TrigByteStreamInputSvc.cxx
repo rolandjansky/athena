@@ -148,15 +148,7 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 
 // =============================================================================
 void TrigByteStreamInputSvc::EventCache::releaseEvent() {
-  if (this->rawData) {
-    delete[] this->rawData.release();
-  }
-  if (this->fullEventFragment) {
-    delete this->fullEventFragment.release();
-  }
+  this->rawData.reset();
+  this->fullEventFragment.reset();
 }
 
-// =============================================================================
-TrigByteStreamInputSvc::EventCache::~EventCache() {
-  releaseEvent();
-}

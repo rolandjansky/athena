@@ -90,7 +90,9 @@ def Lvl1SimulationSequence( flags = None ):
     MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
                                                      DecodeRpcRDO = True,
                                                      DecodeTgcRDO = True,
-                                                     DecodeCscRDO = False ) 
+                                                     DecodeCscRDO = False,
+                                                     DecodeSTGC_RDO = False,
+                                                     DecodeMM_RDO = False ) 
     
     MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
     from AthenaCommon.AppMgr import ToolSvc

@@ -27,8 +27,6 @@
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
-#include "GaudiKernel/Incident.h"
-
 using namespace TrigDec;
 
 TrigDecisionMakerMT::TrigDecisionMakerMT(const std::string &name, ISvcLocator *pSvcLocator)

@@ -109,7 +109,6 @@ def TileHitOutputCfg(flags, **kwargs):
     """
 
     acc = OutputStreamCfg(flags, 'RDO', ['TileHitContainer#*'])
-    acc.getEventAlgo('OutputStreamRDO').ExtraInputs = [('TileHitContainer', 'StoreGateSvc+TileHitCnt')]
 
     return acc
 

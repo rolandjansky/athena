@@ -13,7 +13,6 @@
 #define CALOTOOLS_CALONOISETOOL_H
 
 class Identifier; 
-class StoreGateSvc; 
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"

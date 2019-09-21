@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -62,18 +62,14 @@ namespace MuonCalib {
         condData = coll->at(newHash);
         if(condData)  
         {
-          if(!ignoreBadMultilayer())
-          {
-            if(m_numFailedRequests < m_maxFailedRequests) 
-              m_log << MSG::WARNING << "Invalid chamber layer requested when retrieveing " 
-                << parName 
-                << ". Tried corresponding channel in valid chamber layer and found good data." 
-                << endmsg;  
-            if(m_numFailedRequests++ == m_maxFailedRequests) m_log << MSG::WARNING 
-              << "Reached maximum number of problematic requests to CscCoolStrSvc. No further warnings will be printed." 
-                << endmsg; 
-
-          }
+          if(m_numFailedRequests < m_maxFailedRequests)
+            m_log << MSG::WARNING << "Invalid chamber layer requested when retrieveing "
+                  << parName
+                  << ". Tried corresponding channel in valid chamber layer and found good data."
+                  << endmsg;
+          if(m_numFailedRequests++ == m_maxFailedRequests)
+            m_log << MSG::WARNING << "Reached maximum number of problematic requests to CscCoolStrSvc. No further warnings will be printed."
+                  << endmsg;
         }
       }
     }//end if "CHANNEL" category

@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <map>
 
+
 MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs) : FlowNetworkMatcherBase(cs.size()){
 
   double totalCapacity{0};

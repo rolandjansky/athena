@@ -27,7 +27,6 @@
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
 
 // Forward includes
-class StoreGateSvc;
 class IMonitorToolBase;
 class TTree;
 

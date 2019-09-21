@@ -106,6 +106,7 @@ StatusCode AthenaOutputStreamTool::initialize() {
 }
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::finalize() {
+   m_decSvc.release().ignore();
    if (m_conversionSvc.release().isFailure()) {
       ATH_MSG_WARNING("Cannot release AthenaPoolCnvSvc");
    }
@@ -149,7 +150,7 @@ StatusCode AthenaOutputStreamTool::connectServices() {
 }
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) {
-   ATH_MSG_DEBUG("In connectOutput");
+   ATH_MSG_DEBUG("In connectOutput " << outputName);
 
    // Use arg if not empty, save the output name
    if (!outputName.empty()) {

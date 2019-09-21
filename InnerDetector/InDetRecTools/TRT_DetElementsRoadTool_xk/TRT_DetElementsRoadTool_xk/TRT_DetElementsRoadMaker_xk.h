@@ -19,6 +19,7 @@
 
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -100,6 +101,7 @@ namespace InDet {
 
       ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
       MagField::IMagFieldSvc*               m_fieldService{}      ;
+      ServiceHandle<IGeoModelSvc>           m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
       ToolHandle<Trk::IPropagator>          m_proptool ;  // Propagator     tool
 
       int                                  m_outputlevel{};
@@ -115,7 +117,6 @@ namespace InDet {
       std::string                          m_trt      ;  // PIX manager   location
       std::string                          m_fieldmode;  // Mode of magnetic field
       Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
-      std::string                     m_callbackString;
 
       ///////////////////////////////////////////////////////////////////
       // Methods

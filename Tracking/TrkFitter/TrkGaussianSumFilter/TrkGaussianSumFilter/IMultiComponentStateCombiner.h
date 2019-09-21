@@ -16,7 +16,7 @@ decription           : Abstract interface for the Multi Component State Combiner
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
+#include <memory>
 namespace Trk {
 
 static const InterfaceID IID_MultiComponentStateCombiner("MultiComponentStateCombiner", 1, 0);
@@ -32,14 +32,16 @@ public:
   static const InterfaceID& interfaceID() { return IID_MultiComponentStateCombiner; };
 
   /** Calculate combined state of many components */
-  virtual const TrackParameters* combine(const MultiComponentState&, bool useModeTemp = false) const = 0;
+  virtual std::unique_ptr<Trk::TrackParameters> combine(const MultiComponentState&, 
+                                                        bool useModeTemp = false) const = 0;
 
   /** Calculate combined state and weight of many components */
   virtual void combineWithWeight(std::pair<std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
                                  const std::pair<std::unique_ptr<Trk::TrackParameters>, double>& addThis) const = 0;
 
   /** Calculate combined state and weight of many components */
-  virtual const ComponentParameters* combineWithWeight(const MultiComponentState&, bool useModeTemp = false) const = 0;
+  virtual std::unique_ptr<Trk::SimpleComponentParameters> combineWithWeight(const MultiComponentState&, 
+                                                                            bool useModeTemp = false) const = 0;
 };
 
 } // end Trk namespace

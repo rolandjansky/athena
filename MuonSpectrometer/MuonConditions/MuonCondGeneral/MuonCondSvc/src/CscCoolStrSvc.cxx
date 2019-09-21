@@ -10,6 +10,8 @@
 //back out again to check.
 // author lampen@physics.arizona.edu
 
+#include "CscCoolStrSvc.h"
+
 #include <sstream>
 #include <vector>
 #include <algorithm>//for transform
@@ -22,22 +24,11 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
-// temporary includes to access CLOBs
-//#include "CoolKernel/ExtendedAttributeListSpecification.h"
-//#include "CoolKernel/PredefinedStorageHints.h"
-
 //Calibration data containers
 #include "MuonCondData/CscCondDataCollection.h"
-//#include "MuonCondData/CscCondDataCollectionBaseReader.h"
 #include "MuonCondData/CscCondDataContainer.h"
 
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/TagInfo.h"
-
-// root class for string manipulation 
-//#include "TString.h"
-
-#include "CscCoolStrSvc.h"
 
 using namespace std;
 namespace MuonCalib {
@@ -1253,51 +1244,6 @@ namespace MuonCalib {
           << " to " << m_cscId->show_to_string(newId) << " (" << hash << ")" << endmsg;
     return (int)hash;
   }
-
-
-  //-------------------------------------------------------------------
-  bool CscCoolStrSvc::ignoreBadMultilayer() const
-  {
-    static bool haveChecked = false;
-    static bool ignoreIt = false;
-
-    StoreGateSvc* detStore= 0;
-    StatusCode sc = serviceLocator()->service("DetectorStore",detStore);
-    if(sc.isFailure())
-    {
-      m_log << MSG::WARNING << "Failed to retrieve detector store in ignoreBadMultilayer()" << endmsg;
-      return false;
-    }
-
-    if(!haveChecked)
-    {
-      if(m_debug) m_log << "First time running ignoreBadMultilayer(). Checking geo tag."
-        << endmsg;
-      haveChecked = true;
-      //All geometries before the "ATLAS-GEO-xx-xx-xx" series had a bug where the
-      //wrong multilayer was set. As long as we are in ATLAS-GEO range, we should print
-      //a warning message if someone tries to request info from the wrong multilayer
-      const DataHandle<TagInfo> tagInfo;
-      if(detStore->retrieve(tagInfo).isFailure()) {
-        m_log << MSG::WARNING << "Could not retrieve tag info from TDS in ignore bad multilayer..." 
-          << endmsg;
-        return false;
-      }
-
-      std::string detdescr = "";
-      tagInfo->findTag("GeoAtlas", detdescr);
-      if(m_debug) m_log << MSG::DEBUG << "DetDescr tag = " << detdescr << endmsg;
-      if ( detdescr.find ("ATLAS-") != std::string::npos )
-      {
-        //Will print warning messages when bad multilayer requested in getParameter()
-        ignoreIt = false;
-      } 
-      else
-        ignoreIt = true;
-    }
-    return ignoreIt;
-  }//end ignoreBadMultilayer
-
 
   //-------------------------------------------------------------------
   StatusCode CscCoolStrSvc::offlineToOnlineId(const Identifier & id, unsigned int &onlineId) const

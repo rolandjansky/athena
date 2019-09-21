@@ -38,6 +38,7 @@ StatusCode TrigSignatureMoniMT::start() {
   ATH_CHECK( initHist( h1 ) );
   ATH_CHECK( initHist( h2 ) );
   ATH_CHECK( initHist( h3 ) );
+  ATH_CHECK( initHist( ho ) );
 
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/SignatureAcceptance", std::move(h1), m_passHistogram));
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/DecisionCount", std::move(h2), m_countHistogram));

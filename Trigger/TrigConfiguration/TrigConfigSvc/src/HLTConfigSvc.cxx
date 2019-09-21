@@ -129,6 +129,8 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_e5_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_e7_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_g5_etcut_L1EM3"] = "L1_EM3";
+      dummyChains["HLT_g5_etcut_LArPEB_L1EM3"] = "L1_EM3";
+      dummyChains["HLT_g20_etcut_LArPEB_L1EM15"] = "L1_EM15";
       dummyChains["HLT_g10_etcut_L1EM7"] = "L1_EM7";
       dummyChains["HLT_g15_etcut_L1EM12"] = "L1_EM12";
       dummyChains["HLT_mu6_L1MU6"] = "L1_MU6";
@@ -140,16 +142,26 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j85_L1J20"] = "L1_J20";
       dummyChains["HLT_j100_L1J20"] = "L1_J20";
       // from egamma test
+      dummyChains["HLT_2e17_etcut_L12EM15VH"] = "L1_2EM15VH";
       dummyChains["HLT_2e3_etcut"] = "L1_2EM3";
+      dummyChains["HLT_2e3_etcut_L12EM3"] = "L1_2EM3";
+      dummyChains["HLT_2g35_etcut_L12EM20VH"] = "L1_2EM20VH";
+      dummyChains["HLT_e26_etcut_L1EM22VHI"] = "L1_EM22VHI";
       dummyChains["HLT_e3_e5_etcut"] = "L1_2EM3";
       dummyChains["HLT_e3_etcut"] = "L1_EM3";
+      dummyChains["HLT_e3_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_e5_etcut"] = "L1_EM3";
+      dummyChains["HLT_e5_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_e7_etcut"] = "L1_EM7";
+      dummyChains["HLT_e7_etcut_L1EM3"] = "L1_EM3";
+      dummyChains["HLT_g140_etcut_L1EM24VHI"] = "L1_EM24VHI";
+      dummyChains["HLT_g5_etcut_L1EM3"] = "L1_EM3";
       // for menu test
-      dummyChains["HLT_2j330_a10t_lcw_jes_30smcINF_L1J20"] = "L1_J20";
-      dummyChains["HLT_j420_a10t_lcw_jes_30smcINF_L1J20"] = "L1_J20";
+      dummyChains["HLT_2j330_a10t_lcw_jes_35smcINF_L1J100"] = "L1_J100";
+      dummyChains["HLT_j460_a10t_lcw_jes_30smcINF_L1J100"] = "L1_J100";
       dummyChains["HLT_mu26_ivarmedium_L1MU20"] = "L1_MU20";
       dummyChains["HLT_mu50_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_mu50_RPCPEBSecondaryReadout_L1MU20"] = "L1_MU20";
       dummyChains["HLT_2mu14_L12MU10"] = "L1_2MU10";
       dummyChains["HLT_j420_L1J100"] = "L1_J100";
       dummyChains["HLT_j260_320eta490_L1J75_31ETA49"] = "L1_J75.31ETA49";
@@ -165,8 +177,9 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_2mu6_L12MU6"] = "L1_2MU6";
       dummyChains["HLT_2mu6Comb_L12MU6"] = "L1_2MU6";
       dummyChains["HLT_2mu6_bJpsimumu_L12MU6"] = "L1_2MU6";
+      dummyChains["HLT_2mu6_10invm70_L1MU6"] = "L1_2MU6";
       dummyChains["HLT_3j200_L1J20"] = "L1_J20";
-      dummyChains["HLT_5j70_0eta240_L1J20"] = "L1_J20";
+      dummyChains["HLT_5j70_0eta240_L14J20"] = "L1_4J20";
       dummyChains["HLT_e3_etcut1step_mu6fast_L1EM8I_MU10"] = "L1_EM8I_MU10";
       dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
       dummyChains["HLT_g5_etcut"] = "L1_EM3";
@@ -174,7 +187,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j225_gsc420_boffperf_split20"] = "L1_J100";
       dummyChains["HLT_j260_320eta490_L1J20"] = "L1_J20";
       dummyChains["HLT_j420_L1J20"] = "L1_J20";
-      dummyChains["HLT_j45_L1J20"] = "L1_J20";
+      dummyChains["HLT_j45_L1J15"] = "L1_J15";
       dummyChains["HLT_j460_a10_lcw_subjes_L1J20"] = "L1_J20";
       dummyChains["HLT_j460_a10r_L1J20"] = "L1_J20";
       dummyChains["HLT_mu20_ivar_L1MU6"] = "L1_MU6";
@@ -185,6 +198,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_mu6_msonly_L1MU6"] = "L1_MU6";
       dummyChains["HLT_mu6noL1_L1MU6"] = "L1_MU6";
       dummyChains["HLT_mu6_mu4_L12MU4"] = "L1_2MU4";
+      dummyChains["HLT_mu80_msonly_3layersEC_L1MU20"] = "L1_MU20";
       dummyChains["HLT_xe30_cell_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe30_tcpufit_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";
@@ -195,6 +209,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j35_gsc45_boffperf_split_L1J20"] = "L1_J20";
       dummyChains["HLT_j35_gsc45_bmv2c1070_split_L1J20"] = "L1_J20";
       dummyChains["HLT_xe30_cell_xe30_tcpufit_L1XE10"] = "L1_XE10";
+      dummyChains["HLT_xe30_mht_L1XE10"] = "L1_XE10";
       dummyChains["HLT_mu60_0eta105_msonly_L1MU20"] = "L1_MU20";
       dummyChains["HLT_3mu6_L13MU6"] = "L1_3MU6";
       dummyChains["HLT_3mu6_msonly_L13MU6"] = "L1_3MU6";

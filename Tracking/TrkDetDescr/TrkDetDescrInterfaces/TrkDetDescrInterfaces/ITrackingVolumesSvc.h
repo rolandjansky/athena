@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,9 +46,6 @@ namespace Trk {
            
         /** Retrieve interface ID */
         static const InterfaceID& interfaceID() { return IID_ITrackingVolumesSvc; }
-    
-        /** Create the geometry */
-        virtual StatusCode trackingVolumesInit(IOVSVC_CALLBACK_ARGS) = 0;
     
         /** Provide the TrackingVolumes */
         virtual const Trk::Volume& volume(const TrackingVolumeIdentifier& volumeId) const = 0;

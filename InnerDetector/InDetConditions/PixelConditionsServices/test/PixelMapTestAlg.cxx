@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelMapTestAlg.h"
@@ -14,10 +14,8 @@
 
 // geometry
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 // CoralDB
 #include "CoralDB/CoralDB.h"
@@ -42,8 +40,7 @@ PixelMapTestAlg::PixelMapTestAlg(const std::string& name, ISvcLocator* pSvcLocat
   m_writeTextfile(false),
   m_dummy(false),
   m_overlay(false),
-  m_pixelID(0),
-  m_pixman(0)
+  m_pixelID(0)
 {
   declareProperty("UseSummarySvc", m_useSummarySvc, "switch for use of PixelConditionsSummarySvc"); 
   declareProperty("SpecialPixelMapSvc", m_specialPixelMapSvc); 
@@ -72,12 +69,8 @@ StatusCode PixelMapTestAlg::initialize(){
       return StatusCode::FAILURE;
     } 
   }
-  sc = detStore()->retrieve( m_pixman, "Pixel" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel manager" );
-    return StatusCode::FAILURE;
-  }
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   sc = detStore()->retrieve( m_pixelID, "PixelID" );
   if( !sc.isSuccess() ){
@@ -86,13 +79,17 @@ StatusCode PixelMapTestAlg::initialize(){
   }
   if(m_pixelID->wafer_hash_max()>1744)isIBL = true;
   if(m_pixelID->wafer_hash_max()>3000)isITK = true;
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
-  itermin = m_pixman->getDetectorElementBegin();
-  itermax = m_pixman->getDetectorElementEnd();
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
+
   //
   if(m_dummy&&isITK){
-    for( iter=itermin; iter !=itermax; ++iter){
-      const InDetDD::SiDetectorElement* element = *iter;
+    for (const InDetDD::SiDetectorElement* element: *elements) {
       if(element !=0){
 	const Identifier ident = element->identify();
 	if(m_pixelID->is_pixel(ident)){  // OK this Element is included

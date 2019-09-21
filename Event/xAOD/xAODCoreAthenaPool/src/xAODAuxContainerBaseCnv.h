@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODAuxContainerBaseCnv.h 660871 2015-04-16 08:20:17Z krasznaa $
@@ -9,25 +9,20 @@
 #define XAODCOREATHENAPOOL_XAODAUXCONTAINERBASECNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
-#define private public
-#   include "xAODCore/AuxContainerBase.h"
-#undef private
+#include "xAODCore/AuxContainerBase.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::AuxContainerBase,
-                               xAOD::AuxContainerBase >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::AuxContainerBase >
    xAODAuxContainerBaseCnvBase;
 
 /**
  * @short POOL converter for the xAOD::AuxContainerBase class
  *
- * We need a custom converter for this class, since it's possible to apply
- * thinning on containers that hold their payload in such a generic store
- * object. This happens especially when applying thinning and slimming on the
- * same container in derivation framework jobs.
+ * We need a custom converter for this class in order to get the
+ * selection set copied.
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
@@ -38,15 +33,15 @@ class xAODAuxContainerBaseCnv : public xAODAuxContainerBaseCnvBase {
 
 public:
    /// Converter constructor
-   xAODAuxContainerBaseCnv( ISvcLocator* svcLoc );
+   using xAODAuxContainerBaseCnvBase::xAODAuxContainerBaseCnvBase;
 
 protected:
    /// Function preparing the container to be written out
    virtual xAOD::AuxContainerBase*
-   createPersistent( xAOD::AuxContainerBase* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::AuxContainerBase* createTransient();
+   createPersistentWithKey( xAOD::AuxContainerBase* trans,
+                            const std::string& key ) override;
 
 }; // class xAODAuxContainerBaseCnv
+
 
 #endif // XAODCOREATHENAPOOL_XAODAUXCONTAINERBASECNV_H

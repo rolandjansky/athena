@@ -13,6 +13,8 @@
 # art-output: *perfmon*
 # art-output: *.check*
 
+unset ATHENA_NPROC_NUM
+
 export NAME="trigAna_q221_RDOtoAOD_mt1_grid"
 export TEST="TrigAnalysisTest"
 export INPUT="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000002.pool.root.1"

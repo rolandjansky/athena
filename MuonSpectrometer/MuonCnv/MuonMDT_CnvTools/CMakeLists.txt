@@ -42,8 +42,3 @@ atlas_add_component( MuonMDT_CnvTools
 atlas_install_headers( MuonMDT_CnvTools )
 atlas_install_python_modules( python/*.py )
 
-
-atlas_add_test( MdtRdoToPrepDataTool_test
-  SCRIPT python -m MuonMDT_CnvTools.MdtRdoToPrepDataTool_test
-  PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "-s dead tube" )

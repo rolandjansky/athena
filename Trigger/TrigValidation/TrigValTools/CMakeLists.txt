@@ -37,7 +37,7 @@ atlas_add_test( TrigValSteering_flake8
                 SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python/TrigValSteering
                 POST_EXEC_SCRIPT nopost.sh )
 
-# To be uncommented when ATEAM-562 is fixed
-# atlas_add_test( TrigValSteering_unit_test
-#                 SCRIPT test_unit_trigvalsteering.py
-#                 POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( TrigValSteering_unit_test
+                SCRIPT test_unit_trigvalsteering.py
+                POST_EXEC_SCRIPT nopost.sh )
+

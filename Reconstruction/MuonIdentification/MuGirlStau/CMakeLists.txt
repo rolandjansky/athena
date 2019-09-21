@@ -22,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/EventInfoMgt
@@ -37,7 +36,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( Eigen )
-find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 # tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
 
@@ -51,18 +50,18 @@ atlas_add_library( MuGirlStauLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces StoreGateLib SGtests MdtCalibSvcLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils Identifier xAODTracking MdtCalibData ParticleCaloExtension RecoToolInterfaces PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} Identifier xAODTracking MdtCalibData ParticleCaloExtension RecoToolInterfaces PathResolver )
 
 atlas_add_component( MuGirlStau
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces CxxUtils StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib )
 
 atlas_add_dictionary( iMuGirlStauDict
                       MuGirlStau/MuGirlStauDict.h
                       MuGirlStau/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces CxxUtils StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib
                       DATA_LINKS MuGirlNS::StauContainer
                       ELEMENT_LINKS StauCollection )
 

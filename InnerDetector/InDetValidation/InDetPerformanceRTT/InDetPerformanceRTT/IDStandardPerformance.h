@@ -29,13 +29,14 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -45,6 +46,7 @@ namespace AlignMon {
 }
 
 namespace InDetDD {
+  class PixelDetectorManager;
   class SCT_DetectorManager;
 }
 
@@ -743,8 +745,6 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
     float m_Pi;
     const AtlasDetectorID*               m_idHelper;          //!< Used to find out the sub-det from PRD->identify().
-    //StoreGateSvc*                      m_storeGate;
-    //StoreGateSvc*                      m_detStore;
 
     const PixelID*                        m_pixelID;
     const SCT_ID*                         m_sctID;
@@ -795,13 +795,15 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     SG::ReadHandleKey<TrackCollection> m_SCTtracksName;
     SG::ReadHandleKey<TrackCollection> m_TRTtracksKey{ this, "TRTtracksName", "StandaloneTRTTracks", "Container name for the Standalone TRT Tracks" };
     SG::ReadHandleKey<xAOD::EventInfo> m_evt{ this, "EvtInfo", "EventInfo", "EventInfo name"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
     typedef std::multimap<HepMcParticleLink,float> recoToTruthMap;//!< map containing reco track and matched truth track barcode
     recoToTruthMap m_rttMap;
 
     void fillPixelTrackPullHistos(const Identifier& elementID
 	, const Trk::TrackStateOnSurface* trackState
-	, const std::auto_ptr<const Trk::ResidualPull>& trackPull);
+	, const std::auto_ptr<const Trk::ResidualPull>& trackPull
+        , const InDetDD::SiDetectorElementCollection* elements);
 
 
     mutable int       m_isUnbiased;  //!< if can get unbiased residuals

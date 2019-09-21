@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolxAODCnv.h
  * @author scott snyder <snyder@bnl.gov>
@@ -39,7 +37,7 @@
  */
 template <class XAOD, class ... TPCNVS>
 class T_AthenaPoolxAODCnv
-  : public T_AthenaPoolCustomCnv<XAOD, XAOD>
+  : public T_AthenaPoolCustomCnvWithKey<XAOD, XAOD>
 {
   friend class CnvFactory< T_AthenaPoolxAODCnv >;
 
@@ -47,7 +45,7 @@ class T_AthenaPoolxAODCnv
   friend class AthenaPoolCnvSvc::TPCnvElt;
 
 public:
-  typedef T_AthenaPoolCustomCnv<XAOD, XAOD> Base;
+  typedef T_AthenaPoolCustomCnvWithKey<XAOD, XAOD> Base;
 
 
   /**
@@ -58,41 +56,29 @@ public:
 
 
   /**
-   * @brief Read an object from persistent storage.
-   * @param pAddr Address of the object to read.
-   * @param pObj[out] Pointer to the read object.
-   *
-   * This is overridden here in order to be able to pass the SG key
-   * from the address to @c createTransient.
-   */
-  virtual StatusCode createObj( IOpaqueAddress* pAddr,
-                                DataObject*& pObj ) override;
-
-
-  /**
    * @brief Convert a transient object to persistent form.
    * @param trans The transient object to convert.
+   * @param key The SG key of the object being written.
    *
    * Returns a newly-allocated persistent object.
    */
-  virtual XAOD* createPersistent( XAOD* trans ) override;
+  virtual XAOD* createPersistentWithKey( XAOD* trans,
+                                         const std::string& key) override;
 
 
   /**
    * @brief Read the persistent object and convert it to transient.
+   * @param key The SG key of the object being read.
    *
    * Returns a newly-allocated transient object.
    * Errors are reported by raising exceptions.
    */
-  virtual XAOD* createTransient() override;
+  virtual XAOD* createTransientWithKey (const std::string& key) override;
 
   
 private:
-  /// SG key for the object being read.
-  std::string m_key;
-
   /// GUID of the object being read.
-  Guid m_guid;
+  const Guid m_guid;
 
   /// List of TP converters.
   AthenaPoolCnvSvc::TPCnvList<T_AthenaPoolxAODCnv, XAOD, TPCNVS...> m_tpcnvs;

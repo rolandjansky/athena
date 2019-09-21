@@ -55,7 +55,6 @@ namespace Trig{
             std::map<std::string,int> m_counterMatch2Bits;
             std::map<std::string,int> m_counterMatch3Bits;
             std::map<std::string,int> m_counterMatch4Bits;
-            StoreGateSvc * m_storeGate;
 
             void match(const std::string, const xAOD::Egamma *);
     }; 

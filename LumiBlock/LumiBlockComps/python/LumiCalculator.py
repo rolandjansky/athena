@@ -1,15 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # lumiCalculator.py
 # utilities for calculation of integrated luminosity from information in COOL
 # main class coolLumiCalc
 # Richard Hawkings, started May 2007
 
+from __future__ import print_function
+
 import sys
 from PyCool import cool
 
 from CoolConvUtilities.AtlCoolLib import indirectOpen,RangeList
-from DetectorStatus.DetStatusLib import DetStatusNames,DetStatusReq
 from DetectorStatus.DetStatusCoolLib import statusCutsToRange
 
 import LumiBlockComps.LumiQuery as LumiQuery
@@ -82,7 +83,7 @@ class coolLumiCalc:
         try:
             self.cooldb=indirectOpen(cooldbconn,True,readoracle,loglevel>1)
         except Exception, e:
-            print e
+            print(e)
             sys.exit(-1)
         # store other parameters
         self.loglevel=loglevel
@@ -94,7 +95,7 @@ class coolLumiCalc:
             try:
                 self.detstatusdb=indirectOpen(statusdbconn,True,readoracle,loglevel>1)
             except Exception,e:
-                print e
+                print(e)
                 sys.exit(-1)
 
     def getLumiCache(self,since,until):
@@ -133,21 +134,21 @@ class coolLumiCalc:
         folderL1PRESCALE=self.cooldb.getFolder('/TRIGGER/LVL1/Prescales')
         
         for lbinfo in lblist:
-            if (self.loglevel>0): print "Beginning calculation for",lbinfo
+            if (self.loglevel>0): print("Beginning calculation for",lbinfo)
             # get the trigger configuration for this run
             runstat,chainnums,hltprescale=self._getChains(lbinfo.run,triggername,triggerlevel)
-            if (self.loglevel>1): print "L1/2/3 chain numbers",chainnums[0],chainnums[1],chainnums[2]
+            if (self.loglevel>1): print("L1/2/3 chain numbers",chainnums[0],chainnums[1],chainnums[2])
             if (runstat):
                 since,until=lbinfo.IOVRange()
                 # check for detector status requirements
                 if (self.detstatus!=""):
                     if (self.loglevel>0):
-                        print "Applying detector status cuts: %s" % self.detstatus
+                        print("Applying detector status cuts: %s" % self.detstatus)
                     gooddetstatus=statusCutsToRange(self.detstatusdb,'/GLOBAL/DETSTATUS/LBSUMM',since,until,self.detstatustag,self.detstatus)
                 else:
                     gooddetstatus=RangeList(since,until)
                     
-                if (self.loglevel>0): print "LumiB  L1-Acc  L2-Acc  L3-Acc   L1-pre   L2-pre   L3-pre LiveTime  IntL/nb-1"
+                if (self.loglevel>0): print("LumiB  L1-Acc  L2-Acc  L3-Acc   L1-pre   L2-pre   L3-pre LiveTime  IntL/nb-1")
                 # get and cache the LVL1 prescales for this run
                 l1precache=IOVCache()
                 itr=folderL1PRESCALE.browseObjects(since,until-1,cool.ChannelSelection(chainnums[0]))
@@ -162,7 +163,6 @@ class coolLumiCalc:
                 # looping is driven by the LVL1COUNTERS folder which has
                 # one entry for EACH lumiblock
                 # assume that HLTCOUNTERS also have one entry for EACH block
-                nblocks=0
                 l1countitr=folderLBCOUNTL1.browseObjects(since,until-1,cool.ChannelSelection(chainnums[0]))
                 if (triggerlevel>1):
                     l2countitr=folderLBCOUNTHLT.browseObjects(since,until-1,cool.ChannelSelection(chainnums[1]))
@@ -212,10 +212,10 @@ class coolLumiCalc:
                             # intL in nb^-1
                             livetime=livefrac*deltat
                             intlumi=(lumi*livetime)/float(l1prescale*hltprescale[0]*hltprescale[1])
-                            if (self.loglevel>1): print "%5i %7i %7i %7i %8i %8i %8i %8.2f %10.1f" % (lb,l1acc,l2acc,l3acc,l1prescale,hltprescale[0],hltprescale[1],livetime,intlumi)
+                            if (self.loglevel>1): print("%5i %7i %7i %7i %8i %8i %8i %8.2f %10.1f" % (lb,l1acc,l2acc,l3acc,l1prescale,hltprescale[0],hltprescale[1],livetime,intlumi))
                         else:
                             intlumi=0
-                            print "%5i %7i %7i %7i <missing prescale or lumi>" %(lb,l1acc,l2acc,l3acc)
+                            print("%5i %7i %7i %7i <missing prescale or lumi>" %(lb,l1acc,l2acc,l3acc))
                         # accumulate statistics
                         totalacc[0]+=l1acc
                         totalacc[1]+=l2acc
@@ -227,8 +227,8 @@ class coolLumiCalc:
                         totalbadblock+=1
                 l1countitr.close()
             else:
-                print "Trigger not defined for run",lbinfo.run
-            if (self.loglevel>0): print "Rng-T %7i %7i %7i                            %8.2f %10.1f" % (totalacc[0],totalacc[1],totalacc[2],totaltime,totalL)
+                print("Trigger not defined for run",lbinfo.run)
+            if (self.loglevel>0): print("Rng-T %7i %7i %7i                            %8.2f %10.1f" % (totalacc[0],totalacc[1],totalacc[2],totaltime,totalL))
         return lumiResult(totalL,totalacc[0],totalacc[1],totalacc[2],totaltime,totalgoodblock,totalbadblock)
 
     def triggerLevel(self,trigname,quiet=False):
@@ -237,14 +237,14 @@ class coolLumiCalc:
         if (trigname[:2]=='L1'): return 1
         if (trigname[:2]=='L2'): return 2
         if (trigname[:2]=='EF'): return 3
-        if (not quiet): print 'WARNING: Trigger name',trigname,'does not define trigger level, assume L1'
+        if (not quiet): print('WARNING: Trigger name',trigname,'does not define trigger level, assume L1')
         return 1
 
     def _getChains(self,run,triggername,triggerlevel):
         """Returns the trigger chain numbers for the specified trigger in this
         run, which are used as the channel indexes for the LVL1/Prescale
         and LUMI/LVL1COUNTERS and HLTCOUNTERS folders"""
-        if (self.loglevel>1): print "Get chain numbers for run",run,triggername,"level",triggerlevel
+        if (self.loglevel>1): print("Get chain numbers for run",run,triggername,"level",triggerlevel)
         l1chain=-1
         l2chain=-1
         l3chain=-1
@@ -276,7 +276,7 @@ class coolLumiCalc:
                     l1chain=obj.channelId()
                     break
             if (l1chain==-1):
-                print "LVL1 trigger %s not defined for run %i" % (lvl1name,run)
+                print("LVL1 trigger %s not defined for run %i" % (lvl1name,run))
                 badrun=True
             itr.close()
         return (not badrun,(l1chain,l2chain,l3chain),(l2prescale,l3prescale))
@@ -300,7 +300,7 @@ class coolLumiCalc:
                 lowername=payload['LowerChainName']
                 break
         itr.close()
-        if (self.loglevel>1): print "Trigger",name,"identifier chain",chain,"prescale",prescale,"lowername",lowername
+        if (self.loglevel>1): print("Trigger",name,"identifier chain",chain,"prescale",prescale,"lowername",lowername)
         return (chain,prescale,lowername)
 
     def listTriggers(self,run,level=0):
@@ -339,32 +339,31 @@ class coolLumiCalc:
         return (since,until)
 
     def rlbFromFile(self,file,xml=False):
-      if xml: return self.rlbFromXmlFile(file)
-      else: return self.rlbFromRootFile(file)
+        if xml: return self.rlbFromXmlFile(file)
+        else: return self.rlbFromRootFile(file)
 
     def rlbFromXmlFile(self,file):
-      import os
-      import ROOT
-      from ROOT import gSystem
-      CWD = os.getcwd()
-      os.chdir(CWD)
-      gSystem.Load('libGoodRunsListsLib')
-      from ROOT import Root
+        import os
+        from ROOT import gSystem
+        CWD = os.getcwd()
+        os.chdir(CWD)
+        gSystem.Load('libGoodRunsListsLib')
+        from ROOT import Root
 
-      ## read the goodrunslist xml file
-      reader = Root.TGoodRunsListReader(file)
-      reader.Interpret()
-      goodrunslist = reader.GetMergedGoodRunsList()
-      goodrunslist.Summary(True)
-      runs=goodrunslist.GetGoodRuns()
+        ## read the goodrunslist xml file
+        reader = Root.TGoodRunsListReader(file)
+        reader.Interpret()
+        goodrunslist = reader.GetMergedGoodRunsList()
+        goodrunslist.Summary(True)
+        runs=goodrunslist.GetGoodRuns()
       
-      rangelist=[]
-      for i in range(len(runs)):
-        run=runs[i]
-        for j in range(len(run)):
-             lumi_range=run[j]
-             rangelist+=[RLBRange(run.GetRunNumber(),lumi_range.Begin(),lumi_range.End())]
-      return rangelist
+        rangelist=[]
+        for i in range(len(runs)):
+            run=runs[i]
+            for j in range(len(run)):
+                lumi_range=run[j]
+                rangelist+=[RLBRange(run.GetRunNumber(),lumi_range.Begin(),lumi_range.End())]
+        return rangelist
       
     def rlbFromRootFile(self,file):
         """Extract list of LBs from a ROOT file using LumiQuery and return
@@ -377,5 +376,5 @@ class coolLumiCalc:
             if (start.run()==stop.run()):
                 rangelist+=[RLBRange(start.run(),start.block(),stop.block())]
             else:
-                print "ERROR: Multirun RLBRange not supported:",start,stop
+                print("ERROR: Multirun RLBRange not supported:",start,stop)
         return rangelist

@@ -388,7 +388,6 @@ if __name__=="__main__":
                                                             "xAOD::CaloClusterAuxContainer#*CaloCalTopoClusters*Aux.",#+theKey+"Aux.",
                                                             # "CaloClusterCellLinkContainer#"+theKey+"_links"
                                                            ]))
-    cfg.getEventAlgo("OutputStreamxAOD").ForceRead=True
 
     from AthenaServices.AthenaServicesConf import ThinningSvc, ThinningOutputTool
     cfg.addService(ThinningSvc())

@@ -8,6 +8,7 @@
 #define IOVDbSvc_TagFunctions_h
 
 #include "CoolKernel/IFolder.h"
+#include "EventInfo/TagInfo.h"
 #include <string>
 #include <optional>
 class StoreGateSvc;
@@ -23,6 +24,7 @@ namespace IOVDbNamespace{
   std::optional<bool>
   checkTagLock(const cool::IFolderPtr fptr, const std::string & tag);
   
-  
+  std::string
+  resolveUsingTagInfo(const std::string & tag, StoreGateSvc * pDetStore, const std::optional<TagInfo> & inputTag = std::nullopt);
 }
 #endif

@@ -24,12 +24,12 @@
 void InDet::SiTrajectoryElement_xk::setTools(const InDet::SiTools_xk* t)
 {
   m_tools        = t                      ;
-  m_useassoTool  = m_tools->useassoTool ();
+  m_prdToTrackMap= m_tools->PRDtoTrackMap();
+  m_useassoTool  = m_tools->usePRDtoTrackAssociation() ;
   m_fieldService = m_tools->magfield    ();
   m_updatorTool  = m_tools->updatorTool ();
   m_proptool     = m_tools->propTool    ();
   m_riotool      = m_tools->rioTool     ();
-  m_assoTool     = m_tools->assoTool    ();
 } 
 
 void InDet::SiTrajectoryElement_xk::setParameters()
@@ -1402,7 +1402,6 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_fieldService= 0 ;
   m_updatorTool = 0 ;
   m_proptool    = 0 ;
-  m_assoTool    = 0 ;
   m_riotool     = 0 ;
   m_inside      = 0 ;
   m_nholesF     = 0 ;
@@ -1414,7 +1413,6 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_npixelsB    = 0 ;
   m_stereo      = false;
   m_fieldMode   = false;
-  m_useassoTool = false;
 
   m_tsos[0]=m_tsos[1]=m_tsos[2]=0; 
 }

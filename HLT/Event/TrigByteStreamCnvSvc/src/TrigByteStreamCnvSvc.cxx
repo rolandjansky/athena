@@ -9,17 +9,25 @@
 #include "AthenaKernel/EventContextClid.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "TrigKernel/HltPscErrorCode.h"
+
+// Gaudi includes
+#include "GaudiKernel/ITHistSvc.h"
 
 // TDAQ includes
+#include "eformat/FullEventFragmentNoTemplates.h"
+#include "eformat/ROBFragmentNoTemplates.h"
 #include "eformat/StreamTag.h"
 #include "hltinterface/DataCollector.h"
 
 // System includes
 #include <sstream>
 #include <iomanip>
+#include <chrono>
 
 // Local helper functions
 namespace {
+  constexpr float wordsToKiloBytes = 0.001*sizeof(uint32_t);
   template<typename T> struct printWordHex {
     printWordHex(const T w) : word(w) {}
     T word;
@@ -55,7 +63,8 @@ namespace {
 TrigByteStreamCnvSvc::TrigByteStreamCnvSvc(const std::string& name, ISvcLocator* svcLoc)
 : ByteStreamCnvSvc(name, svcLoc),
   m_evtStore("StoreGateSvc", name),
-  m_robDataProviderSvc("ROBDataProviderSvc", name) {}
+  m_robDataProviderSvc("ROBDataProviderSvc", name),
+  m_THistSvc("THistSvc", name) {}
 
 // =============================================================================
 // Standard destructor
@@ -70,7 +79,16 @@ StatusCode TrigByteStreamCnvSvc::initialize() {
   ATH_CHECK(ByteStreamCnvSvc::initialize());
   ATH_CHECK(m_evtStore.retrieve());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
+  ATH_CHECK(m_THistSvc.retrieve());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+// Reimplementation of Service::start
+// =============================================================================
+StatusCode TrigByteStreamCnvSvc::start() {
+  bookHistograms();
   return StatusCode::SUCCESS;
 }
 
@@ -83,6 +101,8 @@ StatusCode TrigByteStreamCnvSvc::finalize() {
     ATH_MSG_WARNING("Failed to release service " << m_robDataProviderSvc.typeAndName());
   if (m_evtStore.release().isFailure())
     ATH_MSG_WARNING("Failed to release service " << m_evtStore.typeAndName());
+  if (m_THistSvc.release().isFailure())
+    ATH_MSG_WARNING("Failed to release service " << m_THistSvc.typeAndName());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   ATH_CHECK(ByteStreamCnvSvc::finalize());
   return StatusCode::SUCCESS;
@@ -159,11 +179,18 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
     return StatusCode::FAILURE;
   }
 
+  monitorRawEvent(rawEventPtr);
+
   // Send output to the DataCollector
   StatusCode result = StatusCode::SUCCESS;
   try {
+    auto startTime = std::chrono::high_resolution_clock::now();
     hltinterface::DataCollector::instance()->eventDone(std::move(rawEventPtr));
-    ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully");
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+    m_histEventDoneTime->Fill(static_cast<float>(duration.count()));
+    ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully, "
+                  << "the eventDone call took " << duration.count() << " microseconds");
   }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("Sending output to DataCollector failed, caught an unexpected std::exception " << e.what());
@@ -179,6 +206,99 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return result;
+}
+
+// =============================================================================
+void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& rawEventPtr) const {
+  // Create a read fragment from the pointer
+  eformat::read::FullEventFragment rawEvent(rawEventPtr.get());
+
+  // Monitor error code
+  if (rawEvent.nstatus() > 1) {
+    hltonl::PSCErrorCode errorCode = static_cast<hltonl::PSCErrorCode>(rawEvent.status()[1]);
+    std::string errorCodeString = hltonl::PrintPscErrorCode(errorCode);
+    m_histPscErrorCode->Fill(errorCodeString.data(), 1.0);
+  }
+
+  // Decode stream tags
+  std::vector<eformat::helper::StreamTag> streamTags;
+  try {
+    eformat::helper::decode(rawEvent.nstream_tag(), rawEvent.stream_tag(), streamTags);
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("StreamTag decoding failed, caught an unexpected std::exception " << ex.what());
+    return;
+  }
+  catch (...) {
+    ATH_MSG_ERROR("StreamTag decoding failed, caught an unexpected exception");
+    return;
+  }
+
+  // Get HLT result sizes
+  std::vector<eformat::read::ROBFragment> robs;
+  rawEvent.robs(robs);
+  std::unordered_map<uint16_t, uint32_t> resultSizes; // {module ID, size in words}
+  uint32_t totalSizeWords = 0;
+  try {
+    for (const eformat::read::ROBFragment& rob : robs) {
+      eformat::helper::SourceIdentifier sid(rob.rob_source_id());
+      if (sid.subdetector_id() != eformat::SubDetector::TDAQ_HLT)
+        continue;
+      uint32_t size = rob.fragment_size_word();
+      uint16_t module_id = sid.module_id();
+      resultSizes[module_id] = size;
+      totalSizeWords += size;
+    }
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("HLT result ROB monitoring failed, caught an unexpected std::exception " << ex.what());
+    return;
+  }
+  catch (...) {
+    ATH_MSG_ERROR("HLT result ROB monitoring failed, caught an unexpected exception");
+    return;
+  }
+
+  // Associate result sizes to streams
+  std::unordered_map<std::string, uint32_t> resultSizesByStream;
+  for (const eformat::helper::StreamTag& st : streamTags) {
+    std::string typeName = st.type + "_" + st.name;
+    bool hasHLTSubDet = st.dets.find(eformat::SubDetector::TDAQ_HLT) != st.dets.end();
+    bool includeAll = st.robs.empty() && (st.dets.empty() || hasHLTSubDet);
+    if (includeAll) {
+      resultSizesByStream[typeName] = totalSizeWords;
+      continue;
+    }
+    uint32_t size = 0;
+    for (uint32_t robid : st.robs) {
+      eformat::helper::SourceIdentifier sid(robid);
+      if (sid.subdetector_id() != eformat::SubDetector::TDAQ_HLT)
+        continue;
+      if (resultSizes.find(sid.module_id()) == resultSizes.end()) {
+        ATH_MSG_WARNING("Stream tag " << typeName << " declares " << sid.human()
+                        << " in ROB list, but the ROBFragment is missing");
+        continue;
+      }
+      size += resultSizes[sid.module_id()];
+    }
+    resultSizesByStream[typeName] = size;
+  }
+
+  // Fill stream tag and result size histograms
+  for (const auto& [typeName, size] : resultSizesByStream) {
+    m_histStreamTags->Fill(typeName.data(), 1.0);
+    m_histResultSizeByStream->Fill(typeName.data(), size*wordsToKiloBytes, 1.0);
+    for (const auto& [typeName2, size2] : resultSizesByStream) {
+      m_histStreamTagsCorr->Fill(typeName.data(), typeName2.data(), 1.0);
+    }
+  }
+  for (const auto& [moduleId, size] : resultSizes) {
+    m_histResultSizeByModule->Fill(static_cast<float>(moduleId), size*wordsToKiloBytes);
+  }
+  m_histResultSizeTotal->Fill(totalSizeWords*wordsToKiloBytes);
+  m_histResultSizeFullEvFrag->Fill(rawEvent.fragment_size_word()*wordsToKiloBytes);
+  ATH_MSG_DEBUG("Total size of HLT ROBs is " << totalSizeWords*wordsToKiloBytes
+                << " kB and FullEventFragment size is " << rawEvent.fragment_size_word()*wordsToKiloBytes << " kB");
 }
 
 // =============================================================================
@@ -243,4 +363,54 @@ void TrigByteStreamCnvSvc::printRawEvent() {
   }
 
   ATH_MSG_DEBUG(ss.str());
+}
+
+// =============================================================================
+void TrigByteStreamCnvSvc::bookHistograms() {
+  const std::string path = "/EXPERT/HLTFramework/" + name() + "/";
+
+  // Function to register histogram in THistSvc (moves the ownership to THistSvc)
+  auto regHist = [&path, this](TH1* hist){
+    if (m_THistSvc->regHist(path + hist->GetName(), hist).isFailure())
+      ATH_MSG_WARNING("Cannot register monitoring histogram " << hist->GetName());
+  };
+
+  m_histPscErrorCode = new TH1I(
+    "PscErrorCode", "PSC error codes;;Events", 1, 0, 1);
+  m_histPscErrorCode->SetCanExtend(TH1::kXaxis);
+  regHist(m_histPscErrorCode);
+
+  m_histStreamTags = new TH1F(
+    "StreamTags", "Stream Tags produced by HLT;;Events", 1, 0, 1);
+  m_histStreamTags->SetCanExtend(TH1::kXaxis);
+  regHist(m_histStreamTags);
+
+  m_histStreamTagsCorr = new TH2F(
+    "StreamTagsCorr", "Stream Tags (produced by HLT) correlation", 1, 0, 1, 1, 0, 1);
+  m_histStreamTagsCorr->SetCanExtend(TH1::kAllAxes);
+  regHist(m_histStreamTagsCorr);
+
+  m_histResultSizeByModule = new TH2F(
+    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 1, 0, 1, 100, 0, 1000);
+  m_histResultSizeByModule->SetCanExtend(TH1::kXaxis);
+  regHist(m_histResultSizeByModule);
+
+  m_histResultSizeByStream = new TH2F(
+    "ResultSizeByStream", "HLT result size by stream;;Size [kB]", 1, 0, 1, 100, 0, 1000);
+  m_histResultSizeByStream->SetCanExtend(TH1::kXaxis);
+  regHist(m_histResultSizeByStream);
+
+  m_histResultSizeTotal = new TH1F(
+    "ResultSizeTotal", "HLT result total size (sum of all modules);Size [kB];Events", 100, 0, 1000);
+  m_histResultSizeTotal->SetCanExtend(TH1::kXaxis);
+  regHist(m_histResultSizeTotal);
+
+  m_histResultSizeFullEvFrag = new TH1F(
+    "ResultSizeFullEvFrag", "HLT output FullEventFragment size;Size [kB];Events", 100, 0, 1000);
+  m_histResultSizeFullEvFrag->SetCanExtend(TH1::kXaxis);
+  regHist(m_histResultSizeFullEvFrag);
+
+  m_histEventDoneTime = new TH1F(
+    "TIME_EventDoneCall", "Time of DataCollector::eventDone calls;Time [us];Events", 1000, 0, 1000);
+  regHist(m_histEventDoneTime);
 }

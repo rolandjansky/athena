@@ -355,7 +355,6 @@ else:
 #StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
 StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
 
-StreamEVGEN.ForceRead = True
 StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
 StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 ## Used for pile-up (remove dynamic variables except flavour labels)

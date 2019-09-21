@@ -14,7 +14,6 @@
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_BeamGas.h"
 
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include <iomanip>
 #include <ostream>
@@ -53,18 +52,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_BeamGas::initialize()
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
 
-  // Get tool for track-prd association
-  //
-  if ( m_useassoTool ) {
-    if ( m_assoTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool "<< m_assoTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_assoTool);
-    }
-  } else {
-    m_assoTool.disable();
-  }
+  // PRD-to-track association (optional)
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
   // Build framework
   //
@@ -120,6 +109,17 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
 
   float irstep = 1./m_r_rstep;
   
+
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   // Get pixels space points containers from store gate 
   //
   if (m_pixel) {
@@ -131,7 +131,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
         for (const Trk::SpacePoint* sp: *spc) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (m_useassoTool &&  isUsed(sp)) continue;
+	  if (prd_to_track_map_cptr &&  isUsed(sp,*prd_to_track_map_cptr)) continue;
 
 	  int ir = static_cast<int>(r*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
@@ -155,7 +155,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
         for (const Trk::SpacePoint* sp: *spc) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (m_useassoTool && isUsed(sp)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
 	  int ir = static_cast<int>(r*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
@@ -178,7 +178,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent(EventData& data, int) const
 
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (m_useassoTool && isUsed(sp)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 
 	  int ir = static_cast<int>(r*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
@@ -221,6 +221,16 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 
   float irstep = 1./m_r_rstep;
 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   // Get pixels space points containers from store gate 
   //
   if (m_pixel && vPixel.size()) {
@@ -237,7 +247,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
         for (const Trk::SpacePoint* sp: **w) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (m_useassoTool && isUsed(sp)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp, *prd_to_track_map_cptr)) continue;
 	  int ir = static_cast<int>(r*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 	  data.r_Sorted[ir].push_back(sps);
@@ -265,7 +275,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
         for (const Trk::SpacePoint* sp: **w) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
-	  if (m_useassoTool && isUsed(sp)) continue;
+	  if (prd_to_track_map_cptr && isUsed(sp,*prd_to_track_map_cptr)) continue;
 	  int ir = static_cast<int>(r*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
 	  data.r_Sorted[ir].push_back(sps);
@@ -1038,16 +1048,6 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
 // Test is space point used
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSpacePointsSeedMaker_BeamGas::isUsed(const Trk::SpacePoint* sp) const
-{
-  const Trk::PrepRawData* d = sp->clusterList().first;
-  if (!d || !m_assoTool->isUsed(*d)) return false;
-
-  d = sp->clusterList().second;
-  if (!d || m_assoTool->isUsed(*d)) return true;
-
-  return false;
-}
 
 ///////////////////////////////////////////////////////////////////
 // New 3 space points seeds from one space points

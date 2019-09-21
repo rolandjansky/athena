@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes:
@@ -10,7 +10,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 // Athena/Gaudi includes:
-#include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"

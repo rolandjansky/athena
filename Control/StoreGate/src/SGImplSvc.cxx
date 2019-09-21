@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -24,7 +24,6 @@
 //#include "CxxUtils/PageAccessControl.h"
 #include "GaudiKernel/IHistorySvc.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IOpaqueAddress.h"
@@ -1945,6 +1944,12 @@ bool SGImplSvc::associateAux_impl (SG::AuxVectorBase* ptr,
                                    const std::string& key,
                                    CLID auxclid) const
 {
+  // If we already have the aux store (as should usually be the case), return
+  // without taking out the SG lock.  Otherwise, we can deadlock
+  // if another thread is also trying to dereference a link to the aux store.
+  // (Should _not_ be holding the SG lock when dereferencing the link!)
+  if (ptr->hasStore()) return true;
+
   lock_t lock (m_mutex);
   SG_MSG_VERBOSE("called associateAux_impl for key " + key);
   // no Aux store set yet

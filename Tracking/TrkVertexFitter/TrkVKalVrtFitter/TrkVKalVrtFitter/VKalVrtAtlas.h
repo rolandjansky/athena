@@ -41,9 +41,7 @@ class TrkVKalVrtFitter;
     
        MagField::IMagFieldSvc*  m_VKalAthenaField;
        double m_FIXED_ATLAS_FIELD=1.997;
-       const double m_mm=1.;
        double m_magFrameX, m_magFrameY, m_magFrameZ ;
-       Amg::Vector3D m_Point;
 
    };
 

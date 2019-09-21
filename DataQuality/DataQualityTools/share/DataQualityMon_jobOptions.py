@@ -64,16 +64,19 @@ if jobproperties.Beam.beamType()=='cosmics':
 if DQMonFlags.monManEnvironment != 'tier0ESD':
      # Import Det Synch tool
     if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0') and globalflags.DataSource.get_Value() != 'geant4':
-        from DataQualityTools.DataQualityToolsConf import  DQTDetSynchMonTool
-        DQTDetSynchMon = DQTDetSynchMonTool(name            = 'DQTDetSynchMon',
-                                            histoPathBase   = "/GLOBAL/DQTSynch",
-                                            doRunCosmics            = isCosmics,
-                                            doRunBeam               = isBeam,
-                                            doOfflineHists          = isOffline,
-                                            doOnlineHists           = isOnline
-                                            );
+        from DataQualityTools.DQTDetSynchMonAlg import DQTDetSynchMonAlgConfigOld
+        topSequence += DQTDetSynchMonAlgConfigOld(DQMonFlags)
+        #from DataQualityTools.DataQualityToolsConf import  DQTDetSynchMonTool
+        #DQTDetSynchMon = DQTDetSynchMonTool(name            = 'DQTDetSynchMon',
+        #                                    histoPathBase   = "/GLOBAL/DQTSynch",
+        #doRunCosmics            = isCosmics,
+        #                                    doRunBeam               = isBeam,
+        #                                    doOfflineHists          = isOffline,
+        #                                    doOnlineHists           = isOnline
+        #                                    );
 
-        ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDetSynchMon ];
+        #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDetSynchMon ];
+        
 
     if rec.doCalo and CALOCLUSTER:
         ## Import CaloCluster Tool

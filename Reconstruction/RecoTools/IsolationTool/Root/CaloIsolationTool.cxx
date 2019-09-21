@@ -477,9 +477,9 @@ namespace xAOD {
                                           derefMap_t& derefMap) const
   {
     /// get it from decoration
-    static SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
-    static SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
-    static SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
+    static const SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
+    static const SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
+    static const SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
     if(Decorated.isAvailable(*tp) && Decorated(*tp)){
       eta = Eta(*tp);
       phi = Phi(*tp);
@@ -714,14 +714,16 @@ namespace xAOD {
         
     // Define a new Calo Cell list corresponding to EM Calo
     std::vector<CaloCell_ID::SUBCALO> Vec_EMCaloEnums;
-    for (unsigned int n=0; n < m_EMCaloNums.size(); ++n)
+    for (unsigned int n=0; n < m_EMCaloNums.size(); ++n) {
       Vec_EMCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_EMCaloNums[n] ));
-    CaloCellList* EMccl = new CaloCellList(container, Vec_EMCaloEnums);
+    }
+    CaloCellList EMccl(container, Vec_EMCaloEnums);
    
     std::vector<CaloCell_ID::SUBCALO> Vec_HadCaloEnums;
-    for (unsigned int n=0; n < m_HadCaloNums.size(); ++n) 
+    for (unsigned int n=0; n < m_HadCaloNums.size(); ++n) { 
       Vec_HadCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_HadCaloNums[n] ));
-    CaloCellList* HADccl = new CaloCellList(container, Vec_HadCaloEnums);
+    }
+    CaloCellList HADccl(container, Vec_HadCaloEnums);
     
     // Let's determine some values based on the input specs
     // Search for largest radius
@@ -729,54 +731,48 @@ namespace xAOD {
     for (unsigned int n=0; n< coneSizes.size(); n++)
       if (coneSizes[n] > Rmax) Rmax = coneSizes[n];
         
-    if (EMccl) {
-      // get the cells for the first one; by convention, it must be bigger than all the other cones.
-      EMccl->select(eta,phi,Rmax);
+    // get the cells for the first one; by convention, it must be bigger than all the other cones.
+    EMccl.select(eta,phi,Rmax);
 
-      for (CaloCellList::list_iterator it = EMccl->begin(); it != EMccl->end(); ++it) {
-	double etacel=(*it)->eta();
-	double phicel=(*it)->phi();
+    for (auto it: EMccl) {
+      double etacel=it->eta();
+      double phicel=it->phi();
         
-	double deleta = eta-etacel;
-        float delphi = Phi_mpi_pi(phi-phicel);
-	double drcel2 = (deleta*deleta) + (delphi*delphi);
+      double deleta = eta-etacel;
+      float delphi = Phi_mpi_pi(phi-phicel);
+      double drcel2 = (deleta*deleta) + (delphi*delphi);
         
-	for (unsigned int i = 0; i < coneSizes.size(); i++) {
-	  if (drcel2 < coneSizesSquared[i])
-	    result.etcones[i] += (*it)->et();
-	}
+      for (unsigned int i = 0; i < coneSizes.size(); i++) {
+	if (drcel2 < coneSizesSquared[i])
+	  result.etcones[i] += it->et();
       }
-    }
-    
-    if (HADccl) {
-      // get the cells for the first one; by convention, it must be bigger than all the other cones.
-      HADccl->select(eta, phi, Rmax);
+    }//end loop over cell-list
+  
+       
+    // get the cells for the first one; by convention, it must be bigger than all the other cones.
+    HADccl.select(eta, phi, Rmax);
 
-      for (CaloCellList::list_iterator it = HADccl->begin(); it != HADccl->end(); ++it) {
-	// Optionally remove TileGap cells
-	if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*it)->caloDDE()->getSampling())
-	{
-	  ATH_MSG_DEBUG("Excluding cell with Et = " << (*it)->et());
-	  continue;
-	}
+    for (auto it: HADccl) {
+      // Optionally remove TileGap cells
+      if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == it->caloDDE()->getSampling()) {
+	ATH_MSG_DEBUG("Excluding cell with Et = " << it->et());
+	continue;
+      }
 	
-	// if no TileGap cells excluded, log energy of all cells
-	double etacel = (*it)->eta();
-	double phicel = (*it)->phi();
+      // if no TileGap cells excluded, log energy of all cells
+      double etacel = it->eta();
+      double phicel = it->phi();
         
-	double deleta = eta-etacel;
-        float delphi = Phi_mpi_pi(phi-phicel);
-	double drcel2 = (deleta*deleta) + (delphi*delphi);
+      double deleta = eta-etacel;
+      float delphi = Phi_mpi_pi(phi-phicel);
+      double drcel2 = (deleta*deleta) + (delphi*delphi);
 
-	for (unsigned int i = 0; i < coneSizes.size(); i++) {
-	  if (drcel2 < coneSizesSquared[i]) 
-	    result.etcones[i] += (*it)->et();
-	}
+      for (unsigned int i = 0; i < coneSizes.size(); i++) {
+	if (drcel2 < coneSizesSquared[i]) 
+	  result.etcones[i] += it->et();
       }
-    }
-
-    delete EMccl;
-    delete HADccl;
+    }//end loop over cell-list
+    
     return true;
   }
 #endif
@@ -1398,12 +1394,11 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 #endif // XAOD_ANALYSIS
-
   // FIXME! This should be updated to use the standard caching of extrapolation to calo
   void CaloIsolationTool::decorateTrackCaloPosition(const IParticle& p, float eta, float phi) const{
-    static SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
-    static SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
-    static SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
+    static const SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
+    static const SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
+    static const SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
 
     if(!dec_Decorated.isAvailable(p) || dec_Decorated.isAvailableWritable(p)){
       dec_Decorated(p) = 1;

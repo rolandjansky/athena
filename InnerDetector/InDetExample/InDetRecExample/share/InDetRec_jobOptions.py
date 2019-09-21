@@ -306,20 +306,24 @@ else:
         #                                                 TrackCollectionTruthKeys)
 
 
-        from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-        InDetTRTonly_PRD_AssociationPhase = InDet__InDetTrackPRD_Association(name            = 'InDetTRTonly_PRD_AssociationPhase',
-                                                                        AssociationTool = InDetPrdAssociationTool,
-                                                                        TracksName      = copy.copy(TrackCollectionKeys)) 
+        # @TODO seems unused ??
+        import InDetRecExample.TrackingCommon   as TrackingCommon
+        InDetTRTonly_PRD_AssociationPhase = TrackingCommon.getInDetTrackPRD_Association(prefix     = 'InDetTRTonly_',
+                                                                                        suffix     = "Phase",
+                                                                                        TracksName = copy.copy(TrackCollectionKeys))
+
+        # asso_tool_phase = TrackingCommon.getConstPRD_AssociationTool(prefix = 'InDetTRTonly_',suffix     = "Phase")
+
         topSequence += InDetTRTonly_PRD_AssociationPhase
         if (InDetFlags.doPrintConfigurables()):
           print InDetTRTonly_PRD_AssociationPhase
 
-
+        from AthenaCommon import CfgGetter
         from TRT_SegmentsToTrack.TRT_SegmentsToTrackConf import InDet__TRT_SegmentsToTrack
         InDetTrkSegmenttoTrkPhase = InDet__TRT_SegmentsToTrack(name                      = "InDetTRT_SegmentsToTrack_BarrelPhase",
                                                         InputSegmentsCollection   = InDetKeys.TRT_Segments_Phase(),
                                                         OutputTrackCollection     = InDetKeys.TRT_Tracks_Phase(),
-                                                        TrackFitter               = InDetTrackFitter,
+                                                        TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         MinNHit                   = InDetNewTrackingCuts.minTRTonly(),
                                                         CombineTracks             = False,
                                                         OutputCombiCollection     = "",
@@ -765,9 +769,10 @@ else:
         if DetFlags.haveRIO.pixel_on():
           PixelClusterOnTrackTool = PixelClusterOnTrackToolDBM
       if InDetFlags.loadFitter():
-        InDetTrackFitter = InDetTrackFitterDBM
-      if InDetFlags.doPattern():
-        InDetSiComTrackFinder = InDetSiComTrackFinderDBM
+        from AthenaCommon import CfgGetter
+        InDetTrackFitter = CfgGetter.getPublicTool('InDetTrackFitterDBM')
+      # if InDetFlags.doPattern():
+      #  InDetSiComTrackFinder = InDetSiComTrackFinderDBM
 
 #      InDetSiTrackerSpacePointFinder = InDetSiTrackerSpacePointFinderDBM
 
@@ -790,9 +795,18 @@ else:
     # --- Ambi solve the extended (Si + TRT) and TRT standalone tracks if both run
     if InDetFlags.doCosmics() and InDetFlags.doNewTracking() and len(InputCombinedInDetTracks) > 1:
       InputCosmicsCombinedAmbiSolver = list(InputCombinedInDetTracks)
+      
+      from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+      InDetAmbiguityScore_combinedCosmics = Trk__TrkAmbiguityScore(name                    = 'InDetCombinedCosmicsAmbiguityScore',
+                                                                   TrackInput              = InputCosmicsCombinedAmbiSolver,
+                                                                   TrackOutput             = 'ScoredMapCosmics',
+                                                                   AmbiguityScoreProcessor = '' )
+                                                                  
+      topSequence += InDetAmbiguityScore_combinedCosmics
+
       from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
       InDetAmbiguitySolver_combinedCosmics = Trk__TrkAmbiguitySolver(name               = 'InDetCombinedCosmicsAmbiSolver',
-                                                                     TrackInput         = InputCosmicsCombinedAmbiSolver,
+                                                                     TrackInput         = 'ScoredMapCosmics',
                                                                      TrackOutput        = "CombinedCosmicTracks",
                                                                      AmbiguityProcessor = InDetAmbiguityProcessorCosmics)
       topSequence += InDetAmbiguitySolver_combinedCosmics
@@ -840,9 +854,11 @@ else:
         ToolSvc += InDetPRD_Provider
 
         # --- the truth track builder 
+        from AthenaCommon import CfgGetter
         from TrkTruthTrackTools.TrkTruthTrackToolsConf import Trk__TruthTrackBuilder
+        # @TODO should a track fitter be used which does not require a split cluster map ?
         InDetTruthTrackBuilder = Trk__TruthTrackBuilder(name                = 'InDetTruthTrackBuilder',
-                                                        TrackFitter         = InDetTrackFitter,
+                                                        TrackFitter         = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         ExtrapolationTool   = InDetExtrapolator,
                                                         RotCreatorTool      = InDetRotCreator,
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
@@ -898,12 +914,13 @@ else:
           PRD_TruthTrajectorySelector  = [ InDetTruthTrajectorySelector ]          
 
         # --- the truth track creation algorithm
+        from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
         from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
         InDetTruthTrackCreation = Trk__TruthTrackCreation(name = 'InDetTruthTrackCreation',
                                                           PRD_TruthTrajectoryBuilder = InDetPRD_TruthTrajectoryBuilder,
                                                           TruthTrackBuilder          = InDetTruthTrackBuilder,
                                                           OutputTrackCollection      = InDetKeys.PseudoTracks(),
-                                                          AssoTool                   = InDetPrdAssociationTool,
+                                                          AssociationTool            = getInDetPRDtoTrackMapToolGangedPixels(),
                                                           TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
                                                           PRD_TruthTrajectorySelectors  = PRD_TruthTrajectorySelector )
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
@@ -968,10 +985,11 @@ else:
         TrackCollectionTruthKeys += [ InDetKeys.DBMTracksTruth() ]
       else:
         from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
+        from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
-                                                              AssoTool                = InDetPrdAssociationTool,
+                                                              AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
                                                               SummaryTool             = InDetTrackSummaryToolSharedHits)
@@ -1013,11 +1031,12 @@ else:
        if InDetFlags.doTRTExtension() :
          DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
        else :
-         DummyCollection += [ InDetKeys.ResolvedDisappearingTracks()]
+         DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
+       from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
-                                                                 AssoTool                = InDetPrdAssociationTool,
+                                                                 AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                                  UpdateSharedHitsOnly    = False,
                                                                  UpdateAdditionalInfo    = True,
                                                                  SummaryTool             = InDetTrackSummaryToolSharedHits)
@@ -1069,17 +1088,21 @@ else:
     #
     # ---------------------------------------------------------------- 
     if InDetFlags.doRefit():
+      from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
       from TrkRefitAlg.TrkRefitAlgConf import Trk__ReFitTrack
+      from AthenaCommon import CfgGetter
+      # @TODO for the track refit can a track fitter be used which requires a split cluster map ?
+      #       Should the scoring+split cluster map building be  executed ?
       InDetReFitTrack = Trk__ReFitTrack (name           = "InDetRefitTrack",
-                                         FitterTool     = InDetTrackFitter,
-                                         FitterToolTRT  = InDetTrackFitterTRT,
+                                         FitterTool     = CfgGetter.getPublicTool('InDetTrackFitter'),
+                                         FitterToolTRT  = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
                                          SummaryTool    = InDetTrackSummaryToolSharedHits,
-                                         AssoTool       = InDetPrdAssociationTool,
+                                         AssociationTool= getInDetPRDtoTrackMapToolGangedPixels(),
                                          TrackName      = InputTrackCollection,
                                          NewTrackName   = InDetKeys.RefittedTracks(),
                                          fitRIO_OnTrack = InDetFlags.refitROT(),
                                          useParticleHypothesisFromTrack = True)
-        
+
       if InDetFlags.materialInteractions():
         InDetReFitTrack.matEffects = InDetFlags.materialInteractionsType()
       else:

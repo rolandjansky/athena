@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -35,8 +35,6 @@
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 //#include "TrigTimeAlgs/TrigTimerSvc.h"
-
-class StoreGateSvc;
 
 
 class TrigT2HistoPrmVtxCombo: public HLT::ComboAlgo {

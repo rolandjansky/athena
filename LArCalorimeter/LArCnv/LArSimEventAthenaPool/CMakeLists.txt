@@ -23,7 +23,6 @@ atlas_add_poolcnv_library( LArSimEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib GaudiKernel LArSimEventTPCnv LArSimEvent )
 
 # Install files from the package:
-atlas_install_headers( LArSimEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

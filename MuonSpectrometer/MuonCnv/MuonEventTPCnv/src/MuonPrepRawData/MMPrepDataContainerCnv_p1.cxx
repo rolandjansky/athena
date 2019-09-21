@@ -9,7 +9,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataContainerCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -71,25 +70,25 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
           log << MSG::FATAL << "Could not initialize MMPrepDataContainerCnv_p1 " << endmsg;
       } 
   }
-    // The transient model has a container holding collections and the
-    // collections hold channels.
-    //
-    // The persistent model flattens this so that the persistent
-    // container has two vectors:
-    //   1) all collections, and
-    //   2) all PRDs
-    //
-    // The persistent collections, then only maintain indexes into the
-    // container's vector of all channels. 
-    //
-    // So here we loop over all collection and add their channels
-    // to the container's vector, saving the indexes in the
-    // collection. 
+  // The transient model has a container holding collections and the
+  // collections hold channels.
+  //
+  // The persistent model flattens this so that the persistent
+  // container has two vectors:
+  //   1) all collections, and
+  //   2) all PRDs
+  //
+  // The persistent collections, then only maintain indexes into the
+  // container's vector of all channels. 
+  //
+  // So here we loop over all collection and add their channels
+  // to the container's vector, saving the indexes in the
+  // collection. 
+  
 
-  // std::cout<<"Starting transToPers"<<std::endl;
   typedef Muon::MMPrepDataContainer TRANS;
-    //typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
+  
   MMPrepDataCnv_p1  chanCnv;
   TRANS::const_iterator it_Coll     = transCont->begin();
   TRANS::const_iterator it_CollEnd  = transCont->end();
@@ -117,7 +116,7 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
     idHashLast += pcollection.m_hashId;
     pcollection.m_id = collection.identify().get_identifier32().get_compact();
     pcollection.m_size = collection.size();
-//        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifyHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;
+
 
         // Add in channels
     persCont->m_prds.resize(pcollEnd); // FIXME! isn't this potentially a bit slow? Do a resize and a copy for each loop? EJWM.
@@ -125,6 +124,7 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
 
     //unsigned int lastPRDIdHash = 0;
     for (unsigned int i = 0; i < collection.size(); ++i) {
+
       unsigned int pchanIndex=i+pcollBegin;
       const MMPrepData* chan = collection[i]; // channel being converted
       MMPrepData_p1*   pchan = &(persCont->m_prds[pchanIndex]); // persistent version to fill
@@ -136,22 +136,24 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
       /// shift by one bit to the right without loosing information ( the channel starts from the
       /// second bit ). 
       /// But, check that the first but is really not used before doing that ( to be safe in the future )
-
       ///
       /// compute the difference and shift it by one bit in order to remain within the 16-bits 
       unsigned int diff = clusIdCompact - collIdCompact;
 
       if ( (diff & 0x1) != 0 ) {
-	log << MSG::WARNING << "The least significant bit is used: information will be lost in persistifying " << endmsg;
+	log << MSG::WARNING << "The two least significant bits are used: information will be lost in persistifying " << endmsg;
       } 
       diff = diff >> 1;
 
-      if ( diff > 0xffff ) log << MSG::WARNING<<"Diff is greater than max size of diff permitted!!!"<<endmsg;
+      if ( diff > 0xffff ) {
+	log << MSG::WARNING<<"Diff is greater than max size of diff permitted!!!"
+	    << " diff=" << diff << endmsg;
+
+	std::cout << std::hex << clusIdCompact << " " << collIdCompact << std::dec << std::endl;
+      }
 
       persCont->m_prdDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
 
-      // std::cout <<"Trans id:"<<chan->m_clusId<<"\t pers Id:"<<pchan->m_id<<std::endl;
-      
       //check! 
       log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endmsg;
       
@@ -159,25 +161,6 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
         log << MSG::WARNING<<"DE from det manager ("<<m_muonDetMgr->getMMReadoutElement(chan->identify())
             <<") does not match that from PRD ("<<chan->detectorElement()<<")"<<endmsg; 
       
-      // sanity checks - to be removed at some point
-      // if(log.level() <= MSG::DEBUG){
-      //        log << MSG::DEBUG<<i<<":\t clusId: "<<clusIdCompact<<", \t collectionId="<<collIdCompact<<"\t delta="<<persCont->m_prdDeltaId[pchanIndex]<<"\t diff="<<diff<<endmsg;
-      //        Identifier temp(pcollection.m_id + persCont->m_prdDeltaId[pchanIndex]);
-      //        if (temp!=chan->m_clusId ) 
-      //          log << MSG::WARNING << "PRD ids differ! Transient:"<<chan->m_clusId<<", From persistent:"<<temp<<" diff = "<<chan->m_clusId.get_compact()-temp.get_compact()<<endmsg;
-      //        else 
-      //          log << MSG::DEBUG <<" PRD ids match."<<endmsg;
-      //        if (lastPRDIdHash && lastPRDIdHash != chan->collectionHash() )  log << MSG::WARNING << "Collection Identifier hashes differ!"<<endmsg;
-      //        lastPRDIdHash = chan->collectionHash();
-      //        log << MSG::DEBUG<<"Collection hash = "<<lastPRDIdHash<<endmsg;
-      //        if (chan->collectionHash()!= collection.identifyHash() ) log << MSG::WARNING << "Collection's idHash does not match PRD collection hash!"<<endmsg;
-      //        if (chan->m_detEl !=m_muonDetMgr->getMMReadoutElement(chan->identify())) 
-      //          log << MSG::WARNING << "Getting de from identity didn't work!"<<endmsg;
-      //        else 
-      //          log << MSG::DEBUG<<"Getting de from identity did work "<<endmsg;
-      //        if (chan->m_detEl !=m_muonDetMgr->getMMReadoutElement(temp)) log << MSG::WARNING << "Getting de from reconstructed identity didn't work!"<<endmsg;
-      //        log << MSG::DEBUG<<"Finished loop"<<endmsg;
-      //      }
     }
   }
   if (log.level() <= MSG::DEBUG) 
@@ -232,6 +215,7 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
       /// before summing to the collection Id
       /// also need to go from the 32 bits identifier to the 64-bits one
       unsigned int diff = persCont->m_prdDeltaId[pchanIndex] << 1;
+
       Identifier clusId( (pcoll.m_id + diff) );
       
       const MuonGM::MMReadoutElement* detEl =
@@ -242,7 +226,7 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
         continue;
       }
 
-      auto chan = CxxUtils::make_unique<MMPrepData>
+      auto chan = std::make_unique<MMPrepData>
         (chanCnv.createMMPrepData (pchan, clusId, detEl, log));
 
       if ( m_MMId->valid(chan->identify())!=true ) {

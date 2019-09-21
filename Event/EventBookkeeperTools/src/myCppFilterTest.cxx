@@ -47,9 +47,9 @@ StatusCode myCppFilterTest::initialize(){
 StatusCode myCppFilterTest::execute() {
   // Here you do your analysis with the event selection
 
-  cutFlowSvc()->addEvent(m_cut1ID);
-  cutFlowSvc()->addEvent(m_cut2ID);
-  cutFlowSvc()->addEvent(m_filterCutID);
+  cutFlowSvc()->addEvent(m_cut1ID, 1);
+  cutFlowSvc()->addEvent(m_cut2ID, 0.5);
+  cutFlowSvc()->addEvent(m_filterCutID, 2);
 
   return (StatusCode::SUCCESS);
 }

@@ -24,7 +24,6 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
@@ -33,7 +32,7 @@
 
 #include "TrigParticle/TrigL2Bphys.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 #include "BtrigUtils.h"
 
 // additions of xAOD objects

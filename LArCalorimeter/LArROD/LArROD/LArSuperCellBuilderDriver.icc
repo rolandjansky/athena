@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,14 +8,7 @@ StatusCode
 LArSuperCellBuilderDriver::retrieveStoreGate(const T*& object,
 					      const std::string& key)
 {
-  if(!bool(m_storeGateSvc))
-    if(service("StoreGateSvc",m_storeGateSvc).isFailure())
-      {
-        MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "StoreGate service not found" << endmsg;
-	return StatusCode::FAILURE;
-      }
-  if( m_storeGateSvc->retrieve(object, key).isSuccess() )
+  if( evtStore()->retrieve(object, key).isSuccess() )
     return StatusCode::SUCCESS;
   return StatusCode::FAILURE;
 }
@@ -25,14 +18,7 @@ StatusCode
 LArSuperCellBuilderDriver::retrieveDetectorStore(const T*& object,
 						  const std::string& key)
 {
-  if(!bool(m_detStore))
-    if(service("DetectorStore",m_detStore).isFailure())
-      {
-        MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "DetectorStore service not found" << endmsg;
-	return StatusCode::FAILURE;
-      }
-  if( m_detStore->retrieve(object, key).isSuccess() )
+  if( detStore()->retrieve(object, key).isSuccess() )
     return StatusCode::SUCCESS;
   return StatusCode::FAILURE;
 }
@@ -42,14 +28,7 @@ StatusCode
 LArSuperCellBuilderDriver::regHandleDetectorStore(const T& object,
 						  const std::string& key)
 { // retrieving DataHandle<T> 
-  if(!bool(m_detStore))
-    if(service("DetectorStore",m_detStore).isFailure())
-      {
-	MsgStream log(msgSvc(), name());
-	log << MSG::ERROR << "DetectorStore service not found" << endmsg;
-	return StatusCode::FAILURE;
-      }
-  if( m_detStore->regHandle(object, key).isSuccess() )
+  if( detStore()->regHandle(object, key).isSuccess() )
     return StatusCode::SUCCESS;
 
   return StatusCode::FAILURE;

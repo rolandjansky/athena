@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCsmContByteStreamTool.h"
@@ -10,7 +10,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGate.h"
 //#include "StoreGate/tools/ClassID_traits.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "ByteStreamData/RawEvent.h" 
@@ -36,16 +35,9 @@ Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
   
 StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
  
-  StoreGateSvc * detStore;
-  StatusCode status = service("DetectorStore", detStore);
-  if (status.isFailure()) {
-    ATH_MSG_FATAL("DetectorStore service not found !");
-    return StatusCode::FAILURE;
-  } else {}
-  
   // Get the MDT id helper from the detector store
   const MdtIdHelper* mdt_id;
-  status = detStore->retrieve(mdt_id, "MDTIDHELPER");
+  StatusCode status = detStore()->retrieve(mdt_id, "MDTIDHELPER");
   if (status.isFailure()) {
     ATH_MSG_FATAL("Could not get MdtIdHelper !");
     return StatusCode::FAILURE;

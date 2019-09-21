@@ -13,50 +13,100 @@ def TileRawChannelMakerCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
+    kwargs.setdefault('name', 'TileRChMaker')
+    name = kwargs['name']
+
+    kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt')
+
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'TileRawChannelMakerCfg' )
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker
-    tileRawChannelMaker = TileRawChannelMaker("TileRChMaker")
-
     if flags.Tile.doOverflowFit:
-        tileRawChannelMaker.FitOverflow = True
+        kwargs.setdefault('FitOverflow', True)
         from TileRecUtils.TileRawChannelBuilderFitConfig import TileRawChannelBuilderFitOverflowCfg
         tileRawChannelBuilderFitOverflow = acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(flags) )
-        tileRawChannelMaker.TileRawChannelBuilderFitOverflow = tileRawChannelBuilderFitOverflow
+        kwargs.setdefault('TileRawChannelBuilderFitOverflow', tileRawChannelBuilderFitOverflow)
     else:
-        tileRawChannelMaker.FitOverflow = False
+        kwargs.setdefault('FitOverflow', False)
+
+    tileRawChannelBuilder = []
 
     if flags.Tile.doFit:
         from TileRecUtils.TileRawChannelBuilderFitConfig import TileRawChannelBuilderFitFilterCfg
         tileRawChannelBuilderFitFilter = acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(flags) )
-        tileRawChannelMaker.TileRawChannelBuilder += [tileRawChannelBuilderFitFilter]
+        tileRawChannelBuilder += [tileRawChannelBuilderFitFilter]
         mlog.info(" adding now TileRawChannelBuilderFitFilter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderFitFilter.name(), tileRawChannelMaker.name())
+                  tileRawChannelBuilderFitFilter.name(), name)
 
     if flags.Tile.doOF1:
         from TileRecUtils.TileRawChannelBuilderOptConfig import TileRawChannelBuilderOF1Cfg
         tileRawChannelBuilderOF1 = acc.popToolsAndMerge( TileRawChannelBuilderOF1Cfg(flags) )
-        tileRawChannelMaker.TileRawChannelBuilder += [tileRawChannelBuilderOF1]
+        tileRawChannelBuilder += [tileRawChannelBuilderOF1]
         mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderOF1.name(), tileRawChannelMaker.name())
+                  tileRawChannelBuilderOF1.name(), name)
 
     if flags.Tile.doOpt2:
         from TileRecUtils.TileRawChannelBuilderOptConfig import TileRawChannelBuilderOpt2Cfg
         tileRawChannelBuilderOpt2 = acc.popToolsAndMerge( TileRawChannelBuilderOpt2Cfg(flags) )
-        tileRawChannelMaker.TileRawChannelBuilder += [tileRawChannelBuilderOpt2]
+        tileRawChannelBuilder += [tileRawChannelBuilderOpt2]
         mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderOpt2.name(), tileRawChannelMaker.name())
+                  tileRawChannelBuilderOpt2.name(), name)
 
     if flags.Tile.doOptATLAS:
         from TileRecUtils.TileRawChannelBuilderOptConfig import TileRawChannelBuilderOptATLASCfg
         tileRawChannelBuilderOptATLAS = acc.popToolsAndMerge( TileRawChannelBuilderOptATLASCfg(flags) )
-        tileRawChannelMaker.TileRawChannelBuilder += [tileRawChannelBuilderOptATLAS]
+        tileRawChannelBuilder += [tileRawChannelBuilderOptATLAS]
         mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name %s to the algorithm: %s",
-                  tileRawChannelBuilderOptATLAS.name(), tileRawChannelMaker.name())
+                  tileRawChannelBuilderOptATLAS.name(), name)
+
+    kwargs.setdefault('TileRawChannelBuilder', tileRawChannelBuilder)
+
+    from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker
+    acc.addEventAlgo(TileRawChannelMaker(**kwargs), primary = True)
+
+    return acc
 
 
-    acc.addEventAlgo(tileRawChannelMaker, primary = True)
+def TileRawChannelMakerDigiHSTruthCfg(flags, **kwargs):
+    """Return component accumulator with configured Tile raw channel maker algorithm for HS
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    """
+
+    kwargs.setdefault('name', 'TileRChMaker_DigiHSTruth')
+    kwargs.setdefault('TileDigitsContainer', 'TileDigitsCnt_DigiHSTruth')
+
+    acc = TileRawChannelMakerCfg(flags, **kwargs)
+    rawChannelMaker = acc.getPrimary()
+
+    rawChannelbuilders = rawChannelMaker.TileRawChannelBuilder
+
+    for rawChannelBuilder in rawChannelbuilders:
+        rawChannelContainer = rawChannelBuilder.TileRawChannelContainer
+        rawChannelBuilder.TileRawChannelContainer = rawChannelContainer + '_DigiHSTruth'
+
+    return acc
+
+
+def TileRawChannelOutputCfg(flags, tileRawChannelMaker, streamName):
+    """Return component accumulator with configured Output stream for Tile raw channel maker algorithm
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+        tileRawChannelMaker -- Tile raw channel maker algorithm
+        streamName -- name of output stream.
+    """
+
+    outputItemList = []
+    rawChannelbuilders = tileRawChannelMaker.TileRawChannelBuilder
+
+    for rawChannelBuilder in rawChannelbuilders:
+        rawChannelContainer = rawChannelBuilder.TileRawChannelContainer
+        outputItemList += ['TileRawChannelContainer#' + rawChannelContainer]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc = OutputStreamCfg(flags, streamName, ItemList = outputItemList)
 
     return acc
 
@@ -70,20 +120,21 @@ def TileRawChannelMakerOutputCfg(flags, streamName = 'ESD', **kwargs):
     """
 
     acc = TileRawChannelMakerCfg(flags, **kwargs)
-    rawChannelMaker = acc.getPrimary()
+    acc.merge( TileRawChannelOutputCfg(flags, acc.getPrimary(), streamName) )
 
-    outputItemList = []
-    outputExtraInputs = []
-    rawChannelbuilders = rawChannelMaker.TileRawChannelBuilder
+    return acc
 
-    for rawChannelBuilder in rawChannelbuilders:
-        rawChannelContainer = rawChannelBuilder.TileRawChannelContainer
-        outputItemList += ['TileRawChannelContainer#' + rawChannelContainer]
-        outputExtraInputs += [('TileRawChannelContainer', 'StoreGateSvc+' + rawChannelContainer)]
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge( OutputStreamCfg(flags, streamName, ItemList = outputItemList) )
-    acc.getEventAlgo('OutputStream' + streamName).ExtraInputs = outputExtraInputs
+def TileRawChannelMakerDigiHSTruthOutputCfg(flags, streamName = 'ESD', **kwargs):
+    """Return component accumulator with configured Tile raw channel maker algorithm and Output stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+        streamName -- name of output stream. Defaults to ESD.
+    """
+
+    acc = TileRawChannelMakerDigiHSTruthCfg(flags, **kwargs)
+    acc.merge( TileRawChannelOutputCfg(flags, acc.getPrimary(), streamName) )
 
     return acc
 

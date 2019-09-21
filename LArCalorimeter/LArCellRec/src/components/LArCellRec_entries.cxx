@@ -14,7 +14,7 @@
 #include "../LArNoisyROTool.h"
 #include "../LArCollisionTimeAlg.h"
 #include "../LArTimeVetoAlg.h"
-#include "../LArCellHVCorrAlg.h"
+#include "../LArCellContHVCorrTool.h"
 #include "../LArHVFraction.h"
 
 DECLARE_COMPONENT( LArNoisyROAlg )
@@ -33,5 +33,5 @@ DECLARE_COMPONENT( LArCellDeadOTXCorr )
 DECLARE_COMPONENT( LArNoisyROTool )
 DECLARE_COMPONENT( LArCollisionTimeAlg )
 DECLARE_COMPONENT( LArTimeVetoAlg )
-DECLARE_COMPONENT( LArCellHVCorrAlg )
+DECLARE_COMPONENT( LArCellContHVCorrTool )
 DECLARE_COMPONENT( LArHVFraction )

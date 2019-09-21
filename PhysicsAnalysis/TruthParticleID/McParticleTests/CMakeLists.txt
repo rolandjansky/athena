@@ -33,7 +33,6 @@ atlas_add_component( McParticleTests
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests EventKernel NavFourMom GaudiKernel GeneratorObjects McParticleEvent McParticleKernel McParticleUtils )
 
 # Install files from the package:
-atlas_install_headers( McParticleTests )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.ref )

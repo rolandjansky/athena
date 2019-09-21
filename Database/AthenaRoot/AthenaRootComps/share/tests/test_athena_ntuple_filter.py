@@ -39,9 +39,7 @@ svcMgr += CfgMgr.DecisionSvc()
 import AthenaRootComps.WriteAthenaRoot as arcw
 out = arcw.createNtupleOutputStream("StreamD3PD", "d3pd.root", "egamma",
                                     asAlg=True)
-out.ForceRead = True
 # force reading and accessing all input keys
-out.ForceRead = True
 # copy the whole input tree layout
 out.ItemList = ["*"]
 # honor the event selection

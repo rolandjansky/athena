@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // WriteThinnedData.cxx 
@@ -16,8 +16,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"

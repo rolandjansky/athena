@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -82,9 +82,6 @@ namespace InDet{
     bool m_selectSCTs;
     bool m_overlap;
     
-    //    int m_numberOfEvents;
-    //    const InDetDD::PixelDetectorManager *m_managerPixel; 
-    //    const PixelID* m_idHelperPixel;
     IdentifierHash m_maxKey;
     
     const SCT_ClusterContainer *m_sctClusterContainer{};

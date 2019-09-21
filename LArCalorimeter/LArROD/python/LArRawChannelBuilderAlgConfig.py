@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 from LArROD.LArRODConf import LArRawChannelBuilderAlg
-from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArRecUtilsConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 
 def LArRawChannelBuilderAlgCfg(configFlags):
@@ -12,7 +12,7 @@ def LArRawChannelBuilderAlgCfg(configFlags):
         #defaults are fine .. 
         acc.addEventAlgo(LArRawChannelBuilderAlg())
     else:
-        acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_fromDigits"))
+        acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_FromDigits"))
     return acc
 
 
@@ -37,13 +37,7 @@ if __name__=="__main__":
     acc.merge(LArRawDataReadingCfg(ConfigFlags))
     acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
-    #from LArEventTest.LArEventTestConf import DumpLArRawChannels
-    #acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",),sequenceName="AthAlgSeq")
+    from LArEventTest.LArEventTestConf import DumpLArRawChannels
+    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_FromDigits",),sequenceName="AthAlgSeq")
 
-    #f=open("LArRawChannelBuilderAlg.pkl","w")
-    #acc.store(f)
-    #f.close() 
-    from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
-    acc.addService(MessageSvc(OutputLevel=DEBUG))
-
-    acc.run(10)
+    acc.run(3)

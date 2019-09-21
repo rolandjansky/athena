@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
@@ -20,7 +20,6 @@ namespace LVL1{
 
   L1CaloTTIdTools::L1CaloTTIdTools( const std::string& name) : 
     asg::AsgTool( name ),
-    m_detStore(0),
     m_l1ttonlineHelper(0),
     m_l1ttofflineHelper(0),
     m_bInitialized(false)
@@ -33,14 +32,8 @@ namespace LVL1{
 
       StatusCode sc ;
 
-      sc = service( "DetectorStore", m_detStore );
-      if(sc.isFailure()){
-        ATH_MSG_ERROR("Unable to locate DetectorStore");
-        return sc;
-      }
-
       const TTOnlineID* l1ttonline_id;
-      sc = m_detStore->retrieve(l1ttonline_id, "TTOnlineID");
+      sc = detStore()->retrieve(l1ttonline_id, "TTOnlineID");
       if(sc.isFailure()){
         ATH_MSG_ERROR("Could not get TTOnlineID helper !");
         return sc;
@@ -50,7 +43,7 @@ namespace LVL1{
       }
 
       const CaloLVL1_ID* l1ttoffline_id;
-      sc = m_detStore->retrieve(l1ttoffline_id, "CaloLVL1_ID");
+      sc = detStore()->retrieve(l1ttoffline_id, "CaloLVL1_ID");
       if(sc.isFailure()) {
         ATH_MSG_DEBUG("Could not get CaloLVL1_ID helper !");
         return sc;

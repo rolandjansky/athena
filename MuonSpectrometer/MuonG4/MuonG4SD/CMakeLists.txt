@@ -7,7 +7,6 @@ atlas_subdir( MuonG4SD )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
@@ -26,7 +25,7 @@ atlas_add_component( MuonG4SD
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CxxUtils StoreGateLib SGtests GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} StoreGateLib SGtests GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

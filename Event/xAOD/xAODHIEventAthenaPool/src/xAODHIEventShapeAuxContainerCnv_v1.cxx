@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODHIEventShapeAuxContainerCnv_v1.cxx 694377 2015-09-11 13:50:57Z krasznaa $
@@ -12,10 +12,8 @@
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
-#define protected public
-#  include "xAODHIEvent/HIEventShapeContainer.h"
-#  include "xAODHIEvent/versions/HIEventShapeContainer_v1.h"
-#undef protected
+#include "xAODHIEvent/HIEventShapeContainer.h"
+#include "xAODHIEvent/versions/HIEventShapeContainer_v1.h"
 
 // Local include(s):
 #include "xAODHIEventShapeAuxContainerCnv_v1.h"
@@ -117,19 +115,8 @@ persToTrans( const xAOD::HIEventShapeAuxContainer_v1* oldObj,
 
          // Copy the variable:
          void* dst = newInt.getDataArray( auxid );
-         // With newer versions of AthContainers we'll be able to replace
-         // this with:
-         //
-         //    const void* src = oldInt.getDataArrayAllowMissing( auxid );
-         //
-         // , and we won't even need to use a private function for it. But
-         // in order to make the code work in 20.1.X.Y, this ugly hack needs
-         // to be done to make the code safe.
-         const void* src = 0;
-         try {
-            const xAOD::HIEventShapeContainer_v1& helper = oldInt;
-            src = helper.getDataArray( auxid );
-         } catch( const SG::ExcBadAuxVar& ) {
+         const void* src = oldInt.getDataArrayAllowMissing( auxid );
+         if (!src) {
             // This can happen with corrupt input files. In this case just
             // fill dummy values into the new object:
             r.clear( auxid, dst, nindex );

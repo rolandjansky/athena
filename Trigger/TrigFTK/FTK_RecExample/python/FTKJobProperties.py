@@ -89,6 +89,12 @@ class doDetailedTruth(FTKFlagsJobProperty):
   allowedTypes=['bool']
   StoredValue=False
 
+class doTruthSmearing(FTKFlagsJobProperty):
+  """ Simulate FTK tracks by smearing truth particles """
+  statusOn=True
+  allowedTypes=['bool']
+  StoredValue=False
+
  
 class FTKJobProperties(JobPropertyContainer):
   """Container for the FTK flags
@@ -105,6 +111,7 @@ class FTKJobProperties(JobPropertyContainer):
        
   def setupDefaults(self):
     self.checkThenSet(self.doSmearing   , False)
+    self.checkThenSet(self.doTruthSmearing, False)
 
 
   def init(self):
@@ -123,7 +130,10 @@ class FTKJobProperties(JobPropertyContainer):
       print '*'
       print '* --------------------> FTK tracks will be simulated by smearing HLT tracks'
       print '*'
-
+    if self.doTruthSmearing() :
+      print '*'
+      print '* --------------------> FTK tracks will be simulated by smearing truth particles'
+      print '*'
 
      
 ## adding the container to the general top-level container
@@ -134,7 +144,8 @@ _list_FTKJobProperties = [Enabled,
                           doPrintConfigurables,
                           doSmearing,
                           doTruthLinks,
-                          doDetailedTruth
+                          doDetailedTruth,
+                          doTruthSmearing,
                           ]
 
 for j in _list_FTKJobProperties: 

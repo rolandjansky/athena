@@ -152,7 +152,6 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
             jobproperties.TileRecFlags.doTileFlat = False
             jobproperties.TileRecFlags.doTileFit = False
             jobproperties.TileRecFlags.doTileFitCool = False
-            jobproperties.TileRecFlags.doTileOpt = False
             jobproperties.TileRecFlags.doTileOpt2 = False
             jobproperties.TileRecFlags.doTileOptATLAS = False
             jobproperties.TileRecFlags.doTileManyAmps = False

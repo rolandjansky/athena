@@ -33,7 +33,6 @@ atlas_add_poolcnv_library( TrkEventAthenaPoolPoolCnv
                            TrkEventTPCnv )
 
 # Install files from the package:
-atlas_install_headers( TrkEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 

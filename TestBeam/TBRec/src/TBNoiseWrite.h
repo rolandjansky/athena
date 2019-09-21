@@ -11,7 +11,6 @@
 //
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
 class TFile;
 class TTree;
 class CaloCell_ID;

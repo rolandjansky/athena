@@ -53,14 +53,6 @@ StatusCode CBNT_CaloH6::CBNT_initialize()
   m_emecID_help = NULL;
   m_fcalID_help = NULL;
   
-  // // retrieve detector description manager for LAr subsystem
-  // const DataHandle<LArDetDescrManager> m_larMgr;
-  // sc = m_detStore->retrieve(m_larMgr);
-  // if (sc.isFailure()) {
-  //   log << MSG::ERROR << "unable to retrieve LArDetDescrManager from detecto\r store"<< endmsg;
-  //   return sc;
-  // }
-  
   // Identifier helpers
   const CaloCell_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );

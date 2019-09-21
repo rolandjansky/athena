@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************************
@@ -18,7 +18,6 @@
 
 //Tool Handle
 //
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -30,6 +29,8 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
+#include "TrkEventUtils/PRDtoTrackMap.h"
+
 #include <list>
 #include <vector>
 #include <iosfwd>
@@ -37,10 +38,6 @@
 class MsgStream   ;
 class SCT_ID      ;
 class SiSpacePointsSeed;
-
-namespace Trk{
-  class IPRD_AssociationTool;
-}
 
 namespace InDet{
 
@@ -120,7 +117,6 @@ namespace InDet{
 
       MagField::IMagFieldSvc*                m_fieldService;
 
-      ToolHandle<Trk::IPRD_AssociationTool>  m_assotool              ;  /** Association tool  */
       Trk::MagneticFieldProperties           m_fieldprop             ;  /** Magnetic field properties  */
       int                                    m_nprint                ;
 
@@ -147,7 +143,6 @@ namespace InDet{
       double                         m_xiTC                          ;  /** theta based chi2 cut  */
       double                         m_xiFC                          ;  /** phi based chi2 cut  */
       bool                           m_search                        ;  /** Do full neighbor search  */
-      bool                           m_useasso                       ;  /** Use Si cluster association tool  */
       bool                           m_loadFull                      ;  /** Load full Si space point container  */
       bool                           m_doCosmics                     ;  /** Disable seed selection cuts during reconstruction of cosmics tracks  */
 
@@ -173,6 +168,8 @@ namespace InDet{
       SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixname {this,"SpacePointsPixelName","PixelSpacePoints","RHK to retrieve Pixel SpacePointContainer"}            ;  
       SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname {this,"SpacePointsSCTName","SCT_SpacePoints","RHK to retrieve SCT SpacePointContainer"}           ;         
       SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname {this,"SpacePointsOverlapName","OverlapSpacePoints","RHK to retrieve OverlapCollection"}        ; 
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};
 
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */

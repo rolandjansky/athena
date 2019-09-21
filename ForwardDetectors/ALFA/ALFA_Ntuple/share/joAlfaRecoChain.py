@@ -240,7 +240,6 @@ topSeq += ALFA_Ntuple("ALFA_Ntuple", RootStreamName = streamName)
 #from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 #Stream1 = AthenaPoolOutputStream("Stream1")
 #Stream1.OutputFile = "outPool.root"
-#Stream1.ForceRead= True
 #Stream1.ItemList+= ["ALFA_RawDataContainer#*"]
 #Stream1.ItemList+= ["ALFA_HitCollection#*"]
 #Stream1.ItemList+= ["ALFA_ODHitCollection#*"]

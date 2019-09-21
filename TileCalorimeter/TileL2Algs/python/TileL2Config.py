@@ -62,7 +62,29 @@ def TileRawChannelToL2Cfg(flags, **kwargs):
 
 
     from TileL2Algs.TileL2AlgsConf import TileRawChannelToL2
-    acc.addEventAlgo( TileRawChannelToL2(**kwargs) )
+    acc.addEventAlgo( TileRawChannelToL2(**kwargs), primary = True )
+
+    return acc
+
+
+def TileRawChannelToL2OutputCfg(flags, streamName = 'RDO', **kwargs):
+    """Return component accumulator with configured Tile raw channels to L2 algorithm with Output stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+        streamName -- name of output stream. Defaults to RDO.
+    """
+
+    acc = TileRawChannelToL2Cfg(flags, **kwargs)
+    tileRawChanToL2Alg = acc.getPrimary()
+
+    if 'TileL2Container' in tileRawChanToL2Alg.getValuedProperties():
+        tileL2Container = tileRawChanToL2Alg.getValuedProperties()['TileL2Container']
+    else:
+        tileL2Container = tileRawChanToL2Alg.getDefaultProperty('TileL2Container')
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge( OutputStreamCfg(flags, streamName, ['TileL2Container#' + tileL2Container]) )
 
     return acc
 
@@ -91,12 +113,7 @@ if __name__ == "__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     acc.merge( TrigBSReadCfg(ConfigFlags) )
 
-    acc.merge( TileRawChannelToL2Cfg(ConfigFlags) )
-
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(ConfigFlags, 'ESD', ['TileL2Container#*']))
-    acc.getEventAlgo('OutputStreamESD').ExtraInputs = [('TileL2Container', 'StoreGateSvc+TileL2Cnt')]
-
+    acc.merge( TileRawChannelToL2OutputCfg(ConfigFlags, streamName = 'ESD') )
     acc.getService('StoreGateSvc').Dump = True
 
     ConfigFlags.dump()

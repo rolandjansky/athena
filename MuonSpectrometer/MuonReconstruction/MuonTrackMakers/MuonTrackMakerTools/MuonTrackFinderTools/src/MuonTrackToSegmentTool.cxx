@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackToSegmentTool.h"
@@ -9,7 +9,7 @@
 
 #include "MuonSegment/MuonSegment.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
@@ -21,6 +21,7 @@
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/LocalDirection.h"
@@ -36,10 +37,10 @@ namespace Muon {
   
   MuonTrackToSegmentTool::MuonTrackToSegmentTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
+    m_detMgr(0),
     m_intersectSvc("MuonStationIntersectSvc", name()),
     m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
 
@@ -48,23 +49,21 @@ namespace Muon {
     declareProperty("MuonStationIntersectSvc", m_intersectSvc);
     declareProperty("Propagator",              m_propagator);
     declareProperty("IdHelper",                m_idHelperTool);
-    declareProperty("EDMHelper",               m_helperTool);
     declareProperty("EDMPrinter",              m_printer);
 
   }
     
   MuonTrackToSegmentTool::~MuonTrackToSegmentTool() {
-      
   }
   
   StatusCode MuonTrackToSegmentTool::initialize() {
-    
-    
+    ATH_CHECK( detStore()->retrieve(m_detMgr,"Muon") );
     ATH_CHECK( m_propagator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_intersectSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
     return StatusCode::SUCCESS;
   }
   
@@ -126,7 +125,7 @@ namespace Muon {
       rots->push_back( meas->clone());
 
       // only consider eta hits
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || m_idHelperTool->measuresPhi(id) ) continue;
 
       double distance = (pars->position()-perigee->position()).dot(dir);
@@ -266,7 +265,13 @@ namespace Muon {
 								  const MuonTrackToSegmentTool::MeasVec& measurements ) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack( chid, pars.position(), pars.momentum().unit() );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chid, pars.position(), pars.momentum().unit(), dbData, m_detMgr );
 
 
     // set to identify the hit on the segment
@@ -283,13 +288,11 @@ namespace Muon {
     for( unsigned int ii=0;ii<intersect.tubeIntersects().size();++ii ){
       const MuonTubeIntersect& tint = intersect.tubeIntersects()[ii];
 
-      if( hitsOnSegment.count( tint.tubeId ) ) {
-	continue;
-      }
-      if( fabs( tint.rIntersect ) > 14.4 || tint.xIntersect > -200. ){
-      }else{
-	// check whether there is a hit in this tube 
+      // skip hole check if there is a hit in this tube
+      if( hitsOnSegment.count(tint.tubeId) ) continue;
 
+      // if track goes through a tube which did not have a hit count as hole
+      if( fabs(tint.rIntersect) < m_detMgr->getMdtReadoutElement(tint.tubeId)->innerTubeRadius() && tint.xIntersect < -200. ) {
 	holes.push_back( tint.tubeId );
       }
     }

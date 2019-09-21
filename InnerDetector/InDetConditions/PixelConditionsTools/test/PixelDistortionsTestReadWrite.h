@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -21,12 +21,6 @@
 
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 
-namespace InDetDD
-{
-  class PixelDetectorManager;
-}
-
-
 class PixelDistortionsTestReadWrite: public AthAlgorithm{
 
  public: 
@@ -42,7 +36,6 @@ class PixelDistortionsTestReadWrite: public AthAlgorithm{
  private:
 
   //mutable MsgStream m_log;
-  const InDetDD::PixelDetectorManager * m_detManager;
 
   PublicToolHandle<IModuleDistortionsTool >  m_pixelDistoTool
      {this,"PixelDistortionsTool","PixelDistortionsTool",""};

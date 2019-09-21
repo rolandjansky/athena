@@ -32,7 +32,7 @@ StatusCode TrigBjetEtHypoAlgMT::initialize() {
 }
 
 StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
-  ATH_MSG_INFO ( "Executing " << name() << "..." );
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   // ========================================================================================================================== 
   //    ** Retrieve Ingredients

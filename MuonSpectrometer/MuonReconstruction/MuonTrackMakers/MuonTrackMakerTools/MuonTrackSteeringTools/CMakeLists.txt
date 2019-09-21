@@ -54,6 +54,5 @@ atlas_add_component( MuonTrackSteeringTools
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GeoPrimitives Identifier EventPrimitives GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonTrackFindingEvent MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils TrkDetDescrUtils TrkGeometry TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkParameters TrkPseudoMeasurementOnTrack TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkToolInterfaces TrkDriftCircleMath )
 
 # Install files from the package:
-atlas_install_headers( MuonTrackSteeringTools )
 atlas_install_joboptions( share/*.py )
 

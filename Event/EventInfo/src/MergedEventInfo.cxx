@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 /**
  * @file MergedEventInfo.cxx
@@ -11,14 +11,13 @@
  */
 #include "EventInfo/MergedEventInfo.h"
 
-MergedEventInfo::MergedEventInfo() : 
+MergedEventInfo::MergedEventInfo() :
   EventInfo(), m_newEventID() {}
 
-MergedEventInfo::MergedEventInfo(const EventInfo& origEvent, 
-				 EventID::number_type newRunNo,
-				 EventID::number_type newEvtNo,
-				 EventID::number_type newTimeStamp) :
+MergedEventInfo::MergedEventInfo(const EventInfo& origEvent,
+                                 EventID::number_type newRunNo,
+                                 EventID::number_type newEvtNo,
+                                 EventID::number_type newTimeStamp) :
   EventInfo(origEvent), m_newEventID(newRunNo, newEvtNo, newTimeStamp) {}
 
 MergedEventInfo::~MergedEventInfo() {}
-

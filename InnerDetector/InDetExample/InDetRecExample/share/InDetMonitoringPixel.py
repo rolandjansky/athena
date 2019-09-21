@@ -38,7 +38,6 @@ if doAllHits:
                                   RODErrorName        = "pixel_error_summary",                                                                                
                                   SpacePointName      = InDetKeys.PixelSpacePoints(),                                                                         
                                   ClusterName         = InDetKeys.PixelClusters(),                                                                            
-                                                                                                                                      
                                   DetailsMod1         = "D1A_B03_S2_M3",  #Give the 4 modules which you want to do detailed monitoring of                        
                                   DetailsMod2         = "L0_B05_S2_M1A",  #Use the normal name like D1A_B03_S2_M4 or                                             
                                   DetailsMod3         = "L1_B10_S1_M2C",  #L1_B10_S2_M2C and the code should be able to parse
@@ -89,7 +88,6 @@ if doHitsOnTrack:
                                          RODErrorName        = "pixel_error_summary",                                                                         
                                          SpacePointName      = InDetKeys.PixelSpacePoints(),                                                                  
                                          ClusterName         = InDetKeys.PixelClusters(),                                                                     
-                                         
                                          DetailsMod1         = "D1A_B03_S2_M3",  #Give the 4 modules which you want to do detailed monitoring of                 
                                          DetailsMod2         = "L0_B05_S2_M1A",  #Use the normal name like D1A_B03_S2_M4 or                                      
                                          DetailsMod3         = "L1_B10_S1_M2C",  #L1_B10_S2_M2C and the code should be able to parse                             

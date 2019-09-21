@@ -94,7 +94,6 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
           
           // link decision to this view
           outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
-          outputDecision->setObjectLink( TrigCompositeUtils::featureString(), jetELInfo.link );
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
           ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );
@@ -103,12 +102,16 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
         else {
           int iview = roiIt-RoIsFromDecision.begin();
           outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
-          outputDecision->setObjectLink( TrigCompositeUtils::featureString(), jetELInfo.link );
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
         }
       }// loop over previous inputs
     } // loop over decisions   
   }// loop over output keys
+
+  // debug option to reorder views
+  if ( m_reverseViews ) {
+    std::reverse( viewVector->begin(), viewVector->end() );
+  }
 
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views

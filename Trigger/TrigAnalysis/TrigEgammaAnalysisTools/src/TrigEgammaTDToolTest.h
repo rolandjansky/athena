@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigEgammaTDToolTest.h 
@@ -38,7 +38,6 @@ private:
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
   std::map<std::string,int> m_counterBits;
-  StoreGateSvc * m_storeGate;
 }; 
 
 #endif

@@ -7,7 +7,7 @@
 
 STGC_RdoToDigit::STGC_RdoToDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -20,10 +20,10 @@ StatusCode STGC_RdoToDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode STGC_RdoToDigit::execute()
+StatusCode STGC_RdoToDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
-  SG::ReadHandle<Muon::STGC_RawDataContainer> rdoRH(m_stgcRdoKey);
+  SG::ReadHandle<Muon::STGC_RawDataContainer> rdoRH(m_stgcRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_ERROR( "No STGC RDO container found!"  );
     return StatusCode::FAILURE;
@@ -31,7 +31,7 @@ StatusCode STGC_RdoToDigit::execute()
   const Muon::STGC_RawDataContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " sTGC RDOs." );
 
-  SG::WriteHandle<sTgcDigitContainer> wh_stgcDigit(m_stgcDigitKey);
+  SG::WriteHandle<sTgcDigitContainer> wh_stgcDigit(m_stgcDigitKey, ctx);
   ATH_CHECK(wh_stgcDigit.record(std::make_unique<sTgcDigitContainer>(m_stgcHelper->detectorElement_hash_max())));
   ATH_MSG_DEBUG( "Decoding sTGC RDO into sTGC Digit"  );
 
@@ -88,7 +88,7 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
                              << " in StoreGate!"  );
         }
         else {
-          sTgcDigitCollection * oldCollection = (sTgcDigitCollection*) *it_coll;
+          sTgcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<sTgcDigitCollection*>(*it_coll); //FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

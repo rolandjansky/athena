@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,15 +20,12 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelBuilderOpt2Filter.h"
 #include "TileRecUtils/TileRawChannelBuilderOpt2FilterLookup.h"
-#include "TileConditions/TileOptFilterWeights.h"
-#include "TileConditions/TilePulseShapes.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileDigits.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
-#include "TileConditions/TileOptFilterWeights.h"
 
 // Atlas includes
 #include "AthAllocators/DataPool.h"

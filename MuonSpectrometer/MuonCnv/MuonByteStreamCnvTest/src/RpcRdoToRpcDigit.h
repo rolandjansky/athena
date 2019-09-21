@@ -6,7 +6,7 @@
 #define MUONBYTESTREAMCNVTEST_RPCRDOTORPCDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
@@ -14,7 +14,7 @@
 
 class RpcIdHelper;
 
-class RpcRdoToRpcDigit : public AthAlgorithm {
+class RpcRdoToRpcDigit : public AthReentrantAlgorithm {
 
  public:
 
@@ -22,7 +22,7 @@ class RpcRdoToRpcDigit : public AthAlgorithm {
   virtual ~RpcRdoToRpcDigit() = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
   StatusCode decodeRpc( const RpcPad *, RpcDigitContainer *, RpcDigitCollection*& ) const;

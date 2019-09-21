@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( PythonLibs )
 find_package( ROOT COMPONENTS RIO Hist Tree PyROOT Core MathCore pthread )
+string( REPLACE PyROOT Core ROOT_LIBRARIES_NOPYROOT "${ROOT_LIBRARIES}" )
 
 # Component(s) in the package:
 atlas_generate_reflex_dictionary( dict_cpp  RootUtils
@@ -28,8 +29,8 @@ atlas_add_library( RootUtils
                    PUBLIC_HEADERS RootUtils
                    INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${PYTHON_LIBRARIES} ${Boost_LIBRARIES}
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
+                   LINK_LIBRARIES ${Boost_LIBRARIES}
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES_NOPYROOT} TestTools )
 
 add_dependencies( RootUtils RootUtilsDictGen )
 
@@ -46,7 +47,7 @@ atlas_add_dictionary( RootUtilsPyROOTDict
                       RootUtils/RootUtilsPyROOTDict.h
                       RootUtils/selection_PyROOT.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES_NOPYROOT} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT )
 
 atlas_add_test( Type_test
                 SOURCES

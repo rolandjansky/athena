@@ -34,7 +34,7 @@ class TopoAlgo(object):
             raise RuntimeError("Generic parameter '%s' does not exist for algorithm %s of type %s,\navailable parameters are %r" % (name,self.name, self.classtype, self._availableVars))
         return self
 
-
+        
     
 class Variable(object):
     def __init__(self, name, selection, value):

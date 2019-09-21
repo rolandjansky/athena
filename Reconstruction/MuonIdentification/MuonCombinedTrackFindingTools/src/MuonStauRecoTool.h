@@ -25,7 +25,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "GaudiKernel/ServiceHandle.h"
 
 namespace Muon {
 
@@ -238,7 +238,9 @@ namespace MuonCombined {
     /** tool handles */
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper; 
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 
-    ToolHandle<Muon::MuonEDMHelperTool>              m_edmHelper; 
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::IMuonSegmentMaker>              m_segmentMaker;
     ToolHandle<Muon::IMuonSegmentMaker>              m_segmentMakerT0Fit;
     ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool;

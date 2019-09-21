@@ -14,22 +14,26 @@
 #ifndef DQTLumiMonTool_H
 #define DQTLumiMonTool_H
 
-#include <set>   
-#include "GaudiKernel/ToolHandle.h"
-#include <stdint.h>
 #include "DataQualityTools/DataQualityFatherMonTool.h"
+
+#include "InDetIdentifier/PixelID.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
 #include "TMath.h"
 #include "TProfile.h"
 #include "TString.h"
+
+#include <set>   
+#include <stdint.h>
 #include <string>
 #include <vector>
-
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODTracking/VertexContainer.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetIdentifier/PixelID.h"
-#include "xAODEventInfo/EventInfo.h"
-
 
 class DQTLumiMonTool: public DataQualityFatherMonTool{
  public:  
@@ -54,6 +58,11 @@ class DQTLumiMonTool: public DataQualityFatherMonTool{
     { this, "PixelClustersKey", "PixelClusters", "" };
   Gaudi::Property<std::string> m_PixelIDKey
     { this, "PixelIDKey", "PixelID", "" };
+
+  // For P->T converter of PixelClusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
+    m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection",
+      "Key of SiDetectorElementCollection for Pixel"};
 
   TProfile* m_aveMu_vs_LB;
 

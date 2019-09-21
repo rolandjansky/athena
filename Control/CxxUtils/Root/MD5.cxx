@@ -338,7 +338,9 @@ void MD5::digest (unsigned char *result)
 	memset(&ctx->buffer[used], 0, available - 8);
 
 	ctx->lo <<= 3;
+        // cppcheck-suppress objectIndex
 	OUT(&ctx->buffer[56], ctx->lo)
+        // cppcheck-suppress objectIndex
 	OUT(&ctx->buffer[60], ctx->hi)
 
 	body(ctx->buffer, 64);

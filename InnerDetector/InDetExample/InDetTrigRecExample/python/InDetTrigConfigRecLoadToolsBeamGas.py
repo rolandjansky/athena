@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Beam gas specific tools setup
 """
@@ -45,8 +45,7 @@ if InDetTrigFlags.doSiSPSeededTrackFinder():
     SpacePointsPixelName   = 'SCT_TrigSpacePoints',
     SpacePointsSCTName     = 'PixelTrigSpacePoints',
     #SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-    UseAssociationTool     = True,
-    AssociationTool        = InDetTrigPrdAssociationTool,
+    PRDtoTrackMap          = "?", # @TODO
     radMax                 = EFIDTrackingCutsBeamGas.radMax()
     )
   

@@ -60,7 +60,6 @@ StreamDet.EvtConversionSvc="AthenaPoolCnvSvc"
 
 StreamDet.ItemList += ["LArOnOffIdMap#*"]
 StreamDet.ItemList += ["LArFebRodMap#*"]
-StreamDet.ForceRead = True
 StreamDet.OutputFile = "LArIdMap_H8.pool.root"
 
 # StreamDet.OutputFile =  "oracle://devdb/hma"

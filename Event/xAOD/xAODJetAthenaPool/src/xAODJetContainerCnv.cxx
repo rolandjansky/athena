@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODJetContainerCnv.cxx 795694 2017-02-05 23:13:50Z khoo $
@@ -39,6 +39,7 @@ xAODJetContainerCnv::xAODJetContainerCnv( ISvcLocator* svcLoc )
 StatusCode xAODJetContainerCnv::createObj( IOpaqueAddress* pAddr,
                                            DataObject*& pObj ) {
 
+   std::lock_guard<std::mutex> lock (m_mutex);
    // Get the key of the container that we'll be creating:
    m_key = *( pAddr->par() + 1 );
    ATH_MSG_VERBOSE( "Key of xAOD::JetContainer: " << m_key );

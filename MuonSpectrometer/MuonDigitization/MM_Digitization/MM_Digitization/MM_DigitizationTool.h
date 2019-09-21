@@ -58,9 +58,6 @@
 #include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
 
-#include "xAODEventInfo/EventInfo.h"   // SubEventIterator
-#include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
-
 #include <string>
 #include <sstream>
 #include <vector>

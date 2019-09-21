@@ -22,7 +22,6 @@
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 //Athena headers
-#include "CxxUtils/make_unique.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -212,7 +211,7 @@ StatusCode TileGeoG4SDCalc::initialize() {
     static const std::string ratioFileName = "TileOpticalRatio.dat";
     std::string attFile = PathResolver::find_file(attFileName, "DATAPATH");
     std::string ratioFile = PathResolver::find_file(ratioFileName, "DATAPATH");
-    m_row = CxxUtils::make_unique<TileRow>(attFile, ratioFile); //holds attenuation lengths for tiles
+    m_row = std::make_unique<TileRow>(attFile, ratioFile); //holds attenuation lengths for tiles
     ATH_MSG_INFO("Using Optical Ratio = " << m_row->OpticalRatio[0].at(0));
   }
 

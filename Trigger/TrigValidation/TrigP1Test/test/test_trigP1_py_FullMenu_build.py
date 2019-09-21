@@ -2,7 +2,12 @@
 
 # art-description: Same as full_menu test from TrigUpgradeTest, but with athenaHLT
 # art-type: build                                                                  
-# art-include: master/Athena                                                       
+# art-include: master/Athena
+
+################################################################################
+# This test is identical to test_trigP1_FullMenu_build.py and should be removed
+# once the CI configuration is switched to use test_trigP1_FullMenu_build.py
+################################################################################
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 

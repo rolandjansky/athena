@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTPRDValAlg.h"
@@ -38,8 +38,6 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 //#include "TrkMagFieldInterfaces/IMagneticFieldTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include <iostream>
 #include <fstream>
 #include "TTree.h"
@@ -60,11 +58,9 @@ MDTPRDValAlg::MDTPRDValAlg(const std::string& name,
   m_histo_flag(false),
   m_descriptor(0),
   m_pMuonMgr(0),
-  m_mdtIdHelper(0),
   m_log(0),
   m_debug(false),
   m_verbose(false),
-  m_sgSvc(0),
 
   m_counter_ValHitNumber(-99),
   m_Validation_MDT_Type(-99),
@@ -177,32 +173,15 @@ StatusCode MDTPRDValAlg::initialize()
   /**Locate the StoreGateSvc and initialize our local ptr
      intitialize transient event store
   */
-  StatusCode sc = service("StoreGateSvc", m_sgSvc);
-
-  if (!sc.isSuccess() || 0 == m_sgSvc) {
-    *m_log << MSG::ERROR << "MDTPRDValAlg: Could not find StoreGateSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  else { 
-    *m_log << MSG::DEBUG << "Retrieved StoreGateSvc" << endmsg;
-  } 
-      
-  StoreGateSvc* detStore;
-  sc = serviceLocator()->service( "DetectorStore", detStore );
-  if (sc.isFailure())   {
-    *m_log << MSG::ERROR << "Cannot locate the DetectorStore" << endmsg; 
-    return sc;
-  }
- 
-  sc = detStore->retrieve( m_pMuonMgr ); 
+  StatusCode sc = detStore()->retrieve( m_pMuonMgr ); 
   if (sc.isFailure()){
     *m_log << MSG::ERROR << "Cannot retrieve MuonDetectorManager" << endmsg;
     return sc;
   }
 
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
+  sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure()){
-    *m_log << MSG::ERROR << "Cannot retrieve m_mdtId" << endmsg;
+    *m_log << MSG::ERROR << "Cannot retrieve MuonIdHelperTool" << endmsg;
     return sc;
   }  
 
@@ -434,11 +413,11 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
 
   /**Access MC truth information*/
   const DataHandle<McEventCollection> mcEvent;
-  if(!m_sgSvc->contains<McEventCollection>(m_key)) {
+  if(!evtStore()->contains<McEventCollection>(m_key)) {
     if( m_debug ) *m_log << MSG::DEBUG << "MDTPRDValAlg: Could not find MCevent" << endmsg;    
     return;
   }
-  if(m_sgSvc->retrieve(mcEvent,m_key).isFailure()){
+  if(evtStore()->retrieve(mcEvent,m_key).isFailure()){
       *m_log << MSG::WARNING << "MDTPRDValAlg: Could not retrieve MCevent" << endmsg;
       return;
   }else{
@@ -515,8 +494,8 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   const TrackRecordCollection* truthCollection = 0;
   std::string location = "MuonEntryLayer"; // Was "MuonEntryLayer"  
   if(exit) location = "MuonExitLayer";
-  if ( m_sgSvc->contains<TrackRecordCollection>(location) ) {
-    if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
+  if ( evtStore()->contains<TrackRecordCollection>(location) ) {
+    if(evtStore()->retrieve(truthCollection,location ).isFailure()){
       *m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
     }
   }    
@@ -524,8 +503,8 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   if( !truthCollection ){
     location ="MuonEntryLayerFilter";
     if(exit) location = "MuonExitLayerFilter";
-    if( m_sgSvc->contains<TrackRecordCollection>(location) ){
-      if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
+    if( evtStore()->contains<TrackRecordCollection>(location) ){
+      if(evtStore()->retrieve(truthCollection,location ).isFailure()){
 	*m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
       }
     }
@@ -534,8 +513,8 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   if( !truthCollection ){
     location ="MuonEntryRecord";
     if(exit) location = "MuonExitRecord";
-    if( m_sgSvc->contains<TrackRecordCollection>(location) ){
-      if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
+    if( evtStore()->contains<TrackRecordCollection>(location) ){
+      if(evtStore()->retrieve(truthCollection,location ).isFailure()){
 	*m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
       }
     }
@@ -614,13 +593,13 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
 
   
   std::string location = "MDT_Hits";
-  if ( !m_sgSvc->contains<MDTSimHitCollection>(location) ) {
+  if ( !evtStore()->contains<MDTSimHitCollection>(location) ) {
     if( m_debug ) *m_log << MSG::DEBUG << " No SimHits found at " << location << endmsg;
     return;
   }
   
   const DataHandle<MDTSimHitCollection> p_collection;
-  if (m_sgSvc->retrieve(p_collection,location).isFailure()) {
+  if (evtStore()->retrieve(p_collection,location).isFailure()) {
     *m_log << MSG::WARNING << "No MDTSimHitCollection in StoreGate!" << endmsg;
     return;
   }
@@ -654,12 +633,12 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     /**Create the offline identifiers, fill them with hit info.Ready to be accessed and retrieve info.
        Currently not used in this code except for some checks.
     */
-    Identifier offid = m_mdtIdHelper->channelID(mdt_stname, mdt_steta, mdt_stphi,mdt_ml,mdt_tl,mdt_tube);
+    Identifier offid = m_muonIdHelperTool->mdtIdHelper().channelID(mdt_stname, mdt_steta, mdt_stphi,mdt_ml,mdt_tl,mdt_tube);
     if (offid == 0){
       *m_log << MSG::WARNING << "MDT: Cannot build a valid Identifier; skip " << endmsg;
       continue;
     }
-    if( m_verbose ) *m_log << MSG::VERBOSE << " SimHit: barcode " << barcode << "  " << m_mdtIdHelper->print_to_string(offid) << endmsg;
+    if( m_verbose ) *m_log << MSG::VERBOSE << " SimHit: barcode " << barcode << "  " << m_muonIdHelperTool->mdtIdHelper().print_to_string(offid) << endmsg;
 
 
     MdtHitMap& mdtHitMap = muonMdtHitMap[barcode];
@@ -691,12 +670,12 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
   //Retrieving MDT truth hits from MDT_SDO container 
   std::string  location = "MDT_SDO";
   const MuonSimDataCollection* sdoContainer = 0;
-  if ( !m_sgSvc->contains<MuonSimDataCollection>(location) ) {
+  if ( !evtStore()->contains<MuonSimDataCollection>(location) ) {
     if( m_debug ) *m_log << MSG::DEBUG << " No SimData found at " << location << endmsg;
     return;
   }
   
-  if (m_sgSvc->retrieve(sdoContainer,location).isFailure()) {
+  if (evtStore()->retrieve(sdoContainer,location).isFailure()) {
     *m_log << MSG::WARNING << "No MDT Sdo Container found" << endmsg;
     return;
   }
@@ -711,7 +690,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     const MuonSimData& simData = sit->second;
     
     if( simData.getdeposits().empty() ) {
-      *m_log << MSG::WARNING << "MDT Sdo without deposits " << m_mdtIdHelper->print_to_string(id) << endmsg;
+      *m_log << MSG::WARNING << "MDT Sdo without deposits " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
       continue;
     }
     int barcode = simData.getdeposits().front().first.barcode();
@@ -743,7 +722,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
       }
 
       if( m_verbose ) *m_log << MSG::VERBOSE << "New SDO: barcode  " << barcode << "  " 
-			     << m_mdtIdHelper->print_to_string(id) << endmsg;
+			     << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
       mdtHitData->sdo = &simData;
     }
   }
@@ -755,12 +734,12 @@ void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) con
   //MDT raw hits....
   const Muon::MdtPrepDataContainer* mdtPrds = 0;      
   std::string  location = "MDT_DriftCircles";
-  if ( !m_sgSvc->contains<Muon::MdtPrepDataContainer>(location) ) {
+  if ( !evtStore()->contains<Muon::MdtPrepDataContainer>(location) ) {
     if( m_debug ) *m_log << MSG::DEBUG << " No MdtPrepData found at " << location << endmsg;
     return;
   }
   
-  if( m_sgSvc->retrieve( mdtPrds,location ).isFailure() ) {
+  if( evtStore()->retrieve( mdtPrds,location ).isFailure() ) {
     *m_log << MSG::WARNING << "MdtPrepDataContainer not found at " << location << endmsg;
     return;
   }
@@ -788,7 +767,7 @@ void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) con
       }
 
       if( m_verbose ) *m_log << MSG::VERBOSE << " Muon PRD: barcode " << mdtHitData->barcode 
-			     << "  " << m_mdtIdHelper->print_to_string(id) << endmsg;
+			     << "  " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
 
       mdtHitData->prd = &mdt;
     }
@@ -817,7 +796,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   const xAOD::EventInfo* pevt;
 		
 	
-  if (m_sgSvc->retrieve(pevt).isFailure()) {
+  if (evtStore()->retrieve(pevt).isFailure()) {
     *m_log << MSG::WARNING << "Could not find event" << endmsg;
     return;
   }else {
@@ -1113,16 +1092,16 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       } 
 
 // put station name string in AANTUPLE as Val_StName  
-      if( m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id) ).size() == 3 )
-        strcpy(m_Validation_MDT_StationName,m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id) ).c_str() );
+      if( m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName(id) ).size() == 3 )
+        strcpy(m_Validation_MDT_StationName,m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName(id) ).c_str() );
       else
         strcpy(m_Validation_MDT_StationName,"ERR" );
 
-      std::string stName = m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id));
+      std::string stName = m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName(id));
       int geoSign = 1;
       int codeBESL = 0;
       if(stName[0]=='B') {
-        if(m_mdtIdHelper->stationEta(id)>0) geoSign = -1;
+        if(m_muonIdHelperTool->mdtIdHelper().stationEta(id)>0) geoSign = -1;
         if(stName[2]=='L') codeBESL = 1;
         if(stName[2]=='S') codeBESL = 2;
         if(stName[2]=='F') codeBESL = 2;
@@ -1134,18 +1113,18 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 // BEE
         if(stName[2]=='E') codeBESL = 3;
       } else if (stName[0]=='E') {
-        if(m_mdtIdHelper->stationEta(id)<0) geoSign = -1;
+        if(m_muonIdHelperTool->mdtIdHelper().stationEta(id)<0) geoSign = -1;
         if(stName[2]=='L') codeBESL = 11;
         if(stName[2]=='S') codeBESL = 12;
 // EE
         if(stName[1]=='E') codeBESL = 13;
       }
 
-      m_Validation_MDT_StationEta=m_mdtIdHelper->stationEta(id);
-      m_Validation_MDT_StationPhi=m_mdtIdHelper->stationPhi(id);
-      m_Validation_MDT_IDTube=m_mdtIdHelper->tube(id);
-      m_Validation_MDT_IDMultiLayer=m_mdtIdHelper->multilayer(id);
-      m_Validation_MDT_IDLayer=m_mdtIdHelper->tubeLayer(id);
+      m_Validation_MDT_StationEta=m_muonIdHelperTool->mdtIdHelper().stationEta(id);
+      m_Validation_MDT_StationPhi=m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
+      m_Validation_MDT_IDTube=m_muonIdHelperTool->mdtIdHelper().tube(id);
+      m_Validation_MDT_IDMultiLayer=m_muonIdHelperTool->mdtIdHelper().multilayer(id);
+      m_Validation_MDT_IDLayer=m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
       m_Validation_MDT_GeoSign = geoSign;
       m_Validation_MDT_BESL = codeBESL;
 
@@ -1217,7 +1196,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       m_Validation_MDT_ExSagWireZ = (lexposSag)[Trk::locY];
       m_Validation_MDT_SimRadius = simRadius;
       m_Validation_MDT_SdoRadius = sdoRadius;
-      m_Validation_MDT_WireLen = detEl->getWireLength(m_mdtIdHelper->tubeLayer(id),m_mdtIdHelper->tube(id) );
+      m_Validation_MDT_WireLen = detEl->getWireLength(m_muonIdHelperTool->mdtIdHelper().tubeLayer(id),m_muonIdHelperTool->mdtIdHelper().tube(id) );
 
       m_Validation_MDT_ExSagRotR = (lexposSagRot)[Trk::locX];
       m_Validation_MDT_ExSagRotZ = (lexposSagRot)[Trk::locY];
@@ -1251,7 +1230,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	double res_eprz_sdo = sdoDistRO - eprz;
 	double res_simz_sdo  = sdoDistRO - simDistRO;
 	double res_sdoz_sdo  = sdoDistRO - sdoDistRO;
-	*m_log << MSG::DEBUG << "   new PRD " << m_mdtIdHelper->print_to_string( id ) << std::endl << std::setprecision(4) 
+	*m_log << MSG::DEBUG << "   new PRD " << m_muonIdHelperTool->mdtIdHelper().print_to_string( id ) << std::endl << std::setprecision(4) 
 		  << std::setw(15) << " " << std::setw(15) << "| expos " << std::setw(15) << "| expos sag " << std::setw(15) << "| expos ROT " 
 		  << std::setw(15) <<  "| sim "  << std::setw(15) << "| sdo " << "|" << std::endl
 		  << std::setw(15) << " r " << std::setw(15) << epr       << std::setw(15) << epsr          << std::setw(15)  << eprr 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,8 +43,6 @@ namespace Muon
   // Destructor:
   MdtTwinPrepData::~MdtTwinPrepData()
   {
-    //  delete m_globalPosition; 
-    clear();// here we make a new object, so do delete it (not like in MdtPrepData where it's only pointer)
   }
 
 
@@ -69,7 +67,7 @@ namespace Muon
   MdtTwinPrepData& MdtTwinPrepData::operator=(const MdtTwinPrepData& RIO)
   {
     if(this!=&RIO){    
-      clear();
+      if (m_globalPosition) m_globalPosition.release().reset();
       MdtPrepData::operator=(RIO);
       copy(RIO);
     }

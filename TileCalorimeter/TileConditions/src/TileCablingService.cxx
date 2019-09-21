@@ -2441,3 +2441,19 @@ bool TileCablingService::is_MBTS_merged_run2plus(int module) const {
 int TileCablingService::E1_merged_with_run2plus(int ros, int module) const {
   return m_E1mergedRun2Plus[(ros - 3) * 64 + module];
 }
+
+bool TileCablingService::isDisconnected(int ros, int drawer, int channel) const {
+
+  bool isChannelDisconnected(channel2hole(ros, channel) < 0);
+
+  // Modules EBA15 and EBC18 are special
+  if ((ros == 3 && drawer == 14) || (ros == 4 && drawer == 17)) {
+    if (channel < 4) {
+      isChannelDisconnected = true;
+    } else if (channel == 18 || channel == 19) {
+      isChannelDisconnected = false;
+    }
+  }
+
+  return isChannelDisconnected;
+}

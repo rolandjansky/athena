@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolMT,)
@@ -73,7 +74,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 
     try:
         chain_label = chainDict2jetLabel(chain_dict)
-    except Exception, e:
+    except Exception as e:
         m = str(e)
         m += ' - TrigJetHypoToolConfig: Error obtaining jet label for %s' % (
             chain_dict['chainName'],)
@@ -146,9 +147,9 @@ def _tests():
     )
     for cn in chain_names:
         chain_dict = chainNameDecoder.getChainDict(cn)
-        print chain_dict
+        print(chain_dict)
         tool = trigJetHypoToolFromDict(chain_dict)
-        print 'tool:\n', tool
+        print('tool:\n', tool)
         
 
 if __name__ == '__main__':

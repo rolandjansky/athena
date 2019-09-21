@@ -28,7 +28,6 @@
 
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"

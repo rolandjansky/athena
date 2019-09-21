@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,12 +27,9 @@
 namespace Analysis {
 
   TagNtupleDumper::TagNtupleDumper(const std::string& name, const std::string& n, const IInterface* p):
-    AthAlgTool(name, n,p),
+    base_class(name, n,p),
     m_hist_svc("THistSvc", name)
   {
-    // python binding
-    declareInterface<IMultivariateJetTagger>(this);
-
     // setup stream
     declareProperty("Stream", m_stream = "FTAG");
   }
@@ -58,7 +55,10 @@ namespace Analysis {
   typedef std::map<std::string,double> var_map;
   void TagNtupleDumper::assignProbability(xAOD::BTagging*,
                                           const var_map &inputs,
-                                          const std::string &jetauthor){
+                                          const std::string &jetauthor) const
+  {
+    std::lock_guard<std::mutex> lock (m_mutex);
+
     if (m_trees.count(jetauthor) == 0) {
       m_trees[jetauthor] = new TTree(jetauthor.c_str(), "who cares");
       m_hist_svc->regTree("/" + m_stream + "/" + jetauthor,

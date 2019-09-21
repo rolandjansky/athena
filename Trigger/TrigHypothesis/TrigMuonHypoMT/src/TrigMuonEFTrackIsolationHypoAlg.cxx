@@ -2,11 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthLinks/ElementLink.h"
 #include "TrigMuonEFTrackIsolationHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 

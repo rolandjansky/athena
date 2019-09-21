@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,9 +8,7 @@
 
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrackSlimmingTool/TrackSlimmingTool.h"
-#include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -21,7 +19,6 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-  //================ Constructor =================================================
 
 Trk::TrackSlimmingTool::TrackSlimmingTool(const std::string& t,
   const std::string& n,
@@ -43,14 +40,8 @@ AthAlgTool(t,n,p),
   declareProperty("KeepParameters", m_keepParameters, "If this is set to true, the first and last parameters will be kept on the slimmed track");
   declareProperty("OnlySetPersistificationHints", m_setPersistificationHints, "Only set persistification hints in each track state on surface");
 }
-
-  //================ Destructor =================================================
-
 Trk::TrackSlimmingTool::~TrackSlimmingTool()
   {}
-
-
-  //================ Initialisation =================================================
 
 StatusCode Trk::TrackSlimmingTool::initialize()
 {
@@ -66,7 +57,7 @@ StatusCode Trk::TrackSlimmingTool::initialize()
     ATH_MSG_DEBUG ("Found AtlasDetectorID");
   }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
+  ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -74,124 +65,73 @@ StatusCode Trk::TrackSlimmingTool::initialize()
 
 StatusCode Trk::TrackSlimmingTool::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
 {
-  // //std::cout<<"^^^^^^^^^^^ Input track is: "<<track<<std::endl;
-
+  /*
+   * Without persistifications hints we can use the copy
+   * method
+   */
+  if (!m_setPersistificationHints){
+   return slimCopy(track).release();
+  }
+  /*
+   * Setting the persistification hints can be non-thread safe
+   * as it involves const casting the input rather than creating new.
+   */
   const DataVector<const TrackStateOnSurface>* oldTrackStates = track.trackStateOnSurfaces();
-  if (oldTrackStates == 0)
+  if (oldTrackStates==nullptr)
   {
-    msg(MSG::WARNING) << "Track has no TSOS vector! Skipping track, returning 0." << endmsg;
-    return 0;
+    ATH_MSG_WARNING("Track has no TSOS vector! Skipping track, returning 0.");
+    return nullptr;
   }
-  // create vector for new TSOS (the ones which are kept)
-  DataVector<const TrackStateOnSurface>* trackStates = (!m_setPersistificationHints ? new DataVector<const TrackStateOnSurface> : nullptr); 
 
-  // These variables are filled with pointers
-  const TrackStateOnSurface* firstValidIDTSOS(0),* lastValidIDTSOS(0),* firstValidMSTSOS(0),* lastValidMSTSOS(0)/**,* lastIDMeasTSOS(0)**/;
-  /**TrackStateOnSurface *copiedIDtsosWithMeas(0); **/
-  
-  if (m_keepParameters)
-  {
+  const TrackStateOnSurface* firstValidIDTSOS(nullptr);                                                                 
+  const TrackStateOnSurface* lastValidIDTSOS(nullptr);                                                                  
+  const TrackStateOnSurface* firstValidMSTSOS(nullptr);                                                                 
+  const TrackStateOnSurface* lastValidMSTSOS(nullptr); 
+  if (m_keepParameters){
     // search last valid TSOS first (as won't be found in later loop)
-    for ( DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
-    {
-      if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0 
-           && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack()))
-      {
-        if (m_detID->is_indet((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier() ) ) {
-          lastValidIDTSOS = (*rItTSoS);
-          break;
-        } else if (m_detID->is_muon((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier() ) ) {
-          lastValidMSTSOS = (*rItTSoS);
-          break;
-        }
-      }
-    }
+    findLastValidTSoS(oldTrackStates, lastValidIDTSOS,lastValidMSTSOS);  
   }
-  
- 
 
   // If m_keepParameters is true, then we want to keep the first and last parameters of ID & MS. 
-  const Trk::MeasurementBase* rot = 0;
-  const Trk::TrackParameters* parameters = 0;
+  const Trk::MeasurementBase* rot = nullptr;
+  const Trk::TrackParameters* parameters = nullptr;
   bool keepParameter=false;
-  std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0); 
-
-  bool isIDmeas = false; 
-  bool isMSmeas = false;
-  
-//  unsigned int tsosNum=0;
-   // looping over all TSOS
+  // looping over all TSOS
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS = oldTrackStates->begin();
   for (   ; itTSoS!=oldTrackStates->end(); ++itTSoS)
   {
-    if (m_setPersistificationHints) {
-      const_cast<TrackStateOnSurface&>((**itTSoS)).setHint(Trk::TrackStateOnSurface::PartialPersistification);
-    }
-    parameters=0; 
-    rot=0;
-    //std::cout<<"Looking at TSOS#"<<tsosNum++<<" of type: "<<(**itTSoS).dumpType()<<std::endl;
+    const_cast<TrackStateOnSurface&>((**itTSoS)).setHint(Trk::TrackStateOnSurface::PartialPersistification);
+    parameters=nullptr; 
+    rot=nullptr;
     // if requested: keep calorimeter TSOS with adjacent scatterers (on combined muons)
-    if (m_keepCaloDeposit && (**itTSoS).type(TrackStateOnSurface::CaloDeposit))
-    {
+    if (m_keepCaloDeposit && (**itTSoS).type(TrackStateOnSurface::CaloDeposit)){
         // preceding TSOS (if Scatterer)
       if (itTSoS != oldTrackStates->begin())
       {
         --itTSoS;
-        if ((**itTSoS).type(TrackStateOnSurface::Scatterer))
-        {
-          if (m_setPersistificationHints) {
-            const_cast<TrackStateOnSurface&> ((**itTSoS)).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
-          }
-          else {
-            trackStates->push_back((**itTSoS).clone());
-          }
-          //std::cout<<"Keeping prior scatterer from TSOS "<<tsosNum-1<<std::endl;
+        if ((**itTSoS).type(TrackStateOnSurface::Scatterer)){
+          const_cast<TrackStateOnSurface&> ((**itTSoS)).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
         }
         ++itTSoS;
       }
-
-        // copy removes CaloEnergy (just keep base EnergyLoss) 
-        // (for explanation see bug #72762)
+      // copy removes CaloEnergy (just keep base EnergyLoss) 
       const MaterialEffectsOnTrack* meot  =
         dynamic_cast<const MaterialEffectsOnTrack*>((**itTSoS).materialEffectsOnTrack());
       if (meot && meot->energyLoss())
       {
-        if (m_setPersistificationHints) {
-          // (**itTSoS).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
-          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit);
-          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
-        }
-        else {
-        trackStates->push_back(
-          new TrackStateOnSurface(0,
-          (**itTSoS).trackParameters()->clone(),
-          0,
-          new MaterialEffectsOnTrack(meot->thicknessInX0(),
-          0,
-          new EnergyLoss(*meot->energyLoss()),
-          meot->associatedSurface()),
-          (**itTSoS).types()));
-        }
+        const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifySlimCaloDeposit);
+        const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
       }
-
-        // following TSOS (if Scatterer)
+      // following TSOS (if Scatterer)
       ++itTSoS;
       if (itTSoS != oldTrackStates->end() && (**itTSoS).type(TrackStateOnSurface::Scatterer))
       {
-        if (m_setPersistificationHints) {
           const_cast<TrackStateOnSurface&> ((**itTSoS)).resetHint(Trk::TrackStateOnSurface::PartialPersistification);
-        }
-        else {
-          trackStates->push_back((**itTSoS).clone());
-        }
-        //std::cout<<"Keeping post scatterer from TSOS "<<tsosNum+1<<std::endl;
-        
       }
       --itTSoS;
     }
@@ -199,125 +139,128 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
     // We only keep TSOS if they either contain a perigee, OR are a measurement
     if ((*itTSoS)->measurementOnTrack()==0 && !(*itTSoS)->type(TrackStateOnSurface::Perigee)) continue;
 
-    typePattern.reset(); 
-
-    isIDmeas=false; isMSmeas=false;
-    checkForValidMeas((*itTSoS), isIDmeas, isMSmeas);
-    
-    // if ((itTSoS+1)!=oldTrackStates->end()) {
-    //   checkIfInDet(*(itTSoS+1), nextIsIDmeas);
-    // }
-    
-    // if (isIDmeas) std::cout<<"isIDmeas"<<std::endl;
-    // if (isMSmeas) std::cout<<"isMSmeas"<<std::endl;
-
-    keepParameter=false; // Will be used to decide whether to store parameter, after the following checks...
-
-    if ( (*itTSoS)->trackParameters() != 0 && (*itTSoS)->type(TrackStateOnSurface::Perigee) ) keepParameter=true;
-
-    // Now do checks for first/last ID/MS measurement (isIDmeas and isMSmeas)
-    if (m_keepParameters){
-    // entering ID? 
-      if (isIDmeas && !firstValidIDTSOS && (*itTSoS)->type(TrackStateOnSurface::Measurement) ) {
-        firstValidIDTSOS=*itTSoS;
-        if ( (*itTSoS)->trackParameters() != 0) keepParameter=true;
-        //std::cout<<"*** Entering ID - keeping parameter"<<std::endl;
-      }
-			/** coverity 13545
-      // Check if we're no longer in ID, 
-      if (!isIDmeas && !lastValidIDTSOS && lastIDMeasTSOS ) {
-        lastValidIDTSOS=lastIDMeasTSOS;
-        if (lastIDMeasTSOS->trackParameters() != 0) {
-          copiedIDtsosWithMeas= 
-             new (copiedIDtsosWithMeas) Trk::TrackStateOnSurface(copiedIDtsosWithMeas->measurementOnTrack(), lastIDMeasTSOS->trackParameters()->clone(),0, 0,copiedIDtsosWithMeas->types());
-        } else {
-          ATH_MSG_DEBUG("Last ID measurement didn't have a track parameter!");
-          msg(MSG::DEBUG)<<*lastIDMeasTSOS<<endmsg;
-        }        
-      }
-    **/
-    
-    // entering MS? 
-      if (isMSmeas && !firstValidMSTSOS ) {
-        firstValidMSTSOS=*itTSoS;
-        if ( (*itTSoS)->trackParameters() != 0) keepParameter=true;
-        //std::cout<<"*** Entering MS - keeping parameter"<<std::endl;
-        
-      }
-      
-      // Is this the last TSOS on the track?
-      if (lastValidIDTSOS==(*itTSoS) || lastValidMSTSOS == (*itTSoS)){
-        if ( (*itTSoS)->trackParameters() != 0) keepParameter=true;
-        //std::cout<<"*** Last meas ID/MS - keeping parameter"<<std::endl;
-      } 
-    }
+    keepParameter=keepParameters((*itTSoS),firstValidIDTSOS, lastValidIDTSOS,firstValidMSTSOS,lastValidMSTSOS);
 
     if (keepParameter) {
-      parameters=(m_setPersistificationHints
-                  ? (*itTSoS)->trackParameters()
-                  : (*itTSoS)->trackParameters()->clone()); // make sure we add a new parameter by cloning
-      if ((*itTSoS)->type(TrackStateOnSurface::Perigee))  typePattern.set(TrackStateOnSurface::Perigee);
+      parameters=(*itTSoS)->trackParameters();
     }
-
-    // It'd be nice if there was a way to access the bitset directly, so instead of the below I could
-    // just do if ( referenceBitSet&(*itTSoS)->typeBitSet() )
-    // EJWM        
-    
     if ( (*itTSoS)->measurementOnTrack()!=0 &&  
       ( (*itTSoS)->type(TrackStateOnSurface::Measurement) || ( m_keepOutliers && (*itTSoS)->type(TrackStateOnSurface::Outlier) ) ) ) 
     { 
-      if ((*itTSoS)->type(TrackStateOnSurface::Measurement))  typePattern.set(TrackStateOnSurface::Measurement);
-      if ((*itTSoS)->type(TrackStateOnSurface::Outlier))      typePattern.set(TrackStateOnSurface::Outlier);
-      rot=( m_setPersistificationHints
-            ?(*itTSoS)->measurementOnTrack()
-            :(*itTSoS)->measurementOnTrack()->clone() );
-
+      rot=(*itTSoS)->measurementOnTrack();
     } 
-    
-    Trk::TrackStateOnSurface* newTSOS = 0;
-    if (rot!=0 || parameters!=0) {
-      if (m_setPersistificationHints) {
-        if (rot) {
-          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyMeasurement);
-        }
-        if (parameters) {
-          const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
-        }
+    if (rot!=nullptr || parameters!=nullptr) {
+      if (rot) {
+        const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyMeasurement);
       }
-      else {
-        newTSOS = new Trk::TrackStateOnSurface(rot, parameters, 0, 0, typePattern);
-        trackStates->push_back( newTSOS );
+      if (parameters) {
+        const_cast<TrackStateOnSurface&> ((**itTSoS)).setHint(Trk::TrackStateOnSurface::PersistifyTrackParameters);
       }
     } 
-    /** coverity 13544
-    if (isIDmeas && copiedIDtsosWithMeas) {
-       copiedIDtsosWithMeas = newTSOS; // Keep track unless we need to add parameter to it, if it turns out to have been last ID TSOS
-       lastIDMeasTSOS=*itTSoS;
-     }
-     **/
   }       
+  return nullptr;
+}
 
-  if (!m_setPersistificationHints) {
-  Trk::Track* newTrack = new Trk::Track(Trk::TrackInfo(track.info()),
-    trackStates,
-    track.fitQuality()->clone()
-    );
-
-  newTrack->info().setTrackProperties(TrackInfo::SlimmedTrack);
-
-      // next could be done without cloning (but maybe accesses the tracksummary of the old track??)
-      // only attempt to copy the summary if the track has it!
-  if (track.trackSummary()!=0)
-  {
-    newTrack->m_trackSummary = new Trk::TrackSummary(*(track.trackSummary()));
-  }
-  //std::cout<<"_______________ Slimmed track is: "<<*newTrack<<std::endl;
-  
-  return newTrack;
-  }
-  else {
+std::unique_ptr<Trk::Track> Trk::TrackSlimmingTool::slimCopy(const Trk::Track& track) const
+{
+  const DataVector<const TrackStateOnSurface>* oldTrackStates = track.trackStateOnSurfaces();
+  if (oldTrackStates ==nullptr){
+    ATH_MSG_WARNING("Track has no TSOS vector! Skipping track, returning 0.");
     return nullptr;
   }
+  // create vector for new TSOS (the ones which are kept)
+  DataVector<const TrackStateOnSurface>* trackStates = new DataVector<const TrackStateOnSurface>; 
+  const TrackStateOnSurface* firstValidIDTSOS(nullptr); 
+  const TrackStateOnSurface* lastValidIDTSOS(nullptr);
+  const TrackStateOnSurface* firstValidMSTSOS(nullptr);
+  const TrackStateOnSurface* lastValidMSTSOS(nullptr);
+  if (m_keepParameters){
+    // search last valid TSOS first (as won't be found in later loop)
+    findLastValidTSoS(oldTrackStates, lastValidIDTSOS,lastValidMSTSOS);  
+  }
+
+  // If m_keepParameters is true, then we want to keep the first and last parameters of ID & MS. 
+  const Trk::MeasurementBase* rot = nullptr;
+  const Trk::TrackParameters* parameters = nullptr;
+  bool keepParameter=false;
+  std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0); 
+  
+  DataVector<const TrackStateOnSurface>::const_iterator itTSoS = oldTrackStates->begin();
+  for (; itTSoS!=oldTrackStates->end(); ++itTSoS)
+  {
+    parameters=nullptr; 
+    rot=nullptr;
+    // if requested: keep calorimeter TSOS with adjacent scatterers (on combined muons)
+    if (m_keepCaloDeposit && (**itTSoS).type(TrackStateOnSurface::CaloDeposit)){
+      // preceding TSOS (if Scatterer)
+      if (itTSoS != oldTrackStates->begin()){
+        --itTSoS;
+        if ((**itTSoS).type(TrackStateOnSurface::Scatterer)){
+            trackStates->push_back((**itTSoS).clone());
+        }
+        ++itTSoS;
+      }
+      // copy removes CaloEnergy (just keep base EnergyLoss) 
+      const MaterialEffectsOnTrack* meot  =
+        dynamic_cast<const MaterialEffectsOnTrack*>((**itTSoS).materialEffectsOnTrack());
+      if (meot && meot->energyLoss()){
+        trackStates->push_back(new TrackStateOnSurface(0,
+                                                       (**itTSoS).trackParameters()->clone(),
+                                                       0,
+                                                       new MaterialEffectsOnTrack(meot->thicknessInX0(),
+                                                                                  0,
+                                                                                  new EnergyLoss(*meot->energyLoss()),
+                                                                                  meot->associatedSurface()),
+                                                       (**itTSoS).types()));
+      }
+      // following TSOS (if Scatterer)
+      ++itTSoS;
+      if (itTSoS != oldTrackStates->end() && (**itTSoS).type(TrackStateOnSurface::Scatterer))
+      {
+          trackStates->push_back((**itTSoS).clone());
+      }
+      --itTSoS;
+    }
+    // We only keep TSOS if they either contain a perigee, OR are a measurement
+    if ((*itTSoS)->measurementOnTrack()==0 && !(*itTSoS)->type(TrackStateOnSurface::Perigee)){
+      continue;
+    }
+    typePattern.reset(); 
+    keepParameter=keepParameters((*itTSoS),firstValidIDTSOS, lastValidIDTSOS,firstValidMSTSOS,lastValidMSTSOS);
+
+   if (keepParameter) {
+      parameters=(*itTSoS)->trackParameters()->clone(); // make sure we add a new parameter by cloning
+      if ((*itTSoS)->type(TrackStateOnSurface::Perigee))  {
+        typePattern.set(TrackStateOnSurface::Perigee);
+      }
+    }
+    
+    if ( (*itTSoS)->measurementOnTrack()!=nullptr &&  
+      ( (*itTSoS)->type(TrackStateOnSurface::Measurement) || ( m_keepOutliers && (*itTSoS)->type(TrackStateOnSurface::Outlier) ) ) ) 
+    { 
+      if ((*itTSoS)->type(TrackStateOnSurface::Measurement))  {typePattern.set(TrackStateOnSurface::Measurement);}
+      if ((*itTSoS)->type(TrackStateOnSurface::Outlier))      {typePattern.set(TrackStateOnSurface::Outlier);}
+      rot=(*itTSoS)->measurementOnTrack()->clone();
+
+    } 
+
+    Trk::TrackStateOnSurface* newTSOS = nullptr;
+    if (rot!=nullptr || parameters!=nullptr) {
+      newTSOS = new Trk::TrackStateOnSurface(rot, parameters, 0, 0, typePattern);
+      trackStates->push_back( newTSOS );
+    } 
+  }       
+
+  std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(Trk::TrackInfo(track.info()),
+                                                                      trackStates,
+                                                                      track.fitQuality()->clone()
+                                                                     );
+  newTrack->info().setTrackProperties(TrackInfo::SlimmedTrack);
+  // only attempt to copy the summary if the track has it!
+  if (track.trackSummary()!=nullptr){
+    newTrack->m_trackSummary = new Trk::TrackSummary(*(track.trackSummary()));
+  }
+  return newTrack;
 }
 
 void Trk::TrackSlimmingTool::checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas) const {
@@ -336,14 +279,55 @@ void Trk::TrackSlimmingTool::checkForValidMeas(const Trk::TrackStateOnSurface* t
   }
 }
 
-void Trk::TrackSlimmingTool::checkIfInDet(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas){
-  if (tsos->trackParameters()) 
-    isIDmeas=m_detID->is_indet(tsos->trackParameters()->associatedSurface().associatedDetectorElementIdentifier() );
-  else {
-    bool dummy; // Not so elegant.
-    checkForValidMeas(tsos, isIDmeas, dummy);
+void Trk::TrackSlimmingTool::findLastValidTSoS(const DataVector<const Trk::TrackStateOnSurface>* oldTrackStates,
+                                               const Trk::TrackStateOnSurface*& lastValidIDTSOS,
+                                               const TrackStateOnSurface*& lastValidMSTSOS) const{
+
+  for ( DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); 
+        rItTSoS != oldTrackStates->rend(); ++rItTSoS){
+    if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && 
+         (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0 && 
+         !(*rItTSoS)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)){
+        
+      if (m_detID->is_indet((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier())) {
+        lastValidIDTSOS = (*rItTSoS);
+        break;
+      } else if(m_detID->is_muon((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier())){
+        lastValidMSTSOS = (*rItTSoS);
+        break;
+      }
+    }
   }
 }
 
-  //============================================================================================
+bool Trk::TrackSlimmingTool::keepParameters(const Trk::TrackStateOnSurface* TSoS,
+                                            const TrackStateOnSurface*& firstValidIDTSOS, 
+                                            const TrackStateOnSurface*& lastValidIDTSOS,
+                                            const TrackStateOnSurface*& firstValidMSTSOS,
+                                            const TrackStateOnSurface*& lastValidMSTSOS) const{
 
+  if ( TSoS->trackParameters() != nullptr && TSoS->type(TrackStateOnSurface::Perigee) ) {
+    return true;
+  }
+  // Now do checks for first/last ID/MS measurement (isIDmeas and isMSmeas)
+  if (m_keepParameters){
+    bool isIDmeas = false; 
+    bool isMSmeas = false;
+    checkForValidMeas(TSoS, isIDmeas, isMSmeas);
+    // entering ID? 
+    if (isIDmeas && !firstValidIDTSOS && TSoS->type(TrackStateOnSurface::Measurement) ) {
+      firstValidIDTSOS=TSoS;
+      if ( TSoS->trackParameters() != nullptr) return true;
+    }
+    // entering MS? 
+    if (isMSmeas && !firstValidMSTSOS ) {
+        firstValidMSTSOS=TSoS;
+        if ( TSoS->trackParameters() != nullptr) return true;
+    }
+    // Is this the last TSOS on the track?
+    if (lastValidIDTSOS==TSoS || lastValidMSTSOS == TSoS){
+      if ( TSoS->trackParameters() != nullptr) return true;
+    }
+  }
+  return false;
+} 

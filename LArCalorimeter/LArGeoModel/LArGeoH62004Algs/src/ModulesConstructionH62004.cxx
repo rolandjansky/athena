@@ -42,7 +42,6 @@
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoGenericFunctions/Sin.h"
 #include "GeoGenericFunctions/Cos.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
@@ -144,7 +143,6 @@ LArGeo::ModulesConstructionH62004::ModulesConstructionH62004():m_ModulesPhys(0),
     s_angleX[17] = 4.668*Gaudi::Units::degree; s_angleY[17] = 0.*Gaudi::Units::degree; s_angleZ[17] = 90.*Gaudi::Units::degree;
      
   }
-  //StoreGateSvc* detStore;
 
   StatusCode status;
   ISvcLocator* svcLocator = Gaudi::svcLocator();

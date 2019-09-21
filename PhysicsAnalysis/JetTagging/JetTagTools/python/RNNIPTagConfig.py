@@ -17,8 +17,6 @@ def RNNIPTagCfg( flags, name = 'RNNIP', scheme = '', calibration=None, useBTagFl
 
     trackGradePartitions                default: [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
     RejectBadTracks                     default: False
-    originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
-    jetCollectionList                   default: BTaggingFlags.Jets
     SecVxFinderName                     default: "SV1"
 
     input:             name: The name of the tool (should be unique).
@@ -43,9 +41,7 @@ def RNNIPTagCfg( flags, name = 'RNNIP', scheme = '', calibration=None, useBTagFl
                   "InANDNInShared", "PixShared", "SctShared",
                   "InANDNInSplit", "PixSplit",
                   "Good"]
-        accBTagTrackToVertexIPEstimator = BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator')
-        trackToVertexIPEstimator = accBTagTrackToVertexIPEstimator.popPrivateTools()
-        acc.merge(accBTagTrackToVertexIPEstimator)
+        trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
         svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
         trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('RNNIPDetailedTrackGradeFactory'))
         trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'RNNIPTrackSelector'))
@@ -53,7 +49,6 @@ def RNNIPTagCfg( flags, name = 'RNNIP', scheme = '', calibration=None, useBTagFl
         defaults = {
                 'trackGradePartitions'      : grades ,
                 'RejectBadTracks'           : True,
-                'originalTPCollectionName'  : BTaggingFlags.TrackParticleCollectionName,
                 'NetworkConfig'             : BTaggingFlags.RNNIPConfig,
                 'unbiasIPEstimation'        : False,
                 'SecVxFinderName'           : 'SV1',

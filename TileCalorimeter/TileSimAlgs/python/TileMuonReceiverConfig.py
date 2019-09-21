@@ -2,8 +2,7 @@
 
 """Define method to construct configured Tile pulse for muon receiver algorithm"""
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 
 def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     """Return component accumulator with configured Tile muon receiver algorithm
@@ -19,7 +18,7 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     kwargs.setdefault('UseCoolPulseShapes', True)
     kwargs.setdefault('UseCoolPedestal', False)
 
-    acc = ComponentAccumulator()
+    acc = TileHitVecToCntCfg(flags)
 
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
@@ -85,7 +84,38 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
         kwargs.setdefault('MuonReceiverDigitsContainer', 'MuRcvDigitsCnt')
 
     from TileSimAlgs.TileSimAlgsConf import TilePulseForTileMuonReceiver
-    acc.addEventAlgo(TilePulseForTileMuonReceiver(**kwargs))
+    acc.addEventAlgo(TilePulseForTileMuonReceiver(**kwargs), primary = True)
+
+    return acc
+
+
+def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
+    """Return component accumulator with configured Tile muon receiver algorithm and Output stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    """
+
+    acc = TilePulseForTileMuonReceiverCfg(flags, **kwargs)
+    tilePulseForMuRcv = acc.getPrimary()
+
+    if hasattr(tilePulseForMuRcv, 'MuonReceiverDigitsContainer'):
+        muRcvDigitsCnt = tilePulseForMuRcv.MuonReceiverDigitsContainer
+    else:
+        muRcvDigitsCnt = tilePulseForMuRcv.getDefaultProperty('MuonReceiverDigitsContainer')
+    muRcvDigitsCnt = muRcvDigitsCnt.split('+').pop()
+    outputItemList = ['TileDigitsContainer#' + muRcvDigitsCnt]
+
+    if not flags.Digitization.PileUpPremixing:
+        if hasattr(tilePulseForMuRcv, 'MuonReceiverRawChannelContainer'):
+            muRcvRawChCnt = tilePulseForMuRcv.MuonReceiverRawChannelContainer
+        else:
+            muRcvRawChCnt = tilePulseForMuRcv.getDefaultProperty('MuonReceiverRawChannelContainer')
+        muRcvRawChCnt = muRcvRawChCnt.split('+').pop()
+        outputItemList += ['TileRawChannelContainer#' + muRcvRawChCnt]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 
     return acc
 
@@ -111,10 +141,20 @@ if __name__ == "__main__":
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
-    acc = ComponentAccumulator()
+    # Construct our accumulator to run
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    acc = MainServicesThreadedCfg(ConfigFlags)
 
-    print( acc.merge( TilePulseForTileMuonReceiverCfg(ConfigFlags) ) )
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    acc.merge(PoolReadCfg(ConfigFlags))
+
+    acc.merge( TilePulseForTileMuonReceiverOutputCfg(ConfigFlags) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
     acc.store( open('TileMuonReceiver.pkl','w') )
+
+    sc = acc.run(maxEvents=3)
+    # Success should be 0
+    import sys
+    sys.exit(not sc.isSuccess())

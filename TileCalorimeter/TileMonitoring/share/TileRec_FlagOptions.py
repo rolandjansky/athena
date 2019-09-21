@@ -79,9 +79,6 @@ if not 'storeHisto' in dir():
 if not 'doTileFlat' in dir():
     doTileFlat = False
 
-if not 'doTileOpt' in dir():
-    doTileOpt = False
-
 if not 'doTileOpt2' in dir():
     doTileOpt2 = True
 

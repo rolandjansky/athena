@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //  MakeCoincidenceOut.cxx
@@ -11,7 +11,6 @@
 // Athena/Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // MuonSpectrometer
 #include "MuonDigitContainer/TgcDigitContainer.h"
@@ -40,12 +39,9 @@ namespace LVL1TGCTrigger {
   extern TGCCoincidences * g_TGCCOIN;
   
   MakeCoincidenceOut::MakeCoincidenceOut(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator),
-    m_sgSvc("StoreGateSvc", name),
-    m_tgcIdHelper(0)
+    AthAlgorithm(name,pSvcLocator)
     //m_ntuplePtr(0)
   {
-    declareProperty("EventStore", m_sgSvc, "Event Store");
     declareProperty("InputData_perEvent",  m_key);
     declareProperty("WriteMCtruth",  m_WriteMCtruth=true);
   }
@@ -64,39 +60,16 @@ namespace LVL1TGCTrigger {
       msg(MSG::DEBUG) << "MakeCoincidenceOut::initialize() called" << endmsg;
     }
     msg(MSG::INFO) << "MakeCoincidenceOut initialize" << endmsg;
-
-    // StoreGateSvc
-    //StatusCode sc = service("StoreGateSvc", m_sgSvc);
-    StatusCode sc = m_sgSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not find StoreGateSvc" << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could find StoreGateSvc" << endmsg;
-    }
     
-    // Initialize the IdHelper
-    StoreGateSvc* detStore = 0;
-    sc = service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Can't locate the DetectorStore" << endmsg;
-      return sc;
-    }
-    
-    // get TGC ID helper
-    sc = detStore->retrieve( m_tgcIdHelper, "TGCIDHELPER");
-    if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not get TgcIdHelper !" << endmsg;
-      return sc;
-    }
-    
+    // get ID helper
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );    
 
     if (0==g_OUTCOINCIDENCE) {
       msg(MSG::INFO) << "You should make LVL1TGCTrigger::OUTCOINCIDENCE=1 in your jobOptions file" << endmsg;
       return StatusCode::FAILURE;
     }
 
-    sc = bookHistos();
+    StatusCode sc = bookHistos();
     if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "Cannot book histograms" << endmsg;
       return StatusCode::FAILURE;
@@ -117,7 +90,7 @@ namespace LVL1TGCTrigger {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MakeCoincidenceOut::execute() called" << endmsg;
 
     const EventInfo * evtInfo=0;
-    StatusCode sc = m_sgSvc->retrieve(evtInfo, "McEventInfo");
+    StatusCode sc = evtStore()->retrieve(evtInfo, "McEventInfo");
     if (sc.isFailure()) {
       msg(MSG::WARNING) << "Cannot retrieve EventInfo" << endmsg;
       m_runNumber=-1;
@@ -150,7 +123,7 @@ namespace LVL1TGCTrigger {
     }  
 
     const DataHandle<TgcDigitContainer> tgc_container;
-    sc = m_sgSvc->retrieve(tgc_container, m_key);
+    sc = evtStore()->retrieve(tgc_container, m_key);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << " Cannot retrieve TGC Digit Container " << endmsg;
       return sc;
@@ -165,19 +138,19 @@ namespace LVL1TGCTrigger {
       while ( h!=(*c)->end() && m_ndig<MaxNdig) {
 	Identifier id = (*h)->identify();
 	// ID information
-	m_stationName[m_ndig] = m_tgcIdHelper->stationName(id);
-	m_stationEta [m_ndig] = m_tgcIdHelper->stationEta(id);
-	m_stationPhi [m_ndig] = m_tgcIdHelper->stationPhi(id);
-	m_gasGap     [m_ndig] = m_tgcIdHelper->gasGap(id);
-	m_isStrip    [m_ndig] = m_tgcIdHelper->isStrip(id);
-	m_channel    [m_ndig] = m_tgcIdHelper->channel(id); 	
+	m_stationName[m_ndig] = m_muonIdHelperTool->tgcIdHelper().stationName(id);
+	m_stationEta [m_ndig] = m_muonIdHelperTool->tgcIdHelper().stationEta(id);
+	m_stationPhi [m_ndig] = m_muonIdHelperTool->tgcIdHelper().stationPhi(id);
+	m_gasGap     [m_ndig] = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+	m_isStrip    [m_ndig] = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
+	m_channel    [m_ndig] = m_muonIdHelperTool->tgcIdHelper().channel(id); 	
 	m_ndig++;  h++;
       }
     }
     
     if (m_WriteMCtruth) {
       const DataHandle<McEventCollection> mcColl(0);
-      sc = m_sgSvc->retrieve(mcColl,"TruthEvent");
+      sc = evtStore()->retrieve(mcColl,"TruthEvent");
       if (sc.isFailure() && !mcColl) {
         msg(MSG::WARNING) << "Cannot retrieve McEventCollection. McEventCollection is recorded in simulation file?" << endmsg;
       } else {

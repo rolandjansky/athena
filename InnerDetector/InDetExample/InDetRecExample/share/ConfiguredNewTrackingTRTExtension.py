@@ -98,9 +98,8 @@ class  ConfiguredNewTrackingTRTExtension:
             if (InDetFlags.doPrintConfigurables()):
                print InDetExtensionFitter
          else:
-            InDetExtensionFitter = InDetTrackFitter
-            if NewTrackingCuts.mode() == "LowPt":
-               InDetExtensionFitter = InDetTrackFitterLowPt
+            from AthenaCommon import CfgGetter
+            InDetExtensionFitter = CfgGetter.getPublicTool('InDetTrackFitter' if NewTrackingCuts.mode() != "LowPt" else  'InDetTrackFitterLowPt')
 
          #
          # --- load scoring for extension

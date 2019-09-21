@@ -86,25 +86,28 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
           
           // link decision to this view
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
           ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );  
         }
         else {
           int iview = roiIt - RoIsFromDecision.begin();
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
-	  auto theview = viewVector->at(iview);
-	  ATH_CHECK( linkViewToParent( inputDecision, theview ) );
+          auto theview = viewVector->at(iview);
+          ATH_CHECK( linkViewToParent( inputDecision, theview ) );
         }
       }// loop over previous inputs
     } // loop over decisions   
   }// loop over output keys
 
+  // debug option to reorder views
+  if ( m_reverseViews ) {
+    std::reverse( viewVector->begin(), viewVector->end() );
+  }
 
   // launch view execution
-
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
           m_viewNodeName,             // CF node to attach views to

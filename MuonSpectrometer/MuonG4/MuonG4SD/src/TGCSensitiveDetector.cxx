@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCSensitiveDetector.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -24,7 +23,7 @@ TGCSensitiveDetector::TGCSensitiveDetector(const std::string& name, const std::s
 // Implemenation of member functions
 void TGCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-  if (!m_myTGCHitColl.isValid()) m_myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
+  if (!m_myTGCHitColl.isValid()) m_myTGCHitColl = std::make_unique<TGCSimHitCollection>();
 }
 
 G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {

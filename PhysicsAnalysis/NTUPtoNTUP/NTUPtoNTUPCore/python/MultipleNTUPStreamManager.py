@@ -26,7 +26,6 @@ class AugmentedNTUPStream( AugmentedStreamBase ):
         metadataTool.TupleName = tupleName
         theApp.serviceMgr().ToolSvc += metadataTool
         self.Stream.HelperTools = [metadataTool]
-        self.Stream.ForceRead=True;
 
         return
 

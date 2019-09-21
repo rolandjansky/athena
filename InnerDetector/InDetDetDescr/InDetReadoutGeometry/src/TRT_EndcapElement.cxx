@@ -40,13 +40,11 @@ namespace InDetDD {
         m_nextInZ(NULL),
         m_previousInZ(NULL)
     {
-        m_descriptor->ref();
     }
 
 
     TRT_EndcapElement::~TRT_EndcapElement()
     {
-        m_descriptor->unref();
     }
 
     unsigned int TRT_EndcapElement::nStraws() const

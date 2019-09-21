@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/EventType.h"
 #include "EventTPCnv/EventTypeCnv_p3.h"
-#include "CxxUtils/make_unique.h"
 
 void EventTypeCnv_p3::transToPers(const EventType* trans, EventType_p3* pers, MsgStream &log)
 {
@@ -58,7 +57,7 @@ EventType* EventTypeCnv_p3::createTransient (const EventType_p3* persObj, MsgStr
 
 EventType* EventTypeCnv_p3::createTransient (const EventType_p3* persObj, MsgStream& log) const
 {
-  auto trans = CxxUtils::make_unique<EventType>();
+  auto trans = std::make_unique<EventType>();
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

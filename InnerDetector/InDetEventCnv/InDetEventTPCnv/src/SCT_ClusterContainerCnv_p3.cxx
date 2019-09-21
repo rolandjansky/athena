@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p3.h"
@@ -235,9 +235,7 @@ StatusCode SCT_ClusterContainerCnv_p3::initialize(MsgStream &log) {
    //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
    //   }
 
-   if (m_useDetectorElement) {
-     CHECK(m_SCTDetEleCollKey.initialize());
-   }
+   CHECK(m_SCTDetEleCollKey.initialize(m_useDetectorElement));
 
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;

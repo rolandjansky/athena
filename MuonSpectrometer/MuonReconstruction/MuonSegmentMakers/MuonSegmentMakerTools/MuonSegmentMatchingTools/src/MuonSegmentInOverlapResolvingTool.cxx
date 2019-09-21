@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentInOverlapResolvingTool.h"
  
 #include "GaudiKernel/MsgStream.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -30,7 +30,6 @@ namespace Muon {
   MuonSegmentInOverlapResolvingTool::MuonSegmentInOverlapResolvingTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
       m_magFieldProperties(Trk::NoField),
@@ -50,8 +49,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    if( m_helperTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_helperTool);
+    if( m_edmHelperSvc.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);
       return StatusCode::FAILURE;
     }
 
@@ -552,7 +551,7 @@ namespace Muon {
     MeasCit mit_end = segment.containedMeasurements().end();
     for( ;mit!=mit_end;++mit ){
       
-      Identifier id = m_helperTool->getIdentifier(**mit);
+      Identifier id = m_edmHelperSvc->getIdentifier(**mit);
       if( !id.is_valid() || !m_idHelperTool->measuresPhi(id) ) continue;
 
       // predict onto segment surface

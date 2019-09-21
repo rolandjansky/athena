@@ -111,6 +111,8 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 if TriggerFlags.doMT():
     
     log.info("configuring MT Trigger")
+    TriggerFlags.triggerMenuSetup = "LS2_v1"
+
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -145,7 +147,6 @@ if TriggerFlags.doMT():
 
     include ("InDetRecExample/InDetRecCabling.py")
 
-    TriggerFlags.triggerMenuSetup = "LS2_v1"
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
     def signaturesToGenerate():
@@ -157,6 +158,7 @@ if TriggerFlags.doMT():
         TriggerFlags.TauSlice.setAll()
         TriggerFlags.BjetSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
+        TriggerFlags.BphysicsSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
     allChainConfigs = menu.generateMT()
@@ -239,25 +241,23 @@ for i in outSequence.getAllChildren():
         # Still need to produce Run-2 style L1 xAOD output
         topSequence += RoIBResultToAOD("RoIBResultToxAOD")
 
-        from TrigEDMConfig.TriggerEDM import getLvl1ESDList
-        StreamRDO.ItemList += preplist(getLvl1ESDList())
-        StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-        for item in TriggerHLTListRun3:
-            if "ESD" in item[1] or "AOD" in item[1]:
-                StreamRDO.ItemList += [item[0]]
+        trigEDMListESD = {}
+        trigEDMListAOD = {}
+        # do the two lines above this need to be changed to this?
+        trigEDMListESD.update(getTriggerEDMList(TriggerFlags.ESDEDMSet(),  3) )
+        trigEDMListAOD.update(getTriggerEDMList(TriggerFlags.AODEDMSet(),  3) ) 
+
+        StreamRDO.ItemList += preplist(trigEDMListESD)
+        StreamRDO.ItemList += preplist(trigEDMListAOD)
 
         from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
-        print topSequence.HLTTop.Members
-        hypos = collectHypos( topSequence.HLTTop )
-        filters = collectFilters( topSequence.HLTTop )
+        hypos = collectHypos( findSubSequence(topSequence, "HLTAllSteps") )
+        filters = collectFilters( findSubSequence(topSequence, "HLTAllSteps") )
         decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
-
-        StreamRDO.ItemList += [ "xAOD::TrigDecision#xTrigDecision" ]            # TODO - move this back in to TrigEDMRun3
-        StreamRDO.ItemList += [ "xAOD::TrigDecisionAuxInfo#xTrigDecisionAux." ] # TODO - move this back in to TrigEDMRun3
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCDEADMATERIAL_H
@@ -17,8 +17,6 @@
  * and finally it runs toy reconstruction to produce dmreco .vs. dmtruth plots
  *
  */
-
-// class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include <vector>

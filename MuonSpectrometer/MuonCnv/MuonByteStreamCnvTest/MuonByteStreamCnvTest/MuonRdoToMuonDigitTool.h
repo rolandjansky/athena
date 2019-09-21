@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOMUONDIGITTOOL_H
@@ -17,15 +17,8 @@
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class sTgcIdHelper;
-class MmIdHelper;
-
-//class MDTcablingSvc;
 class IRPCcablingSvc;
 class ITGCcablingSvc;
 
@@ -61,6 +54,7 @@ namespace Muon {
   class ITGC_RDO_Decoder;
   class ISTGC_RDO_Decoder;
   class IMM_RDO_Decoder;
+  class MuonIdHelperTool;
 }
 // Author: Ketevi A. Assamagan
 // BNL, January 24, 2004
@@ -118,14 +112,8 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool;
   ToolHandle<Muon::ISTGC_RDO_Decoder>  m_stgcRdoDecoderTool;
   ToolHandle<Muon::IMM_RDO_Decoder>  m_mmRdoDecoderTool;
-
-  // identifier helpers
-  const MdtIdHelper *   m_mdtHelper;
-  const CscIdHelper *   m_cscHelper;
-  const RpcIdHelper *   m_rpcHelper;
-  const TgcIdHelper *   m_tgcHelper;
-  const sTgcIdHelper *   m_stgcHelper;
-  const MmIdHelper *   m_mmHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   // cabling service
   //  const MDTcablingSvc  * m_mdtCabling;

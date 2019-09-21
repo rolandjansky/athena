@@ -781,7 +781,7 @@ class rerunLVL1(_modifier):
             _run_number = af.run_number[0]
              
         # On run-1 data, need to re-create the L1 menu with correct L1Calo energy scale (ATR-10174)
-        if _run_number is None and _run_number<222222:
+        if _run_number is not None and _run_number<222222:
             TriggerFlags.useRun1CaloEnergyScale = True
             TriggerFlags.outputLVL1configFile = 'LVL1config_'+TriggerFlags.triggerMenuSetup()+'_Run1CaloEnergyScale.xml'
             TriggerFlags.readLVL1configFromXML = False
@@ -1227,7 +1227,7 @@ class memMon(_modifier):
             try:
                 from AthenaCommon.Constants import VERBOSE
                 topSequence.TrigSteer_HLT.MonTools['TrigMemMonitor'].OutputLevel = VERBOSE
-            except Exception:
+            except KeyError:
                 log.warning("memMon=True but TrigMemMonitor not present in the HLTMonTools")
                     
 class chainOrderedUp(_modifier):
@@ -1375,9 +1375,9 @@ class enableCostD3PD(_modifier):
         import imp
         try:
             imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include
+            from AthenaCommon.Include import include, IncludeError
             include("TrigCostD3PDMaker/TrigCostD3PDMaker_prodJobOFragment.py")
-        except Exception:
+        except IncludeError:
             log.error('TrigCostD3PDMaker packages not available, will not produce CostMonitoring D3PD.')
 
 class enableRateD3PD(_modifier):
@@ -1390,9 +1390,9 @@ class enableRateD3PD(_modifier):
         import imp
         try:
             imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include
+            from AthenaCommon.Include import include, IncludeError
             include("TrigCostD3PDMaker/TrigRateD3PDMaker_prodJobOFragment.py")
-        except Exception:
+        except IncludeError:
             log.warning('TrigCostD3PDMaker packages not available, will not produce RateMonitoring D3PD.')
 
 class enableCostDebug(_modifier):
@@ -1417,7 +1417,7 @@ class enableCostMonitoring(_modifier):
         try:
           from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
           postSetupOnlineCost()
-        except Exception:
+        except AttributeError:
           log.error('enableCostMonitoring (Run 2 style) post setup failed.')
 
 class enableCostForCAF(_modifier):
@@ -1455,9 +1455,9 @@ class doEnhancedBiasWeights(_modifier):
         import imp
         try:
             imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include
+            from AthenaCommon.Include import include, ImportError
             include("TrigCostD3PDMaker/TrigEBWeightD3PDMaker_prodJobOFragment.py")
-        except Exception:
+        except ImportError:
             log.warning('TrigCostD3PDMaker packages not available, will not produce Enhanced Bias weighting D3PD.')
         
 class BeamspotFromSqlite(_modifier):
@@ -1529,7 +1529,7 @@ class PixelOnlyZFinder(_modifier):
             zf.MaxLayer = 3
             zf.MinVtxSignificance = 10
             zf.Percentile = 0.95
-        except Exception:
+        except AttributeError:
             log.error("PixelOnlyZFinder set but no public instance of TrigZFinder")
 
 class tightenElectronTrackingCuts(_modifier):
@@ -1541,7 +1541,7 @@ class tightenElectronTrackingCuts(_modifier):
         topSequence = AlgSequence()
         try:
             topSequence.TrigSteer_HLT.TrigFastTrackFinder_Electron_IDTrig.doCloneRemoval=True
-        except Exception:
+        except AttributeError:
             log.error("Cannot modify doCloneRemoval setting")
 
 ###############################################################

@@ -33,9 +33,6 @@ namespace Muon {
     : 
     AthAlgTool(type, name, parent),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_mdtIdHelper(0),
-    m_rpcIdHelper(0),
-    m_tgcIdHelper(0),
     m_rndmEngine(0),
     m_rndmSvc(0),
     m_xAODContainerKey("MSDisplacedVertex"),
@@ -92,9 +89,10 @@ namespace Muon {
     
   StatusCode MSVertexRecoTool::initialize() {
     
-    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
-    ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-    ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
+    if( m_muonIdHelperTool.retrieve().isFailure() ){
+      ATH_MSG_FATAL("Could not get " << m_muonIdHelperTool);      
+      return StatusCode::FAILURE;
+    }
 
     if(m_doSystematics) {
       m_rndmEngine = m_rndmSvc->GetEngine("TrackletKiller");
@@ -1158,7 +1156,7 @@ namespace Muon {
         Muon::RpcPrepDataCollection::const_iterator rpcItr = (*RpcItr)->begin();
         Muon::RpcPrepDataCollection::const_iterator rpcItrE = (*RpcItr)->end();
         for(; rpcItr != rpcItrE; ++rpcItr) {
-	  if(m_rpcIdHelper->measuresPhi((*rpcItr)->identify())) {
+	  if(m_muonIdHelperTool->rpcIdHelper().measuresPhi((*rpcItr)->identify())) {
 	    float rpcEta = (*rpcItr)->globalPosition().eta();
 	    float rpcPhi = (*rpcItr)->globalPosition().phi();
 	    float dphi = phi - rpcPhi;
@@ -1187,7 +1185,7 @@ namespace Muon {
         Muon::TgcPrepDataCollection::const_iterator tgcItr = (*TgcItr)->begin();
         Muon::TgcPrepDataCollection::const_iterator tgcItrE = (*TgcItr)->end();
         for(; tgcItr != tgcItrE; ++tgcItr) {
-	  if(m_tgcIdHelper->isStrip((*tgcItr)->identify())) {
+	  if(m_muonIdHelperTool->tgcIdHelper().isStrip((*tgcItr)->identify())) {
 	    float tgcEta = (*tgcItr)->globalPosition().eta();
 	    float tgcPhi = (*tgcItr)->globalPosition().phi();
 	    float dphi = phi - tgcPhi;
@@ -1235,7 +1233,7 @@ namespace Muon {
       if( fabs(dphi) > 0.6 ) continue;
       int nChHits(0);
       Identifier id = (*mdt)->identify();
-      float nTubes = (m_mdtIdHelper->tubeLayerMax(id) - m_mdtIdHelper->tubeLayerMin(id) + 1)*(m_mdtIdHelper->tubeMax(id) - m_mdtIdHelper->tubeMin(id) + 1);
+      float nTubes = (m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(id) - m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(id) + 1)*(m_muonIdHelperTool->mdtIdHelper().tubeMax(id) - m_muonIdHelperTool->mdtIdHelper().tubeMin(id) + 1);
       for(; mdt != mdtE; ++mdt) {
         if((*mdt)->adc() < 50) continue;
         if((*mdt)->status() != 1) continue;

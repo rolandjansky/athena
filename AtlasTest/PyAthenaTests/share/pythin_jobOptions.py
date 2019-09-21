@@ -50,7 +50,6 @@ job += CfgMgr.AthenaOutputStream(
 # Copy everything from the input and must force reading of all input
 # objects
 job.OutStream.TakeItemsFromInput = True
-job.OutStream.ForceRead          = True
 job.OutStream.OutputFile         = OUTPUT
 ## configure the ThinningSvc
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc

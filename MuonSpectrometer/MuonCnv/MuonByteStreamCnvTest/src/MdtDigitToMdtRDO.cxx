@@ -23,9 +23,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_mdtIdHelper(0),
-  m_BMEpresent(false)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -59,27 +57,27 @@ StatusCode MdtDigitToMdtRDO::initialize()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 
-StatusCode MdtDigitToMdtRDO::execute() {
+StatusCode MdtDigitToMdtRDO::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "in execute()"  );
 
-  ATH_CHECK(fill_MDTdata());
+  ATH_CHECK(fill_MDTdata(ctx));
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
+StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "in execute() : fill_MDTdata"  );
   // create an empty pad container and record it
-  SG::WriteHandle<MdtCsmContainer> csmContainer(m_csmContainerKey);
+  SG::WriteHandle<MdtCsmContainer> csmContainer(m_csmContainerKey, ctx);
   ATH_CHECK(csmContainer.record(std::make_unique<MdtCsmContainer>()));
   ATH_MSG_DEBUG("Recorded MdtCsmContainer called " << csmContainer.name() << " in store " << csmContainer.store());
 
   IdContext mdtContext = m_mdtIdHelper->module_context();
 
-  SG::ReadHandle<MdtDigitContainer> container (m_digitContainerKey);
+  SG::ReadHandle<MdtDigitContainer> container (m_digitContainerKey, ctx);
   if (!container.isValid()) {
     ATH_MSG_ERROR("Could not find MdtDigitContainer called " << container.name() << " in store " << container.store());
     return StatusCode::SUCCESS;
@@ -91,7 +89,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 
   MdtCsmIdHash hashF;
 
-  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey, ctx};
   const MuonMDT_CablingMap* readCdo{*readHandle};
   if(readCdo==0){
     ATH_MSG_ERROR("Null pointer to the read conditions object");

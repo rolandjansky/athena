@@ -48,7 +48,6 @@ def getStream(type,name):
             name,
             EvtConversionSvc = "ByteStreamCnvSvc",
             OutputFile = "ByteStreamEventStorageOutputSvc",
-            ForceRead=True
             )
         theApp.addOutputStream( StreamBS )
         theApp.OutStreamType ="AthenaOutputStream";
@@ -106,7 +105,6 @@ def getStream(type,name):
             name,
             EvtConversionSvc = "ByteStreamCnvSvc",
             OutputFile = "ByteStreamRDP_OutputSvc",
-            ForceRead=True            
             )
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()

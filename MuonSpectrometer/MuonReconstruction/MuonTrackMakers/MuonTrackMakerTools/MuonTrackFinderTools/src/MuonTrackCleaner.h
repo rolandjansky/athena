@@ -6,10 +6,12 @@
 #define MUON_MUONTRACKCLEANER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonTrackMakerUtils/SortTracksByHitNumber.h"
 
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -32,7 +34,6 @@ namespace MuonGM {
 namespace Muon {
   class IMdtDriftCircleOnTrackCreator;
   class IMuonCompetingClustersOnTrackCreator;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
 }
@@ -289,7 +290,9 @@ namespace Muon {
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator; 
     ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compRotCreator;
     ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator;
-    ToolHandle<Muon::MuonEDMHelperTool>              m_helper;
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper;
     ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; 

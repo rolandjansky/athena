@@ -52,8 +52,6 @@
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include<fstream>
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 
 // STD
 #include <map>
@@ -1558,7 +1556,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(std::vector<
 
 }
 
-const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVPhysVol* mv, std::string name) const
+Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVPhysVol* mv, std::string name) const
 {
   
   // CSC stations have the particularity of displacement in Z between multilayer and the spacer - the envelope
@@ -1760,10 +1758,10 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const
     }
   }
   // ready to build the station prototype
-  const Trk::TrackingVolume* csc_station = new Trk::TrackingVolume( *envelope,
-								    *m_muonMaterial,
-								    0,compArray,
-								    name);                      
+  Trk::TrackingVolume* csc_station = new Trk::TrackingVolume( *envelope,
+                                                              *m_muonMaterial,
+                                                              0,compArray,
+                                                              name);                      
   delete envelope;
   return csc_station;    
 }

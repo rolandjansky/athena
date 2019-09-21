@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  DataModelAthenaPool/test/ElementLinkCnv_p1_test.cxx
  * @author scott snyder
@@ -40,6 +38,7 @@ typedef ElementLink<MyVI> ELI;
 
 void test1()
 {
+  std::cout << "test1\n";
   MsgStream log (0, "test");
   ElementLinkCnv_p1<ELI> cnv;
   ELI el1 ("key", 23);
@@ -57,6 +56,7 @@ void test1()
 
 int main()
 {
+  std::cout << "DataModelAthenaPool/ElementLinkCnv_p1_test\n";
   SGTest::initTestStore();
   test1();
   return 0;

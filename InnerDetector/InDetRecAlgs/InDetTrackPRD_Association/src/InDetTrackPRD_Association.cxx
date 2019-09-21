@@ -1,80 +1,58 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackPRD_Association/InDetTrackPRD_Association.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
 InDet::InDetTrackPRD_Association::InDetTrackPRD_Association
-(const std::string& name,ISvcLocator* pSvcLocator) : 
+(const std::string& name,ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
+{}
 
-  AthAlgorithm(name, pSvcLocator)                           ,
-  m_assoTool  ("InDet::InDetPRD_AssociationToolGangedPixels")
+StatusCode InDet::InDetTrackPRD_Association::initialize()
 {
-  // InDetTrackPRD_Association steering parameters
-  //
-  declareProperty("AssociationTool", m_assoTool  );
-  declareProperty("TracksName"     , m_tracksName);
-}
 
-///////////////////////////////////////////////////////////////////
-// Initialisation
-///////////////////////////////////////////////////////////////////
-
-StatusCode InDet::InDetTrackPRD_Association::initialize() 
-{
- 
 
   ATH_CHECK(m_tracksName.initialize());
-  // Get association tool
-  //
-  if( m_assoTool.retrieve().isFailure()) {
-
-    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_assoTool << endmsg;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
-  }
+  ATH_CHECK(m_assoMapName.initialize());
+  ATH_CHECK(m_assoTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
 
-///////////////////////////////////////////////////////////////////
-// Execute
-///////////////////////////////////////////////////////////////////
-
-StatusCode InDet::InDetTrackPRD_Association::execute() 
-{ 
-
-
+StatusCode InDet::InDetTrackPRD_Association::execute(const EventContext& ctx) const
+{
   // Assosiate tracks with PRDs
   //
-  m_assoTool->reset();
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map(m_assoTool->createPRDtoTrackMap());
 
   for (const SG::ReadHandleKey<TrackCollection>& collKey : m_tracksName) {
-    SG::ReadHandle<TrackCollection> tracks(collKey);
-    
+    SG::ReadHandle<TrackCollection> tracks(collKey,ctx);
+    assert (tracks.isValid());
+
     unsigned tracksPRD=0;
     unsigned tracksPRDn=0;
 
-    for  (const Trk::Track* t : *tracks) {  
-      if((m_assoTool->addPRDs(*t)).isFailure()) 
-	++tracksPRDn; 
-      else 
-	++tracksPRD;
-    }
-    ATH_MSG_DEBUG("Collection " << collKey.key() << ": tracks with PRD " << tracksPRD << ",  without PRD " << tracksPRD);
-  } 
+    for  (const Trk::Track* t : *tracks) {
+      if((m_assoTool->addPRDs(*prd_to_track_map,*t)).isFailure())
+        ++tracksPRDn;
+      else
+        ++tracksPRD;
 
+    }
+    ATH_MSG_DEBUG("Collection " << collKey.key() << ": tracks with PRD "<< tracksPRD
+                  << ",  without PRD " << tracksPRD);
+  }
+  SG::WriteHandle<Trk::PRDtoTrackMap> write_handle(m_assoMapName, ctx);
+  if (write_handle.record( m_assoTool->reduceToStorableMap(std::move(prd_to_track_map))).isFailure()) {
+    ATH_MSG_FATAL("Failed to add PRD to track association map.");
+  }
   return StatusCode::SUCCESS;
 }
-
-///////////////////////////////////////////////////////////////////
-// Finalize
-///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::InDetTrackPRD_Association::finalize() {return StatusCode::SUCCESS;}

@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 ///============================================================
-///
 /// T2VertexBeamSpot.h, (c) ATLAS Detector software
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
 ///
@@ -12,11 +10,7 @@
 ///
 /// Authors : David W. Miller, Rainer Bartoldus,
 ///           Su Dong
-///
-/// Date : 11 May, 2008
-///
 ///============================================================
-
 /**********************************************************************************
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -26,23 +20,25 @@
  *
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
- * File and Version Information:
- * $Id: T2VertexBeamSpot.h 793156 2017-01-20 00:29:06Z ssnyder $
  **********************************************************************************/
-
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOT_H
 #define TRIGT2BEAMSPOT_T2VERTEXBEAMSPOT_H
 
+#include "AthenaMonitoring/Monitored.h"
+#include "xAODEventInfo/EventInfo.h"
 /// trigger EDM
 #include "TrigInterfaces/AllTEAlgo.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+//Interface for the beam spot tool
+#include "IT2VertexBeamSpotTool.h"
 
 namespace HLT {
   class TriggerElement;
 }
 
-namespace PESA {
+/** Return vector of all trigger elements */
+HLT::TEVec getAllTEs(const std::vector<HLT::TEVec>& tes_in);
 
+namespace PESA {
   /**
    *  @class T2VertexBeamSpot
    *  This class uses primary vertex reconstruction to measure
@@ -66,7 +62,12 @@ namespace PESA {
       T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLocator ); //!< std Gaudi Algorithm constructor
       virtual ~T2VertexBeamSpot();
 
+      //=================================
+      //       Old Run2 setup
+      /** Initialize the beamspot algorithm for Run2 configuration within the HLT, initialize all the handles and retrieve the tools associated with the algorithm */
       HLT::ErrorCode hltInitialize();
+
+      /** Finalize the beamspot algorithm for Run2 configuration within the HLT (nothing really happens here atm) */
       HLT::ErrorCode hltFinalize();
 
       /**
@@ -79,20 +80,51 @@ namespace PESA {
       HLT::ErrorCode hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& input,
                                  unsigned int output );
 
+      /** Function which attaches vertex collections to the trigger element output */
+      HLT::ErrorCode attachFeatureVertex( TrigVertexCollection &myVertexCollection,  HLT::TEVec &allTEs, unsigned int type_out );
+
+      /** Function which attaches splitted vertex collections to the trigger element output */
+      HLT::ErrorCode attachFeatureSplitVertex(DataVector< TrigVertexCollection > &mySplitVertexCollections,  HLT::TEVec &allTEs, unsigned int type_out );
+
+      //Only for Run2 settings
+      bool m_activateTE; /*If true to be added */
+      bool m_activateAllTE;/*If true to be added */
+      bool m_activateSI;/*If true to be added */
+      bool m_attachVertices;/*If true to be added */
+      bool m_attachSplitVertices;/*If true to be added */
+
+     std::string m_vertexCollName; 
+
+      //=================================
+      //       New Run3 setup
+      /** Loop over events, selecting tracks and reconstructing vertices out of these tracks   */
+      virtual StatusCode execute() final;
+
+      /** Initialize the beamspot algorithm for Run3 Athena MT configuration, initialize all the handles and retrieve the tools associated with the algorithm */
+      virtual StatusCode initialize() final;
+
+      
+      SG::ReadHandleKeyArray<TrackCollection> m_trackCollections;   /*Input list of track collection names which should be used for the algorithms*/
+
+      //The same as in Run2 (m_vertexCollName)
+      SG::WriteHandleKey<TrigVertexCollection> m_outputVertexCollectionKey;
+      //TODO: to be added SG::WriteHandleKeyArray<TrigVertexCollection> m_outputSplitVertexCollectionKey;   /*Input list of track collection names which should be used for the algorithms*/
+
     private:
 
-      /// Implementation class
-      class T2VertexBeamSpotImpl* m_impl;
+      //Read Handles
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey  { this, "EventInfo", "EventInfo", "" };
 
-      //Switch to use TrigInDetTrack (i.e. L2Star algorithms)
-      bool m_doTrigInDetTrack;
+      //Tools
+      ToolHandle<IT2VertexBeamSpotTool> m_beamSpotTool {this, "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
+      ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
-      // Need this to get access to protected msg() and msgLvl()
-      friend class T2VertexBeamSpotImpl;
 
-      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     };
 
 } // end namespace
+
+
+
 
 #endif

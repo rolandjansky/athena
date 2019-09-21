@@ -41,7 +41,7 @@ def resetSigs():
 
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
-topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
+#topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
 
 if 'fastZFinder' in dir() and fastZFinder==True:
   from AthenaCommon.AppMgr import ToolSvc

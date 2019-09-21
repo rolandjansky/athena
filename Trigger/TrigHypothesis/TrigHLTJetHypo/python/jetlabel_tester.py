@@ -17,6 +17,7 @@ def compile(label, setter=None, expand=False, dump=False):
 
     tree.set_ids(node_id=0, parent_id=0)
     
+
     if expand:
         visitor = TreeParameterExpander()
         tree.accept(visitor)
@@ -34,6 +35,7 @@ def compile(label, setter=None, expand=False, dump=False):
 
 def compile_(label, setter=None, expand=True, dump=True):
     compile(label, setter, expand, dump)
+
             
 if __name__ == '__main__':
 
@@ -69,6 +71,7 @@ if __name__ == '__main__':
       combgen
       (
         [(10et)]
+
         dijet
         (
           [(34mass, 26dphi)]
@@ -79,7 +82,6 @@ if __name__ == '__main__':
         )
       )
     )"""
-
 
     label =  """agree([]
                          flownetwork([(130mass)(131mass)(10et)(11et)(12et)(13et)(0001122tree)])
