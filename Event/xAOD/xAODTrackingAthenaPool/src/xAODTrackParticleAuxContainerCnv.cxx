@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrackParticleAuxContainerCnv.cxx 791368 2017-01-05 08:55:07Z krasznaa $
@@ -47,27 +47,26 @@ StatusCode xAODTrackParticleAuxContainerCnv::initialize() {
 
 xAOD::TrackParticleAuxContainer*
 xAODTrackParticleAuxContainerCnv::
-createPersistent( xAOD::TrackParticleAuxContainer* trans ) {
+createPersistentWithKey( xAOD::TrackParticleAuxContainer* trans,
+                         const std::string& key ) {
 
    // Load the necessary ROOT class(es):
-   static bool dictLoaded = false;
-   if( ! dictLoaded ) {
-      static const char* NAME =
-         "std::vector<ElementLink<DataVector<Trk::Track> > >";
-      if( ! TClass::GetClass( NAME ) ) {
-         ATH_MSG_ERROR( "Couldn't load dictionary for type: " << NAME );
-      }
-      dictLoaded = true;
+   static const char* NAME =
+     "std::vector<ElementLink<DataVector<Trk::Track> > >";
+   static const TClass* cls = TClass::GetClass( NAME );
+   if( ! cls ) {
+     ATH_MSG_ERROR( "Couldn't load dictionary for type: " << NAME );
    }
 
-   // Create a copy of the container:
-   std::unique_ptr< xAOD::TrackParticleAuxContainer > result(
-            SG::copyThinned( *trans, IThinningSvc::instance() ) );
+   // This makes a copy of the container, with any thinning applied.
+   std::unique_ptr< xAOD::TrackParticleAuxContainer > result
+     ( xAODTrackParticleAuxContainerCnvBase::createPersistentWithKey (trans, key) );
+
 
    // Create a helper object for the float compression:
    xAOD::TrackParticleContainer helper;
    for( size_t i = 0; i < result->size(); ++i ) {
-      helper.push_back( new xAOD::TrackParticle() );
+      helper.push_back( std::make_unique<xAOD::TrackParticle>() );
    }
    helper.setStore( result.get() );
 
@@ -85,48 +84,3 @@ createPersistent( xAOD::TrackParticleAuxContainer* trans ) {
    return result.release();
 }
 
-xAOD::TrackParticleAuxContainer*
-xAODTrackParticleAuxContainerCnv::createTransient() {
-
-  // The known ID(s) for this container:
-  static const pool::Guid v1_guid( "C3B01EA0-CA87-4C96-967F-E0F9A75BD370" );
-  static const pool::Guid v2_guid( "53031BE5-2156-41E8-B70C-41A1C0572FC5" );
-  static const pool::Guid v3_guid( "F41DF744-242D-11E6-B472-02163E010CEC" );
-  static const pool::Guid v4_guid( "403CEB6E-2A3D-11E8-B048-080027F5CBDA" );
-
-  // Check which version of the container we're reading:
-  if ( compareClassGuid( v4_guid ) ){
-    // It's the latest version, read it directly:
-    return poolReadObject< xAOD::TrackParticleAuxContainer >(); 
-  } else if ( compareClassGuid( v3_guid ) ){
-    // Read in the v3 version: 
-    static xAODTrackParticleAuxContainerCnv_v3 converter; 
-    std::unique_ptr< xAOD::TrackParticleAuxContainer_v3 > 
-      old( poolReadObject< xAOD::TrackParticleAuxContainer_v3 >() ); 
-
-    return converter.createTransient( old.get(), msg() );
-  } else if ( compareClassGuid( v2_guid ) ){
-    // Read in the v2 version: 
-    static xAODTrackParticleAuxContainerCnv_v2 converter; 
-    std::unique_ptr< xAOD::TrackParticleAuxContainer_v2 > 
-      old( poolReadObject< xAOD::TrackParticleAuxContainer_v2 >() ); 
-
-    return converter.createTransient( old.get(), msg() );
-  } else if( compareClassGuid( v1_guid ) ) {
-    
-    // The v1 converter: 
-    static xAODTrackParticleAuxContainerCnv_v1 converter; 
- 
-    // Read in the v1 version: 
-    std::unique_ptr< xAOD::TrackParticleAuxContainer_v1 > 
-      old( poolReadObject< xAOD::TrackParticleAuxContainer_v1 >() ); 
- 
-    // Return the converted object: 
-    return converter.createTransient( old.get(), msg() );     
-  }
-
-  // If we didn't recognise the ID:
-  throw std::runtime_error( "Unsupported version of "
-    "xAOD::TrackParticleAuxContainer found" );
-  return 0;
-}
