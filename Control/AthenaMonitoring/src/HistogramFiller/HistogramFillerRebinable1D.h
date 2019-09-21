@@ -40,8 +40,11 @@ namespace Monitored {
 	histogram->SetCanExtend(TH1::kAllAxes);
 	const auto max = std::max_element(begin(valuesVector), end(valuesVector));
 	const auto min = std::min_element(begin(valuesVector), end(valuesVector));
-	histogram->ExtendAxis(*max,histogram->GetXaxis());
-	histogram->ExtendAxis(*min,histogram->GetXaxis());
+	// ExtendAxis is always an extremely expensive operation; do not
+	// invoke if not necessary
+	auto xaxis = histogram->GetXaxis();
+	if (*max >= xaxis->GetXmax()) histogram->ExtendAxis(*max,histogram->GetXaxis());
+	if (*min < xaxis->GetXmin()) histogram->ExtendAxis(*min,histogram->GetXaxis());
       }
 
       return fillHistogram();
