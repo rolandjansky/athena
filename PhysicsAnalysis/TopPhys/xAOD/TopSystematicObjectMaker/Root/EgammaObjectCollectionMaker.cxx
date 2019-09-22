@@ -74,7 +74,7 @@ namespace top{
     declareProperty( "IsolationTool_TightCaloOnly", m_isolationTool_TightCaloOnly );
     declareProperty( "IsolationTool_FixedCutLoose" , m_isolationTool_FixedCutLoose );
     declareProperty( "IsolationTool_FixedCutHighPtCaloOnly", m_isolationTool_FixedCutHighPtCaloOnly );
-    declareProperty( "IsolationTool_FCHightPtCaloOnly", m_isolationTool_FCHighPtCaloOnly );
+    declareProperty( "IsolationTool_FCHighPtCaloOnly", m_isolationTool_FCHighPtCaloOnly );
     declareProperty( "IsolationTool_HighPtCaloOnly", m_isolationTool_HighPtCaloOnly );
     declareProperty( "IsolationTool_FCTight" , m_isolationTool_FCTight );
     declareProperty( "IsolationTool_FCLoose" , m_isolationTool_FCLoose );
@@ -222,6 +222,7 @@ namespace top{
           }
         }
         ///-- Isolation selection --///
+        static SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
         char passIsol_FixedCutTight(0);
         char passIsol_FixedCutTightCaloOnly(0);
         char passIsol_FixedCutLoose(0);
@@ -237,14 +238,16 @@ namespace top{
         if (m_isolationTool_FixedCutLoose->accept(*photon)) {
           passIsol_FixedCutLoose = 1;
         }
-        if (m_isolationTool_Tight->accept(*photon)) {
-          passIsol_Tight = 1;
-        }
         if (m_isolationTool_TightCaloOnly->accept(*photon)) {
           passIsol_TightCaloOnly = 1;
         }
-        if (m_isolationTool_Loose->accept(*photon)) {
-          passIsol_Loose = 1;
+        if (ptcone20_TightTTVA_pt1000.isAvailable(*photon)) {
+          if (m_isolationTool_Tight->accept(*photon)) {
+            passIsol_Tight = 1;
+          }
+          if (m_isolationTool_Loose->accept(*photon)) {
+            passIsol_Loose = 1;
+          }
         }
         photon->auxdecor<char>("AnalysisTop_Isol_FixedCutTight")         = passIsol_FixedCutTight;
         photon->auxdecor<char>("AnalysisTop_Isol_FixedCutTightCaloOnly") = passIsol_FixedCutTightCaloOnly;
@@ -284,6 +287,8 @@ namespace top{
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Loose("AnalysisTop_Isol_Loose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly("AnalysisTop_Isol_TightTrackOnly");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_HighPtCaloOnly("AnalysisTop_Isol_HighPtCaloOnly");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowTight("AnalysisTop_Isol_PflowTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
 
@@ -341,24 +346,23 @@ namespace top{
         ///-- Isolation selection --///
         char passIsol_Gradient(0);
         char passIsol_FCHighPtCaloOnly(0);
-        char passIsol_TightTrackOnly(0);
         char passIsol_HighPtCaloOnly(0);
         if (m_isolationTool_Gradient->accept( *electron ))         {passIsol_Gradient         = 1;}
         if (m_isolationTool_FCHighPtCaloOnly->accept( *electron )) {passIsol_FCHighPtCaloOnly = 1;}
-        if (m_isolationTool_TightTrackOnly->accept( *electron ))   {passIsol_TightTrackOnly   = 1;}
-        if (m_isolationTool_HighPtCaloOnly->accept( *electron ))   {passIsol_HighPtCaloOnly   = 1;}
+        if (m_isolationTool_HighPtCaloOnly->accept( *electron )) {passIsol_HighPtCaloOnly = 1;}
 
         electron->auxdecor<char>("AnalysisTop_Isol_Gradient")         = passIsol_Gradient;
         electron->auxdecor<char>("AnalysisTop_Isol_FCHighPtCaloOnly") = passIsol_FCHighPtCaloOnly;
-        electron->auxdecor<char>("AnalysisTop_Isol_TightTrackOnly")   = passIsol_TightTrackOnly;
         electron->auxdecor<char>("AnalysisTop_Isol_HighPtCaloOnly")   = passIsol_HighPtCaloOnly;
         if (ptvarcone20_TightTTVA_pt1000.isAvailable(*electron)) {
           AnalysisTop_Isol_FCTight(*electron) = (m_isolationTool_FCTight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_FCLoose(*electron) = (m_isolationTool_FCLoose->accept(*electron) ? 1 : 0);
         }
+        AnalysisTop_Isol_HighPtCaloOnly(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
         if (ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron)) {
           AnalysisTop_Isol_Tight(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_Loose(*electron) = (m_isolationTool_Loose->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_TightTrackOnly(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
         }
         if (ptvarcone30_TightTTVALooseCone_pt500.isAvailable(*electron) && neflowisol20.isAvailable(*electron)) {
           AnalysisTop_Isol_PflowTight(*electron) = (m_isolationTool_PflowTight->accept(*electron) ? 1 : 0);
