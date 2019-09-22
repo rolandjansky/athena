@@ -288,7 +288,6 @@ namespace top{
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Loose("AnalysisTop_Isol_Loose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly("AnalysisTop_Isol_TightTrackOnly");
-    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_HighPtCaloOnly("AnalysisTop_Isol_HighPtCaloOnly");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowTight("AnalysisTop_Isol_PflowTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
 
@@ -358,7 +357,6 @@ namespace top{
           AnalysisTop_Isol_FCTight(*electron) = (m_isolationTool_FCTight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_FCLoose(*electron) = (m_isolationTool_FCLoose->accept(*electron) ? 1 : 0);
         }
-        AnalysisTop_Isol_HighPtCaloOnly(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
         if (ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron)) {
           AnalysisTop_Isol_Tight(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_Loose(*electron) = (m_isolationTool_Loose->accept(*electron) ? 1 : 0);
