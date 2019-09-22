@@ -26,10 +26,10 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
  private:
   
   Gaudi::Property<std::string>
-    m_min{this, "eta_min", {}, "Abs eta min for eta region"};
+    m_min{this, "min", {}, "Abs eta min for eta region"};
   
   Gaudi::Property<std::string>
-    m_max{this, "eta_max", {}, "Abs eta max for eta region"};
+    m_max{this, "max", {}, "Abs eta max for eta region"};
 
   StatusCode checkVals()  const;
  

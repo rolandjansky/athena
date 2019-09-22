@@ -5,6 +5,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolMT,)
 
 from  TrigHLTJetHypo.ToolSetter import ToolSetter
+
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
@@ -49,7 +50,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     # visitor = ToolSetter(chain_name)
     tool = None
     if toolSetter is None:
-        toolSetter = ToolSetter(self.chain_name)
+        toolSetter = ToolSetter(chain_name)
         tree.accept(modifier=toolSetter)
         tool = tree.tool
     else:
@@ -57,9 +58,12 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
             toolSetter.mod(tree)
             tool = toolSetter.tool
         else:
+            print ('using tool setter', toolSetter.__class__.__name__)
             tree.accept(modifier=toolSetter)
-            tool = tree.tool
 
+    tool = tree.children[0].tool
+    print ('made tool', tool.__class__.__name__)
+    
     log.info(visitor.report())
 
     return tool

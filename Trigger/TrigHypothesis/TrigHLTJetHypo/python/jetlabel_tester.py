@@ -4,7 +4,7 @@
 
 from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.ConditionsToolSetter import ConditionsToolSetter
+from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetter
 from  TrigHLTJetHypo.ToolSetter import ToolSetter
 
 from node import rotate
@@ -146,9 +146,9 @@ if __name__ == '__main__':
 
     # tree = compile(label, dump=True)
     
-    setter = ToolSetter('toolSetter')
+    setter = ConditionsToolSetter('toolSetter')
 
-    tree = compile(label,  expand=True, dump=True)
+    tree = compile(label, setter=setter,  expand=True, dump=True)
     print 'tree scenario:', tree.scenario
     # setter = ConditionsToolSetter('conditionsToolSetter')
     # setter.mod(tree)

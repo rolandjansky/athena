@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 from .constants import lchars
 
-from ToolSetter import ToolSetter
+from TrigHLTJetHypo.ToolSetter import ToolSetter
 
 import re
 from collections import defaultdict
@@ -168,9 +168,9 @@ class ConditionsDictMaker(object):
 
         result = []
         msgs = []
+        clist = []
 
         for c in conditions:  # there is a parameter string for each condition
-            clist = []
             cdict = defaultdict(dict)
             print ('processing condition', c)
             toks = c.split(',')  # parameters in par string are separated by ','
@@ -178,6 +178,7 @@ class ConditionsDictMaker(object):
 
             for t in toks:
                 m = self.window_re.match(t)
+                limits_dict = {}
                 if m is None:
                     msgs.append('match failed for parameter %s' % t)
                     error = True
@@ -216,18 +217,19 @@ class ConditionsDictMaker(object):
                 if lo:
                     print (attr, lo)
                     # find the python proxy class  name
-                    cdict[attr]['min'] = str(sf * float(lo))
+                    limits_dict['min'] = str(sf * float(lo))
                         
                     if attr == 'neta':
-                        cdict[attr]['min'] *= -1.  # negative eta range
+                        limits_dict['min'] *= -1.  # negative eta range
                         
                 if hi:
-                    cdict[attr]['max'] = str(sf * float(hi))
+                    limits_dict['max'] = str(sf * float(hi))
                     if attr == 'neta':
                         result[attr]['max'] *= -1.  # negative eta range
                         
-                clist.append(cdict)
-            result.append(clist)
+                cdict[attr] = limits_dict
+            
+            result.append(cdict)
 
         msgs = ['ConditionsDict OK']
         error = False
@@ -280,7 +282,7 @@ class TreeParameterExpander_dijet(object):
         cdm = ConditionsDictMaker()
         d, error, msgs = cdm.makeDict(node.parameters)
         self.msgs.extend(msgs)
-        node.conf_attrs.update(d)
+        node.conf_attrs = d
 
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
@@ -314,7 +316,7 @@ class TreeParameterExpander_combgen(object):
         cdm = ConditionsDictMaker()
         d, error, msgs = cdm.makeDict(parameters)
         self.msgs.extend(msgs)
-        node.conf_attrs.update(d)
+        node.conf_attrs = d
         
 
         if ok:

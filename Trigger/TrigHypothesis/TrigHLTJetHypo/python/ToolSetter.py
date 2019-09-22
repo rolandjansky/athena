@@ -45,7 +45,6 @@ class ToolSetter(object):
             'dijet_deta': [TrigJetConditionConfig_dijet_deta, 0],
             'dijet_dphi': [TrigJetConditionConfig_dijet_dphi, 0],
             'dijet_dphi': [TrigJetConditionConfig_dijet_dphi, 0],
-            'compoundCondition': [TrigJetConditionConfig_compound, 0],
             }
 
         self.mod_router = {

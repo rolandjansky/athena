@@ -25,7 +25,10 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
  private:
   
   Gaudi::Property<std::string>
-    m_min{this, "EtThreshold", {}, "single jet min Et"};
+    m_min{this, "min", {}, "single jet min Et"};
+  
+  Gaudi::Property<std::string>
+    m_max{this, "max", {}, "single jet max Et"};
   
   StatusCode checkVals()  const;
  

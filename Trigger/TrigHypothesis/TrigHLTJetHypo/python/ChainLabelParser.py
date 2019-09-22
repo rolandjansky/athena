@@ -2,8 +2,8 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-from .node import Node
-from .constants import lchars, digits
+from TrigHLTJetHypo.node import Node
+from TrigHLTJetHypo.constants import lchars, digits
 
 def get_char(s):
     """character generator"""
@@ -49,7 +49,7 @@ def preprocess(s):
 
     check_parens(s)
     print(s)
-    from .constants import alphabet
+    from TrigHLTJetHypo.constants import alphabet
     for c in s:
         if c not in alphabet:
             raise RuntimeError('bad character %s in string %s' % (c, s))

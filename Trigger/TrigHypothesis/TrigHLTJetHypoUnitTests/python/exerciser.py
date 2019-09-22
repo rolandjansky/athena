@@ -16,6 +16,7 @@ from TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetter
 
 class PartitionvsFlowNetworkTests(object):
 
@@ -425,13 +426,59 @@ class FlowNetworkTests_1(CombinationsTests) :
         return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
             str(self.n_bkgd) + '.log'
 
-    
+
+class SimpleConditionsTests(CombinationsTests) :
+
+    def __init__(self,
+                 n_sgnl=4,
+                 n_bkgd=4,
+                 bkgd_etmax=20000.,  # MeV
+    ):
+        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
+        self.chain_name = 'HLT_DijetConditionTests'
+
+    def make_helper_tool(self):
+        chain_label = """
+        z([]
+            simple([(10et, 0eta320)(20et)])
+        )"""
+
+
+        toolSetter = ConditionsToolSetter(self.chain_name)
+        return trigJetHypoToolHelperFromDict_(chain_label,
+                                              self.chain_name,
+                                              toolSetter=toolSetter)
+
+
+    def logfile_name(self, chain_name):
+        return chain_name +  '_s' + str(self.n_sgnl) + '_b' + str(self.n_bkgd)+'.log'
+
+    def make_event_generator(self):
+        generator = SimpleHypoJetVectorGenerator()
+
+        generator.ets = [80000. + 1000.*i for i in range(self.n_sgnl)]
+        generator.etas = [0.5] * self.n_sgnl
+
+        # alternate eta signs to get high mass
+        factor = 1
+        for i in range(len(generator.etas)):
+            generator.etas[i] *= factor
+            factor *= -1
+
+        generator.n_bkgd = self.n_bkgd
+        generator.bkgd_etmax = self.bkgd_etmax
+
+        return generator
+
 def JetHypoExerciserCfg():
 
-    test_conditions = FlowNetworkTests_1(n_sgnl=1, n_bkgd=0)
+
+
+    # test_conditions = FlowNetworkTests_1(n_sgnl=1, n_bkgd=0)
     # test_conditions = SimpleFlowNetworkTests(n_sgnl=4, n_bkgd=0)
-    #test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=4, n_bkgd=0)
+    # test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=4, n_bkgd=0)
     # test_conditions = FlowNetworkVsCombinationsTests(n_sgnl=4, n_bkgd=0)
+    test_conditions = SimpleConditionsTests(n_sgnl=4, n_bkgd=0)
 
     print(test_conditions.__dict__)
     # test_conditions =  CombinationsTests()

@@ -23,7 +23,10 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
 
  private:
 
-  ToolHandleArray<ITrigJetConditionConfig> m_elementConditions;
+  ToolHandleArray<ITrigJetConditionConfig> m_elementConditions{
+    this, "conditionMakers", {},
+      "elemental conditions makers for a leaf node."};
+  
   StatusCode checkVals()  const;
  
 };

@@ -19,6 +19,7 @@
 #include "../TrigJetHypoToolConfig_combgen.h"
 #include "../TrigJetHypoToolConfig_partgen.h"
 #include "../TrigJetHypoToolConfig_flownetwork.h"
+#include "../TrigJetHypoToolConfig_leaf.h"
 //
 #include "../TrigJetConditionConfig_eta.h"
 #include "../TrigJetConditionConfig_et.h"
@@ -56,6 +57,7 @@ DECLARE_COMPONENT(TrigJetHypoToolConfig_dijet)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_combgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_partgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_flownetwork)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_leaf)
 DECLARE_COMPONENT(NotHelperTool)
 DECLARE_COMPONENT(AndHelperTool)
  DECLARE_COMPONENT(OrHelperTool)

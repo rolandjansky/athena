@@ -26,8 +26,8 @@ class ConditionsToolSetter(object):
         # completed because simple can conain any single jet condition
         self.tool_factories = {
             'eta': [TrigJetConditionConfig_eta, 0], 
-            'peta': [TrigJetConditionConfig_signed_eta, 0],
-            'neta': [TrigJetConditionConfig_signed_eta, 0],
+            # 'peta': [TrigJetConditionConfig_signed_eta, 0],
+            # 'neta': [TrigJetConditionConfig_signed_eta, 0],
             'et': [TrigJetConditionConfig_et, 0],
             'djmass': [TrigJetConditionConfig_dijet_mass, 0],
             }

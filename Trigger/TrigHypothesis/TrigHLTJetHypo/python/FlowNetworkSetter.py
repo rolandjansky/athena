@@ -3,8 +3,11 @@ from a hypo tree."""
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
-    TrigJetConditionConfig_etaet,
-    TrigJetConditionConfig_dijet,
+    TrigJetConditionConfig_dijet_mass,
+    TrigJetConditionConfig_dijet_deta,
+    TrigJetConditionConfig_dijet_dphi,
+    TrigJetConditionConfig_eta,
+    TrigJetConditionConfig_et,
     TrigJetConditionConfig_acceptAll,
     TrigJetHypoToolConfig_flownetwork,
     TrigJetHypoToolHelperMT,
@@ -24,9 +27,11 @@ class FlowNetworkSetter(object):
         # for simple, use TrigJetConditionConfig_etaet. Needs to be
         # completed because simple can conain any single jet condition
         self.tool_factories = {
-            'simple': [TrigJetConditionConfig_etaet, 0], 
-            'etaet': [TrigJetConditionConfig_etaet, 0],
-            'dijet': [TrigJetConditionConfig_dijet, 0],
+            'et': [TrigJetConditionConfig_et, 0], 
+            'eta': [TrigJetConditionConfig_eta, 0],
+            'dijet_mass': [TrigJetConditionConfig_dijet_mass, 0],
+            'dijet_dphi': [TrigJetConditionConfig_dijet_deta, 0],
+            'dijet_deta': [TrigJetConditionConfig_dijet_dphi, 0],
             'partgen': [TrigJetConditionConfig_acceptAll, 0],
             }
 
