@@ -20,6 +20,7 @@ find_package( Boost )
 find_package( Herwig3 )
 find_package( ThePEG )
 find_package( GSL )
+find_package( OpenLoops )
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
