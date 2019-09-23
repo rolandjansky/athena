@@ -288,9 +288,8 @@ TriggerHLTListRun3 = [
 #-------------------------------------------------------------------------------
 EDMDetailsRun3 = {}
 
+# xAOD versions are auto-detected at serialisation, but T/P classes need to specify P version here
 EDMDetailsRun3[ "TrigRoiDescriptorCollection" ]     = {'persistent':"TrigRoiDescriptorCollection_p3"}
-EDMDetailsRun3[ "xAOD::TrigCompositeAuxContainer" ] = {'persistent':"xAOD::TrigCompositeAuxContainer_v2"}
-EDMDetailsRun3[ "xAOD::TrigEMClusterAuxContainer" ] = {'persistent':"xAOD::TrigEMClusterAuxContainer_v2"}
 
 EDMDetailsRun3[ "xAOD::TrigDecisionAuxInfo" ]         = {'parent':"xAOD::TrigDecision"}
 EDMDetailsRun3[ "xAOD::EnergySumRoIAuxInfo" ]         = {'parent':"xAOD::EnergySumRoI"}

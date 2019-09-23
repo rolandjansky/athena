@@ -541,6 +541,8 @@ def default_check_steps(test):
         logmerge.log_files = []
         for exec_step in test.exec_steps:
             logmerge.log_files.append(exec_step.get_log_file_name())
+            if exec_step.type == 'athenaHLT':
+                logmerge.extra_log_regex = 'athenaHLT:.*(.out|.err)'
         check_steps.append(logmerge)
     log_to_check = None
     log_to_zip = None

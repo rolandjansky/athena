@@ -1,58 +1,58 @@
-RpcRawDataProvider   INFO RpcRawDataProvider::initialize
-RpcRawDataProvider   INFO  'DoSeededDecoding':False
-RpcRawDataProvi...   INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderToolMT
-TgcRawDataProvider   INFO TgcRawDataProvider::initialize
-TgcRawDataProvider   INFO  'DoSeededDecoding':False
-TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT.TgcROD_Decoder
-TgcRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
-TgcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
-TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT
-MdtRawDataProvider   INFO MdtRawDataProvider::initialize
-MdtRawDataProvider   INFO  'DoSeededDecoding':False
-MdtRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
-MdtRawDataProvi...   INFO Processing configuration for layouts with BME chambers.
-MdtRawDataProvi...   INFO Processing configuration for layouts with BMG chambers.
-MdtRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
-MdtRawDataProvi...   INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderToolMT
-CscRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
-CscRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
-CscRawDataProvi...   INFO The Muon Geometry version is R.08.01
-CscRawDataProvi...   INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderToolMT
-RpcRdoToRpcPrep...   INFO package version = MuonRPC_CnvTools-00-00-00
-RpcRdoToRpcPrep...   INFO properties are 
-RpcRdoToRpcPrep...   INFO processingData                     0
-RpcRdoToRpcPrep...   INFO produceRpcCoinDatafromTriggerWords 1
-RpcRdoToRpcPrep...   INFO reduceCablingOverlap               1
-RpcRdoToRpcPrep...   INFO solvePhiAmbiguities                1
-RpcRdoToRpcPrep...   INFO timeShift                          -12.5
-RpcRdoToRpcPrep...   INFO etaphi_coincidenceTime             20
-RpcRdoToRpcPrep...   INFO overlap_timeTolerance              10
-RpcRdoToRpcPrep...   INFO Correct prd time from cool db      0
-RpcRdoToRpcPrep...   INFO Rpc Cabling Svc name is dataLike
-RpcRdoToRpcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
-TgcRdoToTgcPrep...   INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
-TgcRdoToTgcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
-MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
-MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BME chambers.
-MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
-MdtRdoToMdtPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
-CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
-CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
-TgcRdoToTgcPrep...   INFO finalize(): input RDOs->output PRDs [Hit: 6807->6807, Tracklet: 28->28, TrackletEIFI: 692->692, HiPt: 4031->4031, SL: 3->3]
-MdtRawDataProvi...   INFO Fraction of fills that use the cache = 0
-TgcRawDataProvi...   INFO Fraction of fills that use the cache = 0
-RpcROD_Decoder:...   INFO  ============ FINAL RPC DATA FORMAT STAT. =========== 
-RpcROD_Decoder:...   INFO  RX Header Errors.............0
-RpcROD_Decoder:...   INFO  RX SubHeader Errors..........0
-RpcROD_Decoder:...   INFO  PAD Header Errors............0
-RpcROD_Decoder:...   INFO  PAD/SL SubHeader Errors......0
-RpcROD_Decoder:...   INFO  CM Header Errors.............0
-RpcROD_Decoder:...   INFO  CM SubHeader Errors..........0
-RpcROD_Decoder:...   INFO  CM Footer Errors.............0
-RpcROD_Decoder:...   INFO  PAD PreFooter Errors.........0
-RpcROD_Decoder:...   INFO  PAD Footer Errors............0
-RpcROD_Decoder:...   INFO  SL Header Errors.............0
-RpcROD_Decoder:...   INFO  SL Footer Errors.............0
-RpcROD_Decoder:...   INFO  RX Footer Errors.............0
-RpcROD_Decoder:...   INFO  CRC8 check Failures..........0
-RpcROD_Decoder:...   INFO  ==================================================== 
+RpcRawDataProvider                          0      INFO RpcRawDataProvider::initialize
+RpcRawDataProvider                          0      INFO  'DoSeededDecoding':False
+RpcRawDataProvider.RPC_RawDataProvide...    0      INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderToolMT
+TgcRawDataProvider                          0      INFO TgcRawDataProvider::initialize
+TgcRawDataProvider                          0      INFO  'DoSeededDecoding':False
+TgcRawDataProvider.TGC_RawDataProvide...    0      INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT.TgcROD_Decoder
+TgcRawDataProvider.TGC_RawDataProvide...    0      INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
+TgcRawDataProvider.TGC_RawDataProvide...    0      INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+TgcRawDataProvider.TGC_RawDataProvide...    0      INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT
+MdtRawDataProvider                          0      INFO MdtRawDataProvider::initialize
+MdtRawDataProvider                          0      INFO  'DoSeededDecoding':False
+MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Processing configuration for layouts with BME chambers.
+MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Processing configuration for layouts with BMG chambers.
+MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
+MdtRawDataProvider.MDT_RawDataProvide...    0      INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderToolMT
+CscRawDataProvider.CSC_RawDataProvide...    0      INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+CscRawDataProvider.CSC_RawDataProvide...    0      INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+CscRawDataProvider.CSC_RawDataProvide...    0      INFO The Muon Geometry version is R.08.01
+CscRawDataProvider.CSC_RawDataProvide...    0      INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderToolMT
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO package version = MuonRPC_CnvTools-00-00-00
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO properties are 
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO processingData                     0
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO produceRpcCoinDatafromTriggerWords 1
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO reduceCablingOverlap               1
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO solvePhiAmbiguities                1
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO timeShift                          -12.5
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO etaphi_coincidenceTime             20
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO overlap_timeTolerance              10
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO Correct prd time from cool db      0
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO Rpc Cabling Svc name is dataLike
+RpcRdoToRpcPrepData                         0      INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
+TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...    0      INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
+TgcRdoToTgcPrepData                         0      INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
+MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0      INFO Processing configuration for layouts with BMG chambers.
+MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0      INFO Processing configuration for layouts with BME chambers.
+MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0      INFO Processing configuration for layouts with BMG chambers.
+MdtRdoToMdtPrepData                         0      INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+CscRdoToCscPrepData.CscRdoToCscPrepDa...    0      INFO The Geometry version is MuonSpectrometer-R.08.01
+CscRdoToCscPrepData                         0      INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
+TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...19  0      INFO finalize(): input RDOs->output PRDs [Hit: 6807->6807, Tracklet: 28->28, TrackletEIFI: 692->692, HiPt: 4031->4031, SL: 3->3]
+MdtRawDataProvider.MDT_RawDataProvide...19  0      INFO Fraction of fills that use the cache = 0
+TgcRawDataProvider.TGC_RawDataProvide...19  0      INFO Fraction of fills that use the cache = 0
+RpcROD_Decoder::printcheckformat        19  0      INFO  ============ FINAL RPC DATA FORMAT STAT. =========== 
+RpcROD_Decoder::printcheckformat        19  0      INFO  RX Header Errors.............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  RX SubHeader Errors..........0
+RpcROD_Decoder::printcheckformat        19  0      INFO  PAD Header Errors............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  PAD/SL SubHeader Errors......0
+RpcROD_Decoder::printcheckformat        19  0      INFO  CM Header Errors.............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  CM SubHeader Errors..........0
+RpcROD_Decoder::printcheckformat        19  0      INFO  CM Footer Errors.............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  PAD PreFooter Errors.........0
+RpcROD_Decoder::printcheckformat        19  0      INFO  PAD Footer Errors............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  SL Header Errors.............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  SL Footer Errors.............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  RX Footer Errors.............0
+RpcROD_Decoder::printcheckformat        19  0      INFO  CRC8 check Failures..........0
+RpcROD_Decoder::printcheckformat        19  0      INFO  ==================================================== 
