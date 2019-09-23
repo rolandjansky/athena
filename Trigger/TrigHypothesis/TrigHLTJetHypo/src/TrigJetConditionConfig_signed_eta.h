@@ -2,37 +2,36 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETCONDITIONCONFIG_DIJET_DPHI_H
-#define TRIGJETCONDITIONCONFIG_DIJET_DPHI_H
-
+#ifndef TRIGJETCONDITIONCONFIG_SIGNED_ETA_H
+#define TRIGJETCONDITIONCONFIG_SIGNED_ETA_H
 
 #include "ITrigJetConditionConfig.h"
 #include "./ConditionsDefsMT.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "./ConditionsDefsMT.h"
+#include "./ArgStrToDouble.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
-
-class TrigJetConditionConfig_dijet_dphi:
+class TrigJetConditionConfig_signed_eta:
 public extends<AthAlgTool, ITrigJetConditionConfig> {
-  
+
  public:
   
-  TrigJetConditionConfig_dijet_dphi(const std::string& type,
+  TrigJetConditionConfig_signed_eta(const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent);
-  
+
   virtual StatusCode initialize() override;
   virtual ConditionMT getCondition() const override;
-  
-  
+
  private:
   
   Gaudi::Property<std::string>
-    m_min{this, "min", {}, "min dijet dPhi"};
+    m_min{this, "min", {}, "Abs eta min for eta region"};
   
   Gaudi::Property<std::string>
-    m_max{this, "max", {}, "max dojet dPhi"};
+    m_max{this, "max", {}, "Abs eta max for eta region"};
 
   StatusCode checkVals()  const;
+ 
 };
 #endif

@@ -108,24 +108,37 @@ class Node(object):
 
         else:
             treeVisitor.add(self.tool.name() + ' ')
-        
-    def dump(self, n_in=0):
-        indent = ' '*n_in
-        s = '\n'
-        s +=  indent + 'Node. scenario: %s \n' % self.scenario
-        s +=  indent + 'node id: %s \n' % self.node_id
-        s +=  indent + 'parent node id: %s \n' % self.parent_id
-        s +=  indent + 'is tree top? %s \n' % self.tree_top
-        s += indent + 'parameters: %s\n' % str(self.parameters)
-        s += indent + 'conf_attrs [%d]:\n' % len(self.conf_attrs)
+
+    def str_list(self, indent):
+        s = [indent + 'Node. scenario: %s' % self.scenario,
+             indent + 'node id: %s' % self.node_id,
+             indent + 'parent node id: %s' % self.parent_id,
+             indent + 'is tree top? %s' % self.tree_top,
+             indent + 'parameters: %s' % str(self.parameters),
+             indent + 'conf_attrs [%d]:' % len(self.conf_attrs)]
         for ca in self.conf_attrs:
-            s += indent + str(ca) + '\n'
-        s += indent + 'AlgTool: %s\n' % str(self.tool)
-        s += indent + 'No of children: %d\n\n' % len(self.children)
-        for c in self.children:
-            s += c.dump(n_in+5)
+            s.append(indent + str(ca))
+        s.append(indent + 'AlgTool: %s' % str(self.tool))
+        s.append(indent + 'No of children: %d\n' % len(self.children))
 
         return s
         
+    def dump_(self, n_in):
+
+        indent = n_in * ' '
+        s = self.str_list(indent)
+
+        for c in self.children:
+            s.extend(c.dump_(n_in+5))
+            
+        return s
+
+    def dump(self):
+
+        return '\n'.join(self.dump_(0))
+
+
     def __str__(self):
-        return self.dump()
+
+        return '\n'.join(self.str_list(''))
+

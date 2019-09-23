@@ -3,7 +3,8 @@ from a hypo tree."""
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
-    TrigJetConditionConfig_eta,
+    TrigJetConditionConfig_abs_eta,
+    TrigJetConditionConfig_signed_eta,
     TrigJetConditionConfig_et,
     TrigJetConditionConfig_dijet_mass,
     TrigJetConditionConfig_dijet_deta,
@@ -38,15 +39,18 @@ class ConditionsToolSetter(object):
         # for simple, use TrigJetConditionConfig_etaet. Needs to be
         # completed because simple can conain any single jet condition
         self.tool_factories = {
-            'eta': [TrigJetConditionConfig_eta, 0], 
-            # 'peta': [TrigJetConditionConfig_signed_eta, 0],
-            # 'neta': [TrigJetConditionConfig_signed_eta, 0],
+            'eta': [TrigJetConditionConfig_abs_eta, 0], 
+            'peta': [TrigJetConditionConfig_signed_eta, 0],
+            'neta': [TrigJetConditionConfig_signed_eta, 0],
             'et': [TrigJetConditionConfig_et, 0],
             'djmass': [TrigJetConditionConfig_dijet_mass, 0],
+            'djdphi': [TrigJetConditionConfig_dijet_dphi, 0],
+            'djdeta': [TrigJetConditionConfig_dijet_deta, 0],
             'compound': [TrigJetConditionConfig_compound, 0],
             'leaf': [TrigJetHypoToolConfig_leaf, 0],
             'flownetwork': [TrigJetHypoToolConfig_flownetwork, 0],
             'helper': [TrigJetHypoToolHelperMT, 0],
+            'combgen_helper': [CombinationsHelperTool, 0],
             'not': [NotHelperTool, 0],
             'and': [AndHelperTool, 0],
             'agree': [AgreeHelperTool, 0],
@@ -61,6 +65,8 @@ class ConditionsToolSetter(object):
             'and': self.mod_logical_binary,
             'agree': self.mod_logical_binary,
             'or': self.mod_logical_binary,
+            'combgen': self._mod_combgen,  #  shared with partgen
+            'partgen': self._mod_combgen,  #  shared with combgen
             'simple': self._mod_leaf,
             'etaet': self._mod_leaf,
             'dijet': self._mod_leaf,
@@ -130,6 +136,29 @@ class ConditionsToolSetter(object):
 
         node.tool = tool
 
+    def _mod_combgen(self, node):
+        """Set the HypoConfigTool instance for the 'not' scenario
+        this takes a single predicate"""
+
+        config_tool = self._get_tool_instance(node.scenario)  
+
+        compound_condition_tools = self._make_compound_condition_tools(node)
+        config_tool.conditionMakers = compound_condition_tools;
+        # for combinational nodes, the connection between job groups and
+        # child helper tools is done via a matcher. Provide the helper
+        # tool children to the condig class which uses them to
+        # construct the matcher.
+        config_tool.children = [child.tool for child in node.children]
+
+
+        helper_tool = self._get_tool_instance('combgen_helper')
+        helper_tool.HypoConfigurer = config_tool
+
+        helper_tool.node_id = node.node_id
+        helper_tool.parent_id = node.parent_id
+
+        node.tool = helper_tool
+  
     def _get_tool_instance(self, key, extra=''):
    
         klass = self.tool_factories[key][0]
@@ -140,6 +169,26 @@ class ConditionsToolSetter(object):
         tool = klass(name=name)            
         self.tool_factories[key][1] += 1
         return tool
+
+    def _make_compound_condition_tools(self, node):
+        
+        compound_condition_tools = []  # compound  condition makers
+        for c in node.conf_attrs: # loop over conditions
+            condition_tools = [] # elemental conditions for this compounnd ct.
+            for k, v in c.items(): # loop over elemental conditions
+                condition_tool = self._get_tool_instance(k)
+                for lim, val in v.items():  # lim: min, max
+                    setattr(condition_tool, lim, val)
+                condition_tools.append(condition_tool)
+
+            # create compound condition from elemental condition
+            compoundCondition_tool =self._get_tool_instance('compound')
+            compoundCondition_tool.conditionMakers = condition_tools;
+
+            # add compound condition to list
+            compound_condition_tools.append(compoundCondition_tool)
+
+        return compound_condition_tools
 
     def _mod_leaf(self, node):
         """For a leaf node, fill in 
@@ -161,26 +210,13 @@ class ConditionsToolSetter(object):
         #                             'eta': {'max': '3.2', 'min': '0.0'}})
         # defaultdict(<type 'dict'>, {'et': {'max': 'inf', 'min': '20000.0'}})
 
-        condition_tools = []  # compound  condition makers
-        for c in node.conf_attrs: # loop over conditions
-            for k, v in c.items(): # loop over elemental conditions
-                condition_tool = self._get_tool_instance(k)
-                for lim, val in v.items():  # lim: min, max
-                    setattr(condition_tool, lim, val)
-                condition_tools.append(condition_tool)
-
-            # create compound condition from elemental condition
-            compoundCondition_tool =self._get_tool_instance('compound')
-            compoundCondition_tool.conditionMakers = condition_tools;
-
-            # add compound condition to list
-            condition_tools.append(compoundCondition_tool)
 
         # make a config tool and provide it with condition makers
         config_tool = self._get_tool_instance('leaf')
-        config_tool.conditionMakers = condition_tools;
+        compound_condition_tools = self._make_compound_condition_tools(node)
+        config_tool.conditionMakers = compound_condition_tools;
 
-        helper_tool = self._get_tool_instance('helper', extra='helper')
+        helper_tool = self._get_tool_instance('helper')
         helper_tool.HypoConfigurer = config_tool
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id

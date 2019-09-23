@@ -28,10 +28,10 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
  private:
 
   Gaudi::Property<std::string>
-    m_min{this, "mass_min", {}, "min mass for each dijet_mass"};
+    m_min{this, "min", {}, "min mass for each dijet_mass"};
 
   Gaudi::Property<std::string>
-    m_max{this, "mass_max", {}, "max mass for each dijet_mass"};
+    m_max{this, "max", {}, "max mass for each dijet_mass"};
 
   StatusCode checkVals()  const;
 };

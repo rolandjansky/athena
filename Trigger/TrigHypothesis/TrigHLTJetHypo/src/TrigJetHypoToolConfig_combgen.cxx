@@ -54,29 +54,20 @@ StatusCode TrigJetHypoToolConfig_combgen::initialize() {
 
 std::optional<ConditionsMT>
 TrigJetHypoToolConfig_combgen::getConditions() const {
+  
+  ConditionsMT compoundConditions;
+	  
 
-  std::vector<double> etaMins = svec2dvec(m_etaMins);
-  std::vector<double> etaMaxs = svec2dvec(m_etaMaxs);
-  std::vector<double>  EtThresholds = svec2dvec(m_EtThresholds);
-
-  auto conditions = conditionsFactoryEtaEtMT(etaMins,
-                                             etaMaxs,
-                                             EtThresholds,
-                                             m_asymmetricEtas);
-  if(conditions.empty()){
-     return std::make_optional<ConditionsMT>(std::move(conditions));
-  }
-
-  // allow only very simple conditions
-  if(std::any_of(conditions.begin(),
-		 conditions.end(),
-		 [](const auto& c) {
-		   return c->capacity() != 1;})){
-    ATH_MSG_ERROR("There is a condition with capacity != 1");
-    return std::optional<ConditionsMT>();
+  // collect the Conditions objects from the various sources
+  // return an invalid optional if any src signals a problem
+  
+  // m_condition makers is a list of compound condition makers
+  for(const auto& cm : m_conditionMakers) {
+    compoundConditions.push_back(cm->getCondition());
   }
   
-  return std::make_optional<ConditionsMT>(std::move(conditions));
+  return std::make_optional<ConditionsMT>(std::move(compoundConditions));
+
 }
 
  
@@ -86,26 +77,6 @@ TrigJetHypoToolConfig_combgen::getJetGrouper() const {
 }
 
 StatusCode TrigJetHypoToolConfig_combgen::checkVals() const {
-  if (m_EtThresholds.size() != m_etaMins.size() or
-      m_EtThresholds.size() != m_etaMaxs.size() or
-      m_asymmetricEtas.size() != m_etaMaxs.size()){
-    
-    ATH_MSG_ERROR(name()<< ": mismatch between number of thresholds "
-                  << "and eta min, max boundaries or asymmetric eta flags: "
-                  << m_EtThresholds.size() << " "
-                  << m_etaMins.size() << " "
-                  << m_etaMaxs.size() << " "
-                  << m_asymmetricEtas.size() << " "
-                  );
-    
-    return StatusCode::FAILURE;
-  }
-
-  if(m_children.empty()){
-    ATH_MSG_ERROR(name()<< ": No children ");
-    return StatusCode::FAILURE;
-  }
-
   return StatusCode::SUCCESS;
 }
 

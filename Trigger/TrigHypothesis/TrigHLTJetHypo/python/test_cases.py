@@ -11,9 +11,9 @@ test_strings = [
     'or([] not([] simple([(40et, 0eta320)])) not([] simple([(100et, 0eta320)])))',
     'or([] and([] simple([(40et, 0eta320)]) simple([(40et, 0eta320)])) not([] simple([(100et, 0eta320)])))',
 
-    'and([] simple([(50et)(70et)]) dijet([(900mass, 26dphi)]))',
-    'and([]simple([(50et)(70et)])combgen([(2)]dijet([(900mass,26dphi)]) simple([(10et)(20et)])))',
-    'and([]simple([(81et)(81et)])combgen([(2)(50et)(70et)]dijet([(34mass,26dphi)])))',
+    'and([] simple([(50et)(70et)]) dijet([(900djmass, 26djdphi)]))',
+    'and([]simple([(50et)(70et)])combgen([]dijet([(900djmass,26djdphi)]) simple([(10et)(20et)])))',
+    'and([]simple([(81et)(81et)])combgen([(50et, eta100)]dijet([(26djdphi)])))',
     'simple([(70et,0eta240)(70et,0eta240)(70et,0eta240)(70et,0eta240)(70et,0eta240)])',
     'partgen([(20et,0eta320)]simple([(40et,0eta320)(50et,0eta320)])simple([(35et,0eta240)(55et,0eta240)]))',
     'simple([(10et, neta0)(20et, peta)])', # missing low value for eta - take default

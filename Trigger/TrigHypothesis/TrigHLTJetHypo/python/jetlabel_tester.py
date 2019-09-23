@@ -9,7 +9,7 @@ from  TrigHLTJetHypo.ToolSetter import ToolSetter
 
 from node import rotate
 
-def compile(label, setter=None, expand=False, dump=False):
+def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
     print 'compile:',  label
 
     parser = ChainLabelParser(label, debug=False)
@@ -17,27 +17,60 @@ def compile(label, setter=None, expand=False, dump=False):
 
     tree.set_ids(node_id=0, parent_id=0)
     
-
+    
     if expand:
         visitor = TreeParameterExpander()
         tree.accept(visitor)
-        print visitor.report()
+        # print visitor.report()
 
     print 'compile: tree.scenario', tree.scenario
     if setter is not None:
         tree.accept(setter)
-    
-    if dump:
-        print '\nnode dump:\n'
-        print tree.dump()
+        
+    if do_print:
+        print '\nnode dumping top node only:\n'
+        print tree
 
+    if do_dump:
+        print '\nnode dump tree:\n'
+        print tree.dump()
+        
     return tree
 
-def compile_(label, setter=None, expand=True, dump=True):
+def compile_(label, setter=None, expand=True, do_dump=False, do_print=False):
     compile(label, setter, expand, dump)
 
             
 if __name__ == '__main__':
+
+
+    import sys
+    
+    from TrigHLTJetHypo.test_cases import test_strings
+    c = sys.argv[1]
+    index = -1
+    try:
+        index = int(c)
+    except Exception:
+        print('expected int in [1,%d] ]on comand line, got %s' % (
+            len(test_strings), c))
+        sys.exit()
+
+    if(index < 0 or index > len(test_strings) - 1):
+        print('index %d not in range [0, %d]' % (index, len(test_strings) -1))
+        sys.exit()
+                                                 
+            
+    print('index', index)
+    label = test_strings[index]
+
+    # tree = compile(label, dump=True)
+    
+    setter = ConditionsToolSetter('toolSetter')
+    
+    tree = compile(label, setter=setter,  expand=True, do_dump=True)
+
+    sys.exit(0)
 
     label = 'simple([(80et)(81et)(82et)(83et)(maxshare)])'
         

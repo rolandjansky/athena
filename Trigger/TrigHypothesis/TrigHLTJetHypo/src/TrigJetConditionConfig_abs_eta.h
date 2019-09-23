@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETCONDITIONCONFIG_ETA_H
-#define TRIGJETCONDITIONCONFIG_ETA_H
+#ifndef TRIGJETCONDITIONCONFIG_ABS_ETA_H
+#define TRIGJETCONDITIONCONFIG_ABS_ETA_H
 
 #include "ITrigJetConditionConfig.h"
 #include "./ConditionsDefsMT.h"
@@ -11,14 +11,14 @@
 #include "./ConditionsDefsMT.h"
 #include "./ArgStrToDouble.h"
 
-class TrigJetConditionConfig_eta:
+class TrigJetConditionConfig_abs_eta:
 public extends<AthAlgTool, ITrigJetConditionConfig> {
 
  public:
   
-  TrigJetConditionConfig_eta(const std::string& type,
-                          const std::string& name,
-                          const IInterface* parent);
+  TrigJetConditionConfig_abs_eta(const std::string& type,
+				 const std::string& name,
+				 const IInterface* parent);
 
   virtual StatusCode initialize() override;
   virtual ConditionMT getCondition() const override;

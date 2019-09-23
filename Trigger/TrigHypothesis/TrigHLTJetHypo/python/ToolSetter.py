@@ -4,7 +4,8 @@
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolConfig_simple,
     TrigJetConditionConfig_et,
-    TrigJetConditionConfig_eta,
+    TrigJetConditionConfig_abs_eta,
+    TrigJetConditionConfig_signed_eta,
     TrigJetConditionConfig_dijet_mass,
     TrigJetConditionConfig_dijet_deta,
     TrigJetConditionConfig_dijet_dphi,
@@ -40,7 +41,7 @@ class ToolSetter(object):
             'combgen': [TrigJetHypoToolConfig_combgen, 0],
             'partgen': [TrigJetHypoToolConfig_partgen, 0],
             'et': [TrigJetConditionConfig_et, 0],
-            'eta': [TrigJetConditionConfig_eta, 0],
+            'eta': [TrigJetConditionConfig_abs_eta, 0],
             'dijet_mass': [TrigJetConditionConfig_dijet_mass, 0],
             'dijet_deta': [TrigJetConditionConfig_dijet_deta, 0],
             'dijet_dphi': [TrigJetConditionConfig_dijet_dphi, 0],

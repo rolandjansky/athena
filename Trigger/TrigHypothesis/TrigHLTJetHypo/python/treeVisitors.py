@@ -14,7 +14,7 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'etahi': '320',
                 'petalo': '0',  # +ve eta
                 'petahi': '320',
-                'netalo': '-320',  # -ve eta
+                'netalo': '320',  # -ve eta
                 'netahi': '0',
                 'etlo':   '0',
                 'ethi':   'inf',
@@ -22,14 +22,12 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'eta_mins': '0.',
                 'eta_maxs': '3.2',
                 'asymmetricEtas': 0,  # exception: not a string
-                'mass_mins': '0.0',
-                'mass_maxs': 'inf',
-                'deta_mins': '0.',
-                'deta_maxs': 'inf',
-                'dphi_mins': '0.',
-                'dphi_maxs': 'inf',
-                'masslo': '0.',
-                'masshi': 'inf',
+                'djmasslo': '0.0',
+                'djmasshi': 'inf',
+                'djdetalo': '0.',
+                'djdetahi': 'inf',
+                'djdphilo': '0.',
+                'djdphihi': 'inf',
     }
 
     if parameter not in  defaults:
@@ -39,13 +37,13 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
 def scaleFactors(parameter):
     defaults = {
         'eta': 0.01,
-        'neta': 0.01,
+        'neta': -0.01,
         'peta': 0.01,
         'et': 1000.,
         'smc': 1000.,
-        'deta': 0.1,
-        'mass': 1000.,
-        'dphi': 0.1,
+        'djdeta': 0.1,
+        'djmass': 1000.,
+        'djdphi': 0.1,
     }
     return defaults[parameter]
         
@@ -206,6 +204,18 @@ class ConditionsDictMaker(object):
                 lo = group_dict['lo']  # string: low value or ''
                 hi = group_dict['hi']  # string high value or ''
 
+                def scale_limit(limit, sf):
+                    l = 0.
+                    try:
+                        l = float(limit)
+                    except TypeError: # limit = 'inf' or similar
+                        return limit
+
+                    if l != 0:  # avoid '-0'
+                        l = l * sf
+
+                    return str(l) 
+
                 if lo == '':
                     lo = defaultParameters(attr+'lo')
                 if hi == '':
@@ -217,15 +227,10 @@ class ConditionsDictMaker(object):
                 if lo:
                     print (attr, lo)
                     # find the python proxy class  name
-                    limits_dict['min'] = str(sf * float(lo))
-                        
-                    if attr == 'neta':
-                        limits_dict['min'] *= -1.  # negative eta range
+                    limits_dict['min'] = scale_limit(lo, sf)
                         
                 if hi:
-                    limits_dict['max'] = str(sf * float(hi))
-                    if attr == 'neta':
-                        result[attr]['max'] *= -1.  # negative eta range
+                    limits_dict['max'] = scale_limit(hi, sf)
                         
                 cdict[attr] = limits_dict
             

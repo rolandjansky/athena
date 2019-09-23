@@ -29,10 +29,10 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
 
 
   Gaudi::Property<std::string>
-    m_min{this, "deta_min", {}, "min dijet dEta"};
+    m_min{this, "min", {}, "min dijet dEta"};
 
   Gaudi::Property<std::string>
-    m_max{this, "deta_max", {}, "max dijet dEta"};
+    m_max{this, "max", {}, "max dijet dEta"};
 
   StatusCode checkVals()  const;
 };
