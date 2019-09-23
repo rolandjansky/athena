@@ -137,6 +137,10 @@ def process():
     
     theApp.EvtMax = nevents
 
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.outputHLTconfigFile = TriggerFlags.outputHLTconfigFile().replace('config', 'menu')
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+    generateJSON()
 
 
 
