@@ -448,23 +448,22 @@ namespace xAOD {
   } // namespace VxType
 } //  namespace xAOD 
 
-namespace {
-  /// Helper function creating a matrix representing a fully available
-  /// covariance matrix.
-  xAOD::ParametersCovMatrixFilled_t makeFullCovMatrix() {
-    xAOD::ParametersCovMatrixFilled_t result;
-    result.setOnes();
-    return result;
+
+/// Helper function creating a matrix representing a fully available
+/// covariance matrix.
+inline xAOD::ParametersCovMatrixFilled_t makeFullCovMatrix() {
+  xAOD::ParametersCovMatrixFilled_t result;
+  result.setOnes();
+  return result;
+}
+/// Helper function creating a matrix representing a covariance matrix
+/// for which only the diagonal elements are available.
+inline xAOD::ParametersCovMatrixFilled_t makeDiagCovMatrix() {
+  xAOD::ParametersCovMatrixFilled_t result;
+  for( int i = 0; i < result.rows(); ++i ) {
+    result( i, i ) = true;
   }
-  /// Helper function creating a matrix representing a covariance matrix
-  /// for which only the diagonal elements are available.
-  xAOD::ParametersCovMatrixFilled_t makeDiagCovMatrix() {
-    xAOD::ParametersCovMatrixFilled_t result;
-    for( int i = 0; i < result.rows(); ++i ) {
-      result( i, i ) = true;
-    }
-    return result;
-  }
+  return result;
 }
 
 namespace xAOD {
