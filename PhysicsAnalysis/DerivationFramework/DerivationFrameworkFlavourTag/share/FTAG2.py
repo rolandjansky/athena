@@ -69,12 +69,6 @@ print FTAG2IPETool
 
 #augment jets with track info
 FTAG2Seq += CfgMgr.BTagVertexAugmenter()
-FTAG2Seq += CfgMgr.BTagTrackAugmenter(
-    "BTagTrackAugmenter",
-    OutputLevel=INFO,
-    TrackToVertexIPEstimator = FTAG2IPETool,
-    SaveTrackVectors = True,
-)
 
 #Add unbiased track parameters to track particles
 #FTAG2TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "FTAG2TrackToVertexWrapper",
@@ -260,7 +254,7 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt4EMPFlowJets.EMFrac.HECFrac.LArQuality.HECQuality.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.HadronConeExclTruthLabelID.GhostTrack",
                                        "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",
                                        "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
-                                       "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+                                       "InDetTrackParticles.btagIp_d0.btagIp_z0SinTheta.btagIp_d0Uncertainty.btagIp_z0SinThetaUncertainty.btagIp_trackDisplacement.btagIp_trackMomentum",
                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                        ]
 if BTaggingFlags.Do2019Retraining:

@@ -9,7 +9,6 @@
 #include "xAODJet/Jet.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
 
@@ -26,7 +25,6 @@ namespace FlavorTagDiscriminants {
     BTagMuonAugmenter(std::string muonAssociationName,
                       float muonMinDR = defaults::MUON_MIN_DR,
                       float muonMinpT = defaults::MUON_MIN_PT,
-                      EDMSchema = EDMSchema::FEB_2019,
                       FlipTagConfig = FlipTagConfig::STANDARD);
     ~BTagMuonAugmenter();
     BTagMuonAugmenter(BTagMuonAugmenter&&);

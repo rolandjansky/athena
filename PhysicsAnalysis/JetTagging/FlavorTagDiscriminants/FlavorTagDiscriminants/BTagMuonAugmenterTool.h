@@ -29,7 +29,6 @@ namespace FlavorTagDiscriminants {
     std::string m_muonAssociationName;
     float m_muonMinDR;
     float m_muonMinpT;
-    std::string m_schema;
     std::string m_flipTagConfig;
     // You'll probably have to add some accessors here
   };

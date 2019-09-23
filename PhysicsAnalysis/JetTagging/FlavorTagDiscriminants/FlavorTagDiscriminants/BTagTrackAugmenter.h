@@ -6,7 +6,6 @@
 #ifndef BTAG_TRACK_AUGMENTER_HH
 #define BTAG_TRACK_AUGMENTER_HH
 
-#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 
 #include <vector>
 
@@ -28,8 +27,7 @@ struct BTagSignedIP {
 
 class BTagTrackAugmenter {
 public:
-  typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
-  BTagTrackAugmenter(EDMSchema schema = EDMSchema::WINTER_2018);
+  BTagTrackAugmenter();
   void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
 
   // NOTE: this should be called in the derivations if possible,
