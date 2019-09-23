@@ -163,9 +163,9 @@ namespace Muon {
     bool hasRPC() const { return m_rpcIdHelper != nullptr; }
     bool hasTGC() const { return m_tgcIdHelper != nullptr; }
     bool hasMDT() const { return m_mdtIdHelper != nullptr; }
-    bool hasCSC() const;
-    bool hasSTgc() const;
-    bool hasMM() const;
+    bool hasCSC() const { return m_hasCSC; }
+    bool hasSTgc() const { return m_hasSTgc; }
+    bool hasMM() const { return m_hasMM; }
 
   private:
     const RpcIdHelper*                  m_rpcIdHelper;
