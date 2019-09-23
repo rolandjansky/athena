@@ -882,107 +882,6 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   }
 
   if(peri) { delete peri; peri = NULL; }
-
-  /*
-  std::string key = "MDT_SDO";
-  const DataHandle<MuonSimDataCollection> mdt_sdo;
-  StatusCode sc_read = (*m_activeStore)->retrieve(mdt_sdo, key);
-  if (sc_read.isFailure()) {
-    ATH_MSG_ERROR(" Cannot retrieve MDT SDO Container ");
-  } else {
-    MuonSimDataCollection::const_iterator ci =mdt_sdo->begin();
-    MuonSimDataCollection::const_iterator ce =mdt_sdo->end();
-    for (; ci != ce; ci++) {
-      Identifier iMdt = ci->first;    
-      for (unsigned int i=0; i< ci->second.getdeposits().size(); i++) {
-	const std::pair<HepMcParticleLink,MuonMCData> deposit =(ci->second.getdeposits())[i] ;
-        int barcode = (deposit.first).barcode();
-        // belongs to selected muon ?
-        bool selected = false;
-	for (unsigned int im=0; im < muon_map.size(); im++) {
-          if ( barcode == (*(muon_map[im]))->barcode() ) { selected = true; hitCount[im]++; break; }
-        }
-        if (selected) {
-          m_sim_hit_id[m_nSimHit]    = iMdt;
-          m_sim_hit_index[m_nSimHit] = barcode;      // link to mother particle
-          m_sim_hit_techn[m_nSimHit] = 0;    
-          m_sim_hit_match[m_nSimHit] = -1;    
-          m_sim_hole_match[m_nSimHit] = -1;    
-          m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationName(iMdt);
-          m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(iMdt);
-          m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iMdt);
-          m_nSimHit++;
-	}
-      }
-    }
-  }  
-
-  key = "RPC_SDO";
-  const DataHandle<MuonSimDataCollection> rpc_sdo;
-  sc_read = (*m_activeStore)->retrieve(rpc_sdo, key);
-  if (sc_read.isFailure()) {
-    ATH_MSG_ERROR(" Cannot retrieve RPC SDO Container ");
-  } else {
-    MuonSimDataCollection::const_iterator ci =rpc_sdo->begin();
-    MuonSimDataCollection::const_iterator ce =rpc_sdo->end();
-    for (; ci != ce; ci++) {
-      Identifier iRpc = ci->first;      
-      for (unsigned int i=0; i< ci->second.getdeposits().size(); i++) {
-	const std::pair<HepMcParticleLink,MuonMCData> deposit =(ci->second.getdeposits())[i] ;
-        int barcode = (deposit.first).barcode();
-        // belongs to selected muon ?
-        bool selected = false;
-	for (unsigned int im=0; im < muon_map.size(); im++) {
-          if ( barcode ==  (*(muon_map[im]))->barcode() ) { selected = true; hitCount[im]++; break; }
-        }
-        if (selected) {
-          m_sim_hit_id[m_nSimHit]    = iRpc;
-          m_sim_hit_index[m_nSimHit] = barcode;      // link to mother particle
-          m_sim_hit_techn[m_nSimHit] = 1;    
-          m_sim_hit_match[m_nSimHit] = -1;    
-          m_sim_hole_match[m_nSimHit] = -1;    
-          m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationName(iRpc);
-          m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(iRpc);
-          m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iRpc);
-          m_nSimHit++;
-	}
-      }
-    }
-  }  
-
-  key = "TGC_SDO";
-  const DataHandle<MuonSimDataCollection> tgc_sdo;
-  sc_read = (*m_activeStore)->retrieve(tgc_sdo, key);
-  if (sc_read.isFailure()) {
-    ATH_MSG_ERROR(" Cannot retrieve TGC SDO Container ");
-  } else {
-    MuonSimDataCollection::const_iterator ci =tgc_sdo->begin();
-    MuonSimDataCollection::const_iterator ce =tgc_sdo->end();
-    for (; ci != ce; ci++) {
-      Identifier iTgc = ci->first;      
-      for (unsigned int i=0; i< ci->second.getdeposits().size(); i++) {
-	const std::pair<HepMcParticleLink,MuonMCData> deposit =(ci->second.getdeposits())[i] ;
-        int barcode = (deposit.first).barcode();
-        // belongs to selected muon ?
-        bool selected = false;
-	for (unsigned int im=0; im < muon_map.size(); im++) {
-          if ( barcode ==  (*(muon_map[im]))->barcode() ) { selected = true; hitCount[im]++; break; }
-        }
-        if (selected) {
-          m_sim_hit_id[m_nSimHit]    = iTgc;
-          m_sim_hit_index[m_nSimHit] = barcode;      // link to mother particle
-          m_sim_hit_techn[m_nSimHit] = 2;    
-          m_sim_hit_match[m_nSimHit] = -1;    
-          m_sim_hole_match[m_nSimHit] = -1;    
-          m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationName(iTgc);
-          m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(iTgc);
-          m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iTgc);
-          m_nSimHit++;
-	}
-      }
-    }
-  } 
-  */ 
 }
  
 void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
@@ -1367,29 +1266,6 @@ Identifier Muon::MuonTGHitNtuple::getRpcId(const RPCSimHit* hit) const
                                                         doubletZ, doubletPhi,gasGap, measPhi, 1);
   // this id is sufficient to define surface (for extrapolation et cet.)
   return id1;
-
-  // identify channel
-//  const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id1);
-//
-//  int  nStrips = rpcROE->Nstrips(measPhi);  
-//  const Identifier idN = m_muonIdHelperTool->rpcIdHelper().channelID(stationName, stationEta, stationPhi, doubletR,
-//                                                        doubletZ, doubletPhi,gasGap, measPhi, nStrips);
-//
-//  const Amg::Vector3D loc1 = rpcROE->globalToLocalCoords(rpcROE->stripPos(id1),id1);
-//  const Amg::Vector3D locN = rpcROE->globalToLocalCoords(rpcROE->stripPos(idN),idN);
-//
-//  int strip = 0;
-//  float pitch = measPhi ? (locN[1]-loc1[1])/fmax(1,nStrips-1) : (locN[2]-loc1[2])/fmax(1,nStrips-1); 
-//  double dstrip = measPhi ? ((hit->localPosition()[1]-loc1[1])/pitch+0.5) :
-//                            ((hit->localPosition()[2]-loc1[2])/pitch+0.5) ;
-//  strip = dstrip>=0. ? int(dstrip)+1 : 0;  
-//  
-//  if (strip<1 || strip > nStrips) return Identifier(0);
-//
-//  const Identifier idHit = m_muonIdHelperTool->rpcIdHelper().channelID(stationName, stationEta, stationPhi, doubletR,
-//						    doubletZ, doubletPhi,gasGap, measPhi, strip);
-//
-//  return idHit;
 }
 
 Identifier Muon::MuonTGHitNtuple::getCscId( const CSCSimHit* hit) const
