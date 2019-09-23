@@ -2,62 +2,55 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-include("TrigUpgradeTest/testHLT_MT.py")
+# Set message limit to unlimited when general DEBUG is requested
+msgSvc = theApp.service("MessageSvc")
+if msgSvc.OutputLevel<=DEBUG :
+    msgSvc.defaultLimit = 0
+    msgSvc.enableSuppression = False
 
-
-from AthenaCommon.CFElements import seqAND
-
-decodingSeq = seqAND("Decoding")
-
-from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteStreamDecoderAlg
-decoder = HLTResultMTByteStreamDecoderAlg()
-decoder.OutputLevel=DEBUG
-decodingSeq += decoder
-
-
-
-from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
-deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
-deserialiser.OutputLevel=DEBUG
-decodingSeq += deserialiser
-
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-StreamESD=createOutputStream("StreamESD","myESDfromBS.pool.root",True)
-topSequence.remove( StreamESD )
-StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
-                        "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",
-                        "xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters"]
-
-StreamESD.ItemList += [ "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.", 
-                        "xAOD::TrackParticleAuxContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracksAux.", 
-                        "xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux."]
-
-StreamESD.ItemList += [ "EventInfo#ByteStreamEventInfo" ]
-
-decisions = [ "EgammaCaloDecisions", "L2CaloLinks", "FilteredEgammaCaloDecisions", "FilteredEMRoIDecisions", "EMRoIDecisions", "RerunEMRoIDecisions" ]
-StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#remap_"+d for d in decisions ]
-StreamESD.ItemList += [ "xAOD::TrigCompositeAuxContainer#remap_"+d+"Aux." for d in decisions ]
-
-
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-egammaCreator = HLTEDMCreator("egammaCreator")
-egammaCreator.OutputLevel=DEBUG
-egammaCreator.TrigCompositeContainer = [ "remap_"+d for d in decisions ]
-
-egammaCreator.TrackParticleContainer = [ "HLT_xAOD_TrackParticleContainer_L2ElectronTracks" ]
-egammaCreator.TrigElectronContainer  = [ "HLT_xAOD__TrigElectronContainer_L2ElectronFex" ]
-egammaCreator.TrigEMClusterContainer = [ "HLT_xAOD__TrigEMClusterContainer_L2CaloClusters" ]
-
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg
-fillGaps = HLTEDMCreatorAlg( "FillMissingEDM" )
-fillGaps.OutputTools = [ egammaCreator ]
-
-decodingSeq += fillGaps
-
+# Define top sequence and output sequence
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
+outSequence = AthSequencer("AthOutSeq")
+
+# Set input file to new-style flags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+
+# Use new-style config of ByteStream reading and import here into old-style JO
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+CAtoGlobalWrapper(ByteStreamReadCfg,ConfigFlags)
+
+# Define the decoding sequence
+from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteStreamDecoderAlg
+from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
+from AthenaCommon.CFElements import seqAND
+decoder = HLTResultMTByteStreamDecoderAlg()
+deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
+decodingSeq = seqAND("Decoding")
+decodingSeq += decoder
+decodingSeq += deserialiser
 topSequence += decodingSeq
 
-outSequence = AthSequencer("AthOutSeq")
-outSequence += StreamESD
+# Create OutputStream for ESD writing
+from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+StreamESD = createOutputStream("StreamESD","ESD.pool.root",True)
+topSequence.remove( StreamESD )
+outSequence.remove( StreamESD )
 
+# Define what to write into ESD
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+TriggerFlags.EDMDecodingVersion = 3 # currently hard-coded
+edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), TriggerFlags.EDMDecodingVersion())
+ItemList = []
+for edmType, edmKeys in edmList.iteritems():
+    for key in edmKeys:
+        ItemList.append(edmType+'#'+key)
+ItemList += [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."]
+ItemList += [ 'xAOD::TrigCompositeContainer#*' ]
+ItemList += [ 'xAOD::TrigCompositeAuxContainer#*' ]
+StreamESD.ItemList = list(set(ItemList))
+outSequence += StreamESD
