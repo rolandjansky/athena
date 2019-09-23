@@ -715,6 +715,10 @@ if __name__=="__main__":
                         
     parser.add_argument("-o", "--output", dest="output", default='newESD.pool.root',
                         help="write ESD to FILE", metavar="FILE")
+                        
+    parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
+                        action="store_true")
+                        
     args = parser.parse_args()
     
     from AthenaCommon.Configurable import Configurable
@@ -743,8 +747,11 @@ if __name__=="__main__":
     ConfigFlags.Input.isMC = True
     ConfigFlags.lock()
         
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    cfg = MainServicesThreadedCfg(ConfigFlags)
+    if args.run:
+        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+        cfg = MainServicesThreadedCfg(ConfigFlags)
+    else:
+        cfg=ComponentAccumulator()
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
@@ -768,5 +775,6 @@ if __name__=="__main__":
     cfg.store(f)
     f.close()
 
-    cfg.run()
+    if args.run:
+        cfg.run()
     
