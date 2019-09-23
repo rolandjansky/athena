@@ -390,20 +390,25 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
       else if (calibChoice == "CaloMass") {
         calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config";
       }
+      else if (calibChoice == "TCCMass") {
+        calibConfigLargeR = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config";
+      }
       else {
-        ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass and CombMass) : "+calibChoice);
+        ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass and TCCMass)) : "+calibChoice);
         return StatusCode::FAILURE;
       }
     }else{ //Insitu calibration for Data
       if((calibChoice == "CombMass")||(calibChoice == "TAMass")||(calibChoice == "CaloMass")){
         calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_3April2019.config"; //Data has only one config file
+      }else if(calibChoice == "TCCMass"){
+        calibConfigLargeR = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config"; //There's no insitu calibration yet
       }else{
-        ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass and CombMass) : "+calibChoice);
+        ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass and TCCMass) : "+calibChoice);
         return StatusCode::FAILURE;
       }
     }
     std::string calibSequenceLargeR = "EtaJES_JMS";
-    if(!m_config->isMC()) calibSequenceLargeR = "EtaJES_JMS_Insitu_InsituCombinedMass"; //For data, there's is insitu calibration
+    if((!m_config->isMC())&&(calibChoice!="TCCMass")) calibSequenceLargeR = "EtaJES_JMS_Insitu_InsituCombinedMass"; //For data, there's is insitu calibration for lc-topo jets
     const std::string calibAreaLargeR = "00-04-82";
     JetCalibrationTool* jetCalibrationToolLargeR
       = new JetCalibrationTool("JetCalibrationToolLargeR");

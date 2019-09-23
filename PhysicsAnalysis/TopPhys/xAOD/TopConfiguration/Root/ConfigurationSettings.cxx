@@ -121,9 +121,9 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("LargeRJetPt", "Track Jet pT cut for object selection (in MeV). Default 7 GeV.", "25000.");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0" );
-    registerParameter("LargeRJetUncertainties_NPModel", "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for Large-R Jet Uncertainties","CategoryReduction");
+    registerParameter("LargeRJetUncertainties_NPModel", "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties","CategoryReduction");
     registerParameter("LargeRJESJMSConfig",
-		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
+                      "Calibration for large-R JES/JMS. CombMass, CaloMass or TCCMass (default CombMass).",
                       "CombMass");
     registerParameter("BoostedJetTagging",
                       "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
