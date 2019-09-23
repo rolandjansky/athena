@@ -202,16 +202,19 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
              if(muons->size() == 0) continue;
                    
              for(auto muon : *muons){
-        
-                const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();       
-                ATH_CHECK(track_link.isValid());
+                //check if this is a combined muon
+                const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+                if (!tr) {
+                    ATH_MSG_DEBUG("No CombinedTrackParticle found.");
+                    continue;
+                } else {
+                    const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();
+                    ATH_CHECK(track_link.isValid());
 
-            	all_tracks.push_back(track_link);
-                track_decision_map[track_link] = previousDecision;
-         }
-
-         
-         
+            	    all_tracks.push_back(track_link);
+                    track_decision_map[track_link] = previousDecision;
+                }
+             } 
          }           
     }
     mon_NTrk = all_tracks.size();
