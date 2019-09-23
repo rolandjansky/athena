@@ -27,20 +27,24 @@
 /// $Date$
 ///
 class xAODTrackParticleAuxContainerCnv_v4 :
-  public T_AthenaPoolTPCnvBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v4 > 
+  public T_AthenaPoolTPCnvConstBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v4 >
 {
 public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
+
   /// Default constructor
   xAODTrackParticleAuxContainerCnv_v4();
 
   /// Function converting from the old type to the current one
   virtual void persToTrans( const xAOD::TrackParticleAuxContainer_v4* oldObj,
                             xAOD::TrackParticleAuxContainer* newObj,
-                            MsgStream& log );
+                            MsgStream& log ) const override;
   /// Dummy function inherited from the base class
   virtual void transToPers( const xAOD::TrackParticleAuxContainer*,
                             xAOD::TrackParticleAuxContainer_v4*,
-                            MsgStream& log );
+                            MsgStream& log ) const override;
 
 }; // class xAODTrackParticleAuxContainerCnv_v4
 	

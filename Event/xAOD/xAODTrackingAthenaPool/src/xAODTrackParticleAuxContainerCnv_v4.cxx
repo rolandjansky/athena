@@ -33,14 +33,13 @@ do {                                         \
 } while( 0 )
 	
 xAODTrackParticleAuxContainerCnv_v4::xAODTrackParticleAuxContainerCnv_v4()
-    : T_AthenaPoolTPCnvBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v4 >() 
 {
 }
 	
 void xAODTrackParticleAuxContainerCnv_v4::
 persToTrans(  const xAOD::TrackParticleAuxContainer_v4* oldObj, 
               xAOD::TrackParticleAuxContainer* newObj,
-              MsgStream& log ) {
+              MsgStream& log ) const {
 	
   // Greet the user:
   ATH_MSG( "Converting xAOD::TrackParticleAuxContainer_v4 to current version..." );
@@ -99,7 +98,7 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v4* oldObj,
 ///
 void xAODTrackParticleAuxContainerCnv_v4::transToPers( const xAOD::TrackParticleAuxContainer*,
                                                        xAOD::TrackParticleAuxContainer_v4*,
-                                                       MsgStream& log ) {
+                                                       MsgStream& log ) const {
 	
   log << MSG::ERROR
       << "Somebody called xAODTrackParticleAuxContainerCnv_v4::transToPers"

@@ -13,6 +13,7 @@
 #include "xAODTracking/versions/TrackParticleAuxContainer_v2.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v3.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v4.h"
+#include "xAODTracking/versions/TrackParticleAuxContainer_v5.h"
 
 // Local include(s):
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
