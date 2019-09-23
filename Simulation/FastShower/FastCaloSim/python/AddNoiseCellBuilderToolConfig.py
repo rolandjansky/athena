@@ -36,13 +36,14 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags (quiet = True)
+    ConfigFlags.loadAllDynamicFlags()
 
     flags1 = ConfigFlags.clone()
     flags1.Input.Files = defaultTestFiles.RDO
     flags1.lock()
     acc1 = AddNoiseCellBuilderToolCfg (flags1)
-    acc1.printCondAlgs(summariseProps=True)
-    print ('IOVDbSvc:', acc1.getService('IOVDbSvc').Folders)
+    only = ['AddNoiseCellBuilderTool',
+            'CaloNoiseCondAlg-']
+    acc1.printCondAlgs(summariseProps=True, onlyComponents = only)
     print ('ComponentAccumulator:', acc1.popPrivateTools())
     acc1.wasMerged()
