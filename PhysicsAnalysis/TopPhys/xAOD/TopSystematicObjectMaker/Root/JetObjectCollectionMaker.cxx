@@ -189,7 +189,7 @@ StatusCode JetObjectCollectionMaker::initialize() {
   }
   ///-- Large-R JES systematics --///
   if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
-    if(m_config->largeRJESJMSConfig() == "CombMass"){
+    if((m_config->largeRJESJMSConfig() == "CombMass")||(m_config->largeRJESJMSConfig() == "TCCMass")){ //TA mass and combined mass not supported for JMS/JMR for now
       std::string largeR(m_config->largeRJetUncertainties_NPModel()+"_");
       specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR , m_systMap_LargeR , largeR , true);
     }else{
@@ -474,7 +474,15 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<ICPJetUncertaint
 
           ///-- Only large R jets with the following properties can be calibrated.--///
           bool calibratable_jet = (std::fabs(jet->eta()) <= 2.0
-                                   && jet->pt() > 200e3);
+                                   && jet->pt() > 175e3); //lower than 200e3 to allow studying on migration
+          std::string jetCalibrationNameLargeR = m_config->sgKeyLargeRJets();
+          if(jetCalibrationNameLargeR.find("TrackCaloCluster")!=std::string::npos){ //TCC jet
+            calibratable_jet = (jet->m()/jet->pt() <= 1.
+                && jet->m()/jet->pt() >= 0.
+                && std::fabs(jet->eta()) <= 2.0
+                && jet->pt() > 150e3
+                && jet->pt() < 3000e3);
+          }
           if(!calibratable_jet)
             continue;
         }
