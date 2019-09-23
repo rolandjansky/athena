@@ -75,7 +75,7 @@
 #+ Database/AthenaPOOL/StlAthenaPoolCnv
 #+ Database/AthenaRoot/AthenaRootComps
 #+ Database/AthenaRoot/AthenaRootKernel
-+ Database/AthenaRoot/RootAuxDynIO
+#+ Database/AthenaRoot/RootAuxDynIO
 #+ Database/AtlasSTLAddReflex
 + Database/AtlasSealCLHEP
 #+ Database/CondDBObjects
