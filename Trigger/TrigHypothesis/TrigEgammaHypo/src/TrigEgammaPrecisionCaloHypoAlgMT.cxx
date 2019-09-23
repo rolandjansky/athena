@@ -57,22 +57,22 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //get RoI  
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI" );
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // not using View so commenting out following lines
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
-    ATH_CHECK( viewELInfo.isValid() );
-    auto clusterHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_clustersKey, context);
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    ATH_CHECK( viewEL.isValid() );
+    auto clusterHandle = ViewHelper::makeHandle( *(viewEL), m_clustersKey, context);
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
     // Loop over the clusterHandles
     size_t validclusters=0;
     for (size_t cl=0; cl< clusterHandle->size(); cl++){
 	{
-	    auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, cl );
+	    auto el = ViewHelper::makeLink( *(viewEL), clusterHandle, cl );
 	    ATH_MSG_DEBUG ( "Checking el.isValid()...");
 	    if( !el.isValid() ) {
 		ATH_MSG_DEBUG ( "ClusterHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
@@ -81,9 +81,9 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
 
 	    ATH_MSG_DEBUG ( "ClusterHandle in position " << cl << " processing...");
 	    auto d = newDecisionIn( decisions, name() );
-	    d->setObjectLink( "feature",  el );
+	    d->setObjectLink( featureString(),  el );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-	    d->setObjectLink( "roi", roiELInfo.link );
+	    d->setObjectLink( roiString(), roiELInfo.link );
 	    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(cl), previousDecision );
 	    validclusters++;
 

@@ -55,7 +55,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     }
 
     if( outputHandle->size() == 0){ // input filtered out
-      ATH_MSG_ERROR( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty. Is this expected?");
+      ATH_MSG_ERROR( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty.");
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
@@ -128,7 +128,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils::Decision* inputDecision, SG::View* newView ) const {
   if ( m_requireParentView ) {
     // see if there is a view linked to the decision object, if so link it to the view that is just made
-    TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
+    LinkInfo<ViewContainer> parentViewLinkInfo = findLink<ViewContainer>(inputDecision, viewString(), /*suppressMultipleLinksWarning*/ true );
     if ( parentViewLinkInfo.isValid() ) {
       ATH_CHECK( parentViewLinkInfo.link.isValid() );
       auto parentView = *parentViewLinkInfo.link;
