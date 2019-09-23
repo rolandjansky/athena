@@ -26,7 +26,7 @@ bool CompoundConditionMT::isSatisfied(const HypoJetVector& ips,
 
   bool pass{true};
   for(const auto& el : m_elements){
-    pass = pass and !(el->isSatisfied(ips, collector));
+    pass = pass and (el->isSatisfied(ips, collector));
     if(!pass){break;}
   }
   

@@ -10,9 +10,11 @@ from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 
 from TrigHLTJetHypo.TrigJetHypoToolConfig import (
     trigJetHypoToolHelperFromDict,
-    trigJetHypoToolHelperFromDict_)
+    trigJetHypoToolHelperFromDict_,)
 
-from TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
+from TrigHLTJetHypo.test_cases import test_strings
+
+# from TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -470,7 +472,58 @@ class SimpleConditionsTests(CombinationsTests) :
 
         return generator
 
-def JetHypoExerciserCfg():
+class ConditionsTests(CombinationsTests) :
+
+    def __init__(self,
+                 chain_label,
+                 n_sgnl=4,
+                 n_bkgd=4,
+                 bkgd_etmax=20000.,  # MeV
+                 label_ind=0
+    ):
+        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
+        self.chain_name = 'HLT_ConditionTests'
+        self.chain_label = chain_label
+        self.label_ind = label_ind
+
+    def make_helper_tool(self):
+
+        toolSetter = ConditionsToolSetter(self.chain_name)
+        return trigJetHypoToolHelperFromDict_(self.chain_label,
+                                              self.chain_name,
+                                              toolSetter=toolSetter)
+
+
+    def logfile_name(self, chain_name):
+        return '%s_s%d_b%d_l%d' % (chain_name,
+                                   self.n_sgnl,
+                                   self.n_bkgd,
+                                   self.label_ind)
+
+
+    def make_event_generator(self):
+        generator = SimpleHypoJetVectorGenerator()
+
+        generator.ets = [80000. + 1000.*i for i in range(self.n_sgnl)]
+        generator.etas = [0.5] * self.n_sgnl
+
+        # alternate eta signs to get high mass
+        factor = 1
+        for i in range(len(generator.etas)):
+            generator.etas[i] *= factor
+            factor *= -1
+
+        generator.n_bkgd = self.n_bkgd
+        generator.bkgd_etmax = self.bkgd_etmax
+
+        return generator
+
+    
+def JetHypoExerciserCfg(label,
+                        n_signal,
+                        n_background,
+                        bkgdEmax,
+                        label_ind=0):
 
 
 
@@ -478,7 +531,12 @@ def JetHypoExerciserCfg():
     # test_conditions = SimpleFlowNetworkTests(n_sgnl=4, n_bkgd=0)
     # test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=4, n_bkgd=0)
     # test_conditions = FlowNetworkVsCombinationsTests(n_sgnl=4, n_bkgd=0)
-    test_conditions = SimpleConditionsTests(n_sgnl=4, n_bkgd=0)
+    # test_conditions = SimpleConditionsTests(n_sgnl=4, n_bkgd=0)
+    test_conditions = ConditionsTests(label,
+                                      n_signal,
+                                      n_background,
+                                      bkgdEmax,
+                                      label_ind)
 
     print(test_conditions.__dict__)
     # test_conditions =  CombinationsTests()
@@ -504,13 +562,29 @@ def JetHypoExerciserCfg():
     result.addEventAlgo(jetHypoExerciserAlg)
     return result
 
+
+
 if __name__=="__main__":
+
+    n_signal = 4
+    n_background = 0
+    bkgdEmax = 0.
+    label_ind = 2
+
+    label = test_strings[label_ind]
+
+    
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()
-    cfg.merge(JetHypoExerciserCfg())
+    cfg.merge(JetHypoExerciserCfg(label,
+                                  n_signal,
+                                  n_background,
+                                  bkgdEmax,
+                                  label_ind)
+    )
 
     cfg.setAppProperty("EvtMax", 10)
     cfg.run()
