@@ -28,7 +28,6 @@
 class PixelID;
 class IModuleDistortionsTool;
 
-class StoreGateSvc;
 class IIBLParameterSvc;
 
 namespace InDet {
@@ -124,7 +123,6 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
-  StoreGateSvc*                                 m_detStore        ;
 
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
@@ -178,7 +176,6 @@ public:
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
-  ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
   ServiceHandle<IIBLParameterSvc>                       m_IBLParameterSvc;
 
 
@@ -189,7 +186,7 @@ public:
   bool                                                  m_noNNandBroadErrors;
        /** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
-  SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterHandle; 
+  SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterMapKey; 
   mutable std::vector< std::vector<float> > m_fX ATLAS_THREAD_SAFE; // Guarded by m_mutex
   mutable std::vector< std::vector<float> > m_fY ATLAS_THREAD_SAFE; // Guarded by m_mutex
   mutable std::vector< std::vector<float> > m_fB ATLAS_THREAD_SAFE; // Guarded by m_mutex

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -148,7 +148,8 @@ void test1 ()
   testConst.push_back(new int(-2));
   DataVector<int>::const_iterator ci(testConst.begin()), ce(testConst.end());
   while (ci != ce) {
-    const int* UNUSED(cp) = *ci;
+    [[maybe_unused]]
+    const int* cp = *ci;
 #if 0
     //this is bad but unfortunately correct: a DataVector<int> is like a
     //vector<int*>. vector<int*>::const_iterator has type (int* const)*
@@ -451,6 +452,7 @@ void test_baseinfo()
   std::vector<CLID> clids;
   clids = SG::BaseInfo<DataVector<CC> >::get_bases();
   std::vector<CLID> exp1 = list_of
+    (ClassID_traits<SG::AuxVectorBase>::ID())
     (ClassID_traits<DataVector<AA> >::ID())
     (ClassID_traits<DataVector<BB> >::ID())
     (ClassID_traits<DataVector<CC> >::ID());
@@ -460,6 +462,7 @@ void test_baseinfo()
 
   clids = SG::BaseInfo<DataVector<R> >::get_bases();
   std::vector<CLID> exp2 = list_of
+    (ClassID_traits<SG::AuxVectorBase>::ID())
     (ClassID_traits<DataVector<R> >::ID())
     (ClassID_traits<DataVector<N> >::ID())
     (ClassID_traits<DataVector<O> >::ID())

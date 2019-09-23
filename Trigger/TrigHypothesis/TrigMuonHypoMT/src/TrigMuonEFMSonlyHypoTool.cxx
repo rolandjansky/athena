@@ -4,8 +4,6 @@
 
 #include "DecisionHandling/Combinators.h"
 #include "TrigMuonEFMSonlyHypoTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/Monitored.h"
 class ISvcLocator;
 TrigMuonEFMSonlyHypoTool::TrigMuonEFMSonlyHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
@@ -16,7 +14,7 @@ TrigMuonEFMSonlyHypoTool::~TrigMuonEFMSonlyHypoTool(){
 }
 StatusCode TrigMuonEFMSonlyHypoTool::initialize(){
   if(m_acceptAll) {
-    ATH_MSG_INFO("Accepting all the events with not cut!");
+    ATH_MSG_INFO("Accepting all the events!");
   } else {
     if(m_ptBins.size()<=0){ 
       ATH_MSG_ERROR("Trying to configure hypo with no pT bins. This is probably a configuration mistake.");
@@ -66,6 +64,18 @@ bool TrigMuonEFMSonlyHypoTool::decideOnSingleObject(TrigMuonEFMSonlyHypoTool::Mu
     ATH_MSG_DEBUG("Retrieval of xAOD::MuonContainer failed");
     return false;
   }
+  if(m_threeStationCut){
+    uint8_t nGoodPrcLayers=0;
+    if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
+      ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
+      return false;
+    }
+    if(fabs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
+      ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
+      return false;
+    }
+  }
+
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
     const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
     if (!tr) {
@@ -105,11 +115,8 @@ StatusCode TrigMuonEFMSonlyHypoTool::decide(std::vector<MuonEFInfo>& toolInput) 
     return inclusiveSelection(toolInput);
   }
   else{
-    if(numMuon <=1) ATH_MSG_DEBUG("Not applying selection "<<m_decisionId<< " because the number of muons is "<<numMuon);
-    else{
-      ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId);
+    ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId<<" with nMuons "<<numMuon);
       return multiplicitySelection(toolInput);
-    }
   }
   return StatusCode::SUCCESS;
 }
@@ -126,7 +133,7 @@ StatusCode TrigMuonEFMSonlyHypoTool::inclusiveSelection(std::vector<MuonEFInfo>&
   return StatusCode::SUCCESS;
 }
 StatusCode TrigMuonEFMSonlyHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& toolInput) const{
-  HLT::Index2DVec passingSelection(toolInput.size());
+  HLT::Index2DVec passingSelection(m_ptBins.size());
   for(size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex) {
     size_t elementIndex{0};
     for(auto& i : toolInput){

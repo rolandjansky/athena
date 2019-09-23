@@ -1,19 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelCalibAlgs/PixelBarrelSurveyUtils.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include <vector>
 #include <string>
 
 
 class PixelID;
 class IToolSvc;
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 class AlignableTransform;
 class DetCondCFloat;
 
@@ -37,7 +36,7 @@ class PixelBarrelSurvey:public AthAlgorithm {
   std::string m_outputDistoFile;
   std::vector<PixelBarrelSurveyUtils::StaveStruct> m_staves;
   const PixelID *m_pixelID;     // the ID helper
-  const InDetDD::PixelDetectorManager *m_pixmgr; // Pixel Detector Manager
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   AlignableTransform *m_transforms;
   DetCondCFloat *m_distorsions;
 };

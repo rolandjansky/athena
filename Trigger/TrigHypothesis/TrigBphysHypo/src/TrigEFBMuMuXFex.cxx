@@ -31,20 +31,15 @@
 
 #include "TrigEFBMuMuXFex.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaKernel/Timeout.h"
 
-#include "TrkTrack/TrackCollection.h"
-#include "TrkParameters/TrackParameters.h"
-#include "VxVertex/VxCandidate.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
@@ -1023,7 +1018,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         }
     } // if debug
     
-    Amg::Vector3D vtx ( 0.,0.,0. );
     
     //   TrigEFBphys* trigPartBMuMuX (NULL);
     // FIXME - remove these 'new's
@@ -1063,7 +1057,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
         //        for(pElItr=muonTPELtracks1.begin(); pElItr != muonTPELtracks1.end(); pElItr++) {
         //            for(mElItr=muonTPELtracks2.begin(); mElItr != muonTPELtracks2.end(); mElItr++) {
-        
+        const Amg::Vector3D beamspot = m_bphysHelperTool->getBeamSpot(Gaudi::Hive::currentContext());
+
         for(pElItr=muonTPELtracksMerged.begin(); pElItr != muonTPELtracksMerged.end(); ++pElItr) {
             for(mElItr=pElItr+1; mElItr != muonTPELtracksMerged.end(); ++mElItr) {
                 auto pTp = **pElItr;
@@ -1348,7 +1343,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         xAOD::TrigBphys* trigPartBplusMuMuKplus = checkBplusMuMuKplus(trackEL3,trackELmu1,trackELmu2);
                         ++nTriedCombinations;
                         if (trigPartBplusMuMuKplus) {
-                            m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusMuMuKplus,{*trackEL3,*trackELmu1,*trackELmu2});
+                            m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusMuMuKplus,{*trackEL3,*trackELmu1,*trackELmu2}, beamspot);
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
                               if(m_countBpToStore == m_maxBpToStore) {
                                 ATH_MSG_WARNING("Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" );
@@ -1452,8 +1447,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                                                              bD_to_Kstar,xaod_trigPartKstar);
                                     ++nTriedCombinations;
                                     if (xaod_trigPartBdMuMuKstar) {
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2});
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4});
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2}, beamspot);
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4}, beamspot);
                                         
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
                                           if(m_countBdToStore == m_maxBdToStore) {
@@ -1497,8 +1492,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                                             bD_to_Kstar,xaod_trigPartKstar);
                                     ++nTriedCombinations;
                                     if (xaod_trigPartBdMuMuKstar) {
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2}, beamspot);
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3}, beamspot);
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG_WARNING("Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" );
@@ -1555,8 +1550,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                     ++nTriedCombinations;
                                     if (xaod_trigPartBsMuMuPhi) {
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBsMuMuPhi,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2});
-                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4});
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBsMuMuPhi,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2}, beamspot);
+                                        m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4}, beamspot);
                                         
                                         if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
                                           if(m_countBsToStore == m_maxBsToStore) {
@@ -1644,8 +1639,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                                                                   xaod_trigPartLambda);
                                           ++nTriedCombinations;
                                           if (xaod_trigPartLbMuMuLambda) {
-                                            m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLbMuMuLambda,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2});
-                                            m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL3,*trackEL4});
+                                            m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLbMuMuLambda,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2}, beamspot);
+                                            m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL3,*trackEL4}, beamspot);
                                             
                                             if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
                                               if(m_countLbToStore == m_maxLbToStore) {
@@ -1693,8 +1688,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                                                                     xaod_trigPartLambda);
                                           ++nTriedCombinations;
                                           if (xaod_trigPartLbMuMuLambda) {
-                                              m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLbMuMuLambda,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
-                                              m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL4,*trackEL3});
+                                              m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLbMuMuLambda,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2}, beamspot);
+                                              m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL4,*trackEL3}, beamspot);
                                               
                                               if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
                                                 if(m_countLbToStore == m_maxLbToStore) {
@@ -1838,9 +1833,9 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDs );
                                                       m_TrigBphysColl_X->push_back( trigPartDs );
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDs,
-                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2}, beamspot);
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartDs,
-                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                                                                {*trkIt1,*trkIt2,*trkIt3}, beamspot);
                                                       trigPartDs->addParticleLink(ItrackEL3);
                                                       trigPartDs->addParticleLink(ItrackEL4);
                                                       trigPartDs->addParticleLink(ItrackEL5);
@@ -1980,9 +1975,9 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       m_TrigBphysColl_X->push_back( trigPartDplus );
 
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDplus,
-                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2}, beamspot);
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartDplus,
-                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                                                                {*trkIt1,*trkIt2,*trkIt3}, beamspot);
                                                       trigPartDplus->addParticleLink(ItrackEL3);
                                                       trigPartDplus->addParticleLink(ItrackEL4);
                                                       trigPartDplus->addParticleLink(ItrackEL5);
@@ -2134,9 +2129,9 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       m_TrigBphysColl_X->push_back( trigPartDstar );
 
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDstar,
-                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2}, beamspot);
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartDstar,
-                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                                                                {*trkIt1,*trkIt2,*trkIt3}, beamspot);
                                                       trigPartDstar->addParticleLink(ItrackEL3);
                                                       trigPartDstar->addParticleLink(ItrackEL4);
                                                       trigPartDstar->addParticleLink(ItrackEL5);
@@ -2236,9 +2231,9 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       m_TrigBphysColl_X->push_back( trigPartD0 );
 
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuD0,
-                                                                                                {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2});
+                                                                                                {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2}, beamspot);
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartD0,
-                                                                                                {*trkIt1,*trkIt2});
+                                                                                                {*trkIt1,*trkIt2}, beamspot);
                                                       trigPartD0->addParticleLink(ItrackEL3);
                                                       trigPartD0->addParticleLink(ItrackEL4);
                                                     
@@ -2561,9 +2556,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
 	massAtVrtX.push_back(KPLUSMASS);    
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        dsCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX);
+        dsCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(dsCascade);
@@ -2577,12 +2572,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -2826,10 +2821,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
 	massAtVrtX.push_back(PIMASS);    
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        dplusCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX);
-
+        dplusCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX,*state);
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(dplusCascade);
 
@@ -2842,12 +2836,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -3132,9 +3126,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
 	massAtVrtX.push_back(KPLUSMASS);
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX);
+        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(d0Cascade);
@@ -3150,12 +3144,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -3430,9 +3424,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
 	massAtVrtX.push_back(KPLUSMASS);
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX);
+        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(d0Cascade);
@@ -3446,12 +3440,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -3690,9 +3684,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
 	massAtVrtX.push_back(PROTONMASS);
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        LambdaCascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX);
+        LambdaCascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(LambdaCascade);
@@ -3706,12 +3700,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             

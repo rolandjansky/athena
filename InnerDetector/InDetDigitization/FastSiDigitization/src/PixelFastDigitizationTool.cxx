@@ -32,7 +32,6 @@
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 // Fatras
 #include "InDetPrepRawData/PixelCluster.h"
@@ -77,7 +76,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_rndmSvc("AtRndmGenSvc",name),
   m_randomEngine(nullptr),
   m_randomEngineName("FastPixelDigitization"),
-  m_manager(nullptr),
   m_pixel_ID(nullptr),
   m_clusterMaker("InDet::ClusterMakerTool/FatrasClusterMaker"),
   m_pixUseClusterMaker(true),
@@ -160,6 +158,7 @@ StatusCode PixelFastDigitizationTool::initialize()
 
   ATH_CHECK(m_pixelCabling.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   //locate the AtRndmGenSvc and initialize our local ptr
   if (!m_rndmSvc.retrieve().isSuccess())
@@ -167,14 +166,6 @@ StatusCode PixelFastDigitizationTool::initialize()
       ATH_MSG_ERROR ( "Could not find given RndmSvc" );
       return StatusCode::FAILURE;
     }
-
-  // Get the Pixel Detector Manager
-  if (StatusCode::SUCCESS != detStore()->retrieve(m_manager,"Pixel") ) {
-    ATH_MSG_ERROR ( "Can't get Pixel_DetectorManager " );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved Pixel_DetectorManager with version "  << m_manager->getVersion().majorNum() );
-  }
 
   if (detStore()->retrieve(m_pixel_ID, "PixelID").isFailure()) {
     ATH_MSG_ERROR ( "Could not get Pixel ID helper" );
@@ -502,7 +493,12 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
 
 StatusCode PixelFastDigitizationTool::digitize()
 {
-
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
 
   TimedHitCollection<SiHit>::const_iterator i, e;
 
@@ -532,7 +528,9 @@ StatusCode PixelFastDigitizationTool::digitize()
       const int phiModule = hit->getPhiModule();
       const int etaModule = hit->getEtaModule();
 
-      const InDetDD::SiDetectorElement* hitSiDetElement = m_manager->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule);
+      const Identifier moduleID = m_pixel_ID->wafer_id(barrelEC, layerDisk, phiModule, etaModule);
+      const IdentifierHash waferHash = m_pixel_ID->wafer_hash(moduleID);
+      const InDetDD::SiDetectorElement* hitSiDetElement = elements->getDetectorElement(waferHash);
       if (!hitSiDetElement) {ATH_MSG_ERROR( " could not get detector element "); continue;}
 
       if (!(hitSiDetElement->isPixel())) {continue;}
@@ -541,13 +539,9 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       std::vector<HepMcParticleLink> hit_vector; //Store the hits in merged cluster
 
-      const IdentifierHash waferID = m_pixel_ID->wafer_hash(hitSiDetElement->identify());
-
-      Identifier moduleID = m_pixel_ID->wafer_id(hitSiDetElement->identify());
-
       const int trkn = hit->trackNumber();
 
-      const Identifier hitId = hitSiDetElement->identify();
+      const Identifier hitId = hitSiDetElement->identify(); // Isn't this is identical to moduleID?
       //const IdentifierHash hitIdHash = hitSiDetElement->identifyHash();
 
 
@@ -611,7 +605,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       int circ = m_pixelCabling->getFE(&diodeID,moduleID);
       int type = m_pixelCabling->getPixelType(diodeID);
 
-      double th0 = calibData->getAnalogThreshold((int)waferID,circ,type)/m_ThrConverted;
+      double th0 = calibData->getAnalogThreshold((int)waferHash,circ,type)/m_ThrConverted;
 
       //        if (old_th != th0) std::cout<<"converted threshold "<<th0<<std::endl, old_th= th0;
 
@@ -870,7 +864,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       if (! (m_pixel_ID->is_pixel(pixelCluster->identify()))) {delete pixelCluster; continue;}
 
-      (void) PixelDetElClusterMap.insert(Pixel_detElement_RIO_map::value_type(waferID, pixelCluster));
+      (void) PixelDetElClusterMap.insert(Pixel_detElement_RIO_map::value_type(waferHash, pixelCluster));
 
       if (hit->particleLink().isValid()){
         const int barcode( hit->particleLink().barcode());
@@ -904,12 +898,18 @@ StatusCode PixelFastDigitizationTool::digitize()
 
 StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
 {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
 
   Pixel_detElement_RIO_map::iterator i = m_pixelClusterMap->begin();
   Pixel_detElement_RIO_map::iterator e = m_pixelClusterMap->end();
 
   InDet::PixelClusterCollection* clusterCollection = 0;
-  IdentifierHash waferID;
+  IdentifierHash waferHash;
 
   for (; i != e; i = m_pixelClusterMap->upper_bound(i->first)){
 
@@ -919,12 +919,11 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
     Pixel_detElement_RIO_map::iterator firstDetElem;
     firstDetElem = range.first;
 
-    IdentifierHash waferID;
-    waferID = firstDetElem->first;
+    waferHash = firstDetElem->first;
 
-    const InDetDD::SiDetectorElement* detElement = m_manager->getDetectorElement(waferID);
+    const InDetDD::SiDetectorElement* detElement = elements->getDetectorElement(waferHash);
 
-    clusterCollection = new InDet::PixelClusterCollection(waferID);
+    clusterCollection = new InDet::PixelClusterCollection(waferHash);
     clusterCollection->setIdentifier(detElement->identify());
 
 
@@ -940,9 +939,9 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
     if (clusterCollection) {
       if (clusterCollection->size() != 0) {
         ATH_MSG_DEBUG ( "Filling ambiguities map" );
-        m_gangedAmbiguitiesFinder->execute(clusterCollection,*m_manager,*m_ambiguitiesMap);
+        m_gangedAmbiguitiesFinder->execute(clusterCollection,*m_ambiguitiesMap);
         ATH_MSG_DEBUG ( "Ambiguities map: " << m_ambiguitiesMap->size() << " elements" );
-        if ((m_pixelClusterContainer->addCollection(clusterCollection, waferID)).isFailure()){
+        if ((m_pixelClusterContainer->addCollection(clusterCollection, waferHash)).isFailure()){
           ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
         }
       }

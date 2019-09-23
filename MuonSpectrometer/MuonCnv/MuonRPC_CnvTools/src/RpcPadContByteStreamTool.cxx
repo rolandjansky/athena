@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcPadContByteStreamTool.h"
@@ -63,13 +63,6 @@ StatusCode Muon::RpcPadContByteStreamTool::initialize() {
     return StatusCode::FAILURE; 
   }  
 
-//   StoreGateSvc * detStore;
-//   StatusCode status = service("DetectorStore", detStore);
-//   if (status.isFailure()) {
-//     msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;
-//     return StatusCode::FAILURE;
-//   } else {}
- 
   // Get the RPC id helper from the detector store
   const RpcIdHelper* rpc_id;
   StatusCode status = detStore()->retrieve(rpc_id, "RPCIDHELPER");

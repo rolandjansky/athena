@@ -11,6 +11,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 // normal includes
 #include "Identifier/Identifier.h"
 #include "InDetPrepRawData/PixelCluster.h"
@@ -57,16 +58,7 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
     }
   }
 
-  if (m_doSharedHits) {
-    if ( m_assoTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_assoTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_assoTool);
-    }
-  } else {
-    m_assoTool.disable();
-  }
+  ATH_CHECK( m_assoTool.retrieve( DisableTool{!m_doSharedHits || m_assoTool.empty()} ));
 
   if ( not m_pixeldedxtool.empty() and m_pixeldedxtool.retrieve().isFailure() ) {
     ATH_MSG_ERROR("Failed to retrieve pixel dEdx tool " << m_pixeldedxtool);
@@ -76,7 +68,7 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
     if (not m_pixeldedxtool.empty()) ATH_MSG_INFO("Retrieved tool " << m_pixeldedxtool);
   }
 
-  if ( m_holeSearchTool.retrieve().isFailure() ) {
+  if ( not m_holeSearchTool.empty() && m_holeSearchTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_holeSearchTool);
     return StatusCode::FAILURE;
   } else {
@@ -105,8 +97,26 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
 }
 
 
+namespace {
+  bool isShared(const Trk::PRDtoTrackMap *prd_to_track_map,
+                                            const PublicToolHandle<Trk::IPRD_AssociationTool> &asso_tool,
+                                            const Trk::PrepRawData& prd) {
+    if (prd_to_track_map) {
+      return prd_to_track_map->isShared(prd);
+    }
+    else {
+      if (!asso_tool.isEnabled()) {
+        throw std::logic_error("Shared hits to be computed but no PRDtoTrack provided "
+                               " (and no association tool configured (deprecated))");
+      }
+      return asso_tool->isShared(prd);
+    }
+  }
+}
+
 //==========================================================================
 void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track, 
+                                                 const Trk::PRDtoTrackMap *prd_to_track_map,
                                                  const Trk::RIO_OnTrack* rot, 
                                                  const Trk::TrackStateOnSurface* tsos,
                                                  std::vector<int>& information, 
@@ -169,7 +179,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
         // If we are running the TIDE ambi don't count split hits as shared 
         if ( not (m_runningTIDE_Ambi and hitIsSplit) ) {
           // used in more than one track ?
-          if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+          if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
             ATH_MSG_DEBUG("shared Pixel hit found");
             information[Trk::numberOfPixelSharedHits]++;
             if ( (m_pixelId->is_blayer(id) ) ) {
@@ -211,8 +221,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
       }
 
       if (m_doSharedHits) {
-        // used in more than one track ?
-        if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+        if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
           ATH_MSG_DEBUG("shared SCT hit found");
           information[Trk::numberOfSCTSharedHits]++;
         }
@@ -268,23 +277,23 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 
   if (m_doSharedHitsTRT) {
     // used in more than one track ?
-    if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+    if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
       ATH_MSG_DEBUG("shared TRT hit found");
       information[Trk::numberOfTRTSharedHits]++;
     }
   }
-   
   return;
 }
 
 void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
+                                                 const Trk::PRDtoTrackMap *prd_to_track_map,
                                                  const Trk::CompetingRIOsOnTrack* crot, 
                                                  const Trk::TrackStateOnSurface* tsos,
                                                  std::vector<int>& information, 
                                                  std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
 {
   // re-produce prior behaviour (i.e. just take most probable ROT)
-  analyse(track, &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern);
+  analyse(track, prd_to_track_map,  &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern);
 }
 
 void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track, 
@@ -335,7 +344,9 @@ void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track,
 }
 
 
-void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &track, Trk::TrackSummary& summary) const {
+void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &track,
+                                                              const Trk::PRDtoTrackMap *prd_to_track_map,
+                                                              Trk::TrackSummary& summary) const {
   // loop over track states on surface and take pixel / sct to update the shared hit count
   summary.m_information[Trk::numberOfPixelSharedHits]  = 0;
   summary.m_information[Trk::numberOfInnermostPixelLayerSharedHits] = 0;
@@ -372,7 +383,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
           }
           // If we are running the TIDE ambi don't count split hits as shared 
           if ( not (m_runningTIDE_Ambi and hitIsSplit) ){
-            if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+            if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
               ATH_MSG_DEBUG("shared Pixel hit found");
               summary.m_information[Trk::numberOfPixelSharedHits]++;
               if ( (m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id)==0) ) {
@@ -386,14 +397,14 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
           }
         } else if ( m_doSharedHits and m_useSCT and m_sctId->is_sct(id) ){
           // used in more than one track ?
-          if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+          if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
             ATH_MSG_DEBUG("shared SCT hit found");
             summary.m_information[Trk::numberOfSCTSharedHits]++;
           }
         }
         if (m_doSharedHitsTRT and m_useTRT and m_trtId->is_trt(id)) {
           // used in more than one track ?
-          if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+          if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
             ATH_MSG_DEBUG("shared TRT hit found");
             summary.m_information[Trk::numberOfTRTSharedHits]++;
           }

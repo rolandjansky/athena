@@ -1,7 +1,7 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 
-
-from AthenaCommon.JobProperties import jobproperties
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def HelloWorldCfg():
@@ -71,12 +71,6 @@ def HelloWorldCfg():
 if __name__=="__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
-
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
-    #log.setLevel(DEBUG)
-
-    
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()

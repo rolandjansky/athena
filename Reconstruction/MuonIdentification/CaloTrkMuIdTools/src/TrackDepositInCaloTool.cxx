@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/TrackDepositInCaloTool.h"
@@ -380,7 +380,7 @@ std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForTile(const 
   double phiMin       = phiPar-phiWidth;
   double phiMax       = phiPar+phiWidth;
   // --- Fill vecHash ---
-  CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+  CaloCell_ID::CaloSample sample = descr->getSampling();
 
   std::vector<IdentifierHash> vecHash;
   m_caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
@@ -739,7 +739,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
     double energyLoss      = 0;
     bool eLossFound        = false;
     const CaloDetDescriptor* descr = it->second;
-    CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+    CaloCell_ID::CaloSample sample = descr->getSampling();
     ATH_MSG_VERBOSE("Analysing crossing of calo sample " << sample << " ");
 
     // --- Extrapolate to entrance of layer ---
@@ -773,13 +773,11 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
           const Trk::TrackParameters* paramMiddle = m_extrapolator->extrapolate(*paramEntrance, *surfMiddle, Trk::alongMomentum, checkBoundary, muonHypo);
           if (paramMiddle) {
             // Get energy:
-            // CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
             const CaloCell* cell = getClosestCell(paramMiddle, descr);
             if (cell) {
               energyDeposit = cell->energy();
               ETDeposit     = cell->et();
             }
-            // energyDeposit = DepositInCell(const_cast<CaloDetDescriptor*>(descr)->getSampling(), paramMiddle->eta(), paramMiddle->momentum().phi(), 0.1);
             // --- Extrapolate to exit of layer ---
             Trk::Surface* surfExit = createSurface(descr, Exit);
             const Trk::TrackParameters* paramExit;
@@ -893,7 +891,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
   // Initialize LAr
   for (const CaloDetDescriptor* descr : m_caloDDM->calo_descriptors_range()) {
     if (descr) {
-      CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();      
+      CaloCell_ID::CaloSample sample = descr->getSampling();      
       ATH_MSG_VERBOSE("Detector Description element for sample " << sample);
       if ( descr->is_lar_em_barrel() ) {
         ATH_MSG_VERBOSE("  this is a cylindrical detector element.");
@@ -926,11 +924,11 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
   ATH_MSG_VERBOSE("Processing tiles... ");
   for (const CaloDetDescriptor* descr : m_caloDDM->tile_descriptors_range()) {
     if (descr) {
-      ATH_MSG_VERBOSE("Detector Description element for sample " << const_cast<CaloDetDescriptor*>(descr)->getSampling());
+      ATH_MSG_VERBOSE("Detector Description element for sample " << descr->getSampling());
       if (!descr->is_tile() ) {
         ATH_MSG_VERBOSE("This is not a isTile()==true element.");
       }
-      CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+      CaloCell_ID::CaloSample sample = descr->getSampling();
       if (sample >= 15 && sample <= 17) {
         // --- Skip the TileGap detector elements ---
         continue;
@@ -1191,7 +1189,7 @@ that is closest to the track.
 ///////////////////////////////////////////////////////////////////////////////
 const CaloCell* TrackDepositInCaloTool::getClosestCellLAr(const Trk::TrackParameters* par, const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) const {
 
-  CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+  CaloCell_ID::CaloSample sample = descr->getSampling();
   // ATH_MSG_INFO("Sampling = " << sample);
   const CaloDetDescrElement* cellDescr = m_caloDDM->get_element(sample, par->position().eta(), par->position().phi());
   if (cellDescr) {
@@ -1222,7 +1220,7 @@ const CaloCell* TrackDepositInCaloTool::getClosestCellTile(const Trk::TrackParam
   double phiMin       = phiPar-phiWidth;
   double phiMax       = phiPar+phiWidth;
   // --- Fill vecHash ---
-  CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
+  CaloCell_ID::CaloSample sample = descr->getSampling();
 
   std::vector<IdentifierHash> vecHash;
   m_caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);

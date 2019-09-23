@@ -5,7 +5,8 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
 log.setLevel(logging.DEBUG)
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties # noqa: F401
 from TriggerJobOpts.CommonSignatureHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
 
@@ -142,7 +143,7 @@ class doMT(JobProperty):
     """ Run upgrade type of config """
     statusOn=True
     allowedType=['bool']
-    from AthenaCommon.ConcurrencyFlags import jobproperties
+    from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
     StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
         
 _flags.append(doMT)
@@ -176,6 +177,7 @@ class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2 """
     statusOn=True
     allowedType=['int']
+    allowedValues=[1,2,3]
     StoredValue=2
 
 _flags.append(EDMDecodingVersion)
@@ -457,7 +459,7 @@ class triggerUseFrontier(JobProperty):
     StoredValue = False
     def _do_action(self):
         log = logging.getLogger( 'TriggerFlags.triggerUseFrontier' )
-        log.info("Setting TriggerFlags.triggerUseFrontier to %r" % self.get_Value())
+        log.info("Setting TriggerFlags.triggerUseFrontier to %r", self.get_Value())
         
 _flags.append(triggerUseFrontier)
 
@@ -544,7 +546,7 @@ class triggerConfig(JobProperty):
                     f = open("MenuCoolDbLocation.txt",'r')
                     tf.triggerCoolDbConnection = f.read()
                     f.close()
-                except IOError, e:
+                except IOError:
                     log.fatal("triggerConfig=DATARECO:REPR requires 'MenuCoolDbLocation.tx' to be present in the local directory (reco part of trigger reprocessing)")
                     
             elif configs[1] == 'DB' or configs[1] == 'DBF': # We read config from a private DB
@@ -555,11 +557,11 @@ class triggerConfig(JobProperty):
                 DBkeys = configs[-1].split(",")
                 if (len(DBkeys) == 3):                            # we got 3 keys (SM, L1PS, HLTPS)
                     tf.triggerDbKeys=[int(x) for x in DBkeys] + [1]
-                    log.info("triggerConfig: DATARECO from DB with speficied keys SMK %i, L1 PSK %i, and HLT PSK %i." % tuple(tf.triggerDbKeys()[0:3])   )
+                    log.info("triggerConfig: DATARECO from DB with speficied keys SMK %i, L1 PSK %i, and HLT PSK %i.", *tuple(tf.triggerDbKeys()[0:3]))
                 elif (len(DBkeys) == 2):                       # we got a menu name and a release which we need to look up 
                     log.info("triggerConfig: DATARECO from DB with specified menu name and release: finding keys...")
                     tf.triggerDbKeys=getKeysFromNameRelease(tf.triggerDbConnection(),DBkeys[0],DBkeys[1],False) + [1]
-                    log.info("triggerConfig: DATARECO from DB with keys SMK %i, L1 PSK %i, and HLT PSK %i." % tuple(tf.triggerDbKeys()[0:3])   )
+                    log.info("triggerConfig: DATARECO from DB with keys SMK %i, L1 PSK %i, and HLT PSK %i.", *tuple(tf.triggerDbKeys()[0:3]))
                 else:
                     log.info("triggerConfig: DATARECO from DB configured with wrong number of keys/arguments" )
 
@@ -582,11 +584,11 @@ class triggerConfig(JobProperty):
                 if (len(DBkeys) == 2): #We got either 2 keys (SM, L1PS) or menu name plus release. If latter, second object will contain a .
                     if '.' not in str(DBkeys[1]):
                         tf.triggerDbKeys=[int(x) for x in DBkeys] +[-1,1] # SMkey, L1PSkey, HLTPSkey, BGkey
-                        log.info("triggerConfig: LVL1 from DB with specified keys SMK %i and L1 PSK %i." % tuple(tf.triggerDbKeys()[0:2])   )
+                        log.info("triggerConfig: LVL1 from DB with specified keys SMK %i and L1 PSK %i.", *tuple(tf.triggerDbKeys()[0:2]))
                     else:
                         log.info("triggerConfig: LVL1 from DB with speficied menu name and release: finding keys...")
                         tf.triggerDbKeys=getKeysFromNameRelease(tf.triggerDbConnection(),DBkeys[0],DBkeys[1],True) + [-1,1]
-                        log.info("triggerConfig: LVl1 from DB with keys SMK %i and L1 PSK %i" % tuple(tf.triggerDbKeys()[0:2])   )
+                        log.info("triggerConfig: LVl1 from DB with keys SMK %i and L1 PSK %i", *tuple(tf.triggerDbKeys()[0:2]))
                 else:                  #We got a menu name which we need to look up - not implemented yet
                     log.info("triggerConfig: LVL1 from DB configured with wrong number of keys/arguments" )
 
@@ -597,7 +599,7 @@ class triggerConfig(JobProperty):
                     tf.triggerMenuSetup = 'default'
                 else:
                     tf.triggerMenuSetup = configs[1]
-                log.info("triggerConfig: LVL1 menu from xml (%s)" % tf.triggerMenuSetup())
+                log.info("triggerConfig: LVL1 menu from xml (%s)", tf.triggerMenuSetup())
 
                 
 
@@ -617,27 +619,27 @@ class triggerConfig(JobProperty):
                 #see if L1 calib arg supplied
                 if "L1CaloCalib" in configs[2]:
                     if configs[2].split("=")[-1] == "True" or configs[2].split("=")[-1] == "true":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s " % configs[2].split("=")[-1])
+                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[2].split("=")[-1])
                         tf.useL1CaloCalibration=True
                     elif configs[2].split("=")[-1] == "False" or configs[2].split("=")[-1] == "false":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s " % configs[2].split("=")[-1])
+                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[2].split("=")[-1])
                         tf.useL1CaloCalibration=False
                     else:
-                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default" % configs[2].split("=")[-1])
+                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default", configs[2].split("=")[-1])
                     tf.triggerDbConnection = ':'.join(configs[3:-1])  # the dbconnection goes from third to last ':', it can contain ':'
                 else:
                     tf.triggerDbConnection = ':'.join(configs[2:-1])  # the dbconnection goes from second to last ':', it can contain ':'
                 DBkeys = configs[-1].split(",")
                 if (len(DBkeys) == 4):                            # we got 4 keys (SM, L1PS, HLTPS,BGK)
                     tf.triggerDbKeys=[int(x) for x in DBkeys]
-                    log.info("triggerConfig: MCRECO from DB with speficied keys SMK %i, L1 PSK %i, HLT PSK %i, and BGK %i." % tuple(tf.triggerDbKeys()[0:4])   )
+                    log.info("triggerConfig: MCRECO from DB with speficied keys SMK %i, L1 PSK %i, HLT PSK %i, and BGK %i.", *tuple(tf.triggerDbKeys()[0:4]))
                 if (len(DBkeys) == 3):                            # we got 3 keys (SM, L1PS, HLTPS)
                     tf.triggerDbKeys=[int(x) for x in DBkeys] + [1]
-                    log.info("triggerConfig: MCRECO from DB with speficied keys SMK %i, L1 PSK %i, and HLT PSK %i." % tuple(tf.triggerDbKeys()[0:3])   )
+                    log.info("triggerConfig: MCRECO from DB with speficied keys SMK %i, L1 PSK %i, and HLT PSK %i.", *tuple(tf.triggerDbKeys()[0:3]))
                 elif (len(DBkeys) == 2):                       # we got a menu name and a release which we need to look up 
                     log.info("triggerConfig: MCRECO from DB with specified menu name and release: finding keys...")
                     tf.triggerDbKeys=getKeysFromNameRelease(tf.triggerDbConnection(),DBkeys[0],DBkeys[1],False) + [1]
-                    log.info("triggerConfig: MCRECO from DB with keys SMK %i, L1 PSK %i, and HLT PSK %i." % tuple(tf.triggerDbKeys()[0:3])   )
+                    log.info("triggerConfig: MCRECO from DB with keys SMK %i, L1 PSK %i, and HLT PSK %i.", *tuple(tf.triggerDbKeys()[0:3]))
                 else:
                     log.info("triggerConfig: MCRECO from DB configured with wrong number of keys/arguments" )
 
@@ -652,13 +654,13 @@ class triggerConfig(JobProperty):
                 ### We read the menu from xml
                 if "L1CaloCalib" in configs[1]:
                     if configs[1].split("=")[-1] == "True" or configs[1].split("=")[-1] == "true":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s " % configs[1].split("=")[-1])
+                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[1].split("=")[-1])
                         tf.useL1CaloCalibration=True
                     elif configs[1].split("=")[-1] == "False" or configs[1].split("=")[-1] == "false":
-                        log.info("Setting L1CaloCalib from TriggerConfig command to %s " %  configs[1].split("=")[-1])
+                        log.info("Setting L1CaloCalib from TriggerConfig command to %s ", configs[1].split("=")[-1])
                         tf.useL1CaloCalibration=False
                     else:
-                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default" % configs[1].split("=")[-1])
+                        log.warning("Unknown value for L1CaloCalib ('%s'), will use default", configs[1].split("=")[-1])
                 if (configs[-1] == 'DEFAULT' or configs[-1] == 'default'):
                     tf.triggerMenuSetup = 'default'
                 else:
@@ -666,7 +668,7 @@ class triggerConfig(JobProperty):
 
                 tf.readLVL1configFromXML=True
                 tf.readHLTconfigFromXML=True
-                log.info("triggerConfig: MCRECO menu from xml (%s)" % tf.triggerMenuSetup())
+                log.info("triggerConfig: MCRECO menu from xml (%s)", tf.triggerMenuSetup())
 
             # This part was there in the original (old) csc_reco_trigger.py snippet
             # Still wanted?
@@ -732,7 +734,7 @@ class readLVL1configFromXML(JobProperty):
         import os
         log = logging.getLogger( 'TriggerFlags.readLVL1configFromXML' )
 
-        import TriggerMenu.l1.Lvl1Flags
+        import TriggerMenu.l1.Lvl1Flags  # noqa: F401
         
         if self.get_Value() is False:
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
@@ -741,7 +743,7 @@ class readLVL1configFromXML(JobProperty):
             xmlFile=TriggerFlags.inputLVL1configFile()
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
             if xmlFile!='NONE' and not os.path.exists(findFileInXMLPATH(xmlFile)):
-                log.error("Cannot find LVL1 xml file %s" % xmlFile)
+                log.error("Cannot find LVL1 xml file %s", xmlFile)
 
             TriggerFlags.Lvl1.items.set_Off()
 
@@ -773,7 +775,7 @@ class readHLTconfigFromXML(JobProperty):
                             slice_prop.set_Off()
                         else:
                             slice_prop.set_On()
-        ## in addition set inputLVL1configFile to be the same as outputLVL1configFile
+        ## in addition set inputHLTconfigFile to be the same as outputHLTconfigFile
         if self.get_Value() is False:
             TriggerFlags.inputHLTconfigFile = TriggerFlags.outputHLTconfigFile()
         else:
@@ -849,7 +851,7 @@ class outputL1TopoConfigFile(JobProperty):
             # removed.
             import re
             menuSetup = TriggerFlags.triggerMenuSetup()
-            m = re.match('(.*v\d).*', menuSetup)
+            m = re.match(r'(.*v\d(?:_primaries)?).*', menuSetup)
             if m:
                 menuSetup = m.groups()[0]
             return "L1Topoconfig_" + menuSetup + "_" + TriggerFlags.menuVersion() + ".xml"
@@ -885,7 +887,18 @@ class outputHLTconfigFile(JobProperty):
 
 _flags.append(outputHLTconfigFile)
 
+class outputHLTmenuJsonFile(JobProperty):
+    """ File name for output HLT configuration XML file """
+    statusOn=True
+    StoredValue=""
 
+    def __call__(self):
+        if self.get_Value() == "":
+            return "HLTmenu_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".json"
+        else:
+            return self.get_Value()
+
+_flags.append(outputHLTmenuJsonFile)
 
 class inputL1TopoConfigFile(JobProperty):
     """Used to define an external L1Topo configuration file. To be
@@ -1053,6 +1066,7 @@ class triggerMenuSetup(JobProperty):
         # Run 3 (and preparation for Run-3)
         'LS2_v1', # for development of AthenaMT
         'LS2_emu_v1', # emulation test menu for AthenaMT
+        'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         ]
 
     _default_menu='Physics_pp_v7_primaries'
@@ -1067,13 +1081,13 @@ class triggerMenuSetup(JobProperty):
         # meaning full default menu
         if self.get_Value() == 'default':
             self.set_Value(self._default_menu)
-            self._log.info("%s - trigger menu 'default' changed to '%s'" % (self.__class__.__name__, self.get_Value()))
+            self._log.info("%s - trigger menu 'default' changed to '%s'", self.__class__.__name__, self.get_Value())
         elif self.get_Value() == 'cosmic_default':
             self.set_Value(self._default_cosmic_menu)
-            self._log.info("%s - trigger menu 'cosmic_default' changed to '%s'" % (self.__class__.__name__, self.get_Value()))
+            self._log.info("%s - trigger menu 'cosmic_default' changed to '%s'", self.__class__.__name__, self.get_Value())
         elif self.get_Value() == 'InitialBeam_default':
             self.set_Value(self._default_InitialBeam_menu)
-            self._log.info("%s - trigger menu 'InitialBeam_default' changed to '%s'" % (self.__class__.__name__, self.get_Value()))
+            self._log.info("%s - trigger menu 'InitialBeam_default' changed to '%s'", self.__class__.__name__, self.get_Value())
             
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
@@ -1157,13 +1171,13 @@ TriggerFlags = rec.Trigger
 
 
 ## add online specific flags
-from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags
+from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags   # noqa: F401
 
 ## add slices generation flags
 
-from TriggerJobOpts.SliceFlags import *
-from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags
-from TrigTier0.NtupleProdFlags              import NtupleProductionFlags
+from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
+from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags      # noqa: F401
+from TrigTier0.NtupleProdFlags              import NtupleProductionFlags  # noqa: F401
 
 
 def sync_Trigger2Reco():

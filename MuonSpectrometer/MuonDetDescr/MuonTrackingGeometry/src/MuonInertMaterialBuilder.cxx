@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,9 +42,6 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
 //#include "TrkGeometry/HomogeneousLayerMaterial.h"
-
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 
 //#include "PathResolver/PathResolver.h"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **********************************************************************
@@ -17,7 +17,7 @@
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepData.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"  
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
@@ -56,7 +56,6 @@ CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name
     m_tgcIdHelper(0),
     m_debuglevel(false),
     m_bookedhistos(false) {
-  m_helperTool     = ToolHandle<Muon::MuonEDMHelperTool>("Muon::MuonEDMHelperTool/MuonEDMHelperTool");
   m_idHelperTool   = ToolHandle<Muon::MuonIdHelperTool>("Muon::MuonIdHelperTool/MuonIdHelperTool");
 
   //declareProperty( "UseCollections", m_segmCollectionFlag);
@@ -155,12 +154,12 @@ StatusCode CSCSegmValAlg::initialize() {
   if (m_debuglevel) ATH_MSG_DEBUG( " Found the TgcIdHelper " );
 
   // Retrieve helper tools
-  sc = m_helperTool.retrieve();
+  sc = m_edmHelperSvc.retrieve();
   if (sc.isFailure()){
-    ATH_MSG_FATAL("Could not get " << m_helperTool ); 
+    ATH_MSG_FATAL("Could not get " << m_edmHelperSvc ); 
     return sc;
   }
-  if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_helperTool );
+  if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_edmHelperSvc );
 
   sc = m_idHelperTool.retrieve();
   if (sc.isFailure()){
@@ -598,7 +597,7 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	
 	// identify the segment location
 	const Trk::MeasurementBase* rio = meas.at(0);
-	Identifier segmId = m_helperTool->getIdentifier(*rio);
+	Identifier segmId = m_edmHelperSvc->getIdentifier(*rio);
 	
 	int segm_stationPhi  = m_cscIdHelper->stationPhi(segmId);
 	int segm_stationEta  = m_cscIdHelper->stationEta(segmId);
@@ -626,7 +625,7 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	    hit != segm->containedMeasurements().end(); ++hit ) {
 	  const Muon::CscClusterOnTrack* clust_rot = dynamic_cast<const Muon::CscClusterOnTrack*>(*hit);
 	  if( clust_rot ) {
-	    Identifier clusId = m_helperTool->getIdentifier(*clust_rot);
+	    Identifier clusId = m_edmHelperSvc->getIdentifier(*clust_rot);
 	    
 	    // get the cluster coordinates
 	    int clus_stationName = m_cscIdHelper->stationName(clusId);

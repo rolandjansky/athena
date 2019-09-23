@@ -1,8 +1,9 @@
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 
-from RecExConfig.InputFilePeeker import inputFileSummary
-inputObjects = inputFileSummary['eventdata_items']
+from PyUtils.MetaReaderPeeker import convert_itemList
+inputObjects = convert_itemList(layout=None)
+
 def __addInput( stream, skip=[] ):
     for element in inputObjects:
         type_key = "%s#%s" % element

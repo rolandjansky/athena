@@ -18,7 +18,7 @@ using Muon::TgcPrepData;
 
 namespace Trigger {
   TgcCoinHierarchyFindTool::TgcCoinHierarchyFindTool(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t, n, p), m_tgcHelper(0), m_tgcCabling(0), m_bc(TgcCoinHierarchy::UNKNOWN)
+    : AthAlgTool(t, n, p), m_tgcCabling(0), m_bc(TgcCoinHierarchy::UNKNOWN)
   {
     // Flags 
     // true means running
@@ -42,23 +42,11 @@ namespace Trigger {
   StatusCode TgcCoinHierarchyFindTool::initialize() {
     ATH_MSG_DEBUG("initialize()");
 
-    // Retrieve MuonDetectorManager
-    const MuonGM::MuonDetectorManager *p_muonMgr;
-    StatusCode sc = detStore()->retrieve(p_muonMgr);
-    if(sc.isFailure()) {
-      ATH_MSG_FATAL("Could not retrieve MuonDetectorManager");
-      return sc;
-    }
-
-    // Retrieve TgcIdHelper
-    m_tgcHelper = p_muonMgr->tgcIdHelper();
-    if(!m_tgcHelper) {
-      ATH_MSG_FATAL("Could not retrieve TgcIdHelper");
-      return StatusCode::FAILURE;
-    }
+    // Retrieve MuonIdHelperTool
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
     
     // Try to configure the cabling service
-    sc = getCabling();
+    StatusCode sc = getCabling();
     if(sc.isFailure()) {
       ATH_MSG_INFO("TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event.");
     }
@@ -448,7 +436,7 @@ namespace Trigger {
     if(hasTracklet) {
       const TgcCoinData* tracklet = pHierarchy->getCoincidence(TgcCoinData::TYPE_TRACKLET, isStrip);
       const Identifier trackletChannelId = tracklet->channelIdOut();
-      trackletChannel = m_tgcHelper->channel(trackletChannelId);  
+      trackletChannel = m_muonIdHelperTool->tgcIdHelper().channel(trackletChannelId);  
       int trackletSubDetectorID = -1;
       int trackletRodID = -1;
       int trackletSswID = -1;
@@ -474,8 +462,8 @@ namespace Trigger {
     }    
     
     const Identifier hiptChannelIdOut = hiPt->channelIdOut();
-    int hiptChannel = m_tgcHelper->channel(hiptChannelIdOut);  
-    int hiptStationPhi = m_tgcHelper->stationPhi(hiptChannelIdOut);  
+    int hiptChannel = m_muonIdHelperTool->tgcIdHelper().channel(hiptChannelIdOut);  
+    int hiptStationPhi = m_muonIdHelperTool->tgcIdHelper().stationPhi(hiptChannelIdOut);  
     int hiptSubDetectorID = -1;
     int hiptRodID = -1;
     int hiptSswID_out = -1;
@@ -521,9 +509,9 @@ namespace Trigger {
                        hiptSbLoc_in_strip, bitpos_in, hiptSlbChannel);
     }
 
-    const int hiPtStationEtaOut = m_tgcHelper->stationEta(hiptChannelIdOut);
-    // If abs(hiPtStationEtaOut) is 4 or 5, abs(m_tgcHelper->stationEta(hiPt->channelIdIn())) is 4. 
-    // In other cases, abs(m_tgcHelper->stationEta(hiPt->channelIdIn())) is 2.  
+    const int hiPtStationEtaOut = m_muonIdHelperTool->tgcIdHelper().stationEta(hiptChannelIdOut);
+    // If abs(hiPtStationEtaOut) is 4 or 5, abs(m_muonIdHelperTool->tgcIdHelper().stationEta(hiPt->channelIdIn())) is 4. 
+    // In other cases, abs(m_muonIdHelperTool->tgcIdHelper().stationEta(hiPt->channelIdIn())) is 2.  
 
     TgcCoinHierarchy::TYPE type = (isStrip ? TgcCoinHierarchy::STRIP : TgcCoinHierarchy::WIRE);
     
@@ -536,7 +524,7 @@ namespace Trigger {
         return StatusCode::FAILURE;
       }
 
-      const int hitStationEta = m_tgcHelper->stationEta(hit->identify());
+      const int hitStationEta = m_muonIdHelperTool->tgcIdHelper().stationEta(hit->identify());
 
       // HiPt Endcap Strip looses the information to distinguish A,B-inputs and C,D-inputs.
       // The minimum combinations of TGC3 (HiPt) and TGC1 (Hit) are checked.
@@ -1184,11 +1172,6 @@ namespace Trigger {
     if(!sc.isSuccess()) {
       msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endmsg;
       return sc;
-    }
-    
-    if(!TgcCabGet->isConfigured()) {
-      ATH_MSG_DEBUG("TGCcablingServer not yet configured!");
-      return StatusCode::FAILURE;
     }
     
     sc = TgcCabGet->giveCabling(m_tgcCabling);

@@ -2,13 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-
 #include "TrigMuonEFCombinerHypoAlg.h"
 #include "AthViews/ViewHelper.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils; 
 
@@ -17,7 +13,6 @@ using namespace TrigCompositeUtils;
 
 TrigMuonEFCombinerHypoAlg::TrigMuonEFCombinerHypoAlg( const std::string& name,
 						  ISvcLocator* pSvcLocator ) :
-//  ::AthReentrantAlgorithm( name, pSvcLocator )
   ::HypoBase( name, pSvcLocator )
 {
 
@@ -79,7 +74,6 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
      // get RoIs
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     auto roiEL = roiInfo.link;
-    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
@@ -109,9 +103,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
       toolInput.emplace_back( newd, roi, muon, previousDecision );
 
       newd -> setObjectLink( featureString(), muonEL );
-      // This attaches the same ROI with a different name ("InitialRoI" -> "RoI").
-      // If the ROI will never change, please re-configure your InputMaker to use the "InitialRoI" link
-      newd->setObjectLink( roiString(),     roiEL );
+      newd->setObjectLink( viewString(),    viewEL);
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");

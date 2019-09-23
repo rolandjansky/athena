@@ -86,8 +86,6 @@ private:
    L1CaloPprPhos4ShapeCollection* m_signalShapes;
    
    // These data members are our Athena tools.
-   StoreGateSvc* m_storeGate;
-   StoreGateSvc* m_detStore;
    ToolHandle<LVL1::TrigT1CaloLWHistogramTool> m_histTool;
 //    ToolHandle<TrigDec::TrigDecisionTool> m_trigger;
    

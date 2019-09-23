@@ -2272,6 +2272,17 @@ fitMergedFile_IDAlignMonPVbiases (TFile* file, std::string run_dir, std::string 
 	trk_d0_wrtPV_map_vs_phi_vs_eta_10GeV_negative->Write("",TObject::kOverwrite);
   }
   
+  if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_vs_eta_2GeV").c_str()) ) {
+	TH3F* trk_d0_wrtPV_vs_phi_vs_eta_2GeV=(TH3F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_vs_eta_2GeV").c_str())->Clone());
+	
+	TH2F* trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV = new TH2F("trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV", "map d0 vs phi_vs_eta >2GeV; #phi; #eta" , 20, -3.1, 3.1, 20, -2.5, 2.5 );
+	
+	MakeMap(trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV,trk_d0_wrtPV_vs_phi_vs_eta_2GeV);
+
+ 	trk_d0_wrtPV_map_vs_phi_vs_eta_2GeV->Write("",TObject::kOverwrite);	
+  }
+  
+  
   //Profiles vs phi
   if(CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive").c_str()) && CheckHistogram(file,(path+"/trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative").c_str()) ) {
 	TH2F* trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive=(TH2F*)(file->Get((path+"/trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive").c_str())->Clone());

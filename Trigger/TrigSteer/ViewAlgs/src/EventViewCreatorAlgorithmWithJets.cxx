@@ -47,7 +47,6 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
   //map all RoIs that are stored
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;
 
-
   for (auto outputHandle: outputHandles) {
     if( not outputHandle.isValid() ) {
       ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key() << " because handle not valid");
@@ -65,14 +64,14 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
       // loop over input links as predecessors
       for (auto input: inputLinks){
         const Decision* inputDecision = *input;
+
         // Retrieve jets ...
-        ATH_MSG_DEBUG( "Checking there are jets linked to decision object" );
-        TrigCompositeUtils::LinkInfo< xAOD::JetContainer > jetELInfo = TrigCompositeUtils::findLink< xAOD::JetContainer >( inputDecision,m_jetsLink );
+	ATH_MSG_DEBUG( "Checking there are jets linked to decision object" );
+	TrigCompositeUtils::LinkInfo< xAOD::JetContainer > jetELInfo = TrigCompositeUtils::findLink< xAOD::JetContainer >( inputDecision,TrigCompositeUtils::featureString() );
         ATH_CHECK( jetELInfo.isValid() );
         const xAOD::Jet *jet = *jetELInfo.link;
         ATH_MSG_DEBUG( "Placing xAOD::JetContainer " );
         ATH_MSG_DEBUG( "   -- pt="<< jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
-
         
         // find the RoI
         auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );
@@ -94,8 +93,7 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
           contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
           
           // link decision to this view
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
-          outputDecision->setObjectLink( "jets", jetELInfo.link );
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
           ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );
@@ -103,19 +101,23 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
         }
         else {
           int iview = roiIt-RoIsFromDecision.begin();
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
-          outputDecision->setObjectLink( "jets", jetELInfo.link );
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
         }
       }// loop over previous inputs
     } // loop over decisions   
   }// loop over output keys
 
+  // debug option to reorder views
+  if ( m_reverseViews ) {
+    std::reverse( viewVector->begin(), viewVector->end() );
+  }
+
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
              m_viewNodeName,             // CF node to attach views to
              context,                    // Source context
-             m_scheduler.get() ) );
+             getScheduler() ) );
   
   // store views
   // auto viewsHandle = SG::makeHandle( m_viewsKey );

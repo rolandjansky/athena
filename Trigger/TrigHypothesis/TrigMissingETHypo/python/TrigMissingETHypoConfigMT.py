@@ -2,9 +2,6 @@
 
 from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT, TrigMissingETHypoToolMT
 
-from AthenaCommon.SystemOfUnits import GeV
-
-
 class MissingETHypoAlgMT(TrigMissingETHypoAlgMT):
     __slots__ = []
     def __init__(self, name, hTools=[], metKey=""):
@@ -67,7 +64,7 @@ def TrigMETCellHypoToolFromName(name, conf):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     
     decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
+    decodedDict = decoder.getChainDict(conf)
     decodedDict['chainName'] = name 
     
     return TrigMETCellHypoToolFromDict( decodedDict )
@@ -76,9 +73,6 @@ def TrigMETCellHypoToolFromName(name, conf):
 def TrigMETPufitHypoToolFromName(name, conf):
     return MissingETHypoToolMT(name, alg='pufit')
 
-
-def TrigMETPufitHypoToolFromName(name, conf):
-    return MissingETHypoToolMT(name, alg='pufit')
 
 def TrigMETJetHypoToolFromName(name, conf):
     return MissingETHypoToolMT(name, alg='mht')

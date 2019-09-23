@@ -57,9 +57,7 @@ StatusCode TileHitVecToCntTool::initialize() {
 
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  // retrieve Tile detector manager, TileID helper and TileInfo from det store
-
-  CHECK(detStore()->retrieve(m_tileMgr));
+  // retrieve TileID helper and TileInfo from det store
 
   CHECK(detStore()->retrieve(m_tileID));
 
@@ -787,6 +785,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
   double eHitTot(0.0);
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
   CLHEP::HepRandomEngine * engine = *rngWrapper;
 
   if(!m_onlyUseContainerName && m_rndmEvtOverlay) {

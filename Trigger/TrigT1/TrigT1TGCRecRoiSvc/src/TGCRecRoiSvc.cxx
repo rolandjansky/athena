@@ -25,7 +25,6 @@ TGCRecRoiSvc::TGCRecRoiSvc (const std::string& name, ISvcLocator* svc)
     m_phi(0),
     m_eta(0), 
     m_cabling(0), 
-    m_idHelper(0), 
     m_muonMgr(0), 
     m_isAtlas(true)
 {  
@@ -45,8 +44,9 @@ StatusCode TGCRecRoiSvc::initialize (void)
 
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", name() );
   ATH_CHECK( detStore.retrieve() );
-  ATH_CHECK( detStore->retrieve(m_idHelper, "TGCIDHELPER" ) );
   ATH_CHECK( detStore->retrieve(m_muonMgr) );
+  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   // try to initialize the TGCcabling
   StatusCode sc = getCabling();
@@ -481,14 +481,14 @@ void TGCRecRoiSvc::getWireInfo(Amg::Vector3D & w_pos,
 						     w_asdout->getChannel());
   if (status==false) return;
   const MuonGM::TgcReadoutElement* tgcwire
-    = m_muonMgr->getTgcReadoutElement(m_idHelper->parentID(wireId));
+    = m_muonMgr->getTgcReadoutElement(m_muonIdHelperTool->tgcIdHelper().parentID(wireId));
   w_pos = tgcwire -> channelPos(wireId);
 
   // If edge correction is needed,
   // the half length in the r direction is added (subtracted) for the upper (lower) edge.
   if(edge==UpperREdge || edge==LowerREdge) {
-    int gasGap = m_idHelper->gasGap(wireId);
-    int channel = m_idHelper->channel(wireId);
+    int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(wireId);
+    int channel = m_muonIdHelperTool->tgcIdHelper().channel(wireId);
     double halfLength = tgcwire->gangLength(gasGap, channel)/2.;
     double r = w_pos.perp();
     double phi = w_pos.phi();
@@ -521,14 +521,14 @@ void TGCRecRoiSvc::getStripInfo(Amg::Vector3D & s_pos,
 						     s_asdout->getChannel());
   if (status==false) return;
   const MuonGM::TgcReadoutElement* tgcstrip
-    = m_muonMgr->getTgcReadoutElement(m_idHelper->parentID(stripId));
+    = m_muonMgr->getTgcReadoutElement(m_muonIdHelperTool->tgcIdHelper().parentID(stripId));
   s_pos = tgcstrip -> channelPos(stripId); 
 
   // If edge correction is needed,
   // the half width in the phi direction is added (subtracted) for the upper (lower) edge.
   if(edge==UpperPhiEdge || edge==LowerPhiEdge) {
-    int gasGap = m_idHelper->gasGap(stripId);
-    int channel = m_idHelper->channel(stripId);
+    int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(stripId);
+    int channel = m_muonIdHelperTool->tgcIdHelper().channel(stripId);
     double shortWidth = tgcstrip->stripShortWidth(gasGap, channel);
     double longWidth = tgcstrip->stripLongWidth(gasGap, channel);
     double halfWidth = (shortWidth + longWidth)/4.;
@@ -544,10 +544,6 @@ void TGCRecRoiSvc::getStripInfo(Amg::Vector3D & s_pos,
 StatusCode TGCRecRoiSvc::getCabling() const {
   ServiceHandle<ITGCcablingServerSvc> tgcCabGet ("TGCcablingServerSvc", name());
   ATH_CHECK( tgcCabGet.retrieve() );
-  if(!tgcCabGet->isConfigured()) {
-      ATH_MSG_DEBUG( "TGCcablingServer not yet configured!" );
-      return StatusCode::FAILURE;
-  }
   ATH_CHECK( tgcCabGet->giveCabling(*&m_cabling) );
   m_isAtlas = tgcCabGet->isAtlas();
   return StatusCode::SUCCESS;

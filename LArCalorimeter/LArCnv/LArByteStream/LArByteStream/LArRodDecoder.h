@@ -26,7 +26,6 @@
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRecEvent/LArCellCollection.h"
-#include "LArROD/LArCellBuilderDriver.h"
 
 
 #include "LArCabling/LArCablingLegacyService.h"
@@ -256,8 +255,6 @@ private:
   //uint8_t m_rodBlockType;
   
 
-  bool m_useCellMakerTool;
-  LArCellBuilderDriver* m_larCellFromDigit;
   bool m_MultiDSPMode;
   bool m_CheckSum;
   uint32_t m_error;
@@ -423,32 +420,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
         //setCellEnergy(collElem,energy, time, quality, (CaloGain::CaloGain)gain);
        }
        continue;
-  } 
-  if ( BlStruct->hasRawDataBlock() ){ // Has to decode the digits
-      if ( fId == m_febIdHLT ) nfeb = 128; // This is the second feb
-        else nfeb = 0;
-     std::vector<short> samples;
-     samples.reserve(40);
-     int NthisFebChannel=m_onlineHelper->channelInSlotMax(fId);
-     uint16_t iprovenance;
-     while (BlStruct->getNextRawData(fcNb,samples,gain)){
-        if (fcNb>=NthisFebChannel) continue;
-        if (samples.size()==0) continue; // Ignore missing cells
-        CaloGain::CaloGain gain_in = (CaloGain::CaloGain) gain;
-        HWIdentifier cId = m_onlineHelper->channel_Id(fId,fcNb);
-        LArDigit dg(cId, gain_in, samples);
-	if ( m_larCellFromDigit){
-        	m_larCellFromDigit->buildLArCell(&dg,energy,time,gain_in);
-	}
-        collElem = coll[fcNb+nfeb];
-        iprovenance=0x0100; // data does not come from DSP computation
-	if(m_doBadChanMasking && m_badChannelMasker->cellShouldBeMasked(cId, gain)) 
-           {energy = 0;   quality = 0; iprovenance=0x0800;} 
-	collElem->set(energy, time, 0, iprovenance, gain_in );
-        //setCellEnergy(collElem,energy, time, quality, gain_in);
-        samples.clear();
-        }
-    } // End of digits decoding
+    } 
   }
   while (BlStruct->nextFEB()); //Get NextFeb
   // Error meaning data corruption. Maybe in any FEB

@@ -32,9 +32,11 @@ StatusCode TrigJetSplitterMT::initialize() {
 
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_inputJetsKey.initialize() );
+  CHECK( m_inputVertexKey.initialize() );
+
   CHECK( m_outputJetsKey.initialize() );
   CHECK( m_outputRoiKey.initialize() );
-  CHECK( m_outputVertexKey.initialize() ); // TMP
+
   CHECK( m_inputRoIKey.initialize() ); // TMP
   return StatusCode::SUCCESS;
 }
@@ -59,25 +61,28 @@ StatusCode TrigJetSplitterMT::execute() {
   const xAOD::JetContainer *inputJetCollection = inputJetContainerHandle.get();
   ATH_MSG_DEBUG( "Found " << inputJetCollection->size() << " jets."  );
   for ( const xAOD::Jet *jet : * inputJetCollection )
-    ATH_MSG_INFO("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
+    ATH_MSG_DEBUG("   -- Jet pt=" << jet->p4().Et() <<" eta="<< jet->eta() << " phi="<< jet->phi() );
 
   // Retrieve Primary Vertex
-  // Right now vertexing is not available. Using dummy vertex at (0,0,0) // TMP
-  std::unique_ptr< xAOD::VertexContainer > vertexContainer( new xAOD::VertexContainer() ); 
-  std::unique_ptr< xAOD::VertexAuxContainer > vertexAuxContainer( new xAOD::VertexAuxContainer() );
-  vertexContainer->setStore( vertexAuxContainer.get() );
-  vertexContainer->push_back( new xAOD::Vertex() );
+  SG::ReadHandle< xAOD::VertexContainer > inputVertexContainer = SG::makeHandle( m_inputVertexKey,context );
+  ATH_MSG_DEBUG( "Retrieving primary vertex from : " << m_inputVertexKey.key() );
+  CHECK( inputVertexContainer.isValid() );
 
-  xAOD::Vertex *primaryVertex = vertexContainer->at(0);
+  const xAOD::VertexContainer *vertexContainer = inputVertexContainer.get();
+  ATH_MSG_DEBUG( "Found PV container with " << vertexContainer->size() << " elements"  );
+  for ( const xAOD::Vertex *vertex : *vertexContainer )
+    ATH_MSG_DEBUG( "  ** PV = (" << vertex->x() <<
+                   "," << vertex->y() <<
+                   "," << vertex->z() << ")" );    
 
-  if ( m_imposeZconstraint ) {
-    // Here we should retrieve the primary vertex // TO-DO
-    // Add protection against failure during primary vertex retrieval. // TO-DO
+  if ( vertexContainer->size() == 0 ) return StatusCode::FAILURE;
+  const xAOD::Vertex *primaryVertex = vertexContainer->at(0);
+
+  if ( m_imposeZconstraint ) 
     ATH_MSG_DEBUG( "  ** PV = (" << primaryVertex->x() <<
                    "," << primaryVertex->y() <<
                    "," << primaryVertex->z() << ")" );
-  }
-
+  
   // ==============================================================================================================================
   //    ** Prepare the outputs
   // ==============================================================================================================================
@@ -105,11 +110,6 @@ StatusCode TrigJetSplitterMT::execute() {
   SG::WriteHandle< TrigRoiDescriptorCollection > outputRoIContainerHandle = SG::makeHandle( m_outputRoiKey,context );
   CHECK( outputRoIContainerHandle.record( std::move( outputRoiContainer ) ) );
   ATH_MSG_DEBUG( "Exiting with " << outputRoIContainerHandle->size() << " RoIs" );
-
-  // TMP Primary Vertex
-  SG::WriteHandle< xAOD::VertexContainer > outputPrimaryVertexContainerHandle = SG::makeHandle( m_outputVertexKey,context );
-  CHECK( outputPrimaryVertexContainerHandle.record( std::move(vertexContainer),std::move(vertexAuxContainer) ) );
-  ATH_MSG_DEBUG( "Exiting with " << outputPrimaryVertexContainerHandle->size() << " Primary Vertices" );
 
   return StatusCode::SUCCESS;
 }

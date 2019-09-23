@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MSVVERTEXRECOTOOL_H
 #define MSVVERTEXRECOTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -20,6 +19,7 @@
 #include "MSVertexUtils/MSVertex.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
@@ -64,9 +64,6 @@ namespace Muon {
   private:
     //add tool handles, private variables, etc here
     ToolHandle <Trk::IExtrapolator> m_extrapolator;
-    const MdtIdHelper* m_mdtIdHelper;
-    const RpcIdHelper* m_rpcIdHelper;
-    const TgcIdHelper* m_tgcIdHelper;
     float m_BarrelTrackletUncert;
     float m_EndcapTrackletUncert;
     float m_TrackPhiAngle;
@@ -116,6 +113,9 @@ namespace Muon {
     SG::WriteDecorHandleKey<decortype> m_decor_nMDT;
     SG::WriteDecorHandleKey<decortype> m_decor_nRPC;
     SG::WriteDecorHandleKey<decortype> m_decor_nTGC;
+
+    ToolHandle<MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   };
   
   

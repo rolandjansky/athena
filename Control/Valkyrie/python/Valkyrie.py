@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file : Valkyrie.py
 # @author: Sebastien Binet <binet@cern.ch> 
@@ -12,17 +12,19 @@ A set of python objects to ease the scripting of Athena from
 a python script - and ran from Valgrind.
 """
 
-__author__  = "$Author: binet $"
-__version__ = "$Revision: 1.1.1.2 $"
+from __future__ import print_function
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 import sys
 import os
-import commands
-import subprocess
+import time
 
-from AthenaCommon.ChapPy import *
-
+from AthenaCommon.ChapPy import JobOptions, JobOptionsCmd, dump
 from ValgrindFlags import jobproperties
+
 
 class Valkyrie(object):
 
@@ -45,9 +47,9 @@ class Valkyrie(object):
             pass
         
     def __fetchValgrind(self):
-        sc, out = commands.getstatusoutput( "which valgrind" )
+        sc, out = subprocess.getstatusoutput( "which valgrind" )
         if sc != 0:
-            raise RuntimeError, "Could not fetch valgrind executable: %s" % out
+            raise RuntimeError("Could not fetch valgrind executable: %s" % out)
         else:
             return os.path.realpath(os.path.expandvars(out))
 
@@ -131,8 +133,8 @@ class Valkyrie(object):
             try:
                 logFile = open( logFile, "w" )
             except IOError, err:
-                print err
-                print "Opening /dev/null for logging..."
+                print(err)
+                print("Opening /dev/null for logging...")
                 logFile = open( "/dev/null", "w" )
                 pass
             pass
@@ -165,9 +167,9 @@ class Valkyrie(object):
         
     def run( self, monitor = sys.stdout ):
 
-        sc, out = commands.getstatusoutput( "which athena.py" )
+        sc, out = subprocess.getstatusoutput( "which athena.py" )
         if sc != 0:
-            raise RuntimeError, "Could not fetch athena.py executable: %s"% out
+            raise RuntimeError("Could not fetch athena.py executable: %s"% out)
         else:
             self.bin = os.path.realpath(os.path.expandvars(out))
             pass
@@ -175,12 +177,12 @@ class Valkyrie(object):
         # prepare logFile
         try:
             self.logFile.truncate(0)
-        except IOError,err:
+        except IOError:
             pass
 
         try:
             self.logFile.seek(0)
-        except IOError,err:
+        except IOError:
             pass
 
         # build the (athena) command
@@ -204,7 +206,7 @@ class Valkyrie(object):
 
         # build the jobOptions command line
         cmd.extend( [ jobO.name() for jobO in self.jobOptions
-                                  if jobO.name() != None ] )
+                                  if jobO.name() is not None ] )
 
         # add AthAppMgr commands
         if isinstance( self.EvtMax, int ):
@@ -234,7 +236,7 @@ theApp.CreateSvc += [ svcMgr.ValgrindSvc.getFullJobOptName() ]
                               stderr = self.logFile )
         monitor.write(" :::running [")
         monitor.flush()
-        while p.poll() == None:
+        while p.poll() is None:
             monitor.write(".")
             monitor.flush()
             time.sleep(5)
@@ -245,7 +247,7 @@ theApp.CreateSvc += [ svcMgr.ValgrindSvc.getFullJobOptName() ]
         sc = p.returncode 
         if sc != 0:
             monitor.writelines( " ==> [ERR]" + os.linesep )
-            print "Problem while running Athena !!"
+            print("Problem while running Athena !!")
             dump(self.logFile)
             pass
         else:

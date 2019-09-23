@@ -43,7 +43,7 @@ timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${J
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} 2>&1 | tee warnings.log
+timeout 5m check_log.pl --config checklogTriggerTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
 
 ### PERFMON
 
@@ -53,12 +53,12 @@ timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz
 ### HISTOGRAM COUNT
 
 echo $(date "+%FT%H:%M %Z")"     Running histSizes"
-timeout 5m histSizes.py -t expert-monitoring.root 2>&1 | tee histSizes.log
+timeout 5m histSizes.py -t expert-monitoring.root >histSizes.log 2>&1
 
 ### CHAINDUMP
 
 echo $(date "+%FT%H:%M %Z")"     Running chainDump"
-timeout 5m chainDump.py -S --rootFile=expert-monitoring.root
+timeout 5m chainDump.py -f expert-monitoring.root --json >ChainDump.log 2>&1
 
 ### MAKE LOG TAIL FILE
 
@@ -82,7 +82,7 @@ mv athena.regtest athena.regtest.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root 2>&1 | tee rootcompout.log
+  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
   echo $(date "+%FT%H:%M %Z")"     Running checkcounts"
   timeout 10m trigtest_checkcounts.sh 0 expert-monitoring.root ${REF_FOLDER}/expert-monitoring.root HLT 2>&1 | tee checkcountout.log

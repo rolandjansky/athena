@@ -115,5 +115,4 @@ if DOWRITE:
             "el_jetcone_dr",
             ]
     out.ItemList += OUTBRANCHES
-    out.ForceRead = True
 

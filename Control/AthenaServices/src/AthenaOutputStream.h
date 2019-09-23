@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAOUTPUTSTREAM_H
@@ -13,6 +13,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <mutex>
 
 // Required for inheritance
 #include "GaudiKernel/IDataSelector.h"
@@ -31,6 +32,7 @@ class StoreGateSvc;
 class IAthenaOutputStreamTool;
 class IAthenaOutputTool;
 class IItemListSvc;
+class MetaDataSvc;
 
 namespace SG {
    class DataProxy;
@@ -59,6 +61,7 @@ protected:
    ServiceHandle<StoreGateSvc>* m_currentStore;
 
    ServiceHandle<IItemListSvc>  m_itemSvc;
+   ServiceHandle<MetaDataSvc>   m_metaDataSvc;
 
    /// Name of the persistency service capable to write data from the store
    std::string              m_persName;
@@ -70,10 +73,8 @@ protected:
    
    typedef ServiceHandle<IClassIDSvc> IClassIDSvc_t;
    IClassIDSvc_t m_pCLIDSvc;
-   
-   typedef ServiceHandle<OutputStreamSequencerSvc> OutputStreamSequencerSvc_t;
-   OutputStreamSequencerSvc_t m_outSeqSvc;
-   
+   ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
+  
    /// Vector of item names
    StringArrayProperty      m_itemList;
    /// Vector of item names
@@ -100,7 +101,7 @@ protected:
    /// of DataObjectSharedPtr<DataObject>, but that implies interface changes.
    std::vector<std::unique_ptr<DataObject> > m_ownedObjects;
    /// Number of events written to this output stream
-   int                      m_events;
+   std::atomic<int> m_events;
    /// set to true to force read of data objects in item list
    bool m_forceRead;
    /// set to false to omit adding the current DataHeader into the DataHeader history
@@ -123,6 +124,18 @@ protected:
    ToolHandle<IAthenaOutputStreamTool> m_streamer;
    /// vector of AlgTools that that are executed by this stream
    ToolHandleArray<IAthenaOutputTool> m_helperTools;
+
+   // ------- Event Ranges handling in MT -------
+   /// map of filenames assigned to active slots
+   std::map< unsigned, std::string >  m_slotRangeMap;
+   /// map of streamerTools handling event ranges in MT
+   std::map< std::string, std::unique_ptr<IAthenaOutputStreamTool> > m_streamerMap;
+   /// mutex for this Stream write() and handle() methods
+   typedef std::recursive_mutex mutex_t;
+   mutable mutex_t  m_mutex;    // mutable so const functions can lock
+   /// mutexes for streamerTools
+  //std::map< std::string, std::mutex > m_toolMutexMap;
+   std::map< std::string, mutex_t > m_toolMutexMap;
 
 protected:
    /// Handler for ItemNames Property
@@ -151,8 +164,6 @@ public:
    void clearSelection();
    /// Collect data objects for output streamer list
    void collectAllObjects();
-   /// Add folder data objects to output stramer list
-   void addDataHeaderObjects();
    /// Return the list of selected objects
    IDataSelector* selectedObjects() {
       return &m_objects;

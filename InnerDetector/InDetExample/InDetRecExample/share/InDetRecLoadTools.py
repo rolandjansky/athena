@@ -6,7 +6,7 @@
 # ------------------------------------------------------------
 
 from InDetRecExample.TrackingCommon import createAndAddCondAlg
-from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,getEventInfoKey, getTRT_DriftCircleOnTrackTool
+from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,getEventInfoKey, getInDetTRT_DriftCircleOnTrackTool
 
 use_broad_cluster_any = InDetFlags.useBroadClusterErrors() and (not InDetFlags.doDBMstandalone())
 use_broad_cluster_pix = InDetFlags.useBroadPixClusterErrors() and (not InDetFlags.doDBMstandalone())
@@ -60,8 +60,8 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
         do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
         from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-        createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
-        createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+        createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
+        createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
         if do_runI :
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                               = "NnClusterizationFactory",
                                                                       PixelLorentzAngleTool              = ToolSvc.PixelLorentzAngleTool,
@@ -125,6 +125,7 @@ from TrkEventCnvTools import TrkEventCnvToolsConfig
 #
 
 if InDetFlags.loadRotCreator():
+    import InDetRecExample.TrackingCommon as TrackingCommon
     #
     # --- configure default ROT creator
     #
@@ -133,171 +134,59 @@ if InDetFlags.loadRotCreator():
         # load Pixel ROT creator, we overwrite the defaults for the
         # tool to always make conservative pixel cluster errors
         # SiLorentzAngleTool
-        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-            from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
-        from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
         if InDetFlags.doDBM():
-            PixelClusterOnTrackToolDBM = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDBM",
-                                                                        LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
-                                                                        DisableDistortions = True,
-                                                                        applyNNcorrection = False,
-                                                                        NNIBLcorrection = False,
-                                                                        SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
-                                                                        RunningTIDE_Ambi = False,
-                                                                        ErrorStrategy = 0,
-                                                                        PositionStrategy = 0
-                                                                        )
-            ToolSvc += PixelClusterOnTrackToolDBM
-        PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackTool",
-                                                                 LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
-                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
-                                                                 applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
-                                                                 NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
-                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
-                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
-                                                                 )
-        if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
-            PixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
-            if InDetFlags.doTIDE_RescalePixelCovariances() :
-                PixelClusterOnTrackTool.applydRcorrection = True
-            
-        if InDetFlags.doCosmics() or  InDetFlags.doDBMstandalone():
-          PixelClusterOnTrackTool.ErrorStrategy = 0   
-          PixelClusterOnTrackTool.PositionStrategy = 0 
+            PixelClusterOnTrackToolDBM = TrackingCommon.getInDetPixelClusterOnTrackToolDBM()
+        PixelClusterOnTrackTool        = TrackingCommon.getInDetPixelClusterOnTrackTool()
+        PixelClusterOnTrackToolPattern = TrackingCommon.getInDetPixelClusterOnTrackToolPattern()
 
-        ToolSvc += PixelClusterOnTrackTool
-        if (InDetFlags.doPrintConfigurables()):
-            print  PixelClusterOnTrackTool
-            if InDetFlags.doDBM():
-                print PixelClusterOnTrackToolDBM
-                
         if InDetFlags.doDigitalROTCreation():
-
-            PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
-                                                                            LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
-                                                                            DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
-                                                                            applyNNcorrection = False,
-                                                                            NNIBLcorrection = False,
-                                                                            SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
-                                                                            RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
-                                                                            ErrorStrategy = 2,
-                                                                            PositionStrategy = 1 
-                                                                            )
-
-            ToolSvc += PixelClusterOnTrackToolDigital
-
+            PixelClusterOnTrackToolDigital = TrackingCommon.getInDetPixelClusterOnTrackToolDigital()
         else :
-          PixelClusterOnTrackToolDigital = None
+            PixelClusterOnTrackToolDigital = TrackingCommon.getInDetPixelClusterOnTrackTool(name                     = "InDetPixelClusterOnTrackToolNoSplitClusterMap",
+                                                                                            SplitClusterAmbiguityMap = "")
     else:
         PixelClusterOnTrackTool = None
         PixelClusterOnTrackToolDigital = None
+        PixelClusterOnTrackToolPattern = None
 
     if DetFlags.haveRIO.SCT_on():
-        # SiLorentzAngleTool
-        from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
-        from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
-        SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetSCT_ClusterOnTrackTool",
-                                                                #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
-                                                                CorrectionStrategy = 0,  # do correct position bias
-                                                                ErrorStrategy      = 2,  # do use phi dependent errors
-                                                                LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
-        if (InDetFlags.doPrintConfigurables()):
-            print SCT_ClusterOnTrackTool
+        SCT_ClusterOnTrackTool = TrackingCommon.getInDetSCT_ClusterOnTrackTool()
     else:
         SCT_ClusterOnTrackTool = None
     
     #
     # default ROT creator, not smart !
     #
-    from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
-    InDetRotCreator = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreator',
-                                              ToolPixelCluster = PixelClusterOnTrackTool,
-                                              ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
-                                              Mode             = 'indet')
+    InDetRotCreator = TrackingCommon.getInDetRotCreator()
+    InDetRotCreatorPattern = TrackingCommon.getInDetRotCreatorPattern()
+
     if InDetFlags.doDBM():
-        if InDetFlags.loadRotCreator() and DetFlags.haveRIO.pixel_on(): 
-            InDetRotCreatorDBM = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDBM',
-                                                         ToolPixelCluster = PixelClusterOnTrackToolDBM,
-                                                         ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
-                                                         Mode             = 'indet')
-        else:
-            InDetRotCreatorDBM = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDBM',
-                                                      ToolPixelCluster = PixelClusterOnTrackTool,
-                                                      ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
-                                                      Mode             = 'indet')
-        ToolSvc += InDetRotCreatorDBM
-
-
-
-    ToolSvc += InDetRotCreator
+        InDetRotCreatorDBM=TrackingCommon.getInDetRotCreatorDBM()
 
     if PixelClusterOnTrackToolDigital != None :
-        InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
-                                                         ToolPixelCluster = PixelClusterOnTrackToolDigital,
-                                                         ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
-                                                         Mode             = 'indet')
-        ToolSvc += InDetRotCreatorDigital
-
+        InDetRotCreatorDigital = TrackingCommon.getInDetRotCreatorDigital()
     else:
-        
-        InDetRotCreatorDigital=InDetRotCreator
-
+        InDetRotCreatorDigital=InDetRotCreatorPattern
 
     #
     # --- configure broad cluster ROT creator
     #
     if DetFlags.haveRIO.pixel_on():
-        # SiLorentzAngleTool
-        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-            from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
         #
         # tool to always make conservative pixel cluster errors
         if not InDetFlags.doDBMstandalone():
-            from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
-            BroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetBroadPixelClusterOnTrackTool",
-                                                                          LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
-                                                                          ErrorStrategy      = 0,
-                                                                          DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
-                                                                          applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
-                                                                          NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
-                                                                          SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
-                                                                          RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
-                                                                          )
-            if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
-                BroadPixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
-                if InDetFlags.doTIDE_RescalePixelCovariances() :
-                    BroadPixelClusterOnTrackTool.applydRcorrection = True
-            
-            ToolSvc += BroadPixelClusterOnTrackTool
-            if (InDetFlags.doPrintConfigurables()):
-                print BroadPixelClusterOnTrackTool
+            BroadPixelClusterOnTrackTool = TrackingCommon.getInDetBroadPixelClusterOnTrackTool()
         else:
             BroadPixelClusterOnTrackTool = None
     else:
         BroadPixelClusterOnTrackTool = None
     
     if DetFlags.haveRIO.SCT_on():
-        # SiLorentzAngleTool
-        from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         #
         # tool to always make conservative sct cluster errors
         #
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
-        BroadSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetBroadSCT_ClusterOnTrackTool",
-                                                                     #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
-                                                                     CorrectionStrategy = 0,  # do correct position bias
-                                                                     ErrorStrategy      = 0,  # do use broad errors
-                                                                     LorentzAngleTool   = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
-        if (InDetFlags.doPrintConfigurables()):
-            print BroadSCT_ClusterOnTrackTool
+        BroadSCT_ClusterOnTrackTool = TrackingCommon.getInDetBroadSCT_ClusterOnTrackTool()
     else:
         BroadSCT_ClusterOnTrackTool= None
     
@@ -305,38 +194,12 @@ if InDetFlags.loadRotCreator():
         #
         # tool to always make conservative trt drift circle errors
         #
-        from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackNoDriftTimeTool
-        BroadTRT_DriftCircleOnTrackTool = InDet__TRT_DriftCircleOnTrackNoDriftTimeTool ("InDetBroadTRT_DriftCircleOnTrackTool")
-        ToolSvc += BroadTRT_DriftCircleOnTrackTool
-        if (InDetFlags.doPrintConfigurables()):
-            print BroadTRT_DriftCircleOnTrackTool
+        BroadTRT_DriftCircleOnTrackTool = TrackingCommon.getInDetBroadTRT_DriftCircleOnTrackTool()
     else:
         BroadTRT_DriftCircleOnTrackTool = None
 
-    from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
-    BroadInDetRotCreator = Trk__RIO_OnTrackCreator(name                = 'InDetBroadInDetRotCreator',
-                                                   ToolPixelCluster    = BroadPixelClusterOnTrackTool,
-                                                   ToolSCT_Cluster     = BroadSCT_ClusterOnTrackTool,
-                                                   ToolTRT_DriftCircle = BroadTRT_DriftCircleOnTrackTool,
-                                                   Mode                = 'indet')
-    ToolSvc += BroadInDetRotCreator
+    BroadInDetRotCreator = TrackingCommon.getInDetBroadRotCreator()
 
-    #
-    # use broad clusters everywhere ?
-    #
-    if use_broad_cluster_pix == True :
-      InDetRotCreator.ToolPixelCluster = BroadPixelClusterOnTrackTool
-
-    if use_broad_cluster_sct == True :
-      InDetRotCreator.ToolSCT_Cluster  = BroadSCT_ClusterOnTrackTool
-
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetRotCreator
-        if InDetFlags.doDBM():
-            print InDetRotCreatorDBM
-    if (InDetFlags.doPrintConfigurables()):
-        print BroadInDetRotCreator
-      
     #
     # --- load error scaling
     #
@@ -349,35 +212,13 @@ if InDetFlags.loadRotCreator():
     if InDetFlags.redoTRT_LR():
 
         if DetFlags.haveRIO.TRT_on():
-            from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackUniversalTool
-
             # --- this is the cut for making a TRT hit a tube hit (biases the distribution)
-
-            TRT_RefitRotCreator = InDet__TRT_DriftCircleOnTrackUniversalTool(name                = 'InDetTRT_RefitRotCreator',
-                                                                             RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(),
-                                                                             RIOonTrackToolTube  = BroadTRT_DriftCircleOnTrackTool,
-                                                                             ScaleHitUncertainty = ScaleHitUncertainty) # fix from Thijs
-            ToolSvc += TRT_RefitRotCreator
-            if (InDetFlags.doPrintConfigurables()):
-                print      TRT_RefitRotCreator
+            TRT_RefitRotCreator = TrackingCommon.getInDetTRT_DriftCircleOnTrackUniversalTool()
         else:
             TRT_RefitRotCreator = None
-        
-        from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
-        InDetRefitRotCreator = Trk__RIO_OnTrackCreator(name                = 'InDetRefitRotCreator',
-                                                       ToolPixelCluster    = PixelClusterOnTrackTool,
-                                                       ToolSCT_Cluster     = SCT_ClusterOnTrackTool,
-                                                       ToolTRT_DriftCircle = TRT_RefitRotCreator,
-                                                       Mode                = 'indet')
-        if use_broad_cluster_pix == True :
-            InDetRefitRotCreator.ToolPixelCluster=BroadPixelClusterOnTrackTool
-        if use_broad_cluster_sct == True :
-            InDetRefitRotCreator.ToolSCT_Cluster=BroadSCT_ClusterOnTrackTool
 
-        ToolSvc += InDetRefitRotCreator
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetRefitRotCreator
-                            
+        InDetRefitRotCreator = TrackingCommon.getInDetRefitRotCreator()
+
     else:
         InDetRefitRotCreator = InDetRotCreator
 
@@ -523,330 +364,32 @@ if InDetFlags.loadExtrapolator():
 #
 if InDetFlags.loadFitter():
 
-    #
-    # ----------- Kalman Filter setup (including DNA setup if needed)
-    #
-    if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
+    if InDetFlags.doBremRecovery() and InDetFlags.trackFitterType() is 'GlobalChi2Fitter' :
+        # @TODO  create where it is needed
+        from TrkExTools.TrkExToolsConf import Trk__EnergyLossUpdator
+        InDetEnergyLossUpdator = Trk__EnergyLossUpdator(name="AtlasEnergyLossUpdator",
+                                                        UseBetheBlochForElectrons = False)
+        ToolSvc               += InDetEnergyLossUpdator
 
-        from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf \
-          import InDet__CompetingPixelClustersOnTrackTool as IDCPCOTT
-        InDetCompetingPixelTool = IDCPCOTT(name='KalmanCompetingPixelClustersTool',
-                                           WeightCutValueBarrel = 5.5,
-                                           WeightCutValueEndCap = 5.5)
-        ToolSvc+=InDetCompetingPixelTool
-        from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf \
-          import InDet__CompetingSCT_ClustersOnTrackTool as IDCSCOTT
-        InDetCompetingSctTool = IDCSCOTT(name='KalmanCompetingSCT_ClustersTool',
-                                         WeightCutValueBarrel = 5.5,
-                                         WeightCutValueEndCap = 5.5)
-        ToolSvc+=InDetCompetingSctTool
-        from TrkCompetingRIOsOnTrackTool.TrkCompetingRIOsOnTrackToolConf \
-          import Trk__CompetingRIOsOnTrackTool as CompRotTool
-        InDetKalmanCompetingROT_Tool = CompRotTool(name='KalmanCompetingRIOsTool',
-                                                   ToolForCompPixelClusters = InDetCompetingPixelTool,
-                                                   ToolForCompSCT_Clusters = InDetCompetingSctTool)
-        ToolSvc += InDetKalmanCompetingROT_Tool
-        
-        if InDetFlags.trackFitterType() is 'KalmanDNAFitter' or \
-           ( InDetFlags.doBremRecovery() and InDetFlags.trackFitterType() is 'KalmanFitter'):
+    from AthenaCommon import CfgGetter
+    InDetTrackFitter    = CfgGetter.getPublicTool('InDetTrackFitter')
 
-            from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
-            InDetDNAdjustor = Trk__InDetDynamicNoiseAdjustment(name       = 'InDetDNAdjustor')
-            ToolSvc += InDetDNAdjustor
-            if (InDetFlags.doPrintConfigurables()):
-              print      InDetDNAdjustor
-            
-            from InDetDNASeparator.InDetDNASeparatorConf import InDet__InDetDNASeparator
-            InDetDNASeparator = InDet__InDetDNASeparator(name="InDetDNASeparator")
-            
-            ToolSvc += InDetDNASeparator
-            if (InDetFlags.doPrintConfigurables()):
-              print      InDetDNASeparator
-            
-        else:
-            InDetDNAdjustor   = None
-            InDetDNASeparator = None
-            
-        # Load Kalman Filter tools
-        if InDetFlags.trackFitterType() is 'ReferenceKalmanFitter' :
-            from TrkKalmanFitter.TrkKalmanFitterConf import Trk__ForwardRefTrackKalmanFitter as PublicFKF
-        else :
-            from TrkKalmanFitter.TrkKalmanFitterConf import Trk__ForwardKalmanFitter as PublicFKF
-        InDetFKF = PublicFKF(name                  = 'InDetFKF',
-                             StateChi2PerNDFPreCut = 30.0)                           
-        ToolSvc += InDetFKF
-        if (InDetFlags.doPrintConfigurables()):
-            print      InDetFKF
-        from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
-        InDetBKS = PublicBKS(name                        = 'InDetBKS',
-                             InitialCovarianceSeedFactor = 200.)
-        ToolSvc += InDetBKS
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetBKS
-        from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierRecovery_InDet as PublicKOR
-        InDetKOR = PublicKOR(name                    = "KOL_RecoveryID")
-
-        from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
-        InDetKOL = PublicKOL(name                    = 'InDetKOL',
-                             TrackChi2PerNDFCut      = 17.0,
-                             StateChi2PerNDFCut      = 12.5)
-        ToolSvc += InDetKOL
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetKOL
-
-        from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanPiecewiseAnnealingFilter as KPAF
-        InDetKalmanInternalDAF = KPAF(name = 'KalmanInternalDAF',
-                                      CompetingRIOsOnTrackCreator = InDetKalmanCompetingROT_Tool)
-        ToolSvc += InDetKalmanInternalDAF
-        if InDetFlags.trackFitterType() is 'ReferenceKalmanFitter' :
-            InDetAnnealFKF = PublicFKF(name = 'InDetAnnealFKF') # allow separate options
-            ToolSvc+=InDetAnnealFKF
-            InDetKalmanInternalDAF.ForwardFitter = InDetAnnealFKF
-            InDetKalmanInternalDAF.BackwardSmoother = InDetBKS # same tuning so far
-
-        from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
-        InDetMeasRecalibST = Trk__MeasRecalibSteeringTool(name='InDetMeasRecalibST',
-                                                          BroadPixelClusterOnTrackTool = BroadPixelClusterOnTrackTool,
-                                                          BroadSCT_ClusterOnTrackTool  = BroadSCT_ClusterOnTrackTool,
-                                                          CommonRotCreator             = InDetRefitRotCreator
-                                                          ) 
-        ToolSvc += InDetMeasRecalibST
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetMeasRecalibST
-
-        from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
-        InDetTrackFitter = ConfiguredKalmanFitter(name                           = 'InDetTrackFitter',
-                                                  ExtrapolatorHandle             = InDetExtrapolator,
-                                                  RIO_OnTrackCreatorHandle       = InDetRefitRotCreator,
-                                                  MeasurementUpdatorHandle       = InDetUpdator,
-                                                  ForwardKalmanFitterHandle      = InDetFKF,
-                                                  KalmanSmootherHandle           = InDetBKS,
-                                                  KalmanOutlierLogicHandle       = InDetKOL,
-                                                  DynamicNoiseAdjustorHandle     = InDetDNAdjustor,
-                                                  BrempointAnalyserHandle        = InDetDNASeparator,
-                                                  AlignableSurfaceProviderHandle = None,
-                                                  RecalibratorHandle             = InDetMeasRecalibST,
-                                                  InternalDAFHandle              = InDetKalmanInternalDAF)
-
-        if InDetFlags.doBremRecovery() and InDetFlags.trackFitterType() is 'KalmanFitter':
-            InDetTrackFitter.DoDNAForElectronsOnly = True
-
-    #
-    # ----------- Distributed Kalman Filter setup
-    #
-    elif InDetFlags.trackFitterType() is 'DistributedKalmanFilter' :
-        from TrkDistributedKalmanFilter.TrkDistributedKalmanFilterConf import Trk__DistributedKalmanFilter
-        InDetTrackFitter = Trk__DistributedKalmanFilter(name             = 'InDetTrackFitter',
-                                                        ExtrapolatorTool = InDetExtrapolator,
-                                                        ROTcreator       = InDetRotCreator
-                                                        #sortingReferencePoint = ???
-                                                        )
-
-    #
-    # ----------- Global Chi2 Fitter setup
-    #
-    elif InDetFlags.trackFitterType() is 'GlobalChi2Fitter' :
-        #
-        # !!!!!!!!!!!!!!!!!!!!!!! HACK
-        #
-        if InDetFlags.doBremRecovery() :
-            from TrkExTools.TrkExToolsConf import Trk__EnergyLossUpdator
-            InDetEnergyLossUpdator = Trk__EnergyLossUpdator(name="AtlasEnergyLossUpdator")
-            ToolSvc               += InDetEnergyLossUpdator
-            ToolSvc.AtlasEnergyLossUpdator.UseBetheBlochForElectrons = False
-        #
-        # ----------- main Global Chi2 Fitter for NewT and BackT
-        #
-        from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
-        InDetTrackFitter = Trk__GlobalChi2Fitter(name                  = 'InDetTrackFitter',
-                                                 ExtrapolationTool     = InDetExtrapolator,
-                                                 NavigatorTool         = InDetNavigator,
-                                                 PropagatorTool        = InDetPropagator,
-                                                 RotCreatorTool        = InDetRotCreator,
-                                                 BroadRotCreatorTool   = BroadInDetRotCreator,
-                                                 MultipleScatteringTool = InDetMultipleScatteringUpdator,
-                                                 MeasurementUpdateTool = InDetUpdator,
-                                                 TrackingGeometrySvc   = AtlasTrackingGeometrySvc,
-                                                 MaterialUpdateTool    = InDetMaterialUpdator,
-                                                 StraightLine          = not InDetFlags.solenoidOn(),
-                                                 OutlierCut            = 4,
-                                                 SignedDriftRadius     = True,
-                                                 ReintegrateOutliers   = True,
-                                                 RecalibrateSilicon    = True,
-                                                 RecalibrateTRT        = True,
-                                                 TRTTubeHitCut         = ScaleHitUncertainty,
-                                                 MaxIterations         = 40,
-                                                 Acceleration          = True,
-                                                 RecalculateDerivatives= InDetFlags.doMinBias() or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
-                                                 TRTExtensionCuts      = True,
-                                                 TrackChi2PerNDFCut    = 7)
-
-        if InDetFlags.doDBMstandalone():
-            InDetTrackFitter.StraightLine = True
-            InDetTrackFitter.OutlierCut = 5
-            InDetTrackFitter.RecalibrateTRT = False
-            InDetTrackFitter.TRTExtensionCuts = False
-            InDetTrackFitter.TrackChi2PerNDFCut = 20
-
-        if InDetFlags.doRefit() or use_broad_cluster_any == True: 
-            InDetTrackFitter.RecalibrateSilicon = False
-        if InDetFlags.doRefit():
-            InDetTrackFitter.BroadRotCreatorTool = None
-            InDetTrackFitter.ReintegrateOutliers = False
-            InDetTrackFitter.RecalibrateTRT      = False
-        if InDetFlags.doRobustReco():
-            #InDetTrackFitter.BroadRotCreatorTool=None
-            InDetTrackFitter.OutlierCut         = 10.0
-            InDetTrackFitter.TrackChi2PerNDFCut = 20
-        if InDetFlags.doRobustReco() or InDetFlags.doCosmics():
-            InDetTrackFitter.MaxOutliers        = 99
-        if InDetFlags.doCosmics() or InDetFlags.doBeamHalo():
-            InDetTrackFitter.Acceleration       = False
-
-        if InDetFlags.materialInteractions() and not InDetFlags.solenoidOn():
-            InDetTrackFitter.Momentum           = 1000.*MeV
-
-        #
-        # ----------- Global Chi2 Fitter for Low-Pt with different settings 
-        #
-        if InDetFlags.doLowPt() or InDetFlags.doVeryLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
-            InDetTrackFitterLowPt = Trk__GlobalChi2Fitter(name                  = 'InDetTrackFitterLowPt',
-                                                          ExtrapolationTool     = InDetExtrapolator,
-                                                          NavigatorTool         = InDetNavigator,
-                                                          PropagatorTool        = InDetPropagator,
-                                                          RotCreatorTool        = InDetRotCreator,
-                                                          BroadRotCreatorTool   = BroadInDetRotCreator,
-                                                          MultipleScatteringTool = InDetMultipleScatteringUpdator,
-                                                          MeasurementUpdateTool = InDetUpdator,
-                                                          StraightLine          = not InDetFlags.solenoidOn(),
-                                                          OutlierCut            = 5.0,
-                                                          SignedDriftRadius     = True,
-                                                          ReintegrateOutliers   = True,
-                                                          RecalibrateSilicon    = True,
-                                                          RecalibrateTRT        = True,
-                                                          TRTTubeHitCut         = ScaleHitUncertainty,
-                                                          MaxIterations         = 40,
-                                                          RecalculateDerivatives= True,
-                                                          TRTExtensionCuts      = True,
-                                                          TrackChi2PerNDFCut    = 10)
-
-        #
-        # ----------- Global Chi2 Fitter for TRT segments with different settings 
-        #
-        InDetTrackFitterTRT = Trk__GlobalChi2Fitter(name                  = 'InDetTrackFitterTRT',
-                                                    ExtrapolationTool     = InDetExtrapolator,
-                                                    NavigatorTool         = InDetNavigator,
-                                                    PropagatorTool        = InDetPropagator,
-                                                    RotCreatorTool        = InDetRefitRotCreator,
-                                                    MeasurementUpdateTool = InDetUpdator,
-                                                    MultipleScatteringTool = InDetMultipleScatteringUpdator,
-                                                    StraightLine          = not InDetFlags.solenoidOn(),
-                                                    ReintegrateOutliers   = False, 
-                                                    MaxIterations         = 10,
-                                                    RecalculateDerivatives= False,
-                                                    TrackChi2PerNDFCut    = 999999)
-                                                    #TrackChi2PerNDFCut    = 10)
-
-        if InDetFlags.materialInteractions() and not InDetFlags.solenoidOn():
-            InDetTrackFitterTRT.Momentum=1000.*MeV
-        if InDetFlags.doRobustReco() or InDetFlags.doCosmics():
-            InDetTrackFitterTRT.MaxOutliers=99
-        if InDetFlags.doRefit():
-            InDetTrackFitterTRT.ReintegrateOutliers = False
-
-    #
-    # ----------- Gaussian Sum Fitter setup
-    #
-    elif InDetFlags.trackFitterType() is 'GaussianSumFilter' :
-        #
-        # Material effects for the Gsf Extrapolator
-        #
-        from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-        InDetGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetGsfMaterialUpdator')
-        ToolSvc += InDetGsfMaterialUpdator
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetGsfMaterialUpdator
-        #
-        # component Reduction
-        #
-        from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
-        InDetGsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name                      = 'InDetGsfComponentReduction',
-                                                                                MaximumNumberOfComponents = 12)
-        ToolSvc += InDetGsfComponentReduction
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetGsfComponentReduction
-        #
-        # declare the extrapolator
-        #
-        from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-        InDetGsfExtrapolator = Trk__GsfExtrapolator(name                          = 'InDetGsfExtrapolator',
-                                               Propagators                   = [ InDetPropagator ],
-                                               SearchLevelClosestParameters  = 10,
-                                               StickyConfiguration           = True,
-                                               Navigator                     = InDetNavigator,
-                                               GsfMaterialConvolution        = InDetGsfMaterialUpdator,
-                                               ComponentMerger               = InDetGsfComponentReduction,
-                                               SurfaceBasedMaterialEffects   = False )
-        ToolSvc += InDetGsfExtrapolator
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetGsfExtrapolator
-        # load alternative track fitter
-        from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-        InDetTrackFitter = Trk__GaussianSumFitter(name                    = 'InDetTrackFitter',
-                                                  ToolForExtrapolation    = InDetGsfExtrapolator,
-                                                  MeasurementUpdatorType  = InDetGsfMeasurementUpdator,
-                                                  ToolForROTCreation      = InDetRotCreator,
-                                                  ReintegrateOutliers     = False,
-                                                  MakePerigee             = True,
-                                                  RefitOnMeasurementBase  = True,
-                                                  DoHitSorting            = True)
-
-
+    if InDetFlags.doLowPt() or InDetFlags.doVeryLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
+        InDetTrackFitterLowPt = CfgGetter.getPublicTool('InDetTrackFitterLowPt')
+    if DetFlags.TRT_on():
+        InDetTrackFitterTRT =   CfgGetter.getPublicTool('InDetTrackFitterTRT')
     if InDetFlags.doDBM():
-        InDetTrackFitterDBM = Trk__GlobalChi2Fitter(name                  = 'InDetTrackFitterDBM',
-                                                    ExtrapolationTool     = InDetExtrapolator,
-                                                    NavigatorTool         = InDetNavigator,
-                                                    PropagatorTool        = InDetPropagator,
-                                                    RotCreatorTool        = InDetRotCreatorDBM,
-                                                    BroadRotCreatorTool   = None,
-                                                    MultipleScatteringTool = InDetMultipleScatteringUpdator,
-                                                    MeasurementUpdateTool = InDetUpdator,
-                                                    TrackingGeometrySvc   = AtlasTrackingGeometrySvc,
-                                                    MaterialUpdateTool    = InDetMaterialUpdator,
-                                                    StraightLine          = True,
-                                                    OutlierCut            = 5,
-                                                    SignedDriftRadius     = True,
-                                                    ReintegrateOutliers   = True,
-                                                    RecalibrateSilicon    = True,
-                                                    RecalibrateTRT        = False,
-                                                    TRTTubeHitCut         = ScaleHitUncertainty,
-                                                    MaxIterations         = 40,
-                                                    Acceleration          = True,
-                                                    RecalculateDerivatives= False,
-                                                    TRTExtensionCuts      = False,
-                                                    TrackChi2PerNDFCut    = 20,
-                                                    Momentum = 1000.*MeV)
-        ToolSvc += InDetTrackFitterDBM
+        InDetTrackFitterDBM =   CfgGetter.getPublicTool('InDetTrackFitterDBM')
 
-    # --- end of fitter loading
-    ToolSvc += InDetTrackFitter
-    if (InDetFlags.doPrintConfigurables()):
-      print      InDetTrackFitter
-      if InDetFlags.doDBM():
-          print InDetTrackFitterDBM
-                                                                     
-    if InDetFlags.trackFitterType() is not 'GlobalChi2Fitter' :
-        InDetTrackFitterTRT=InDetTrackFitter
-        InDetTrackFitterLowPt=InDetTrackFitter
-    else:
-        if not InDetFlags.doDBMstandalone():
-            ToolSvc += InDetTrackFitterTRT
-            if (InDetFlags.doPrintConfigurables()):
-                print InDetTrackFitterTRT
-        if InDetFlags.doLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
-            ToolSvc+=InDetTrackFitterLowPt
-            if (InDetFlags.doPrintConfigurables()):
-                print InDetTrackFitterLowPt
+        # @TODO should aldready be in ToolSvc
+        # if not InDetFlags.doDBMstandalone():
+            # ToolSvc += InDetTrackFitterTRT
+            # if (InDetFlags.doPrintConfigurables()):
+            #     print InDetTrackFitterTRT
+        # if InDetFlags.doLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
+            # ToolSvc+=InDetTrackFitterLowPt
+            # if (InDetFlags.doPrintConfigurables()):
+            #    print InDetTrackFitterLowPt
 
 #
 # ----------- load association tool from Inner Detector to handle pixel ganged ambiguities
@@ -861,6 +404,14 @@ if InDetFlags.loadAssoTool():
     ToolSvc += InDetPrdAssociationTool
     if (InDetFlags.doPrintConfigurables()):
       print      InDetPrdAssociationTool
+
+    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
+    InDetPrdAssociationTool_setup = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
+                                                                                PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
+                                                                                SetupCorrect                   = True,
+                                                                                addTRToutliers                 = True)
+    #InDetPrdAssociationTool.OutputLevel = VERBOSE
+    ToolSvc += InDetPrdAssociationTool
     
 #
 # ----------- control loading of SummaryTool
@@ -1009,7 +560,7 @@ if InDetFlags.loadSummaryTool():
     from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
     if DetFlags.haveRIO.TRT_on():
         InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
-                                                                         AssoTool        = InDetPrdAssociationTool,
+                                                                         AssoTool        = InDetPrdAssociationTool_setup,
                                                                          PixelToTPIDTool = None,         # we don't want to use those tools during pattern
                                                                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
                                                                          #PixelToTPIDTool = InDetPixelToTPIDTool,
@@ -1022,7 +573,7 @@ if InDetFlags.loadSummaryTool():
                                                                          useTRT          = DetFlags.haveRIO.TRT_on())
     else:
         InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
-                                                                         AssoTool        = InDetPrdAssociationTool,
+                                                                         AssoTool        = InDetPrdAssociationTool_setup,
                                                                          PixelToTPIDTool = None,         # we don't want to use those tools during pattern
                                                                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
                                                                          #PixelToTPIDTool = InDetPixelToTPIDTool,
@@ -1064,7 +615,7 @@ if InDetFlags.loadSummaryTool():
     from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
     if DetFlags.haveRIO.TRT_on():
         InDetTrackSummaryHelperToolSharedHits = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelperSharedHits",
-                                                                                   AssoTool        = InDetPrdAssociationTool,
+                                                                                   AssoTool        = InDetPrdAssociationTool_setup,
                                                                                    PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                                    TestBLayerTool  = InDetRecTestBLayerTool,
                                                                                    DoSharedHits    = InDetFlags.doSharedHits(),
@@ -1076,7 +627,7 @@ if InDetFlags.loadSummaryTool():
                                                                                    useTRT          = DetFlags.haveRIO.TRT_on())
     else:
         InDetTrackSummaryHelperToolSharedHits = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelperSharedHits",
-                                                                                   AssoTool        = InDetPrdAssociationTool,
+                                                                                   AssoTool        = InDetPrdAssociationTool_setup,
                                                                                    PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                                    TestBLayerTool  = InDetRecTestBLayerTool,
                                                                                    DoSharedHits    = InDetFlags.doSharedHits(),
@@ -1177,43 +728,50 @@ if InDetFlags.doPattern():
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
                                                                  PropagatorTool        = InDetPatternPropagator,
                                                                  UpdatorTool           = InDetPatternUpdator,
-                                                                 RIOonTrackTool        = InDetRotCreatorDigital,
-                                                                 AssosiationTool       = InDetPrdAssociationTool,
+                                                                 RIOonTrackTool        = InDetRotCreatorDigital, ##NS HERE
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
-                                                                 PixManagerLocation    = InDetKeys.PixelManager(),
-                                                                 SCTManagerLocation    = InDetKeys.SCT_Manager(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                  SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
+    if DetFlags.haveRIO.pixel_on():
+        # Condition algorithm for SiCombinatorialTrackFinder_xk
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+            from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+            condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                  ReadKey = "PixelDetectorElementCollection",
+                                                                  WriteKey = "PixelDetElementBoundaryLinks_xk")
     if DetFlags.haveRIO.SCT_on():
         # Condition algorithm for SiCombinatorialTrackFinder_xk
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
-        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
             from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-            condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+            condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                  ReadKey = "SCT_DetectorElementCollection",
+                                                                  WriteKey = "SCT_DetElementBoundaryLinks_xk")
 
-    if InDetFlags.doDBM():
-        InDetSiComTrackFinderDBM = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderDBM',
-                                                                        PropagatorTool        = InDetPatternPropagator,
-                                                                        UpdatorTool           = InDetPatternUpdator,
-                                                                        RIOonTrackTool        = InDetRotCreatorDBM,
-                                                                        AssosiationTool       = InDetPrdAssociationTool,
-                                                                        usePixel              = True,
-                                                                        useSCT                = False,
-                                                                        PixManagerLocation    = InDetKeys.PixelManager(),
-                                                                        SCTManagerLocation    = InDetKeys.SCT_Manager(),
-                                                                        PixelClusterContainer = InDetKeys.PixelClusters(),
-                                                                        SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
-                                                                        MagneticFieldMode     = "NoField",
-                                                                        TrackQualityCut       = 9.3
-                                                                        )
-    if InDetFlags.doDBMstandalone():
-        InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
-    if (DetFlags.haveRIO.SCT_on()):
-      InDetSiComTrackFinder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
-    else:
-      InDetSiComTrackFinder.SctSummaryTool = None
+    #if InDetFlags.doDBM():
+    #    InDetSiComTrackFinderDBM = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderDBM',
+    #                                                                    PropagatorTool        = InDetPatternPropagator,
+    #                                                                    UpdatorTool           = InDetPatternUpdator,
+    #                                                                    RIOonTrackTool        = InDetRotCreatorDBM,
+    #                                                                    AssosiationTool       = InDetPrdAssociationTool,
+    #                                                                    usePixel              = True,
+    #                                                                    useSCT                = False,
+    #                                                                    PixelClusterContainer = InDetKeys.PixelClusters(),
+    #                                                                    SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
+    #                                                                    MagneticFieldMode     = "NoField",
+    #                                                                    TrackQualityCut       = 9.3
+    #                                                                    )
+    #if InDetFlags.doDBMstandalone():
+    #    InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
+
+    # if (DetFlags.haveRIO.SCT_on()):
+    #   InDetSiComTrackFinder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
+    # else:
+    #  InDetSiComTrackFinder.SctSummaryTool = None
 
     if (InDetFlags.doPrintConfigurables()):
       print InDetSiComTrackFinder
@@ -1320,7 +878,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
     
     from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
     InDetAmbiTrackSelectionToolCosmics = InDet__InDetAmbiTrackSelectionTool(name                  = 'InDetAmbiTrackSelectionToolCosmics',
-                                                                            AssociationTool       = InDetPrdAssociationTool,
+                                                                            AssociationTool       = InDetPrdAssociationTool_setup,
                                                                             minNotShared          = 3,
                                                                             minHits               = 0,
                                                                             maxShared             = 0,
@@ -1334,10 +892,11 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
         print      InDetAmbiTrackSelectionToolCosmics
 
 
+    from AthenaCommon import CfgGetter
     from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
     InDetAmbiguityProcessorCosmics = Trk__SimpleAmbiguityProcessorTool(name             = 'InDetAmbiguityProcessorCosmics',
                                                                        ScoringTool      = InDetScoringToolCosmics,
-                                                                       Fitter           = InDetTrackFitter,
+                                                                       Fitter           = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                        SelectionTool    = InDetAmbiTrackSelectionToolCosmics,
                                                                        SuppressTrackFit = True,
                                                                        ForceRefit       = False,

@@ -57,7 +57,9 @@ LArOnlineID_Base::LArOnlineID_Base(void) :
   m_dict(0),
   m_feedthroughHashMax(0),
   m_febHashMax(0),
-  m_channelHashMax(0)
+  m_channelHashMax(0),
+  m_calibModuleHashMax(0),
+  m_calibChannelHashMax(0)
 {
 }
 
@@ -440,6 +442,26 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         std::cout << strg3 << std::endl;
     }
 
+    /* calib */ 
+    /* Full range for calib channels */
+    m_full_calib_laronline_range = m_dict->build_multirange( region_id2 , group_name, prefix2); 
+    m_full_calib_module_range    = m_dict->build_multirange( region_id2 , group_name, prefix2, "slot"); 
+
+    if (!m_quiet) {
+      std::string strg0= "=> initialize_from_dictionary : ";
+      std::string strg2= "=> Calib module range -> " + (std::string)m_full_calib_module_range;  
+      std::string strg3= "=> Calib channel range -> " + (std::string)m_full_calib_laronline_range;
+      if(m_msgSvc) {
+        log << MSG::DEBUG << strg0 << endmsg;
+        log << MSG::DEBUG << strg2 << endmsg;
+        log << MSG::DEBUG << strg3 << endmsg;
+      }
+      else {
+        std::cout << strg0 << std::endl;
+        std::cout << strg2 << std::endl;
+        std::cout << strg3 << std::endl;
+      }
+    }
   
     /* Setup the hash tables */
     std::stringstream strm;
@@ -512,11 +534,6 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
                 std::cout << strg1 << std::endl;
                 std::cout << strg2 << std::endl;
             }     
-            //std::cout << "min > " << size << " " 
-            //    << i << " "
-            //      << show_to_string(min) << " " 
-            //      << m_pnz_reg_impl.unpack(min) << " " 
-            //      << std::endl;
         }
     }
 
@@ -588,7 +605,11 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         // values are enumerated or not. If they are enumerate we must
         // save the values in order to calculate the fed hash
         if (get_expanded_id(min, ftExpId, &ftContext)) {
-            std::cout << " *****  Error cannot get ft expanded id for " << show_to_string(min) << std::endl;
+            if(m_msgSvc) {
+               log << MSG::WARNING  << " *****  Warning cannot get ft expanded id for " << show_to_string(min) << endmsg;
+            } else {
+               std::cout << " *****  Warning cannot get ft expanded id for " << show_to_string(min) << std::endl;
+            }
         }
         unsigned int nrangesFound = 0;
         for (unsigned int i = 0; i < m_full_feb_range.size(); ++i) {
@@ -618,8 +639,13 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
                         }
                     }
                     else {
-                        std::cout << " *****  Error feb range slot field is NOT both_bounded - id, slot mode: " 
-                                  << show_to_string(min) << " " << slotField.get_mode() << std::endl;
+                        if(m_msgSvc) {
+                           log << MSG::WARNING  << " *****  Warning feb range slot field is NOT both_bounded - id, slot mode: " 
+                               << show_to_string(min) << " " << slotField.get_mode() << endmsg;
+                        } else {
+                           std::cout << " *****  Error feb range slot field is NOT both_bounded - id, slot mode: " 
+                                     << show_to_string(min) << " " << slotField.get_mode() << std::endl;
+                        }
                     }
                 }
             }
@@ -643,11 +669,6 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             else {
                 std::cout << strg << std::endl;
             }     
-            //std::cout << "min > " << size << " " 
-            //    << i << " "
-            //      << show_to_string(min) << " " 
-            //      << m_pnz_reg_impl.unpack(min) << " " 
-            //      << std::endl;
         }
     }
 
@@ -1345,11 +1366,9 @@ int LArOnlineID_Base::init_hashes(void)
 
 bool LArOnlineID_Base::isValidId(const HWIdentifier id) const {
 
-  //std::cout << "larid=" << larid << ", onl=" << laronlineid << ", side=" << side << ", ft=" << ft << std::endl; 
 
   const int larid=m_lar_impl.unpack(id);
   const int laronlineid=m_laronline_impl.unpack(id);
-  //std::cout << "larid=" << larid << ", onl=" << laronlineid << std::endl;
   if (larid!=lar_field_value()) return false;
 
   if (!(laronlineid==s_lar_online_field_value || laronlineid==s_lar_onlineCalib_field_value)) return false; 
@@ -1360,7 +1379,6 @@ bool LArOnlineID_Base::isValidId(const HWIdentifier id) const {
   const int bec=m_bec_impl.unpack(id);
   const int ft=m_feedthrough_impl.unpack(id);
   const int slot=m_slot_impl.unpack(id);
-  //std::cout << "bec=" << bec << ", ft=" << ft << ", slot=" << slot << std::endl; 
   if (slot<1) return false;
   if (ft<0) return false;
   if (bec==0) { // Barrel case
@@ -1526,6 +1544,7 @@ HWIdentifier LArOnlineID_Base::feb_Id(IdentifierHash febHashId) const
 IdentifierHash LArOnlineID_Base::feb_Hash (HWIdentifier febId) const
 /*=============================================================================== */
 {
+    MsgStream log(m_msgSvc, "LArOnlineID_Base" );
     // Get the hash caculator for the febs
     const HashCalcFeb& hc = m_feb_hash_calcs[m_bec_ft_impl.unpack(febId)];
     // Two cases: 
@@ -1539,20 +1558,14 @@ IdentifierHash LArOnlineID_Base::feb_Hash (HWIdentifier febId) const
         for (int i = 0; (unsigned int)i < hc.m_slot_values.size(); ++i) {
             if (slotValue == hc.m_slot_values[i]) return (hc.m_hash + i);
         }
-        std::cout << "LArOnlineID_Base::feb_Hash - ***** ERROR: could not match slot value for has calculation " << std::endl;
+        if(m_msgSvc) {
+          log << MSG::WARNING << "LArOnlineID_Base::feb_Hash - ***** WARNING: could not match slot value for has calculation " << endmsg;
+        } else {
+          std::cout << "LArOnlineID_Base::feb_Hash - ***** WARNING: could not match slot value for has calculation " << std::endl;
+        }
     }
     size_type slotIndex = m_slot_impl.unpackToIndex(febId);
     return (hc.m_hash + slotIndex);
-}
-
-IdentifierHash LArOnlineID_Base::feb_Hash_binary_search (HWIdentifier febId) const
-/*=============================================================================== */
-{
-    std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_feb_vec.begin(),m_feb_vec.end(),febId);
-    if ( it != m_feb_vec.end() ){
-	return (it - m_feb_vec.begin());
-    }
-    return (0);
 }
 
 HWIdentifier
@@ -1652,16 +1665,6 @@ IdentifierHash LArOnlineID_Base::channel_Hash (HWIdentifier channelId) const
 {
     const HashCalc& hc = m_chan_hash_calcs[m_bec_slot_impl.unpack(channelId)];
     return (hc.m_hash + channel(channelId));
-}
-
-IdentifierHash LArOnlineID_Base::channel_Hash_binary_search (HWIdentifier channelId) const
-/*=========================================================================*/
-{
-  std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_channel_vec.begin(),m_channel_vec.end(),channelId);
-  if ( it != m_channel_vec.end() ){
-    return (it - m_channel_vec.begin());
-  }
-  return(0) ;
 }
 
 /* BOOLEAN */
@@ -2031,6 +2034,94 @@ int LArOnlineID_Base::is_slar(const HWIdentifier id)const
 /*=====================================================*/
 {
   return (m_slar_impl.unpack(id));
+}
+
+
+/*========================================*/
+int LArOnlineID_Base::init_calib_hashes(void) 
+/*========================================*/
+{
+  MsgStream log(m_msgSvc, "LArOnlineID_Base" );
+  unsigned int nids=0;
+  std::set<HWIdentifier> ids;
+  for (unsigned int i = 0; i < m_full_calib_laronline_range.size(); ++i) {
+      const Range& range = m_full_calib_laronline_range[i];
+      Range::const_identifier_factory first = range.factory_begin();
+      Range::const_identifier_factory last  = range.factory_end();
+      for (; first != last; ++first) {
+        const ExpandedIdentifier& exp_id = (*first);
+        HWIdentifier id = this->calib_channel_Id(exp_id[m_bec_index],
+                                                 exp_id[m_side_index],
+                                                 exp_id[m_feedthrough_index],
+                                                 exp_id[m_slot_index],
+                                                 exp_id[m_channel_in_slot_index]);
+        if(!(ids.insert(id)).second) {
+          if(m_msgSvc) {
+            log << MSG::WARNING << " LArOnlineID_Base::init_calib_Hashes "
+                      << " Error: duplicated id for channel id. nids= " << nids
+                      << " compact Id  " << std::string(*first) << " " << show_to_string(id) << endmsg;
+          } else {
+            std::cout << " LArOnlineID_Base::init_calib_Hashes "
+                      << " Error: duplicated id for channel id. nids= " << nids
+                      << " compact Id  " ;
+            (*first).show();
+            std::cout << " " << show_to_string(id) << std::endl;
+          }
+        }
+        nids++;
+      }
+  }
+  unsigned int nidtb=0;
+  std::set<HWIdentifier>::const_iterator first = ids.begin();
+  std::set<HWIdentifier>::const_iterator last  = ids.end();
+  for (;first != last && nidtb < nids; ++first) {
+      m_calib_channel_vec.push_back(*first);
+      nidtb++; 
+  }
+  m_calibChannelHashMax = m_calib_channel_vec.size();
+
+  /* FEB hash */
+  /*==========*/
+  nids = 0;
+  ids.clear();
+  for (unsigned int i = 0; i < m_full_calib_module_range.size(); ++i) {
+      const Range& range = m_full_calib_module_range[i];
+      Range::const_identifier_factory first = range.factory_begin();
+      Range::const_identifier_factory last  = range.factory_end();
+      for (; first != last; ++first) {
+        const ExpandedIdentifier& exp_id = (*first);
+        HWIdentifier febId = calib_module_Id( exp_id[m_bec_index],
+                                              exp_id[m_side_index],
+                                              exp_id[m_feedthrough_index],
+                                              exp_id[m_slot_index] );
+        if(!(ids.insert(febId)).second){
+          if(m_msgSvc) {
+            log << MSG::WARNING << " LArOnlineID_Base::init_calibhashes "
+                    << " Warning: duplicated id for feb id. nids= " << nids
+                    << " compact Id  " << std::string(*first) << " " << show_to_string(febId) << endmsg;
+          } else {
+             std::cout << " LArOnlineID_Base::init_calibhashes "
+                    << " Error: duplicated id for feb id. nids= " << nids
+                    << " compact Id  " ;
+                    (*first).show();
+                    std::cout << " " << show_to_string(febId) << std::endl;
+                    std::cout << std::endl;
+
+          }
+        }
+        nids++;
+      }
+  }
+  nidtb=0;
+  first = ids.begin();
+  last  = ids.end();
+  for (;first != last && nidtb < nids; ++first) 
+    {
+      m_calib_module_vec.push_back(*first);
+      nidtb++;
+    }
+  m_calibModuleHashMax = m_calib_module_vec.size();
+  return (0);
 }
 
 

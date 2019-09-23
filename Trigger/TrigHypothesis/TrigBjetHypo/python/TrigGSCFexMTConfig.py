@@ -1,18 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigGSCFexMT
-#from TrigBjetHypo.TrigGSCFexTuning import *   
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import mm, GeV   #commented here
 
-from AthenaCommon.AppMgr import ToolSvc
-#from BTagging.BTaggingFlags import BTaggingFlags #commented here
-#from BTagging.BTaggingConfiguration import getConfiguration #commented here
-#BTagConfig = getConfiguration("Trig")   #commented here
-#BTagConfig.PrefixxAODBaseName(False)   #commented here
-#BTagConfig.PrefixVertexFinderxAODBaseName(False)   #commented here
-#BTagConfigSetupStatus = BTagConfig.setupJetBTaggerTool(ToolSvc, "AntiKt4EMTopo", SetupScheme="Trig", TaggerList=BTaggingFlags.TriggerTaggers)   #commented here
 from JetRec.JetRecCalibrationFinder import jrcf
 JetConfigSetupStatus = True
 
@@ -50,11 +41,10 @@ class GSCFex (TrigGSCFexMT):
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
         if self.setupOfflineTools :
-            if JetConfigSetupStatus == None :
+            if JetConfigSetupStatus is None :
                 self.setupOfflineTools = False
             else :
                 self.JetGSCCalibrationTool = jrcf.find("AntiKt", 0.4, "EMTopo", "ajg", "reco", "Kt4")
-                print self.JetGSCCalibrationTool
 
 
 #############################################################
@@ -85,7 +75,7 @@ class GSCFexSplit (TrigGSCFexMT):
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
         if self.setupOfflineTools :
-            if JetConfigSetupStatus == None :
+            if JetConfigSetupStatus is None :
                 self.setupOfflineTools = False
             else :
                 #self.GSCCalibrationTool = jrcf.find("AntiKt", 0.4, "EMTopo", "ajg", "reco", "Kt4")
@@ -101,7 +91,6 @@ class GSCFexSplit (TrigGSCFexMT):
                 from AthenaCommon.AppMgr import ToolSvc
                 ToolSvc += myGSCTool
                 self.JetGSCCalibrationTool = myGSCTool
-                print self.JetGSCCalibrationTool
                 #JetCalibrationTool("myJCTool_trigger",
                 #   IsData=True,
                 #   ConfigFile="JES_2015dataset_recommendation_Feb2016.config",

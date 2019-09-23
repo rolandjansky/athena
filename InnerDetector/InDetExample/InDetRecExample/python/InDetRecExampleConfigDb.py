@@ -25,3 +25,7 @@ addTool('InDetRecExample.InDetRecExampleConfig.InDetMeasRecalibST','InDetMeasRec
 addTool('InDetRecExample.InDetRecExampleConfig.KalmanFitter','KalmanFitter')
 addTool('InDetRecExample.InDetRecExampleConfig.ReferenceKalmanFitter','ReferenceKalmanFitter')
 addTool('InDetRecExample.InDetRecExampleConfig.KalmanDNAFitter','KalmanDNAFitter')
+addTool('InDetRecExample.InDetRecExampleConfig.InDetTrackFitter','InDetTrackFitter')
+addTool('InDetRecExample.InDetRecExampleConfig.InDetTrackFitterLowPt','InDetTrackFitterLowPt')
+addTool('InDetRecExample.InDetRecExampleConfig.InDetTrackFitterTRT','InDetTrackFitterTRT')
+addTool('InDetRecExample.InDetRecExampleConfig.InDetTrackFitterDBM','InDetTrackFitterDBM')

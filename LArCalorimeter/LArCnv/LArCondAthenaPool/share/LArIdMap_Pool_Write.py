@@ -55,7 +55,7 @@ include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
 theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
 theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.CheckDictionary = True
 AthenaSealSvc.CheckDictAtInit = True
 
@@ -74,7 +74,6 @@ StreamDet.EvtConversionSvc="AthenaPoolCnvSvc"
 
 StreamDet.ItemList += ["LArOnOffIdMap#*"]
 StreamDet.ItemList += ["LArFebRodMap#*"]
-StreamDet.ForceRead = True;
 StreamDet.OutputFile = "LArIdMap.pool.root"
 
 # StreamDet.OutputFile =  "oracle://devdb/hma"

@@ -51,6 +51,7 @@ class HistogramFillerRebinable1DTestSuite {
   // ==================== Test code ====================
   private:
     void beforeEach() {
+        m_histogramDef.opt = "kAddBinsDynamically";
         m_histogramProvider.reset(new MockHistogramProvider());
         m_monitoredVariable.reset(new MockMonitoredVariable(""));
         m_histogram.reset(new TH1D("MockHistogram", "Mock Histogram", 8, 1.0, 3.0));
@@ -218,7 +219,7 @@ class HistogramFillerRebinable1DTestSuite {
   private:
     typedef void (HistogramFillerRebinable1DTestSuite::*TestCase)(void);
 
-    function<void(void)> registerTestCase(TestCase testCase, string testCaseName) {
+    function<void(void)> registerTestCase(TestCase testCase, const string& testCaseName) {
       return [this, testCase, testCaseName]() {
         m_log << MSG::INFO << "Current test case: " << testCaseName << endmsg;
         beforeEach();

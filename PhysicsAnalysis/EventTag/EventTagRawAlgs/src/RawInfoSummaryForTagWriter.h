@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -41,7 +41,6 @@ Jamie Boyd 21 Jan 2008 (Jamie.Boyd@cern.ch)
 #include "CommissionEvent/ComTime.h" 
 
 class TileTBID;
-class IMagFieldAthenaSvc;
 
 
 class RawInfoSummaryForTagWriter : public AthAlgorithm
@@ -57,9 +56,6 @@ class RawInfoSummaryForTagWriter : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
-
-
 
   /** member variables for algorithm properties: */
   //std::string m_sgKeyIDtrack; //!< Name of the Track Collection to read in

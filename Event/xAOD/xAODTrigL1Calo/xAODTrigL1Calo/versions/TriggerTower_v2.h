@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerTower_v2.h 793304 2017-01-21 04:50:44Z ssnyder $
@@ -12,10 +12,6 @@
 #include "xAODBase/IParticle.h"
 #include "AthLinks/ElementLink.h"
 #include "AthContainers/AuxElement.h"
-
-//CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 
 // System include(s):
 #include <stdint.h>
@@ -67,30 +63,30 @@ namespace xAOD {
       /// @{
 
       /// @brief The transverse momentum (\f$p_T\f$) of the particle
-      virtual double pt() const  ATH_FINAL;
+      virtual double pt() const  final;
 
       /// @brief The pseudorapidity (\f$\eta\f$) of the particle
-      virtual double eta() const ATH_FINAL;
+      virtual double eta() const final;
       void setEta(float);
 
       /// @brief The azimuthal angle (\f$\phi\f$) of the particle
-      virtual double phi() const ATH_FINAL;
+      virtual double phi() const final;
       void setPhi(float);
       
       /// @brief The invariant mass of the particle
-      virtual double m() const ATH_FINAL;
+      virtual double m() const final;
 
       /// The total energy of the particle
-      virtual double e() const  ATH_FINAL;
+      virtual double e() const  final;
 
       /// @brief The true rapidity (y) of the particle
-      virtual double rapidity() const ATH_FINAL;
+      virtual double rapidity() const final;
 
       /// @brief Definition of the 4-momentum type
       typedef IParticle::FourMom_t FourMom_t;
 
       /// @brief The full 4-momentum of the particle as a TLoretzVector
-      virtual FourMom_t p4() const ATH_FINAL;
+      virtual FourMom_t p4() const final;
 
       /// Base 4 Momentum type for trigger tower
       typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
@@ -99,7 +95,7 @@ namespace xAOD {
       GenVecFourMom_t genvecP4() const; 
 
       /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
-      virtual Type::ObjectType type() const ATH_FINAL; 
+      virtual Type::ObjectType type() const final; 
           
       /// @}
       

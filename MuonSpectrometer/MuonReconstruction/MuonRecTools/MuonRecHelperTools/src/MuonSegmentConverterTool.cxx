@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentConverterTool.h"
@@ -14,7 +14,6 @@ namespace Muon {
     : AthAlgTool(t,n,p),
       m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool")
   {
     declareInterface<xAODMaker::IMuonSegmentConverterTool>(this);

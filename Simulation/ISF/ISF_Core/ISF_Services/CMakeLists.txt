@@ -111,6 +111,14 @@ atlas_add_test( TruthSvc_test
                 ENVIRONMENT
                   "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
                 )
+
+
+#test ISF_ServicesConfigNew
+atlas_add_test( ISF_ServicesConfigNew_test
+                SCRIPT test/ISF_ServicesConfigNew_test.py
+                PROPERTIES TIMEOUT 300 )
+
+
 # Needed for the plugin service to see the test components
 # defined in the test binary.
 set_target_properties( ISF_Services_TruthSvc_test PROPERTIES ENABLE_EXPORTS True )

@@ -41,12 +41,14 @@ bswrite = ['DMTest::CVec#cvec.-dVar2.-dtest',
 
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
-     DMTest__xAODTestDecor
-from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestDecor, \
+     DMTest__DummyDecisionWriter
+from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteHVec, \
      DMTest__xAODTestWriteCView, \
      DMTest__HLTResultWriter
+topSequence += DMTest__DummyDecisionWriter ("DummyDecisionWriter")
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec",
                                           CVecKey = 'HLT_DMTest__CVec_cvec')
 topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView",

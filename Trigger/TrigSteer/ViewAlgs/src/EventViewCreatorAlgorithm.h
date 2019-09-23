@@ -47,12 +47,12 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified", "Name with which the RoIs shoudl be inserted into the views" };
 
     // needs for views
-    ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
-    Gaudi::Property<bool> m_viewPerRoI{ this, "ViewPerRoI", false, "Create one View per RoI as opposed to one View per Decision object, needs to be true when multiple decisions per RoI exists" };
+    Gaudi::Property< std::string > m_schedulerName { this, "SchedulerName", "AvalancheSchedulerSvc", "Name of the scheduler" };
     Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of the CF node to attach a view to" };
 
     Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may accesas StoreGate directly to retrieve data" };
     Gaudi::Property< bool > m_requireParentView { this, "RequireParentView", false, "Fail if the parent view can not be found" };
+    Gaudi::Property< bool > m_reverseViews { this, "ReverseViewsDebug", false, "Reverse order of views, as a debugging option" };
 
 
 
@@ -62,6 +62,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
    **/
     StatusCode linkViewToParent( const TrigCompositeUtils::Decision* inputDecsion, SG::View* newView ) const;
     StatusCode placeRoIInView( const TrigRoiDescriptor* roi, SG::View* view, const EventContext& context ) const;
+    inline SmartIF<IScheduler> getScheduler() const {return svcLoc()->service<IScheduler>(m_schedulerName,false);}
 };
 
 #endif

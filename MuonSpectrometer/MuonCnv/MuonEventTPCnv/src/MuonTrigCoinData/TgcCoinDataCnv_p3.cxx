@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrigCoinData/TgcCoinData.h"
@@ -7,7 +7,6 @@
 #include <algorithm>
 #include "AthLinks/tools/IdentContIndex.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
-#include "CxxUtils/make_unique.h"
 
 void TgcCoinDataCnv_p3::
 persToTrans( const Muon::TgcCoinData_p3 *persObj, Muon::TgcCoinData *transObj,MsgStream &log ) 
@@ -31,7 +30,7 @@ persToTrans( const Muon::TgcCoinData_p3 *persObj, Muon::TgcCoinData *transObj,Ms
 
    Trk::ErrorMatrix dummy;
    fillTransFromPStore( &m_errorMxCnv, persObj->m_errMat, &dummy, log );
-   auto tempMat = CxxUtils::make_unique<Amg::MatrixX>();
+   auto tempMat = std::make_unique<Amg::MatrixX>();
    if (dummy.values.size())
      EigenHelpers::vectorToEigenMatrix(dummy.values, *tempMat, "TgcCoinDataCnv_p3");
 

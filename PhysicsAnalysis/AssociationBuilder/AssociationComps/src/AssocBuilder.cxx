@@ -15,9 +15,6 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-
 // CLHEP includes
 #include "AthenaKernel/Units.h"
 

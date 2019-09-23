@@ -17,7 +17,7 @@
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
-#include "MuonHoughPatternTools/HoughDataPerSec.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 
 namespace Muon 
 {
@@ -31,7 +31,7 @@ namespace Muon
     struct Output {
       MuonPatternCombinationCollection* patternCombinations;
       Trk::SegmentCollection*           segmentCollection;
-      std::unique_ptr<std::vector<HoughDataPerSec>> houghDataPerSectorVec;
+      std::unique_ptr<Muon::HoughDataPerSectorVec> houghDataPerSectorVec;
 
     Output() : patternCombinations(0),segmentCollection(0) {}
     };

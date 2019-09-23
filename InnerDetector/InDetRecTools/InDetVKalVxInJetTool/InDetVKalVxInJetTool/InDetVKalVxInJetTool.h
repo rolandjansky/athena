@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -65,6 +65,7 @@ class IChronoStatSvc;
 namespace Trk{
   class TrkVKalVrtFitter;
   class IVertexFitter;
+  class IVKalState;
 }
 
 
@@ -456,7 +457,8 @@ namespace InDet {
  
       template <class Particle>
       void DisassembleVertex(std::vector<WrkVrt> *WrkVrtSet, int iv, 
-                         std::vector<const Particle*>  AllTracks) const;
+                             std::vector<const Particle*>  AllTracks,
+                             Trk::IVKalState& istate) const;
 					  
       double ProjSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) const;
 
@@ -487,23 +489,28 @@ namespace InDet {
 
       template <class Particle>
       StatusCode RefitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
-                              std::vector<const Particle*> & SelectedTracks) const;
-      template <class Particle>
-      double RefitVertex( WrkVrt &Vrt,std::vector<const Particle*> & SelectedTracks) const;
+                              std::vector<const Particle*> & SelectedTracks,
+                              Trk::IVKalState& istate,
+                              bool ifCovV0) const;
 
       template <class Particle>
-      double FitVertexWithPV( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex, const xAOD::Vertex & PV,
-                              std::vector<const Particle*> & SelectedTracks) const;
+      double RefitVertex( WrkVrt &Vrt,std::vector<const Particle*> & SelectedTracks,
+                          Trk::IVKalState& istate,
+                          bool ifCovV0) const;
 
       template <class Particle>
       double mergeAndRefitVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2, WrkVrt & newvrt,
-                                     std::vector<const Particle*> & AllTrackList) const;
+                                    std::vector<const Particle*> & AllTrackList,
+                                    Trk::IVKalState& istate) const;
       template <class Particle>
       void   mergeAndRefitOverlapVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2,
-                                                               std::vector<const Particle*> & AllTrackList) const;
+                                           std::vector<const Particle*> & AllTrackLis,
+                                           Trk::IVKalState& istate) const;
 
       template <class Particle>
-      double  improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const Particle*> & AllTracks)const;
+      double  improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const Particle*> & AllTracks,
+                                 Trk::IVKalState& istate,
+                                 bool ifCovV0) const;
 
       int   SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpPart,
                                 const xAOD::Vertex                          & PrimVrt,
@@ -534,8 +541,8 @@ namespace InDet {
 //
 //     template <class Track>
 //     StatusCode VKalVrtFitFastBase(const std::vector<const Track*>& listPart,Amg::Vector3D& Vertex) const;
-     StatusCode VKalVrtFitFastBase(const std::vector<const Rec::TrackParticle*>& listPart,Amg::Vector3D& Vertex) const;
-     StatusCode VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listPart,Amg::Vector3D& Vertex) const;
+     StatusCode VKalVrtFitFastBase(const std::vector<const Rec::TrackParticle*>& listPart,Amg::Vector3D& Vertex, Trk::IVKalState& istate) const;
+     StatusCode VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listPart,Amg::Vector3D& Vertex, Trk::IVKalState& istate) const;
 
      template <class Track>
      bool  Check2TrVertexInPixel( const Track* p1, const Track* p2, Amg::Vector3D &, std::vector<double> &) const;
@@ -551,26 +558,32 @@ namespace InDet {
 
 
      StatusCode VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,
-                                                  Amg::Vector3D&                 Vertex,
-                                                  TLorentzVector&                Momentum,
-                                                  long int&                      Charge,
-                                                  std::vector<double>&           ErrorMatrix,
-                                                  std::vector<double>&           Chi2PerTrk,
-                                                  std::vector< std::vector<double> >& TrkAtVrt,
-                                                  double& Chi2 ) const;
+                               Amg::Vector3D&                 Vertex,
+                               TLorentzVector&                Momentum,
+                               long int&                      Charge,
+                               std::vector<double>&           ErrorMatrix,
+                               std::vector<double>&           Chi2PerTrk,
+                               std::vector< std::vector<double> >& TrkAtVrt,
+                               double& Chi2,
+                               Trk::IVKalState& istate,
+                               bool ifCovV0) const;
       StatusCode VKalVrtFitBase(const std::vector<const xAOD::TrackParticle*> & listPart,
-                                                  Amg::Vector3D&                 Vertex,
-                                                  TLorentzVector&                Momentum,
-                                                  long int&                      Charge,
-                                                  std::vector<double>&           ErrorMatrix,
-                                                  std::vector<double>&           Chi2PerTrk,
-                                                  std::vector< std::vector<double> >& TrkAtVrt,
-                                                  double& Chi2 ) const;
+                                Amg::Vector3D&                 Vertex,
+                                TLorentzVector&                Momentum,
+                                long int&                      Charge,
+                                std::vector<double>&           ErrorMatrix,
+                                std::vector<double>&           Chi2PerTrk,
+                                std::vector< std::vector<double> >& TrkAtVrt,
+                                double& Chi2,
+                                Trk::IVKalState& istate,
+                                bool ifCovV0) const;
+
      const std::vector<const Trk::TrackParticleBase*> 
                PartToBase(const std::vector<const Rec::TrackParticle*> & listPart) const;
      const std::vector<const Rec::TrackParticle*> 
                BaseToPart(const std::vector<const Trk::TrackParticleBase*> & listBase) const;
-     StatusCode GetTrkFitWeights(std::vector<double> & wgt) const;
+     StatusCode GetTrkFitWeights(std::vector<double> & wgt,
+                                 const Trk::IVKalState& istate) const;
    };
 
 

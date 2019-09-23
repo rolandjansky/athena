@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+# flake8: noqa  (legacy trigger)
+
 ##------------------------------------------
 ## 
 ## Hypothesis for v4, 2012 run

@@ -142,7 +142,22 @@ def make_comparison_plots(type, f_base, f_nightly, result_file):
         for histo in get_key_names(f_nightly, folder['name']):
             h_base = f_base.Get(folder['name'] + '/' + histo)
             h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+            if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
             make_ratio_plot(h_base, h_nightly, folder['title'], result_file)
+
+
+
+def makeIQEPlots(inHist, name):
+    outHist = inHist.QuantilesX(0.75, "EResolution_IQE_mu")
+    outHist.GetXaxis().SetTitle("<#mu>")
+    outHist.GetYaxis().SetTitle("IQE")
+    outHist25 = inHist.QuantilesX(0.25, "EResolutio_IQE_mu_25")
+    outHist.Add(outHist25, -1)
+    outHist.Scale(1/1.349)
+    
+    return outHist.Clone(inHist.GetName() + "_"+ name)
+
+
 
 
 def make_profile_plots(f_base, f_nightly, result_file, particle_type):
@@ -155,17 +170,25 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
         for histo in get_key_names(f_nightly, folder['name']):
             if '2D' not in histo:
                 continue
-            h_base = f_base.Get(folder['name'] + '/' + histo)
-            h_base_profile = h_base.ProfileX(histo+"_ProfileB")
-            h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
-            h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
-            h_base_profile.SetDirectory(0)
-            h_nightly_profile.SetDirectory(0)
+            if 'mu' in histo:
+              h_base = f_base.Get(folder['name'] + '/' + histo)
+              h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
+              h_base = makeIQEPlots(h_base,'IQE')
+              h_nightly = makeIQEPlots(h_nightly,'IQE')
+              make_ratio_plot(h_base, h_nightly, folder['title'], result_file, 'IQE')
 
-            y_axis_label = "Mean %s" % (h_base_profile.GetTitle() )
-            h_base_profile.SetTitle("")
-
-            make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
+            else: 
+              h_base = f_base.Get(folder['name'] + '/' + histo)
+              h_base_profile = h_base.ProfileX(histo+"_ProfileB")
+              h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+              h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
+              h_base_profile.SetDirectory(0)
+              h_nightly_profile.SetDirectory(0)
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue 
+              y_axis_label = "Mean %s" % (h_base_profile.GetTitle() )
+              h_base_profile.SetTitle("")
+              make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
 
 
 
@@ -193,6 +216,9 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
             baseline.SetDirectory(0)
             nightly = f_nightly.Get(folder['name'] + '/' + folder['name'] + "_" + variable_name)
             nightly.SetDirectory(0)
+
+            baseline.SetMinimum(min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
+            baseline.SetMaximum(max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
 
             baseline.GetYaxis().SetTitle("Efficiency and fraction")
 
@@ -306,13 +332,11 @@ def make_ratio_plot(h_base, h_nightly, name, result_file, y_axis_label=None):
     h1clone.Divide(h_base)
     h1clone.SetMarkerColor(1)
     h1clone.SetMarkerStyle(20)
-    if "Efficiency" in histogram_name:
-        h1clone.GetYaxis().SetRangeUser(h1clone.GetMinimum() * 0.7, h1clone.GetMaximum() * 1.3)
-        gStyle.SetOptStat(0)
+    h1clone.GetYaxis().SetRangeUser( 0.95, 1.05)
+    gStyle.SetOptStat(0)
     h1clone.GetXaxis().SetLabelSize(0.10)
     h1clone.GetXaxis().SetTitleSize(0.17)
     h1clone.GetYaxis().SetLabelSize(0.10)
-    h1clone.GetYaxis().SetRangeUser(0.75, 1.25)
     h1clone.GetYaxis().SetTitle("Ratio")
     h1clone.GetYaxis().CenterTitle(1)
     h1clone.GetYaxis().SetTitleSize(0.15)

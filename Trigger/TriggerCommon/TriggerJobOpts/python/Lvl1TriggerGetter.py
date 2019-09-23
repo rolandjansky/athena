@@ -1,19 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------------------------------
 # L1 configuration
 # -------------------------------------------------------------
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.GlobalFlags import jobproperties
-from CaloRec.CaloCellFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.Constants import *
+from AthenaCommon.Constants import WARNING
 from AthenaCommon.Logging import logging  # loads logger
 from AthenaCommon.Include import include  # to include old style job options
 from AthenaCommon.AppMgr import theApp
         
 from RecExConfig.Configured import Configured 
-from RecExConfig.ObjKeyStore import objKeyStore
 
 
 def getLvl1OutputLevel():
@@ -42,18 +39,14 @@ def LVL1MonitoringTools():
 def keyInInputFile(sgKey):
     """check, if the given StoreGate key is in the current input file
     """
-    from RecExConfig.InputFilePeeker import inputFileSummary
-
-    return sgKey in inputFileSummary['eventdata_itemsDic']
-
-
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    return sgKey in convert_itemList(layout='dict')
 
 class Lvl1SimulationGetter (Configured):
 
     def configure(self):
         log = logging.getLogger( "Lvl1SimulationGetter" )
         
-        from AthenaServices.AthenaServicesConf import AthenaOutputStream
         from AthenaCommon.AppMgr import ServiceMgr
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
@@ -61,6 +54,7 @@ class Lvl1SimulationGetter (Configured):
         if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
 
             if TriggerFlags.doCalo():
+                from CaloRec.CaloCellFlags import jobproperties
                 if TriggerFlags.useCaloTTL() and not jobproperties.CaloCellFlags.doFastCaloSim():
                     import re
                     if re.search("pp_v[5-9]|HI_v[3-9]|LS1_v[1-9]|DC14", TriggerFlags.triggerMenuSetup() ):
@@ -85,11 +79,22 @@ class Lvl1SimulationGetter (Configured):
 
             # schedule simulation
             if TriggerFlags.doMuon() and (not DetFlags.readRIOPool.LVL1_on() ):
-                include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
-                import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig
-                import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
-                import TrigT1RPCsteering.TrigT1RPCsteeringConfig
-                import TrigT1TGC.TrigT1TGCConfig
+                from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
+                MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
+                                                                 DecodeRpcRDO = True,
+                                                                 DecodeTgcRDO = True,
+                                                                 DecodeCscRDO = False,
+                                                                 DecodeSTGC_RDO = False,
+                                                                 DecodeMM_RDO = False)
+                from AthenaCommon.AppMgr import ToolSvc
+                ToolSvc += MuonRdoToMuonDigitTool
+                from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit
+                topSequence += MuonRdoToMuonDigit("MuonRdoToMuonDigit",MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool)
+
+                import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig   # noqa: F401
+                import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig   # noqa: F401
+                import TrigT1RPCsteering.TrigT1RPCsteeringConfig  # noqa: F401
+                import TrigT1TGC.TrigT1TGCConfig                  # noqa: F401
                 from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi                
                 topSequence += L1Muctpi()
 
@@ -106,7 +111,7 @@ class Lvl1SimulationGetter (Configured):
                     log.info("adding BCM simulation to the topSequence")
                     topSequence += alg
                 else:
-                    log.warning("%s input (%s) missing, not adding to the topSequence" % (alg.getName(), sgKey))
+                    log.warning("%s input (%s) missing, not adding to the topSequence", alg.getName(), sgKey)
                     TriggerFlags.doBcm.set_Value(False)
 
             if TriggerFlags.doTrt():
@@ -122,7 +127,7 @@ class Lvl1SimulationGetter (Configured):
                     log.info("adding TRTfast simulation to the topSequence")
                     topSequence += alg
                 else:
-                    log.warning("%s input (%s) missing, not adding to the topSequence" % (alg.getName(), sgKey))
+                    log.warning("%s input (%s) missing, not adding to the topSequence", alg.getName(), sgKey)
                     TriggerFlags.doTrt.set_Value(False)
 
             if TriggerFlags.doZdc():
@@ -147,7 +152,7 @@ class Lvl1SimulationGetter (Configured):
                     log.info("adding Lucid simulation to the topSequence")
                     topSequence += alg
                 else:
-                    log.warning("%s input (%s) missing, not adding to the topSequence" % (alg.getName(), sgKey))
+                    log.warning("%s input (%s) missing, not adding to the topSequence", alg.getName(), sgKey)
                     TriggerFlags.doLucid.set_Value(False)
                     
 
@@ -187,7 +192,7 @@ class Lvl1SimulationGetter (Configured):
             LVL1MonitoringTools()
 
             #jtb if not TriggerFlags.fakeLVL1():
-                # LVL1
+            # LVL1
             #jtb     theApp.Dlls += [ "TrigT1ResultByteStream" ]
    
 
@@ -221,7 +226,7 @@ class Lvl1SimulationGetter (Configured):
             include( "CSC_Digitization/CSC_Digitization_jobOptions.py" )
             # TGC Digitization 
             include( "TGC_Digitization/TGC_Digitization_jobOptions.py" )
-    	
+
             include( "MuonByteStreamCnvTest/MuonRdoDigit_jobOptions.py" )
 
 #        from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
@@ -233,7 +238,8 @@ class Lvl1SimulationGetter (Configured):
         # Will be replaced by config. from Lvl1ConfigSvc
         if hasattr(ServiceMgr,'RPCcablingSimSvc'):
             ServiceMgr.RPCcablingSimSvc.HackFor1031 = True
-            
+
+        from AthenaCommon.GlobalFlags import jobproperties
         if  jobproperties.Global.InputFormat() != 'bytestream':
             if TriggerFlags.doCalo() and DetFlags.writeBS.Calo_on():
 
@@ -250,7 +256,7 @@ class Lvl1SimulationGetter (Configured):
 #            from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToAOD
 #            topSequence += RoIBResultToAOD("RoIBResultToAOD")
 
-             
+#        from RecExConfig.ObjKeyStore import objKeyStore
 #        from TrigEDMConfig.TriggerEDM import getLvl1ESDList
 #        objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
 #        from TrigEDMConfig.TriggerEDM import getLvl1AODList

@@ -13,6 +13,7 @@
 //#include "TGCcablingInterface/ITGCcablingServerSvc.h"
 //#include "MuonReadoutGeometry/MuonDetectorManager.h"
 //#include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <iostream>
 #include <fstream>
@@ -20,7 +21,6 @@
 
 #define dbg(){std::cout<<"dbg>>"<<__FILE__<<":"<<__FUNCTION__<<":"<<__LINE__<<std::endl;}
 
-class TgcIdHelper;
 class ITGCcablingSvc;
 
 namespace Trigger {
@@ -58,8 +58,9 @@ namespace Trigger {
     /** ITgcCoinHierarchySvc */
     ITgcCoinHierarchySvc* m_tgcCoinSvc;
 
-    /** TgcIdHelper and TgcCablingSvc */
-    const TgcIdHelper *m_tgcHelper;
+    /** MuonIdHelperTool and TgcCablingSvc */
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     const ITGCcablingSvc *m_tgcCabling;
 
     // TIMING

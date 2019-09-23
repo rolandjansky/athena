@@ -1,3 +1,7 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
 import collections
@@ -37,13 +41,12 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True    
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
     acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags )
-    print tagInfoMgr
+    print (tagInfoMgr)
     acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
+    print("All OK")

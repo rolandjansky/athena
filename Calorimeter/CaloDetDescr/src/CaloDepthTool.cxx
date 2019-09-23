@@ -13,7 +13,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include <vector>
 
 

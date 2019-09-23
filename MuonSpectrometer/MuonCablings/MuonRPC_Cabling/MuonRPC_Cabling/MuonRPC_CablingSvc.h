@@ -18,6 +18,8 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "MuonRPC_Cabling/RPCPadParameters.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class MuonRPC_CablingMap;
 class RpcIdHelper;
 class IRPCCablingDbTool;
@@ -219,9 +221,7 @@ public:
     //    const std::string* RPCConfMap;
 
     bool buildOfflineOnlineMap(void);
-    
-    const RpcIdHelper*    m_pRpcIdHelper;
-    
+        
     OfflineOnlineMap        m_RDOmap;
     OfflineOnlineHashMap    m_HashVec;
     PRD_RDO_Map             m_PRD_RDO_map;
@@ -247,10 +247,14 @@ public:
 
     // 8/1/2015  M. Corradi: Pad parameters
     BooleanProperty m_ApplyFeetPadThresholds;
+    BooleanProperty m_ForceFeetPadThresholdsFromJO;
     std::vector<unsigned short int> m_FeetPadThresholds;
 
     // list of RPCPadParameters
     RPCPadParameters  m_RPCPadParameters_array[64][8];
+
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 };
 
 

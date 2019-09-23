@@ -36,7 +36,6 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class StoreGateSvc;
 class MsgStream;
 class IToolSvc;
 
@@ -355,12 +354,6 @@ private:
 
   /// If true, don't clear out the values of long properties.
   bool m_noClearProps;
-
-  /// The event store.
-  //ServiceHandle<StoreGateSvc> m_storeGate;
-
-  /// The detector store.
-  //ServiceHandle<StoreGateSvc> m_detStore;
 
   /// The job options service.
   ServiceHandle<IJobOptionsSvc> m_jos;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h" 
 #include "TRT_SeededSpacePointFinderTool/TRT_SeededSpacePointFinder_ATL.h"
@@ -28,7 +27,6 @@
 
 //Association tool
 //
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include "StoreGate/ReadHandle.h"
 
@@ -47,7 +45,6 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n),
     m_fieldService(nullptr),
-    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_nprint(0),
     m_sctId(nullptr),
     m_r_size(0),
@@ -78,7 +75,6 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   m_xiTC     = 100.     ;  //Polar angle chi2 cut between seed and TRT segment estimate
   m_xiFC     = 100.     ;  //Azimuthal angle chi2 cut between seed and TRT segment estimate
   m_search    = true    ;  //Search into neighboring sectors
-  m_useasso   = false   ;  //Use association tool to clean up the seeds
   m_loadFull  = true    ;  //Load all the Si space points, otherwise only from the last 3 SCT layers
   m_doCosmics = false   ;  //Disable seed selection cuts when reconstructing cosmics tracks
 
@@ -86,10 +82,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   declareInterface<ITRT_SeededSpacePointFinder>(this);
 
   declareProperty("MagneticTool"          ,m_fieldServiceHandle    );
-  declareProperty("AssociationTool"       ,m_assotool              );
   declareProperty("MagneticFieldMode"     ,m_fieldmode             );
   declareProperty("pTmin"                 ,m_ptmin                 );
-  declareProperty("UseAssociationTool"    ,m_useasso               );
   declareProperty("NeighborSearch"        ,m_search                );
   declareProperty("LoadFull"              ,m_loadFull              );
   declareProperty("DoCosmics"             ,m_doCosmics             );
@@ -132,17 +126,10 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
 
   magneticFieldInit(); 
 
-  // Get association tool
-  //
-  if(m_useasso){
-    if(m_assotool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endmsg; return StatusCode::FAILURE;
-    }
-  }
+  // PRD-to-track association (optional)
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
-  StatusCode sc = AthAlgTool::initialize(); 
-
-  sc = detStore()->retrieve(m_sctId, "SCT_ID");
+  StatusCode sc = detStore()->retrieve(m_sctId, "SCT_ID");
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Could not get SCT_ID helper !" << endmsg;
     return StatusCode::FAILURE;
@@ -208,7 +195,14 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
     }
   }
 
-  // Get sct space points containers from store gate 
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map.");
+    }
+  }
+  // Get sct space points containers from store gate
   //
   SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
   if (spacepointsSCT.isValid()) {
@@ -222,10 +216,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
       SpacePointCollection::const_iterator spe = (*spc)->end  ();
       for(; sp != spe; ++sp) {
 
-        if(m_useasso){
+        if(prd_to_track_map.cptr()){
           bool u1=false; bool u2=false;
-          const Trk::PrepRawData* p1=(*sp)->clusterList().first; u1=m_assotool->isUsed(*p1);
-          const Trk::PrepRawData* p2=(*sp)->clusterList().second;u2=m_assotool->isUsed(*p2);
+          const Trk::PrepRawData* p1=(*sp)->clusterList().first; u1=prd_to_track_map->isUsed(*p1);
+          const Trk::PrepRawData* p2=(*sp)->clusterList().second;u2=prd_to_track_map->isUsed(*p2);
           if(u1 || u2){continue;}
         }
 
@@ -249,10 +243,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
     for (; sp!=spe; ++sp) {
 
-      if(m_useasso){
+      if(prd_to_track_map.cptr()){
         bool u1=false; bool u2=false;
-        const Trk::PrepRawData* p1=(*sp)->clusterList().first; u1=m_assotool->isUsed(*p1);
-        const Trk::PrepRawData* p2=(*sp)->clusterList().second;u2=m_assotool->isUsed(*p2);
+        const Trk::PrepRawData* p1=(*sp)->clusterList().first; u1=prd_to_track_map->isUsed(*p1);
+        const Trk::PrepRawData* p2=(*sp)->clusterList().second;u2=prd_to_track_map->isUsed(*p2);
         if(u1 || u2){continue;}
       }
 
@@ -318,6 +312,13 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
     SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
     if (spacepointsSCT.isValid()) {
 
+      SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+      if (!m_prdToTrackMap.key().empty()) {
+        prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+        if (!prd_to_track_map.isValid()) {
+          ATH_MSG_ERROR("Failed to read PRD to track association map.");
+        }
+      }
       //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
       SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
@@ -334,10 +335,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
         SpacePointCollection::const_iterator spe = (*w)->end  ();
         for(; sp != spe; ++sp) {
 
-          if(m_useasso){
+          if(prd_to_track_map.cptr()){
             bool u1=false; bool u2=false;
-            const Trk::PrepRawData* p1=(*sp)->clusterList().first; u1=m_assotool->isUsed(*p1);
-            const Trk::PrepRawData* p2=(*sp)->clusterList().second;u2=m_assotool->isUsed(*p2);
+            const Trk::PrepRawData* p1=(*sp)->clusterList().first; u1=prd_to_track_map->isUsed(*p1);
+            const Trk::PrepRawData* p2=(*sp)->clusterList().second;u2=prd_to_track_map->isUsed(*p2);
             if(u1 || u2){continue;}
           }
 
@@ -413,8 +414,6 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
   n     = 42-m_spacepointsOverlapname.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 42-m_assotool.type().size();
-  std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
 
   std::string fieldmode[9] ={"NoField"       ,"ConstantField","SolenoidalField",
 			     "ToroidalField" ,"Grid3DField"  ,"RealisticField" ,
@@ -429,8 +428,6 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   out<<"| Tool for magentic field | "<<m_fieldServiceHandle.type()<<s1
-     <<std::endl;
-  out<<"| Association tool        | "<<m_assotool.type()<<s2
      <<std::endl;
   out<<"| SCT      space points   | "<<m_spacepointsSCTname.key()<<s3
      <<std::endl;
@@ -1127,11 +1124,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::geoInfo(const Trk::SpacePoint* SP,int& is
 
 void  InDet::TRT_SeededSpacePointFinder_ATL::magneticFieldInit()
 {
-Trk::MagneticFieldProperties* pMF = 0; 
- if(m_fieldmode == "NoField") pMF = new Trk::MagneticFieldProperties(Trk::NoField  ); 
- else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField); 
- else pMF = new Trk::MagneticFieldProperties(Trk::FullField); 
- m_fieldprop = *pMF; 
-
- delete pMF; 
+ if(m_fieldmode == "NoField") m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField);
+ else if(m_fieldmode == "MapSolenoid") m_fieldprop = Trk::MagneticFieldProperties(Trk::FastField);
+ else m_fieldprop = Trk::MagneticFieldProperties(Trk::FullField);
 }

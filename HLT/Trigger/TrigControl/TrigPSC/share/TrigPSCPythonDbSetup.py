@@ -38,12 +38,8 @@ from TrigCommon.TrigPyHelper import trigApp
 ## Set OutputLevel in JobOptionsSvc if "-l" option was used in athenaMT/PT
 if logLevel!="INFO":
    outputLevel = int(locals()[logLevel])
-   outputLevelProp = gbl.IntegerProperty("OutputLevel", outputLevel)
-   
-   ## Reset message levels
-   trigApp.service("MessageSvc", gbl.ITrigMessageSvc).resetOutputLevels()
-   trigApp.service("MessageSvc", gbl.IMessageSvc).setOutputLevel(outputLevel)
 
+   trigApp.service("MessageSvc", gbl.IMessageSvc).setOutputLevel(outputLevel)
    jobOptSvc = trigApp.service("JobOptionsSvc", gbl.IJobOptionsSvc)
    ## Set OutputLevel in JobOptionsSvc
    for client in jobOptSvc.getClients():

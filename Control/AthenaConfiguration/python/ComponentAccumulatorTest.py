@@ -300,7 +300,7 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm,ConfigurableAlgTool
         ca.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
 
-        self.assertEquals( len(ca.getEventAlgos()), 1 , "Found single alg")
+        self.assertEqual( len(ca.getEventAlgos()), 1 , "Found single alg")
 # no idea why this assersts do not recognise exceptions
 #        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2"))
 
@@ -494,6 +494,7 @@ class TestSequencesMerging( unittest.TestCase ):
         ca1 = ComponentAccumulator()
         ca1.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
         ca1.printConfig()
+        ca1.addSequence(seqAND("someSequence"))
 
         print("ca2")
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg	
@@ -514,9 +515,6 @@ class TestSequencesMerging( unittest.TestCase ):
         topca = MainServicesThreadedCfg( ConfigFlags )
         topca.printConfig()
 
-        
-
-        
         print("Merging to the top level CA")        
         topca.merge( ca1 )
         topca.printConfig()

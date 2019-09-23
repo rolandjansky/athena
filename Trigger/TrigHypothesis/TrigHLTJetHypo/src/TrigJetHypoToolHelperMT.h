@@ -25,7 +25,7 @@
 #include "./IGroupsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
 
-#include "ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolConfig.h"
 
 class ITrigJetHypoInfoCollector;
@@ -48,6 +48,8 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 	 xAODJetCollector&,
 	 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
   
+  virtual std::size_t requiresNJets() const override;
+  
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
 
  private:
@@ -57,7 +59,7 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   // which is, in this case, the incoming jet vector.
   std::unique_ptr<IJetGrouper> m_grouper;
 
-  // Object that matchs jet groups with Conditions
+  // Object that matches jet groups with Conditions
   std::unique_ptr<IGroupsMatcherMT> m_matcher;
 
   // Bridge objects to ICleaner predicate function objects to allow polymorphic
@@ -85,7 +87,7 @@ Gaudi::Property<bool>
                   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
                   const std::optional<bool>& pass) const;
 
- std::string toString() const;
+ virtual std::string toString() const override;
 };
 
 #endif

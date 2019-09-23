@@ -7,19 +7,19 @@
 #==============================================================
 
 # Configuration flags
-if not "doPixel" in dir():
+if "doPixel" not in dir():
     doPixel = True
-if not "doSCT" in dir():
+if "doSCT" not in dir():
     doSCT = True
-if not "doBeamSpot" in dir():
+if "doBeamSpot" not in dir():
     doBeamSpot = True
-if not "doPrint" in dir():
+if "doPrint" not in dir():
     doPrint = True
-if not "doDump" in dir():
+if "doDump" not in dir():
     doDump = False
-if not "EvtMax" in dir():
+if "EvtMax" not in dir():
     EvtMax = -1
-if not "inputESDFiles" in dir():
+if "inputESDFiles" not in dir():
     inputESDFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
 
 # Output track location
@@ -190,8 +190,15 @@ if doPixel:
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
     # Takne from InDetRecExample/share/InDetRecLoadTools.py
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelNnClusterNnCondAlg",          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,"PixelNnClusterNnWithTrackCondAlg", GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelClusterNnCondAlg",          GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,"PixelClusterNnWithTrackCondAlg", GetInputsInfo = do_runI)
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+        from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                              ReadKey = "PixelDetectorElementCollection",
+                                                              WriteKey = "PixelDetElementBoundaryLinks_xk")
+    if numThreads >= 2:
+        condSeq.InDetSiDetElementBoundaryLinksPixelCondAlg.Cardinality = numThreads
 
 # Set up SCT conditions
 SCT_ConditionsSummaryTool = None
@@ -224,9 +231,11 @@ if doSCT:
         from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
         condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
     # Taken from InDetRecExample/share/InDetRecLoadTools.py
-    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
         from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                              ReadKey = "SCT_DetectorElementCollection",
+                                                              WriteKey = "SCT_DetElementBoundaryLinks_xk")
 
 if doPixel or doSCT:
     # This is for both Pixel and SCT.
@@ -289,12 +298,15 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "BeamGas" or
     NewTrackingCuts.mode() == "ForwardTracks" or
     NewTrackingCuts.mode() == "ForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "PixelPrdAssociation" or
+    NewTrackingCuts.mode() == "Disappearing" or
     NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
     NewTrackingCuts.mode() == "SLHCConversionFinding"):
+
     usePrdAssociationTool = True
+
 else:
     usePrdAssociationTool = False
+
 InDetPrdAssociationTool = None
 if usePrdAssociationTool:
     # Taken from InDetRecExample/share/InDetRecLoadTools.py
@@ -320,8 +332,7 @@ InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker(name                   = "I
                                                      SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                      radMax                 = NewTrackingCuts.radMax(),
                                                      RapidityCut            = NewTrackingCuts.maxEta(),
-                                                     UseAssociationTool     = usePrdAssociationTool,
-                                                     AssociationTool        = InDetPrdAssociationTool,
+                                                     PRDtoTrackMap          = "",
                                                      maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds(),
                                                      maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds())
 if not doBeamSpot:
@@ -345,10 +356,8 @@ ToolSvc += InDetPatternPropagator
 # Set up InDet__SiDetElementsRoadMaker_xk (private)
 # Taken from InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
 if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
     condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                  UseDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders(),
                                                   usePixel = doPixel,
                                                   useSCT = doSCT)
 from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadMaker_xk
@@ -356,7 +365,7 @@ InDetSiDetElementsRoadMaker = InDet__SiDetElementsRoadMaker_xk(name             
                                                                PropagatorTool     = InDetPatternPropagator,
                                                                usePixel           = NewTrackingCuts.usePixel(),
                                                                PixManagerLocation = InDetKeys.PixelManager(),
-                                                               useSCT             = NewTrackingCuts.useSCT(), 
+                                                               useSCT             = NewTrackingCuts.useSCT(),
                                                                RoadWidth          = NewTrackingCuts.RoadWidth())
 
 # Set up InDetPatternUpdator (public)
@@ -410,10 +419,8 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              UpdatorTool           = InDetPatternUpdator,
                                                              RIOonTrackTool        = InDetRotCreator,
                                                              SctSummaryTool        = SCT_ConditionsSummaryTool,
-                                                             AssosiationTool       = InDetPrdAssociationTool,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
-                                                             PixManagerLocation    = InDetKeys.PixelManager(),
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
                                                              SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
 
@@ -443,15 +450,15 @@ InDetSiTrackMaker = SiTrackMaker(name                      = "InDetSiTrackMaker"
                                  nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin(),
                                  CosmicTrack               = InDetFlags.doCosmics(),
                                  Xi2maxMultiTracks         = NewTrackingCuts.Xi2max(), # was 3.
-                                 useSSSseedsFilter         = InDetFlags.doSSSfilter(), 
+                                 useSSSseedsFilter         = InDetFlags.doSSSfilter(),
                                  doMultiTracksProd         = True,
                                  useBremModel              = InDetFlags.doBremRecovery() and useBremMode, # only for NewTracking the brem is debugged !!!
                                  doCaloSeededBrem          = InDetFlags.doCaloSeededBrem(),
                                  doHadCaloSeedSSS          = InDetFlags.doHadCaloSeededSSS(),
                                  phiWidth                  = NewTrackingCuts.phiWidthBrem(),
                                  etaWidth                  = NewTrackingCuts.etaWidthBrem(),
-                                 InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                 InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
+                                 InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs"
+                                 InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs"
                                  UseAssociationTool        = usePrdAssociationTool)
 InDetSiTrackMaker.TrackPatternRecoInfo = "SiSPSeededFinder"
 if not doBeamSpot:

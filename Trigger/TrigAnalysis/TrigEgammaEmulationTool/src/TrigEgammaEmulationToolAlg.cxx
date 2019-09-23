@@ -24,7 +24,6 @@ TrigEgammaEmulationToolAlg(const std::string& name, ISvcLocator* pSvcLocator )
     declareProperty("TrigEgammaEmulationTool",m_emulationTool);
     declareProperty("TriggerList", m_triggerList);
     declareProperty("perfTrigger", m_perfTrigger = "HLT_e0_perf_L1EM15");
-    m_storeGate=nullptr;
 }
 
 TrigEgammaEmulationToolAlg::~TrigEgammaEmulationToolAlg() { }
@@ -35,11 +34,6 @@ StatusCode TrigEgammaEmulationToolAlg::initialize() {
   if ((m_trigdec.retrieve()).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
     return StatusCode::FAILURE;
-  }
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to locate Service StoreGateSvc" );
-    return sc;
   }
   for (const auto &trigger : m_triggerList) {
     m_trigger_tdt[trigger]  = 0;

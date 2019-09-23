@@ -21,6 +21,7 @@ find_package( Gaudi REQUIRED )
 find_package( Frontier_Client )
 find_package( PNG )
 find_package( VDT )
+find_package( TIFF )
 
 # Set the project into "SIMULATIONBASE mode".
 set( SIMULATIONBASE TRUE CACHE BOOL

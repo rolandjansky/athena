@@ -1,15 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#
-# PURPOSE: AthenaMT Migration
-#
 
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 class TrigMultiTrkHypoAlgMTMonitoring(GenericMonitoringTool):
-    def __init__ (self, name="TrigMultiTrkHypoAlgMTMonitoring"):
+    def __init__ (self, name):
         super(TrigMultiTrkHypoAlgMTMonitoring, self).__init__(name)
-        #self.defineTarget("Online")
-        self.Histograms = [ 
+        self.Histograms = [
         defineHistogram('pairMass', type='TH1F', path='EXPERT', title="mass of track pairs; m_{#mu#mu} [GeV]", xbins=200, xmin=0, xmax=100),
         defineHistogram('nTrk', type='TH1F',path='EXPERT', title="number of tracks input; N tracks", xbins=100, xmin=0, xmax=100),
         defineHistogram('accepted_highptNTrk', type='TH1F', path='EXPERT', title="Number of tracks selected; N selected tracks", xbins=100, xmin=0, xmax=100),
@@ -22,10 +18,9 @@ class TrigMultiTrkHypoAlgMTMonitoring(GenericMonitoringTool):
         ]
 
 class TrigMultiTrkHypoToolMTMonitoring(GenericMonitoringTool):
-    def __init__ (self, name="TrigMultiTrkHypoToolMTMonitoring"):
+    def __init__ (self, name):
         super(TrigMultiTrkHypoToolMTMonitoring, self).__init__(name)
-        #self.defineTarget("Online")
-        self.Histograms = [ 
+        self.Histograms = [
         defineHistogram('CutCounter', type='TH1F', path='EXPERT', title="mass of track pairs; m_{#mu#mu} [GeV]", xbins=5, xmin=-0.5, xmax=4.5),
         defineHistogram('FitChi2', type='TH1F', path='EXPERT', title="chi2 fit of N tracks; fit chi2 of N selected tracks", xbins=100, xmin=0, xmax=100),
         defineHistogram('VertexMass', type='TH1F', path='EXPERT', title="Number of tracks selected; N selected tracks", xbins=100, xmin=0, xmax=20),

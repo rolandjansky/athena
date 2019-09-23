@@ -3,8 +3,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-# This script parses outputs of trigger nightly test post-processing steps and creates a JSON file with extra data
-# other than result codes (which are handled by ART).
+# This script parses outputs of trigger nightly test post-processing steps
+# and creates a JSON file with extra data other than result codes
+# (which are handled by ART).
 
 import json
 import re
@@ -41,7 +42,7 @@ def get_num_from_checklog(filename):
         logging.warning("Cannot extract number of messages from {}".format(filename))
         return None
     logging.debug("line: {}".format(line))
-    m = re.search('\((.+?)\):', line)
+    m = re.search(r'\((.+?)\):', line)
     return m.group(1)
 
 
@@ -119,6 +120,13 @@ def analyse_perfmon(filename):
         return data
 
 
+def first_existing_file(file_list):
+    for file_name in file_list:
+        if os.path.isfile(file_name):
+            return file_name
+    return None
+
+
 def main():
     logging.basicConfig(stream=sys.stdout,
                         format='%(levelname)-8s %(message)s',
@@ -127,7 +135,8 @@ def main():
     data = LastUpdatedOrderedDict()
 
     # Get number of errors
-    ne = get_num_from_checklog('checklog.log')
+    checklog_log = first_existing_file(['checklog.log', 'CheckLog.log'])
+    ne = get_num_from_checklog(checklog_log) if checklog_log else None
     logging.debug("ne: {}".format(ne))
     if ne is None:
         logging.warning("Failed to read number of errors from the log")
@@ -136,7 +145,8 @@ def main():
         data['num-errors'] = ne
 
     # Get number of warnings
-    nw = get_num_from_checklog('warnings.log')
+    warnings_log = first_existing_file(['warnings.log', 'Warnings.log'])
+    nw = get_num_from_checklog(warnings_log) if warnings_log else None
     logging.debug("nw: {}".format(nw))
     if nw is None:
         logging.warning("Failed to read number of warnings from the log")
@@ -145,7 +155,8 @@ def main():
         data['num-warnings'] = nw
 
     # Get number of histograms
-    nh = get_num_histos('histSizes.log')
+    histcount_log = first_existing_file(['histSizes.log', 'HistCount.log'])
+    nh = get_num_histos(histcount_log) if histcount_log else None
     logging.debug("nh: {}".format(nh))
     if nh is None:
         logging.warning("Failed to read number of histograms from the log")
@@ -154,7 +165,8 @@ def main():
         data['num-histograms'] = nh
 
     # Get memory usage information
-    perfmon_data = analyse_perfmon("ntuple.perfmon.summary.txt")
+    perfmon_log = first_existing_file(['ntuple.perfmon.summary.txt'])
+    perfmon_data = analyse_perfmon(perfmon_log) if perfmon_log else None
     if perfmon_data is None:
         logging.warning("Failed to read memory usage information from the log")
         data['memory-usage'] = 'n/a'

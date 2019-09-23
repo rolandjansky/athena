@@ -11,10 +11,8 @@
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
@@ -42,15 +40,10 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     AthAlgorithm(name, pSvcLocator),
     m_hitInputTool("FTK_SGHitInput/FTK_SGHitInput"),
     m_clusterConverterTool("TrigFTKClusterConverterTool"),
-    m_pix_cabling_svc("PixelCablingSvc", name),
     m_sct_cablingToolInc("SCT_CablingToolInc"),
-    m_storeGate(0),
-    m_detStore( 0 ),
-    m_evtStore(0 ),
     m_pixelId(0),
     m_sctId(0),
     m_idHelper(0),
-    m_PIX_mgr(0),
     m_IBLMode(0),
     m_fixEndcapL0(false),
     m_ITkMode(false),
@@ -133,7 +126,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     m_offline_phi(nullptr),
     m_offline_cluster_tree(nullptr)
 {
-
     declareProperty("TrigFTKClusterConverterTool", m_clusterConverterTool);
     declareProperty("RMapPath",m_rmap_path);
     declareProperty("PMapPath",m_pmap_path);
@@ -142,7 +134,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     declareProperty("IBLMode",m_IBLMode);
     declareProperty("FixEndcapL0", m_fixEndcapL0);
     declareProperty("ITkMode",m_ITkMode);
-    declareProperty("PixelCablingSvc", m_pix_cabling_svc);
     declareProperty("SCT_CablingTool",m_sct_cablingToolInc);
 
     // hit type options
@@ -241,11 +232,6 @@ StatusCode FTKRegionalWrapper::initialize()
       ATH_MSG_FATAL("PixelCabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!");
       return StatusCode::FAILURE;
     }
-  } else if (m_pix_cabling_svc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_pix_cabling_svc);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE("Retrieved tool " << m_pix_cabling_svc);
   }
 
   // Retrieve sct cabling service
@@ -270,45 +256,32 @@ StatusCode FTKRegionalWrapper::initialize()
   }
 
   // This part retrieves the neccessary pixel/SCT Id helpers. They are intialized by the StoreGateSvc
-  if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    ATH_MSG_FATAL("StoreGate service not found");
-    return StatusCode::FAILURE;
-  }
-  if( service("DetectorStore",m_detStore).isFailure() ) {
-    ATH_MSG_FATAL("DetectorStore service not found");
-    return StatusCode::FAILURE;
-  }
-  if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
+  if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve Pixel helper from DetectorStore" );
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
+  if( detStore()->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve Pixel helper from DetectorStore" );
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_idHelper, "AtlasID").isFailure() ) {
+  if( detStore()->retrieve(m_idHelper, "AtlasID").isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve AtlasDetector helper from DetectorStore" );
     return StatusCode::FAILURE;
   }
 
-  if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_ERROR("Unable to retrieve Pixel manager from DetectorStore" );
-    return StatusCode::FAILURE;
-  }
 
   // ReadCondHandleKey
-  if (m_getOffline) {
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  }
+  ATH_CHECK(m_pixelDetEleCollKey.initialize(m_getOffline));
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(m_getOffline));
+  ATH_CHECK(m_condCablingKey.initialize());
 
 
   // Write clusters in InDetCluster format to ESD for use in Pseudotracking
   if (m_WriteClustersToESD){
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
     // Creating collection for pixel clusters
     m_FTKPxlCluContainer = std::make_unique<InDet::PixelClusterContainer>(m_pixelId->wafer_hash_max());
     m_FTKPxlCluContainer->addRef();
-    sc = m_storeGate->record(m_FTKPxlCluContainer.get(), m_FTKPxlClu_CollName);
+    StatusCode sc = evtStore()->record(m_FTKPxlCluContainer.get(), m_FTKPxlClu_CollName);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error registering the FTK pixel container in the SG" );
       return StatusCode::FAILURE;
@@ -316,7 +289,7 @@ StatusCode FTKRegionalWrapper::initialize()
 
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerPxl(0x0);
-    sc = m_storeGate->symLink(m_FTKPxlCluContainer.get(), symSiContainerPxl);
+    sc = evtStore()->symLink(m_FTKPxlCluContainer.get(), symSiContainerPxl);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error creating the sym-link to the Pixel clusters" );
       return StatusCode::FAILURE;
@@ -325,42 +298,42 @@ StatusCode FTKRegionalWrapper::initialize()
     // Creating collection for the SCT clusters
     m_FTKSCTCluContainer = std::make_unique<InDet::SCT_ClusterContainer>(m_sctId->wafer_hash_max());
     m_FTKSCTCluContainer->addRef();
-    sc = m_storeGate->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName);
+    sc = evtStore()->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error registering the FTK SCT container in the SG" );
       return StatusCode::FAILURE;
     }
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerSCT(0x0);
-    sc = m_storeGate->symLink(m_FTKSCTCluContainer.get(), symSiContainerSCT);
+    sc = evtStore()->symLink(m_FTKSCTCluContainer.get(), symSiContainerSCT);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error creating the sym-link to the SCT clusters" );
       return StatusCode::FAILURE;
     }
 
     // getting sct truth
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
-	m_ftkSctTruth = std::make_unique<PRD_MultiTruthCollection>();
-	StatusCode sc=m_storeGate->record(m_ftkSctTruth.get(),m_ftkSctTruthName);
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
+	  m_ftkSctTruth = std::make_unique<PRD_MultiTruthCollection>();
+	  sc=evtStore()->record(m_ftkSctTruth.get(),m_ftkSctTruthName);
       if(sc.isFailure()) {
-	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName
+        ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName
 			<<" cannot be recorded in StoreGate !");
       }
       else {
-	ATH_MSG_DEBUG("SCT FTK Truth Container " << m_ftkSctTruthName
+        ATH_MSG_DEBUG("SCT FTK Truth Container " << m_ftkSctTruthName
 		      << " is recorded in StoreGate");
       }
     }
     //getting pixel truth
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
-	m_ftkPixelTruth = std::make_unique<PRD_MultiTruthCollection>();
-	StatusCode sc=m_storeGate->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName);
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
+      m_ftkPixelTruth = std::make_unique<PRD_MultiTruthCollection>();
+      sc=evtStore()->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName);
       if(sc.isFailure()) {
 	ATH_MSG_WARNING("Pixel FTK Truth Container " << m_ftkPixelTruthName
 			<<" cannot be recorded in StoreGate !");
       }
       else {
-	ATH_MSG_DEBUG("Pixel FTK Truth Container " << m_ftkPixelTruthName
+        ATH_MSG_DEBUG("Pixel FTK Truth Container " << m_ftkPixelTruthName
 		      << " is recorded in StoreGate");
       }
     }
@@ -380,8 +353,8 @@ StatusCode FTKRegionalWrapper::initialize()
   //Dump to the log output the RODs used in the emulation
   if(m_EmulateDF){
 
-    ATH_MSG_DEBUG("Printing full map via  m_pix_cabling_svc->get_idMap_offrob(); ");
-    std::map< Identifier, uint32_t> offmap = m_pix_cabling_svc->get_idMap_offrob();
+    // Shouldn't access conditions in the initilization step (in athenaMT).
+    std::map< Identifier, uint32_t> offmap;
     for (auto mit = offmap.begin(); mit != offmap.end(); mit++){
       //uint id = mit->first;
       ATH_MSG_DEBUG("Pixel offline map hashID to RobId "<<MSG::dec<<mit->first<<" "<<MSG::hex<<mit->second<<MSG::dec);
@@ -391,14 +364,14 @@ StatusCode FTKRegionalWrapper::initialize()
 
     m_sct_cablingToolInc->getAllRods(sctVector);
     ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cablingToolInc->getAllRods() "<<sctVector.size()<<" rods ");
-    
-    for(auto mit = sctVector.begin(); mit != sctVector.end(); mit++){
-	// Retrive hashlist
-	m_sct_cablingToolInc->getHashesForRod(m_identifierHashList,*mit );
-	ATH_MSG_DEBUG("Retrieved  "<<m_identifierHashList.size()<<" hashes ");
 
-	for (auto mhit = m_identifierHashList.begin(); mhit != m_identifierHashList.end(); mhit++)
-	  ATH_MSG_DEBUG("SCT  offline map hashID to RobId "<<MSG::dec<<*mhit<<" "<<MSG::hex<<(*mit)<<MSG::dec);
+    for(auto mit = sctVector.begin(); mit != sctVector.end(); mit++){
+      // Retrive hashlist
+      m_sct_cablingToolInc->getHashesForRod(m_identifierHashList,*mit );
+      ATH_MSG_DEBUG("Retrieved  "<<m_identifierHashList.size()<<" hashes ");
+
+      for (auto mhit = m_identifierHashList.begin(); mhit != m_identifierHashList.end(); mhit++)
+        ATH_MSG_DEBUG("SCT  offline map hashID to RobId "<<MSG::dec<<*mhit<<" "<<MSG::hex<<(*mit)<<MSG::dec);
     }
 
     m_pix_rodIdlist.clear();
@@ -411,24 +384,27 @@ StatusCode FTKRegionalWrapper::initialize()
 
       m_pix_rodIdlist.push_back(val);
 
-      ATH_MSG_DEBUG("Going to test against the following Pix RODIDs "<< MSG::hex
-		    << val <<MSG::dec);
-
-      std::vector<IdentifierHash> offlineIdHashList;
-      m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId(val));
-      ATH_MSG_DEBUG("Trying m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId("<<MSG::hex<<val<<MSG::dec<<"));");
-      for (auto oit = offlineIdHashList.begin(); oit != offlineIdHashList.end(); oit++){
-
-	Identifier id = m_pixelId->wafer_id( *oit );
-	int barrel_ec      = m_pixelId->barrel_ec(id);
-	int layer_disk     = m_pixelId->layer_disk(id);
-	int phi_module     = m_pixelId->phi_module(id);
-	int eta_module     = m_pixelId->eta_module(id);
-
-	ATH_MSG_DEBUG("hashId "<<*oit<<"for rodID "<<MSG::hex<<val<<MSG::dec
-		      << "corresponds to b/ec lay_disk phi eta "<<barrel_ec
-		      << " "<<layer_disk<<" "<<phi_module<<" "<<eta_module);
-      }
+      // Shouldn't access conditions in the initilization step (in athenaMT).
+      // The following logic breaks the conditions access.
+      // Since this is just for debugging purpose, just comment.
+//       ATH_MSG_DEBUG("Going to test against the following Pix RODIDs "<< MSG::hex
+//           << val <<MSG::dec);
+// 
+//       std::vector<IdentifierHash> offlineIdHashList;
+//       m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId(val));
+//       ATH_MSG_DEBUG("Trying m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId("<<MSG::hex<<val<<MSG::dec<<"));");
+//       for (auto oit = offlineIdHashList.begin(); oit != offlineIdHashList.end(); oit++){
+// 
+//         Identifier id = m_pixelId->wafer_id( *oit );
+//         int barrel_ec      = m_pixelId->barrel_ec(id);
+//         int layer_disk     = m_pixelId->layer_disk(id);
+//         int phi_module     = m_pixelId->phi_module(id);
+//         int eta_module     = m_pixelId->eta_module(id);
+// 
+//         ATH_MSG_DEBUG("hashId "<<*oit<<"for rodID "<<MSG::hex<<val<<MSG::dec
+//             << "corresponds to b/ec lay_disk phi eta "<<barrel_ec
+//             << " "<<layer_disk<<" "<<phi_module<<" "<<eta_module);
+//       }
     }
 
     m_sct_rodIdlist.clear();
@@ -440,7 +416,7 @@ StatusCode FTKRegionalWrapper::initialize()
       m_sct_rodIdlist.push_back(val);
 
       ATH_MSG_DEBUG("Going to test against the following SCT RODIDs "<< MSG::hex
-		    << val <<MSG::dec);
+          << val <<MSG::dec);
     }
 
   }
@@ -578,8 +554,8 @@ StatusCode FTKRegionalWrapper::execute()
 
     if (m_SavePerPlane) {
       for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
-	if (m_SaveRawHits) m_original_hits_per_plane[ireg][iplane].clear();
-	if (m_SaveHits) m_logical_hits_per_plane[ireg][iplane].clear();
+        if (m_SaveRawHits) m_original_hits_per_plane[ireg][iplane].clear();
+        if (m_SaveHits) m_logical_hits_per_plane[ireg][iplane].clear();
       }
     }
   }
@@ -631,6 +607,8 @@ StatusCode FTKRegionalWrapper::execute()
     vector<FTKRawHit>::const_iterator ihit = templist.begin();
     vector<FTKRawHit>::const_iterator ihitE = templist.end();
 
+    SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
+
     for (;ihit!=ihitE;++ihit) { // hit loop
       const FTKRawHit &currawhit = *ihit;
 
@@ -672,7 +650,7 @@ StatusCode FTKRegionalWrapper::execute()
 	Identifier dehashedId = m_pixelId->wafer_id(modHash);
 
 	//then get the corresponding RobId
-	uint32_t robid = m_pix_cabling_svc->getRobId(dehashedId);
+  uint32_t robid = pixCabling->find_entry_offrob(dehashedId);
 
 	//then try to find in rob list
 	auto it = find(m_pix_rodIdlist.begin(), m_pix_rodIdlist.end(), robid);
@@ -688,9 +666,9 @@ StatusCode FTKRegionalWrapper::execute()
 	}
 
       }else{
-	//this shouldn't happen, so throw error
-	ATH_MSG_ERROR("Hit is neither Pixel or SCT!!");
-	return StatusCode::FAILURE;
+        //this shouldn't happen, so throw error
+        ATH_MSG_ERROR("Hit is neither Pixel or SCT!!");
+        return StatusCode::FAILURE;
       }
       //save the hit if it has the correct RodID
       ATH_MSG_DEBUG("Found hit to keep");
@@ -735,11 +713,18 @@ StatusCode FTKRegionalWrapper::execute()
 
   if (m_getOffline) {
     const xAOD::TrackParticleContainer *offlineTracks = nullptr;
-    if(m_storeGate->retrieve(offlineTracks,m_offlineName).isFailure()) {
+    if(evtStore()->retrieve(offlineTracks,m_offlineName).isFailure()) {
       ATH_MSG_ERROR("Failed to retrieve Offline Tracks " << m_offlineName);
       return StatusCode::FAILURE;
     }
     if(offlineTracks->size()!=0){
+      // Get PixelDetectorElementCollection
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+      const InDetDD::SiDetectorElementCollection* pixelElements(pixelDetEle.retrieve());
+      if (pixelElements==nullptr) {
+        ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+        return StatusCode::FAILURE;
+      }
       // Get SCT_DetectorElementCollection
       SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
       const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
@@ -778,7 +763,9 @@ StatusCode FTKRegionalWrapper::execute()
 	      if (m_idHelper->is_pixel(hitId)) {
 		m_offline_isPixel->push_back(true);
 		m_offline_isBarrel->push_back(int(m_pixelId->is_barrel(hitId)));
-		const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+                const Identifier wafer_id = m_pixelId->wafer_id(hitId);
+                const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+		const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
 		m_offline_clustID->push_back(sielement->identifyHash());
 		m_offline_trackNumber->push_back(iTrk);
 		m_offline_layer->push_back(m_pixelId->layer_disk(hitId));
@@ -806,20 +793,20 @@ StatusCode FTKRegionalWrapper::execute()
 
   //get all the containers to write clusters
   if(m_WriteClustersToESD){
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
 	m_ftkSctTruth = std::make_unique<PRD_MultiTruthCollection>();
 
-	StatusCode sc=m_storeGate->record(m_ftkSctTruth.get(),m_ftkSctTruthName,false);
+	StatusCode sc=evtStore()->record(m_ftkSctTruth.get(),m_ftkSctTruthName,false);
       if(sc.isFailure()) {
 	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName
 			<<" cannot be re-recorded in StoreGate !");
       }
     }
 
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
 	m_ftkPixelTruth = std::make_unique<PRD_MultiTruthCollection>();
 
-	StatusCode sc=m_storeGate->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName,false);
+	StatusCode sc=evtStore()->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName,false);
       if(sc.isFailure()) {
 	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkPixelTruthName
 			<<" cannot be re-recorded in StoreGate !");
@@ -828,17 +815,17 @@ StatusCode FTKRegionalWrapper::execute()
 
 
     // Check the FTK pixel container
-    if (!m_storeGate->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
+    if (!evtStore()->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
       m_FTKPxlCluContainer->cleanup();
-      if (m_storeGate->record(m_FTKPxlCluContainer.get() ,m_FTKPxlClu_CollName,false).isFailure()) {
+      if (evtStore()->record(m_FTKPxlCluContainer.get() ,m_FTKPxlClu_CollName,false).isFailure()) {
 	return StatusCode::FAILURE;
       }
     }
 
     // check the FTK SCT container
-    if (!m_storeGate->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
+    if (!evtStore()->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
       m_FTKSCTCluContainer->cleanup();
-      if (m_storeGate->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName,false).isFailure()) {
+      if (evtStore()->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName,false).isFailure()) {
 	return StatusCode::FAILURE;
       }
     }
@@ -893,7 +880,7 @@ StatusCode FTKRegionalWrapper::execute()
 						    t,
 						    m_ftkSctTruth.get(),
 						    m_mcEventCollection,
-						    m_storeGate,
+						    evtStore().get(),
 						    m_mcTruthName);
 	  }
 	}
@@ -918,7 +905,7 @@ StatusCode FTKRegionalWrapper::execute()
 						     t,
 						     m_ftkPixelTruth.get(),
 						     m_mcEventCollection,
-						     m_storeGate,
+						     evtStore().get(),
 						     m_mcTruthName);
 	  }
 	}
@@ -988,6 +975,9 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(const FTKPlaneMap *pmap, const FTKRe
   // Note PIXEL RODs are input
   vector<uint32_t>::iterator rodit = m_pix_rodIdlist.begin();
   vector<uint32_t>::iterator rodit_e = m_pix_rodIdlist.end();
+
+  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
+
   hitTyp = 1; // pixel
 
   for (; rodit!=rodit_e; rodit++){
@@ -1003,43 +993,44 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(const FTKPlaneMap *pmap, const FTKRe
 
     if ( myfile.is_open() ) {
       for (int link = 0; link < 128;link++){   // Loop over all modules
-	// Retrieve onlineId = link+ROD
-	onlineId  = m_pix_cabling_svc->getOnlineIdFromRobId((*rodit),link) ;
-	hashId   = m_pix_cabling_svc->getOfflineIdHash(onlineId);
+        // Retrieve onlineId = link+ROD
+        onlineId = pixCabling->getOnlineIdFromRobId((*rodit),link) ;
+        hashId   = m_pixelId->wafer_hash(pixCabling->find_entry_onoff(onlineId));
 
-	if (hashId <=999999){ // Adjust for correct output format incase of invalid hashId // TODO: add a proper cutoff!
 
-	  id = m_pixelId->wafer_id( hashId );
-	  int barrel_ec      = m_pixelId->barrel_ec(id);
-	  int layer_disk     = m_pixelId->layer_disk(id);
-	  int phi_module     = m_pixelId->phi_module(id);
-	  int eta_module     = m_pixelId->eta_module(id);
-	  int eta_module_min = m_pixelId->eta_module_min(id);
-	  int eta_module_max = m_pixelId->eta_module_max(id);
-	  int eta_index      = m_pixelId->eta_index(id);
-	  int eta_index_max  = m_pixelId->eta_index_max(id);
+        if (hashId <=999999){ // Adjust for correct output format incase of invalid hashId // TODO: add a proper cutoff!
 
-	  // Get Plane information
-	  FTKPlaneSection &pinfo =  pmap->getMap(hitTyp,!(barrel_ec==0),layer_disk);
+          id = m_pixelId->wafer_id( hashId );
+          int barrel_ec      = m_pixelId->barrel_ec(id);
+          int layer_disk     = m_pixelId->layer_disk(id);
+          int phi_module     = m_pixelId->phi_module(id);
+          int eta_module     = m_pixelId->eta_module(id);
+          int eta_module_min = m_pixelId->eta_module_min(id);
+          int eta_module_max = m_pixelId->eta_module_max(id);
+          int eta_index      = m_pixelId->eta_index(id);
+          int eta_index_max  = m_pixelId->eta_index_max(id);
 
-	  // Get tower information
-	  FTKRawHit dummy;
+          // Get Plane information
+          FTKPlaneSection &pinfo =  pmap->getMap(hitTyp,!(barrel_ec==0),layer_disk);
 
-	  dummy.setBarrelEC(barrel_ec);
-	  dummy.setLayer(layer_disk);
-	  dummy.setPhiModule(phi_module);
-	  dummy.setEtaModule(eta_module);
+          // Get tower information
+          FTKRawHit dummy;
 
-	  stringstream towerList;
-	  FTKHit hitref = dummy.getFTKHit(pmap);
-	  int nTowers = 0;
-	  int towerId;
-	  for (towerId = 0; towerId<64;towerId++){ // Loop over all 64 eta-phi towers
-	    if (rmap->isHitInRegion(hitref,towerId)){
-	      towerList << towerId << ", ";
-	      nTowers++;
-	    }
-	  }
+          dummy.setBarrelEC(barrel_ec);
+          dummy.setLayer(layer_disk);
+          dummy.setPhiModule(phi_module);
+          dummy.setEtaModule(eta_module);
+
+          stringstream towerList;
+          FTKHit hitref = dummy.getFTKHit(pmap);
+          int nTowers = 0;
+          int towerId;
+          for (towerId = 0; towerId<64;towerId++){ // Loop over all 64 eta-phi towers
+            if (rmap->isHitInRegion(hitref,towerId)){
+              towerList << towerId << ", ";
+              nTowers++;
+            }
+          }
 
 
 	  // Dump data to file:

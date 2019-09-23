@@ -15,7 +15,6 @@
 #include "IdDict/IdDictDefs.h"
 #include "Identifier/Range.h"
 #include "GaudiKernel/MsgStream.h"
-#include "boost/foreach.hpp"
 
 
 
@@ -263,7 +262,7 @@ CaloIDHelper::fill_vec_of_dict_regions (const std::string& group_name /*= ""*/)
   m_vecOfDictRegions.reserve (regions().hash_max());
   IdContext region_cntxt = region_context();
   ExpandedIdentifier expRegId;
-  BOOST_FOREACH (Identifier id, regions().range()) {
+  for (Identifier id : regions().range()) {
     if(!get_expanded_id(id, expRegId, &region_cntxt)) {
       m_vecOfDictRegions.push_back (m_dict->find_region(expRegId,group_name));
     }

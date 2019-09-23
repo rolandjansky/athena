@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 //#include "TrkParameters/AtaCylinder.h"
 //#include "TrkParameters/AtaDisc.h"
-#include "MuonRecToolInterfaces/IMuonTrackFinder.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "TrkTrack/TrackCollection.h"
 

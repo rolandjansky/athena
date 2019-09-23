@@ -23,11 +23,13 @@ bool TrigHLTJetHypoHelper2::pass(HypoJetVector& jets){
   HypoJetIter end = jets.end(); 
   for(auto cleaner: m_cleaners){end = std::partition(begin, end, cleaner);}
 
-  auto jetGroups = m_grouper->group(begin, end);
+  auto jetGroupsVector = m_grouper->group(begin, end);
 
-  m_matcher->match(jetGroups.begin(), jetGroups.end());
-
-  return m_matcher->pass();
+  for(const auto& jetGroups : jetGroupsVector){
+    m_matcher->match(jetGroups.begin(), jetGroups.end());
+    if(m_matcher->pass()){return true;}
+  }
+  return false;
 
 }
 

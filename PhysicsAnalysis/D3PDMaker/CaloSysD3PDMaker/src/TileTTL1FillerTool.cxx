@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -24,7 +24,6 @@ namespace D3PD{
 TileTTL1FillerTool::TileTTL1FillerTool(const string& type, 
         const string& name, const IInterface* parent):
   BlockFillerTool<TileTTL1>(type,name,parent),
-  m_detStore(0),
   m_tileTBID(0),
   m_TT_ID(0)
 {
@@ -37,9 +36,8 @@ TileTTL1FillerTool::TileTTL1FillerTool(const string& type,
  */
 StatusCode TileTTL1FillerTool::initialize()
 {
-  CHECK( service("DetectorStore",m_detStore) );
-  CHECK( m_detStore->retrieve(m_TT_ID) );
-  CHECK( m_detStore->retrieve(m_tileTBID) );
+  CHECK( detStore()->retrieve(m_TT_ID) );
+  CHECK( detStore()->retrieve(m_tileTBID) );
   return StatusCode::SUCCESS;
 }
 

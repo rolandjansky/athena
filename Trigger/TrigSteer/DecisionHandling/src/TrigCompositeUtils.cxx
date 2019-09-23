@@ -81,7 +81,7 @@ namespace TrigCompositeUtils {
     collateIDs.insert( src.begin(), src.end() ); // Set operation 2. Get from src
     decisionIDs( dest ).clear(); // Clear target
     // Copy from set to (ordered) vector
-    decisionIDs( dest ).insert( decisionIDs(dest).end(), src.begin(), src.end() );
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), collateIDs.begin(), collateIDs.end() );
   }
 
   void uniqueDecisionIDs(Decision* dest) {
@@ -177,6 +177,12 @@ namespace TrigCompositeUtils {
     // Loop over each DecisionContainer,
     for (const std::string& key : keys) {
       // Get and check this container
+      if ( key.find("HLTNav") != 0 ) {
+        continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
+      }
+      if ( key == "HLTNav_Summary" ) {
+        continue; //  This is where accepted paths start. We are looking for rejected ones
+      }
       const DecisionContainer* container = nullptr;
       if ( eventStore->retrieve( container, key ).isFailure() ) {
         throw std::runtime_error("Unable to retrieve " + key + " from event store.");
@@ -184,10 +190,17 @@ namespace TrigCompositeUtils {
       for (const Decision* d : *container) {
         if (!d->hasObjectLink(featureString())) {
           // TODO add logic for ComboHypo where this is expected
-          continue;
+          continue; // Only want Decision objects created by HypoAlgs
         }
         const ElementLinkVector<DecisionContainer> mySeeds = d->objectCollectionLinks<DecisionContainer>(seedString());
         if (mySeeds.size() == 0) {
+          continue;
+        }
+        const bool allSeedsValid = std::all_of(mySeeds.begin(), mySeeds.end(), [](const ElementLink<DecisionContainer>& s) { return s.isValid(); });
+        if (!allSeedsValid) {
+          MsgStream(Athena::getMessageSvc(), "TrigCompositeUtils::getRejectedDecisionNodes") << MSG::WARNING
+            << "A Decision object in " << key << " has invalid seeds. "
+            << "The trigger navigation information is incomplete. Skipping this Decision object." << endmsg;
           continue;
         }
         DecisionIDContainer activeChainsIntoThisDecision;
@@ -218,8 +231,9 @@ namespace TrigCompositeUtils {
         // I.e. the HypoTool for the chain returned a NEGATIVE decision
         DecisionIDContainer activeChainsPassedByThisDecision;
         decisionIDs(d, activeChainsPassedByThisDecision);
-        for (const DecisionID id : chainsToCheck) {
-          if (activeChainsPassedByThisDecision.count(id) == 0) { // I was REJECTED
+        for (const DecisionID checkID : chainsToCheck) {
+          if (activeChainsPassedByThisDecision.count(checkID) == 0 && // I was REJECTED here ...
+              activeChainsIntoThisDecision.count(checkID) == 1) { // ... but PASSSED by all my inputs
             output.push_back(d);
             break;
           }

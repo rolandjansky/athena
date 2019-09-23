@@ -24,7 +24,6 @@ atlas_add_poolcnv_library( egammaAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities AthenaBaseComps AthenaPoolCnvSvcLib GaudiKernel egammaEvent egammaEventTPCnv )
 
 # Install files from the package:
-atlas_install_headers( egammaAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

@@ -16,7 +16,6 @@
 #include "LWHists/TH2I_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "PixelMonitoring/PixelMainMon.h"
 #include "TH1F.h"
 #include "TH1I.h"
@@ -28,8 +27,6 @@
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
-
-#include "PixelCabling/IPixelCablingSvc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////booking methods//////////////////////////////////////////

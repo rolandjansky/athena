@@ -47,6 +47,7 @@ fatjetcontexts = {
     "CaloMass":      ("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TAMass":        ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TrigUngroomed": ("JES_Full2012dataset_Rscan_June2014.config","00-04-77","JetArea_EtaJES"),
+    "TrigTrimmed":   ("JES_MC15recommendation_FatJet_June2015.config","00-04-77","EtaJES_JMS"),
 }
 
 # List AFII config files separately, to avoid needing to specify a different context

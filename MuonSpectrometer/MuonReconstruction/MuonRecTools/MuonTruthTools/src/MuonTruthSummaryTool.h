@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRUTHSUMMARYTOOL_H
@@ -7,10 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/ReadHandleKeyArray.h"
@@ -75,7 +76,9 @@ namespace Muon {
     std::string printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found );
 
     ToolHandle<MuonIdHelperTool>                m_idHelper;
-    ToolHandle<MuonEDMHelperTool>               m_helper;
+    ServiceHandle<IMuonEDMHelperSvc>            m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool>              m_printer;
     ServiceHandle< IIncidentSvc >               m_incidentSvc;
     mutable bool m_wasInit;

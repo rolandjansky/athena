@@ -1,14 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigBtagFexMT
-#from TrigBjetHypo.TrigBtagFexTuning import *
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import mm, GeV
 
 from AthenaCommon.AppMgr import ToolSvc
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration import getConfiguration
+
 BTagConfig = getConfiguration("Trig")
 BTagConfig.PrefixxAODBaseName(False)
 BTagConfig.PrefixVertexFinderxAODBaseName(False)
@@ -35,8 +34,7 @@ class BtagFex (TrigBtagFexMT):
         
         AllowedInstances = ["EF"]
         AllowedVersions  = ["2012"]
-        AllowedAlgos     = ["EFID"]
-        
+
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
             return None
@@ -45,20 +43,20 @@ class BtagFex (TrigBtagFexMT):
             mlog.error("Version "+version+" is not supported!")
             return None
         
-        self.JetKey = "EFJet"       
+        self.JetKey = "GSCJets"
         self.PriVtxKey = "EFHistoPrmVtx"
-        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_EFID"
+#        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_EFID"
 
-        # IMPORT OFFLINE TOOLS
-        self.setupOfflineTools = True
-        if self.setupOfflineTools :
-            if BTagConfigSetupStatus == None :
-                self.setupOfflineTools = False
-            else :
-                self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
-                self.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
-                self.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
-                self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
+#        # IMPORT OFFLINE TOOLS
+#        self.setupOfflineTools = True
+#        if self.setupOfflineTools :
+#            if BTagConfigSetupStatus == None :
+#                self.setupOfflineTools = False
+#            else :
+#                self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+#                self.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
+#                self.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+#                self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
 
 
 ###########################################
@@ -75,8 +73,7 @@ class BtagFexSplit (TrigBtagFexMT):
         
         AllowedInstances = ["EF", "MuJetChain"]
         AllowedVersions  = ["2012"]
-        AllowedAlgos     = ["EFID"]
-        
+
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
             return None
@@ -85,25 +82,21 @@ class BtagFexSplit (TrigBtagFexMT):
             mlog.error("Version "+version+" is not supported!")
             return None
 
-        self.JetKey = "SplitJet"
-        if instance=="MuJetChain" :
-            self.JetKey = "FarawayJet"
-            instance = "EF"
+        self.JetKey = "GSCJets"
+        self.PriVtxKey = "EFHistoPrmVtx"
+#        self.UsePriVtxKeyBackup = True
+#        self.PriVtxKeyBackup = "EFHistoPrmVtx"
+#        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
-        self.PriVtxKey = "xPrimVx"
-        self.UsePriVtxKeyBackup = True
-        self.PriVtxKeyBackup = "EFHistoPrmVtx"
-        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
-        
-        # IMPORT OFFLINE TOOLS
-        self.setupOfflineTools = True
-        if self.setupOfflineTools :
-            if BTagConfigSetupStatus == None :
-                self.setupOfflineTools = False
-            else :
-                self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
-                self.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
-                self.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
-                self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
+#        # IMPORT OFFLINE TOOLS
+#        self.setupOfflineTools = True
+#        if self.setupOfflineTools :
+#            if BTagConfigSetupStatus == None :
+#                self.setupOfflineTools = False
+#            else :
+#                self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+#                self.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
+#                self.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+#                self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
 
 

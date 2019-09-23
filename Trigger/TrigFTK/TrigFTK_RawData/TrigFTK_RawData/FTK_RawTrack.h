@@ -25,7 +25,7 @@ PURPOSE:  A base class for RAW FTK tracks.
 //#define NPIXLAYERS 4
 //#define NSCTLAYERS 8 //0,2,4,6 = Axial, 1,3,5,7 = Stero
 
-#define FTK_RAWTRACK_VERSION 0x1
+#define FTK_RAWTRACK_VERSION 0x2
 
 class FTK_RawTrack {
 

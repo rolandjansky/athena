@@ -74,7 +74,7 @@ private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent();
   /** Core part of digitization used by processAllSubEvents and mergeEvent */
-  StatusCode digitizeCore();
+  StatusCode digitizeCore() const;
 
 protected:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service

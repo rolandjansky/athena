@@ -41,8 +41,8 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   auto j0 = ips[0];
   auto j1 = ips[1];
 
-  auto rj0 = 0.001 * (j0 -> p4());
-  auto rj1 = 0.001 * (j1 -> p4());
+  auto rj0 = j0 -> p4();
+  auto rj1 = j1 -> p4();
 
   auto mass = (rj0 + rj1).M();
 
@@ -59,19 +59,22 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   if (m_detaMin > adeta or adeta >= m_detaMax){pass = false;}
 
    if(collector){
-     std::stringstream ss;
+     std::stringstream ss0;
      const void* address = static_cast<const void*>(this);
-     ss << "DijetConditionMT: " << address << " "
-        << dphi <<  " " <<  mass <<  " "  << adeta <<  " " 
+     ss0 << "DijetConditionMT: " << address << " dphi "
+        << dphi <<  " mass " <<  mass <<  " adeta "  << adeta <<  " pass: " 
         <<std::boolalpha << pass <<  " jet group: \n";
+
+     std::stringstream ss1;
+
      for(auto ip : ips){
        address = static_cast<const void*>(ip);
-       ss << "    "  << address << " " << ip->eta() << "\n";
+       ss1 << "    "  << address << " " << ip->eta() << " e " << ip->e() << '\n';
      }
-     ss << '\n';
-     collector->collect("DijetConditionMT", ss.str());
+     ss1 << '\n';
+     collector -> collect(ss0.str(), ss1.str());
    }
-  return pass;
+   return pass;
 
 }
 

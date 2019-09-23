@@ -29,7 +29,6 @@
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/BoundarySurfaceFace.h"
 #include "TrkVolumes/Volume.h"
-#include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
@@ -38,7 +37,6 @@
 // #include "TrkParameters/CurvilinearParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/ExtrapolationCache.h"
-#include "CxxUtils/make_unique.h"
 // for the comparison with a pointer
 #include <stdint.h>
 // Amg
@@ -50,23 +48,6 @@
 
 namespace{
 constexpr double s_distIncreaseTolerance = 100. * Gaudi::Units::millimeter;
-
-/*
- * Helper method for the very detailed validation counters
- */
-typedef  tbb::concurrent_unordered_map<const Trk::TrackingVolume*,std::atomic<int>> mapOfCounters_t;
-void counterMapHelper(mapOfCounters_t& counterMap, const Trk::TrackingVolume* volume){
-  //first see if the element is there
-  auto search=counterMap.find(volume);
-  if(search!=counterMap.end()){
-    //atomic increment
-    search->second.fetch_add(1);
-  }
-  else{
-    //new atomic element
-    counterMap.emplace(volume,1);
-  }
-}
 }
 
 // constructor
@@ -161,7 +142,6 @@ Trk::Extrapolator::Extrapolator(const std::string &t, const std::string &n, cons
   declareProperty("SearchLevelClosestParameters", m_searchLevel);
   declareProperty("Navigator", m_navigator);
   // muon system specifics
-
   declareProperty("UseMuonMatApproximation", m_useMuonMatApprox);
   declareProperty("UseDenseVolumeDescription", m_useDenseVolumeDescription);
   declareProperty("CheckForCompoundLayers", m_checkForCompundLayers);
@@ -212,8 +192,7 @@ Trk::Extrapolator::initialize() {
   if (m_elossupdators.empty()) {
     m_elossupdators.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
   }
-
-  if ( not m_propagators.empty()) {
+  if (!m_propagators.empty()) {
     ATH_CHECK( m_propagators.retrieve() ); 
   }
 
@@ -305,7 +284,7 @@ Trk::Extrapolator::initialize() {
 // finalize
 StatusCode
 Trk::Extrapolator::finalize() {
-  if (m_navigationStatistics || msgLvl(MSG::DEBUG)) {
+  if (m_navigationStatistics) {
     ATH_MSG_INFO(" Perfomance Statistics  : ");
     ATH_MSG_INFO(" [P] Methode Statistics ------- -----------------------------------------------------------");
     ATH_MSG_INFO("     -> Number of extrapolate() calls                : " << m_extrapolateCalls);
@@ -326,43 +305,13 @@ Trk::Extrapolator::finalize() {
     ATH_MSG_INFO("     -> Number of navigation breaks: no volume found : " << m_navigationBreakNoVolume);
     ATH_MSG_INFO("     -> Number of navigation breaks: dist. increase  : " << m_navigationBreakDistIncrease);
     ATH_MSG_INFO("     -> Number of navigation breaks: dist. increase  : " << m_navigationBreakVolumeSignature);
-    if (m_navigationBreakDetails && msgLvl(MSG::DEBUG)) {
+    if (m_navigationBreakDetails) {
       ATH_MSG_DEBUG("   Detailed output for Navigation breaks             : ");
       ATH_MSG_DEBUG("    o " << m_navigationBreakLoop << " loops occured in the following volumes:    ");
-      auto volIter = m_loopVolumes.begin();
-      auto volIterEnd = m_loopVolumes.end();
-      for (; volIter != volIterEnd; ++volIter) {
-        ATH_MSG_DEBUG(
-          "          - " << volIter->second << '\t' << " times in '" << (volIter->first)->volumeName() << "'");
-      }
       ATH_MSG_DEBUG("    o " << m_navigationBreakOscillation << " osillations occured in following volumes: ");
-      volIter = m_oscillationVolumes.begin();
-      volIterEnd = m_oscillationVolumes.end();
-      for (; volIter != volIterEnd; ++volIter) {
-        ATH_MSG_DEBUG(
-          "          - " << volIter->second << '\t' << " times in '" << (volIter->first)->volumeName() << "'");
-      }
       ATH_MSG_DEBUG("    o " << m_navigationBreakNoVolume << " times no next volume found of  volumes: ");
-      volIter = m_noNextVolumes.begin();
-      volIterEnd = m_noNextVolumes.end();
-      for (; volIter != volIterEnd; ++volIter) {
-        ATH_MSG_DEBUG(
-          "          - " << volIter->second << '\t' << " times in '" << (volIter->first)->volumeName() << "'");
-      }
       ATH_MSG_DEBUG("    o " << m_navigationBreakDistIncrease << " distance increases detected at volumes: ");
-      volIter = m_distIncreaseVolumes.begin();
-      volIterEnd = m_distIncreaseVolumes.end();
-      for (; volIter != volIterEnd; ++volIter) {
-        ATH_MSG_DEBUG(
-          "          - " << volIter->second << '\t' << " times in '" << (volIter->first)->volumeName() << "'");
-      }
       ATH_MSG_DEBUG("    o " << m_navigationBreakVolumeSignature << " no propagator configured for volumes: ");
-      volIter = m_volSignatureVolumes.begin();
-      volIterEnd = m_volSignatureVolumes.end();
-      for (; volIter != volIterEnd; ++volIter) {
-        ATH_MSG_DEBUG(
-          "          - " << volIter->second << '\t' << " times in '" << (volIter->first)->volumeName() << "'");
-      }
     }
     // validation of the overlap search
     ATH_MSG_INFO("[P] Overlaps found -----------------------------------------------------------------------");
@@ -371,16 +320,17 @@ Trk::Extrapolator::finalize() {
     // validation of the material collection methods
     if (m_materialEffectsOnTrackValidation) {
       ATH_MSG_INFO("[P] MaterialEffectsOnTrack collection ----------------------------------------------------");
-      ATH_MSG_INFO("     -> Forward successful/calls (ratio)           : " << m_meotSearchSuccessfulFw << "/"
-                                                                           << m_meotSearchCallsFw << " (" <<
-        double(m_meotSearchSuccessfulFw.value()) / m_meotSearchCallsFw.value() << ")");
-      ATH_MSG_INFO("     -> Backward successful/calls (ratio)          : " << m_meotSearchSuccessfulBw << "/"
-                                                                           << m_meotSearchCallsBw << " (" <<
-        double(m_meotSearchSuccessfulBw.value()) / m_meotSearchCallsBw.value() << ")");
+      ATH_MSG_INFO("     -> Forward successful/calls (ratio)           : " 
+                   << m_meotSearchSuccessfulFw << "/"
+                   << m_meotSearchCallsFw << " (" 
+                   << double(m_meotSearchSuccessfulFw.value()) / m_meotSearchCallsFw.value() << ")");
+      ATH_MSG_INFO("     -> Backward successful/calls (ratio)          : " 
+                   << m_meotSearchSuccessfulBw << "/"
+                   << m_meotSearchCallsBw << " (" <<
+                   double(m_meotSearchSuccessfulBw.value()) / m_meotSearchCallsBw.value() << ")");
       ATH_MSG_INFO(" -----------------------------------------------------------------------------------------");
     }
   }
-
   delete m_referenceSurface;
   ATH_MSG_INFO("finalize() successful");
   return StatusCode::SUCCESS;
@@ -408,43 +358,6 @@ Trk::Extrapolator::extrapolate(const xAOD::TrackParticle &xtParticle,
   // !< @TODO: search for closest parameter in on new curvilinear x/y/z and surface distance ...
   // ... for the moment ... take the perigee
   return extrapolate(tPerigee, sf, dir, bcheck, particle, matupmode);
-}
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolate(const TrackParticleBase &particleBase,
-                               const Surface &sf,
-                               PropDirection dir,
-                               BoundaryCheck bcheck,
-                               ParticleHypothesis particle,
-                               MaterialUpdateMode matupmode) const {
- 
-  const Trk::TrackParameters *closestParameters = 0;
-  const Trk::CylinderSurface *ccsf = dynamic_cast<const Trk::CylinderSurface *>(&sf);
-  if (ccsf) {
-    Trk::ComparisonFunction<TrackParameters> tParFinderCylinder(ccsf->bounds().r());
-    closestParameters =
-      *(std::min_element(particleBase.trackParameters().begin(), particleBase.trackParameters().end(),
-                         tParFinderCylinder));
-  } else {
-    const Trk::StraightLineSurface *slsf = dynamic_cast<const Trk::StraightLineSurface *>(&sf);
-    const Trk::PerigeeSurface *persf = 0;
-    if (!slsf) {
-      persf = dynamic_cast<const Trk::PerigeeSurface *>(&sf);
-    }
-
-    if (slsf || persf) {
-      Trk::ComparisonFunction<TrackParameters> tParFinderLine(sf.center(), sf.transform().rotation().col(2));
-      closestParameters =
-        *(std::min_element(particleBase.trackParameters().begin(), particleBase.trackParameters().end(),
-                           tParFinderLine));
-    }
-  }
-  if (!closestParameters) {
-    Trk::ComparisonFunction<TrackParameters> tParFinderCenter(sf.center());
-    closestParameters =
-      *(std::min_element(particleBase.trackParameters().begin(), particleBase.trackParameters().end(),
-                         tParFinderCenter));
-  }
-  return closestParameters ? extrapolate(*closestParameters, sf, dir, bcheck, particle, matupmode) : 0;
 }
 
 const Trk::NeutralParameters *
@@ -2577,9 +2490,6 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
       ATH_MSG_DEBUG("          - Reason      : No Propagator found for Volume '" << nextVolume->volumeName() << "'");
       // debug statistics
       ++m_navigationBreakVolumeSignature;
-      if (m_navigationBreakDetails) {
-        counterMapHelper(m_volSignatureVolumes,nextVolume);  
-      }
       // trigger the fallback solution
       fallback = true;
       break;
@@ -2720,10 +2630,6 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
         ATH_MSG_DEBUG( "          - Reason      : Loop detected in TrackingVolume '"<< nextVolume->volumeName() << "'"  );         
         // statistics
         ++m_navigationBreakLoop;
-        // record the oscillation volume -- increase the counter for the volume
-        if (m_navigationBreakDetails) {
-          counterMapHelper(m_loopVolumes,nextVolume);
-        }
         // fallback flag
         fallback = true;
         // break it
@@ -2740,10 +2646,6 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                       "          - Reason      : Oscillation detected in TrackingVolume '" << nextVolume->volumeName() << "'");
         // statistics
         ++navigationBreakOscillation;
-        // record the oscillation volume -- increase the counter for the volume
-        if (m_navigationBreakDetails) {
-          counterMapHelper(m_oscillationVolumes,nextVolume);  
-        }
         // fallback flag
         fallback = true;
         // break it
@@ -2764,9 +2666,6 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
       // statistics
       ++navigationBreakNoVolume;
       // record the "no next" volume -- increase the counter for the (last) volume
-      if (m_navigationBreakDetails) {
-        counterMapHelper(m_noNextVolumes,lastVolume);
-      }
       // fallback flag
       fallback = true;
       // break it
@@ -2788,9 +2687,6 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
       // statistics
       ++navigationBreakDistIncrease;
       // record the "dist increase" volume -- increase the counter for the volume
-      if (m_navigationBreakDetails) { 
-        counterMapHelper(m_distIncreaseVolumes,nextVolume);  
-      }
       // fallback flag
       fallback = true;
       break;
@@ -4604,7 +4500,7 @@ Trk::Extrapolator::extrapolate(
   // reset the path
   cache.m_path = 0.;
   // initialize parameters vector
-  cache.m_identifiedParameters = CxxUtils::make_unique<identifiedParameters_t>();
+  cache.m_identifiedParameters = std::make_unique<identifiedParameters_t>();
   // initialize material collection
   cache.m_matstates = material;
   // dummy input
@@ -4827,29 +4723,6 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
     cache.m_layers.clear();
     cache.m_navigLays.clear();
 
-    // new: ID volumes may have special material layers ( entry layers ) - add them here
-    // if (cache.m_currentStatic->entryLayerProvider()) {
-    //  const std::vector<const Trk::Layer*>& entryLays = cache.m_currentStatic->entryLayerProvider()->layers();
-    //  for (unsigned int i=0; i < entryLays.size(); i++) {
-    //  if (entryLays[i]->layerType()>0 || entryLays[i]->layerMaterialProperties()) {
-    //    cache.m_layers.push_back(std::pair<const
-    // Trk::Surface*,Trk::BoundaryCheck>(&(entryLays[i]->surfaceRepresentation()),true));
-    //    cache.m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (cache.m_currentStatic,entryLays[i])
-    // );
-    //    Trk::DistanceSolution distSol = cache.m_layers.back().first->straightLineDistanceEstimate(currPar->position(),
-    //  
-    //   
-    //   
-    //                                                                              currPar->momentum().normalized());
-    //       //if (distSol.numberOfSolutions()>0) std::cout<<"input distance to entry layer:"<<i<<","<<distSol.first()<<
-    // std::endl;
-    //      //if (distSol.numberOfSolutions()>1) std::cout<<"input distance2 to entry
-    // layer:"<<i<<","<<distSol.second()<< std::endl;
-    //
-    //  }
-    // }
-    // }
-
     // detached volume boundaries
     const std::vector<const Trk::DetachedTrackingVolume *> *detVols = cache.m_currentStatic->confinedDetachedVolumes();
     if (detVols) {
@@ -4868,12 +4741,9 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
             cache.m_detachedBoundaries.push_back(std::pair<const Trk::Surface *, Trk::BoundaryCheck>(&surf, true));
           }
         } else if (cache.m_currentStatic->geometrySignature() != Trk::MS ||
-                   !m_useMuonMatApprox || (*iTer)->name().substr((*iTer)->name().size() - 4, 4) == "PERM") {  // retrieve
-                                                                                                              // inert
-                                                                                                              // detached
-                                                                                                              // objects
-                                                                                                              // only if
-                                                                                                              // needed
+                   !m_useMuonMatApprox || (*iTer)->name().substr((*iTer)->name().size() - 4, 4) == "PERM") {  
+          // retrieve inert detached
+          // objects only if needed
           if ((*iTer)->trackingVolume()->zOverAtimesRho() != 0. &&
               (!(*iTer)->trackingVolume()->confinedDenseVolumes() ||
                !(*iTer)->trackingVolume()->confinedDenseVolumes()->size())

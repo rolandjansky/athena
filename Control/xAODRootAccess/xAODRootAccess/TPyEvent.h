@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TPyEvent.h 649835 2015-02-26 08:19:01Z krasznaa $
@@ -45,7 +45,7 @@ namespace xAOD {
                                   const std::string& type ) const;
 
       /// Add an output object to the event
-      TReturnCode record( void* obj, const std::string& key,
+      TReturnCode record( int dum, void* obj, const std::string& key,
                           const std::string& type,
                           ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
 

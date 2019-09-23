@@ -12,7 +12,10 @@
 
 class Identifier;
 class IdentifierHash;
-class StoreGateSvc;
+
+namespace Muon {
+    class MuonIdHelperTool;
+}
 
 namespace MuonGM {
     class MuonDetectorManager;
@@ -66,6 +69,8 @@ namespace Muon {
     private:
 
         const MuonGM::MuonDetectorManager* m_muonMgr;                 //!<Muon detector manager
+
+        ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
 
         std::string m_rpcClusContName;
         std::string m_cscClusContName;

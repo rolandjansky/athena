@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChannelMasker_H
@@ -27,8 +27,6 @@ Description:
 #include "LArRecConditions/LArBadChannelCont.h"
       //#include "LArRecConditions/LArBadChannelEnum.h"        //included by LArBadChannel.h
       //#include "LArRecConditions/LArBadChanBitPacking.h"     //included by LArBadChannel.h
-
-//class StoreGateSvc;
 
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -81,8 +79,8 @@ inline bool LArBadChannelMasker::statusShouldBeMasked(const LArBadChannel& cellS
    if(cellStatus.good())
       return false;
 
-//   log << MSG::VERBOSE << "gain: " << gain << " bitMask: 0x" << MSG::hex << m_bitMask 
-//      << " cellStatus: 0x" << cellStatus.packedData() << MSG::dec << endmsg; 
+   ATH_MSG_VERBOSE( "gain: " << gain << " bitMask: 0x" << MSG::hex << m_bitMask 
+      << " cellStatus: 0x" << cellStatus.packedData() << MSG::dec ); 
 
    if (gain==CaloGain::LARHIGHGAIN) 
       return (m_bitMask & cellStatus.packedData() & m_highGainMask) != 0;

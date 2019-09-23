@@ -13,14 +13,15 @@
 #include "ActsGeometry/ActsDetectorElement.h"
 
 // ACTS
-#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Geometry/ILayerBuilder.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/StrawSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Geometry/LayerCreator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Layers/ProtoLayer.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/ProtoLayer.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 // STL
 #include <iostream>
@@ -28,6 +29,8 @@
 
 using Acts::Transform3D;
 using Acts::Vector3D;
+
+using namespace Acts::UnitLiterals;
 
 const Acts::LayerVector
 ActsStrawLayerBuilder::negativeLayers(const Acts::GeometryContext& gctx) const
@@ -84,10 +87,10 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
     pl.minPhi = -M_PI;
     pl.maxPhi = M_PI;
 
-    pl.envZ = {1, 1};
-    pl.envR = {0, 0};
+    pl.envZ = {1_mm, 1_mm};
+    pl.envR = {0_mm, 0_mm};
 
-    double fudge = 0;
+    double fudge = 0_mm;
     // RING in TRT speak is translated to Layer in ACTS speak
     std::vector<std::shared_ptr<const Acts::Surface>> layerSurfaces;
 
@@ -105,7 +108,9 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
 
           for(unsigned int istraw=0;istraw<nStraws;istraw++) {
 
-            auto trf = std::make_shared<const Transform3D>(brlElem->strawTransform(istraw));
+            auto trf = std::make_shared<Transform3D>(brlElem->strawTransform(istraw));
+            // need to convert translation to length unit
+            trf->translation() *= 1_mm;
             auto code = brlElem->getCode(); 
             Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 1 : -1, 
                                                     code.getPhiIndex(), 
@@ -114,7 +119,7 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
                                                     istraw);
 
             auto elem = std::make_shared<const ActsDetectorElement>(
-                trf, brlElem, straw_id, m_cfg.trackingGeometrySvc);
+                trf, brlElem, straw_id);
 
             m_cfg.elementStore->push_back(elem);
 
@@ -122,6 +127,7 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
             if (not straw) continue;
             auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
             if (not strawBounds) continue;
+            // units should be fine since they're already converted in det elem construction
             double radius = strawBounds->r();
             double length = strawBounds->halflengthZ();
             fudge = radius / 4.;
@@ -189,7 +195,7 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
       pl.maxZ = std::numeric_limits<double>::lowest();
       pl.minPhi = -M_PI;
       pl.maxPhi = M_PI;
-      pl.envR = {0, 0};
+      pl.envR = {0_mm, 0_mm};
 
       for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec) {
       
@@ -199,7 +205,9 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
 
         for(unsigned int istraw=0;istraw<nStraws;istraw++) {
 
-          auto trf = std::make_shared<const Transform3D>(ecElem->strawTransform(istraw));
+          auto trf = std::make_shared<Transform3D>(ecElem->strawTransform(istraw));
+          // need to convert translation to length unit
+          trf->translation() *= 1_mm;
 
           auto code = ecElem->getCode(); 
           Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 2 : -2, 
@@ -210,7 +218,7 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
 
 
           auto elem = std::make_shared<const ActsDetectorElement>(
-              trf, ecElem, straw_id, m_cfg.trackingGeometrySvc);
+              trf, ecElem, straw_id);
 
           m_cfg.elementStore->push_back(elem);
 

@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/CxxUtils
                           Control/StoreGate
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
@@ -35,7 +34,7 @@ atlas_add_library( MCTruthBaseLib
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel GaudiKernel StoreGateLib SGtests G4AtlasToolsLib
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps
                    G4AtlasInterfaces MCTruth SimHelpers ISF_Interfaces
                    AtlasDetDescr ISF_Geant4Event
                  )
@@ -46,7 +45,7 @@ atlas_add_component( MCTruthBase
                      LINK_LIBRARIES ${GEANT4_LIBRARIES}
                      ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES}
                      ${HEPMC_LIBRARIES} AthenaKernel GaudiKernel
-                     AthenaBaseComps CxxUtils StoreGateLib SGtests
+                     AthenaBaseComps StoreGateLib SGtests
                      G4AtlasInterfaces G4AtlasToolsLib MCTruth
                      SimHelpers ISF_Interfaces
                      AtlasDetDescr MCTruthBaseLib

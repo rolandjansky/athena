@@ -23,8 +23,8 @@ if not DetFlags.detdescr.ID_on():
         jobproperties.egammaRecFlags.doVertexBuilding=False
 
 #GSF also is seeded by the LarEMClusters for now. So we need these as well
-if not (rec.readESD() or jobproperties.CaloRecFlags.doEmCluster()):
-        jobproperties.egammaRecFlags.doBremFinding=False
+#if not (rec.readESD() or jobproperties.CaloRecFlags.doEmCluster()):
+#        jobproperties.egammaRecFlags.doBremFinding=False
 
 #We can not run Forward without having the TopoClusters        
 if not (rec.readESD() or jobproperties.CaloRecFlags.doCaloTopoCluster()):

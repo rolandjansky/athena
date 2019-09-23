@@ -50,7 +50,8 @@ namespace LArG4
       std::vector<std::string> m_posOWVolumes;
       std::vector<std::string> m_negOWVolumes;
       std::vector<std::string> m_presECVolumes;
-      std::vector<std::string> m_bobVolumes;
+      std::vector<std::string> m_pBOBVolumes;
+      std::vector<std::string> m_nBOBVolumes;
       std::vector<std::string> m_fcal1Volumes;
       std::vector<std::string> m_fcal2Volumes;
       std::vector<std::string> m_fcal3Volumes;
@@ -65,7 +66,8 @@ namespace LArG4
       ServiceHandle<ILArCalibCalculatorSvc> m_emepowcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::OuterAbsorberWheel, 1)
       ServiceHandle<ILArCalibCalculatorSvc> m_emenowcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::OuterAbsorberWheel, -1)
       ServiceHandle<ILArCalibCalculatorSvc> m_emepscalc; //LArG4::EC::PresamplerCalibrationCalculator
-      ServiceHandle<ILArCalibCalculatorSvc> m_emeobarcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::BackOuterBarretteWheelCalib, 1)
+      ServiceHandle<ILArCalibCalculatorSvc> m_emepobarcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::BackOuterBarretteWheelCalib, 1)
+      ServiceHandle<ILArCalibCalculatorSvc> m_emenobarcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::BackOuterBarretteWheelCalib, 1)
       ServiceHandle<ILArCalibCalculatorSvc> m_heccalc;   //LArG4::HEC::LArHECCalibrationWheelCalculator(LArG4::HEC::kWheelActive)
       ServiceHandle<ILArCalibCalculatorSvc> m_fcal1calc;
       ServiceHandle<ILArCalibCalculatorSvc> m_fcal2calc;

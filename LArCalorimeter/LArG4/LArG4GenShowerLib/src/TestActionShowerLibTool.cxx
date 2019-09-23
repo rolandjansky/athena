@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "LArG4GenShowerLib/TestActionShowerLibTool.h"
 
 namespace G4UA
@@ -20,7 +19,7 @@ namespace G4UA
   TestActionShowerLibTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a TestActionShowerLib");
-    auto action = CxxUtils::make_unique<TestActionShowerLib>();
+    auto action = std::make_unique<TestActionShowerLib>();
     actionList.runActions.push_back( action.get() );
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );

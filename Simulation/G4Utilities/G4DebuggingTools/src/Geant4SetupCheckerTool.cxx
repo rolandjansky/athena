@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "Geant4SetupCheckerTool.h"
 
 namespace G4UA
@@ -23,7 +22,7 @@ namespace G4UA
   Geant4SetupCheckerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a Geant4SetupChecker");
-    auto action = CxxUtils::make_unique<Geant4SetupChecker>(m_file_location,m_test);
+    auto action = std::make_unique<Geant4SetupChecker>(m_file_location,m_test);
     actionList.runActions.push_back( action.get() );
     return action;
   }

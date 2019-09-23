@@ -3,11 +3,10 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon import Logging
+from AthenaCommon.Logging import logging
 from SCT_Digitization.SCT_DigitizationConf import (
     SCT_RandomDisabledCellGenerator,
     SCT_Amp,
-    SCT_DetailedSurfaceChargesGenerator,
     SCT_SurfaceChargesGenerator,
     SCT_FrontEnd,
     SCT_DigitizationTool,
@@ -22,7 +21,6 @@ from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconCondition
 from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
 from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-from StoreGate.StoreGateConf import StoreGateSvc
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the SCT Digitization code
@@ -32,12 +30,8 @@ def SCT_FirstXing():
 def SCT_LastXing():
     return 25
 
-def SCT_ItemList():
-    """Return list of item names needed for SCT output"""
-    return ["InDet::SiClusterContainer#*", "SCT_RDO_Container#*"]
-
 def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs):
-    """Return a ComponentAccumulator with common SCT digitization tool config"""
+    """Return ComponentAccumulator with common SCT digitization tool config"""
     acc = SCT_GeometryCfg(flags)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("OnlyHitElements", True)
@@ -60,7 +54,7 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
     return acc
 
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
-    """Return a ComponentAccumulator with configured SCT digitization tool"""
+    """Return ComponentAccumulator with configured SCT digitization tool"""
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "SCT_SDO_Map")
@@ -71,21 +65,21 @@ def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
 def SCT_DigitizationToolHSCfg(flags, name="SCT_DigitizationToolHS", **kwargs):
-    """Return a ComponentAccumulator with hard scatter configured SCT digitization tool"""
+    """Return ComponentAccumulator with hard scatter configured SCT digitization tool"""
     kwargs.setdefault("OutputObjectName", "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
 def SCT_DigitizationToolPUCfg(flags, name="SCT_DigitizationToolPU",**kwargs):
-    """Return a ComponentAccumulator with pileup configured SCT digitization tool"""
+    """Return ComponentAccumulator with pileup configured SCT digitization tool"""
     kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_PU_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 2)
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
 def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
-    """Return a ComponentAccumulator with overlay configured SCT digitization tool"""
+    """Return ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
@@ -96,7 +90,7 @@ def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**k
     return acc
 
 def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplitNoMergePU",**kwargs):
-    """Return a ComponentAccumulator with merged pileup configured SCT digitization tool"""
+    """Return ComponentAccumulator with merged pileup configured SCT digitization tool"""
     kwargs.setdefault("InputObjectName", "PileupSCT_Hits")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
@@ -126,7 +120,7 @@ def SCT_AmpCfg(flags, name="SCT_Amp", **kwargs):
     return SCT_Amp(name, **kwargs)
 
 def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **kwargs):
-    """Return a ComponentAccumulator with configured surface charges tool"""
+    """Return ComponentAccumulator with configured surface charges tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
@@ -152,7 +146,7 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     return acc
 
 def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
-    """Return a ComponentAccumulator with configured front-end electronics tool"""
+    """Return ComponentAccumulator with configured front-end electronics tool"""
     # Setup noise treament in SCT_FrontEnd
     # To set the mean noise values for the different module types
     # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
@@ -169,7 +163,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     kwargs.setdefault("NOShortMiddles", 2.0e-9)
     kwargs.setdefault("NOOuters", 3.5e-5)
     if not flags.Digitization.DoInnerDetectorNoise:
-        Logging.logging.getLogger("SCT_FrontEndCfg")
+        log = logging.getLogger("SCT_FrontEndCfg")
         log.info("SCT_Digitization:::: Turned off Noise in SCT_FrontEnd")
         kwargs.setdefault("NoiseOn", False)
         kwargs.setdefault("AnalogueNoiseOn", False)
@@ -203,7 +197,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     return acc
 
 def SCT_FrontEndPileupCfg(flags, name="PileupSCT_FrontEnd", **kwargs):
-    """Return a ComponentAccumulator with pileup-configured front-end electronics tool"""
+    """Return ComponentAccumulator with pileup-configured front-end electronics tool"""
     kwargs.setdefault("NoiseBarrel", 0.0)
     kwargs.setdefault("NoiseBarrel3", 0.0)
     kwargs.setdefault("NoiseInners", 0.0)
@@ -227,8 +221,9 @@ def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
     kwargs.setdefault("ItemList", ["SiHitCollection#SCT_Hits"] )
     return PileUpXingFolder(name, **kwargs)
 
-def SCT_DigitizationBasicCfg(toolCfg, flags, name="SCT_DigitizationBasic", **kwargs):
-    """Return a ComponentAccumulator with BasictoolCfg type SCT digitization"""
+
+def SCT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs):
+    """Return ComponentAccumulator with basic toolCfg configured SCT digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(toolCfg(flags))
@@ -236,21 +231,26 @@ def SCT_DigitizationBasicCfg(toolCfg, flags, name="SCT_DigitizationBasic", **kwa
     acc.addEventAlgo(SCT_Digitization(name, **kwargs))
     return acc
 
-def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
-    """Return a ComponentAccumulator with toolCfg type SCT digitization and Output"""
+def SCT_DigitizationOutputCfg(toolCfg, flags, name, **kwargs):
+    """Return ComponentAccumulator with toolCfg configured SCT Digitization algorithm and OutputStream"""
     acc = SCT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
-    acc.merge(OutputStreamCfg(flags, "RDO", SCT_ItemList()))
+    acc.merge(OutputStreamCfg(flags, "RDO", ["InDetSimDataCollection#*", "SCT_RDO_Container#*"]))
     return acc
 
+
+def SCT_DigitizationCfg(flags, name="SCT_Digitization", **kwargs):
+    """Return ComponentAccumulator with standard SCT digitization and Output"""
+    return SCT_DigitizationOutputCfg(SCT_DigitizationToolCfg, flags, name, **kwargs)
+
 def SCT_DigitizationHSCfg(flags, name="SCT_DigitizationHS", **kwargs):
-    """Return a ComponentAccumulator with Hard Scatter SCT digitization"""
-    return SCT_DigitizationCfg(SCT_DigitizationToolHSCfg, flags, name, **kwargs)
+    """Return ComponentAccumulator with Hard Scatter-only SCT digitization and Output"""
+    return SCT_DigitizationOutputCfg(SCT_DigitizationToolHSCfg, flags, name, **kwargs)
 
 def SCT_DigitizationPUCfg(flags, name="SCT_DigitizationPU", **kwargs):
-    """Return a ComponentAccumulator with PileUp SCT digitization"""
-    return SCT_DigitizationCfg(SCT_DigitizationToolPUCfg, flags, name, **kwargs)
+    """Return ComponentAccumulator with Pile-up-only SCT digitization and Output"""
+    return SCT_DigitizationOutputCfg(SCT_DigitizationToolPUCfg, flags, name, **kwargs)
 
 def SCT_DigitizationOverlayCfg(flags, name="SCT_OverlayDigitization", **kwargs):
-    """Return a ComponentAccumulator with Overlay SCT digitization"""
-    return SCT_DigitizationBasicCfg(SCT_DigitizationToolOverlayCfg, flags, name, **kwargs)
+    """Return ComponentAccumulator with Overlay SCT digitization and Output"""
+    return SCT_DigitizationOutputCfg(SCT_DigitizationToolOverlayCfg, flags, name, **kwargs)
 

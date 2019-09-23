@@ -723,15 +723,15 @@ StatusCode MdtRawDataValAlg::fillMDTMaskedTubes(IdentifierHash idHash, const std
   std::set<Identifier> noisyTubes = m_masked_tubes->getNoiseList(idHash);
   for(std::set<Identifier>::const_iterator itr = noisyTubes.begin(); itr != noisyTubes.end(); ++itr){
     Identifier digcoll_id = *itr;
-    int mdtlayer = m_mdtIdHelper->tubeLayer(digcoll_id);
-    if (m_mdtIdHelper->multilayer(digcoll_id)==2) {
+    int mdtlayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(digcoll_id);
+    if (m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id)==2) {
       if ( hardware_name.at(1) == 'I' && hardware_name.at(3) != '8' )
 	mdtlayer += 4;
       else 
 	mdtlayer += 3;
     }	  
-    int mdttube= m_mdtIdHelper->tube(digcoll_id) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(digcoll_id);
-    ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(digcoll_id), mdtlayer-1);
+    int mdttube= m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id) + (mdtlayer-1) * m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id);
+    ChamberTubeNumberCorrection(mdttube, hardware_name, m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id), mdtlayer-1);
     h->Fill(mdttube, 1);
   }
   return StatusCode::SUCCESS;
@@ -745,20 +745,20 @@ void MdtRawDataValAlg::mdtchamberId()
 {
   ATH_MSG_DEBUG("in MDT ChambersIDvector" );  
 
-  std::vector<Identifier>::const_iterator  idfirst = m_mdtIdHelper->module_begin();
-  std::vector<Identifier>::const_iterator  idlast =  m_mdtIdHelper->module_end();
+  std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->mdtIdHelper().module_begin();
+  std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->mdtIdHelper().module_end();
 
-  IdContext mdtModuleContext = m_mdtIdHelper->module_context();
+  IdContext mdtModuleContext = m_muonIdHelperTool->mdtIdHelper().module_context();
   Identifier Id;
   IdentifierHash Idhash;
   for (std::vector<Identifier>::const_iterator i = idfirst; i != idlast; i++)
     {    
       Id=*i;
-      int gethash_code = m_mdtIdHelper->get_hash(Id, Idhash, &mdtModuleContext); 
+      int gethash_code = m_muonIdHelperTool->mdtIdHelper().get_hash(Id, Idhash, &mdtModuleContext); 
       m_chambersId.push_back(Id);
       m_chambersIdHash.push_back(Idhash);
 
-      std::string extid = m_mdtIdHelper->show_to_string(Id);
+      std::string extid = m_muonIdHelperTool->mdtIdHelper().show_to_string(Id);
       ATH_MSG_DEBUG("Adding the chamber Identifier: " << extid );
       if (gethash_code == 0) {
 	ATH_MSG_DEBUG(" its hash Id is " << Idhash );
@@ -771,7 +771,7 @@ void MdtRawDataValAlg::mdtchamberId()
 // //   ////////////////////////////////////////////////////////////////////////////////////////////////////
 // //   //Begin Tube List Auto Generation
 // //   ////////////////////////////////////////////////////////////////////////////////////////////////////
- //      std::string hardware_name = convertChamberName(m_mdtIdHelper->stationName(Id),m_mdtIdHelper->stationEta(Id),m_mdtIdHelper->stationPhi(Id),"MDT");
+ //      std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(Id),m_muonIdHelperTool->mdtIdHelper().stationEta(Id),m_muonIdHelperTool->mdtIdHelper().stationPhi(Id),"MDT");
  ////Given an input text file from Post-Processing, create a map of chamber_name, noisytube
   
 /*   ATH_MSG_ERROR("Reading in tubes.txt");
@@ -814,8 +814,8 @@ void MdtRawDataValAlg::mdtchamberId()
    fout << "  //Which should be of the form:\n";
    fout << "  //[chambername] [int],[int],[int]\n";
    fout << "  //Where the ints are tube numbers as generated w/:\n";
-   fout << "  //int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);\n";
-   fout << "  //ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1)\n";
+   fout << "  //int mdttube= m_muonIdHelperTool->mdtIdHelper().tube(*i) + (mdtlayer-1) * m_muonIdHelperTool->mdtIdHelper().tubeMax(*i);\n";
+   fout << "  //ChamberTubeNumberCorrection(mdttube, hardware_name, m_muonIdHelperTool->mdtIdHelper().tube(*i), mdtlayer-1)\n";
    fout << "  //Output will be in your run directory called out.cxx\n\n";
    fout << "  if(!doMask) return;//Option to turn off tube masking\n" << std::endl;
 
@@ -824,12 +824,12 @@ void MdtRawDataValAlg::mdtchamberId()
    fout << "  std::set<Identifier> tubes;\n" << std::endl;
    fout << "unsigned long long id = 0;" << std::endl;
 
-   for (std::vector<Identifier>::const_iterator j = m_mdtIdHelper->module_begin(); j != m_mdtIdHelper->module_end(); ++j){
+   for (std::vector<Identifier>::const_iterator j = m_muonIdHelperTool->mdtIdHelper().module_begin(); j != m_muonIdHelperTool->mdtIdHelper().module_end(); ++j){
      std::vector<Identifier> chIds;
-     m_mdtIdHelper->idChannels(*j,chIds);
-     std::string hardware_name = convertChamberName(m_mdtIdHelper->stationName(*j),m_mdtIdHelper->stationEta(*j),m_mdtIdHelper->stationPhi(*j),"MDT");
+     m_muonIdHelperTool->mdtIdHelper().idChannels(*j,chIds);
+     std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(*j),m_muonIdHelperTool->mdtIdHelper().stationEta(*j),m_muonIdHelperTool->mdtIdHelper().stationPhi(*j),"MDT");
      IdentifierHash idHash; 
-     m_mdtIdHelper->get_module_hash( *j, idHash);
+     m_muonIdHelperTool->mdtIdHelper().get_module_hash( *j, idHash);
      std::map<std::string, std::set<int> >::const_iterator m_itr = myMap.find(hardware_name);
      std::set<int> noisyTubes;
      if(m_itr==myMap.end()) continue;
@@ -838,15 +838,15 @@ void MdtRawDataValAlg::mdtchamberId()
      fout << "  //  " << hardware_name << " 	 //" << std::endl;
      fout << "  idHash = " << idHash << "; " << std::endl;
      for (std::vector<Identifier>::const_iterator i = chIds.begin(); i != chIds.end(); ++i){
-       int mdtlayer = m_mdtIdHelper->tubeLayer(*i);
-       if (m_mdtIdHelper->multilayer(*i)==2) {
+       int mdtlayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(*i);
+       if (m_muonIdHelperTool->mdtIdHelper().multilayer(*i)==2) {
    	if ( hardware_name.at(1) == 'I' && hardware_name.at(3) != '8' )
    	  mdtlayer += 4;
    	else 
    	  mdtlayer += 3;
        }	  
-       int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);
-       ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1);
+       int mdttube= m_muonIdHelperTool->mdtIdHelper().tube(*i) + (mdtlayer-1) * m_muonIdHelperTool->mdtIdHelper().tubeMax(*i);
+       ChamberTubeNumberCorrection(mdttube, hardware_name, m_muonIdHelperTool->mdtIdHelper().tube(*i), mdtlayer-1);
        if(noisyTubes.find(mdttube)!= noisyTubes.end()){
     	   fout << " id = " << *i << ";" << endl;
    	       fout << "  tubes.insert(static_cast<Identifier>(id)); // hist bin #" << mdttube << endl;
@@ -871,10 +871,10 @@ void MdtRawDataValAlg::mdtchamberId()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 int MdtRawDataValAlg::mezzmdt(Identifier digcoll_id) { //int mezz_chamber, int mezz_eta, int mezz_ml, int mezz_tube, int max_tube) {
   int TotmezzTubes = 8;
-  if( m_mdtIdHelper->tubeLayerMax(digcoll_id) == 4 ) 
+  if( m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(digcoll_id) == 4 ) 
     TotmezzTubes = 6;
   //   if (mezz_chamber==1 || mezz_chamber==2 || mezz_chamber==8 || mezz_chamber==13) TotmezzTubes=6 ; // old way of doing things that didn't work
-  int Imezz = (int)((m_mdtIdHelper->tube(digcoll_id)-1)/TotmezzTubes) + (int)((m_mdtIdHelper->multilayer(digcoll_id)-1)*((m_mdtIdHelper->tubeMax(digcoll_id))/TotmezzTubes));
+  int Imezz = (int)((m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id)-1)/TotmezzTubes) + (int)((m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id)-1)*((m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id))/TotmezzTubes));
 
   return Imezz;  
 }
@@ -883,9 +883,9 @@ int MdtRawDataValAlg::mezzmdt(Identifier digcoll_id) { //int mezz_chamber, int m
 // the 'if' statements are for chambers with ML1 != ML2
 // except for BIS8 -- mdtIdHelper gets the # layers wrong in this instance
 int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, const std::string & hardware_name ) {
-  int numtubes = m_mdtIdHelper->tubeMax(digcoll_id);
-  int numlayers = m_mdtIdHelper->tubeLayerMax(digcoll_id);
-  int numML = m_mdtIdHelper->numberOfMultilayers(digcoll_id);
+  int numtubes = m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id);
+  int numlayers = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(digcoll_id);
+  int numML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(digcoll_id);
   int tubeMax = numtubes * numlayers * numML;
 
   if( hardware_name.substr(0,4) == "BIS8" ) // Why does mdtIdHelper get this one wrong?
@@ -1019,14 +1019,14 @@ std::string MdtRawDataValAlg::getChamberName(const Muon::MdtPrepData* hit){
 std::string MdtRawDataValAlg::getChamberName(Identifier id){
   if(m_hist_hash_list) {
     IdentifierHash idHash;
-    m_mdtIdHelper->get_module_hash(id, idHash);
+    m_muonIdHelperTool->mdtIdHelper().get_module_hash(id, idHash);
     if( idHash < m_hist_hash_list->size() ) {
       MDTChamber* chamber = (*m_hist_hash_list)[idHash];
       if(chamber) return chamber->getName();
-      else return convertChamberName(m_mdtIdHelper->stationName(id),m_mdtIdHelper->stationEta(id),m_mdtIdHelper->stationPhi(id),"MDT");    
+      else return convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(id),m_muonIdHelperTool->mdtIdHelper().stationEta(id),m_muonIdHelperTool->mdtIdHelper().stationPhi(id),"MDT");    
     }
   }
-  return convertChamberName(m_mdtIdHelper->stationName(id),m_mdtIdHelper->stationEta(id),m_mdtIdHelper->stationPhi(id),"MDT");
+  return convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(id),m_muonIdHelperTool->mdtIdHelper().stationEta(id),m_muonIdHelperTool->mdtIdHelper().stationPhi(id),"MDT");
 }
 
 StatusCode MdtRawDataValAlg::getChamber(IdentifierHash id, MDTChamber* &chamber){

@@ -51,7 +51,7 @@ def TileOFCCondAlgCfg(flags, **kwargs):
         if flags.IOVDb.DatabaseInstance  == 'CONDBR2' and runType == 'PHY' and runNumber > runSplitOnline:
             ofcFolder = folders.addSplitOnline('/TILE/ONL01/FILTER/' + ofcType, '/TILE/OFL02/FILTER/' + ofcType)
         else:
-            ofcFolder = folders.addSplitMC('/TILE/ONL01/FILTER/' + ofcType, '/TILE/OFL02/FILTER/' + ofcType)
+            ofcFolder = folders.addSplitMC('/TILE/ONL01/FILTER/' + ofcType, '/TILE/ONL01/FILTER/' + ofcType)
 
         from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerOfc_ as TileCondProxyCoolOfc
         ofcProxy = TileCondProxyCoolOfc('TileCondProxyCool_Ofc', Source = ofcFolder)
@@ -109,22 +109,41 @@ def TileCondToolOfcCfg(flags, **kwargs):
         flags  -- Athena configuration flags (ConfigFlags)
     Keyword arguments:
         OfcType -- type of Tile OFC. Defaults to OF2. Possible OFC types: OF1, OF2.
+        OptFilterDeltaCorrelation -- flag to use delta correlation. Defaults to False.
+                                     If it is False auto correlation obtained from data will be used.
+        TileCondToolPulseShape - Tile conditions tool to get pulse shape.
+                                 Provided it will be used. By default new one will be configured.
+        TileCondToolAutoCr - Tile conditions tool to get auto correlation.
+                             Provided it will be used. By default new one will be configured.
     """
 
     acc = ComponentAccumulator()
 
+    optFilterDeltaCorrelation = kwargs.get('OptFilterDeltaCorrelation', False)
+
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
 
-    from TileConditions.TilePulseShapeConfig import TileCondToolPulseShapeCfg
-    pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
+    if 'TileCondToolPulseShape' in kwargs:
+        pulseShapeTool = kwargs['TileCondToolPulseShape']
+    else:
+        from TileConditions.TilePulseShapeConfig import TileCondToolPulseShapeCfg
+        pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
 
-    from TileConditions.TileAutoCorrelationConfig import TileCondToolAutoCrCfg
-    autoCorrelationTool = acc.popToolsAndMerge( TileCondToolAutoCrCfg(flags) )
+    if optFilterDeltaCorrelation:
+        autoCorrelationTool = None
+    else:
+        if 'TileCondToolAutoCr' in kwargs:
+            autoCorrelationTool = kwargs['TileCondToolAutoCr']
+        else:
+            from TileConditions.TileAutoCorrelationConfig import TileCondToolAutoCrCfg
+            autoCorrelationTool = acc.popToolsAndMerge( TileCondToolAutoCrCfg(flags) )
 
     name = 'TileCondToolOfc'
     from TileConditions.TileConditionsConf import TileCondToolOfc
-    acc.setPrivateTools( TileCondToolOfc(name, TileCondToolPulseShape = pulseShapeTool,
+    acc.setPrivateTools( TileCondToolOfc(name,
+                                         OptFilterDeltaCorrelation = optFilterDeltaCorrelation,
+                                         TileCondToolPulseShape = pulseShapeTool,
                                          TileCondToolAutoCr = autoCorrelationTool) )
 
     return acc

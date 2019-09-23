@@ -11,10 +11,10 @@
 // ATHENA
 
 // ACTS
-#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Geometry/ILayerBuilder.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/BinningType.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 class ActsTrackingGeomtrySvc;
 
@@ -58,8 +58,6 @@ public:
 
     std::pair<size_t, size_t> endcapMaterialBins = {20, 5};
     std::pair<size_t, size_t> barrelMaterialBins = {10, 10};
-
-    const ActsTrackingGeometrySvc* trackingGeometrySvc = nullptr;
   };
 
   /// Constructor

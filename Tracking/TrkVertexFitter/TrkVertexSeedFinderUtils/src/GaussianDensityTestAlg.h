@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // GaussianDensityTestAlg.h 
@@ -73,7 +73,9 @@ class GaussianDensityTestAlg
   ///////////////////////////////////////////////////////////////////
   double ipSignificance(const Trk::TrackParameters* params, const Amg::Vector3D * vertex) const;
 
-  StatusCode findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Amg::Vector3D>& truth) const;
+  StatusCode findTruth(double mode,
+                       const std::vector<Trk::ITrackLink*>& trackVector,
+                       std::vector<Amg::Vector3D>& truth) const;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

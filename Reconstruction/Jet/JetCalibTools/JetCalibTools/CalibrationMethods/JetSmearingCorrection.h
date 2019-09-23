@@ -6,7 +6,6 @@
 #define JETCALIBTOOLS_JETSMEARINGCORRECTION_H
 
 
-#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
 #include <memory>
@@ -15,7 +14,7 @@
 #include "TRandom3.h"
 
 class JetSmearingCorrection
-    : virtual public IJetCalibrationTool, virtual public JetCalibrationToolBase
+    : virtual public JetCalibrationToolBase
 {
 
     ASG_TOOL_CLASS(JetSmearingCorrection,IJetCalibrationTool)

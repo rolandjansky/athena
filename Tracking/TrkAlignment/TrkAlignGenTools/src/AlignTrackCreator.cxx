@@ -3,7 +3,6 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 //#include "GaudiKernel/PropertyMgr.h" deprecated
 

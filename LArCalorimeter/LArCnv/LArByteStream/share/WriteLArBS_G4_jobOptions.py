@@ -11,4 +11,3 @@ theApp.Dlls   += [ "LArCalibUtils" ]
 theApp.Dlls   += [ "LArByteStream" ]
 StreamBS = Algorithm( "StreamBS" )
 StreamBS.ItemList +=["2721#*"]
-StreamBS.ForceRead=True

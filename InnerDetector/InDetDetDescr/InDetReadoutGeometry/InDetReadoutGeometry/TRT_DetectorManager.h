@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,6 +11,7 @@
 #ifndef TRT_DetectorManager_h
 #define TRT_DetectorManager_h 1
 #include "InDetReadoutGeometry/InDetDetectorManager.h"
+#include "InDetReadoutGeometry/TRT_Conditions.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
@@ -27,9 +28,11 @@
 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
-#include <vector>
-#include <string>
 #include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 class Identifier;     
 class GeoAlignableTransform;
@@ -39,10 +42,10 @@ class CondAttrListCollection;
 
 namespace InDetDD {
 
-  class TRT_Numerology;
   class ExtendedAlignableTransform;
-
-
+  class TRT_BarrelDescriptor;
+  class TRT_EndcapDescriptor;
+  class TRT_Numerology;
 
   /** class TRT_DetectorManager
   
@@ -70,8 +73,8 @@ namespace InDetDD {
     ~TRT_DetectorManager();
     
     /** Access Raw Geometry:-------------------------------------------------------*/
-    virtual unsigned int getNumTreeTops()           const;                          //
-    virtual PVConstLink  getTreeTop(unsigned int i) const;                         //
+    virtual unsigned int getNumTreeTops()           const override;                 //
+    virtual PVConstLink  getTreeTop(unsigned int i) const override;                 //
     //-----------------------------------------------------------------------------//
     
     /** Get the ID helper: --------------------------------------------------------*/
@@ -137,7 +140,6 @@ namespace InDetDD {
     //-----------------------------------------------------------------------------//
 
     /** Conditions interface (mostly for internal use):----------------------------*/
-    void setConditions(TRT_Conditions * conditions);                               //
     const TRT_Conditions * conditions() const;                                     //
     //-----------------------------------------------------------------------------//    
     
@@ -193,7 +195,7 @@ namespace InDetDD {
                                             const Identifier & id, 
                                             const Amg::Transform3D & delta,
                                             FrameType frame,
-                                            GeoVAlignmentStore* alignStore) const;
+                                            GeoVAlignmentStore* alignStore) const override;
 
     /** Set alignable transforms: Amg based */
     bool setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF, 
@@ -203,28 +205,33 @@ namespace InDetDD {
 
 
     /** Invalidate cache for all detector elements */
-    virtual void invalidateAll() const;
+    virtual void invalidateAll() const override;
    
     /** Update all caches. */
-    virtual void updateAll() const;
+    virtual void updateAll() const override;
 
 
     /** Check identifier is for this detector */
-    virtual bool identifierBelongs(const Identifier & id) const;
+    virtual bool identifierBelongs(const Identifier & id) const override;
     
     /** Call back for alignment updates, DEPRECATED. Now registered in tool. */
     StatusCode alignmentCallback( IOVSVC_CALLBACK_ARGS );
 
     /** Process new global DB folders for L1 and L2 **/
+    virtual
     bool processGlobalAlignment(const std::string &, int level, FrameType frame,
                                 const CondAttrListCollection* obj,
-                                GeoVAlignmentStore* alignStore) const;
+                                GeoVAlignmentStore* alignStore) const override;
 
     bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType dummy) const override;
 
     bool processSpecialAlignment(const std::string& key,
                                  const CondAttrListCollection* obj=nullptr,
                                  GeoVAlignmentStore* alignStore=nullptr) const override;
+
+    /** Set TRT_Barrel/EndcapDescriptor pointer to the internal sets to delete them in the destructor */
+    void setBarrelDescriptor(const TRT_BarrelDescriptor* barrelDescriptor);
+    void setEndcapDescriptor(const TRT_EndcapDescriptor* endcapDescriptor);
 
  private:
 
@@ -260,14 +267,18 @@ namespace InDetDD {
     unsigned int m_digvers;                                                        //
     std::string m_digversname;                                                     //
 
-    TRT_Conditions * m_conditions;
+    std::unique_ptr<TRT_Conditions> m_conditions;
 
     // Alignment stuff
     typedef std::map<Identifier, ExtendedAlignableTransform *> AlignableTransformMap;
     std::vector< AlignableTransformMap > m_alignableTransforms;
 
+    // Descriptors are owned by TRT_DetectorManager.
+    std::set<const TRT_BarrelDescriptor*> m_barrelDescriptors;
+    std::set<const TRT_EndcapDescriptor*> m_endcapDescriptors;
+
     // here temporarily
-    virtual const TRT_ID *getIdHelper() const;                                             //
+    virtual const TRT_ID *getIdHelper() const override;                                    //
 
     //-----------------------------------------------------------------------------//
   };

@@ -453,9 +453,6 @@ if not 'TileEmulateDSP' in dir():
 if not 'doTileFlat' in dir():
     doTileFlat = False
 
-if not 'doTileOpt' in dir():
-    doTileOpt = False
-
 if not 'doTileOpt2' in dir():
     doTileOpt2 = not TileCompareMode and ReadDigits
 
@@ -467,6 +464,9 @@ if not 'doTileMF' in dir():
 
 if not 'doTileOF1' in dir():
     doTileOF1 = False
+
+if not 'doTileWiener' in dir():
+    doTileWiener = False
 
 if not 'doTileFit' in dir():
     doTileFit = not TileCompareMode and ReadDigits
@@ -513,7 +513,7 @@ if not 'OfcFromCOOL' in dir():
     else:
         OfcFromCOOL = False
 
-if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
+if useRODReco or doTileOpt2 or doTileMF or doTileOF1 or doTileOptATLAS or doTileWiener or doTileFitCool or TileCompareMode or not 'TileUseCOOL' in dir():
     TileUseCOOL = True
     TileUseCOOLOFC = not ReadPool or OfcFromCOOL
 
@@ -835,12 +835,19 @@ else:
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence+=xAODMaker__EventInfoCnvAlg()
 
+#============================================================
+#=== configure BunchCrossingTool
+#============================================================
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+ToolSvc += BunchCrossingTool("LHC" if globalflags.DataSource() == "data" else "MC")
+
 #=============================================================
 #=== read ByteStream and reconstruct data
 #=============================================================
 tileRawChannelBuilderFitFilter = None
 tileRawChannelBuilderOpt2Filter = None
 tileRawChannelBuilderOptATLAS = None
+tileRawChannelBuilderWienerFilter = None
 tileDigitsContainer = ''
 if not ReadPool:
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
@@ -864,6 +871,7 @@ else:
         tileRawChannelBuilderFitFilter = theTileRawChannelGetter.TileRawChannelBuilderFitFilter()
         tileRawChannelBuilderOpt2Filter = theTileRawChannelGetter.TileRawChannelBuilderOpt2Filter()
         tileRawChannelBuilderOptATLAS = theTileRawChannelGetter.TileRawChannelBuilderOptATLAS()
+        tileRawChannelBuilderWienerFilter = theTileRawChannelGetter.TileRawChannelBuilderWienerFilter()
         if doRecoESD:
             topSequence.TileRChMaker.TileDigitsContainer="TileDigitsFlt"
             tileDigitsContainer = 'TileDigitsFlt'
@@ -939,6 +947,20 @@ if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
 
     print ToolSvc.TileRawChannelBuilderOF1    
+
+if doTileWiener and tileRawChannelBuilderWienerFilter:
+    if PhaseFromCOOL:
+        tileRawChannelBuilderWienerFilter.correctTime = False # do not need to correct time with best phase
+
+    tileRawChannelBuilderWienerFilter.BestPhase = PhaseFromCOOL # Phase from COOL or assume phase=0
+
+    if TileMonoRun or TileRampRun:
+        if TileCompareMode or TileEmulateDSP:
+            tileRawChannelBuilderWienerFilter.EmulateDSP = True # use dsp emulation
+    tileRawChannelBuilderWienerFilter.UseDSPCorrection = not TileBiGainRun
+    tileRawChannelBuilderWienerFilter.OutputLevel = 1
+
+    print tileRawChannelBuilderWienerFilter
 
 if (doEventDisplay or doCreatePool):
     # create TileHit from TileRawChannel and store it in TileHitVec
@@ -1285,14 +1307,14 @@ if doTileMon:
         if doTileFitCool:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelFitCool"
 
-        if doTileOpt:
-            theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelOpt"
-
         if doTileOpt2:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelOpt2"
-            
+
         if doTileMF:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelMF"
+
+        if doTileWiener:
+            theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelWiener"
 
         if useRODReco:
             theTileRawChannelMon.TileRawChannelContainerDSP = "TileRawChannelCnt"
@@ -1326,9 +1348,6 @@ if doTileMon:
 
         if doTileFitCool:
             theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelFitCool"
-
-        if doTileOpt:
-            theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelOpt"
 
         if doTileOpt2:
             theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelOpt2"

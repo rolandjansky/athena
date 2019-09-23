@@ -35,7 +35,7 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 
 
 #
-# --- Load PixelConditionsServices
+# --- Load PixelConditionsTools
 #
 if DetFlags.haveRIO.pixel_on():
     # Load pixel conditions summary service
@@ -44,22 +44,32 @@ if DetFlags.haveRIO.pixel_on():
     #################
     # Module status #
     #################
-    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
-        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
-    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
-        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+    useNewConditionsFormat = False
+
+    if not athenaCommonFlags.isOnline():
+        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelDCSCondStateAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+            condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+
     if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
         conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
-
-    if not hasattr(condSeq, "PixelDCSCondStateAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
-        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                     UseDeadMap=True,
                                     ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                     UseCalibConditions=True)
+
+    if useNewConditionsFormat:
+        if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
 
     #####################
     # Calibration Setup #
@@ -70,16 +80,6 @@ if DetFlags.haveRIO.pixel_on():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
         condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
-    # Load Pixel BS errors service
-    if not (globalflags.DataSource=='geant4'):
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelByteStreamErrorsSvc
-        InDetPixelByteStreamErrorsSvc = PixelByteStreamErrorsSvc()
-        if ( globalflags.InputFormat != 'bytestream' ):
-            InDetPixelByteStreamErrorsSvc.ReadingESD = True
-        ServiceMgr += InDetPixelByteStreamErrorsSvc
-        if (InDetFlags.doPrintConfigurables()):
-            print InDetPixelByteStreamErrorsSvc
-            
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
             if (globalflags.DataSource() == 'data'):
@@ -89,7 +89,6 @@ if DetFlags.haveRIO.pixel_on():
                 
         if not conddb.folderRequested("/PIXEL/PixReco"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
-
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg

@@ -16,6 +16,7 @@ MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name
 {  
   declareProperty("TruthTool",               m_truthTool);
   declareProperty("doNSW",m_useNSW=false);
+  declareProperty("HasCSC",m_hasCSC=true);
 }
 
 // Initialize method
@@ -31,8 +32,12 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
   } else {
     ATH_MSG_DEBUG("Retrieved tool " << m_truthTool );
   }
-
-  if(m_useNSW) m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
+  
+  if (m_hasCSC) {
+    if(m_useNSW) m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","CSC_TruthMap"};
+  } else {
+    if(m_useNSW) m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
+  }
 
   if(m_detailedTrackTruthNames.empty()){
     m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());

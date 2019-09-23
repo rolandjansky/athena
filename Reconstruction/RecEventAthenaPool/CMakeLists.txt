@@ -20,7 +20,3 @@ atlas_add_poolcnv_library( RecEventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES RecEvent/RecoTimingObj.h
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib GaudiKernel RecEvent RecEventTPCnv )
-
-# Install files from the package:
-atlas_install_headers( RecEventAthenaPool )
-

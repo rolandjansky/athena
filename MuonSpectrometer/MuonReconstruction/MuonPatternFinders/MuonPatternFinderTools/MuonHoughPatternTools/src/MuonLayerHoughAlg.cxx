@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHoughAlg.h"
@@ -10,8 +10,6 @@
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 MuonLayerHoughAlg::MuonLayerHoughAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
@@ -72,9 +70,8 @@ StatusCode MuonLayerHoughAlg::execute()
   ATH_MSG_VERBOSE("calling layer tool ");
   auto [combis, houghDataPerSectorVec] = m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds);
 
+  SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis);
   if( combis ){
-
-    SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis);
     if (Handle.record(std::move(combis)).isFailure()) {
       ATH_MSG_WARNING("Failed to record MuonPatternCombinationCollection at MuonLayerHoughCombis");
     }else{
@@ -84,11 +81,19 @@ StatusCode MuonLayerHoughAlg::execute()
       }
     }
   }
+  else{
+    ATH_MSG_VERBOSE("CombinationCollection "<<m_combis<<" is empty, recording");
+    ATH_CHECK(Handle.record(std::make_unique<MuonPatternCombinationCollection>()));
+  }
 
   // write hough data to SG
+  SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
   if (houghDataPerSectorVec) {
-    SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
     ATH_CHECK(handle.record(std::move(houghDataPerSectorVec)));
+  }
+  else{
+    ATH_MSG_VERBOSE("HoughDataPerSectorVec "<<m_houghDataPerSectorVecKey<<" is empty, recording");
+    ATH_CHECK(handle.record(std::make_unique<Muon::MuonLayerHoughTool::HoughDataPerSectorVec>()));
   }
 
   return StatusCode::SUCCESS;

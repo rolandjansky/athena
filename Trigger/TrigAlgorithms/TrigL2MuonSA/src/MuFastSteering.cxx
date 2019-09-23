@@ -10,9 +10,6 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
 #include "CxxUtils/phihelper.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -31,7 +28,6 @@ using namespace SG;
 
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
-    m_storeGate("StoreGateSvc", name), 
     m_timerSvc("TrigTimerSvc", name),
     m_regionSelector("RegSelSvc", name),
     m_recMuonRoIUtils(),
@@ -55,11 +51,6 @@ MuFastSteering::~MuFastSteering() {
 HLT::ErrorCode MuFastSteering::hltInitialize()
 {
   ATH_MSG_DEBUG("Initializing MuFastSteering - package version " << PACKAGE_VERSION);
-  
-  if (m_storeGate.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve service StoreGateSvc");
-    return HLT::BAD_JOB_SETUP;
-  }
   
   StatusCode sc;
 
@@ -198,6 +189,10 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   } 
 
   // DataHandles for AthenaMT
+  if (m_eventInfoKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("ReadHandleKey for xAOD::EventInfo key:" << m_eventInfoKey.key()  << " initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  }
   if (m_roiCollectionKey.initialize().isFailure() ) { 
     ATH_MSG_ERROR("ReadHandleKey for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key()  << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;   
@@ -966,23 +961,11 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
 
   const int currentRoIId = roids->roiId();
 
-   
-  const EventInfo* pEventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(pEventInfo);
-  if (sc.isFailure()){
-    ATH_MSG_FATAL("Can't get EventInfo object");
-    return HLT::SG_ERROR;
-  }
-  
-  const EventID* pEventId = pEventInfo->event_ID();
-  if (pEventId==0) {
-    ATH_MSG_ERROR("Could not find EventID object");
-    return HLT::SG_ERROR;
-  }
-  
-  const TriggerInfo* pTriggerInfo = pEventInfo->trigger_info();
-  if (pTriggerInfo==0) {
-    ATH_MSG_ERROR("Could not find TriggerInfo object");
+  const EventContext& ctx = getContext();
+  const EventIDBase& eventID = ctx.eventID();
+  auto eventInfo = SG::makeHandle(m_eventInfoKey, ctx);
+  if (!eventInfo.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve xAOD::EventInfo object");
     return HLT::SG_ERROR;
   }
   
@@ -1106,9 +1089,9 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
   /// Set input TE ID
   //muonSA->setTeId( inputTE->getId() );	// move to hltExecute()	
   /// Set level-1 ID
-  muonSA->setLvl1Id( pTriggerInfo->extendedLevel1ID() );
+  muonSA->setLvl1Id( eventInfo->extendedLevel1ID() );
   /// Set lumi block
-  muonSA->setLumiBlock( pEventId->lumi_block() );
+  muonSA->setLumiBlock( eventID.lumi_block() );
   /// Set muon detector mask
   muonSA->setMuonDetMask( muondetmask );
   /// Set RoI ID

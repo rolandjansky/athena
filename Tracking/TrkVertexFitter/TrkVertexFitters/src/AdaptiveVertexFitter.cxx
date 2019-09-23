@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -35,7 +35,7 @@ namespace Trk
 {
   
   AdaptiveVertexFitter::AdaptiveVertexFitter(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_SeedFinder("Trk::CrossDistancesSeedFinder"),
     m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory"),
     m_TrackCompatibilityEstimator("Trk::Chi2TrackCompatibilityEstimator"),
@@ -143,7 +143,7 @@ namespace Trk
 					    const xAOD::Vertex& constraint,//initialized to xAOD::Vertex()
 					    const Amg::Vector3D & startingPoint,//initialized to Amg::Vector3D()
 					    bool IsConstraint,//initialized to false
-					    bool IsStartingPoint)//initialized to false
+					    bool IsStartingPoint) const//initialized to false
   {
 
     //check the number of tracks
@@ -157,25 +157,29 @@ namespace Trk
     }
 
 
-    Amg::Vector3D* SeedPoint(0);
+    Amg::Vector3D SeedPoint;
     //now find the best point for seeding and linearization of the tracks
     if (IsStartingPoint) {
-      SeedPoint=new Amg::Vector3D(startingPoint);
+      SeedPoint=startingPoint;
     } else {
       if (perigeeList.size()>1) {
         if (IsConstraint) {
-          SeedPoint=new Amg::Vector3D(m_SeedFinder->findSeed(perigeeList,&constraint));
+          SeedPoint=m_SeedFinder->findSeed(perigeeList,&constraint);
         } else {
-          SeedPoint=new Amg::Vector3D(m_SeedFinder->findSeed(perigeeList));
+          SeedPoint=m_SeedFinder->findSeed(perigeeList);
         }
-      } else {
-        SeedPoint=new Amg::Vector3D(constraint.position().x(),constraint.position().y(),constraint.position().z());
+      }
+      else if (IsConstraint) {
+        SeedPoint=constraint.position();
+      }
+      else {
+        SeedPoint.setZero();
       }
     }
 
     //in case m_onlyzseed is on, just use only the z component given by the seed finder
     if (m_onlyzseed&&IsConstraint) {
-      *SeedPoint=Amg::Vector3D(constraint.position().x(),constraint.position().y(),SeedPoint->z());
+      SeedPoint=constraint.position();
     }
     
 
@@ -189,7 +193,7 @@ namespace Trk
     std::vector<const Trk::TrackParameters*>::const_iterator perigeesEnd=perigeeList.end();
 
     ATH_MSG_DEBUG("Inside fitter with track perigee parameters.");
-    ATH_MSG_DEBUG("Seed point: " << *SeedPoint);
+    ATH_MSG_DEBUG("Seed point: " << SeedPoint);
     int myDebugNTrk(0);
 
     for (std::vector<const Trk::TrackParameters*>::const_iterator perigeesIter=perigeesBegin;perigeesIter!=perigeesEnd;++perigeesIter) {
@@ -203,8 +207,8 @@ namespace Trk
      
       VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., 0, NULL, (*perigeesIter), NULL); //TODO: Must think now about when to delete this memory! -David S.
       
-      //m_LinearizedTrackFactory->linearize(*LinTrackToAdd,*SeedPoint); why linearize it? maybe you don't need it at all!!!!! <19-05-2006>
-      bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
+      //m_LinearizedTrackFactory->linearize(*LinTrackToAdd,SeedPoint); why linearize it? maybe you don't need it at all!!!!! <19-05-2006>
+      bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,SeedPoint);
       if (!success)
       {
 	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
@@ -220,7 +224,7 @@ namespace Trk
     std::vector<const Trk::NeutralParameters*>::const_iterator neutralPerigeesEnd  =neutralPerigeeList.end();
 
     ATH_MSG_DEBUG("Inside fitter with neutral perigee parameters.");
-    ATH_MSG_DEBUG("Seed point: " << *SeedPoint);
+    ATH_MSG_DEBUG("Seed point: " << SeedPoint);
     int myDebugNNeutral(0);
     for (std::vector<const Trk::NeutralParameters*>::const_iterator neutralPerigeesIter=neutralPerigeesBegin;neutralPerigeesIter!=neutralPerigeesEnd;++neutralPerigeesIter) {
 
@@ -230,7 +234,7 @@ namespace Trk
 
       VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., 0, NULL, NULL, (*neutralPerigeesIter) ); //TODO: Must think now about when to delete this memory! -David S.
      
-      bool success = m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
+      bool success = m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,SeedPoint);
       if (!success)
       {
 	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
@@ -253,28 +257,25 @@ namespace Trk
 
 
    
-    xAOD::Vertex* ConstraintVertex(0);
+    xAOD::Vertex ConstraintVertex;
+    ConstraintVertex.makePrivateStore();
     //use the previous prior vertex info for the initial vertex if there
     if (IsConstraint ) {
-      ConstraintVertex=new xAOD::Vertex();
-      ConstraintVertex->makePrivateStore();
-      ConstraintVertex->setPosition( constraint.position() );
-      ConstraintVertex->setCovariancePosition( constraint.covariancePosition() );
-      ConstraintVertex->setFitQuality( 0., 0. );
+      ConstraintVertex.setPosition( constraint.position() );
+      ConstraintVertex.setCovariancePosition( constraint.covariancePosition() );
+      ConstraintVertex.setFitQuality( 0., 0. );
     } else {
       AmgSymMatrix(3) startingCovMatrix;
       startingCovMatrix.setIdentity();
       startingCovMatrix = startingCovMatrix / m_initialError;
       //now initialize with starting position and covariance matrix
-      ConstraintVertex=new xAOD::Vertex();
-      ConstraintVertex->makePrivateStore();
-      ConstraintVertex->setPosition( *SeedPoint );
-      ConstraintVertex->setCovariancePosition( startingCovMatrix );
-      ConstraintVertex->setFitQuality( 0., -3. );
+      ConstraintVertex.setPosition( SeedPoint );
+      ConstraintVertex.setCovariancePosition( startingCovMatrix );
+      ConstraintVertex.setFitQuality( 0., -3. );
     }
 
     //now put the linearizedtracks into VxTrackAtVertex
-    return dothefit(*ConstraintVertex,*SeedPoint,theLinTracks);
+    return dothefit(ConstraintVertex,SeedPoint,theLinTracks);
 
 
   }
@@ -284,7 +285,7 @@ namespace Trk
                                             const xAOD::Vertex& constraint,//initialized to xAOD::Vertex()
                                             const Amg::Vector3D & startingPoint,//initialized to Amg::Vector3D()
                                             bool IsConstraint,//initialized to false
-                                            bool IsStartingPoint) {//initialized to false
+                                            bool IsStartingPoint) const {//initialized to false
 
     ATH_MSG_DEBUG("Called Adaptive vertex with Trk::Track. N. Tracks = " << VectorTrk.size());
 
@@ -345,7 +346,7 @@ namespace Trk
                                             const xAOD::Vertex& constraint,//initialized to xAOD::Vertex()
                                             const Amg::Vector3D & startingPoint,//initialized to Amg::Vector3D()
                                             bool IsConstraint,//initialized to false
-                                            bool IsStartingPoint) {//initialized to false
+                                            bool IsStartingPoint) const {//initialized to false
 
     std::vector<const Trk::TrackParameters*> perigeeList;
     for (std::vector<const Trk::TrackParticleBase*>::const_iterator iter=VectorTrk.begin();
@@ -405,11 +406,12 @@ namespace Trk
 
 
 
-  xAOD::Vertex * AdaptiveVertexFitter::dothefit(const xAOD::Vertex & ConstraintVertex, const Amg::Vector3D & SeedVertex, std::vector<Trk::VxTrackAtVertex> & myLinTracks)
+  xAOD::Vertex * AdaptiveVertexFitter::dothefit(const xAOD::Vertex & ConstraintVertex, const Amg::Vector3D & SeedVertex, std::vector<Trk::VxTrackAtVertex> & myLinTracks) const
   {
   
     //now reset the annealing maker
-    m_AnnealingMaker->reset();
+    Trk::IVertexAnnealingMaker::AnnealingState astate;
+    m_AnnealingMaker->reset(astate);
 
     //Count the steps for the fit and the number of relinearizations needed in the fit
     int num_steps(0);
@@ -419,7 +421,7 @@ namespace Trk
     xAOD::Vertex* ActualVertex = new xAOD::Vertex();
     ActualVertex->makePrivateStore(); // xAOD::VertexContainer will take ownership of AuxStore when ActualVertex is added to it
     ActualVertex->setPosition( ConstraintVertex.position() );
-    ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(1.) );
+    ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(astate, 1.) );
     ActualVertex->setFitQuality( ConstraintVertex.chiSquared(), ConstraintVertex.numberDoF() );
     ActualVertex->vxTrackAtVertex() = myLinTracks;
     ActualVertex->setVertexType(xAOD::VxType::NotSpecified); // to mimic the initialization present in the old EDM constructor
@@ -431,7 +433,7 @@ namespace Trk
     if(msgLvl(MSG::VERBOSE))
     {
       msg(MSG::VERBOSE) << "Num max of steps is " << m_maxIterations << endmsg;
-      msg(MSG::VERBOSE) << "m_AnnealingMaker->isEquilibrium() is " << m_AnnealingMaker->isEquilibrium() << endmsg;
+      msg(MSG::VERBOSE) << "m_AnnealingMaker->isEquilibrium() is " << m_AnnealingMaker->isEquilibrium(astate) << endmsg;
     }
 
     std::vector<Trk::VxTrackAtVertex>::iterator lintracksBegin = ActualVertex->vxTrackAtVertex().begin();
@@ -444,12 +446,12 @@ namespace Trk
     do {
 
       ActualVertex->setPosition( ConstraintVertex.position() );
-      ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(1.) );
+      ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(astate, 1.) );
       ActualVertex->setFitQuality( ConstraintVertex.chiSquared(), ConstraintVertex.numberDoF() );
 
       if(msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << "Correction applied to constraint weight is: " << m_AnnealingMaker->getWeight(1.) << endmsg;
+        msg(MSG::DEBUG) << "Correction applied to constraint weight is: " << m_AnnealingMaker->getWeight(astate, 1.) << endmsg;
       }
 
       //To reweight here through an extrapolation is not ideal, but maybe I'll change this in the future...
@@ -494,12 +496,12 @@ namespace Trk
         m_TrackCompatibilityEstimator->estimate(*iter,NewVertex);
 
         //use the obtained estimate and ask the Annealing Maker what is the corresponding weight at the actual temperature step
-        iter->setWeight( m_AnnealingMaker->getWeight( iter->vtxCompatibility() ) );
+        iter->setWeight( m_AnnealingMaker->getWeight( astate, iter->vtxCompatibility() ) );
         if(msgLvl(MSG::VERBOSE))
         {
           msg(MSG::VERBOSE) << "Before annealing: " << iter->vtxCompatibility() <<
               " Annealing RESULT is:" << iter->weight() << " at T: " <<
-              m_AnnealingMaker->actualTemp() << endmsg;
+              m_AnnealingMaker->actualTemp(astate) << endmsg;
         }
 
 
@@ -565,13 +567,13 @@ namespace Trk
         msg(MSG::VERBOSE) << "Now calling one step of annealing" << endmsg;
       }
 
-      m_AnnealingMaker->anneal();
+      m_AnnealingMaker->anneal(astate);
       num_steps+=1;
 
       //continue to fit until max iteration number has been reached or "thermal equilibrium"
       //has been obtained in the annealing process
 
-    } while (num_steps<m_maxIterations && !(m_AnnealingMaker->isEquilibrium()) );
+    } while (num_steps<m_maxIterations && !(m_AnnealingMaker->isEquilibrium(astate)) );
 
     //Here smooth the vertex (refitting of the track)
     
@@ -599,9 +601,6 @@ namespace Trk
                       << "the ndf of the vertex is at fit end: " << ActualVertex->numberDoF() << endmsg;
     }
 
-    delete &ConstraintVertex;
-    delete &SeedVertex;
-
     // TODO: get rid of following line
     //std::cout << "Number of steps: " << num_steps << ". Number of relinearizations: " << num_relinearizations << "." << std::endl << std::endl;
 
@@ -612,76 +611,87 @@ namespace Trk
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*>   & perigeeList,
                                            const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
-                                           const Amg::Vector3D& startingPoint)              {
+                                           const Amg::Vector3D& startingPoint) const
+  {
 
     return _fit(perigeeList,neutralPerigeeList,xAOD::Vertex(),startingPoint,false,true);
   }
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
 		 			   const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
-					   const xAOD::Vertex& constraint) {
-
+					   const xAOD::Vertex& constraint) const
+  {
     return _fit(perigeeList,neutralPerigeeList,constraint,Amg::Vector3D(),true);
   }
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
 					   const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
 					   const xAOD::Vertex& constraint,
-					   const Amg::Vector3D & startingPoint) {
-
+					   const Amg::Vector3D & startingPoint) const
+  {
     return _fit(perigeeList,neutralPerigeeList,constraint,startingPoint,true,true);
   }
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-					   const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList) {
-
+					   const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList) const
+  {
     return _fit(perigeeList,neutralPerigeeList,xAOD::Vertex(),Amg::Vector3D(),false,false);
   }
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
-		     const Amg::Vector3D & startingPoint) {
+		     const Amg::Vector3D & startingPoint) const
+  {
     return _fit(vectorTrk,xAOD::Vertex(),startingPoint,false,true);
   }
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-		     const Amg::Vector3D & startingPoint) {
+		     const Amg::Vector3D & startingPoint) const
+  {
     return _fit(vectorTrk,xAOD::Vertex(),startingPoint,false,true);
   }
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk,
-		     const xAOD::Vertex& constraint) {
+		     const xAOD::Vertex& constraint) const
+  {
     return _fit(vectorTrk,constraint,Amg::Vector3D(),true);
   }
 
   xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-		    const xAOD::Vertex& constraint) {
+		    const xAOD::Vertex& constraint) const
+  {
     return _fit(vectorTrk,constraint,Amg::Vector3D(),true);
   }
 
-  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk) {
+  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk) const
+  {
     return _fit(vectorTrk,xAOD::Vertex(),Amg::Vector3D(),false,false);
   }
 
-  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk) {
+  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk) const
+  {
     return _fit(vectorTrk,xAOD::Vertex(),Amg::Vector3D(),false,false);
   }
 
-  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const Amg::Vector3D& startingPoint) {
+  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const Amg::Vector3D& startingPoint) const
+  {
     const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
     return fit(perigeeList, neutralPerigeeList, startingPoint);
   }
   
-  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const xAOD::Vertex& constraint) {
+  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const xAOD::Vertex& constraint) const
+  {
     const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
     return fit(perigeeList, neutralPerigeeList, constraint);
   }
 
-  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const xAOD::Vertex& constraint, const Amg::Vector3D & startingPoint) {
+  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const xAOD::Vertex& constraint, const Amg::Vector3D & startingPoint) const
+  {
     const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
     return fit(perigeeList, neutralPerigeeList, constraint, startingPoint);
   }
 
-  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList) {
+  xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList) const
+  {
     const std::vector<const Trk::NeutralParameters*> neutralPerigeeList; 
     return fit(perigeeList,neutralPerigeeList);
   }
@@ -690,7 +700,7 @@ namespace Trk
 		                            const xAOD::Vertex& constraint,
 					    const Amg::Vector3D & startingPoint,
 					    bool IsConstraint,
-					    bool IsStartingPoint) {
+					    bool IsStartingPoint) const {
     const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
     return _fit(perigeeList, neutralPerigeeList, constraint, startingPoint, IsConstraint, IsStartingPoint);
   }
@@ -701,7 +711,7 @@ namespace Trk
 // with the xAOD tracking design.
 
 
- xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const std::vector<const xAOD::NeutralParticle*>& vectorNeut,const Amg::Vector3D& startingPoint)
+ xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const std::vector<const xAOD::NeutralParticle*>& vectorNeut,const Amg::Vector3D& startingPoint) const
  {	
 
    if(vectorTrk.size() == 0)
@@ -742,8 +752,11 @@ namespace Trk
 
    
    //assigning the input tracks to the fitted vertex through VxTrackAtVertices
-   if(fittedVertex !=0)
+   if(fittedVertex ==0)
    {
+     return fittedVertex;
+   }
+   
      if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check!
      {
        if(fittedVertex->vxTrackAtVertex().size() !=0)
@@ -788,7 +801,6 @@ namespace Trk
 
        }//end of protection against unsuccessfull updates (no tracks were added)
      }//end of vector of tracks check
-   }//end of pointer check
 
 
    //now set links to xAOD::TrackParticles directly in the xAOD::Vertex
@@ -831,7 +843,7 @@ namespace Trk
  }//end of the xAOD starting point fit method
 
     
- xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const std::vector<const xAOD::NeutralParticle*>& vectorNeut, const xAOD::Vertex& constraint)
+ xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const std::vector<const xAOD::NeutralParticle*>& vectorNeut, const xAOD::Vertex& constraint) const
  {
 
    if(vectorTrk.size() == 0)

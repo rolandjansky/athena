@@ -55,5 +55,5 @@ atlas_add_test( Combinators_test
                 LINK_LIBRARIES TestTools xAODTrigger DecisionHandlingLib AthContainers )
 
 atlas_add_test( flake8
-   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
    POST_EXEC_SCRIPT nopost.sh )

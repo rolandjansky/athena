@@ -62,12 +62,12 @@ using CLHEP::RandGaussQ;
 TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_cosmicsType(false)
-  , m_tileID(0)
-  , m_tileTBID(0)
-  , m_tileHWID(0)
-  , m_tileInfo(0)
-  , m_TT_ID(0)
-  , m_cabling(0)
+  , m_tileID(nullptr)
+  , m_tileTBID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_tileInfo(nullptr)
+  , m_TT_ID(nullptr)
+  , m_cabling(nullptr)
   , m_nSamples(0)
   , m_iTrig(0)
   , m_MBTSnSamples(0)
@@ -114,7 +114,8 @@ StatusCode TileHitToTTL1::initialize() {
   //=== Get rndm number service
   ATH_CHECK( m_rndmSvc.retrieve() );
 
-  m_cabling = TileCablingService::getInstance();
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cabling = m_cablingSvc->cablingService();
 
   // The 'cosmics' setting refers to running with the 
   // Tile/Chicago Cosmic boards instead of the L1Calo

@@ -13,8 +13,6 @@
 #undef NDEBUG
 
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "CxxUtils/make_unique.h"
-#include "boost/foreach.hpp"
 #include <iostream>
 #include <string>
 #include <vector>

@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import os
-import subprocess
-import EventApps
+from __future__ import print_function
 import eformat
-
 import argparse
 import operator
 
@@ -23,10 +20,10 @@ parser.add_argument("files", metavar="FILE", nargs='+',
                     help="RAW file to inspect")
                     
 parser.add_argument("-n", "--events", metavar="N", action="store", type=int,
-                     help="Process N events")
+                    help="Process N events")
 
 parser.add_argument("-s", "--skip", metavar="N", action="store", type=int,
-                     help="Skip N events")
+                    help="Skip N events")
 
 parser.add_argument("--l1", action="store_true", default=False,
                     help="L1 trigger bits (from event header)")
@@ -83,7 +80,7 @@ parser.add_argument("--interactive", action="store_true", default=False,
 
 args = parser.parse_args() 
 
-from TrigByteStreamTools.hltResult import  *
+from TrigByteStreamTools.hltResult import hltResult, print_HLTResult, collect_feature_sizes
 from TrigByteStreamTools import CTPfragment
 
 res = hltResult()
@@ -108,13 +105,13 @@ def CTP_Info(event, module_id=1):
               and rob.source_id().module_id()==module_id]
 
   if len(ctp_robs)==0:
-    print "No CTP ROB found"
+    print("No CTP ROB found")
     
   for rob in ctp_robs:
     x = CTPfragment.getExtraPayloadObject(rob)
     folderUpdates = CTPfragment.getFolderUpdates(x)
     upd = ''.join(['[%d,%d]' % (f.second.folderIndex,f.second.lumiBlock) for f in folderUpdates])
-    print "ROB 0x%0x, L1ID %10d, LB %4d, Version %d, Bunch %d, HLT counter: %3d, Payload #%d %s L1PSK %d BGK %d COOLUPD %s" % (
+    print("ROB 0x%0x, L1ID %10d, LB %4d, Version %d, Bunch %d, HLT counter: %3d, Payload #%d %s L1PSK %d BGK %d COOLUPD %s" % (
       rob.source_id(),
       event.lvl1_id(),
       event.lumi_block(),
@@ -126,10 +123,10 @@ def CTP_Info(event, module_id=1):
       x.getL1PSK(),
       x.getBGK(),
       upd
-    )
+    ))
     for w in ['TBP','TAP','TAV']:
       items = CTPfragment.decodeTriggerBits(CTPfragment.getTriggerWords(rob,w))
-      print "ROB 0x%0x, %s: %s" % (rob.source_id(), w, printL1Items(items,smk))
+      print("ROB 0x%0x, %s: %s" % (rob.source_id(), w, printL1Items(items,smk)))
 
 
 @memoize
@@ -138,7 +135,8 @@ def getL1Menu(smk):
   return getL1Menu(str(smk))
 
 def printL1Items(items,smk):
-  if not args.decodeItems: return items
+  if not args.decodeItems:
+    return items
   
   l1menu = getL1Menu(smk)
   names = [l1menu[i].name for i in items]
@@ -151,14 +149,14 @@ def my_dump(bsfile):
   global smk
   
   # open a file
-  print "="*100
-  print "Opening", bsfile
+  print("="*100)
+  print("Opening", bsfile)
 
   input = eformat.istream(bsfile)
 
   if args.interactive:
     import code
-    code.interact(local=locals());
+    code.interact(local=locals())
     
   event_count = 0
   l2_event_count = 0
@@ -171,43 +169,44 @@ def my_dump(bsfile):
       
     event_count += 1
     
-    if args.events!=None and event_count>args.events: break
+    if args.events is not None and event_count>args.events:
+      break
     
-    print "======================= RunNumber : %d , Event: %d,  LB: %d, LVL1_ID: %d, Global_ID: %d bunch-x: %d TT: x%x ==========================" \
-          % ( event.run_no(), event_count, event.lumi_block(), event.lvl1_id(), event.global_id(), event.bc_id(), event.lvl1_trigger_type())
+    print("======================= RunNumber : %d , Event: %d,  LB: %d, LVL1_ID: %d, Global_ID: %d bunch-x: %d TT: x%x =========================="
+          % ( event.run_no(), event_count, event.lumi_block(), event.lvl1_id(), event.global_id(), event.bc_id(), event.lvl1_trigger_type()))
 
     smk = args.smk
     if args.decodeItems and args.smk==0:  # Need to get SMK from HLT result
       hltrob = [f for f in event.children() if f.source_id().subdetector_id() in [eformat.helper.SubDetector.TDAQ_LVL2,eformat.helper.SubDetector.TDAQ_EVENT_FILTER] ]
       if len(hltrob)==0:
-        print "ERROR: Cannot find HLT result. Will not decode trigger item names."
+        print("ERROR: Cannot find HLT result. Will not decode trigger item names.")
         args.decodeItems = False
       else:
         res.load(hltrob[0])
         smk = res.getConfigSuperMasterKey()
         if smk==0:
-          print "ERROR: No SMK stored in HLT result. Will not decode trigger item names."
+          print("ERROR: No SMK stored in HLT result. Will not decode trigger item names.")
           args.decodeItems = False
       
     if args.l1:
       #print "L1 TriggerInfo: ", ["0x%x"%i for i in event.lvl1_trigger_info() ]
       words = Lvl1_Info(event)
-      print "L1 CTP IDs - TBP: ", printL1Items(words[0],smk)
-      print "L1 CTP IDs - TAP: ", printL1Items(words[1],smk)
-      print "L1 CTP IDs - TAV: ", printL1Items(words[2],smk)
+      print("L1 CTP IDs - TBP: ", printL1Items(words[0],smk))
+      print("L1 CTP IDs - TAP: ", printL1Items(words[1],smk))
+      print("L1 CTP IDs - TAV: ", printL1Items(words[2],smk))
 
     if args.ctp:
       CTP_Info(event,int(args.ctp))
                   
     if args.l2:
-      print "L2 TriggerInfo: ", ["0x%x"%i for i in event.lvl2_trigger_info() ]
+      print("L2 TriggerInfo: ", ["0x%x"%i for i in event.lvl2_trigger_info() ])
 
     # loop over the SubDetFragments and find LVL2
     if args.l2res or args.sizeSummary:
       found=False
       for f in event.children():
         if f.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_LVL2:
-          print '.. %s %s %s bytes' % (f.__class__.__name__, f.source_id(), f.fragment_size_word()*4)
+          print('.. %s %s %s bytes' % (f.__class__.__name__, f.source_id(), f.fragment_size_word()*4))
           res.load(f)
           found=True
           l2_event_count += 1
@@ -216,13 +215,13 @@ def my_dump(bsfile):
             print_HLTResult(res, args)
           if args.sizeSummary:
             collect_feature_sizes(featureSizes, res)            
-          print ".. EOF HLTResult for L2"
+          print(".. EOF HLTResult for L2")
       if not found:
-        print ".. No HLTResult for L2"
+        print(".. No HLTResult for L2")
         
       
     if args.ef:
-      print "EF TriggerInfo: ", ["0x%x"%i for i in event.event_filter_info()]
+      print("EF TriggerInfo: ", ["0x%x"%i for i in event.event_filter_info()])
 
 
     # loop over the SubDetFragments and find EF
@@ -230,7 +229,7 @@ def my_dump(bsfile):
       found=False
       for f in event.children():
         if f.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_EVENT_FILTER:
-          print '.. %s %s %s bytes' % (f.__class__.__name__, f.source_id(), f.fragment_size_word()*4)          
+          print('.. %s %s %s bytes' % (f.__class__.__name__, f.source_id(), f.fragment_size_word()*4))          
           try:
             res.load(f)
             found = True
@@ -240,26 +239,26 @@ def my_dump(bsfile):
               print_HLTResult(res, args)
             if args.sizeSummary:
               collect_feature_sizes(featureSizes, res)
-          except Exception, ex:
-            print '... **** problems in analyzing payload', ex
-            print '... **** raw data[:10]', list(f.rod_data())[:10]
-          print ".. EOF HLTResult for EF"
+          except Exception as ex:
+            print('... **** problems in analyzing payload', ex)
+            print('... **** raw data[:10]', list(f.rod_data())[:10])
+          print(".. EOF HLTResult for EF")
       if not found:
-        print ".. No HLTResult for EF"
+        print(".. No HLTResult for EF")
 
     if args.stag:
-      print "StreamTag: ", [(s.name, s.type) for s in event.stream_tag()]
+      print("StreamTag: ", [(s.name, s.type) for s in event.stream_tag()])
     
   event_count = max(l2_event_count, ef_event_count)   
   if args.sizeSummary:
-    print '... '+20*'-'+'sizes by type'
+    print('... '+20*'-'+'sizes by type')
     for f,s in sorted(featureSizes.iteritems(),key=operator.itemgetter(1),reverse=True):
       if '#' not in f:
-        print ".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count)
-    print '... '+20*'-'+'sizes by type#key'        
+        print(".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count))
+    print('... '+20*'-'+'sizes by type#key')        
     for f,s in sorted(featureSizes.iteritems(),key=operator.itemgetter(1),reverse=True):
       if '#' in f:
-        print ".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count)        
+        print(".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count))        
 
 
 if __name__ == "__main__":

@@ -5,20 +5,9 @@
 #ifndef TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOALG_H 
 #define TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOALG_H 1 
 
-#include <string>
-
-#include "AthenaBaseComps/AthReentrantAlgorithm.h" 
-#include "AthViews/View.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-
 #include "TrigMuonEFMSonlyHypoTool.h"
-
 #include "DecisionHandling/HypoBase.h"
 
-class StoreGateSvc;
 class TriggerElement;
 
 // --------------------------------------------------------------------------------
@@ -39,7 +28,6 @@ class TrigMuonEFMSonlyHypoAlg
     
   private:
  
-    TrigMuonEFMSonlyHypoAlg(); 
     ToolHandleArray<TrigMuonEFMSonlyHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{

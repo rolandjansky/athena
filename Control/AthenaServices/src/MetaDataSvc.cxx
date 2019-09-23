@@ -398,7 +398,6 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    if (!m_allowMetaDataStop && !ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
-
    // Make sure metadata is ready for writing
    ATH_CHECK(this->prepareOutput());
 
@@ -465,8 +464,11 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
             cfSvc.release().ignore();
          }
-         if (!m_outputDataStore->clearStore().isSuccess()) {
+         if (!m_outputDataStore->clearStore(true).isSuccess()) {
             ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
+         }
+         if (!m_inputDataStore->clearStore(true).isSuccess()) {
+            ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
          }
       }
    }

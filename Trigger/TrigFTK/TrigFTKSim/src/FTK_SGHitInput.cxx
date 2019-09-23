@@ -42,7 +42,6 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimData/SCT_SimHelper.h"
 #include "InDetSimData/PixelSimHelper.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
@@ -136,11 +135,6 @@ StatusCode FTK_SGHitInput::initialize(){
     m_log << MSG::INFO << m_beamSpotKey << " retrieved" << endmsg;
   }
 
-  if( service("DetectorStore",m_detStore).isFailure() ) {
-    m_log << MSG::FATAL <<"DetectorStore service not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   IPartPropSvc* partPropSvc = 0;
   if( service("PartPropSvc", partPropSvc, true).isFailure() ) {
     m_log << MSG::FATAL << "particle properties service unavailable" << endmsg;
@@ -151,24 +145,21 @@ StatusCode FTK_SGHitInput::initialize(){
   // ID helpers
   m_idHelper = new AtlasDetectorID;
   const IdDictManager* idDictMgr( 0 );
-  if( m_detStore->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
+  if( detStore()->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
     m_log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
+  if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
+  if( detStore()->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // open output to .bz2 using streams for debug //
@@ -252,12 +243,15 @@ int FTK_SGHitInput::readData()
 
   HitIndexMap hitIndexMap; // keep running index event-unique to each hit
   HitIndexMap pixelClusterIndexMap;
-  // get pixel and sct cluster containers
-  if( m_storeGate->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the PixelCluster container " << m_pixelClustersName << endmsg;
-  }
-  if( m_storeGate->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the SCT_Cluster container " << m_sctClustersName << endmsg;
+
+  if (m_dooutFileRawHits) {
+    // get pixel and sct cluster containers
+    if( m_storeGate->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
+      ATH_MSG_WARNING("unable to retrieve the PixelCluster container " << m_pixelClustersName);
+    }
+    if( m_storeGate->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
+      ATH_MSG_WARNING("unable to retrieve the SCT_Cluster container " << m_sctClustersName);
+    }
   }
 
 
@@ -303,6 +297,12 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   FTKRawHit tmpSGhit;
   //tmporary debug to output variables to text file for developer.
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
 
   if( m_storeGate->retrieve(pixel_rdocontainer_iter, "PixelRDOs").isSuccess()  ) {
     pixel_rdocontainer_iter->clID(); // anything to dereference the DataHandle
@@ -314,8 +314,11 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       // loop on all RDOs
       for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
         Identifier rdoId = (*iRDO)->identify();
+        const Identifier wafer_id = m_pixelId->wafer_id(rdoId);        
+        const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
         // get the det element from the det element collection
-        const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
+        const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
+        assert( sielement);
         Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
         localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         const InDetDD::SiLocalPosition localPos(localPos2D);
@@ -471,8 +474,11 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         if( !pixel_rdoCollection ) { continue; }
         for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
           Identifier rdoId = (*iRDO)->identify();
-          // get the det element from the det element collection
-          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
+          const Identifier wafer_id = m_pixelId->wafer_id(rdoId);
+          const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+          // get the det element from the det element collection          
+          const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
+          assert( sielement);
           Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
           localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
           const InDetDD::SiLocalPosition localPos(localPos2D);
@@ -746,6 +752,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
     } // end dump all RDO's and SDO's for a given event
   } // end dump raw SCT data
 
+if (m_dooutFileRawHits) {
   // FlagJT dump pixel clusters. They're in m_pixelContainer
   m_pixelContainer->clID(); // anything to dereference the DataHandle
   for( InDet::SiClusterContainer::const_iterator iColl=m_pixelContainer->begin(), fColl=m_pixelContainer->end(); iColl!=fColl; ++iColl ) {
@@ -768,7 +775,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       if( have_pixel_sdo && pixelSimDataMap ) {
         for( std::vector<Identifier>::const_iterator rdoIter = (*iCluster)->rdoList().begin();
             rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
-          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter);
+          const Identifier wafer_id = m_pixelId->wafer_id(*rdoIter);
+          const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+          const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
           assert( sielement);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
           const int nCells = sielement->numberOfConnectedCells( sielement->cellIdOfPosition(rawPos) );
@@ -841,7 +850,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       pixelClusterIndex++;
     } // End loop over pixel clusters
   } // End loop over pixel cluster collection
-
+}
   // dump the statistics
   // cout << boost::format("truth parent stats: nch = %|6d| %|6d| %|6d| %|6d| %|6d| fmt = %|5g| fmtp = %|5g| fmtp1 = %|5g| fmb = %|5g|")
   //   % nchannels

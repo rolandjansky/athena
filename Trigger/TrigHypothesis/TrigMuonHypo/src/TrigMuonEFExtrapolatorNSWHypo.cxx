@@ -18,7 +18,6 @@ class ISvcLocator;
 
 TrigMuonEFExtrapolatorNSWHypo::TrigMuonEFExtrapolatorNSWHypo(const std::string & name, ISvcLocator* pSvcLocator) :
    HLT::HypoAlgo(name, pSvcLocator),
-   m_edmhelperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
    m_idhelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
    declareProperty("AcceptAll", m_acceptAll=true);
@@ -47,11 +46,11 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltInitialize()
       msg() << MSG::INFO << "Accepting all the events with not cut!" << endmsg;
    }
 
-   StatusCode sc = m_edmhelperTool.retrieve();
+   StatusCode sc = m_edmHelperSvc.retrieve();
    if ( sc.isSuccess() ) {
-      msg() << MSG::INFO << "Retrieved " << m_edmhelperTool << endmsg;
+      msg() << MSG::INFO << "Retrieved " << m_edmHelperSvc << endmsg;
    } else {
-      msg() << MSG::ERROR << "Could not get " << m_edmhelperTool << endmsg; 
+      msg() << MSG::ERROR << "Could not get " << m_edmHelperSvc << endmsg; 
       return HLT::ERROR;
    }
 
@@ -192,7 +191,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
 	 const Muon::MuonSegment* segment=dynamic_cast<const Muon::MuonSegment*>(*segItr);
 
 	 // get chamber identifier, chamber index and station index
-	 Identifier chid = m_edmhelperTool->chamberId( *segment );
+	 Identifier chid = m_edmHelperSvc->chamberId( *segment );
 	 Muon::MuonStationIndex::ChIndex chIndex = m_idhelperTool->chamberIndex(chid);
 	 if (debug) msg() << MSG::DEBUG << "  chamber index=" << chIndex << endmsg;
 

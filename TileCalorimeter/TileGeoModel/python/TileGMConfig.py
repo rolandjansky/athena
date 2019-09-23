@@ -1,7 +1,10 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
+
 
 def TileGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
@@ -15,7 +18,6 @@ def TileGMCfg(configFlags):
 
 
 if __name__ == "__main__":
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
@@ -24,4 +26,4 @@ if __name__ == "__main__":
 
     acc = TileGMCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
+    print("All OK")

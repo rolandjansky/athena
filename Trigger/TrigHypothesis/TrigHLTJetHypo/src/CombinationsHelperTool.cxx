@@ -20,9 +20,15 @@ CombinationsHelperTool::CombinationsHelperTool(const std::string& type,
 
 StatusCode CombinationsHelperTool::initialize() {
   
-  m_conditions = m_config->getConditions();
-
-  m_grouper  = std::move(m_config->getJetGrouper());
+  auto opt_conditions = m_config->getConditions();
+  if(!opt_conditions.has_value()){
+    ATH_MSG_ERROR("Error setting conditions");
+    return StatusCode::FAILURE;
+  }  
+  m_conditions = std::move(*opt_conditions);
+  
+  m_grouper  = m_config->getJetGrouper();
+  m_matcher = m_config->getMatcher();
 
   return StatusCode::SUCCESS;
 }
@@ -35,8 +41,8 @@ CombinationsHelperTool::collectData(const std::string& setuptime,
 				    
                                     bool pass) const {
   if(!collector){return;}
-  for(auto c: m_conditions){
-    collector->collect("Condition", c.toString());
+  for(const auto& c: m_conditions){
+    collector->collect("Condition", c->toString());
   }
   auto helperInfo = nodeIDPrinter(name(),
 				  m_nodeID,
@@ -58,10 +64,13 @@ struct HypoJetSelector{
   }
   
   bool operator()(pHypoJet j){
+
+    if(m_conditions.empty()){return true;}
+    
     std::vector<pHypoJet> v{j};
     for(const auto& c : m_conditions)
       {
-        if (c.isSatisfied(v, m_collector))  // there is a satisfied condition
+        if (c->isSatisfied(v, m_collector))  // there is a satisfied condition
           {
             return true;
           }
@@ -69,7 +78,7 @@ struct HypoJetSelector{
     
     return false;   // no condition  satisfied
   }
-  ConditionsMT m_conditions;
+  const ConditionsMT& m_conditions;
   const std::unique_ptr<ITrigJetHypoInfoCollector>& m_collector;
 };
  
@@ -86,76 +95,80 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   JetTrigTimer setupTimer;
   
   setupTimer.start();
+
+  auto end_iter = jets.end();
+
+  if(!m_conditions.empty()){
   
+    HypoJetSelector selector(m_conditions, collector);
   
-  HypoJetSelector selector(m_conditions, collector);
+    // use conditions objects to select jets
+    end_iter = std::partition(jets.begin(),
+			      jets.end(),
+			      selector);
+  }
   
-  // use conditions objects to select jets
-  auto end_iter = std::partition(jets.begin(),
-				 jets.end(),
-				 selector);
-  
-  // auto grouper = CombinationsGrouper(m_size);
   auto begin = jets.begin();
-  auto jetGroups = m_grouper->group(begin, end_iter);
-  
-  ATH_MSG_DEBUG("No of groups" << jetGroups.size());
-  
-  bool pass = true;
+  std::vector<HypoJetGroupVector> jetGroupsVec =
+    m_grouper->group(begin, end_iter);
+
   setupTimer.stop();
   exeTimer.start();
+
+  bool passed{false};
   
-  for(auto& gjets : jetGroups){
-    if (testGroup(gjets, jetCollector, collector)){
-      pass = true;
+  for(auto& jetGroupVec : jetGroupsVec){
+    ATH_MSG_DEBUG("No of groups" << jetGroupVec.size());
+
+    auto passes = m_matcher->match(jetGroupVec.begin(),
+				 jetGroupVec.end(),
+				 jetCollector,
+				 collector);
+
+    if(!passes.has_value()){
+      ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
+      return false;
+    }
+
+    passed = *passes;
+    if(passed){
       exeTimer.stop();
       collectData(setupTimer.readAndReset(),
-                  exeTimer.readAndReset(),
-                  collector,
-                  pass);
-      
-      return pass;
+		  exeTimer.readAndReset(),
+		  collector,
+		  passed);
+	
+      return passed;
     }
   }
   
-  pass = false;
   exeTimer.stop();
   collectData(setupTimer.readAndReset(),
               exeTimer.readAndReset(),
               collector,
-              pass);
+              passed);
   
-  return pass;
+  return passed;
 }
 
-
-bool
-CombinationsHelperTool::testGroup(HypoJetVector& jets,
-				  xAODJetCollector& jetCollector,
-				  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
-  for(auto child : m_children){
-    auto childPass =  child->pass(jets, jetCollector, collector);
-    if (!childPass){
-      return false;}
-  }
-
-  return true;
-}
- 
 
 std::string CombinationsHelperTool::toString() const{
   std::stringstream ss;
   std::string msg =  nodeIDPrinter(name(), m_nodeID, m_parentNodeID) + "\n";
-  for(const auto& cond : m_conditions){ msg += cond.toString() + "\n";}
+  msg += "Conditions:\nNo. of conditions "
+    + std::to_string(m_conditions.size()) + '\n';
+  for(const auto& cond : m_conditions){ msg += cond->toString() + "\n";}
+  msg += "Grouper:\n" + m_grouper -> toString() + '\n';
+  msg += "Matcher:\n" + m_matcher -> toString() + '\n';
   return msg;
 }
 
 StatusCode
 CombinationsHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  StatusCode sc;
-  for(auto child : m_children){
-    sc = sc & child->getDescription(c);
-  }
-  return sc;
+  return StatusCode::SUCCESS;
+
+}
+std::size_t CombinationsHelperTool::requiresNJets() const {
+  return m_config->requiresNJets();
 }

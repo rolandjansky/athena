@@ -7,7 +7,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IRegistry.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 
 // Athena includes

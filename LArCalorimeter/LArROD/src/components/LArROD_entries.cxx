@@ -8,7 +8,6 @@
 #include "LArROD/LArCalibDigitsAccumulator.h"
 #include "LArROD/LArDigitsAccumulator.h"
 #include "LArROD/LArRawChannelBuilderDriver.h"
-#include "LArROD/LArCellBuilderDriver.h"
 #include "LArROD/LArSuperCellBuilderDriver.h"
 #include "LArROD/LArRawChannelBuilderToolOFC.h"
 #include "LArROD/LArRawChannelBuilderToolOFCIter.h"
@@ -47,7 +46,6 @@ DECLARE_COMPONENT( LArDigitThinner )
 DECLARE_COMPONENT( LArFebErrorSummaryMaker )
 DECLARE_COMPONENT( LArCalibDigitsAccumulatorFreeGain )
 DECLARE_COMPONENT( LArSuperCellBuilderDriver )
-DECLARE_COMPONENT( LArCellBuilderDriver )
 DECLARE_COMPONENT( LArRawChannelBuilderToolOFC )
 DECLARE_COMPONENT( LArRawChannelBuilderToolOFCIter )
 DECLARE_COMPONENT( LArRawChannelBuilderToolParabola )

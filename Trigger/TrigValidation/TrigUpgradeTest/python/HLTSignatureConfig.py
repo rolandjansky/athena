@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg, HLTTest__TestHypoAlg
 from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
@@ -21,7 +23,7 @@ def InputMakerForFeatureAlg(name):
 #generalize
 
 def makeSequence(ConfigFlags, name,step, signature):
-    IM= InputMakerForFeatureAlg(name=signature+"InputMaker"+name+"Step"+step)
+    IM= InputMakerForFeatureAlg(name="IM"+signature+name+"Step"+step)
     IM.Output=name+signature+"IM"+step+"_out"
     if "el" in signature:
         Alg = CaloClustering(name="CaloClustering"+name+"Step"+step, FileName="emclusters.dat")

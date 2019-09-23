@@ -124,7 +124,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
         //                                     endcap: increases with R
         // ==============================================================================
 
-        int mdtStationName      =   int(m_mdtIdHelper->stationName(mdt_id)) ;
+        int mdtStationName      =   int(m_muonIdHelperTool->mdtIdHelper().stationName(mdt_id)) ;
 
         //SN     Layer Tube Radial
         //13:EIL 2x4   x54  x4
@@ -146,8 +146,8 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
         //only Endcap middle MDT
         if(mdtStationName!=17 && mdtStationName!=18 )continue;
 
-        int mdtStationEta       =   int(m_mdtIdHelper->stationEta(mdt_id))  ;//backward:[-6,-1], forward:[1,6], (1 or -1 at lowest R)
-        int mdtStationPhi       =   int(m_mdtIdHelper->stationPhi(mdt_id))  ;//[1:8]
+        int mdtStationEta       =   int(m_muonIdHelperTool->mdtIdHelper().stationEta(mdt_id))  ;//backward:[-6,-1], forward:[1,6], (1 or -1 at lowest R)
+        int mdtStationPhi       =   int(m_muonIdHelperTool->mdtIdHelper().stationPhi(mdt_id))  ;//[1:8]
         int mdtAC = (mdtStationEta<0);//a:0, c:1
 
         float mdtSector=mdtStationPhi*2.-1.;
@@ -181,9 +181,9 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
 
           Identifier mdt_id2 = (*mdtCollection)->identify();
 
-          int mdtMultiLayer       =   int(m_mdtIdHelper->multilayer(mdt_id2));
-          int mdtTubeLayer        =   int(m_mdtIdHelper->tubeLayer(mdt_id2));
-          int mdtTube             =   int(m_mdtIdHelper->tube(mdt_id2));
+          int mdtMultiLayer       =   int(m_muonIdHelperTool->mdtIdHelper().multilayer(mdt_id2));
+          int mdtTubeLayer        =   int(m_muonIdHelperTool->mdtIdHelper().tubeLayer(mdt_id2));
+          int mdtTube             =   int(m_muonIdHelperTool->mdtIdHelper().tube(mdt_id2));
           int mdtTubeIdForEM = (abs(mdtStationEta)-1)*64 + mdtTube -1;
 
           ATH_MSG_DEBUG("mdtMultiLayer "<<mdtMultiLayer

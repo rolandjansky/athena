@@ -34,7 +34,6 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/CondAttrListCollAddress.h"
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
-#include "CxxUtils/make_unique.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 
 // Gaudi includes
@@ -740,20 +739,12 @@ TagInfoMgr::handle(const Incident& inc) {
         }
         m_log << MSG::DEBUG << "Retrieved tag info " << endmsg;
 
-        // NOTE: registerTagInfoCallback for IOVDbSvc actually causes
-        // the IOVDbSvc to go and fetch the TagInfo, rather than just
-        // setting a callback. This is needed for now because the
-        // IOVDbSvc must be initialized first. RDS 2006/09
-
-        // Request IOVDbSvc to register call back for TagInfo. This needs
-        // to be done here because IOVDbSvc::initialize cannot - it is
-        // called too early from the ProxyProviderSvc.
-        // Get the IOVDbSvc
-        if (m_iovDbSvc->registerTagInfoCallback().isFailure() ) {
-            m_log << MSG::ERROR << "handle: Unable register IOVDbSvc callback" << endmsg;
+	// Process TagInfo by IOVDbSvc
+        if (m_iovDbSvc->processTagInfo().isFailure() ) {
+            m_log << MSG::ERROR << "handle: Unable process TagInfo by IOVDbSvc" << endmsg;
         }
         else {
-            if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "handle: Requested IOVDbSvc to register callback" << endmsg;
+            if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "handle: TagInfo successfully processed by IOVDbSvc to register callback" << endmsg;
         }
     }
     else if (inc.type() == IncidentType::BeginRun) {
@@ -895,7 +886,7 @@ TagInfoMgr::preLoadAddresses( StoreID::type storeID,
     if (storeID == StoreID::DETECTOR_STORE) {
 
         std::unique_ptr<SG::TransientAddress> tad = 
-          CxxUtils::make_unique<SG::TransientAddress>( ClassID_traits<TagInfo>::ID(), m_tagInfoKeyValue );
+          std::make_unique<SG::TransientAddress>( ClassID_traits<TagInfo>::ID(), m_tagInfoKeyValue );
         IAddressProvider* addp = this;
         tad->setProvider(addp, storeID);
         // Get IOpaqueAddress and add to tad
@@ -1004,7 +995,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // information. Otherwise we fill from from event info (OLD and
     // most likely not used anymore. RDS 08/2012).
     if (attrListColl && attrListColl->size() == 0) {
-        tagInfo = CxxUtils::make_unique<TagInfo>(m_lastTagInfo);
+        tagInfo = std::make_unique<TagInfo>(m_lastTagInfo);
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "createObj: recreate tagInfo from saved info" << endmsg; 
             // Dump out contents of TagInfo
@@ -1013,7 +1004,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
         }
     }
     else {
-        tagInfo = CxxUtils::make_unique<TagInfo>();
+        tagInfo = std::make_unique<TagInfo>();
         if (StatusCode::SUCCESS != fillTagInfo(attrListColl, tagInfo.get())) {
             m_log << MSG::DEBUG << "createObj: Unable to fill TagInfo !" << endmsg;
             return StatusCode::FAILURE;

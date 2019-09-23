@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,13 +26,10 @@ G4Material* G4DetectorConstruction::s_g4vacuum = new G4Material("Vacuum",1.,1.01
                                                                      kStateGas,0.1*CLHEP::kelvin, 1.e-19*CLHEP::pascal);
 
 G4DetectorConstruction::G4DetectorConstruction()
-  :   m_material(nullptr),
-      m_worldLog(nullptr),
-      m_detectorLog(nullptr),
-      m_layerLog(nullptr),
-      m_worldPhys(nullptr),
-      m_detectorPhys(nullptr),
-      m_layerPhys(nullptr)
+  :   m_worldLog(nullptr),
+      //m_detectorLog(nullptr),
+      m_worldPhys(nullptr)
+      ///m_detectorPhys(nullptr),
 {}
 
 

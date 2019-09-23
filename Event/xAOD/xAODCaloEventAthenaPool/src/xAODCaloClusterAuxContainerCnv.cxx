@@ -9,9 +9,6 @@
 #include <memory>
 
 // Infrastucture include(s):
-#ifndef XAOD_ANALYSIS
-#   include "CaloInterface/IxAODClusterCompressor.h"
-#endif
 
 // EDM include(s):
 #include "xAODCaloEvent/versions/CaloClusterAuxContainer_v1.h"
@@ -27,7 +24,7 @@ xAODCaloClusterAuxContainerCnv::
 xAODCaloClusterAuxContainerCnv( ISvcLocator* svcLoc )
    : xAODCaloClusterAuxContainerCnvBase( svcLoc )
 #ifndef XAOD_ANALYSIS
-   , m_compressor( "xAODClusterCompressor" )
+   , m_compressor( "xAODClusterCompressor","xAODCaloClusterAuxContainerCnv" )
 #endif
    , m_doCompression( false )
 {

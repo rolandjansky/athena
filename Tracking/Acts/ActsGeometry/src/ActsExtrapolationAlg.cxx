@@ -12,14 +12,16 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "ActsGeometry/IActsPropStepRootWriterSvc.h"
 
 // ACTS
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "ActsGeometry/IActsPropStepRootWriterSvc.h"
+#include "Acts/Utilities/Units.hpp"
 
 // PACKAGE
-#include "ActsGeometry/ActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 //#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
@@ -31,6 +33,7 @@
 #include <string>
 #include <fstream>
 
+using namespace Acts::UnitLiterals;
 
 ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
                                  ISvcLocator* pSvcLocator)
@@ -79,8 +82,8 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
   double eta = rngEngine->flat() * std::abs(etaMax - etaMin) + etaMin;
 
   std::vector<double> ptRange = m_ptRange;
-  double ptMin = ptRange.at(0) * Acts::units::_GeV;
-  double ptMax = ptRange.at(1) * Acts::units::_GeV;
+  double ptMin = ptRange.at(0) * 1_GeV;
+  double ptMax = ptRange.at(1) * 1_GeV;
 
   double pt = rngEngine->flat() * std::abs(ptMax - ptMin) + ptMin;
 
@@ -96,10 +99,11 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
   std::shared_ptr<Acts::PerigeeSurface> surface
     = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3D(0, 0, 0));
 
+  double t = 0;
 
-  Acts::ActsVectorD<5> pars;
-  pars << d0, z0, phi, theta, qop;
-  std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+  Acts::BoundVector pars;
+  pars << d0, z0, phi, theta, qop, t;
+  std::unique_ptr<Acts::BoundSymMatrix> cov = nullptr;
 
   std::vector<Acts::detail::Step> steps;
 

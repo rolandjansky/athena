@@ -2,7 +2,7 @@
 
 # art-description: MC+MC Overlay with MT support, running with 1 thread
 # art-type: grid
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-include: master/Athena
 
 # art-output: *.root
@@ -11,10 +11,10 @@
 # art-output: mem.full.*
 # art-output: runargs.*
 
-unset ATHENA_PROC_NUMBER
+export ATHENA_CORE_NUMBER=1
 
 Overlay_tf.py \
---athenaopts '--threads 1' \
+--multithreaded \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
 --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup-MT.100events.pool.root \
 --outputRDOFile MC_plus_MC.RDO.pool.root \
@@ -32,7 +32,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
     rc2=$?
 fi
 echo "art-result: $rc2 regression"

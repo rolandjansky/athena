@@ -22,10 +22,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
 
-
-using TrigCompositeUtils::DecisionContainer;
-
-void printPaths(const std::vector<ElementLinkVector<DecisionContainer>>& paths, const std::string& name);
+void printPaths(const std::vector<ElementLinkVector<TrigCompositeUtils::DecisionContainer>>& paths, const std::string& name);
 
 template<class CONTAINER>
 void printFeatures(const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> >& featureContainer, const std::string& name);
@@ -59,7 +56,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   const EventContext& ctx1 = Gaudi::Hive::currentContext();
   std::cout << "Current context: " << ctx1 << std::endl;
 
-  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("MyDecisionContainer");
+  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("HLTNav_MyDecisionContainer");
   SG::WriteHandleKey<xAOD::ElectronContainer> electronContainerKey("MyElectronContainer");
   SG::WriteHandleKey<xAOD::MuonContainer> muonContainerKey("MyMuonContainer");
 
@@ -87,6 +84,13 @@ int main ATLAS_NOT_THREAD_SAFE () {
   constexpr unsigned HLT_mu_chain = 2;
   constexpr unsigned HLT_mu_em_chain = 3;
   constexpr unsigned HLT_em_chain = 4;
+
+  DecisionIDContainer mufast_IDcont {HLT_mufast_chain};
+  DecisionIDContainer mu_IDcont {HLT_mu_chain};
+  DecisionIDContainer mu_em_IDcont {HLT_mu_em_chain};
+  DecisionIDContainer em_IDcont {HLT_em_chain};
+  DecisionIDContainer all_IDcont {HLT_mufast_chain, HLT_mu_chain, HLT_mu_em_chain, HLT_em_chain};
+
 
   // Starting nodes
   Decision* MU0 = newDecisionIn(decisionContainerPtr, "MU0");
@@ -149,7 +153,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MU_H_1__MU0 = newDecisionIn(decisionContainerPtr, "MU_H_1__MU0");
     linkToPrevious(MU_H_1__MU0, MU_IM_1__MU0);
-    MU_H_1__MU0->setObjectLink<xAOD::MuonContainer>("feature", rec_1__mu0_link);
+    MU_H_1__MU0->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu0_link);
     // Fails HLT_mufast_chain
     // Fails HLT_mu_chain
 
@@ -172,7 +176,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MUEM_H_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_H_1__MU0");
     linkToPrevious(MUEM_H_1__MU0, MUEM_IM_1__MU0);
-    MUEM_H_1__MU0->setObjectLink<xAOD::MuonContainer>("feature", rec_1__mu0_link);
+    MUEM_H_1__MU0->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu0_link);
     // Fails HLT_mu_em_chain
 
     Decision* MUEM_CH_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__MU0");
@@ -202,7 +206,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MU_H_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_H_1__MU1");
     linkToPrevious(MU_H_1__MU1, MU_IM_1__MU1);
-    MU_H_1__MU1->setObjectLink<xAOD::MuonContainer>("feature", rec_1__mu1_link);
+    MU_H_1__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu1_link);
     addDecisionID(HLT_mufast_chain, MU_H_1__MU1);
     addDecisionID(HLT_mu_chain, MU_H_1__MU1);
     // HLT_mufast_chain passes the event
@@ -233,7 +237,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MU_H_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_H_2__MU1");
     linkToPrevious(MU_H_2__MU1, MU_IM_2__MU1);
-    MU_H_2__MU1->setObjectLink<xAOD::MuonContainer>("feature", rec_2__mu1_link);
+    MU_H_2__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_2__mu1_link);
     addDecisionID(HLT_mu_chain, MU_H_2__MU1);
     // HLT_mu_chain passes the event
     addDecisionID(HLT_mu_chain, END);
@@ -257,7 +261,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MUEM_H_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_H_1__MU1");
     linkToPrevious(MUEM_H_1__MU1, MUEM_IM_1__MU1);
-    MUEM_H_1__MU1->setObjectLink<xAOD::MuonContainer>("feature", rec_1__mu1_link);
+    MUEM_H_1__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu1_link);
     addDecisionID(HLT_mu_em_chain, MUEM_H_1__MU1);
 
     Decision* MUEM_CH_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__MU1");
@@ -274,7 +278,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MUEM_H_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_H_2__MU1");
     linkToPrevious(MUEM_H_2__MU1, MUEM_IM_2__MU1);
-    MUEM_H_2__MU1->setObjectLink<xAOD::MuonContainer>("feature", rec_2__mu1_link);
+    MUEM_H_2__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_2__mu1_link);
     addDecisionID(HLT_mu_em_chain, MUEM_H_2__MU1);
 
     Decision* MUEM_CH_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_CH_2__MU1");
@@ -303,7 +307,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* EM_H_1__EM0 = newDecisionIn(decisionContainerPtr, "EM_H_1__EM0");
     linkToPrevious(EM_H_1__EM0, EM_IM_1__EM0);
-    EM_H_1__EM0->setObjectLink<xAOD::ElectronContainer>("feature", rec_1__em0_link);
+    EM_H_1__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_1__em0_link);
     addDecisionID(HLT_em_chain, EM_H_1__EM0);
 
     Decision* EM_F_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_F_2__EM0");
@@ -316,7 +320,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* EM_H_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_H_2__EM0");
     linkToPrevious(EM_H_2__EM0, EM_IM_2__EM0);
-    EM_H_2__EM0->setObjectLink<xAOD::ElectronContainer>("feature", rec_2__em0_link);
+    EM_H_2__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_2__em0_link);
     addDecisionID(HLT_em_chain, EM_H_2__EM0);
     // HLT_em_chain passes the event
     linkToPrevious(END, EM_H_2__EM0);
@@ -340,7 +344,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MUEM_H_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_H_1__EM0");
     linkToPrevious(MUEM_H_1__EM0, MUEM_IM_1__EM0);
-    MUEM_H_1__EM0->setObjectLink<xAOD::ElectronContainer>("feature", rec_1__em0_link);
+    MUEM_H_1__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_1__em0_link);
     addDecisionID(HLT_mu_em_chain, MUEM_H_1__EM0);
 
     Decision* MUEM_CH_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__EM0");
@@ -357,7 +361,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
     Decision* MUEM_H_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_H_2__EM0");
     linkToPrevious(MUEM_H_2__EM0, MUEM_IM_2__EM0);
-    MUEM_H_2__EM0->setObjectLink<xAOD::ElectronContainer>("feature", rec_2__em0_link);
+    MUEM_H_2__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_2__em0_link);
     addDecisionID(HLT_mu_em_chain, MUEM_H_2__EM0);
 
     Decision* MUEM_CH_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_2__EM0");
@@ -388,11 +392,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printPaths(paths_HLT_em_chain, "HLT_em_chain");
   printPaths(paths_HLT_all, "All");
 
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, false, featureString(), mufast_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, false, featureString(), mu_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, false, featureString(), mu_em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, false, featureString(), em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, false, featureString(), all_IDcont);
 
   printFeatures(features_pass_all_HLT_mufast_chain, "[All passing features] HLT_mufast_chain");
   printFeatures(features_pass_all_HLT_mu_chain, "[All passing features] HLT_mu_chain");
@@ -400,11 +404,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printFeatures(features_pass_all_HLT_em_chain, "[All passing features] HLT_em_chain");
   printFeatures(features_pass_all_HLT_all, "[All passing features] All chains");
 
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, true, featureString(), mufast_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, true, featureString(), mu_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, true, featureString(), mu_em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, true, featureString(), em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, true, featureString(), all_IDcont);
 
   printFeatures(features_pass_final_HLT_mufast_chain, "[Final passing feature] HLT_mufast_chain");
   printFeatures(features_pass_final_HLT_mu_chain, "[Final passing feature] HLT_mu_chain");
@@ -442,11 +446,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printPaths(paths_HLT_em_chain, "HLT_em_chain");
   printPaths(paths_HLT_all, "All");
 
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, false, featureString(), mufast_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, false, featureString(), mu_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, false, featureString(), mu_em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, false, featureString(), em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, false, featureString(), all_IDcont);
 
   printFeatures(features_passfail_all_HLT_mufast_chain, "[All passing/failing features] HLT_mufast_chain");
   printFeatures(features_passfail_all_HLT_mu_chain, "[All passing/failing features] HLT_mu_chain");
@@ -454,11 +458,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printFeatures(features_passfail_all_HLT_em_chain, "[All passing/failing features] HLT_em_chain");
   printFeatures(features_passfail_all_HLT_all, "[All passing/failing features] All chains");
 
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, true, featureString(), mufast_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, true, featureString(), mu_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, true, featureString(), mu_em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, true, featureString(), em_IDcont);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, true, featureString(), all_IDcont);
 
   printFeatures(features_passfail_final_HLT_mufast_chain, "[Final passing/failing feature] HLT_mufast_chain");
   printFeatures(features_passfail_final_HLT_mu_chain, "[Final passing/failing feature] HLT_mu_chain");
@@ -470,6 +474,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   std::cout << " ---------- Check Explicit Type " << std::endl;
 
   // Check typed retrieval too
+  // Note we are *not* passing the set of interested chains here so expect the state to be unset
   std::vector< LinkInfo<xAOD::MuonContainer> >     features_final_mu  = getFeaturesOfType<xAOD::MuonContainer>(paths_HLT_mu_em_chain);
   std::vector< LinkInfo<xAOD::ElectronContainer> > features_final_em  = getFeaturesOfType<xAOD::ElectronContainer>(paths_HLT_mu_em_chain);
   printFeatures(features_final_mu, "[Explicit Final Muon Features] HLT_mu_em_chain");
@@ -485,15 +490,22 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
 template<class CONTAINER>
 void printFeatures(const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> >& featureContainer, const std::string& name) {
+  using namespace TrigCompositeUtils;
   std::cout << name << " features size:" << featureContainer.size() << std::endl;
   size_t count = 0;
   for (const TrigCompositeUtils::LinkInfo<CONTAINER>& featureLinkInfo : featureContainer) {
-    std::cout << " Feature " << count++ << ":" << (*featureLinkInfo.link)->pt() << ",";
+    std::string stateStr;
+    switch (featureLinkInfo.state) {
+      case ActiveState::ACTIVE: stateStr = "ACTIVE"; break;
+      case ActiveState::INACTIVE: stateStr = "INACTIVE"; break;
+      case ActiveState::UNSET: default: stateStr = "UNSET"; break;
+    }
+    std::cout << "  Feature " << count++ << " pt:" << (*featureLinkInfo.link)->pt() << ", state:" << stateStr << std::endl;
   }
-  std::cout << std::endl;
 }
 
-void printPaths(const std::vector<ElementLinkVector<DecisionContainer>>& paths, const std::string& name) {
+void printPaths(const std::vector<ElementLinkVector<TrigCompositeUtils::DecisionContainer>>& paths, const std::string& name) {
+  using namespace TrigCompositeUtils;
   std::cout << paths.size() << " paths for " << name << std::endl;
   size_t count = 0;
   for (const ElementLinkVector<DecisionContainer>& path : paths) {
@@ -503,9 +515,9 @@ void printPaths(const std::vector<ElementLinkVector<DecisionContainer>>& paths, 
       if (!first) std::cout << " -> ";
       first = false;
       std::cout << (*link)->name();
-      if ((*link)->hasObjectLink("feature")) {
-        ElementLink<xAOD::IParticleContainer> feature = (*link)->objectLink<xAOD::IParticleContainer>("feature");
-        std::cout << " F(" << (*feature)->pt() << ")";
+      if ((*link)->hasObjectLink(featureString())) {
+        ElementLink<xAOD::IParticleContainer> feature = (*link)->objectLink<xAOD::IParticleContainer>(featureString());
+        std::cout << " F(pt:" << (*feature)->pt() << ")";
       }
     }
     std::cout << "]" << std::endl;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTK_RawDataAlgs/FTK_RDO_ReaderAlgo.h"
@@ -12,7 +12,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IUpdator.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include "EventInfo/EventInfo.h"
@@ -109,10 +108,10 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   ATH_MSG_INFO("FTK_RDO_ReaderAlgo::initialize()" );
 
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   //FIX THESE
-  ATH_CHECK( service("StoreGateSvc", m_StoreGate ));
   ATH_MSG_INFO("Input RDO collection" << m_ftk_raw_trackcollection_Name);
   if (m_getRawTracks) ATH_MSG_INFO("Getting FTK_RawTracks from Storegate");
   if (m_getTracks) ATH_MSG_INFO("Getting FTK Trk::Tracks from "<< m_DataProviderSvc);
@@ -341,7 +340,7 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     m_h_FTK_RawTrack_phi  = new TH1D("h_FTK_RawTrack_phi",  ";FTK Raw Track #phi [rad];Tracks",         100, -PI,    PI);
     m_h_FTK_RawTrack_d0   = new TH1D("h_FTK_RawTrack_d0",   ";FTK Raw Track d_{0} [mm];Tracks",         100, -10.,   10.);
     m_h_FTK_RawTrack_z0   = new TH1D("h_FTK_RawTrack_z0",   ";FTK Raw Track z_{0} [mm];Tracks",         500, -50.,   50.);
-    m_h_FTK_RawTrack_invPt = new TH1D("h_FTK_RawTrack_invPt", ";FTK Raw Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
+    m_h_FTK_RawTrack_Pt =   new TH1D("h_FTK_RawTrack_Pt", ";FTK Raw Track q*p_{T} [GeV];Tracks",        100,-100.,100.);
     m_h_FTK_RawTrack_cot  = new TH1D("h_FTK_RawTrack_cot",  ";FTK Raw Track cot(#theta); Tracks",       100,  -PI,   PI);
     m_h_FTK_RawTrack_eta  = new TH1D("h_FTK_RawTrack_eta",  ";FTK Raw Track #eta; Tracks",              100, -3.0,   3.0);
     m_h_FTK_RawTrack_nPix = new TH1D("h_FTK_RawTrack_nPix", ";FTK Raw Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
@@ -351,7 +350,7 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     histograms->push_back(m_h_FTK_RawTrack_phi);
     histograms->push_back(m_h_FTK_RawTrack_d0);
     histograms->push_back(m_h_FTK_RawTrack_z0);
-    histograms->push_back(m_h_FTK_RawTrack_invPt);
+    histograms->push_back(m_h_FTK_RawTrack_Pt);
     histograms->push_back(m_h_FTK_RawTrack_cot);
     histograms->push_back(m_h_FTK_RawTrack_eta);
     histograms->push_back(m_h_FTK_RawTrack_nPix);
@@ -362,7 +361,7 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     m_h_Track_phi  = new TH1D("h_Track_phi",  ";Trk::Track #phi [rad];Tracks",         100, -PI,    PI);
     m_h_Track_d0   = new TH1D("h_Track_d0",   ";Trk::Track d_{0} [mm];Tracks",         100, -10.,   10.);
     m_h_Track_z0   = new TH1D("h_Track_z0",   ";Trk::Track z_{0} [mm];Tracks",         500, -50.,   50.);
-    m_h_Track_invPt = new TH1D("h_Track_invPt", ";Trk::Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
+    m_h_Track_Pt   = new TH1D("h_Track_Pt", ";Trk::Track q*p_{T} [GeV];Tracks",          100,   -100.,   100);
     m_h_Track_cot  = new TH1D("h_Track_cot",  ";Trk::Track cot(#theta); Tracks",       100,  -PI,   PI);
     m_h_Track_eta  = new TH1D("h_Track_eta",  ";Trk::Track #eta; Tracks",              100, -3.0,   3.0);
     m_h_Track_nPix = new TH1D("h_Track_nPix", ";Trk::Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
@@ -372,7 +371,7 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     histograms->push_back(m_h_Track_phi);
     histograms->push_back(m_h_Track_d0);
     histograms->push_back(m_h_Track_z0);
-    histograms->push_back(m_h_Track_invPt);
+    histograms->push_back(m_h_Track_Pt);
     histograms->push_back(m_h_Track_cot);
     histograms->push_back(m_h_Track_eta);
     histograms->push_back(m_h_Track_nPix);
@@ -383,7 +382,7 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     m_h_refitTrack_phi  = new TH1D("h_refitTrack_phi",  ";refit refit Trk::Track #phi [rad];Tracks",         100, -PI,    PI);
     m_h_refitTrack_d0   = new TH1D("h_refitTrack_d0",   ";Trk::Track d_{0} [mm];Tracks",         100, -10.,   10.);
     m_h_refitTrack_z0   = new TH1D("h_refitTrack_z0",   ";refit Trk::Track z_{0} [mm];Tracks",         500, -50.,   50.);
-    m_h_refitTrack_invPt = new TH1D("h_refitTrack_invPt", ";refit Trk::Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
+    m_h_refitTrack_Pt = new TH1D("h_refitTrack_Pt", ";refit Trk::Track q*p_{T} [GeV];Tracks", 100,   -100.,   100.);
     m_h_refitTrack_cot  = new TH1D("h_refitTrack_cot",  ";refit Trk::Track cot(#theta); Tracks",       100,  -PI,   PI);
     m_h_refitTrack_eta  = new TH1D("h_refitTrack_eta",  ";refit Trk::Track #eta; Tracks",              100, -3.0,   3.0);
     m_h_refitTrack_nPix = new TH1D("h_refitTrack_nPix", ";refit Trk::Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
@@ -393,7 +392,7 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     histograms->push_back(m_h_refitTrack_phi);
     histograms->push_back(m_h_refitTrack_d0);
     histograms->push_back(m_h_refitTrack_z0);
-    histograms->push_back(m_h_refitTrack_invPt);
+    histograms->push_back(m_h_refitTrack_Pt);
     histograms->push_back(m_h_refitTrack_cot);
     histograms->push_back(m_h_refitTrack_eta);
     histograms->push_back(m_h_refitTrack_nPix);
@@ -874,7 +873,7 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Tracks(){
 	m_h_FTK_RawTrack_phi->Fill((*pTrack)->getPhi());
 	m_h_FTK_RawTrack_d0->Fill((*pTrack)->getD0());
 	m_h_FTK_RawTrack_z0->Fill((*pTrack)->getZ0());
-	m_h_FTK_RawTrack_invPt->Fill((*pTrack)->getInvPt());
+	m_h_FTK_RawTrack_Pt->Fill(0.001/(*pTrack)->getInvPt());
 	m_h_FTK_RawTrack_cot->Fill((*pTrack)->getCotTh());
 	m_h_FTK_RawTrack_nPix->Fill((*pTrack)->getPixelClusters().size());
 	m_h_FTK_RawTrack_nSCT->Fill((*pTrack)->getSCTClusters().size());
@@ -883,7 +882,7 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Tracks(){
       if (m_fillTree){
 	m_raw_track_eta.push_back(trkEta);
 	m_raw_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) m_raw_track_invPt.push_back(1000/trkPt);
+	if(fabs(trkPt) >= 1e-9) m_raw_track_invPt.push_back(1000./trkPt);
 	m_raw_track_Pt.push_back(trkPt);
 	m_raw_track_d0.push_back(d0);
 	m_raw_track_z0.push_back(z0);
@@ -930,6 +929,7 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
 	nPix = summary->get(Trk::numberOfPixelHits);
 	nSCT = summary->get(Trk::numberOfSCTHits);
       }
+      ATH_MSG_DEBUG("Converted nPix "<<nPix<<" nSCT "<<nSCT );
       
       float trkEta = -99999;
       float trkPt = -99999;
@@ -938,17 +938,21 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
       float z0=-99999;
       float phi0= -99999;
     
-      if(m_fillTree){
-	trkEta=-log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.));
-	trkTheta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
-	if (fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
-	d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
-	z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
-	phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
-	
+      const Trk::Perigee* peri=(*track_it)->perigeeParameters();
+      if (peri!=nullptr) {
+	trkEta=-log(std::tan(peri->parameters()[Trk::theta]/2.));
+	trkTheta = peri->parameters()[Trk::theta];
+	if (fabs(peri->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin(peri->parameters()[Trk::theta])/peri->parameters()[Trk::qOverP];
+	d0 = peri->parameters()[Trk::d0];
+	z0 = peri->parameters()[Trk::z0];
+	phi0 = peri->parameters()[Trk::phi0];
+      } else {
+	ATH_MSG_DEBUG("no perigee parameters for track "<< iTrack);
+      }
+      if(m_fillTree && peri!=nullptr) {
 	m_converted_track_eta.push_back(trkEta);
 	m_converted_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) m_converted_track_invPt.push_back(1000/trkPt);
+	m_converted_track_invPt.push_back(1000./trkPt);
 	m_converted_track_Pt.push_back(trkPt);
 	m_converted_track_d0.push_back(d0);
 	m_converted_track_z0.push_back(z0);
@@ -956,28 +960,27 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
       }
       
       if (m_fillHists) {
-	m_h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-	m_h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-	m_h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-	m_h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
-	double cotTheta=1.e10;
-	double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
-	if (fabs(tanTheta)>=1e-9) cotTheta= 1./tanTheta;
-	m_h_Track_cot->Fill(cotTheta);
-	
+	if (peri!=nullptr) {
+	  m_h_Track_phi->Fill(peri->parameters()[Trk::phi0]);
+	  m_h_Track_d0->Fill(peri->parameters()[Trk::d0]);
+	  m_h_Track_z0->Fill(peri->parameters()[Trk::z0]);
+	  m_h_Track_Pt->Fill(trkPt/1000.);
+	  double cotTheta=1.e10;
+	  double tanTheta = std::tan(peri->parameters()[Trk::theta]);
+	  if (fabs(tanTheta)>=1e-9) cotTheta= 1./tanTheta;
+	  m_h_Track_cot->Fill(cotTheta);
+	}
 	m_h_Track_nPix->Fill(nPix);
 	m_h_Track_nSCT->Fill(nSCT);
       }
       
-      trkPt = 1.e10;
-      const Trk::Perigee* peri=(*track_it)->perigeeParameters();
-      if (peri) {
+      if (peri!=nullptr) {
 	if (fabs(peri->parameters()[Trk::qOverP])>=1e-9) trkPt= sin(peri->parameters()[Trk::theta])/peri->parameters()[Trk::qOverP];
 	ATH_MSG_VERBOSE( " Track "<< iTrack << ": pT: "<< trkPt <<
-			 " eta: " <<  -log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
-			 " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
-			 " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
-			 " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
+			 " eta: " <<  -log(std::tan(peri->parameters()[Trk::theta]/2.)) <<
+			 " phi: " <<  peri->parameters()[Trk::phi0] <<
+			 " d0: " << peri->parameters()[Trk::d0] <<
+			 " z0: " << peri->parameters()[Trk::z0] <<
 			 " nPix: " << nPix << " nSCT: " << nSCT );
       }
     }
@@ -1007,7 +1010,9 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
       m_refit_track_phi0.clear();
     }
     
-    if (m_fillHists) m_h_Track_n->Fill(refitTracks->size());
+    if (m_fillHists) m_h_refitTrack_n->Fill(refitTracks->size());
+    
+
     auto track_it   = refitTracks->begin();
     auto last_track = refitTracks->end();
     for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
@@ -1018,37 +1023,40 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
 	nPix = summary->get(Trk::numberOfPixelHits);
 	nSCT = summary->get(Trk::numberOfSCTHits);
       }
-      if (m_fillHists) {
-	m_h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-	m_h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-	m_h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-	m_h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
-	double cotTheta=1.e10;
-	double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
-	if (fabs(tanTheta)>=1e-9) cotTheta=1./tanTheta;
-	m_h_Track_cot->Fill(cotTheta);
-	m_h_Track_nPix->Fill(nPix);
-	m_h_Track_nSCT->Fill(nSCT);
-      }
-      
       float trkEta = -99999;
       float trkPt = -999999;
       float trkTheta = -99999;
       float d0=-99999;
       float z0=-9999999;
       float phi0= -999999;
+      const Trk::Perigee* peri=(*track_it)->perigeeParameters();
+      if (peri!=nullptr) {
+	trkEta=-log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.));
+	trkTheta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
+	if( fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
+	d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
+	z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
+	phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
+      }
+      if (m_fillHists) {
+	m_h_refitTrack_phi->Fill(phi0);
+	m_h_refitTrack_d0->Fill(d0);
+	m_h_refitTrack_z0->Fill(z0);
+	m_h_refitTrack_Pt->Fill(trkPt/1000.);
+	double cotTheta=1.e10;
+	double tanTheta = std::tan(trkTheta);
+	if (fabs(tanTheta)>=1e-9) cotTheta=1./tanTheta;
+	m_h_refitTrack_cot->Fill(cotTheta);
+	m_h_refitTrack_nPix->Fill(nPix);
+	m_h_refitTrack_nSCT->Fill(nSCT);
+      }
       
-      trkEta=-log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.));
-      trkTheta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
-      if( fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
-      d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
-      z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
-      phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
+      
       
       if (m_fillTree){
 	m_refit_track_eta.push_back(trkEta);
 	m_refit_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) m_refit_track_invPt.push_back(1000/trkPt);
+	if(fabs(trkPt) >= 1e-9) m_refit_track_invPt.push_back(1000./trkPt);
 	m_refit_track_Pt.push_back(trkPt);
 	m_refit_track_d0.push_back(d0);
 	m_refit_track_z0.push_back(z0);
@@ -1098,7 +1106,7 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Tracks(){
 	
 	if(m_fillTree){
 	  m_offline_track_Pt.push_back((*track_it)->pt()*(*track_it)->charge()/1000);
-	  if(fabs(1000*(*track_it)->pt()*(*track_it)->charge()) >= 1e-9) m_offline_track_invPt.push_back(1000/(*track_it)->pt()*(*track_it)->charge());
+	  if(fabs(1000*(*track_it)->pt()*(*track_it)->charge()) >= 1e-9) m_offline_track_invPt.push_back(1000./(*track_it)->pt()*(*track_it)->charge());
 	  m_offline_track_theta.push_back((*track_it)->theta());
 	  m_offline_track_eta.push_back((*track_it)->eta());
 	  m_offline_track_phi0.push_back((*track_it)->phi0());
@@ -1792,11 +1800,13 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vec
     ATH_MSG_WARNING( "Could not get updatorTool !" << endl);
     return;
   }
-  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
     return;
   }
-
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
   if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
@@ -1878,7 +1888,9 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vec
 
 	    resAssociatedTrack->push_back(iTrack);
 	    if (m_idHelper->is_pixel(hitId)) {
-	      const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+              const Identifier wafer_id = m_pixelId->wafer_id(hitId);
+              const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+	      const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
 	      clustID->push_back(sielement->identifyHash());
 
 	      y_residual->push_back(res_y);
@@ -1940,11 +1952,13 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
     ATH_MSG_WARNING( "Could not get updatorTool !" << endl);
     return;
   }
-  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
     return;
   }
-
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
   if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
@@ -2028,7 +2042,9 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
 	    
 	    resAssociatedTrack->push_back(iTrack);
 	    if (m_idHelper->is_pixel(hitId)) {
-	      const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+              const Identifier wafer_id = m_pixelId->wafer_id(hitId);
+              const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+	      const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
 	      clustID->push_back(sielement->identifyHash());
 
 	      x_residual->push_back(res_x);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_T_ATHENAPOOLTPCONVERTER_H
@@ -37,6 +37,12 @@ using  T_AthenaPoolTPPolyCnvBase = TPPolyCnvBase<TRANS_BASE, TRANS, PERS>;
 template< class TRANS, class PERS >
 using T_AthenaPoolTPCnvBase = TPConverterBase<TRANS, PERS>;
 
+template< class TRANS, class PERS >
+using T_AthenaPoolTPCnvConstBase = TPConverterConstBase<TRANS, PERS>;
+
+template< class TRANS, class PERS >
+using T_AthenaPoolTPCnvWithKeyBase = TPConverterWithKeyBase<TRANS, PERS>;
+
 
 template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPPtrVectorCnv = TPPtrVectorCnv<TRANS, PERS, CONV>;
@@ -49,6 +55,9 @@ using T_AthenaPoolTPCnvVector = TPCnvVector<TRANS, PERS, CONV>;
 
 template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPCnvStdVector = TPCnvStdVector<TRANS, PERS, CONV>;
+
+template<class TRANS, class PERS, class CONV>
+using T_AthenaPoolTPCnvStdVectorConst = TPCnvStdVectorConst<TRANS, PERS, CONV>;
 
 template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPCnvIDCont = TPCnvIDCont<TRANS, PERS, CONV>;

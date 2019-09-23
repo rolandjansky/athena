@@ -1,11 +1,10 @@
-#
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-#
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
+from AthenaCommon.Constants import DEBUG
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
-class MuonCacheNames:
+class MuonCacheNames(object):
     MdtCsmCache = "MdtCsmRdoCache"
     CscCache    = "CscRdoCache"
     RpcCache    = "RpcRdoCache"
@@ -58,7 +57,6 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     if forTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
         MuonRpcRawDataProviderTool.WriteOutRpcSectorLogic = False
-        MuonRpcRawDataProviderTool.OutputLevel = DEBUG
 
     acc.addPublicTool( MuonRpcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -69,7 +67,6 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
 
     if forTrigger:
         # Configure the RAW data provider for ROI access
-        RpcRawDataProvider.DoSeededDecoding = True
         RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
 
     acc.addEventAlgo(RpcRawDataProvider, primary=True)
@@ -102,7 +99,6 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
 
     if forTrigger:
         MuonTgcRawDataProviderTool.TgcContainerCacheKey   = MuonCacheNames.TgcCache
-        MuonTgcRawDataProviderTool.OutputLevel = DEBUG
 
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     

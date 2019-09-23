@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -144,6 +144,7 @@ include ("InDetRecExample/InDetRecLoadTools.py")
 
 # ToolSvc.InDetBroadInDetRotCreator.OutputLevel=VERBOSE
 
+from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
 from TrkRefitAlg.TrkRefitAlgConf import Trk__ReFitTrack
 #MMyReFitTrack = Trk__ReFitTrack (name           = "MyRefitTrack",
 #                                FitterTool     = InDetTrackFitter )
@@ -152,7 +153,7 @@ MyReFitTrack = Trk__ReFitTrack (name           = "MyReFitTrack",
                                          FitterTool     = InDetTrackFitter,
                                          FitterToolTRT  = InDetTrackFitterTRT,
                                          SummaryTool    = InDetTrackSummaryToolSharedHits,
-                                         AssoTool       = InDetPrdAssociationTool,
+                                         AssociationTool= getInDetPRDtoTrackMapToolGangedPixels(),
                                          NewTrackName   = InDetKeys.RefittedTracks(),
                                          useParticleHypothesisFromTrack = True)
 

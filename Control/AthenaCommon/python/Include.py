@@ -316,4 +316,4 @@ class Include( object ):
 
 
 # use this for backward compatibility
-include = Include()
+include = Include(show = False)

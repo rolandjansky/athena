@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_ExtraTreeMuonFillerTool_h
@@ -9,15 +9,13 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 // namespace xAOD {
 // class Muon;
 // class TrackParticle;
 // }
-
-namespace Muon {
-class MuonEDMHelperTool;
-}
 
 namespace Trk {
 class IPropagator;
@@ -44,7 +42,9 @@ class ExtraTreeMuonFillerTool: public ExtraTreeTrackFillerTool {
     //switches to control storing of hits
     bool m_hitsForSA, m_hitsForSAE, m_hitsForCombined, m_hitsForStatCombined;
     // edm helper tool
-    ToolHandle<Muon::MuonEDMHelperTool> m_edmHelper;
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelper {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Trk::IPropagator> m_propagator;
     inline StatusCode writeTrackParticle(const xAOD::TrackParticle *&part, bool /*isPrimaryAuthor*/, bool writeHits, unsigned int &index, int author);
     inline Trk::Track* createTaggedMuonTrack( const xAOD::Muon &muon ) const;

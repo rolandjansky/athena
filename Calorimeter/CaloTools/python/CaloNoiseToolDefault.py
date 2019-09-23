@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
+from AthenaCommon.SystemOfUnits import ns
 
 def CaloNoiseToolDefault(flag='',name='CaloNoiseToolDefault'):
 

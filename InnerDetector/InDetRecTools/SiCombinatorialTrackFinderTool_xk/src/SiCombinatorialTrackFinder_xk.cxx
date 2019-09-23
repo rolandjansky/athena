@@ -13,16 +13,13 @@
 
 #include "SiCombinatorialTrackFinderTool_xk/SiCombinatorialTrackFinder_xk.h"
 
-#include "EventInfo/TagInfo.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkTrack/TrackInfo.h"
 
@@ -73,14 +70,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     ATH_MSG_INFO("Retrieved tool " << m_riocreator);
   }
 
-  // Get tool for track-prd association
-  //
-  if (not m_assoTool.empty()) {
-    ATH_CHECK(m_assoTool.retrieve());
-  } else {
-    m_assoTool.disable();
-  }
-
   if (m_usePIX) {  
     if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
@@ -102,38 +91,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
   } else {
     m_sctCondSummaryTool.disable();
   }
-
-  // get the key -- from StoreGate (DetectorStore)
-  //
-  std::vector< std::string > tagInfoKeys = detStore()->keys<TagInfo>();
-  std::string tagInfoKey = "";
-
-  if (tagInfoKeys.size()==0) {
-    ATH_MSG_WARNING(" No TagInfo keys in DetectorStore ");
-  } else {
-    if (tagInfoKeys.size() > 1) {
-      ATH_MSG_WARNING("More than one TagInfo key in the DetectorStore, using the first one ");
-    }
-    tagInfoKey = tagInfoKeys[0];
-  }
-
-  m_callbackString = tagInfoKey;
-
-  const DataHandle<TagInfo> tagInfoH;
   
-  // register the Callback
-  //
-  if (m_usePIX) {
-    StatusCode sc = detStore()->regFcn(&InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction,
-                                       this, tagInfoH, m_callbackString);
-    if (sc==StatusCode::SUCCESS) {
-      ATH_MSG_INFO("Registered callback for geometry " << name());
-    } else {
-      ATH_MSG_ERROR("Could not book callback for geometry " << name ());
-      return StatusCode::FAILURE;
-    }
-  }
-
   if ( !m_fieldServiceHandle.retrieve() ) {
     ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
     return StatusCode::FAILURE;
@@ -150,6 +108,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
 
   if (m_usePIX) {
     ATH_CHECK( m_pixcontainerkey.initialize() );
+    ATH_CHECK( m_boundaryPixelKey.initialize() );
   }
   if (m_useSCT) {
     ATH_CHECK( m_sctcontainerkey.initialize() );
@@ -225,13 +184,6 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   for (int i=0; i<n; ++i) s8.append(" ");
   s8.append("|");
 
-  std::string s9;
-  if (not m_assoTool.empty()) {
-    n     = 62-m_assoTool.type().size();
-    for (int i=0; i<n; ++i) s9.append(" ");
-    s9.append("|");
-  }
-
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
      <<std::endl;
@@ -244,9 +196,6 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions(MsgStream& out) 
   out<<"| Tool for propagation    | "<<m_proptool   .type()<<s1<<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool.type()<<s4<<std::endl;
   out<<"| Tool for rio  on track  | "<<m_riocreator .type()<<s5<<std::endl;
-  if (not m_assoTool.empty()) {
-    out<<"| Tool for track-prd assos| "<<m_assoTool   .type()<<s9<<std::endl;
-  }
   out<<"| Magnetic field mode     | "<<fieldmode[mode]     <<s3<<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
@@ -278,7 +227,7 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpevent(SiCombinatorialTrackF
      <<"                              |"<<std::endl;
   out<<"| Max holes  gap          | "<<std::setw(12)<<data.dholesmax()
      <<"                              |"<<std::endl;
-  out<<"| Use association tool ?  | "<<std::setw(12)<<data.tools().useassoTool()
+  out<<"| Use PRD to track assoc.?| "<<std::setw(12)<<(data.PRDtoTrackMap() ? "yes" : "no ")
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -555,15 +504,15 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   std::list<const InDet::SiDetElementBoundaryLink_xk*> DEL;
   detectorElementLinks(DE, DEL);
 
-  const InDet::SiClusterContainer* p_pixcontainer = nullptr;
+  const InDet::PixelClusterContainer* p_pixcontainer = nullptr;
   if (m_usePIX) {
     SG::ReadHandle<InDet::PixelClusterContainer> pixcontainer(m_pixcontainerkey);
-    p_pixcontainer = reinterpret_cast<const InDet::SiClusterContainer*>(pixcontainer.ptr());
+    p_pixcontainer = pixcontainer.ptr();
   }
-  const InDet::SiClusterContainer* p_sctcontainer = nullptr;
+  const InDet::SCT_ClusterContainer* p_sctcontainer = nullptr;
   if (m_useSCT) {
     SG::ReadHandle<InDet::SCT_ClusterContainer> sctcontainer(m_sctcontainerkey);
-    p_sctcontainer = reinterpret_cast<const InDet::SiClusterContainer*>(sctcontainer.ptr());
+    p_sctcontainer = sctcontainer.ptr();
   }
 
   // List cluster preparation
@@ -688,78 +637,6 @@ void InDet::SiCombinatorialTrackFinder_xk::magneticFieldInit()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Map of detector elements production
-///////////////////////////////////////////////////////////////////
-
-StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction 
-(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
-{
-  // Get  Pixel Detector Manager
-  //
-  const InDetDD::PixelDetectorManager* pixmgr = nullptr;
-  StatusCode sc = detStore()->retrieve(pixmgr, m_pixm);
-  if (sc.isFailure() || !pixmgr) {
-    ATH_MSG_FATAL("Could not get PixelDetectorManager  !");
-      return StatusCode::FAILURE;
-  }
-
-  // check if the string is ESD for guaranteeing that misalignment has been introduced already
-  //
-  bool needsUpdate = false;
-
-  for (const std::string k: keys) {
-    if (k == m_callbackString) {
-      needsUpdate = true;
-      break;
-    }
-  } 
-  if (!needsUpdate) return StatusCode::SUCCESS;
-
-  m_boundaryPIX.erase(m_boundaryPIX.begin(), m_boundaryPIX.end());
-  
-  const PixelID* IDp = nullptr;
-
-  if (detStore()->retrieve(IDp, "PixelID").isFailure()) {
-    ATH_MSG_FATAL("Could not get Pixel ID helper");
-    return StatusCode::FAILURE;
-  }
-  
-  if (!IDp) return StatusCode::FAILURE;
-
-  InDetDD::SiDetectorElementCollection::const_iterator s,se;
-
-  unsigned int npix = 0, minpixid = 1000000, maxpixid = 0;
-
-  if (IDp) {
-    std::map<IdentifierHash, const InDetDD::SiDetectorElement*> idd;
-
-    // Loop over each wafer of pixels
-    //
-    s  =  pixmgr->getDetectorElementBegin();
-    se =  pixmgr->getDetectorElementEnd  ();
-
-    for (; s!=se; ++s) {
-     
-      IdentifierHash id = (*s)->identifyHash();
-      ++npix;
-      if (id > maxpixid) maxpixid = id;
-      if (id < minpixid) minpixid = id;
-      idd.insert(std::make_pair(id,(*s)));
-    }
-    if (idd.size()!= maxpixid+1 || minpixid!=0) return StatusCode::FAILURE;
-    
-    m_boundaryPIX.reserve(idd.size());
-    std::map<IdentifierHash, const InDetDD::SiDetectorElement*>::iterator i;
-    for (i = idd.begin(); i!=idd.end(); ++i) {
-      InDet::SiDetElementBoundaryLink_xk dl((*i).second);
-      m_boundaryPIX.push_back(dl);
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-///////////////////////////////////////////////////////////////////
 // Convert space points to clusters
 ///////////////////////////////////////////////////////////////////
 
@@ -803,7 +680,15 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 (std::list<const InDetDD::SiDetectorElement*>        & DE,
  std::list<const InDet::SiDetElementBoundaryLink_xk*>& DEL) const
 {
+  const InDet::SiDetElementBoundaryLinks_xk* boundaryPixel{nullptr};
   const InDet::SiDetElementBoundaryLinks_xk* boundarySCT{nullptr};
+  if (m_usePIX) {
+    SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundaryPixelHandle(m_boundaryPixelKey);
+    boundaryPixel = *boundaryPixelHandle;
+    if (boundaryPixel==nullptr) {
+      ATH_MSG_FATAL(m_boundaryPixelKey.fullKey() << " returns null pointer");
+    }
+  }
   if (m_useSCT) {
     SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundarySCTHandle(m_boundarySCTKey);
     boundarySCT = *boundarySCTHandle;
@@ -814,7 +699,7 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 
   for (const InDetDD::SiDetectorElement* d: DE) {
     IdentifierHash id = d->identifyHash();
-    if (d->isPixel() && id < m_boundaryPIX.size()) DEL.push_back(&m_boundaryPIX[id]);
+    if (d->isPixel() && boundaryPixel && id < boundaryPixel->size()) DEL.push_back(&(*boundaryPixel)[id]);
     else if (d->isSCT() && boundarySCT && id < boundarySCT->size()) DEL.push_back(&(*boundarySCT)[id]);
   }
 }
@@ -853,7 +738,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
 
   int multitrack;
   if (!Cuts.getIntCut   ("doMultiTracksProd"   ,multitrack   )) multitrack      =    0;
- 
+
   // Double cuts
   //
   if (!Cuts.getDoubleCut("pTmin"              ,data.pTmin()      )) data.pTmin()         = 500.;
@@ -885,7 +770,6 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(SiCombina
   data.setTools(&*m_proptool,
                 &*m_updatortool,
                 &*m_riocreator,
-                ((not m_assoTool.empty()) ? &*m_assoTool : nullptr),
                 &*m_fieldServiceHandle,
                 (m_usePIX ? &*m_pixelCondSummaryTool : nullptr),
                 (m_useSCT ? &*m_sctCondSummaryTool : nullptr),

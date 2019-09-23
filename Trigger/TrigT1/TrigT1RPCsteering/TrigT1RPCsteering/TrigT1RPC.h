@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCMuonTrigger_H
@@ -82,7 +82,6 @@ private:
 private:
 
     //  ActiveStoreSvc*                      m_activeStore;
-    // ServiceHandle<StoreGateSvc>          m_EvtStore;
   
   const MuonGM::MuonDetectorManager*   m_MuonMgr;
   const RpcIdHelper*                   m_rpcId;

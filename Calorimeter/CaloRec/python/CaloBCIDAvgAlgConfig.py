@@ -10,7 +10,7 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def CaloBCIDAvgAlgCfg (flags):
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    from IOVDbSvc.IOVDbSvcConfig import addFolderList
     from CaloRec.CaloRecConf import CaloBCIDAvgAlg
 
     result = ComponentAccumulator()
@@ -18,21 +18,30 @@ def CaloBCIDAvgAlgCfg (flags):
     from LArRecUtils.LArRecUtilsConfig import LArMCSymCondAlgCfg
     result.merge (LArMCSymCondAlgCfg (flags))
 
-    if flags.Input.isMC == False:
+    if flags.Input.isMC is False:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         result.merge (LuminosityCondAlgCfg (flags))
         lumiAlg = result.getCondAlgo ('LuminosityCondAlg')
 
+        #For data, the regular shape is the 4-sample one used to Q-factor computation by LArRawChannelBuilder
+        #Here we need a 32-sample, symmetrized shape. Therfore the re-key'ing and the dedicated LArPileUpShapeSymCondAlg
+
         if flags.Common.isOnline:
-            result.merge(addFolders(flags, ['/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 
-                                            '/LAR/LArPileup/LArPileupAverage'], 'LAR_ONL'))
+            result.merge(addFolderList(flags, (('/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 'LAR_ONL', 'LArShape32MC'),
+                                               ('/LAR/LArPileup/LArPileupAverage','LAR_ONL','LArMinBiasAverageMC')) ))
         else:
-            result.merge(addFolders(flags, ['/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>',
-                                            '/LAR/ElecCalibOfl/LArPileupAverage'], 'LAR_OFL'))
+            result.merge(addFolderList(flags, (('/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>','LAR_OFL','LArShape32MC'),
+                                               ('/LAR/ElecCalibOfl/LArPileupAverage','LAR_OFL','LArMinBiasAverageMC')) ))
+
+        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
+        result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
+
+        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
+        result.addCondAlgo(LArShapeSymAlg("LArPileUpShapeSymCondAlg",ReadKey="LArShape32",WriteKey="LArShape32Sym"))
 
         alg = CaloBCIDAvgAlg (isMC = False,
                               LuminosityCondDataKey = lumiAlg.LuminosityOutputKey,
-                              ShapeKey = 'LArShape32')
+                              ShapeKey = 'LArShape32Sym')
 
     else:
         from LArRecUtils.LArRecUtilsConfig import \
@@ -45,13 +54,18 @@ def CaloBCIDAvgAlgCfg (flags):
         from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
         theBunchCrossingTool = BunchCrossingTool()
 
-        result.merge(addFolders(flags, ['/LAR/ElecCalibMC/Shape',
-                                        '/LAR/ElecCalibMC/LArPileupAverage'], 'LAR_OFL'))
+        result.merge(addFolderList(flags, (('/LAR/ElecCalibMC/Shape','LAR_OFL','LArShape32MC'), 
+                                           ('/LAR/ElecCalibMC/LArPileupAverage', 'LAR_OFL', 'LArMinBiasAverageMC')) ))
+                               
+
+        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
+        result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
 
         alg = CaloBCIDAvgAlg (isMC = True,
                               BunchCrossingTool = theBunchCrossingTool,
-                              ShapeKey = 'LArShape')
+                              ShapeKey = 'LArShapeSym')
 
+    result.addEventAlgo (alg)
     return result
 
 
@@ -61,14 +75,24 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags (quiet = True)
+    ConfigFlags.loadAllDynamicFlags()
 
+    only = ['CaloBCIDAvgAlg',
+            'CondInputLoader',
+            'LuminosityCondAlg-',
+            'LArPileUpAvgSymCondAlg',
+            'LArPileUpShapeSymCondAlg',
+            'LArADC2MeVCondAlg-',
+            'LArOFCCondAlg-',
+            'LArAutoCorrTotalCondAlg-',
+            'BunchCrossingTool-',
+            ]
     print ('--- data')
     flags1 = ConfigFlags.clone()
     flags1.Input.Files = defaultTestFiles.RAW
     flags1.lock()
     acc1 = CaloBCIDAvgAlgCfg (flags1)
-    acc1.printCondAlgs(summariseProps=True)
+    acc1.printConfig(summariseProps=True, onlyComponents=only)
     acc1.wasMerged()
 
     print ('--- mc')
@@ -77,7 +101,7 @@ if __name__ == "__main__":
     flags2.Input.isMC = True
     flags2.lock()
     acc2 = CaloBCIDAvgAlgCfg (flags2)
-    acc2.printCondAlgs(summariseProps=True)
+    acc2.printConfig(summariseProps=True, onlyComponents=only)
     acc2.wasMerged()
 
     print ('--- online')
@@ -86,5 +110,5 @@ if __name__ == "__main__":
     flags3.Common.isOnline = True
     flags3.lock()
     acc3 = CaloBCIDAvgAlgCfg (flags3)
-    acc3.printCondAlgs(summariseProps=True)
+    acc3.printConfig(summariseProps=True, onlyComponents=only)
     acc3.wasMerged()

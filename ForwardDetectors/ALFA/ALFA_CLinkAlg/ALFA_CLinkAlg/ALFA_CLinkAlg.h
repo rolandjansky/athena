@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_CLINKALG_H
@@ -12,7 +12,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "ALFA_CLinkEv/ALFA_CLinkEvent.h"
 #include "xAODForward/ALFADataContainer.h"
@@ -55,7 +54,6 @@ public:
 private:
 	DCSID m_CurrentDCSId;
 	ServiceHandle< IIOVDbSvc > m_iovSvc;
-	//ServiceHandle<IIncidentSvc> m_incidentSvc;
 
 	int m_nDataType; //data type (simulation or real data) using in the local reconstruction
 	int m_nProcessingMode; //1=offline, 2=online

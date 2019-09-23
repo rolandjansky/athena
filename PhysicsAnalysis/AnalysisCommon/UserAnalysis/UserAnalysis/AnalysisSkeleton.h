@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANALYSIS_SKELETON_H
@@ -35,7 +35,6 @@
 //#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -123,9 +122,6 @@ class AnalysisSkeleton : public AthAlgorithm  {
 
    /** a handle on the Hist/TTree registration service */
    ITHistSvc * m_thistSvc;
-
-   /** a handle on Store Gate for access to the Event Store */
-   //StoreGateSvc* m_storeGate;
 
    /** the key of the Electron Container to retrieve from the AOD */
    std::string m_electronContainerName; 

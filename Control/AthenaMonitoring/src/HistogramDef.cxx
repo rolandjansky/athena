@@ -9,7 +9,7 @@
 
 using namespace Monitored;
 
-typedef boost::tokenizer<boost::char_separator<char>> tokenizer_t;
+typedef boost::tokenizer<boost::escaped_list_separator<char>> tokenizer_t;
 
 const HistogramDef HistogramDef::parse(const std::string &histogramDefinition) {
   HistogramDef result;
@@ -25,6 +25,7 @@ const HistogramDef HistogramDef::parse(const std::string &histogramDefinition) {
     result.path = nextProperty(propertiesIterator);
     result.type = nextProperty(propertiesIterator);
     result.weight = nextProperty(propertiesIterator);
+    result.convention = nextProperty(propertiesIterator);
     result.name.push_back(nextProperty(propertiesIterator));
 
     if (result.type.compare(0, 3, "TH2") == 0 || result.type == "TProfile" || result.type == "TEfficiency") {
@@ -60,12 +61,11 @@ const HistogramDef HistogramDef::parse(const std::string &histogramDefinition) {
 }
 
 std::vector<std::string> HistogramDef::splitWithSeparator(const std::string &input, const char *separator) {
-  boost::char_separator<char> sep(separator);
-  tokenizer_t tokens(input, sep);
+  boost::escaped_list_separator<char> sep('\\',*separator);
+  tokenizer_t tokens(input,sep);
   std::vector<std::string> result;
 
-  for (tokenizer_t::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
-    std::string word = *itr;
+  for (auto word : tokens ) {
     boost::trim(word);
     result.push_back(word);
   }
@@ -82,7 +82,7 @@ T HistogramDef::parseToken(const std::string &token, const std::string &errorDes
     try {
       return boost::lexical_cast<T>(token);
     } catch (boost::bad_lexical_cast &) {
-      throw TokenException(errorDescription);
+      throw TokenException(errorDescription+"\nOr, check comma delimieters in defineHistogram().");
     }
 }
 

@@ -3,7 +3,6 @@
 */
 
 #include "InDetTrigRawDataProvider/TrigSCTRawDataProvider.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "AthenaKernel/getMessageSvc.h"
@@ -32,8 +31,6 @@ namespace InDet {
     m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("SCTRawDataProviderTool"),
-    m_storeGate       ("StoreGateSvc",name),
-    m_detStore        ("DetectorStore",name),
     m_id(nullptr),
     m_container(nullptr),
     m_bsErrCont(nullptr),
@@ -76,27 +73,13 @@ namespace InDet {
     } else
       msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endmsg;
  
-    // Get an detector store
-    if (m_detStore.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_detStore << endmsg;
-      return StatusCode::FAILURE;
-    } else
-      msg(MSG::INFO) << "Retrieved service " << m_detStore << endmsg;
- 
-    StatusCode sc = m_detStore->retrieve(m_id,"SCT_ID"); 
+    StatusCode sc = detStore()->retrieve(m_id,"SCT_ID"); 
     if (sc.isFailure()) {
       msg(MSG::FATAL) << "Cannot retrieve SCT_ID helper!"      
 	    << endmsg;
       return StatusCode::FAILURE;
     } 
 
-    // Get StoreGateSvc 
-    if (m_storeGate.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve servive " << m_storeGate << endmsg;
-      return StatusCode::FAILURE;
-    } else
-      msg(MSG::INFO) << "Retrieved service " << m_storeGate << endmsg;
-  
     // Retrieve id mapping 
     if (m_cablingTool.retrieve().isFailure()) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_cablingTool << endmsg;
@@ -132,18 +115,18 @@ namespace InDet {
 
     StatusCode sc = StatusCode::SUCCESS;
 
-    if(!m_storeGate->transientContains<SCT_RDO_Container>(m_RDO_Key)){
+    if(!evtStore()->transientContains<SCT_RDO_Container>(m_RDO_Key)){
 
       // now create the container and register the collections
       // write into StoreGate
-      if (m_storeGate->record(m_container, m_RDO_Key).isFailure()) {
+      if (evtStore()->record(m_container, m_RDO_Key).isFailure()) {
 	msg(MSG::FATAL) << "Unable to record SCT RDO Container" << endmsg;
 	return StatusCode::FAILURE;
       } else {
 	msg(MSG::DEBUG) << "SCT RDO Container recorded into SG" << endmsg;
       }
     } else {
-      if (!m_storeGate->retrieve(m_container,m_RDO_Key)){
+      if (!evtStore()->retrieve(m_container,m_RDO_Key)){
 	msg(MSG::FATAL) << "Unable to retrieve existing SCT RDO Container" << endmsg;
 	return StatusCode::FAILURE;
       } else {
@@ -152,15 +135,15 @@ namespace InDet {
     }
 
     m_bsFracCont = nullptr;
-    if (!m_storeGate->transientContains<SCT_ByteStreamFractionContainer>(m_bsFracCont_Key)) {
+    if (!evtStore()->transientContains<SCT_ByteStreamFractionContainer>(m_bsFracCont_Key)) {
       m_bsFracCont = new SCT_ByteStreamFractionContainer();
-      if (m_storeGate->record(m_bsFracCont, m_bsFracCont_Key, true, true).isFailure()) {
+      if (evtStore()->record(m_bsFracCont, m_bsFracCont_Key, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsFracCont_Key);
         return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG(m_bsFracCont_Key << " recorded into SG");
     } else {
-      if (!m_storeGate->retrieve(m_bsFracCont, m_bsFracCont_Key)) {
+      if (!evtStore()->retrieve(m_bsFracCont, m_bsFracCont_Key)) {
         ATH_MSG_FATAL("Unable to retrieve existing " << m_bsFracCont_Key);
         return StatusCode::FAILURE;
       }
@@ -168,15 +151,15 @@ namespace InDet {
     }
 
     m_bsErrCont = nullptr;
-    if (!m_storeGate->transientContains<InDetBSErrContainer>(m_bsErrCont_Key)) {
+    if (!evtStore()->transientContains<InDetBSErrContainer>(m_bsErrCont_Key)) {
       m_bsErrCont = new InDetBSErrContainer();
-      if (m_storeGate->record(m_bsErrCont, m_bsErrCont_Key, true, true).isFailure()) {
+      if (evtStore()->record(m_bsErrCont, m_bsErrCont_Key, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsErrCont_Key);
         return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG(m_bsErrCont_Key << " recorded into SG");
     } else {
-      if (!m_storeGate->retrieve(m_bsErrCont, m_bsErrCont_Key)) {
+      if (!evtStore()->retrieve(m_bsErrCont, m_bsErrCont_Key)) {
         ATH_MSG_FATAL("Unable to retrieve existing " << m_bsErrCont_Key);
         return StatusCode::FAILURE;
       }

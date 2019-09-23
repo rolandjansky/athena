@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -7,7 +7,6 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Local include(s):
@@ -60,23 +59,16 @@ StatusCode TrigMatchTool::initialize() {
  *
  **********************************************************************/
 
-void TrigMatchTool::assertConfiguredChainNames() {
-
-   if( m_chainNames.size() || ! m_trigDecisionTool ) {
-      return;
-   }
-   
-   // grab the chain names from the tdt - note that this
-   // includes the L1 items
-   m_chainNames = m_trigDecisionTool->getListOfTriggers();
-   m_nConfiguredChainNames = m_chainNames.size();
-
-   buildChainIndexMap();
-
-   return;
+std::vector<std::string>
+TrigMatchTool::getConfiguredChainNames() const
+{
+  if (!m_trigDecisionTool) {
+    return std::vector<std::string>();
+  }
+  return m_trigDecisionTool->getListOfTriggers();
 }
 
-std::string TrigMatchTool::lowerChainName( const std::string& chainName ) {
+std::string TrigMatchTool::lowerChainName( const std::string& chainName ) const {
 
    // enable expert methods in tdt
    Trig::ExpertMethods *em = m_trigDecisionTool->ExperimentalAndExpertMethods();
@@ -100,10 +92,7 @@ void TrigMatchTool::handle( const Incident &inc ) {
       ATH_MSG_INFO( "Switching to a new trigger configuration" );
       // Clear and re-build all cached information. (The LVL1->LVL2 mapping
       // is re-built the next time it is needed.)
-      m_chainNames.clear();
-      assertConfiguredChainNames();
-      m_l1l2Map.clear();
-      buildL1L2Map();
+      clearChainIndex();
    }
 
    return;

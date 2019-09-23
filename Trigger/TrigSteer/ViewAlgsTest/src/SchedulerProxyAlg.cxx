@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
-#include "CxxUtils/make_unique.h"
 #include "AthViews/View.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "./SchedulerProxyAlg.h"

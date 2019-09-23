@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILIS_GAUSSIANTRACKDENSITY_H
@@ -29,58 +29,71 @@ namespace Trk
    Changes:
   */
 
-  class GaussianTrackDensity : public AthAlgTool, virtual public IVertexTrackDensityEstimator
+  class GaussianTrackDensity : public extends<AthAlgTool, IVertexTrackDensityEstimator>
   {
-
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    /// Inherit constructor.
+    using base_class::base_class;
 
-    GaussianTrackDensity(const std::string& t, const std::string& n, const IInterface* p);
-
-    virtual ~GaussianTrackDensity() {}
 
     /**
-     *   Adds a list of tracks, whose impact parameters will contribute to the density function.
+     * @brief Find position of global maximum for density function.
+     * @param vectorTrk List of input tracks.
      */
-    virtual void addTracks(const std::vector<const Track*>& vectorTrk);
+    virtual double
+    globalMaximum (const std::vector<const Track*>& vectorTrk) const override;
+
 
     /**
-     *  Adds a list of track perigee parameters, whose impact parameters will contribute to 
-     *  the density function.
+     * @brief Find position of global maximum for density function.
+     * @param vectorTrk List of input tracks.
+     * @param density[out] Helper to hold density results.
      */
-    virtual void addTracks(const std::vector<const TrackParameters*>& perigeeList);
+    virtual double
+    globalMaximum (const std::vector<const Track*>& vectorTrk,
+                   std::unique_ptr<ITrackDensity>& density) const override;
+
 
     /**
-     *  Removes a list of tracks, which will no longer contribute to the density function.
+     * @brief Find position of global maximum for density function.
+     * @param perigeeList List of input tracks.
      */
-    virtual void removeTracks(const std::vector<const Track*>& vectorTrk);
+    virtual double
+    globalMaximum (const std::vector<const TrackParameters*>& perigeeList) const override;
+
 
     /**
-     *  Removes a list of track perigee parameters, which will no longer contribute to 
-     *  the density function.
+     * @brief Find position of global maximum for density function.
+     * @param perigeeList List of input tracks.
+     * @param density[out] Helper to hold density results.
      */
-    virtual void removeTracks(const std::vector<const TrackParameters*>& perigeeList);
+    virtual double
+    globalMaximum (const std::vector<const TrackParameters*>& perigeeList,
+                   std::unique_ptr<ITrackDensity>& density) const override;
+
+
+  private:
+    class TrackDensity;
+
 
     /**
-     *  Evaluate the density function at the specified coordinate along the beam-line.
+     * @brief Find position of global maximum for density function.
+     * @param pergigeeList List of input tracks.
+     * @param density Helper density object.
      */
-    virtual double trackDensity(double z) const;
+    double
+    globalMaximumImpl (const std::vector<const TrackParameters*>& perigeeList,
+                       TrackDensity& density) const;
+
 
     /**
-     *  Evaluate the density and its first two derivatives at the specified coordinate.
+     * @brief Add a set of tracks to a density object.
+     * @param perigeeList Set of track parameters to add.
+     * @param density Density object to which to add.
      */
-    virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivativec) const;
+    void addTracks(const std::vector<const TrackParameters*>& perigeeList,
+                   TrackDensity& density) const;
 
-    /**
-     *  Find location of global maximum for density function
-     */
-    virtual double globalMaximum() const;
-
-    /**
-     *  Resets the internal state of the tool, forgetting all tracks previously added.
-     */
-    virtual void reset();
 
     // functor to compare two Perigee values
     struct pred_perigee {
@@ -143,22 +156,69 @@ namespace Trk
                       Perigee,
                       GaussianTrackDensity::pred_entry_by_min >::const_iterator upperMapIterator;
 
-  private:
-    inline void updateMaximum(double trialZ, double trialValue, double& maxZ, double& maxValue) const
-    { if (trialValue > maxValue) { maxZ = trialZ; maxValue = trialValue; } }
 
-      
-    inline double stepSize(double y, double dy, double ddy) const
-    { return ( m_gaussStep ? (y * dy)/(dy * dy - y * ddy) : -dy/ddy ); }
+    class TrackDensity : public ITrackDensity
+    {
+    public:
+      TrackDensity (bool gaussStep) : m_gaussStep (gaussStep) {}
+      virtual ~TrackDensity() = default;
 
 
-    //  Cache for track information
-    trackMap m_trackMap;
-    lowerMap m_lowerMap;
-    upperMap m_upperMap;
+      /**
+       *  Evaluate the density function at the specified coordinate
+       *  along the beamline.
+       */
+      virtual double trackDensity (double z) const override;
 
-    double m_maxRange;
 
+      /**
+       *  Evaluate the density and its first two derivatives
+       *  at the specified coordinate.
+       */
+      virtual void trackDensity (double z,
+                                 double& density,
+                                 double& firstDerivative,
+                                 double& secondDerivative) const override;
+
+
+      /**
+       * @brief Return position of global maximum for density function.
+       * @param msg Message stream.
+       */
+      double globalMaximum (MsgStream& msg) const;
+
+
+      /**
+       * @brief Add a track to the set being considered.
+       * @param itrk Track parameters.
+       * @param d0SignificanceCut Significance cut on d0.
+       * @param z0SignificanceCut Significance cut on z0.
+       */
+      void addTrack (const Perigee& itrk,
+                     const double d0SignificanceCut,
+                     const double z0SignificanceCut);
+
+
+
+
+    private:
+      inline void updateMaximum(double trialZ, double trialValue, double& maxZ, double& maxValue) const
+      { if (trialValue > maxValue) { maxZ = trialZ; maxValue = trialValue; } }
+
+      inline double stepSize(double y, double dy, double ddy) const
+      { return ( m_gaussStep ? (y * dy)/(dy * dy - y * ddy) : -dy/ddy ); }
+
+      bool m_gaussStep;
+
+      //  Cache for track information
+      trackMap m_trackMap;
+      lowerMap m_lowerMap;
+      upperMap m_upperMap;
+
+      double m_maxRange = 0;
+    };
+
+    
     //  Cuts set by configurable properties
     
     //  Maximum allowed d0 significance to use (in sigma)

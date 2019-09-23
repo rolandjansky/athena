@@ -6,11 +6,7 @@
 #define LARRAWCONDITIONS_LARUA2MEVMC_H
 
 #include "LArRawConditions/LAruA2MeVComplete.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include <vector>
-
-class ILArMCSymTool;
 
 /** Implementation of the interface ILAruA2MeV for MC
  *  Derives from LAruA2MeVComplete, and implements the phi-z symmetry
@@ -35,12 +31,8 @@ class LAruA2MeVMC: public LAruA2MeVComplete {
   // retrieving uA2MeV using online ID
   
   virtual const float& UA2MEV(const HWIdentifier&  CellID) const ;
-  
- private: 
 
-  ToolHandle<ILArMCSymTool> m_larmcsym;
-
-
+  constexpr static float dummy=LArElecCalib::ERRORCODE;  
 };
 
 #include "AthenaKernel/CondCont.h"

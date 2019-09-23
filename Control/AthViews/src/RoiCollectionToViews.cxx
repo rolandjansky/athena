@@ -40,7 +40,6 @@ StatusCode RoiCollectionToViews::initialize()
   CHECK( m_trigRoIs.initialize() );
   CHECK( m_viewRoIs.initialize() );
   CHECK( m_w_views.initialize() );
-  CHECK( m_scheduler.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -83,7 +82,7 @@ StatusCode RoiCollectionToViews::execute()
   CHECK( ViewHelper::ScheduleViews( viewVector.get(), //View vector
 				    m_viewNodeName,                       //CF node to attach views to
 				    ctx,                                  //Context to attach the views to
-				    m_scheduler.get() ) );                //Scheduler
+				    svcLoc()->service<IScheduler>(m_schedulerName,false) ) ); //Scheduler
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );

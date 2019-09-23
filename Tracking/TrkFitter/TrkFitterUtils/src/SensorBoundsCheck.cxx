@@ -11,7 +11,6 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 
-Amg::Vector2D Trk::SensorBoundsCheck::s_localTrack;
 
 bool Trk::SensorBoundsCheck::areParamsInside
 (const Trk::MeasurementBase& sensor,
@@ -28,8 +27,7 @@ bool Trk::SensorBoundsCheck::areParamsInside
   double sig2 = (tolerance2>=0 ? err2 * tolerance2 : err2 * tolerance1);
 
   const Surface& surf  = sensor.associatedSurface();
-  s_localTrack = Amg::Vector2D(positionPars(Trk::loc1),
-			       positionPars(Trk::loc2) );
-  return surf.insideBounds(*const_cast<const Amg::Vector2D*>(&s_localTrack),sig1,sig2);
+  const Amg::Vector2D localTrack(positionPars(Trk::loc1),positionPars(Trk::loc2) );
+  return surf.insideBounds(localTrack,sig1,sig2);
 }
 

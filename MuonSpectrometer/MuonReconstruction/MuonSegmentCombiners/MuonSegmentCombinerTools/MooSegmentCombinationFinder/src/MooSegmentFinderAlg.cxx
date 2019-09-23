@@ -12,8 +12,6 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
   m_keyTgc("TGC_Measurements"),
@@ -129,7 +127,7 @@ StatusCode MooSegmentFinderAlg::execute()
 
   // write hough data to SG
   if (output.houghDataPerSectorVec) {
-    SG::WriteHandle<std::vector<Muon::HoughDataPerSec>> handle {m_houghDataPerSectorVecKey};
+    SG::WriteHandle<Muon::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
     ATH_CHECK(handle.record(std::move(output.houghDataPerSectorVec)));
   } else {
     ATH_MSG_VERBOSE("HoughDataPerSectorVec was empty, key: " << m_houghDataPerSectorVecKey.key());

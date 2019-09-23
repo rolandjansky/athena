@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -639,9 +639,9 @@ void VP1TabManager::removeChannel(QString channeluniquename) {
   //delete channel
   cw->hide();
   dw->ensureCWHasNoParent();
+  [[maybe_unused]] //To avoid compile warning in opt mode.
   bool ok=m_d->channelmanager->deleteChannel(cw->unique_name());
   assert(ok);
-  _UNUSED(ok);//To avoid compile warning in opt mode.
 
   //delete dock widget
   delete dw;

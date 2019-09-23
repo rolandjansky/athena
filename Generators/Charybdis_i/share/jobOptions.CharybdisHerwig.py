@@ -84,7 +84,6 @@ ServiceMgr += PoolSvc()
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "StreamEVGEN" )
-#Stream1.ForceRead=TRUE
 Stream1.OutputFile = "charybdisHerwig.evgen.pool.root"
 Stream1.ItemList += [ "EventInfo#*", "McEventCollection#*" ]
 

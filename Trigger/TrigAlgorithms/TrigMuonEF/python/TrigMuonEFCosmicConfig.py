@@ -29,7 +29,7 @@ doT0Fit = True
 #addPublicTool  = _toolFactory.addPublicTool
 
 #from TrkDetDescrSvc.TrkDetDescrSvcConf import TrackingVolumesSvc
-#ServiceMgr += TrackingVolumesSvc(BuildVolumesFromTagInfo = False)#
+#ServiceMgr += TrackingVolumesSvc()#
 #
 #from MuidCaloEnergyTools.MuidCaloEnergyToolsConf import Rec__MuidCaloEnergyMeas
 #TMEFCaloEnergyMeas = Rec__MuidCaloEnergyMeas(name = 'TMEFCaloEnergyMeas', UseCaloNoiseTool = False)
@@ -223,8 +223,7 @@ TMEF_MooTrackFitterCosmic = CfgMgr.Muon__MooTrackFitter("TMEF_MooTrackFitterCosm
                                                    Cosmics = True,   
                                                    Fitter = TMEF_MCTBFitterCosmic,
                                                    FitterPreFit = TMEF_MCTBFitterCosmic,
-                                                   CleanPhiHits = False,
-                                                   FitEtaStrips = True
+                                                   CleanPhiHits = False
                                                    )
 ToolSvc += TMEF_MooTrackFitterCosmic
 

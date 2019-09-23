@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -1956,7 +1956,7 @@ namespace InDet
      
      if (positionsOfSeedingVertices.size()!=0) 
      {
-       Amg::Vector3D theSeedVertex=m_mode3dfinder->getMode(positionsOfSeedingVertices);
+       Amg::Vector3D theSeedVertex=m_mode3dfinder->getMode(0, 0, positionsOfSeedingVertices);
        if (m_revertFromPositiveToNegativeTags==false)
        {
          if ((theSeedVertex-primaryVertexRecVertex.position()).dot(JFseedDirection)>0) 

@@ -96,11 +96,15 @@ namespace Muon {
 	pos1 = tsone->trackParameters()->position();
       else if (tsone->measurementOnTrack())
 	pos1 = tsone->measurementOnTrack()->globalPosition();
+      else
+        pos1.setZero();
 
       if (tstwo->trackParameters() )
 	pos2 = tstwo->trackParameters()->position();
       else if (tstwo->measurementOnTrack())
 	pos2=  tstwo->measurementOnTrack()->globalPosition();
+      else
+        pos2.setZero();
       
       //Trk::GlobalDirection norm=surf2->normal();
       //Amg::Vector3D center=surf2->center();

@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
-import ROOT
 
 class LumiCalcPyAthena( PyAthena.Alg ):
 
@@ -42,8 +42,8 @@ class LumiCalcPyAthena( PyAthena.Alg ):
 
     def finalize(self):
 
-        print "Getting handle on LumiTree..."
-        tree = self.lcSvc.getLumiTree()
+        print("Getting handle on LumiTree...")
+        self.lcSvc.getLumiTree()
         #print "Now printing out the whole tree..."
         #tree.Scan("*")
 

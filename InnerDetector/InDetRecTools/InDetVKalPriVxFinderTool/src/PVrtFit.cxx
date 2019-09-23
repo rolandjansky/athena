@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -44,16 +44,16 @@ namespace InDet {
       std::vector< std::vector<double> > tmpAtV; 
       Amg::Vector3D  tmpFV;
       double tmpChi2;
-      m_fitSvc->setDefault();
+      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
       for(it=0; it<NTracksVrt-1; it++){
         if(Chi2PerTrk[it]< 2.) continue;  
         for(jt=it+1; jt<NTracksVrt; jt++){
            if(Chi2PerTrk[jt]< 2.) continue;  
            if(Chi2PerTrk[it]+Chi2PerTrk[jt] < 10.) continue;   //too close pair
            if(Selector==1){ ListP[0]=ListParticles[it]; ListP[1]=ListParticles[jt];
-              m_sc=m_fitSvc->VKalVrtFit(ListP,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2);}
+              m_sc=m_fitSvc->VKalVrtFit(ListP,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
            if(Selector==2){ ListT[0]=ListTracks[it]; ListT[1]=ListTracks[jt];
-              m_sc=m_fitSvc->VKalVrtFit(ListT,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2);}
+              m_sc=m_fitSvc->VKalVrtFit(ListT,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
            if(tmpChi2<1.0) {                                           // Good pair away from primary vertex found
              double direction = (tmpFV.x()-FitVertex.x())*m_Momentum.Px()+
                                +(tmpFV.y()-FitVertex.y())*m_Momentum.Py()+
@@ -75,16 +75,16 @@ namespace InDet {
 	   }
          }
       }
-      m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1], FitVertex.z());
-      m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56.);
-      m_fitSvc->setCnstType(6);
+      m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1], FitVertex.z(),*state);
+      m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56., *state);
+      m_fitSvc->setCnstType(6, *state);
       ListP.resize(1); ListT.resize(1);
       for(it=0; it<NTracksVrt; it++){
          if(Chi2PerTrk[it] < 4.) continue;
          if(Selector==1){ ListP[0]=ListParticles[it];
-            m_sc=m_fitSvc->VKalVrtFit(ListP,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2);}
+            m_sc=m_fitSvc->VKalVrtFit(ListP,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
          if(Selector==2){ ListT[0]=ListTracks[it]; 
-            m_sc=m_fitSvc->VKalVrtFit(ListT,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2);}
+            m_sc=m_fitSvc->VKalVrtFit(ListT,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
 	 //std::cout<<" singlefound="<<it<<" Chi2="<<tmpChi2<<", "<<Chi2PerTrk[it]<<'\n';
          if(tmpChi2<0.5)setOfBadTrk.push_back(it);
        }
@@ -145,28 +145,29 @@ namespace InDet {
 //
 // Start of fit
 //
-      m_fitSvc->setDefault();
-      m_fitSvc->setApproximateVertex(m_BeamCnst[0],m_BeamCnst[1],ZEstimation);  /* Use as starting point */
+      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+      m_fitSvc->setApproximateVertex(m_BeamCnst[0],m_BeamCnst[1],ZEstimation, *state);  /* Use as starting point */
       if(m_BeamConstraint) {
-         m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],ZEstimation);
-         m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56.);
-	 m_fitSvc->setCnstType(6);
+         m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],ZEstimation,*state);
+         m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56., *state);
+	 m_fitSvc->setCnstType(6, *state);
       }
       //m_fitSvc->setRobustness(m_TypeRobust);
-      m_fitSvc->setRobustness(3);   
-      m_fitSvc->setRobustScale(m_RobustScale);
-      m_fitSvc->setMomCovCalc(0);  // no full error matrix now. It's calculated only after search
+      m_fitSvc->setRobustness(3, *state);
+      m_fitSvc->setRobustScale(m_RobustScale, *state);
 //
 //fit itself
 //
       int IterationLimit=NTracksVrt-1; if(IterationLimit<1)IterationLimit=1;
       for (i=0; i < IterationLimit; i++) {
          if(Selector==1){ m_sc=m_fitSvc->VKalVrtFit(ListParticles,FitVertex, m_Momentum,m_Charge,
-                                         ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+                                         ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
+                                         *state);
              NTracksVrt=ListParticles.size();
 	 }	
          if(Selector==2){ m_sc=m_fitSvc->VKalVrtFit(ListTracks,FitVertex, m_Momentum,m_Charge,
-                                         ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+                                         ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
+                                         *state);
              NTracksVrt=ListTracks.size();
          }
 	 if(NTracksVrt <= 2 )                  break;                     // Only <2 tracks left
@@ -174,7 +175,7 @@ namespace InDet {
          Outlier = FindMax( Chi2PerTrk ); OutlierNext=FindMaxSecond( Chi2PerTrk );
 	 PtF=fabs(sin(TrkAtVrt[Outlier][0])/TrkAtVrt[Outlier][2]); PtS=fabs(sin(TrkAtVrt[OutlierNext][0])/TrkAtVrt[OutlierNext][2]);
          TrkWeights.clear();
-         m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights);  if(m_sc.isFailure() ) return -10000.;  // problem
+         m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights, *state);  if(m_sc.isFailure() ) return -10000.;  // problem
          double dof=0.; for(int itk=0; itk<NTracksVrt; itk++)dof += TrkWeights[itk]; 
 	 long int nDoF=(long int)(5.*dof-3.*NTracksVrt-3.); if(m_BeamConstraint)nDoF += 2; if(nDoF<1)nDoF=1;
          float vrtProb=TMath::Prob(Chi2,nDoF);
@@ -198,13 +199,13 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
          }
 //
 // Switch to default functional
-         if(Chi2PerTrk[Outlier]<20.) m_fitSvc->setRobustness(m_TypeRobust);
+         if(Chi2PerTrk[Outlier]<20.) m_fitSvc->setRobustness(m_TypeRobust, *state);
 //
 // Prepare next iteration
-         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); /*Use as starting point*/
+         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z(), *state); /*Use as starting point*/
          if(m_BeamConstraint) {
-           m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],FitVertex.z());
-           m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0],0.,m_BeamCnstWid[1]*m_BeamCnstWid[1],0.,0., 56.*56.);
+           m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],FitVertex.z(), *state);
+           m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0],0.,m_BeamCnstWid[1]*m_BeamCnstWid[1],0.,0., 56.*56., *state);
          }
       }
 //----------------------------------------------------------------------------
@@ -212,17 +213,16 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 //
 //      std::vector<const Trk::TrackParticleBase*> badPrt; std::vector<const Trk::Track*> badTrk;
 //      CleanTrkSet( ListParticles, ListTracks, FitVertex, Chi2PerTrk, badPrt, badTrk);
-      m_fitSvc->setDefault();
+      state = m_fitSvc->makeState();
       if(m_BeamConstraint) {
-         m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],FitVertex.z());
-         m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56.);
-	 m_fitSvc->setCnstType(6);
+         m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],FitVertex.z(), *state);
+         m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56., *state);
+	 m_fitSvc->setCnstType(6, *state);
       }
-      m_fitSvc->setRobustness(m_TypeRobust);
-      m_fitSvc->setRobustScale(m_RobustScale);
-      m_fitSvc->setMomCovCalc(1);
-      if(Selector==1)m_sc=m_fitSvc->VKalVrtFit(ListParticles,FitVertex,m_Momentum,m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
-      if(Selector==2)m_sc=m_fitSvc->VKalVrtFit(ListTracks,   FitVertex,m_Momentum,m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+      m_fitSvc->setRobustness(m_TypeRobust, *state);
+      m_fitSvc->setRobustScale(m_RobustScale, *state);
+      if(Selector==1)m_sc=m_fitSvc->VKalVrtFit(ListParticles,FitVertex,m_Momentum,m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
+      if(Selector==2)m_sc=m_fitSvc->VKalVrtFit(ListTracks,   FitVertex,m_Momentum,m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
       if(m_sc.isFailure()) return -10000.;     // Problem
 //
 //
@@ -238,7 +238,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 //          TMath::Prob( Chi2,2*NTracksVrt-3)<1.e-3 )
       {   return -10000.;  }  
       TrkWeights.clear();
-      m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights);
+      m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights, *state);
       if(m_sc.isFailure()) return -10000.;     // Problem
 //
 //--   Create array on HEAP to store fitted track parameters. Should be removed in  SaveResults
@@ -253,7 +253,8 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
       m_savedTrkFittedPerigees.push_back(pntTracks);
 //
       std::vector <double> CovFull;
-      StatusCode sc = m_fitSvc->VKalGetFullCov( (long int) NTracksVrt, CovFull); 
+      StatusCode sc = m_fitSvc->VKalGetFullCov( (long int) NTracksVrt, CovFull,
+                                                *state);
       int covarExist=0; if( sc.isSuccess() ) covarExist=1;
       AmgSymMatrix(5) One; One.setIdentity(); One(1,1)=0.; One(2,2)=0.; 
       std::vector< AmgSymMatrix(5) > tmpTrkCov;

@@ -36,7 +36,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/MuonRoI.h"
-#include "xAODTracking/Vertex.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigDecisionTool/ChainGroup.h"
@@ -44,7 +43,6 @@
 #include "TrigDecisionTool/Feature.h"
 #include "TrigDecisionTool/TDTUtilities.h"
 #include "TrigObjectMatching/TrigMatchTool.h"
-#include "VxVertex/VxContainer.h"
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 #include "AnalysisTriggerEvent/Muon_ROI.h"
 
@@ -295,27 +293,6 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA_wrapper()
 StatusCode HLTMuonMonTool::fillMuZTPDQA()
 {
   hist("Common_Counter", m_histdir )->Fill((float)MUZTP);
-
-  //RETRIEVE Vertex Container
-  const xAOD::VertexContainer* VertexContainer=0;
-  //StatusCode sc_ztp = evtStore()->retrieve(VertexContainer,"VxPrimaryCandidate");
-  StatusCode sc_ztp = evtStore()->retrieve(VertexContainer,"HLT_xAOD__VertexContainer_xPrimVx");
-  if(sc_ztp.isFailure()) {
-    ATH_MSG_DEBUG("VxPrimaryCandidate" << " Container Unavailable");
-    //return StatusCode::SUCCESS;
-  }
-
-  //REQUIREMENTS FOR GOOD PRIMARY VERTEX   
-  bool HasGoodPV = false;
-  xAOD::VertexContainer::const_iterator vertexIter;
-  for(vertexIter=VertexContainer->begin(); vertexIter!=VertexContainer->end(); ++vertexIter){
-    if ((*vertexIter)->nTrackParticles()>2 && fabs((*vertexIter)->z()) < 150) HasGoodPV = true;                                             
-    ////if ((*vertexIter)->vxTrackAtVertex().size()>2 && fabs((*vertexIter)->z()) < 150) HasGoodPV = true;                                             
-  }
-  if (HasGoodPV == false){ 
-  ATH_MSG_DEBUG(" ===== HLT Muon has no goodpv ===== "); 
-  //  return StatusCode::SUCCESS;
-  }
 
   // ---------------------------------------------------------------
 

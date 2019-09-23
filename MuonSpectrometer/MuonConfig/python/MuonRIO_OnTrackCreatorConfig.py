@@ -1,37 +1,49 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg, MdtCalibrationDbSvcCfg
+from MuonConfig.MuonCalibConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO should maybe shift this elsewhere?
 from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
 from MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf import Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
+from MuonCompetingClustersOnTrackCreator.MuonCompetingClustersOnTrackCreatorConf import Muon__TriggerChamberClusterOnTrackCreator
+
+def TriggerChamberClusterOnTrackCreatorCfg(flags, **kwargs):
+    result=ComponentAccumulator()
+    acc =  MuonClusterOnTrackCreatorCfg(flags)
+    muon_cluster_creator=acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("ClusterCreator", muon_cluster_creator)
+    result.setPrivateTools(Muon__TriggerChamberClusterOnTrackCreator(**kwargs))
+    return result
+
 
 def CscClusterOnTrackCreatorCfg(flags,**kwargs):
-    from  MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg
+    from MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg, CscClusterUtilToolCfg
+
+    result=ComponentAccumulator()    
+    acc = QratCscClusterFitterCfg(flags)
     
-    result=ComponentAccumulator()
-    
-    acc, qrat = QratCscClusterFitterCfg(flags)
+    qrat = acc.getPrimary()
     result.addPublicTool(qrat)
     result.merge(acc)
     
-    # TODO fix this
-    # kwargs.setdefault("CscStripFitter", getPublicTool("CalibCscStripFitter") )
     kwargs.setdefault("CscClusterFitter", qrat )
-    # kwargs.setdefault("CscClusterUtilTool", getPublicTool("CscClusterUtilTool") )
-    if False  : # enable CscClusterOnTrack error scaling :
-        from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,createAndAddCondAlg
-        createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
-
-        kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")
-
+    # FIXME haven't set up CscStripFitter but I don't think it (or CscClusterFitter above) should be here. Apparently only used in CscSegmentUtilToolCfg
+    
+    acc = CscClusterUtilToolCfg(flags)
+    cluster_util_tool = acc.getPrimary()
+    kwargs.setdefault("CscClusterUtilTool", cluster_util_tool )
+    result.addPublicTool(cluster_util_tool)
+    result.merge(acc)
+    
     if not flags.Input.isMC: # collisions real data or simulated first data
         # scale CSC and hit errors 
         kwargs.setdefault("ErrorScalerBeta", 0.070 )
 
     csc_cluster_creator = Muon__CscClusterOnTrackCreator(**kwargs)
     result.addPublicTool(csc_cluster_creator, primary=True)
+    
     return result
 
 
@@ -39,11 +51,21 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,**kwargs):
     result=ComponentAccumulator()
     
     # setup dependencies missing in C++. TODO: fix in C++
-    acc  = MdtCalibrationSvcCfg(flags)
-    result.merge(acc)
+    # acc  = MdtCalibrationSvcCfg(flags)
+    # result.merge(acc)
+    #
+    # acc = MdtCalibrationDbSvcCfg(flags)
+    # result.merge(acc)
     
-    acc = MdtCalibrationDbSvcCfg(flags)
+    acc = MdtCalibrationDbToolCfg(flags)
+    mdt_calibibration_db_tool = acc.getPrimary()
     result.merge(acc)
+    kwargs.setdefault("CalibrationDbTool", mdt_calibibration_db_tool)
+
+    acc = MdtCalibrationToolCfg(flags)
+    mdt_calibibration_tool = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("CalibrationTool", mdt_calibibration_tool)
 
     kwargs.setdefault("DoMagneticFieldCorrection", flags.Muon.Calib.correctMdtRtForBField)
     kwargs.setdefault("DoWireSag", flags.Muon.useWireSagCorrections)

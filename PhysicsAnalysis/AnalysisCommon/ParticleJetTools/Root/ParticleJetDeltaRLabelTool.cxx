@@ -16,9 +16,6 @@ ParticleJetDeltaRLabelTool::ParticleJetDeltaRLabelTool(const std::string& name)
     declareProperty("BLabelName", m_bottomlabelname="", "Name of the attribute to be added for matched B hadrons.");
     declareProperty("CLabelName", m_charmlabelname="", "Name of the attribute to be added for matched C hadrons.");
     declareProperty("TauLabelName", m_taulabelname="", "Name of the attribute to be added for matched taus.");
-    declareProperty("BParticleCollection", m_bottompartcollection="", "Name of the particle collection used for matching B hadrons");
-    declareProperty("CParticleCollection", m_charmpartcollection="", "Name of the particle collection used for matching C hadrons");
-    declareProperty("TauParticleCollection", m_taupartcollection="", "Name of the particle collection used for matching taus");
     declareProperty("PartPtMin", m_partptmin=5000, "Minimum pT of particles for labeling (MeV)");
     declareProperty("JetPtMin", m_jetptmin=10000, "Minimum pT of jets to be lebeled (MeV)");
     declareProperty("DRMax", m_drmax=0.3, "Maximum deltaR between a particle and jet to be labeled");
@@ -108,22 +105,41 @@ namespace {
 
 }
 
+StatusCode ParticleJetDeltaRLabelTool::initialize(){
+  ATH_CHECK(m_tauPartCollectionKey.initialize());
+  ATH_CHECK(m_bottomPartCollectionKey.initialize());
+  ATH_CHECK(m_charmPartCollectionKey.initialize());
+  return StatusCode::SUCCESS;
+}
 
-int ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
+
+StatusCode ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
 
   ATH_MSG_VERBOSE("In " << name() << "::modify()");
 
     // Retrieve the particle and jet containers
-    const TruthParticleContainer* taus = NULL;
-    const TruthParticleContainer* bs = NULL;
-    const TruthParticleContainer* cs = NULL;
-    ASG_CHECK( evtStore()->retrieve( taus, m_taupartcollection), 1);
-    ASG_CHECK( evtStore()->retrieve( bs, m_bottompartcollection), 1);
-    ASG_CHECK( evtStore()->retrieve( cs, m_charmpartcollection), 1);
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthtausReadHandle(m_tauPartCollectionKey);
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthbsReadHandle(m_bottomPartCollectionKey);
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthcsReadHandle(m_charmPartCollectionKey);
 
-    vector<vector<const TruthParticle*> > jetlabelpartsb = match(*bs, jets);
-    vector<vector<const TruthParticle*> > jetlabelpartsc = match(*cs, jets);
-    vector<vector<const TruthParticle*> > jetlabelpartstau = match(*taus, jets);
+    if (!truthtausReadHandle.isValid()){
+      ATH_MSG_DEBUG(" Invalid ReadHandle for xAOD::ParticleContainer with key: " << truthtausReadHandle.key());
+      return StatusCode::FAILURE;
+    }
+
+    if (!truthbsReadHandle.isValid()){
+      ATH_MSG_DEBUG(" Invalid ReadHandle for xAOD::ParticleContainer with key: " << truthbsReadHandle.key());
+      return StatusCode::FAILURE;
+    }
+
+    if (!truthcsReadHandle.isValid()){
+      ATH_MSG_DEBUG(" Invalid ReadHandle for xAOD::ParticleContainer with key: " << truthcsReadHandle.key());
+      return StatusCode::FAILURE;
+    }
+
+    vector<vector<const TruthParticle*> > jetlabelpartsb = match(*truthbsReadHandle, jets);
+    vector<vector<const TruthParticle*> > jetlabelpartsc = match(*truthcsReadHandle, jets);
+    vector<vector<const TruthParticle*> > jetlabelpartstau = match(*truthtausReadHandle, jets);
 
     for (unsigned int iJet = 0; iJet < jets.size(); iJet++) {
         // remove children whose parent hadrons are also in the jet.
@@ -182,7 +198,7 @@ int ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
             jet.setAttribute<int>(m_doublelabelname, 0);
     }
 
-    return 0;
+    return StatusCode::SUCCESS;
 }
 
 

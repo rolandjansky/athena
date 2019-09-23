@@ -11,13 +11,14 @@
 
 class FlowNetworkBuilderBase: virtual public IFlowNetworkBuilder{
  public:
-  FlowNetworkBuilderBase(const ConditionsMT&);
+  FlowNetworkBuilderBase(ConditionsMT);
   virtual std::optional<std::unique_ptr<FlowNetwork>>
     create(const HypoJetGroupCIter&,
            const HypoJetGroupCIter&,
            const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-	   std::map<int, pHypoJet>& nodeToJet) const;
+	   std::map<int, pHypoJet>& nodeToJet) const override;
 
+  virtual std::string toString() const override;
  protected:
 
   virtual std::optional<std::vector<std::shared_ptr<FlowEdge>>>
@@ -31,8 +32,9 @@ class FlowNetworkBuilderBase: virtual public IFlowNetworkBuilder{
     conditionGroupMatches(const HypoJetGroupCIter& groups_b,
 			  const HypoJetGroupCIter& groups_e,
 			  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+
+  std::vector<std::shared_ptr<FlowEdge>> getSourceToConditionsEdges() const;
   ConditionsMT m_conditions;
-  std::vector<std::shared_ptr<FlowEdge>> m_initialEdges;
 
 };
 

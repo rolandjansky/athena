@@ -35,14 +35,16 @@ StatusCode TBBPCRawContCnv::initialize()
 }
 
 
-StatusCode TBBPCRawContCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
+StatusCode TBBPCRawContCnv::PoolToDataObject(DataObject*& pObj,
+                                             const Token* token,
+                                             const std::string& key)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
   MsgStream log(msgSvc(), "TBBPCRawContCnv::PoolToDataObject" );
    
-  StatusCode sc = TBBPCRawContCnvBase::PoolToDataObject(pObj, token);
+  StatusCode sc = TBBPCRawContCnvBase::PoolToDataObject(pObj, token, key);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;

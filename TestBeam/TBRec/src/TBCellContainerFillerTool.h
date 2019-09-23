@@ -10,7 +10,6 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class StoreGateSvc; 
 class MsgStream;
 class CaloDetDescrManager;
 class CaloCell_ID;

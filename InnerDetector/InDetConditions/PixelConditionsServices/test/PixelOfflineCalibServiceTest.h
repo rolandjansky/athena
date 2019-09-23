@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -46,8 +46,6 @@ class PixelOfflineCalibServiceTest:public AthAlgorithm {
   
  private:
   // MsgStream m_log;
-  //  StoreGateSvc* m_sgSvc;
-  // StoreGateSvc* m_detStore;
 
   const ServiceHandle<IPixelOfflineCalibSvc> m_calibsvc;
   PublicToolHandle<IPixelRecoDbTool >  m_dbTool

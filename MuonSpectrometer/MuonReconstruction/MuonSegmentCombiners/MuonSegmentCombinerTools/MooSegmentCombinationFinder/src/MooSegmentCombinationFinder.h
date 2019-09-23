@@ -12,12 +12,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
+
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
@@ -28,7 +31,6 @@
 
 
 class ICscSegmentFinder;
-class StoreGateSvc;
 class MdtIdHelper;
 
 namespace Muon 
@@ -39,7 +41,6 @@ namespace Muon
     class IMuonSegmentCombinationCleanerTool;
     class IMuonSegmentSelectionTool;
     class MuonEDMPrinterTool;
-    class MuonEDMHelperTool;
     class MuonIdHelperTool;
 
   /** @class MooSegmentCombinationFinder 
@@ -112,7 +113,9 @@ namespace Muon
       bool                                            m_auditorExecute; //<! audit the subtools during "execute"
       
       ToolHandle<MuonEDMPrinterTool>                 m_edmPrinter;
-      ToolHandle<MuonEDMHelperTool>                  m_helperTool;
+      ServiceHandle<IMuonEDMHelperSvc>               m_edmHelperSvc {this, "edmHelper", 
+        "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+        "Handle to the service providing the IMuonEDMHelperSvc interface" };
       ToolHandle<MuonIdHelperTool>                   m_idHelperTool;
       ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder;
       ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder;

@@ -3,19 +3,8 @@
 # art-description: Trigger v7 primaries RDO to BS and BS to ESD test
 # art-type: build
 # art-include: master/Athena
-# art-output: *check*
-# art-output: HLTChain.txt
-# art-output: HLTTE.txt
-# art-output: L1AV.txt
-# art-output: HLTconfig*.xml
-# art-output: L1Topoconfig*.xml
-# art-output: LVL1config*.xml
-# art-output: *.log
-# art-output: *.root
-# art-output: ntuple.pmon.gz
-# art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
-# art-output: *.regtest.new
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export NAME="physics_pp_v7_primaries_rdotobstoesd_build"
 export COST_MONITORING="False"
@@ -32,8 +21,8 @@ timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${J
 echo "art-result: ${PIPESTATUS[0]} CheckLog BS"
 
 export JOB_LOG="athena_ESD.log"
-
-athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.${JOB_LOG#*.}
+#the ConditionsTag should match what was used in the RDOtoBS step
+athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data'];from AthenaCommon.GlobalFlags import globalflags;globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-MC16-SDR-25')" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.${JOB_LOG#*.}
 echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}"
 
 

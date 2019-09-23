@@ -62,6 +62,8 @@
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AthenaKernel/Units.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "EventPrimitives/EventPrimitivesToStringConverter.h"
 
 namespace Units = Athena::Units;
 
@@ -2758,12 +2760,11 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 	ATH_MSG_VERBOSE( " perform track cleaning... "  << m_printer->print(*fittedTrack) << std::endl << m_printer->printStations(*fittedTrack) );
 
         if(fittedTrack) countAEOTs(fittedTrack, " refit: fitted track before cleaning ");
-        Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
-        if(cleanTrack) countAEOTs(cleanTrack, " refit: after cleaning");
+	std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+        if(cleanTrack) countAEOTs(cleanTrack.get(), " refit: after cleaning");
 
-        if(cleanTrack && !checkTrack("fitInterface1Cleaner",cleanTrack, fittedTrack)) {
-          delete cleanTrack;
-          cleanTrack = 0;
+        if(cleanTrack && !checkTrack("fitInterface1Cleaner",cleanTrack.get(), fittedTrack)) {
+	  cleanTrack.reset();
         }
 
 	if (! cleanTrack)
@@ -2780,19 +2781,19 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 		ATH_MSG_DEBUG( " keep original standalone track despite cleaner veto " );
 	    }
 	}
-        else if (cleanTrack != fittedTrack)
+        else if (!(*cleanTrack->perigeeParameters()== *fittedTrack->perigeeParameters()))
         {
 	    double chi2After	= normalizedChi2(*cleanTrack);
 	    if (chi2After < m_badFitChi2 || chi2After < chi2Before)
 	    {
 		ATH_MSG_VERBOSE( " found and removed spectrometer outlier(s) " );
 		delete fittedTrack;
-		fittedTrack = cleanTrack;
+		//using release until the entire code can be migrated to use smart pointers  
+		fittedTrack = cleanTrack.release();
 	    }
 	    else
 	    {
 		ATH_MSG_VERBOSE( " keep original track despite cleaning " );
-		delete cleanTrack;
 	    }
 	}
 	
@@ -2891,12 +2892,11 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
         if(fittedTrack) countAEOTs(fittedTrack, " fit mstSet before cleaning ");
-        Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
-        if(cleanTrack) countAEOTs(cleanTrack," fit mstSet clean Track ");
+	std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+        if(cleanTrack) countAEOTs(cleanTrack.get()," fit mstSet clean Track ");
 
-        if(cleanTrack && !checkTrack("fitInterface2Cleaner",cleanTrack, fittedTrack)) {
-          delete cleanTrack;
-          cleanTrack = 0;
+        if(cleanTrack && !checkTrack("fitInterface2Cleaner",cleanTrack.get(), fittedTrack)) {
+	  cleanTrack.reset();
         }
 
 	if (! cleanTrack)
@@ -2913,7 +2913,7 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 		ATH_MSG_DEBUG( " keep original extension track despite cleaner veto " );
 	    }
 	}
-        else if (cleanTrack != fittedTrack)
+        else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters()))
         {
 	    double chi2After	= normalizedChi2(*cleanTrack);
 	    if (chi2After < m_badFitChi2 || chi2After < chi2Before)
@@ -2921,12 +2921,12 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 		ATH_MSG_VERBOSE( " found and removed spectrometer outlier(s) " );
 
 		delete fittedTrack;
-		fittedTrack = cleanTrack;
+		//using release until the entire code can be migrated to use smart pointers
+		fittedTrack = cleanTrack.release();
 	    }
 	    else
 	    {
 		ATH_MSG_VERBOSE( " keep original track despite cleaning " );
-		delete cleanTrack;
 	    }
 	}
 
@@ -3008,8 +3008,8 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl << m_printer->printStations(*fittedTrack) );
         if(fittedTrack) countAEOTs(fittedTrack," cb before clean Track ");
-        Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
-        if(cleanTrack) countAEOTs(cleanTrack," cb after clean Track ");
+	std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
+        if(cleanTrack) countAEOTs(cleanTrack.get()," cb after clean Track ");
 
 	if (! cleanTrack)
 	{
@@ -3025,7 +3025,7 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 		ATH_MSG_DEBUG( " keep original combined track despite cleaner veto " );
 	    }
 	}
-        else if (cleanTrack != fittedTrack)
+        else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters()))
         {
 	    double chi2After	= normalizedChi2(*cleanTrack);
 	    if (chi2After < m_badFitChi2 || chi2After < chi2Before)
@@ -3033,12 +3033,12 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 		ATH_MSG_VERBOSE( " found and removed spectrometer outlier(s) " );
 
 		delete fittedTrack;
-		fittedTrack = cleanTrack;
+		//using release until the entire code can be migrated to use smart pointers
+		fittedTrack = cleanTrack.release();
 	    }
 	    else
 	    {
 		ATH_MSG_VERBOSE( " keep original track despite cleaning " );
-		delete cleanTrack;
 	    }
 	}
 
@@ -3370,10 +3370,12 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     if (vertex && m_indetVolume->inside(parameters.position()) ) perigee	= dynamic_cast<const Trk::Perigee*>(&parameters);
     if (perigee)
     {
+      ATH_MSG_DEBUG("got a perigee");
 	trackParameters	= perigee->clone();
     }
     else
     {
+      ATH_MSG_DEBUG("no perigee");
 	// extrapolate backwards to associate leading material in spectrometer
 	// (provided material has already been allocated between measurements)
 	const Trk::TrackParameters* leadingParameters		= &parameters;
@@ -3658,6 +3660,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     // MS entrance perigee
     if (m_perigeeAtSpectrometerEntrance)
     {
+      ATH_MSG_DEBUG("adding perigee at spectrometer entrance");
 	const Trk::TrackParameters*  mstrackParameters		= trackStateOnSurfaces->back()->trackParameters();
 	if (! mstrackParameters) mstrackParameters		= spectrometerTSOS.front()->trackParameters();
         if(mstrackParameters) {
@@ -4954,7 +4957,10 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
     int nperigee = 0;
     for (; it!=it_end; ++it) {
       tsos++;
-      if((*it)->type(Trk::TrackStateOnSurface::Perigee)) nperigee++;
+      if((*it)->type(Trk::TrackStateOnSurface::Perigee)){
+	ATH_MSG_DEBUG("perigee");
+	nperigee++;
+      }
       if((*it)->trackParameters()) {
         ATH_MSG_VERBOSE(" check tsos " << tsos << " TSOS tp " <<  " r " << (*it)->trackParameters()->position().perp() << " z " << (*it)->trackParameters()->position().z() << " momentum " << (*it)->trackParameters()->momentum().mag());
       } else if ((*it)->measurementOnTrack()) {
@@ -5084,6 +5090,15 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
 //    } else {
 //        ATH_MSG_DEBUG( txt << " checkTrack track OK position " << (*it)->position() << " direction " << (*it)->momentum().unit());
 //    }
+
+    for(const auto& par : *pars){
+      if(!par->covariance()) continue;
+      if((*par->covariance())(0,0)<0 || (*par->covariance())(1,1)<0 || (*par->covariance())(2,2)<0 || (*par->covariance())(3,3)<0 || (*par->covariance())(4,4)<0){
+	ATH_MSG_DEBUG(Amg::toString(*par->covariance()));
+	ATH_MSG_DEBUG("covariance matrix has negative diagonal element, killing track");
+	return false;
+      }
+    }
 
     return newTrackOK;
   }

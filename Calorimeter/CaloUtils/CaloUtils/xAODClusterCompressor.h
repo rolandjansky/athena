@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -10,13 +10,18 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthService.h"
 #include "CaloInterface/IxAODClusterCompressor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCore/tools/FloatCompressor.h"
 
 class xAODClusterCompressor : 
-  virtual public IxAODClusterCompressor, public AthAlgTool { 
+  virtual public IxAODClusterCompressor, public AthService { 
   
+ protected:   
+  friend class SvcFactory<xAODClusterCompressor>;
+
+
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -24,40 +29,22 @@ class xAODClusterCompressor :
 
   xAODClusterCompressor() = delete;
   /// Constructor with parameters: 
-  xAODClusterCompressor( const std::string& type,
-			 const std::string& name, 
-			 const IInterface* parent );
+  xAODClusterCompressor(const std::string& name, ISvcLocator* pSvcLocator);
 
-  /// Destructor: 
-  virtual ~xAODClusterCompressor(); 
+  virtual StatusCode  initialize() override;
+  static const InterfaceID& interfaceID() { return IID_IxAODClusterCompressor;}
 
-  // Athena algtool's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  finalize();
-
-  void compress(xAOD::CaloClusterContainer* clustercontainer) const;
-
- private: 
-  //Private type:
-  union floatshort_t {
-    float fvalue;
-    uint32_t ivalue;
-  };
-
-
-  //Private methods:
-  float reduceFloatPrecision(const float fValue) const;
+  virtual void compress(xAOD::CaloClusterContainer* clustercontainer) const override;
   
-  //Magic numbers:
-  //half of the LSB-value after cutting the lower 16 bits
-  const uint32_t m_rounding=0x00008000;
-
-  //Largest possible positive 32bit float minus the rounding 
-  const uint32_t m_vmax=0x7f7f7fff;
+ virtual StatusCode queryInterface( const InterfaceID& riid, 
+				    void** ppvInterface ) override;
 
   //List of all moments
   typedef std::array< xAOD::CaloCluster::MomentType,60> momentList_t;
   momentList_t m_allMoments;
+
+  //Use Float compressor from xAODCore
+  xAOD::FloatCompressor m_compressor;
  
   //JobO-driven flag to turn compression on/off
   bool m_isEnabled;

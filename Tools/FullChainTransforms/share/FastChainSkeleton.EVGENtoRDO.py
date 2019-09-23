@@ -1252,7 +1252,6 @@ writeDigitizationMetadata()
 if DetFlags.writeRDOPool.any_on():
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
     streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True)
-    streamRDO.ForceRead = True
     from Digitization.DigiOutput import getStreamRDO_ItemList
     streamRDO.ItemList = getStreamRDO_ItemList(fast_chain_log)
     streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]

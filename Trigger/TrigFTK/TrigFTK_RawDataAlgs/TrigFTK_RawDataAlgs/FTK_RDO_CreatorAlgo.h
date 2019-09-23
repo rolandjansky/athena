@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTK_RDO_CreatorAlgo_h
@@ -42,9 +42,6 @@ public:
   StatusCode finalize();
 
 private:
-  StoreGateSvc* m_StoreGate;
-  StoreGateSvc* m_detStore;
-
   // paths with the merged tracks
   std::vector< std::string > m_ftktrack_paths_merged;
   // chain  of ftk merged tracks

@@ -9,7 +9,7 @@ atlas_subdir( TrigConfData )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           PRIVATE
-                          CxxUtils
+                          Control/CxxUtils
                           )
 
 # External dependencies:

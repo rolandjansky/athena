@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -142,7 +142,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 
       std::vector<WrkVrt> *WrkVrtSet= new std::vector<WrkVrt>;
       WrkVrt newvrt; newvrt.Good=true;
-      m_fitSvc->setDefault();
+      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
       StatusCode sc; sc.setChecked(); 
       long int NPTR=0, nth=2; // VK nth=2 to speed up PGRAPH when it's used
 
@@ -174,29 +174,31 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
              if     (xAODwrk)xAODwrk->tmpListTracks.push_back( xAODwrk->listJetTracks.at(newvrt.SelTrk[i]) );
 	     else if(RECwork)RECwork->tmpListTracks.push_back( RECwork->listJetTracks.at(newvrt.SelTrk[i]) );
           }
-          if     (xAODwrk)sc = VKalVrtFitFastBase(xAODwrk->tmpListTracks,newvrt.vertex);
-	  else if(RECwork)sc = VKalVrtFitFastBase(RECwork->tmpListTracks,newvrt.vertex);
+          if     (xAODwrk)sc = VKalVrtFitFastBase(xAODwrk->tmpListTracks,newvrt.vertex,*state);
+	  else if(RECwork)sc = VKalVrtFitFastBase(RECwork->tmpListTracks,newvrt.vertex,*state);
           if( sc.isFailure() || newvrt.vertex.perp() > m_rLayer2*2.  ) {   /* No initial estimation */ 
-              m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z()); /*Use as starting point*/
-              if( m_multiWithPrimary ) m_fitSvc->setApproximateVertex(0., 0., 0.); 
+              m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z(),*state); /*Use as starting point*/
+              if( m_multiWithPrimary ) m_fitSvc->setApproximateVertex(0., 0., 0.,*state); 
  	  } else {
 	      Amg::Vector3D vDist=newvrt.vertex-PrimVrt.position();
               double JetVrtDir = JetDir.Px()*vDist.x() + JetDir.Py()*vDist.y() + JetDir.Pz()*vDist.z();
               if( m_multiWithPrimary ) JetVrtDir=fabs(JetVrtDir); /* Always positive when primary vertex is seeked for*/ 
               if( JetVrtDir>0. ) {                           /* Good initial estimation */ 
-                  m_fitSvc->setApproximateVertex(newvrt.vertex.x(),newvrt.vertex.y(),newvrt.vertex.z()); /*Use as starting point*/
+                  m_fitSvc->setApproximateVertex(newvrt.vertex.x(),newvrt.vertex.y(),newvrt.vertex.z(),*state); /*Use as starting point*/
 	      }else{
-                  m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z()); 
+                  m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z(),*state); 
               }
           }
 //  std::cout<<"FoundAppVrt="<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<", "<<newvrt.vertex[2]<<'\n';
 	  sc = StatusCode::FAILURE;
           if     (xAODwrk){sc=VKalVrtFitBase(xAODwrk->tmpListTracks,
 	                                     newvrt.vertex,     newvrt.vertexMom, newvrt.vertexCharge, newvrt.vertexCov,
-                                             newvrt.Chi2PerTrk, newvrt.TrkAtVrt,  newvrt.Chi2);}
+                                             newvrt.Chi2PerTrk, newvrt.TrkAtVrt,  newvrt.Chi2,
+                                             *state, false);}
 	  else if(RECwork){sc=VKalVrtFitBase(RECwork->tmpListTracks,
 	                                     newvrt.vertex,     newvrt.vertexMom, newvrt.vertexCharge, newvrt.vertexCov,
-                                             newvrt.Chi2PerTrk, newvrt.TrkAtVrt,  newvrt.Chi2);}
+                                             newvrt.Chi2PerTrk, newvrt.TrkAtVrt,  newvrt.Chi2,
+                                             *state, false);}
 //  std::cout << "Res="<<newvrt.Chi2<<", "<<NPTR<<", "<<newvrt.SelTrk[0]<<", "<<newvrt.SelTrk[1]<<'\n'; 
           if( sc.isFailure() )           continue;   /* Bad fit - goto next solution */
           if(NPTR==2 && newvrt.Chi2>10.) continue;   /* Bad 2track vertex */
@@ -231,8 +233,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
         if(!(*WrkVrtSet)[iv].Good || (*WrkVrtSet)[iv].SelTrk.size() == 2 ) continue;
         if( TMath::Prob( (*WrkVrtSet)[iv].Chi2, 2*(*WrkVrtSet)[iv].SelTrk.size()-3) <1.e-3){
           //printWrkSet(WrkVrtSet,"BigChi2Vertex present");
-          if     (xAODwrk)DisassembleVertex(WrkVrtSet,iv,xAODwrk->listJetTracks);
-          else if(RECwork)DisassembleVertex(WrkVrtSet,iv,RECwork->listJetTracks);
+          if     (xAODwrk)DisassembleVertex(WrkVrtSet,iv,xAODwrk->listJetTracks,*state);
+          else if(RECwork)DisassembleVertex(WrkVrtSet,iv,RECwork->listJetTracks,*state);
           disassembled=true;
       } }
     }while(disassembled);
@@ -272,14 +274,14 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
           int nTrkI=(*WrkVrtSet)[iv].SelTrk.size();
           int nTrkJ=(*WrkVrtSet)[jv].SelTrk.size();
 	  double probV=-1.;
-          if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, xAODwrk->listJetTracks);
-          else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, RECwork->listJetTracks);
+          if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, xAODwrk->listJetTracks, *state);
+          else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, RECwork->listJetTracks, *state);
           ////std::cout<<" ntcommon="<<(*icvrt).first<<" prb="<<probV<<" itrk="<<nTrkI<<" jtrk="<<nTrkJ<<'\n';
 	  if(probV<probVrtMergeLimit){
             if(nTrkI==2 || nTrkJ==2 || nTCom<2) continue;
             if((nTCom>nTrkI-nTCom || nTCom>nTrkJ-nTCom)){  //2 and more common tracks for NTr>=3 vertices. Merge anyway.
-              if     (xAODwrk)mergeAndRefitOverlapVertices( WrkVrtSet, iv, jv, xAODwrk->listJetTracks);
-              else if(RECwork)mergeAndRefitOverlapVertices( WrkVrtSet, iv, jv, RECwork->listJetTracks);
+              if     (xAODwrk)mergeAndRefitOverlapVertices( WrkVrtSet, iv, jv, xAODwrk->listJetTracks, *state);
+              else if(RECwork)mergeAndRefitOverlapVertices( WrkVrtSet, iv, jv, RECwork->listJetTracks, *state);
               break; //Vertex list is changed. Restart merging from scratch.
             }
             continue;  //Continue merging loop 
@@ -365,7 +367,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
     
     TrackClassification( WrkVrtSet, TrkInVrt);
 
-    m_fitSvc->setDefault();
+    state = m_fitSvc->makeState();
     while((foundMaxT=MaxOfShared( WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex))>0) {
  //std::cout << "MAX="<<foundMaxT<<", "<<SelectedTrack<<", "<<SelectedVertex<<'\n';
  //std::cout << "VRT="<<minVrtVrtDist( WrkVrtSet, foundV1, foundV2)<<", "<<foundV1<<", "<<foundV2<<'\n';
@@ -381,8 +383,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
              while(foundMinVrtDst<m_vertexMergeCut){
                if(foundV1<foundV2) { int tmp=foundV1; foundV1=foundV2; foundV2=tmp;} /*Always drop vertex with smallest number*/
 	       double probV=0.;
-               if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks);
-               else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks);
+               if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks, *state);
+               else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks, *state);
 	       if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<c_vrtBCMassLimit){        //  Good merged vertex found
                  double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	         if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
@@ -406,8 +408,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 	  }
           RemoveTrackFromVertex(WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex);
           sc = StatusCode::FAILURE;
-          if     (xAODwrk)sc = RefitVertex( WrkVrtSet, SelectedVertex, xAODwrk->listJetTracks);
-          else if(RECwork)sc = RefitVertex( WrkVrtSet, SelectedVertex, RECwork->listJetTracks);
+          if     (xAODwrk)sc = RefitVertex( WrkVrtSet, SelectedVertex, xAODwrk->listJetTracks, *state, false);
+          else if(RECwork)sc = RefitVertex( WrkVrtSet, SelectedVertex, RECwork->listJetTracks, *state, false);
           (*WrkVrtSet)[SelectedVertex].ProjectedVrt=JetProjDist((*WrkVrtSet)[SelectedVertex].vertex, PrimVrt, JetDir);
           if( sc.isFailure() )  (*WrkVrtSet)[SelectedVertex].Good=false;  //bad vertex
           if( (*WrkVrtSet)[SelectedVertex].ProjectedVrt<0. && (*WrkVrtSet)[SelectedVertex].SelTrk.size()==2 )
@@ -421,8 +423,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
     while ( minDistVV < m_vertexMergeCut) {
         if(foundV1<foundV2) { int tmp=foundV1; foundV1=foundV2; foundV2=tmp;}
 	double probV=0.;
-        if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks);
-        else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks);
+        if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks, *state);
+        else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks, *state);
 	if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<c_vrtBCMassLimit){        //  Good merged vertex found
            double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	   if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
@@ -443,8 +445,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
        if( (*WrkVrtSet)[iv].SelTrk.size()<3 )      continue;
        double tmpProb=TMath::Prob( (*WrkVrtSet)[iv].Chi2, 2*(*WrkVrtSet)[iv].SelTrk.size()-3 ); //Chi2 of the original vertex
        if(tmpProb<0.001){
-         if     (xAODwrk)tmpProb=improveVertexChi2( WrkVrtSet, iv, xAODwrk->listJetTracks);
-         else if(RECwork)tmpProb=improveVertexChi2( WrkVrtSet, iv, RECwork->listJetTracks);
+         if     (xAODwrk)tmpProb=improveVertexChi2( WrkVrtSet, iv, xAODwrk->listJetTracks, *state, false);
+         else if(RECwork)tmpProb=improveVertexChi2( WrkVrtSet, iv, RECwork->listJetTracks, *state, false);
          if(tmpProb<0.001)(*WrkVrtSet)[iv].Good=false;
          (*WrkVrtSet)[iv].ProjectedVrt=JetProjDist((*WrkVrtSet)[iv].vertex, PrimVrt, JetDir);
        }
@@ -457,8 +459,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 //--------------------------------------------------------------------------------------------------------
 // Final vertex selection/cleaning
 //
-    m_fitSvc->setDefault();
-    m_fitSvc->setMomCovCalc(1);
+    state = m_fitSvc->makeState();
     double Signif3D, vProb=0.;
     //double Dist3D=0;
 
@@ -468,8 +469,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       for(auto &onetVrt : (*WrkVrtSet)){ if(!onetVrt.Good || onetVrt.SelTrk.size()!=1) continue;
         if(ntrVrt.detachedTrack==onetVrt.SelTrk[0]){   
 	  WrkVrt newV(ntrVrt); newV.SelTrk.push_back(ntrVrt.detachedTrack);
-          if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks);
-          else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks);
+          if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks, *state, true);
+          else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks, *state, true);
 	  if(vProb>probVrtMergeLimit){ onetVrt.Good=false; ntrVrt=newV;  ntrVrt.detachedTrack=-1;}
 	  break;
     } } }
@@ -478,8 +479,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       for(auto &jVrt : (*WrkVrtSet)){ if(!jVrt.Good || jVrt.SelTrk.size()!=1) continue;
         if(iVrt.detachedTrack==jVrt.SelTrk[0]){   
 	  WrkVrt newV(iVrt); newV.SelTrk.push_back(iVrt.detachedTrack);
-          if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks);
-          else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks);
+          if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks, *state, true);
+          else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks, *state, true);
 	  if(vProb>probVrtMergeLimit){ jVrt.Good=false; iVrt=newV;  iVrt.detachedTrack=-1;}
 	  break;
     } } }
@@ -488,8 +489,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
         for(auto &onetVrt  : (*WrkVrtSet)){ if(!onetVrt.Good || onetVrt.SelTrk.size()!=1) continue;
 	  if(onetVrt.detachedTrack==tr){
 	    WrkVrt newV(ntrVrt); newV.SelTrk.push_back(onetVrt.SelTrk[0]);
-            if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks);
-            else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks);
+            if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks, *state, true);
+            else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks, *state, true);
 	    if(vProb>probVrtMergeLimit){ onetVrt.Good=false; ntrVrt=newV;}
     } } } }
     for(auto & curVrt : (*WrkVrtSet) ) {
@@ -506,8 +507,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
           if(trkGood && tmpProb>0.01){  /* accept only good tracks coming from good 2tr vertex*/
              //if( useMaterialRejection && insideMatLayer(curVrt.vertex.x(),curVrt.vertex.y()) ) continue;
              std::vector<double> Impact,ImpactError;   double Signif3DP = 0;
-             if     (xAODwrk) Signif3DP=m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
-	     else if(RECwork) Signif3DP=m_fitSvc->VKalGetImpact(RECwork->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
+             if     (xAODwrk) Signif3DP=m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError, *state);
+	     else if(RECwork) Signif3DP=m_fitSvc->VKalGetImpact(RECwork->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError, *state);
              if(m_fillHist&&curVrt.vertex.perp()>20.){m_hb_diffPS->Fill( Signif3DP, m_w_1); }
              if( Signif3DP>2.*m_trkSigCut && Signif3D>m_sel2VrtSigCut) curVrt.Good=true; // accept only tracks which are far from primary vertex
           }
@@ -643,8 +644,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
         if(!GoodVertices[iv].Good) continue;
         if(GoodVertices[iv].SelTrk.size()<2)  continue;
         if( VrtVrtDist(PrimVrt, GoodVertices[iv].vertex, GoodVertices[iv].vertexCov, JetDir) < 10.) continue;   //--Too close to PV
-        if     (RECwork)Signif = m_fitSvc->VKalGetImpact(RECwork->listJetTracks[nonusedTrk[it]], GoodVertices[iv].vertex, 1, Impact, ImpactError);
-        else if(xAODwrk)Signif = m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[nonusedTrk[it]], GoodVertices[iv].vertex, 1, Impact, ImpactError);
+        if     (RECwork)Signif = m_fitSvc->VKalGetImpact(RECwork->listJetTracks[nonusedTrk[it]], GoodVertices[iv].vertex, 1, Impact, ImpactError, *state);
+        else if(xAODwrk)Signif = m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[nonusedTrk[it]], GoodVertices[iv].vertex, 1, Impact, ImpactError, *state);
         if(Signif<tmpV.Signif3D){tmpV.Signif3D=Signif; tmpV.indVrt=iv;}
       }
       matchSV.push_back(tmpV);
@@ -656,12 +657,12 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       std::map<double,int>::iterator atrk=addTrk.begin();
       if(addTrk.size()>0){       if(atrk->first<4.){newV.SelTrk.push_back(nonusedTrk[atrk->second]);addedT=true;}}
       if(addTrk.size()>1){atrk++;if(atrk->first<4.){newV.SelTrk.push_back(nonusedTrk[atrk->second]);}}
-      if(addedT){ if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks);
-                  else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks); 
+      if(addedT){ if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks, *state, true);
+                  else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks, *state, true); 
                  if(vProb>0.01)GoodVertices[iv]=newV;
                   else{ std::vector<WrkVrt> TestVertices(1,newV);
-                        if     (xAODwrk)vProb=improveVertexChi2( &TestVertices, 0, xAODwrk->listJetTracks);
-                        else if(RECwork)vProb=improveVertexChi2( &TestVertices, 0, RECwork->listJetTracks);
+                        if     (xAODwrk)vProb=improveVertexChi2( &TestVertices, 0, xAODwrk->listJetTracks, *state, true);
+                        else if(RECwork)vProb=improveVertexChi2( &TestVertices, 0, RECwork->listJetTracks, *state, true);
 	                if(vProb>0.01)GoodVertices[iv]=TestVertices[0];
 		  }
       } 
@@ -815,7 +816,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 //
    template <class Particle>
    void InDetVKalVxInJetTool::DisassembleVertex(std::vector<WrkVrt> *WrkVrtSet, int iv, 
-                         std::vector<const Particle*>  AllTracks)
+                                                std::vector<const Particle*>  AllTracks,
+                                                Trk::IVKalState& istate)
    const
    {
       WrkVrt newvrt; newvrt.Good=true;
@@ -824,10 +826,10 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       if(NTrk<3)return;
       StatusCode sc; sc.setChecked();
 //=== To get robust definition of most bad outlier
-      m_fitSvc->setRobustness(5);      
-      sc = RefitVertex( WrkVrtSet, iv, AllTracks);
+      m_fitSvc->setRobustness(5, istate);
+      sc = RefitVertex( WrkVrtSet, iv, AllTracks, istate, false);
       if(sc.isFailure()){ (*WrkVrtSet)[iv].Good=false; return; }
-      m_fitSvc->setRobustness(0);      
+      m_fitSvc->setRobustness(0, istate);
 //--------------------------------------------------
       double Chi2Max=0.;
       for(int i=0; i<NTrk; i++){
@@ -842,18 +844,19 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
            newvrt.SelTrk.resize(2); 
 	   newvrt.SelTrk[0]=(*WrkVrtSet)[iv].SelTrk[i]; 
 	   newvrt.SelTrk[1]=(*WrkVrtSet)[iv].SelTrk[SelT];
-           sc = VKalVrtFitFastBase(ListBaseTracks,newvrt.vertex);
+           sc = VKalVrtFitFastBase(ListBaseTracks,newvrt.vertex,istate);
            if( sc.isFailure() )  continue;
            if( newvrt.vertex.perp() > m_rLayer2*2. )  newvrt.vertex=Amg::Vector3D(0.,0.,0.);
-           m_fitSvc->setApproximateVertex(newvrt.vertex[0],newvrt.vertex[1],newvrt.vertex[2]);
+           m_fitSvc->setApproximateVertex(newvrt.vertex[0],newvrt.vertex[1],newvrt.vertex[2],istate);
            sc=VKalVrtFitBase(ListBaseTracks,
-                                       newvrt.vertex,
-                                       newvrt.vertexMom,
-			               newvrt.vertexCharge,
-		                       newvrt.vertexCov,
-		                       newvrt.Chi2PerTrk, 
-			               newvrt.TrkAtVrt,
-			               newvrt.Chi2);   
+                             newvrt.vertex,
+                             newvrt.vertexMom,
+                             newvrt.vertexCharge,
+                             newvrt.vertexCov,
+                             newvrt.Chi2PerTrk, 
+                             newvrt.TrkAtVrt,
+                             newvrt.Chi2,
+                             istate, false);
            if( sc.isFailure() )  continue;  
            if( newvrt.Chi2>10.)  continue;  // Too bad 2-track vertex fit
            newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
@@ -866,7 +869,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
            WrkVrtSet->push_back(newvrt);
       }
       (*WrkVrtSet)[iv].SelTrk.erase( (*WrkVrtSet)[iv].SelTrk.begin() + SelT ); //remove track
-      sc = RefitVertex( WrkVrtSet, iv, AllTracks);
+      sc = RefitVertex( WrkVrtSet, iv, AllTracks, istate, false);
       if( sc.isFailure() ) {(*WrkVrtSet)[iv].Good=false; /*std::cout<<" Wrong vertex"<<'\n';*/}
    }
 
@@ -1128,7 +1131,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 //
    template <class Particle>
    double  InDetVKalVxInJetTool::mergeAndRefitVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2, WrkVrt & newvrt,
-                                                         std::vector<const Particle*> & AllTrackList)
+                                                        std::vector<const Particle*> & AllTrackList,
+                                                        Trk::IVKalState& istate)
    const
    {
       if(!(*WrkVrtSet).at(V1).Good)return -1.;         //bad vertex
@@ -1148,16 +1152,19 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       for(int it=0; it<(int)newvrt.SelTrk.size(); it++)fitTrackList.push_back( AllTrackList[newvrt.SelTrk[it]] );
       m_fitSvc->setApproximateVertex( 0.5*((*WrkVrtSet)[V1].vertex[0]+(*WrkVrtSet)[V2].vertex[0]),
                                       0.5*((*WrkVrtSet)[V1].vertex[1]+(*WrkVrtSet)[V2].vertex[1]),
-                                      0.5*((*WrkVrtSet)[V1].vertex[2]+(*WrkVrtSet)[V2].vertex[2]));
+                                      0.5*((*WrkVrtSet)[V1].vertex[2]+(*WrkVrtSet)[V2].vertex[2]),
+                                      istate);
       
       StatusCode sc=VKalVrtFitBase(fitTrackList,
-                                       newvrt.vertex,
-                                       newvrt.vertexMom,
-			               newvrt.vertexCharge,
-		                       newvrt.vertexCov,
-		                       newvrt.Chi2PerTrk, 
-			               newvrt.TrkAtVrt,
-			               newvrt.Chi2);   
+                                   newvrt.vertex,
+                                   newvrt.vertexMom,
+                                   newvrt.vertexCharge,
+                                   newvrt.vertexCov,
+                                   newvrt.Chi2PerTrk, 
+                                   newvrt.TrkAtVrt,
+                                   newvrt.Chi2,
+                                   istate,
+                                   false);
       if( sc.isFailure() )             return -1.;  
       if( newvrt.Chi2>500. )           return -1.;  //VK protection
       if( newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
@@ -1166,8 +1173,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
    //================== Intelligent merge of multitrack vertices with 2 and more common tracks
    template <class Particle>
    void  InDetVKalVxInJetTool::mergeAndRefitOverlapVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2,
-                                                               std::vector<const Particle*> & AllTrackList)
-   const
+                                                             std::vector<const Particle*> & AllTrackList,
+                                                             Trk::IVKalState& istate) const
    {
       if(!(*WrkVrtSet).at(V1).Good)return;         //bad vertex
       if(!(*WrkVrtSet).at(V2).Good)return;         //bad vertex
@@ -1199,9 +1206,10 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
          fitTrackList.clear();
          for(int it=0; it<(int)newvrt.SelTrk.size(); it++)fitTrackList.push_back( AllTrackList[newvrt.SelTrk[it]] );
          fitTrackList.push_back( AllTrackList.at(nct) );
-         m_fitSvc->setApproximateVertex( (*WrkVrtSet)[V1].vertex[0],(*WrkVrtSet)[V1].vertex[1],(*WrkVrtSet)[V1].vertex[2]);
+         m_fitSvc->setApproximateVertex( (*WrkVrtSet)[V1].vertex[0],(*WrkVrtSet)[V1].vertex[1],(*WrkVrtSet)[V1].vertex[2],istate);
          sc=VKalVrtFitBase(fitTrackList, newvrt.vertex, newvrt.vertexMom, newvrt.vertexCharge, newvrt.vertexCov,
-		                       newvrt.Chi2PerTrk, newvrt.TrkAtVrt, newvrt.Chi2);   
+                           newvrt.Chi2PerTrk, newvrt.TrkAtVrt, newvrt.Chi2,
+                           istate, false);
          if( sc.isFailure() || TMath::Prob( newvrt.Chi2, 2*newvrt.SelTrk.size()+2-3)<0.001 ) {
            detachedTrk.push_back(nct);
            continue;
@@ -1218,9 +1226,10 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
          WrkVrt nVrt;
          fitTrackList.clear(); nVrt.SelTrk.clear();
          for(auto nct : detachedTrk){ fitTrackList.push_back( AllTrackList[nct] );  nVrt.SelTrk.push_back(nct); }
-         m_fitSvc->setApproximateVertex( (*WrkVrtSet)[V2].vertex[0],(*WrkVrtSet)[V2].vertex[1],(*WrkVrtSet)[V2].vertex[2]);
+         m_fitSvc->setApproximateVertex( (*WrkVrtSet)[V2].vertex[0],(*WrkVrtSet)[V2].vertex[1],(*WrkVrtSet)[V2].vertex[2],istate);
          sc=VKalVrtFitBase(fitTrackList, nVrt.vertex, nVrt.vertexMom, nVrt.vertexCharge, nVrt.vertexCov,
-		                       nVrt.Chi2PerTrk, nVrt.TrkAtVrt, nVrt.Chi2);   
+                           nVrt.Chi2PerTrk, nVrt.TrkAtVrt, nVrt.Chi2,
+                           istate, false);
          if(sc.isSuccess()) (*WrkVrtSet).push_back(nVrt);
       } else if( detachedTrk.size()==1 ){
          bool tFound=false;
@@ -1237,9 +1246,10 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
               if(trk==detachedTrk[0])continue;
               WrkVrt nVrt; nVrt.Good=true;
               fitTrackList[1]=AllTrackList[trk];
-              m_fitSvc->setApproximateVertex( (*WrkVrtSet)[V2].vertex[0],(*WrkVrtSet)[V2].vertex[1],(*WrkVrtSet)[V2].vertex[2]);
+              m_fitSvc->setApproximateVertex( (*WrkVrtSet)[V2].vertex[0],(*WrkVrtSet)[V2].vertex[1],(*WrkVrtSet)[V2].vertex[2],istate);
               sc=VKalVrtFitBase(fitTrackList, nVrt.vertex, nVrt.vertexMom, nVrt.vertexCharge, nVrt.vertexCov,
-		                              nVrt.Chi2PerTrk, nVrt.TrkAtVrt, nVrt.Chi2);   
+                                nVrt.Chi2PerTrk, nVrt.TrkAtVrt, nVrt.Chi2,
+                                istate, false);
               if(sc.isSuccess() &&   nVrt.Chi2<Chi2min) {Chi2min=nVrt.Chi2;  saveVrt=nVrt; selectedTrk=trk; }
            }    
 	   if(Chi2min<1.e9){
@@ -1257,7 +1267,9 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 //  Iterate track removal until vertex get good Chi2
 //
    template <class Particle>
-   double  InDetVKalVxInJetTool::improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const Particle*> & AllTrackList)
+   double  InDetVKalVxInJetTool::improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const Particle*> & AllTrackList,
+                                                    Trk::IVKalState& istate,
+                                                    bool ifCovV0)
    const
    {
 
@@ -1279,7 +1291,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
         if (SelT<0) return 0; 
         (*WrkVrtSet)[V].detachedTrack=(*WrkVrtSet)[V].SelTrk[SelT];
         (*WrkVrtSet)[V].SelTrk.erase( (*WrkVrtSet)[V].SelTrk.begin() + SelT ); //remove track
-        StatusCode sc = RefitVertex( WrkVrtSet, V, AllTrackList);
+        StatusCode sc = RefitVertex( WrkVrtSet, V, AllTrackList, istate, ifCovV0);
         if(sc.isFailure())return 0.;
         Prob=TMath::Prob( (*WrkVrtSet)[V].Chi2, 2*(NTrk-1)-3);
       }
@@ -1291,9 +1303,11 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 
  
    template <class Particle>
-   StatusCode InDetVKalVxInJetTool::RefitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
-                                            std::vector<const Particle*> & SelectedTracks)
-   const
+   StatusCode InDetVKalVxInJetTool::RefitVertex( std::vector<WrkVrt> *WrkVrtSet,
+                                                 int SelectedVertex,
+                                                 std::vector<const Particle*> & SelectedTracks,
+                                                 Trk::IVKalState& istate,
+                                                 bool ifCovV0) const
    {
       int i,j;
       int nth = (*WrkVrtSet)[SelectedVertex].SelTrk.size();
@@ -1311,7 +1325,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 
       m_fitSvc->setApproximateVertex((*WrkVrtSet)[SelectedVertex].vertex[0],
 	                             (*WrkVrtSet)[SelectedVertex].vertex[1],
-	                             (*WrkVrtSet)[SelectedVertex].vertex[2]);
+	                             (*WrkVrtSet)[SelectedVertex].vertex[2],
+                                     istate);
       StatusCode SC=VKalVrtFitBase(ListTracks,
                                 (*WrkVrtSet)[SelectedVertex].vertex,
                                 (*WrkVrtSet)[SelectedVertex].vertexMom,
@@ -1319,7 +1334,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 		                (*WrkVrtSet)[SelectedVertex].vertexCov,
 				(*WrkVrtSet)[SelectedVertex].Chi2PerTrk, 
 				(*WrkVrtSet)[SelectedVertex].TrkAtVrt,
-				(*WrkVrtSet)[SelectedVertex].Chi2); 
+				(*WrkVrtSet)[SelectedVertex].Chi2,
+                                 istate, ifCovV0);
       if(SC.isSuccess())(*WrkVrtSet)[SelectedVertex].Good = true;
       if((*WrkVrtSet)[SelectedVertex].Chi2PerTrk.size()==2) 
          (*WrkVrtSet)[SelectedVertex].Chi2PerTrk[0]=
@@ -1328,8 +1344,10 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
    }
 
    template <class Particle>
-   double InDetVKalVxInJetTool::RefitVertex(WrkVrt &Vrt, std::vector<const Particle*> & SelectedTracks)
-   const
+   double InDetVKalVxInJetTool::RefitVertex(WrkVrt &Vrt,
+                                            std::vector<const Particle*> & SelectedTracks,
+                                            Trk::IVKalState& istate,
+                                            bool ifCovV0) const
    {
       int i,j;
       int nth = Vrt.SelTrk.size();
@@ -1345,52 +1363,17 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       Vrt.Chi2PerTrk.resize(nth);
       for(i=0;i<nth;i++)Vrt.Chi2PerTrk[i]=100000.+i; //VK safety
 
-      m_fitSvc->setApproximateVertex(Vrt.vertex[0],Vrt.vertex[1],Vrt.vertex[2]);
+      m_fitSvc->setApproximateVertex(Vrt.vertex[0],Vrt.vertex[1],Vrt.vertex[2],istate);
       StatusCode SC=VKalVrtFitBase(ListTracks,Vrt.vertex,Vrt.vertexMom,Vrt.vertexCharge,
-		                Vrt.vertexCov,Vrt.Chi2PerTrk, Vrt.TrkAtVrt,Vrt.Chi2); 
+                                   Vrt.vertexCov,Vrt.Chi2PerTrk, Vrt.TrkAtVrt,Vrt.Chi2,
+                                   istate, ifCovV0);
       if(SC.isSuccess())Vrt.Good = true;
       else {Vrt.Good = false; return -1.;}
       if(Vrt.Chi2PerTrk.size()==2) Vrt.Chi2PerTrk[0]=Vrt.Chi2PerTrk[1]=Vrt.Chi2/2.;
       return TMath::Prob( Vrt.Chi2, 2*nth-1);
    }
 
-   template <class Particle>
-   double InDetVKalVxInJetTool::FitVertexWithPV( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex, const xAOD::Vertex & PV,
-                                                          std::vector<const Particle*> & SelectedTracks)
-   const
-   {
-      int i,j;
-      int nth = (*WrkVrtSet)[SelectedVertex].SelTrk.size();  if(nth<2) return 0.;
- 
-      std::vector<const Particle*>  ListTracks(0);
-      for(i=0;i<nth;i++) {
-	  j=(*WrkVrtSet)[SelectedVertex].SelTrk[i];                           /*Track number*/
-          ListTracks.push_back( SelectedTracks[j] );
-      }
-      WrkVrt newvrt;
-      m_fitSvc->setApproximateVertex((*WrkVrtSet)[SelectedVertex].vertex[0],
-	                             (*WrkVrtSet)[SelectedVertex].vertex[1],
-	                             (*WrkVrtSet)[SelectedVertex].vertex[2]);
-      m_fitSvc->setCnstType(6);
-      m_fitSvc->setVertexForConstraint(PV.x(),PV.y(),PV.z());
-      m_fitSvc->setCovVrtForConstraint(PV.covariancePosition()(0,0), PV.covariancePosition()(0,1),
-                                       PV.covariancePosition()(1,1), PV.covariancePosition()(0,2),
-                                       PV.covariancePosition()(1,2), PV.covariancePosition()(2,2)*10000.);
-      StatusCode SC=VKalVrtFitBase(ListTracks,
-                                newvrt.vertex,
-                                newvrt.vertexMom,
-				newvrt.vertexCharge,
-		                newvrt.vertexCov,
-				newvrt.Chi2PerTrk, 
-				newvrt.TrkAtVrt,
-				newvrt.Chi2); 
-      m_fitSvc->setCnstType(0);     //reset constraints
-      if(SC.isFailure())return 0.;
-      if(newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
-      return TMath::Prob( newvrt.Chi2, 2*nth);
-   }
-
-   bool InDetVKalVxInJetTool::isPart( std::deque<long int> test, std::deque<long int> base)
+    bool InDetVKalVxInJetTool::isPart( std::deque<long int> test, std::deque<long int> base)
    const
    {
       std::deque<long int>::iterator trk=test.begin();
@@ -1450,8 +1433,8 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 	  ErrorMatrix[20]=1.e9*tmpVec.z()*tmpVec.z();
 	  Amg::setMag(tmpVec,1.e5); TLorentzVector Momentum(tmpVec.x(),tmpVec.y(),tmpVec.z(),m_massPi);
           //std::copy(iv.vertexCov.begin(),iv.vertexCov.begin()+6,ErrorMatrix.begin());
-          //sc=m_fitSvc->VKalVrtCvtTool(iv.vertex,Momentum,ErrorMatrix,0,VKPerigee,CovPerigee);
-          sc=m_fitSvc->VKalVrtCvtTool(PrimVrt.position(),Momentum,ErrorMatrix,0,VKPerigee,CovPerigee);
+          //sc=m_fitSvc->VKalVrtCvtTool(iv.vertex,Momentum,ErrorMatrix,0,VKPerigee,CovPerigee,*state);
+          sc=m_fitSvc->VKalVrtCvtTool(PrimVrt.position(),Momentum,ErrorMatrix,0,VKPerigee,CovPerigee,*state);
           if(sc.isSuccess()) {
             double distRef=(iv.vertex-PrimVrt.position()).perp(); //Distance of already found vertex
             double maxDistRatio=-999.;                            //For selection of the best candidate for given existing vertex
@@ -1459,7 +1442,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
             Trk::Track* TT(0);          Rec::TrackParticle* TP(0);     xAOD::TrackParticle * xaodTP(0);
             if( RECwork ) {
 	      if( m_trkPartCreator ){
-                TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
+                TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee,*state);
                 TP=m_trkPartCreator->createParticle(TT);
                 RECwork->tmpListTracks.clear(); RECwork->tmpListTracks.push_back(TP);
 	      }

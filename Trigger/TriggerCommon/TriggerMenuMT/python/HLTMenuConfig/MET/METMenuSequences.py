@@ -3,17 +3,19 @@
 #
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+from TrigMissingETHypo.TrigMissingETHypoConfigMT import TrigMETCellHypoToolFromDict
+from TrigMissingETHypo.TrigMissingETHypoConf import TrigMissingETHypoAlgMT
+
     
 def metCellMenuSequence():
     # menu components   
     # retrieve the reco seuqnece
-    from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metCellAthSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metCellAthSequence
     (metCellSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metCellAthSequence,ConfigFlags)
   
     #hypo
-    from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, TrigMETCellHypoToolFromDict
-
-    metHypoAlg = MissingETHypoAlgMT("METHypoAlg_cell")
+    metHypoAlg = TrigMissingETHypoAlgMT("METHypoAlg_cell")
     metHypoAlg.METContainerKey=sequenceOut
 
     return  MenuSequence( Sequence    = metCellSequence,
@@ -25,13 +27,11 @@ def metCellMenuSequence():
 def metClusterMenuSequence():
     # menu components   
     # retrieve the reco seuqnece
-    from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metClusterAthSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metClusterAthSequence
     (metClusterSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metClusterAthSequence,ConfigFlags)
   
     #hypo
-    from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, TrigMETCellHypoToolFromDict
-
-    metHypoAlg = MissingETHypoAlgMT("METHypoAlg_tc")
+    metHypoAlg = TrigMissingETHypoAlgMT("METHypoAlg_tc")
     metHypoAlg.METContainerKey=sequenceOut
 
     return  MenuSequence( Sequence    = metClusterSequence,
@@ -43,13 +43,11 @@ def metClusterMenuSequence():
 def metClusterPufitMenuSequence():
     # menu components   
     # retrieve the reco seuqnece
-    from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metClusterPufitAthSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metClusterPufitAthSequence
     (metClusterPufitSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metClusterPufitAthSequence,ConfigFlags)
   
     #hypo
-    from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, TrigMETCellHypoToolFromDict
-
-    metHypoAlg = MissingETHypoAlgMT("METHypoAlg_tcpufit")
+    metHypoAlg = TrigMissingETHypoAlgMT("METHypoAlg_tcpufit")
     metHypoAlg.METContainerKey=sequenceOut
 
     return  MenuSequence( Sequence    = metClusterPufitSequence,
@@ -59,20 +57,18 @@ def metClusterPufitMenuSequence():
 
 
 
-#def metJetMenuSequence():
+def metJetMenuSequence():
 
     # menu components   
     # retrieve the reco seuqnece
-#    from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metJetAthSequence
-#    (metJetSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metJetAthSequence,ConfigFlags)
-  
+    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metJetAthSequence
+    (metJetSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metJetAthSequence,ConfigFlags)
+
     #hypo
-#    from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, TrigMETCellHypoToolFromDict
+    metHypoAlg = TrigMissingETHypoAlgMT("METHypoAlg_mht")
+    metHypoAlg.METContainerKey=sequenceOut
 
-#    metHypoAlg = MissingETHypoAlgMT("METHypoAlg_mht")
-#    metHypoAlg.METContainerKey=sequenceOut
-
-#    return  MenuSequence( Sequence    = metJetSequence,
-#                          Maker       = InputMakerAlg,
-#                          Hypo        = metHypoAlg,
-#                          HypoToolGen = TrigMETCellHypoToolFromDict )
+    return  MenuSequence( Sequence    = metJetSequence,
+                          Maker       = InputMakerAlg,
+                          Hypo        = metHypoAlg,
+                          HypoToolGen = TrigMETCellHypoToolFromDict )

@@ -3,16 +3,28 @@
 def createHLTDQConfigFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
     acf=AthConfigFlags()
+
+    acf.addFlag('DQ.Steering.HLT.doEgamma', True)
     acf.addFlag('DQ.Steering.HLT.doMET', True)
+    acf.addFlag('DQ.Steering.HLT.doBjet', True)
+    
     return acf
 
 def TrigHLTMonitoringConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
+    if flags.DQ.Steering.HLT.doEgamma:
+        from TrigEgammaMonitoring.TrigEgammaMonitorAlgorithm import TrigEgammaMonConfig
+        result.merge(TrigEgammaMonConfig(flags))
+
     if flags.DQ.Steering.HLT.doMET:
         from TrigMETMonitoring.TrigMETMonitorAlgorithm import TrigMETMonConfig
         result.merge(TrigMETMonConfig(flags))
+
+    if flags.DQ.Steering.HLT.doBjet:
+        from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig
+        result.merge(TrigBjetMonConfig(flags))
 
     return result
 

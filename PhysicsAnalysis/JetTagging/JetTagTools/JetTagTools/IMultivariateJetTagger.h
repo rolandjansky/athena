@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOL_IMULTIVARIATEJETTAGGER_C
@@ -27,22 +27,15 @@ namespace xAOD {
 
 
 namespace Analysis {
-  static const InterfaceID
-    IID_IMultivariateJetTagger("Analysis::IMultivariateJetTagger", 1, 0);
 
   class IMultivariateJetTagger : virtual public IAlgTool
   {
   public:
-    virtual ~IMultivariateJetTagger(){};
+    virtual ~IMultivariateJetTagger() = default;
 
-    virtual StatusCode initialize() = 0;
-    virtual StatusCode finalize() = 0;
-
-    virtual void assignProbability(xAOD::BTagging* BTag, const std::map<std::string,double>& inputs, const std::string& jetauthor)=0;
-
-    static const InterfaceID& interfaceID(){
-      return IID_IMultivariateJetTagger;
-    };
+    virtual void assignProbability(xAOD::BTagging* BTag,
+                                   const std::map<std::string,double>& inputs,
+                                   const std::string& jetauthor) const = 0;
   };
 }
 #endif // BTAGTOOTL_IMULTIVARIATEJETTAGGER_C

@@ -9,51 +9,56 @@
 #ifndef LARRECUTILS_LARADC2MEVCONDALG_H
 #define LARRECUTILS_LARADC2MEVCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "LArRecConditions/LArFebConfig.h"
+#include "LArRawConditions/LArADC2MeV.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArElecCalib/ILArRamp.h"
+#include "LArElecCalib/ILArDAC2uA.h"
+#include "LArElecCalib/ILAruA2MeV.h"
+#include "LArElecCalib/ILArMphysOverMcal.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
 
-class LArADC2MeV;
-class ILAruA2MeV;
-class ILArDAC2uA;
-class ILArRamp;
-class ILArMphysOverMcal;
-class ILArHVScaleCorr;
-class LArOnOffIdMapping;
+class LArOnlineID_Base;
 
-class LArADC2MeVCondAlg: public AthAlgorithm {
+
+class LArADC2MeVCondAlg: public AthReentrantAlgorithm {
  public:
 
   LArADC2MeVCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~LArADC2MeVCondAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  StatusCode initialize() override;
+  StatusCode execute(const EventContext& ctx) const override;
+  StatusCode finalize() override {return StatusCode::SUCCESS;}
 
  private:
-  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey;   
-  SG::ReadCondHandleKey<ILAruA2MeV>         m_lAruA2MeVKey; //Always used
-  SG::ReadCondHandleKey<ILArDAC2uA>         m_lArDAC2uAKey; //Always used
-  SG::ReadCondHandleKey<ILArRamp>           m_lArRampKey;   //Always used
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this,"LArOnOffIdMappingKey","LArOnOffIdMap","SG key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<ILAruA2MeV>         m_lAruA2MeVKey{this,"LAruA2MeVKey","LAruA2MeV","SG key of uA2MeV object"}; //Always used
+  SG::ReadCondHandleKey<ILArDAC2uA>         m_lArDAC2uAKey{this,"LArDAC2uAKey","LArDAC2uA","SG key of DAC2uA object"}; //Always used
+  SG::ReadCondHandleKey<ILArRamp>           m_lArRampKey{this,"LArRampKey","LArRamp","SG key of Ramp object"}; //Always used
 
   
-  SG::ReadCondHandleKey<ILArMphysOverMcal>  m_lArMphysOverMcalKey; //Not used for supercells
-  SG::ReadCondHandleKey<ILArHVScaleCorr>    m_lArHVScaleCorrKey;   //Not (yet) used for supercells and simulation 
+  SG::ReadCondHandleKey<ILArMphysOverMcal>  m_lArMphysOverMcalKey{this,"LArMphysOverMcalKey","LArMphysOverMcal",
+      "SG key of MpysOverMcal object (or empty string if no MphysOverMcal)"}; //Not used for supercells
+  SG::ReadCondHandleKey<ILArHVScaleCorr>    m_lArHVScaleCorrKey{this,"LArHVScaleCorrKey","LArHVScaleCorr",
+      "SG key of HVScaleCorr object (or empty string if no HVScaleCorr)"};   //Not (yet) used for supercells and simulation 
   
-  SG::WriteCondHandleKey<LArADC2MeV>  m_ADC2MeVKey;
+  SG::WriteCondHandleKey<LArADC2MeV>  m_ADC2MeVKey{this,"LArADC2MeVKey","LArADC2MeV","SG key of the resulting LArADC2MeV object"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
 
 
-  SG::ReadCondHandleKey<LArFebConfig> m_configKey;
+  SG::ReadCondHandleKey<LArFebConfig> m_febConfigKey{this,"FebConfigKey","LArFebConfig","SG key for FEB config object"};
 
-  bool m_useFEBGainThresholds;
+  Gaudi::Property<bool> m_useFEBGainThresholds{this,"UseFEBGainTresholds",true};
+  Gaudi::Property<bool> m_isSuperCell{this,"isSuperCell",false,"switch to true to use the SuperCell Identfier helper"};
+
   size_t m_nGains;
-  bool m_isSuperCell;
-
+  const LArOnlineID_Base* m_larOnlineID=nullptr;
 };
 
 

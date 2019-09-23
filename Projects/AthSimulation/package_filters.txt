@@ -152,7 +152,6 @@
 + Event/xAOD/xAODTruthAthenaPool
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
-+ External/AtlasPyFwdBwdPorts
 + External/pyAMI
 + Generators/GenInterfaces
 + Generators/GeneratorObjects

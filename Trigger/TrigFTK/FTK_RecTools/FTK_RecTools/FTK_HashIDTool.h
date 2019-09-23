@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2018-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTK_HASHIDTOOL_H
@@ -13,6 +13,8 @@
 #include <map>
 #include "CLHEP/Vector/ThreeVector.h"
 #include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -21,9 +23,6 @@ using Amg::Vector3D;
 
 class PixelID;
 class AtlasDetectorID;
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 
 class FTK_HashIDTool : public AthAlgTool, virtual public IFTK_HashIDTool {
   
@@ -120,6 +119,8 @@ class FTK_HashIDTool : public AthAlgTool, virtual public IFTK_HashIDTool {
   typedef std::vector<std::vector<int>> ftk_sectormap;
   
   int readModuleIds(unsigned int itower, ftk_sectormap& hashID);
+
+  const InDetDD::SiDetectorElement* getPixelDetectorElement(const IdentifierHash hash) const;
   
   size_t m_max_tower;
   
@@ -131,7 +132,8 @@ class FTK_HashIDTool : public AthAlgTool, virtual public IFTK_HashIDTool {
   
   const PixelID* m_pixelId;
   const AtlasDetectorID* m_id_helper;
-  const InDetDD::PixelDetectorManager* m_pixelManager;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
   bool m_maxD0;
 };

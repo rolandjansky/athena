@@ -43,10 +43,11 @@ if [ -z ${SLOTS} ]; then
   export SLOTS="1"
 fi
 
-if [ ${DOPERFMON} -eq 0 ]; then
-  export PERFMONFLAG=""
-else # Run with PerfMon by default
+# Run with PerfMon by default
+if [ -z ${DOPERFMON} ] || [ ${DOPERFMON} -ne 0 ]; then
   export PERFMONFLAG="--perfmon"
+else
+  export PERFMONFLAG=""
 fi
 
 if [ -z ${STDCMATH} ] || [ ${STDCMATH} -eq 0 ]; then
@@ -84,12 +85,22 @@ fi
 
 ######################################
 
+# Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
+ART_AVAILABLE=`which art.py >/dev/null 2>&1; echo $?`
+if [[ $ART_AVAILABLE == "0" ]]; then
+  echo "Executing art.py createpoolfile"
+  art.py createpoolfile
+fi
+
+######################################
+
 if [[ ${FROMPICKLE} == "1" ]]; then
   echo "Running athena from pickle file ${JOBOPTION} with the command:"
   (set -x
   athena.py \
   ${MATHLIBOPT} \
   ${PERFMONFLAG} \
+  ${ATHENAOPTS} \
   ${JOBOPTION} >${JOB_LOG} 2>&1
   ) 2>&1
 else
@@ -98,6 +109,7 @@ else
   athena.py \
   ${MATHLIBOPT} \
   ${PERFMONFLAG} \
+  ${ATHENAOPTS} \
   --threads ${THREADS} \
   --concurrent-events ${SLOTS} \
   --filesInput "${DS}" \

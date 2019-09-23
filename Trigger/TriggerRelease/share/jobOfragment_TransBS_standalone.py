@@ -7,11 +7,12 @@ include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
 #        
 StreamBS = AthenaOutputStream("StreamBS",
                               EvtConversionSvc = "ByteStreamCnvSvc",
-                              ExtraInputs = [('TileBadChannels','ConditionStore+TileBadChannels'),
+                              ExtraInputs = [('xAOD::EventInfo','StoreGateSvc+EventInfo'),
+                                             ('TileBadChannels','ConditionStore+TileBadChannels'),
                                              ('SCT_CablingData','ConditionStore+SCT_CablingData'), 
+                                             ('PixelHitDiscCnfgData','ConditionStore+PixelHitDiscCnfgData'),
                                              ('MuonMDT_CablingMap','ConditionStore+MuonMDT_CablingMap') 
                                              ])
-StreamBS.ForceRead=True
 if not TriggerFlags.fakeLVL1():
    #LVL1
    theApp.Dlls += [ "TrigT1ResultByteStream" ]

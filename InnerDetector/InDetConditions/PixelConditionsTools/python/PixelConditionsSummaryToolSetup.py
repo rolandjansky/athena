@@ -52,6 +52,7 @@ class PixelConditionsSummaryToolSetup:
         self.toolName = toolName
 
     def setTool(self):
+        from AthenaCommon.GlobalFlags import globalflags
         from IOVDbSvc.CondDB import conddb
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
@@ -84,6 +85,12 @@ class PixelConditionsSummaryToolSetup:
                                               UseDeadMap=self.useDeadMap,
                                               ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                               UseCalibConditions=True)
+
+#            if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+#                conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+#            if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+#                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+#                condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
 
         if self.tool is None:
             from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool

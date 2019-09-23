@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,7 +9,7 @@
 #ifndef TrkMaterialProviderTool_H
 #define TrkMaterialProviderTool_H
 
-#define protected public
+//#define protected public
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrack/Track.h"

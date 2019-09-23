@@ -14,12 +14,6 @@
 def TrigMETMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
-    ### STEP 1 ###
-    # Define one top-level monitoring algorithm. The new configuration 
-    # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
-
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -62,10 +56,6 @@ def TrigMETMonConfig(inputFlags):
     # # First, add a tool that's set up by a different configuration function. 
     # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
     # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # expertTrigMETMonAlg.CaloNoiseTool = caloNoiseTool
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
@@ -108,11 +98,6 @@ def TrigMETMonConfig(inputFlags):
     # just return directly (and not create "result" above)
     return helper.result()
     
-    # # Otherwise, merge with result object and return
-    # acc = helper.result()
-    # result.merge(acc)
-    # return result
-
 if __name__=='__main__':
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -120,7 +105,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import DEBUG
     log.setLevel(DEBUG)
 
     # Set the Athena configuration flags

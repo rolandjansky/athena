@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/PixelClusterContainerCnv_tlp1.h"
@@ -33,3 +33,7 @@ void PixelClusterContainerCnv_tlp1::setPStorage( InDet::PixelClusterContainer_tl
  m_errorMatCnv.setPStorage( &storage->m_errorMat );
 }   
  
+// Method for test/SCT_ClusterCnv_p1_test.cxx
+void PixelClusterContainerCnv_tlp1::setUseDetectorElement(const bool useDetectorElement) {
+  m_mainConverter.setUseDetectorElement(useDetectorElement);
+}

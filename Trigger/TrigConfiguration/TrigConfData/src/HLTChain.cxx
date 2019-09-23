@@ -3,36 +3,55 @@
 */
 
 #include "TrigConfData/HLTChain.h"
-TrigConf::HLTChain::HLTChain()
+
+TrigConf::Chain::Chain()
 {}
 
-TrigConf::HLTChain::HLTChain(const boost::property_tree::ptree & data) 
+TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {}
 
-TrigConf::HLTChain::~HLTChain()
+TrigConf::Chain::~Chain()
 {}
 
+
 const std::string &
-TrigConf::HLTChain::name() const
+TrigConf::Chain::name() const
 {
    return data().get_child("name").data();
 }
 
 unsigned int
-TrigConf::HLTChain::counter() const
+TrigConf::Chain::counter() const
 {
    return data().get_child("counter").get_value<unsigned int>();
 }
 
 const std::string &
-TrigConf::HLTChain::l1item() const
+TrigConf::Chain::l1item() const
 {
    return data().get_child("l1item").data();
 }
 
+
+std::vector<std::string>
+TrigConf::Chain::l1thresholds() const
+{
+
+   std::vector<std::string> thrV;
+   const auto & thrs = getList("l1thresholds");
+   if( !thrs.empty() ) {
+      thrV.reserve(thrs.size());
+      for( auto & thr : thrs ) {
+         thrV.emplace_back( thr.getValue() );
+      }
+   } 
+   return thrV;
+}
+
+
 std::vector<TrigConf::DataStructure>
-TrigConf::HLTChain::streams() const
+TrigConf::Chain::streams() const
 {
    std::vector<DataStructure> strlist;
    const auto & streams = m_data.get_child("streams");
@@ -45,14 +64,21 @@ TrigConf::HLTChain::streams() const
 }
 
 std::vector<std::string>
-TrigConf::HLTChain::groups() const
+TrigConf::Chain::groups() const
 {
-   std::vector<std::string> grouplist;
-   const auto & groups = m_data.get_child("groups");
-   grouplist.reserve(groups.size());
 
-   for( auto & groupData : groups )
-      grouplist.emplace_back( groupData.second.get_child("name").data() );
+   std::vector<std::string> grouplist;
+   const auto & groups = getList("groups", /*ignoreIfMissing=*/ true);
+   if( !groups.empty() ) {
+      grouplist.reserve(groups.size());
+      for( auto & group : groups ) {
+         if (group.hasAttribute("name")) {
+            grouplist.emplace_back( group["name"] );
+         } else if (group.isValue()) {
+            grouplist.emplace_back( group.getValue() );
+         }
+      }
+   } 
 
    return grouplist;
 }

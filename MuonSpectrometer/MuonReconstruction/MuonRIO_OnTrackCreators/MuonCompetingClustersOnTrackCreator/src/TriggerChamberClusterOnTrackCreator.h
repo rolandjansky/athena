@@ -88,9 +88,6 @@ private:
     // configuration
     bool						m_chooseBroadestCluster;
     
-    // internal communication
-    mutable bool					m_isRpc;
-    
     // private methods 
     void						applyClusterConsistency(
 	std::list<int>&						limitingChannels,

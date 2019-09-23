@@ -14,7 +14,7 @@
 class MultijetFlowNetworkBuilder: 
 virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
  public:
-  MultijetFlowNetworkBuilder(const ConditionsMT&);
+  MultijetFlowNetworkBuilder(ConditionsMT);
  protected:
   virtual std::optional<std::vector<std::shared_ptr<FlowEdge>>>
     make_flowEdges(const HypoJetGroupCIter& groups_b,

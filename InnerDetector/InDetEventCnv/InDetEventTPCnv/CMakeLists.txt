@@ -28,7 +28,6 @@ atlas_depends_on_subdirs(
    AtlasTest/TestTools
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CxxUtils
    Control/SGTools
    DetectorDescription/IdDictParser
    Event/EventPrimitives
@@ -51,7 +50,7 @@ atlas_add_tpcnv_library( InDetEventTPCnv
    AthenaPoolCnvSvcLib AthenaPoolUtilities Identifier GaudiKernel
    InDetIdentifier InDetCompetingRIOsOnTrack InDetLowBetaInfo
    InDetPrepRawData InDetRIO_OnTrack TrkEventTPCnv
-   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel CxxUtils
+   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel
    EventPrimitives InDetReadoutGeometry TrkSurfaces TrkEventPrimitives
    TrkMeasurementBase TrkRIO_OnTrack )
 
@@ -77,7 +76,7 @@ foreach( name SiWidthCnv_p1_test SiWidthCnv_p2_test PixelClusterCnv_p1_test
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES InDetEventTPCnv GaudiKernel IdDictParser CxxUtils
+      LINK_LIBRARIES InDetEventTPCnv GaudiKernel IdDictParser
       SGTools InDetReadoutGeometry TestTools InDetIdentifier
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

@@ -14,9 +14,10 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonIdHelpers
                           PRIVATE
                           Control/StoreGate
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
+                          DetectorDescription/GeoModel/GeoModelUtilities
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          Tracking/TrkUtilityPackages/TrkDriftCircleMath )
+                          Tracking/TrkUtilityPackages/TrkDriftCircleMath
+			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData )
 
 # External dependencies:
 find_package( Eigen )
@@ -26,11 +27,13 @@ atlas_add_library( MuonStationIntersectSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonStationIntersectSvc
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES MuonCondInterface MuonReadoutGeometry TrkDriftCircleMath )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests GeoModelUtilities
+                   PRIVATE_LINK_LIBRARIES MuonReadoutGeometry TrkDriftCircleMath MuonCondData )
 
 atlas_add_component( MuonStationIntersectSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests MuonCondInterface MuonReadoutGeometry TrkDriftCircleMath MuonStationIntersectSvcLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel MuonIdHelpersLib StoreGateLib SGtests MuonReadoutGeometry TrkDriftCircleMath MuonCondData MuonStationIntersectSvcLib )
+
+atlas_install_python_modules( python/*.py )
 

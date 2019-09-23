@@ -13,19 +13,9 @@
 #ifndef TRIGMUISOHYPO_TRIGMUISOHYPOALG_H 
 #define TRIGMUISOHYPO_TRIGMUISOHYPOALG_H 1
 
-#include <string>
-
-#include "AthViews/View.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "xAODTrigMuon/L2IsoMuonContainer.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-
 #include "DecisionHandling/HypoBase.h"
 #include "TrigMuisoHypoTool.h"
 
-class StoreGateSvc;
 class TriggerElement;
 
 // --------------------------------------------------------------------------------
@@ -47,7 +37,6 @@ class TrigMuisoHypoAlg
     
   private:
 
-  TrigMuisoHypoAlg();
   ToolHandleArray<TrigMuisoHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"};
  
   SG::ReadHandleKey<xAOD::L2IsoMuonContainer> m_muIsoKey {

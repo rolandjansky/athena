@@ -7,12 +7,12 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.JetTagToolsConf import Analysis__DL1Tag
 
 # define the class
-def DL1TagCfg(name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **options):
+def DL1TagCfg(flags, name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a DL1Tag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     taggerName                          default: "DL1"
     taggerNameBase                      default: "DL1"
     forceDL1CalibrationAlias            default: BTaggingFlags.ForceDL1CalibrationAlias
@@ -29,7 +29,7 @@ def DL1TagCfg(name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **options)
     options['LocalNNConfigurationFile'] = BTaggingFlags.DL1LocalNNConfig
  
     if useBTagFlagsDefaults:
-        defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'forceDL1CalibrationAlias'         : BTaggingFlags.ForceDL1CalibrationAlias,
                      'DL1CalibAlias'                    : BTaggingFlags.DL1CalibAlias,
                      'calibration_directory'            : basename,

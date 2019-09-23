@@ -35,11 +35,21 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const TrigC
       const TrigConf::TriggerItemNode* node = item->topNode();
       std::vector<TrigConf::TriggerThreshold*> itemThresholds;
       node->getAllThresholds(itemThresholds);
-      ATH_MSG_DEBUG( "Item " << item->name() << " with thresholds " << itemThresholds.size() );
+      const int thresholdCount = itemThresholds.size();
+      ATH_MSG_DEBUG( "Item " << item->name() << " with thresholds " <<  thresholdCount);
+      int prefix = -1;
       for ( const TrigConf::TriggerThreshold* th: itemThresholds ) {
+	prefix++;
 	if ( filter(th) ) {
 	  m_thresholdToChainMapping[HLT::Identifier(th->name())].push_back( HLT::Identifier(chainName) );
 	  ATH_MSG_DEBUG( "Associating " << chainName << " with threshold " << th->name() );
+	  if ( thresholdCount > 1 ) {
+	    std::string legName = "000_" + chainName;
+	    const std::string ps = std::to_string(prefix);
+	    legName.replace(3-ps.size(), ps.size(), ps );
+	    m_thresholdToChainMapping[HLT::Identifier(th->name())].push_back( HLT::Identifier(legName) );
+	    ATH_MSG_INFO( "Associating " << legName << " with threshold " << th->name() );
+	  }
 	}
       }
     } else {
@@ -58,12 +68,16 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
     ATH_MSG_DEBUG("Threshold not known " << thresholdId);
     return;
   }
+
+  TrigCompositeUtils::DecisionIDContainer ids;
   for ( auto chainId: chains->second ) {
     if ( activeChains.find(chainId) != activeChains.end() ) {
-      TrigCompositeUtils::addDecisionID( chainId.numeric(), d );
+      ids.insert( chainId.numeric() );
       ATH_MSG_DEBUG( "Added chain to the RoI/threshold decision " << chainId );
     }
   }
+  TrigCompositeUtils::insertDecisionIDs(ids, d);
+  ATH_MSG_DEBUG( "Number of decisions per RoI after adding chains using threshold " << thresholdId << " " << TrigCompositeUtils::decisionIDs( d ).size() );
 }
 
 StatusCode RoIsUnpackingToolBase::copyThresholds( const std::vector<TrigConf::TriggerThreshold*>& src, std::vector<TrigConf::TriggerThreshold*>& dest ) const {

@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/CxxUtils
                           Control/StoreGate
                           Event/EventKernel
                           Event/NavFourMom
@@ -35,18 +34,18 @@ atlas_add_library( D3PDMakerTestLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthContainers Navigation FourMom ParticleEvent StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils )
 
 atlas_add_component( D3PDMakerTest
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation FourMom ParticleEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation FourMom ParticleEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
 
 atlas_add_dictionary( D3PDMakerTestDict
                       D3PDMakerTest/D3PDMakerTestDict.h
                       D3PDMakerTest/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation FourMom ParticleEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers Navigation FourMom ParticleEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils D3PDMakerTestLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

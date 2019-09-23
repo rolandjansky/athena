@@ -103,13 +103,16 @@ StatusCode PFLeptonSelector::selectMuons(SG::WriteHandle<ConstDataVector<xAOD::M
     
     //Details of medium muons are here:
     //https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
-    //No need to ask for combined muon, by construction other muons will not have ID track - we just ask for medium muons
+    //We only care about muons with ID tracks. Of the muon types which could be medium, only Combined have ID tracks (for looser selections other muon types could have ID tracks)
     
     xAOD::Muon::Quality muonQuality = theMuon->quality();
-    if( muonQuality <= xAOD::Muon::Medium) {   
-      if (selectedMuonsWriteHandle.isValid()) selectedMuonsWriteHandle->push_back(theMuon);
-      else ATH_MSG_WARNING("Do not have valid WriteHandle for MuonContainer with name: " << selectedMuonsWriteHandle.key());
-      if (true == m_storeLeptonCells) this->storeMuonCells(*theMuon,leptonCaloCellsWriteHandle);
+    if( muonQuality <= xAOD::Muon::Medium) {
+      xAOD::Muon::MuonType muonType = theMuon->muonType();
+      if ( xAOD::Muon::Combined == muonType){
+	if (selectedMuonsWriteHandle.isValid()) selectedMuonsWriteHandle->push_back(theMuon);
+	else ATH_MSG_WARNING("Do not have valid WriteHandle for MuonContainer with name: " << selectedMuonsWriteHandle.key());
+	if (true == m_storeLeptonCells) this->storeMuonCells(*theMuon,leptonCaloCellsWriteHandle);
+      }//combined muons
     }//Medium muons
   } //muon loop
 

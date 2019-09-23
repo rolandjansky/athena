@@ -24,10 +24,13 @@
 #include <algorithm>
 #include <map>
 
-MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(const ConditionsMT& cs): m_conditions(cs){
-  m_flowNetworkBuilder = std::unique_ptr<IFlowNetworkBuilder>();
-  m_flowNetworkBuilder.reset(new MultijetFlowNetworkBuilder(cs));
-  m_nConditions = cs.size();
+MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs) :
+  m_nConditions(cs.size()){
+  for(const auto& cond : cs){
+    m_totalCapacity += cond->capacity();
+  }
+  m_flowNetworkBuilder =
+    std::make_unique<MultijetFlowNetworkBuilder>(std::move(cs));
 }
 
 std::optional<bool>
@@ -78,6 +81,13 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
 				       "Network construction early return");}
     return std::make_optional<bool> (false);
   }
+
+  
+  if(collector){
+    std::stringstream ss;
+    ss << **G;
+    collector->collect("MaximumBipartiteGroupsMatcher - before", ss.str());
+  }
   
   auto V = (*G)->V();
   FordFulkerson ff (**G, 0, V-1);
@@ -97,14 +107,14 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
   }
   
   auto edges = (*G)->edges();
-  
-  
-  double totalCapacity = 0;
-  for(const auto& cond : m_conditions){
-    totalCapacity += cond.capacity();
+ 
+  bool pass = std::round(ff.value()) == m_totalCapacity;
+  if(collector){
+    std::string msg("FordFulkerson pass status: ");
+    msg += pass ? "true" : "false";
+    msg += " total capacity: " + std::to_string(m_totalCapacity); 
+    collector -> collect("MaximumBipartiteGroupsMatcher", msg);
   }
-  bool pass = std::round(ff.value()) == totalCapacity;
-
   // loop over edges, figure out if it is a condition - jet edge
   // figure out if it the jet is used (flow == 1)
   // add the jet to passing_jets. As this is a set, duplicates
@@ -129,19 +139,12 @@ MaximumBipartiteGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
 }
 
 
-std::string MaximumBipartiteGroupsMatcherMT::toString() const noexcept {
+std::string MaximumBipartiteGroupsMatcherMT::toString() const  {
   std::stringstream ss;
 
   ss << "MaximumBipartiteMatcherMT\n";
-  ss << "ConditionsMT:\n";
+  ss << m_flowNetworkBuilder -> toString(); 
 
-  for(auto c : m_conditions){ ss << c.toString() << '\n';}
-  ss << "FlowNetwork:\n";
   return ss.str();
-}
-
-
-ConditionsMT MaximumBipartiteGroupsMatcherMT::getConditions() const noexcept {
-  return m_conditions;
 }
 

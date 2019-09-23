@@ -46,8 +46,10 @@ void test1 (Trk::ITrkDistanceFinder& tool)
   Trk::Perigee p1a (pos1a, mom1a,  1, pos1a);
   Trk::Perigee p1b (pos1b, mom1b, -1, pos1b);
 
-  assert( tool.CalculateMinimumDistance (p1a, p1b) );
-  std::pair<Amg::Vector3D,Amg::Vector3D> pp = tool.GetPoints();
+  std::optional<Trk::ITrkDistanceFinder::TwoPoints> op =
+    tool.CalculateMinimumDistance (p1a, p1b);
+  assert (op);
+  std::pair<Amg::Vector3D,Amg::Vector3D> pp = op.value();
 
   assertVec3D (pp.first,  { -2.6655,  1.99717, 0.3325  } );
   assertVec3D (pp.second, { -1.99717, 2.6655, -0.3325  } );
@@ -62,8 +64,9 @@ void test1 (Trk::ITrkDistanceFinder& tool)
   Trk::Perigee p2a (pos2a, mom2a, -1, pos2a);
   Trk::Perigee p2b (pos2b, mom2b,  1, pos2b);
 
-  assert( tool.CalculateMinimumDistance (p2a, p2b) );
-  pp = tool.GetPoints();
+  op = tool.CalculateMinimumDistance (p2a, p2b);
+  assert( op );
+  pp = op.value();
 
   assertVec3D (pp.first,  { -27.3934, -27.3934, 0 });
   assertVec3D (pp.second, { -27.3934, -27.3934, 0 });
@@ -75,8 +78,9 @@ void test1 (Trk::ITrkDistanceFinder& tool)
 
   Trk::Perigee p3a (pos3a, mom3a,  1, pos3a);
   Trk::Perigee p3b (pos3b, mom3b, -1, pos3b);
-  assert( tool.CalculateMinimumDistance (p3a, p3b) );
-  pp = tool.GetPoints();
+  op = tool.CalculateMinimumDistance (p3a, p3b);
+  assert( op );
+  pp = op.value();
   assertVec3D (pp.first,  { -9.47935, 0.437956, -0.603394 });
   assertVec3D (pp.second, { -4.46622, 4.67974,  -2.14596  });
 }

@@ -187,7 +187,7 @@ def loadConfigurableDb():
          nFiles += 1
    cfgDb.msg.debug( "loading confDb files... [DONE]" )
    nPkgs = len( set([k['package'] for k in cfgDb.values()]) )
-   cfgDb.msg.debug( "loaded %i confDb packages" % nPkgs )
+   cfgDb.msg.debug( "loaded %i confDb packages", nPkgs )
    return nFiles
 
 

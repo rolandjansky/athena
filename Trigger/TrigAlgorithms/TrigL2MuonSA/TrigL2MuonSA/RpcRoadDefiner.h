@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCROADDEFINER_H
@@ -14,7 +14,7 @@
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RpcPatFinder.h"
@@ -25,8 +25,6 @@
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "RegionSelector/IRegSelSvc.h"
-
-class StoreGateSvc;
 
 namespace TrigL2MuonSA {
 
@@ -58,7 +56,7 @@ class RpcRoadDefiner: public AthAlgTool
 			double                       roiEtaMaxHigh);
 
   void setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
-                       const MdtIdHelper* mdtIdHelper);
+                       const Muon::MuonIdHelperTool* muonIdHelperTool);
   void setRoadWidthForFailure(double rWidth_RPC_Failed);
   void setRpcGeometry(bool use_rpc);
 
@@ -73,7 +71,7 @@ class RpcRoadDefiner: public AthAlgTool
   bool m_use_rpc;
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
-  const MdtIdHelper* m_mdtIdHelper;
+  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
 };
 
 // --------------------------------------------------------------------------------

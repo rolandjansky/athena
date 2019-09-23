@@ -45,19 +45,16 @@
 
 #include <sstream>
 #include <algorithm>
+#include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
 using namespace boost::property_tree;
-using std::vector;
-using std::string;
-using eformat::ROBFragment;
 
 namespace
 {
   //////////////////////////////////////////////////////////////////////////////
-  string to_string(const ptree& p)
+  std::string to_string(const ptree& p)
   {
     using T = ptree::key_type;
     std::ostringstream oss;
@@ -70,12 +67,7 @@ namespace
 //--------------------------------------------------------------------------------
 // C'tor and D'tor
 //--------------------------------------------------------------------------------
-psc::Psc::Psc () :
-      m_run_number(0),
-      m_pesaAppMgr(0),
-      m_nameEventLoopMgr("EventLoopMgr"),
-      m_interactive(false),
-      m_config(0)
+psc::Psc::Psc ()
 {
 }
 
@@ -84,8 +76,6 @@ psc::Psc::~Psc ()
   if (m_pesaAppMgr) { 
     m_pesaAppMgr->release() ; 
   }
-
-  delete m_config; m_config = 0;
 }
 
 //--------------------------------------------------------------------------------
@@ -99,7 +89,7 @@ bool psc::Psc::configure(const ptree& config)
   ERS_DEBUG(1, "psc::Psc::configure ptree:\n" << to_string(config));
   try
   {
-    m_config = new Config(config);
+    m_config = std::make_unique<Config>(config);
   }
   catch(const std::exception& e)
   {
@@ -168,7 +158,8 @@ bool psc::Psc::configure(const ptree& config)
   if ( m_config->getOption("JOBOPTIONSTYPE") == "NONE" ) {
     jobOptConfig = needPython = true;
   }
-  else if ( m_config->getOption("JOBOPTIONSTYPE") == "DB" ) {
+  else if ( m_config->getOption("JOBOPTIONSTYPE") == "DB" ||
+            m_config->getOption("JOBOPTIONSTYPE") == "FILE") {
     jobOptConfig = needPython = false;
     if ( (m_config->getOption("PRECOMMAND")!="") || (m_config->getOption("POSTCOMMAND")!="") ) {
       needPython = true;
@@ -381,9 +372,6 @@ bool psc::Psc::configure(const ptree& config)
         <<" MuonCalBufferSize = " << m_config->getOption("MUONCALBUFFERSIZE") );
   }
 
-  // Write configuration specific to athena (HltEventLoopMgr)
-  if(!setAthenaProperties()) return false;
-
   if ( !jobOptConfig ) {
     // Run post-command
     std::string cmd = m_config->getOption("POSTCOMMAND");
@@ -437,6 +425,9 @@ bool psc::Psc::doAppMgrInit()
     m_nameEventLoopMgr.assign(value, value.find_first_of("\"")+1,
         value.find_last_of("\"")-value.find_first_of("\"")-1) ;
   }
+
+  // Write configuration specific to athena (HltEventLoopMgr)
+  if(!setAthenaProperties()) return false;
 
   return true;
 }
@@ -553,6 +544,36 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
   return true;
 }
 
+bool psc::Psc::doAppMgrFinalize()
+{
+  if (m_pesaAppMgr==nullptr) return true; // already finalized
+
+  // Finalize the application manager
+  StatusCode sc = m_pesaAppMgr->finalize();
+  ERS_DEBUG(1,"Finalize ApplicationMgr: " << m_pesaAppMgr->FSMState()
+      << ". Status : " << sc.getCode());
+
+  if( sc.isFailure() ) {
+    ERS_PSC_ERROR("Error while finalizing the ApplicationMgr.");
+    return false;
+  }
+
+  // Terminate the application manager
+  sc = m_pesaAppMgr->terminate();
+  ERS_DEBUG(1,"Terminate ApplicationMgr: " << m_pesaAppMgr->FSMState()
+      << ". Status : " << sc.getCode());
+
+  if ( sc.isFailure() ) {
+    ERS_PSC_ERROR("Error while terminating the ApplicationMgr.");
+    return false;
+  }
+
+  // Make sure we get a new instance the next time
+  Gaudi::setInstance(static_cast<IAppMgrUI*>(nullptr));
+  m_pesaAppMgr = nullptr;
+
+  return true;
+}
 
 //--------------------------------------------------------------------------------
 // Disconnect transition
@@ -561,8 +582,7 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
 bool psc::Psc::disconnect (const ptree& /*args*/)
 {
   psc::Utils::ScopeTimer timer("Psc disconnect");
-
-  return true;
+  return doAppMgrFinalize();
 }
 
 
@@ -667,34 +687,7 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 bool psc::Psc::finalizeWorker (const boost::property_tree::ptree& /*args*/)
 {
   psc::Utils::ScopeTimer timer("Psc finalizeWorker");
-
-  // Finalize the application manager
-  StatusCode sc = m_pesaAppMgr->finalize();
-  ERS_DEBUG(1,"Finalize ApplicationMgr: " << m_pesaAppMgr->FSMState()
-      << ". Status : " << sc.getCode());
-
-  if( sc.isFailure() ) {
-    ERS_PSC_ERROR("Error while finalizing the ApplicationMgr.");
-    return false;
-  }
-
-  // Terminate the application manager
-  sc = m_pesaAppMgr->terminate();
-  ERS_DEBUG(1,"Terminate ApplicationMgr: " << m_pesaAppMgr->FSMState() 
-      << ". Status : " << sc.getCode());
-
-  if ( sc.isFailure() ) {
-    ERS_PSC_ERROR("Error while terminating the ApplicationMgr.");
-    return false;
-  }
-
-  // Make sure we get a new instance the next time
-  Gaudi::setInstance(static_cast<IAppMgrUI*>(0));
-
-  //this object belongs to the real Psc implementation, so don't delete it!
-  m_config = 0;
-
-  return true;
+  return doAppMgrFinalize();
 }
 
 bool psc::Psc::setDFProperties(std::map<std::string, std::string> name_tr_table)

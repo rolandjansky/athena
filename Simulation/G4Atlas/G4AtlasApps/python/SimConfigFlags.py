@@ -41,5 +41,8 @@ def createSimConfigFlags():
     # Do full simulation + digitisation + reconstruction chain
     scf.addFlag("Sim.DoFullChain", False)
 
+    scf.addFlag("Sim.G4Version", "geant4.10.1.patch03.atlas02")
+    scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
+
     return scf
 

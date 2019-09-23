@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigParticle/TrigElectronContainer.h"
@@ -21,7 +21,7 @@
 
 template <typename T, typename U>
 float ObjectMatching::distance(const T *t, const U *u,
-    const DistanceFunctor<T, U> *metric) {
+    const DistanceFunctor<T, U> *metric) const {
 
   if(!metric)
     return -1.;
@@ -31,7 +31,7 @@ float ObjectMatching::distance(const T *t, const U *u,
 }
 
 template <typename T, typename U>
-float ObjectMatching::distance(const T *t, const U *u) {
+float ObjectMatching::distance(const T *t, const U *u) const {
 
   return this->distance(t, u, prepareMetric<T,U>());
 
@@ -42,7 +42,7 @@ std::vector<const T*> ObjectMatching::matchToObjects(
     const U* matchObject,
     const std::vector<const T*> &targetObjects,
     float maxDistance,
-    const DistanceFunctor<T, U> *metric) {
+    const DistanceFunctor<T, U> *metric) const {
 
   // record matches
   std::vector<const T*> matches;
@@ -70,7 +70,7 @@ template <typename T, typename U>
 std::vector<const T*> ObjectMatching::matchToObjects(
     const U* matchObject,
     const std::vector<const T*> &targetObjects,
-    float maxDistance) {
+    float maxDistance) const {
 
   return this->matchToObjects(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
 
@@ -81,7 +81,7 @@ std::vector<const T*> ObjectMatching::matchToObjects(
     const U* matchObject,
     const DataVector<T> &targetObjects,
     float maxDistance,
-    const DistanceFunctor<T, U> *metric) {
+    const DistanceFunctor<T, U> *metric) const {
 
   std::vector<const T*> objects;
   objects.insert(objects.end(), targetObjects.begin(), targetObjects.end());
@@ -94,7 +94,7 @@ template <typename T, typename U>
 std::vector<const T*> ObjectMatching::matchToObjects(
     const U* matchObject,
     const DataVector<T> &targetObjects,
-    float maxDistance) {
+    float maxDistance) const {
 
   return this->matchToObjects(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
 
@@ -105,7 +105,7 @@ bool ObjectMatching::anyMatch(
     const U* matchObject,
     const std::vector<const T*> &targetObjects,
     float maxDistance,
-    const DistanceFunctor<T, U> *metric) {
+    const DistanceFunctor<T, U> *metric) const {
 
   if(!metric) return false;
 
@@ -123,7 +123,7 @@ template <typename T, typename U>
 bool ObjectMatching::anyMatch(
     const U* matchObject,
     const std::vector<const T*> &targetObjects,
-    float maxDistance)
+    float maxDistance) const
 {
   return this->anyMatch(matchObject, targetObjects, maxDistance,
                         prepareMetric<T,U>());
@@ -134,7 +134,7 @@ const T* ObjectMatching::matchToObject(
     const U* matchObject,
     const std::vector<const T*> &targetObjects,
     float maxDistance,
-    const DistanceFunctor<T, U> *metric) {
+    const DistanceFunctor<T, U> *metric) const {
 
   const T *best = 0;
   float best_dist = maxDistance;
@@ -157,7 +157,7 @@ template <typename T, typename U>
 const T* ObjectMatching::matchToObject(
         const U* matchObject,
         const std::vector<const T*> &targetObjects,
-        float maxDistance) {
+        float maxDistance) const {
 
     return this->matchToObject(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
 
@@ -168,7 +168,7 @@ const T* ObjectMatching::matchToObject(
         const U* matchObject,
         const DataVector<T> &targetObjects,
         float maxDistance,
-        const DistanceFunctor<T, U> *metric) {
+        const DistanceFunctor<T, U> *metric) const {
 
   const T *best = 0;
   float best_dist = maxDistance;
@@ -191,13 +191,13 @@ template <typename T, typename U>
 const T* ObjectMatching::matchToObject(
         const U* matchObject,
         const DataVector<T> &targetObjects,
-        float maxDistance) {
+        float maxDistance) const {
 
     return this->matchToObject(matchObject, targetObjects, maxDistance, prepareMetric<T,U>());
 
 }
 template<typename T, typename U>
-const DistanceFunctor<T,U> *ObjectMatching::prepareMetric() {
+const DistanceFunctor<T,U> *ObjectMatching::prepareMetric() const {
 
     // use traits to determine what the default metric should be.
 

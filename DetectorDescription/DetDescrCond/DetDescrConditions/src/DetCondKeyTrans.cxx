@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DetCondKeyTrans.cxx - set of HepGeom::Transform3Ds keyed by string
@@ -39,3 +39,11 @@ void DetCondKeyTrans::print() const {
 	      << std::endl;
   }
 }
+
+
+const DetCondKeyTrans::KeyTrans&
+DetCondKeyTrans::keyTrans() const
+{
+  return m_keytrans;
+}
+

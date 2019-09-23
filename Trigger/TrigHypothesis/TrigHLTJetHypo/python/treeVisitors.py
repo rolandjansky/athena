@@ -1,10 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+from __future__ import absolute_import
 
-from constants import lchars
+from .constants import lchars
 
 import re
 
-from ToolSetter import ToolSetter
+from .ToolSetter import ToolSetter
 class Checker(object):
     def __init__(self):
         self.known = {
@@ -74,13 +76,21 @@ class SimpleConditionsDictMaker(object):
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
-    defaults = {'eta_mins': 0.0,
+    defaults = {'etalo': '0',
+                'etahi': '320',
+                'petalo': '0',  # +ve eta
+                'petahi': '320',
+                'netalo': '-320',  # -ve eta
+                'netahi': '0',
+                'EtThreshold': 0.,
+                'eta_mins': 0.,
                 'eta_maxs': 3.2,
-                'EtThresholds': 0.,
                 'asymmetricEtas': 0,
     }
 
     scale_factors = {'eta': 0.01,
+                     'neta': 0.01,
+                     'peta': 0.01,
                      'et': 1000.,
                      'smc': 1000.,
     }
@@ -126,8 +136,8 @@ class SimpleConditionsDictMaker(object):
             toks = c.split(',')
             toks = [t.strip() for t in toks]
 
-            attributes2 = attributes[:]  # copy...
-
+            # copy attributes... copy used to check attr not set > 1 times
+            attributes2 = attributes[:]  
             for t in toks:
                 m = self.window_re.match(t)
                 if m is None:
@@ -142,28 +152,51 @@ class SimpleConditionsDictMaker(object):
                     lo = self.defaults.get(attr+'lo', '')
                 if hi == '':
                     hi = self.defaults.get(attr+'hi', '')
-
+                    
                 sf = self.scale_factors[attr]
+                if attr in ('eta', 'peta', 'neta'):
+                    asym = 0 if attr == 'eta' else 1
+                    result['asymmetricEtas'].append(asym)
+                    attributes2.remove('asymmetricEtas')
+
+                        
                 if lo:
-                    if attr == 'eta':
+                    if attr in ('eta', 'peta', 'neta'):
                         attr_lo = 'eta_mins'
                         result[attr_lo].append(sf * float(lo))
-                        attributes2.remove(attr_lo)
+                        if attr == 'neta':
+                            result[attr_lo][-1] *= -1.  # negative eta range
+                        try:
+                            attributes2.remove(attr_lo)
+                        except ValueError as e:
+                            print(attr_lo, 'appears twice in Conditions string?')
+                            raise e
                     elif attr == 'et':
                         attr = 'EtThresholds'
                         result[attr].append(sf * float(lo))
-                        attributes2.remove(attr)
+                        try:
+                            attributes2.remove(attr)
+                        except ValueError as e:
+                            print('et appears twice in Conditions string?')
+                            raise e
+                            
                 if hi:
-                    if attr == 'eta':
-                        attr = 'eta_maxs'
-
+                    if attr in ('eta', 'peta', 'neta'):
                         attr_hi = 'eta_maxs'
                         result[attr_hi].append(sf * float(hi))
-                        attributes2.remove(attr_hi)
+                        if attr == 'neta':
+                            result[attr_hi][-1] *= -1.  # negative eta range
+                        
+                        try:
+                            attributes2.remove(attr_hi)
+                        except ValueError as e:
+                            print(attr_hi, 'appears twice in Conditions string?')
+                            raise e
 
-            # fill in unmentioned attributes with defaults:
-            for a in attributes2:
-                result[a].append(self.defaults[a])
+            # it maybe that an attribute was not present in the chain label.
+            # in this case, default values should be used.
+            for attr in attributes2: # whatever has not been removed...
+                result[attr].append(self.defaults[attr])
 
         msgs = ['ConditionsDict OK']
         error = False
@@ -218,7 +251,7 @@ class TreeParameterExpander_dijet(object):
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
     
-    scale_factors = {'deta': 0.11,
+    scale_factors = {'deta': 0.1,
                      'mass': 1000.,
                      'dphi': 0.1,
     }
@@ -329,7 +362,6 @@ class TreeParameterExpander_dijet(object):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
 
-
 class TreeParameterExpander_combgen(object):
     """Convert parameter string into a dictionary holding low, high window
     cut vals. Specialistaion for the combgen Tool
@@ -344,19 +376,19 @@ class TreeParameterExpander_combgen(object):
 
         ok = True # status flag
         # the group size must be the first attribute, then the conditions.
-        size_re = re.compile(r'^\((\d+)\)')
+        # size_re = re.compile(r'^\((\d+)\)')
         parameters = node.parameters[:]
-        m = size_re.match(parameters)
-        if m is None:
-            self.msgs.append('Error')
-            return
+        # m = size_re.match(parameters)
+        # if m is None:
+        #     self.msgs.append('Error')
+        #     return
 
-        node.conf_attrs = {'groupSize':int(m.groups()[0])}
+        # node.conf_attrs = {'groupSize':int(m.groups()[0])}
         # remove goup info + 2 parentheses
-        parameters = parameters[len(m.groups()[0])+2:]
+        # parameters = parameters[len(m.groups()[0])+2:]
 
         cdm = SimpleConditionsDictMaker()
-        d, ok, msgs = cdm.makeDict(parameters)
+        d, error, msgs = cdm.makeDict(parameters)
         self.msgs.extend(msgs)
         node.conf_attrs.update(d)
         
@@ -367,6 +399,39 @@ class TreeParameterExpander_combgen(object):
             self.msgs.append('Error')
 
         
+    def report(self):
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+
+
+class TreeParameterExpander_partgen(object):
+    """Convert parameter string into a dictionary holding low, high window
+    cut vals. Specialistaion for the combgen Tool
+
+    parameter strings look like '40m,100deta200, 50dphi300'
+    """
+    
+    def __init__(self):
+        self.msgs = []
+
+    def mod(self, node):
+
+        parameters = node.parameters[:]
+ 
+        cdm = SimpleConditionsDictMaker()
+
+        d, error, msgs = cdm.makeDict(parameters)
+
+        self.msgs.extend(msgs)
+        node.conf_attrs = d
+        
+
+        if not error:
+            self.msgs = ['All OK']
+        else:
+            self.msgs.append('Error')
+
+        return d, error, msgs
+    
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
@@ -391,11 +456,14 @@ class TreeParameterExpander(object):
     
     router = {
         'simple': TreeParameterExpander_simple,
+        'simplepartition': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,
         'not': TreeParameterExpander_null,
         'and': TreeParameterExpander_null,
         'or': TreeParameterExpander_null,
         'combgen': TreeParameterExpander_combgen,
+        'partgen': TreeParameterExpander_partgen,
+        'agree': TreeParameterExpander_null,
     }
 
     def __init__(self):
@@ -404,20 +472,20 @@ class TreeParameterExpander(object):
     def mod(self, node):
         self.expander = self.router[node.scenario]()
         self.expander.mod(node)
-        print self.expander.report()
+        print(self.expander.report())
     def report(self):
         return self.expander.report()
         
 
 def _test(s):
 
-    from ChainLabelParser import ChainLabelParser
+    from .ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s)
 
     parser.debug = True
 
     tree = parser.parse()
-    print tree.dump()
+    print(tree.dump())
     # exapnd the window cuts (strings) obtained from the chain label
     # to attributes and floating point numbers, set defaults
     # for unspecified vallues
@@ -426,32 +494,32 @@ def _test(s):
 
     tree.set_ids(0, 0)
     tree.accept(visitor)
-    print visitor.report()
-    print tree.dump()
+    print(visitor.report())
+    print(tree.dump())
 
     # set the node attribute node.tool to be the hypo  Al\gTool.
-    print 'sending in the ToolSetter visitor'
+    print('sending in the ToolSetter visitor')
     ts_visitor = ToolSetter(s)
     tree.accept_cf(ts_visitor)
-    print ts_visitor.report()
+    print(ts_visitor.report())
 
 
     # print tree.dump()
-    print tree.tool  # printing a Gaudi tool prints its nested tools
+    print(tree.tool)  # printing a Gaudi tool prints its nested tools
 
 
 def test(index):
-    from test_cases import test_strings
+    from .test_cases import test_strings
     import sys
     if index not in range(len(test_strings)):
-        print 'expected int in [1,%d] ]on comand line, got %s' % (
-            len(test_strings), c)
+        print('expected int in [1,%d] ]on comand line, got %s' % (
+            len(test_strings), c))
         sys.exit()
 
-    print 'index', index
-    print '========== Test %d ==============' % index
+    print('index', index)
+    print('========== Test %d ==============' % index)
     s = test_strings[index]
-    print s
+    print(s)
     _test(s)
 
 
@@ -463,6 +531,6 @@ if __name__ == '__main__':
     try:
         ic = int(c)
     except Exception:
-        print 'expected int on command line, got ',c
+        print('expected int on command line, got ',c)
         sys.exit()
     test(ic)

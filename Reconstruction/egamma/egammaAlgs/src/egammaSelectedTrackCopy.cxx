@@ -15,6 +15,7 @@ UPDATE : 25/06/2018
 #include "egammaSelectedTrackCopy.h"
 //
 #include "egammaUtils/CandidateMatchHelpers.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "AthenaKernel/errorcheck.h"
 #include "xAODTracking/TrackParticle.h"
@@ -52,6 +53,9 @@ StatusCode egammaSelectedTrackCopy::initialize() {
   ATH_CHECK(m_clusterContainerKey.initialize());
   ATH_CHECK(m_trackParticleContainerKey.initialize());
   ATH_CHECK(m_OutputTrkPartContainerKey.initialize());
+
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   /* the extrapolation tool*/
   if(m_extrapolationTool.retrieve().isFailure()){
@@ -126,6 +130,7 @@ StatusCode egammaSelectedTrackCopy::execute()
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
+    
     ATH_MSG_DEBUG ("Check Track with Eta "<< track->eta()<< " Phi " << track->phi()<<" Pt " <<track->pt());
     ++allTracks;
     bool isTRT=false;
@@ -146,11 +151,10 @@ StatusCode egammaSelectedTrackCopy::execute()
     }
 
     for(const xAOD::CaloCluster* cluster : passingClusters ){
-
       /*
-         check if it the track is selected due to this cluster.
-         If not continue to next cluster
-         */
+       check if it the track is selected due to this cluster.
+       If not continue to next cluster
+       */
       if(!Select(Gaudi::Hive::currentContext(), cluster,track,cache,isTRT)){
         ATH_MSG_DEBUG ("Track did not match cluster");
         continue;
@@ -165,7 +169,7 @@ StatusCode egammaSelectedTrackCopy::execute()
         ++selectedSiTracks;
       }
       /*
-       * The particular track got  selected 
+       * The particular track got selected 
        * due to a cluster (any one of them will do)
        * break here and move to the next track
        */
@@ -192,14 +196,14 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   const Trk::Perigee& candidatePerigee = track->perigeeParameters();
 
   //Get Perigee Parameters
-  double  trkPhi = candidatePerigee.parameters()[Trk::phi];
-  double  trkEta = candidatePerigee.eta();
-  double  r_first=candidatePerigee.position().perp();
-  double  z_first=candidatePerigee.position().z();
+  const double  trkPhi = candidatePerigee.parameters()[Trk::phi];
+  const double  trkEta = candidatePerigee.eta();
+  const double  r_first=candidatePerigee.position().perp();
+  const double  z_first=candidatePerigee.position().z();
 
   //Get Cluster parameters
-  double clusterEta=cluster->etaBE(2);
-  bool isEndCap= cluster->inEndcap();
+  const double clusterEta=cluster->etaBE(2);
+  const bool isEndCap= !xAOD::EgammaHelpers::isBarrel(cluster);
   double Et= cluster->e()/cosh(trkEta);
   if(trkTRT){
     Et = cluster->et();
@@ -212,15 +216,15 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   }
 
   //Calculate corrrected eta and Phi
-  double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
-  double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
-  double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
+  const double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
+  const double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
+  const double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
   //Calcualate deltaPhis 
-  double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
-  double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
-  double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
-  double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
-  double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
+  const double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
+  const double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
+  const double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
+  const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+  const double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
 
   /* 
    * First we will see if it fails the quick match 
@@ -258,7 +262,6 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   if (m_extrapolationTool->getMatchAtCalo (ctx,
                                            cluster, 
                                            track, 
-                                           trkTRT,
                                            Trk::alongMomentum, 
                                            eta,
                                            phi,
@@ -276,9 +279,13 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     ATH_MSG_DEBUG("Match from Last measurement is successful :  " << deltaPhi[2] );
     return true;
   }
-  
-  //passes the eta but not the phi, try with rescale
-  if(fabs(deltaEta[2]) < m_narrowDeltaEta ){ 
+  /*
+   * Passes the eta but not the phi, and we have a cluster with higher Et. 
+   * Try to rescale up the track to account for radiative loses 
+   * and retry
+   */
+  if(fabs(deltaEta[2]) < m_narrowDeltaEta && 
+     cluster->et() > track->pt()){ 
     ATH_MSG_DEBUG("Failed from Last measurement with deltaPhi/deltaEta " 
                   << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
     //Extrapolate from Perigee Rescaled 
@@ -290,7 +297,6 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     if (m_extrapolationTool->getMatchAtCalo (ctx,
                                              cluster, 
                                              track, 
-                                             trkTRT,
                                              Trk::alongMomentum, 
                                              eta1,
                                              phi1,
@@ -299,17 +305,12 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
                                              IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) {
       return false;
     }
- 
     //Redo the check with rescale
     if( fabs(deltaEta1[2]) < m_narrowDeltaEta 
         && deltaPhi1[2] < m_narrowRescale
         && deltaPhi1[2] > -m_narrowRescaleBrem) {
       ATH_MSG_DEBUG("Rescale Match success " << deltaPhi1[2] );
       return true;
-    }
-    else {
-      ATH_MSG_DEBUG("Rescaled matched Failed deltaPhi/deltaEta " 
-                    << deltaPhi1[2] <<" / "<< deltaEta1[2] );
     }
   }
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);

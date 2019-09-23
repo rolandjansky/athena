@@ -25,7 +25,7 @@ static const InterfaceID IID_IMdtROD_Decoder
 MdtROD_Decoder::MdtROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
 :  AthAlgTool(type,name,parent), 
-   m_EvtStore(0), m_hid2re(0), m_mdtIdHelper(0), m_rodReadOut(0), m_csmReadOut(0), 
+   m_hid2re(0), m_mdtIdHelper(0), m_rodReadOut(0), m_csmReadOut(0), 
    m_amtReadOut(0), m_hptdcReadOut(0), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1)
    //   m_debug(false),
    //   m_log (msgSvc(), name) 
@@ -49,22 +49,10 @@ StatusCode MdtROD_Decoder::initialize() {
 
   // m_log.setLevel(outputLevel());
   
-  if(StatusCode::SUCCESS !=serviceLocator()->service("StoreGateSvc", m_EvtStore)) {
-    ATH_MSG_FATAL("Can't get StoreGateSvc ");
-    return StatusCode::FAILURE; 
-  }
-
   // Retrieve the MdtIdHelper
-  StoreGateSvc* detStore = 0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-  if (sc.isSuccess()) {      
-    sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve MdtIdHelper ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR(" Can't locate DetectorStore ");  
+  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL("Cannot retrieve MdtIdHelper ");
     return sc;
   }
 
@@ -107,6 +95,11 @@ StatusCode MdtROD_Decoder::finalize() {
   delete m_hptdcReadOut;
   
   if (m_hid2re) delete m_hid2re;
+
+  if(m_nCache>0 || m_nNotCache>0) {
+    const float cacheFraction = ((float)m_nCache) / ((float)(m_nCache + m_nNotCache));
+    ATH_MSG_INFO("Fraction of fills that use the cache = " << cacheFraction);
+  }
 
   return StatusCode::SUCCESS ; 
 } 
@@ -356,10 +349,12 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
       MdtCsmContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idHash.first );
       if( lock.alreadyPresent() ) {
           ATH_MSG_DEBUG("collections already found, do not convert");
+          ++m_nCache;
       }else{
 	ATH_MSG_DEBUG(" Collection ID = " <<idHash.second.getString()
 		      << " does not exist, create it ");
 	collection = std::make_unique<MdtCsm>(idHash.second, idHash.first);
+        ++m_nNotCache;
       }
 
 

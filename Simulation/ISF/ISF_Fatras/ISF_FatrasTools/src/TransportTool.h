@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,6 @@
 // ROOT forward declarations
 class TTree;
 
-class IIncidentSvc;
 //class AtlasDetectorID;
 
 namespace ISF {
@@ -63,14 +62,15 @@ namespace iFatras
     virtual ~TransportTool ();
     
     /** AlgTool initialize method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /** AlgTool finalize method */
 
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
      
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
-    ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*);
+    virtual
+    ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine*) const override;
     
   private:
      /** templated Tool retrieval - gives unique handling & look and feel */

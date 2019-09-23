@@ -48,8 +48,8 @@ if TriggerFlags.doCalo:
          filterL1RoIsAlg.Chains = testChains
        
 
-     from TrigUpgradeTest.jetMenuHelper import jetRecoSequenceFromString
-     (recoSequence, InputMakerAlg, sequenceOut) = jetRecoSequenceFromString("a4_tc_em_subjes")
+     from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
+     (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
      inputRoIs= InputMakerAlg.RoIs
      hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
 

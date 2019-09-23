@@ -1,11 +1,10 @@
-#
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
+from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
-class MuonPrdCacheNames:
+class MuonPrdCacheNames(object):
     MdtCache  = "MdtPrdCache"
     CscCache  = "CscPrdCache"
     RpcCache  = "RpcPrdCache"
@@ -36,7 +35,8 @@ def MuonPrdCacheCfg():
 # The forTrigger paramater is used to put the algorithm in RoI mode
 # The function returns a ComponentAccumulator and the data-converting algorithm, which should be added to the right sequence by the user
 def RpcRDODecodeCfg(flags, forTrigger=False):
-    acc = ComponentAccumulator()
+    from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
+    acc = RpcCondDbAlgCfg(flags)
 
     # We need the RPC cabling to be setup
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
@@ -49,6 +49,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     # Get the RDO -> PRD tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
+    if flags.Common.isOnline: 
+        RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
     acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
@@ -167,15 +169,14 @@ def CscClusterBuildCfg(flags, forTrigger=False):
 
     # Get cluster creator tool
     from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
-    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThesholdClusterBuilderTool" )
+    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThresholdClusterBuilderTool" )
     acc.addPublicTool( CscClusterBuilderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
   
     #CSC cluster building
-    if not forTrigger:
-        from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-        CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
-                                                   cluster_builder = CscClusterBuilderTool ) 
-        acc.addEventAlgo(CscClusterBuilder)
+    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+    CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
+                                                   cluster_builder = CscClusterBuilderTool )
+    acc.addEventAlgo(CscClusterBuilder)
 
     return acc
 
@@ -199,8 +200,8 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     from AthenaCommon.Logging import log
 
-    log.setLevel(DEBUG)
-    log.info('About to setup Rpc Raw data decoding')
+    log.setLevel(INFO)
+    log.info('About to setup Raw data decoding')
     
     cfg=ComponentAccumulator()
 
@@ -217,29 +218,19 @@ def muonRdoDecodeTestData( forTrigger = False ):
     # Schedule Rpc bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    if forTrigger:
-        rpcdecodingAcc().ProviderTool.OutputLevel = DEBUG
     cfg.merge( rpcdecodingAcc )
 
     # Schedule Mdt bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    if forTrigger:
-        tgcdecodingAcc().ProviderTool.OutputLevel = DEBUG    
     cfg.merge( tgcdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
     mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
-    # Put into a verbose logging mode to check the caching
-    if forTrigger:
-        mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
     cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger) 
-    # Put into a verbose logging mode to check the caching
-    if forTrigger:
-        cscdecodingAcc().ProviderTool.OutputLevel = VERBOSE 
     cfg.merge( cscdecodingAcc )
 
     # Schedule RDO conversion 

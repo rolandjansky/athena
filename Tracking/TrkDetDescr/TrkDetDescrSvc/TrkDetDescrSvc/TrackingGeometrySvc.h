@@ -12,6 +12,8 @@
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
 #include "TrkGeometry/LayerMaterialMap.h"
+#include "TrkDetDescrInterfaces/IGeometryBuilder.h"
+#include "TrkDetDescrInterfaces/IGeometryProcessor.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -27,11 +29,8 @@ class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
 namespace Trk {
-  class IGeometryBuilder;
   class IGeometryProcessor;
-  class IMagneticFieldTool;
   class TrackingGeometry;
-  class TrackingVolume;
   class Layer;
   class LayerMaterialProperties;
 
@@ -80,31 +79,30 @@ namespace Trk {
     
     private:
       //!< cached pointers:
-      ISvcLocator*                                m_pSvcLocator;
-      StoreGateSvc*                               m_pDetStore;
+      ISvcLocator*                                m_pSvcLocator {nullptr};
+      StoreGateSvc*                               m_pDetStore   {nullptr};
   
+      ToolHandle<Trk::IGeometryBuilder>           m_trackingGeometryBuilder {this, "GeometryBuilder", ""};
       //!< the actual building tool
-      ToolHandle<Trk::IGeometryBuilder>           m_trackingGeometryBuilder;
+      mutable const Trk::TrackingGeometry*        m_trackingGeometry     {nullptr};
       //!< the cached TrackingGeometry
-      mutable const Trk::TrackingGeometry*        m_trackingGeometry;
+      Gaudi::Property<std::string>                m_trackingGeometryName {this, "TrackingGeometryName", "AtlasTrackingGeometry"};
       //!< the name of the TrackingGeometry
-      std::string                                 m_trackingGeometryName;
+      ToolHandleArray<Trk::IGeometryProcessor>    m_geometryProcessors;  // Currently doesn't work: {this, "GeometryProcessors", {}, "Tools to process geometry"};
       //!< processors to help 
-      ToolHandleArray<Trk::IGeometryProcessor>    m_geometryProcessors;
       
   #ifdef TRKDETDESCR_MEMUSAGE
       Trk::MemoryLogger                           m_memoryLogger;
-      float                                       m_changeVsize;
-      float                                       m_changeRss;
+      float                                       m_changeVsize {0.0};
+      float                                       m_changeRss   {0.0};
   #endif
       
-      //!< the name of the callback string
-      bool                                        m_callbackStringForced;
-      std::string                                 m_callbackString;
-      bool                                        m_callbackStringCheck;
-      bool                                        m_rerunOnCallback;
+      Gaudi::Property<bool>                       m_callbackStringForced {this, "CallbackStringForced",false};
+      Gaudi::Property<std::string>                m_callbackString {this, "CallbackString", ""};//!< the name of the callback string
+      Gaudi::Property<bool>                       m_callbackStringCheck{this, "CallbackStringCheck", true};
+      Gaudi::Property<bool>                       m_rerunOnCallback {this, "RerunOnCallback", false};
       //!< enables the callback
-      bool                                        m_buildGeometryFromTagInfo;
+      Gaudi::Property<bool>                       m_buildGeometryFromTagInfo {this, "BuildGeometryFromTagInfo", true};
   
           
   };

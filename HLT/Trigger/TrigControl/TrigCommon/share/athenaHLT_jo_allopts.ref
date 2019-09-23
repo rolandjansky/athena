@@ -23,6 +23,7 @@
         <UID>DataSource-is-DCM</UID>
         <compressionLevel>2</compressionLevel>
         <loopOverFiles>False</loopOverFiles>
+        <hltresultSizeBytes>10485760</hltresultSizeBytes>
         <skipEvents>7</skipEvents>
         <compressionFormat>ZLIB</compressionFormat>
         <outputFileName>out.data</outputFileName>
@@ -107,14 +108,14 @@
             <HLTCommonParameters>
               <HLTCommonParameters>
                 <messageSvcType>TrigMessageSvc</messageSvcType>
-                <jobOptionsSvcType>JobOptionsSvc</jobOptionsSvcType>
+                <jobOptionsSvcType>TrigConf::JobOptionsSvc</jobOptionsSvcType>
               </HLTCommonParameters>
             </HLTCommonParameters>
             <logLevels>
               <logLevel>ERROR</logLevel>
               <logLevel>FATAL</logLevel>
             </logLevels>
-            <pythonSetupFile>mysetup.py</pythonSetupFile>
+            <pythonSetupFile>TrigPSC/TrigPSCPythonSetup.py</pythonSetupFile>
             <jobOptionsPath>dummy.py</jobOptionsPath>
           </HLTImplementationJobOptions>
         </hlt>

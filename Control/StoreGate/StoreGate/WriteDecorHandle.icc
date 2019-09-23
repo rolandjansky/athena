@@ -180,6 +180,7 @@ template <class T, class D>
 typename WriteDecorHandle<T, D>::reference_type
 WriteDecorHandle<T, D>::operator() (size_t i)
 {
+  this->cptr();
   return m_acc (*this->vectorData(), i);
 }
 

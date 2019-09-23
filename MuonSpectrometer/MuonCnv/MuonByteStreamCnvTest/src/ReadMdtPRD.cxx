@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -56,7 +56,7 @@ StatusCode ReadMdtPRD::initialize()
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadMdtPRD::execute()
+StatusCode ReadMdtPRD::execute ATLAS_NOT_THREAD_SAFE ()
 {
   ATH_MSG_DEBUG( "in execute()"  );
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackExtrapolationTool.h"
@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
@@ -44,9 +44,9 @@ namespace Muon {
     : AthAlgTool(ty,na,pa), 
       m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
       m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
+      m_muonExtrapolator2("Trk::Extrapolator/MuonExtrapolator"),
       m_magFieldSvc("AtlasFieldSvc",na),
       m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",na),
-      m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
@@ -54,6 +54,7 @@ namespace Muon {
     declareProperty( "MagFieldSvc",         m_magFieldSvc );
     declareProperty( "TrackingGeometrySvc", m_trackingGeometrySvc);
     declareProperty( "MuonExtrapolator",    m_muonExtrapolator);
+    declareProperty( "MuonExtrapolator2",   m_muonExtrapolator2);
     declareProperty( "AtlasExtrapolator",   m_atlasExtrapolator);
     declareProperty( "Cosmics",             m_cosmics = false);
     declareProperty( "KeepInitialPerigee",  m_keepOldPerigee = true);
@@ -67,11 +68,12 @@ namespace Muon {
   StatusCode MuonTrackExtrapolationTool::initialize()
   {
 
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
     if( !m_atlasExtrapolator.empty() ) ATH_CHECK( m_atlasExtrapolator.retrieve() );
     if( !m_muonExtrapolator.empty() ) ATH_CHECK( m_muonExtrapolator.retrieve() );
+    if( !m_muonExtrapolator2.empty() ) ATH_CHECK( m_muonExtrapolator2.retrieve() );
     ATH_CHECK( m_trackingGeometrySvc.retrieve() );
     ATH_CHECK( m_magFieldSvc.retrieve() );
 
@@ -212,7 +214,7 @@ namespace Muon {
 	  // check whether state is a measurement
 	  const Trk::MeasurementBase* meas = (*tit)->measurementOnTrack();
 	  if( meas ){
-	    Identifier id = m_helper->getIdentifier(*meas);
+	    Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	    if( m_idHelper->isMuon(id) ) {
 	      msg() << MSG::VERBOSE << " " << m_idHelper->toString(id); 
 
@@ -246,7 +248,7 @@ namespace Muon {
 	  continue;
 	}
 	
-	Identifier id = m_helper->getIdentifier(*meas);
+	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	if( !m_idHelper->isMuon(id) ) continue;
 	
 	closestPars = pars;
@@ -342,7 +344,7 @@ namespace Muon {
 
     if( m_muonExtrapolator.empty() ) return 0;
     // if straightline track and the field is on return 0
-    bool isSL = m_helper->isSLTrack(track);
+    bool isSL = m_edmHelperSvc->isSLTrack(track);
     if( m_magFieldSvc->toroidOn() && isSL ) {
       return 0;
     }
@@ -393,7 +395,7 @@ namespace Muon {
     // create new perigee
     const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(exPars);
     if( !perigee ){
-      perigee = m_helper->createPerigee(*exPars);
+      perigee = createPerigee(*exPars);
       delete exPars;
     }
 
@@ -430,7 +432,7 @@ namespace Muon {
 	    // create new perigee
 	    secondPerigee = dynamic_cast<const Trk::Perigee*>(secondExPars);
 	    if( !secondPerigee ){
-	      secondPerigee = m_helper->createPerigee(*secondExPars);
+	      secondPerigee = createPerigee(*secondExPars);
 	      delete secondExPars;
 	    }
 	  }
@@ -727,5 +729,19 @@ namespace Muon {
     return extrapolateTracks;
 
   }
-
+  
+  const Trk::Perigee* MuonTrackExtrapolationTool::createPerigee( const Trk::TrackParameters& pars ) const {
+    if( m_muonExtrapolator2.empty() ) { 
+      return nullptr;
+    }
+    Trk::PerigeeSurface persurf(pars.position());
+    const Trk::TrackParameters* exPars = m_muonExtrapolator2->extrapolateDirectly(pars,persurf);
+    const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
+    if( !pp ) {
+      ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");
+      delete exPars;
+      return nullptr;
+    }
+    return pp;
+  }
 }

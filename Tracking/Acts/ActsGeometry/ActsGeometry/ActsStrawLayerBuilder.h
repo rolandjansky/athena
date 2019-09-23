@@ -11,12 +11,11 @@
 // PACKAGE
 
 // ACTS
-#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Geometry/ILayerBuilder.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 class TRT_ID;
-class ActsTrackingGeometrySvc;
 class TRT_DetectorManager;
 class ActsDetectorElement;
 
@@ -39,7 +38,6 @@ public:
     const InDetDD::TRT_DetectorManager*   mng;
     std::shared_ptr<const Acts::LayerCreator> layerCreator = nullptr;
     std::shared_ptr<ElementVector> elementStore;
-    const ActsTrackingGeometrySvc* trackingGeometrySvc = nullptr;
     const TRT_ID* idHelper = nullptr;
   };
 

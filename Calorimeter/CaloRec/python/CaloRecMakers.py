@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: CaloRecMakers.py,v 1.8 2009/03/31 16:17:27 droussea Exp $
 #
 # File: CaloRecMakers.py
 # Created: Jul 2006, sss
@@ -20,7 +19,7 @@ from CaloRec.CaloRecConf import CaloClusterCopier, CaloClusterMaker, \
 # These should probably be in a common library.
 #
 def _makeconf (cls, name = None, **kwargs):
-    if name != None:
+    if name is not None:
         x = cls(name)
     else:
         x = cls()
@@ -28,7 +27,7 @@ def _makeconf (cls, name = None, **kwargs):
         setattr (x, k, v)
     return x
 def _process_tool (alg, tool):
-    if type(tool) != type(""):
+    if not isinstance(tool, str):
         alg += tool
         tool = tool.getFullName()
     return tool

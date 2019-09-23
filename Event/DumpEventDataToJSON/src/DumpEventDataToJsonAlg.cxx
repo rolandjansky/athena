@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
@@ -30,7 +28,13 @@ StatusCode DumpEventDataToJsonAlg::initialize()
   ATH_CHECK( m_eventInfoKey.initialize());
   ATH_CHECK( m_trackParticleKeys.initialize() );
   ATH_CHECK( m_jetKeys.initialize() );
-  if (m_extrapolateTracks) ATH_CHECK( m_extrapolator.retrieve() );
+  ATH_CHECK( m_caloClustersKeys.initialize() );
+  ATH_CHECK( m_muonKeys.initialize() );
+  if (m_extrapolateTracks) {
+    ATH_CHECK( m_extrapolator.retrieve() );
+  } else {
+    m_extrapolator.disable();
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -45,14 +49,16 @@ StatusCode DumpEventDataToJsonAlg::execute ()
   ATH_MSG_VERBOSE("Run num :"<<eventInfo->runNumber()<<" Event num: "<<eventInfo->eventNumber());
 
   nlohmann::json j;
-  j["Event num"] = eventInfo->eventNumber();
-  j["Run num"]   = eventInfo->runNumber();
-
+  
   ATH_CHECK(getAndFillArrayOfContainers(j, m_jetKeys, "Jets"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_trackParticleKeys, "Tracks"));
-
-  m_eventData.push_back(j);
-
+  ATH_CHECK(getAndFillArrayOfContainers(j, m_muonKeys, "Muons"));
+  ATH_CHECK(getAndFillArrayOfContainers(j, m_caloClustersKeys, "CaloClusters"));
+  
+  std::string key = std::to_string(eventInfo->eventNumber()) + "/" + std::to_string(eventInfo->runNumber());
+  
+  m_eventData[key] = j;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -63,6 +69,8 @@ StatusCode DumpEventDataToJsonAlg::getAndFillArrayOfContainers(nlohmann::json& e
   for (SG::ReadHandle<TYPE> handle : keys.makeHandles() ){
     ATH_MSG_VERBOSE("Trying to load "<<handle.key());
     ATH_CHECK( handle.isValid() );  
+    ATH_MSG_VERBOSE("Got back  "<<handle->size());
+    
     for (auto object : *handle ){
       event[jsonType][handle.key()].push_back( getData(*object) );
     }
@@ -80,6 +88,19 @@ nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::Jet& jet){
   return data;
 }
 
+// Specialisation for CaloClusters
+template <> 
+nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::CaloCluster& clust){
+  nlohmann::json data;
+  data["phi"]    = clust.phi();
+  data["eta"]    = clust.eta();
+  data["energy"] = clust.e();
+  //data["etaSize"] = clust.getClusterEtaSize(); // empty
+  //data["phiSize"] = clust.getClusterPhiSize(); // empty
+  return data;
+}
+
+
 // Specialisation for Tracks
 template <> 
 nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::TrackParticle& tp){
@@ -94,11 +115,9 @@ nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::TrackParticle& tp){
       data["pos"].push_back( {tp.parameterX (i), tp.parameterY (i), tp.parameterZ (i)} );
     }
   } else {
-    
     std::vector<Amg::Vector3D> positions; 
     const Trk::Perigee& peri = tp.perigeeParameters ();
     positions.push_back(Amg::Vector3D(peri.position().x(), peri.position().y(), peri.position().z() ) );
-
     
     Trk::CurvilinearParameters startParameters(peri.position(),peri.momentum(),peri.charge());
     Trk::ExtrapolationCell<Trk::TrackParameters> ecc(startParameters);
@@ -129,6 +148,34 @@ nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::TrackParticle& tp){
     }
   }
   return data;
+}
+
+// Specialisation for Muons
+template <> 
+nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::Muon& muon){
+  nlohmann::json data;
+  data["Phi"]    = muon.phi();
+  data["Eta"]    = muon.eta();
+
+  std::vector<std::string> quality={"Tight","Medium","Loose","VeryLoose"};
+  data["Quality"] = quality[static_cast<unsigned int>(muon.quality())];
+  std::vector<std::string> type={"Combined","Standalone","SegmentTagged","CaloTagged", "SiAssociatedForward"};
+  data["Type"] = type[static_cast<unsigned int>(muon.muonType())];
+  data["PassedHighPt"] = muon.passesHighPtCuts();
+
+  addLink(muon.clusterLink(), data["LinkedClusters"]);    
+  addLink(muon.inDetTrackParticleLink(), data["LinkedTracks"]);  
+  addLink(muon.muonSpectrometerTrackParticleLink(), data["LinkedTracks"]);
+  addLink(muon.extrapolatedMuonSpectrometerTrackParticleLink(), data["LinkedTracks"]);
+    
+  return data;
+}
+
+template <class TYPE> 
+void DumpEventDataToJsonAlg::addLink( const TYPE& link, nlohmann::json& data){
+  if (link.isValid()){
+    data.push_back( link.dataID()+":"+std::to_string(link.index())  );
+  }
 }
 
 StatusCode DumpEventDataToJsonAlg::finalize()

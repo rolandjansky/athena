@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCalibAlgs/PixelBarrelSurvey.h"
@@ -9,9 +9,9 @@
 #include "DetDescrConditions/AlignableTransform.h"
 #include "DetDescrConditions/DetCondCFloat.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelCalibAlgs/PixelBarrelSurveyUtils.h"
+#include "StoreGate/ReadCondHandle.h"
 //#include "GeoPrimitives/CLHEPtoEigenConverter.h" 
 
 
@@ -23,7 +23,6 @@ const int distosize=3;
 PixelBarrelSurvey::PixelBarrelSurvey(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_pixelID(0),
-  m_pixmgr(0),
   m_transforms(0),
   m_distorsions(0)
 {
@@ -56,16 +55,13 @@ StatusCode PixelBarrelSurvey::initialize(){
 
   msg(MSG::INFO) << "initialize()" << endmsg;
 
-  std::string managerName("Pixel");
-  if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixmgr,managerName) ) {
-    msg(MSG::FATAL) << "PixelDetectorManager not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   if( StatusCode::SUCCESS!= detStore()->retrieve( m_pixelID, "PixelID" ) ){
     msg(MSG::FATAL) << "Unable to retrieve pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   /*
   if (StatusCode::SUCCESS!=
@@ -128,6 +124,13 @@ StatusCode PixelBarrelSurvey::execute() {
   if(msgLvl(MSG::INFO)) msg() << "execute()" << endmsg;
   
 // Part 2: Print out the different levels of messages
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
+
   std::vector<PixelBarrelSurveyUtils::StaveStruct>::iterator theStave=m_staves.begin();
   std::vector<PixelBarrelSurveyUtils::StaveStruct>::iterator lastStave=m_staves.end();
   int eta_max=ModulesOnStave/2;
@@ -145,7 +148,7 @@ StatusCode PixelBarrelSurvey::execute() {
 	  << " " << v0.x() << " " << v0.y() << " " << v0.z()
 	  << " " << v1.x() << " " << v1.y() << " " << v1.z()
 	  << std::endl;
-      InDetDD::SiDetectorElement *element=m_pixmgr->getDetectorElement(hashID);
+      const InDetDD::SiDetectorElement *element=elements->getDetectorElement(m_pixelID->wafer_hash(hashID));
       HepGeom::Transform3D idealTransform=element->defTransformCLHEP();
       v0=idealTransform*x0;
       v1=idealTransform*x1;

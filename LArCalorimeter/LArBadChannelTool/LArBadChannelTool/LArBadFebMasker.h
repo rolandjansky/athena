@@ -11,8 +11,6 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRecConditions/ILArBadFebMasker.h"
 
-//class StoreGateSvc;
-
 #include "StoreGate/ReadCondHandleKey.h"
 
 class LArBadFebMasker : public extends<AthAlgTool, ILArBadFebMasker>

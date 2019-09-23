@@ -36,5 +36,7 @@ BOOST_AUTO_TEST_SUITE(IOVDbSvcCurlTest)
     IOVDbSvcCurl myCurlObject("https://hgafsdjafgda");
     BOOST_CHECK_THROW(myCurlObject.get(), CurlException);
   }
+  
+  
 
 BOOST_AUTO_TEST_SUITE_END()

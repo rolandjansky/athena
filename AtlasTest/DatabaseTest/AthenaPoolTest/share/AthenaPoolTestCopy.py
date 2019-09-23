@@ -91,7 +91,6 @@ Stream1.OutputLevel = DEBUG
 # Copy everything from the input and must force reading of all input
 # objects
 Stream1.TakeItemsFromInput     = True
-Stream1.ForceRead              = True
 # Turn off provenance - means that new copy does NOT point back to its
 # input file, but it DOES retain the possibility to navigate to the
 # files upstream of the input. Thus the output "replaces" the input in

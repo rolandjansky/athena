@@ -82,19 +82,19 @@ class EgammaMonitoring : public AthAlgorithm
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapes10GeV;
   std::unique_ptr<egammaMonitoring::IsolationHistograms> isolationAll;
 
-  std::unique_ptr<egammaMonitoring::IHistograms> truthElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthElectronRecoElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronWithTrack;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronWithGSFTrack;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronWithReco;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthElectronAll;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronAll;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthElectronRecoElectronAll;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronWithTrack;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronWithGSFTrack;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronWithReco;
   std::unique_ptr<egammaMonitoring::IHistograms> recoElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronLooseLH;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronMediumLH;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronTightLH;
-  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutTight;
-  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutTightTrackOnly;
-  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutLoose;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthRecoElectronLooseLH;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthRecoElectronMediumLH;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthRecoElectronTightLH;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> recoElectronIsoFixedCutTight;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> recoElectronIsoFixedCutTightTrackOnly;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> recoElectronIsoFixedCutLoose;
 
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonAll;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonRecoPhoton        ;

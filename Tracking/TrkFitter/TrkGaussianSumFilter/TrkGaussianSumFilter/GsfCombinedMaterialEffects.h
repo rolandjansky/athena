@@ -15,19 +15,19 @@ decription           : Class definition for consideration of multiple scatter an
 #ifndef TrkGsfCombinedMaterialEffects_H
 #define TrkGsfCombinedMaterialEffects_H
 
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "GaudiKernel/ToolHandle.h"
 
+namespace Trk {
 
-namespace Trk{
+class IGSFMaterialEffects;
 
-class IMaterialEffectsUpdator;
-
-class GsfCombinedMaterialEffects : public AthAlgTool, virtual public IMultiStateMaterialEffects {
- public:
-
+class GsfCombinedMaterialEffects
+  : public AthAlgTool
+  , virtual public IMultiStateMaterialEffects
+{
+public:
   /** Constructor with AlgTool parameters*/
   GsfCombinedMaterialEffects(const std::string&, const std::string&, const IInterface*);
 
@@ -40,22 +40,26 @@ class GsfCombinedMaterialEffects : public AthAlgTool, virtual public IMultiState
   /** AlgTool finalise method */
   StatusCode finalize();
 
+  virtual void compute(IMultiStateMaterialEffects::Cache&,
+                       const ComponentParameters&,
+                       const MaterialProperties&,
+                       double,
+                       PropDirection = anyDirection,
+                       ParticleHypothesis = nonInteracting) const;
 
-  virtual void compute ( IMultiStateMaterialEffects::Cache&,
-                         const ComponentParameters&,
-                         const MaterialProperties&,
-                         double,
-                         PropDirection = anyDirection,
-                         ParticleHypothesis = nonInteracting ) const;
-
-  private:
-
-  ToolHandle<IMaterialEffectsUpdator> m_multipleScatterEffects;
-
-  ToolHandle<IMaterialEffectsUpdator> m_energyLossEffects;
-
-  ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects;
-
+private:
+  ToolHandle<IGSFMaterialEffects> m_multipleScatterEffects{ this,
+                                                            "MultipleScatteringUpdator",
+                                                            "Trk::MultipleScatterUpdator/MultipleScatterUpdator",
+                                                                "" };
+  ToolHandle<IGSFMaterialEffects> m_energyLossEffects{ this,
+                                                      "EnergyLossUpdator",
+                                                      "Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator",
+                                                      "" };
+  ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{ this,
+                                                                "BetheHeitlerEffects",
+                                                                "Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects",
+                                                                "" };
 };
 
 } // end Trk namespace

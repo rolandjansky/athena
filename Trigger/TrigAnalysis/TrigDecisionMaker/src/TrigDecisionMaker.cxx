@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -35,7 +35,6 @@
 #include "TrigConfL1Data/BunchGroupSet.h"
 
 
-#include "GaudiKernel/Incident.h"
 // all Trigger EDM ()
 
 
@@ -279,12 +278,10 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
 
   ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1ResultKey ) ;
 
-  sc = m_lvl1Tool->updateItemsConfigOnly();
-  if (sc.isFailure()) return ProcError;
+  std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig();
 
   if ((roIBResult->cTPResult()).isComplete()) {  
-    m_lvl1Tool->createL1Items(*roIBResult,true);
-    result = m_lvl1Tool->getLvl1Result();
+    m_lvl1Tool->createL1Items(itemConfig, *roIBResult,&result);
     ATH_MSG_DEBUG ( "Build LVL1CTP::Lvl1Result from valid CTPResult.") ;
   } else {
     ATH_MSG_DEBUG ( "No LVL1CTP::Lvl1Result build since no valid CTPResult is available.") ;

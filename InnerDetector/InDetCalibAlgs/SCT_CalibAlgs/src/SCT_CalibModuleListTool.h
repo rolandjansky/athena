@@ -18,7 +18,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"

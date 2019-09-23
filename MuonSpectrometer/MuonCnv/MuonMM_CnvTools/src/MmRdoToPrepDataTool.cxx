@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,8 +10,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/PropertyMgr.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
@@ -66,18 +64,9 @@ StatusCode Muon::MmRdoToPrepDataTool::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
   
-  /// get the detector descriptor manager
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-  
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muonMgr );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR("DetectorStore not found ");
+  StatusCode sc = detStore()->retrieve( m_muonMgr );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
     return sc;
   }
   
@@ -170,16 +159,16 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
     bool getLocalPos = detEl->stripPosition(prdId,localPos);
     if ( !getLocalPos ) {
-      ATH_MSG_ERROR("Could not get the local strip position for MM");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Could not get the local strip position for MM");
+      continue;
     }
     int stripNumberRDOId = detEl->stripNumber(localPos,layid);
     ATH_MSG_DEBUG(" check strip nr RDOId " << stripNumberRDOId );
     Amg::Vector3D globalPos;
     bool getGlobalPos = detEl->stripGlobalPosition(prdId,globalPos);
     if ( !getGlobalPos ) {
-      ATH_MSG_ERROR("Could not get the global strip position for MM");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Could not get the global strip position for MM");
+      continue;
     }
 
 //    const Trk::Surface& surf = detEl->surface(rdoId);

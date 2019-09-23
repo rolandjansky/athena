@@ -4,9 +4,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-_runTypes = {'PHY' : 1, 'LAS' : 2, 'BILAS' : 2, 'PED' : 4, 'CIS' : 8, 'MONOCIS' : 8}
-
-
 def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile Fit raw channel builder tool
 
@@ -14,54 +11,35 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
         flags  -- Athena configuration flags (ConfigFlags)
     """
 
+    name = kwargs.pop('name', 'TileRawChannelBuilderFitFilter')
+    kwargs.setdefault('TileRawChannelContainer', 'TileRawChannelFit')
+    kwargs.setdefault('correctTime', flags.Tile.correctTime)
+    kwargs.setdefault('FrameLength', 7)
+
     acc = ComponentAccumulator()
 
-    runType = flags.Tile.RunType
-    runType = runType.upper()
+    if 'TileCondToolNoiseSample' not in kwargs:
+        from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
+        sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
+        kwargs['TileCondToolNoiseSample'] = sampleNoiseTool
 
-    if runType not in _runTypes.keys():
-        raise(Exception("Invalid Tile run type: %s" % runType))
-
-    from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
-    acc.merge( TileDQstatusAlgCfg(flags) )
-
-    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
-    acc.merge( TileInfoLoaderCfg(flags) )
-
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
-    tileRawChannelBuilderFit = TileRawChannelBuilderFitFilter()
-
-    from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
-    sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
-    tileRawChannelBuilderFit.TileCondToolNoiseSample = sampleNoiseTool
-
-    tileRawChannelBuilderFit.RunType = _runTypes[runType]
-    tileRawChannelBuilderFit.calibrateEnergy = flags.Tile.calibrateEnergy
-    tileRawChannelBuilderFit.correctTime = flags.Tile.correctTime
-    tileRawChannelBuilderFit.FrameLength = 7
-    tileRawChannelBuilderFit.TileRawChannelContainer = 'TileRawChannelFit'
-
-    if flags.Tile.correctTime:
+    if flags.Tile.correctTime and 'TileCondToolTiming' not in kwargs:
         from TileConditions.TileTimingConfig import TileCondToolTimingCfg
         timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
-        tileRawChannelBuilderFit.TileCondToolTiming = timingTool
+        kwargs['TileCondToolTiming'] = timingTool
 
-    tileRawChannelContainerDSP = ""
-    if flags.Tile.NoiseFilter == 1:
-        from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
-        correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
-        tileRawChannelBuilderFit.NoiseFilterTools = correctionTools
-
-        if not (flags.Input.isMC or flags.Overlay.DataOverlay):
-            tileRawChannelContainerDSP = 'TileRawChannelCntCorrected'
-            from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
-            acc.merge( TileRawChannelCorrectionAlgCfg(flags) )
-
-    tileRawChannelBuilderFit.DSPContainer = tileRawChannelContainerDSP
-
-    acc.setPrivateTools( tileRawChannelBuilderFit )
+    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
+    from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
+    rawChanBuilder = acc.popToolsAndMerge(TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilderFitFilter, **kwargs))
+    acc.setPrivateTools(rawChanBuilder)
 
     return acc
+
+
+def TileRawChannelBuilderFitOverflowCfg(flags, **kwargs):
+    return TileRawChannelBuilderFitFilterCfg(flags,
+                                             name = 'TileRawChannelBuilderFitOverflow',
+                                             TileRawChannelContainer = "")
 
 
 if __name__ == "__main__":
@@ -86,6 +64,8 @@ if __name__ == "__main__":
     acc = ComponentAccumulator()
 
     print( acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(ConfigFlags) ) )
+
+    print( acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileRawChannelBuilderFit.pkl','w') )

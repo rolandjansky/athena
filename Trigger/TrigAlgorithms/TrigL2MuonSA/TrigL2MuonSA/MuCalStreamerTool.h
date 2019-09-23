@@ -46,7 +46,6 @@ namespace LVL2_MUON_CALIBRATION {
 }
 
 class RpcPad;
-class StoreGateSvc;
 class ROBDataProviderSvc;
 
 inline unsigned bcBitmap(uint16_t bcTag) { 
@@ -115,9 +114,6 @@ namespace TrigL2MuonSA {
 
     // output file 
     std::ofstream* m_outputFile;
-
-    // Reference to StoreGateSvc;
-    ServiceHandle<StoreGateSvc>    m_storeGate;
 
     // the region selector
     ServiceHandle<IRegSelSvc>  m_regionSelector;

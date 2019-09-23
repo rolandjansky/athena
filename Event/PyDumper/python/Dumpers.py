@@ -39,9 +39,11 @@ nucone10 = 8
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):
     ROOT.TrackParticleTruthCollection()[ROOT.Rec.TrackParticleTruthKey()]
-    ROOT.Jet().jetTagInfoVector()
+    if hasattr(ROOT,'Jet'):
+        ROOT.Jet().jetTagInfoVector()
     getattr(ROOT, 'ElementLinkVector<CaloClusterContainer>')
-    getattr(ROOT, 'ElementLink<Analysis::MuonContainer>')().isValid()
+    if hasattr(ROOT,'Analysis::MuonContainer'):
+        getattr(ROOT, 'ElementLink<Analysis::MuonContainer>')().isValid()
     getattr(ROOT, 'vector<xAOD::CaloClusterBadChannelData_v1>')().__assign__(getattr(ROOT, 'vector<xAOD::CaloClusterBadChannelData_v1>')())
 if hasattr (ROOT, 'TrigInDetParticleTruth'):
     ROOT.TrigInDetTrackTruth().getFamilyTree()

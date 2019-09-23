@@ -8,7 +8,6 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/StorableConversions.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
@@ -28,6 +27,11 @@ namespace {
    * a property set from the EDM configuration to avoid multiple definitions, but the value should never change from 0.
    */
   constexpr uint16_t fullResultModuleId = 0;
+  /**
+   * HLT ROBFragment ROD minor version.
+   * Changed from 0.0 to 1.0 in September 2019 to differentiate Run-3 HLT ByteStream format from earlier formats.
+   */
+  constexpr uint16_t hltRodMinorVersion = 0x0100;
 }
 
 // =============================================================================
@@ -38,6 +42,7 @@ HLT::HLTResultMTByteStreamCnv::HLTResultMTByteStreamCnv(ISvcLocator* svcLoc) :
   AthMessaging(msgSvc(), "HLTResultMTByteStreamCnv"),
   m_ByteStreamEventAccess("ByteStreamCnvSvc", "HLTResultMTByteStreamCnv") {
     m_fullEventAssembler.idMap().setDetId(eformat::TDAQ_HLT);
+    m_fullEventAssembler.setRodMinorVersion(hltRodMinorVersion);
   }
 
 // =============================================================================
@@ -70,8 +75,8 @@ StatusCode HLT::HLTResultMTByteStreamCnv::finalize() {
 // Implementation of Converter::createObj
 // =============================================================================
 StatusCode HLT::HLTResultMTByteStreamCnv::createObj(IOpaqueAddress* /*pAddr*/, DataObject*& /*pObj*/) {
-  ATH_REPORT_ERROR(StatusCode::FAILURE) << "Using BS converter to decode HLTResultMT is not supported!"
-                                        << " Use HLTResultMTByteStreamDecoderAlg instead";
+  ATH_MSG_ERROR("Using BS converter to decode HLTResultMT is not supported!"
+                << " Use HLTResultMTByteStreamDecoderAlg instead");
   return StatusCode::FAILURE;
 }
 
@@ -102,7 +107,7 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
 
   // Clear the stream tag buffer - we need to keep the serialised StreamTag data cached because
   // its lifetime has to be at least as long as the lifetime of RawEventWrite which points to the StreamTag data
-  delete m_streamTagData.release();
+  m_streamTagData.reset();
 
   // Read the stream tags to check for debug stream tag and decide which HLT ROBFragments to write out
   std::set<eformat::helper::SourceIdentifier> resultIdsToWrite;
@@ -126,17 +131,18 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
     }
   }
 
-  // Remove all non-debug stream tags if the event goes to the debug stream.
-  // Write all HLT results (if available) to the debug stream.
+  // If the event goes to the debug stream, remove all non-debug stream tags
+  // and force full event building in all debug streams
   if (debugEvent) {
     std::vector<eformat::helper::StreamTag>& writableStreamTags = hltResult->getStreamTagsNonConst();
     writableStreamTags.erase(
       std::remove_if(writableStreamTags.begin(),writableStreamTags.end(),std::not_fn(isDebugStreamTag)),
       writableStreamTags.end()
     );
-    for (eformat::helper::StreamTag& st : writableStreamTags)
-      for (const eformat::helper::SourceIdentifier& sid : resultIdsToWrite)
-        st.robs.insert(sid.code());
+    for (eformat::helper::StreamTag& st : writableStreamTags) {
+      st.robs.clear();
+      st.dets.clear();
+    }
   }
 
   // Fill the stream tags

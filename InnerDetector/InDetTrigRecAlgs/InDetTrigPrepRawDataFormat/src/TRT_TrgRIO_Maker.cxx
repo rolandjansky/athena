@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -14,7 +14,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "AthenaKernel/Timeout.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetTrigPrepRawDataFormat/TRT_TrgRIO_Maker.h"
 #include "TRT_DriftCircleTool/ITRT_DriftCircleTool.h"
@@ -92,16 +91,6 @@ namespace InDet{
       ATH_MSG_INFO( m_driftcircle_tool.propertyName() << ": Retrieved tool " << m_driftcircle_tool );
     
   
-    // Get DetectorStore service
-    //
-    /*StoreGateSvc* detStore;
-    StatusCode s=service("DetectorStore",detStore);
-    if (s.isFailure())  {
-      ATH_MSG_FATAL( "DetectorStore service not found" ); 
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-      }*/ 
-
-
     const TRT_ID * IdHelper(0);
     if (detStore()->retrieve(IdHelper, "TRT_ID").isFailure()) {
       ATH_MSG_FATAL ("Could not get TRT ID helper" );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelDistortionsTool_H
@@ -106,12 +106,6 @@ private:
   
   const DetCondCFloat * m_distortions;
   bool m_doCorrections;
-
-  mutable const float * m_lastDisto;
-  mutable Identifier m_lastID;
-
-  //StoreGateSvc * m_detStore;
-  //mutable MsgStream m_log;
 
   bool m_ownDistortions;
 

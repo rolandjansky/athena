@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,8 +44,10 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
+    std::unique_ptr<TauAnalysisTools::ITauTruthMatchingTool::ITruthTausEvent>
+      truthTausEvent = m_tTauTruthMatchingTool->getEvent();
     for(auto xTau : *xTauContainer)
-      m_tTauTruthMatchingTool->applyTruthMatch(*xTau);
+      m_tTauTruthMatchingTool->getTruth(*xTau, *truthTausEvent);
     
     return StatusCode::SUCCESS;
   }  

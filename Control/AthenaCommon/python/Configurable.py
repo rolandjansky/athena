@@ -149,7 +149,7 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
                       # times, but we shouldn't be in this loop too often anyway
                         confinit = getattr( confklass, '__init__' )
                         if n in six.get_function_code(confinit).co_varnames:
-                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__' % (n,confklass.__name__) )
+                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__', n, confklass.__name__ )
                            acceptableKeyWord = True
                            break
                      except AttributeError:
@@ -313,7 +313,7 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
          ccjo = cc.getJobOptName()
          for c in self.__children:
             if c.getJobOptName() == ccjo:
-               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored' % (joname or self.name(),ccjo) )
+               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored', joname or self.name(), ccjo )
                break
          else:
             if index is None:

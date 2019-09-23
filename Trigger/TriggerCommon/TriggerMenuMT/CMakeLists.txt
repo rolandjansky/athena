@@ -105,6 +105,7 @@ endfunction ( atlas_build_lvl1_trigger_menu )
 # Install files from the package:
 atlas_install_python_modules( python/*.py 
 			      python/LVL1MenuConfig
+			      python/L1
 			      python/HLTMenuConfig
 			      )
 atlas_install_joboptions( share/*.py )
@@ -114,6 +115,7 @@ atlas_install_scripts( scripts/generateL1MenuMT.sh )
 atlas_install_scripts( scripts/generateLVL1MenuMT.py )
 atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
 atlas_install_scripts( scripts/test_HLTmenu.sh )
+atlas_install_scripts( scripts/generateL1MenuRun3.py )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 

@@ -44,6 +44,7 @@ public:
   TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
 
   virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   
   virtual StatusCode regHist(const std::string& name) override;
@@ -100,7 +101,9 @@ public:
 private:
   /// Helper struct that bundles the histogram, name and mutex
   struct THistID {
-    std::string id{""};
+    THistID(const std::string s, TObject* o) : id(s), obj(o) {};
+    ~THistID() { delete mutex; }
+    std::string id;
     TObject* obj{nullptr};
     std::mutex* mutex{nullptr};
   };
@@ -115,9 +118,9 @@ private:
   StatusCode getTHists_i(const std::string& name, TList &) const;
 
   // Templated methods implementing the virtual interface methods
-  template <typename T> StatusCode regHist_i(std::unique_ptr<T> hist, const std::string& name, bool shared);
+  template <typename T> StatusCode regHist_i(std::unique_ptr<T> hist, const std::string& name, bool shared, THistID*& phid);
   template <typename T> T* getHist_i(const std::string& id, const size_t& ind, bool quiet = false) const;
-  template <typename T> LockedHandle<T> regShared_i( const std::string& id, std::unique_ptr<T> hist );
+  template <typename T> LockedHandle<T> regShared_i( const std::string& id, std::unique_ptr<T> hist);
   template <typename T> LockedHandle<T> getShared_i( const std::string& id ) const;
 
   // Properties

@@ -13,8 +13,6 @@
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
@@ -32,8 +30,7 @@ PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const 
   m_timeBCN(1),
   m_mergeCharge(false),
   m_pixelID{},
-  m_rndNoiseProb(5e-8),
-  m_pixMgr{}
+  m_rndNoiseProb(5e-8)
 {
 	declareProperty("TimeBCN",      m_timeBCN,      "Number of BCID");	
   declareProperty("NoiseShape",   m_noiseShape,   "Vector containing noise ToT shape");
@@ -50,8 +47,6 @@ StatusCode PixelNoisyCellGenerator::initialize() {
   ATH_CHECK(m_chargeDataKey.initialize());
 
   CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-
-  CHECK(detStore()->retrieve(m_pixMgr,"Pixel"));
 
   ATH_MSG_DEBUG("PixelNoisyCellGenerator::initialize()");
   return StatusCode::SUCCESS;

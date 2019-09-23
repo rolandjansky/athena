@@ -29,7 +29,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
                           TileCalorimeter/TileDetDescr
-                          Tools/PathResolver )
+                          Tools/PathResolver
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -110,6 +111,26 @@ atlas_add_test( TileRawChannelBuilderOptConfig_test
                  PROPERTIES TIMEOUT 300
                  POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( TileRawChannelBuilderMFConfig_test
+                 SCRIPT python -m TileRecUtils.TileRawChannelBuilderMFConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCellNoiseFilterConfig_test
+                 SCRIPT python -m TileRecUtils.TileCellNoiseFilterConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCellBuilderConfig_test
+                 SCRIPT python -m TileRecUtils.TileCellBuilderConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileDQstatusConfig_test
+                 SCRIPT python -m TileRecUtils.TileDQstatusConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( TileRawChannelCorrectionConfig_test
                  SCRIPT python -m TileRecUtils.TileRawChannelCorrectionConfig
                  PROPERTIES TIMEOUT 300
@@ -117,5 +138,10 @@ atlas_add_test( TileRawChannelCorrectionConfig_test
 
 atlas_add_test( TileRawChannelMakerConfig_test
                  SCRIPT python -m TileRecUtils.TileRawChannelMakerConfig
+                 PROPERTIES TIMEOUT 300
+                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCellMakerConfig_test
+                 SCRIPT python -m TileRecUtils.TileCellMakerConfig
                  PROPERTIES TIMEOUT 300
                  POST_EXEC_SCRIPT nopost.sh)

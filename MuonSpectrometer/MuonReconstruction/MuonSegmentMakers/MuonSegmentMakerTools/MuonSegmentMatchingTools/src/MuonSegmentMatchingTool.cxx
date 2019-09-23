@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentMatchingTool.h"
  
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
@@ -22,7 +22,6 @@ namespace Muon {
   MuonSegmentMatchingTool::MuonSegmentMatchingTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_overlapResolvingTool("Muon::MuonSegmentInOverlapResolvingTool/MuonSegmentInOverlapResolvingTool"),
       m_pairMatchingTool("Muon::MuonSegmentPairMatchingTool/MuonSegmentPairMatchingTool"),
@@ -95,8 +94,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    if( m_helperTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_helperTool ); 
+    if( m_edmHelperSvc.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc ); 
       return StatusCode::FAILURE;
     }
 
@@ -149,8 +148,8 @@ namespace Muon {
 			   << m_printer->print(seg1) << std::endl << m_printer->print(seg2));
    
     // get identifiers 
-    Identifier chid1 = m_helperTool->chamberId(seg1);
-    Identifier chid2 = m_helperTool->chamberId(seg2);
+    Identifier chid1 = m_edmHelperSvc->chamberId(seg1);
+    Identifier chid2 = m_edmHelperSvc->chamberId(seg2);
     if( chid1 == chid2 ) return false;
 
     MuonStationIndex::StIndex stIndex1 = m_idHelperTool->stationIndex(chid1);
@@ -238,7 +237,7 @@ namespace Muon {
     
     ATH_MSG_VERBOSE(" overlap match ");
 
-    Identifier chid = m_helperTool->chamberId(seg1);
+    Identifier chid = m_edmHelperSvc->chamberId(seg1);
 
     // check the distance between the two segments
     float segDist = (seg1.globalPosition() - seg2.globalPosition()).mag();
@@ -583,8 +582,8 @@ namespace Muon {
     }
     // Phi-sector overlap  
     else if ( result.phiSector_a != result.phiSector_b ) {
-      unsigned nChambers_a = m_helperTool->chamberIds(seg1).size();
-      unsigned nChambers_b = m_helperTool->chamberIds(seg2).size();
+      unsigned nChambers_a = m_edmHelperSvc->chamberIds(seg1).size();
+      unsigned nChambers_b = m_edmHelperSvc->chamberIds(seg2).size();
       if ( nChambers_a < 2 && nChambers_b < 2 ) {
 	return false;
       }
@@ -1061,8 +1060,8 @@ namespace Muon {
 
     if( !m_useEndcapExtrapolationMatching ) return true;
 
-    Identifier chid1 = m_helperTool->chamberId(seg1);
-    Identifier chid2 = m_helperTool->chamberId(seg2);
+    Identifier chid1 = m_edmHelperSvc->chamberId(seg1);
+    Identifier chid2 = m_edmHelperSvc->chamberId(seg2);
     if( chid1 == chid2 ) return false;
 
     MuonStationIndex::StIndex stIndex1 = m_idHelperTool->stationIndex(chid1);

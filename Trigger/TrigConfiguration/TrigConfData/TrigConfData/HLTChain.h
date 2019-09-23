@@ -15,19 +15,19 @@ namespace TrigConf {
     * Provides access to the name and counter of the HLT chain, to 
     * the seeding L1 item and to the connected output streams and chain groups.
     */
-   class HLTChain final : virtual public DataStructure {
+   class Chain final : virtual public DataStructure {
    public:
 
       /** Constructor */
-      HLTChain();
+      Chain();
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the HLT chain configuration 
        */      
-      HLTChain(const boost::property_tree::ptree & data);
+      Chain(const boost::property_tree::ptree & data);
 
       /** Destructor */
-      ~HLTChain();
+      virtual ~Chain();
 
       /** Accessor to the chain name */      
       const std::string & name() const;
@@ -40,6 +40,9 @@ namespace TrigConf {
 
       /** Accessor to the seeding L1 item */
       const std::string & l1item() const;
+
+      /** Accessor to the l1 thresholds */
+      std::vector<std::string> l1thresholds() const;
 
       /** Accessor to the connected output streams */
       std::vector<DataStructure> streams() const;

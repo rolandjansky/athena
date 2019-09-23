@@ -39,7 +39,7 @@ class  JetBTaggerTool:
 
   JetBTaggerTool(const std::string & n);
   virtual ~JetBTaggerTool();
-  virtual int modify(xAOD::JetContainer& jets) const;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const;
 
 
  private:
@@ -47,6 +47,8 @@ class  JetBTaggerTool:
   SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName { this, "JetCollectionName", "", "Input jet container"};
   Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","","Element link form jet to BTagging container"};
   SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName { this, "BTaggingCollectionName", "", "Output BTagging container"} ;
+
+  std::string m_JetName;
 
   ToolHandle< IBTagTool > m_bTagTool; 
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;

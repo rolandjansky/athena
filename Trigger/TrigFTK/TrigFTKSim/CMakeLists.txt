@@ -8,6 +8,7 @@ atlas_subdir( TrigFTKSim )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Control/PileUpTools
                           Control/StoreGate
                           GaudiKernel
@@ -44,7 +45,7 @@ find_package( Boost COMPONENTS iostreams program_options filesystem thread syste
 find_package( Eigen )
 find_package( HepMC )
 find_package( HepPDT )
-find_package( ROOT COMPONENTS Matrix Cint Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Matrix Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 find_package( TBB )
 
 add_definitions(-DHAVE_BOOST_IOSTREAMS)
@@ -169,7 +170,7 @@ atlas_install_python_modules( python/__init__.py python/TrigFTKTruthAlgsConfig.p
 atlas_install_joboptions( share/*.py )
 atlas_install_joboptions( share/skeleton.*.py )
 atlas_install_runtime( scripts/*_tf.py )
-atlas_install_runtime( test/TrigFTKSim_TestConfiguration.xml scripts/rtt_compare.py scripts/TrigFTKSM4Un_tf.py standalone/plot_simple_dataflow.C scripts/TrigFTKTM64SM4Un_tf.py scripts/TrigFTKSimITk_tf.py )
+atlas_install_runtime( test/TrigFTKSim_TestConfiguration.xml scripts/rtt_compare.py scripts/TrigFTKSM4Un_tf.py scripts/TrigFTKTM64SM4Un_tf.py scripts/TrigFTKSimITk_tf.py )
 atlas_install_generic( config/map_file/*
                        DESTINATION share/ftk_configuration/map_files
                        EXECUTABLE )

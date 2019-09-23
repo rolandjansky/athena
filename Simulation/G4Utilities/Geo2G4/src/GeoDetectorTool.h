@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_GeoDetectorTool_H
@@ -7,7 +7,8 @@
 
 // Base classes
 #include "G4AtlasTools/DetectorGeometryBase.h"
-#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
+//#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
+#include "G4AtlasInterfaces/IGeo2G4Svc.h"
 
 #include "G4Transform3D.hh"
 
@@ -54,7 +55,7 @@ private:
   G4LogicalVolume* Convert();
   bool IsTopTransform();
   void SetInitialTransformation();
-
+  ServiceHandle<IGeo2G4Svc> m_geo2G4Svc{this, "Geo2G4Svc", "Geo2G4Svc", ""};
 };
 
 #endif

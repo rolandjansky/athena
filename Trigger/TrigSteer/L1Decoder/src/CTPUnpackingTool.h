@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1DECODER_CTPUNPACKINGTOOL_H
@@ -9,7 +9,6 @@
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 class CTPUnpackingTool : public CTPUnpackingToolBase {
 public:

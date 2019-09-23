@@ -61,32 +61,13 @@ public:
   /** @brief finalize method */
   virtual StatusCode finalize() override final;
 
-
   typedef  std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>> Cache;
- 
-  /**  test for cluster/extrapolated track match, from xAOD::TrackParticle,
-   * returns true for good match using sampling 2, and
-   *  the values for eta/phi, deltaEta/deltaPhi 
-   */
-  virtual bool  matchesAtCalo(const EventContext&           ctx,
-                              const xAOD::CaloCluster*      cluster, 
-                              const xAOD::TrackParticle*    trkPB, 
-                              bool                          isTRT, 
-                              Trk::PropDirection            direction,
-                              std::vector<double>&          eta,
-                              std::vector<double>&          phi,
-                              std::vector<double>&          deltaEta,
-                              std::vector<double>&          deltaPhi,
-                              unsigned int                  extrapFrom = fromPerigee,
-                              Cache* cache=nullptr) const override final;
-
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  */
   virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
                                      const xAOD::CaloCluster*      cluster, 
                                      const xAOD::TrackParticle*    trkPB,
-                                     bool                          isTRT, 
                                      Trk::PropDirection            direction,
                                      std::vector<double>&          eta,
                                      std::vector<double>&          phi,
@@ -94,8 +75,6 @@ public:
                                      std::vector<double>&          deltaPhi,
                                      unsigned int                  extrapFrom = fromPerigee,
                                      Cache* cache=nullptr) const override final;
-
-
 
   /** test for vertex-to-cluster match given also the positions 
     at the calorimeter from the vertex extrapolation  **/
@@ -120,17 +99,20 @@ public:
   /** get the momentum of the i-th at the vertex (designed for conversions) **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const override final;
 
-  /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and \<reuse\> is true **/
+  /** get sum of the momenta at the vertex (designed for conversions). 
+   * Retrieve from auxdata if available and \<reuse\> is true **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, bool reuse = true) const override final;
 
 
 private:
 
   /** @Helper to get the per Layer Intersections **/ 
-  CaloExtensionHelpers::EtaPhiPerLayerVector getIntersections (const Trk::CaloExtension& extension,const xAOD::CaloCluster* cluster) const;
+  CaloExtensionHelpers::EtaPhiPerLayerVector getIntersections (const Trk::CaloExtension& extension,
+                                                               const xAOD::CaloCluster* cluster) const;
 
   /** @Perform the Rescaling of the perigee parameters with the cluster energy **/
-  const Trk::TrackParameters*  getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const;
+  std::unique_ptr<const Trk::TrackParameters>  getRescaledPerigee(const xAOD::TrackParticle* trkPB, 
+                                                                  const xAOD::CaloCluster* cluster) const;
 
   /** @brief Return +/- 1 (2) if track is in positive/negative TRT barrel (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
@@ -144,21 +126,13 @@ private:
   ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
     "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
 
-  // Track-to-cluster match cuts
-  Gaudi::Property<double> m_broadDeltaEta{this, "BroadDeltaEta", 0.05};
-  Gaudi::Property<double> m_broadDeltaPhi{this, "BroadDeltaPhi", 0.10};
-  Gaudi::Property<double> m_narrowDeltaEta{this, "NarrowDeltaEta", 0.05};
+  // vertex-to-cluster match cuts
   Gaudi::Property<double> m_narrowDeltaPhi{this, "NarrowDeltaPhi", 0.05};
-  Gaudi::Property<double> m_narrowDeltaPhiBrem{this,
-    "NarrowDeltaPhiBrem", 0.10};
   Gaudi::Property<double> m_narrowDeltaPhiTRTbarrel{this,
     "NarrowDeltaPhiTRTbarrel", 0.02};
-  Gaudi::Property<double> m_narrowDeltaPhiBremTRTbarrel{this,
-    "NarrowDeltaPhiBremTRTbarrel", 0.03};
   Gaudi::Property<double> m_narrowDeltaPhiTRTendcap{this,
     "NarrowDeltaPhiTRTendcap", 0.02};
-  Gaudi::Property<double> m_narrowDeltaPhiBremTRTendcap{this,
-    "NarrowDeltaPhiBremTRTendcap", 0.03};
+  Gaudi::Property<double> m_narrowDeltaEta{this, "NarrowDeltaEta", 0.05};
   Gaudi::Property<double> m_TRTbarrelDeltaEta{this, "TRTbarrelDeltaEta", 0.35};
   Gaudi::Property<double> m_TRTendcapDeltaEta{this, "TRTendcapDeltaEta", 0.2};
 

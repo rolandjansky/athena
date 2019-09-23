@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -53,7 +53,6 @@ class IPoolSvc;
 
 class EventID;
 class ITagInfoMgr;
-class IIncidentSvc;
 
 class IOVDbFolder;
 
@@ -152,11 +151,8 @@ public:
   /// Incident service handle for EndEvent
   virtual void handle( const Incident& incident ) override;
 
-  /// Register callback for TagInfo access
-  virtual StatusCode registerTagInfoCallback() override;
-
-  /// Callback method for TagInfo access
-  StatusCode         processTagInfo(IOVSVC_CALLBACK_ARGS);
+  /// Process TagInfo
+  virtual StatusCode processTagInfo() override;
 
   // return list of SG keys being provided by IOVDbSvc
   virtual std::vector<std::string> getKeyList() override;

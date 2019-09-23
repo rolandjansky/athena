@@ -11,105 +11,35 @@ def writeEmulationFiles(data):
                 f.write("\n")
 
 # Testing menu used in the L1 decoders
-class MenuTest:
-    
-    CTPToChainMapping = {"HLT_e3_etcut":   "L1_EM3",        
-                         "HLT_e5_etcut":   "L1_EM3",        
-                         "HLT_g5_etcut":   "L1_EM3",        
-                         "HLT_e7_etcut":   "L1_EM7",        
-                         "HLT_mu6idperf": "L1_MU6",        
-                         "HLT_mu6":       "L1_MU6",        
-                         "HLT_mu20":       "L1_MU20",        
-                         "HLT_xs20":      "L1_EM7",        
-                         "HLT_2e3_etcut": "L1_2EM3",        
-                         "HLT_e3e5_etcut":"L1_2EM3",        
-                         "HLT_2mu6":      "L1_2MU4",        
-                         "HLT_e15mu24":    "L1_EM7_MU15",    
-                         "HLT_xe10":      "L1_XE10",   
-                         "HLT_te15":      "L1_TE15.0ETA24", 
-                         "HLT_j85":       "L1_J20",         
+class MenuTest(object):
+
+    CTPToChainMapping = {"HLT_e3_etcut":   "L1_EM3",
+                         "HLT_e5_etcut":   "L1_EM3",
+                         "HLT_g5_etcut":   "L1_EM3",
+                         "HLT_e7_etcut":   "L1_EM7",
+                         "HLT_mu6idperf": "L1_MU6",
+                         "HLT_mu6":       "L1_MU6",
+                         "HLT_mu20":       "L1_MU20",
+                         "HLT_xs20":      "L1_EM7",
+                         "HLT_2e3_etcut": "L1_2EM3",
+                         "HLT_e3e5_etcut":"L1_2EM3",
+                         "HLT_2mu6":      "L1_2MU4",
+                         "HLT_e15mu24":    "L1_EM7_MU15",
+                         "HLT_xe10":      "L1_XE10",
+                         "HLT_te15":      "L1_TE15.0ETA24",
+                         "HLT_j85":       "L1_J20",
                          "HLT_j60":       "L1_J20",
-                         "HLT_j35_gsc45_boffperf_split" : "L1_J20",                         
+                         "HLT_j35_gsc45_boffperf_split" : "L1_J20",
                          "HLT_j35_gsc45_bmv2c1070_split" : "L1_J20",
                          "HLT_j35_gsc45_bmv2c1070" : "L1_J20"
       }
 
-def applyMenu(l1decoder ):
+def applyMenu(l1decoder):
     l1decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
-        
-    
-# L1Decoder for bytestream
+
 from L1Decoder.L1DecoderConf import L1Decoder
-class L1DecoderTest(L1Decoder) :
-    def __init__(self, name='L1Decoder', *args, **kwargs):
-        super(L1DecoderTest, self).__init__(name, *args, **kwargs)
-        
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
-        from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
-        from L1Decoder.L1DecoderConf import TAURoIsUnpackingTool, JRoIsUnpackingTool
-        from L1Decoder.L1DecoderConf import RerunRoIsUnpackingTool
-        from TrigEDMConfig.TriggerEDMRun3 import recordable
-        # CTP unpacker
-
-        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                       ForceEnableAllChains = True)
-
-
-        self.ChainToCTPMapping = MenuTest.CTPToChainMapping
-        self.ctpUnpacker = ctpUnpacker
-
-        # EM unpacker
-        if TriggerFlags.doID() or TriggerFlags.doCalo():
-          
-            emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                                Decisions = recordable("L1EM"),
-                                                OutputTrigRoIs = recordable("EMRoIs"),
-                                                MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
-
-#            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
-            self.roiUnpackers += [emUnpacker]
-            self.rerunRoiUnpackers += [ RerunRoIsUnpackingTool("EMRerunRoIsUnpackingTool", 
-                                                               SourceDecisions="L1EM", 
-                                                               Decisions="RerunL1EM" 
-                                                               ) ]
-
-            metUnpacker = METRoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                               Decisions = recordable("L1MET"))
-
-            self.roiUnpackers += [metUnpacker]
-
-            tauUnpacker = TAURoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                             Decisions = "L1TAU",
-                                             OutputTrigRoIs = "TAURoIs")
-
-            tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
-            self.roiUnpackers += [tauUnpacker]
-
-            jUnpacker = JRoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                             Decisions = recordable("L1J"),
-                                             OutputTrigRoIs = recordable("JETRoI") )
-
-            jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
-            self.roiUnpackers += [jUnpacker]
-
-
-        # MU unpacker
-        if TriggerFlags.doMuon():
-            muUnpacker = MURoIsUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                             Decisions = recordable("L1MU"),
-                                             OutputTrigRoIs = recordable("MURoIs"))
-
-            muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
-            self.roiUnpackers += [muUnpacker]
-            self.rerunRoiUnpackers += [  RerunRoIsUnpackingTool("MURerunRoIsUnpackingTool",
-                                                                SourceDecisions="L1MU", 
-                                                                Decisions="RerunL1MU"
-                                                                ) ]
-        self.L1DecoderSummaryKey = "L1DecoderSummary"
-
 # L1 emulation for RDO
-class L1EmulationTest(L1Decoder) :
+class L1EmulationTest(L1Decoder):
     def __init__(self, name='L1EmulationTest', *args, **kwargs):
         super(L1EmulationTest, self).__init__(name, *args, **kwargs)
 
@@ -135,11 +65,11 @@ class L1EmulationTest(L1Decoder) :
         self.ctpUnpacker = ctpUnpacker
         self += ctpUnpacker
 
-        self.ChainToCTPMapping = {'HLT_mu20'     : 'L1_MU8', 
-                                  'HLT_mu81step' : 'L1_MU8', 
-                                  'HLT_mu8'      : 'L1_MU8', 
-                                  'HLT_e20'      : 'L1_EM12', 
-                                  'HLT_e8'       : 'L1_EM7', 
+        self.ChainToCTPMapping = {'HLT_mu20'     : 'L1_MU8',
+                                  'HLT_mu81step' : 'L1_MU8',
+                                  'HLT_mu8'      : 'L1_MU8',
+                                  'HLT_e20'      : 'L1_EM12',
+                                  'HLT_e8'       : 'L1_EM7',
                                   'HLT_mu8_e8'   : 'L1_EM3_MU6'}
 
         # EM unpacker
@@ -148,8 +78,8 @@ class L1EmulationTest(L1Decoder) :
                                                     Decisions = "EMRoIDecisions",
                                                     OutputTrigRoIs = "EMRoIs",
                                                     OutputLevel = self.getDefaultProperty("OutputLevel"))
-            emUnpacker.ThresholdToChainMapping = ['EM7 : HLT_e20', 
-                                                  'EM7 : HLT_e8', 
+            emUnpacker.ThresholdToChainMapping = ['EM7 : HLT_e20',
+                                                  'EM7 : HLT_e8',
                                                   'EM7 : HLT_mu8_e8']
             self.roiUnpackers += [emUnpacker]
             print emUnpacker
@@ -161,15 +91,43 @@ class L1EmulationTest(L1Decoder) :
                                                     Decisions = "MURoIDecisions",
                                                     OutputTrigRoIs = "MURoIs",
                                                     OutputLevel=self.getDefaultProperty("OutputLevel"))
-            muUnpacker.ThresholdToChainMapping =  ['MU10 : HLT_mu20', 
-                                                   'MU6 : HLT_mu81step', 
-                                                   'MU6 : HLT_mu8', 
+            muUnpacker.ThresholdToChainMapping =  ['MU10 : HLT_mu20',
+                                                   'MU6 : HLT_mu81step',
+                                                   'MU6 : HLT_mu8',
                                                    'MU6 : HLT_mu8_e8']
             self.roiUnpackers += [muUnpacker]
 
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
+
+
+
+chainsCounter = 0
+
+def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=[] ):
+    """
+    In addition to making the chain object fills the flags that are used to generate MnuCOnfig JSON file
+    """
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+    prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+    decoder = DictFromChainName()
+    chainDict = decoder.getChainDict( prop )
+    global chainsCounter
+    chainDict["chainCounter"] = chainsCounter
+    chainsCounter += 1
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
+    chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=ChainSteps )
+
+    TriggerConfigHLT.registerChain( chainDict, chainConfig )
+
+    return chainConfig
+
 if __name__ == "__main__":
     from AthenaCommon.Constants import DEBUG
-    real = L1DecoderTest(OutputLevel=DEBUG)
-    
+    real = L1EmulationTest(OutputLevel=DEBUG)

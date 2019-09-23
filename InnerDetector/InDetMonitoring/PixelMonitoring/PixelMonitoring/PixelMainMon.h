@@ -19,11 +19,12 @@
 #include "InDetRawData/InDetTimeCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
+#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
 
 class PixelMonModules1D;
 class PixelMonModulesProf;
@@ -48,7 +49,6 @@ class TProfile;
 class TProfile2D;
 class TProfile_LW;
 class TProfile2D_LW;
-namespace InDetDD { class PixelDetectorManager; }
 namespace InDet {
 class PixelCluster;
 class IInDetTrackSelectionTool;
@@ -59,7 +59,6 @@ class ITrackHoleSearchTool;
 }  // namespace Trk
 class IPixelCablingSvc;
 class SpacePointContainer;
-class IPixelByteStreamErrorsSvc;
 class PixelRDORawData;
 
 typedef InDet::PixelCluster PixelCluster;
@@ -170,13 +169,15 @@ class PixelMainMon : public ManagedMonitorToolBase {
   StatusCode procPixelDCSMon(void);
 
  private:
-  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
-  ServiceHandle<IPixelByteStreamErrorsSvc> m_ErrorSvc;
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool
+  {this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+  ToolHandle<IPixelByteStreamErrorsTool> m_ErrorSvc
+  {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
+
   ServiceHandle<IPixelCablingSvc> m_pixelCableSvc;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
-  ToolHandle<ILuminosityTool> m_lumiTool;
 
   const PixelID* m_pixelid;
   uint64_t m_event;

@@ -30,9 +30,6 @@
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilderQIEFilter.h"
-//#include "TileRecUtils/TileRawChannelBuilderQIEFilterLookup.h"
-//#include "TileConditions/TileOptFilterWeights.h"
-//#include "TileConditions/TilePulseShapes.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"

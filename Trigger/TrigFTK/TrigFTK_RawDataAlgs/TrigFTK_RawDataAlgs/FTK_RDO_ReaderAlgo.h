@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTK_RDO_ReaderAlgo_h
@@ -35,10 +35,6 @@ class Identifier;
 class PixelID;
 class SCT_ID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
-
 namespace Trk {
   class IResidualPullCalculator;
 }  
@@ -73,7 +69,6 @@ private:
 
   /// Tools and services ///
   ITHistSvc*    m_rootHistSvc;
-  StoreGateSvc* m_StoreGate;
 
 
   /// Track collections ///
@@ -107,8 +102,8 @@ private:
   const AtlasDetectorID* m_idHelper;
   const PixelID* m_pixelId;  
   const SCT_ID* m_sctId;  
-  const InDetDD::PixelDetectorManager*  m_PIX_mgr;
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   ToolHandle<Trk::IResidualPullCalculator> m_residualCalc;
@@ -124,7 +119,7 @@ private:
   TH1D* m_h_FTK_RawTrack_phi;
   TH1D* m_h_FTK_RawTrack_d0;
   TH1D* m_h_FTK_RawTrack_z0;
-  TH1D* m_h_FTK_RawTrack_invPt;
+  TH1D* m_h_FTK_RawTrack_Pt;
   TH1D* m_h_FTK_RawTrack_cot;
   TH1D* m_h_FTK_RawTrack_eta;
   TH1D* m_h_FTK_RawTrack_nPix;
@@ -134,7 +129,7 @@ private:
   TH1D* m_h_Track_phi;
   TH1D* m_h_Track_d0;
   TH1D* m_h_Track_z0;
-  TH1D* m_h_Track_invPt;
+  TH1D* m_h_Track_Pt;
   TH1D* m_h_Track_cot;
   TH1D* m_h_Track_eta;
   TH1D* m_h_Track_nPix;
@@ -144,7 +139,7 @@ private:
   TH1D* m_h_refitTrack_phi;
   TH1D* m_h_refitTrack_d0;
   TH1D* m_h_refitTrack_z0;
-  TH1D* m_h_refitTrack_invPt;
+  TH1D* m_h_refitTrack_Pt;
   TH1D* m_h_refitTrack_cot;
   TH1D* m_h_refitTrack_eta;
   TH1D* m_h_refitTrack_nPix;

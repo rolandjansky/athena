@@ -64,24 +64,24 @@ namespace Trk {
            - returns a ParametersBase object as well, 0 if the extrapolation did not succeed 
          */
 
-       virtual const NeutralParameters* propagate(const NeutralParameters& parameters,
-                                                  const Surface& sf,
-                                                  PropDirection dir,
-                                                  BoundaryCheck bcheck,
-                                                  bool returnCurv = false) const = 0;
+       virtual NeutralParameters* propagate(const NeutralParameters& parameters,
+                                            const Surface& sf,
+                                            PropDirection dir,
+                                            BoundaryCheck bcheck,
+                                            bool returnCurv = false) const = 0;
 
        /** N 0) <b>Neutral parameters method </b> 
            - symmetric interface for new Extrapolation engine
          */
 
-       const NeutralParameters* propagate(const NeutralParameters& parameters,
-                                          const Surface& sf,
-                                          PropDirection dir,
-                                          BoundaryCheck bcheck,
-                                          const MagneticFieldProperties&,
-                                          ParticleHypothesis,
-                                          bool returnCurv,
-                                          const TrackingVolume* tVol=0) const
+       NeutralParameters* propagate(const NeutralParameters& parameters,
+                                    const Surface& sf,
+                                    PropDirection dir,
+                                    BoundaryCheck bcheck,
+                                    const MagneticFieldProperties&,
+                                    ParticleHypothesis,
+                                    bool returnCurv,
+                                    const TrackingVolume* tVol=0) const
        { //avoid warning for tVol
           return propagate(parameters,sf,dir,bcheck,returnCurv);
           if (tVol) return 0;
@@ -93,14 +93,14 @@ namespace Trk {
          The propagation method called by the TrkExtrapolator. The extrapolator
          is responsible for the underlying logic of which surface to go to.
          */
-       virtual const TrackParameters*  propagate( const TrackParameters& parm,
-                                                  const Surface& sf,
-                                                  PropDirection dir,
-                                                  BoundaryCheck bcheck,
-                                                  const MagneticFieldProperties& mprop,
-                                                  ParticleHypothesis particle=pion,
-                                                  bool returnCurv = false,
-                                                  const TrackingVolume* tVol=0) const = 0;
+       virtual TrackParameters*  propagate( const TrackParameters& parm,
+                                             const Surface& sf,
+                                             PropDirection dir,
+                                             BoundaryCheck bcheck,
+                                             const MagneticFieldProperties& mprop,
+                                             ParticleHypothesis particle=pion,
+                                             bool returnCurv = false,
+                                             const TrackingVolume* tVol=0) const = 0;
        
 
        /** Propagation interface:
@@ -108,23 +108,23 @@ namespace Trk {
          The propagation method called by the TrkExtrapolator. The propagator
          finds the closest surface.
          */
-       virtual const TrackParameters* propagate( const TrackParameters& parm,
-                                                 std::vector<DestSurf>& sfs,
-                                                 PropDirection dir,
-                                                 const MagneticFieldProperties& mprop,
-                                                 ParticleHypothesis particle,
-                                                 std::vector<unsigned int>& solutions,
-                                                 double& path,
-                                                 bool usePathLim = false,
-                                                 bool returnCurv = false,
-                                                 const TrackingVolume* tVol=0) const = 0;
+       virtual  TrackParameters* propagate( const TrackParameters& parm,
+                                            std::vector<DestSurf>& sfs,
+                                            PropDirection dir,
+                                            const MagneticFieldProperties& mprop,
+                                            ParticleHypothesis particle,
+                                            std::vector<unsigned int>& solutions,
+                                            double& path,
+                                            bool usePathLim = false,
+                                            bool returnCurv = false,
+                                            const TrackingVolume* tVol=0) const = 0;
        
        /** Propagation interface:
          
          The propagation method called by the TrkExtrapolator. The propagator
          finds the closest surface. Timing included.
          */
-       virtual const TrackParameters* propagateT( const TrackParameters& parm,
+       virtual TrackParameters* propagateT( const TrackParameters& parm,
 						  std::vector<DestSurf>& sfs,
 						  PropDirection dir,
               const MagneticFieldProperties& mprop,
@@ -140,7 +140,7 @@ namespace Trk {
          The propagation method called by the TrkExtrapolator. The propagator
          finds the closest surface. Timing included.
          */
-       virtual const TrackParameters* propagateT( const TrackParameters& parm,
+       virtual TrackParameters* propagateT( const TrackParameters& parm,
 						  TargetSurfaces& sfs,
 						  PropDirection dir,
               const MagneticFieldProperties& mprop,
@@ -163,7 +163,7 @@ namespace Trk {
          The propagation method with internal material collection. The propagator
          finds the closest surface. 
          */
-       virtual const TrackParameters* propagateM( const TrackParameters& parm,
+       virtual  TrackParameters* propagateM( const TrackParameters& parm,
 						  std::vector<DestSurf>& sfs,
 						  PropDirection dir,
               const MagneticFieldProperties& mprop,
@@ -183,40 +183,40 @@ namespace Trk {
          The propagation method including the return of the TransportJacobian matrix.
 
          */
-       virtual const TrackParameters*      propagate( const TrackParameters& parm,
-                                                      const Surface& sf,
-                                                      PropDirection dir,
-                                                      BoundaryCheck bcheck,
-                                                      const MagneticFieldProperties& mprop,
-                                                      TransportJacobian*&,
-                                                      double& pathLength,
-                                                      ParticleHypothesis particle=pion,
-                                                      bool returnCurv = false,
-                                                      const TrackingVolume* tVol=0) const = 0;
+       virtual TrackParameters*      propagate( const TrackParameters& parm,
+                                                const Surface& sf,
+                                                PropDirection dir,
+                                                BoundaryCheck bcheck,
+                                                const MagneticFieldProperties& mprop,
+                                                TransportJacobian*&,
+                                                double& pathLength,
+                                                ParticleHypothesis particle=pion,
+                                                bool returnCurv = false,
+                                                const TrackingVolume* tVol=0) const = 0;
        
 
        /** Propagation interface without Covariance matrix propagation
          the pathlength has to be returned for eventual following propagateCovariance
          */
 
-       virtual const TrackParameters*      propagateParameters( const TrackParameters& parm,
-                                                                const Surface& sf,
-                                                                PropDirection dir,
-                                                                BoundaryCheck bcheck,
-                                                                const MagneticFieldProperties& mprop,
-                                                                ParticleHypothesis particle=pion,
-                                                                bool returnCurv = false,
-                                                                const TrackingVolume* tVol=0) const = 0;
+       virtual TrackParameters*      propagateParameters( const TrackParameters& parm,
+                                                          const Surface& sf,
+                                                          PropDirection dir,
+                                                          BoundaryCheck bcheck,
+                                                          const MagneticFieldProperties& mprop,
+                                                          ParticleHypothesis particle=pion,
+                                                          bool returnCurv = false,
+                                                          const TrackingVolume* tVol=0) const = 0;
        
-       virtual const TrackParameters*      propagateParameters( const TrackParameters& parm,
-                                                                const Surface& sf,
-                                                                PropDirection dir,
-                                                                BoundaryCheck bcheck,
-                                                                const MagneticFieldProperties& mprop,
-                                                                TransportJacobian*&,
-                                                                ParticleHypothesis particle=pion,
-                                                                bool returnCurv = false,
-                                                                const TrackingVolume* tVol=0) const = 0;
+       virtual TrackParameters*      propagateParameters( const TrackParameters& parm,
+                                                          const Surface& sf,
+                                                          PropDirection dir,
+                                                          BoundaryCheck bcheck,
+                                                          const MagneticFieldProperties& mprop,
+                                                          TransportJacobian*&,
+                                                          ParticleHypothesis particle=pion,
+                                                          bool returnCurv = false,
+                                                          const TrackingVolume* tVol=0) const = 0;
        
 
        /** Intersection interface:
@@ -274,7 +274,7 @@ namespace Trk {
 
 } // end of namespace
 
-inline const Trk::TrackParameters* Trk::IPropagator::propagate( const TrackParameters&,
+inline  Trk::TrackParameters* Trk::IPropagator::propagate( const TrackParameters&,
 								std::vector<DestSurf>&,
 								PropDirection ,
 								const MagneticFieldProperties&,
@@ -288,7 +288,7 @@ inline const Trk::TrackParameters* Trk::IPropagator::propagate( const TrackParam
   return 0;
 }
 
-inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters&,
+inline Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters&,
 								 std::vector<DestSurf>&,
 								 PropDirection ,
 								 const MagneticFieldProperties&,
@@ -301,7 +301,7 @@ inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackPara
   return 0;
 }
 
-inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters& ,
+inline  Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters& ,
 								 Trk::TargetSurfaces& ,
 								 PropDirection ,
 								 const MagneticFieldProperties& ,
@@ -320,7 +320,7 @@ inline Trk::ExtrapolationCode Trk::IPropagator::propagate( Trk::ExCellCharged& ,
   return Trk::ExtrapolationCode::FailureConfiguration;
 }         
 
-inline const Trk::TrackParameters* Trk::IPropagator::propagateM( const TrackParameters&,
+inline  Trk::TrackParameters* Trk::IPropagator::propagateM( const TrackParameters&,
 								 std::vector<DestSurf>&,
 								 PropDirection ,
 								 const MagneticFieldProperties&,

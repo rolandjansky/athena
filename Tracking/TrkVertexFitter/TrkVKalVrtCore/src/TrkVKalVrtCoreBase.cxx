@@ -13,19 +13,14 @@
 namespace Trk {
 
   VKalVrtControlBase::VKalVrtControlBase(const baseMagFld* baseFld,   const addrMagHandler addrFld, 
-                                     const basePropagator* baseP, const addrPropagator addrP): 
+                                         const basePropagator* baseP, const addrPropagator addrP,
+                                         const IVKalState* istate): 
        vk_objMagFld(baseFld),
        vk_funcMagFld(addrFld),
        vk_objProp(baseP), 
-       vk_funcProp(addrP){}
-
-  VKalVrtControlBase::~VKalVrtControlBase(){}
-
-  VKalVrtControlBase::VKalVrtControlBase(const VKalVrtControlBase & src ): 
-       vk_objMagFld(src.vk_objMagFld),
-       vk_funcMagFld(src.vk_funcMagFld),
-       vk_objProp(src.vk_objProp), 
-       vk_funcProp(src.vk_funcProp){}
+       vk_funcProp(addrP),
+       vk_istate(istate)
+  {}
 
   VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base): VKalVrtControlBase(base), vk_forcft() { 
     m_fullCovariance=nullptr;
@@ -120,7 +115,7 @@ namespace Trk {
 
   VKVertex::~VKVertex()
   {  
-       for( int i=0; i<(int)includedVrt.size(); i++) includedVrt[i]=0;  // these vertice are not owned, then must not be deleted.
+//       for( int i=0; i<(int)includedVrt.size(); i++) includedVrt[i]=0;  // these vertice are not owned, then must not be deleted.
   }
   void VKVertex::setRefV(double v[3]){ refV[0]=v[0]; refV[1]=v[1]; refV[2]=v[2];}
   void VKVertex::setRefIterV(double v[]){ refIterV[0]=v[0]; refIterV[1]=v[1]; refIterV[2]=v[2];}
@@ -256,13 +251,13 @@ namespace Trk {
     }
     vk_forcft.useMassCnst = 1;
   }
-  void VKalVrtControl::setMassCnstData(int NtrkTot, std::vector<int> & Index, double Mass){
+  void VKalVrtControl::setMassCnstData(int NtrkTot, const std::vector<int> & Index, double Mass){
     double sumM(0.);
     int Ntrk=std::min((int)Index.size(),NtrkTot);
     for(int it=0; it<Ntrk; it++) sumM +=   vk_forcft.wm[Index[it]];                 //sum of particle masses
     if(sumM<Mass) {
       vk_forcft.wmfit[0]=Mass;
-      for(int it=0; it<Ntrk; it++) vk_forcft.indtrkmc[vk_forcft.nmcnst][Index[it]]=1;  //Set participating particles
+      for(int it=0; it<Ntrk; it++) vk_forcft.indtrkmc[vk_forcft.nmcnst][Index[it]-1]=1;  //Set participating particles
       vk_forcft.nmcnst++;
     }
     vk_forcft.useMassCnst = 1;

@@ -33,7 +33,7 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_TOPO_PROC,        [0x81, 0x91, 0x82, 0x92])
 
    # Configure HLT result monitoring histograms
-   m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTResultMTMaker')
+   m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/HLTResultMTMaker')
    m.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result construction in;[micro seccond]',
                                              xbins=100, xmin=0, xmax=1000 ),
                             defineHistogram( 'nstreams', path='EXPERT', type='TH1F', title='number of streams',
@@ -47,26 +47,24 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    return m
 
 def TriggerEDMSerialiserToolCfg(name):
-   # Configuration helper methods
-   def fullResultID(self):
-      return 0
+   from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
 
+   # Configuration helper methods
    def addCollection(self, typeNameAux, moduleIds):
       self.CollectionsToSerialize[typeNameAux] = moduleIds
 
    def addCollectionToMainResult(self, typeNameAux):
-      self.addCollection(typeNameAux,moduleIds=[self.fullResultID()])
+      self.addCollection(typeNameAux,moduleIds=[getFullHLTResultID()])
 
    def addCollectionListToResults(self, typeNameAuxList, moduleIds):
       for typeNameAux in typeNameAuxList:
          self.addCollection(typeNameAux, moduleIds)
 
    def addCollectionListToMainResult(self, typeNameAuxList):
-      self.addCollectionListToResults(typeNameAuxList,moduleIds=[self.fullResultID()])
+      self.addCollectionListToResults(typeNameAuxList,moduleIds=[getFullHLTResultID()])
 
    # Add the helper methods to the TriggerEDMSerialiserTool python class
    from TrigOutputHandlingConf import TriggerEDMSerialiserTool
-   TriggerEDMSerialiserTool.fullResultID = fullResultID
    TriggerEDMSerialiserTool.addCollection = addCollection
    TriggerEDMSerialiserTool.addCollectionToMainResult = addCollectionToMainResult
    TriggerEDMSerialiserTool.addCollectionListToResults = addCollectionListToResults

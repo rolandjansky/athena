@@ -36,7 +36,7 @@ virtual public IGroupsMatcherMT {
      See Algorithms, Sedgewick and Wayne 4th edition */
 
 public:
-  MaximumBipartiteGroupsMatcherMT(const ConditionsMT& cs);
+  MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs);
   ~MaximumBipartiteGroupsMatcherMT(){}
 
   // cannot match if internal problem (eg FlowNetwork error)
@@ -45,13 +45,14 @@ public:
 			    xAODJetCollector&,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 			    bool debug=false) const override;
-  std::string toString() const noexcept override;
-  ConditionsMT getConditions() const noexcept override;
+  std::string toString() const override;
+
 private:
   ConditionsMT m_conditions;
-  bool m_compound;  // true if jet group size >1 
-  std::unique_ptr<IFlowNetworkBuilder> m_flowNetworkBuilder;
   std::size_t m_nConditions{0};
+    
+  std::unique_ptr<IFlowNetworkBuilder> m_flowNetworkBuilder;
+  double m_totalCapacity{0};  // min number of jets to satisfy  all Conditions
 };
 
 #endif

@@ -12,7 +12,6 @@
 // Version 1.0 18/07/2004
 ///////////////////////////////////////////////////////////////////
 
-#include "StoreGate/StoreGateSvc.h"
 #include "MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
@@ -182,7 +181,7 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::finalize()
   return AthAlgTool::finalize(); 
 }
 
-const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTrack( 
+Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTrack( 
                                                                                          const MdtPrepData& mdtPrd,
                                                                                          const Amg::Vector3D& GP, 
                                                                                          const Amg::Vector3D* GD,
@@ -482,7 +481,7 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
   return CalibrationOutput( Trk::LocalParameters(radiusPar), newLocalCov, driftTime, ok );
 }
 
-const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
+Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
                                                                                const Trk::PrepRawData& prd, 
                                                                                const Trk::TrackParameters& tp,
                                                                                const MuonDriftCircleErrorStrategy* strategy ) const
@@ -497,7 +496,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
 }
 
 
-const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
+Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
                                                                                const Trk::PrepRawData& prd,
                                                                                const Trk::TrackParameters& tp ) const
 {
@@ -545,7 +544,7 @@ double Muon::MdtDriftCircleOnTrackCreator::getErrorFromRt(const Muon::MdtDriftCi
   return rtRelation->rtRes()->resolution( t );
 }
 
-const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError( 
+Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError( 
                                                                                    const Muon::MdtDriftCircleOnTrack& DCT,
                                                                                    const Trk::TrackParameters* /**pars*/,
                                                                                    const MuonDriftCircleErrorStrategy* strategy ) const 
@@ -611,7 +610,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErr
   return rot; 
 }
 
-const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExternal( const MdtDriftCircleOnTrack& DCT,
+Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExternal( const MdtDriftCircleOnTrack& DCT,
                                                                                             const Trk::TrackParameters* /**pars*/ ,
                                                                                             const std::map<Identifier,double>* errorlist ) const
 {

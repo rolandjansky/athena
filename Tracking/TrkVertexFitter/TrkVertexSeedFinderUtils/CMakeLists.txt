@@ -94,10 +94,30 @@ atlas_add_test( GaussianTrackDensity_test
                 EventPrimitives
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
                 TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+# Needed to avoid spurious ubsan warnings.
+set_target_properties( TrkVertexSeedFinderUtils_GaussianTrackDensity_test PROPERTIES ENABLE_EXPORTS True )
 
 
 atlas_add_test( SimpleVertexClusterFinder_test
                 SOURCES test/SimpleVertexClusterFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+
+
+atlas_add_test( Mode3dFromFsmw1dFinder_test
+                SOURCES test/Mode3dFromFsmw1dFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+# Needed to avoid spurious ubsan warnings.
+set_target_properties( TrkVertexSeedFinderUtils_Mode3dFromFsmw1dFinder_test PROPERTIES ENABLE_EXPORTS True )
+
+
+atlas_add_test( Mode3dTo1dFinder_test
+                SOURCES test/Mode3dTo1dFinder_test.cxx
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
                 EventPrimitives
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives

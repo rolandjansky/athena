@@ -41,7 +41,7 @@ from PyJobTransforms.trfUtils import bind_port
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
-
+from PyJobTransforms.trfMTTools import detectAthenaMTThreads
 
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfValidation as trfValidation
@@ -170,6 +170,7 @@ class transformExecutor(object):
         self._memStats = {}
         self._eventCount = None
         self._athenaMP = None
+        self._athenaMT = None
         self._dbMonitor = None
         
         # Holder for execution information about any merges done by this executor in MP mode
@@ -554,6 +555,30 @@ class echoExecutor(transformExecutor):
         msg.debug('exeStop time is {0}'.format(self._exeStop))
 
 
+class dummyExecutor(transformExecutor):
+    def __init__(self, name = 'Dummy', trf = None, conf = None, inData = set(), outData = set()):
+
+        # We are only changing the default name here
+        super(dummyExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData)
+
+
+    def execute(self):
+        self._exeStart = os.times()
+        msg.debug('exeStart time is {0}'.format(self._exeStart))
+        msg.info('Starting execution of %s' % self._name)
+        for type in self._outData:
+            for k, v in iteritems(self.conf.argdict):
+                if type in k:
+                    msg.info('Creating dummy output file: {0}'.format(self.conf.argdict[k].value[0]))
+                    open(self.conf.argdict[k].value[0], 'a').close()
+        self._hasExecuted = True
+        self._rc = 0
+        self._errMsg = ''
+        msg.info('%s executor returns %d' % (self._name, self._rc))
+        self._exeStop = os.times()
+        msg.debug('exeStop time is {0}'.format(self._exeStop))
+
+
 class scriptExecutor(transformExecutor):
     def __init__(self, name = 'Script', trf = None, conf = None, inData = set(), outData = set(), 
                  exe = None, exeArgs = None, memMonitor = True):
@@ -791,8 +816,7 @@ class athenaExecutor(scriptExecutor):
     #  executor to the workflow graph, run the executor manually with these data parameters (useful for 
     #  post-facto executors, e.g., for AthenaMP merging)
     #  @param memMonitor Enable subprocess memory monitoring
-    #  @param disableMP Ensure that AthenaMP is not used (i.e., also unset 
-    #  @c ATHENA_PROC_NUMBER before execution)
+    #  @param disableMP Ensure that AthenaMP is not used
     #  @note The difference between @c extraRunargs, @c runtimeRunargs and @c literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
@@ -903,12 +927,34 @@ class athenaExecutor(scriptExecutor):
             msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
             expectedEvents = 0
         
+        # Check the consistency of parallel configuration: CLI flags + evnironment
+        # 1. Both --multithreaded and --multiprocess flags have been set
+        if ('multithreaded' in self.conf._argdict and
+            'multiprocess' in self.conf._argdict):
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
+                                                            'both --multithreaded and --multiprocess command line options provided. Please use only one of them')
+
+        # 2. One of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
+        if (('multithreaded' in self.conf._argdict or 'multiprocess' in self.conf._argdict) and
+            (not 'ATHENA_CORE_NUMBER' in os.environ)):
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
+                                                            'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
+
+        # Try to detect AthenaMT mode and number of threads
+        self._athenaMT = detectAthenaMTThreads(self.conf.argdict)
+
         # Try to detect AthenaMP mode and number of workers
+        self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
+
+        # Another constistency check: make sure we don't have a configuration like follows:
+        # ... --multithreaded --athenaopts=--nprocs=N
+        if (self._athenaMT != 0 and self._athenaMP != 0):
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
+                                                            'transform configured to run Athena in both MT and MP modes. Only one parallel mode at a time must be used')
+
         if self._disableMP:
             self._athenaMP = 0
         else:
-            self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
-
             # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
             # which also avoids issues with zero sized files
             if expectedEvents < self._athenaMP:
@@ -1197,6 +1243,8 @@ class athenaExecutor(scriptExecutor):
             elif currentSubstep in self.conf.argdict['athenaopts'].value:
                 self._cmd.extend(self.conf.argdict['athenaopts'].value[currentSubstep])
         
+        if currentSubstep is None:
+            currentSubstep = 'all'
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
             if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
@@ -1204,8 +1252,6 @@ class athenaExecutor(scriptExecutor):
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
                 # Note for athena options we split on '=' so that we properly get the option and not the whole "--option=value" string
-                if currentSubstep is None:
-                    currentSubstep = 'all'
                 if currentSubstep in self.conf.argdict['athenaopts'].value:
                     conflictOpts = set(athenaConfigRelatedOpts).intersection(set([opt.split('=')[0] for opt in self.conf.argdict['athenaopts'].value[currentSubstep]]))
                     if len(conflictOpts) > 0:
@@ -1223,6 +1269,18 @@ class athenaExecutor(scriptExecutor):
         else:
             msg.info('Skipping test for "--drop-and-reload" in this executor')
             
+        # For AthenaMT apply --threads=N if threads have been configured via ATHENA_CORE_NUMBER + multithreaded
+        if self._athenaMT != 0 :
+            if not ('athenaopts' in self.conf.argdict and
+                any('--threads' in opt for opt in self.conf.argdict['athenaopts'].value[currentSubstep])):
+                self._cmd.append('--threads=%s' % str(self._athenaMT))
+
+        # For AthenaMP apply --threads=N if threads have been configured via ATHENA_CORE_NUMBER + multiprocess
+        if (self._athenaMP !=0 and not self._disableMP):
+            if not ('athenaopts' in self.conf.argdict and
+                any('--nprocs' in opt for opt in self.conf.argdict['athenaopts'].value[currentSubstep])):
+                self._cmd.append('--nprocs=%s' % str(self._athenaMP))
+
         # Add topoptions
         if self._skeleton is not None:
             self._cmd += self._topOptionsFiles
@@ -1273,7 +1331,6 @@ class athenaExecutor(scriptExecutor):
                     print('DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot), file=wrapper)
                 if self._disableMP:
                     print("# AthenaMP explicitly disabled for this executor", file=wrapper)
-                    print("export ATHENA_PROC_NUMBER=0", file=wrapper)
                 if self._envUpdate.len > 0:
                     print("# Customised environment", file=wrapper)
                     for envSetting in  self._envUpdate.values:

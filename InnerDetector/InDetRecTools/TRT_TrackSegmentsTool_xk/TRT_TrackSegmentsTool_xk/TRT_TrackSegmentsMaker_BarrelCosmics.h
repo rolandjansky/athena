@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 

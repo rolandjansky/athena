@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTAU_VERSIONS_TAUTRACK_V1_H
@@ -110,12 +110,6 @@ namespace xAOD {
   }; // class TauTrack
 
 } // namespace xAOD
-
-// Set up a CLID for the class:
-// #ifndef XAOD_STANDALONE
-// #include "SGTools/CLASS_DEF.h"
-// CLASS_DEF( xAOD::TauTrack_v1 , 67662955 , 1 )
-// #endif // not XAOD_STANDALONE
 
 // Declare IParticle as a base class of TauTrack_v1:
 #include "AthContainers/DataVector.h"

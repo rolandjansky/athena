@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthViews
                           Control/AthenaBaseComps
-                          Control/CxxUtils
                           Control/AthenaMonitoring
                           Event/xAOD/xAODTrigger
                           Trigger/TrigConfiguration/TrigConfHLTData
@@ -34,7 +33,7 @@ atlas_add_library( L1DecoderLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PUBLIC_HEADERS L1Decoder
                    LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps AthenaMonitoringLib 
-                   CxxUtils xAODTrigger TrigConfHLTData TrigConfL1Data
+                   xAODTrigger TrigConfHLTData TrigConfL1Data
                    TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES}
                    )
@@ -45,7 +44,9 @@ atlas_add_component( L1Decoder
                      LINK_LIBRARIES L1DecoderLib ${CLHEP_LIBRARIES}
                      )
 
-atlas_install_python_modules( python/*.py)
+atlas_install_python_modules( python/*.py
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
 # Install files from the package:
 atlas_install_headers( L1Decoder )
 atlas_install_joboptions( share/*.py )

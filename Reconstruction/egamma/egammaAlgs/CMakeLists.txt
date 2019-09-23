@@ -43,10 +43,15 @@ atlas_add_component( egammaAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS 
 		     LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel 
-		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel  StoreGateLib xAODTracking InDetReadoutGeometry
-		     EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils  TrkToolInterfaces InDetRecToolInterfaces 
-		     FourMomUtils RecoToolInterfaces TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib TrkCaloExtension)            
+		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib CaloRecLib AthenaKernel  StoreGateLib 
+		     xAODTracking InDetReadoutGeometry EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils
+		     TrkToolInterfaces InDetRecToolInterfaces FourMomUtils RecoToolInterfaces TrkTrack 
+		     TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib TrkCaloExtension)
 	     
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 
+# Check python syntax on Config files
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*Config.py
+                POST_EXEC_SCRIPT nopost.sh )

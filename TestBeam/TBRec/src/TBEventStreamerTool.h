@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBEVENTSTREAMERTOOL_H
@@ -8,8 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
-
-class StoreGateSvc;
 
 static const InterfaceID IID_TBEventStreamerTool("TBEventStreamerTool", 1 , 0);
 

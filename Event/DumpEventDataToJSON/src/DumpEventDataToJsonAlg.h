@@ -10,14 +10,14 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 #include <map>
-
-class StoreGateSvc;
 
 /** Algorithm to dump some Event data to JSON. 
 */
@@ -43,6 +43,9 @@ class DumpEventDataToJsonAlg : public AthAlgorithm
    template <class TYPE> 
    nlohmann::json getData( const TYPE& object);
    
+   template <class TYPE> 
+   void addLink( const TYPE& link, nlohmann::json& data);
+   
    SG::ReadHandleKey<xAOD::EventInfo>                     m_eventInfoKey
    { this, "EventInfoKey", "EventInfo", "Key for the Event Info" };
    
@@ -51,6 +54,12 @@ class DumpEventDataToJsonAlg : public AthAlgorithm
    
    SG::ReadHandleKeyArray<xAOD::JetContainer>             m_jetKeys
    { this, "JetContainerKeys", {"AntiKt4EMTopoJets"}, "Keys for Jet Containers" };
+
+   SG::ReadHandleKeyArray<xAOD::MuonContainer>             m_muonKeys
+   { this, "MuonContainerKeys", {"Muons"}, "Keys for Muon Containers" };
+   
+   SG::ReadHandleKeyArray<xAOD::CaloClusterContainer>      m_caloClustersKeys
+   { this, "CaloClusterContainerKeys", {"CaloCalTopoClusters"}, "Keys for CaloClusters Containers" };
    
    std::string                                            m_outputJSON_Name   {"EventData.json"};
    nlohmann::json                                         m_eventData; 

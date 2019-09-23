@@ -384,7 +384,7 @@ if InDetFlags.doStandardPlots():
                                                                        DoTruth            = InDetFlags.doTruth())
       if InDetFlags.doSplitReco() :
         InDetStandardPerformancePseudoTracks.TruthParticleContainerName = "TruthEvent_PU"
-      ToolSvc += InDetStandardPerformancePseudoTracks
+      
       if (InDetFlags.doPrintConfigurables()):
         print    InDetStandardPerformancePseudoTracks
       InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformancePseudoTracks ]
@@ -403,7 +403,6 @@ if InDetFlags.doStandardPlots():
                                                                doUpgrade           = InDetFlags.doSLHC(),
                                                                DoTruth             = InDetFlags.doTruth())
     
-      ToolSvc += InDetStandardPerformanceGood
       if (InDetFlags.doPrintConfigurables()):
         print    InDetStandardPerformanceGood
     
@@ -422,7 +421,6 @@ if InDetFlags.doStandardPlots():
                                                                doUpgrade          = InDetFlags.doSLHC(),
                                                                DoTruth            = InDetFlags.doTruth())
     
-      ToolSvc += InDetStandardPerformanceBtag
       if (InDetFlags.doPrintConfigurables()):
         print    InDetStandardPerformanceBtag
     
@@ -441,7 +439,6 @@ if InDetFlags.doStandardPlots():
                                                                       TruthToTrackTool   = TruthToTrackTool,
                                                                       DoTruth            = InDetFlags.doTruth())
     
-      ToolSvc += InDetStandardPerformanceGoodIPatRec
       if (InDetFlags.doPrintConfigurables()):
         print    InDetStandardPerformanceGoodIPatRec
     

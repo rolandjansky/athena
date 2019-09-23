@@ -167,7 +167,6 @@ class AugmentedPoolStream( AugmentedStreamBase ):
         #event-by-event stream
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
         self.Stream = AthenaPoolOutputStream( StreamName, FileName, asAlg, noTag=noTag )
-        self.Stream.ForceRead=True;  #force read of output data objs
         if isVirtual == True:
             self.Stream.WriteOnExecute=False
             self.Stream.WriteOnFinalize=False

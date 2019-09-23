@@ -66,7 +66,7 @@ StatusCode IntersectorWrapper::finalize()
   return StatusCode::SUCCESS;
 }
 
-const NeutralParameters*
+NeutralParameters*
 IntersectorWrapper::propagate (const NeutralParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
@@ -76,7 +76,7 @@ IntersectorWrapper::propagate (const NeutralParameters&		parameters,
   return m_linePropagator->propagate(parameters,surface,dir,boundsCheck,curvilinear);
 }
 
-const TrackParameters*
+TrackParameters*
 IntersectorWrapper::propagate (const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
@@ -92,7 +92,7 @@ IntersectorWrapper::propagate (const TrackParameters&		parameters,
   return cache.m_parameters;
 }
 
-const TrackParameters*
+TrackParameters*
 IntersectorWrapper::propagate (const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
@@ -110,7 +110,7 @@ IntersectorWrapper::propagate (const TrackParameters&		parameters,
   return cache.m_parameters;
 }
 
-const TrackParameters*
+TrackParameters*
 IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
@@ -127,7 +127,7 @@ IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
   return cache.m_parameters;
 }
 
-const TrackParameters*
+TrackParameters*
 IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
@@ -209,7 +209,7 @@ IntersectorWrapper::findIntersection (Cache& cache,
 {
   cache.m_charge	=  parameters.charge();
   cache.m_momentum	=  parameters.momentum();
-  cache.m_parameters=&parameters;
+  cache.m_parameters= nullptr;
   cache.m_position	=  Amg::Vector3D(parameters.position());
   cache.m_qOverP	=  1./cache.m_momentum.mag();
   cache.m_intersection.reset(new TrackSurfaceIntersection(cache.m_position,cache.m_momentum*cache.m_qOverP,0.));

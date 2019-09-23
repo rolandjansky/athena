@@ -146,11 +146,9 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
     ANA_CHECK( event->retrieve(uncalibJets, jetType+"Jets"));//this retrieves and applies the correction
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > calibJetsPair = xAOD::shallowCopyContainer( *uncalibJets );//make a shallow copy to calibrate
     xAOD::JetContainer *& calibJets = calibJetsPair.first;//create a reference to the first element of the pair (i.e. the JetContainer)
-    for ( const auto& jet : *calibJets ) {
-      //Shallow copy is needed (see links below)
-      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
-	return 1;
-    }
+    //Shallow copy is needed (see links below)
+    if(jetCalibrationTool->applyCalibration(*calibJets).isFailure())//apply the calibration
+      return 1;
     if(!xAOD::setOriginalObjectLink(*uncalibJets, *calibJets)){//tell calib container what old container it matches
       std::cout << "Failed to set the original object links" << std::endl;
       return 1;

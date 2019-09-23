@@ -19,7 +19,6 @@
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "TH2S.h"
 #include "TProfile2D.h"
 #include "TrkParameters/TrackParameters.h"
@@ -32,11 +31,9 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
@@ -48,12 +45,10 @@
 
 PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent) :
     ManagedMonitorToolBase(type, name, parent),
-    m_ErrorSvc("PixelByteStreamErrorsSvc", name),
     m_pixelCableSvc("PixelCablingSvc", name),
     m_IBLParameterSvc("IBLParameterSvc", name),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-    m_lumiTool("LuminosityTool"),
     m_moduleTemperature(new dcsDataHolder()),
     m_coolingPipeTemperatureInlet(new dcsDataHolder()),
     m_coolingPipeTemperatureOutlet(new dcsDataHolder()),
@@ -65,11 +60,9 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_FSM_status(new dcsDataHolder()),
     m_moduleDCSDataHolder(new moduleDcsDataHolder()) {
   // all job options flags go here
-  declareProperty("PixelByteStreamErrorsSvc", m_ErrorSvc);
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool);
-  declareProperty("LuminosityTool", m_lumiTool);
 
   declareProperty("RDOName", m_Pixel_RDOName = "PixelRDOs");  // storegate container names
   declareProperty("RODErrorName", m_detector_error_name = "pixel_error_summary");
@@ -404,12 +397,7 @@ StatusCode PixelMainMon::initialize() {
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_pixelCableSvc << endmsg;
   }
 
-  if (m_ErrorSvc.retrieve().isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_ErrorSvc << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_ErrorSvc << endmsg;
-  }
+  ATH_CHECK(m_ErrorSvc.retrieve());
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endmsg;
@@ -444,13 +432,6 @@ StatusCode PixelMainMon::initialize() {
     m_trackSelTool.disable();
   }
 
-  if (m_lumiTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endmsg;
-  }
-  
   if (!m_doDCS) return StatusCode::SUCCESS;
 
   m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE"));
@@ -772,12 +753,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // track
   if (m_doTrack) {
-    if (evtStore()->contains<TrackCollection>(m_TracksName.key())) {
-      if (fillTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(4., 2.);
+    if (fillTrackMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
@@ -785,14 +762,10 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // hits
   if (m_doRDO) {
-    if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName.key())) {
-      if (fillHitsMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) {
-          msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-        }
+    if (fillHitsMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) {
+        msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(1., 2.);
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(1., 1.);
@@ -810,12 +783,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // cluster
   if (m_doCluster) {
-    if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName.key())) {
-      if (fillClustersMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(3., 2.);
+    if (fillClustersMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(3., 1.);
@@ -823,12 +792,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // space point
   if (m_doSpacePoint) {
-    if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName.key())) {
-      if (fillSpacePointMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(2., 2.);
+    if (fillSpacePointMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(2., 1.);

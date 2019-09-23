@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -33,14 +33,13 @@ do {                                         \
 } while( 0 )
 	
 xAODTrackParticleAuxContainerCnv_v3::xAODTrackParticleAuxContainerCnv_v3()
-    : T_AthenaPoolTPCnvBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v3 >() 
 {
 }
 	
 void xAODTrackParticleAuxContainerCnv_v3::
 persToTrans(  const xAOD::TrackParticleAuxContainer_v3* oldObj, 
               xAOD::TrackParticleAuxContainer* newObj,
-              MsgStream& log ) {
+              MsgStream& log ) const {
 	
   // Greet the user:
   ATH_MSG( "Converting xAOD::TrackParticleAuxContainer_v3 to current version..." );
@@ -98,7 +97,7 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v3* oldObj,
 ///
 void xAODTrackParticleAuxContainerCnv_v3::transToPers( const xAOD::TrackParticleAuxContainer*,
                                                        xAOD::TrackParticleAuxContainer_v3*,
-                                                       MsgStream& log ) {
+                                                       MsgStream& log ) const {
 	
   log << MSG::ERROR
       << "Somebody called xAODTrackParticleAuxContainerCnv_v3::transToPers"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /tmp/svngaudi/tmp.jEpFh25751/Gaudi/GaudiSvc/src/AthMessageSvc/AthMessageSvc.h,v 1.15 2008/10/21 16:25:55 marcocle Exp $
@@ -19,7 +19,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/ILoggedMessageSvc.h"
 

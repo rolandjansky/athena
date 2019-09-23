@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigDecisionTool.h 775686 2016-09-28 16:26:51Z lheinric $
@@ -135,7 +135,7 @@ namespace Trig {
     /// @{
     Gaudi::Property<std::string> m_navigationFormat{this, "NavigationFormat", "TriggerElement", "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
 
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTSummary", "HLT summary container Key"};
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTNav_Summary", "HLT summary container Key"};
     /// @}
 
     TrigDecisionTool& operator= (const TrigDecisionTool&);

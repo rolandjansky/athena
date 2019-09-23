@@ -20,6 +20,5 @@ atlas_add_component( AthExMonitored
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaMonitoringLib)
 
 # Install files from the package:
-atlas_install_headers( AthExMonitored )
 atlas_install_joboptions( share/*.py )
 

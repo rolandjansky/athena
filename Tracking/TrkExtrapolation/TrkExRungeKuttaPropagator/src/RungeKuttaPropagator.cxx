@@ -80,7 +80,7 @@ Trk::RungeKuttaPropagator::~RungeKuttaPropagator(){}
 // Main function for NeutralParameters propagation 
 /////////////////////////////////////////////////////////////////////////////////
       
-const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagate
+Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagate
 (const Trk::NeutralParameters        & Tp,
  const Trk::Surface                  & Su,
  Trk::PropDirection                    D ,
@@ -97,7 +97,7 @@ const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagate
 // without transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
+Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 (const Trk::TrackParameters  & Tp,
  const Trk::Surface          & Su,
  Trk::PropDirection             D,
@@ -118,7 +118,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 // with transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
+Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 (const Trk::TrackParameters   & Tp ,
  const Trk::Surface&            Su ,
  Trk::PropDirection             D  ,
@@ -133,7 +133,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   double J[25];
   Cache cache{};
   pathLength < 0. ?  cache.m_maxPath = 10000. : cache.m_maxPath = pathLength; 
-  const Trk::TrackParameters* Tpn = propagateRungeKutta(cache,true,Tp,Su,D,B,M,J,returnCurv);
+  Trk::TrackParameters* Tpn = propagateRungeKutta(cache,true,Tp,Su,D,B,M,J,returnCurv);
   pathLength = cache.m_step;  
   
   if(Tpn) { 
@@ -148,7 +148,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 // Main function to finds the closest surface
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
+Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 (const TrackParameters        & Tp  ,
  std::vector<DestSurf>        & DS  ,
  PropDirection                  D   ,
@@ -213,7 +213,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   double                 Sl   = Smax ;
   double                 St   = Smax ;  
   bool                   InS  = false;
-  const TrackParameters* To   = 0    ;
+  TrackParameters* To         = 0    ;
 
   for(int i=0; i!=45; ++i) Pn[i]=Po[i];
   
@@ -291,7 +291,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 // without transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
+Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 (const Trk::TrackParameters  & Tp,
  const Trk::Surface          & Su, 
  Trk::PropDirection             D,
@@ -312,7 +312,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 // with transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
+Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 (const Trk::TrackParameters    & Tp ,
  const Trk::Surface            & Su , 
  Trk::PropDirection              D  ,
@@ -326,7 +326,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
   double J[25];
   Cache cache{};
   cache.m_maxPath = 10000.;
-  const Trk::TrackParameters* Tpn = propagateRungeKutta   (cache,true,Tp,Su,D,B,M,J,returnCurv);
+  Trk::TrackParameters* Tpn = propagateRungeKutta   (cache,true,Tp,Su,D,B,M,J,returnCurv);
   
   if(Tpn) {
     J[24]=J[20]; J[23]=0.; J[22]=0.; J[21]=0.; J[20]=0.;
@@ -339,8 +339,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 /////////////////////////////////////////////////////////////////////////////////
 // Main function for neutral track parameters propagation with or without jacobian
 /////////////////////////////////////////////////////////////////////////////////
-
-const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
+Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 (Cache&                         cache ,
  bool                           useJac,
  const Trk::NeutralParameters & Tp    ,
@@ -466,7 +465,7 @@ const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 // Main function for charged track parameters propagation with or without jacobian
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
+Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 (Cache&                         cache ,
  bool                           useJac,
  const Trk::TrackParameters   & Tp    ,
@@ -1524,7 +1523,7 @@ bool Trk::RungeKuttaPropagator::newCrossPoint
 // Build new track parameters without propagation
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::buildTrackParametersWithoutPropagation
+Trk::TrackParameters* Trk::RungeKuttaPropagator::buildTrackParametersWithoutPropagation
 (const Trk::TrackParameters& Tp,double* Jac) const
 {
   Jac[0]=Jac[6]=Jac[12]=Jac[18]=Jac[20]=1.;
@@ -1536,7 +1535,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::buildTrackParametersWitho
 // Build new neutral track parameters without propagation
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::NeutralParameters* Trk::RungeKuttaPropagator::buildTrackParametersWithoutPropagation
+Trk::NeutralParameters* Trk::RungeKuttaPropagator::buildTrackParametersWithoutPropagation
 (const Trk::NeutralParameters& Tp,double* Jac) const
 {
   Jac[0]=Jac[6]=Jac[12]=Jac[18]=Jac[20]=1.;
@@ -1758,7 +1757,7 @@ void Trk::RungeKuttaPropagator::globalTwoSidePositions
 // Track parameters in cross point preparation
 /////////////////////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
+Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
 (const TrackParameters    & Tp,
  std::vector<DestSurf>    & SU,
  std::vector<unsigned int>& So,

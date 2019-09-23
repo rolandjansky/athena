@@ -52,6 +52,7 @@ public:
 
   typedef std::set<CBNode*, CBNode::nodeOrder> nodeSet;
 
+  CBNode() = delete;
   CBNode(std::string name, CBNode* parent);
   CBNode(const SG::DataProxy* proxy, const std::string& name, CBNode* parent);
   CBNode(BFCN* fcn, const CallBackID& cb, CBNode* parent);

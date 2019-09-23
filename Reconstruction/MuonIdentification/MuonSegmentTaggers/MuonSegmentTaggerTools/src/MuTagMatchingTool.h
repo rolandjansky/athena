@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuTagMatchingTool_H
@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include <string>
 #include "TrkParameters/TrackParameters.h" 
 #include "TrkGeometry/TrackingGeometry.h"
@@ -19,12 +20,10 @@
 //#include "TrkParameters/Perigee.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class StoreGateSvc;
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 
   /**
      @class MuTagMatchingTool
@@ -34,9 +33,7 @@ class TgcIdHelper;
   */
 
 namespace Muon {
-  class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
 }
 
 namespace MuonGM {
@@ -140,8 +137,11 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
 
    ToolHandle<Trk::IExtrapolator> p_IExtrapolator ;//!< Pointer on IExtrapolator
    ToolHandle<Trk::IPropagator> p_propagator ;//!< Pointer on propagator for SL propagation
-   ToolHandle<Muon::MuonIdHelperTool>             m_idHelper;
-   ToolHandle<Muon::MuonEDMHelperTool>            m_helper;
+   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+   ServiceHandle<Muon::IMuonEDMHelperSvc>         m_edmHelperSvc {this, "edmHelper", 
+     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+     "Handle to the service providing the IMuonEDMHelperSvc interface" };
    ToolHandle<Muon::MuonEDMPrinterTool>           m_printer;
    ToolHandle<Muon::IMuonSegmentHitSummaryTool>   m_hitSummaryTool;
    ToolHandle<Muon::IMuonSegmentSelectionTool>    m_selectionTool;
@@ -151,10 +151,6 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
    StoreGateSvc* p_StoreGateSvc ; //!< Pointer On StoreGateSvc
    
    const MuonGM::MuonDetectorManager* m_detMgr;
-   const MdtIdHelper*  m_mdtIdHelper;
-   const CscIdHelper*  m_cscIdHelper;
-   const RpcIdHelper*  m_rpcIdHelper;
-   const TgcIdHelper*  m_tgcIdHelper;
 
    bool m_assumeLocalErrors;
    bool m_extrapolatePerigee;

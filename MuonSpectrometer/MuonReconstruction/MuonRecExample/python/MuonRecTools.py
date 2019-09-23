@@ -7,6 +7,7 @@ from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
 from AthenaCommon.Constants import *
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -235,15 +236,14 @@ def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
     kwargs.setdefault("STEP_Propagator","Trk::STEP_Propagator/MuonStraightLinePropagator")
     return MuonExtrapolator(name,**kwargs)
 
-def MuonEDMHelperTool(name='MuonEDMHelperTool',**kwargs):
+def MuonEDMHelperSvc(name='MuonEDMHelperSvc',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
     getPublicTool("MuonIdHelperTool")
-    getPublicTool("MuonExtrapolator")
     getPublicTool("AtlasExtrapolator")
 
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperTool
-    return Muon__MuonEDMHelperTool(name,**kwargs)
-# end of factory function MuonEDMHelperTool
+    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    return Muon__MuonEDMHelperSvc(name,**kwargs)
+# end of factory function MuonEDMHelperSvc
 
 from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMPrinterTool
 class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
@@ -253,7 +253,7 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
         self.applyUserDefaults(kwargs,name)
         super(MuonEDMPrinterTool,self).__init__(name,**kwargs)
         getPublicTool("MuonIdHelperTool")
-        getPublicTool("MuonEDMHelperTool")
+        getService("MuonEDMHelperSvc")
 # end of class MuonEDMPrinterTool
 
 
@@ -394,6 +394,10 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     #kwargs.setdefault("CurvedErrorScaling", False)
     kwargs.setdefault("UsePreciseError", True)
     kwargs.setdefault("SinAngleCut", 0.4)
+
+    #MDT conditions information not available online
+    if(athenaCommonFlags.isOnline):
+        kwargs.setdefault("MdtCondKey","")
 
     # MuonCompetingClustersCreator apparently just takes default
     kwargs.setdefault("MuonClusterCreator", getPrivateTool("MuonClusterOnTrackCreator") )

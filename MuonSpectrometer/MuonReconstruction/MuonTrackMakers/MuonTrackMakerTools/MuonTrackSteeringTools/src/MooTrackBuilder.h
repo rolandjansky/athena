@@ -6,6 +6,7 @@
 #define MUON_MOOTRACKBUILDER_H
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
@@ -21,6 +22,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkSegment/SegmentCollection.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include <vector>
 
 class MsgStream;
@@ -43,7 +45,6 @@ namespace Muon {
   class MuPatCandidateTool;
   class IMuonTrackToSegmentTool;
   class IMuonSeededSegmentFinder;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
   class MuPatCandidateBase;
@@ -257,7 +258,9 @@ namespace Muon {
     ToolHandle<MuPatCandidateTool>       m_candidateHandler; //!< candidate handler
     ToolHandle<MooCandidateMatchingTool> m_candidateMatchingTool;
     ToolHandle<IMuonTrackToSegmentTool>  m_trackToSegmentTool;
-    ToolHandle<MuonEDMHelperTool>        m_helper;
+    ServiceHandle<IMuonEDMHelperSvc>     m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool>       m_printer;
     ToolHandle<MuonIdHelperTool>         m_idHelper;
     ToolHandle<IMuonSeededSegmentFinder> m_seededSegmentFinder;

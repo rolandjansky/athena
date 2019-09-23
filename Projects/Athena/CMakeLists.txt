@@ -26,9 +26,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "03-03-00" CACHE STRING
+    set( TDAQ-COMMON_VERSION "03-04-01" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "08-02-01" CACHE STRING
+    set( TDAQ_VERSION "08-03-01" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -42,6 +42,13 @@ set( TDAQ_ATROOT
 mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
+# Configure flake8:
+set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+   CACHE STRING "Default flake8 command" )
+
+set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
@@ -53,6 +60,7 @@ find_package( Gaudi REQUIRED )
 find_package( Doxygen )
 find_package( PNG )
 find_package( VDT )
+find_package( TIFF )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
@@ -116,9 +124,13 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
 string( REPLACE "${TDAQ_VERSION}" "\${TDAQ_VERSION}"
    TDAQ_ATROOT "${TDAQ_ATROOT}" )
 
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Package up the release using CPack:

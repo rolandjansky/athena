@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBDMCONTAINERSPLITTER_H
@@ -12,7 +12,6 @@
 //
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
 class CaloDmDescrManager;
 
 class TBDMContainerSplitter: public AthAlgorithm {

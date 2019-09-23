@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools)
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost COMPONENTS filesystem system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS MathCore Core Tree Hist RIO pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
@@ -83,5 +83,5 @@ endforeach()
 
 # Code quality check
 atlas_add_test( flake8
-   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
    POST_EXEC_SCRIPT nopost.sh )

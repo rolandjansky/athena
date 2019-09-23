@@ -30,7 +30,8 @@ topSequence = AlgSequence()
 l1Decoder, HLTChains = generateL1DecoderAndChains()
 topSequence += l1Decoder
 ##### Make all HLT #######
-makeHLTTree(HLTChains)
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
    
 print "EmuStepProcessing: dump top Sequence after CF/DF Tree build"
 from AthenaCommon.AlgSequence import dumpMasterSequence, dumpSequence

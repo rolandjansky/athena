@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOLINC_H
-#define TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOLINC_H 1
+#ifndef TRIGEGAMMAHYPO_PRECISIONCALOHYPOTOOLINC_H
+#define TRIGEGAMMAHYPO_PRECISIONCALOHYPOTOOLINC_H 1
 
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -48,4 +48,4 @@ class TrigEgammaPrecisionCaloHypoToolInc : public extends<AthAlgTool, ITrigEgamm
   int findCutIndex( float eta ) const;
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_PRECISIONCALOHYPOTOOL_H

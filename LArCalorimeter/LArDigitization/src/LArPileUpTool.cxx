@@ -23,9 +23,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArSimEvent/LArHitFloat.h"
-#include "LArSimEvent/LArHitFloatContainer.h"
 #include "LArSimEvent/LArHit.h"
-#include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "EventInfoUtils/EventIDFromStore.h"
@@ -132,20 +130,24 @@ StatusCode LArPileUpTool::initialize()
     ATH_MSG_INFO(" no Cross-Talk simulated");
   }
 
+  if (m_onlyUseContainerName) {
+    if (m_useLArHitFloat) {
+      for (const auto& RHkey : m_hitFloatContainerKeys.keys()) {
+        m_hitContainerNames.push_back(RHkey->key());
+      }
+    }
+    else {
+      for (const auto& RHkey : m_hitContainerKeys.keys()) {
+        m_hitContainerNames.push_back(RHkey->key());
+      }
+    }
+  }
+  ATH_MSG_DEBUG("Input objects in these containers : '" << m_hitContainerNames << "'");
 
-  //No idea why those are vectors ... 
-  m_HitContainer.insert(m_HitContainer.end(), m_EmBarrelHitContainerName.begin(), m_EmBarrelHitContainerName.end());
-  m_CaloType.push_back(LArHitEMap::EMBARREL_INDEX);
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitContainerKeys.initialize(!m_onlyUseContainerName && !m_hitContainerKeys.empty() ));
+  ATH_CHECK(m_hitFloatContainerKeys.initialize(!m_onlyUseContainerName && !m_hitFloatContainerKeys.empty() ));
 
-  m_HitContainer.insert(m_HitContainer.end(),m_EmEndCapHitContainerName.begin(), m_EmEndCapHitContainerName.end());
-  m_CaloType.push_back(LArHitEMap::EMENDCAP_INDEX);
-
-  m_HitContainer.insert(m_HitContainer.end(),m_HecHitContainerName.begin(), m_HecHitContainerName.end());
-  m_CaloType.push_back(LArHitEMap::HADENDCAP_INDEX);
-
-  m_HitContainer.insert(m_HitContainer.end(), m_ForWardHitContainerName.begin(), m_ForWardHitContainerName.end());
-  m_CaloType.push_back(LArHitEMap::FORWARD_INDEX);
-  
   if (m_Windows) {
     ATH_CHECK(  detStore()->retrieve(m_caloDDMgr, "CaloMgr") );
   }
@@ -387,6 +389,39 @@ StatusCode LArPileUpTool::processAllSubEvents()
      return StatusCode::FAILURE;
   }
 
+  if(!m_onlyUseContainerName && m_RndmEvtOverlay) {
+    auto hitVectorHandles = m_hitContainerKeys.makeHandles();
+    for (auto & inputHits : hitVectorHandles) {
+      if (!inputHits.isValid()) {
+        ATH_MSG_ERROR("BAD HANDLE"); //FIXME improve error here
+        return StatusCode::FAILURE;
+      }
+      bool isSignal(true);
+      double SubEvtTimOffset(0.0);
+      double timeCurrBunch=-9999999.;
+      for (const LArHit* hit : *inputHits) {
+        m_nhit_tot++;
+        float energy = (float) (hit->energy());
+        float time;
+        if (m_ignoreTime && isSignal) time=0.;
+        else time = (float) (SubEvtTimOffset+ hit->time() -m_trigtime);
+        Identifier cellId = hit->cellID();
+        if (!m_useMBTime) {
+          if (std::fabs(SubEvtTimOffset-timeCurrBunch)>1.) {
+            if (timeCurrBunch>-9999.) {
+              if (!this->fillMapfromSum(timeCurrBunch)) {
+                ATH_MSG_ERROR(" error in FillMapFromSum ");
+                return(StatusCode::FAILURE);
+              }
+            }
+            timeCurrBunch = SubEvtTimOffset;
+          }
+        }
+        if (this->AddHit(cellId,energy,time,isSignal).isFailure()) return StatusCode::FAILURE;
+      } // End of loop over LArHitContainer
+    } // End of loop over SG::ReadHandles
+  }
+
   if (!m_PileUp) {
     float time=0.;
     StoreGateSvc* myEvtStore = &(*evtStore());
@@ -398,9 +433,9 @@ StatusCode LArPileUpTool::processAllSubEvents()
 
   else {
 
-    for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-    {
-      ATH_MSG_DEBUG(" pileUpOld asking for: " << m_HitContainer[iHitContainer]);
+    for (const std::string& containerName : m_hitContainerNames) {
+
+      ATH_MSG_DEBUG(" pileUpOld asking for: " << containerName);
 
       double timeCurrBunch=-9999999.;
 
@@ -410,7 +445,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
         //
         // retrieve list of pairs (time,container) from PileUp service
 
-        if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
+        if (!(m_mergeSvc->retrieveSubEvtsData(containerName
             ,hitContList).isSuccess()) && hitContList.size()==0) {
          ATH_MSG_ERROR("Could not fill TimedHitContList");
          return StatusCode::FAILURE;
@@ -434,17 +469,13 @@ StatusCode LArPileUpTool::processAllSubEvents()
           // get LArHitContainer for this subevent
           const LArHitContainer& firstCont = *(iFirstCont->second);
           // Loop over cells in this LArHitContainer
-          LArHitContainer::const_iterator f_cell=firstCont.begin();
-          LArHitContainer::const_iterator l_cell=firstCont.end();
-          while (f_cell != l_cell) {
+          for (const LArHit* hit : firstCont) {
             m_nhit_tot++;
-            const LArHit* hit = (*f_cell);
             float energy = (float) (hit->energy());
             float time;
             if (m_ignoreTime && isSignal) time=0.;
             else time = (float) (SubEvtTimOffset+ hit->time() -m_trigtime);
             Identifier cellId = hit->cellID();
-            ++f_cell;
 
             if (!m_useMBTime) {
               if (std::fabs(SubEvtTimOffset-timeCurrBunch)>1.) {
@@ -470,7 +501,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
         //
         // retrieve list of pairs (time,container) from PileUp service
 
-        if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
+        if (!(m_mergeSvc->retrieveSubEvtsData(containerName
               ,hitContList).isSuccess()) && hitContList.size()==0) {
          ATH_MSG_ERROR("Could not fill TimedHitContList");
          return StatusCode::FAILURE;
@@ -494,16 +525,13 @@ StatusCode LArPileUpTool::processAllSubEvents()
           // get LArHitContainer for this subevent
           const LArHitFloatContainer& firstCont = *(iFirstCont->second);
           // Loop over cells in this LArHitContainer
-          LArHitFloatContainer::const_iterator f_cell=firstCont.begin();
-          LArHitFloatContainer::const_iterator l_cell=firstCont.end();
-          while (f_cell != l_cell) {
+          for (const LArHitFloat& hit : firstCont) {
             m_nhit_tot++;
-            float energy = (float)( (*f_cell).energy());
+            float energy = (float)( hit.energy());
             float time;
             if (m_ignoreTime && isSignal) time=0.;
-            else time = (float) (SubEvtTimOffset+ (*f_cell).time() - m_trigtime);
-            Identifier cellId = (*f_cell).cellID();
-            ++f_cell;
+            else time = (float) (SubEvtTimOffset+ hit.time() - m_trigtime);
+            Identifier cellId = hit.cellID();
 
             if (!m_useMBTime) {
               if (std::fabs(SubEvtTimOffset-timeCurrBunch)>1.) {
@@ -635,18 +663,17 @@ StatusCode LArPileUpTool::mergeEvent()
 
 StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime, bool isSignal)
 {
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-  {
+  for (const std::string& containerName : m_hitContainerNames) {
 
   //
   // ..... Get the pointer to the Hit Container from StoreGate
   //
-    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << m_HitContainer[iHitContainer]);
+    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << containerName);
 
     if (m_useLArHitFloat) {
      const DataHandle<LArHitFloatContainer> hit_container ;
-     if (myStore->contains<LArHitFloatContainer>(m_HitContainer[iHitContainer])) {
-       StatusCode sc = myStore->retrieve( hit_container,m_HitContainer[iHitContainer] ) ;
+     if (myStore->contains<LArHitFloatContainer>(containerName)) {
+       StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
        if (sc.isFailure() || !hit_container) {
           return StatusCode::FAILURE;
        }
@@ -667,15 +694,15 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
      }
      else {
       if (isSignal)  {
-         ATH_MSG_WARNING(" LAr HitFloat container not found for signal event key " << m_HitContainer[iHitContainer]);
+         ATH_MSG_WARNING(" LAr HitFloat container not found for signal event key " << containerName);
       }
      }
 
     }
     else {
      const DataHandle<LArHitContainer> hit_container ;
-     if (myStore->contains<LArHitContainer>(m_HitContainer[iHitContainer])) {
-       StatusCode sc = myStore->retrieve( hit_container,m_HitContainer[iHitContainer] ) ;
+     if (myStore->contains<LArHitContainer>(containerName)) {
+       StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
        if (sc.isFailure() || !hit_container) {
           return StatusCode::FAILURE;
        }
@@ -696,7 +723,7 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
      }
      else {
       if (isSignal)  {
-         ATH_MSG_WARNING(" LAr Hit container not found for signal event key " << m_HitContainer[iHitContainer]);
+         ATH_MSG_WARNING(" LAr Hit container not found for signal event key " << containerName);
       }
      }
     }
@@ -708,22 +735,21 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
 // ============================================================================================
 StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal)
 {
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-  {
+  for (const std::string& containerName : m_hitContainerNames) {
 
   //
   // ..... Get the pointer to the Hit Container from StoreGate through the merge service
   //
 
-    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << m_HitContainer[iHitContainer]);
+    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << containerName);
 
     if (m_useLArHitFloat) {
 
       const LArHitFloatContainer * hit_container;
 
-      if (!(m_mergeSvc->retrieveSingleSubEvtData(m_HitContainer[iHitContainer], hit_container, bunchTime,
+      if (!(m_mergeSvc->retrieveSingleSubEvtData(containerName, hit_container, bunchTime,
 						 iEvt).isSuccess())){
-	ATH_MSG_ERROR(" LAr Hit container not found for event key " << m_HitContainer[iHitContainer]);
+	ATH_MSG_ERROR(" LAr Hit container not found for event key " << containerName);
 	return StatusCode::FAILURE;
       }
 
@@ -746,9 +772,9 @@ StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime,
 
       const LArHitContainer * hit_container;
 
-      if (!(m_mergeSvc->retrieveSingleSubEvtData(m_HitContainer[iHitContainer], hit_container, bunchTime,
-					      iEvt).isSuccess())){
-	ATH_MSG_ERROR(" LAr Hit container not found for event key " << m_HitContainer[iHitContainer]);
+      if (!(m_mergeSvc->retrieveSingleSubEvtData(containerName, hit_container, bunchTime,
+                                             iEvt).isSuccess())){
+	ATH_MSG_ERROR(" LAr Hit container not found for event key " << containerName);
 	return StatusCode::FAILURE;
       }
 

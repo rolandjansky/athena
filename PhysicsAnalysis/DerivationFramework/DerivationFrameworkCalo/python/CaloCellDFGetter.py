@@ -85,7 +85,7 @@ class CaloCellDFGetter () :
 
         #====================== CaloCellContainerFromClusterTool
         from CaloRec.CaloRecConf import CaloCellContainerFromClusterTool
-        self.theCaloCellMaker.CaloCellMakerTools+=[CaloCellContainerFromClusterTool(#'CaloCellContainerFromClusterTool_'+self.outputCellKey(),
+        self.theCaloCellMaker.CaloCellMakerTools+=[CaloCellContainerFromClusterTool('CaloCellContainerFromClusterTool_'+self.outputCellKey(),
                                                                              CaloCellName=self.inputCellKey(),
                                                                              AddSamplingCells = True,
                                                                              SamplingCellsName = ["TileGap1", "TileGap2", "TileGap3", "TileBar0","TileExt0", "HEC0"],

@@ -61,22 +61,21 @@ void test1 (Trk::GaussianTrackDensity& tool)
   Trk::Perigee p1c (pos1c, mom1c, -1, pos0, cov5().release());
 
   std::vector<const Trk::TrackParameters*> v1 { &p1a, &p1b, &p1c };
-  tool.addTracks (v1);
-  assert( Athena_test::isEqual (tool.globalMaximum(),  -7.01305, 1e-5) );
-  assert( Athena_test::isEqual (tool.trackDensity(1),  4.38256e-06, 1e-5) );
-  assert( Athena_test::isEqual (tool.trackDensity(-1), 0.00176805, 1e-5) );
+  std::unique_ptr<Trk::IVertexTrackDensityEstimator::ITrackDensity> density;
+  double globalMaximum = tool.globalMaximum (v1, density);
+  assert( Athena_test::isEqual (globalMaximum,  -7.01305, 1e-5) );
+  assert( Athena_test::isEqual (density->trackDensity(1),  4.38256e-06, 1e-5) );
+  assert( Athena_test::isEqual (density->trackDensity(-1), 0.00176805, 1e-5) );
 
-  double density, d1, d2;
-  tool.trackDensity (1, density, d1, d2);
-  assert( Athena_test::isEqual (density, 4.38256e-06, 1e-5) );
+  double d, d1, d2;
+  density->trackDensity (1, d, d1, d2);
+  assert( Athena_test::isEqual (d, 4.38256e-06, 1e-5) );
   assert( Athena_test::isEqual (d1, -1.75302e-05, 1e-5) );
   assert( Athena_test::isEqual (d2,  6.57384e-05, 1e-5) );
-  tool.trackDensity (-1, density, d1, d2);
-  assert( Athena_test::isEqual (density, 0.00176805, 1e-5) );
+  density->trackDensity (-1, d, d1, d2);
+  assert( Athena_test::isEqual (d, 0.00176805, 1e-5) );
   assert( Athena_test::isEqual (d1, -0.00353611, 1e-5) );
   assert( Athena_test::isEqual (d2,  0.00530417, 1e-5) );
-
-  tool.reset();
 }
 
 
@@ -119,23 +118,22 @@ void test2 (Trk::GaussianTrackDensity& tool)
     pvec.push_back (perigees.back().get());
   }
 
-  tool.addTracks (pvec);
+  std::unique_ptr<Trk::IVertexTrackDensityEstimator::ITrackDensity> density;
+  double globalMaximum = tool.globalMaximum (pvec, density);
 
-  assert( Athena_test::isEqual (tool.globalMaximum(),  12.0446, 1e-5) );
-  assert( Athena_test::isEqual (tool.trackDensity(1),  0.00755785, 1e-5) );
-  assert( Athena_test::isEqual (tool.trackDensity(-1), 0.927959, 1e-5) );
+  assert( Athena_test::isEqual (globalMaximum,  12.0446, 1e-5) );
+  assert( Athena_test::isEqual (density->trackDensity(1),  0.00755785, 1e-5) );
+  assert( Athena_test::isEqual (density->trackDensity(-1), 0.927959, 1e-5) );
 
-  double density, d1, d2;
-  tool.trackDensity (1, density, d1, d2);
-  assert( Athena_test::isEqual (density, 0.00755785, 1e-5) );
+  double d, d1, d2;
+  density->trackDensity (1, d, d1, d2);
+  assert( Athena_test::isEqual (d, 0.00755785, 1e-5) );
   assert( Athena_test::isEqual (d1, -0.0244075, 1e-5) );
   assert( Athena_test::isEqual (d2, 0.0724778, 1e-5) );
-  tool.trackDensity (-1, density, d1, d2);
-  assert( Athena_test::isEqual (density, 0.927959, 1e-5) );
+  density->trackDensity (-1, d, d1, d2);
+  assert( Athena_test::isEqual (d, 0.927959, 1e-5) );
   assert( Athena_test::isEqual (d1, -1.47783, 1e-5) );
   assert( Athena_test::isEqual (d2,  1.60754, 1e-5) );
-
-  tool.reset();
 }
 
 

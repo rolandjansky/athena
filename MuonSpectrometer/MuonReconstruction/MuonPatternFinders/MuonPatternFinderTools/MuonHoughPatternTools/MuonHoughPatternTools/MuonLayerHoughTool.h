@@ -86,9 +86,9 @@ namespace Muon {
     typedef HoughDataPerSec::RegionPhiMaximumVec RegionPhiMaximumVec;
 
     typedef HoughDataPerSec                       HoughDataPerSector;
-    typedef std::vector<HoughDataPerSector>       HoughDataPerSectorVec;
-    typedef HoughDataPerSectorVec::const_iterator HoughDataPerSectorCit;
 
+    typedef Muon::HoughDataPerSectorVec HoughDataPerSectorVec;
+    
     
     
     class Road {
@@ -162,18 +162,17 @@ namespace Muon {
   private:
 
     struct State {
-      MaximumVec seedMaxima;
-      MuonHough::MuonDetectorHough detectorHoughTransforms;
+      MaximumVec seedMaxima; // Does not own the contained objects, they're just references to objects stored in houghDataPerSectorVec.
       std::unique_ptr<HoughDataPerSectorVec> houghDataPerSectorVec { std::make_unique<HoughDataPerSectorVec>() };
       std::set<Identifier> truthHits;
       std::set<Identifier> foundTruthHits;
       std::set<Identifier> outputTruthHits;
-      std::vector<TgcHitClusteringObj*> tgcClusteringObjs;
     };
   
     std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(State& state) const;
 
-    void fillHitsPerSector(  State& state, 
+    void fillHitsPerSector( std::set<Identifier>& truthHits, 
+           std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
            const CollectionsPerSector& hashes,
 			     const MdtPrepDataContainer*  mdtCont,  
 			     const CscPrepDataContainer*  /*cscCont*/,  
@@ -183,17 +182,21 @@ namespace Muon {
 			     const MMPrepDataContainer*   mmCont,
 			     HoughDataPerSector& houghData ) const;
 
-    void fill( State& state, const MdtPrepDataCollection& mdts, HitVec& hits ) const;
-    void fill( State& state, const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
-    void fill( State& state, const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits ) const;
-    void fill( State& state, const MMPrepDataCollection& mdts, HitVec& hits ) const;
-    void fill( State& state, const sTgcPrepDataCollection& stgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
+    void fill( std::set<Identifier>& truthHits, const MdtPrepDataCollection& mdts, HitVec& hits ) const;
+    void fill( std::set<Identifier>& truthHits, std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
+      const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
+    void fill( std::set<Identifier>& truthHits, const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits ) const;
+    void fill( std::set<Identifier>& truthHits, const MMPrepDataCollection& mdts, HitVec& hits ) const;
+    void fill( std::set<Identifier>& truthHits, const sTgcPrepDataCollection& stgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
 
-    bool findMaxima( State& state, 
+    bool findMaxima( std::set<Identifier>& truthHits,
+         std::set<Identifier>& foundTruthHits,
+         MaximumVec& seedMaxima,
          MuonHough::MuonLayerHough& hough,
 		     HitVec& hits, 
 		     MaximumVec& maxima ) const ;
-    bool findMaxima( State& state,
+    bool findMaxima( std::set<Identifier>& truthHits,
+         std::set<Identifier>& foundTruthHits,
          MuonHough::MuonPhiLayerHough& hough,
 		     PhiHitVec& hits, 
 		     PhiMaximumVec& maxima,
@@ -206,7 +209,8 @@ namespace Muon {
 
     void associateMaximaInNeighbouringSectors( HoughDataPerSector& houghData, std::vector<HoughDataPerSector>& houghDataPerSectorVec ) const;
 
-    void extendSeed(State& state, Road& road, HoughDataPerSector& sectorData ) const; // const;
+    void extendSeed(MuonHough::MuonDetectorHough& detectorHoughTransforms, std::set<Identifier>& truthHits, 
+      std::set<Identifier>& foundTruthHits, Road& road, HoughDataPerSector& sectorData ) const; // const;
     void associatePhiMaxima( Road& road, PhiMaximumVec& phiMaxima ) const;
 
     double combinedPeakheight( double ph,  double ph1,  double ph2, double phn, double rot, int layer, int /*region*/ ) const;
@@ -215,7 +219,8 @@ namespace Muon {
     void createPatternCombinations( std::vector< MaximumVec >& maxima,
 				    MuonPatternCombinationCollection& patternCombis ) const;
 
-    void createPatternCombinations(State& state, std::map< MuonHough::MuonPhiLayerHough::Maximum*, MaximumVec >& phiEtaAssociations,
+    void createPatternCombinations(std::set<Identifier>& truthHits, std::set<Identifier>& outputTruthHits, 
+            std::map< MuonHough::MuonPhiLayerHough::Maximum*, MaximumVec >& phiEtaAssociations,
 				    MuonPatternCombinationCollection& patternCombis ) const;
 
     void fillNtuple( HoughDataPerSectorVec& houghDataPerSectorVec ) const;
@@ -223,12 +228,14 @@ namespace Muon {
     void insertHash( const IdentifierHash& hash, const Identifier& id );
     void insertHash( int sector, const IdentifierHash& hash, const Identifier& id );
 
-    void matchTruth( State& state, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
+    void matchTruth( std::set<Identifier>& truthHits, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
     void initializeSectorMapping();
     void getTruth() const;
     void printTruthSummary( std::set<Identifier>& truth, std::set<Identifier>& found ) const;
 
-    void buildRoads(State& state, std::vector<Road>& roads ) const;
+    void buildRoads(MaximumVec& seedMaxima, MuonHough::MuonDetectorHough& detectorHoughTransforms, 
+      std::set<Identifier>& truthHits, std::set<Identifier>& foundTruthHits,
+      std::unique_ptr<HoughDataPerSectorVec>& houghDataPerSectorVec, std::vector<Road>& roads ) const;
     void mergePhiMaxima( Road& road ) const;
 
     bool m_useSeeds;

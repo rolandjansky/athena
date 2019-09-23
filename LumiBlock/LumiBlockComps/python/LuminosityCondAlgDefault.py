@@ -15,7 +15,7 @@ _isOnline = False
 def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
                               suffix = '',
                               isOnline = None):
-    if name == None:
+    if name is None:
         name = 'LuminosityCondAlg' + suffix
 
     mlog = logging.getLogger(name)
@@ -28,7 +28,7 @@ def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
             return None
         return getattr (condSeq, name)
 
-    if suffix == '':
+    if suffix != '':
         pass
     elif isOnline:
         _isOnline = True
@@ -39,11 +39,11 @@ def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
 
     from IOVDbSvc.CondDB import conddb
     if isOnline:
-         kwargs = configureOnlineLuminosityCondAlg (name)
+        kwargs = configureOnlineLuminosityCondAlg (name)
 
     elif conddb.isMC:
-         mlog.info("LuminosityCondAlgDefault called for MC!")
-         kwargs = configureLuminosityCondAlgMC (name)
+        mlog.info("LuminosityCondAlgDefault called for MC!")
+        kwargs = configureLuminosityCondAlgMC (name)
 
     elif conddb.dbdata == "COMP200":
         kwargs = configureLuminosityCondAlgRun1 (name)
@@ -52,7 +52,7 @@ def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
         kwargs = configureLuminosityCondAlgRun2 (name)
 
     else:
-        mlog.warning("LuminosityToolDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
+        mlog.warning("LuminosityCondAlgDefault can't resolve conddb.dbdata = %s, assume Run2!", conddb.dbdata)
         kwargs = configureLuminosityCondAlgRun2 (name)
     
     from LumiBlockComps.LumiBlockCompsConf import \
@@ -106,7 +106,7 @@ def configureLuminosityCondAlgRun2 (name):
     mlog.info("configureLuminosityCondAlgRun2 requested %s", lumiFolder)
     kwargs['LuminosityFolderInputKey'] = lumiFolder
 
-    mlog.info("Created Run2 %s using folder %s" % (name, lumiFolder))
+    mlog.info("Created Run2 %s using folder %s", name, lumiFolder)
 
     # Need the calibration tool just to get the proper MuToLumi value
     from CoolLumiUtilities.OnlineLumiCalibrationCondAlgDefault \
@@ -192,13 +192,13 @@ def configureOnlineLuminosityCondAlg (name):
                          className = 'CondAttrListCollection')
 
     else: #  Run 2
-        mlog.warning("LuminosityCondAlgDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
+        mlog.warning("LuminosityCondAlgDefault can't resolve conddb.dbdata = %s, assume Run2!", conddb.dbdata)
         mlog.info("Using dummy Run 2 configuration")
         folder = ''
 
 
     kwargs['LuminosityFolderInputKey'] = folder
-    mlog.info("Created online %s using folder %s" % (name, folder))
+    mlog.info("Created online %s using folder %s", name, folder)
 
     # Need the calibration tool just to get the proper MuToLumi value
     from CoolLumiUtilities.OnlineLumiCalibrationCondAlgDefault \

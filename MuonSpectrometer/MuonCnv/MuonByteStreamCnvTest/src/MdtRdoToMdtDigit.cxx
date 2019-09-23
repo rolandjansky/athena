@@ -7,7 +7,7 @@
 
 MdtRdoToMdtDigit::MdtRdoToMdtDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -20,10 +20,10 @@ StatusCode MdtRdoToMdtDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MdtRdoToMdtDigit::execute()
+StatusCode MdtRdoToMdtDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
-  SG::ReadHandle<MdtCsmContainer> rdoRH(m_mdtRdoKey);
+  SG::ReadHandle<MdtCsmContainer> rdoRH(m_mdtRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No MDT RDO container found!"  );
     return StatusCode::SUCCESS;
@@ -31,7 +31,7 @@ StatusCode MdtRdoToMdtDigit::execute()
   const MdtCsmContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " MDT RDOs." );
 
-  SG::WriteHandle<MdtDigitContainer> wh_mdtDigit(m_mdtDigitKey);
+  SG::WriteHandle<MdtDigitContainer> wh_mdtDigit(m_mdtDigitKey, ctx);
   ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_mdtHelper->module_hash_max())));
   ATH_MSG_DEBUG( "Decoding MDT RDO into MDT Digit"  );
 
@@ -95,7 +95,7 @@ StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContaine
                              << " in StoreGate!"  );
         }
         else {
-          MdtDigitCollection * oldCollection = const_cast<MdtDigitCollection*>( *it_coll );
+          MdtDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MdtDigitCollection*>( *it_coll ); // FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

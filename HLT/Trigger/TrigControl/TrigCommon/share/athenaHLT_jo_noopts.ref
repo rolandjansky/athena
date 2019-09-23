@@ -8,7 +8,7 @@
       <library>TrigPSC</library>
     </HLTImplementationLibraries>
     <UID>HLTMPPy</UID>
-    <HardTimeout>60000</HardTimeout>
+    <HardTimeout>3600000</HardTimeout>
     <finalizeTimeout>120</finalizeTimeout>
     <numberOfEventSlots>1</numberOfEventSlots>
     <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>
@@ -23,6 +23,7 @@
         <UID>DataSource-is-DCM</UID>
         <compressionLevel>2</compressionLevel>
         <loopOverFiles>False</loopOverFiles>
+        <hltresultSizeBytes>10485760</hltresultSizeBytes>
         <skipEvents>0</skipEvents>
         <compressionFormat>ZLIB</compressionFormat>
         <rosHitStatFileName>ros_hitstats</rosHitStatFileName>
@@ -102,7 +103,7 @@
             <HLTCommonParameters>
               <HLTCommonParameters>
                 <messageSvcType>TrigMessageSvc</messageSvcType>
-                <jobOptionsSvcType>JobOptionsSvc</jobOptionsSvcType>
+                <jobOptionsSvcType>TrigConf::JobOptionsSvc</jobOptionsSvcType>
               </HLTCommonParameters>
             </HLTCommonParameters>
             <logLevels>

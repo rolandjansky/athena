@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELDEADMAPCONDDATA_H
-#define PIXELDEADMAPCONDDATA_H
+#ifndef PIXELMODULEDATA_H
+#define PIXELMODULEDATA_H
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include <map>

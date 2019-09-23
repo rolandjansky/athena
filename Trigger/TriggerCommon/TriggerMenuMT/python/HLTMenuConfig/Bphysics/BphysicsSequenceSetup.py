@@ -11,8 +11,8 @@ TrackParticlesName = "HLT_xAODTracks_Muon"
   
 def dimuL2Sequence(name = 'Dimu'):
 
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muNotCombAlgSequence
-    (l2muNotCombSequence, l2muNotCombViewsMaker) = RecoFragmentsPool.retrieve(muNotCombAlgSequence, ConfigFlags)
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muCombAlgSequence
+    (l2muCombSequence, l2muCombViewsMaker,sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
     ### set up muCombHypo algorithm ###
     from TrigBphysHypo.TrigMultiTrkHypoMTConfig import TrigMultiTrkHypoMT
@@ -28,8 +28,8 @@ def dimuL2Sequence(name = 'Dimu'):
 
     from TrigBphysHypo.TrigMultiTrkHypoMTConfig import TrigMultiTrkHypoToolMTFromDict
 
-    return MenuSequence( Sequence    = l2muNotCombSequence,
-                         Maker       = l2muNotCombViewsMaker,
+    return MenuSequence( Sequence    = l2muCombSequence,
+                         Maker       = l2muCombViewsMaker,
                          Hypo        = jpsiHypo,
                          HypoToolGen = TrigMultiTrkHypoToolMTFromDict )
                          
@@ -43,9 +43,9 @@ def dimuEFSequence(name = 'Dimu'):
 
     dimuefRecoSequence = parOR("dimuefViewNode")
     
-    dimuefViewsMaker = EventViewCreatorAlgorithm("dimuefViewsMaker")
+    dimuefViewsMaker = EventViewCreatorAlgorithm("IMdimuef")
     dimuefViewsMaker.ViewFallThrough = True
-    dimuefViewsMaker.RoIsLink = "roi" # -||-
+    dimuefViewsMaker.RoIsLink = "initialRoI" # -||-
     dimuefViewsMaker.InViewRoIs = "DimuEFRoIs" # contract with the consumer
     dimuefViewsMaker.Views = "DimuEFViewRoIs"
     dimuefViewsMaker.ViewNodeName = dimuefRecoSequence.name()

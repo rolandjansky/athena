@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RAWDATABYTESTREAMCNV_TRTRAWDATAPROVIDERTOOL_H
@@ -23,7 +23,7 @@
 // the tool to decode a ROB frament
 
 class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool, 
-                                public AthAlgTool //, virtual IIncidentListener
+                                public AthAlgTool
 {
 
  public:
@@ -47,9 +47,6 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   //! this is the main decoding method
   StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
 		      TRT_RDO_Container*               rdoIdc );
-
-  //! Incident listener
-  //virtual void handle( const Incident &incident );
 
 private: 
   TRTRawDataProviderTool( ); //Not implemented

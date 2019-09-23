@@ -11,7 +11,6 @@
 #ifndef INDETREADOUTGEOMETRY_TRT_CONDITIONS_H
 #define INDETREADOUTGEOMETRY_TRT_CONDITIONS_H
 
-#include "GeoModelKernel/RCBase.h"
 #include "CxxUtils/checker_macros.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "CLHEP/Geometry/Transform3D.h"
@@ -29,11 +28,12 @@ namespace InDetDD {
         This class is a interface to conditions objects. There is a single instance shared by all TRT elements
       */
 
-  class TRT_Conditions : public RCBase {
+  class TRT_Conditions {
   
     public:
   
       TRT_Conditions();
+      ~TRT_Conditions() = default;
   
       const TRTCond::StrawDxContainer* dxContainer() const;
       void setDxContainer(const TRTCond::StrawDxContainer* container);

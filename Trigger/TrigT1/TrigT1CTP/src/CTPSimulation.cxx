@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes:
@@ -10,7 +10,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 // Athena/Gaudi includes:
-#include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
@@ -383,14 +382,7 @@ LVL1CTP::CTPSimulation::bookHists() {
    size_t runNrPos = histstream.find("RUNNR");
    if( runNrPos != string::npos ) {
 
-      string runnr = "0";
-
-      const DataHandle< ::EventInfo> evt;
-      const DataHandle< ::EventInfo> evtEnd;
-      StatusCode sc = evtStore()->retrieve( evt, evtEnd );
-      if( sc.isSuccess() ) {
-         runnr = boost::lexical_cast<string, unsigned int>(evt->event_ID()->run_number());
-      }
+      string runnr = boost::lexical_cast<string, unsigned int>(Gaudi::Hive::currentContext().eventID().run_number());
       histstream.replace(runNrPos, 5, runnr);
    }
 

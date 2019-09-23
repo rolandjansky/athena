@@ -3,6 +3,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolConfig_simple,
+    TrigJetHypoToolConfig_simple_partition,
     TrigJetHypoToolConfig_dijet,
     NotHelperTool,
     AndHelperTool,
@@ -10,6 +11,11 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolHelperMT,
     CombinationsHelperTool,
     TrigJetHypoToolConfig_combgen,
+    TrigJetHypoToolConfig_partgen,
+)
+
+from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
+    AgreeHelperTool,
 )
 
 class ToolSetter(object):
@@ -19,19 +25,25 @@ class ToolSetter(object):
 
         self.tool_factories = {
             'simple': [TrigJetHypoToolConfig_simple, 0],
+            'simplepartition': [TrigJetHypoToolConfig_simple_partition, 0],
             'not': [NotHelperTool, 0],
             'and': [AndHelperTool, 0],
+            'agree': [AgreeHelperTool, 0],
             'or': [OrHelperTool, 0],
             'dijet': [TrigJetHypoToolConfig_dijet, 0],
             'combgen': [TrigJetHypoToolConfig_combgen, 0],
+            'partgen': [TrigJetHypoToolConfig_partgen, 0],
             }
 
         self.mod_router = {
             'not': self.mod_logical_unary,
             'and': self.mod_logical_binary,
+            'agree': self.mod_logical_binary,
             'or': self.mod_logical_binary,
             'simple': self.mod_simple,
-            'combgen': self.mod_combgen,
+            'simplepartition': self.mod_simple,
+            'combgen': self.mod_combgen,  #  shared with partgen
+            'partgen': self.mod_combgen,  #  shared with combgen
             'dijet': self.mod_dijet,
         }
 
@@ -89,17 +101,16 @@ class ToolSetter(object):
         self.tool_factories[scen][1] += 1
 
         config_tool = klass(name=name+'_config')
+        config_tool.children = [child.tool for child in node.children]
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
 
         helper_tool = CombinationsHelperTool(name=name+'_helper')
         helper_tool.HypoConfigurer = config_tool
-        helper_tool.children = [child.tool for child in node.children]
 
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id
 
         node.tool = helper_tool
-
 
     def mod_simple(self, node):
         """Set the HypoConfigTool instance in a hypo tree node"""
