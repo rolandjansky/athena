@@ -303,7 +303,6 @@ bool MuonRPC_CablingSvc::give_RoI_borders_id (unsigned short int SubsystemId,
     EtaHighBorder_id =  this->protected_strip_OffId_fromCode( EtaHighBorder);
     PhiLowBorder_id  =  this->protected_strip_OffId_fromCode( PhiLowBorder);
     PhiHighBorder_id =  this->protected_strip_OffId_fromCode( PhiHighBorder);
-    //    std::cout<<"id of borders = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(EtaLowBorder_id)<<"/"<<m_muonIdHelperTool->rpcIdHelper().show_to_string(EtaHighBorder_id)<<"/"<<m_muonIdHelperTool->rpcIdHelper().show_to_string(PhiLowBorder_id)<<"/"<<m_muonIdHelperTool->rpcIdHelper().show_to_string(PhiHighBorder_id)<<"/"<<std::endl;
   }
   //  else {std::cout<<" since give_RoI_borders is not ok"<<std::endl;}
   return ok;
