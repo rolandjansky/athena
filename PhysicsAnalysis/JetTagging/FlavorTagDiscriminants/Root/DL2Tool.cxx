@@ -13,19 +13,17 @@ namespace FlavorTagDiscriminants {
     m_dl2(nullptr)
   {
     declareProperty("nnFile", m_props.nnFile);
-    declareProperty("schema", m_props.schema);
     declareProperty("flipTagConfig", m_props.flipTagConfig);
   }
   DL2Tool::~DL2Tool() {}
 
   StatusCode DL2Tool::initialize() {
     ATH_MSG_INFO("Initialize DL2 from: " + m_props.nnFile);
-    EDMSchema schema = enumFromString(m_props.schema);
     FlipTagConfig flipConfig = FlipTagConfig::STANDARD;
     if (m_props.flipTagConfig.size() > 0) {
       flipConfig = flipTagConfigFromString(m_props.flipTagConfig);
     }
-    m_dl2.reset(new DL2HighLevel(m_props.nnFile, schema, flipConfig));
+    m_dl2.reset(new DL2HighLevel(m_props.nnFile, flipConfig));
     return StatusCode::SUCCESS;
   }
   StatusCode DL2Tool::finalize() {

@@ -33,8 +33,8 @@ namespace {
   private:
     BTagTrackAugmenter m_augmenter;
   public:
-    SignedD0SequenceGetter(FlavorTagDiscriminants::EDMSchema schema):
-      m_augmenter(schema)
+    SignedD0SequenceGetter():
+      m_augmenter()
       {}
     std::vector<double> operator()(
       const xAOD::Jet& jet,
@@ -52,8 +52,8 @@ namespace {
   private:
     BTagTrackAugmenter m_augmenter;
   public:
-    SignedZ0SequenceGetter(FlavorTagDiscriminants::EDMSchema schema):
-      m_augmenter(schema)
+    SignedZ0SequenceGetter():
+      m_augmenter()
       {}
     std::vector<double> operator()(
       const xAOD::Jet& jet,
@@ -77,13 +77,13 @@ namespace {
   std::function<std::vector<double>(
     const xAOD::Jet&,
     const std::vector<const xAOD::TrackParticle*>&)> customSeqGetter(
-      const std::string& name, FlavorTagDiscriminants::EDMSchema schema) {
+      const std::string& name) {
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
     if (name == "IP3D_signed_d0_significance") {
-      return SignedD0SequenceGetter(schema);
+      return SignedD0SequenceGetter();
     }
     if (name == "IP3D_signed_z0_significance") {
-      return SignedZ0SequenceGetter(schema);
+      return SignedZ0SequenceGetter();
     }
     if (name == "log_ptfrac") {
       return [](const xAOD::Jet& j, const Tracks& t) {
@@ -144,8 +144,8 @@ namespace FlavorTagDiscriminants {
     std::function<std::pair<std::string, std::vector<double>>(
       const xAOD::Jet&,
       const std::vector<const xAOD::TrackParticle*>&)>
-    customNamedSeqGetter(const std::string& name, EDMSchema schema) {
-      auto getter = customSeqGetter(name, schema);
+    customNamedSeqGetter(const std::string& name) {
+      auto getter = customSeqGetter(name);
       return [name, getter](const xAOD::Jet& j,
                             const std::vector<const xAOD::TrackParticle*>& t) {
                return std::make_pair(name, getter(j, t));
