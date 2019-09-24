@@ -98,7 +98,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       if ((l1_roi_cont->energyX())>-9e12 && (l1_roi_cont->energyX())<9e12 && (l1_roi_cont->energyY())>-9e12 && (l1_roi_cont->energyY())<9e12) { 
 	L1_Ex = - (l1_roi_cont->energyX())/1000.;
 	L1_Ey = - (l1_roi_cont->energyY())/1000.;
-	L1_Et = sqrt(L1_Ex*L1_Ex + L1_Ey*L1_Ey);
+	L1_Et = - (l1_roi_cont->energyT())/1000.;
       }
     }
     */
@@ -138,24 +138,19 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // TDT test
     if (m_trigDecTool->isPassed("HLT_xe30_cell_L1XE10")) {
-      ATH_MSG_DEBUG("passed HLT_xe30_cell_L1XE10");
+      ATH_MSG_INFO("passed HLT_xe30_cell_L1XE10");
     } else {
-      ATH_MSG_DEBUG("not passed HLT_xe30_cell_L1XE10");
+      ATH_MSG_INFO("not passed HLT_xe30_cell_L1XE10");
     }
     if (m_trigDecTool->isPassed("HLT_xe30_cell_xe30_tcpufit_L1XE10")) {
-      ATH_MSG_DEBUG("passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
+      ATH_MSG_INFO("passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
     } else {
-      ATH_MSG_DEBUG("not passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
+      ATH_MSG_INFO("not passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
     }
     if (m_trigDecTool->isPassed("HLT_xe30_tcpufit_L1XE10")) {
-      ATH_MSG_DEBUG("passed HLT_xe30_tcpufit_L1XE10");
+      ATH_MSG_INFO("passed HLT_xe30_tcpufit_L1XE10");
     } else {
-      ATH_MSG_DEBUG("not passed HLT_xe30_tcpufit_L1XE10");
-    }
-    if (m_trigDecTool->isPassed(m_triggerChainString)) {
-      ATH_MSG_DEBUG("passed " << m_triggerChainString);
-    } else {
-      ATH_MSG_DEBUG("not passed " << m_triggerChainString);
+      ATH_MSG_INFO("not passed HLT_xe30_tcpufit_L1XE10");
     }
 
     // check active triggers
