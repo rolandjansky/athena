@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+#include <boost/algorithm/string.hpp>
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaMonitoring/Monitored.h"
@@ -12,44 +13,74 @@ using namespace HLT;
 
 
 CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
-                                    const std::string& name, 
-                                    const IInterface* parent ) 
+                                    const std::string& name,
+                                    const IInterface* parent )
   : CTPUnpackingToolBase(type, name, parent),
     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ) {
 }
 
 
-StatusCode CTPUnpackingTool::initialize() 
-{   
-  CHECK( m_configSvc.retrieve() );
+StatusCode CTPUnpackingTool::initialize()
+{
+  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_HLTMenuKey.initialize() );
 
-  CHECK( CTPUnpackingToolBase::initialize() );
-  
+  ATH_CHECK( CTPUnpackingToolBase::initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, std::string>& seeding )  {
-  ATH_MSG_DEBUG( "Updating CTP configuration with " << seeding.size() << " seeding mapping");
+StatusCode CTPUnpackingTool::start() {
+  // TODO, move code from updateConfiguration once L1 menu is available
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, std::string>& /*seeding*/ )  {
+
+  // TODO switch to the L1 menu once available
+  ATH_MSG_DEBUG( "Updating CTP bits decoding configuration");
   // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
   std::map<std::string, size_t> toCTPID;
   for ( const TrigConf::TriggerItem* item:   m_configSvc->ctpConfig()->menu().itemVector() ) {
     toCTPID[item->name()] = item->ctpId();
   }
-  
-  for ( auto seedingHLTtoL1: seeding ) {
-    ATH_MSG_DEBUG( "Seeding " << seedingHLTtoL1.first << " " << seedingHLTtoL1.second );
-    CHECK( toCTPID.find( seedingHLTtoL1.second ) != toCTPID.end() ); 
-    size_t l1ItemID = toCTPID [ seedingHLTtoL1.second ];
-    m_ctpToChain[ l1ItemID ].push_back( HLT::Identifier( seedingHLTtoL1.first ) ); 
+
+  auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id ) -> StatusCode {
+    if ( toCTPID.find( itemName ) != toCTPID.end() ) {
+      m_ctpToChain[ toCTPID[itemName] ].push_back( id );
+    }
+    ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
+    return StatusCode::FAILURE;
+  };
+
+
+  SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  for ( auto chain: *hltMenuHandle ) {
+    HLT::Identifier chainID = HLT::Identifier( chain.name() );
+    ATH_MSG_DEBUG( "Chain " << chain.name() << " enabled by L1 item of ID " << 0 );
+    if ( chain.l1item().empty() ) {
+      m_ctpToChain[ s_CTPIDForUndeededChains ].push_back( chainID );
+    } else if ( chain.l1item().find(',') != std::string::npos ) {
+      // TODO add chains that can be seeded by an OR of several items
+      std::vector<std::string> items;
+      boost::split(items, chain.l1item(), [](char c){return c == ',';});
+      for ( auto i: items ) {
+	ATH_CHECK( addIfItemExists( i, chainID ) );
+      }
+    } else { // regular chain
+      ATH_CHECK( addIfItemExists( chain.l1item(), chainID ) );
+    }
   }
+
   for ( auto ctpIDtoChain: m_ctpToChain ) {
     for ( auto chain: ctpIDtoChain.second ) {
       ATH_MSG_DEBUG( "CTP seed of " << ctpIDtoChain.first << " enables chains " << chain );
     }
   }
-    
-  return StatusCode::SUCCESS;  
+
+  return StatusCode::SUCCESS;
 }
 
 
@@ -67,8 +98,8 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
 
       if ( decision == true or m_forceEnable ) {
 	if ( decision ) {
-	  nTAVItems = nTAVItems + 1;	  
-	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains " 
+	  nTAVItems = nTAVItems + 1;
+	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains "
 			 << (m_forceEnable ? " due to the forceEnable flag" : " due to the seed"));
 	}
 
@@ -77,9 +108,13 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
 	  enabledChains.insert( enabledChains.end(), itr->second.begin(), itr->second.end() );
 	}
       }
-    }    
+    }
   }
-  
+  // the unseded chains are alwasys enabled at this stage
+  auto itr  = m_ctpToChain.find( s_CTPIDForUndeededChains );
+  if ( itr != m_ctpToChain.end() )
+    enabledChains.insert( enabledChains.end(), itr->second.begin(), itr->second.end());
+
   nChains = enabledChains.size();
   for ( auto chain: enabledChains ) {
     ATH_MSG_DEBUG( "Enabling chain: " << chain );
@@ -90,5 +125,3 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
   }
   return StatusCode::SUCCESS;
 }
-
-

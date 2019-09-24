@@ -39,8 +39,8 @@ public:
    
 protected:
 
-
-  typedef std::map<size_t, HLT::IDVec> IndexToIdentifiers;
+  static const int s_CTPIDForUndeededChains = -1;
+  typedef std::map<int, HLT::IDVec> IndexToIdentifiers;
   IndexToIdentifiers       m_ctpToChain;
 
   ///@{ @name Properties
