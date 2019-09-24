@@ -112,6 +112,7 @@ def TrigBjetMonConfig(inputFlags):
     # Histograms which depend on the trigger chain
 
 
+    doRun2 = False
     AllChains = []
     for chain in bjet_triglist :
         AllChains.append(chain[2:])
@@ -136,21 +137,21 @@ def TrigBjetMonConfig(inputFlags):
             HistName = 'PVz_jet_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV from jets;zPV from jets;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                                             path='Expert/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
                 # print " ==> histogram ",HistName," is defined for Expert folder"
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV from jets;zPV from jets;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                                             path='Shifter/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
                 # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'PVz_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                                             path='Expert/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
                 # print " ==> histogram ",HistName," is defined for Expert folder"
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                                             path='Shifter/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
                 # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'd0_' + chain[2:]
@@ -187,7 +188,7 @@ def TrigBjetMonConfig(inputFlags):
 
     # print " ==> In TrigBjetMonitorAlgorithm.py: AllChains list: ", AllChains
     trigBjetMonAlg.AllChains = AllChains
-
+    trigBjetMonAlg.doRun2 = doRun2
 
 
     ### STEP 6 ###
@@ -236,7 +237,11 @@ if __name__=='__main__':
     # file = '/afs/cern/ch/user/t/tamartin/public/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/legacy.AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/AOD.pool.root'
-    file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-09-16T2129/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
+    # file to be run w/ doRun2 = False
+    file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
+    # file to be run w/ doRun2 = True
+    # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_ST_240919/AOD.pool.root'
+    # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-09-16T2129/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/mt.AOD.pool.root'
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
