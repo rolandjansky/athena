@@ -55,8 +55,8 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     }
 
     if( outputHandle->size() == 0){ // input filtered out
-      ATH_MSG_ERROR( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty.");
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty.");
+      continue;
     }
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
     // loop over output decisions in container of outputHandle, follow link to inputDecision
