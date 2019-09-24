@@ -1686,7 +1686,10 @@ StatusCode HLTXAODBphysMonTool::fillContainers(){
         }
         //************ SHIFTER ************* //
         setCurrentMonGroup(m_base_path_shifter+"/Containers");
-        std::string containerNameAbbr = containerItem.substr(std::string("HLT_xAOD__TrigBphysContainer_").length(),-1);
+        ATH_MSG_DEBUG("Container " << containerItem << "is opened");
+        std::string containerNameAbbr = containerItem;
+        if( containerItem.find("HLT_xAOD__TrigBphysContainer_") != std::string::npos ) 
+          containerNameAbbr = containerItem.substr(std::string("HLT_xAOD__TrigBphysContainer_").length(),-1);
         hist2((m_prefix+"_Containers_size").c_str())->Fill(containerNameAbbr.c_str(), trigBphysContainer->size(),1);
 
         for ( auto bphys:  (*trigBphysContainer))  {
