@@ -62,4 +62,4 @@ partition
 
 
 if __name__ == '__main__':
-    print 'There are %d test cases' % len(test_strings)
+    print('There are %d test cases' % len(test_strings))

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIG_L2_PATT_RECO_STRATEGY_C_H__
@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 
 
@@ -75,6 +76,9 @@ class TrigL2PattRecoStrategyC: public AthAlgTool, virtual public ITrigL2PattReco
   ToolHandle< InDet::ISiTrackMaker           > m_trackmaker;   // Track                maker 
 
   ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
+
+  SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
+    {this,"PRDtoTrackMap",""};
 
   std::string m_sctSpacePointsName; 
   std::string m_pixelSpacePointsName;  

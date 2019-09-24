@@ -52,6 +52,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
 
     Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may accesas StoreGate directly to retrieve data" };
     Gaudi::Property< bool > m_requireParentView { this, "RequireParentView", false, "Fail if the parent view can not be found" };
+    Gaudi::Property< bool > m_reverseViews { this, "ReverseViewsDebug", false, "Reverse order of views, as a debugging option" };
 
 
 

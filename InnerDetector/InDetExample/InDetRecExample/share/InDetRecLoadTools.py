@@ -404,6 +404,14 @@ if InDetFlags.loadAssoTool():
     ToolSvc += InDetPrdAssociationTool
     if (InDetFlags.doPrintConfigurables()):
       print      InDetPrdAssociationTool
+
+    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
+    InDetPrdAssociationTool_setup = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
+                                                                                PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
+                                                                                SetupCorrect                   = True,
+                                                                                addTRToutliers                 = True)
+    #InDetPrdAssociationTool.OutputLevel = VERBOSE
+    ToolSvc += InDetPrdAssociationTool
     
 #
 # ----------- control loading of SummaryTool
@@ -552,7 +560,7 @@ if InDetFlags.loadSummaryTool():
     from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
     if DetFlags.haveRIO.TRT_on():
         InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
-                                                                         AssoTool        = InDetPrdAssociationTool,
+                                                                         AssoTool        = InDetPrdAssociationTool_setup,
                                                                          PixelToTPIDTool = None,         # we don't want to use those tools during pattern
                                                                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
                                                                          #PixelToTPIDTool = InDetPixelToTPIDTool,
@@ -565,7 +573,7 @@ if InDetFlags.loadSummaryTool():
                                                                          useTRT          = DetFlags.haveRIO.TRT_on())
     else:
         InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
-                                                                         AssoTool        = InDetPrdAssociationTool,
+                                                                         AssoTool        = InDetPrdAssociationTool_setup,
                                                                          PixelToTPIDTool = None,         # we don't want to use those tools during pattern
                                                                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
                                                                          #PixelToTPIDTool = InDetPixelToTPIDTool,
@@ -607,7 +615,7 @@ if InDetFlags.loadSummaryTool():
     from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
     if DetFlags.haveRIO.TRT_on():
         InDetTrackSummaryHelperToolSharedHits = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelperSharedHits",
-                                                                                   AssoTool        = InDetPrdAssociationTool,
+                                                                                   AssoTool        = InDetPrdAssociationTool_setup,
                                                                                    PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                                    TestBLayerTool  = InDetRecTestBLayerTool,
                                                                                    DoSharedHits    = InDetFlags.doSharedHits(),
@@ -619,7 +627,7 @@ if InDetFlags.loadSummaryTool():
                                                                                    useTRT          = DetFlags.haveRIO.TRT_on())
     else:
         InDetTrackSummaryHelperToolSharedHits = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelperSharedHits",
-                                                                                   AssoTool        = InDetPrdAssociationTool,
+                                                                                   AssoTool        = InDetPrdAssociationTool_setup,
                                                                                    PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                                    TestBLayerTool  = InDetRecTestBLayerTool,
                                                                                    DoSharedHits    = InDetFlags.doSharedHits(),
@@ -720,8 +728,7 @@ if InDetFlags.doPattern():
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
                                                                  PropagatorTool        = InDetPatternPropagator,
                                                                  UpdatorTool           = InDetPatternUpdator,
-                                                                 RIOonTrackTool        = InDetRotCreatorDigital,##NS HERE
-                                                                 AssosiationTool       = InDetPrdAssociationTool,
+                                                                 RIOonTrackTool        = InDetRotCreatorDigital, ##NS HERE
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
@@ -745,25 +752,26 @@ if InDetFlags.doPattern():
                                                                   ReadKey = "SCT_DetectorElementCollection",
                                                                   WriteKey = "SCT_DetElementBoundaryLinks_xk")
 
-    if InDetFlags.doDBM():
-        InDetSiComTrackFinderDBM = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderDBM',
-                                                                        PropagatorTool        = InDetPatternPropagator,
-                                                                        UpdatorTool           = InDetPatternUpdator,
-                                                                        RIOonTrackTool        = InDetRotCreatorDBM,
-                                                                        AssosiationTool       = InDetPrdAssociationTool,
-                                                                        usePixel              = True,
-                                                                        useSCT                = False,
-                                                                        PixelClusterContainer = InDetKeys.PixelClusters(),
-                                                                        SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
-                                                                        MagneticFieldMode     = "NoField",
-                                                                        TrackQualityCut       = 9.3
-                                                                        )
-    if InDetFlags.doDBMstandalone():
-        InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
-    if (DetFlags.haveRIO.SCT_on()):
-      InDetSiComTrackFinder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
-    else:
-      InDetSiComTrackFinder.SctSummaryTool = None
+    #if InDetFlags.doDBM():
+    #    InDetSiComTrackFinderDBM = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderDBM',
+    #                                                                    PropagatorTool        = InDetPatternPropagator,
+    #                                                                    UpdatorTool           = InDetPatternUpdator,
+    #                                                                    RIOonTrackTool        = InDetRotCreatorDBM,
+    #                                                                    AssosiationTool       = InDetPrdAssociationTool,
+    #                                                                    usePixel              = True,
+    #                                                                    useSCT                = False,
+    #                                                                    PixelClusterContainer = InDetKeys.PixelClusters(),
+    #                                                                    SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
+    #                                                                    MagneticFieldMode     = "NoField",
+    #                                                                    TrackQualityCut       = 9.3
+    #                                                                    )
+    #if InDetFlags.doDBMstandalone():
+    #    InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
+
+    # if (DetFlags.haveRIO.SCT_on()):
+    #   InDetSiComTrackFinder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
+    # else:
+    #  InDetSiComTrackFinder.SctSummaryTool = None
 
     if (InDetFlags.doPrintConfigurables()):
       print InDetSiComTrackFinder
@@ -870,7 +878,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
     
     from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
     InDetAmbiTrackSelectionToolCosmics = InDet__InDetAmbiTrackSelectionTool(name                  = 'InDetAmbiTrackSelectionToolCosmics',
-                                                                            AssociationTool       = InDetPrdAssociationTool,
+                                                                            AssociationTool       = InDetPrdAssociationTool_setup,
                                                                             minNotShared          = 3,
                                                                             minHits               = 0,
                                                                             maxShared             = 0,

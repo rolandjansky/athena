@@ -17,6 +17,7 @@
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class IRPCcablingSvc;
 class ITGCcablingSvc;
@@ -111,8 +112,8 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool;
   ToolHandle<Muon::ISTGC_RDO_Decoder>  m_stgcRdoDecoderTool;
   ToolHandle<Muon::IMM_RDO_Decoder>  m_mmRdoDecoderTool;
-
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   // cabling service
   //  const MDTcablingSvc  * m_mdtCabling;

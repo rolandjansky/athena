@@ -19,6 +19,8 @@
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class MdtIdHelper;
 
 namespace MuonGM {
@@ -48,7 +50,7 @@ namespace TrigL2MuonSA {
     virtual StatusCode finalize  ();
 
     // function using the new cabling/geometry
-    void setMdtGeometry(const MdtIdHelper* mdtIdHelper, const MuonGM::MuonDetectorManager* muonMgr);
+    void setMdtGeometry(const Muon::MuonIdHelperTool* muonIdHelperTool, const MuonGM::MuonDetectorManager* muonMgr);
     void setRpcGeometry(bool use_rpc);
     
   public:
@@ -86,7 +88,7 @@ namespace TrigL2MuonSA {
 			  TrigL2MuonSA::MuonRoad&           muonRoad);
 
   private:
-    const MdtIdHelper* m_mdtIdHelper;
+    const Muon::MuonIdHelperTool* m_muonIdHelperTool;
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MuonGM::MdtReadoutElement* m_mdtReadout;
     const MuonGM::MuonStation* m_muonStation;

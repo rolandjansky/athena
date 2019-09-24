@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,8 +13,9 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoModelKernel/RCBase.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
+
+#include <memory>
 
 namespace InDetDD {
 
@@ -87,41 +88,41 @@ namespace InDetDD {
     - modified & maintained: Nick Styles, Andreas Salzburger
     **/
     
-    class PixelDiodeMatrix: public RCBase {
+    class PixelDiodeMatrix : public std::enable_shared_from_this<PixelDiodeMatrix> {
       
     public:
       
       enum Direction {phiDir, etaDir};
       
-      /// Constructor for just a single cell.
-      PixelDiodeMatrix(double phiWidth, double etaWidth);
+      /// Destructor
+      ~PixelDiodeMatrix() = default;
       
-      /** Constructor with multiple matrices.
+      /// Construct method for just a single cell.
+      static std::shared_ptr<const PixelDiodeMatrix> construct(double phiWidth, double etaWidth);
+
+      /** Construct method with multiple matrices.
           There may be zero or one lower matrix (pointer can be 0).
           Multiple (numCells) middle matrics (must pass a non zero pointer).
           There may be zero or one upper matrix (pointer can be 0).
           These must all have the same width and cells in the non replicating direction. */
-      PixelDiodeMatrix(Direction direction,  // phi or eta
-    		          const PixelDiodeMatrix * lowerCell,
-    		          const PixelDiodeMatrix * middleCells,
-    		          int numCells,
-    		          const PixelDiodeMatrix * upperCells);
-      
-      /// Destructor
-      ~PixelDiodeMatrix();
-      
+      static std::shared_ptr<const PixelDiodeMatrix> construct(Direction direction,  // phi or eta
+                                                               std::shared_ptr<const PixelDiodeMatrix> lowerCell,
+                                                               std::shared_ptr<const PixelDiodeMatrix> middleCells,
+                                                               int numCells,
+                                                               std::shared_ptr<const PixelDiodeMatrix> upperCells);
+
       /** Return cell Id corresponding to a relative position within the matrix.
           The cellId is modified and returns the id relative to the passed cellId.
           That is, it adds the relative cellId to the cellId passed to the function. 
           A pointer to the correspond cell is returned. This can be used to get the
           size of the cell. */
-      const PixelDiodeMatrix * cellIdOfPosition(const Amg::Vector2D & position, SiCellId & cellId) const;
+      std::shared_ptr<const PixelDiodeMatrix> cellIdOfPosition(const Amg::Vector2D & position, SiCellId & cellId) const;
       
       /** Return position correspong to cell with relative id withing the matrix.
           Returns the relative position added to the position passed in.
           A pointer to the correspond cell is returned. This can be used to get the
           size of the cell. */
-      const PixelDiodeMatrix * positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const;
+      std::shared_ptr<const PixelDiodeMatrix> positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const;
       
       /** Width in phi (x) direction.*/
       double phiWidth() const;
@@ -139,15 +140,32 @@ namespace InDetDD {
       bool singleCell() const;
       
     private:
+      /** Hidden constructor */
+      PixelDiodeMatrix() {};
+
+      /// Initialize for just a single cell.
+      void initialize(double phiWidth, double etaWidth);
+      
+      /** Initialize for multiple matrices.
+          There may be zero or one lower matrix (pointer can be 0).
+          Multiple (numCells) middle matrics (must pass a non zero pointer).
+          There may be zero or one upper matrix (pointer can be 0).
+          These must all have the same width and cells in the non replicating direction. */
+      void initialize(Direction direction,  // phi or eta
+                      std::shared_ptr<const PixelDiodeMatrix> lowerCell,
+                      std::shared_ptr<const PixelDiodeMatrix> middleCells,
+                      int numCells,
+                      std::shared_ptr<const PixelDiodeMatrix> upperCells);
+
       double        m_phiWidth;
       double        m_etaWidth;
       int           m_phiCells;    
       int           m_etaCells;
       Direction     m_direction;
       int m_numCells; // number of MiddleCells along m_direction direction.
-      const PixelDiodeMatrix * m_lowerCell;
-      const PixelDiodeMatrix * m_middleCells;
-      const PixelDiodeMatrix * m_upperCell;
+      std::shared_ptr<const PixelDiodeMatrix> m_lowerCell;
+      std::shared_ptr<const PixelDiodeMatrix> m_middleCells;
+      std::shared_ptr<const PixelDiodeMatrix> m_upperCell;
       bool m_singleCell;
     
     };

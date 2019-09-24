@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -45,15 +45,33 @@ StatusCode TauTruthMatchingTool::initialize()
 }
 
 //______________________________________________________________________________
+std::unique_ptr<TauTruthMatchingTool::ITruthTausEvent>
+TauTruthMatchingTool::getEvent() const
+{
+  auto truthTausEvent = std::make_unique<TruthTausEvent>();
+  if (retrieveTruthTaus(*truthTausEvent).isFailure()) {
+    truthTausEvent.reset();
+  }
+  return truthTausEvent;
+}
+
+//______________________________________________________________________________
 const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
 {
+  return getTruth (xTau, m_truthTausEvent);
+}
+const xAOD::TruthParticle*
+TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau,
+                               ITruthTausEvent& itruthTausEvent) const
+{
+  TruthTausEvent& truthTausEvent = dynamic_cast<TruthTausEvent&> (itruthTausEvent);
   if (m_bIsData)
     return nullptr;
 
-  if (retrieveTruthTaus().isFailure())
+  if (retrieveTruthTaus(truthTausEvent).isFailure())
     return nullptr;
 
-  if (findTruthTau(xTau).isFailure())
+  if (findTruthTau(xTau, truthTausEvent).isFailure())
     ATH_MSG_WARNING("There was a failure in finding the matched truth tau");
 
   // if matched to a truth tau return its pointer, else return a null pointer
@@ -333,20 +351,15 @@ xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD:
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau)
+StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau,
+                                              TruthTausEvent& truthTausEvent) const
 {
   // check if decorations were already added to the first passed tau
-  if (!m_bIsTruthMatchedAvailableChecked)
-  {
-    m_bIsTruthMatchedAvailable = xTau.isAvailable<char>("IsTruthMatched");
-    m_bIsTruthMatchedAvailableChecked = true;
-    if (m_bIsTruthMatchedAvailable)
-    {
-      ATH_MSG_DEBUG("IsTruthMatched decoration is available on first tau processed, switched of rerun for further taus.");
-      ATH_MSG_DEBUG("If a truth matching needs to be redone, please pass a shallow copy of the original tau.");
-    }
+  if (!m_bIsTruthMatchedAvailable.isValid()) {
+    bool avail = xTau.isAvailable<char>("IsTruthMatched");
+    m_bIsTruthMatchedAvailable.set (avail);
   }
-  if (m_bIsTruthMatchedAvailable)
+  if (*m_bIsTruthMatchedAvailable.ptr())
     return StatusCode::SUCCESS;
 
   // only search for truth taus once
@@ -360,9 +373,9 @@ StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau)
   // || (xTau.auxdata<char>("IsTruthMatched") && xTau.auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") == NULL ))
   // {
   if (m_bTruthTauAvailable)
-    return checkTruthMatch(xTau, *m_xTruthTauContainerConst);
+    return checkTruthMatch(xTau, *truthTausEvent.m_xTruthTauContainerConst);
   else
-    return checkTruthMatch(xTau, *m_xTruthTauContainer);
+    return checkTruthMatch(xTau, *truthTausEvent.m_xTruthTauContainer);
   // }
 
   // return StatusCode::SUCCESS;
@@ -401,10 +414,10 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (!xTruthMatch and m_xTruthMuonContainerConst)
+  if (!xTruthMatch and m_truthTausEvent.m_xTruthMuonContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthMuonIt : *m_xTruthMuonContainerConst)
+    for (auto xTruthMuonIt : *m_truthTausEvent.m_xTruthMuonContainerConst)
     {
       if (xTau.p4().DeltaR(xTruthMuonIt->p4()) <= m_dMaxDeltaR)
       {
@@ -418,10 +431,10 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (!xTruthMatch and m_xTruthElectronContainerConst)
+  if (!xTruthMatch and m_truthTausEvent.m_xTruthElectronContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthElectronIt : *m_xTruthElectronContainerConst)
+    for (auto xTruthElectronIt : *m_truthTausEvent.m_xTruthElectronContainerConst)
     {
       if (xTau.p4().DeltaR(xTruthElectronIt->p4()) <= m_dMaxDeltaR)
       {
@@ -434,10 +447,10 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
   }
 
-  if (m_xTruthJetContainerConst)
+  if (m_truthTausEvent.m_xTruthJetContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthJetIt : *m_xTruthJetContainerConst)
+    for (auto xTruthJetIt : *m_truthTausEvent.m_xTruthJetContainerConst)
     {
       if (xTau.p4().DeltaR(xTruthJetIt->p4()) <= m_dMaxDeltaR)
       {
@@ -456,7 +469,7 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
 
   if (xTruthJetMatch)
   {
-    ElementLink < xAOD::JetContainer > lTruthParticleLink(xTruthJetMatch, *m_xTruthJetContainerConst);
+    ElementLink < xAOD::JetContainer > lTruthParticleLink(xTruthJetMatch, *m_truthTausEvent.m_xTruthJetContainerConst);
     decTruthJetLink(xTau) = lTruthParticleLink;
   }
   else
@@ -488,12 +501,12 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
     }
     else if (eTruthMatchedParticleType == TruthMuon)
     {
-      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_xTruthMuonContainerConst);
+      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_truthTausEvent.m_xTruthMuonContainerConst);
       decTruthParticleLink(xTau) = lTruthParticleLink;
     }
     else if (eTruthMatchedParticleType == TruthElectron)
     {
-      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_xTruthElectronContainerConst);
+      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, *m_truthTausEvent.m_xTruthElectronContainerConst);
       decTruthParticleLink(xTau) = lTruthParticleLink;
     }
   }

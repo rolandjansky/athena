@@ -25,6 +25,7 @@
 #include "MdtRawDataMonitoring/MDTNoisyTubes.h"
 #include "MdtRawDataMonitoring/MDTChamber.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 #include "EventInfo/EventInfo.h"
@@ -41,7 +42,6 @@
 
 class Identifier;
 class IdentifierHash;
-class MdtIdHelper;
 class MuonDQAHistList;
 
 namespace Muon {
@@ -116,7 +116,8 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   MDTMonGroupStruct* m_mg;
   MDTNoisyTubes* m_masked_tubes;
 
-  const MdtIdHelper* m_mdtIdHelper;  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   const MuonGM::MuonDetectorManager*  p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
 

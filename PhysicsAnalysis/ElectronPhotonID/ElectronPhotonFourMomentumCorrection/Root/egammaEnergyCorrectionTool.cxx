@@ -65,13 +65,10 @@ namespace AtlasRoot {
   egammaEnergyCorrectionTool::egammaEnergyCorrectionTool()
     :
     asg::AsgMessaging("egammaEnergyCorrectionTool"),
+    m_rootFile (nullptr),
+    m_rootFileName (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v13/egammaEnergyCorrectionData.root")),
     m_esmodel(egEnergyCorr::UNDEFINED)
   {
-
-    m_rootFile = nullptr;
-
-    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v13/egammaEnergyCorrectionData.root");
-    
     if (m_rootFileName.empty()) {
       ATH_MSG_FATAL("cannot find configuration file");
       throw std::runtime_error("cannot find file");

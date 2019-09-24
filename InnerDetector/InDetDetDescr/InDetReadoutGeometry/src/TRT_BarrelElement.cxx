@@ -38,13 +38,11 @@ TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume,
   m_nextInR(NULL),
   m_previousInR(NULL)
 {
-  m_descriptor->ref();
 }
 
 
 TRT_BarrelElement::~TRT_BarrelElement()
 {
-  m_descriptor->unref();
 }
 
 

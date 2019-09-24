@@ -64,6 +64,14 @@ namespace TrigConf {
                            const std::string & pathToChild = "");
 
 
+      /**
+       * @brief Checks the trigger level of a given json file
+       * @param filename [in] Name of the json file
+       * @param level [out] either "L1", "HLT" or "UNKNOWN"
+       */
+      StatusCode checkTriggerLevel( const std::string & filename,
+                                    std::string & level );
+
       void setLevel(MSGTC::Level lvl) { msg().setLevel(lvl); }
 
       MSGTC::Level outputLevel() const { return msg().level(); }

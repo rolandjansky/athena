@@ -30,6 +30,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -41,10 +42,10 @@ class CondAttrListCollection;
 
 namespace InDetDD {
 
-  class TRT_Numerology;
   class ExtendedAlignableTransform;
-
-
+  class TRT_BarrelDescriptor;
+  class TRT_EndcapDescriptor;
+  class TRT_Numerology;
 
   /** class TRT_DetectorManager
   
@@ -228,6 +229,10 @@ namespace InDetDD {
                                  const CondAttrListCollection* obj=nullptr,
                                  GeoVAlignmentStore* alignStore=nullptr) const override;
 
+    /** Set TRT_Barrel/EndcapDescriptor pointer to the internal sets to delete them in the destructor */
+    void setBarrelDescriptor(const TRT_BarrelDescriptor* barrelDescriptor);
+    void setEndcapDescriptor(const TRT_EndcapDescriptor* endcapDescriptor);
+
  private:
 
 
@@ -267,6 +272,10 @@ namespace InDetDD {
     // Alignment stuff
     typedef std::map<Identifier, ExtendedAlignableTransform *> AlignableTransformMap;
     std::vector< AlignableTransformMap > m_alignableTransforms;
+
+    // Descriptors are owned by TRT_DetectorManager.
+    std::set<const TRT_BarrelDescriptor*> m_barrelDescriptors;
+    std::set<const TRT_EndcapDescriptor*> m_endcapDescriptors;
 
     // here temporarily
     virtual const TRT_ID *getIdHelper() const override;                                    //

@@ -222,7 +222,6 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     }  
     mon_accepted_highptNTrk = good_tracks.size();
 
-    TLorentzVector tlv0, tlv1;
     ATH_MSG_DEBUG("Passed NTrack and track pT cuts: " << mon_accepted_highptNTrk << " tracks sent to vertexing");
     
     const auto nTracks = good_tracks.size();

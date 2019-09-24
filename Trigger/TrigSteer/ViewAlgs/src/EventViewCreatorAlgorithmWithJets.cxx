@@ -108,6 +108,11 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
     } // loop over decisions   
   }// loop over output keys
 
+  // debug option to reorder views
+  if ( m_reverseViews ) {
+    std::reverse( viewVector->begin(), viewVector->end() );
+  }
+
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
              m_viewNodeName,             // CF node to attach views to

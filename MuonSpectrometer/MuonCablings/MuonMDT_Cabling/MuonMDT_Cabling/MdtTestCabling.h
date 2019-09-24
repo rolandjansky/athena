@@ -16,7 +16,7 @@
  ***********************************************/
 
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -37,7 +37,8 @@ class MdtTestCabling : public AthAlgorithm {
 
  private:
 
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   // test initialize function
   bool initTestMap();

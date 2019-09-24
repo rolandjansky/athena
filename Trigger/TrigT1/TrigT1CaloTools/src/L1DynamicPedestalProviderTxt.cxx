@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////
 //  L1DynamicPedestalProviderTxt.cxx 
@@ -11,7 +11,6 @@
 #include "TrigBunchCrossingTool/BunchCrossing.h"
 
 #include "PathResolver/PathResolver.h"
-#include "CxxUtils/make_unique.h"
 #include "CxxUtils/StringUtils.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
@@ -22,7 +21,7 @@
 #include <fstream>
 #include <sstream>
 
-using CxxUtils::make_unique;
+using std::make_unique;
 
 namespace {
 using bcid_t = Trig::IBunchCrossingTool::bcid_type;

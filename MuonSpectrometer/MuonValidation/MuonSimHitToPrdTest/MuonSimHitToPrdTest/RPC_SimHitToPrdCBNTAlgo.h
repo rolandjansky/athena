@@ -10,13 +10,13 @@
 
 //#include "CBNT_Utils/CBNT_AthenaAwareBase.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 
 class StatusCode;
 class RpcHitIdHelper   ; 
-class RpcIdHelper      ;
 
 namespace MuonGM
 {
@@ -55,7 +55,8 @@ class RPC_SimHitToPrdCBNTAlgo : public AthAlgorithm
   StatusCode doRPCPrep  ();
 
   const MuonGM::MuonDetectorManager*           m_muonMgr     ;
-  const RpcIdHelper* 			       m_rpcIdHelper; //offline id helper
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"}; //offline id helper
   RpcHitIdHelper*                              m_muonHelper; // simulation id helper
  
   bool m_doMCtruth;

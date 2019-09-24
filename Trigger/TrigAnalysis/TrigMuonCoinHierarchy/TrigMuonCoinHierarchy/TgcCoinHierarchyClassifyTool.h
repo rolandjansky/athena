@@ -9,8 +9,8 @@
 
 #include "TrigMuonCoinHierarchy/ITgcCoinHierarchyClassifyTool.h"
 #include "TrigMuonCoinHierarchy/TgcCoinHierarchy.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class TgcIdHelper;
 class Identifier;
 
 namespace Trigger {
@@ -46,8 +46,9 @@ class TgcCoinHierarchyClassifyTool : virtual public ITgcCoinHierarchyClassifyToo
   virtual bool isStrip(const Identifier identify) const;
 
   private:
-  /** TgcIdHelper */
-  const TgcIdHelper* m_tgcHelper;
+  /** Tool for TgcIdHelper */
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   /** Map from trigger sector to TgcCoinHierarchyTriggerSector number */
   int m_idVector[TgcCoinHierarchy::NSIDES][TgcCoinHierarchy::NREGIONS][TgcCoinHierarchy::NPHIS][TgcCoinHierarchy::NTIMING];
   /** TgcCoinHierarchy instance used for conversions of enum's etc. */

@@ -1,4 +1,4 @@
-Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [atlas-work3/59685e404735] -- built on [2019-09-04T2143]
+Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [LArADC2MeVCondAlg_cleanup/d5bd00d] -- built on [2019-09-16T1508]
 --- data
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:MetaReader        INFO Current mode used: peeker
@@ -27,6 +27,7 @@ Py:ComponentAccumulator    INFO  \__ LArFlatConditionsAlg<LArHVScaleCorrFlat> (c
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/ElecCalibFlat/HVScaleCorr
 Py:ComponentAccumulator    INFO      * WriteKey: LArHVScaleCorr
 Py:ComponentAccumulator    INFO  \__ LArADC2MeVCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * CondSvc: CondSvc
 Py:ComponentAccumulator    INFO      * LArADC2MeVKey: LArADC2MeV
 IOVDbSvc: ['/LAR/Identifier/OnOffIdMap<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Align<db>COOLONL_LAR/CONDBR2</db>', '/LAR/LArCellPositionShift<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBA1<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBA2<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBA3<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBA4<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBC1<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBC2<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBC3<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMBC4<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMECA1<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMECA2<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMECA3<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMECC1<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMECC2<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/EMECC3<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/FCALA<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/FCALC<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/HECA<db>COOLONL_LAR/CONDBR2</db>', '/LAR/Configuration/FEBConfig/Physics/HECC<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/Ramp<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/DAC2uA<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/uA2MeV<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/MphysOverMcal<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/HVScaleCorr<db>COOLONL_LAR/CONDBR2</db>']
 --- mc
@@ -53,6 +54,7 @@ Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArMphysOverMcalMC, LAr
 Py:ComponentAccumulator    INFO      * ReadKey: LArMphysOverMcal
 Py:ComponentAccumulator    INFO      * WriteKey: LArMphysOverMcalSym
 Py:ComponentAccumulator    INFO  \__ LArADC2MeVCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * CondSvc: CondSvc
 Py:ComponentAccumulator    INFO      * LArADC2MeVKey: LArADC2MeV
 Py:ComponentAccumulator    INFO      * LArDAC2uAKey: LArDAC2uASym
 Py:ComponentAccumulator    INFO      * LArHVScaleCorrKey: LArHVScaleCorr

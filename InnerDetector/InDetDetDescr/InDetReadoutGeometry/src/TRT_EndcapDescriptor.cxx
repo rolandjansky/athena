@@ -23,7 +23,10 @@ TRT_EndcapDescriptor::TRT_EndcapDescriptor():
   m_o(0),
   m_bounds()
 {
+}
 
+TRT_EndcapDescriptor::~TRT_EndcapDescriptor()
+{
 }
 
 void TRT_EndcapDescriptor::setStrawTransformField(const GeoXF::Function *xf, size_t offsetInto) {

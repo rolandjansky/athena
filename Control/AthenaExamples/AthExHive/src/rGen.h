@@ -1,11 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/**
+ * @file rGen.h
+ * @brief interface to a random number generator, used to make sleep time
+ * of Algorithms slightly variable
+ */
 
 #ifndef RGEN_H
 #define RGEN_H 1
 
-#include <thread>
 #include <random>
 #include <mutex>
 
@@ -20,8 +25,8 @@ public:
     return m_dst(m_gen);
   }
 
-  int igen(int t) {
-    return int( m_dst(m_gen) * float(t) );
+  unsigned int igen(int t) {
+    return (unsigned int)( m_dst(m_gen) * float(t) );
   }
 
 private:

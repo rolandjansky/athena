@@ -4,47 +4,15 @@
 
 
 #include "LArADC2MeVCondAlg.h"
-
-#include "LArRawConditions/LArADC2MeV.h"
-#include "LArCabling/LArOnOffIdMapping.h"
-#include "LArElecCalib/ILArRamp.h"
-#include "LArElecCalib/ILArDAC2uA.h"
-#include "LArElecCalib/ILAruA2MeV.h"
-#include "LArElecCalib/ILArMphysOverMcal.h"
-#include "LArElecCalib/ILArHVScaleCorr.h"
-#include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
+#include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
-
 #include <memory>
-
 #include "GaudiKernel/EventIDRange.h"
 
 LArADC2MeVCondAlg::LArADC2MeVCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_cablingKey("LArOnOffIdMap"),
-  m_lAruA2MeVKey("LAruA2MeV"),
-  m_lArDAC2uAKey("LArDAC2uA"),
-  m_lArRampKey("LArRamp"),
-  m_lArMphysOverMcalKey("LArMphysOverMcal"),
-  m_lArHVScaleCorrKey("LArHVScaleCorr"),
-  m_ADC2MeVKey("LArADC2MeV","LArADC2MeV"),
-  m_condSvc("CondSvc",name),
-  m_configKey("LArFebConfig"),
-  m_isSuperCell(false) {
-  
-
-  declareProperty("LArOnOffIdMappingKey",m_cablingKey,"SG key of LArOnOffIdMapping object");
-  declareProperty("LAruA2MeVKey",m_lAruA2MeVKey,"SG key of uA2MeV object");
-  declareProperty("LArDAC2uAKey",m_lArDAC2uAKey,"SG key of DAC2uA object");
-  declareProperty("LArRampKey",m_lArRampKey,"SG key of Ramp object");
-  declareProperty("LArMphysOverMcalKey",m_lArMphysOverMcalKey,"SG key of MpysOverMcal object (or empty string if no MphysOverMcal)");
-  declareProperty("LArHVScaleCorrKey",m_lArHVScaleCorrKey,"SG key of HVScaleCorr object (or empty string if no HVScaleCorr)");
-  declareProperty("LArADC2MeVKey",m_ADC2MeVKey,"SG key of the resulting LArADC2MeV object");
-  declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
-  declareProperty("UseFEBGainTresholds",m_useFEBGainThresholds=true);
-  declareProperty("inputKey",m_configKey,"SG key for FEB config object");
-}
+  AthReentrantAlgorithm(name, pSvcLocator)
+{}
 
 LArADC2MeVCondAlg::~LArADC2MeVCondAlg() {}
 
@@ -54,13 +22,23 @@ StatusCode LArADC2MeVCondAlg::initialize() {
   //CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
 
+  //Identifier helper:
   if (m_isSuperCell) {
     m_nGains=1;
-    //ATH_CHECK(m_larSCOnlineIDKey.initialize());
+    const LArOnline_SuperCellID* scidhelper;
+    ATH_CHECK(detStore()->retrieve(scidhelper,"LArOnline_SuperCellID"));
+    m_larOnlineID=scidhelper; //cast to base-class
   }
-  else {
+  else {//regular cells
     m_nGains=3;
-    //ATH_CHECK(m_larOnlineIDKey.initialize());
+    const LArOnlineID* idhelper;
+    ATH_CHECK(detStore()->retrieve(idhelper,"LArOnlineID"));
+    m_larOnlineID=idhelper; //cast to base-class
+  }
+
+  if (!m_larOnlineID) {
+    ATH_MSG_ERROR("Failed to obtain LArOnlineID");
+    return StatusCode::FAILURE;
   }
 
   // Read handle for cabling
@@ -88,16 +66,16 @@ StatusCode LArADC2MeVCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_useFEBGainThresholds)  ATH_CHECK(m_configKey.initialize());
+  if (m_useFEBGainThresholds)  ATH_CHECK(m_febConfigKey.initialize());
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode LArADC2MeVCondAlg::execute() {
+StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
 
   //Set up write handle
-  SG::WriteCondHandle<LArADC2MeV> writeHandle{m_ADC2MeVKey};
+  SG::WriteCondHandle<LArADC2MeV> writeHandle{m_ADC2MeVKey,ctx};
   
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("Found valid write handle");
@@ -105,26 +83,11 @@ StatusCode LArADC2MeVCondAlg::execute() {
   }  
 
 
-  const LArOnlineID_Base* larOnlineID=nullptr;
-  //Identifier helper:
-  if (m_isSuperCell) {
-    //SG::ReadCondHandle<LArOnline_SuperCellID> larOnlineHdl{m_larSCOnlineIDKey}
-    const LArOnline_SuperCellID* scidhelper;
-    ATH_CHECK(detStore()->retrieve(scidhelper,"LArOnline_SuperCellID"));
-    larOnlineID=scidhelper; //cast to base-class
-  }
-  else {//regular cells
-    //SG::ReadCondHandle<LArOnlineID> larOnlineHdl{m_larOnlineIDKey};
-    const LArOnlineID* idhelper;
-    ATH_CHECK(detStore()->retrieve(idhelper,"LArOnlineID"));
-    larOnlineID=idhelper; //cast to base-class
-  }
-
   //To determine the output range:
   EventIDRange rangeIn, rangeOut;
 
   //Cabling (should have an ~infinte IOV)
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cablingHdl.range(rangeOut)) { //use RangeOut for the first one
     ATH_MSG_ERROR("Failed to retrieve validity range for LArOnOffIdMapping object with " <<  cablingHdl.key());
@@ -132,7 +95,7 @@ StatusCode LArADC2MeVCondAlg::execute() {
   }
 
   //Get pointers to input data and determine validity range
-  SG::ReadCondHandle<ILAruA2MeV> uA2MeVHdl{m_lAruA2MeVKey};
+  SG::ReadCondHandle<ILAruA2MeV> uA2MeVHdl{m_lAruA2MeVKey,ctx};
   const ILAruA2MeV* laruA2MeV{*uA2MeVHdl};
   if (!uA2MeVHdl.range(rangeIn)){ 
     ATH_MSG_ERROR("Failed to retrieve validity range for uA2MeV object with " << uA2MeVHdl.key());
@@ -141,7 +104,7 @@ StatusCode LArADC2MeVCondAlg::execute() {
 
   rangeOut=EventIDRange::intersect(rangeOut,rangeIn); 
   
-  SG::ReadCondHandle<ILArDAC2uA> DAC2uAHdl{m_lArDAC2uAKey};
+  SG::ReadCondHandle<ILArDAC2uA> DAC2uAHdl{m_lArDAC2uAKey,ctx};
   const ILArDAC2uA* larDAC2uA{*DAC2uAHdl};
   
   if (!DAC2uAHdl.range(rangeIn)){
@@ -152,41 +115,40 @@ StatusCode LArADC2MeVCondAlg::execute() {
   rangeOut=EventIDRange::intersect(rangeOut,rangeIn); 
   
 
-  SG::ReadCondHandle<ILArRamp> rampHdl{m_lArRampKey};
+  SG::ReadCondHandle<ILArRamp> rampHdl{m_lArRampKey,ctx};
   const ILArRamp* larRamp{*rampHdl};
   if (!rampHdl.range(rangeIn)){
     ATH_MSG_ERROR("Failed to retrieve validity range for ramp object with key " << rampHdl.key());
     return StatusCode::FAILURE;
   }
+  rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
 
   // retrieve LArFebConfig if needed
   const LArFebConfig *febConfig=nullptr;
   if(m_useFEBGainThresholds) {
-     SG::ReadCondHandle<LArFebConfig> configHdl{m_configKey};
+    SG::ReadCondHandle<LArFebConfig> configHdl{m_febConfigKey,ctx};
      febConfig = *configHdl;
      if (febConfig==nullptr) {
-        ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_configKey.key());
+        ATH_MSG_ERROR( "Unable to retrieve LArFebConfig with key " << m_febConfigKey.key());
         return StatusCode::FAILURE;
      }
+     rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
   }
-
-  rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
-
   //The following two are optional (not used for MC and/or SuperCells)
   const ILArMphysOverMcal* larmPhysOverMCal=nullptr;
   if (m_lArMphysOverMcalKey.key().size()) {
-    SG::ReadCondHandle<ILArMphysOverMcal> mphysOverMcalHdl{m_lArMphysOverMcalKey};
+    SG::ReadCondHandle<ILArMphysOverMcal> mphysOverMcalHdl{m_lArMphysOverMcalKey,ctx};
     larmPhysOverMCal=*mphysOverMcalHdl;
     if (!mphysOverMcalHdl.range(rangeIn)){
       ATH_MSG_ERROR("Failed to retrieve validity range for MphysOverMcal object with key " << mphysOverMcalHdl.key());
       return StatusCode::FAILURE;
     }
-  rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
+    rangeOut=EventIDRange::intersect(rangeOut,rangeIn);
   }//end if have MphysOverMcal
 
   const ILArHVScaleCorr* larHVScaleCorr=nullptr;
   if (m_lArHVScaleCorrKey.key().size()) {
-    SG::ReadCondHandle<ILArHVScaleCorr> HVScaleCorrHdl{m_lArHVScaleCorrKey};
+    SG::ReadCondHandle<ILArHVScaleCorr> HVScaleCorrHdl{m_lArHVScaleCorrKey,ctx};
     larHVScaleCorr=*HVScaleCorrHdl;
     if (!HVScaleCorrHdl.range(rangeIn)){
       ATH_MSG_ERROR("Failed to retrieve validity range for HVScaleCorr object with key " << HVScaleCorrHdl.key());
@@ -205,47 +167,41 @@ StatusCode LArADC2MeVCondAlg::execute() {
   unsigned nNoRamp=0;
   unsigned nNoHVScaleCorr=0;
 
-
   //Create output object
-  std::unique_ptr<LArADC2MeV> lArADC2MeVObj=std::make_unique<LArADC2MeV>(larOnlineID,cabling,m_nGains);
+  std::unique_ptr<LArADC2MeV> lArADC2MeVObj=std::make_unique<LArADC2MeV>(m_larOnlineID,cabling,m_nGains);
 
-
-  
   //Start loop over channels
-  std::vector<HWIdentifier>::const_iterator it  = larOnlineID->channel_begin();
-  std::vector<HWIdentifier>::const_iterator it_e= larOnlineID->channel_end();
-  for (;it!=it_e;++it) {
-    
-    
+  std::vector<HWIdentifier>::const_iterator it  = m_larOnlineID->channel_begin();
+  std::vector<HWIdentifier>::const_iterator it_e= m_larOnlineID->channel_end();
+  for (;it!=it_e;++it) {    
     const HWIdentifier chid=*it;
-    const IdentifierHash hid=larOnlineID->channel_Hash(chid);
+    const IdentifierHash hid=m_larOnlineID->channel_Hash(chid);
 
     //Check if connected:
     if (cabling->isOnlineConnectedFromHash(hid)) {
       //uA2MeV and DAC2uA are gain-less and always needed:
       const float& uA2MeV=laruA2MeV->UA2MEV(chid);
       if (uA2MeV == (float)ILAruA2MeV::ERRORCODE) {
-	msg(MSG::ERROR) << "No uA2MeV value found for channel " << larOnlineID->channel_name(chid) << endmsg;
+	//msg(MSG::ERROR) << "No uA2MeV value found for channel " << m_larOnlineID->channel_name(chid) << endmsg;
 	++nNouA2MeV;
 	continue;
       }
 
       const float& DAC2uA=larDAC2uA->DAC2UA(chid);
       if (DAC2uA == (float)ILArDAC2uA::ERRORCODE) {
-	msg(MSG::ERROR) << "No DAC2uA value for for channel " << larOnlineID->channel_name(chid) << endmsg;
+	msg(MSG::ERROR) << "No DAC2uA value for for channel " << m_larOnlineID->channel_name(chid) << endmsg;
 	++nNoDAC2uA;
 	continue;
       }
 
       //First intermediate result
       float factor=uA2MeV*DAC2uA;
-
     
       if (larHVScaleCorr) { //Have HVScaleCorr (remember, it's optional)
 	const float&  HVScaleCorr = larHVScaleCorr->HVScaleCorr(chid);
 	if (HVScaleCorr == (float)ILAruA2MeV::ERRORCODE) {
 	  //That's a bit unusual but not a desaster, go ahead w/o HV Scale correction
-	  ATH_MSG_DEBUG("No HVScaleCorr value for for channel " << larOnlineID->channel_name(chid));
+	  ATH_MSG_DEBUG("No HVScaleCorr value for for channel " << m_larOnlineID->channel_name(chid));
 	  ++nNoHVScaleCorr;
 	}
 	else {
@@ -279,7 +235,7 @@ StatusCode LArADC2MeVCondAlg::execute() {
 	const ILArRamp::RampRef_t adc2dac = larRamp->ADC2DAC(chid,igain);
 	if (adc2dac.size()<2) {
           // Some channels can be missing in some configurations.
-          msg(MSG::VERBOSE) << "No Ramp found for channel " << larOnlineID->channel_name(chid) << ", gain " << igain << endmsg;
+          msg(MSG::VERBOSE) << "No Ramp found for channel " << m_larOnlineID->channel_name(chid) << ", gain " << igain << endmsg;
 	  continue;
 	}
 
@@ -321,7 +277,7 @@ StatusCode LArADC2MeVCondAlg::execute() {
   }//end loop over readout channels
 
 
-  ATH_CHECK(writeHandle.record(rangeOut,lArADC2MeVObj.release()));
+  ATH_CHECK(writeHandle.record(rangeOut,std::move(lArADC2MeVObj)));
   
   if (nNouA2MeV) msg(MSG::ERROR) << "No uA2MeV values for " << nNouA2MeV << " channels" << endmsg;
   if (nNoDAC2uA) msg(MSG::ERROR) << "No DAC2uA values for " << nNouA2MeV << " channels" << endmsg;
@@ -329,7 +285,6 @@ StatusCode LArADC2MeVCondAlg::execute() {
   
   if (nNoMphysOverMcal) ATH_MSG_INFO("No MphysOverMcal values for " << nNoMphysOverMcal << " channels * gains");
   if (nNoHVScaleCorr) ATH_MSG_WARNING("No HVScaleCorr values for " << nNoHVScaleCorr << " channels");
-
 
   if (nNouA2MeV || nNoDAC2uA || nNoRamp) 
     return StatusCode::FAILURE;

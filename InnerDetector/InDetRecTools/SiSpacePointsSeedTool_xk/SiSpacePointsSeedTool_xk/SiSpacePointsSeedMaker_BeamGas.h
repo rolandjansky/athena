@@ -27,19 +27,15 @@
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <iosfwd>
 #include <list>
 #include <vector>
 
 class MsgStream;
-
-namespace Trk {
-  class IPRD_AssociationTool;
-}
 
 namespace InDet {
 
@@ -122,7 +118,6 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
       
     ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
 
     ///////////////////////////////////////////////////////////////////
     // Space points container
@@ -130,6 +125,8 @@ namespace InDet {
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
+    SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
+       {this,"PRDtoTrackMap",""};                                   ///< option PRD-to-track association"
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
@@ -137,7 +134,6 @@ namespace InDet {
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_sct{this, "useSCT""useSCT", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", true};
-    BooleanProperty m_useassoTool{this, "UseAssociationTool", true};
     IntegerProperty m_maxsize{this, "maxSize", 20000};
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 1500};
     IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
@@ -229,11 +225,26 @@ namespace InDet {
     void findNext(EventData& data) const;
     bool isZCompatible(float&) const;
     void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, float* r) const;
-    bool isUsed(const Trk::SpacePoint*) const;
+    bool isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;
   };
 
 } // end of name space
+
+namespace InDet {
+
+  inline
+  bool SiSpacePointsSeedMaker_BeamGas::isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const
+  {
+    const Trk::PrepRawData* d = sp->clusterList().first;
+    if (!d || !prd_to_track_map.isUsed(*d)) return false;
+
+    d = sp->clusterList().second;
+    if (!d || prd_to_track_map.isUsed(*d)) return true;
+
+    return false;
+  }
+}
 
 #endif // SiSpacePointsSeedMaker_BeamGas_H

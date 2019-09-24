@@ -14,6 +14,8 @@ class  ConfiguredNewTrackingSiPattern:
       
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
+
+      import InDetRecExample.TrackingCommon   as TrackingCommon
       #
       # --- get ToolSvc and topSequence
       #
@@ -32,11 +34,16 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- get list of already associated hits (always do this, even if no other tracking ran before)
       #
+      asso_tool = None
       if usePrdAssociationTool:
-         from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-         InDetPRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetPRD_Association'+NewTrackingCuts.extension(),
-                                                                 AssociationTool = InDetPrdAssociationTool,
-                                                                 TracksName      = list(InputCollections))
+         prefix     = 'InDet'
+         suffix     = NewTrackingCuts.extension()
+         InDetPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = prefix,
+                                                                            suffix     = suffix,
+                                                                            TracksName = list(InputCollections))
+
+         asso_tool = TrackingCommon.getConstPRD_AssociationTool(prefix     = prefix, suffix = suffix)
+
          topSequence += InDetPRD_Association
          if (InDetFlags.doPrintConfigurables()):
             print InDetPRD_Association
@@ -87,8 +94,8 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
          if usePrdAssociationTool:
             # not all classes have that property !!!
-            InDetSiSpacePointsSeedMaker.UseAssociationTool = True
-            InDetSiSpacePointsSeedMaker.AssociationTool    = InDetPrdAssociationTool
+            InDetSiSpacePointsSeedMaker.PRDtoTrackMap      = prefix+'PRDtoTrackMap'+suffix \
+                                                                if usePrdAssociationTool else ''
          if not InDetFlags.doCosmics():
             InDetSiSpacePointsSeedMaker.maxRadius1         = 0.75*NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()
@@ -159,6 +166,17 @@ class  ConfiguredNewTrackingSiPattern:
          if (InDetFlags.doPrintConfigurables()):
             print      InDetSiDetElementsRoadMaker
          # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
+         if DetFlags.haveRIO.pixel_on():
+             # Condition algorithm for SiCombinatorialTrackFinder_xk
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSeq = AthSequencer("AthCondSeq")
+            if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+                from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+                condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                      ReadKey = "PixelDetectorElementCollection",
+                                                                      WriteKey = "PixelDetElementBoundaryLinks_xk",
+                                                                      UsePixelDetectorManager = True)
+
          if NewTrackingCuts.useSCT():
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
@@ -166,12 +184,20 @@ class  ConfiguredNewTrackingSiPattern:
                from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
                condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
 
+            if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
+               from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+               condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                     ReadKey = "SCT_DetectorElementCollection",
+                                                                     WriteKey = "SCT_DetElementBoundaryLinks_xk")
+
+
          #
          # --- Local track finding using sdCaloSeededSSSpace point seed
          #
          # @TODO ensure that PRD association map is used if usePrdAssociationTool is set
          is_dbm = InDetFlags.doDBMstandalone() or NewTrackingCuts.extension()=='DBM'
          rot_creator_digital = TrackingCommon.getInDetRotCreatorDigital() if not is_dbm else TrackingCommon.getInDetRotCreatorDBM()
+
          from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
          track_finder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder'+NewTrackingCuts.extension(),
                                                              PropagatorTool        = InDetPatternPropagator,
@@ -184,7 +210,6 @@ class  ConfiguredNewTrackingSiPattern:
          if is_dbm :
             track_finder.MagneticFieldMode     = "NoField"
             track_finder.TrackQualityCut       = 9.3
-
 
          if (DetFlags.haveRIO.SCT_on()):
             track_finder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
@@ -236,7 +261,6 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiTrackMaker.useSSSseedsFilter = False
             InDetSiTrackMaker.doCaloSeededBrem = False
             InDetSiTrackMaker.doHadCaloSeedSSS = False
-            InDetSiTrackMaker.UseAssociationTool = False
 					
          elif InDetFlags.doCosmics():
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_Cosmic'
@@ -296,6 +320,8 @@ class  ConfiguredNewTrackingSiPattern:
 
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
+                                                                    PRDtoTrackMap  = prefix+'PRDtoTrackMap'+suffix \
+                                                                                       if usePrdAssociationTool else '',
                                                                     TracksLocation = self.__SiTrackCollection,
                                                                     SeedsTool      = InDetSiSpacePointsSeedMaker,
                                                                     useZvertexTool = InDetFlags.useZvertexTool(),
@@ -309,6 +335,8 @@ class  ConfiguredNewTrackingSiPattern:
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool      = InDetSiTrackMaker,
+                                                                    PRDtoTrackMap  = prefix+'PRDtoTrackMap'+suffix \
+                                                                                       if usePrdAssociationTool else '',
                                                                     TracksLocation = self.__SiTrackCollection,
                                                                     SeedsTool      = InDetSiSpacePointsSeedMaker,
                                                                     useZvertexTool = InDetFlags.useZvertexTool() and NewTrackingCuts.mode() != "DBM",

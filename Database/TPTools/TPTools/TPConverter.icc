@@ -182,33 +182,33 @@ void TPCnvStdVector<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
 
 
 template<class TRANS, class PERS, class CONV>
-void TPCnvStdVectorConst<TRANS, PERS, CONV>::persToTransConst(const PERS& persVect,
-		TRANS& transVect,
+void TPCnvStdVectorConst<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
+		TRANS* transVect,
 		MsgStream &log)  const
 {
    CONV	element_cnv;
-   size_t i = persVect.size(); 
-   transVect.resize( i );
-   typename PERS::const_iterator pit = persVect.begin();
-   typename TRANS::iterator it = transVect.begin();
+   size_t i = persVect->size(); 
+   transVect->resize( i );
+   typename PERS::const_iterator pit = persVect->begin();
+   typename TRANS::iterator it = transVect->begin();
    while(i) {
-      element_cnv.persToTransConst( *pit, *it, log );
+      element_cnv.persToTrans( &(*pit), &(*it), log );
       it++; pit++; i--;
    }
 }
 
 template<class TRANS, class PERS, class CONV>
-void TPCnvStdVectorConst<TRANS, PERS, CONV>::transToPersConst(const TRANS& transVect,
-		PERS& persVect,
+void TPCnvStdVectorConst<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
+		PERS* persVect,
 		MsgStream &log) const
 {
    CONV element_cnv;
-   size_t i = transVect.size();
-   persVect.resize( i );
-   typename TRANS::const_iterator it = transVect.begin();
-   typename PERS::iterator pit = persVect.begin();
+   size_t i = transVect->size();
+   persVect->resize( i );
+   typename TRANS::const_iterator it = transVect->begin();
+   typename PERS::iterator pit = persVect->begin();
    while(i) {
-       element_cnv.transToPersConst( *it, *pit, log );
+      element_cnv.transToPers( &(*it), &(*pit), log );
        ++pit; ++it; --i;
    }
 }

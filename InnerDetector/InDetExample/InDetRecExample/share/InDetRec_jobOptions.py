@@ -306,10 +306,14 @@ else:
         #                                                 TrackCollectionTruthKeys)
 
 
-        from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-        InDetTRTonly_PRD_AssociationPhase = InDet__InDetTrackPRD_Association(name            = 'InDetTRTonly_PRD_AssociationPhase',
-                                                                        AssociationTool = InDetPrdAssociationTool,
-                                                                        TracksName      = copy.copy(TrackCollectionKeys))
+        # @TODO seems unused ??
+        import InDetRecExample.TrackingCommon   as TrackingCommon
+        InDetTRTonly_PRD_AssociationPhase = TrackingCommon.getInDetTrackPRD_Association(prefix     = 'InDetTRTonly_',
+                                                                                        suffix     = "Phase",
+                                                                                        TracksName = copy.copy(TrackCollectionKeys))
+
+        # asso_tool_phase = TrackingCommon.getConstPRD_AssociationTool(prefix = 'InDetTRTonly_',suffix     = "Phase")
+
         topSequence += InDetTRTonly_PRD_AssociationPhase
         if (InDetFlags.doPrintConfigurables()):
           print InDetTRTonly_PRD_AssociationPhase
@@ -910,12 +914,13 @@ else:
           PRD_TruthTrajectorySelector  = [ InDetTruthTrajectorySelector ]          
 
         # --- the truth track creation algorithm
+        from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
         from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
         InDetTruthTrackCreation = Trk__TruthTrackCreation(name = 'InDetTruthTrackCreation',
                                                           PRD_TruthTrajectoryBuilder = InDetPRD_TruthTrajectoryBuilder,
                                                           TruthTrackBuilder          = InDetTruthTrackBuilder,
                                                           OutputTrackCollection      = InDetKeys.PseudoTracks(),
-                                                          AssoTool                   = InDetPrdAssociationTool,
+                                                          AssociationTool            = getInDetPRDtoTrackMapToolGangedPixels(),
                                                           TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
                                                           PRD_TruthTrajectorySelectors  = PRD_TruthTrajectorySelector )
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
@@ -980,10 +985,11 @@ else:
         TrackCollectionTruthKeys += [ InDetKeys.DBMTracksTruth() ]
       else:
         from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
+        from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
-                                                              AssoTool                = InDetPrdAssociationTool,
+                                                              AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
                                                               SummaryTool             = InDetTrackSummaryToolSharedHits)
@@ -1025,11 +1031,12 @@ else:
        if InDetFlags.doTRTExtension() :
          DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
        else :
-         DummyCollection += [ InDetKeys.ResolvedDisappearingTracks()]
+         DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
+       from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
-                                                                 AssoTool                = InDetPrdAssociationTool,
+                                                                 AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                                  UpdateSharedHitsOnly    = False,
                                                                  UpdateAdditionalInfo    = True,
                                                                  SummaryTool             = InDetTrackSummaryToolSharedHits)
@@ -1081,6 +1088,7 @@ else:
     #
     # ---------------------------------------------------------------- 
     if InDetFlags.doRefit():
+      from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
       from TrkRefitAlg.TrkRefitAlgConf import Trk__ReFitTrack
       from AthenaCommon import CfgGetter
       # @TODO for the track refit can a track fitter be used which requires a split cluster map ?
@@ -1089,7 +1097,7 @@ else:
                                          FitterTool     = CfgGetter.getPublicTool('InDetTrackFitter'),
                                          FitterToolTRT  = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
                                          SummaryTool    = InDetTrackSummaryToolSharedHits,
-                                         AssoTool       = InDetPrdAssociationTool,
+                                         AssociationTool= getInDetPRDtoTrackMapToolGangedPixels(),
                                          TrackName      = InputTrackCollection,
                                          NewTrackName   = InDetKeys.RefittedTracks(),
                                          fitRIO_OnTrack = InDetFlags.refitROT(),

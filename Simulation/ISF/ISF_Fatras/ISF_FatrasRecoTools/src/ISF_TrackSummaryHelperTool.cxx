@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FatrasRecoTools/ISF_TrackSummaryHelperTool.h"
 // forward declares
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkTrack/Track.h"
@@ -56,14 +55,7 @@ StatusCode iFatras::ISF_TrackSummaryHelperTool::initialize()
     } else msg(MSG::VERBOSE) << "PixelID helper retrieved successfully!" << endmsg;
   }
   
-  if (m_doSharedHits) {
-    if ( m_assoTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
-    }
-  }
+  ATH_CHECK(m_assoTool.retrieve(DisableTool{!m_doSharedHits || m_assoTool.empty() } ) );
 
   msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
 
@@ -72,10 +64,11 @@ StatusCode iFatras::ISF_TrackSummaryHelperTool::initialize()
 
 //==========================================================================
 
-void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track, 
-						  const Trk::RIO_OnTrack* rot, 
+void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
+                                                  const Trk::PRDtoTrackMap *prd_to_track_map,
+						  const Trk::RIO_OnTrack* rot,
 						  const Trk::TrackStateOnSurface* tsos,
-						  std::vector<int>& information, 
+						  std::vector<int>& information,
 						  std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
 {
   const Identifier& id = rot->identify();
@@ -122,7 +115,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 
       if (m_doSharedHits) {
 	// used in more than one track ?
-	if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+	if ( isShared(prd_to_track_map, *(rot->prepRawData())) ) {
 	  if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endmsg;
 	  information[Trk::numberOfPixelSharedHits]++;
 	  if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) ) {
@@ -164,7 +157,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 
       if (m_doSharedHits) {
 	// used in more than one track ?
-	if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+	if ( isShared(prd_to_track_map, *(rot->prepRawData())) ) {
 	  if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endmsg;
 	    information[Trk::numberOfSCTSharedHits]++;
 	} else ATH_MSG_DEBUG("shared SCT hit NOT found");
@@ -175,17 +168,18 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
   return;
 }
 
-void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track&, 
-						  const Trk::CompetingRIOsOnTrack*, 
+void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track&,
+                                                  const Trk::PRDtoTrackMap *,
+						  const Trk::CompetingRIOsOnTrack*,
 						  const Trk::TrackStateOnSurface*,
-						  std::vector<int>&, 
+						  std::vector<int>&,
 						  std::bitset<Trk::numberOfDetectorTypes>&) const
 {
   ATH_MSG_DEBUG("analyse not implemented for Trk::CompetingRIOsOnTrack !!");
   return;
 }
 
-void iFatras::ISF_TrackSummaryHelperTool::searchForHoles(const Trk::Track&, 
+void iFatras::ISF_TrackSummaryHelperTool::searchForHoles(const Trk::Track&,
 							 std::vector<int>&,
 							 const Trk::ParticleHypothesis) const {
   ATH_MSG_DEBUG("searchForHoles not implemented!!");
@@ -197,7 +191,9 @@ void iFatras::ISF_TrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Tra
   return;
 }
 
-void iFatras::ISF_TrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &, Trk::TrackSummary&) const {
+void iFatras::ISF_TrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &,
+                                                               const Trk::PRDtoTrackMap*,
+                                                               Trk::TrackSummary&) const {
   ATH_MSG_DEBUG("updateSharedHitCount not implemented !!");
   return;
 }

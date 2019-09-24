@@ -125,8 +125,7 @@ egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
   m_addCellsWindowEtaEndcap = m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
   
   // the +1 is to account for the offset in the centers of the clusters
-  m_extraL0L1PhiSizeBarrel = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
-  m_extraL0L1PhiSizeEndcap = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+  m_extraL0L1PhiSize= m_extraL0L1PhiSizeCells * s_cellPhiSize;
 
 }
 
@@ -143,8 +142,7 @@ StatusCode egammaSuperClusterBuilder::initialize() {
   m_addCellsWindowEtaEndcap = m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
 
   // the +1 is to account for the offset in the centers of the clusters
-  m_extraL0L1PhiSizeBarrel = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
-  m_extraL0L1PhiSizeEndcap = m_extraL0L1PhiSizeCellsBarrel * s_cellPhiSize;
+  m_extraL0L1PhiSize = m_extraL0L1PhiSizeCells * s_cellPhiSize;
 
   if (m_addCellsWindowPhiCellsBarrel % 2 == 0 ||
       m_addCellsWindowPhiCellsEndcap % 2 == 0 ||
@@ -154,14 +152,8 @@ StatusCode egammaSuperClusterBuilder::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_correctClusters) {
-    ATH_CHECK(m_clusterCorrectionTool.retrieve());
-  } else {
-    m_clusterCorrectionTool.disable();
-  }
-  if (m_calibrateClusters) {
-    ATH_CHECK(m_MVACalibSvc.retrieve());
-  } 
+  ATH_CHECK(m_clusterCorrectionTool.retrieve());
+  ATH_CHECK(m_MVACalibSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -396,13 +388,13 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
     return StatusCode::FAILURE;
   }
 
-  float phiPlusB = cp0.phiB + phiSize.plusB + m_extraL0L1PhiSizeBarrel;
-  float phiMinusB = cp0.phiB - phiSize.minusB - m_extraL0L1PhiSizeBarrel;
+  float phiPlusB = cp0.phiB + phiSize.plusB + m_extraL0L1PhiSize;
+  float phiMinusB = cp0.phiB - phiSize.minusB - m_extraL0L1PhiSize;
 
   ATH_MSG_DEBUG("barrel phi range = " << phiMinusB << " to " << phiPlusB);
 
-  float phiPlusEC = cp0.phiEC + phiSize.plusEC + m_extraL0L1PhiSizeEndcap;
-  float phiMinusEC = cp0.phiEC - phiSize.minusEC - m_extraL0L1PhiSizeEndcap;
+  float phiPlusEC = cp0.phiEC + phiSize.plusEC + m_extraL0L1PhiSize;
+  float phiMinusEC = cp0.phiEC - phiSize.minusEC - m_extraL0L1PhiSize;
 
   ATH_MSG_DEBUG("endcap phi range = " << phiMinusEC << " to " << phiPlusEC);
 
@@ -468,18 +460,14 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
 StatusCode egammaSuperClusterBuilder::calibrateCluster(xAOD::CaloCluster* newCluster,
 						       const xAOD::EgammaParameters::EgammaType egType) {
 
-  //Refine Eta1
-  if(m_refineEta1){
-    ATH_CHECK(refineEta1Position(newCluster));
-  }
+  ATH_CHECK(refineEta1Position(newCluster));
   //Save the state before the corrections
   newCluster->setAltE(newCluster->e());
   newCluster->setAltEta(newCluster->eta());
   newCluster->setAltPhi(newCluster->phi());
   // first do the corrections
-  if (m_correctClusters) {
-    ATH_CHECK(m_clusterCorrectionTool->execute(Gaudi::Hive::currentContext(),newCluster,egType,xAOD::EgammaHelpers::isBarrel(newCluster)));
-  }
+  ATH_CHECK(m_clusterCorrectionTool->execute(Gaudi::Hive::currentContext(),newCluster,
+                                             egType,xAOD::EgammaHelpers::isBarrel(newCluster)));
   newCluster->setRawE(newCluster->e());
   newCluster->setRawEta(newCluster->eta());
   newCluster->setRawPhi(newCluster->phi());
@@ -488,9 +476,8 @@ StatusCode egammaSuperClusterBuilder::calibrateCluster(xAOD::CaloCluster* newClu
   //At this point we do not have the final tracks vertices attached on the cluster/ new egamma Rec Object.
   //So We will need at the end to do the final update in the EMClusterTool
   //For now apply just cluster info only calibration.
-  if (m_calibrateClusters) {
-    ATH_CHECK(m_MVACalibSvc->execute(*newCluster,egType));
-  }
+  ATH_CHECK(m_MVACalibSvc->execute(*newCluster,egType));
+  
   return StatusCode::SUCCESS;
 }
 // ==========================================================================
@@ -538,7 +525,8 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
 						      const CaloSampling::CaloSample sample) const {
 
   //Protections.
-  ATH_MSG_DEBUG("Hottest cell in layer 1 ATLAS co-ordinates (eta,phi): (" << cluster->etamax(sample) << " , " << cluster->phimax(sample) << ")");
+  ATH_MSG_DEBUG("Hottest cell in layer 1 ATLAS co-ordinates (eta,phi): (" << cluster->etamax(sample) 
+                << " , " << cluster->phimax(sample) << ")");
   if (cluster->etamax(sample)==-999. || cluster->phimax(sample)==-999.) {
     return StatusCode::SUCCESS;
   }
