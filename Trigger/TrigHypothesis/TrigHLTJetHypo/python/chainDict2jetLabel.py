@@ -141,7 +141,7 @@ def _make_vbenf_label(chain_parts):
     assert scenario.startswith('vbenf')
     args = _args_from_scenario(scenario)
     if not args:
-        return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900mass, 26dphi)])))'        
+        return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900djmass, 26djdphi)])))'        
     arg_res = [
         re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'),
         re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'),
@@ -192,7 +192,7 @@ def _make_vbenf_label(chain_parts):
         [(10et)]
         dijet
         (
-          [(%(masslo).0fmass, 26dphi)]
+          [(%(masslo).0fdjmass, 26djdphi)]
         ) 
         simple
         (
@@ -268,7 +268,7 @@ def _make_dijet_label(chain_parts):
                ]
     
             dijet(
-                  [(%(djmasslo).0fmass)])
+                  [(%(djmasslo).0fdjmass)])
             simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
                     (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f)])
             )""" % argvals

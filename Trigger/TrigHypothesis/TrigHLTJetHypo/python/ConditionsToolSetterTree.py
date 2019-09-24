@@ -1,7 +1,9 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """Instantiates TrigJetHypoToolConfig_flownetwork AlgTool 
 from a hypo tree."""
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetConditionConfig_abs_eta,
     TrigJetConditionConfig_signed_eta,
@@ -9,16 +11,13 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetConditionConfig_dijet_mass,
     TrigJetConditionConfig_dijet_deta,
     TrigJetConditionConfig_dijet_dphi,
-    TrigJetConditionConfig_acceptAll,
     TrigJetHypoToolConfig_flownetwork,
     TrigJetHypoToolHelperMT,
-    TrigJetHypoToolConfig_flownetwork,
     TrigJetConditionConfig_compound,
     TrigJetHypoToolConfig_leaf,
     NotHelperTool,
     AndHelperTool,
     OrHelperTool,
-    TrigJetHypoToolHelperMT,
     CombinationsHelperTool,
     TrigJetHypoToolConfig_combgen,
     TrigJetHypoToolConfig_partgen,
@@ -30,7 +29,7 @@ from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
 
 from collections import defaultdict
 
-class ConditionsToolSetter(object):
+class ConditionsToolSetterTree(object):
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
     def __init__(self, name):
@@ -84,15 +83,15 @@ class ConditionsToolSetter(object):
 
 
     def illegal(self, node):
-        raise RuntimeErrorError(
+        raise RuntimeError(
             'ConditionsToolSetter: illegal scenario: %s' + node.scenario)
 
     def _mod_z(self, node):
         """z is the root node: process its children"""
 
-        print '_mod_z: treating ', len(node.children), 'children'
+        print ('_mod_z: treating ', len(node.children), 'children')
         for cn in node.children:
-            print 'treating child ', node.node_id
+            print ('treating child ', node.node_id)
             self.mod_router[cn.scenario](cn)
 
     def mod_logical_binary(self, node):
@@ -107,7 +106,6 @@ class ConditionsToolSetter(object):
 
         tool = klass(name=name)
 
-        # print 'ToolSetter, setting lhs ', node.children[0].tool
         tool.lhs = node.children[0].tool
         tool.rhs = node.children[1].tool
 
@@ -128,7 +126,6 @@ class ConditionsToolSetter(object):
 
         tool = klass(name=name)
 
-        # print 'ToolSetter, setting lhs ', node.children[0].tool
         tool.hypoTool = node.children[0].tool
 
         tool.node_id = node.node_id
@@ -143,7 +140,7 @@ class ConditionsToolSetter(object):
         config_tool = self._get_tool_instance(node.scenario)  
 
         compound_condition_tools = self._make_compound_condition_tools(node)
-        config_tool.conditionMakers = compound_condition_tools;
+        config_tool.conditionMakers = compound_condition_tools
         # for combinational nodes, the connection between job groups and
         # child helper tools is done via a matcher. Provide the helper
         # tool children to the condig class which uses them to
@@ -183,7 +180,7 @@ class ConditionsToolSetter(object):
 
             # create compound condition from elemental condition
             compoundCondition_tool =self._get_tool_instance('compound')
-            compoundCondition_tool.conditionMakers = condition_tools;
+            compoundCondition_tool.conditionMakers = condition_tools
 
             # add compound condition to list
             compound_condition_tools.append(compoundCondition_tool)
@@ -195,13 +192,11 @@ class ConditionsToolSetter(object):
         1. map conaining parent child ids for the node
         2. map conainting the AlgTool used to instanitiate the node Conditions
         """
-        print 'ConditionsToolSetter processing node with scenario', node.scenario
+        print ('ConditionsToolSetter processing node with scenario',
+               node.scenario)
 
         self.treeMap[node.node_id] = node.parent_id
-        print '_mod_leaf', node.node_id, node.parent_id, len(node.children)
-
-        scen = node.scenario
-
+        print ('_mod_leaf', node.node_id, node.parent_id, len(node.children))
 
         #
         # parameters: (10et,0eta320)(20et)
@@ -214,7 +209,7 @@ class ConditionsToolSetter(object):
         # make a config tool and provide it with condition makers
         config_tool = self._get_tool_instance('leaf')
         compound_condition_tools = self._make_compound_condition_tools(node)
-        config_tool.conditionMakers = compound_condition_tools;
+        config_tool.conditionMakers = compound_condition_tools
 
         helper_tool = self._get_tool_instance('helper')
         helper_tool.HypoConfigurer = config_tool

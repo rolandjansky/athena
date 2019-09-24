@@ -166,7 +166,6 @@ class ConditionsDictMaker(object):
 
         result = []
         msgs = []
-        clist = []
 
         for c in conditions:  # there is a parameter string for each condition
             cdict = defaultdict(dict)
@@ -205,16 +204,16 @@ class ConditionsDictMaker(object):
                 hi = group_dict['hi']  # string high value or ''
 
                 def scale_limit(limit, sf):
-                    l = 0.
+
                     try:
-                        l = float(limit)
+                        fl = float(limit)
                     except TypeError: # limit = 'inf' or similar
                         return limit
 
-                    if l != 0:  # avoid '-0'
-                        l = l * sf
+                    if fl != 0:  # avoid '-0'
+                        fl = fl * sf
 
-                    return str(l) 
+                    return str(fl) 
 
                 if lo == '':
                     lo = defaultParameters(attr+'lo')

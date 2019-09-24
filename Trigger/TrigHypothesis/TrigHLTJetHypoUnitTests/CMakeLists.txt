@@ -31,7 +31,7 @@ atlas_install_headers( TrigHLTJetHypoUnitTests )
 
 # Test(s) in the package:
 atlas_add_test( TrigHLTJetHypoTimerTest
-   SOURCES tests/Timer.cxx
+   SOURCES src/Timer.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} TrigHLTJetHypoLib )
 

@@ -1,16 +1,15 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """Instantiates TrigJetHypoToolConfig_flownetwork AlgTool 
 from a hypo tree."""
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
-    TrigJetConditionConfig_dijet_mass,
-    TrigJetConditionConfig_dijet_deta,
-    TrigJetConditionConfig_dijet_dphi,
     TrigJetConditionConfig_eta,
     TrigJetConditionConfig_et,
-    TrigJetConditionConfig_acceptAll,
-    TrigJetHypoToolConfig_flownetwork,
     TrigJetHypoToolHelperMT,
+    CombinationsHelperTool,
     TrigJetHypoToolConfig_flownetwork,
     )
 
@@ -29,10 +28,6 @@ class FlowNetworkSetter(object):
         self.tool_factories = {
             'et': [TrigJetConditionConfig_et, 0], 
             'eta': [TrigJetConditionConfig_eta, 0],
-            'dijet_mass': [TrigJetConditionConfig_dijet_mass, 0],
-            'dijet_dphi': [TrigJetConditionConfig_dijet_deta, 0],
-            'dijet_deta': [TrigJetConditionConfig_dijet_dphi, 0],
-            'partgen': [TrigJetConditionConfig_acceptAll, 0],
             }
 
         self.nodeToParent=defaultdict(list)
@@ -63,7 +58,7 @@ class FlowNetworkSetter(object):
 
     
     def illegal(self, node):
-        raise RuntimeErrorError(
+        raise RuntimeError(
             'FlowNetworkSetter: illegal scenario: %s' + node.scenario)
 
     def mod_logical_binary(self, node):
@@ -138,16 +133,14 @@ class FlowNetworkSetter(object):
         """
 
         scen = node.scenario
-        klass = self.tool_factories[scen][0]
         sn = self.tool_factories[scen][1]
-        name = '%s_%d' % (scen, sn)
-        
         self.tool_factories[scen][1] += 1
 
         config_tool = TrigJetHypoToolConfig_flownetwork
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
-        
-        helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
+
+        name = '%s_helper_%d' % (scen, sn)
+        helper_tool = TrigJetHypoToolHelperMT(name=name)
         helper_tool.HypoConfigurer = config_tool
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id
@@ -173,7 +166,7 @@ class FlowNetworkSetter(object):
         1. map conaining parent child ids for the node
         2. map conainting the AlgTool used to instanitiate the node Conditions
         """
-        print 'FlowNetworkSetter processing node with scenario', node.scenario
+        print ('FlowNetworkSetter processing node with scenario', node.scenario)
 
         self.treeMap[node.node_id] = node.parent_id
 
@@ -224,23 +217,23 @@ class FlowNetworkSetter(object):
           = instantiate and return a TrigJetHypoToolConfig_flownetwork instance.
         """
 
-        print 'FlowNetworkSetter start rotation'
+        print ('FlowNetworkSetter start rotation')
         new_node = rotate(node)
-        print 'FlowNetworkSetter rotation complete'
+        print ('FlowNetworkSetter rotation complete')
         new_node.set_ids(0, 0)
 
         # navigate the tree filling in node-parent and node- Condtion factory
         # relations
-        print 'FlowNetworkSetter - node.scenario', new_node.scenario
+        print ('FlowNetworkSetter - node.scenario', new_node.scenario)
         self.mod_router[new_node.scenario](new_node)
 
         
-        print 'FlowNetworkSetter result:'
-        print new_node
+        print ('FlowNetworkSetter result:')
+        print (new_node)
 
         config_tool = TrigJetHypoToolConfig_flownetwork()
 
-        print 'treeMap: ', self.treeMap
+        print ('treeMap: ', self.treeMap)
         treeVec = [0 for i in range(len(self.treeMap))]
         for n, p in self.treeMap.items():
             treeVec[n] = p
@@ -252,7 +245,7 @@ class FlowNetworkSetter(object):
             conditionMakers[n] = p
 
         
-        print conditionMakers
+        print (conditionMakers)
         assert False
 
         assert None not in conditionMakers 

@@ -1,16 +1,16 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """Utility to test whether a string is a legal jet chain label"""
+from __future__ import print_function
 
 
 from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetter
-from  TrigHLTJetHypo.ToolSetter import ToolSetter
+from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
+# from  TrigHLTJetHypo.ToolSetter import ToolSetter
 
-from node import rotate
 
 def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
-    print 'compile:',  label
+    print ('compile:',  label)
 
     parser = ChainLabelParser(label, debug=False)
     tree = parser.parse()
@@ -21,24 +21,23 @@ def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
     if expand:
         visitor = TreeParameterExpander()
         tree.accept(visitor)
-        # print visitor.report()
 
-    print 'compile: tree.scenario', tree.scenario
+    print ('compile: tree.scenario', tree.scenario)
     if setter is not None:
         tree.accept(setter)
         
     if do_print:
-        print '\nnode dumping top node only:\n'
-        print tree
+        print ('\nnode dumping top node only:\n')
+        print (tree)
 
     if do_dump:
-        print '\nnode dump tree:\n'
-        print tree.dump()
+        print ('\nnode dump tree:\n')
+        print (tree.dump())
         
     return tree
 
 def compile_(label, setter=None, expand=True, do_dump=False, do_print=False):
-    compile(label, setter, expand, dump)
+    compile(label, setter, expand, do_dump)
 
             
 if __name__ == '__main__':
@@ -66,7 +65,7 @@ if __name__ == '__main__':
 
     # tree = compile(label, dump=True)
     
-    setter = ConditionsToolSetter('toolSetter')
+    setter = ConditionsToolSetterTree('toolSetter')
     
     tree = compile(label, setter=setter,  expand=True, do_dump=True)
 
@@ -179,10 +178,10 @@ if __name__ == '__main__':
 
     # tree = compile(label, dump=True)
     
-    setter = ConditionsToolSetter('toolSetter')
+    setter = ConditionsToolSetterTree('toolSetter')
 
     tree = compile(label, setter=setter,  expand=True, dump=True)
-    print 'tree scenario:', tree.scenario
+    print ('tree scenario:', tree.scenario)
     # setter = ConditionsToolSetter('conditionsToolSetter')
     # setter.mod(tree)
     # print setter

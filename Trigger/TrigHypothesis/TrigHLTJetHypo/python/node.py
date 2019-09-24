@@ -8,6 +8,9 @@ The tree will be retraversed by a setter visitor which willuse the condig_Attrs
 to instantiate a condiguration AlgTool, which, by convention, will have a
 name TrigJetHypoToolConfig_XXX.
 """
+
+from __future__ import print_function
+
 from constants import logicals
 import copy
 
@@ -17,19 +20,18 @@ def rotate_(node):
     """
     
     to_rotate = ('and', 'combgen')
-    newchildren = []
 
     while node.scenario in to_rotate:
-        print "rotating ", node.scenario
+        print ("rotating ", node.scenario)
         newnodes = copy.deepcopy(node.children)
         newnode0 = newnodes[0]
         curnode = newnodes[0]
         for n in newnodes[1:]:
             curnode.children.append(n)
             curnode = n
-        print 'node rotation done: new node: '
-        print newnode0
-        print '===== end new node =====\n'
+        print ('node rotation done: new node: ')
+        print (newnode0)
+        print ('===== end new node =====\n')
         node = newnode0
 
 

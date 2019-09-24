@@ -4,17 +4,14 @@ from __future__ import print_function
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolMT,)
 
-from  TrigHLTJetHypo.ToolSetter import ToolSetter
-
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
+from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
 # from TrigHLTJetHypo.chainDict2jetLabel import make_simple_comb_label as make_simple_label # TIMING studies
 
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-
-from TrigHLTJetHypo.node import rotate
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
@@ -50,7 +47,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     # visitor = ToolSetter(chain_name)
     tool = None
     if toolSetter is None:
-        toolSetter = ToolSetter(chain_name)
+        toolSetter = ConditionsToolSetterTree(chain_name)
         tree.accept(modifier=toolSetter)
         tool = tree.tool
     else:
@@ -58,12 +55,12 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
             toolSetter.mod(tree)
             tool = toolSetter.tool
         else:
+            toolSetter = ConditionsToolSetterTree(chain_name)
             print ('using tool setter', toolSetter.__class__.__name__)
             tree.accept(modifier=toolSetter)
 
-    tool = tree.children[0].tool
-    print ('made tool', tool.__class__.__name__)
-    
+    # tool = tree.children[0].tool
+    tool = tree.tool
     log.info(visitor.report())
 
     return tool
@@ -90,7 +87,8 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
         raise e
     
     chain_name = chain_dict['chainName']
-    return trigJetHypoToolHelperFromDict_(chain_label, chain_name)
+    return trigJetHypoToolHelperFromDict_(chain_label,
+                                          chain_name)
  
 
 def  trigJetHypoToolFromDict(chain_dict):
