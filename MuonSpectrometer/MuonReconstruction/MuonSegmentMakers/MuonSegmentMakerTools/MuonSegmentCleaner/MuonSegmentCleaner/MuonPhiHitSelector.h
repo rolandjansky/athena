@@ -10,11 +10,8 @@
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h" 
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
 class Identifier;
 
 namespace MuonGM {
@@ -51,13 +48,8 @@ class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelec
 
  private:
 
-  const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to detector manager
-
-  const RpcIdHelper*                  m_rpcIdHelper; //!< Pointer to RPC id helper
-  const TgcIdHelper*                  m_tgcIdHelper; //!< Pointer to TGC id helper
-  const CscIdHelper*                  m_cscIdHelper; //!< Pointer to CSC id helper
-  const MdtIdHelper*                  m_mdtIdHelper; //!< Pointer to MDT id helper
-
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   /** Toolhandle to CompetingRIOsOnTrackTool creator */
   ToolHandle<Muon::IMuonCompetingClustersOnTrackCreator>          m_competingRIOsOnTrackTool;
   /** Toolhandle to ClusterOnTrackTool creator */

@@ -32,8 +32,10 @@ public:  // functions
   RpcDigit(const Identifier& id, float time);
 
   // Is this a valid digit?
-  bool is_valid(const RpcIdHelper& rpcHelper) const;
-
+  bool is_valid(const RpcIdHelper& rpcHelper) const {
+    return (rpcHelper.valid(m_muonId));
+  }
+  
   // Is this a valid digit?
   bool is_valid(const RpcIdHelper* rpcHelper) const {
     return is_valid(*rpcHelper);

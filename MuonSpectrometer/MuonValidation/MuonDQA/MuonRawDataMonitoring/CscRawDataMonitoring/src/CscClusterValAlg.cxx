@@ -68,8 +68,7 @@ namespace CscBins {
 //
 CscClusterValAlg::CscClusterValAlg(const std::string & type, 
     const std::string & name, const IInterface* parent) :
-  ManagedMonitorToolBase( type, name, parent ), 
-  m_cscIdHelper(0),
+  ManagedMonitorToolBase( type, name, parent ),
   m_stripFitter(name, this),
   m_cscCalibTool(name, this),
   m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
@@ -120,13 +119,8 @@ StatusCode CscClusterValAlg::initialize(){
   ATH_MSG_INFO ( "CSCPrepRawDataKey   : " << m_cscPRDKey );
 
   StatusCode sc;
-  sc = detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ( "Cannot get CscIdHelper"  );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG ("CSCIdHelper         : " << "Using CscIdhelper " );
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_MSG_DEBUG ("CSCIdHelper         : " << "Using CscIdhelper " );
 
   sc = m_stripFitter.retrieve();
   if ( sc.isFailure() ) {
@@ -819,13 +813,13 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer* cols, const
       Identifier clusId = iClus.identify();
 
       // get the cluster coordinates
-      int stationName = m_cscIdHelper->stationName(clusId);
-      std::string stationString = m_cscIdHelper->stationNameString(stationName);
+      int stationName = m_muonIdHelperTool->cscIdHelper().stationName(clusId);
+      std::string stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(stationName);
       int chamberType = stationString == "CSS" ? 0 : 1;
-      int stationEta  = m_cscIdHelper->stationEta(clusId);
-      int stationPhi  = m_cscIdHelper->stationPhi(clusId);
-      int wireLayer = m_cscIdHelper->wireLayer(clusId);
-      int measuresPhi = m_cscIdHelper->measuresPhi(clusId);
+      int stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(clusId);
+      int stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(clusId);
+      int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(clusId);
+      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(clusId);
 
 
       float x = iClus.globalPosition().x();
@@ -918,7 +912,7 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer* cols, const
         // Loop over strip id's vector / strip collection and match the id's from vector with strips in collection
         for ( std::vector<Identifier>::const_iterator sId = stripIds.begin(); sId != stripIds.end(); ++sId, sIdx++ ) {
           Identifier id = *sId; // for strip Id's
-          int thisStrip = m_cscIdHelper->strip(id);
+          int thisStrip = m_muonIdHelperTool->cscIdHelper().strip(id);
           float stripid = thisStrip * xfac;         // x-axis fill value
           fStripIDs.push_back(stripid);
           m_h2csc_clus_hitmap->Fill(stripid, secLayer);

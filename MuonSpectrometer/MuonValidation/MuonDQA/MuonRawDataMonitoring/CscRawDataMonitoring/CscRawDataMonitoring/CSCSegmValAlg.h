@@ -192,7 +192,8 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 };
 
 #endif
