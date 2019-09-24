@@ -31,8 +31,7 @@ def generateMenu( flags ):
     """
 
     # convert to chainDefs
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-    toChainDictTranslator = DictFromChainName()
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
     counter = 0
     signatureToGenerator = {}
@@ -63,7 +62,7 @@ def generateMenu( flags ):
 
         for chain in cfgFlag.get():
 
-            chainDict = toChainDictTranslator.getChainDict( chain )
+            chainDict = dictFromChainName( chain )
 
             counter += 1
             chainDict['chainCounter'] = counter

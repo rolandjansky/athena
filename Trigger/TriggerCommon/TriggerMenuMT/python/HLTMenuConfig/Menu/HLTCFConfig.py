@@ -394,7 +394,7 @@ def createDataFlow(chains, allDicts):
 
             if chain_step.isCombo:
                 if chain_step.combo is not None:
-                    chain_step.combo.addChain(chain.name)
+                    chain_step.combo.addChain( [d for d in allDicts if d['chainName'] == chain.name ][0])
                     log.debug("Added chains to ComboHypo: %s",chain_step.combo.getChains())
 
 

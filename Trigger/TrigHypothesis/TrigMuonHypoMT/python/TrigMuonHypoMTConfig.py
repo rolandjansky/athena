@@ -644,12 +644,11 @@ if __name__ == '__main__':
                      'HLT_2mu6Comb_L12MU6',
                      'HLT_2mu6_L12MU6']
 
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    chainNameDecoder = DictFromChainName.DictFromChainName()
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
                     
     for c in configToTest:
         log.info("testing config %s", c)
-        chainDict = chainNameDecoder.getChainDict(c)
+        chainDict = dictFromChainName(c)
         toolMufast = TrigMufastHypoToolFromDict(chainDict)
         assert toolMufast
         toolmuComb = TrigmuCombHypoToolFromDict(chainDict)

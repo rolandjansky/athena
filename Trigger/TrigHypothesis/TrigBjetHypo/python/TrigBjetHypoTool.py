@@ -5,8 +5,6 @@ re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<
 
 from AthenaCommon.Logging import logging
 
-from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-
 log = logging.getLogger('TrigBjetHypoTool')
 
 ####################################################################################################
@@ -56,9 +54,8 @@ def TrigBjetHypoToolFromDict( chainDict ):
 
 def TrigBjetHypoToolFromName( name, conf ):
     """ Configure a b-jet hypo tool from chain name. """
-    
-    decoder = DictFromChainName()
-    decodedDict = decoder.getChainDict( conf )
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    decodedDict = dictFromChainName( conf )
     decodedDict['chainName'] = name # override
     
     return TrigBjetHypoToolFromDict( decodedDict )
