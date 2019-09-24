@@ -11,10 +11,10 @@
 
 # The following class will make a sequence, configure algorithms, and link
 # them to GenericMonitoringTools
-#from AthenaMonitoring import AthMonitorCfgHelperOld
-#helper = AthMonitorCfgHelperOld(DQMonFlags, "TrigMETMonitor")
-from AthenaMonitoring import AthMonitorCfgHelper
-helper = AthMonitorCfgHelper(DQMonFlags, "TrigMETMonitor")
+from AthenaMonitoring import AthMonitorCfgHelperOld
+helper = AthMonitorCfgHelperOld(DQMonFlags, "TrigMETMonitor")
+#from AthenaMonitoring import AthMonitorCfgHelper
+#helper = AthMonitorCfgHelper(DQMonFlags, "TrigMETMonitor")
 
 ### STEP 2 ###
 # Adding an algorithm to the helper. Here, we will use the example 
