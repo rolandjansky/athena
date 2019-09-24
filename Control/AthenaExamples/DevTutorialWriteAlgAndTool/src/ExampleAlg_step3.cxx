@@ -4,10 +4,6 @@
 
 #include "ExampleAlg_step3.h"
 
-ExampleAlg_step3::ExampleAlg_step3 (const std::string& name, ISvcLocator* svcLocator)
-  : AthReentrantAlgorithm (name, svcLocator)
-{ }
-
 StatusCode ExampleAlg_step3::initialize()
 {
   ATH_CHECK( m_trackParticleKey.initialize());

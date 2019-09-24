@@ -14,7 +14,7 @@ class ExampleAlg
   : public AthReentrantAlgorithm
 {
 public:
-  ExampleAlg (const std::string& name, ISvcLocator* svcLocator);
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
   virtual StatusCode initialize() override;
   virtual StatusCode execute (const EventContext& ctx) const override;
 private:

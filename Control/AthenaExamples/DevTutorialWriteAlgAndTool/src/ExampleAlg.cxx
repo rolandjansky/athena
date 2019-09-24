@@ -4,10 +4,6 @@
 
 #include "ExampleAlg.h"
 
-ExampleAlg::ExampleAlg (const std::string& name, ISvcLocator* svcLocator)
-  : AthReentrantAlgorithm (name, svcLocator)
-{ }
-
 StatusCode ExampleAlg::initialize()
 {
   ATH_CHECK( m_trackParticleKey.initialize());

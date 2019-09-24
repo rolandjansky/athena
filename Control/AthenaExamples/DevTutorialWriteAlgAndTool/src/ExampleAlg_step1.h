@@ -12,7 +12,7 @@ class ExampleAlg_step1
   : public AthReentrantAlgorithm
 {
 public:
-  ExampleAlg_step1 (const std::string& name, ISvcLocator* svcLocator);
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
   virtual StatusCode initialize() override;
   virtual StatusCode execute (const EventContext& ctx) const override;
 private:

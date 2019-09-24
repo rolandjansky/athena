@@ -4,10 +4,6 @@
 
 #include "ExampleAlg_step1.h"
 
-ExampleAlg_step1::ExampleAlg_step1 (const std::string& name, ISvcLocator* svcLocator)
-  : AthReentrantAlgorithm (name, svcLocator)
-{ }
-
 StatusCode ExampleAlg_step1::initialize()
 {
   return StatusCode::SUCCESS;
