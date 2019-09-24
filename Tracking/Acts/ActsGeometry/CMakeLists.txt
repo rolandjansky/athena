@@ -24,7 +24,7 @@ find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
 
-find_package( Acts COMPONENTS Core )
+find_package( Acts QUIET COMPONENTS Core )
 
 # Component(s) in the package:
 

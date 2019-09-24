@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Eigen )
-find_package( Acts COMPONENTS Core )
+find_package( Acts QUIET COMPONENTS Core )
 
 # Component(s) in the package:
 
