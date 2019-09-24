@@ -1,4 +1,8 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
+#include "../TrigCaloMonitorAlgorithm.h"
 #include "TrigCaloMonitoring/HLTCaloTool.h"
 #include "TrigCaloMonitoring/HLTCaloFEBTool.h"
 #include "TrigCaloMonitoring/HLTCaloToolL2.h"
@@ -8,6 +12,7 @@
 #include "TrigCaloMonitoring/HLTCaloESD_CaloCells.h"
 
 
+DECLARE_COMPONENT( TrigCaloMonitorAlgorithm )
 DECLARE_COMPONENT( HLTCaloTool )
 DECLARE_COMPONENT( HLTCaloFEBTool )
 DECLARE_COMPONENT( HLTCaloToolL2 )
