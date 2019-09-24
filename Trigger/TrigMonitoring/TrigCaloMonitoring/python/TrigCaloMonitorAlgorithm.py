@@ -44,6 +44,55 @@ def TrigCaloMonConfig(inputFlags):
     CaloMonGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
                             path='Test',xbins=1000,xmin=-0.5,xmax=999.5)
 
+    ################################
+    #     HLT_L2CaloEMClusters     #
+    ################################
+
+    # Add monitor algorithm
+    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCalo_L2CaloEMClustersMonitor
+    L2CaloEMClustersMonAlg = helper.addAlgorithm(HLTCalo_L2CaloEMClustersMonitor, 'HLT_L2CaloEMClustersMonAlg')
+
+    # Set properties
+    L2CaloEMClustersMonAlg.HLTContainer = 'HLT_L2CaloEMClusters'
+    L2CaloEMClustersMonAlg.OFFContainer = 'egammaClusters'
+    L2CaloEMClustersMonAlg.OFFTypes = []
+    L2CaloEMClustersMonAlg.HLTMinET = -1.0
+    L2CaloEMClustersMonAlg.OFFMinET = -1.0
+    L2CaloEMClustersMonAlg.MaxDeltaR = 0.04
+
+    # Add group
+    L2CaloEMClustersMonGroup = helper.addGroup(L2CaloEMClustersMonAlg,'TrigCaloMonitor','HLT/HLTCalo')
+
+    # Declare HLT histograms
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_num',title='Number of HLT Clusters; Num Clusters; Entries',
+				path='HLT_L2CaloEMClusters',xbins=51,xmin=-0.5,xmax=50.5)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_eta,HLT_phi',title='Number of HLT Clusters; #eta; #phi; ', type='TH2F',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_et',title='HLT Clusters E_{T}; E_{T} [GeV]; Entries',
+				path='HLT_L2CaloEMClusters',xbins=100,xmin=0.0,xmax=100.0)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_eta',title='HLT Clusters #eta; #eta; Entries',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_phi',title='HLT Cluster #phi; #phi; Entries',
+				path='HLT_L2CaloEMClusters',xbins=64,xmin=-3.14153,xmax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_size',title='HLT Cluster Size; Number of Cells; Entries',
+				path='HLT_L2CaloEMClusters',xbins=101,xmin=-5.0,xmax=1005.)
+
+    # Declare OFF histograms
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_num',title='Number of OFF Clusters; Num Clusters; Entries',
+				path='HLT_L2CaloEMClusters',xbins=101,xmin=-1.0,xmax=201.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_eta,OFF_phi',title='Number of OFF Clusters; #eta; #phi; ', type='TH2F',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_et',title='OFF Clusters E_{T}; E_{T} [GeV]; Entries',
+				path='HLT_L2CaloEMClusters',xbins=100,xmin=0.0,xmax=100.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_eta',title='OFF Clusters #eta; #eta; Entries',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_phi',title='OFF Cluster #phi; #phi; Entries',
+				path='HLT_L2CaloEMClusters',xbins=64,xmin=-3.14153,xmax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_type',title='OFF Cluster Type; Size Enum; Entries',
+				path='HLT_L2CaloEMClusters',xbins=13,xmin=0.5,xmax=13.5)
+    #L2CaloEMClustersMonGroup.defineHistogram('OFF_size',title='OFF Cluster Size; Number of Cells; Entries',
+	#			path='HLT_L2CaloEMClusters',xbins=101,xmin=-5.0,xmax=1005.)
+
     return helper.result()
     
 if __name__=='__main__':

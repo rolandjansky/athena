@@ -16,6 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloInterface
                           Control/StoreGate
+                          Event/xAOD/xAODCaloEvent
+                          Event/xAOD/xAODTrigCalo
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArCabling
                           Reconstruction/egamma/egammaEvent
@@ -34,7 +36,7 @@ atlas_add_component( TrigCaloMonitoring
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel LArRecEvent TrigHLTMonitoringLib StoreGateLib 
                      LArCablingLib TrigCaloRecLib TrigT2CaloCommonLib CaloEvent CaloGeoHelpers CaloIdentifier 
-                     LArIdentifier egammaEvent TrigCaloEvent TrigSteeringEvent AthenaMonitoringLib )
+                     LArIdentifier egammaEvent TrigCaloEvent TrigSteeringEvent AthenaMonitoringLib xAODTrigCalo xAODCaloEvent)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
