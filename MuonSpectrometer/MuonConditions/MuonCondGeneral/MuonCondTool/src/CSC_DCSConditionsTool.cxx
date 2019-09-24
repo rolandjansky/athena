@@ -10,10 +10,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <string>
@@ -37,7 +33,7 @@ CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent), 
 	    m_IOVSvc(0),
-	    m_cscIdHelper(0),
+	    m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
 	    m_chronoSvc(0),
 	    m_log( msgSvc(), name ),
 	    m_debug(true),
@@ -71,19 +67,11 @@ StatusCode CSC_DCSConditionsTool::initialize()
   m_verbose = m_log.level() <= MSG::VERBOSE;
   
   m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_chamberFolder << " Hv " << m_hvFolder<< endmsg;
-   
-  StatusCode sc = detStore()->retrieve(m_cscIdHelper, "CSCIDHELPER" );
-  if (sc.isFailure())
-    {
-      m_log << MSG::FATAL << " Cannot retrieve CscIdHelper " << endmsg;
-      return sc;
-    }
   
-    
   // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
+  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
@@ -105,7 +93,7 @@ StatusCode CSC_DCSConditionsTool::initialize()
   
   if(sc.isFailure()) return StatusCode::FAILURE;
   
-  return StatusCode::SUCCESS;
+  return m_muonIdHelperTool.retrieve();
 }
 
 
@@ -243,8 +231,8 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if (sector_side == "13" || sector_side == "14") phi=7;
       if (sector_side == "15" || sector_side == "16") phi=8;
       
-      ChamberId = m_cscIdHelper->elementID(chamber_name, eta, phi);
-      Identifier WireLayerId = m_cscIdHelper->channelID(ChamberId, 1, wirelayer,1,1);
+      ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(chamber_name, eta, phi);
+      Identifier WireLayerId = m_muonIdHelperTool->cscIdHelper().channelID(ChamberId, 1, wirelayer,1,1);
       if( m_debug ) m_log<<MSG::DEBUG<< "chamber Name = " <<chamber_name<< endmsg;
       std::string WireLayerstring = chamber_name+"_"+eta_side+"_"+sector_side+"_"+layer;  
       m_cachedDeadWireLayers.push_back(WireLayerstring);
@@ -384,7 +372,7 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if (sector_side == "02" || sector_side == "04" || sector_side == "06"|| sector_side == "08" || sector_side == "10"|| sector_side == "12"|| sector_side == "14"|| sector_side == "16") chamber_name = "CSS";
 
     
-    Identifier ChamberId = m_cscIdHelper->elementID(chamber_name, eta, phi);
+    Identifier ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(chamber_name, eta, phi);
     m_cachedDeadStationsId_chamber.push_back(ChamberId);
     
         

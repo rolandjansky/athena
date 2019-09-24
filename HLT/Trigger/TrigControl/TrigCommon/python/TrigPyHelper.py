@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ######################################################################
 ## @file   TrigPyHelper.py
@@ -43,8 +43,8 @@ class TrigApp(object):
       for client in jobOptSvc.getClients():
          for prop in jobOptSvc.getProperties(client):      
             if reClient.match(client) and reProp.match(prop.name()):
-               self.log.info("Changing %s.%s from '%s' to '%s'" %
-                             (client, prop.name(), prop.value(), newValue))
+               self.log.info("Changing %s.%s from '%s' to '%s'",
+                             client, prop.name(), prop.value(), newValue)
                iprop = iProperty(client)
                setattr(iprop, prop.name(), newValue)
                

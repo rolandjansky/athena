@@ -25,7 +25,7 @@ namespace TrigConf {
       /** Constructor initialized with configuration data 
        * @param data The data containing the L1 threshold 
        */
-      L1Threshold(const ptree & data);
+      L1Threshold(const std::string & name, const ptree & data);
 
       /** Destructor */
       ~L1Threshold();

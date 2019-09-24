@@ -342,18 +342,18 @@ void AthenaOutputStream::handle(const Incident& inc)
 {
    EventContext::ContextID_t slot = inc.context().slot();
    ATH_MSG_DEBUG("slot " << slot << "  handle() incident type: " << inc.type());
-
    std::unique_lock<mutex_t>  lock(m_mutex);
+
    if( inc.type() == "MetaDataStop" )  {
-      if( slot == EventContext::INVALID_CONTEXT_ID && !m_outSeqSvc->incidentName().empty() ) {
-         ATH_MSG_WARNING("INVALID_CONTEXT_ID during MetaDataStop - ignoring incident!");
-         return;
-      }
+      const std::string outputFN = m_slotRangeMap[ slot ];
       IAthenaOutputStreamTool* streamer = &*m_streamer;
-      std::string outputFN = m_outputName;
-      if( !m_slotRangeMap.empty() && slot != EventContext::INVALID_CONTEXT_ID ) {
-         outputFN = m_slotRangeMap[ slot ];
-         streamer = m_streamerMap[ outputFN ].get();
+      if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() ) {
+         if( slot == EventContext::INVALID_CONTEXT_ID ) {
+            // slot is invalid during application stop, but all ranges are closed by that time
+            ATH_MSG_DEBUG("Ignoring MetaDataStop incident with invalid slot");
+            return;
+         }
+         streamer = m_streamerMap[outputFN].get();
       }
       // Moved preFinalize of helper tools to stop - want to optimize the
       // output file in finalize RDS 12/2009
@@ -373,8 +373,8 @@ void AthenaOutputStream::handle(const Incident& inc)
          }
          ATH_MSG_INFO("Records written: " << m_events);
       }
-
       if (!m_metadataItemList.value().empty()) {
+         std::lock_guard<mutex_t>   tool_lock( m_toolMutexMap[outputFN] );
          m_currentStore = &m_metadataStore;
          StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
          if (status.isFailure()) {
@@ -394,7 +394,7 @@ void AthenaOutputStream::handle(const Incident& inc)
          }
          m_outputAttributes.clear();
          m_currentStore = &m_dataStore;
-         status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+         status = streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
          if (status.isFailure()) {
             throw GaudiException("Unable to re-connect services", name(), StatusCode::FAILURE);
          }
@@ -427,41 +427,42 @@ void AthenaOutputStream::handle(const Incident& inc)
      }
    }
 
-   if( inc.type() == IncidentType::BeginProcessing ) {
-      // remember which seaquence this event belongs to
-      m_outSeqSvc->setMetaTransOnNextRange( false );
-      m_slotRangeMap[ slot ] = m_outSeqSvc->buildSequenceFileName(m_outputName);
-      ATH_MSG_DEBUG("slot " << slot << " assigned to rangeFN: " << m_slotRangeMap[ slot ] );
-      return;
-   }
-
-   if( inc.type() == IncidentType::EndProcessing ) {
-      std::string rangeFN = m_slotRangeMap[ slot ];
-      if( !rangeFN.empty() ) {
-         int n = 0;
-         for( auto& elem : m_slotRangeMap ) {
-            if( elem.second == rangeFN ) n++;
-         }
-         if( n == 1 ) {
-            // this was the last event in this range, finalize it
-            ATH_MSG_DEBUG("slot " << slot << " starting transition MetaData");
-            if( !m_metaDataSvc->transitionMetaDataFile( m_outSeqSvc->ignoringInputBoundary() ).isSuccess() ) {
-               ATH_MSG_FATAL("Cannot transition MetaDataSvc");
-            }
-            ATH_MSG_INFO("Finished writing to " << rangeFN );
-            auto strm_iter = m_streamerMap.find( rangeFN );
-            strm_iter->second->finalizeOutput().ignore();
-            strm_iter->second->finalize().ignore();
-            m_streamerMap.erase(strm_iter);
-            m_toolMutexMap.erase( rangeFN );
-            
-         }
-         m_slotRangeMap[ slot ].clear();   
-      } else {
-         ATH_MSG_ERROR("Failed to handle EndProcessing incident");
+   // Handle Event Ranges
+   if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() )
+   {
+      if( inc.type() == IncidentType::BeginProcessing ) {
+         // remember in which output filename this event should be stored
+         m_slotRangeMap[ slot ] = m_outSeqSvc->buildSequenceFileName(m_outputName);
+         ATH_MSG_DEBUG("slot " << slot << " assigned filename: " << m_slotRangeMap[ slot ] );
+         return;
       }
-      return;
+      if( inc.type() == IncidentType::EndProcessing ) {
+         std::string rangeFN = m_slotRangeMap[ slot ];
+         if( !rangeFN.empty() ) {
+            int n = 0;
+            for( auto& elem : m_slotRangeMap ) {
+               if( elem.second == rangeFN ) n++;
+            }
+            if( n == 1 ) {
+               // this was the last event in this range, finalize it
+               ATH_MSG_DEBUG("slot " << slot << " starting transition MetaData for " << rangeFN);
+               if( !m_metaDataSvc->transitionMetaDataFile( m_outSeqSvc->ignoringInputBoundary() ).isSuccess() ) {
+                  ATH_MSG_FATAL("Cannot transition MetaDataSvc");
+               }
+               ATH_MSG_INFO("Finished writing event sequence to " << rangeFN );
+               auto strm_iter = m_streamerMap.find( rangeFN );
+               strm_iter->second->finalizeOutput().ignore();
+               strm_iter->second->finalize().ignore();
+               m_streamerMap.erase(strm_iter);
+               m_toolMutexMap.erase( rangeFN );            
+            }
+            m_slotRangeMap[ slot ].clear();   
+         } else {
+            ATH_MSG_ERROR("Failed to handle EndProcessing incident");
+         }
+      }
    }
+   
    ATH_MSG_DEBUG("Leaving incident handler for " << inc.type());
 }
 
@@ -525,10 +526,10 @@ StatusCode AthenaOutputStream::write() {
 
    std::unique_lock<mutex_t>  lock(m_mutex);
 
-   // Handle Event Ranges in AthenaMT
-   if( !m_slotRangeMap.empty() && slot != EventContext::INVALID_CONTEXT_ID ) {
+   // Handle Event Ranges
+   if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() ) {
       outputFN = m_slotRangeMap[ slot ];
-      ATH_MSG_DEBUG( "Writing event to " << outputFN );
+      ATH_MSG_DEBUG( "Writing event sequence to " << outputFN );
       
       streamer = m_streamerMap[ outputFN ].get();
       if( !streamer ) {
@@ -585,11 +586,12 @@ StatusCode AthenaOutputStream::write() {
       }
    }
    // prepare before releasing lock because m_outputAttributes change in metadataStop
-   const std::string connectStr = outputFN + m_outputAttributes;  
+   const std::string connectStr = outputFN + m_outputAttributes;
+   // mutex_t   &stream_mutex = m_toolMutexMap[outputFN];
    // switch to locking on streamerTool level to allow parallelism
-   lock.unlock();
-   // MN: maybe a mutex in the tool is better?
-   std::lock_guard<std::mutex>   tool_lock( m_toolMutexMap[outputFN] );
+   // lock.unlock();
+   // MN: maybe a mutex inside the tool is better?
+   // std::lock_guard<mutex_t>   tool_lock( stream_mutex );
 
    // Connect the output file to the service
    if( !streamer->connectOutput( connectStr ).isSuccess()) {

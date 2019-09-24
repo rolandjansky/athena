@@ -57,17 +57,6 @@ ChainDictTemplate = {
 }
 
 #==========================================================
-# Common EventBuilding identifiers 
-# used in calib chains, but also foreseen for physics chains
-#==========================================================
-AllowedEventBuildingIdentifiers = ['pebtestone', 'pebtesttwo',                                 
-                                   'lumipeb',
-                                   'lhcfpeb',
-                                   'alfaidpeb',
-                                   'larpebj', 'larpeb',
-                                   ]
-
-#==========================================================
 # Test chains
 #==========================================================
 # ---- Test Dictinary of all allowed Values ----
@@ -197,7 +186,6 @@ MuonChainParts = {
     'addInfo'        : ['1step','3layersEC'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
-    'eventBuildType' : AllowedEventBuildingIdentifiers,
     }
 # ---- MuonDictinary of default Values ----
 MuonChainParts_Default = {
@@ -214,7 +202,6 @@ MuonChainParts_Default = {
     'invMassInfo'    : '',
     'topo'           : [],
     'flavour'        : '',
-    'eventBuildType' : '',
     }
 
 #==========================================================
@@ -354,7 +341,6 @@ ElectronChainParts = {
     'lhInfo'         : [],
     'L2IDAlg'        : [],
     'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
-    'eventBuildType'  : AllowedEventBuildingIdentifiers,
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {
@@ -377,7 +363,6 @@ ElectronChainParts_Default = {
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
-    'eventBuildType' : '',
     }
 
 #==========================================================
@@ -401,7 +386,6 @@ PhotonChainParts = {
     'recoAlg'        : [],
     'FSinfo'         : [],
     'addInfo'        : ['etcut',],
-    'eventBuildType' : AllowedEventBuildingIdentifiers,
     }
 
 # ---- Photon Dictinary of default Values ----
@@ -421,7 +405,6 @@ PhotonChainParts_Default = {
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
-    'eventBuildType' : '',
     }
 
 #==========================================================
@@ -611,8 +594,7 @@ CalibChainParts = {
     'signature'      : ['Calibration'],
     'chainPartName'  : '',
     'L1threshold'    : '',
-    'purpose'        : AllowedCalibChainIdentifiers+AllowedEventBuildingIdentifiers,
-#    'eventBuildType'  : AllowedEventBuildingIdentifiers, 
+    'purpose'        : AllowedCalibChainIdentifiers,
     'location'       : ['central', 'fwd'],
     'addInfo'        : ['loose','noise','beam'],
     'hypo'           : ['trk9', 'trk16', 'trk29', 'conej40', 'conej165', 'conej75_320eta490', 'conej140_320eta490','satu20em'],
@@ -723,7 +705,6 @@ BeamspotChainParts = {
     'multiplicity'   : '',
     'trigType'       : 'beamspot',
     'extra'          : '',
-    'eventBuildType' : ['peb','pebTRT'],
     }
 
 # ---- Beamspot Chain Default Dictinary of all allowed Values ----
@@ -740,7 +721,6 @@ BeamspotChainParts_Default = {
     'location'       : 'vtx',
     'trigType'       : 'beamspot', 
     'extra'          : '',
-    'eventBuildType' : '',
     }
 
 #==========================================================

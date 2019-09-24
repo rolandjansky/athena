@@ -4,6 +4,7 @@
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
 #include "ActsGeometry/ActsWriteTrackingGeometry.h"
+#include "ActsGeometry/ActsWriteTrackingGeometryTransforms.h"
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsExtrapolationTool.h"
 #include "ActsGeometry/ActsObjWriterTool.h"
@@ -12,12 +13,14 @@
 
 //#include "ActsGeometry/GeomShiftCondAlg.h"
 #include "ActsGeometry/NominalAlignmentCondAlg.h"
+#include "ActsGeometry/ActsAlignmentCondAlg.h"
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 #include "ActsGeometry/ActsPropStepRootWriterSvc.h"
 
 DECLARE_COMPONENT( ActsExtrapolationAlg )
 DECLARE_COMPONENT( ActsWriteTrackingGeometry )
+DECLARE_COMPONENT( ActsWriteTrackingGeometryTransforms )
 DECLARE_COMPONENT( ActsTrackingGeometrySvc )
 DECLARE_COMPONENT( ActsExtrapolationTool )
 DECLARE_COMPONENT( ActsObjWriterTool )
@@ -29,3 +32,4 @@ DECLARE_COMPONENT( NominalAlignmentCondAlg )
 DECLARE_COMPONENT( ActsTrackingGeometryTool )
 
 DECLARE_COMPONENT( ActsPropStepRootWriterSvc )
+DECLARE_COMPONENT( ActsAlignmentCondAlg )

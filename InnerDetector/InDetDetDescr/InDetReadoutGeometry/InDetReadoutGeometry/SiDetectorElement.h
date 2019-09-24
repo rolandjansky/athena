@@ -152,7 +152,65 @@ namespace InDetDD {
     /// Destructor:
     virtual ~SiDetectorElement();
     
-    
+    // Don't allow copying and moving.
+    SiDetectorElement() = delete;
+    SiDetectorElement(const SiDetectorElement&) = delete;
+    SiDetectorElement& operator=(const SiDetectorElement&) = delete;
+    SiDetectorElement(SiDetectorElement&&) = delete;
+    SiDetectorElement& operator=(SiDetectorElement&&) = delete;
+
+    ///////////////////////////////////////////////////////////////////
+    //
+    /// @name Cache handling.
+    //
+    ///////////////////////////////////////////////////////////////////
+    //@{.
+    //   - Methods to handle invalidating and updating caches. The cached values include values that are affected by alignment
+
+    /// Signal that cached values are no longer valid.
+    /// Invalidate general cache (inline)
+    void invalidate();
+
+    ///Set/calculate cache values (inline)
+    void setCache();
+
+    //@}
+
+    ///////////////////////////////////////////////////////////////////
+    /// @name Non-const methods:
+    /// These are not needed by most clients.
+    ///////////////////////////////////////////////////////////////////
+    //@{
+    // Set neighbours. (inline)
+
+    void setNextInEta(const SiDetectorElement* element);
+    void setPrevInEta(const SiDetectorElement* element);
+    void setNextInPhi(const SiDetectorElement* element);
+    void setPrevInPhi(const SiDetectorElement* element);
+    void setOtherSide(const SiDetectorElement* element); // For SCT only
+
+    //@}
+
+    ///////////////////////////////////////////////////////////////////
+    //
+    /// @name Navigation
+    /// Methods to access neighbours.
+    //
+    ///////////////////////////////////////////////////////////////////
+
+    //@{
+    const SiDetectorElement* nextInEta() const; // inline
+    const SiDetectorElement* prevInEta() const; // inline
+    const SiDetectorElement* nextInPhi() const; // inline
+    const SiDetectorElement* prevInPhi() const; // inline
+    const SiDetectorElement* otherSide() const; // Useful for SCT only, inline
+    //@}
+
+    /// @name Common items
+    //@{
+    const SiCommonItems* getCommonItems() const; // inline
+    //@}
+
     ///////////////////////////////////////////////////////////////////
     //
     /// @name Identification
@@ -173,68 +231,104 @@ namespace InDetDD {
     
     bool isPixel() const;
     bool isSCT() const;
+    bool isDBM() const;
     bool isBarrel() const;
     bool isEndcap() const; // inline
     bool isBlayer() const;
     bool isInnermostPixelLayer() const;
     bool isNextToInnermostPixelLayer() const;
-    bool isDBM() const;
 
     // Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)
-    
     /// Identifier from SiCellId (ie strip number or pixel eta_index,phi_index)
     Identifier identifierFromCellId(const SiCellId &cellId) const;
-    
     /// SiCellId from Identifier
     SiCellId cellIdFromIdentifier(const Identifier& identifier) const;
       
     //@}
-    
-    
-    ///////////////////////////////////////////////////////////////////
-    //
-    /// @name Navigation
-    /// Methods to access neighbours. 
-    //
-    ///////////////////////////////////////////////////////////////////
-    
+
+    /// @name Surface
     //@{
-    const SiDetectorElement* nextInEta() const; // inline
-    const SiDetectorElement* prevInEta() const; // inline
-    const SiDetectorElement* nextInPhi() const; // inline
-    const SiDetectorElement* prevInPhi() const; // inline
-    const SiDetectorElement* otherSide() const; // Useful for SCT only, inline
+    /// Element Surface
+    virtual Trk::Surface& surface();
+    virtual const Trk::Surface& surface() const;
+    virtual const Trk::Surface& surface(const Identifier&) const; // TrkDetElementBase interface (inline)
+    
+    /** Returns the full list of surfaces associated to this detector element */
+    virtual const std::vector<const Trk::Surface*>& surfaces() const;
     //@}
-    
+
     ///////////////////////////////////////////////////////////////////
     //
-    /// @name Transformation/Orientation
+    /// @name Transformation
     //
     ///////////////////////////////////////////////////////////////////
     
     //@{
-    // Position 
     /// Local (simulation/hit frame) to global transform
     virtual const GeoTrf::Transform3D& transformHit() const;
+
     /// Local (reconstruction frame) to global transform
+    const HepGeom::Transform3D& transformCLHEP() const;
     const Amg::Transform3D& transform() const;
+    virtual const Amg::Transform3D& transform(const Identifier&) const; // TrkDetElementBase interface (inline)
+
     /// Default Local (reconstruction frame) to global transform
     /// ie with no misalignment. 
     const HepGeom::Transform3D defTransformCLHEP() const;
     const Amg::Transform3D defTransform() const;
-    /// Center in global coordinates
-    const Amg::Vector3D& center() const;
-    
-    const HepGeom::Transform3D& transformCLHEP() const;
-    
-    /// Simulation/Hit local frame to reconstruction local frame. 2D.
-    //  TODO: Will change order of parameters at some point.
-    Amg::Vector2D hitLocalToLocal(double xEta, double xPhi) const;
-    /// Same as previuos method but 3D.
-    HepGeom::Point3D<double> hitLocalToLocal3D(const HepGeom::Point3D<double>& hitPosition) const;
-    
+
     /// Transform to go from local reconstruction frame to local hit frame.
     const HepGeom::Transform3D recoToHitTransform() const;
+
+    //@}
+
+    /**
+
+       @name Module Frame
+       Methods to help work with the module frame.
+       This is mainly of of use in the SCT where the module frame can
+       in general be different from the element frame. It is actully
+       defined as the frame of one of the sides (currently the axial
+       side), but using these methods one does not need to make any
+       assumptions about what the actual frame is.  In the following
+       methods the local element frame is the local reconstruction
+       frame of this element.
+    */
+
+    //@{
+
+    /// Module to global frame transform.
+    /// Includes misalignment. The module frame is defined to be the
+    /// local reconstruction frame of the axial layer in the SCT. For
+    /// the pixel it is the same as the element.
+    //const HepGeom::Transform3D & moduleTransform() const;
+    const Amg::Transform3D& moduleTransform() const;
+
+    /// Default module to global frame transform, ie with no misalignment.
+    /// The module frame is defined to be the
+    /// local reconstruction frame of the axial layer in the SCT. For
+    /// the pixel it is the same as the element.
+    Amg::Transform3D defModuleTransform() const;
+
+    /// Take a transform of the local element frame and return its equivalent in the module frame.
+    //HepGeom::Transform3D localToModuleFrame(const HepGeom::Transform3D & localTransform) const;
+    Amg::Transform3D localToModuleFrame(const Amg::Transform3D& localTransform) const;
+
+    /// Transformation from local element to module frame.  This can be
+    /// used to take a local position in the element frame and transform
+    /// it to a position in the module frame. If one is already in the
+    /// module frame it will return the Identity transform.
+    //HepGeom::Transform3D localToModuleTransform() const;
+    Amg::Transform3D localToModuleTransform() const;
+
+    /// Check if the element and module frame are the same.
+    bool isModuleFrame() const;
+
+    //@}
+
+    /// @name Orientation
+
+    //{@
     
     /// Directions of hit depth,phi,eta axes relative to reconstruction local position
     /// axes (LocalPosition). Returns +/-1. inline
@@ -246,8 +340,7 @@ namespace InDetDD {
     
     // To determine if readout direction between online and offline needs swapping, see methods
     // swapPhiReadoutDirection() and swapEtaReadoutDirection() below in "Readout Cell id" section
-    
-    
+    //
     // Orientation. 
     // Directions.
     //  phiAxis - in same direction as increasing phi and identifier phi_index/strip. 
@@ -258,15 +351,26 @@ namespace InDetDD {
       
     /// Get reconstruction local phi axes in global frame. 
     /// In same direction as increasing phi and identifier phi_index/strip. 
-    const Amg::Vector3D& phiAxis() const;
     const HepGeom::Vector3D<double>& phiAxisCLHEP() const;
+    const Amg::Vector3D& phiAxis() const;
+
     /// Get reconstruction local eta axes in global frame. 
     /// In direction of increasing z in the barrel and increasing r in the endcap. 
-    const Amg::Vector3D& etaAxis() const;
     const HepGeom::Vector3D<double>& etaAxisCLHEP() const;
+    const Amg::Vector3D& etaAxis() const;
+
     /// Get reconstruction local normal axes in global frame. Choosen to give right-handed coordinate frame.
     const Amg::Vector3D& normal() const;
-     
+    virtual const Amg::Vector3D& normal(const Identifier&) const; // TrkDetElementBase interface (inline)
+
+    //@}
+
+    /// @name Position
+    //@{
+    /// Center in global coordinates
+    const Amg::Vector3D& center() const;
+    virtual const Amg::Vector3D& center(const Identifier&) const; // TrkDetElementBase interface (inline)
+
     /// transform a hit local position into a global position (inline):
     HepGeom::Point3D<double> globalPositionHit(const HepGeom::Point3D<double>& simulationLocalPos) const;
     Amg::Vector3D globalPositionHit(const Amg::Vector3D& simulationLocalPos) const;
@@ -279,10 +383,20 @@ namespace InDetDD {
     HepGeom::Point3D<double> globalPositionCLHEP(const Amg::Vector2D& localPos) const;
     Amg::Vector3D globalPosition(const Amg::Vector2D& localPos) const;
     
+    /// Simulation/Hit local frame to reconstruction local frame. 2D.
+    //  TODO: Will change order of parameters at some point.
+    Amg::Vector2D hitLocalToLocal(double xEta, double xPhi) const;
+    /// Same as previuos method but 3D.
+    HepGeom::Point3D<double> hitLocalToLocal3D(const HepGeom::Point3D<double>& hitPosition) const;
+
     /// transform a global position into a 2D local position (reconstruction frame) (inline)
     Amg::Vector2D localPosition(const HepGeom::Point3D<double>& globalPosition) const;
     Amg::Vector2D localPosition(const Amg::Vector3D& globalPosition) const;
     
+    //@}
+
+    /// @name Angle
+    //@{
     /// Compute sin(tilt angle) at a given position:
     /// at center
     double sinTilt() const; // At center
@@ -298,70 +412,17 @@ namespace InDetDD {
     /// at given global position
     double sinStereo(const HepGeom::Point3D<double>& globalPosition) const;
     
-    /// Check if it is the stereo side (useful for SCT) 
-    bool isStereo() const;
-    
     /// Angle of strip in local frame with respect to the etaAxis. 
     /// Zero for all elements except trapezoidal detectors (ie SCT forward modules).
     double sinStereoLocal(const Amg::Vector2D& localPos) const;
     /// See previous method
     double sinStereoLocal(const HepGeom::Point3D<double>& globalPos) const;
     
-    /// Element Surface
-    virtual Trk::Surface& surface();
-    virtual const Trk::Surface& surface() const;
+    /// Check if it is the stereo side (useful for SCT)
+    bool isStereo() const;
     
     //@}
 
-    /** Returns the full list of surfaces associated to this detector element */
-    virtual const std::vector<const Trk::Surface*>& surfaces() const;
-
-    /**
-      
-       @name Module Frame 
-       Methods to help work with the module frame. 
-       This is mainly of of use in the SCT where the module frame can
-       in general be different from the element frame. It is actully
-       defined as the frame of one of the sides (currently the axial
-       side), but using these methods one does not need to make any
-       assumptions about what the actual frame is.  In the following
-       methods the local element frame is the local reconstruction
-       frame of this element.
-    */
-      
-    //@{
-    
-    /// Module to global frame transform. 
-    /// Includes misalignment. The module frame is defined to be the
-    /// local reconstruction frame of the axial layer in the SCT. For
-    /// the pixel it is the same as the element.
-    //const HepGeom::Transform3D & moduleTransform() const;
-    const Amg::Transform3D& moduleTransform() const;
-    
-    /// Default module to global frame transform, ie with no misalignment. 
-    /// The module frame is defined to be the
-    /// local reconstruction frame of the axial layer in the SCT. For
-    /// the pixel it is the same as the element.
-    Amg::Transform3D defModuleTransform() const;
-      
-    
-    /// Take a transform of the local element frame and return its equivalent in the module frame.
-    //HepGeom::Transform3D localToModuleFrame(const HepGeom::Transform3D & localTransform) const;
-    Amg::Transform3D localToModuleFrame(const Amg::Transform3D& localTransform) const;
-    
-    /// Transformation from local element to module frame.  This can be
-    /// used to take a local position in the element frame and transform
-    /// it to a position in the module frame. If one is already in the
-    /// module frame it will return the Identity transform.
-    //HepGeom::Transform3D localToModuleTransform() const;
-    Amg::Transform3D localToModuleTransform() const;
-    
-    /// Check if the element and module frame are the same.
-    bool isModuleFrame() const;
-    
-    
-    //@}
-    
     ///////////////////////////////////////////////////////////////////
     //
     /// @name Element Extent
@@ -397,17 +458,16 @@ namespace InDetDD {
     /// access to the local description (inline):
     const SiDetectorDesign& design() const;
     
+    virtual const Trk::SurfaceBounds& bounds() const;
+    virtual const Trk::SurfaceBounds& bounds(const Identifier&) const; // TrkDetElementBase interface (inline)
+
     // Methods from design (inline)
     double width() const; // Width in phi direction. For the SCT endcap it returns the average width. 
     double minWidth() const; // Min, max width. Needed for the SCT endcap. 
     double maxWidth() const;
     double length() const; // Length in eta direction (z - barrel, r - endcap)
     double thickness() const;
-    InDetDD::CarrierType carrierType() const; // carrier type for readout. ie holes for SCT 
-    // and electrons for pixels.
 
-    virtual const Trk::SurfaceBounds& bounds() const;
-    
     // Pitch 
     //
     // NOTE: phiPitch is ambiguous for the Forward SCT where it varies along the strip.
@@ -423,6 +483,16 @@ namespace InDetDD {
     double etaPitch() const; // inline
     double phiPitch() const; // inline
     double phiPitch(const Amg::Vector2D& localPosition) const; // Useful for SCT Forward. inline
+
+    InDetDD::CarrierType carrierType() const; // carrier type for readout. ie holes for SCT and electrons for pixels. inline
+
+    /// Determine if readout direction between online and offline needs swapping.
+    /// Returns true if online and offline numbers run in opposite directions.
+    /// For strip/phi_index (inline)
+    bool swapPhiReadoutDirection() const;
+    /// For eta_index (only relevant for pixel) (inline)
+    bool swapEtaReadoutDirection() const;
+
     //@}
     
     ///////////////////////////////////////////////////////////////////
@@ -463,13 +533,6 @@ namespace InDetDD {
     ///////////////////////////////////////////////////////////////////
     //@{
     
-    /// Determine if readout direction between online and offline needs swapping.
-    /// Returns true if online and offline numbers run in opposite directions.
-    /// For strip/phi_index (inline)
-    bool swapPhiReadoutDirection() const;
-    /// For eta_index (only relevant for pixel) (inline)
-    bool swapEtaReadoutDirection() const;
-    
     /// Full identifier of the cell for a given position:
     /// assumes a raw local position (no Lorentz shift)
     Identifier identifierOfPosition(const Amg::Vector2D& localPos) const;
@@ -477,7 +540,7 @@ namespace InDetDD {
     SiCellId cellIdOfPosition(const Amg::Vector2D& localPos) const;
     
     /// Returns position (center) of cell. These are the raw positions *NOT* corrected for the Lorentz shift
-    Amg::Vector2D rawLocalPositionOfCell(const SiCellId & cellId) const;
+    Amg::Vector2D rawLocalPositionOfCell(const SiCellId& cellId) const;
     /// As above
     Amg::Vector2D rawLocalPositionOfCell(const Identifier& id) const;
     
@@ -510,56 +573,6 @@ namespace InDetDD {
     //@}
     
     ///////////////////////////////////////////////////////////////////
-    //
-    /// @name Cache handling.
-    //
-    ///////////////////////////////////////////////////////////////////
-    //@{.
-    //   - Methods to handle invalidating and updating caches. The cached values include values that are affected by alignment
-     
-    /// Signal that cached values are no longer valid.
-    /// Invalidate general cache (inline)
-    void invalidate();
-   
-    ///Set/calculate cache values (inline)
-    void setCache();
-
-    //@}
-    
-    ///////////////////////////////////////////////////////////////////
-    //
-    /// @name Methods to satisfy TrkDetElementBase interface (inline)
-    //
-    ///////////////////////////////////////////////////////////////////
-    //{@
-    virtual const Amg::Transform3D& transform(const Identifier&) const;
-    virtual const Trk::Surface& surface(const Identifier&) const;
-    virtual const Amg::Vector3D& center(const Identifier&) const;
-    virtual const Amg::Vector3D& normal(const Identifier&) const;
-    virtual const Trk::SurfaceBounds& bounds(const Identifier&) const;
-    //@}
-    
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    
-    ///////////////////////////////////////////////////////////////////
-    /// @name Non-const methods:
-    /// These are not needed by most clients.
-    ///////////////////////////////////////////////////////////////////
-    //@{
-    // Set neighbours. (inline)
-    
-    void setNextInEta(const SiDetectorElement* element);
-    void setPrevInEta(const SiDetectorElement* element);
-    void setNextInPhi(const SiDetectorElement* element);
-    void setPrevInPhi(const SiDetectorElement* element);
-    void setOtherSide(const SiDetectorElement* element); // For SCT only
-    
-    //@}
-
-    const SiCommonItems* getCommonItems() const;
-    
-    ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////
     
@@ -570,14 +583,14 @@ namespace InDetDD {
      * do
      */
 
+    // Common code for constructors.
+    void commonConstructor();
+
     /// Recalculate  cached values. 
     void updateCache() const;
    
     /// Determine m_isStereo variable and m_stereoCacheValid variable.
     void determineStereo() const;
-    
-    // Common code for constructors.
-    void commonConstructor();
     
     // Calculate extent in r,z and phi. The values are cached and there
     // are rMin(), rMax etc methods.
@@ -611,80 +624,121 @@ namespace InDetDD {
     // Declaring the Method providing Verbosity Level (inline)
     bool msgLvl(MSG::Level lvl) const;
     
-    // Don't allow copying and moving.
-    SiDetectorElement() = delete;
-    SiDetectorElement(const SiDetectorElement&) = delete;
-    SiDetectorElement& operator=(const SiDetectorElement&) = delete;
-    SiDetectorElement(SiDetectorElement&&) = delete;
-    SiDetectorElement& operator=(SiDetectorElement&&) = delete;
-
     ///////////////////////////////////////////////////////////////////
     // Protected data:
     ///////////////////////////////////////////////////////////////////
   protected:
-    Identifier m_id; // identifier of this detector element
-    IdentifierHash m_idHash; // hash id
-    const SiDetectorDesign* m_design; // local description of this detector element
-    //const AtlasDetectorID* m_idHelper; // id helper
-    const SiCommonItems* m_commonItems;
-    
-    const SiDetectorElement* m_nextInEta{nullptr};
-    const SiDetectorElement* m_prevInEta{nullptr};
-    const SiDetectorElement* m_nextInPhi{nullptr};
-    const SiDetectorElement* m_prevInPhi{nullptr};
-    const SiDetectorElement* m_otherSide{nullptr};
-    
-    bool m_isPixel;
-    bool m_isBarrel;
-    bool m_isDBM;
-      
-    //
-    // Cached values.
-    //
-    // Axes
-    SiDetectorDesign::Axis m_hitEta;
-    SiDetectorDesign::Axis m_hitPhi;
-    SiDetectorDesign::Axis m_hitDepth;
 
-    // Directions of axes. These are true if the hit/simulation and reconstruction local frames are
-    // in the same direction and false if they are opposite.
-    mutable bool m_depthDirection ATLAS_THREAD_SAFE {true}; // Guarded by m_mutex // Direction of depth axis. 
-    // Also direction of readout implant (n+ for pixel, p+ for SCT).
-    mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
-    mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
+    ///////////////////////////////////////////////////////////////////
+    // Variables for cache validities
+    ///////////////////////////////////////////////////////////////////
 
-    mutable std::atomic_bool m_cacheValid{false}; // Alignment associated quatities.
+    // For alignment associated quatities.
+    mutable std::atomic_bool m_cacheValid{false};
+    // For alignment independent quantities
     mutable std::atomic_bool m_firstTime{true};
     // Since m_isStereo depends on m_otherSide->sinStereo(), a dedicated validity variable is needed.
     mutable std::atomic_bool m_stereoCacheValid{false};
     // Since m_surfaces depends on m_otherSide->surface(), a dedicated validity variable is needed.
     mutable std::atomic_bool m_surfacesValid{false};
-    mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Mutex guard to update mutable variables in const methods
+    ///////////////////////////////////////////////////////////////////
 
     mutable std::mutex m_mutex{};
 
-    mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
-    mutable Amg::Vector3D m_normal ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable Amg::Vector3D m_etaAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Vector3D<double> m_etaAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable Amg::Vector3D m_phiAxis ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Vector3D<double> m_phiAxisCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by constructor
+    ///////////////////////////////////////////////////////////////////
 
-    mutable double m_minZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
-    mutable double m_maxZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
-    mutable double m_minR ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
-    mutable double m_maxR ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
-    mutable double m_minPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()}; // Guarded by m_mutex
-    mutable double m_maxPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()}; // Guarded by m_mutex
-
+    Identifier m_id{}; // identifier of this detector element
+    const SiDetectorDesign* m_design{nullptr}; // local description of this detector element
+    const SiCommonItems* m_commonItems{nullptr};
     std::unique_ptr<Trk::Surface> m_surface;
-    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {}; // Guarded by m_mutex
-
     const GeoAlignmentStore* m_geoAlignStore{};
+
+    // Axes
+    SiDetectorDesign::Axis m_hitEta;
+    SiDetectorDesign::Axis m_hitPhi;
+    SiDetectorDesign::Axis m_hitDepth;
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by commonConstructor
+    ///////////////////////////////////////////////////////////////////
+
+    IdentifierHash m_idHash{}; // hash id
+
+    bool m_isPixel{false};
+    bool m_isDBM{false};
+    bool m_isBarrel{false};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by individual set methods
+    ///////////////////////////////////////////////////////////////////
+
+    const SiDetectorElement* m_nextInEta{nullptr}; // set by setNextInEta
+    const SiDetectorElement* m_prevInEta{nullptr}; // set by setPrevInEta
+    const SiDetectorElement* m_nextInPhi{nullptr}; // set by setNextInPhi
+    const SiDetectorElement* m_prevInPhi{nullptr}; // set by setPrevInPhi
+    const SiDetectorElement* m_otherSide{nullptr}; // set by setOtherSide
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by updateCache with m_firstTime of true
+    // Happens only once
+    ///////////////////////////////////////////////////////////////////
+
+    // Directions of axes. These are true if the hit/simulation and reconstruction local
+    // frames are in the same direction and false if they are opposite.
+    mutable bool m_depthDirection ATLAS_THREAD_SAFE {true}; // Direction of depth axis.
+    // Also direction of readout implant (n+ for pixel, p+ for SCT).
+    mutable bool m_phiDirection ATLAS_THREAD_SAFE {true};
+    mutable bool m_etaDirection ATLAS_THREAD_SAFE {true};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variables set by updateCache
+    ///////////////////////////////////////////////////////////////////
+
+    mutable Amg::Transform3D m_transform ATLAS_THREAD_SAFE;
+    mutable HepGeom::Transform3D m_transformCLHEP ATLAS_THREAD_SAFE;
+
+    mutable Amg::Vector3D m_normal ATLAS_THREAD_SAFE;
+    mutable Amg::Vector3D m_etaAxis ATLAS_THREAD_SAFE;
+    mutable HepGeom::Vector3D<double> m_etaAxisCLHEP ATLAS_THREAD_SAFE;
+    mutable Amg::Vector3D m_phiAxis ATLAS_THREAD_SAFE;
+    mutable HepGeom::Vector3D<double> m_phiAxisCLHEP ATLAS_THREAD_SAFE;
+    mutable Amg::Vector3D m_center ATLAS_THREAD_SAFE;
+    mutable HepGeom::Vector3D<double> m_centerCLHEP ATLAS_THREAD_SAFE;
+
+    mutable double m_minZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
+    mutable double m_maxZ ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
+    mutable double m_minR ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
+    mutable double m_maxR ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
+    mutable double m_minPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::max()};
+    mutable double m_maxPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variable set by determineStereo with m_stereoCacheValid of false
+    // Happens only once
+    ///////////////////////////////////////////////////////////////////
+
+    mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Variable set by surfaces ith m_surfacesValid of false
+    // Happens only once
+    ///////////////////////////////////////////////////////////////////
+
+    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {};
+
   };
     
 } // namespace InDetDD

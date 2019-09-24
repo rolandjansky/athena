@@ -77,9 +77,15 @@ namespace TrigConf {
 
       /** Check for attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
-       * @return true if key exists
+       * @return true if path @c key exists and is an attribute
        */
       bool hasAttribute(const std::string & key) const;
+
+      /** Check for attribute
+       * @param path The path to the child, relative to the current one in form "path.to.child"
+       * @return true if path exists
+       */
+      bool hasChild(const std::string & path) const;
 
       /** Access to simple attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"

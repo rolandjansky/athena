@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "InDetRecStatistics/TrackStatHelper.h"
 #include "Identifier/Identifier.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
@@ -91,9 +91,10 @@ namespace InDet {
       const TRT_ID*                         m_trtID; //!< get trt layer from hit ID
       // added to check TRT existence (SLHC geo check)
       const IdDictManager * m_idDictMgr;
-      ToolHandle<Trk::ITruthToTrack>         m_truthToTrack; //!< tool to create track parameters from a gen particle
-      ToolHandle<Trk::ITrackSummaryTool>    m_trkSummaryTool;  //!< tool to get track summary information from track 
-      ToolHandle<Trk::IPRD_AssociationTool> m_assoTool; /** used to work out which (if any) PRDs are shared between tracks*/
+      ToolHandle<Trk::ITruthToTrack>              m_truthToTrack; //!< tool to create track parameters from a gen particle
+      ToolHandle<Trk::IExtendedTrackSummaryTool>  m_trkSummaryTool;  //!< tool to get track summary information from track 
+      ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+         {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
 
       ToolHandle<Trk::IUpdator>                   m_updatorHandle;            //!< Tool handle of updator for unbiased states
       Trk::IUpdator*                              m_updator;                  //!< updator for unbiased states

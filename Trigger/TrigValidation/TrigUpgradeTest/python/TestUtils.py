@@ -11,7 +11,7 @@ def writeEmulationFiles(data):
                 f.write("\n")
 
 # Testing menu used in the L1 decoders
-class MenuTest:
+class MenuTest(object):
 
     CTPToChainMapping = {"HLT_e3_etcut":   "L1_EM3",
                          "HLT_e5_etcut":   "L1_EM3",

@@ -42,7 +42,7 @@ test_postProcessing_Errors.sh athenaTwoThreads.log | tee errorsTwoThreads.log
 if [[ $rc1 -eq 0 ]] && [[ $rc2 -eq  0 ]] 
 then
  echo "Compare two directories"
- art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../oneThread | tee diffTwoThreadsOneThread.log
+ art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadOne | tee diffTwoThreadsOneThread.log
  echo "art-result: $? Diff-OneThread-TwoThreads"
 fi
 
@@ -51,7 +51,7 @@ echo "Creating new threadFive directory"
 mkdir threadFive; cd threadFive
 
 athena --threads=5 $1 | tee athenaFiveThreads.log
-rc2=${PIPESTATUS[0]}
+rc5=${PIPESTATUS[0]}
 echo "art-result: $rc5 FiveThreads"
 
 test_postProcessing_Errors.sh athenaFiveThreads.log | tee errorsFiveThreads.log
@@ -59,6 +59,6 @@ test_postProcessing_Errors.sh athenaFiveThreads.log | tee errorsFiveThreads.log
 if [[ $rc2 -eq 0 ]] && [[ $rc5 -eq  0 ]] 
 then
  echo "Compare two directories"
- art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../twoThreads | tee diffFiveThreadsTwoThreads.log
+ art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadTwo | tee diffFiveThreadsTwoThreads.log
  echo "art-result: $? Diff-TwoThreads-FiveThreads"
 fi

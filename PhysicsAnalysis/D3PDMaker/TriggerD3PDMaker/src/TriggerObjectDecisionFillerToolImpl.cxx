@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #include "D3PDMakerUtils/BlockFillerToolImpl.h"
 #include "TrigObjectMatching/TrigMatchTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "boost/foreach.hpp"
 #include <algorithm>

@@ -46,8 +46,8 @@ MDTNoisyTubes::MDTNoisyTubes(bool doMask){
   //Which should be of the form:
   //[chambername] [int],[int],[int]
   //Where the ints are tube numbers as generated w/:
-  //int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);
-  //ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1)
+  //int mdttube= m_muonIdHelperTool->mdtIdHelper().tube(*i) + (mdtlayer-1) * m_muonIdHelperTool->mdtIdHelper().tubeMax(*i);
+  //ChamberTubeNumberCorrection(mdttube, hardware_name, m_muonIdHelperTool->mdtIdHelper().tube(*i), mdtlayer-1)
   //Output will be in your run directory called out.cxx
 
   if(!doMask) return;//Option to turn off tube masking

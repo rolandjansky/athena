@@ -6,7 +6,7 @@
 #include <math.h>
 #include <cmath>
 
-#include "TrigMuonBackExtrapolator/BackExtrapolator.h"
+#include "BackExtrapolator.h"
 
 /*
 ///////////////////////////////////// LUTS //////////////////////////////////////////

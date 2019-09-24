@@ -30,6 +30,7 @@
 namespace SG {
    class IAuxTypeVector;
 }
+class xAODAuxContainerBaseCnv;
 
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
@@ -184,6 +185,8 @@ namespace xAOD {
                              SG::AuxTypeRegistry::Flags flags );
 
    private:
+      friend class ::xAODAuxContainerBaseCnv;
+
       /// Common code between regAuxVar cases.
       template< typename ELT, typename CONT >
       SG::auxid_t regAuxVar1( const std::string& name,

@@ -40,6 +40,8 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 #include <TError.h>
 #include <TH1F.h>
@@ -128,7 +130,8 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   std::map<std::string,int> m_hitsperchamber_map;
   
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  const RpcIdHelper* m_rpcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   const IRPCcablingSvc* m_cabling;
    

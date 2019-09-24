@@ -23,8 +23,7 @@ const InterfaceID& RpcResidualsTool::interfaceID( ) {
 
 RpcResidualsTool::RpcResidualsTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AthAlgTool(type,name,parent),
-     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  :  AthAlgTool(type,name,parent)
 {
   declareProperty("ClusterCollection",m_clusCollection="rpcClusters");
   declareInterface< RpcResidualsTool  >( this );
@@ -51,9 +50,7 @@ StatusCode RpcResidualsTool::initialize(){
 
   ATH_CHECK( toolSvc()->retrieveTool("RpcExtrapolationTool",m_rpcExtrapolTool) );
 
-  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-
-  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   return StatusCode::SUCCESS;  
 
@@ -90,15 +87,15 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
       
 //       for (int j=0; j<extrapolations.size()&&!found; ++j){
       
-// 	if (m_rpcIdHelper->panelID(extrapolations[j].id)==idTwinView) found = true;
+// 	if (m_muonIdHelperTool->rpcIdHelper().panelID(extrapolations[j].id)==idTwinView) found = true;
 	
 //       }
 
 //       if (!found) {
 
-// 	ATH_MSG_WARNING( "ID " << extrapolations[i].id<<" name " <<m_rpcIdHelper->stationName(extrapolations[i].id)<< " sec "<<m_rpcIdHelper->stationPhi(extrapolations[i].id)*2+m_rpcIdHelper->stationName(extrapolations[i].id)%2-1<< " eta "<<m_rpcIdHelper->stationEta(extrapolations[i].id)<<" dZ " <<m_rpcIdHelper->doubletZ(extrapolations[i].id)<<" dPhi " <<m_rpcIdHelper->doubletPhi(extrapolations[i].id)<< " r "<<m_rpcIdHelper->doubletR(extrapolations[i].id)<< " gg "<<m_rpcIdHelper->gasGap(extrapolations[i].id)<< " mp "<<m_rpcIdHelper->measuresPhi(extrapolations[i].id)<<" strip "<<m_rpcIdHelper->strip(extrapolations[i].id)<< " found, but ");
+// 	ATH_MSG_WARNING( "ID " << extrapolations[i].id<<" name " <<m_muonIdHelperTool->rpcIdHelper().stationName(extrapolations[i].id)<< " sec "<<m_muonIdHelperTool->rpcIdHelper().stationPhi(extrapolations[i].id)*2+m_muonIdHelperTool->rpcIdHelper().stationName(extrapolations[i].id)%2-1<< " eta "<<m_muonIdHelperTool->rpcIdHelper().stationEta(extrapolations[i].id)<<" dZ " <<m_muonIdHelperTool->rpcIdHelper().doubletZ(extrapolations[i].id)<<" dPhi " <<m_muonIdHelperTool->rpcIdHelper().doubletPhi(extrapolations[i].id)<< " r "<<m_muonIdHelperTool->rpcIdHelper().doubletR(extrapolations[i].id)<< " gg "<<m_muonIdHelperTool->rpcIdHelper().gasGap(extrapolations[i].id)<< " mp "<<m_muonIdHelperTool->rpcIdHelper().measuresPhi(extrapolations[i].id)<<" strip "<<m_muonIdHelperTool->rpcIdHelper().strip(extrapolations[i].id)<< " found, but ");
 
-// 	ATH_MSG_WARNING( "ID " << idTwinView<<" name " <<m_rpcIdHelper->stationName(idTwinView)<< " sec "<<m_rpcIdHelper->stationPhi(idTwinView)*2+m_rpcIdHelper->stationName(idTwinView)%2-1<< " eta "<<m_rpcIdHelper->stationEta(idTwinView)<<" dZ " <<m_rpcIdHelper->doubletZ(idTwinView)<<" dPhi " <<m_rpcIdHelper->doubletPhi(idTwinView)<< " r "<<m_rpcIdHelper->doubletR(idTwinView)<< " gg "<<m_rpcIdHelper->gasGap(idTwinView)<< " mp "<<m_rpcIdHelper->measuresPhi(idTwinView)<<" strip "<<m_rpcIdHelper->strip(idTwinView)<<" missing");
+// 	ATH_MSG_WARNING( "ID " << idTwinView<<" name " <<m_muonIdHelperTool->rpcIdHelper().stationName(idTwinView)<< " sec "<<m_muonIdHelperTool->rpcIdHelper().stationPhi(idTwinView)*2+m_muonIdHelperTool->rpcIdHelper().stationName(idTwinView)%2-1<< " eta "<<m_muonIdHelperTool->rpcIdHelper().stationEta(idTwinView)<<" dZ " <<m_muonIdHelperTool->rpcIdHelper().doubletZ(idTwinView)<<" dPhi " <<m_muonIdHelperTool->rpcIdHelper().doubletPhi(idTwinView)<< " r "<<m_muonIdHelperTool->rpcIdHelper().doubletR(idTwinView)<< " gg "<<m_muonIdHelperTool->rpcIdHelper().gasGap(idTwinView)<< " mp "<<m_muonIdHelperTool->rpcIdHelper().measuresPhi(idTwinView)<<" strip "<<m_muonIdHelperTool->rpcIdHelper().strip(idTwinView)<<" missing");
 	
 //       }
       
@@ -137,7 +134,7 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 	for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = clusterCollection->begin(); 
 	     rpcPrd != clusterCollection->end(); ++rpcPrd) {
 
-	  panels.insert(m_rpcIdHelper->panelID((*rpcPrd)->identify()));
+	  panels.insert(m_muonIdHelperTool->rpcIdHelper().panelID((*rpcPrd)->identify()));
 	  
   
 	}
@@ -174,14 +171,14 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
     Identifier theElement;
     Identifier idParent;
 
-    theElement=m_rpcIdHelper->elementID((*theExtra).id);
-    idParent = m_rpcIdHelper->parentID((*theExtra).id);
+    theElement=m_muonIdHelperTool->rpcIdHelper().elementID((*theExtra).id);
+    idParent = m_muonIdHelperTool->rpcIdHelper().parentID((*theExtra).id);
 
-    IdContext rpcModuleContext = m_rpcIdHelper->module_context();
+    IdContext rpcModuleContext = m_muonIdHelperTool->rpcIdHelper().module_context();
 
     IdentifierHash elementIDhash;
 
-    m_rpcIdHelper->get_hash(idParent, elementIDhash,&rpcModuleContext);
+    m_muonIdHelperTool->rpcIdHelper().get_hash(idParent, elementIDhash,&rpcModuleContext);
     
     Muon::RpcPrepDataContainer::const_iterator it = rpc_container->indexFind(elementIDhash);
     
@@ -200,29 +197,29 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 //	  int layer=0;
 	  
 	  // BM stations
-	  /*if(m_rpcIdHelper->stationName((*rpcPrd)->identify())<4||m_rpcIdHelper->stationName((*rpcPrd)->identify())==8){
+	  /*if(m_muonIdHelperTool->rpcIdHelper().stationName((*rpcPrd)->identify())<4||m_muonIdHelperTool->rpcIdHelper().stationName((*rpcPrd)->identify())==8){
 	    
-	    layer=m_rpcIdHelper->doubletR((*rpcPrd)->identify())*2+m_rpcIdHelper->gasGap((*rpcPrd)->identify())-2;
+	    layer=m_muonIdHelperTool->rpcIdHelper().doubletR((*rpcPrd)->identify())*2+m_muonIdHelperTool->rpcIdHelper().gasGap((*rpcPrd)->identify())-2;
 	    
 	  } else { // BO stations
 	    
-	    layer=4+m_rpcIdHelper->gasGap((*rpcPrd)->identify());
+	    layer=4+m_muonIdHelperTool->rpcIdHelper().gasGap((*rpcPrd)->identify());
 	    
 	  }*/
 	  
 	  // look for cluster on the same panel
 	  
-	  Identifier panel_id = m_rpcIdHelper->panelID((*rpcPrd)->identify());
+	  Identifier panel_id = m_muonIdHelperTool->rpcIdHelper().panelID((*rpcPrd)->identify());
 	  
 	  // check if the cluster is on the same panel as the extrapolation
 	  
-	  if(panel_id==m_rpcIdHelper->panelID(result.id)){
+	  if(panel_id==m_muonIdHelperTool->rpcIdHelper().panelID(result.id)){
 	    
 	    const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement((*rpcPrd)->identify());
 	    
 	    // eta residual
 	    float residual=0.;
-	    if(! m_rpcIdHelper->measuresPhi(result.id)) residual= thePosition.z()-(*rpcPrd)->globalPosition().z();
+	    if(! m_muonIdHelperTool->rpcIdHelper().measuresPhi(result.id)) residual= thePosition.z()-(*rpcPrd)->globalPosition().z();
 	    else {
 	      int sign=(thePosition.phi() < (*rpcPrd)->globalPosition().phi()) ? -1 : 1;
 	      residual=sign * sqrt(
@@ -235,7 +232,7 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 	      lowest=residual;
 	      lowest_time=(*rpcPrd)->time();
 	      lowest_csize=(*rpcPrd)->rdoList().size();
-	      pitch=descriptor->StripPitch(m_rpcIdHelper->measuresPhi(result.id));
+	      pitch=descriptor->StripPitch(m_muonIdHelperTool->rpcIdHelper().measuresPhi(result.id));
 	    }
 	  }
 	  
@@ -268,16 +265,16 @@ Identifier RpcResidualsTool::GetTwinPanel(Identifier id){
   
   //unpack the panelID
       
-  int sec = m_rpcIdHelper->stationPhi(id);
-  int sta = m_rpcIdHelper->stationName(id);
-  int dr = m_rpcIdHelper->doubletR(id);
-  int dp = m_rpcIdHelper->doubletPhi(id);
-  int mp = m_rpcIdHelper->measuresPhi(id);
-  int gg = m_rpcIdHelper->gasGap(id);
-  int dz = m_rpcIdHelper->doubletZ(id);
-  int eta = m_rpcIdHelper->stationEta(id);
+  int sec = m_muonIdHelperTool->rpcIdHelper().stationPhi(id);
+  int sta = m_muonIdHelperTool->rpcIdHelper().stationName(id);
+  int dr = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
+  int dp = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
+  int mp = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
+  int gg = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
+  int dz = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
+  int eta = m_muonIdHelperTool->rpcIdHelper().stationEta(id);
   
-  return m_rpcIdHelper->panelID(sta, eta, sec, dr, dz, dp, gg%2 + 1, mp);
+  return m_muonIdHelperTool->rpcIdHelper().panelID(sta, eta, sec, dr, dz, dp, gg%2 + 1, mp);
   
 }
 
@@ -285,15 +282,15 @@ Identifier RpcResidualsTool::GetTwinViewPanel(Identifier id){
   
   //unpack the panelID
       
-  int sec = m_rpcIdHelper->stationPhi(id);
-  int sta = m_rpcIdHelper->stationName(id);
-  int dr = m_rpcIdHelper->doubletR(id);
-  int dp = m_rpcIdHelper->doubletPhi(id);
-  int mp = m_rpcIdHelper->measuresPhi(id);
-  int gg = m_rpcIdHelper->gasGap(id);
-  int dz = m_rpcIdHelper->doubletZ(id);
-  int eta = m_rpcIdHelper->stationEta(id);
+  int sec = m_muonIdHelperTool->rpcIdHelper().stationPhi(id);
+  int sta = m_muonIdHelperTool->rpcIdHelper().stationName(id);
+  int dr = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
+  int dp = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
+  int mp = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
+  int gg = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
+  int dz = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
+  int eta = m_muonIdHelperTool->rpcIdHelper().stationEta(id);
   
-  return m_rpcIdHelper->panelID(sta, eta, sec, dr, dz, dp, gg, !mp);
+  return m_muonIdHelperTool->rpcIdHelper().panelID(sta, eta, sec, dr, dz, dp, gg, !mp);
   
 }

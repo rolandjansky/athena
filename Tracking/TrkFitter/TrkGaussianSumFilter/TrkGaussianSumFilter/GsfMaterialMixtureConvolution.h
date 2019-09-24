@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -37,13 +37,13 @@ public:
   GsfMaterialMixtureConvolution(const std::string&, const std::string&, const IInterface*);
 
   //!< Destructor
-  ~GsfMaterialMixtureConvolution();
+  virtual ~GsfMaterialMixtureConvolution();
 
   //!< AlgTool initialise method
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //!< AlgTool finalize method
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   //!< Convolution with full material properties
   virtual std::unique_ptr<MultiComponentState> 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #tool to corrupt fragment in data file
 
@@ -31,7 +31,7 @@ def corruptEvent(event,badList):
         #corrupt rob
         id=rob[4]
         if (id >= badList[0]) and (id<=badList[1]):
-            print 'Found rob to be truncated: %08x - org length %d' % (id,len(rob))
+            print('Found rob to be truncated: %08x - org length %d' % (id,len(rob)))
             if (len(rob)>50): #don't truncate basically empty fragments
                 newrob=array.array('I',rob[0:len(rob)-20])
                 reducedWords+=20
@@ -43,7 +43,7 @@ def corruptEvent(event,badList):
                 newrob[-3]=0xfe77efdd
                 rob=newrob
         else:
-            print 'good rob %08x' % (id)
+            print('good rob %08x' % id)
 #        newEvent.fromlist(rob.tolist())
         newEvent.extend(rob)
         robIdx+=event[robIdx+1]
@@ -69,7 +69,8 @@ while True:
 
 while True:
     event=readEvent(inFile)
-    if not event: break
+    if not event:
+        break
     #corrupt event
 #    corrupt=corruptEvent(event,range(0x00670001,0x0067000c))
 #all of ID

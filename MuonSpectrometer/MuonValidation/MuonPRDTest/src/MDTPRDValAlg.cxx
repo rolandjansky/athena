@@ -58,7 +58,6 @@ MDTPRDValAlg::MDTPRDValAlg(const std::string& name,
   m_histo_flag(false),
   m_descriptor(0),
   m_pMuonMgr(0),
-  m_mdtIdHelper(0),
   m_log(0),
   m_debug(false),
   m_verbose(false),
@@ -180,9 +179,9 @@ StatusCode MDTPRDValAlg::initialize()
     return sc;
   }
 
-  sc = detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER");
+  sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure()){
-    *m_log << MSG::ERROR << "Cannot retrieve m_mdtId" << endmsg;
+    *m_log << MSG::ERROR << "Cannot retrieve MuonIdHelperTool" << endmsg;
     return sc;
   }  
 
@@ -634,12 +633,12 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     /**Create the offline identifiers, fill them with hit info.Ready to be accessed and retrieve info.
        Currently not used in this code except for some checks.
     */
-    Identifier offid = m_mdtIdHelper->channelID(mdt_stname, mdt_steta, mdt_stphi,mdt_ml,mdt_tl,mdt_tube);
+    Identifier offid = m_muonIdHelperTool->mdtIdHelper().channelID(mdt_stname, mdt_steta, mdt_stphi,mdt_ml,mdt_tl,mdt_tube);
     if (offid == 0){
       *m_log << MSG::WARNING << "MDT: Cannot build a valid Identifier; skip " << endmsg;
       continue;
     }
-    if( m_verbose ) *m_log << MSG::VERBOSE << " SimHit: barcode " << barcode << "  " << m_mdtIdHelper->print_to_string(offid) << endmsg;
+    if( m_verbose ) *m_log << MSG::VERBOSE << " SimHit: barcode " << barcode << "  " << m_muonIdHelperTool->mdtIdHelper().print_to_string(offid) << endmsg;
 
 
     MdtHitMap& mdtHitMap = muonMdtHitMap[barcode];
@@ -691,7 +690,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     const MuonSimData& simData = sit->second;
     
     if( simData.getdeposits().empty() ) {
-      *m_log << MSG::WARNING << "MDT Sdo without deposits " << m_mdtIdHelper->print_to_string(id) << endmsg;
+      *m_log << MSG::WARNING << "MDT Sdo without deposits " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
       continue;
     }
     int barcode = simData.getdeposits().front().first.barcode();
@@ -723,7 +722,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
       }
 
       if( m_verbose ) *m_log << MSG::VERBOSE << "New SDO: barcode  " << barcode << "  " 
-			     << m_mdtIdHelper->print_to_string(id) << endmsg;
+			     << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
       mdtHitData->sdo = &simData;
     }
   }
@@ -768,7 +767,7 @@ void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) con
       }
 
       if( m_verbose ) *m_log << MSG::VERBOSE << " Muon PRD: barcode " << mdtHitData->barcode 
-			     << "  " << m_mdtIdHelper->print_to_string(id) << endmsg;
+			     << "  " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
 
       mdtHitData->prd = &mdt;
     }
@@ -1093,16 +1092,16 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       } 
 
 // put station name string in AANTUPLE as Val_StName  
-      if( m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id) ).size() == 3 )
-        strcpy(m_Validation_MDT_StationName,m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id) ).c_str() );
+      if( m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName(id) ).size() == 3 )
+        strcpy(m_Validation_MDT_StationName,m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName(id) ).c_str() );
       else
         strcpy(m_Validation_MDT_StationName,"ERR" );
 
-      std::string stName = m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id));
+      std::string stName = m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName(id));
       int geoSign = 1;
       int codeBESL = 0;
       if(stName[0]=='B') {
-        if(m_mdtIdHelper->stationEta(id)>0) geoSign = -1;
+        if(m_muonIdHelperTool->mdtIdHelper().stationEta(id)>0) geoSign = -1;
         if(stName[2]=='L') codeBESL = 1;
         if(stName[2]=='S') codeBESL = 2;
         if(stName[2]=='F') codeBESL = 2;
@@ -1114,18 +1113,18 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 // BEE
         if(stName[2]=='E') codeBESL = 3;
       } else if (stName[0]=='E') {
-        if(m_mdtIdHelper->stationEta(id)<0) geoSign = -1;
+        if(m_muonIdHelperTool->mdtIdHelper().stationEta(id)<0) geoSign = -1;
         if(stName[2]=='L') codeBESL = 11;
         if(stName[2]=='S') codeBESL = 12;
 // EE
         if(stName[1]=='E') codeBESL = 13;
       }
 
-      m_Validation_MDT_StationEta=m_mdtIdHelper->stationEta(id);
-      m_Validation_MDT_StationPhi=m_mdtIdHelper->stationPhi(id);
-      m_Validation_MDT_IDTube=m_mdtIdHelper->tube(id);
-      m_Validation_MDT_IDMultiLayer=m_mdtIdHelper->multilayer(id);
-      m_Validation_MDT_IDLayer=m_mdtIdHelper->tubeLayer(id);
+      m_Validation_MDT_StationEta=m_muonIdHelperTool->mdtIdHelper().stationEta(id);
+      m_Validation_MDT_StationPhi=m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
+      m_Validation_MDT_IDTube=m_muonIdHelperTool->mdtIdHelper().tube(id);
+      m_Validation_MDT_IDMultiLayer=m_muonIdHelperTool->mdtIdHelper().multilayer(id);
+      m_Validation_MDT_IDLayer=m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
       m_Validation_MDT_GeoSign = geoSign;
       m_Validation_MDT_BESL = codeBESL;
 
@@ -1197,7 +1196,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       m_Validation_MDT_ExSagWireZ = (lexposSag)[Trk::locY];
       m_Validation_MDT_SimRadius = simRadius;
       m_Validation_MDT_SdoRadius = sdoRadius;
-      m_Validation_MDT_WireLen = detEl->getWireLength(m_mdtIdHelper->tubeLayer(id),m_mdtIdHelper->tube(id) );
+      m_Validation_MDT_WireLen = detEl->getWireLength(m_muonIdHelperTool->mdtIdHelper().tubeLayer(id),m_muonIdHelperTool->mdtIdHelper().tube(id) );
 
       m_Validation_MDT_ExSagRotR = (lexposSagRot)[Trk::locX];
       m_Validation_MDT_ExSagRotZ = (lexposSagRot)[Trk::locY];
@@ -1231,7 +1230,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	double res_eprz_sdo = sdoDistRO - eprz;
 	double res_simz_sdo  = sdoDistRO - simDistRO;
 	double res_sdoz_sdo  = sdoDistRO - sdoDistRO;
-	*m_log << MSG::DEBUG << "   new PRD " << m_mdtIdHelper->print_to_string( id ) << std::endl << std::setprecision(4) 
+	*m_log << MSG::DEBUG << "   new PRD " << m_muonIdHelperTool->mdtIdHelper().print_to_string( id ) << std::endl << std::setprecision(4) 
 		  << std::setw(15) << " " << std::setw(15) << "| expos " << std::setw(15) << "| expos sag " << std::setw(15) << "| expos ROT " 
 		  << std::setw(15) <<  "| sim "  << std::setw(15) << "| sdo " << "|" << std::endl
 		  << std::setw(15) << " r " << std::setw(15) << epr       << std::setw(15) << epsr          << std::setw(15)  << eprr 

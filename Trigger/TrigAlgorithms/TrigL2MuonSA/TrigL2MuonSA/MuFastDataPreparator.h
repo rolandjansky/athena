@@ -34,6 +34,8 @@
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "RegionSelector/IRegSelSvc.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -91,7 +93,8 @@ class MuFastDataPreparator: public AthAlgTool
  private:
   
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
-  const MdtIdHelper* m_mdtIdHelper{nullptr};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
 

@@ -6,7 +6,12 @@ class LArDQGlobals(object):
       __slots__ = ('HVeta_EMB','HVphi_EMB','HVeta_EMEC','HVphi_EMEC','HVeta_HECFcal','HVphi_HECFcal',
                    'LB_Bins','LB_Min','LB_Max','BCID_Bins','BCID_Min','BCID_Max',
                    'colTime_Bins','colTime_Min','colTime_Max','avgColTime_Bins','avgColTime_Min','avgColTime_Max',
-                   'FEB_Feedthrough','FEB_Slot','FEB_N_channels','N_FEB_Parttions_Max','N_FEB')
+                   'FEB_Feedthrough','FEB_Slot','FEB_Crates',
+                   'FEB_N_channels','FEB_channels_Min','FEB_channels_Max',
+                   'N_FEB_Parttions_Max','N_FEB', 'N_Partitions','Partitions','N_Gains','Gains',
+                   'N_DigitsSummary','DigitsSummary',
+                   'N_SubDet','SubDet','Samples_Bins','Samples_Min','Samples_Max',
+                   'Energy_Bins','Energy_Min','Energy_Max','L1Trig_Bins','L1Trig_Min','L1Trig_Max')
 
 lArDQGlobals = LArDQGlobals()
 
@@ -54,12 +59,39 @@ lArDQGlobals.avgColTime_Max=40
 #FEB ranges
 lArDQGlobals.FEB_Feedthrough={"EMBA":[0,31],"EMBC":[0,31],"EMECA":[0,24],"EMECC":[0,24],"HECA":[0,24],"HECC":[0,24],"FCalA":[0,24],"FCalC":[0,24]}
 lArDQGlobals.FEB_Slot={"EMBA":[1,14],"EMBC":[1,14],"EMECA":[1,15],"EMECC":[1,15],"HECA":[1,15],"HECC":[1,15],"FCalA":[1,15],"FCalC":[1,15]}
+lArDQGlobals.FEB_Crates={"EMBA":[1,448],"EMBC":[1,448],"EMECA":[1,375],"EMECC":[1,375],"HECA":[1,375],"HECC":[1,375],"FCalA":[1,375],"FCalC":[1,375]}
 #Feb N channels
 lArDQGlobals.FEB_N_channels=128
+lArDQGlobals.FEB_channels_Min=-0.5
+lArDQGlobals.FEB_channels_Max=lArDQGlobals.FEB_N_channels-0.5
 
 #total number of FEB
 lArDQGlobals.N_FEB=1524
 lArDQGlobals.N_FEB_Parttions_Max=500
 
+#partitions
+lArDQGlobals.N_Partitions=8
+lArDQGlobals.Partitions=["EMBC","EMBA","EMECC","EMECA","HECC","HECA","FCalC","FCalA"]
+lArDQGlobals.N_SubDet=4
+lArDQGlobals.SubDet=["EMB","EMEC","HEC","FCal"]
+lArDQGlobals.N_Gains=3
+lArDQGlobals.Gains=["HIGH","MEDIUM","LOW"]
 
+#digits summary
+lArDQGlobals.N_DigitsSummary=4
+lArDQGlobals.DigitsSummary=["OutOfRange","Saturation","Null Digits","Mean Time"]
 
+#samples range
+lArDQGlobals.Samples_Bins=32
+lArDQGlobals.Samples_Min=-0.5
+lArDQGlobals.Samples_Max=lArDQGlobals.Samples_Bins-0.5
+
+#ADC energy range
+lArDQGlobals.Energy_Bins=300
+lArDQGlobals.Energy_Min=0.
+lArDQGlobals.Energy_Max=3000.
+
+#trigger word range
+lArDQGlobals.L1Trig_Bins=256
+lArDQGlobals.L1Trig_Min=-0.5
+lArDQGlobals.L1Trig_Max=lArDQGlobals.L1Trig_Bins-0.5

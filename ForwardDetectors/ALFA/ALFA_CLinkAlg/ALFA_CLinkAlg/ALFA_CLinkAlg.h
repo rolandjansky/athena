@@ -54,7 +54,6 @@ public:
 private:
 	DCSID m_CurrentDCSId;
 	ServiceHandle< IIOVDbSvc > m_iovSvc;
-	//ServiceHandle<IIncidentSvc> m_incidentSvc;
 
 	int m_nDataType; //data type (simulation or real data) using in the local reconstruction
 	int m_nProcessingMode; //1=offline, 2=online

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from BTagging.BTaggingConf import Analysis__BTagTool
 from BTagging.BTaggingFlags import BTaggingFlags
 
-def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, **options):
+def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True):
       """Adds a new myBTagTool instance and registers it.
 
       input: jetcol:             The name of the jet collections.
@@ -76,7 +76,7 @@ def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, **
           mvtm = acc.popToolsAndMerge(MultivariateTagManagerCfg(ConfigFlags, 'mvtm', TaggerList = mvtm_active_taggers))
           tagToolList.append(mvtm)
 
-      options = dict(options)
+      options = {}
       if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                     : BTaggingFlags.Runmodus,
                      'PrimaryVertexName'            : BTaggingFlags.PrimaryVertexCollectionName,

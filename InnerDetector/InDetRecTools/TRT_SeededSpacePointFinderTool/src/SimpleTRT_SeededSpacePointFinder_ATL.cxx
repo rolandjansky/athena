@@ -23,7 +23,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 //#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkSurfaces/Surface.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "RoiDescriptor/RoiDescriptor.h"
 
 ///////////////////////////////////////////////////////////////////
@@ -33,8 +32,6 @@
 InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_useAssoTool(true),
     m_useROI(true),
     m_maxLayers(3),
     m_maxHoles(1),
@@ -52,7 +49,6 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
   declareInterface<ITRT_SeededSpacePointFinder>(this);
 
   declareProperty("RestrictROI"           ,m_useROI                );
-  declareProperty("AssociationTool"       ,m_assoTool              );
   declareProperty("MaxLayers"             ,m_maxLayers             );
   declareProperty("MaxHoles"              ,m_maxHoles              );
   declareProperty("PerigeeCut"            ,m_perigeeCut            );
@@ -79,27 +75,11 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::initialize()
 
   // msg().setLevel(outputLevel());
 
-  // Get association tool
-  //
-
-  StatusCode sc = AthAlgTool::initialize(); 
-
-  m_useAssoTool = false;
-
-  if(!m_assoTool.empty())
-    {
-      sc = m_assoTool.retrieve(); 
-      if(sc.isFailure()) 
-	{
-	  msg(MSG::FATAL)<<"Could not get "<<m_assoTool<<endmsg; 
-	  return StatusCode::FAILURE;
-	}
-      else
-	m_useAssoTool=true;
-    }	
+  // PRD-to-track association (optional)
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
   // get region selector
-  sc = m_pRegionSelector.retrieve();
+  StatusCode sc = m_pRegionSelector.retrieve();
   if( sc.isFailure() ) 
     {
       msg(MSG::FATAL) << "Failed to retrieve RegionSelector Service";
@@ -291,6 +271,16 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 
   const std::set<IdentifierHash>::const_iterator endSCT_Hashes = setOfSCT_Hashes.end();
   
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   // retrieve SP Container
   SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
   if(spacepointsSCT.isValid()) 
@@ -354,9 +344,9 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 	      SpacePointCollection::const_iterator itColl  = (*itCont)->begin();
 	      SpacePointCollection::const_iterator endColl = (*itCont)->end  ();
 	      for(; itColl != endColl; ++itColl) 
-		if (    !m_useAssoTool 
-			|| !(    m_assoTool->isUsed(*((*itColl)->clusterList().first))
-				 || m_assoTool->isUsed(*((*itColl)->clusterList().second)) ) )
+		if (    !prd_to_track_map_cptr
+			|| !(    prd_to_track_map_cptr->isUsed(*((*itColl)->clusterList().first))
+				 || prd_to_track_map_cptr->isUsed(*((*itColl)->clusterList().second)) ) )
 		  {
 		    relevantSpacePoints.insert(std::make_pair( SCT_LayerNumber   ,*itColl));
 		    msg(MSG::VERBOSE) << "Added SpacePoint for layer " << SCT_LayerNumber << " at  ( " 
@@ -386,14 +376,14 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 	  {
 
 	    // find out if one of the Clusters has already been used, if relevant
-	    if(m_useAssoTool)
+	    if(prd_to_track_map_cptr)
 	      {
 		bool u1=false; 
 		bool u2=false;
 		const Trk::PrepRawData* p1=(*itColl)->clusterList().first; 
-		u1=m_assoTool->isUsed(*p1);
+		u1=prd_to_track_map->isUsed(*p1);
 		const Trk::PrepRawData* p2=(*itColl)->clusterList().second;
-		u2=m_assoTool->isUsed(*p2);
+		u2=prd_to_track_map->isUsed(*p2);
 		if(u1 || u2) continue;
 	      }
 	    

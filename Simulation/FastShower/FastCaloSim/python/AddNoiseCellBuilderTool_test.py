@@ -4,7 +4,7 @@
 # File: FastCaloSim/python/AddNoiseCellBuilderTool_test.py
 # Author: scott snyder
 # Date: Aug, 2019
-# Brief: Test for AddNoiseCellBuilderTOol.
+# Brief: Test for AddNoiseCellBuilderTool.
 #
 
 from __future__ import print_function

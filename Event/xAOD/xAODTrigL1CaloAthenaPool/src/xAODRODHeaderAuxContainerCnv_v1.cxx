@@ -12,10 +12,8 @@
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
-#define protected public
-#  include "xAODTrigL1Calo/RODHeaderContainer.h"
-#  include "xAODTrigL1Calo/versions/RODHeaderContainer_v1.h"
-#undef protected
+#include "xAODTrigL1Calo/RODHeaderContainer.h"
+#include "xAODTrigL1Calo/versions/RODHeaderContainer_v1.h"
 
 // Local include(s):
 #include "xAODRODHeaderAuxContainerCnv_v1.h"
@@ -32,15 +30,13 @@
    } while( 0 )
 
 xAODRODHeaderAuxContainerCnv_v1::xAODRODHeaderAuxContainerCnv_v1()
-   : T_AthenaPoolTPCnvBase< xAOD::RODHeaderAuxContainer,
-                            xAOD::RODHeaderAuxContainer_v1 >() {
-
+{
 }
 
 void xAODRODHeaderAuxContainerCnv_v1::
 persToTrans( const xAOD::RODHeaderAuxContainer_v1* oldObj,
              xAOD::RODHeaderAuxContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::RODHeaderAuxContainer_v1 to current "
@@ -146,7 +142,7 @@ persToTrans( const xAOD::RODHeaderAuxContainer_v1* oldObj,
 void xAODRODHeaderAuxContainerCnv_v1::
 transToPers( const xAOD::RODHeaderAuxContainer*,
              xAOD::RODHeaderAuxContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR << "xAODRODHeaderAuxContainerCnv_v1::transToPers got "
        << "called" << endmsg;

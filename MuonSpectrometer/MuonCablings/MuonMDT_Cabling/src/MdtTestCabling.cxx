@@ -8,7 +8,6 @@
 
 MdtTestCabling::MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_mdtIdHelper(0),
   m_chronoSvc("ChronoStatSvc", name)
 { 
 }
@@ -21,9 +20,7 @@ StatusCode MdtTestCabling::initialize()
   ATH_CHECK( m_chronoSvc.retrieve() );
 
   // initialize the pointer to the MdtIdHelper
-  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", name());
-  ATH_CHECK( detStore.retrieve() );
-  ATH_CHECK( detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   m_chrono1 = "newcab";
   m_chrono2 = "oldcab";
@@ -191,7 +188,7 @@ bool MdtTestCabling::testMap()
                                  << "  chanId 0x" << MSG::hex << chanId << MSG:: dec );
 
 		  ATH_MSG_ERROR( "converted to station: " << station
-                                 << " name: " << m_mdtIdHelper->stationNameString(station)
+                                 << " name: " << m_muonIdHelperTool->mdtIdHelper().stationNameString(station)
                                  << " eta: " << eta << " phi: " << phi << " multi: " << multi
                                  << " layer: " << layer << " tube: " << tube );
 

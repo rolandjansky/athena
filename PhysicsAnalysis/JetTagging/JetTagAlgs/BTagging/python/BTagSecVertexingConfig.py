@@ -46,11 +46,10 @@ def BTagSecVtxToolCfg(flags, name, JetCollection, outputObjs = None, **options):
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
-    new_prefix = options.get('new_prefix', None)
-    if new_prefix:
-        btagname = new_prefix + jetcol
-    else:
-        btagname = flags.BTagging.OutputFiles.Prefix + jetcol
+    btagname = flags.BTagging.OutputFiles.Prefix + jetcol
+    timestamp = options.get('TimeStamp', None)
+    if timestamp:
+        btagname += timestamp
 
     options = {}
     options.setdefault('SecVtxFinderList', secVtxFinderList)

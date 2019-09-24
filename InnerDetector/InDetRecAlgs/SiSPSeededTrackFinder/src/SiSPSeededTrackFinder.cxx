@@ -35,6 +35,9 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   }
   ATH_CHECK(m_outputTracksKey.initialize());
 
+  // optional PRD to track association map
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
+
   // Get tool for space points seed maker
   //
   ATH_CHECK( m_seedsmaker.retrieve() );
@@ -102,6 +105,23 @@ StatusCode InDet::SiSPSeededTrackFinder::execute(const EventContext& ctx) const
 // Execute with old strategy
 ///////////////////////////////////////////////////////////////////
 
+namespace InDet {
+  class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
+  {
+  public:
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+      if (!key.key().empty()) {
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        setPRDtoTrackMap(m_prdToTrackMap.cptr());
+      }
+    }
+  private:
+    void dummy() {}
+    SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
+  };
+}
+
+
 StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) const
 {
   SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
@@ -126,7 +146,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
 
   const bool PIX = true;
   const bool SCT = true;
-  InDet::SiTrackMakerEventData_xk trackEventData;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
   m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   bool ERR = false;
@@ -207,7 +227,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
 
   const bool PIX = true ;
   const bool SCT = true ;
-  InDet::SiTrackMakerEventData_xk trackEventData;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
   m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   std::vector<int> nhistogram(m_histsize, 0);

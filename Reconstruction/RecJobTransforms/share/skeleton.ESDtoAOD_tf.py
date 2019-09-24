@@ -39,13 +39,33 @@ if hasattr(runArgs,"outputAODFile"):
     from RecExConfig.ObjKeyStore import objKeyStore
     if TriggerFlags.doMT():
         recoLog.info("Scheduling temporary ESDtoAOD propagation of Trigger MT EDM collections")
-        # Note this mirrors skeleton.RDOtoRDOTrigger_tf and skeleton.RAWtoESD_py. It should migrate to a getTriggerEDMList style function
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-        for item in TriggerHLTListRun3:
-            if "ESD" in item[1]:
-                objKeyStore.addManyTypesStreamESD( [item[0]] )
-            if "AOD" in item[1]:
-                objKeyStore.addManyTypesStreamAOD( [item[0]] )
+        recoLog.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d (currently hardcoded to 3)", TriggerFlags.AODEDMSet(), TriggerFlags.EDMDecodingVersion())
+        
+        edmset = TriggerFlags.AODEDMSet()
+        recoLog.info(edmset)
+
+        trigEDMListESD = {}
+        trigEDMListAOD = {}
+
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+        # !!! this needs to be changed!! currently hardcoded to run version 3 corresponding to the Run 3 
+        #trigEDMListESD.update(getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+        trigEDMListESD.update(getTriggerEDMList(TriggerFlags.ESDEDMSet(),  3) )
+        objKeyStore.addManyTypesStreamESD( trigEDMListESD )
+
+        # !!! this needs to be changed!! currently hardcoded to run version 3 corresponding to the Run 3 
+        #trigEDMListAOD.update(getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+        trigEDMListAOD.update(getTriggerEDMList(TriggerFlags.AODEDMSet(),  3) )
+        objKeyStore.addManyTypesStreamAOD( trigEDMListAOD )
+
+        notIncludedInAOD = [element for element in trigEDMListAOD if element not in trigEDMListESD]
+        if (len(notIncludedInAOD)>0):
+            recoLog.warning ("In AOD list but not in ESD list: ")
+            recoLog.warning(notIncludedInAOD)
+        else:
+            recoLog.info("AOD EDM list is a subset of ESD list - good")
+
+
         # We also want to propagate the navigation to ESD and AOD. For now, unconditionally
         # Note: Not every TrigComposite collection is navigation, there are other use cases too.
         # So in future we should filter more heavily than this too.
@@ -139,7 +159,7 @@ if hasattr(runArgs,"outputAODFile"):
         try:
             StreamAOD.ExtendProvenanceRecord = False
         except:
-            print("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
+            recoLog.info("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
 
 #D3PDMaker outputs
 if hasattr(runArgs,"outputNTUP_MINBIASFile"):

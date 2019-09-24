@@ -108,14 +108,14 @@
             <HLTCommonParameters>
               <HLTCommonParameters>
                 <messageSvcType>TrigMessageSvc</messageSvcType>
-                <jobOptionsSvcType>JobOptionsSvc</jobOptionsSvcType>
+                <jobOptionsSvcType>TrigConf::JobOptionsSvc</jobOptionsSvcType>
               </HLTCommonParameters>
             </HLTCommonParameters>
             <logLevels>
               <logLevel>ERROR</logLevel>
               <logLevel>FATAL</logLevel>
             </logLevels>
-            <pythonSetupFile>mysetup.py</pythonSetupFile>
+            <pythonSetupFile>TrigPSC/TrigPSCPythonSetup.py</pythonSetupFile>
             <jobOptionsPath>dummy.py</jobOptionsPath>
           </HLTImplementationJobOptions>
         </hlt>

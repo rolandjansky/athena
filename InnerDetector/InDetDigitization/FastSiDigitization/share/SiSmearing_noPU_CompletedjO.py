@@ -416,18 +416,22 @@ ISF_PRD_TruthTrajectoryBuilder.OutputLevel = OutputLevel #VERBOSE
 ToolSvc+=ISF_PRD_TruthTrajectoryBuilder
 print ISF_PRD_TruthTrajectoryBuilder
 
+def getIFS_PRDtoTrackMapTool(**kwargs) :
+    tool_name = 'ISF_PRDtoTrackMapTool'
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,tool_name) :
+        return getattr(ToolSvc,tool_name)
 
-from ISF_FatrasRecoTools.ISF_FatrasRecoToolsConf import iFatras__ISF_PRD_AssociationTool
-ISF_PrdAssociationTool = iFatras__ISF_PRD_AssociationTool(name          = "ISF_PRD_AssociationTool")                                                  
-ISF_PrdAssociationTool.OutputLevel = OutputLevel #VERBOSE
-ToolSvc += ISF_PrdAssociationTool
-print ISF_PrdAssociationTool
+    from ISF_FatrasRecoTools.ISF_FatrasRecoToolsConf import iFatras__ISF_PRDtoTrackMapTool
+    tool=iFatras__ISF_PRDtoTrackMapTool( name=tool_name, **kwargs)
+    ToolSvc += tool
+    return tool
+
 
 from ISF_FatrasRecoTools.ISF_FatrasRecoToolsConf import iFatras__ISF_TrackSummaryHelperTool
 ISF_TrackSummaryHelperTool = iFatras__ISF_TrackSummaryHelperTool(name         = "ISF_TrackSummaryHelperTool",
-                                                                  AssoTool     = ISF_PrdAssociationTool,
+                                                                  AssoTool     = "",
                                                                   DoSharedHits = True)
-                                                                  
 ISF_TrackSummaryHelperTool.OutputLevel = OutputLevel #VERBOSE
 ToolSvc += ISF_TrackSummaryHelperTool
 print ISF_TrackSummaryHelperTool
@@ -437,7 +441,7 @@ from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
                                               doSharedHits            = True,
                                               InDetSummaryHelperTool  = ISF_TrackSummaryHelperTool,
-                                              AddDetailedInDetSummary = False, 
+                                              AddDetailedInDetSummary = False,
                                               doHolesInDet            = False,
                                               doHolesMuon             = False,
                                               MuonSummaryHelperTool   = "",
@@ -450,12 +454,13 @@ ToolSvc += InDetTrackSummaryTool
 print InDetTrackSummaryTool
 
 # --- the truth track creation algorithm
+from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
 from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
 InDetTruthTrackCreation = Trk__TruthTrackCreation(name = 'InDetTruthTrackCreation',
                                                   PRD_TruthTrajectoryBuilder = ISF_PRD_TruthTrajectoryBuilder,
                                                   TruthTrackBuilder          = InDetTruthTrackBuilder,
                                                   OutputTrackCollection      = InDetKeys.PseudoTracks(),
-                                                  AssoTool                   = ISF_PrdAssociationTool,
+                                                  AssociationTool            = getIFS_PRDtoTrackMapTool(),
                                                   TrackSummaryTool           = InDetTrackSummaryTool)
 InDetTruthTrackCreation.OutputLevel = OutputLevel #VERBOSE
 topSequence += InDetTruthTrackCreation

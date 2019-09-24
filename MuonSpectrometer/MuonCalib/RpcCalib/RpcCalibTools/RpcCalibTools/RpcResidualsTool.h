@@ -63,9 +63,9 @@ class RpcResidualsTool: public AthAlgTool{
   std::string m_clusCollection;
   ActiveStoreSvc* m_activeStore;
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   RpcExtrapolationTool*           m_rpcExtrapolTool;
-  const RpcIdHelper* m_rpcIdHelper;
 };
 
 

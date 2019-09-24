@@ -158,7 +158,8 @@ bool psc::Psc::configure(const ptree& config)
   if ( m_config->getOption("JOBOPTIONSTYPE") == "NONE" ) {
     jobOptConfig = needPython = true;
   }
-  else if ( m_config->getOption("JOBOPTIONSTYPE") == "DB" ) {
+  else if ( m_config->getOption("JOBOPTIONSTYPE") == "DB" ||
+            m_config->getOption("JOBOPTIONSTYPE") == "FILE") {
     jobOptConfig = needPython = false;
     if ( (m_config->getOption("PRECOMMAND")!="") || (m_config->getOption("POSTCOMMAND")!="") ) {
       needPython = true;
@@ -371,9 +372,6 @@ bool psc::Psc::configure(const ptree& config)
         <<" MuonCalBufferSize = " << m_config->getOption("MUONCALBUFFERSIZE") );
   }
 
-  // Write configuration specific to athena (HltEventLoopMgr)
-  if(!setAthenaProperties()) return false;
-
   if ( !jobOptConfig ) {
     // Run post-command
     std::string cmd = m_config->getOption("POSTCOMMAND");
@@ -427,6 +425,9 @@ bool psc::Psc::doAppMgrInit()
     m_nameEventLoopMgr.assign(value, value.find_first_of("\"")+1,
         value.find_last_of("\"")-value.find_first_of("\"")-1) ;
   }
+
+  // Write configuration specific to athena (HltEventLoopMgr)
+  if(!setAthenaProperties()) return false;
 
   return true;
 }

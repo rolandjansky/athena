@@ -131,8 +131,6 @@ namespace InDet {
           "Trk::KalmanUpdator_xk/InDetPatternUpdator"};
       PublicToolHandle<Trk::IRIO_OnTrackCreator> m_riocreator{this, "RIOonTrackTool",
           "Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"};
-      PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssosiationTool",
-          "InDet::InDetPRD_AssociationToolGangedPixels"};
 
       SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixcontainerkey{this, "PixelClusterContainer",
           "PixelClusters"};

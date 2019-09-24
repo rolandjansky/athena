@@ -133,6 +133,16 @@ def TrigBjetMonConfig(inputFlags):
         else :                      # b-jets
             # print "        b-jet histogram is defined for ", chain[2:]
 
+            HistName = 'PVz_jet_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV from jets;zPV from jets;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV from jets;zPV from jets;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-200.0,xmax=200.0)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
             HistName = 'PVz_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
@@ -225,7 +235,8 @@ if __name__=='__main__':
     # file = '/afs/cern/ch/user/t/tamartin/public/ESD.pool.root'
     # file = '/afs/cern/ch/user/t/tamartin/public/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/legacy.AOD.pool.root'
-    file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/AOD.pool.root'
+    # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/AOD.pool.root'
+    file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-09-16T2129/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/mt.AOD.pool.root'
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
@@ -234,7 +245,7 @@ if __name__=='__main__':
 
     ConfigFlags.Output.HISTFileName = 'TrigBjetMonitorOutput.root'
 
-    ConfigFlags.Trigger.triggerMenuSetup="Physics_pp_v7_primaries"
+    # ConfigFlags.Trigger.triggerMenuSetup="Physics_pp_v7_primaries"
     
     ConfigFlags.lock()
 

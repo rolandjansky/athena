@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigInDetRecoTools.TrigInDetRecoToolsConf import TrigL2PattRecoStrategyC
 from TrigInDetRecoTools.ConfiguredSettings import SettingsForStrategyC
@@ -71,7 +71,6 @@ class FactoryForStrategyC() :
                                                                   PropagatorTool = InDetTrigPatternPropagator,
                                                                   UpdatorTool    = InDetTrigPatternUpdator,
                                                                   RIOonTrackTool   = InDetTrigRotCreator,
-                                                                  AssosiationTool  = InDetTrigPrdAssociationTool,
                                                                   usePixel         = DetFlags.haveRIO.pixel_on(),
                                                                   useSCT           = DetFlags.haveRIO.SCT_on(),
                                                                   PixelClusterContainer = 'PixelClusterCache',

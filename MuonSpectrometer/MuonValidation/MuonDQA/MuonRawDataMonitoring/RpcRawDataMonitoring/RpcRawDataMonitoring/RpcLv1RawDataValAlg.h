@@ -44,6 +44,8 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <sstream>
 #include <string.h>
 #include <vector>
@@ -105,7 +107,8 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   int  m_rpclv1reducenbins  ;
      
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  const RpcIdHelper* m_rpcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   const IRPCcablingSvc* m_cabling;
     

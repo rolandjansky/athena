@@ -47,26 +47,24 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    return m
 
 def TriggerEDMSerialiserToolCfg(name):
-   # Configuration helper methods
-   def fullResultID(self):
-      return 0
+   from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
 
+   # Configuration helper methods
    def addCollection(self, typeNameAux, moduleIds):
       self.CollectionsToSerialize[typeNameAux] = moduleIds
 
    def addCollectionToMainResult(self, typeNameAux):
-      self.addCollection(typeNameAux,moduleIds=[self.fullResultID()])
+      self.addCollection(typeNameAux,moduleIds=[getFullHLTResultID()])
 
    def addCollectionListToResults(self, typeNameAuxList, moduleIds):
       for typeNameAux in typeNameAuxList:
          self.addCollection(typeNameAux, moduleIds)
 
    def addCollectionListToMainResult(self, typeNameAuxList):
-      self.addCollectionListToResults(typeNameAuxList,moduleIds=[self.fullResultID()])
+      self.addCollectionListToResults(typeNameAuxList,moduleIds=[getFullHLTResultID()])
 
    # Add the helper methods to the TriggerEDMSerialiserTool python class
    from TrigOutputHandlingConf import TriggerEDMSerialiserTool
-   TriggerEDMSerialiserTool.fullResultID = fullResultID
    TriggerEDMSerialiserTool.addCollection = addCollection
    TriggerEDMSerialiserTool.addCollectionToMainResult = addCollectionToMainResult
    TriggerEDMSerialiserTool.addCollectionListToResults = addCollectionListToResults

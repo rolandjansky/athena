@@ -23,8 +23,10 @@ decription           : Class for merging components of a multi-state based on
 #include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
+#include "CxxUtils/restrict.h"
 
-typedef float* __restrict__ floatPtrRestrict;
+
+typedef float* ATH_RESTRICT floatPtrRestrict;
 
 namespace Trk {
 

@@ -24,6 +24,7 @@
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include <any>
 
@@ -212,11 +213,11 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       template <typename T>
-        int searchClustersWithoutStereoAssPIX(Trk::PatternTrackParameters&,SiClusterLink_xk*); 
+        int searchClustersWithoutStereoAssPIX(Trk::PatternTrackParameters&,SiClusterLink_xk*, const Trk::PRDtoTrackMap &);
       template <typename T>
-        int searchClustersWithoutStereoAssSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*);
+        int searchClustersWithoutStereoAssSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*, const Trk::PRDtoTrackMap &);
       template <typename T>
-        int searchClustersWithStereoAss      (Trk::PatternTrackParameters&,SiClusterLink_xk*);
+        int searchClustersWithStereoAss      (Trk::PatternTrackParameters&,SiClusterLink_xk*, const Trk::PRDtoTrackMap &);
 
       ///////////////////////////////////////////////////////////////////
       // Is difference between forward and backward propagation   
@@ -318,7 +319,7 @@ namespace InDet{
       bool                                        m_stereo      ;
       bool                                        m_utsos[3]    ;
       bool                                        m_fieldMode   ;
-      bool                                        m_useassoTool ;  // Use assosiation tool
+      bool                                        m_useassoTool = false ;
       int                                         m_status      ;  
       int                                         m_detstatus   ; // 0 (no clusters) 
       int                                         m_inside      ;
@@ -376,8 +377,8 @@ namespace InDet{
       const MagField::IMagFieldSvc*               m_fieldService;
       const Trk::IPatternParametersUpdator*       m_updatorTool ;
       const Trk::IPatternParametersPropagator*    m_proptool    ;
-      const Trk::IPRD_AssociationTool*            m_assoTool    ; 
       const Trk::IRIO_OnTrackCreator*             m_riotool     ;
+      const Trk::PRDtoTrackMap                   *m_prdToTrackMap;
       Trk::TrackStateOnSurface*                   m_tsos[3]     ;
       Amg::MatrixX                                m_covariance  ;
 

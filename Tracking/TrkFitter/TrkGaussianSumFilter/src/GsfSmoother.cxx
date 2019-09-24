@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -12,7 +12,6 @@ decription           : Implementation code for the class GsfSmoother
 ********************************************************************************** */
 
 #include "TrkGaussianSumFilter/GsfSmoother.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -83,7 +82,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
      In the GSF Smoother these TrackStateOnSurface objects are the base class for the
      MultiComponentStateOnSurface. This memory should be freed by the fitter / smoother master method */
 
-  std::unique_ptr<Trk::SmoothedTrajectory> smoothedTrajectory = CxxUtils::make_unique<Trk::SmoothedTrajectory>();
+  std::unique_ptr<Trk::SmoothedTrajectory> smoothedTrajectory = std::make_unique<Trk::SmoothedTrajectory>();
 
   // ==========================================================================================
   // Get the initial smoother prediction. It is the last prediction in the forwards trajectory

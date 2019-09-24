@@ -1,29 +1,30 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import eformat
 import libpyevent_storage as EventStorage
 import sys
-import os
 import getopt
 
 eventsPerFile=500
 verbose=False
 
 def usage():
-  print " usage: %s [options] <outbasename> <file1> <file2> <file3>" % sys.argv[0]
-  print "    Rewrites events with event ids numbered consequtively from 1"
-  print "    This is mainly used for preparing events from playback partition"
-  print
-  print "    Options:"
-  print "       -n <number of events per file> : defaults to 500"
-  print "       -v     : verbose output"
+  print(" usage: %s [options] <outbasename> <file1> <file2> <file3>" % sys.argv[0])
+  print("    Rewrites events with event ids numbered consequtively from 1")
+  print("    This is mainly used for preparing events from playback partition")
+  print()
+  print("    Options:")
+  print("       -n <number of events per file> : defaults to 500")
+  print("       -v     : verbose output")
   sys.exit(1)
   
 try:
   opts, args = getopt.getopt(sys.argv[1:], "vn:")
-  if len(args)<2: usage()
+  if len(args)<2:
+    usage()
 except getopt:
   usage()
 
@@ -51,13 +52,13 @@ output.max_events_per_file(eventsPerFile)
 
 for input_file in files:
   ifile += 1
-  print "Opening file %d: %s" % (ifile, input_file)
+  print("Opening file %d: %s" % (ifile, input_file))
 
   input = eformat.istream([input_file])
 
   for event in input:
     if verbose:
-      print "Reading event with Lvl1 Id = %ld and rewritting with %ld" % (event.lvl1_id(),id)
+      print("Reading event with Lvl1 Id = %ld and rewritting with %ld" % (event.lvl1_id(),id))
     new_event = eformat.write.FullEventFragment(event)
     new_event.lvl1_id(id)
     new_event.global_id(id)
@@ -70,4 +71,4 @@ for input_file in files:
 
     id+=1
 
-print 'Wrote %d events to %d files' % ( id-1, 1+((id-1)//eventsPerFile) )
+print('Wrote %d events to %d files' % ( id-1, 1+((id-1)//eventsPerFile) ))

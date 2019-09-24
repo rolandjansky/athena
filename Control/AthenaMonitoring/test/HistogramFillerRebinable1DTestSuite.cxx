@@ -51,6 +51,7 @@ class HistogramFillerRebinable1DTestSuite {
   // ==================== Test code ====================
   private:
     void beforeEach() {
+        m_histogramDef.opt = "kAddBinsDynamically";
         m_histogramProvider.reset(new MockHistogramProvider());
         m_monitoredVariable.reset(new MockMonitoredVariable(""));
         m_histogram.reset(new TH1D("MockHistogram", "Mock Histogram", 8, 1.0, 3.0));

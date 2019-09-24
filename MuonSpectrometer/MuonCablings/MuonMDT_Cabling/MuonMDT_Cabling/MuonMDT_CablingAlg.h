@@ -13,6 +13,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "GaudiKernel/AlgTool.h"
@@ -22,9 +23,9 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class Identifier; 
-class MdtIdHelper;
 class IIOVSvc;
 class IIOVDbSvc;
 class StatusCode;
@@ -42,7 +43,8 @@ class MuonMDT_CablingAlg: public AthAlgorithm {
   
  private:
 
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMez;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMap;
   SG::WriteCondHandleKey<MuonMDT_CablingMap> m_writeKey{this, "WriteKey", "MuonMDT_CablingMap", "Key of output MDT cabling map"};

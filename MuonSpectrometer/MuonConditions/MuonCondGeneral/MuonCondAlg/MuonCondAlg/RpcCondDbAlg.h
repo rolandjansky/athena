@@ -16,7 +16,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -36,21 +36,21 @@ namespace Muon {
 
 
 
-class RpcCondDbAlg: public AthAlgorithm{
+class RpcCondDbAlg: public AthReentrantAlgorithm{
 
 public:
 
     RpcCondDbAlg( const std::string & name, ISvcLocator* svc);
     virtual ~RpcCondDbAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute   () override;
+    virtual StatusCode execute   (const EventContext&) const override;
 
  
 private:
 
-    virtual StatusCode loadDataDeadPanels (EventIDRange &, std::unique_ptr<RpcCondDbData>&);
-    virtual StatusCode loadDataOffPanels  (EventIDRange &, std::unique_ptr<RpcCondDbData>&);
-    virtual StatusCode loadMcElementStatus(EventIDRange &, std::unique_ptr<RpcCondDbData>&);
+    StatusCode loadDataDeadPanels (EventIDRange &, RpcCondDbData*, const EventContext&) const;
+    StatusCode loadDataOffPanels  (EventIDRange &, RpcCondDbData*, const EventContext&) const;
+    StatusCode loadMcElementStatus(EventIDRange &, RpcCondDbData*, const EventContext&) const;
 
     bool m_isOnline{false};
     bool m_isData{false};  
