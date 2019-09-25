@@ -26,7 +26,6 @@
 #include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArfSampl.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
