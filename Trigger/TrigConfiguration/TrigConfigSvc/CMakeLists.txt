@@ -10,6 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
                           GaudiKernel
+                          Trigger/TrigConfiguration/TrigConfIO
+                          Trigger/TrigConfiguration/TrigConfData
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
@@ -41,7 +43,7 @@ atlas_add_library( TrigConfigSvcLib
                    PUBLIC_HEADERS TrigConfigSvc
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib TrigConfHLTData TrigConfInterfaces TrigConfL1Data
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib AthenaMonitoringLib AthenaPoolUtilities EventInfo IOVDbDataModel L1TopoConfig PathResolver TrigConfBase TrigConfStorage nlohmann_json::nlohmann_json )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib AthenaMonitoringLib AthenaPoolUtilities EventInfo IOVDbDataModel L1TopoConfig PathResolver TrigConfBase TrigConfStorage TrigConfData TrigConfIOLib nlohmann_json::nlohmann_json )
 
 atlas_add_component( TrigConfigSvc
                      src/components/*.cxx

@@ -14,16 +14,24 @@ def Lvl1SimulationSequence( flags = None ):
     # L1ConfigSvc CA has to be imported and merged
     # at the end the sequence added to the CA
     #
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('TriggerJobOpts.Lvl1Simulation')
+
     from AthenaCommon.CFElements import seqAND
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AlgSequence import AthSequencer
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 
+    # this configuration of the LVL1ConfigSvc is only temporary
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
     from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
     svcMgr += LVL1ConfigSvc()
     svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+    svcMgr.LVL1ConfigSvc.InputType = "file"
+    l1JsonFile = TriggerFlags.inputLVL1configFile().replace(".xml",".json")
+    svcMgr.LVL1ConfigSvc.JsonFileName = l1JsonFile
+    log.info("Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s" % l1JsonFile)
 
     # L1 menu provider Run 3
     from TrigConfIO.TrigConfCondSetup import setupMenuProvider
