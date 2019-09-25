@@ -55,6 +55,7 @@ def TrigCaloMonConfig(inputFlags):
     # Set properties
     L2CaloEMClustersMonAlg.HLTContainer = 'HLT_L2CaloEMClusters'
     L2CaloEMClustersMonAlg.OFFContainer = 'egammaClusters'
+    L2CaloEMClustersMonAlg.MonGroupName = 'TrigCaloMonitor'
     L2CaloEMClustersMonAlg.OFFTypes = []
     L2CaloEMClustersMonAlg.HLTMinET = -1.0
     L2CaloEMClustersMonAlg.OFFMinET = -1.0
@@ -75,7 +76,7 @@ def TrigCaloMonConfig(inputFlags):
     L2CaloEMClustersMonGroup.defineHistogram('HLT_phi',title='HLT Cluster #phi; #phi; Entries',
 				path='HLT_L2CaloEMClusters',xbins=64,xmin=-3.14153,xmax=3.14153)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_size',title='HLT Cluster Size; Number of Cells; Entries',
-				path='HLT_L2CaloEMClusters',xbins=101,xmin=-5.0,xmax=1005.)
+				path='HLT_L2CaloEMClusters',xbins=91,xmin=-10.0,xmax=1810.0)
 
     # Declare OFF histograms
     L2CaloEMClustersMonGroup.defineHistogram('OFF_num',title='Number of OFF Clusters; Num Clusters; Entries',
@@ -89,9 +90,55 @@ def TrigCaloMonConfig(inputFlags):
     L2CaloEMClustersMonGroup.defineHistogram('OFF_phi',title='OFF Cluster #phi; #phi; Entries',
 				path='HLT_L2CaloEMClusters',xbins=64,xmin=-3.14153,xmax=3.14153)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_type',title='OFF Cluster Type; Size Enum; Entries',
-				path='HLT_L2CaloEMClusters',xbins=13,xmin=0.5,xmax=13.5)
-    #L2CaloEMClustersMonGroup.defineHistogram('OFF_size',title='OFF Cluster Size; Number of Cells; Entries',
-	#			path='HLT_L2CaloEMClusters',xbins=101,xmin=-5.0,xmax=1005.)
+				path='HLT_L2CaloEMClusters',xbins=16,xmin=0.5,xmax=15.5)
+
+    # Declare OFF histograms without HLT matches
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_no_HLT_match_num',title='Number of OFF Clusters (No HLT Matches); Num Clusters; Entries',
+				path='HLT_L2CaloEMClusters',xbins=101,xmin=-1.0,xmax=201.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_no_HLT_match_eta,OFF_no_HLT_match_phi',title='Number of OFF Clusters (No HLT Matches); #eta; #phi; ', type='TH2F',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_no_HLT_match_et',title='OFF Clusters E_{T} (No HLT Matches); E_{T} [GeV]; Entries',
+				path='HLT_L2CaloEMClusters',xbins=100,xmin=0.0,xmax=100.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_no_HLT_match_eta',title='OFF Clusters #eta (No HLT Matches); #eta; Entries',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_no_HLT_match_phi',title='OFF Cluster #phi (No HLT Matches); #phi; Entries',
+				path='HLT_L2CaloEMClusters',xbins=64,xmin=-3.14153,xmax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_no_HLT_match_type',title='OFF Cluster Type (No HLT Matches); Size Enum; Entries',
+				path='HLT_L2CaloEMClusters',xbins=16,xmin=0.5,xmax=15.5)
+
+    # Declare OFF histograms with HLT matches
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_num',title='Number of OFF Clusters (With HLT Matches); Num Clusters; Entries',
+				path='HLT_L2CaloEMClusters',xbins=101,xmin=-1.0,xmax=201.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_eta,OFF_with_HLT_match_phi',title='Number of OFF Clusters (With HLT Matches); #eta; #phi; ', type='TH2F',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_et',title='OFF Clusters E_{T} (With HLT Matches); E_{T} [GeV]; Entries',
+				path='HLT_L2CaloEMClusters',xbins=100,xmin=0.0,xmax=100.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_eta',title='OFF Clusters #eta (With HLT Matches); #eta; Entries',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_phi',title='OFF Cluster #phi (With HLT Matches); #phi; Entries',
+				path='HLT_L2CaloEMClusters',xbins=64,xmin=-3.14153,xmax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_type',title='OFF Cluster Type (With HLT Matches); Size Enum; Entries',
+				path='HLT_L2CaloEMClusters',xbins=16,xmin=0.5,xmax=15.5)
+
+    # Declare HLT clusters vs. OFF clusters histograms
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_vs_OFF_minimum_delta_r',title='HLT vs OFF Cluster #DeltaR; #DeltaR; Entries',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=0.0,xmax=0.1)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_vs_OFF_minimum_delta_eta',title='HLT vs OFF Cluster #Delta#eta; #eta_{_{OFF}} -  #eta_{_{HLT}}; Entries',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-0.2,xmax=0.2)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_vs_OFF_minimum_delta_phi',title='HLT vs OFF Cluster #Delta#phi; #phi_{_{OFF}} -  #phi_{_{HLT}}; Entries',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=0.0,xmax=0.02)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_et,HLT_match_et',title='HLT vs OFF Cluster E_{T}; #E_{T_{OFF}} [GeV]; E_{T_{HLT}} [GeV]', type='TH2F',
+				path='HLT_L2CaloEMClusters',xbins=100,xmin=0.0,xmax=100.0, ybins=100,ymin=0.0,ymax=100.0)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_vs_OFF_resolution',title='HLT vs OFF Cluster #DeltaE_{T} / E_{T}; E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}}; Entries',
+				path='HLT_L2CaloEMClusters',xbins=100,xmin=-20.0,xmax=20.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_et,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
+				path='HLT_L2CaloEMClusters',xbins=20,xmin=-5.0,xmax=5.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_eta,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
+				path='HLT_L2CaloEMClusters',xbins=20,xmin=-5.0,xmax=5.0)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_phi,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #phi_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
+				path='HLT_L2CaloEMClusters',xbins=16,xmin=-3.14153,xmax=3.14153)
+    L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_eta,OFF_with_HLT_match_phi,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta; #phi', type='TProfile2D',
+				path='HLT_L2CaloEMClusters',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
 
     return helper.result()
     

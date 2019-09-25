@@ -20,6 +20,7 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   virtual float calculateDeltaR( float eta_1, float phi_1, float eta_2, float phi_2 ) const;
+  virtual float calculateDeltaPhi( float phi_1, float phi_2 ) const;
 
 private:
 
