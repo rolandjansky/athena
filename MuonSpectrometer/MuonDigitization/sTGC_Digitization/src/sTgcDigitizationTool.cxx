@@ -218,7 +218,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   readDeadtimeConfig();
 
   // initialize digit container
-  m_digitContainer = new sTgcDigitContainer(m_idHelper->detectorElement_hash_max());
+  m_digitContainer = new sTgcDigitContainer(m_idHelper->module_hash_max());
   m_digitContainer->addRef();
 
 
@@ -452,18 +452,18 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   TimedHitCollection<sTGCSimHit>::const_iterator i, e; 
 
   // Collections of digits by digit type associated with a detector element
-  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedPadDigits;
-  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedStripDigits;
-  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedWireDigits;
+  std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedPadDigits;
+  std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedStripDigits;
+  std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedWireDigits;
   
-  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > outputDigits;
+  std::map< Identifier, std::map< Identifier, std::vector<sTgcDigit> > > outputDigits;
 
   sTgcDigitCollection* digitCollection = 0;  //output digits
 
   EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
   int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
 
-  ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
+  ATH_MSG_DEBUG("create Digit container of size " << m_idHelper->module_hash_max());
   
   IdContext tgcContext = m_idHelper->module_context();
   
@@ -627,7 +627,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         ATH_MSG_VERBOSE("...Check time 5: " << newTime );
         // Create a new digit with updated time and BCTag
         sTgcDigit* newDigit = new sTgcDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
-        IdentifierHash coll_hash;  //Hash defining the detector element
         ATH_MSG_VERBOSE("Unmerged Digit") ;
         ATH_MSG_VERBOSE(" BC tag = "    << newDigit->bcTag()) ;
         ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
@@ -652,19 +651,17 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         simData.setPosition(hit.globalPosition());
         simData.setTime(globalHitTime);
 
-        // Associate the digit to the appropriate readout channel
-        m_idHelper->get_module_hash(elemId, coll_hash);
         if(newChannelType == 0){ //Pad Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedPadDigits[coll_hash][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedPadDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
         }
         else if(newChannelType == 1){ //Strip Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedStripDigits[coll_hash][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedStripDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
         }
         else if(newChannelType == 2){ //Wire Digit
           //Put the hit and digit in a vector associated with the RE
-          unmergedWireDigits[coll_hash][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
+          unmergedWireDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
         }
         delete newDigit;
       } // end of loop digiHits
@@ -683,7 +680,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   */
   ATH_MSG_VERBOSE("Processing Pad Digits");
   int nPadDigits = 0;
-  for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
+  for (std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
     for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
       std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
 
@@ -790,9 +787,9 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    * and decide which digits to keep.
   */
   ATH_MSG_VERBOSE("Processing Strip Digits");
-  std::map< IdentifierHash, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
+  std::map< Identifier, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
   int nStripDigits = 0;
-  for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
+  for (std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
     for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
       std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
 
@@ -850,7 +847,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
     }
   }
-  for(std::map< IdentifierHash, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > >::iterator it_DETEL = vmmArray.begin(); it_DETEL != vmmArray.end(); ++it_DETEL) {
+  for(std::map< Identifier, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > >::iterator it_DETEL = vmmArray.begin(); it_DETEL != vmmArray.end(); ++it_DETEL) {
     bool vmmTerminateSignal = false; // when all channels are done processing this will flip true
     while(true){
       vmmTerminateSignal = false;
@@ -921,7 +918,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   */
 
   int nWGDigits = 0;
-  for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedWireDigits.begin(); it_DETEL!= unmergedWireDigits.end(); ++it_DETEL) {
+  for (std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedWireDigits.begin(); it_DETEL!= unmergedWireDigits.end(); ++it_DETEL) {
     // loop on digits of same wiregroup
     for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {
       sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
@@ -1018,10 +1015,12 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   /*************************************************
    * Output the digits to the StoreGate collection *
   *************************************************/
-  for(std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_coll = outputDigits.begin(); it_coll != outputDigits.end(); ++it_coll){
-    IdentifierHash coll = it_coll->first;
-    msg(MSG::VERBOSE) << "coll = "<< coll << endmsg;
-    digitCollection = new sTgcDigitCollection(it_coll->second.begin()->first, coll);
+  for(std::map< Identifier, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_coll = outputDigits.begin(); it_coll != outputDigits.end(); ++it_coll){
+    Identifier elemId = it_coll->first;
+    IdentifierHash coll_hash;
+    m_idHelper->get_module_hash(elemId, coll_hash);
+    msg(MSG::VERBOSE) << "coll = "<< elemId << endmsg;
+    digitCollection = new sTgcDigitCollection(elemId, coll_hash);
 
     for(std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
       for(std::vector< sTgcDigit >::iterator it_digit = it_REID->second.begin(); it_digit != it_REID->second.end(); ++it_digit){
