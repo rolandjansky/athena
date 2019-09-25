@@ -61,7 +61,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
    * @brief makes sure the views are linked, if configuration requireParentView is set, failure to set the parent is an error
    **/
     StatusCode linkViewToParent( const TrigCompositeUtils::Decision* inputDecsion, SG::View* newView ) const;
-    StatusCode placeRoIInView( const TrigRoiDescriptor* roi, SG::View* view, const EventContext& context ) const;
+    StatusCode placeRoIInView( const ElementLink<TrigRoiDescriptorCollection>& roi, SG::View* view, const EventContext& context ) const;
     inline SmartIF<IScheduler> getScheduler() const {return svcLoc()->service<IScheduler>(m_schedulerName,false);}
 };
 
