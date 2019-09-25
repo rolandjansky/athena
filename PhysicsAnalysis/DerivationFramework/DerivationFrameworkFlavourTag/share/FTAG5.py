@@ -81,18 +81,24 @@ FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
 
 from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
     DerivationFramework__HbbTrackThinner as HbbThinner )
-FTAG5HbbThinningTool = HbbThinner(
-    name = "FTAG5HbbThinningTool",
-    thinningService = FTAG5ThinningHelper.ThinningSvc(),
-    largeJetPtCut = 200e3,
-    largeJetEtaCut = 2.1,
-    smallJetPtCut = 7e3,
-    nLeadingSubjets = 3,
-    addSubjetGhosts = True,
-    addConstituents = True,
-    addConeAssociated = True)
-ToolSvc += FTAG5HbbThinningTool
-log_setup(FTAG5HbbThinningTool)
+
+# Run HbbThinner on large-R jet collections
+FTAG5HbbThinningTools = []
+for collection in ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"]:
+    FTAG5HbbThinningTools.append(HbbThinner(
+        name = "FTAG5HbbThinningTool_%s"%collection,
+        thinningService = FTAG5ThinningHelper.ThinningSvc(),
+        jetCollectionName = collection,
+        largeJetPtCut = 200e3,
+        largeJetEtaCut = 2.1,
+        smallJetPtCut = 7e3,
+        nLeadingSubjets = 3,
+        addSubjetGhosts = True,
+        addConstituents = True,
+        addConeAssociated = True))
+
+    ToolSvc += FTAG5HbbThinningTools[-1]
+    log_setup(FTAG5HbbThinningTools[-1])
 
 # Tracks and CaloClusters associated with TCCs
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
@@ -240,7 +246,7 @@ addRecommendedXbbTaggers(FTAG5Seq, ToolSvc, ftag5_log)
 FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "FTAG5Kernel",
     SkimmingTools = [FTAG5StringSkimmingTool],
-    ThinningTools = [FTAG5HbbThinningTool,FTAG5TCCThinningTool],
+    ThinningTools = [FTAG5TCCThinningTool]+FTAG5HbbThinningTools,
     AugmentationTools = []
 )
 
