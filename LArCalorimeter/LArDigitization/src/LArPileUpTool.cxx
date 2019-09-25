@@ -256,8 +256,8 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
   m_hitmap=SG::makeHandle(m_hitMapKey);
   auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
-  ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
   ATH_CHECK(m_hitmap.record(std::move(hitMapPtr)));
+  ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
 
   if (!m_useMBTime) m_energySum.assign(m_hitmap->GetNbCells(),0.);
 
