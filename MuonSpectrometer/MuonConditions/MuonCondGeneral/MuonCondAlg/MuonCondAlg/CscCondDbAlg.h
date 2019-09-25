@@ -16,7 +16,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -39,45 +39,47 @@ namespace Muon {
 
 
 
-class CscCondDbAlg: public AthAlgorithm{
+class CscCondDbAlg: public AthReentrantAlgorithm{
 
 public:
 
     CscCondDbAlg( const std::string & name, ISvcLocator* svc);
     virtual ~CscCondDbAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute   () override;
+    virtual StatusCode execute   (const EventContext&) const override;
 
  
 private:
 
-    virtual StatusCode loadDataHv     (EventIDRange &, std::unique_ptr<CscCondDbData>&);
+    StatusCode loadDataHv     (EventIDRange &, CscCondDbData*, const EventContext&) const;
 
-    virtual StatusCode loadData       (EventIDRange &, std::unique_ptr<CscCondDbData>&, SG::ReadCondHandle<CondAttrListCollection>, const std::string, bool = false);
-    virtual StatusCode loadDataF001   (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataNoise  (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataPed    (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataPSlope (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataRMS    (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataStatus (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataT0Base (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataT0Phase(EventIDRange &, std::unique_ptr<CscCondDbData>&);
+    StatusCode loadData       (EventIDRange &, CscCondDbData*, SG::ReadCondHandle<CondAttrListCollection>, const std::string, bool = false) const;
 
-    virtual StatusCode cacheVersion1   (std::string   , std::unique_ptr<CscCondDbData>&, const std::string);
-    virtual StatusCode cacheVersion2   (std::string   , std::unique_ptr<CscCondDbData>&, const std::string);
-    virtual StatusCode cacheVersion2ASM(std::string   , std::unique_ptr<CscCondDbData>&, const std::string);
-    virtual StatusCode getAsmScope(int, int&, int&, int&, int&, int&);
+    StatusCode loadDataF001   (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataNoise  (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataPed    (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataPSlope (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataRMS    (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataStatus (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataT0Base (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataT0Phase(EventIDRange &, CscCondDbData*, const EventContext&) const;
 
-    virtual StatusCode recordParameter(unsigned int  , std::string, std::unique_ptr<CscCondDbData>&, const std::string);
-    virtual StatusCode recordParameter(IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&, const std::string);
-	virtual StatusCode recordParameterF001   (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode recordParameterNoise  (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode recordParameterPed    (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode recordParameterPSlope (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode recordParameterRMS    (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode recordParameterStatus (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode recordParameterT0Base (IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode recordParameterT0Phase(IdentifierHash, std::string, std::unique_ptr<CscCondDbData>&);
+    StatusCode cacheVersion1   (std::string, CscCondDbData*, const std::string) const;
+    StatusCode cacheVersion2   (std::string, CscCondDbData*, const std::string) const;
+    StatusCode cacheVersion2ASM(std::string, CscCondDbData*, const std::string) const;
+    StatusCode getAsmScope(int, int&, int&, int&, int&, int&) const;
+
+    StatusCode recordParameter(unsigned int  , std::string, CscCondDbData*, const std::string) const;
+    StatusCode recordParameter(IdentifierHash, std::string, CscCondDbData*, const std::string) const;
+
+	StatusCode recordParameterF001   (IdentifierHash, std::string, CscCondDbData*) const;
+	StatusCode recordParameterNoise  (IdentifierHash, std::string, CscCondDbData*) const;
+	StatusCode recordParameterPed    (IdentifierHash, std::string, CscCondDbData*) const;
+	StatusCode recordParameterPSlope (IdentifierHash, std::string, CscCondDbData*) const;
+	StatusCode recordParameterRMS    (IdentifierHash, std::string, CscCondDbData*) const;
+	StatusCode recordParameterStatus (IdentifierHash, std::string, CscCondDbData*) const;
+	StatusCode recordParameterT0Base (IdentifierHash, std::string, CscCondDbData*) const;
+	StatusCode recordParameterT0Phase(IdentifierHash, std::string, CscCondDbData*) const;
 
     bool m_isOnline{false};
     bool m_isData{false};  
@@ -105,7 +107,7 @@ private:
 
     // getParameter
     template <typename T>
-    StatusCode getParameter(IdentifierHash chanHash, std::string data, T& token){
+    StatusCode getParameter(IdentifierHash chanHash, std::string data, T& token) const {
     
         // next element is the status bit
         std::istringstream iss(data);

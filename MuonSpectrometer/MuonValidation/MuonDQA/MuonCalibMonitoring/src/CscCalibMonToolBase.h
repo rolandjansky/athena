@@ -36,6 +36,9 @@
 
 #include "CscCalibData/CscCalibResultContainer.h"
 
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 class CscCondDbData;
 
@@ -177,8 +180,9 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
         /** Muon Detector Descriptor*/
         const MuonGM::MuonDetectorManager * m_muon_mgr;
 
-        /** CSC identifier helper*/
-        const CscIdHelper * m_cscIdHelper;
+        /** Tool for CSC identifier helper*/
+        ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+          "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
         /**Access to COOL database*/
         SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   

@@ -6,7 +6,7 @@
 
 // constructor
 CscCondDbAlg::CscCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-    AthAlgorithm(name, pSvcLocator),
+    AthReentrantAlgorithm(name, pSvcLocator),
     m_condSvc("CondSvc", name),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_defaultDatabaseReadVersion("02-00")
@@ -51,7 +51,7 @@ CscCondDbAlg::initialize(){
 
 // execute
 StatusCode 
-CscCondDbAlg::execute(){
+CscCondDbAlg::execute(const EventContext& ctx) const {
 
     ATH_MSG_DEBUG( "execute " << name() );   
 
@@ -61,7 +61,7 @@ CscCondDbAlg::execute(){
 	}
  
     // launching Write Cond Handle
-    SG::WriteCondHandle<CscCondDbData> writeHandle{m_writeKey};
+    SG::WriteCondHandle<CscCondDbData> writeHandle{m_writeKey, ctx};
     if (writeHandle.isValid()) {
         ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
         	  << " In theory this should not be called, but may happen"
@@ -69,31 +69,29 @@ CscCondDbAlg::execute(){
         return StatusCode::SUCCESS; 
     }
     std::unique_ptr<CscCondDbData> writeCdo{std::make_unique<CscCondDbData>()};
+
     writeCdo->loadParameters(&m_idHelper->cscIdHelper());
     writeCdo->setParameters(m_onlineOfflinePhiFlip);
 
-    EventIDRange rangeW;
-    StatusCode sc  = StatusCode::SUCCESS;
+    //Start with an infinite range and narrow it down as needed
+    const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+    const EventIDBase stop{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+    EventIDRange rangeW{start, stop};
 
-    // retrieving data only
+    // data only
     if(m_isData) {
-        //if(loadDataHv  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; // keep for future development
+        //ATH_CHECK(loadDataHv(rangeW, writeCdo.get(), ctx)); // keep for future development
     }
 
     // both data and MC
-    if(loadDataF001   (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-    if(loadDataNoise  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-    if(loadDataPed    (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-    if(loadDataPSlope (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-    if(loadDataRMS    (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-    if(loadDataStatus (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-    if(loadDataT0Base (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-    if(loadDataT0Phase(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
-
-    if(sc.isFailure()){
-        ATH_MSG_WARNING("Could not read data from the DB");
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(loadDataF001   (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataNoise  (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataPed    (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataPSlope (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataRMS    (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataStatus (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataT0Base (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataT0Phase(rangeW, writeCdo.get(), ctx)); 
 
     if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
       ATH_MSG_FATAL("Could not record CscCondDbData " << writeHandle.key() 
@@ -109,22 +107,26 @@ CscCondDbAlg::execute(){
 
 // loadDataHv
 StatusCode
-CscCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::loadDataHv(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
   
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_hv};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_hv, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
   
-    if ( !readHandle.range(rangeW) ) {
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
+
+    // intersect validity range of thsi obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
 	std::map<Identifier, int> layerMap;
@@ -195,64 +197,64 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& 
 
 // loadDataF001
 StatusCode
-CscCondDbAlg::loadDataF001(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_f001};
+CscCondDbAlg::loadDataF001(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_f001, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "f001");
 }
 
 // loadDataNoise
 StatusCode
-CscCondDbAlg::loadDataNoise(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_noise};
+CscCondDbAlg::loadDataNoise(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_noise, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "noise");
 }
 
 // loadDataPed
 StatusCode
-CscCondDbAlg::loadDataPed(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_ped};
+CscCondDbAlg::loadDataPed(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_ped, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "ped");
 }
 
 // loadDataPSlope
 StatusCode
-CscCondDbAlg::loadDataPSlope(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_pslope};
+CscCondDbAlg::loadDataPSlope(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_pslope, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "pslope");
 }
 
 // loadDataRMS
 StatusCode
-CscCondDbAlg::loadDataRMS(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_rms};
+CscCondDbAlg::loadDataRMS(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_rms, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "rms");
 }
 
 // loadDataStatus
 StatusCode
-CscCondDbAlg::loadDataStatus(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_status};
+CscCondDbAlg::loadDataStatus(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_status, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "status");
 }
 
 // loadDataT0Base
 StatusCode
-CscCondDbAlg::loadDataT0Base(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0base};
+CscCondDbAlg::loadDataT0Base(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0base, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "t0base");
 }
 
 // loadDataT0Phase
 StatusCode
-CscCondDbAlg::loadDataT0Phase(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0phase};
+CscCondDbAlg::loadDataT0Phase(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0phase, ctx};
 	return loadData(rangeW, writeCdo, readHandle, "t0phase", true);
 }
 
 
 // loadData
 StatusCode
-CscCondDbAlg::loadData(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo, SG::ReadCondHandle<CondAttrListCollection> readHandle, const std::string parName, bool parAsm) {
+CscCondDbAlg::loadData(EventIDRange & rangeW, CscCondDbData* writeCdo, SG::ReadCondHandle<CondAttrListCollection> readHandle, const std::string parName, bool parAsm) const {
 
     const CondAttrListCollection* readCdo{*readHandle}; 
 
@@ -261,13 +263,17 @@ CscCondDbAlg::loadData(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& wr
        return StatusCode::FAILURE; 
     } 
   
-    if ( !readHandle.range(rangeW) ) {
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
        ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
+
+    // intersect validity range of thsi obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
  
     CondAttrListCollection::const_iterator itr;
 
@@ -336,7 +342,7 @@ CscCondDbAlg::loadData(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& wr
 
 // cacheVersion1
 StatusCode 
-CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName){
+CscCondDbAlg::cacheVersion1(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
 
     std::istringstream ss(data);
     std::string valueStr;
@@ -399,7 +405,7 @@ CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& wr
 
 // cacheVersion2
 StatusCode 
-CscCondDbAlg::cacheVersion2(std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName) {
+CscCondDbAlg::cacheVersion2(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
 
 	std::istringstream ss(data);
     std::string valueStr;
@@ -440,7 +446,7 @@ CscCondDbAlg::cacheVersion2(std::string data, std::unique_ptr<CscCondDbData>& wr
 
 // cacheVersion2ASM
 StatusCode 
-CscCondDbAlg::cacheVersion2ASM(std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName) {
+CscCondDbAlg::cacheVersion2ASM(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
 
 	std::istringstream ss(data);
     std::string valueStr;
@@ -541,7 +547,7 @@ CscCondDbAlg::cacheVersion2ASM(std::string data, std::unique_ptr<CscCondDbData>&
 
 // getAsmScope
 StatusCode 
-CscCondDbAlg::getAsmScope(int asmNum, int &measuresPhi,  int & layerSince, int & layerUntil, int & stripSince , int & stripUntil){
+CscCondDbAlg::getAsmScope(int asmNum, int &measuresPhi,  int & layerSince, int & layerUntil, int & stripSince , int & stripUntil) const {
     // copy-paste from CscCoolStrSvc
 
     if(asmNum == 1 ){
@@ -590,7 +596,7 @@ CscCondDbAlg::getAsmScope(int asmNum, int &measuresPhi,  int & layerSince, int &
 
 // recordParameter
 StatusCode
-CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName){
+CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, CscCondDbData* writeCdo, const std::string parName) const {
 
     // retrieve channel hash
     Identifier chamberId;
@@ -608,7 +614,7 @@ CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, std::u
 
 // recordParameter
 StatusCode
-CscCondDbAlg::recordParameter(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName){
+CscCondDbAlg::recordParameter(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo, const std::string parName) const {
     
     // record parameter
     StatusCode sc = StatusCode::FAILURE;
@@ -629,7 +635,7 @@ CscCondDbAlg::recordParameter(IdentifierHash chanHash, std::string data, std::un
 
 // recordParameterF001
 StatusCode
-CscCondDbAlg::recordParameterF001(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterF001(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     float token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -640,7 +646,7 @@ CscCondDbAlg::recordParameterF001(IdentifierHash chanHash, std::string data, std
 
 // recordParameterNoise
 StatusCode
-CscCondDbAlg::recordParameterNoise(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterNoise(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     float token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -651,7 +657,7 @@ CscCondDbAlg::recordParameterNoise(IdentifierHash chanHash, std::string data, st
 
 // recordParameterPed
 StatusCode
-CscCondDbAlg::recordParameterPed(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterPed(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     float token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -662,7 +668,7 @@ CscCondDbAlg::recordParameterPed(IdentifierHash chanHash, std::string data, std:
 
 // recordParameterPSlope
 StatusCode
-CscCondDbAlg::recordParameterPSlope(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterPSlope(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     float token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -673,7 +679,7 @@ CscCondDbAlg::recordParameterPSlope(IdentifierHash chanHash, std::string data, s
 
 // recordParameterRMS
 StatusCode
-CscCondDbAlg::recordParameterRMS(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterRMS(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     float token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -684,7 +690,7 @@ CscCondDbAlg::recordParameterRMS(IdentifierHash chanHash, std::string data, std:
 
 // recordParameterStatus
 StatusCode
-CscCondDbAlg::recordParameterStatus(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterStatus(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     unsigned int token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -695,7 +701,7 @@ CscCondDbAlg::recordParameterStatus(IdentifierHash chanHash, std::string data, s
 
 // recordParameterT0Base
 StatusCode
-CscCondDbAlg::recordParameterT0Base(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterT0Base(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     float token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -706,7 +712,7 @@ CscCondDbAlg::recordParameterT0Base(IdentifierHash chanHash, std::string data, s
 
 // recordParameterT0Phase
 StatusCode
-CscCondDbAlg::recordParameterT0Phase(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::recordParameterT0Phase(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
 
     bool token;
     if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
@@ -720,10 +726,10 @@ keep for future development:
 
 // loadDataDeadChambers
 StatusCode
-CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
   
     ATH_CHECK(m_readKey_folder_da_chambers.initialize());
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_chambers};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_chambers, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -734,7 +740,8 @@ CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, std::unique_ptr<CscCon
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
-  
+    // WHEN UNCOMMENTED, DON'T FORGET TO INTERSECT THE RANGE AS IS DONE IN MDTCONDDBALG FOR EXAMPLE 
+ 
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << rangeW);
 

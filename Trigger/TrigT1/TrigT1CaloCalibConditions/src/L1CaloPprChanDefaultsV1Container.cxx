@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprChanDefaultsV1Container.h"
@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <memory>
 
-#include "CxxUtils/make_unique.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -36,7 +35,7 @@ L1CaloPprChanDefaultsV1Container::L1CaloPprChanDefaultsV1Container(const std::st
 
 DataObject* L1CaloPprChanDefaultsV1Container::makePersistent() const
 {
-  using CxxUtils::make_unique;
+  using std::make_unique;
 
   if(m_coolFolderKey.empty()) return nullptr;
 

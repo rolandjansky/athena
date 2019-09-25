@@ -74,36 +74,7 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
   std::vector<RpcExtrapolationResults> extrapolations;
 
   m_rpcExtrapolTool->getRpcIntersections(theTrack, extrapolations);
-  
-//   if (extrapolations.size()%2){
-
-//     ATH_MSG_WARNING( "Odd number of extrapolations" );
     
-//     for (int i=0; i<extrapolations.size(); ++i){
-      
-//       Identifier idTwinView=GetTwinViewPanel(extrapolations[i].id);
-
-//       bool found = false;
-      
-//       for (int j=0; j<extrapolations.size()&&!found; ++j){
-      
-// 	if (m_muonIdHelperTool->rpcIdHelper().panelID(extrapolations[j].id)==idTwinView) found = true;
-	
-//       }
-
-//       if (!found) {
-
-// 	ATH_MSG_WARNING( "ID " << extrapolations[i].id<<" name " <<m_muonIdHelperTool->rpcIdHelper().stationName(extrapolations[i].id)<< " sec "<<m_muonIdHelperTool->rpcIdHelper().stationPhi(extrapolations[i].id)*2+m_muonIdHelperTool->rpcIdHelper().stationName(extrapolations[i].id)%2-1<< " eta "<<m_muonIdHelperTool->rpcIdHelper().stationEta(extrapolations[i].id)<<" dZ " <<m_muonIdHelperTool->rpcIdHelper().doubletZ(extrapolations[i].id)<<" dPhi " <<m_muonIdHelperTool->rpcIdHelper().doubletPhi(extrapolations[i].id)<< " r "<<m_muonIdHelperTool->rpcIdHelper().doubletR(extrapolations[i].id)<< " gg "<<m_muonIdHelperTool->rpcIdHelper().gasGap(extrapolations[i].id)<< " mp "<<m_muonIdHelperTool->rpcIdHelper().measuresPhi(extrapolations[i].id)<<" strip "<<m_muonIdHelperTool->rpcIdHelper().strip(extrapolations[i].id)<< " found, but ");
-
-// 	ATH_MSG_WARNING( "ID " << idTwinView<<" name " <<m_muonIdHelperTool->rpcIdHelper().stationName(idTwinView)<< " sec "<<m_muonIdHelperTool->rpcIdHelper().stationPhi(idTwinView)*2+m_muonIdHelperTool->rpcIdHelper().stationName(idTwinView)%2-1<< " eta "<<m_muonIdHelperTool->rpcIdHelper().stationEta(idTwinView)<<" dZ " <<m_muonIdHelperTool->rpcIdHelper().doubletZ(idTwinView)<<" dPhi " <<m_muonIdHelperTool->rpcIdHelper().doubletPhi(idTwinView)<< " r "<<m_muonIdHelperTool->rpcIdHelper().doubletR(idTwinView)<< " gg "<<m_muonIdHelperTool->rpcIdHelper().gasGap(idTwinView)<< " mp "<<m_muonIdHelperTool->rpcIdHelper().measuresPhi(idTwinView)<<" strip "<<m_muonIdHelperTool->rpcIdHelper().strip(idTwinView)<<" missing");
-	
-//       }
-      
-      
-//     }   
-    
-//   }
-  
   // get cluster container
   const Muon::RpcPrepDataContainer* rpc_container;
   StatusCode sc = (*m_activeStore)->retrieve(rpc_container,m_clusCollection);

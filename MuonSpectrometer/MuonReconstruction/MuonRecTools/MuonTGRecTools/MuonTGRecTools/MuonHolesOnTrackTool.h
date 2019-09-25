@@ -25,10 +25,7 @@
 #include "MuonTrackMakerUtils/TrackStateOnSurfaceComparisonFunction.h"
 #include <fstream>
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
@@ -92,11 +89,8 @@ private:
   std::vector<double>               m_sortingRefPoint;    //!< start point to detect min TP, only if ROTfit
   mutable Muon::TrackStateOnSurfaceComparisonFunction*   m_tSoSOrder;
   
-  const MdtIdHelper* m_mdtIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const CscIdHelper* m_cscIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   mutable const  Trk::TrackingVolume*       m_msEntrance;
   
