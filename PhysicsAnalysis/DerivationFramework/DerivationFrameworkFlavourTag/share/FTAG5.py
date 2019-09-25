@@ -34,6 +34,8 @@ from DerivationFrameworkFlavourTag.HbbCommon import (
     buildVRJets, linkPseudoJetGettersToExistingJetCollection,
     addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
+from DerivationFrameworkMCTruth.MCTruthCommon import (
+    addTruth3ContentToSlimmerTool)
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
 from FlavorTagDiscriminants.discriminants import complex_jet_discriminants
@@ -316,5 +318,8 @@ FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False
 FTAG5SlimmingHelper.IncludeJetTriggerContent = False
 FTAG5SlimmingHelper.IncludeEtMissTriggerContent = False
 FTAG5SlimmingHelper.IncludeBJetTriggerContent = False
+
+# Add truth3
+addTruth3ContentToSlimmerTool(FTAG5SlimmingHelper)
 
 FTAG5SlimmingHelper.AppendContentToStream(FTAG5Stream)
