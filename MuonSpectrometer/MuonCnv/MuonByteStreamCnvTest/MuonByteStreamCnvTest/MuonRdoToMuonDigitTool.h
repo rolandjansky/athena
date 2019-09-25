@@ -19,7 +19,6 @@
 #include "MuonDigitContainer/MmDigitContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class IRPCcablingSvc;
 class ITGCcablingSvc;
 
 class MdtDigitContainer;
@@ -117,7 +116,6 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
 
   // cabling service
   //  const MDTcablingSvc  * m_mdtCabling;
-  const IRPCcablingSvc * m_rpcCabling;
   const ITGCcablingSvc * m_tgcCabling;
 
   // digit containers

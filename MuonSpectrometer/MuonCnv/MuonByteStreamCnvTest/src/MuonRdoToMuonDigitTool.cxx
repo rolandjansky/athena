@@ -21,7 +21,6 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
 #include "MuonRDO/MdtAmtHit.h"
@@ -130,11 +129,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK( m_acSvc.retrieve() );
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
-  // get RPC cablingSvc
-  ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-  ATH_CHECK( RpcCabGet.retrieve() );
-  ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
-
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK( m_cscCalibTool.retrieve() );
 
@@ -186,7 +180,7 @@ StatusCode MuonRdoToMuonDigitTool::digitize() {
     ATH_CHECK( decodeCscRDO() );
   }
 
-  if (m_decodeRpcRDO && m_rpcCabling){
+  if (m_decodeRpcRDO ){
     SG::WriteHandle<RpcDigitContainer> wh_rpcDigit(m_rpcDigitKey);
     ATH_CHECK(wh_rpcDigit.record(std::make_unique<RpcDigitContainer> (m_muonIdHelperTool->rpcIdHelper().module_hash_max())));
     m_rpcContainer = wh_rpcDigit.ptr();
