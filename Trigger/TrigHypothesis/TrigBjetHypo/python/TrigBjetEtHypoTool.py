@@ -44,10 +44,9 @@ def TrigBjetEtHypoToolFromDict_j( chainDict ):
     return tool
 
 def TrigBjetEtHypoToolFromName_j( name, conf ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName   
     
-    decoder = DictFromChainName()        
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info        
+    decodedDict = dictFromChainName(conf)
     decodedDict['chainName'] = name # override
 
     return TrigBjetEtHypoToolFromDict_j( decodedDict )
@@ -88,10 +87,9 @@ def TrigBjetEtHypoToolFromDict_gsc( chainDict ):
     return tool
 
 def TrigBjetEtHypoToolFromName_gsc( name, conf ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName   
     
-    decoder = DictFromChainName()        
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info        
+    decodedDict = dictFromChainName( conf )        
     decodedDict['chainName'] = name # override
 
     return TrigBjetEtHypoToolFromDict_gsc( decodedDict )
