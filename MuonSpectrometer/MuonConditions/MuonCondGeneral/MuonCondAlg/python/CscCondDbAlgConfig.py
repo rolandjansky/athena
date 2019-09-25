@@ -4,8 +4,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 from MuonCondAlg.MuonTopCondAlgConfigRUN2 import CscCondDbAlg
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-if not athenaCommonFlags.isOnline:
-    condSequence = AthSequencer("AthCondSeq")
-    if not hasattr(condSequence,"CscCondDbAlg"): 
-        condSequence += CscCondDbAlg("CscCondDbAlg")
+condSequence = AthSequencer("AthCondSeq")
+if not hasattr(condSequence,"CscCondDbAlg"): 
+    condSequence += CscCondDbAlg("CscCondDbAlg")
 

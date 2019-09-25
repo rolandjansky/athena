@@ -54,11 +54,6 @@ StatusCode
 CscCondDbAlg::execute(const EventContext& ctx) const {
 
     ATH_MSG_DEBUG( "execute " << name() );   
-
-	if(m_isOnline) {
-		ATH_MSG_DEBUG( "IsOnline is set to True; nothing to do!" );   
-		return StatusCode::SUCCESS;
-	}
  
     // launching Write Cond Handle
     SG::WriteCondHandle<CscCondDbData> writeHandle{m_writeKey, ctx};
@@ -90,8 +85,11 @@ CscCondDbAlg::execute(const EventContext& ctx) const {
     ATH_CHECK(loadDataPSlope (rangeW, writeCdo.get(), ctx)); 
     ATH_CHECK(loadDataRMS    (rangeW, writeCdo.get(), ctx)); 
     ATH_CHECK(loadDataStatus (rangeW, writeCdo.get(), ctx)); 
-    ATH_CHECK(loadDataT0Base (rangeW, writeCdo.get(), ctx)); 
-    ATH_CHECK(loadDataT0Phase(rangeW, writeCdo.get(), ctx)); 
+
+	if(!m_isOnline) {
+        ATH_CHECK(loadDataT0Base (rangeW, writeCdo.get(), ctx));
+        ATH_CHECK(loadDataT0Phase(rangeW, writeCdo.get(), ctx));
+    }
 
     if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
       ATH_MSG_FATAL("Could not record CscCondDbData " << writeHandle.key() 
@@ -115,14 +113,14 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, CscCondDbData* writeCdo, const E
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
-  
+
     EventIDRange range; 
     if ( !readHandle.range(range) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
-    } 
+    }
 
-    // intersect validity range of thsi obj with the validity of already-loaded objs
+    //intersect validity range of this obj with the validity of already-loaded objs
     rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
@@ -736,14 +734,17 @@ CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, CscCondDbData* writeCd
       return StatusCode::FAILURE; 
     } 
   
-    if ( !readHandle.range(rangeW) ) {
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
-    // WHEN UNCOMMENTED, DON'T FORGET TO INTERSECT THE RANGE AS IS DONE IN MDTCONDDBALG FOR EXAMPLE 
- 
+
+    //intersect validity range of this obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
+  
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
 
     std::vector<std::string> goodChambers;
     std::vector<std::string> deadChambers;

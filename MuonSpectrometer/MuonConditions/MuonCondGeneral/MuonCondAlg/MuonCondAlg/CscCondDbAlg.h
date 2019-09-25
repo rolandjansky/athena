@@ -46,7 +46,7 @@ public:
     CscCondDbAlg( const std::string & name, ISvcLocator* svc);
     virtual ~CscCondDbAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute   (const EventContext&) const override;
+    virtual StatusCode execute   (const EventContext &) const override;
 
  
 private:
@@ -64,9 +64,9 @@ private:
     StatusCode loadDataT0Base (EventIDRange &, CscCondDbData*, const EventContext&) const;
     StatusCode loadDataT0Phase(EventIDRange &, CscCondDbData*, const EventContext&) const;
 
-    StatusCode cacheVersion1   (std::string, CscCondDbData*, const std::string) const;
-    StatusCode cacheVersion2   (std::string, CscCondDbData*, const std::string) const;
-    StatusCode cacheVersion2ASM(std::string, CscCondDbData*, const std::string) const;
+    StatusCode cacheVersion1   (std::string  , CscCondDbData*, const std::string) const;
+    StatusCode cacheVersion2   (std::string  , CscCondDbData*, const std::string) const;
+    StatusCode cacheVersion2ASM(std::string  , CscCondDbData*, const std::string) const;
     StatusCode getAsmScope(int, int&, int&, int&, int&, int&) const;
 
     StatusCode recordParameter(unsigned int  , std::string, CscCondDbData*, const std::string) const;

@@ -55,9 +55,18 @@ def RpcCondDbAlgCfg(flags, **kwargs):
 def CscCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
     folders = ["/CSC/FTHOLD", "/CSC/NOISE", "/CSC/PED", "/CSC/PSLOPE", "/CSC/RMS", "/CSC/STAT", "/CSC/T0BASE", "/CSC/T0PHASE"]
+    scheme  = "CSC_OFL"
     if flags.Common.isOnline:
-        return result ## avoid adding algo to the component accumulator
-        kwargs["isOnline"] = True
+        kwargs["isOnline"  ] = True
+        kwargs['isData'    ] = True
+        kwargs['ReadKey_FT'] = 'ConditionStore+/CSC/ONL/FTHOLD'
+        kwargs['ReadKey_NO'] = 'ConditionStore+/CSC/ONL/NOISE'
+        kwargs['ReadKey_PD'] = 'ConditionStore+/CSC/ONL/PED'
+        kwargs['ReadKey_PS'] = 'ConditionStore+/CSC/ONL/PSLOPE'
+        kwargs['ReadKey_RM'] = 'ConditionStore+/CSC/ONL/RMS'
+        kwargs['ReadKey_ST'] = 'ConditionStore+/CSC/ONL/STAT'
+        folders = ["/CSC/ONL/FTHOLD", "/CSC/ONL/NOISE", "/CSC/ONL/PED", "/CSC/ONL/PSLOPE", "/CSC/ONL/RMS", "/CSC/ONL/STAT"]
+        scheme  = "CSC_ONL"
     else:
         kwargs["isOnline"] = False
         if flags.Input.isMC:
@@ -66,7 +75,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
             kwargs['isData'] = True
             kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
     alg = CscCondDbAlg(**kwargs)
-    result.merge( addFolders(flags, folders , detDb="CSC_OFL", className='CondAttrListCollection') )
+    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result
 

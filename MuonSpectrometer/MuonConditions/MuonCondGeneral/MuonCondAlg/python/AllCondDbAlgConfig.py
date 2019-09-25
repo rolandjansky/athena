@@ -10,8 +10,8 @@ if not athenaCommonFlags.isOnline:
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
     if not hasattr(condSequence,"RpcCondDbAlg"):
         condSequence += RpcCondDbAlg("RpcCondDbAlg")
-    if not hasattr(condSequence,"CscCondDbAlg"):
-        condSequence += CscCondDbAlg("CscCondDbAlg")
+if not hasattr(condSequence,"CscCondDbAlg"):
+    condSequence += CscCondDbAlg("CscCondDbAlg")
 ## keep as template:
 #    if not hasattr(condSequence,"TgcCondDbAlg"):
 #        condSequence += TgcCondDbAlg("TgcCondDbAlg")
