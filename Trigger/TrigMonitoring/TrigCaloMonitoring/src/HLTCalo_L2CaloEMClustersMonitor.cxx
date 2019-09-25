@@ -159,6 +159,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 	} // End loop over HLT clusters
 
 	HLT_vs_OFF_minimum_delta_r = min_delta_r;
+	fill(m_mongroup_name, HLT_vs_OFF_minimum_delta_r);
 
 	// No HLT match
 	if (min_delta_r > m_max_delta_r) {
@@ -188,7 +189,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 		HLT_vs_OFF_minimum_delta_eta = off_cluster->eta() - hlt_match->eta();
 		HLT_vs_OFF_minimum_delta_phi = calculateDeltaPhi(off_cluster->phi(), hlt_match->phi());
 
-		fill(m_mongroup_name, OFF_with_HLT_match_et, HLT_match_et, OFF_with_HLT_match_eta, OFF_with_HLT_match_phi, OFF_with_HLT_match_type, HLT_vs_OFF_minimum_delta_r, HLT_vs_OFF_resolution, HLT_vs_OFF_minimum_delta_eta, HLT_vs_OFF_minimum_delta_phi);
+		fill(m_mongroup_name, OFF_with_HLT_match_et, HLT_match_et, OFF_with_HLT_match_eta, OFF_with_HLT_match_phi, OFF_with_HLT_match_type, HLT_vs_OFF_resolution, HLT_vs_OFF_minimum_delta_eta, HLT_vs_OFF_minimum_delta_phi);
 
       //hist2  ("HLT_vs_OFF_resolution_map")   ->Fill((*OFF_itr)->eta(),(*OFF_itr)->phi(),delta_et);
       //profile("HLT_vs_OFF_resolution_vs_et" )->Fill((*OFF_itr)->et (),delta_et);
