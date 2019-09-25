@@ -264,6 +264,16 @@ HIGG8D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
 ToolSvc += HIGG8D1ElectronTPThinningTool
 thinningTools.append(HIGG8D1ElectronTPThinningTool)
 
+StoreAdditionalAmbiguityContent = True
+if StoreAdditionalAmbiguityContent:
+    HIGG8D1ElectronAddTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "HIGG8D1ElectronAddTPThinningTool",
+                                                                                        ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                                        SGKey                   = "Electrons",
+                                                                                        SelectionString         = "Electrons.DFCommonAddAmbiguity >= 0",
+                                                                                        ConeSize                = 0.3)
+    ToolSvc += HIGG8D1ElectronAddTPThinningTool
+    thinningTools.append(HIGG8D1ElectronAddTPThinningTool)
+
 # Tracks associated with Taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG8D1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "HIGG8D1TauTPThinningTool",
@@ -503,7 +513,8 @@ HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.ext
 #Adding Egamma details
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG8D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
-
+if StoreAdditionalAmbiguityContent:
+		HIGG8D1SlimmingHelper.ExtraVariables += ElectronsAddAmbiguityContent
 
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
