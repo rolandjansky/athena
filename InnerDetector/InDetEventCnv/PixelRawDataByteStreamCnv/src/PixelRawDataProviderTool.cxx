@@ -118,8 +118,6 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
       }
     }
   }
-  if (isNewEvent) {
-    ATH_CHECK(m_decoder->StoreBSError());
-  }
+  ATH_CHECK(m_decoder->StoreBSError());
   return StatusCode::SUCCESS; 
 }
