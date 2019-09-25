@@ -116,7 +116,7 @@ namespace xAOD {
         /// Returns the correlation coefficient associated with the off-diagonal elements of the covariance matrix = cov(X,Y)/sqrt(cov(X,X)*cov(Y,Y))
         const std::vector< float >& definingParametersCovMatrixOffDiagVec() const;
         /// Returns the length 6 vector containing the elements of defining parameters covariance matrix.
-        std::vector<float>& definingParametersCovMatrixVec() const;
+        std::vector<float> definingParametersCovMatrixVec() const;
         bool definingParametersCovMatrixOffDiagCompr() const ;
         /// Set the defining parameters.     
         void setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP);

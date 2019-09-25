@@ -323,7 +323,7 @@ namespace xAOD {
     return accCovMatrixOffDiag( *this );
   }
 
-  std::vector<float>& TrackParticle_v1::definingParametersCovMatrixVec() const {
+  std::vector<float> TrackParticle_v1::definingParametersCovMatrixVec() const {
 
     std::vector< float > vec;
     AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(definingParametersCovMatrix());
