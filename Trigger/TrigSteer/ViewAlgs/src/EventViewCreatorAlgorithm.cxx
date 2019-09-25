@@ -67,15 +67,14 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
       for (auto input: inputLinks){
         const Decision* inputDecision = *input;
         // find the RoI
-        auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );
-        auto roiEL = roiELInfo.link;
+        const auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision, m_roisLink.value() );
+        const auto roiEL = roiELInfo.link;
         ATH_CHECK( roiEL.isValid() );
         // check if already found
         auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
         if ( roiIt == RoIsFromDecision.end() ){
           RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
-          const TrigRoiDescriptor* roi = *roiEL;
-          ATH_MSG_DEBUG("Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
+          ATH_MSG_DEBUG("Found RoI:" <<**roiEL<<" FS="<<(*roiEL)->isFullscan());
           ATH_MSG_DEBUG("Positive decisions on RoI, preparing view" );
           
           // make the view
@@ -83,13 +82,13 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
           viewVector->push_back( newView );
           contexts.emplace_back( context );
-          contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
+          contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, *roiEL ) );
           
           // link decision to this view
           outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
-          ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );  
+          ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), contexts.back() ) );
         }
         else {
           int iview = roiIt - RoIsFromDecision.begin();
@@ -147,11 +146,13 @@ StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils
   return StatusCode::SUCCESS;
 }
 
-StatusCode EventViewCreatorAlgorithm::placeRoIInView( const TrigRoiDescriptor* roi, SG::View* view, const EventContext& context ) const {
+StatusCode EventViewCreatorAlgorithm::placeRoIInView( const ElementLink<TrigRoiDescriptorCollection>& roiEL, SG::View* view, const EventContext& context ) const {
   // fill the RoI output collection
   auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
   oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
-  oneRoIColl->push_back( roi );
+  oneRoIColl->push_back( *roiEL );
+
+  view->setROI(roiEL);
   
   //store the RoI in the view
   auto handle = SG::makeHandle( m_inViewRoIs, context );

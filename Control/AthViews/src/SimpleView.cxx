@@ -8,6 +8,7 @@
 
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
   m_store( storeName, "SimpleView" ),
+  m_roi(),
   m_name( Name ),
   m_allowFallThrough( AllowFallThrough )
 {
@@ -217,6 +218,13 @@ void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, 
 	m_store->registerKey( key, viewKey, clid );
 }
 
+void SimpleView::setROI(const ElementLink<TrigRoiDescriptorCollection>& roi) {
+  m_roi = roi;
+}
+
+const ElementLink<TrigRoiDescriptorCollection>& SimpleView::getROI() const {
+  return m_roi;
+}
 
 std::string SimpleView::dump( const std::string& indent ) const {
 

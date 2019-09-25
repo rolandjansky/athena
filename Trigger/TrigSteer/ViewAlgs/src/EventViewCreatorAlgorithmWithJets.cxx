@@ -66,8 +66,8 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
         const Decision* inputDecision = *input;
 
         // Retrieve jets ...
-	ATH_MSG_DEBUG( "Checking there are jets linked to decision object" );
-	TrigCompositeUtils::LinkInfo< xAOD::JetContainer > jetELInfo = TrigCompositeUtils::findLink< xAOD::JetContainer >( inputDecision,TrigCompositeUtils::featureString() );
+        ATH_MSG_DEBUG( "Checking there are jets linked to decision object" );
+        TrigCompositeUtils::LinkInfo< xAOD::JetContainer > jetELInfo = TrigCompositeUtils::findLink< xAOD::JetContainer >( inputDecision,TrigCompositeUtils::featureString() );
         ATH_CHECK( jetELInfo.isValid() );
         const xAOD::Jet *jet = *jetELInfo.link;
         ATH_MSG_DEBUG( "Placing xAOD::JetContainer " );
@@ -96,7 +96,7 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
           outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
-          ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );
+          ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), contexts.back() ) );
           ATH_CHECK( placeJetInView( jet, viewVector->back(), contexts.back() ) );
         }
         else {
