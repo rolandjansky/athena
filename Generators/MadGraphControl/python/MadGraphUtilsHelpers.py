@@ -64,7 +64,7 @@ def is_version_or_newer(args):
     for x in vs:
         versionnumber+=x*y
         y/=100
-    return testnumber>=versionnumber
+    return versionnumber>=testnumber
 
 def isNLO_from_run_card(run_card):
     f = open(run_card,'r')
