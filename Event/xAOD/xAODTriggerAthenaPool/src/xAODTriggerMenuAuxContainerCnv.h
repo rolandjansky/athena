@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTriggerMenuAuxContainerCnv.h 647168 2015-02-16 15:30:50Z krasznaa $
@@ -9,16 +9,13 @@
 #define XAODTRIGGERATHENAPOOL_XAODTRIGGERMENUAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
-#define private public
 #include "xAODTrigger/TriggerMenuAuxContainer.h"
-#undef private
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::TriggerMenuAuxContainer,
-                               xAOD::TriggerMenuAuxContainer >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::TriggerMenuAuxContainer >
    xAODTriggerMenuAuxContainerCnvBase;
 
 /**
@@ -45,11 +42,9 @@ public:
    xAODTriggerMenuAuxContainerCnv( ISvcLocator* svcLoc );
 protected:
 
-   /// Function preparing the container to be written out
-   virtual xAOD::TriggerMenuAuxContainer*
-   createPersistent( xAOD::TriggerMenuAuxContainer* trans );
    /// Function reading in the object from the input file
-   virtual xAOD::TriggerMenuAuxContainer* createTransient();
+   virtual xAOD::TriggerMenuAuxContainer*
+   createTransientWithKey( const std::string& key ) override;
 
 }; // class xAODTriggerMenuAuxContainerCnv
 
