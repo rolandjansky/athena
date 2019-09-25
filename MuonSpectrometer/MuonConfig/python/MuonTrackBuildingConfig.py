@@ -188,9 +188,37 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     
     kwargs.setdefault("SegmentExtender", "") #FIXME If this is always empty, can it be removed?
     
-    mu_pat_cand_tool = Muon__MuPatCandidateTool(name, **kwargs)
+    from AthenaCommon.Constants import VERBOSE
+    mu_pat_cand_tool = Muon__MuPatCandidateTool(name, OutputLevel=VERBOSE, **kwargs)
     result.setPrivateTools(mu_pat_cand_tool)
     return result
+    
+def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **kwargs):
+    from MuonTrackFinderTools.MuonTrackFinderToolsConf import Muon__MuonChamberHoleRecoveryTool
+    result=ComponentAccumulator()
+    kwargs.setdefault("AddMeasurements",  not flags.Muon.doSegmentT0Fit )
+    if flags.Detector.GeometryCSC:
+        from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg
+        extrakwargs={}
+        if flags.Muon.enableErrorTuning or not flags.Input.isMC:
+            extrakwargs["ErrorScalerBeta"] = 0.200
+        acc = CscClusterOnTrackCreatorCfg(flags, **extrakwargs)
+        csc_cluster_creator = acc.getPrimary()
+        result.merge(acc)
+        kwargs.setdefault("CscRotCreator", csc_cluster_creator)
+    else:
+        kwargs["CscRotCreator"] = None
+    
+    if not flags.Detector.GeometrysTGC:
+        kwargs.setdefault("sTgcPrepDataContainer","")
+    
+    if not flags.Detector.GeometryMM:
+        kwargs.setdefault("MMPrepDataContainer","")
+        
+    hole_rec_tool = Muon__MuonChamberHoleRecoveryTool(name, **kwargs)
+    result.setPrivateTools(hole_rec_tool)
+    return result
+    
 
 def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     from MuonTrackSteeringTools.MuonTrackSteeringToolsConf import Muon__MuonTrackSteering
@@ -270,6 +298,13 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     kwargs.setdefault("MuonSegmentFittingTool",       seg_fitting_tool) 
     kwargs.setdefault("MuonTrackSelector",       MuonTrackSelector(flags)) 
 
+    acc = MuonChamberHoleRecoveryToolCfg(flags)
+    hole_recovery_tool =  acc.getPrimary()
+    result.addPublicTool(hole_recovery_tool)
+    result.merge(acc)
+    
+    kwargs.setdefault("HoleRecoveryTool",       hole_recovery_tool) 
+    
     track_maker_steering = Muon__MuonTrackSteering(name,**kwargs)
     result.setPrivateTools(track_maker_steering)
     return result
@@ -312,24 +347,27 @@ def MuonTrackBuildingCfg(flags):
     result.addPublicTool(track_steering)
     
     track_builder = MuPatTrackBuilder("MuPatTrackBuilder", TrackSteering = track_steering, MuonSegmentCollection="MuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
+    track_builder.Cardinality=10
+
     result.addEventAlgo( track_builder )
     return result
     
 
 if __name__=="__main__":
     # To run this, do e.g. 
-    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonTrackBuildingConfig.py
+    # python -m MuonConfig.MuonTrackBuildingConfig --run --threads=
     
-    from argparse import ArgumentParser
-    
+    from argparse import ArgumentParser    
     parser = ArgumentParser()
-    parser.add_argument("-t", "--threads", dest="threads",
-                        help="number of threads", default=0)
-    parser.add_argument("-e", "--concurrent-events", dest="concurrentevents",
-                        help="number of concurrent events", default=0)
+    parser.add_argument("-t", "--threads", dest="threads", type=int,
+                        help="number of threads", default=1)
                         
     parser.add_argument("-o", "--output", dest="output", default='newESD.pool.root',
                         help="write ESD to FILE", metavar="FILE")
+                        
+    parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
+                        action="store_true")
+                        
     args = parser.parse_args()
     
     from AthenaCommon.Configurable import Configurable
@@ -339,7 +377,7 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
     ConfigFlags.Concurrency.NumThreads=args.threads
-    ConfigFlags.Concurrency.NumConcurrentEvents=args.concurrentevents
+    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
 
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
@@ -359,25 +397,36 @@ if __name__=="__main__":
     
     ConfigFlags.Input.isMC = True
     ConfigFlags.lock()
-    log.info('Flags set as follows:')
     ConfigFlags.dump()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    cfg = MainServicesThreadedCfg(ConfigFlags)
+    # When running from a pickled file, athena inserts some services automatically. So only use this if running now.
+    if args.run:
+        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+        cfg = MainServicesThreadedCfg(ConfigFlags)
+    else:
+        cfg=ComponentAccumulator()
     
-    log.info(cfg._allSequences)
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
-    log.info(cfg._allSequences)
 
     cfg.merge(MuonTrackBuildingCfg(ConfigFlags))
-    log.info(cfg._allSequences)
+    
+    # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
+    # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
+    from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+    pps = ProxyProviderSvc()
+    ars=AddressRemappingSvc()
+    pps.ProviderNames += [ 'AddressRemappingSvc' ]
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("TrackCollection", "MuonSpectrometerTracks", "MuonSpectrometerTracks_old") ]
+    
+    cfg.addService(pps)
+    cfg.addService(ars)
     
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
 
     cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
-    log.info(cfg._allSequences)
+    cfg.printConfig()
     
     outstream = cfg.getEventAlgo("OutputStreamESD")
     # outstream.OutputLevel=DEBUG
@@ -389,4 +438,5 @@ if __name__=="__main__":
     cfg.store(f)
     f.close()
 
-    cfg.run()
+    if args.run:
+        cfg.run(20)
