@@ -32,6 +32,9 @@ template<class TRANS_BASE, class TRANS, class PERS>
 using T_AthenaPoolTPAbstractPolyCnvBase = TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>;
 
 template<class TRANS_BASE, class TRANS, class PERS>
+using T_AthenaPoolTPAbstractPolyCnvConstBase = TPAbstractPolyCnvConstBase<TRANS_BASE, TRANS, PERS>;
+
+template<class TRANS_BASE, class TRANS, class PERS>
 using  T_AthenaPoolTPPolyCnvBase = TPPolyCnvBase<TRANS_BASE, TRANS, PERS>;
 
 template< class TRANS, class PERS >
@@ -48,10 +51,19 @@ template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPPtrVectorCnv = TPPtrVectorCnv<TRANS, PERS, CONV>;
 
 template<class TRANS, class PERS, class CONV>
+using T_AthenaPoolTPPtrVectorCnvConst = TPPtrVectorCnvConst<TRANS, PERS, CONV>;
+
+template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPPolyVectorCnv = TPPolyVectorCnv<TRANS, PERS, CONV>;
 
 template<class TRANS, class PERS, class CONV>
+using T_AthenaPoolTPPolyVectorCnvConst = TPPolyVectorCnvConst<TRANS, PERS, CONV>;
+
+template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPCnvVector = TPCnvVector<TRANS, PERS, CONV>;
+
+template<class TRANS, class PERS, class CONV>
+using T_AthenaPoolTPCnvVectorConst = TPCnvVectorConst<TRANS, PERS, CONV>;
 
 template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPCnvStdVector = TPCnvStdVector<TRANS, PERS, CONV>;

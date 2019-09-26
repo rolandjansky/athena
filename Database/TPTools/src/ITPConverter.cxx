@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,9 +10,9 @@
 static
 void errorHandler()
 {
-   static char *ignore_error = getenv("ATHENA_TP_IGNORE_NOT_FOUND");
+   static const char *ignore_error = getenv("ATHENA_TP_IGNORE_NOT_FOUND");
    if( ignore_error )  return;
-   static char *do_abort = getenv("ATHENA_TP_DIE_ON_NOT_FOUND");
+   static const char *do_abort = getenv("ATHENA_TP_DIE_ON_NOT_FOUND");
    if( do_abort )  abort();
    throw std::runtime_error( "TP converter not found" );
 }
@@ -22,7 +22,7 @@ void
 ITPConverter::converterNotFound( const std::type_info& converterType,
 				 ITPConverter *c,
 				 const std::string& typeName,
-				 MsgStream& log )
+				 MsgStream& log ) const
 {
    log << MSG::ERROR << ">>>>>> in parent TP converter " << typeid(*this).name()
        << ": could not find matching TP converter for type " << typeName << endmsg;
@@ -40,7 +40,7 @@ void
 ITPConverter::converterNotFound( unsigned typeID,
 				 ITPConverter *c,
 				 const std::string& reqCnvTypeName,
-				 MsgStream& log )
+				 MsgStream& log ) const
 {
    log << MSG::ERROR << ">>>>>> in parent TP converter " <<  typeid(*this).name()
        << "   requested TP converter for TP type ID " << typeID << " not found " << endmsg;
