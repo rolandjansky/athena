@@ -378,10 +378,10 @@ void TRTTrkAlignDBTool::updateDB()
 
       // tweak applies the transform onto already existing transform in the DB
       // or sets it if it doesn't exist yet
-      if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isFailure())
-         msg(MSG::ERROR)<<"Error setting constants for module \'"<<module->name()<<"\'"<<endreq;
-      else
+      if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isSuccess())
          ATH_MSG_DEBUG("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
+      else
+         msg(MSG::ERROR)<<"Error setting constants for TRT module \'"<<module->name()<<"\'"<<endreq;
    }
    ATH_MSG_INFO("-------------------------------------------------------");
 
