@@ -2,10 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonSegmentTrackMaker/MuPatTrackBuilder.h"
+#include "MuPatTrackBuilder.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
-#include "MuonRecToolInterfaces/IMuonTrackFinder.h"
 #include "StoreGate/DataHandle.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/Track.h"
@@ -19,23 +18,9 @@
 using namespace Muon;
 
 MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcLocator)
-   : AthAlgorithm(name,pSvcLocator),
-     m_segmentKey("MooreSegments"),
-     m_spectroTrackKey("MuonSpectrometerTracks"),
-     m_spectroPartiKey("MuonSpectrometerParticles"),
-     m_extrapPartiKey("ExtrapolatedMuonSpectrometerParticles"),
-     m_trackMaker("Muon::MuonTrackFinder/MuonTrackSteering")
+   : AthAlgorithm(name,pSvcLocator)
 {
-  // MoMu Key segments (per chamber)
-  declareProperty("TrackSteering",m_trackMaker);
-  declareProperty("MuonSegmentCollection", m_segmentKey);
-  declareProperty("SpectrometerTrackOutputLocation", m_spectroTrackKey);
-  declareProperty("SpectrometerParticleOutputLocation", m_spectroPartiKey);
-  declareProperty("ExtrapolatedParticleOutputLocation", m_extrapPartiKey);
 }
-
-MuPatTrackBuilder::~MuPatTrackBuilder()
-{;}
 
 StatusCode MuPatTrackBuilder::initialize()
 {
