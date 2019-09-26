@@ -8,10 +8,11 @@ from ROOT import gROOT
 from subprocess import call
 from array import array
 
-__author__ = "John Anders"
+__author__ = "John Anders & Jack Lindon"
 __doc__    = """Script to add Sherpa Systematic Weight branches to existing file."""
 def generateZpTMapping(dictionary):
 
+    #Sherpa 2.1
     # 0-70, bin 1, 70-140 bin 2 etc.
     print "Adding Z--> nunu to the dictionary"
     print "\tRange 0-70:",
@@ -57,8 +58,8 @@ def generateZpTMapping(dictionary):
 
 
 
-    print "\nAdding Z--> ee to the dictionary:"
-    print "\tRange 0-70",
+    print "\nAdding Z--> ee to the dictionary"
+    print "\tRange 0-70:",
     for i in range(361372, 361375):
         dictionary[i] = 1
         print i,
@@ -187,7 +188,7 @@ def generateZpTMapping(dictionary):
         print i,
 
 
-    print "\nAdding W+Jets MCIDs"
+    print "\nAdding W+Jets MCIDs",
     print "Adding W--> enu to the dictionary"
     print "\tRange 0-70:",
     for i in range(361300, 361303):
@@ -658,7 +659,7 @@ def generateZpTMapping(dictionary):
         dictionary[i] = 5
         print i,
 
-    print "\n\tRange 1000-ECM:",
+    print "\n\tRange 1000-ECMS:",
     for i in [364155]:
         dictionary[i] = 7
         print i,
@@ -677,7 +678,7 @@ def generateZpTMapping(dictionary):
         print i,
 
     print "\n\tRange 140-280:",
-    for i in range(364120,364123):
+    for i in range(364120, 364123):
         dictionary[i] = 3
         print i,
 
@@ -688,14 +689,14 @@ def generateZpTMapping(dictionary):
         print i,
 
     print "\n\tRange 500-1000:",
-    for i in [364126]:
-        dictionary[i] = 5
-        print i,
+    dictionary[364126] = 5
+    dictionary[364218] = 5
+    print i,
 
-    print "\n\tRange 1000-ECM:",
-    for i in [364127]:
-        dictionary[i] = 7
-        print i,
+    print "\n\tRange 1000-ECMS:",
+    dictionary[364127] = 7
+    dictionary[364219] = 7
+    print i,
 
 
 
@@ -722,14 +723,14 @@ def generateZpTMapping(dictionary):
         print i,
 
     print "\n\tRange 500-1000:",
-    for i in [364112]:
-        dictionary[i] = 5
-        print i,
+    dictionary[364112] = 5
+    dictionary[364216] = 5
+    print i,
 
-    print "\n\tRange 1000-ECM:",
-    for i in [364113]:
-        dictionary[i] = 7
-        print i,
+    print "\n\tRange 1000-ECMS:",
+    dictionary[364113] = 7
+    dictionary[364217] = 7
+    print i,
 
 
     print "\nAdding Z--> tautau to the dictionary"
@@ -755,20 +756,52 @@ def generateZpTMapping(dictionary):
         print i,
 
     print "\n\tRange 500-1000:",
-    for i in [364140]:
+    dictionary[364140] = 5
+    dictionary[364220] = 5
+    print i,
+
+    print "\n\tRange 1000-ECMS:",
+    dictionary[364141] = 7
+    dictionary[364221] = 7
+    print i,
+
+
+    #NEW ZNUNU
+    print "\nAdding Z--> nunu (2019 PTV filtered samples) to the dictionary"
+
+    print "\tRange 70-100:",
+    for i in [366010,366019,366028]:
+        dictionary[i] = 2
+        print i,
+
+    print "\n\tRange 100-140:",
+    for i in [366011,366012,366013,366020,366021,366022,366029,366030,366031]:
+        dictionary[i] = 2
+        print i,
+
+    print "\n\tRange 140-280:",
+    for i in [366014,366015,366016,366023,366024,366025,366032,366033,366034]:
+        dictionary[i] = 3
+        print i,
+
+    print "\n\tRange 280-500:",
+    for i in [366017,366026,366035]:
+        dictionary[i] = 4
+        print i,
+
+    print "\n\tRange 500-1000:",
+    for i in [364222]:
         dictionary[i] = 5
         print i,
 
-    print "\n\tRange 1000-ECM:",
-    for i in [364141]:
+    print "\n\tRange 1000-ECMS:",
+    for i in [364223]:
         dictionary[i] = 7
         print i,
+    # clear from previous print
+    print ""
 
-
-
-
-    print "\nAdding W+Jets MCIDs for Sherpa 2.2.1"
-    print "Adding W--> enu to the dictionary"
+    print "\nAdding W--> enu to the dictionary"
     print "\tRange 0-70:",
     for i in range(364170, 364173):
         dictionary[i] = 1
@@ -791,14 +824,14 @@ def generateZpTMapping(dictionary):
         print i,
 
     print "\n\tRange 500-1000:",
-    for i in [364182]:
-        dictionary[i] = 5
-        print i,
+    dictionary[364182] = 5
+    dictionary[364226] = 5
+    print i,
 
-    print "\n\tRange 1000-ECM:",
-    for i in [364183]:
-        dictionary[i] = 7
-        print i,
+    print "\n\tRange 1000-ECMS:",
+    dictionary[364183] = 7
+    dictionary[364227] = 7
+    print i,
 
 
 
@@ -825,15 +858,14 @@ def generateZpTMapping(dictionary):
         print i,
 
     print "\n\tRange 500-1000:",
-    for i in [364168]:
-        dictionary[i] = 5
-        print i,
+    dictionary[364168] = 5
+    dictionary[364224] = 5
+    print i,
 
-    print "\n\tRange 1000-ECM:",
-    for i in [364169]:
-        dictionary[i] = 7
-        print i,
-
+    print "\n\tRange 1000-ECMS:",
+    dictionary[364169] = 7
+    dictionary[364225] = 7
+    print i,
 
 
     print "\nAdding W--> taunu to the dictionary"
@@ -859,14 +891,14 @@ def generateZpTMapping(dictionary):
         print i,
 
     print "\n\tRange 500-1000:",
-    for i in [364196]:
-        dictionary[i] = 5
-        print i,
+    dictionary[364196] = 5
+    dictionary[364228] = 5
+    print i,
 
-    print "\n\tRange 1000-ECM:",
-    for i in [364197]:
-        dictionary[i] = 7
-        print i,
+    print "\n\tRange 1000-ECMS:",
+    dictionary[364197] = 7
+    dictionary[364229] = 7
+    print i,
     # clear from previous print
     print ""
 
@@ -944,14 +976,18 @@ def main(infile, weightsFile, treename, attr_mcID, attr_nTruthJets):
                (363364 <= MCID <= 363411) or
                (364114 <= MCID <= 364127) or
                (364100 <= MCID <= 364113) or
-               (364128 <= MCID <= 364141)
+               (364128 <= MCID <= 364141) or
+	       (364216 <= MCID <= 364217) or
+	       (364220 <= MCID <= 364221)
             ):
             decayType = "dilepton"
 
         elif (
                (361444 <= MCID <= 361467) or
                (363412 <= MCID <= 363435) or
-               (364142 <= MCID <= 364155)
+               (364142 <= MCID <= 364155) or
+	       (366010 <= MCID <= 366035) or
+	       (364222 <= MCID <= 364223)
             ):
             decayType = "nolepton"
 
@@ -962,7 +998,10 @@ def main(infile, weightsFile, treename, attr_mcID, attr_nTruthJets):
                (363460 <= MCID <= 363483) or
                (364156 <= MCID <= 364169) or
                (364170 <= MCID <= 364183) or
-               (364184 <= MCID <= 364197)
+               (364184 <= MCID <= 364197) or
+	       (364226 <= MCID <= 364227) or
+               (364224 <= MCID <= 364225) or
+	       (364228 <= MCID <= 364229)
             ):
             decayType = "onelepton"
 

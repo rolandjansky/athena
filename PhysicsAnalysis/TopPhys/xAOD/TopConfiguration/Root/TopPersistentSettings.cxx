@@ -33,6 +33,7 @@ namespace top{
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
     m_useElectronChargeIDSelection(false),
+    m_useEgammaLeakageCorrection(false),
     
     m_fwdElectronID("SetMe"),
 

@@ -48,7 +48,7 @@ StatusCode BoostedTaggingCPTools::initialize() {
   }
   
   
-  top::check(m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ||  m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20",
+  top::check(m_config->sgKeyLargeRJets() == "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ||  m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
     "Error in BoostedTaggingCPTools: boosted jet taggers are not available for this large-R jet collection.");
   
   std::unordered_map<std::string,std::string > taggersConfigs;
@@ -71,7 +71,7 @@ StatusCode BoostedTaggingCPTools::initialize() {
     taggersConfigs["SmoothedWZTagger:SmoothZContained50"] = "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat";
     taggersConfigs["SmoothedWZTagger:SmoothZContained80"] = "SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16d_20190410.dat";
   }
-  else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20") {
+  else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets") {
     
     taggersConfigs["SmoothedWZTagger:SmoothWContained2VarMaxSig"] = "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190410.dat";
     taggersConfigs["SmoothedWZTagger:SmoothZContained2VarMaxSig"] = "SmoothedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190410.dat";

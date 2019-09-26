@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
@@ -189,7 +189,7 @@ StatusCode JetObjectCollectionMaker::initialize() {
   }
   ///-- Large-R JES systematics --///
   if (m_config->useLargeRJets() && m_config->isMC()) { //No JES uncertainties for Data at the moment
-    if(m_config->largeRJESJMSConfig() == "CombMass"){
+    if((m_config->largeRJESJMSConfig() == "CombMass")||(m_config->largeRJESJMSConfig() == "TCCMass")){ //TA mass and combined mass not supported for JMS/JMR for now
       std::string largeR(m_config->largeRJetUncertainties_NPModel()+"_");
       specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR , m_systMap_LargeR , largeR , true);
     }else{
@@ -403,11 +403,22 @@ StatusCode JetObjectCollectionMaker::calibrate(const bool isLargeR) {
 	       "Failed to apply fJVT decoration");
   }
 
-  ///-- Save calibrated jet to TStore --///
-  ///-- set links to original objects- needed for MET calculation --///
-  bool setLinks = xAOD::setOriginalObjectLink( *xaod, *shallow_xaod_copy.first );
-  if (!setLinks)
-    ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle" );
+  if (!isLargeR) {
+    ///-- Save calibrated jet to TStore --///
+    ///-- set links to original objects- needed for MET calculation --///
+    // NOTE, if we use one of the b-tagging re-trained collections, we need to load
+    // the original uncalibrated jet container to which the b-tagging shallow-copy is pointing to
+    const xAOD::JetContainer *xaod_original(nullptr);
+    // for small-R jet collections, set links to uncalibrated *original* jets (not BTagging shallow-copy)
+    if (m_config->sgKeyJets() != m_config->sgKeyJetsType()) {
+      top::check( evtStore()->retrieve(xaod_original, m_config->sgKeyJetsType()), "Failed to retrieve uncalibrated Jets for METMaker!");
+    } else {
+      xaod_original = xaod;
+    }
+    bool setLinks = xAOD::setOriginalObjectLink( *xaod_original, *shallow_xaod_copy.first );
+    if (!setLinks)
+      ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle" );
+  }
 
   ///-- Save corrected xAOD Container to StoreGate / TStore --///
   std::string outputSGKey;
@@ -463,7 +474,15 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<ICPJetUncertaint
 
           ///-- Only large R jets with the following properties can be calibrated.--///
           bool calibratable_jet = (std::fabs(jet->eta()) <= 2.0
-                                   && jet->pt() > 200e3);
+                                   && jet->pt() > 175e3); //lower than 200e3 to allow studying on migration
+          std::string jetCalibrationNameLargeR = m_config->sgKeyLargeRJets();
+          if(jetCalibrationNameLargeR.find("TrackCaloCluster")!=std::string::npos){ //TCC jet
+            calibratable_jet = (jet->m()/jet->pt() <= 1.
+                && jet->m()/jet->pt() >= 0.
+                && std::fabs(jet->eta()) <= 2.0
+                && jet->pt() > 150e3
+                && jet->pt() < 3000e3);
+          }
           if(!calibratable_jet)
             continue;
         }

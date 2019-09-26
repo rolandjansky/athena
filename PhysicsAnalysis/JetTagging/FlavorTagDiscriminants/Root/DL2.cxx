@@ -16,8 +16,7 @@ namespace FlavorTagDiscriminants {
   DL2::DL2(const lwt::GraphConfig& graph_config,
            const std::vector<DL2InputConfig>& inputs,
            const std::vector<DL2TrackSequenceConfig>& track_sequences,
-           FlipTagConfig flipConfig,
-           EDMSchema schema):
+           FlipTagConfig flipConfig):
     m_input_node_name(""),
     m_graph(new lwt::LightweightGraph(graph_config)),
     m_variable_cleaner(nullptr)
@@ -43,11 +42,11 @@ namespace FlavorTagDiscriminants {
     for (const DL2TrackSequenceConfig& track_cfg: track_sequences) {
       TrackSequenceBuilder track_getter(track_cfg.order,
                                         track_cfg.selection,
-                                        schema, flipConfig);
+                                        flipConfig);
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
         track_getter.sequencesFromTracks.push_back(
-          get::seqFromTracks(input_cfg, schema));
+          get::seqFromTracks(input_cfg));
       }
       m_trackSequenceBuilders.push_back(track_getter);
     }
@@ -61,15 +60,9 @@ namespace FlavorTagDiscriminants {
         // for the spring 2019 retraining campaign we're stuck with
         // doubles. Hopefully at some point we can move to using
         // floats.
-        if (schema == EDMSchema::FEB_2019) {
-          SG::AuxElement::Decorator<double> d(name);
-          node.emplace_back(
-            element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
-        } else {
-          SG::AuxElement::Decorator<float> d(name);
-          node.emplace_back(
-            element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
-        }
+        SG::AuxElement::Decorator<double> d(name);
+        node.emplace_back(
+          element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
       }
       m_decorators[node_name] = node;
     }
@@ -114,10 +107,9 @@ namespace FlavorTagDiscriminants {
 
   DL2::TrackSequenceBuilder::TrackSequenceBuilder(SortOrder order,
                                                   TrackSelection selection,
-                                                  EDMSchema schema,
                                                   FlipTagConfig flipcfg):
-    tracksFromJet(order, selection, schema),
-    flipFilter(internal::get::flipFilter(flipcfg, schema))
+    tracksFromJet(order, selection),
+    flipFilter(internal::get::flipFilter(flipcfg))
   {
   }
 
@@ -128,11 +120,10 @@ namespace FlavorTagDiscriminants {
   namespace internal {
 
     // Track Getter Class
-    TracksFromJet::TracksFromJet(SortOrder order, TrackSelection selection,
-                             EDMSchema schema):
+    TracksFromJet::TracksFromJet(SortOrder order, TrackSelection selection):
       m_trackAssociator("BTagTrackToJetAssociator"),
-      m_trackSortVar(get::trackSortVar(order, schema)),
-      m_trackFilter(get::trackFilter(selection, schema))
+      m_trackSortVar(get::trackSortVar(order)),
+      m_trackFilter(get::trackFilter(selection))
     {
     }
     Tracks TracksFromJet::operator()(const xAOD::Jet& jet) const {
@@ -195,10 +186,10 @@ namespace FlavorTagDiscriminants {
 
       // factory for functions which return the sort variable we
       // use to order tracks
-      TrackSortVar trackSortVar(SortOrder order, EDMSchema schema) {
+      TrackSortVar trackSortVar(SortOrder order) {
         typedef xAOD::TrackParticle Tp;
         typedef xAOD::Jet Jet;
-        BTagTrackAugmenter aug(schema);
+        BTagTrackAugmenter aug;
         switch(order) {
         case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
           return [aug](const Tp* tp, const Jet&) {
@@ -218,11 +209,10 @@ namespace FlavorTagDiscriminants {
 
       // factory for functions that return true for tracks we want to
       // use, false for those we don't want
-      TrackFilter trackFilter(TrackSelection selection,
-                              EDMSchema schema) {
+      TrackFilter trackFilter(TrackSelection selection) {
         typedef xAOD::TrackParticle Tp;
         typedef SG::AuxElement AE;
-        BTagTrackAugmenter aug(schema);
+        BTagTrackAugmenter aug;
         AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
         AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
         AE::ConstAccessor<unsigned char> pix_shared("numberOfPixelSharedHits");
@@ -263,12 +253,11 @@ namespace FlavorTagDiscriminants {
 
       // factory for functions that build std::vector objects from
       // track sequences
-      SeqFromTracks seqFromTracks(const DL2TrackInputConfig& cfg,
-                                  EDMSchema s) {
+      SeqFromTracks seqFromTracks(const DL2TrackInputConfig& cfg) {
         switch (cfg.type) {
         case EDMType::FLOAT: return SequenceGetter<float>(cfg.name);
         case EDMType::UCHAR: return SequenceGetter<unsigned char>(cfg.name);
-        case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name, s);
+        case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name);
         default: {
           throw std::logic_error("Unknown EDM type");
         }
@@ -295,9 +284,9 @@ namespace FlavorTagDiscriminants {
       }
 
       // factory function
-      TrackSequenceFilter flipFilter(FlipTagConfig cfg, EDMSchema schema) {
+      TrackSequenceFilter flipFilter(FlipTagConfig cfg) {
         namespace ph = std::placeholders;  // for _1, _2, _3
-        BTagTrackAugmenter aug(schema);
+        BTagTrackAugmenter aug;
         switch(cfg) {
         case FlipTagConfig::NEGATIVE_IP_ONLY:
           // flips order and removes tracks with negative IP

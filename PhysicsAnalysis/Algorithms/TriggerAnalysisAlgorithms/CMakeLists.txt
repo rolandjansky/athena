@@ -37,24 +37,24 @@ atlas_install_scripts( share/*_eljob.py )
 if( XAOD_STANDALONE )
   atlas_add_test( TriggerAlgorithmsTestJobData
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type data --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( TriggerAlgorithmsTestJobFullSim
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type mc --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( TriggerAlgorithmsTestJobFastSim
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type afii --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( TriggerAlgorithmsTestJobData
       SCRIPT athena.py
              TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type data
-      PROPERTIES TIMEOUT 300 )
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( TriggerAlgorithmsTestJobFullSim
       SCRIPT athena.py
              TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type mc
-      PROPERTIES TIMEOUT 300 )
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( TriggerAlgorithmsTestJobFastSim
       SCRIPT athena.py
              TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type afii
-      PROPERTIES TIMEOUT 300 )
+      PROPERTIES TIMEOUT 600 )
 endif()

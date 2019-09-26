@@ -132,8 +132,9 @@ FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Seq
 # Truth collections
 #====================================================================
 if (DerivationFrameworkIsMonteCarlo):
-   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks
    addStandardTruthContents()
+   addMiniTruthCollectionLinks()
 
 #====================================================================
 # CONTENTS   
@@ -204,6 +205,9 @@ PHYS2SlimmingHelper.AllVariables = ["MET_Truth",
                                    "TruthWbosonWithDecayVertices"]
 
 PHYS2SlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
+                                     "Electrons.TruthLink",
+                                     "Muons.TruthLink",
+                                     "Photons.TruthLink",
                                      "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection",
                                      "AntiKt2PV0TrackJets.pt.eta.phi.m",
                                      "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",

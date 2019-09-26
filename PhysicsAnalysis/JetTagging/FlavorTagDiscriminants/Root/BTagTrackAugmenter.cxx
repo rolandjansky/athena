@@ -7,13 +7,13 @@
 #include <cmath>
 #include <cstddef>
 
-BTagTrackAugmenter::BTagTrackAugmenter(FlavorTagDiscriminants::EDMSchema s):
-  m_ip_d0("btag_ip_d0"),
-  m_ip_z0("btag_ip_z0"),
-  m_ip_d0_sigma("btag_ip_d0_sigma"),
-  m_ip_z0_sigma("btag_ip_z0_sigma"),
-  m_track_displacement("btag_track_displacement"),
-  m_track_momentum("btag_track_momentum"),
+BTagTrackAugmenter::BTagTrackAugmenter():
+  m_ip_d0("btagIp_d0"),
+  m_ip_z0("btagIp_z0SinTheta"),
+  m_ip_d0_sigma("btagIp_d0Uncertainty"),
+  m_ip_z0_sigma("btagIp_z0SinThetaUncertainty"),
+  m_track_displacement("btagIp_trackDisplacement"),
+  m_track_momentum("btagIp_trackMomentum"),
   m_ip2d_trackParticleLinks("IP2D_TrackParticleLinks"),
   m_ip3d_trackParticleLinks("IP3D_TrackParticleLinks"),
   m_ip2d_gradeOfTracks("IP2D_gradeOfTracks"),
@@ -26,17 +26,6 @@ BTagTrackAugmenter::BTagTrackAugmenter(FlavorTagDiscriminants::EDMSchema s):
   m_ip2d_grade("IP2D_grade"),
   m_ip3d_grade("IP3D_grade")
 {
-  using namespace FlavorTagDiscriminants;
-  typedef SG::AuxElement::ConstAccessor<float> AEF;
-  typedef SG::AuxElement::ConstAccessor<std::vector<float>> AEVF;
-  if (s != EDMSchema::WINTER_2018) {
-    m_ip_d0 = AEF("btagIp_d0");
-    m_ip_d0_sigma = AEF("btagIp_d0Uncertainty");
-    m_ip_z0 = AEF("btagIp_z0SinTheta");
-    m_ip_z0_sigma = AEF("btagIp_z0SinThetaUncertainty");
-    m_track_displacement = AEVF("btagIp_trackDisplacement");
-    m_track_momentum = AEVF("btagIp_trackMomentum");
-  }
 }
 
 namespace {

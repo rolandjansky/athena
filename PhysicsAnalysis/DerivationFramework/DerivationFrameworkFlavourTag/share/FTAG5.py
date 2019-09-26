@@ -34,6 +34,8 @@ from DerivationFrameworkFlavourTag.HbbCommon import (
     buildVRJets, linkPseudoJetGettersToExistingJetCollection,
     addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
+from DerivationFrameworkMCTruth.MCTruthCommon import (
+    addTruth3ContentToSlimmerTool)
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
 from FlavorTagDiscriminants.discriminants import complex_jet_discriminants
@@ -226,18 +228,6 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR2
 #==================================================================
 
 FTAG5Seq += CfgMgr.BTagVertexAugmenter()
-FTAG5Seq += CfgMgr.BTagTrackAugmenter(
-    "BTagTrackAugmenter",
-    OutputLevel=INFO,
-    TrackToVertexIPEstimator = FTAG5IPETool,
-    SaveTrackVectors = True,
-)
-
-for jc in FTAG5BTaggedJets:
-    FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
-           "FTAG5JetAugmenter_"+jc,
-           JetCollectionName=jc
-    )
 
 #================================================================
 # Add Hbb tagger
@@ -289,7 +279,7 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
-    "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+    "InDetTrackParticles.btagIp_d0.btagIp_z0SinTheta.btagIp_d0Uncertainty.btagIp_z0SinThetaUncertainty.btagIp_trackDisplacement.btagIp_trackMomentum",
     "TrackCaloClustersCombinedAndNeutral.m.pt.phi.eta.taste.trackParticleLink.DetectorEta.iparticleLinks"
 ]
 FTAG5SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
@@ -328,5 +318,8 @@ FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False
 FTAG5SlimmingHelper.IncludeJetTriggerContent = False
 FTAG5SlimmingHelper.IncludeEtMissTriggerContent = False
 FTAG5SlimmingHelper.IncludeBJetTriggerContent = False
+
+# Add truth3
+addTruth3ContentToSlimmerTool(FTAG5SlimmingHelper)
 
 FTAG5SlimmingHelper.AppendContentToStream(FTAG5Stream)

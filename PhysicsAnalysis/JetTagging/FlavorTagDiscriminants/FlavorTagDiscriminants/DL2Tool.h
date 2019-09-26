@@ -15,7 +15,6 @@ namespace FlavorTagDiscriminants {
 
   struct DL2Properties {
     std::string nnFile;
-    std::string schema;
     std::string flipTagConfig;
   };
 

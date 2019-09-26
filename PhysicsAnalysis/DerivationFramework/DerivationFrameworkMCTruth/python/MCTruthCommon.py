@@ -542,3 +542,25 @@ def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, d
         aug_tools += [ muon_relink ]
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("MiniCollectionTruthLinkKernel",
                                                           AugmentationTools = aug_tools )
+
+
+def addTruth3ContentToSlimmerTool(slimmer):
+    slimmer.AllVariables += [
+        "MET_Truth",
+        "MET_TruthRegions",
+        "TruthElectrons",
+        "TruthMuons",
+        "TruthPhotons",
+        "TruthTaus",
+        "TruthNeutrinos",
+        "TruthBSM",
+        "TruthBottom",
+        "TruthTop",
+        "TruthBoson",
+        "TruthWbosonWithDecayParticles",
+        "TruthWbosonWithDecayVertices",
+    ]
+    slimmer.ExtraVariables += [
+        "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
+        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
+        "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]

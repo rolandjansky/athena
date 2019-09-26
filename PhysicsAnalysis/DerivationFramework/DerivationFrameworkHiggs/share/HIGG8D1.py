@@ -264,6 +264,16 @@ HIGG8D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
 ToolSvc += HIGG8D1ElectronTPThinningTool
 thinningTools.append(HIGG8D1ElectronTPThinningTool)
 
+StoreAdditionalAmbiguityContent = True
+if StoreAdditionalAmbiguityContent:
+    HIGG8D1ElectronAddTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "HIGG8D1ElectronAddTPThinningTool",
+                                                                                        ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                                        SGKey                   = "Electrons",
+                                                                                        SelectionString         = "Electrons.DFCommonAddAmbiguity >= 0",
+                                                                                        ConeSize                = 0.3)
+    ToolSvc += HIGG8D1ElectronAddTPThinningTool
+    thinningTools.append(HIGG8D1ElectronAddTPThinningTool)
+
 # Tracks associated with Taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG8D1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "HIGG8D1TauTPThinningTool",
@@ -474,11 +484,11 @@ HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
                                           "BTagging_AntiKt4EMTopo_201810",
-																					"BTagging_AntiKt4EMPFlow_201810",
-																					"BTagging_AntiKt4EMPFlow_201903",
-																					"AntiKt4EMPFlowJets_BTagging201810",
-																					"AntiKt4EMPFlowJets_BTagging201903",
-																					"AntiKt4EMTopoJets_BTagging201810",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
+                                          "AntiKt4EMPFlowJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "AntiKt4EMTopoJets_BTagging201810",
                                           "InDetTrackParticles",
                                           "PrimaryVertices",
                                           "AntiKt4EMPFlowJets"]
@@ -503,7 +513,8 @@ HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.ext
 #Adding Egamma details
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG8D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
-
+if StoreAdditionalAmbiguityContent:
+		HIGG8D1SlimmingHelper.ExtraVariables += ElectronsAddAmbiguityContent
 
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
@@ -522,6 +533,7 @@ ExtraContentTaus=[
         "ele_match_lhscore." 
         "ele_olr_pass."
         "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
+				"jetLink.TrackWidthPt1000.TrackWidthPt500"
         #,
         #"TauNeutralParticleFlowObjects."
         #"pt."

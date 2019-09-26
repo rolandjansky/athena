@@ -59,6 +59,7 @@ namespace top{
       std::string m_electronIsolation;
       std::string m_electronIsolationLoose;
       bool m_useElectronChargeIDSelection;
+      bool m_useEgammaLeakageCorrection;
       
       std::string m_fwdElectronID;
 

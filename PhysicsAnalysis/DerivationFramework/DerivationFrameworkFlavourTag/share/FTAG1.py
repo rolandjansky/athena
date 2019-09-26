@@ -89,15 +89,6 @@ FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
 ToolSvc += FTAG1IPETool
 print FTAG1IPETool
 
-#augment jets with track info
-FTAG1Seq += CfgMgr.BTagVertexAugmenter()
-FTAG1Seq += CfgMgr.BTagTrackAugmenter(
-    "BTagTrackAugmenter",
-    OutputLevel=INFO,
-    TrackToVertexIPEstimator = FTAG1IPETool,
-    SaveTrackVectors = True,
-)
-
 #====================================================================
 # Basic Jet Collections
 #====================================================================
@@ -139,7 +130,11 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR2
 #==============================================================================
 # Soft Tagging
 #==============================================================================
+from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import BTagVertexAugmenter
 from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
+
+FTAG1Seq += BTagVertexAugmenter("BTagVertexAugmenter")
+
 
 # used by Loose and Medium
 SoftBJetSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetSVFinder")
@@ -298,7 +293,7 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits",
                                        "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit",
                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
-                                       "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+                                       "InDetTrackParticles.btagIp_d0.btagIp_z0SinTheta.btagIp_d0Uncertainty.btagIp_z0SinThetaUncertainty.btagIp_trackDisplacement.btagIp_trackMomentum",
                                        "PrimaryVertices.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights",
                                        "CombinedMuonTrackParticles.vx.vy.vz",
                                        "ExtrapolatedMuonTrackParticles.vx.vy.vz",
@@ -308,7 +303,6 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt10LCTopoJets.GhostAntiKt2TrackJet.GhostAntiKt2TrackJetPt.GhostAntiKt2TrackJetCount",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag.GhostVR30Rmax4Rmin02TrackJetGhostTagPt.GhostVR30Rmax4Rmin02TrackJetGhostTagCount",
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlow_201810SecVtx.-vxTrackAtVertex",
