@@ -66,7 +66,7 @@ std::string DijetDPhiConditionMT::toString() const noexcept {
   std::stringstream ss;
   const void* address = static_cast<const void*>(this);
   
-  ss << "DijetDPhiConditionMT: " << address << " "
+  ss << "DijetDPhiConditionMT: (" << address << ") Capacity: " << s_capacity
      << " dPhi min: " << m_min << " dPhi max: " << m_max <<'\n';
   
   return ss.str();

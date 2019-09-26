@@ -102,7 +102,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
 
     # controls whether debug visitor is sent to helper tool
-    debug = False
+    debug = True
     tool.visit_debug = debug
     
     log.info('%s', tool)

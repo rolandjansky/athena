@@ -64,9 +64,9 @@ std::string DijetDEtaConditionMT::toString() const noexcept {
 
   std::stringstream ss;
   const void* address = static_cast<const void*>(this);
-  ss << "DijetDEtaConditionMT: " << address << " "
-    
-     << " dEta min: " << m_min << " dEta max: "  << m_max <<'\n';
+  ss << "DijetDEtaConditionMT: (" << address << ") Capacity: " << s_capacity
+     << " dEta min: " << m_min
+     << " dEta max: "  << m_max <<'\n';
   
   return ss.str();
 }

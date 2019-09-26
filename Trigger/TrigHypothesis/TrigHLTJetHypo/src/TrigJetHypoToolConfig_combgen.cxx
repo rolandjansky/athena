@@ -15,8 +15,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 #include "./CombinationsGroupsToHelpersMatcherMT.h"
-#include "./svec2dvec.h"
-
+#include <iostream>
 TrigJetHypoToolConfig_combgen::TrigJetHypoToolConfig_combgen(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent) :
@@ -32,9 +31,17 @@ StatusCode TrigJetHypoToolConfig_combgen::initialize() {
   CHECK(checkVals());
   
   auto mult = (*m_children.begin()) -> requiresNJets();
+ 
   for (const auto& c : m_children){
+    std::cout << name() <<" Children require differing number of jets:"
+	      << c->requiresNJets()<< '\n' << "Child name: "
+	      << c->name() << '\n';
+			      
     if(c->requiresNJets() != mult){
-      ATH_MSG_ERROR("Children require differing number of jets:");
+      ATH_MSG_ERROR(name() << " Children require differing number of jets:");
+      ATH_MSG_ERROR(" First child name: " << (*m_children.begin()) -> name());
+      ATH_MSG_ERROR(" Differing mult child name: " <<(c -> name()));
+	
       return StatusCode::FAILURE;
     }
   }

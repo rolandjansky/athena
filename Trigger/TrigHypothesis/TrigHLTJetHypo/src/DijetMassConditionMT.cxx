@@ -64,9 +64,10 @@ std::string DijetMassConditionMT::toString() const noexcept {
 
   std::stringstream ss;
   const void* address = static_cast<const void*>(this);
-  ss << "DijetMassConditionMT: " << address << " "
+  ss << "DijetMassConditionMT: (" << address << ") Capacity: " << s_capacity
     
-     << " mass min: " << m_min << " mass max: " << m_max <<'\n';
+     << " mass min: " << m_min
+     << " mass max: " << m_max <<'\n';
   
   return ss.str();
 }

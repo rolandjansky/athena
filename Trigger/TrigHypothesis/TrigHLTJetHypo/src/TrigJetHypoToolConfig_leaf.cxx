@@ -17,6 +17,7 @@
 #include "./conditionsFactoryMT.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
@@ -25,6 +26,8 @@
 #include "./svec2dvec.h"
 
 #include "DecisionHandling/TrigCompositeUtils.h"
+
+#include <iostream>
 
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
@@ -60,6 +63,8 @@ TrigJetHypoToolConfig_leaf::getConditions() const {
   for(const auto& cm : m_conditionMakers) {
     compoundConditions.push_back(cm->getCondition());
   }
+  std::cout<<name() << ":getConditions. No of conditions: "
+	   << compoundConditions.size() << '\n';
   
   return std::make_optional<ConditionsMT>(std::move(compoundConditions));
 }
@@ -79,7 +84,21 @@ TrigJetHypoToolConfig_leaf::requiresNJets() const {
  
 std::unique_ptr<IJetGrouper>
 TrigJetHypoToolConfig_leaf::getJetGrouper() const {
-  return std::make_unique<SingleJetGrouper>();
+
+  auto opt_conds = getConditions();
+
+  if(!opt_conds.has_value()){
+    return std::unique_ptr<IJetGrouper>(nullptr);
+  }
+
+  const auto& f_cond =  (*opt_conds).front();
+  auto f_capacity = f_cond->capacity();
+  
+  if(f_capacity == 1){
+    return std::make_unique<SingleJetGrouper>();
+  } else {
+    return std::make_unique<CombinationsGrouper>(f_capacity);
+  }  
 }
 
 std::unique_ptr<IGroupsMatcherMT>
@@ -90,7 +109,7 @@ TrigJetHypoToolConfig_leaf::getMatcher () const {
   if(!opt_conds.has_value()){
     return std::unique_ptr<IGroupsMatcherMT>(nullptr);
   }
-  
+
   return groupsMatcherFactoryMT_MaxBipartite(std::move(*opt_conds));
 }
 

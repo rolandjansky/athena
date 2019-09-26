@@ -14,8 +14,11 @@ CompoundConditionMT::CompoundConditionMT(std::vector<ConditionMT>& elements){
 
   for(auto& el : elements){m_elements.push_back(std::move(el));}
   unsigned int capacity{0};
-  for(const auto& el : m_elements){
-    capacity += el->capacity();
+
+  // mis-configuration of elemental Conditions with differing capacities
+  // not caught...
+  if(!m_elements.empty()){
+    capacity = (m_elements.front())->capacity();
   }
   m_capacity = capacity;
 }
@@ -52,7 +55,7 @@ bool CompoundConditionMT::isSatisfied(const HypoJetVector& ips,
 
 std::string CompoundConditionMT::toString() const noexcept {
   std::stringstream ss;
-  ss << "CompoundConditionMT (" << this << ") \n";
+  ss << "CompoundConditionMT (" << this << ") Capacity: " << m_capacity << '\n';
   for(const auto& el :m_elements){
     ss << el->toString() + '\n';
   }

@@ -367,7 +367,7 @@ def _tests():
     print('\n--------- _tests() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from .ChainLabelParser import ChainLabelParser
+    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 
     chain_names = (
         'HLT_j85_L1J20',
@@ -400,7 +400,7 @@ def _tests1():
     print('\n--------- _tests1() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from .ChainLabelParser import ChainLabelParser
+    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()
@@ -422,7 +422,7 @@ def _tests2():
     print('\n--------- _tests2() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from .ChainLabelParser import ChainLabelParser
+    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()

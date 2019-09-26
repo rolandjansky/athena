@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #
-#include "./EtaConditionAbsMT.h"
+#include "./SMCConditionMT.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 
@@ -10,30 +10,30 @@
 #include <cmath>
 #include <TLorentzVector.h>
 
-EtaConditionAbsMT::EtaConditionAbsMT(double etaMin,
-				     double etaMax):
-m_min(etaMin), m_max(etaMax){
+SMCConditionMT::SMCConditionMT(double massMin,
+			       double massMax):
+m_min(massMin), m_max(massMax){
 }
 
 
 bool
-EtaConditionAbsMT::isSatisfied(const pHypoJet& ip,
+SMCConditionMT::isSatisfied(const pHypoJet& ip,
 			       const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   
-  auto abseta = std::abs(ip->eta());
-  bool pass = m_min <= abseta and m_max > abseta;
+  auto mass = std::abs(ip->m());
+  bool pass = m_min <= mass and m_max > mass;
     
   if(collector){
     const void* address = static_cast<const void*>(this);
 
     std::stringstream ss0;
-    ss0 << "EtaCondition: (" << address << ") " 
-        << " eta[" << m_min << ", " << m_max << "]" 
+    ss0 << "SMCCondition: (" << address << ") " 
+        << " mass[" << m_min << ", " << m_max << "]" 
         << " pass: "  << std::boolalpha << pass << '\n';
 
     auto j_addr = static_cast<const void*>(ip);
     std::stringstream ss1;
-    ss1 <<  "     jet : ("<< j_addr << ") abseta " << abseta << '\n';
+    ss1 <<  "     jet : ("<< j_addr << ") jet mass " << mass << '\n';
 
     collector->collect(ss0.str(), ss1.str());
 
@@ -43,18 +43,19 @@ EtaConditionAbsMT::isSatisfied(const pHypoJet& ip,
 
 
 bool 
-EtaConditionAbsMT::isSatisfied(const HypoJetVector& ips,
+SMCConditionMT::isSatisfied(const HypoJetVector& ips,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>& c) const {
   auto result =  isSatisfied(ips[0], c);
   return result;
 }
 
 
-std::string EtaConditionAbsMT::toString() const noexcept {
+std::string SMCConditionMT::toString() const noexcept {
   std::stringstream ss;
-  ss << "EtaConditionAbsMT (" << this << ") Capacity: " << s_capacity
-     << " etaMin "<<  m_min 
-     << " etaMax " << m_max 
+  ss << "SMCConditionMT (" << this << ") mass min "
+     <<  m_min 
+     << " mass max " 
+     << m_max 
        <<'\n';
 
   return ss.str();

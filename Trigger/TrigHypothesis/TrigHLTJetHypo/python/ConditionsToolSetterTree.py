@@ -11,6 +11,8 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetConditionConfig_dijet_mass,
     TrigJetConditionConfig_dijet_deta,
     TrigJetConditionConfig_dijet_dphi,
+    TrigJetConditionConfig_moment,
+    TrigJetConditionConfig_smc,
     TrigJetHypoToolConfig_flownetwork,
     TrigJetHypoToolHelperMT,
     TrigJetConditionConfig_compound,
@@ -45,6 +47,8 @@ class ConditionsToolSetterTree(object):
             'djmass': [TrigJetConditionConfig_dijet_mass, 0],
             'djdphi': [TrigJetConditionConfig_dijet_dphi, 0],
             'djdeta': [TrigJetConditionConfig_dijet_deta, 0],
+            'momwidth': [TrigJetConditionConfig_moment, 0],
+            'smc': [TrigJetConditionConfig_smc, 0],
             'compound': [TrigJetConditionConfig_compound, 0],
             'leaf': [TrigJetHypoToolConfig_leaf, 0],
             'flownetwork': [TrigJetHypoToolConfig_flownetwork, 0],
@@ -168,14 +172,24 @@ class ConditionsToolSetterTree(object):
         return tool
 
     def _make_compound_condition_tools(self, node):
-        
-        compound_condition_tools = []  # compound  condition makers
+
+        #  compound_condition_tools:
+        # elemental condition maker AlgToolshelper by the compound condition
+        # AlgTool
+        compound_condition_tools = []  
         for c in node.conf_attrs: # loop over conditions
             condition_tools = [] # elemental conditions for this compounnd ct.
             for k, v in c.items(): # loop over elemental conditions
                 condition_tool = self._get_tool_instance(k)
                 for lim, val in v.items():  # lim: min, max
                     setattr(condition_tool, lim, val)
+
+                # SPECIAL CASE: Moment tool needs the name of the
+                # moment as well as the min. max cuts:
+                if (k.startswith ('mom')):
+                    condition_tool.moment = k[len('mom'):]                    
+                # END SPECIAL CASE
+
                 condition_tools.append(condition_tool)
 
             # create compound condition from elemental condition

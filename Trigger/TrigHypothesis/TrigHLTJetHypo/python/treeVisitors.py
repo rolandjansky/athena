@@ -28,11 +28,18 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'djdetahi': 'inf',
                 'djdphilo': '0.',
                 'djdphihi': 'inf',
+                'momwidthlo': '-inf',
+                'momwidthhi': 'inf',
+                'smclo': '0',
+                'smchi': 'inf',                
     }
 
     if parameter not in  defaults:
-        print ('defaultParameters: unknown parameter ', parameter)
+        print ('defaultParameters: unknown parameter, tryurning default ',
+               parameter)
+
     return defaults.get(parameter, default)
+
 
 def scaleFactors(parameter):
     defaults = {
@@ -44,6 +51,7 @@ def scaleFactors(parameter):
         'djdeta': 0.1,
         'djmass': 1000.,
         'djdphi': 0.1,
+        'momwidth': 1.0,
     }
     return defaults[parameter]
         
