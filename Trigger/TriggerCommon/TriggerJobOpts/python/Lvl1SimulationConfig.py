@@ -31,7 +31,7 @@ def Lvl1SimulationSequence( flags = None ):
     svcMgr.LVL1ConfigSvc.InputType = "file"
     l1JsonFile = TriggerFlags.inputLVL1configFile().replace(".xml",".json")
     svcMgr.LVL1ConfigSvc.JsonFileName = l1JsonFile
-    log.info("Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s" % l1JsonFile)
+    log.info("Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFile)
 
     # L1 menu provider Run 3
     from TrigConfIO.TrigConfCondSetup import setupMenuProvider
