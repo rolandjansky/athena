@@ -10,8 +10,6 @@
 #include <algorithm>
 #include <limits>
 
-#include <iostream>
-
 class ArgStrToDouble {
  public:
 
@@ -23,7 +21,6 @@ class ArgStrToDouble {
     else if (std::find(m_neginf.begin(), m_neginf.end(), s) != m_neginf.end()){
       val = std::numeric_limits<double>::min();}
     else {
-      std::cout <<"ArgStrToDouble: " << s << '\n';
       val = std::stod(s);
     }
     
