@@ -40,7 +40,14 @@ def checkSetting(key_,value_,mydict_):
     for k in mydict_:
         mydict[totallyStripped(k)]=totallyStripped(mydict_[k])
     return key in mydict and mydict[key]==value
-    
+
+def checkSettingIsTrue(key_,mydict_):
+    key=totallyStripped(key_)
+    mydict={}
+    for k in mydict_:
+        mydict[totallyStripped(k)]=totallyStripped(mydict_[k])
+    return key in mydict and mydict[key] in ['t','true']
+
 def checkSettingExists(key_,mydict_):
     key=totallyStripped(key_)
     keys=[]
