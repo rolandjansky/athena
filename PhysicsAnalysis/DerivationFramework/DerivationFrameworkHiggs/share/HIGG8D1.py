@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkHiggs.TruthCategories import *
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -533,7 +534,8 @@ ExtraContentTaus=[
         "ele_match_lhscore." 
         "ele_olr_pass."
         "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
-				"jetLink.TrackWidthPt1000.TrackWidthPt500"
+				"jetLink.seedTrackWidthPt500.seedTrackWidthPt1000."
+				#"jetLink.TrackWidthPt1000.TrackWidthPt500"
         #,
         #"TauNeutralParticleFlowObjects."
         #"pt."
