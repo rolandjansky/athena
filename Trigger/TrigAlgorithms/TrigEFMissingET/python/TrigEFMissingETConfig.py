@@ -1,21 +1,15 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingET
+from TrigEFMissingET.TrigEFMissingETConf import (
+        HLT__MET__TCFex, HLT__MET__MHTFex, HLT__MET__TrkMHTFex,
+        HLT__MET__TrkTCFex, HLT__MET__CellFex, HLT__MET__TCPufitFex,
+        HLT__MET__TCPufitTrkFex, HLT__MET__CellPufitFex,
+        HLT__MET__TCPuetaFex, HLT__MET__MuonFex)
+from TrigEFMissingET.TrigEFMissingETMonitoring import add_monitor
 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromFEBHeader
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromCells
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClusters
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPS
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPUC
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromCellsPUC
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersTracksPUC
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromJets
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromTrackAndJets
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromTrackAndClusters 
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFlags
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromHelper
+from JetRecTools.JetRecToolsConf import (
+        SoftKillerWeightTool, VoronoiWeightTool)
 
-# Import CaloNoiseToolDefault for EFMissingETFromCells
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool=CaloNoiseToolDefault()
 from AthenaCommon.AppMgr import ToolSvc
@@ -24,2267 +18,285 @@ ToolSvc+=theCaloNoiseTool
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.SystemOfUnits import nanosecond
+from AthenaCommon.Configurable import Configurable
+
+from TriggerMenu.menu.SignatureDicts import METChainParts_Default
+default_cluster_calib = METChainParts_Default["calib"]
+default_jet_calib = METChainParts_Default["jetCalib"]
+default_do_FTK = "FTK" in METChainParts_Default["addInfo"]
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+import logging
+log = logging.getLogger(__name__)
 
-class EFMissingETBase (EFMissingET):
+# A note on default names.
+# There are few cases here where we want to delegate the responsibility of each
+# FEX config to set the default name (e.g. if it depends on some calibration
+# level). This is a little bit tricky with the way that athena assigns
+# configurables. Two configurables with the same name are the *same* thing so
+# the __new__ function will just return the same instance (without calling
+# __init__ on it) if it sees the same name. This means that we need to override
+# __new__ in these cases.
+# Otherwise the default name is worked out from the default in the __init__
+# call. If this is not set then it uses the getType function. This doesn't play
+# nicely with the monitoring classes that try to use their parent's name as a
+# folder name (ROOT folders don't like to have colons in them).
+
+class EFMissingET_Fex_2sidednoiseSupp(HLT__MET__CellFex):
     __slots__ = []
-    def __init__(self, name):
-        super( EFMissingETBase, self ).__init__(name)
-
-
-
-##### loop over cells, no noise suppression #####
-class EFMissingET_Fex_allCells (EFMissingETBase):
-    __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_allCells"):
-        super(EFMissingET_Fex_allCells, self).__init__(name)
-
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET"
-
-        # tools
-        febTool =    EFMissingETFromFEBHeader("TheFEBTool")
-        cellTool =   EFMissingETFromCells("TheCellTool")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        cellTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
-        cellTool.CaloNoiseTool=theCaloNoiseTool
-        cellTool.DoCellNoiseSuppression = False
-
-        #### settings for robustness checks:
-        # |energy| thresholds to make cell-level robustness checks = 2 rms
-        cellTool.MinCellSNratio = []
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplB, EMB1, EMB2, EMB3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplE, EME1, EME2, EME3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # HEC0, HEC1, HEC2, HEC3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileBar0, TileBar1, TileBar2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileGap0, TileGap1, TileGap2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileExt0, TileExt1, TileExt2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # FCalEM, FCalHad1, FCalHad2
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-#        self.Tools += [ febTool ]
-        self.Tools += [ cellTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]       
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]      
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
-
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
-        validation = TrigEFMissingETValidationMonitoring_other()
-        online = TrigEFMissingETOnlineMonitoring_other()
-        cosmic = TrigEFMissingETCosmicMonitoring_other()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-
-
-##### loop over cells with noise suppression #####
-class EFMissingET_Fex_noiseSupp (EFMissingETBase):
-    __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_noiseSupp"):
-        super(EFMissingET_Fex_noiseSupp, self).__init__(name)
-
-        # name of TrigMissingET object
-        #self.MissingETOutputKey = "TrigEFMissingET_noiseSupp"
-        # Use the following if not run together with 2-sided
-        self.MissingETOutputKey = "TrigEFMissingET"
-
-        # tools
-        febTool =    EFMissingETFromFEBHeader("TheFEBTool")
-        cellTool =   EFMissingETFromCells("TheCellTool")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        cellTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
-        cellTool.CaloNoiseTool=theCaloNoiseTool
-        cellTool.DoCellNoiseSuppression = True
-
-        #### settings for robustness checks:
-        # |energy| thresholds to make cell-level robustness checks = 2 rms
-        cellTool.MinCellSNratio = []
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplB, EMB1, EMB2, EMB3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplE, EME1, EME2, EME3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # HEC0, HEC1, HEC2, HEC3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileBar0, TileBar1, TileBar2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileGap0, TileGap1, TileGap2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileExt0, TileExt1, TileExt2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # FCalEM, FCalHad1, FCalHad2
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-#        self.Tools += [ febTool ]
-        self.Tools += [ cellTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]   
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]        
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
-
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
-        validation = TrigEFMissingETValidationMonitoring_other()
-        online = TrigEFMissingETOnlineMonitoring_other()
-        cosmic = TrigEFMissingETCosmicMonitoring_other()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-
-
-##### loop over cells with noise suppression #####
-class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
-    __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_2sidednoiseSupp"):
+    components = ["PreSamplerB", "EMB1", "EMB2", "EMB3",    # LAr barrel
+                  "PreSamplerE", "EME1", "EME2", "EME3",    # LAr EM endcap 
+                  "HEC0",        "HEC1", "HEC2", "HEC3",    # Hadronic end cap cal.
+                  "TileBar0",    "TileBar1", "TileBar2",    # Tile barrel
+                  "TileGap1",    "TileGap2", "TileGap3",    # Tile gap (ITC & scint)
+                  "TileExt0",    "TileExt1", "TileExt2",    # Tile extended barrel
+                  "FCAL0",       "FCAL1",    "FCAL2",       # Forward cal endcap
+                 ]
+    def __init__(self, name = "EFMissingET_Fex_2sidednoiseSupp"):
         super(EFMissingET_Fex_2sidednoiseSupp, self).__init__(name)
-
-        # name of TrigMissingET object
         self.MissingETOutputKey = "TrigEFMissingET"
+        self.CaloNoiseTool = theCaloNoiseTool
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"], self.components)
 
-        # tools
-        febTool =    EFMissingETFromFEBHeader("TheFEBTool")
-        cellTool =   EFMissingETFromCells("TheCellTool")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        cellTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
-        cellTool.CaloNoiseTool=theCaloNoiseTool
-        cellTool.DoCellNoiseSuppression = True
-        cellTool.CaloNoiseOneSidedCut = -5.0
+    def request_inputs(self):
+        return []
 
-        #### settings for robustness checks:
-        # |energy| thresholds to make cell-level robustness checks = 2 rms
-        cellTool.MinCellSNratio = []
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplB, EMB1, EMB2, EMB3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplE, EME1, EME2, EME3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # HEC0, HEC1, HEC2, HEC3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileBar0, TileBar1, TileBar2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileGap0, TileGap1, TileGap2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileExt0, TileExt1, TileExt2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # FCalEM, FCalHad1, FCalHad2
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-#        self.Tools += [ febTool ]
-        self.Tools += [ cellTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]     
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring, TrigEFMissingETOnlineMonitoring, TrigEFMissingETCosmicMonitoring
-        validation = TrigEFMissingETValidationMonitoring()
-        online = TrigEFMissingETOnlineMonitoring()
-        cosmic = TrigEFMissingETCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("EFMissingET_Time")
-        time.TimerHistLimits = [0, 250]
-
-        self.AthenaMonTools = [ validation, online, cosmic, time]
-
-
-
-
-##### loop over cells with noise suppression #####
-class EFMissingET_Fex_2sidednoiseSuppPUC (EFMissingETBase):
+class EFMissingET_Fex_2sidednoiseSuppPUC(HLT__MET__CellPufitFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_2sidednoiseSuppPUC"):
+    def __init__(self, name = "EFMissingET_Fex_2sidednoiseSuppPUC"):
         super(EFMissingET_Fex_2sidednoiseSuppPUC, self).__init__(name)
 
-        # name of TrigMissingET object
         self.MissingETOutputKey = "TrigEFMissingET_cell_PUC"
-        self.doPUC = True
+        self.CaloNoiseTool = theCaloNoiseTool
 
-        # tools
-        febTool =    EFMissingETFromFEBHeader("TheFEBTool")
-        cellTool =   EFMissingETFromCellsPUC("TheCellToolPUC")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        cellTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
-        cellTool.CaloNoiseTool=theCaloNoiseTool
-        cellTool.DoCellNoiseSuppression = True
-        cellTool.CaloNoiseOneSidedCut = -5.0
-        #
-        cellTool.SubtractPileup = True
-        cellTool.nSigma = 5.0
-        cellTool.varRhoScale = 1.0
-        cellTool.aveEclusPU = 10000.0
-        cellTool.towerWidthInput = 0.7
-        cellTool.EtaRange = 5.0
-        cellTool.resE = 15.81
-        cellTool.resEfloor = 50.0
-        cellTool.trimFactor = 0.90
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        #### settings for robustness checks:
-        # |energy| thresholds to make cell-level robustness checks = 2 rms
-        cellTool.MinCellSNratio = []
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplB, EMB1, EMB2, EMB3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplE, EME1, EME2, EME3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # HEC0, HEC1, HEC2, HEC3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileBar0, TileBar1, TileBar2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileGap0, TileGap1, TileGap2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileExt0, TileExt1, TileExt2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # FCalEM, FCalHad1, FCalHad2
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-#        self.Tools += [ febTool ]
-        self.Tools += [ cellTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]     
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring, TrigEFMissingETOnlineMonitoring, TrigEFMissingETCosmicMonitoring
-        validation = TrigEFMissingETValidationMonitoring()
-        online = TrigEFMissingETOnlineMonitoring()
-        cosmic = TrigEFMissingETCosmicMonitoring()
-
-        #from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        #time = TrigTimeHistToolConfig("EFMissingET_Time")
-        #time.TimerHistLimits = [0, 250]
-
-        #self.AthenaMonTools = [ validation, online, cosmic, time]
-        self.AthenaMonTools = [ validation, online, cosmic]
+    def request_inputs(self):
+        return []
 
 
-
-
-##### loop over LAR FEBs and Tile cells (with noise suppression) #####
-class EFMissingET_Fex_FEB (EFMissingETBase):
+class EFMissingET_Fex_topoClusters(HLT__MET__TCFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_FEB"):
-        super(EFMissingET_Fex_FEB, self).__init__(name)
-
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_FEB"
-
-        # tools
-        febTool =    EFMissingETFromFEBHeader("TheFEBTool")
-        cellTool =   EFMissingETFromCells("TheCellTool")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        cellTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
-        cellTool.CaloNoiseTool=theCaloNoiseTool
-        cellTool.DoCellNoiseSuppression = True
-
-        #### settings for robustness checks:
-        # |energy| thresholds to make cell-level robustness checks = 2 rms
-        cellTool.MinCellSNratio = []
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplB, EMB1, EMB2, EMB3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # PreSamplE, EME1, EME2, EME3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0,5.0 ] # HEC0, HEC1, HEC2, HEC3
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileBar0, TileBar1, TileBar2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileGap0, TileGap1, TileGap2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # TileExt0, TileExt1, TileExt2
-        cellTool.MinCellSNratio += [ 5.0,5.0,5.0 ] # FCalEM, FCalHad1, FCalHad2
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ febTool ]
-        #self.Tools += [ cellTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
+    def __new__(cls, name = Configurable.DefaultName, cluster_calib="lcw"):
+        if name == Configurable.DefaultName:
+            name = "EFMissingET_Fex_topoClusters"
+            if cluster_calib != "lcw":
+                name += "_" + cluster_calib
+        return super(EFMissingET_Fex_topoClusters, cls).__new__(cls, name, cluster_calib)
 
 
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
-        validation = TrigEFMissingETValidationMonitoring_alt()
-        online = TrigEFMissingETOnlineMonitoring_alt()
-        cosmic = TrigEFMissingETCosmicMonitoring_alt()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-
-
-##### Use topo. clusters for noise suppression #####
-class EFMissingET_Fex_topoClusters (EFMissingETBase):
-    __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_topoClusters"):
+    def __init__(self, name, cluster_calib):
         super(EFMissingET_Fex_topoClusters, self).__init__(name)
 
-        # name of TrigMissingET object
         self.MissingETOutputKey = "TrigEFMissingET_topocl"
-        self.doTopoClusters = True
-
-        # tools
-        clusterTool = EFMissingETFromClusters("TheClusterTool")
-        clusterTool2 = EFMissingETFromClusters("TheClusterTool2")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        clusterTool.ParentFexName = name
-        clusterTool2.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-
-        # Add uncalibrated clusters into permanent object?
-        clusterTool2.SaveUncalibrated = True
-
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ clusterTool ]
-        self.Tools += [ clusterTool2 ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
+        if cluster_calib == "lcw":
+            self.UseUncalibrated = False
+        elif cluster_calib == "em":
+            self.UseUncalibrated = True
+            self.MissingETOutputKey += "_em"
+        else:
+            log.error("Unexpected cluster calibration {0}".format(cluster_calib) )
 
 
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
-        validation = TrigEFMissingETValidationMonitoring_alt()
-        online = TrigEFMissingETOnlineMonitoring_alt()
-        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        self.AthenaMonTools = [ validation, online, cosmic]
+    def request_inputs(self):
+        return ["clusters"]
 
-
-##### Use topo. clusters for noise suppression -- w/ pileup subtraction #####
-class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
+class EFMissingET_Fex_topoClustersPS(HLT__MET__TCPuetaFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_topoClustersPS"):
+    def __init__(self, name = "EFMissingET_Fex_topoClustersPS"):
         super(EFMissingET_Fex_topoClustersPS, self).__init__(name)
 
-        # name of TrigMissingET object
         self.MissingETOutputKey = "TrigEFMissingET_topocl_PS"
-        self.doTopoClusters = True
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        # tools
-        clusterTool = EFMissingETFromClustersPS("TheClusterToolPS")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        clusterTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
+    def request_inputs(self):
+        return ["clusters"]
 
-        # ClusterTool options
-        clusterTool.SubtractPileup = True
-        clusterTool.PileupDebug = False
-        clusterTool.PileupNumRings = 10
-        clusterTool.PileupNumStdDev = 2.0
-
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ clusterTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
-
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
-        validation = TrigEFMissingETValidationMonitoring_other()
-        online = TrigEFMissingETOnlineMonitoring_other()
-        cosmic = TrigEFMissingETCosmicMonitoring_other()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-#### Use topo. clusters for noise suppression #####
-class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
+class EFMissingET_Fex_topoClustersTracksPUC(HLT__MET__TCPufitTrkFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_topoClustersTracksPUC", extraCalib = ""):
+    def __new__(cls, name=Configurable.DefaultName, key_suffix=""):
+        if name == Configurable.DefaultName:
+            name = "EFMissingET_Fex_topoClustersTracksPUC" + key_suffix
+        return super(EFMissingET_Fex_topoClustersTracksPUC, cls).__new__(cls, name, key_suffix)
+
+    def __init__(self, name, key_suffix):
         super(EFMissingET_Fex_topoClustersTracksPUC, self).__init__(name)
-
         # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_topocltrk_PUC{0}".format(extraCalib)
-        self.doTopoClusters = True
-        self.doPUC = True
-        self.doJets = True
-        self.doTracks = True
+        self.MissingETOutputKey = "TrigEFMissingET_topocltrk_PUC{0}".format(key_suffix)
 
-        # tools
-        clusterTool = EFMissingETFromClustersTracksPUC("TheClusterToolTracksPUC")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
+        # TODO I'm pretty sure that we should be setting some properties on the
+        # track selection tool here...
 
-        clusterTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        #clusterTool.SubtractPileup = True
-        is2016 = (TriggerFlags.run2Config() == '2016')
-        clusterTool.SaveUncalibrated = True if "_em" in extraCalib else False
+    def request_inputs(self):
+        return ["clusters", "jets", "roi_tracks"]
 
-        '''
-        clusterTool.use2016Algo = is2016
-# N.B. - defaults for 2016 running: nSigma = 3.2 and varRhoScale = 4.0
-# N.B. - defaults for 2017 running: nSigma = 5.0 and varRhoScale = 1.0
-        clusterTool.nSigma = 3.2 if is2016 else 5.0
-        clusterTool.varRhoScale = 4.0 if is2016 else 1.0
-        clusterTool.aveEclusPU = 10000.0
-        clusterTool.towerWidthInput = 0.7
-        clusterTool.EtaRange = 5.0
-        clusterTool.resE = 15.81
-        clusterTool.resEfloor = 50.0
-        clusterTool.trimFactor = 0.90
-        '''
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ clusterTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
-        
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
-        validation = TrigEFMissingETValidationMonitoring_other()
-        online = TrigEFMissingETOnlineMonitoring_other()
-        cosmic = TrigEFMissingETCosmicMonitoring_other()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
 
 ##### Use topo. clusters for noise suppression #####
-class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
+class EFMissingET_Fex_topoClustersPUC(HLT__MET__TCPufitFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_topoClustersPUC", doLArH11off = False, doLArH12off = False, jptthr = -1.0):
+    def __init__(self, name = "EFMissingET_Fex_topoClustersPUC"):
         super(EFMissingET_Fex_topoClustersPUC, self).__init__(name)
 
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_topocl_PUC" if 'LAr' not in name else "TrigEFMissingET_"+name
-        self.doTopoClusters = True
-        self.doPUC = True
-        self.doJetVeto = True
+        self.MissingETOutputKey = "TrigEFMissingET_topocl_PUC"
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        # tools
-        clusterTool = EFMissingETFromClustersPUC("TheClusterToolPUC")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        clusterTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        
-        clusterTool.SubtractPileup = True
+    def request_inputs(self):
+        return ["clusters"]
 
-        is2016 = (TriggerFlags.run2Config() == '2016')
-
-        ##
-        clusterTool.doLArH11off = doLArH11off
-        clusterTool.doLArH12off = doLArH12off
-        clusterTool.Jetptcut = jptthr 
-
-        clusterTool.use2016Algo = is2016
-# N.B. - defaults for 2016 running: nSigma = 3.2 and varRhoScale = 4.0
-# N.B. - defaults for 2017 running: nSigma = 5.0 and varRhoScale = 1.0
-        clusterTool.nSigma = 3.2 if is2016 else 5.0
-        clusterTool.varRhoScale = 4.0 if is2016 else 1.0
-        clusterTool.aveEclusPU = 10000.0
-        clusterTool.towerWidthInput = 0.7
-        clusterTool.EtaRange = 5.0
-        clusterTool.resE = 15.81
-        clusterTool.resEfloor = 50.0
-        clusterTool.trimFactor = 0.90
-
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ clusterTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
-
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
-        validation = TrigEFMissingETValidationMonitoring_other()
-        online = TrigEFMissingETOnlineMonitoring_other()
-        cosmic = TrigEFMissingETCosmicMonitoring_other()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
 
 ##### loop over jets #####
-class EFMissingET_Fex_Jets (EFMissingETBase):
+class EFMissingET_Fex_Jets (HLT__MET__MHTFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_Jets", extraCalib = ""):
+    def __new__(cls, name = Configurable.DefaultName, key_suffix=""):
+        if name == Configurable.DefaultName:
+            name = "EFMissingET_Fex_Jets"+key_suffix
+        return super(EFMissingET_Fex_Jets, cls).__new__(cls, name, key_suffix)
+    def __init__ (self, name, key_suffix):
         super(EFMissingET_Fex_Jets, self).__init__(name)
 
         # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_mht{0}".format(extraCalib)
-        self.doJets = True
+        self.MissingETOutputKey = "TrigEFMissingET_mht{0}".format(key_suffix)
                 
-        # tools
-        febTool    = EFMissingETFromFEBHeader("TheFEBTool") 
-        jetTool    = EFMissingETFromJets("TheJetTool")
-        flagTool   = EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        jetTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
+        ## Configuration of jet fex
+        self.EtaCut = 2.2
+        self.CentralPtCut = 0.0
+        self.ForwardPtCut = 0.0
+        self.ApplyTG3Correction = TriggerFlags.run2Config() != '2016' # Do not apply the TileGap3 correction for 2015+2016 data
         
-        ## Configuration of jet fex
-        jetTool.EtaSeparation = 2.2
-        jetTool.CentralpTCut = 0.0
-        jetTool.ForwardpTCut = 0.0
-        jetTool.ApplyTileGap3Correction = TriggerFlags.run2Config() != '2016' # Do not apply the TileGap3 correction for 2015+2016 data
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
+
+    def request_inputs(self):
+        return ["jets"]
         
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ jetTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
 
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
-        validation = TrigEFMissingETValidationMonitoring_alt()
-        online = TrigEFMissingETOnlineMonitoring_alt()
-        cosmic = TrigEFMissingETCosmicMonitoring_alt()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-##### loop over tracks and jets #####
-class EFMissingET_Fex_TrackAndJets (EFMissingETBase):
+class TrkMHTFex(HLT__MET__TrkMHTFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_TrackAndJets"):
-        super(EFMissingET_Fex_TrackAndJets, self).__init__(name)
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False):
+        if name == Configurable.DefaultName:
+            name = "EFMissingET_Fex_{0}TrackAndJets".format("FTK" if do_FTK else "")
+        return super(TrkMHTFex, cls).__new__(cls, name, do_FTK)
 
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_trkmht"
-        self.doJets = True
-        self.doTracks = True
+    def __init__(self, name, do_FTK):
+        key_suffix = "FTK" if do_FTK else ""
+        super(TrkMHTFex, self).__init__(name)
+        self.MissingETOutputKey = "TrigEFMissingET_trkmht{0}".format(key_suffix)
 
-        # tools
-        febTool    = EFMissingETFromFEBHeader("TheFEBTool")
-        jetTool    = EFMissingETFromTrackAndJets("TheTrackAndJetTool")
-        flagTool   = EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        jetTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
 
-        ## Configuration of jet fex
-        jetTool.EtaSeparation = 2.2
-        jetTool.CentralpTCut = 25 #GeV
-        jetTool.ForwardpTCut = 0.0
-        jetTool.TrackpTCut = 1 #GeV
-        jetTool.CentralJetJVTCut = 0.9
-        jetTool.TrackSelectionTool.CutLevel = "Loose"
-        jetTool.TrackSelectionTool.maxZ0SinTheta = 1.5
-        jetTool.TrackSelectionTool.maxD0overSigmaD0 = 3
+        # Configuration of Fex
+        self.EtaCut = 2.2
+        self.CentralPtCut = 25 * GeV
+        self.ForwardPtCut = 0
+        self.TrackPtCut = 1 * GeV
+        self.JVTCut = 0.9
+        self.MinJetJVTPt = 20 * GeV
+        self.MaxJetJVTPt = 50 * GeV
 
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ jetTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
+        self.TrackSelectionTool.CutLevel = "Loose"
+        self.TrackSelectionTool.maxZ0SinTheta = 1.5
+        self.TrackSelectionTool.maxD0overSigmaD0 = 3
 
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
-        validation = TrigEFMissingETValidationMonitoring_alt()
-        online = TrigEFMissingETOnlineMonitoring_alt()
-        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        self.AthenaMonTools = [ validation, online, cosmic]
+    def request_inputs(self):
+        return ["jets", "fs_tracks", "muons"]
 
-##### loop over tracks and jets #####
-class EFMissingET_Fex_FTKTrackAndJets (EFMissingETBase):
+class TrkTCFex(HLT__MET__TrkTCFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_FTKTrackAndJets"):
-        super(EFMissingET_Fex_FTKTrackAndJets, self).__init__(name)
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False):
+        if name == Configurable.DefaultName:
+            name = "EFMissingET_Fex_{0}TrackAndClusters".format("FTK" if do_FTK else "")
+        return super(TrkTCFex, cls).__new__(cls, name, do_FTK)
 
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_trkmhtFTK"
-        self.doJets = True
-        self.doTracks = True
+    def __init__(self, name, do_FTK):
+        key_suffix = "FTK" if do_FTK else ""
+        super(TrkTCFex, self).__init__(name)
 
-        # tools
-        febTool    = EFMissingETFromFEBHeader("TheFEBTool")
-        jetTool    = EFMissingETFromTrackAndJets("TheTrackAndJetTool")
-        flagTool   = EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        jetTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
+        self.MissingETOutputKey = "TrigEFMissingET_trktc{0}".format(key_suffix)
 
-        ## Configuration of jet fex
-        jetTool.EtaSeparation = 2.2
-        jetTool.CentralpTCut = 25 #GeV
-        jetTool.ForwardpTCut = 0.0
-        jetTool.TrackpTCut = 1 #GeV
-        jetTool.CentralJetJVTCut = 0.9
-        jetTool.TrackSelectionTool.CutLevel = "Loose"
-        jetTool.TrackSelectionTool.maxZ0SinTheta = 1.5
-        jetTool.TrackSelectionTool.maxD0overSigmaD0 = 3
+        self.CVFTool.TrackClusterLinkName = "MatchedExtrapolatedTrackLinks"
+        # These are set up as private tools so the names don't matter.
+        self.ClusterModTools += [
+                VoronoiWeightTool("VoronoiWeightTool", doSpread=True),
+                SoftKillerWeightTool("SKWeightTool")
+        ]
 
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ jetTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
-        validation = TrigEFMissingETValidationMonitoring_alt()
-        online = TrigEFMissingETOnlineMonitoring_alt()
-        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+    def request_inputs(self):
+        return ["clusters", "fs_tracks", "muons"]
 
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-
-##### Use topo. clusters and tracks for constituent-level pile-up mitigation  #####
-class EFMissingET_Fex_TrackAndClusters (EFMissingETBase):
+class MuonFex(HLT__MET__MuonFex):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_TrackAndClusters"):
-        super(EFMissingET_Fex_TrackAndClusters, self).__init__(name)
+    def __init__(self, name = "HLT_MET_MuonFex"):
+        super(MuonFex, self).__init__(name)
+        self.MissingETOutputKey = "TrigEFMissingET_muons"
 
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_trktc"
-        self.doTrackTopoClusters = True
-        self.doTracks = True
+        for target in ["Validation", "Online", "Cosmic"]:
+            add_monitor(self, target, ["standard"])
 
-        # tools
-        clusterTool =EFMissingETFromTrackAndClusters("TheTrackAndClusters")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        clusterTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-
-        # ClusterTool options
-
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ clusterTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
+    def request_inputs(self):
+        return ["muons"]
 
 
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
-        validation = TrigEFMissingETValidationMonitoring_other()
-        online = TrigEFMissingETOnlineMonitoring_other()
-        cosmic = TrigEFMissingETCosmicMonitoring_other()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-
-##### Use topo. clusters and tracks for constituent-level pile-up mitigation  #####
-class EFMissingET_Fex_FTKTrackAndClusters (EFMissingETBase):
-    __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_FTKTrackAndClusters"):
-        super(EFMissingET_Fex_FTKTrackAndClusters, self).__init__(name)
-
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_trktcFTK"
-        self.doTrackTopoClusters = True
-        self.doTracks = True
-
-        # tools
-        clusterTool =EFMissingETFromTrackAndClusters("TheTrackAndClusters")
-        flagTool =   EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        clusterTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-
-        # ClusterTool options
-
-        # fraction of energy deposited in EM samplings
-        flagTool.MaxEMfraction = 1.0
-        flagTool.MinEMfraction = 0.0
-        flagTool.MaxTileGapEratio = 1.0
-        # max/min energy ratios from each subdet.
-        flagTool.MaxSumEratioInEMB = 1.0
-        flagTool.MaxSumEratioInEME = 1.0
-        flagTool.MaxSumEratioInHEC = 1.0
-        flagTool.MaxSumEratioInTileBar = 1.0
-        flagTool.MaxSumEratioInTileGap = 1.0
-        flagTool.MaxSumEratioInTileExt = 1.0
-        flagTool.MaxSumEratioInFCal = 1.0
-        flagTool.MinSumEratioInEMB = 0.0
-        flagTool.MinSumEratioInEME = 0.0
-        flagTool.MinSumEratioInHEC = 0.0
-        flagTool.MinSumEratioInTileBar = 0.0
-        flagTool.MinSumEratioInTileGap = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        flagTool.MinSumEratioInTileExt = 0.0
-        # max/min comp energies
-        flagTool.MaxCompE = []
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCompE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCompE = []
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell energies
-        flagTool.MaxCellE = []
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV,1e4*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellE = []
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # FCalEM, FCalHad1, FCalHad2
-        # max/min cell times
-        flagTool.MaxCellTime = []
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond,+10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MaxCellTime += [ +10*nanosecond,+10*nanosecond,+10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        flagTool.MinCellTime = []
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # PreSamplE, EME1, EME2, EME3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond,-10*nanosecond ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileBar0, TileBar1, TileBar2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileGap0, TileGap1, TileGap2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # TileExt0, TileExt1, TileExt2
-        flagTool.MinCellTime += [ -10*nanosecond,-10*nanosecond,-10*nanosecond ] # FCalEM, FCalHad1, FCalHad2
-        # max cell chi-square
-        flagTool.WorstCellQuality = []
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplB, EMB1, EMB2, EMB3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # PreSamplE, EME1, EME2, EME3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3,4e3 ] # HEC0, HEC1, HEC2, HEC3
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileBar0, TileBar1, TileBar2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileGap0, TileGap1, TileGap2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # TileExt0, TileExt1, TileExt2
-        flagTool.WorstCellQuality += [ 4e3,4e3,4e3 ] # FCalEM, FCalHad1, FCalHad2
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ clusterTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        # component flags (-1 means skip)
-        self.ComponentFlags = []
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentFlags += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentFlags += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentFlags += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentFlags += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentFlags += [ 0 ]       # EM Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Had Topo
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # Jet
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0 ]       # PUC
-        self.ComponentFlags += [ 0 ]       # PUC prior correction
-        self.ComponentFlags += [ 0 ]       # Muons
-        # calibration: constant term (MeV)
-        self.ComponentCalib0 = []
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib0 += [ 0,0,0,0 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib0 += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib0 += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib0 += [ 0 ]       # EM Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Had Topo
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # Jet
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0 ]       # PUC
-        self.ComponentCalib0 += [ 0 ]       # PUC prior correction
-        self.ComponentCalib0 += [ 0 ]       # Muons
-        # calibration: multiplicative constant
-        self.ComponentCalib1 = []
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplB, EMB1, EMB2, EMB3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # PreSamplE, EME1, EME2, EME3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00,1.00 ] # HEC0, HEC1, HEC2, HEC3
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileBar0, TileBar1, TileBar2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileGap0, TileGap1, TileGap2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # TileExt0, TileExt1, TileExt2
-        self.ComponentCalib1 += [ 1.00,1.00,1.00 ]      # FCalEM, FCalHad1, FCalHad2
-        self.ComponentCalib1 += [ 1.00 ]                # EM Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Had Topo
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # Jet
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00 ]                # PUC
-        self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
-        self.ComponentCalib1 += [ 1.00 ]                # Muons
+def getFEX(
+        reco_alg,
+        cluster_calib = default_cluster_calib,
+        jet_calib = default_jet_calib,
+        do_FTK = default_do_FTK):
+    """
+        Get the correct FEX algorithm for this configuration
+    """
+    jet_calib_string = ""
+    if cluster_calib != default_cluster_calib:
+        jet_calib_string += "_{0}".format(cluster_calib)
+    if jet_calib != default_jet_calib:
+        jet_calib_string += "_{0}".format(jet_calib)
+    if reco_alg == "cell":
+        return EFMissingET_Fex_2sidednoiseSupp()
+    elif reco_alg == "cellpufit":
+        return EFMissingET_Fex_2sidednoiseSuppPUC()
+    elif reco_alg == "tc":
+        return EFMissingET_Fex_topoClusters(cluster_calib=cluster_calib)
+    elif reco_alg == "pueta":
+        return EFMissingET_Fex_topoClustersPS()
+    elif reco_alg == "pufittrack":
+        return EFMissingET_Fex_topoClustersTracksPUC(key_suffix=jet_calib_string)
+    elif reco_alg == "pufit":
+        return EFMissingET_Fex_topoClustersPUC()
+    elif reco_alg == "mht":
+        return EFMissingET_Fex_Jets(key_suffix=jet_calib_string)
+    elif reco_alg == "trkmht":
+        return TrkMHTFex(do_FTK = do_FTK)
+    elif reco_alg == "trktc":
+        return TrkTCFex(do_FTK = do_FTK)
+    else:
+        log.error("Unknown reco algo {0} requested".format(reco_alg) )
+        return None
+        
 
 
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
-        validation = TrigEFMissingETValidationMonitoring_other()
-        online = TrigEFMissingETOnlineMonitoring_other()
-        cosmic = TrigEFMissingETCosmicMonitoring_other()
+def getFEXFromDict(chainDict):
+    """
+        Get the correct FEX algorithm for this configuration
 
-        self.AthenaMonTools = [ validation, online, cosmic]
-
-
-##### THE DEFAULT FEX #####
-class EFMissingET_Fex (EFMissingET_Fex_2sidednoiseSupp):
-    __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex"):
-        super(EFMissingET_Fex, self).__init__(name)
-
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET"
-
-
+        Other elements of the chain dict may be used to add additional
+        configuration information.
+    """
+    return getFEX(
+            chainDict["EFrecoAlg"],
+            chainDict["calib"],
+            chainDict["jetCalib"],
+            "FTK" in chainDict["addInfo"])

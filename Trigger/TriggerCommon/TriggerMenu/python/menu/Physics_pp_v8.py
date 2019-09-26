@@ -768,6 +768,7 @@ def setupMenu():
         ['xe0noL1_l2fsperf_mht',     '',        [], [PhysicsStream], ['Legacy:Rerun','RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_mht_em',     '',        [], [PhysicsStream], ['Legacy:Rerun','RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_pufit',   '',        [], [PhysicsStream], ['Legacy:Rerun','RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_pufittrack',   '',        [], [PhysicsStream], ['Legacy:Rerun','RATE:MET', 'BW:MET'], -1],
 
         ['xe50', 'L1_XE35',[], [PhysicsStream], ['Legacy:Rerun','RATE:MET', 'BW:MET'], -1],
 

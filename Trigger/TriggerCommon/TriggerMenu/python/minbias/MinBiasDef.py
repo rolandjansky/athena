@@ -596,12 +596,12 @@ class L2EFChain_MB(L2EFChainDef):
                 doSumEt=True
                 chainSuffixEF=efhypo1+'_'+chainSuffixEF
                 #sum Et fex
-                from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_2sidednoiseSupp
-                theEFMETFex = EFMissingET_Fex_2sidednoiseSupp()
-                # sum Et hypo
-                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTE
-                threshold=float(efth1)
-                theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d'% threshold,ef_thr=threshold*GeV)
+                from TrigEFMissingET.TrigEFMissingETConfig import getFEX as getMETFex
+                theEFMETFex = getMETFex("cell")
+                from TrigMissingETHypo.TrigMissingETHypoConfig import TEHypo
+                theEFMETHypo = TEHypo("EFMetHypo_te{0}".format(int(efth1) ) )
+                theEFMETHypo.Threshold = float(efth1)*GeV
+                theEFMETHypo.METLabel = theEFMETFex.MissingETOutputKey
                 
             theEFFex1 =  efid
             theEFFex2 =  EFMbTrkFex
@@ -745,12 +745,12 @@ class L2EFChain_MB(L2EFChainDef):
 
         ########## EF algos ##################
             #sum Et fex
-            from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_2sidednoiseSupp
-            theEFMETFex = EFMissingET_Fex_2sidednoiseSupp()
-            # sum Et hypo
-            from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTE
-            theEFMETHypo = EFMetHypoTE('EFMetHypo_PT')
-            theEFMETHypo.forceAccept=True
+            from TrigEFMissingET.TrigEFMissingETConfig import getFEX as getMETFex
+            theEFMETFex = getMETFex("cell")
+            from TrigMissingETHypo.TrigMissingETHypoConfig import TEHypo
+            theEFMETHypo = TEHypo("EFMetHypo_PT")
+            theEFMETHypo.METLabel = theEFMETFex.MissingETOutputKey
+            theEFMETHypo.forceAccept = True
             
             #tracking and vertexing fexes
             theEFFex1 =  efid

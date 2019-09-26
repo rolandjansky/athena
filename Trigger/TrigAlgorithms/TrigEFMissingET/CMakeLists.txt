@@ -6,66 +6,48 @@
 # Declare the package name:
 atlas_subdir( TrigEFMissingET )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloEvent
-   Calorimeter/CaloGeoHelpers
-   Calorimeter/CaloIdentifier
-   Calorimeter/CaloInterface
-   Control/AthenaBaseComps
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODTrigMissingET
-   Event/FourMomUtils
-   GaudiKernel
-   LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArTools
-   Trigger/TrigAlgorithms/TrigT2CaloCommon
-   Trigger/TrigEvent/TrigCaloEvent
-   Trigger/TrigEvent/TrigMissingEtEvent
-   Trigger/TrigEvent/TrigParticle
-   Trigger/TrigSteer/TrigInterfaces
-   Trigger/TrigTools/TrigTimeAlgs
-   PRIVATE
-   PhysicsAnalysis/AnalysisCommon/PATCore
-   PathResolver
-   InDetTrackSelectionTool
-   Control/CxxUtils
-   DetectorDescription/Identifier
-   Event/EventKernel
-   Event/xAOD/xAODEventInfo
-   Reconstruction/Jet/JetEvent
-   Trigger/TrigEvent/TrigMuonEvent
-   Trigger/TrigEvent/TrigSteeringEvent
-   Trigger/TrigT1/TrigT1Interfaces )
-
 # External dependencies:
-find_package( FastJet )
-find_package( FastJetContrib COMPONENTS SoftKiller ConstituentSubtractor )
-find_package( ROOT COMPONENTS Core Hist Matrix )
+find_package( ROOT COMPONENTS Core Hist GenVector )
 find_package( tdaq-common COMPONENTS eformat )
+find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_library( TrigEFMissingETLib
-   TrigEFMissingET/*.h src/*.cxx
-   PUBLIC_HEADERS TrigEFMissingET
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} 
-   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier
-   AthenaBaseComps xAODCaloEvent xAODJet xAODTrigMissingET GaudiKernel
-   LArIdentifier TrigCaloEvent TrigMissingEtEvent TrigParticle CaloDetDescrLib
-   LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
-   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} CxxUtils Identifier
-   EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
-   PathResolver PATCoreLib
-   TrigT1Interfaces )
+  src/METComponent.cxx
+  src/METMonitor.cxx
+  src/StatusFlags.cxx
+  src/SignedKinematics.cxx
+  src/CVFTool.cxx
+  src/PufitGrid.cxx
+  src/PufitUtils.cxx
+  PUBLIC_HEADERS TrigEFMissingET
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS}
+  LINK_LIBRARIES xAODTrigMissingET AsgTools xAODCaloEvent xAODTracking
+  TrigInterfacesLib AthenaBaseComps GaudiKernel xAODBase
+  PRIVATE_LINK_LIBRARIES AthLinks
+)
 
 atlas_add_component( TrigEFMissingET
+   src/FexBase.cxx
+   src/CellFex.cxx
+   src/TCFex.cxx
+   src/MHTFex.cxx
+   src/TrkMHTFex.cxx
+   src/TrkTCFex.cxx
+   src/TCPufitFex.cxx
+   src/TCPufitTrkFex.cxx
+   src/CellPufitFex.cxx
+   src/TCPuetaFex.cxx
+   src/MuonFex.cxx
+   src/FexSum.cxx
    src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel TrigEFMissingETLib ${FASTJET_LIBRARIES}  
-   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES}
+   LINK_LIBRARIES GaudiKernel TrigEFMissingETLib ${TDAQ-COMMON_LIBRARIES}
+   xAODJet CaloGeoHelpers xAODMuon PathResolver AthContainers CaloEvent
+   LArRecEvent TileEvent TrigT2CaloCommonLib TrigTimeAlgsLib
+   InDetTrackSelectionToolLib JetInterface
+   # These next ones are needed for the trigger navigation to link feature
+   # accessors properly
+   TrigCaloEvent TrigMissingEtEvent TrigMuonEvent TrigParticle
 )
 
 # Install files from the package:
