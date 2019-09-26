@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,7 @@
 #include "GaudiKernel/ICondSvc.h"
 //#include "GaudiKernel/Property.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "MuonCondSvc/MuonAlignmentErrorData.h"
+#include "MuonCondAlg/MuonAlignmentErrorData.h"
 
 class MuonAlignmentErrorDbAlg: public AthAlgorithm {
 
