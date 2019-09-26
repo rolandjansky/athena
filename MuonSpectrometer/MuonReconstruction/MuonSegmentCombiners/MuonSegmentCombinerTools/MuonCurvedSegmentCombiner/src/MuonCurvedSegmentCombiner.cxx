@@ -1371,7 +1371,7 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
       ATH_MSG_WARNING(" shorest tube not set ");
     }
     
-    if (m_debug) std::cout << " new seg in " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << std::endl;
+    ATH_MSG_DEBUG(" new seg in " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id));
     // MDT or CSC segment
     info.nCsc = 0;
     info.nMissedHits = closeToChamberEdge ? 0 : missedHits(seg);
@@ -1407,7 +1407,7 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
         layerCode = layerCode + 2*((m_muonIdHelperTool->rpcIdHelper().doubletR(idr))-1)+16*((m_muonIdHelperTool->rpcIdHelper().gasGap(idr))-1);
         if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(idr)) layerCode += 100;
         triggerLayers[layerCode] = 1;
-        if (m_debug) std::cout << " RPC hit phi" << m_muonIdHelperTool->rpcIdHelper().measuresPhi(idr) << " R " << m_muonIdHelperTool->rpcIdHelper().doubletR(idr) << " gas " << m_muonIdHelperTool->rpcIdHelper().gasGap(idr) << std::endl;
+        ATH_MSG_DEBUG(" RPC hit phi" << m_muonIdHelperTool->rpcIdHelper().measuresPhi(idr) << " R " << m_muonIdHelperTool->rpcIdHelper().doubletR(idr) << " gas " << m_muonIdHelperTool->rpcIdHelper().gasGap(idr));
       }
       if (m_muonIdHelperTool->tgcIdHelper().is_tgc( idr )) {
         layerCode = 1000000*(m_muonIdHelperTool->tgcIdHelper().stationName(idr))+10000*(m_muonIdHelperTool->tgcIdHelper().stationPhi(idr))+ 100* ((m_muonIdHelperTool->tgcIdHelper().stationEta(idr))+10);
@@ -1467,7 +1467,7 @@ Muon::MuonCurvedSegmentCombiner::segInfo( Muon::MuonSegment* seg ){
     info.nMult2 = nMult2;
 
   } else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) {
-    if (m_debug) std::cout << " new seg in " << m_muonIdHelperTool->cscIdHelper().print_to_string(id) << std::endl;
+    ATH_MSG_DEBUG(" new seg in " << m_muonIdHelperTool->cscIdHelper().print_to_string(id));
     info.nCsc = 1;
     int stName = m_muonIdHelperTool->cscIdHelper().stationName( id );
     name = m_muonIdHelperTool->cscIdHelper().stationNameString( stName );

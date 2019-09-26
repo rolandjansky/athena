@@ -140,7 +140,7 @@ RDOindex::set_hash(unsigned int h) {
 #ifndef LVL1_STANDALONE
 
 //const RPCGeometry* RDOindex::s_rpcgeo    = 0;
-const RpcIdHelper* RDOindex::s_rpcIdHelper = 0;
+const RpcIdHelper* RDOindex::s_rpcIdHelper = nullptr;
 
 
 void
