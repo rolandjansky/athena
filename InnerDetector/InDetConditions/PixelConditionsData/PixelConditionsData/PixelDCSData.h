@@ -48,10 +48,10 @@ class PixelModuleDCSData {
     float getHV() const;
 
     void setFSMStatus(std::string fsms);
-    std::string getFSMStatus() const;
+    const std::string& getFSMStatus() const;
 
     void setFSMState(std::string fsms);
-    std::string getFSMState() const;
+    const std::string& getFSMState() const;
 
   private:
     Identifier m_ident;
@@ -79,11 +79,11 @@ inline float PixelModuleDCSData::getHV() const { return m_hightVoltage; }
 
 inline void PixelModuleDCSData::setFSMStatus(std::string fsms) { m_fsmStatus = fsms; }
 
-inline std::string PixelModuleDCSData::getFSMStatus() const { return m_fsmStatus; }
+inline const std::string& PixelModuleDCSData::getFSMStatus() const { return m_fsmStatus; }
 
 inline void PixelModuleDCSData::setFSMState(std::string fsms) { m_fsmState = fsms; }
 
-inline std::string PixelModuleDCSData::getFSMState() const { return m_fsmState; }
+inline const std::string& PixelModuleDCSData::getFSMState() const { return m_fsmState; }
 
 CLASS_DEF(PixelModuleDCSData, 88201164, 1) 
 CLASS_DEF(PixelDCSData, 21396826, 1)
