@@ -64,6 +64,8 @@ def TrigBjetMonConfig(inputFlags):
     # Directly from TrigBjetMonitCategory
     #from TrigBjetMonitoring import TrigBjetMonitCategory
     #bjet_triglist = TrigBjetMonitCategory.monitoring_bjet
+    #bjet_triglist += TrigBjetMonitCategory.monitoring_mujet
+    #print " ==> bjet_triglist: ", bjet_triglist
 
     # From the hltmonList where TrigHLTMonitoring filtered the run type
     from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
