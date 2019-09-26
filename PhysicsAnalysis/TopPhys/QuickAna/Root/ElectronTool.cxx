@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -7,8 +7,6 @@
 //
 
 #include <QuickAna/ElectronTool.h>
-
-#include <CxxUtils/make_unique.h>
 
 #include <ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h>
 #include <ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h>
@@ -453,7 +451,7 @@ namespace ana
                               const bool looseImpactCut)
   {
     using namespace msgObjectDefinition;
-    using CxxUtils::make_unique;
+    using std::make_unique;
 
     auto config = args.configuration();
 

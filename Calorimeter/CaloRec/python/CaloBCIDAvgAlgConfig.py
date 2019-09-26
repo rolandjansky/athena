@@ -75,14 +75,24 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags (quiet = True)
+    ConfigFlags.loadAllDynamicFlags()
 
+    only = ['CaloBCIDAvgAlg',
+            'CondInputLoader',
+            'LuminosityCondAlg-',
+            'LArPileUpAvgSymCondAlg',
+            'LArPileUpShapeSymCondAlg',
+            'LArADC2MeVCondAlg-',
+            'LArOFCCondAlg-',
+            'LArAutoCorrTotalCondAlg-',
+            'BunchCrossingTool-',
+            ]
     print ('--- data')
     flags1 = ConfigFlags.clone()
     flags1.Input.Files = defaultTestFiles.RAW
     flags1.lock()
     acc1 = CaloBCIDAvgAlgCfg (flags1)
-    acc1.printConfig(summariseProps=True)
+    acc1.printConfig(summariseProps=True, onlyComponents=only)
     acc1.wasMerged()
 
     print ('--- mc')
@@ -91,7 +101,7 @@ if __name__ == "__main__":
     flags2.Input.isMC = True
     flags2.lock()
     acc2 = CaloBCIDAvgAlgCfg (flags2)
-    acc2.printConfig(summariseProps=True)
+    acc2.printConfig(summariseProps=True, onlyComponents=only)
     acc2.wasMerged()
 
     print ('--- online')
@@ -100,5 +110,5 @@ if __name__ == "__main__":
     flags3.Common.isOnline = True
     flags3.lock()
     acc3 = CaloBCIDAvgAlgCfg (flags3)
-    acc3.printConfig(summariseProps=True)
+    acc3.printConfig(summariseProps=True, onlyComponents=only)
     acc3.wasMerged()

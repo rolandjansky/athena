@@ -34,8 +34,7 @@ namespace DerivationFramework {
     private:
       std::string m_tauContainerName;
 
-#warning FIXME mutable to work around ToolHandle constness problem.
-      mutable ToolHandle < TauAnalysisTools::ITauTruthMatchingTool > m_tTauTruthMatchingTool;
+      ToolHandle < TauAnalysisTools::ITauTruthMatchingTool > m_tTauTruthMatchingTool;
 
   }; 
 }

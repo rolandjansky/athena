@@ -5,7 +5,9 @@
 #ifndef AdjustableT0Map_H
 #define AdjustableT0Map_H
 
-class MdtIdHelper;
+namespace Muon {
+  class MuonIdHelpertool;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +22,7 @@ class MdtIdHelper;
 
 class AdjustableT0Map {
 public:
-    AdjustableT0Map(const MdtIdHelper*  pMdtIdHelper);
+    AdjustableT0Map(const Muon::MuonIdHelperTool*  muonIdHelperTool);
     ~AdjustableT0Map() ;
 
 public:
@@ -67,7 +69,7 @@ private:
 
   double m_DefaultTShift;
 
-  const MdtIdHelper*  p_MdtIdHelper ; //!< IdHelper
+  const Muon::MuonIdHelperTool*  m_muonIdHelperTool ; //!< IdHelper
   
   int m_stationEtaMIN    ;
   int m_stationPhiMIN    ;

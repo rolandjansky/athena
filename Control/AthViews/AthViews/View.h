@@ -9,6 +9,8 @@
 
 #include "AthenaKernel/IProxyDict.h"
 #include "AthViews/SimpleView.h"
+#include "AthLinks/ElementLink.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 // DECLARATIONS
 namespace SG {
   class DataProxy;
@@ -112,6 +114,9 @@ public:
   virtual const std::string* keyToString( IStringPool::sgkey_t key ) const{ return m_implementation->keyToString( key ); }
   virtual const std::string* keyToString( IStringPool::sgkey_t key, CLID& clid ) const{ return m_implementation->keyToString( key, clid ); }
   virtual void registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid ){ m_implementation->registerKey( key, str, clid ); }
+
+  void setROI(const ElementLink<TrigRoiDescriptorCollection>& roi) { m_implementation->setROI(roi); };
+  const ElementLink<TrigRoiDescriptorCollection>& getROI() const { return m_implementation->getROI(); };
 
 private:
   SimpleView *m_implementation;

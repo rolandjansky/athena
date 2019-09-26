@@ -29,12 +29,12 @@ const InterfaceID& BCM_RawDataProviderTool::interfaceID( )
 BCM_RawDataProviderTool::BCM_RawDataProviderTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
-     m_decoder("BCM_RodDecoder"), 
-     m_robIdSet()
+     m_decoder("BCM_RodDecoder")
 {
   declareProperty ("Decoder", m_decoder);
   declareInterface<BCM_RawDataProviderTool>(this);   
-  m_lastLvl1ID = 0;
+  m_lastLvl1ID = 0xffffffff;
+  m_DecodeErrCount =0;
 }
 
 ////////////////////////
@@ -70,55 +70,39 @@ StatusCode BCM_RawDataProviderTool::initialize()
 ////////////////////////
 StatusCode BCM_RawDataProviderTool::finalize()
 {
-   StatusCode sc = AthAlgTool::finalize(); 
+   StatusCode sc = AthAlgTool::finalize();
    return sc;
 }
 
 
 StatusCode BCM_RawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs, BCM_RDO_Container* rdoCont)
 {
-  static uint32_t LastLvl1ID = 0xffffffff;
-  static int DecodeErrCount = 0;
-
   if(vecRobs.size() == 0) return StatusCode::SUCCESS;
 
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
   // are we working on a new event ?
-  if ( (*rob_it)->rod_lvl1_id() != LastLvl1ID) {
+  if ( (*rob_it)->rod_lvl1_id() != m_lastLvl1ID) {
 #ifdef BCM_DEBUG
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "New event, reset the collection set" << endmsg;
 #endif
     // remember last Lvl1ID
-    LastLvl1ID = (*rob_it)->rod_lvl1_id();
-    // reset list of known robIds
-    m_robIdSet.clear();
-    // and clean up the container!
-    rdoCont->clear();
+    m_lastLvl1ID = (*rob_it)->rod_lvl1_id();
   }
 
   // loop over the ROB fragments
   for(; rob_it!=vecRobs.end(); ++rob_it) {
 
-    uint32_t robid = (*rob_it)->rod_source_id();
-
-    // check if this ROBFragment was already decoded
-    if (!m_robIdSet.insert(robid).second) {
-#ifdef BCM_DEBUG
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " already decoded, skip" << endmsg; 
-#endif
-    } else {
-      StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoCont);
-      if (sc != StatusCode::SUCCESS) {
-	if (DecodeErrCount < 100) {
+    StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoCont);
+    if (sc != StatusCode::SUCCESS) {
+       if (m_DecodeErrCount < 100) {
           if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Problem with BCM ByteStream Decoding!" << endmsg;
-	} else if (100 == DecodeErrCount) {
+       } else if (100 == m_DecodeErrCount) {
           if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Too many Problems with BCM Decoding. Turning message off." << endmsg;
-        }
-        DecodeErrCount++;
+       }
+        m_DecodeErrCount++;
       }
-    }
   }
 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }

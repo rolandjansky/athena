@@ -279,18 +279,28 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
 	// bjet chains 
 	if (bjetChain) {
-
-	  // online PV  ==> to be done later
-
+	  // online PV 
+	  SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey, ctx);
+	  for (const xAOD::Vertex* vtx : *vtxContainer) {
+	    if (vtx->vertexType() == xAOD::VxType::PriVtx) {
+	      std::string NameH = "PVz_tr_"+trigName;
+	      ATH_MSG_INFO( " NameH: " << NameH  );
+	      auto PVz_tr = Monitored::Scalar<float>(NameH,0.0);
+	      PVz_tr = vtx->z();
+	      ATH_MSG_INFO("        PVz_tr: " << PVz_tr);
+	      fill("TrigBjetMonitor",PVz_tr);
+	    } // if vtx type
+	  } // loop on vtxContainer
 	} // if bjetChain
 
 	//bjet or mujet chains 
 	if (bjetChain || mujetChain) {
 
-	  // Jets
+	  // Jets and PV through jet link
 	  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics, jetKey);
+	  int ijet = 0;
 	  for(const auto jetLinkInfo : onlinejets) {
-	    // jetPt 
+	    // jetPt
 	    const xAOD::Jet* jet = *(jetLinkInfo.link);
 	    std::string NameH = "jetPt_"+trigName;
 	    ATH_MSG_INFO( " NameH: " << NameH  );
@@ -298,6 +308,18 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    jetPt = (jet->pt())*1.e-3;
 	    ATH_MSG_INFO("        jetPt: " << jetPt);
 	    fill("TrigBjetMonitor",jetPt);
+	    // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
+	    if (ijet == 0) {
+	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
+	      const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
+	      NameH = "PVz_jet_"+trigName;
+	      ATH_MSG_INFO( " NameH: " << NameH  );
+	      auto PVz_jet = Monitored::Scalar<float>(NameH,0.0);
+	      PVz_jet = vtx->z();
+	      ATH_MSG_INFO("        PVz_jet: " << PVz_jet);
+	      fill("TrigBjetMonitor",PVz_jet);
+	    }
+	    ijet++;
 	  } // onlinejets
 
 	} //bjet or mujet

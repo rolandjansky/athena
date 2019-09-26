@@ -56,7 +56,6 @@ private:
   ServiceHandle<ITRT_ByteStream_ConditionsSvc>   m_bsErrSvc;
 
   // bookkeeping if we have decoded a ROB already
-  std::set<uint32_t> m_robIdSet;
   uint32_t      m_LastLvl1ID;
   InDetTimeCollection* m_LVL1Collection;
   InDetTimeCollection* m_BCCollection;

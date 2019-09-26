@@ -17,6 +17,9 @@ using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::createAndStore; 
+using TrigCompositeUtils::viewString;
+using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::findLink;
 
 TrigL2CaloRingerHypoAlgMT::TrigL2CaloRingerHypoAlgMT( const std::string& name, 
               ISvcLocator* pSvcLocator ) : 
@@ -64,9 +67,9 @@ StatusCode TrigL2CaloRingerHypoAlgMT::execute( const EventContext& context ) con
   for ( auto previousDecision: *previousDecisionsHandle ) {
     
     // get View
-    auto view = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
+    const auto view = previousDecision->objectLink<ViewContainer>( viewString() );
     ATH_CHECK( view.isValid() );
-    auto ringerShapeHandle = ViewHelper::makeHandle( *(view.link), m_ringsKey, context);
+    auto ringerShapeHandle = ViewHelper::makeHandle( *(view), m_ringsKey, context);
     ATH_CHECK( ringerShapeHandle.isValid() );
     ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
     // create new decision
@@ -74,9 +77,9 @@ StatusCode TrigL2CaloRingerHypoAlgMT::execute( const EventContext& context ) con
     hypoToolInput.emplace_back( TrigL2CaloRingerHypoToolMT::RingerInfo{ d, ringerShapeHandle.cptr()->at(0) } );
     
     {
-      auto el = ViewHelper::makeLink( *(view.link), ringerShapeHandle, 0 );
+      auto el = ViewHelper::makeLink( *(view), ringerShapeHandle, 0 );
       ATH_CHECK( el.isValid() );
-      d->setObjectLink( "feature",  el );
+      d->setObjectLink( featureString(),  el );
     }
     
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );

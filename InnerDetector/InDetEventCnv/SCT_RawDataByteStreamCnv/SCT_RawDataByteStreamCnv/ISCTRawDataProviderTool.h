@@ -42,11 +42,7 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
                              ISCT_RDO_Container&,
                              InDetBSErrContainer* errs,
                              SCT_ByteStreamFractionContainer* bsFracCont) const = 0;
-  virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
-                             ISCT_RDO_Container&,
-                             InDetBSErrContainer* errs,
-                             SCT_ByteStreamFractionContainer* bsFracCont,
-                             const EventContext& ctx) const = 0;
+
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H

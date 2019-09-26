@@ -61,12 +61,10 @@ def TrigMETCellHypoToolFromDict(chainDict):
             
 
 def TrigMETCellHypoToolFromName(name, conf):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     
-    decoder = DictFromChainName()    
-    decodedDict = decoder.getChainDict(conf)
-    decodedDict['chainName'] = name 
-    
+    decodedDict = dictFromChainName(conf)
+    decodedDict['chainName'] = name
     return TrigMETCellHypoToolFromDict( decodedDict )
 
 

@@ -155,6 +155,8 @@ TriggerHLTListRun3 = [
     ('xAOD::MuonContainer#HLT_MuonsCBOutsideIn',                                'BS ESD AODFULL', 'Muon', 'inViews:MUEFCBViewRoIs'),
     ('xAOD::MuonAuxContainer#HLT_MuonsCBOutsideInAux.',                         'BS ESD AODFULL', 'Muon'),
 
+    ('TrigRoiDescriptorCollection#MuonCandidates_FS_ROIs',                      'BS ESD AODFULL', 'Muon'),
+
     #xAOD isolated muon
     ('xAOD::MuonContainer#HLT_MuonsIso',                                'BS ESD AODFULL', 'Muon', 'inViews:MUEFIsoViewRoIs'),
     ('xAOD::MuonAuxContainer#HLT_MuonsIsoAux.',                         'BS ESD AODFULL', 'Muon'),
@@ -288,9 +290,8 @@ TriggerHLTListRun3 = [
 #-------------------------------------------------------------------------------
 EDMDetailsRun3 = {}
 
+# xAOD versions are auto-detected at serialisation, but T/P classes need to specify P version here
 EDMDetailsRun3[ "TrigRoiDescriptorCollection" ]     = {'persistent':"TrigRoiDescriptorCollection_p3"}
-EDMDetailsRun3[ "xAOD::TrigCompositeAuxContainer" ] = {'persistent':"xAOD::TrigCompositeAuxContainer_v2"}
-EDMDetailsRun3[ "xAOD::TrigEMClusterAuxContainer" ] = {'persistent':"xAOD::TrigEMClusterAuxContainer_v2"}
 
 EDMDetailsRun3[ "xAOD::TrigDecisionAuxInfo" ]         = {'parent':"xAOD::TrigDecision"}
 EDMDetailsRun3[ "xAOD::EnergySumRoIAuxInfo" ]         = {'parent':"xAOD::EnergySumRoI"}
