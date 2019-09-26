@@ -81,6 +81,8 @@ protected:
   std::map<std::string, std::string> m_decoration_names;
   std::vector<SG::AuxElement::Decorator<float> > m_decorators;
 
+  // Record the offset of each input variable
+  std::map<std::string, double> m_offsets;
 };
 
 #endif

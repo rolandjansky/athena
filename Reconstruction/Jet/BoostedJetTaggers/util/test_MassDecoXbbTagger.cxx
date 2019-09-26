@@ -44,7 +44,9 @@ int main( int argc, char* argv[] ) {
   char* APP_NAME = argv[ 0 ];
 
   // arguments
-  TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.18172962._000001.pool.root.1";
+  TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.15579292._000001.pool.root.1"; // hh->bbbb
+  //TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.15577910._000001.pool.root.1"; // QCD 361029
+  //TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.15578792._000001.pool.root.1"; // QCD 361024
   int  ievent=-1;
   int  nevents=-1;
   bool verbose=false;
@@ -195,18 +197,15 @@ int main( int argc, char* argv[] ) {
       if (m_Tagger->n_subjets(*jet) >= 2 && jet->pt() > 250e3) {
         auto scores = m_Tagger->getScores(*jet);
         if (verbose) {
-	  std::cout << "QCD Score: " << scores.at("out_0") << std::endl;
-	  std::cout << "Higgs Score: " << scores.at("out_1") << std::endl;
-	  std::cout << "Top Score: " << scores.at("out_2") << std::endl;
+	  std::cout << "QCD Score: " << scores.at("QCDScore") << std::endl;
+	  std::cout << "Higgs Score: " << scores.at("HiggsScore") << std::endl;
+	  std::cout << "Top Score: " << scores.at("TopScore") << std::endl;
 	}
         bool res = m_Tagger->keep( *jet );
         pass = res;
-	QCDScore = scores.at("out_0");
-	HiggsScore = scores.at("out_1");
-	TopScore = scores.at("out_2");
-	//QCDScore = scores.at("MassDecoXbbScoreQCD");
-	//HiggsScore = scores.at("MassDecoXbbScoreHiggs");
-	//TopScore = scores.at("MassDecoXbbScoreTop");
+	QCDScore = scores.at("QCDScore");
+	HiggsScore = scores.at("HiggsScore");
+	TopScore = scores.at("TopScore");
         Tree->Fill();
       }
     }

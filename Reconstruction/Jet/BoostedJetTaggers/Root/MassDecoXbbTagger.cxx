@@ -34,7 +34,7 @@ namespace MassDecoXbb {
   {
   public:
     MassDecoXbbInputBuilder(const std::string& config_file,
-                    const lwt::GraphConfig& network_config);
+                    const std::map<std::string, double>& offsets);
     typedef std::map<std::string, std::map<std::string, double> > VMap;
     VMap get_map(const xAOD::Jet&) const;
     size_t n_subjets(const xAOD::Jet&) const;
@@ -54,6 +54,7 @@ namespace MassDecoXbb {
     std::vector<std::string> m_float_subjet_inputs;
     std::vector<std::string> m_int_subjet_inputs;
     std::map<std::string, double> m_dummy_values;
+    std::map<std::string, double> m_offsets;
   };
 
 }
@@ -74,7 +75,8 @@ MassDecoXbbTagger::MassDecoXbbTagger( const std::string& name ) :
   m_tag_threshold(1000000000.),
   m_output_value_names(),
   m_decoration_names(),
-  m_decorators()
+  m_decorators(),
+  m_offsets()
 {
   declareProperty( "neuralNetworkFile",   m_neuralNetworkFile);
   declareProperty( "configurationFile",   m_configurationFile);
@@ -110,11 +112,12 @@ StatusCode MassDecoXbbTagger::initialize(){
     ATH_MSG_DEBUG(" input node: " << input_node.name);
     for (auto& input: input_node.variables) {
       ATH_MSG_DEBUG("  " << input);
+      m_offsets[input.name] = -input.offset;
     }
   }
   for (const auto& node: config.inputs) {
     m_var_cleaners.emplace_back(
-      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
+      node.name, std::make_unique<lwt::NanReplacer>(m_offsets, lwt::rep::all));
   }
 
   // setup outputs
@@ -139,7 +142,7 @@ StatusCode MassDecoXbbTagger::initialize(){
   std::string config_file = PathResolverFindDataFile(m_configurationFile);
   ATH_MSG_INFO( "Config file resolved to: "<< config_file );
   try {
-    m_input_builder.reset(new MassDecoXbbInputBuilder(config_file, config));
+    m_input_builder.reset(new MassDecoXbbInputBuilder(config_file, m_offsets));
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("Config file is garbage: " << err.what());
     return StatusCode::FAILURE;
@@ -211,6 +214,16 @@ std::map<std::string, double> MassDecoXbbTagger::getScores(const xAOD::Jet& jet)
   for (const auto& cleaner: m_var_cleaners) {
     cleaned.emplace(
       cleaner.first, cleaner.second->replace(inputs.at(cleaner.first)));
+  }
+    
+  if (msgLvl(MSG::VERBOSE)) {
+    ATH_MSG_VERBOSE("Mass decorrelated Xbb cleaned inputs:");
+    for (auto& input_node: cleaned) {
+      ATH_MSG_VERBOSE(" input node: " << input_node.first);
+      for (auto& input: input_node.second) {
+        ATH_MSG_VERBOSE("  " << input.first << ": " << input.second);
+      }
+    }
   }
 
   auto nn_output = m_lwnn->compute(cleaned);
@@ -284,9 +297,10 @@ namespace MassDecoXbb {
 
   MassDecoXbbInputBuilder::MassDecoXbbInputBuilder(
     const std::string& input_file,
-    const lwt::GraphConfig& network_config):
+    const std::map<std::string, double>& offsets):
     m_acc_parent("Parent"),
-    m_acc_subjets("catKittyCat")
+    m_acc_subjets("catKittyCat"),
+    m_offsets(offsets)
   {
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(input_file, pt);
@@ -349,7 +363,7 @@ namespace MassDecoXbb {
     std::map<std::string, double> inputs;
 
     // fat jet inputs
-    inputs["pt"] = jet.pt();
+    inputs["pt"] = jet.pt()/1000.0;
     inputs["eta"] = jet.eta();
 
     // get subjets
@@ -375,19 +389,23 @@ namespace MassDecoXbb {
         const auto* btag = subjet->btagging();
         for (const auto& pair: m_acc_btag_floats) {
           inputs[pair.first + order] = pair.second(*btag);
+	  std::cout<<"!!!  "<<pair.first + order<<"   "<<pair.second(*btag)<<std::endl;
         }
         for (const auto& pair: m_acc_btag_doubles) {
           inputs[pair.first + order] = pair.second(*btag);
+	  std::cout<<"!!!  "<<pair.first + order<<"   "<<pair.second(*btag)<<std::endl;
         }
         for (const auto& pair: m_acc_btag_ints) {
           inputs[pair.first + order] = pair.second(*btag);
+	  std::cout<<"!!!  "<<pair.first + order<<"   "<<pair.second(*btag)<<std::endl;
         }
       } else {
         for (const std::string& input_name: m_float_subjet_inputs) {
-          inputs[input_name + order] = 0.0;
+          inputs[input_name + order] = m_offsets.at(input_name + order);
+	  std::cout<<"$$$  "<<input_name + order<<"   "<<inputs[input_name + order]<<std::endl;
         }
         for (const std::string& input_name: m_int_subjet_inputs) {
-          inputs[input_name + order] = 0;
+          inputs[input_name + order] = m_offsets.at(input_name + order);
         }
       }
     }
