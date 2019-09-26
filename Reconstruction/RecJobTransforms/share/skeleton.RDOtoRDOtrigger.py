@@ -123,6 +123,18 @@ if TriggerFlags.doMT():
     topSequence += Lvl1SimulationSequence(None)
     recoLog.info( "Configuring HLT (MT)" )
 
+    # this configuration of the HLTConfigSvc is only temporary
+    if not hasattr(svcMgr, 'HLTConfigSvc'):
+        from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc
+        svcMgr += HLTConfigSvc()
+    if TriggerFlags.readHLTconfigFromXML():
+        hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig", "HLTmenu")
+    else:
+        hltJsonFile = TriggerFlags.outputHLTconfigFile().replace(".xml",".json").replace("HLTconfig", "HLTmenu")
+    svcMgr.HLTConfigSvc.InputType = "file"
+    svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
+    recoLog.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
     
