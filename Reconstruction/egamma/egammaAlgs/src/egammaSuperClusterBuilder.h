@@ -177,7 +177,7 @@ private:
       "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance. Make large to remove limit"};
  
   /** @brief Threshold on minimum energy reconstructed in 2nd sampling */
-  Gaudi::Property<double> m_thrE2min{this, "ThrE2min", 100.,
+  Gaudi::Property<double> m_thrE2min{this, "ThrE2min", 250.,
     "Threshold on minimum  energy reconstructed in 2nd sampling"};
   
   /** @brief Handle to the MVA calibration service **/

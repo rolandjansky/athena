@@ -36,7 +36,7 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
 
  private:
   /** @brief Threshold on minimum energy reconstructed in 2nd sampling */
-  Gaudi::Property<double> m_thrE2min{this, "ThrE2min", 100.,
+  Gaudi::Property<double> m_thrE2min{this, "ThrE2min", 250.,
       "Threshold on minimum  energy reconstructed in 2nd sampling"};
 
   /** @brief Threshold on maximum fraction of energy reconstructed in presampler */
