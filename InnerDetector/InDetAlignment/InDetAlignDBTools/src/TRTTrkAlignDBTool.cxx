@@ -373,7 +373,7 @@ void TRTTrkAlignDBTool::updateDB()
             continue;
       }
 
-      ATH_MSG_DEBUG("DB transform");
+      ATH_MSG_DEBUG("DB transform for " << module->name() << " at alignment level " << level);
       printTransform(dbtransform);
 
       // tweak applies the transform onto already existing transform in the DB
