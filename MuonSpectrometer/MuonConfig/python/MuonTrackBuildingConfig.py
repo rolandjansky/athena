@@ -214,7 +214,10 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
-        
+    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
+    
+    
     hole_rec_tool = Muon__MuonChamberHoleRecoveryTool(name, **kwargs)
     result.setPrivateTools(hole_rec_tool)
     return result
@@ -391,7 +394,7 @@ if __name__=="__main__":
     # from AthenaCommon.Constants import DEBUG
     #log.setLevel(DEBUG)
     log.debug('About to set up Muon Track Building.')    
-    # from AthenaCommon.Constants import DEBUG
+    from AthenaCommon.Constants import DEBUG
     # log.setLevel(DEBUG)
     # log.info('About to set up Muon Track Building.')
     
@@ -426,13 +429,16 @@ if __name__=="__main__":
     itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
 
     cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
-    cfg.printConfig()
     
     outstream = cfg.getEventAlgo("OutputStreamESD")
     # outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
     
-    # cfg.printConfig(withDetails = True, summariseProps = True)
+    msgService = cfg.getService('MessageSvc')
+    msgService.Format = "% F%48W%S%7W%R%T %0W%M"
+    msgService.OutputLevel=DEBUG
+    
+    cfg.printConfig(withDetails = True, summariseProps = True)
               
     f=open("MuonTrackBuilding.pkl","w")
     cfg.store(f)
