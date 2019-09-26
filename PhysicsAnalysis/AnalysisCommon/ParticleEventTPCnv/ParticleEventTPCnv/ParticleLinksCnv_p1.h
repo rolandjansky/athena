@@ -1,7 +1,7 @@
 /////////////////////// -*- C++ -*- ////////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleLinksCnv_p1.h 
@@ -27,17 +27,19 @@
 
 
 template<class Container> 
-class ParticleLinksCnv_p1 : public T_AthenaPoolTPCnvBase<
+class ParticleLinksCnv_p1 : public T_AthenaPoolTPCnvConstBase<
                                                ParticleLinks<Container>, 
                                                ParticleLinks_p1
                                                >  
 { 
- 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-  public: 
- 
+public:
+    typedef T_AthenaPoolTPCnvConstBase<ParticleLinks<Container>, 
+                                       ParticleLinks_p1
+                                       >  base_class;
+    using base_class::transToPers;
+    using base_class::persToTrans;
+
+
     ParticleLinksCnv_p1(){;}
     virtual ~ParticleLinksCnv_p1(){;}
  
@@ -48,7 +50,7 @@ class ParticleLinksCnv_p1 : public T_AthenaPoolTPCnvBase<
    virtual 
    void persToTrans( const ParticleLinks_p1* persObj, 
 		     ParticleLinks<Container>* transObj, 
-		     MsgStream &msg );
+		     MsgStream &msg ) const override;
  
    /** Method creating the persistent representation @c Decay_p1
     *  from its transient representation @c Decay
@@ -56,7 +58,7 @@ class ParticleLinksCnv_p1 : public T_AthenaPoolTPCnvBase<
    virtual 
    void transToPers( const ParticleLinks<Container>* transObj, 
 		     ParticleLinks_p1* persObj, 
-		     MsgStream &msg );
+		     MsgStream &msg ) const override;
  private:
    DataLinkCnv_p1<DataLink<Container> > m_dl;
 }; 
@@ -66,7 +68,7 @@ class ParticleLinksCnv_p1 : public T_AthenaPoolTPCnvBase<
 template<class Container>
 void ParticleLinksCnv_p1<Container>::transToPers(const ParticleLinks<Container>* transObj, 
 						 ParticleLinks_p1* persObj, 
-						 MsgStream &msg ){
+						 MsgStream &msg ) const {
     msg<< MSG::DEBUG<<typeid(*transObj).name()<<" called"<<endmsg;
     //std::cout<<">>> ParticleLinksCnv_p1 "<<typeid(*transObj).name()<<" called"<<std::endl;
     if(transObj->size()==0) return;
@@ -95,7 +97,7 @@ void ParticleLinksCnv_p1<Container>::transToPers(const ParticleLinks<Container>*
 template<class Container>
 void ParticleLinksCnv_p1<Container>::persToTrans(const ParticleLinks_p1* persObj, 
 						 ParticleLinks<Container>* transObj, 
-						 MsgStream &msg ){
+						 MsgStream &msg ) const {
     DataLink<Container> dl;
     const DataLink_p1* dl_p1=persObj->dl_p1();
     m_dl.persToTrans(dl_p1,&dl,msg);

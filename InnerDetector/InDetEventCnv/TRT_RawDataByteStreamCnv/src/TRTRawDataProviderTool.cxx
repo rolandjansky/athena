@@ -29,7 +29,6 @@ TRTRawDataProviderTool::TRTRawDataProviderTool
   :  AthAlgTool( type, name, parent ),
      m_decoder   ("TRT_RodDecoder",this),
      m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
-     m_robIdSet(),
      m_LastLvl1ID(),
      m_LVL1Collection(nullptr),
      m_BCCollection(nullptr),
@@ -107,7 +106,7 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 					    TRT_RDO_Container*               rdoIdc )
 {
 
-  static int DecodeErrCount = 0;
+  static std::atomic_int DecodeErrCount = 0;
 
   if(vecRobs.size() == 0) 
      return StatusCode::SUCCESS;
@@ -126,10 +125,6 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 #endif
     // remember last Lvl1ID
     m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
-    // reset list of known robIds
-    m_robIdSet.clear();
-    // and clean up the identifable container !
-    rdoIdc->cleanup();    
 
     if ( m_storeInDetTimeColls )
     {
@@ -148,16 +143,7 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 
     uint32_t robid = (*rob_it)->rod_source_id();
 
-    // check if this ROBFragment was already decoded (EF case in ROIs
-    if (!m_robIdSet.insert(robid).second)
-    {
 
-#ifdef TRT_BSC_DEBUG
-       ATH_MSG_DEBUG( " ROB Fragment with ID  " << std::hex<<robid<<std::dec<< " already decoded, skip" );
-#endif
-
-    } else {
-    
       if ( isNewEvent && m_storeInDetTimeColls )
       {
 	 /*
@@ -195,7 +181,6 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 
 	// return sc;  Don't return on single ROD failure
       }
-    }
   }
 
   /*

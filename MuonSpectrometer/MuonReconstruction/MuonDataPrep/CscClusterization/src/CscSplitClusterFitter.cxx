@@ -60,7 +60,7 @@ namespace {
 
 CscSplitClusterFitter::
 CscSplitClusterFitter(string type, string aname, const IInterface* parent)
-: AthAlgTool(type, aname, parent), m_detMgr(nullptr), m_cscIdHelper(nullptr),
+: AthAlgTool(type, aname, parent),
   m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
   m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter")
 {
@@ -80,13 +80,8 @@ CscSplitClusterFitter::~CscSplitClusterFitter() { }
 StatusCode CscSplitClusterFitter::initialize() {
   
   ATH_MSG_DEBUG ( "Initalizing " << name() );
-
-  // retrieve MuonDetectorManager
-  if ( detStore()->retrieve(m_detMgr,"Muon").isFailure() ) {
-    ATH_MSG_FATAL ( "Could not find the MuonGeoModel Manager! " );
-    return StatusCode::FAILURE;
-  } 
-  m_cscIdHelper = m_detMgr->cscIdHelper();
+  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // Retrieve the default cluster fitting tool.
   if ( m_pfitter_def.retrieve().isFailure() )   {
@@ -122,11 +117,11 @@ Results CscSplitClusterFitter::fit(const StripFitList& sfits) const {
   // Use the first strip to extract the layer parameters.
   const CscStripPrepData* pstrip = sfits[0].strip;
   Identifier idStrip0 = pstrip->identify();
-  bool measphi = m_cscIdHelper->CscIdHelper::measuresPhi(idStrip0);
+  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   //  double pitch = pro->cathodeReadoutPitch(0, measphi);
   //  unsigned int maxstrip = pro->maxNumberOfStrips(measphi);
-  //  unsigned int strip0 = m_cscIdHelper->strip(idStrip0) - 1;
-  //  unsigned int station = m_cscIdHelper->stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
+  //  unsigned int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
+  //  unsigned int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
   //  CscPlane plane = findPlane(station, measphi);
   
   // Display input strips.
@@ -134,7 +129,7 @@ Results CscSplitClusterFitter::fit(const StripFitList& sfits) const {
 
   for (unsigned int istrip=0; istrip<nstrip; ++istrip ) {
     Identifier id = sfits[istrip].strip->identify();
-    ATH_MSG_VERBOSE ( "  " << istrip << " " << m_cscIdHelper->strip(id) << " " << sfits[istrip].charge );
+    ATH_MSG_VERBOSE ( "  " << istrip << " " << m_muonIdHelperTool->cscIdHelper().strip(id) << " " << sfits[istrip].charge );
   }
   // Find the peak strip and valley strip
   // Loop over strips 

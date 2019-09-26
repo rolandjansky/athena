@@ -6,7 +6,7 @@
 #define MUONALIGNERRORTOOL_ALIGNMENTERRORTOOL_H
 
 // for accessing info from the DB
-#include "MuonCondSvc/MuonAlignmentErrorData.h"
+#include "MuonCondAlg/MuonAlignmentErrorData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"

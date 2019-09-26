@@ -137,9 +137,8 @@ def TrigL2CaloHypoToolFromName( name, conf ):
     """ To be phased out """
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-    decoder = DictFromChainName()
-    decodedDict = decoder.getChainDict(conf)
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    decodedDict = dictFromChainName(conf)
         
     return TrigL2CaloHypoToolFromDict( decodedDict )
     

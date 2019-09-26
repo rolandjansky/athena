@@ -100,7 +100,7 @@ private:
   BooleanProperty m_checkRODSimulatedData{this, "CheckRODSimulatedData", true, "Flag to check RODSimulatedData flag."};
 
   // Mutex to protect the contents.
-  mutable std::recursive_mutex m_mutex{};
+  mutable std::mutex m_mutex{};
   struct CacheEntry {
     EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
     std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES> m_bsErrors; // Used by getErrorSet, addError, resetSets

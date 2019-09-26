@@ -68,8 +68,9 @@ echo "Running RDO_TRIG->AOD with Reco_tf command:"
 Reco_tf.py \
 --imf=True \
 --maxEvents=${EVENTS} \
---inputRDO_TRIGFile=RDO_TRIG.pool.root \
+--inputRDOFile=RDO_TRIG.pool.root \
 --outputAODFile=AOD.pool.root \
+--outputESDFile=ESD.pool.root \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

@@ -21,6 +21,10 @@ using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
+using TrigCompositeUtils::viewString;
+using TrigCompositeUtils::initialRoIString;
+using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::findLink;
 
 // =============================================================================
 
@@ -73,16 +77,16 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
   size_t counter = 0;
   for (const Decision* previousDecision: *previousDecisionsHandle) {
     // Get RoI
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(previousDecision, "initialRoI");
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
     auto roiEL = roiELInfo.link;
     ATH_CHECK(roiEL.isValid());
     const TrigRoiDescriptor* roi = *roiEL;
 
     // Get View
-    auto viewELInfo = TrigCompositeUtils::findLink<ViewContainer>(previousDecision, "view");
+    auto viewELInfo = TrigCompositeUtils::findLink<ViewContainer>(previousDecision, viewString(), /*suppressMultipleLinksWarning*/ true );
     ATH_CHECK(viewELInfo.isValid());
     auto viewEL = viewELInfo.link;
-
+    
     // Create new decision
     Decision* newd = newDecisionIn(decisions);
 
@@ -90,9 +94,11 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     toolInputs.emplace_back(newd, eventContext, roi, previousDecision);
 
     // Link to new decision
-    newd->setObjectLink("roi", roiEL);
-    newd->setObjectLink("view", viewEL);
     linkToPrevious(newd, previousDecision, eventContext);
+
+    // Link to feature. Dummy link here
+    ElementLink<DecisionContainer> dummyLink(*decisions, decisions->size()-1, eventContext);
+    newd->setObjectLink(featureString(), dummyLink);
     
     ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
     ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
@@ -114,16 +120,7 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
   // ---------------------------------------------------------------------------
   ATH_CHECK(outputHandle.isValid());
   ATH_MSG_DEBUG("Exit with " << outputHandle->size() << " decisions");
-  if (msgLvl(MSG::DEBUG)) {
-    DecisionIDContainer allPassingIDs;
-    for (const Decision* decisionObject : *outputHandle) {
-      decisionIDs(decisionObject, allPassingIDs);
-    }
-    for (DecisionID id : allPassingIDs) {
-      ATH_MSG_DEBUG(" +++ " << HLT::Identifier(id));
-    }
-  }
-
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

@@ -19,6 +19,7 @@ SCTLorentzMonAlg::SCTLorentzMonAlg(const std::string& name, ISvcLocator* pSvcLoc
 
 StatusCode SCTLorentzMonAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(m_trackSummaryTool.retrieve());
   ATH_CHECK(m_tracksName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
@@ -77,9 +78,15 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     }
 
     const Trk::TrackSummary* summary{track->trackSummary()};
+    bool ownSummary{false};
     if (summary==nullptr) {
-      ATH_MSG_WARNING(" null trackSummary");
-      //      continue; // NEED TO FIX THIS 2019-04-02 TrackSummary is not available if input is ESD /////////////////////////////////
+      summary = m_trackSummaryTool->createSummary(*track);
+      if (summary==nullptr) {
+        ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
+        continue;
+      } else {
+        ownSummary = true;
+      }
     }
 
     for (const Trk::TrackStateOnSurface* tsos: *trackStates) {
@@ -137,15 +144,15 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
 
               bool passesCuts{true};
               if ((dataType() == AthMonitorAlgorithm::DataType_t::cosmics) and
-                  (trkp->momentum().mag() > 500.) // and  // Pt > 500MeV
-                  // (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6 // NEED TO FIX THIS 2019-04-02 TrackSummary is not available if input is ESD /////////////////////////////////
+                  (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                  (summary->get(Trk::numberOfSCTHits) > 6) // #SCTHits >6
                   ) {
                 passesCuts = true;
               } else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) and // use negative track only
                          (fabs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
                          (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
-                         (trkp->momentum().mag() > 500.) // and  // Pt > 500MeV
-                         // (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6 // NEED TO FIX THIS 2019-04-02 TrackSummary is not available if input is ESD /////////////////////////////////
+                         (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                         (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                          ) {
                 passesCuts = true;
               } else {
@@ -175,6 +182,11 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
         } // end if (clus)
       } // if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
+
+    if (ownSummary) {
+      delete summary;
+      summary = nullptr;
+    }
   } // end of loop on tracks
 
     

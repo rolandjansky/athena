@@ -205,6 +205,7 @@ void test2()
   dpobj.setConst();
   assert (dpobj.isConst());
   assert (xlockobj->m_locked);
+  dpobj.setConst();
 }
 
 

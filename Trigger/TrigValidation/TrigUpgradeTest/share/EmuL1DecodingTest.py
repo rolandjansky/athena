@@ -84,6 +84,16 @@ svcMgr.StoreGateSvc.Dump=False #This is required to avoid a bug in bytestream de
 
 theApp.EvtMax = len(data['RoIEmulation'])
 
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.outputHLTconfigFile = TriggerFlags.outputHLTconfigFile().replace('config', 'menu')
+#empty HLT menu
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
+makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+generateJSON()
+
 print "topSequence dump:", topSequence
 #
 # End of job options file

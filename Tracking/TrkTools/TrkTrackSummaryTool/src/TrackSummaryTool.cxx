@@ -369,6 +369,8 @@ void Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track, const Trk::PRD
   }
 
   track.m_trackSummary =  createSummary(track, prd_to_track_map, false, false).release();
+  m_idTool->updateExpectedHitInfo(track,  *track.m_trackSummary);
+
   return;
 }
  

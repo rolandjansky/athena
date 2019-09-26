@@ -77,7 +77,7 @@ namespace {
 
 SimpleCscClusterFitter::
 SimpleCscClusterFitter(string type, string aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent), m_detMgr(nullptr), m_cscIdHelper(nullptr)
+  : AthAlgTool(type, aname, parent), m_detMgr(nullptr)
   , m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
 {
   declareInterface<ICscClusterFitter>(this);
@@ -112,7 +112,7 @@ StatusCode SimpleCscClusterFitter::initialize() {
     return StatusCode::FAILURE;
   }
   // Fetch ID helper.
-  m_cscIdHelper = m_detMgr->cscIdHelper();
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if ( m_alignmentTool.retrieve().isFailure() )   {
     ATH_MSG_WARNING ( name() << ": unable to retrieve cluster fitter " << m_alignmentTool );
@@ -145,14 +145,6 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
     return results;
   }
 
-  // Check initialization.
-  if ( ! m_cscIdHelper ) {
-    ATH_MSG_WARNING ( "Initialization failed." );
-     res.fitStatus = 3;
-     results.push_back(res);
-     return results;
-  }
-
   const CscStripPrepData* pstrip = sfits[0].strip;
   if ( pstrip == 0 ) {
     ATH_MSG_WARNING ( "Strip pointer is null." );
@@ -162,17 +154,17 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
   }
   Identifier idStrip0 = pstrip->identify();
   const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
-  bool measphi = m_cscIdHelper->CscIdHelper::measuresPhi(idStrip0);
+  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   int maxstrip = pro->maxNumberOfStrips(measphi);
-  int strip0 = m_cscIdHelper->strip(idStrip0) - 1;
+  int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
 
-  int zsec    = m_cscIdHelper->stationEta(idStrip0);
-  int station = m_cscIdHelper->stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
-  int phisec  = m_cscIdHelper->stationPhi(idStrip0);
+  int zsec    = m_muonIdHelperTool->cscIdHelper().stationEta(idStrip0);
+  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
+  int phisec  = m_muonIdHelperTool->cscIdHelper().stationPhi(idStrip0);
 
   int sector  = zsec*(2*phisec - station + 1);
-  int wlay    = m_cscIdHelper->wireLayer(idStrip0);
+  int wlay    = m_muonIdHelperTool->cscIdHelper().wireLayer(idStrip0);
   
   // In SimpleCscClusterFitter  istrip_peak = strip0;
   int peak_count = 0;                  // # peaks in the cluster
