@@ -18,12 +18,14 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
                                               "Muons",
                                               "TauJets",
-                                              "MET_Reference_AntiKt4EMTopo",
-                                              "AntiKt4EMTopoJets",
-                                              "AntiKt4EMTopoJets_BTagging201810",
-                                              "BTagging_AntiKt4EMTopo_201810",
                                               "InDetTrackParticles",
                                               "PrimaryVertices",
+                                              "MET_Reference_AntiKt4EMPFlow",
+                                              "AntiKt4EMPFlowJets",
+                                              "AntiKt4EMPFlowJets_BTagging201810",
+                                              "BTagging_AntiKt4EMPFlow_201810",
+                                              "AntiKt4EMPFlowJets_BTagging201903",
+                                              "BTagging_AntiKt4EMPFlow_201903"
                                               ]
     else:
         HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
@@ -164,7 +166,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     from DerivationFrameworkJetEtMiss.JetCommon import *
     if HIGG4DxName in OutputJets:
         if HIGG4DxName == 'HDBS1':
-            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt4TruthJets', 'AntiKt4TruthWZJets'], ['AntiKt4PV0TrackJets','AntiKt2PV0TrackJets','AntiKt10LCTopoJets','AntiKt4EMPFlowJets']) # last two arguments: smart slimming collection list, veto collection list 
+            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt4TruthJets', 'AntiKt4TruthWZJets'], ['AntiKt4PV0TrackJets','AntiKt2PV0TrackJets','AntiKt10LCTopoJets','AntiKt4EMTopoJets']) # last two arguments: smart slimming collection list, veto collection list 
         else:
             addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets'])
         
