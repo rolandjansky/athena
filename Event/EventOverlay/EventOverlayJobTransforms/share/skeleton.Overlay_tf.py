@@ -214,7 +214,7 @@ digitizationFlags.rndmSeedList.printSeeds()
 # Logging
 #-------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
-ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.Format = "% F%45W%S%5W%e%s%7W%R%T %0W%M"
 
 # Post-include
 if hasattr(runArgs, "postInclude"):
