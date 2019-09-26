@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MuonSpectrometer/MuonAlignment/MuonAlignError/MuonAlignErrorBase
 			  MuonSpectrometer/MuonCalib/MuonCalibITools
-			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
+			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondAlg
                           MuonSpectrometer/MuonIdHelpers
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
@@ -34,7 +34,7 @@ atlas_add_component( MuonAlignErrorTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MuonAlignErrorBase MuonCalibITools MuonCondSvcLib MuonIdHelpersLib TrkToolInterfaces StoreGateLib SGtests PathResolver TrkCompetingRIOsOnTrack TrkPrepRawData TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MuonAlignErrorBase MuonCalibITools MuonCondAlgLib MuonIdHelpersLib TrkToolInterfaces StoreGateLib SGtests PathResolver TrkCompetingRIOsOnTrack TrkPrepRawData TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( MuonAlignErrorTool )
