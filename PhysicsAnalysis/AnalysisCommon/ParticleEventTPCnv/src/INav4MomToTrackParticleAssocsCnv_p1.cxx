@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomToTrackParticleAssocsCnv_p1.cxx 
@@ -26,19 +26,6 @@
 typedef INav4MomToTrackParticleAssocs::object_link INav4MomLink_t;
 typedef INav4MomToTrackParticleAssocs::asso_link   TrackParticleLink_t;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 #define LOG_MSG(log,lvl,msg) \
    log << lvl; \
@@ -47,7 +34,7 @@ typedef INav4MomToTrackParticleAssocs::asso_link   TrackParticleLink_t;
 void 
 INav4MomToTrackParticleAssocsCnv_p1::persToTrans( const INav4MomToTrackParticleAssocs_p1* pers, 
                                                   INav4MomToTrackParticleAssocs* trans, 
-                                                  MsgStream& msg )
+                                                  MsgStream& msg ) const
 {
    LOG_MSG(msg, MSG::DEBUG, "Loading INav4MomToTrackParticleAssocs from persistent state..." );
 
@@ -91,7 +78,7 @@ INav4MomToTrackParticleAssocsCnv_p1::persToTrans( const INav4MomToTrackParticleA
 void 
 INav4MomToTrackParticleAssocsCnv_p1::transToPers( const INav4MomToTrackParticleAssocs* trans, 
                                                   INav4MomToTrackParticleAssocs_p1* pers, 
-                                                  MsgStream& msg )
+                                                  MsgStream& msg ) const
 {
   LOG_MSG(msg, MSG::DEBUG, "Creating persistent state of INav4MomToTrackParticleAssocs...");
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleBaseCnv_p1.cxx 
@@ -34,8 +34,8 @@
 typedef ElementLinkCnv_p1<ElementLink<VxContainer> > VxLinkCnv_t;
 
 // pre-allocate converters
-static VxLinkCnv_t    vxCnv;
-static AthenaBarCodeCnv_p1   s_abcCnv;
+static const VxLinkCnv_t    vxCnv;
+static const AthenaBarCodeCnv_p1   s_abcCnv;
 
 /** d-tor
  */
@@ -48,7 +48,7 @@ ParticleBaseCnv_p1::~ParticleBaseCnv_p1()
 
 void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 				      ParticleBase* trans, 
-				      MsgStream& msg ) 
+				      MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
 //       << endmsg;
@@ -79,7 +79,7 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 
 void ParticleBaseCnv_p1::transToPers( const ParticleBase* trans, 
 				      ParticleBase_p1* pers, 
-				      MsgStream& msg ) 
+				      MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleBase..."
 //       << endmsg;
@@ -100,7 +100,7 @@ void ParticleBaseCnv_p1::transToPers( const ParticleBase* trans,
 
 void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 				      ParticleEvent::Base* trans, 
-				      MsgStream& msg ) 
+				      MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading ParticleBase from persistent state..."
 //       << endmsg;
@@ -136,7 +136,7 @@ void ParticleBaseCnv_p1::persToTrans( const ParticleBase_p1* pers,
 
 void ParticleBaseCnv_p1::transToPers( const ParticleEvent::Base* trans, 
 				      ParticleBase_p1* pers, 
-				      MsgStream& msg ) 
+				      MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleBase..."
 //       << endmsg;
