@@ -1,50 +1,41 @@
-#include "TrigEFMissingET/EFMissingET.h"
-#include "TrigEFMissingET/EFMissingETBaseTool.h"
-#include "TrigEFMissingET/EFMissingETFromCells.h"
-#include "TrigEFMissingET/EFMissingETFromClusters.h"
-#include "TrigEFMissingET/EFMissingETFromClustersPS.h"
-#include "TrigEFMissingET/EFMissingETFromClustersPUC.h"
-#include "TrigEFMissingET/EFMissingETFromCellsPUC.h"
-#include "TrigEFMissingET/EFMissingETFromClustersTracksPUC.h"
-#include "TrigEFMissingET/EFMissingETFromFEBHeader.h"
-#include "TrigEFMissingET/EFMissingETFromJets.h"
-#include "TrigEFMissingET/EFMissingETFromTrackAndJets.h"
-#include "TrigEFMissingET/EFMissingETFromTrackAndClusters.h"
-//#include "TrigEFMissingET/EFMissingETFromLvl1Ppr.h"
-#include "TrigEFMissingET/EFMissingETFlags.h"
-#include "TrigEFMissingET/EFMissingETFromHelper.h"
+#include "../MHTFex.h"
+#include "../CellFex.h"
+#include "../TCFex.h"
+#include "../TCPufitFex.h"
+#include "../TrkMHTFex.h"
+#include "../TrkTCFex.h"
+#include "../TCPufitTrkFex.h"
+#include "../CellPufitFex.h"
+#include "../TCPuetaFex.h"
+#include "../MuonFex.h"
+#include "../FexSum.h"
+#include "../CVFTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_ALGORITHM_FACTORY( EFMissingET )
-DECLARE_TOOL_FACTORY( EFMissingETBaseTool )
-DECLARE_TOOL_FACTORY( EFMissingETFromCells )
-DECLARE_TOOL_FACTORY( EFMissingETFromClusters )
-DECLARE_TOOL_FACTORY( EFMissingETFromClustersPS )
-DECLARE_TOOL_FACTORY( EFMissingETFromClustersPUC )
-DECLARE_TOOL_FACTORY( EFMissingETFromCellsPUC )
-DECLARE_TOOL_FACTORY( EFMissingETFromClustersTracksPUC )
-DECLARE_TOOL_FACTORY( EFMissingETFromFEBHeader )
-DECLARE_TOOL_FACTORY( EFMissingETFromJets )
-DECLARE_TOOL_FACTORY( EFMissingETFromTrackAndJets )
-DECLARE_TOOL_FACTORY( EFMissingETFromTrackAndClusters )
-//DECLARE_TOOL_FACTORY( EFMissingETFromLvl1Ppr )
-DECLARE_TOOL_FACTORY( EFMissingETFlags )
-DECLARE_TOOL_FACTORY( EFMissingETFromHelper )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::CellFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::TCFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::MHTFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::TrkMHTFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::TrkTCFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::TCPufitFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::TCPufitTrkFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::CellPufitFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::TCPuetaFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::MuonFex )
+DECLARE_ALGORITHM_FACTORY( HLT::MET::FexSum )
+DECLARE_TOOL_FACTORY( CVFTool )
 
 DECLARE_FACTORY_ENTRIES(TrigEFMissingET) {
-    DECLARE_ALGORITHM( EFMissingET );
-    DECLARE_TOOL( EFMissingETBaseTool );
-    DECLARE_TOOL( EFMissingETFromCells );
-    DECLARE_TOOL( EFMissingETFromClusters );
-    DECLARE_TOOL( EFMissingETFromClustersPS );
-    DECLARE_TOOL( EFMissingETFromClustersPUC );
-    DECLARE_TOOL( EFMissingETFromCellsPUC );
-    DECLARE_TOOL( EFMissingETFromClustersTracksPUC );
-    DECLARE_TOOL( EFMissingETFromFEBHeader );
-    DECLARE_TOOL( EFMissingETFromJets );
-    DECLARE_TOOL( EFMissingETFromTrackAndJets );
-    DECLARE_TOOL( EFMissingETFromTrackAndClusters );
-    //DECLARE_TOOL( EFMissingETFromLvl1Ppr );
-    DECLARE_TOOL( EFMissingETFlags );
-    DECLARE_TOOL( EFMissingETFromHelper );
+    DECLARE_ALGORITHM( HLT::MET::CellFex );
+    DECLARE_ALGORITHM( HLT::MET::TCFex );
+    DECLARE_ALGORITHM( HLT::MET::MHTFex );
+    DECLARE_ALGORITHM( HLT::MET::TrkMHTFex );
+    DECLARE_ALGORITHM( HLT::MET::TrkTCFex );
+    DECLARE_ALGORITHM( HLT::MET::TCPufitFex );
+    DECLARE_ALGORITHM( HLT::MET::TCPufitTrkFex );
+    DECLARE_ALGORITHM( HLT::MET::CellPufitFex );
+    DECLARE_ALGORITHM( HLT::MET::TCPuetaFex );
+    DECLARE_ALGORITHM( HLT::MET::MuonFex );
+    DECLARE_ALGORITHM( HLT::MET::FexSum );
+    DECLARE_TOOL( CVFTool );
 }
