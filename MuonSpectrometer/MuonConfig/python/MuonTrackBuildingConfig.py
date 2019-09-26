@@ -426,7 +426,7 @@ if __name__=="__main__":
     cfg.addService(ars)
     
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
+    itemsToRecord = ["TrackCollection#MuonSpectrometerTracks", "TrackCollection#MuonSpectrometerTracks_old"] 
 
     cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
     
