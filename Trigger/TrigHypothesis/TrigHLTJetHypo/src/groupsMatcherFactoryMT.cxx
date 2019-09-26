@@ -16,10 +16,7 @@ groupsMatcherFactoryMT_MaxBipartite (ConditionsMT&& conditions){
     return std::make_unique<SingleConditionMatcherMT>(nullptr);
   }
 
-  const auto& f_cond = conditions.front();
-
-  // check if the compound Conditions is made up of single jet
-  // elemental conditions.
+  // check the number of conditions to decide the Matcher type.
   if (conditions.size() == 1) {
     return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
   } else {
