@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArEMECChargeCollection.cc
@@ -86,6 +86,7 @@
 #include "globals.hh"
 
 #include "EnergyCalculator.h"
+#include "HVHelper.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -647,45 +648,6 @@ void LArG4::EC::EnergyCalculator::PrepareFieldMap(Wheel_Efield_Map* ChCollWheelT
   } //end for foldtype
 } //end of function
 
-// ****************************************************************************
-G4double LArG4::EC::EnergyCalculator::GetHV_Value_ChColl_Wheel(
-                                                               const G4ThreeVector& p, G4int phigap, G4int phihalfgap) const{
-  // ****************************************************************************
-  const G4int atlasside = (lwc()->GetAtlasZside() > 0) ? 0 : 1;
-
-  const G4ThreeVector pforeta= G4ThreeVector(p.x(),p.y(),p.z()+lwc()->GetElecFocaltoWRP()+lwc()->GetdWRPtoFrontFace());
-  const G4double eta=pforeta.pseudoRapidity();
-  G4int etasection=-1;
-  for(G4int i=1;i<=s_NofEtaSection;++i){
-    if(eta<=s_HV_Etalim[i]) {etasection=i-1;break;}
-  }
-
-  if(!(etasection>=0 && etasection <=s_NofEtaSection-1)) throw std::runtime_error("Index out of range");
-  //assert(etasection>=0 && etasection <=s_NofEtaSection-1);
-  /*(right side of e large phi)*/ /*left side of electrode(small phi)*/
-  const G4int electrodeside = (phihalfgap%2 == 0 ) ?   1   :   0  ;
-
-  const G4int firstelectrode=s_HV_Start_phi[atlasside][etasection][electrodeside];
-
-  if(!( firstelectrode>=0 && firstelectrode<= lwc()->GetNumberOfFans()-1)){
-    ATH_MSG_FATAL(" GetCurrent:Electrode number is out of range");
-    G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException, "GetCurrent: Electrode number is out of range");
-  }
-  G4int electrodeindex=(phigap-1)-firstelectrode;
-  if(electrodeindex<0) electrodeindex=electrodeindex+lwc()->GetNumberOfFans();
-  const G4int phisection=electrodeindex/NumberOfElectrodesInPhiSection();//24(8) for outer(inner) wheel
-
-  if(!(phisection>=0 && phisection<=NofPhiSections()-1)){
-    ATH_MSG_FATAL(" GetCurrent::Electrode number is out of range");
-    G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException,"GetCurrent: Electrode number is out of range");
-  }
-
-  const G4double HV_value = s_HV_Values[atlasside][etasection][electrodeside][phisection];
-
-  return HV_value;
-}
-
-
 // **********************************************************************
 void LArG4::EC::EnergyCalculator::TransFromBarrtoWheel(const G4double vb[], G4double PhiStartOfPhiDiv, G4double v[]) const {
   // **********************************************************************
@@ -929,20 +891,25 @@ G4double LArG4::EC::EnergyCalculator::GetCurrent(
     }
 
     G4double HV_value;
+    G4ThreeVector p(hvpoint[0], hvpoint[1], hvpoint[2]);
     if(lwc()->GetisBarrette()) {
-      HV_value=GetHV_Value_Barrett(
-                                   G4ThreeVector(hvpoint[0],hvpoint[1],hvpoint[2]), Barret_PhiStart);
+        G4double phi;
+        G4int compartment, eta_bin;
+        HV_value = GetBarrettePCE(p, Barret_PhiStart, phi, compartment, eta_bin)?
+            m_HVHelper->GetVoltageBarrett(phi, compartment, eta_bin):
+            0.
+        ;
     } else {
-      HV_value=GetHV_Value_ChColl_Wheel(
-                                        G4ThreeVector(hvpoint[0],hvpoint[1],hvpoint[2]),igap1,ihalfgap1);
+        HV_value = m_HVHelper->GetVoltage(p, igap1, ihalfgap1);
     }
 
-    const G4ThreeVector tmp = G4ThreeVector( hvpoint[0],hvpoint[1],hvpoint[2]);
-    const G4double dte = (this->*m_distance_to_the_nearest_electrode_type)(tmp, Barret_PhiStart);
+//    const G4ThreeVector tmp = G4ThreeVector( hvpoint[0],hvpoint[1],hvpoint[2]);
+// vector p should be const above!
+    const G4double dte = (this->*m_distance_to_the_nearest_electrode_type)(p, Barret_PhiStart);
 
     if( fabs(dte) < CHC_Esr() ) continue; //skip point if too close to the electrode
 
-    const G4double agap=(this->*m_GetGapSize_type)(tmp);    //correction to electrode suppression not to
+    const G4double agap=(this->*m_GetGapSize_type)(p);    //correction to electrode suppression not to
     G4double x = agap/( agap - CHC_Esr() );     // change av. signal in the gap
     if(x >=0.) supcorr=x;
 
