@@ -4,6 +4,7 @@
 
 #include "../TrigCaloMonitorAlgorithm.h"
 #include "../HLTCalo_L2CaloEMClustersMonitor.h"
+#include "../HLTCalo_TopoCaloClustersMonitor.h"
 #include "TrigCaloMonitoring/HLTCaloTool.h"
 #include "TrigCaloMonitoring/HLTCaloFEBTool.h"
 #include "TrigCaloMonitoring/HLTCaloToolL2.h"
@@ -15,6 +16,7 @@
 
 DECLARE_COMPONENT( TrigCaloMonitorAlgorithm )
 DECLARE_COMPONENT( HLTCalo_L2CaloEMClustersMonitor )
+DECLARE_COMPONENT( HLTCalo_TopoCaloClustersMonitor )
 DECLARE_COMPONENT( HLTCaloTool )
 DECLARE_COMPONENT( HLTCaloFEBTool )
 DECLARE_COMPONENT( HLTCaloToolL2 )
