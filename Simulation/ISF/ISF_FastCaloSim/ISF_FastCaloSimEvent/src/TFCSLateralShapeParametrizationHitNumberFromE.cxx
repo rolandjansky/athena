@@ -13,8 +13,14 @@
 //======= TFCSHistoLateralShapeParametrization =========
 //=============================================
 
-TFCSLateralShapeParametrizationHitNumberFromE::TFCSLateralShapeParametrizationHitNumberFromE(const char* name, const char* title,double stochastic,double constant,double stochastic_hadron) :
-  TFCSLateralShapeParametrizationHitBase(name,title),m_stochastic(stochastic),m_constant(constant),m_stochastic_hadron(stochastic_hadron)
+TFCSLateralShapeParametrizationHitNumberFromE::TFCSLateralShapeParametrizationHitNumberFromE(const char* name, const char* title,double stochastic,double constant) :
+  TFCSLateralShapeParametrizationHitBase(name,title),m_stochastic(stochastic),m_stochastic_hadron(0.0),m_constant(constant)
+{
+  set_match_all_pdgid();
+}
+
+TFCSLateralShapeParametrizationHitNumberFromE::TFCSLateralShapeParametrizationHitNumberFromE(const char* name, const char* title,double stochastic,double stochastic_hadron,double constant) :
+  TFCSLateralShapeParametrizationHitBase(name,title),m_stochastic(stochastic),m_stochastic_hadron(stochastic_hadron),m_constant(constant)
 {
   set_match_all_pdgid();
 }
