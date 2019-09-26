@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // SelectedParticlesCnv.h 
@@ -14,7 +14,7 @@
 // STL includes
 
 // AthenaPoolCnvSvc includes
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -26,41 +26,9 @@
 // ParticleEventTPCnv includes
 #include "ParticleEventTPCnv/SelectedParticlesCnv_p1.h"
 
-// Forward declaration
+typedef T_AthenaPoolTPCnvCnv< SelectedParticles,
+                              SelectedParticlesCnv_p1 >
+  SelectedParticlesCnv;
 
-// the latest persistent representation type of SelectedParticles:
-typedef SelectedParticles_p1  SelectedParticles_PERS;
-
-class SelectedParticlesCnv: public T_AthenaPoolCustomCnv<
-                                      SelectedParticles, 
-                                      SelectedParticles_PERS 
-                                   > 
-
-{
-
-  // make the factory for this converter our friend
-  friend class CnvFactory<SelectedParticlesCnv>;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-
-  /** Create the converter from the service locator
-   */
-public:
-  SelectedParticlesCnv(ISvcLocator* svcloc);
-protected:
-
-  /** Build the persistent representation from the transient one.
-   */
-  virtual SelectedParticles_PERS*
-    createPersistent( SelectedParticles* transCont );
-  
-  /** Build the transient representation from a persistent one
-   */
-  virtual SelectedParticles* createTransient();
-
-};
 
 #endif //>PARTICLEEVENTATHENAPOOL_SELECTEDPARTICLESCNV_H 
