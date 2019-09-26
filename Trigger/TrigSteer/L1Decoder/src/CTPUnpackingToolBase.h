@@ -21,22 +21,19 @@ namespace ROIB {
  *
  * Provides common features needed by all CPT unpacker.
  */
-class CTPUnpackingToolBase : public extends<AthAlgTool, ICTPUnpackingTool> { 
+class CTPUnpackingToolBase : public extends<AthAlgTool, ICTPUnpackingTool> {
 public:
-  
+
   CTPUnpackingToolBase(const std::string& type,
-                       const std::string& name, 
+                       const std::string& name,
                        const IInterface* parent);
 
-  virtual StatusCode decode(const ROIB::RoIBResult& /*roib*/, 
+  virtual StatusCode decode(const ROIB::RoIBResult& /*roib*/,
                             HLT::IDVec& /*enabledChains*/) const override
   { return StatusCode::SUCCESS; }
-  
-  virtual StatusCode initialize() override;
-  
-  virtual StatusCode updateConfiguration( const std::map<std::string, std::string>& ) override { return StatusCode::SUCCESS; }
 
-   
+  virtual StatusCode initialize() override;
+
 protected:
 
   static const int s_CTPIDForUndeededChains = -1;

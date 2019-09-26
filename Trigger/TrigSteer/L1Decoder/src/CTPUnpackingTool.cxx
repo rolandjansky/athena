@@ -15,14 +15,13 @@ using namespace HLT;
 CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
                                     const std::string& name,
                                     const IInterface* parent )
-  : CTPUnpackingToolBase(type, name, parent),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ) {
-}
+  : CTPUnpackingToolBase(type, name, parent) { }
 
 
 StatusCode CTPUnpackingTool::initialize()
 {
-  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_lvl1ConfigSvc.retrieve() );
+  ATH_CHECK( m_hltConfigSvc.retrieve() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
 
   ATH_CHECK( CTPUnpackingToolBase::initialize() );
@@ -32,24 +31,18 @@ StatusCode CTPUnpackingTool::initialize()
 
 
 StatusCode CTPUnpackingTool::start() {
-  // TODO, move code from updateConfiguration once L1 menu is available
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, std::string>& /*seeding*/ )  {
-
   // TODO switch to the L1 menu once available
-  ATH_MSG_DEBUG( "Updating CTP bits decoding configuration");
+  ATH_MSG_INFO( "Updating CTP bits decoding configuration");
   // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
   std::map<std::string, size_t> toCTPID;
-  for ( const TrigConf::TriggerItem* item:   m_configSvc->ctpConfig()->menu().itemVector() ) {
+  for ( const TrigConf::TriggerItem* item:   m_lvl1ConfigSvc->ctpConfig()->menu().itemVector() ) {
     toCTPID[item->name()] = item->ctpId();
   }
 
   auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id ) -> StatusCode {
     if ( toCTPID.find( itemName ) != toCTPID.end() ) {
       m_ctpToChain[ toCTPID[itemName] ].push_back( id );
+      return StatusCode::SUCCESS;
     }
     ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
     return StatusCode::FAILURE;
@@ -57,13 +50,15 @@ StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, st
 
 
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  ATH_CHECK( hltMenuHandle.isValid() );
+
   for ( auto chain: *hltMenuHandle ) {
     HLT::Identifier chainID = HLT::Identifier( chain.name() );
-    ATH_MSG_DEBUG( "Chain " << chain.name() << " enabled by L1 item of ID " << 0 );
-    if ( chain.l1item().empty() ) {
+
+    if ( chain.l1item().empty() ) { // unseeded chain
       m_ctpToChain[ s_CTPIDForUndeededChains ].push_back( chainID );
-    } else if ( chain.l1item().find(',') != std::string::npos ) {
-      // TODO add chains that can be seeded by an OR of several items
+    } else if ( chain.l1item().find(',') != std::string::npos ) { // OR seeds
+
       std::vector<std::string> items;
       boost::split(items, chain.l1item(), [](char c){return c == ',';});
       for ( auto i: items ) {
@@ -82,6 +77,7 @@ StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, st
 
   return StatusCode::SUCCESS;
 }
+
 
 
 StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {

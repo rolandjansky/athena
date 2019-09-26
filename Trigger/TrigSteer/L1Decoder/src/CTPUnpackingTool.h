@@ -9,6 +9,7 @@
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
 
@@ -26,14 +27,15 @@ public:
 
   virtual StatusCode start() override;
 
-  virtual StatusCode updateConfiguration( const std::map<std::string, std::string>& seeding ) override;
+
 
 private:
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-
-  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTMenu", "DetectorStore+HLTMenu",
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc{this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", ""};
+  ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "TrigConf::HLTConfigSvc/HLTConfigSvc", ""};
+  
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
       "HLT Menu"};
-
+  
   // TODO  add once L1 menu available as well
   //SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1Menu", "DetectorStore+HLTMenu",
   //      "Menu"};
