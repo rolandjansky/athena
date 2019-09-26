@@ -48,9 +48,8 @@ StatusCode AdjustableT0Tool::initialize()
   ATH_MSG_INFO(  "= DoTof                         " << m_DoTof           ) ;
   ATH_MSG_INFO(  "================================" ) ;
 
-  const MdtIdHelper* pMdtIdHelper = nullptr;
-  ATH_CHECK( detStore()->retrieve(pMdtIdHelper,"MDTIDHELPER") );
-  p_AdjustableT0Map = new AdjustableT0Map(pMdtIdHelper) ;
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  p_AdjustableT0Map = new AdjustableT0Map(m_muonIdHelperTool.get()) ;
 
   ATH_MSG_INFO(  "Initialisation ended     " ) ;
 

@@ -700,14 +700,4 @@ namespace Muon {
     if( !isSmallChamber( id ) ) --sect;
     return sect;
   }
-
-  bool MuonIdHelperTool::hasCSC() const {
-    return m_hasCSC;
-  }
-  bool MuonIdHelperTool::hasSTgc() const {
-    return m_hasSTgc;
-  }
-  bool MuonIdHelperTool::hasMM() const {
-    return m_hasMM;
-  }
 }

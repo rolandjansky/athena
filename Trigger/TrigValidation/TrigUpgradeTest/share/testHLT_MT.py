@@ -374,6 +374,10 @@ TriggerFlags.outputLVL1configFile = None
 from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
 svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+svcMgr.LVL1ConfigSvc.InputType = "file"
+l1JsonFile = TriggerFlags.inputLVL1configFile().replace(".xml",".json")
+svcMgr.LVL1ConfigSvc.JsonFileName = l1JsonFile
+log.info("Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s" % l1JsonFile)
 
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence

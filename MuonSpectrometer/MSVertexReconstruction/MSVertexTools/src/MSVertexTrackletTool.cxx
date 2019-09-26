@@ -80,7 +80,7 @@ namespace Muon {
     
     ATH_CHECK(m_mdtTESKey.initialize());
     ATH_CHECK(m_TPContainer.initialize());
-	ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }

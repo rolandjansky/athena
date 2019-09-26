@@ -25,6 +25,8 @@
 #include "TH2I.h"
 
 // Local includes:
+#include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfData/HLTMenu.h"
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IStorageMgr.h"
@@ -78,6 +80,35 @@ HLTConfigSvc::~HLTConfigSvc()
 {}
 
 
+StatusCode
+HLTConfigSvc::writeConfigToDetectorStore() {
+
+    // load the json file into TrigConf::HLTMenu
+    TrigConf::JsonFileLoader fileLoader;
+    fileLoader.setLevel(TrigConf::MSGTC::WARNING);
+
+    TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
+
+    if( m_inputType == "file" ) {
+       if( fileLoader.loadFile( m_hltFileName, *hltmenu ).isSuccess() ) {
+          ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
+       } else {
+          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());
+          return StatusCode::RECOVERABLE;
+       }
+    }
+
+    ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );
+
+    ATH_CHECK( detStore.retrieve() );
+    if( detStore->record(hltmenu,"HLTTriggerMenu").isSuccess() ) {
+       ATH_MSG_INFO( "Recorded HLT menu with key 'HLTTriggerMenu' in the detector store" );
+    }
+
+    return StatusCode::SUCCESS;
+} 
+
+
 // Suppress warnings for two functions of this class marked as deprecated.
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -115,7 +146,12 @@ HLTConfigSvc::sequences() const {
 StatusCode
 HLTConfigSvc::initialize() {
 
-   CHECK(ConfigSvcBase::initialize());
+   ATH_CHECK(ConfigSvcBase::initialize());
+
+   StatusCode sc = writeConfigToDetectorStore();
+   if( !sc.isSuccess() ) {
+          ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
+   }
 
    //////////////////////////////////////////////////////////////
    // BEGIN RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY

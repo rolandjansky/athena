@@ -240,7 +240,8 @@ namespace Muon {
 
     bool m_useSeeds;
 
-    ToolHandle<MuonIdHelperTool> m_idHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ToolHandle<MuonEDMPrinterTool> m_printer;
     mutable ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool;
     const MuonGM::MuonDetectorManager* m_detMgr;
@@ -287,7 +288,7 @@ namespace Muon {
   }
 
   inline double MuonLayerHoughTool::rCor( const Amg::Vector3D& pos, const Identifier& id ) const {
-    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),m_idHelper->sector(id));
+    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),m_muonIdHelperTool->sector(id));
   }
   
   inline double MuonLayerHoughTool::rCor( const MuonCluster& mm ) const {
@@ -306,27 +307,27 @@ namespace Muon {
   inline int MuonLayerHoughTool::sublay( const Identifier& id, float /*z*/ ) const {
     
     int sublayer = 0;
-    if( m_idHelper->isMdt(id) ) {
-      sublayer = m_idHelper->mdtIdHelper().tubeLayer(id)-1;
-      if( m_idHelper->mdtIdHelper().multilayer(id) == 2 ) sublayer += 4;
-    }else if( m_idHelper->isMM(id) ) {
-      sublayer = m_idHelper->mmIdHelper().gasGap(id)-1;
-      if( m_idHelper->mmIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    if( m_muonIdHelperTool->isMdt(id) ) {
+      sublayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id)-1;
+      if( m_muonIdHelperTool->mdtIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    }else if( m_muonIdHelperTool->isMM(id) ) {
+      sublayer = m_muonIdHelperTool->mmIdHelper().gasGap(id)-1;
+      if( m_muonIdHelperTool->mmIdHelper().multilayer(id) == 2 ) sublayer += 4;
       sublayer += 600; // type info
-    }else if( m_idHelper->issTgc(id) ) {
-      sublayer = m_idHelper->stgcIdHelper().gasGap(id)-1;
-      if( m_idHelper->stgcIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    }else if( m_muonIdHelperTool->issTgc(id) ) {
+      sublayer = m_muonIdHelperTool->stgcIdHelper().gasGap(id)-1;
+      if( m_muonIdHelperTool->stgcIdHelper().multilayer(id) == 2 ) sublayer += 4;
       sublayer += 500; // type info
-    }else if( m_idHelper->isRpc(id) ){
-      sublayer = m_idHelper->rpcIdHelper().gasGap(id)-1;
-      if( m_idHelper->rpcIdHelper().doubletR(id) == 2 ) sublayer += 2;
+    }else if( m_muonIdHelperTool->isRpc(id) ){
+      sublayer = m_muonIdHelperTool->rpcIdHelper().gasGap(id)-1;
+      if( m_muonIdHelperTool->rpcIdHelper().doubletR(id) == 2 ) sublayer += 2;
       sublayer += 100; // type info
-    }else if( m_idHelper->isTgc(id) ){
-      sublayer = m_idHelper->tgcIdHelper().gasGap(id)-1;
-      Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+    }else if( m_muonIdHelperTool->isTgc(id) ){
+      sublayer = m_muonIdHelperTool->tgcIdHelper().gasGap(id)-1;
+      Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(id);
       if( stIndex == Muon::MuonStationIndex::EM ) {
        //T1 gets +3; T2 gets +3+3; T3 gets +3+6; T4 gets0 (because it is also EI)
-	Muon::MuonStationIndex::PhiIndex phiIndex = m_idHelper->phiIndex(id);
+	Muon::MuonStationIndex::PhiIndex phiIndex = m_muonIdHelperTool->phiIndex(id);
        sublayer += 3;
 	if( phiIndex == Muon::MuonStationIndex::T2 )       sublayer += 3;
 	else if( phiIndex == Muon::MuonStationIndex::T3 )  sublayer += 6;

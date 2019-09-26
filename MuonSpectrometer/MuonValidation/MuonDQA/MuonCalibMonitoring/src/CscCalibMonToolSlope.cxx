@@ -121,7 +121,7 @@ StatusCode CscCalibMonToolSlope::initialize()
   m_onlyExpectPrecisionHashIds = true; 
   StatusCode sc = CscCalibMonToolBase::initialize();
 
-  IdContext channelContext = m_cscIdHelper->channel_context();
+  IdContext channelContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
   ATH_MSG_DEBUG( "Expected chamber layer is " << m_expectedChamberLayer );
 
@@ -555,7 +555,7 @@ StatusCode CscCalibMonToolSlope::postProc()
 
 
 
-  IdContext chanContext = m_cscIdHelper->channel_context();
+  IdContext chanContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
   //Get the slopeReport, checking for pointer errors along the way
   const DataHandle<CscCalibReportContainer> repCont;
@@ -679,13 +679,13 @@ StatusCode CscCalibMonToolSlope::postProc()
         cerr << "Doing detailed plots of hash " << idItr << endl;
 
         Identifier chanId;
-        m_cscIdHelper->get_id(IdentifierHash(idItr), chanId, &chanContext);
-        int stationSize = m_cscIdHelper->stationName(chanId);
-        int stationEta = m_cscIdHelper->stationEta(chanId);
-        int stationPhi = m_cscIdHelper->stationPhi(chanId);
-        int wireLayer = m_cscIdHelper->wireLayer(chanId);
-        int measuresPhi = m_cscIdHelper->measuresPhi(chanId);
-        int strip = m_cscIdHelper->strip(chanId);
+        m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(idItr), chanId, &chanContext);
+        int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(chanId);
+        int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(chanId);
+        int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(chanId);
+        int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(chanId);
+        int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
+        int strip = m_muonIdHelperTool->cscIdHelper().strip(chanId);
         int sector = getSector(stationPhi, stationSize);
 
         string geoPath = getGeoPath(stationEta, sector, wireLayer, measuresPhi);
@@ -792,26 +792,26 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
   }
 
   //Loop through all channels in geometry:
-  vector<Identifier> ids = m_cscIdHelper->idVector();
+  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
   vector<Identifier>::const_iterator chamItr = ids.begin();
   vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     ATH_MSG_VERBOSE( "in Chamber loop "  );
-    unsigned int stationSize = m_cscIdHelper->stationName(*chamItr); //51 = large, 50 = small
-    unsigned int stationPhi = m_cscIdHelper->stationPhi(*chamItr);
-    int stationEta = m_cscIdHelper->stationEta(*chamItr);
+    unsigned int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
+    unsigned int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
+    int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr);
     unsigned int sector = getSector(stationPhi,stationSize);
 
     vector<Identifier> stripVect;
-    m_cscIdHelper->idChannels(*chamItr,stripVect);
+    m_muonIdHelperTool->cscIdHelper().idChannels(*chamItr,stripVect);
     vector<Identifier>::const_iterator stripItr = stripVect.begin();
     vector<Identifier>::const_iterator stripEnd = stripVect.end();
     for(;stripItr != stripEnd; stripItr++)
     {
       ATH_MSG_VERBOSE( "in strip loop "  );
       IdentifierHash stripHash;
-      m_cscIdHelper->get_channel_hash(*stripItr,stripHash);
+      m_muonIdHelperTool->cscIdHelper().get_channel_hash(*stripItr,stripHash);
       if(!m_expectedHashIdsPrec.count((int)stripHash)){
         ATH_MSG_VERBOSE( "Skipping hash"  << (int)stripHash  );
         continue;
@@ -841,8 +841,8 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
       //Note, we don't ask for measuresPhi because there should be no
       //TGraphs with Y anyways.
       ATH_MSG_VERBOSE( "getting id info " );
-      unsigned int layer = m_cscIdHelper->wireLayer(*stripItr);
-      unsigned int strip = m_cscIdHelper->strip(*stripItr);
+      unsigned int layer = m_muonIdHelperTool->cscIdHelper().wireLayer(*stripItr);
+      unsigned int strip = m_muonIdHelperTool->cscIdHelper().strip(*stripItr);
       ATH_MSG_VERBOSE( "Got strip and layer"  );
       //initialize fractional deviation profile
       ATH_MSG_VERBOSE( "initializing profile "  );
@@ -937,7 +937,7 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
 {//This function has grown a bit unwieldly, and duplicates info in sets and arrays. Can this be merged?
 
   //****Find Dead channels
-  IdContext channelContext = m_cscIdHelper->channel_context(); 
+  IdContext channelContext = m_muonIdHelperTool->cscIdHelper().channel_context(); 
 
   set<int> newDead, newUndead;
 
@@ -990,10 +990,10 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
     for(unsigned int hashItr = 0; hashItr <= m_maxHashId ; hashItr++)
     {
       Identifier id;
-      m_cscIdHelper->get_id(hashItr,id, &channelContext);
-      int chamberLayer = m_cscIdHelper->chamberLayer(id);
+      m_muonIdHelperTool->cscIdHelper().get_id(hashItr,id, &channelContext);
+      int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(id);
       IdentifierHash chamberHash;
-      m_cscIdHelper->get_module_hash(id, chamberHash);
+      m_muonIdHelperTool->cscIdHelper().get_module_hash(id, chamberHash);
 
       if(chamberLayer == 2 && pulsedChambers->count((int)chamberHash))
       {//This is a good chamber layer and it is a pulsed chamber
@@ -1055,11 +1055,11 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
       for(; deadItr != deadEnd; deadItr++)
       {
         Identifier id;
-        m_cscIdHelper->get_id(*deadItr,id, &channelContext);
+        m_muonIdHelperTool->cscIdHelper().get_id(*deadItr,id, &channelContext);
         IdentifierHash chamHash;
-        m_cscIdHelper->get_module_hash(id, chamHash);
+        m_muonIdHelperTool->cscIdHelper().get_module_hash(id, chamHash);
         out << *deadItr << " " << (int)chamHash << " " 
-          << m_cscIdHelper->show_to_string(id, &channelContext) << " 1\n";
+          << m_muonIdHelperTool->cscIdHelper().show_to_string(id, &channelContext) << " 1\n";
       }
 
       set<int>::const_iterator undeadItr = newUndead.begin(); 
@@ -1067,11 +1067,11 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
       for(; undeadItr != undeadEnd; undeadItr++)
       {
         Identifier id;
-        m_cscIdHelper->get_id(*undeadItr,id, &channelContext);
+        m_muonIdHelperTool->cscIdHelper().get_id(*undeadItr,id, &channelContext);
         IdentifierHash chamHash;
-        m_cscIdHelper->get_module_hash(id, chamHash);
+        m_muonIdHelperTool->cscIdHelper().get_module_hash(id, chamHash);
         out << *undeadItr << " " << (int)chamHash << " " 
-          << m_cscIdHelper->show_to_string(id, &channelContext)
+          << m_muonIdHelperTool->cscIdHelper().show_to_string(id, &channelContext)
           << "0\n";
       } 
       out.close();
