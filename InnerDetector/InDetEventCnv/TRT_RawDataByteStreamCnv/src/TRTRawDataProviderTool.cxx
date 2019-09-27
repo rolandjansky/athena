@@ -125,6 +125,8 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 #endif
     // remember last Lvl1ID
     m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
+    // and clean up the identifable container !
+    rdoIdc->cleanup(); //TODO REMOVE AFTER TRIGGER LEGACY CODE RETIRED
 
     if ( m_storeInDetTimeColls )
     {

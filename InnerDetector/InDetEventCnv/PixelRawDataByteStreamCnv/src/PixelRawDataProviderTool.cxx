@@ -73,6 +73,10 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 #endif
     // remember last Lvl1ID
     m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
+
+    // and clean up the identifable container !
+    rdoIdc->cleanup();//TODO Remove this when legacy trigger code is removed
+
   }
 
   // loop over the ROB fragments
