@@ -640,7 +640,7 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 	}
 
       // get the collection
-      rdoIdc->naughtyRetrieve( idHash, theColl );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
 
       // Check if the Collection is already created.
       if ( theColl == nullptr )
@@ -863,7 +863,7 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 	}
       
       // get the collection
-      rdoIdc->naughtyRetrieve( idHash, theColl );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
       
       // Check if the Collection is already created.
       if (  theColl==nullptr )
@@ -1141,7 +1141,7 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 	}
       
       // get the collection
-      rdoIdc->naughtyRetrieve( idHash, theColl );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
       
       // Check if the Collection is already created.
       if ( theColl == nullptr )
