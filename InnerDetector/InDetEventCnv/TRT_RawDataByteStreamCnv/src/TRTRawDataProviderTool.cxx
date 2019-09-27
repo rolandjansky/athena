@@ -102,7 +102,7 @@ StatusCode TRTRawDataProviderTool::finalize()
 // -------------------------------------------------------
 // convert method
 
-StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs,
+StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>& vecRobs,
 					    TRT_RDO_Container*               rdoIdc )
 {
 
