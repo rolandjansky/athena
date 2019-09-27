@@ -39,7 +39,7 @@ streamLogic       = 'Or'
 # When using ATLAS partition
 # Use different streams for "atlas standby" and "atlas ready"
 #
-if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
+if (partitionName == 'ATLAS'):
     streamLogic       = 'Or'
     
     import RecExOnline.OnlineISConfiguration
@@ -51,7 +51,7 @@ if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
     obj = ispy.ISObject(ispy.IPCPartition(partitionName), 'RunParams.RunParams', 'RunParams')
     obj.checkout()
     ### if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV'):
-    if ( obj.T0_project_tag == 'data17_comm' or obj.T0_project_tag == 'data17_13TeV' or obj.T0_project_tag == 'data17_1beam' or obj.T0_project_tag == 'data16_comm' or obj.T0_project_tag == 'data16_13TeV' or obj.T0_project_tag == 'data16_5TeV' or obj.T0_project_tag == 'data16_1beam' or obj.T0_project_tag == 'data16_hip' or obj.T0_project_tag == 'data16_hip5TeV' or obj.T0_project_tag == 'data16_hip8TeV'):
+    if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV' or obj.T0_project_tag == 'data15_5TeV' or obj.T0_project_tag == 'data16_comm' or obj.T0_project_tag == 'data16_13TeV' or obj.T0_project_tag == 'data16_5TeV' or obj.T0_project_tag == 'data16_1beam' or obj.T0_project_tag == 'data16_hip' or obj.T0_project_tag == 'data16_hip5TeV' or obj.T0_project_tag == 'data16_hip8TeV'):
         #streamName        = 'MinBias'
         #streamName        = 'Main' # Switching due to missingg Minbias stream -= 13/06/2015 AK
         try:
@@ -76,11 +76,11 @@ else:
 #
 # When NOT using ATLAS partition
 #
-if (partitionName != 'ATLAS' and partitionName != 'ATLAS_MP1'):
+if (partitionName != 'ATLAS'):
     if isHI_2016:
-       publishName     = 'GMTest_hiconf'
+       publishName     = 'lshi_hiconf_pp_20_11_2_2_1'
     else:
-       publishName     = 'GMTest_ppconf'
+       publishName     = 'lshi_ppconf_pp_20_11_2_2_1'
     isserverName    = 'Histogramming'
 
 
@@ -117,10 +117,10 @@ useAtlantisEmon   = False
 ### evtMax            = -1
 ### evtMax            = 50
 
-if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
+if (partitionName == 'ATLAS'):
     evtMax            = -1
 
-if (partitionName != 'ATLAS' and partitionName != 'ATLAS_MP1'):
+if (partitionName != 'ATLAS'):
     # evtMax            = 200
     evtMax            = -1 # lshi: for Gatherer test
 
@@ -191,8 +191,6 @@ doJiveXML   = False
 doEgammaTau = doAllReco
 ### doEgammaTau = False
 
-doHIPRec     = False
-
 doHIRec     = False
 
 #set to True in the JO
@@ -224,8 +222,7 @@ doHIMon   = False # doAllMon
 
 if isHI_2016:
    #doTrigger   = False
-   doHIPRec    = doAllReco
-   doZdc       = doAllReco
+   doHIRec     = doAllReco
    #doTrigMon = False
    doHIMon   = doAllMon
 ### doHIMon   = False # doAllMon
@@ -267,6 +264,8 @@ DQMonFlags.doMuonTrkPhysMon.set_Value_and_Lock(True) #xx
 
 from RecExConfig.RecFlags import rec
 rec.doBTagging.set_Value_and_Lock(True)
+if isHI_2016:
+   rec.doHIP.set_Value_and_Lock(True)
 
 from JetRec.JetRecFlags import jetFlags
 jetFlags.useBTagging.set_Value_and_Lock(True)
