@@ -23,6 +23,7 @@ void DataHeaderCnv_p6::persToElem( const DataHeader_p6* pers, unsigned p_idx,
    if( obj_idx != INT32_MIN ) {
       Token* token = new Token;
       trans->m_token = token;
+      trans->m_ownToken = true;
       unsigned db_idx = 0;
       unsigned long long oid2 = 0;
       if( obj_idx >= 0 ) {
