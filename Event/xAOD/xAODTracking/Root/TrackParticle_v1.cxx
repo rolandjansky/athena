@@ -347,7 +347,7 @@ namespace xAOD {
 				    ParametersCovMatrix_t::RowsAtCompileTime ) / 2 );
     unsigned int size = offDiagCompr ? m_covMatrixOffDiagVecComprSize : uncompr_size;
 
-    assert( vec.size() == size || vec.size() ==uncompr_size  ); //If off-diagonal elements are already compressed, can either set with uncompressed or compressed vector
+    if( !(vec.size() == size || vec.size() ==uncompr_size) ) assert(0); //If off-diagonal elements are already compressed, can either set with uncompressed or compressed vector
     accCovMatrixOffDiag( *this ) = vec;
     return;
   }
