@@ -23,7 +23,6 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
       Reconstruction/Jet/JetUtils
-      #Reconstruction/Jet/JetRecTools
       Reconstruction/Jet/JetCalibTools
       Reconstruction/PFlow/PFlowUtils
       PRIVATE
@@ -47,7 +46,6 @@ else()
       Reconstruction/Jet/JetEDM
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
-      #Reconstruction/Jet/JetRecTools
       Reconstruction/Jet/JetCalibTools
       Reconstruction/Jet/JetRecCalo
       Reconstruction/PFlow/PFlowUtils

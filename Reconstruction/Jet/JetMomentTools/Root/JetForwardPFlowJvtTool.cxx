@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardPFlowJvtTool.cxx
@@ -24,8 +24,6 @@
 #include "xAODJet/JetAuxContainer.h"
 #include "JetRec/JetFromPseudojet.h"
 
-// Shallow copy
-//#include "xAODCore/ShallowCopy.h"
 
     static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
     static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
@@ -39,8 +37,7 @@
   ////////////////
   JetForwardPFlowJvtTool::JetForwardPFlowJvtTool(const std::string& name) :
     AsgTool(name),
-    m_fjvtThresh(15e3)
-  {
+    m_fjvtThresh(15e3){
     declareProperty("OverlapDec",         m_orLabel          = ""                        );
     declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets"        );
     declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"            );
@@ -70,11 +67,6 @@
     declareProperty("JetCalibArea",       m_calibArea        = "00-04-82"                );
     declareProperty("JetCalibIsData",     m_isdata           = false                     );
   }
-
-  // Destructor
-  ///////////////
-  JetForwardPFlowJvtTool::~JetForwardPFlowJvtTool()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -110,65 +102,73 @@
   }
 
   int JetForwardPFlowJvtTool::modify(xAOD::JetContainer& jetCont) const {
+    std::vector<TVector2> pileupMomenta;
+    pileupMomenta=calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
+    if(pileupMomenta.size()==0) return StatusCode::FAILURE;
 
-    m_pileupMomenta.clear();
-    if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
-    for(const auto& jetF : jetCont) {
+    for(const xAOD::Jet* jetF : jetCont) {
       (*Dec_outFjvt)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
-      if (!forwardJet(jetF)) continue;
-      double fjvt = getFJVT(jetF);
-      if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
-      fjvt_dec(*jetF) = fjvt;
+
+      if (isForwardJet(jetF)){
+       double fjvt = getFJVT(jetF,pileupMomenta);
+       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
+       fjvt_dec(*jetF) = fjvt;
+      }
     }
     return 0;
   }
 
-  float JetForwardPFlowJvtTool::getFJVT(const xAOD::Jet *jet) const {
+  float JetForwardPFlowJvtTool::getFJVT(const xAOD::Jet *jet, std::vector<TVector2> pileupMomenta) const {
     TVector2 fjet(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()));
     double fjvt = 0;
-    for (size_t pui = 0; pui < m_pileupMomenta.size(); pui++) {
-      double projection = m_pileupMomenta[pui]*fjet/fjet.Mod();
+    for (size_t pui = 0; pui < pileupMomenta.size(); pui++) {
+      double projection = pileupMomenta[pui]*fjet/fjet.Mod();
       if (projection<fjvt) fjvt = projection;
     }
     return -1*fjvt/fjet.Mod();
   }
 
-  void JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *pjets, int m_pvind, int m_vertices) const {
-    m_pileupMomenta.clear();
+  std::vector<TVector2> JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *pjets, int pvind, int vertices) const {
+    std::vector<TVector2> pileupMomenta;
 
     // -- Retrieve PV index if not provided by user
-    int pvind = (m_pvind==-1) ? getPV() : m_pvind;
+    int pv_index = (pvind==-1) ? getPV() : pvind;
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
+      ATH_MSG_ERROR("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
+      return pileupMomenta;
     }
     const xAOD::PFOContainer *pfos = m_pfotool->retrievePFO(CP::EM,CP::all);
     if(pfos == NULL ){
-      ATH_MSG_ERROR("PFO container is empty!");    
+      ATH_MSG_ERROR("PFO container is empty!");
+      return pileupMomenta;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved PFO objects");
     }
 
     for(const xAOD::Vertex* vx: *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
-      if(vx->index()==pvind) continue;
+      if(vx->index()==pv_index) continue;
       // Build and retrieve PU jets
       buildPFlowPUjets(*vx,*pfos);
       TString jname = m_jetsName;
       jname += vx->index();
       const xAOD::JetContainer* vertex_jets  = nullptr;
-      evtStore()->retrieve(vertex_jets,jname.Data());
+      if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
+        ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
+        return pileupMomenta;
+      }
 
       TVector2 vertex_met;
-      for (const auto& jet : *vertex_jets) {
+      for (const xAOD::Jet *jet : *vertex_jets) {
 
         // Remove jets which are close to hs
         if (hasCloseByHSjet(jet,pjets)) continue;
 
         // Calculate vertex missing momentum
-        if (centralJet(jet) && getRpt(jet)> m_rptCut)
+        if (isCentralJet(jet) && getRpt(jet)> m_rptCut)
         { 
           vertex_met += TVector2(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()) ) ;
         } 
@@ -176,14 +176,17 @@
           vertex_met += TVector2(jet->jetP4(m_jetchargedp4).Pt()*cos(jet->jetP4(m_jetchargedp4).Phi()), jet->jetP4(m_jetchargedp4).Pt()*sin(jet->jetP4(m_jetchargedp4).Phi()) );
         }
       }
-      m_pileupMomenta.push_back(vertex_met);
-      if(m_vertices!=-1 && vx->index()==m_vertices) break;
+      pileupMomenta.push_back(vertex_met);
+      if(vertices!=-1 && vx->index()==vertices) break;
     }
+    return pileupMomenta;
   }
 
   bool JetForwardPFlowJvtTool::hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const {
-    for (const auto& pjet : *pjets) {
-     if (pjet->p4().DeltaR(jet->p4())<0.3 && pjet->auxdata<float>("Jvt")>m_jvtCut && centralJet(pjet) ) return true;
+    for (const xAOD::Jet* pjet : *pjets) {
+      float jet_jvt=0;
+      pjet->getAttribute<float>("Jvt",jet_jvt);
+     if (pjet->p4().DeltaR(jet->p4())<0.3 && jet_jvt>m_jvtCut && isCentralJet(pjet) ) return true;
     }
     return false;
   }
@@ -204,13 +207,14 @@
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
       }
     }
-    xAOD::JetContainer* vertjets = new xAOD::JetContainer();
-    xAOD::JetAuxContainer* vertjetsAux = new xAOD::JetAuxContainer();
-    vertjets->setStore(vertjetsAux);
+    // xAOD::JetContainer* vertjets = new xAOD::JetContainer();
+    // xAOD::JetAuxContainer* vertjetsAux = new xAOD::JetAuxContainer();
+    // vertjets->setStore(vertjetsAux);
+    std::unique_ptr<xAOD::JetContainer> vertjets = std::make_unique<xAOD::JetContainer>();
+    std::unique_ptr<xAOD::JetAuxContainer> vertjetsAux = std::make_unique<xAOD::JetAuxContainer>();
+    vertjets->setStore(vertjetsAux.get());
     TString newname = m_jetsName;
     newname += vx.index();
-    evtStore()->record(vertjets,newname.Data());
-    evtStore()->record(vertjetsAux,(newname+"Aux.").Data());
 
     fastjet::JetDefinition jet_def(fastjet::antikt_algorithm,0.4);
     fastjet::AreaDefinition area_def(fastjet::active_area_explicit_ghosts,fastjet::GhostedAreaSpec(fastjet::SelectorAbsRapMax(m_maxRap)));
@@ -218,10 +222,12 @@
     std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(0));
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
-      xAOD::Jet* jet = new xAOD::Jet();
+      xAOD::Jet* jet=  new xAOD::Jet();
+      //std::unique_ptr<xAOD::Jet> jet = std::make_unique<xAOD::Jet>();
       xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
       xAOD::JetFourMom_t newArea(inclusive_jets[i].area_4vector().perp(),inclusive_jets[i].area_4vector().rap(),inclusive_jets[i].area_4vector().phi(),0);
       vertjets->push_back(jet);
+      //vertjets->push_back((jet.release());
       jet->setJetP4(tempjetp4);
       jet->setJetP4("JetConstitScaleMomentum",tempjetp4);
       jet->setJetP4("JetPileupScaleMomentum",tempjetp4);
@@ -238,19 +244,17 @@
       jet->setJetP4(m_jetchargedp4,chargejetp4);
     }   
     m_pfoJES->modify(*vertjets);
+    evtStore()->record(vertjets.release(),newname.Data());
+    evtStore()->record(vertjetsAux.release(),(newname+"Aux.").Data());
   }
 
   fastjet::PseudoJet JetForwardPFlowJvtTool::pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const {
-    if ( pfo == 0 ) {
-      ATH_MSG_WARNING("Have NULL pointer to PFO");
-    }
 
     TLorentzVector pfo_p4;
     if (CP::charged == theCharge){
       float pweight = m_weight;
       m_wpfotool->fillWeight(*pfo,pweight);
       // Create a PSeudojet with the momentum of the selected IParticle
-      //pfo_p4= pfo->p4();
       pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
     } else if (CP::neutral == theCharge){ 
       pfo_p4= pfo->GetVertexCorrectedEMFourVec(*vx);
@@ -262,13 +266,13 @@
     return psj;
   }
 
-  bool JetForwardPFlowJvtTool::forwardJet(const xAOD::Jet *jet) const {
+  bool JetForwardPFlowJvtTool::isForwardJet(const xAOD::Jet *jet) const {
     if (fabs(jet->eta())<m_etaThresh) return false;
     if (jet->pt()<m_forwardMinPt || (m_forwardMaxPt>0 && jet->pt()>m_forwardMaxPt) ) return false;
     return true;
   }
 
-  bool JetForwardPFlowJvtTool::centralJet(const xAOD::Jet *jet) const {
+  bool JetForwardPFlowJvtTool::isCentralJet(const xAOD::Jet *jet) const {
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
     return true;
@@ -286,8 +290,6 @@
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
       ATH_MSG_ERROR("Unable to retrieve primary vertex container");
       return StatusCode::FAILURE;
-    } else if(vxCont->empty()) {
-      ATH_MSG_INFO("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
       for(const xAOD::Vertex *vx : *vxCont) {
@@ -299,10 +301,10 @@
   }
 
   StatusCode JetForwardPFlowJvtTool::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {
-    for(const auto& jet : *jets) {
+    for(const xAOD::Jet *jet : *jets) {
       bool ishs = false;
       bool ispu = true;
-      for(const auto& tjet : *truthJets) {
+      for(const xAOD::Jet *tjet : *truthJets) {
         if (tjet->p4().DeltaR(jet->p4())<0.3 && tjet->pt()>10e3) ishs = true;
         if (tjet->p4().DeltaR(jet->p4())<0.6) ispu = false;
       }

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardPFlowJvtTool.h
@@ -14,45 +14,32 @@
 // STL includes
 #include <string>
 
-
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
 
-// EDM includes
-#include "xAODJet/JetContainer.h"
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "JetInterface/IJetModifier.h"
-#include "AsgTools/IAsgTool.h"
-
-// Pflow tools
+// Pflow tools 
+#include "PFlowUtils/IRetrievePFOTool.h"
+#include "PFlowUtils/IWeightPFOTool.h"
 #include "PFlowUtils/RetrievePFOTool.h"
 #include "PFlowUtils/WeightPFOTool.h"
 #include "JetCalibTools/JetCalibrationTool.h"
+#include "JetCalibTools/IJetCalibrationTool.h"
 
-//ASG_TOOL_INTERFACE(IJetUpdateJvt)
 
   class JetForwardPFlowJvtTool
   : public asg::AsgTool,
     virtual public IJetModifier{
     ASG_TOOL_CLASS(JetForwardPFlowJvtTool,IJetModifier)
 
-    // This macro defines the constructor with the interface declaration
-    //ASG_TOOL_CLASS(JetForwardPFlowJvtTool, IJetForwardPFlowJvtTool)
-
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
   public:
 
-    // Copy constructor:
-
     /// Constructor with parameters:
     JetForwardPFlowJvtTool(const std::string& name);
-
-    /// Destructor:
-    virtual ~JetForwardPFlowJvtTool();
 
     // Athena algtool's Hooks
     StatusCode  initialize();
@@ -60,13 +47,12 @@
 
     virtual int modify(xAOD::JetContainer& jetCont) const;
 
-    float getFJVT(const xAOD::Jet *jet) const;
-    bool forwardJet(const xAOD::Jet *jet) const;
-    bool centralJet(const xAOD::Jet *jet) const;
+    float getFJVT(const xAOD::Jet *jet,std::vector<TVector2> pileupMomenta) const;
+    bool isForwardJet(const xAOD::Jet *jet) const;
+    bool isCentralJet(const xAOD::Jet *jet) const;
 
     static StatusCode tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets);
-    //std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets,int m_pvind, int m_vertices) const;
-    void calculateVertexMomenta(const xAOD::JetContainer *jets,int m_pvind, int m_vertices) const;
+    std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets,int pvind, int vertices) const;
     void buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
     bool hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const;
     double getRpt(const xAOD::Jet *jet) const;
@@ -105,17 +91,13 @@
     double m_neutMaxRap;
     float  m_weight;
     bool m_tightOP;
-    mutable std::vector<TVector2> m_pileupMomenta;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
-    //std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
     std::unique_ptr<CP::RetrievePFOTool> m_pfotool;
     std::unique_ptr<CP::WeightPFOTool> m_wpfotool;
     std::unique_ptr<JetCalibrationTool> m_pfoJES;
 
     int getPV() const;
-    /// Default constructor:
-    JetForwardPFlowJvtTool();
 
   };
 #endif //> !FORWARDJVTTOOL_JVT_FORWARDJVTTOOL_H
