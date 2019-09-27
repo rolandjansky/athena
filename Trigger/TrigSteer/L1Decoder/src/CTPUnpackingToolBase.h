@@ -37,7 +37,7 @@ public:
 protected:
 
   static const int s_CTPIDForUndeededChains = -1;
-  typedef std::map<int, HLT::IDVec> IndexToIdentifiers;
+  typedef std::unordered_map<int, HLT::IDVec> IndexToIdentifiers;
   IndexToIdentifiers       m_ctpToChain;
 
   ///@{ @name Properties

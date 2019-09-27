@@ -52,7 +52,7 @@ StatusCode CTPUnpackingTool::start() {
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
   ATH_CHECK( hltMenuHandle.isValid() );
 
-  for ( auto chain: *hltMenuHandle ) {
+  for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
     HLT::Identifier chainID = HLT::Identifier( chain.name() );
 
     if ( chain.l1item().empty() ) { // unseeded chain
@@ -61,7 +61,7 @@ StatusCode CTPUnpackingTool::start() {
 
       std::vector<std::string> items;
       boost::split(items, chain.l1item(), [](char c){return c == ',';});
-      for ( auto i: items ) {
+      for ( const std::string& i: items ) {
 	ATH_CHECK( addIfItemExists( i, chainID ) );
       }
     } else { // regular chain

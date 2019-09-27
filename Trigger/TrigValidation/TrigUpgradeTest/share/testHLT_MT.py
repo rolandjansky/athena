@@ -373,7 +373,6 @@ TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, HLTConfigSvc, findFileInXMLPATH
 svcMgr += LVL1ConfigSvc()
-svcMgr.LVL1ConfigSvc.OutputLevel=DEBUG
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr.LVL1ConfigSvc.InputType = "file"
 l1JsonFile = TriggerFlags.inputLVL1configFile().replace(".xml",".json")
@@ -384,7 +383,6 @@ svcMgr += HLTConfigSvc()
 hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
 hltJsonFile = findFileInXMLPATH(hltJsonFile)
 svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
-svcMgr.HLTConfigSvc.OutputLevel=DEBUG
 log.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
 
 
