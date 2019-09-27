@@ -376,7 +376,10 @@ class TrigL2MuonOverlapRemoverMucombConfig(object):
 
 def TrigmuCombHypoToolFromDict( chainDict ):
 
-    thresholds = getThresholdsFromDict( chainDict )
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+       thresholds = ['passthrough']
+    else:
+       thresholds = getThresholdsFromDict( chainDict )
     config = TrigmuCombHypoConfig()
     
     tight = False # can be probably decoded from some of the proprties of the chain, expert work
@@ -515,7 +518,10 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
     
 def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
-    thresholds = getThresholdsFromDict( chainDict ) 
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+       thresholds = ['passthrough']
+    else:
+       thresholds = getThresholdsFromDict( chainDict )
     config = TrigMuonEFCombinerHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
