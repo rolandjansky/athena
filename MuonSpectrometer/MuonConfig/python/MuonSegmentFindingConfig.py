@@ -511,19 +511,19 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
         csc_2d_segment_maker=None
         csc_4d_segment_maker=None
     
-    segment_finder_tool = Muon__MooSegmentCombinationFinder(name=name, 
-        SegmentCombiner = muon_curved_segment_combiner_tool,
-        SegmentCombinationCleaner = muon_segment_combination_cleaner_tool,
-        HoughPatternFinder =muon_pattern_finder_tool,
-        MdtSegmentMaker=muon_pattern_segment_maker,
-        DoSegmentCombinations=False,
-        DoSegmentCombinationCleaning=False,
-        DoCscSegments = flags.Muon.doCSCs,
-        DoMdtSegments = flags.Muon.doMDTs,   
-        Csc2dSegmentMaker = csc_2d_segment_maker,
-        Csc4dSegmentMaker = csc_4d_segment_maker,
-        DoSummary = flags.Muon.printSummary
-        )
+    kwargs.setdefault('SegmentCombiner', muon_curved_segment_combiner_tool)
+    kwargs.setdefault('SegmentCombinationCleaner', muon_segment_combination_cleaner_tool)
+    kwargs.setdefault('HoughPatternFinder', muon_pattern_finder_tool)
+    kwargs.setdefault('MdtSegmentMaker', muon_pattern_segment_maker)
+    kwargs.setdefault('DoSegmentCombinations', False)
+    kwargs.setdefault('DoSegmentCombinationCleaning', False)
+    kwargs.setdefault('DoCscSegments', flags.Muon.doCSCs)
+    kwargs.setdefault('DoMdtSegments', flags.Muon.doMDTs)
+    kwargs.setdefault('Csc2dSegmentMaker', csc_2d_segment_maker)
+    kwargs.setdefault('Csc4dSegmentMaker', csc_4d_segment_maker)
+    kwargs.setdefault('DoSummary', flags.Muon.printSummary)
+    
+    segment_finder_tool = Muon__MooSegmentCombinationFinder(name=name, **kwargs)
     
     result.setPrivateTools(segment_finder_tool)
     return result
@@ -638,6 +638,7 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
     kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "MuonSegments")
     
     moo_segment_finder_alg = MooSegmentFinderAlg( name=name, **kwargs )
+    moo_segment_finder_alg.Cardinality=10
     result.addEventAlgo( moo_segment_finder_alg )
         
     return result
@@ -658,7 +659,9 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     csc_4d_segment_maker = acc.getPrimary()
     result.merge(acc)
     
-    acc  = MooSegmentFinderCfg(flags, name='MooSegmentFinder_NCB', Csc2dSegmentMaker=csc_2d_segment_maker, Csc4dSegmentMaker=csc_4d_segment_maker)
+    acc  = MooSegmentFinderCfg(flags, name='MooSegmentFinder_NCB', Csc2dSegmentMaker=csc_2d_segment_maker, 
+                               Csc4dSegmentMaker=csc_4d_segment_maker, 
+                               DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False)
     segment_finder_tool=(acc.popPrivateTools())
     result.addPublicTool(segment_finder_tool)
     result.merge(acc)
@@ -701,13 +704,32 @@ def MuonSegmentFindingCfg(flags):
     result.merge(acc)
     return result
 
-if __name__=="__main__":
+if __name__=="__main__":                        
     # To run this, do e.g. 
-    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonSegmentFindingConfig.py
+    # python -m MuonConfig.MuonSegmentFindingConfig --run --threads=1
+    
+    from argparse import ArgumentParser
+    
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--threads", dest="threads", type=int,
+                        help="number of threads", default=1)
+                        
+    parser.add_argument("-o", "--output", dest="output", default='newESD.pool.root',
+                        help="write ESD to FILE", metavar="FILE")
+                        
+    parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
+                        action="store_true")
+                        
+    args = parser.parse_args()
+    
     from AthenaCommon.Configurable import Configurable
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    ConfigFlags.Concurrency.NumThreads=args.threads
+    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
 
     Configurable.configurableRun3Behavior=1
 
@@ -717,41 +739,55 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryRPC   = True 
     
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    ConfigFlags.Output.ESDFileName='newESD.pool.root'
+    ConfigFlags.Output.ESDFileName=args.output
     
-    # from AthenaCommon.Constants import DEBUG
-    #log.setLevel(DEBUG)
+    from AthenaCommon.Constants import DEBUG
+    log.setLevel(DEBUG)
     log.debug('About to set up Segment Finding.')
     
     ConfigFlags.Input.isMC = True
     ConfigFlags.lock()
-    
-    # import pdb; pdb.set_trace()
-    
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    cfg = MainServicesThreadedCfg(ConfigFlags)
+    ConfigFlags.dump()
+        
+    # When running from a pickled file, athena inserts some services automatically. So only use this if running now.
+    if args.run:
+        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+        cfg = MainServicesThreadedCfg(ConfigFlags)
+    else:
+        cfg=ComponentAccumulator()
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     cfg.merge(MuonSegmentFindingCfg(ConfigFlags))
 
-    # from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    # itemsToRecord = ["Trk::SegmentCollection#MuonSegments"]
-    #
-    # cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
-    # outstream = cfg.getEventAlgo("OutputStreamESD")
-    # outstream.OutputLevel=DEBUG
-    # outstream.ForceRead = True
+    # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
+    # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
+    from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+    pps = ProxyProviderSvc()
+    ars=AddressRemappingSvc()
+    pps.ProviderNames += [ 'AddressRemappingSvc' ]
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "MuonSegments", "MuonSegments_old") ]
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("Trk::SegmentCollection", "MuonSegments_NCB", "MuonSegments_NCB_old") ]
+    
+    cfg.addService(pps)
+    cfg.addService(ars)
+    
+    # Set up output
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    itemsToRecord = ["Trk::SegmentCollection#MuonSegments", "Trk::SegmentCollection#NCB_MuonSegments"]
 
-    ConfigFlags.dump()
-    cfg.printConfig()
+    cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
+    outstream = cfg.getEventAlgo("OutputStreamESD")
+    outstream.OutputLevel=DEBUG
+    outstream.ForceRead = True
 
     # cfg.getService("StoreGateSvc").Dump = True
-    
+    cfg.printConfig()
     f=open("MuonSegmentFinding.pkl","w")
     cfg.store(f)
     f.close()
 
-    # cfg.run()
+    if args.run:
+        cfg.run(20)
     
