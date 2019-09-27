@@ -10,6 +10,7 @@
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 
 def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
     
@@ -33,7 +34,8 @@ def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
         
         # AntiKt4EMPFlow is not tagged by default. Need to re-tag:
         FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = HIGG4DxSequence)
-            
+        applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201810", HIGG4DxSequence)
+        applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201903", HIGG4DxSequence)    
         if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
             # default trimmed jets.
             addDefaultTrimmedJets(HIGG4DxSequence, HIGG4DxName, True)

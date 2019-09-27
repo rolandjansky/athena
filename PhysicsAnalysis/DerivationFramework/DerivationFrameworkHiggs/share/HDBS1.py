@@ -12,6 +12,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
@@ -74,13 +75,14 @@ HDBS1Sequence = CfgMgr.AthSequencer(DAOD_StreamID+"Sequence")
 
 # augmentation
 HDBS1Sequence += CfgMgr.DerivationFramework__CommonAugmentation("HIGG4DxCommonAugmentationKernel", AugmentationTools = augmentationTools)
+applyJetCalibration_xAODColl("AntiKt4EMPFlow", HDBS1Sequence)
+updateJVT_xAODColl("AntiKt4EMPFlow", HDBS1Sequence)
 
 # skimming #1: based on ttbar and trigger
 HDBS1Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = skimmingTools)
 
 # fat/trimmed jet building (after skimming)
 DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HDBS1Sequence, HDBS1SlimmingHelper)
-
 #Build Ditaus
 DerivationFrameworkHiggs.HIGG4DxJets.buildDiTau(DAOD_StreamID, HDBS1Sequence, HDBS1SlimmingHelper, ToolSvc)
 
