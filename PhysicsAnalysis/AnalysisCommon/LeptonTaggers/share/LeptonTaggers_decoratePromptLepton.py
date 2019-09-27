@@ -57,7 +57,7 @@ svcMgr.ChronoStatSvc.PrintEllapsedTime = False
 svcMgr.ChronoStatSvc.NumberOfSkippedEventsForMemStat = 1
 theApp.AuditAlgorithms = True
 
-########################################################################################
+#------------------------------------------------------------------------------  
 def getDecorateIso(lepton_name, track_jet_name):
 
     alg = CfgMgr.Prompt__DecoratePromptLepton('%s_decoratePromptLeptonIso' %lepton_name)
@@ -97,7 +97,7 @@ def getDecorateIso(lepton_name, track_jet_name):
     print alg
     return alg
 
-########################################################################################
+#------------------------------------------------------------------------------  
 def getDecorateVeto(lepton_name, track_jet_name):
 
     if lepton_name == 'Electrons':
@@ -137,7 +137,56 @@ def getDecorateVeto(lepton_name, track_jet_name):
 
     return alg
 
-########################################################################################
+#------------------------------------------------------------------------------  
+def getDecorateNonPromptVertex(lepton_name):
+
+    if lepton_name == 'Electrons':
+        part_type = 'Electron'
+    elif lepton_name == 'Muons':
+        part_type = 'Muon'
+    else:
+        raise Exception('getDecorateNonPromptVertex - unknown lepton type: "%s"' %lepton_name)
+
+
+    from AthenaCommon.AppMgr import ToolSvc
+    from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
+    BJetSVFinderTool          = InDetVKalVxInJetFinder("BJetSVFinder")
+    ToolSvc                  += BJetSVFinderTool
+
+    from InDetSVWithMuonTool.SecVrtWithMuonFinder import SecVrtWithMuonFinder
+    LepSVFinderTool           = SecVrtWithMuonFinder("LepSVFinder")
+    LepSVFinderTool.OutputLevel = 2
+    LepSVFinderTool.FillHist  = True
+    ToolSvc                  += LepSVFinderTool
+    #svcMgr.THistSvc.Output   += ["file1 DATAFILE='myfile.root' OPT='RECREATE'"] # Add output hist
+    jps.AthenaCommonFlags.HistOutputs = ["file1:myfile.root"]
+
+    from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+    LepVertexFitterTool                  = CfgMgr.Trk__TrkVKalVrtFitter("MuonVertexFitterTool")
+    LepVertexFitterTool.Extrapolator     = "Trk::Extrapolator/AtlasExtrapolator"
+    LepVertexFitterTool.AtlasMagFieldSvc = "AtlasFieldSvc"
+    ToolSvc += LepVertexFitterTool
+                                               
+    alg = CfgMgr.Prompt__NonPromptLeptonVertexingAlg('%s_decorate%s' %(lepton_name, 'Vertex'))
+
+    alg.OutputLevel           = DEBUG
+    alg.LeptonContainerName   = lepton_name
+    alg.PrintTime             = True
+    alg.AuxVarPrefix          = 'PromptLeptonInput_'
+    alg.ToolPostfix           = 'InDetVKalVxInJetTool'
+    alg.SVLengthName          = 'SVlength'
+    alg.SVMassName            = 'SVmass'
+    alg.SVmuDRName            = 'SVmuDR'
+    alg.IndexVectorName       = 'SecondaryVertexIndexVector'
+    alg.LepSVFinderTool       = LepSVFinderTool
+    alg.VertexFitterTool      = LepVertexFitterTool
+
+    log.info('getDecorateNonPromptVertex - prepared decorate second vertexing information algorithm for: %s' %(lepton_name))
+    print alg
+
+    return alg
+
+#------------------------------------------------------------------------------  
 algSeq = CfgMgr.AthSequencer('AthAlgSeq')
 
 if 'TestPythonConfig' in dir():
@@ -147,11 +196,12 @@ if 'TestPythonConfig' in dir():
     algSeq += LeptonTaggersConfig.GetDecoratePromptTauAlgs()
 
 else:
-    algSeq += getDecorateVeto('Electrons', 'AntiKt4PV0TrackJets')
-    algSeq += getDecorateVeto('Muons',     'AntiKt4PV0TrackJets')
+    #algSeq += getDecorateVeto('Electrons', 'AntiKt4PV0TrackJets')
+    #algSeq += getDecorateVeto('Muons',     'AntiKt4PV0TrackJets')
 
-    algSeq += getDecorateIso('Electrons', 'AntiKt4PV0TrackJets')
-    algSeq += getDecorateIso('Muons',     'AntiKt4PV0TrackJets')
+    #algSeq += getDecorateIso('Electrons', 'AntiKt4PV0TrackJets')
+    #algSeq += getDecorateIso('Muons',     'AntiKt4PV0TrackJets')
+    algSeq += getDecorateNonPromptVertex('Muons')
 
 
 
