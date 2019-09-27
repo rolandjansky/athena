@@ -198,9 +198,6 @@ void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
 
 
   std::lock_guard<std::mutex> lock( m_mutex_capture );
-   
-  //ATH_MSG_INFO("Thread_Id: " << pthread_self());
-  //ATH_MSG_INFO("Thread_Id: " << gettid());
 
   int eventNumber = getEventNumber();
   eventCounter(eventNumber);
@@ -432,6 +429,7 @@ void PerfMonMTSvc::report2Stdout_Summary() {
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Resident Set Size(Rss)" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["rss"] % "kB");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Proportional Set Size(Pss)" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["pss"] % "kB");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Swap Size" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Effective CPU Utilization" % "@Initialize:" % (m_snapshotData[0].m_delta_cpu/m_snapshotData[0].m_delta_wall));
 
 
   ATH_MSG_INFO("");
@@ -442,6 +440,7 @@ void PerfMonMTSvc::report2Stdout_Summary() {
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Resident Set Size(Rss)" % "@Event Loop:" % m_snapshotData[1].m_memMon_delta_map["rss"] % "kB");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Proportional Set Size(Pss)" % "@Event Loop:" % m_snapshotData[1].m_memMon_delta_map["pss"] % "kB");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Swap Size" % "@Event Loop:" % m_snapshotData[1].m_memMon_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Effective CPU Utilization" % "@Event Loop:" % (m_snapshotData[1].m_delta_cpu/m_snapshotData[1].m_delta_wall));
 
   ATH_MSG_INFO("");
 
@@ -451,6 +450,13 @@ void PerfMonMTSvc::report2Stdout_Summary() {
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Resident Set Size(Rss)" % "@Finalize:" % m_snapshotData[2].m_memMon_delta_map["rss"] % "kB");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Proportional Set Size(Pss)" % "@Finalize:" % m_snapshotData[2].m_memMon_delta_map["pss"] % "kB");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Swap Size" % "@Finalize:" % m_snapshotData[2].m_memMon_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Effective CPU Utilization" % "@Finalize:" % (m_snapshotData[2].m_delta_cpu/m_snapshotData[2].m_delta_wall));
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Max Vmem: " % m_measurement.vmemPeak  % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Max Rss: " % m_measurement.rssPeak  % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Max Pss: " % m_measurement.pssPeak  % "kB");
 
   ATH_MSG_INFO("");
 

@@ -142,6 +142,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     
   private:
 
+    PMonMT::Measurement m_peaks;
+
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
 
@@ -190,6 +192,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_cbk;
 
     std::vector<std::map < PMonMT::StepComp , PMonMT::Measurement> > m_stdoutVec_parallel;
+
+
 
     
 

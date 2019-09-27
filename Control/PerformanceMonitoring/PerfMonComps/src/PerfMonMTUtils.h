@@ -80,13 +80,24 @@ namespace PMonMT {
     // This map stores the measurements captured in the event loop
     std::map< StepCompEvent, Measurement > parallel_meas_map;
 
+    long vmemPeak = LONG_MIN;
+    long rssPeak = LONG_MIN;
+    long pssPeak = LONG_MIN;
 
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
 
-      if(isDirectoryExist("/proc"))
+      if(isDirectoryExist("/proc")){
         mem_stats = get_mem_stats();
+        if(mem_stats["vmem"] > vmemPeak)
+          vmemPeak = mem_stats["vmem"];
+        if(mem_stats["rss"] > rssPeak)
+          rssPeak = mem_stats["rss"];
+        if(mem_stats["pss"] > pssPeak)
+          pssPeak = mem_stats["pss"];
+      }
+        
     }
 
     void capture_MT ( StepCompEvent sce ) {
@@ -99,6 +110,13 @@ namespace PMonMT {
       if(isDirectoryExist("/proc")){
         mem_stats = get_mem_stats();
         meas.mem_stats = mem_stats;
+
+        if(mem_stats["vmem"] > vmemPeak)
+          vmemPeak = mem_stats["vmem"];
+        if(mem_stats["rss"] > rssPeak)
+          rssPeak = mem_stats["rss"];
+        if(mem_stats["pss"] > pssPeak)
+          pssPeak = mem_stats["pss"];
       }
       
       meas.cpu_time = cpu_time;
@@ -106,6 +124,8 @@ namespace PMonMT {
 
       parallel_meas_map[sce] = meas;
     }
+
+
 
     Measurement() : cpu_time{0.}, wall_time{0.} { }
   };
