@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from collections import UserList
+from future.moves.collections import UserList
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.StreamInfo')
 
