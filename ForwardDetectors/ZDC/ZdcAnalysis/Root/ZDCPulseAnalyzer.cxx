@@ -137,6 +137,7 @@ void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fix
   m_defaultT0Min = m_deltaTSample * (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance - 0.5);
 
   m_delayedHist = new TH1F((std::string(m_fitHist->GetName()) + "delayed").c_str(), "", m_Nsample, m_tmin + m_delayedDeltaT, m_tmax + m_delayedDeltaT);
+  m_delayedHist->SetDirectory(0);
 
   m_ADCSamplesHGSub.assign(2 * m_Nsample, 0);
 }
