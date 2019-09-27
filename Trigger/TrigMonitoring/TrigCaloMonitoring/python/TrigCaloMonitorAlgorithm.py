@@ -108,8 +108,8 @@ def TrigCaloMonConfig(inputFlags):
 				path='HLT_L2CaloEMClusters',xbins=50,xmin=0.0,xmax=0.02)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_et,HLT_match_et',title='HLT vs OFF Cluster E_{T}; #E_{T_{OFF}} [GeV]; E_{T_{HLT}} [GeV]', type='TH2F',
 				path='HLT_L2CaloEMClusters',xbins=100,xmin=0.0,xmax=100.0, ybins=100,ymin=0.0,ymax=100.0)
-    L2CaloEMClustersMonGroup.defineHistogram('HLT_vs_OFF_resolution',title='HLT vs OFF Cluster #DeltaE_{T} / E_{T}; E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}}; Entries',
-				path='HLT_L2CaloEMClusters',xbins=100,xmin=-20.0,xmax=20.0)
+    L2CaloEMClustersMonGroup.defineHistogram('HLT_vs_OFF_resolution',title='HLT vs OFF Cluster #DeltaE_{T} / E_{T}; E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} [%]; Entries',
+				path='HLT_L2CaloEMClusters',xbins=100,xmin=-40.0,xmax=40.0)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_et,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
 				path='HLT_L2CaloEMClusters',xbins=20,xmin=-5.0,xmax=5.0)
     L2CaloEMClustersMonGroup.defineHistogram('OFF_with_HLT_match_eta,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
@@ -145,8 +145,8 @@ def TrigCaloMonConfig(inputFlags):
         algs[i].MonGroupName = 'TrigCaloMonitor'
         algs[i].HLTTypes = []
         algs[i].OFFTypes = []
-        algs[i].HLTMinET = -1.0
-        algs[i].OFFMinET = -1.0
+        algs[i].HLTMinET = 500.0
+        algs[i].OFFMinET = 500.0
         algs[i].MatchType = False
         algs[i].MaxDeltaR = 0.04
 
@@ -220,8 +220,8 @@ def TrigCaloMonConfig(inputFlags):
 				path=path_names[i],xbins=50,xmin=0.0,xmax=0.02)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_et,HLT_match_et',title='HLT vs OFF Cluster E_{T}; #E_{T_{OFF}} [GeV]; E_{T_{HLT}} [GeV]', type='TH2F',
 				path=path_names[i],xbins=100,xmin=0.0,xmax=100.0, ybins=100,ymin=0.0,ymax=100.0)
-        TopoCaloClustersMonGroup[i].defineHistogram('HLT_vs_OFF_resolution',title='HLT vs OFF Cluster #DeltaE_{T} / E_{T}; E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}}; Entries',
-				path=path_names[i],xbins=100,xmin=-20.0,xmax=20.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_vs_OFF_resolution',title='HLT vs OFF Cluster #DeltaE_{T} / E_{T}; E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} [%]; Entries',
+				path=path_names[i],xbins=100,xmin=-60.0,xmax=60.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_et,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
 				path=path_names[i],xbins=20,xmin=-5.0,xmax=5.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_eta,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
