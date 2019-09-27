@@ -67,7 +67,11 @@ StatusCode CVFTool::calculateCVF(
     float defaultValue = (m_doLegacy ? 0. : -1.);
     for (xAOD::CaloCluster* iclus : *clusters) {
       iclus->insertMoment(xAOD::CaloCluster::VERTEX_FRACTION, defaultValue);
+      if (m_trackClusLinks)
+        (*m_trackClusLinks)(*iclus);
     }
+    // We need to make sure the decoration is there as it's anticipated
+    // downstream
     return StatusCode::SUCCESS;
   }
   // Start by extrapolating all of the tracks to the calorimeter
