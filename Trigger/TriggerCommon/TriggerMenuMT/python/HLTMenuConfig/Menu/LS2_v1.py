@@ -39,6 +39,10 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
+        #ART-19985
+        ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
+
         #ATR-20049
         ChainProp(name='HLT_mu60_0eta105_msonly_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU20', groups=SingleMuonGroup),
@@ -150,6 +154,9 @@ def setupMenu():
     ] 
 
     TriggerFlags.TauSlice.signatures = [
+        # ATR-19985
+        ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_idperf_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         #ATR-20049
         ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
 

@@ -257,6 +257,12 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"] = "L1_TAU100";
       dummyChains["HLT_2mu10_bJpsimumu_L12MU10"] = "L1_2MU10";
       dummyChains["HLT_2mu10_bUpsimumu_L12MU10"] = "L1_2MU10";
+      // ATR-19985
+      dummyChains["HLT_mu6_idperf_L1MU6"] = "L1_MU6";
+      dummyChains["HLT_mu24_idperf_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_tau25_idperf_tracktwo_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_tau25_idperf_tracktwoEF_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_tau25_idperf_tracktwoMVA_L1TAU12IM"] = "L1_TAU12IM";
 
       m_HLTFrame.setMergedHLT( m_setMergedHLT );
       for (const auto& mapPair : dummyChains) {
