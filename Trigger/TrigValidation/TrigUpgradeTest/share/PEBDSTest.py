@@ -129,34 +129,19 @@ def myPebInfoWriterTool(name, eventBuildType):
 EventBuildingSequenceSetup.pebInfoWriterTool = myPebInfoWriterTool
 
 
-# Define streams and override functions from StreamInfo
-allStreams = [
+# Define streams and override StreamInfo
+myAllStreams = [
     # [name, type, obeysLumiBlock, forceFullEventBuilding]
-    ('Main',                'physics',      'True', 'True'),
-    ('TestPEBOne',          'physics',      'True', 'False'),
-    ('TestPEBTwo',          'calibration',  'True', 'False'),
-    ('TestPEBThree',        'physics',      'True', 'False'),
-    ('TestPEBFour',         'calibration',  'True', 'False'),
-    ('ElectronDSTest',      'physics',      'True', 'False'),
-    ('ElectronDSPEBTest',   'physics',      'True', 'False'),
+    StreamInfo.StreamInfo('Main',               'physics',      True, True),
+    StreamInfo.StreamInfo('TestPEBOne',         'physics',      True, False),
+    StreamInfo.StreamInfo('TestPEBTwo',         'calibration',  True, False),
+    StreamInfo.StreamInfo('TestPEBThree',       'physics',      True, False),
+    StreamInfo.StreamInfo('TestPEBFour',        'calibration',  True, False),
+    StreamInfo.StreamInfo('ElectronDSTest',     'physics',      True, False),
+    StreamInfo.StreamInfo('ElectronDSPEBTest',  'physics',      True, False),
 ]
 
-def myGetStreamTags(streams):
-    log.debug('Executing myGetStreamTags')
-    streamTags = []
-    for stream_name in streams:
-        for stream in allStreams:
-            if stream_name == stream[0]:
-                streamTags.append(stream)
-    log.debug('StreamTags: %s', streamTags)
-    return streamTags
-
-def myGetAllStreams():
-    log.debug('Executing myGetAllStreams')
-    return [s[0] for s in allStreams]
-
-StreamInfo.getStreamTags = myGetStreamTags
-StreamInfo.getAllStreams = myGetAllStreams
+StreamInfo._all_streams = myAllStreams
 
 # Set trigger flags
 TriggerFlags.triggerMenuSetup = 'LS2_v1'
