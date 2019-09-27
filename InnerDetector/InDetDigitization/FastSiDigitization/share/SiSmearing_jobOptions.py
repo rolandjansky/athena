@@ -3,7 +3,6 @@
 #
 include.block("FastSiDigitization/SiSmearing_jobOptions.py")
 
-include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
 #
 from GaudiKernel.GaudiHandles import ServiceHandle
 #
@@ -46,16 +45,8 @@ from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
 ToolSvc += PixelRecoDbTool()
 ToolSvc.PixelRecoDbTool.InputSource = 1
 
-from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
-ToolSvc += PixelCalibDbTool()
-
 from IOVDbSvc.CondDB import conddb
 conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
-
-# setup PixelCalibDbTool in ToolSvc
-ToolSvc.PixelCalibDbTool.CalibFolder ="/PIXEL/PixCalib"
-ToolSvc.PixelCalibDbTool.CalibLocation ="PixCalibKey"
-ToolSvc.PixelCalibDbTool.WriteDB =False
 
 from FastSiDigitization.FastSiDigitizationConf import SiSmearedDigitization
 
