@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODElectronAuxContainerCnv_v2.cxx 621103 2014-10-10 12:30:01Z christos $
@@ -30,15 +30,13 @@
    } while( 0 )
 
 xAODElectronAuxContainerCnv_v2::xAODElectronAuxContainerCnv_v2()
-  : T_AthenaPoolTPCnvBase< xAOD::ElectronAuxContainer,
-                           xAOD::ElectronAuxContainer_v2 >() {
-
+{
 }
 
 void xAODElectronAuxContainerCnv_v2::
 persToTrans( const xAOD::ElectronAuxContainer_v2* oldObj,
              xAOD::ElectronAuxContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::ElectronAuxContainer_v2 to current version..." );
@@ -116,7 +114,7 @@ persToTrans( const xAOD::ElectronAuxContainer_v2* oldObj,
 void xAODElectronAuxContainerCnv_v2::
 transToPers( const xAOD::ElectronAuxContainer*,
              xAOD::ElectronAuxContainer_v2*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODElectronAuxContainerCnv_v2::transToPers"
