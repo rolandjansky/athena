@@ -58,6 +58,7 @@ ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* sv
   declareProperty("RandomSvc"                      ,       m_rndGenSvc                );
   declareProperty("RandomStream"                   ,       m_randomEngineName         );
   declareProperty("FastCaloSimCaloExtrapolation"   ,       m_FastCaloSimCaloExtrapolation );
+  declareProperty("PrintParametrization"           ,       m_printParametrization = false );
 }
 
 ISF::FastCaloSimSvcV2::~FastCaloSimSvcV2()
@@ -104,7 +105,9 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   paramsFile->Close();
   
   m_param->set_geometry(m_caloGeo);
-  m_param->Print("short");
+  if (m_printParametrization) {
+    m_param->Print("short");
+  }
   m_param->setLevel(msg().level());
   
   // Get FastCaloSimCaloExtrapolation

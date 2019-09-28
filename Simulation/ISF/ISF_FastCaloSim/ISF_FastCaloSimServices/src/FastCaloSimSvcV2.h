@@ -88,6 +88,8 @@ namespace ISF {
       CaloGeometryFromCaloDDM* m_caloGeo;
       
       std::string  m_caloCellsOutputName;
+
+      bool m_printParametrization;
   };
 
 }
