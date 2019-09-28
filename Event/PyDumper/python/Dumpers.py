@@ -4784,6 +4784,13 @@ def dump_xAODObject(o, f):
     return
 
 
+@nolist
+def dump_xAODObjectNL(o, f):
+    dump_xAOD(o, f)
+    f.write('\n')
+    return
+
+
 def dump_list (l, f, dumper, nmax = None):
     i = 0
     for x in l:
@@ -5079,8 +5086,8 @@ dumpspecs = [
     ['xAOD::MissingETComponentMap',          dump_xAOD],
     ['xAOD::EventInfo_v1',                   dump_xAODObject],
     ['xAOD::EventInfo',                      dump_xAODObject],
-    ['xAOD::EventShape_v1',                  dump_xAODObject],
-    ['xAOD::EventShape',                     dump_xAODObject],
+    ['xAOD::EventShape_v1',                  dump_xAODObjectNL],
+    ['xAOD::EventShape',                     dump_xAODObjectNL],
     ['xAOD::MissingETAssociationMap_v1',     dump_xAODObject],
     ['xAOD::MissingETAssociationMap',        dump_xAODObject],
     ['xAOD::TrigDecision_v1',                dump_xAODObject],
