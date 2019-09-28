@@ -23,10 +23,6 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 
-#include "PATInterfaces/ISystematicsTool.h"
-#include <PATInterfaces/SystematicRegistry.h>
-#include <PATInterfaces/SystematicVariation.h>
-
 #include "TMath.h"
 #include <string>
 #include <iostream>
@@ -71,8 +67,9 @@ class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
   bool bookDQTGlobalWZFinderTool();
 
 private:
+  void setDQTGlobalWZFinderBranches();
+
   void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
-  void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
   void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
   void doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
 
@@ -86,7 +83,9 @@ private:
                          const xAOD::Vertex* pVtx, bool isBad);
   bool kinematicCuts(const xAOD::Electron*);
 
-  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
+
+  bool m_isSimulation;
+  bool m_writeTTrees;
 
   TH1F *m_ZBosonCounter_El_os;
   TH1F *m_ZBosonCounter_El_ss;
@@ -110,116 +109,220 @@ private:
   TH1F_LW *m_fiducialSumWeights_el;
   TH1F_LW *m_fiducialSumWeights_mu;
 
-//----- Electron END ------//
+  //----- Electron END ------//
 
-      TH1F_LW *m_W_mt_ele;
-      TH1F_LW *m_W_mt_mu;
-      TH2F_LW *m_W_pt_v_met_ele;
-      TH2F_LW *m_W_pt_v_met_mu;
+  TH1F_LW *m_W_mt_ele;
+  TH1F_LW *m_W_mt_mu;
+  TH2F_LW *m_W_pt_v_met_ele;
+  TH2F_LW *m_W_pt_v_met_mu;
 
-      TH1F_LW *m_metHist;
-      TH1F_LW *m_metPhiHist;
+  TH1F_LW *m_metHist;
+  TH1F_LW *m_metPhiHist;
 
-      TH1F_LW *m_Z_mass_opsele;
-      TH1F_LW *m_Z_mass_opsmu;
-      TH1F_LW *m_JPsi_mass_opsmu;
-      TH1F_LW *m_Upsilon_mass_opsmu;
-      TH1F_LW *m_Z_mass_ssele;
-      TH1F_LW *m_Z_mass_ssmu;
-      TH1F_LW *m_Z_Q_ele;
-      TH1F_LW *m_Z_Q_mu;
+  TH1F_LW *m_Z_mass_opsele;
+  TH1F_LW *m_Z_mass_opsmu;
+  TH1F_LW *m_JPsi_mass_opsmu;
+  TH1F_LW *m_Upsilon_mass_opsmu;
+  TH1F_LW *m_Z_mass_ssele;
+  TH1F_LW *m_Z_mass_ssmu;
+  TH1F_LW *m_Z_Q_ele;
+  TH1F_LW *m_Z_Q_mu;
 
-      TProfile *m_livetime_lb;
-      TProfile *m_lblength_lb;
-      TProfile *m_mu_lb;
-      TProfile *m_Z_ee_trig_ps;
-      TProfile *m_Z_mm_trig_ps;
+  TProfile *m_livetime_lb;
+  TProfile *m_lblength_lb;
+  TProfile *m_mu_lb;
+  TProfile *m_Z_ee_trig_ps;
+  TProfile *m_Z_mm_trig_ps;
       
-      TH1F_LW *m_muon_Pt;
-      TH1F_LW *m_muon_Eta;
-      TH1F_LW *m_ele_Et;
-      TH1F_LW *m_ele_Eta;
+  TH1F_LW *m_muon_Pt;
+  TH1F_LW *m_muon_Eta;
+  TH1F_LW *m_ele_Et;
+  TH1F_LW *m_ele_Eta;
 
-      //Resonance Counters
-      float m_minLumiBlock;
-      float m_maxLumiBlock;
-      float m_numBins;
+  //Resonance Counters
+  float m_minLumiBlock;
+  float m_maxLumiBlock;
+  float m_numBins;
 
-      TH1F_LW *m_JPsiCounter_Mu;
-      TH1F_LW *m_UpsilonCounter_Mu;
-      TH1F *m_ZBosonCounter_Mu;
+  TH1F_LW *m_JPsiCounter_Mu;
+  TH1F_LW *m_UpsilonCounter_Mu;
+  TH1F *m_ZBosonCounter_Mu;
 
+  //Trigger T&P
+  TH1F_LW *m_mutrigtp_matches;
 
-      //Trigger T&P
-      TH1F_LW *m_mutrigtp_matches;
+  //Reco T&P
+  TH1F_LW *m_muloosetp_match_os;
+  TH1F_LW *m_muloosetp_match_ss;
+  TH1F_LW *m_muloosetp_nomatch_os;
+  TH1F_LW *m_muloosetp_nomatch_ss;
 
-      //Reco T&P
-      TH1F_LW *m_muloosetp_match_os;
-      TH1F_LW *m_muloosetp_match_ss;
-      TH1F_LW *m_muloosetp_nomatch_os;
-      TH1F_LW *m_muloosetp_nomatch_ss;
+  // Inner detector T&P
+  TH1F_LW *m_mu_InDet_tp_match_os;
+  TH1F_LW *m_mu_InDet_tp_match_ss;
+  TH1F_LW *m_mu_InDet_tp_nomatch_os;
+  TH1F_LW *m_mu_InDet_tp_nomatch_ss;
 
-      // Inner detector T&P
-      TH1F_LW *m_mu_InDet_tp_match_os;
-      TH1F_LW *m_mu_InDet_tp_match_ss;
-      TH1F_LW *m_mu_InDet_tp_nomatch_os;
-      TH1F_LW *m_mu_InDet_tp_nomatch_ss;
-
-      // MC truth
-      TH1F_LW *m_mcmatch;
+  // MC truth
+  TH1F_LW *m_mcmatch;
       
-      //Second component of counter array is for trigger aware counter
-      int m_JPsiCounterSBG[2];
-      int m_JPsiCounter2BG[2];
-      int m_JPsiCounterSignal[2];
+  //Second component of counter array is for trigger aware counter
+  int m_JPsiCounterSBG[2];
+  int m_JPsiCounter2BG[2];
+  int m_JPsiCounterSignal[2];
 
-      int m_UpsilonCounterSBG[2];
-      int m_UpsilonCounterBG[2];
-      int m_UpsilonCounterSignal[2];
+  int m_UpsilonCounterSBG[2];
+  int m_UpsilonCounterBG[2];
+  int m_UpsilonCounterSignal[2];
 
-      int m_ZBosonCounterSBG_El[2];
-      int m_ZBosonCounterSBG_Mu[2];
+  int m_ZBosonCounterSBG_El[2];
+  int m_ZBosonCounterSBG_Mu[2];
 
-      //uint32_t lumiBlock;
-      //uint32_t eventNumber;
+  //uint32_t lumiBlock;
+  //uint32_t eventNumber;
 
-      int m_this_lb; //remove _t
-      int m_eventNumber; //remove _t
-      Float_t m_evtWeight;
+  int m_this_lb; //remove _t
+  int m_eventNumber; //remove _t
+  float m_evtWeight;
       
-      std::string m_electronContainerName;
-      std::string m_egDetailContainerName;
+  std::string m_electronContainerName;
+  std::string m_egDetailContainerName;
 
-      std::string m_VxPrimContainerName;
-      std::string m_VxContainerName;
+  std::string m_VxPrimContainerName;
+  std::string m_VxContainerName;
 
-      std::string m_METName;
-      std::string m_muonContainerName;
-      std::string m_jetCollectionName;
-      std::string m_tracksName;
-      Float_t m_electronEtCut;
-      Float_t m_muonPtCut;
+  std::string m_METName;
+  std::string m_muonContainerName;
+  std::string m_jetCollectionName;
+  std::string m_tracksName;
+  float m_electronEtCut;
+  float m_muonPtCut;
 
-      Float_t m_metCut;
-      Float_t m_zCutLow;
-      Float_t m_zCutHigh;
-      Float_t m_muonMaxEta;
-      bool m_doTrigger;
-      ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-      ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
-      ToolHandle<Trig::ITrigMuonMatching> m_muTrigMatchTool;
+  float m_metCut;
+  float m_zCutLow;
+  float m_zCutHigh;
+  float m_muonMaxEta;
+  bool m_doTrigger;
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+  ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
+  ToolHandle<Trig::ITrigMuonMatching> m_muTrigMatchTool;
 
-      bool m_useOwnMuonSelection;
+  bool m_useOwnMuonSelection;
             
-      // to guard against endless messages 
-      bool m_printedErrorEleContainer;
-      bool m_printedErrorMuColl;
-      bool m_printedErrorMet;
-      bool m_printedErrorTrackContainer;
+  // to guard against endless messages 
+  bool m_printedErrorEleContainer;
+  bool m_printedErrorMuColl;
+  bool m_printedErrorMet;
+  bool m_printedErrorTrackContainer;
 
-      std::vector<std::string> m_Jpsi_mm_trigger;
-      std::vector<std::string> m_Z_mm_trigger;
-      std::vector<std::string> m_Z_ee_trigger;
+  std::vector<std::string> m_Jpsi_mm_trigger;
+  std::vector<std::string> m_Z_mm_trigger;
+  std::vector<std::string> m_Z_ee_trigger;
+  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
+
+  // Here we define all the TTree variables
+
+  // Muon TTrees
+  TTree *m_muontree;
+  bool m_muontree_isTruth;
+  float m_muontree_eta1;
+  float m_muontree_eta2;
+  float m_muontree_phi1;
+  float m_muontree_phi2;
+  float m_muontree_pT1;
+  float m_muontree_pT2;
+  float m_muontree_weight;
+  float m_muontree_mass;
+  int m_muontree_lb;
+  int m_muontree_runnumber;
+  unsigned long long  m_muontree_eventnumber;
+
+  TTree *m_muon_reco_tptree;
+  bool m_muon_reco_tptree_isTruth;
+  float m_muon_reco_tptree_pT;
+  float m_muon_reco_tptree_eta;
+  float m_muon_reco_tptree_phi;
+  float m_muon_reco_tptree_mass;
+  float m_muon_reco_tptree_weight;
+  int m_muon_reco_tptree_mtype;
+  int m_muon_reco_tptree_lb;
+  int m_muon_reco_tptree_runnumber;
+  unsigned long long  m_muon_reco_tptree_eventnumber;
+
+  TTree *m_muon_indet_tptree;
+  bool m_muon_indet_tptree_isTruth;
+  float m_muon_indet_tptree_pT;
+  float m_muon_indet_tptree_eta;
+  float m_muon_indet_tptree_phi;
+  float m_muon_indet_tptree_mass;
+  float m_muon_indet_tptree_weight;
+  int m_muon_indet_tptree_mtype;
+  int m_muon_indet_tptree_lb;
+  int m_muon_indet_tptree_runnumber;
+  unsigned long long  m_muon_indet_tptree_eventnumber;
+
+  TTree *m_muon_trig_tptree;
+  bool m_muon_trig_tptree_isTruth;
+  float m_muon_trig_tptree_pT;
+  float m_muon_trig_tptree_eta;
+  float m_muon_trig_tptree_phi;
+  float m_muon_trig_tptree_mass;
+  float m_muon_trig_tptree_weight;
+  int m_muon_trig_tptree_mtype;
+  int m_muon_trig_tptree_lb;
+  int m_muon_trig_tptree_runnumber;
+  unsigned long long  m_muon_trig_tptree_eventnumber;
+
+  // Electron TTrees
+  TTree *m_electrontree;
+  bool m_electrontree_isTruth;
+  float m_electrontree_eta1;
+  float m_electrontree_eta2;
+  float m_electrontree_phi1;
+  float m_electrontree_phi2;
+  float m_electrontree_pT1;
+  float m_electrontree_pT2;
+  float m_electrontree_weight;
+  float m_electrontree_mass;
+  int m_electrontree_lb;
+  int m_electrontree_runnumber;
+  unsigned long long  m_electrontree_eventnumber;
+
+  TTree *m_electron_reco_tptree;
+  bool m_electron_reco_tptree_isTruth;
+  float m_electron_reco_tptree_pT;
+  float m_electron_reco_tptree_eta;
+  float m_electron_reco_tptree_phi;
+  float m_electron_reco_tptree_mass;
+  float m_electron_reco_tptree_weight;
+  int m_electron_reco_tptree_mtype;
+  int m_electron_reco_tptree_lb;
+  int m_electron_reco_tptree_runnumber;
+  unsigned long long  m_electron_reco_tptree_eventnumber;
+
+  TTree *m_electron_container_tptree;
+  bool m_electron_container_tptree_isTruth;
+  float m_electron_container_tptree_pT;
+  float m_electron_container_tptree_eta;
+  float m_electron_container_tptree_phi;
+  float m_electron_container_tptree_mass;
+  float m_electron_container_tptree_weight;
+  int m_electron_container_tptree_mtype;
+  int m_electron_container_tptree_lb;
+  int m_electron_container_tptree_runnumber;
+  unsigned long long  m_electron_container_tptree_eventnumber;
+
+  TTree *m_electron_trig_tptree;
+  bool m_electron_trig_tptree_isTruth;
+  float m_electron_trig_tptree_pT;
+  float m_electron_trig_tptree_eta;
+  float m_electron_trig_tptree_phi;
+  float m_electron_trig_tptree_mass;
+  float m_electron_trig_tptree_weight;
+  int m_electron_trig_tptree_mtype;
+  int m_electron_trig_tptree_lb;
+  int m_electron_trig_tptree_runnumber;
+  unsigned long long  m_electron_trig_tptree_eventnumber;
 
 };
 
