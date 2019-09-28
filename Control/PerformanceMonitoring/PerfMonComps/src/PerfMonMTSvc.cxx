@@ -423,6 +423,7 @@ void PerfMonMTSvc::report2Stdout_Summary() {
   ATH_MSG_INFO("                              PerfMonMT Results Summary                                ");
   ATH_MSG_INFO("=======================================================================================");
 
+  /*
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "CPU time" % "@Initialize:" % m_snapshotData[0].m_delta_cpu % "ms");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Wall time" % "@Initialize:" % m_snapshotData[0].m_delta_wall % "ms");
   ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Virtual Memory Size" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["vmem"] % "kB");
@@ -460,6 +461,46 @@ void PerfMonMTSvc::report2Stdout_Summary() {
 
   ATH_MSG_INFO("");
 
+  */
+
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "CPU time" % "@Initialize:" % scaleTime(m_snapshotData[0].m_delta_cpu));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Wall time" % "@Initialize:" % scaleTime(m_snapshotData[0].m_delta_wall));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Virtual Memory Size" % "@Initialize:" % scaleMem(m_snapshotData[0].m_memMon_delta_map["vmem"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Resident Set Size(Rss)" % "@Initialize:" % scaleMem(m_snapshotData[0].m_memMon_delta_map["rss"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Proportional Set Size(Pss)" % "@Initialize:" % scaleMem(m_snapshotData[0].m_memMon_delta_map["pss"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Swap Size" % "@Initialize:" % scaleMem(m_snapshotData[0].m_memMon_delta_map["swap"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Effective CPU Utilization" % "@Initialize:" % (m_snapshotData[0].m_delta_cpu/m_snapshotData[0].m_delta_wall));
+
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "CPU time" % "@Event Loop:" % scaleTime(m_snapshotData[1].m_delta_cpu));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Wall time" % "@Event Loop:" % scaleTime(m_snapshotData[1].m_delta_wall));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Virtual Memory Size" % "@Event Loop:" % scaleMem(m_snapshotData[1].m_memMon_delta_map["vmem"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Resident Set Size(Rss)" % "@Event Loop:" % scaleMem(m_snapshotData[1].m_memMon_delta_map["rss"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Proportional Set Size(Pss)" % "@Event Loop:" % scaleMem(m_snapshotData[1].m_memMon_delta_map["pss"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Swap Size" % "@Event Loop:" % scaleMem(m_snapshotData[1].m_memMon_delta_map["swap"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Effective CPU Utilization" % "@Event Loop:" % (m_snapshotData[1].m_delta_cpu/m_snapshotData[1].m_delta_wall));
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "CPU time" % "@Finalize:" % scaleTime(m_snapshotData[2].m_delta_cpu));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Wall time" % "@Finalize:" % scaleTime(m_snapshotData[2].m_delta_wall));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Virtual Memory Size" % "@Finalize:" % scaleMem(m_snapshotData[2].m_memMon_delta_map["vmem"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Resident Set Size(Rss)" % "@Finalize:" % scaleMem(m_snapshotData[2].m_memMon_delta_map["rss"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Proportional Set Size(Pss)" % "@Finalize:" % scaleMem(m_snapshotData[2].m_memMon_delta_map["pss"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Swap Size" % "@Finalize:" % scaleMem(m_snapshotData[2].m_memMon_delta_map["swap"]));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% ") % "Effective CPU Utilization" % "@Finalize:" % (m_snapshotData[2].m_delta_cpu/m_snapshotData[2].m_delta_wall));
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Vmem: " % scaleMem(m_measurement.vmemPeak));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Rss: " % scaleMem(m_measurement.rssPeak));
+  ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Pss: " % scaleMem(m_measurement.pssPeak));
+
+  ATH_MSG_INFO("");
+
+  
   ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Events processed:" %  m_eventIds.size());
   ATH_MSG_INFO(format( "%1% %|55t|%2$.2f ms ") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size()));
   ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall  ));
@@ -694,6 +735,105 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_cbk);
 }
 
+/*
+
+  1 min: 60000 ms
+
+  1 hour: 3600000 ms
+
+  1 day: 86400000 ms
+
+*/
+std::string PerfMonMTSvc::scaleTime(double timeMeas){
+
+  std::ostringstream ss;
+  ss << std::fixed;
+  ss << std::setprecision(2);
+
+  double result = 0;
+
+  std::string significance[5] = {"ms", "seconds", "mins", "hours", "days"};
+  int scaleFactor = 0;
+
+  if(timeMeas > 1000*60*60*24){
+    int dayCount = timeMeas/(1000*60*60*24);
+    timeMeas = std::fmod(timeMeas,(1000*60*60*24)); // may couse problem for double
+    result += dayCount;
+    scaleFactor++;
+  }
+  if(timeMeas > 1000*60*60){
+    int hourCount = timeMeas/(1000*60*60);
+    timeMeas = std::fmod(timeMeas,(1000*60*60));
+    result += hourCount*1.e-3;
+    scaleFactor++;
+  }
+  if(timeMeas > 1000*60){
+    int minCount = timeMeas/(1000*60);
+    timeMeas = std::fmod(timeMeas,(1000*60));
+    result += minCount*1.e-6;
+    scaleFactor++;
+  }
+  if(timeMeas > 1000){
+    int secCount = timeMeas/1000;
+    timeMeas = std::fmod(timeMeas,1000);
+    result += secCount*1.e-9;
+    scaleFactor++;
+  }
+  if(timeMeas >= 0){
+    result += timeMeas*1.e-12;
+    scaleFactor++;
+  }
+  result = result * std::pow(1000,(5 - scaleFactor));
+
+  ss << result;
+  std::string stringObj = ss.str() + " " + significance[scaleFactor - 1];
+
+  return stringObj;
+
+
+}
+
+std::string PerfMonMTSvc::scaleMem(long memMeas){
+
+  std::ostringstream ss;
+  ss << std::fixed;
+  ss << std::setprecision(2);
+
+  double result = 0;
+
+  std::string significance[4] = {"KB", "MB", "GB", "TB"};
+  int scaleFactor = 0;
+
+  if(memMeas > 1024*1024*1024){
+    int teraCount = memMeas/(1024*1024*1024);
+    memMeas = memMeas%(1024*1024*1024); // may couse problem for double
+    result += teraCount;
+    scaleFactor++;
+  }
+  if(memMeas > 1024*1024){
+    int gigaCount = memMeas/(1024*1024);
+    memMeas = memMeas%(1024*1024);
+    result += gigaCount*(1.0/1024);
+    scaleFactor++;
+  }
+  if(memMeas > 1024){
+    int megaCount = memMeas/(1024);
+    memMeas = memMeas%(1024);
+    result += megaCount*(1.0/(1024*1024));
+    scaleFactor++;
+  }
+  if(memMeas >= 0){
+    result += memMeas*(1.0/(1024*1024*1024));
+    scaleFactor++;
+  }
+
+  result = result * std::pow(1024,(4 - scaleFactor));
+
+  ss << result;
+  std::string stringObj = ss.str() + " " + significance[scaleFactor - 1];
+
+  return stringObj;
+}
 
 std::string PerfMonMTSvc::get_cpu_model_info() const  {
 

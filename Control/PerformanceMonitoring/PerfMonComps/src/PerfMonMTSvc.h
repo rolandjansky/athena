@@ -30,6 +30,7 @@
 // Other Libraries
 #include <algorithm>
 #include <functional>
+#include <cmath>
 
 
 /*
@@ -128,6 +129,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     void divideData2Steps_serial();    
     void divideData2Steps_parallel();   
+
+    std::string scaleTime(double timeMeas);
+    std::string scaleMem(long memMeas);
  
     std::string get_cpu_model_info() const;
     int get_cpu_core_info() const;
