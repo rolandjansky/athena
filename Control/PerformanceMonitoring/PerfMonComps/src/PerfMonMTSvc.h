@@ -123,7 +123,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     int getEventNumber() const;
     void eventCounter(int eventNumber);
     
-    bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
+    bool isLoop(); // Returns true if the execution is at the event loop, false o/w.
 
     void parallelDataAggregator(); // 
 
@@ -151,7 +151,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
 
+    // Properties
     BooleanProperty m_isEventLoopMonitoring; 
+    Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
 
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
@@ -168,6 +170,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     // Event ID's are stored to count the number of events. There should be a better way!
     std::set<int> m_eventIds;
+
 
     /* Data structure  to store component level measurements
      * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!

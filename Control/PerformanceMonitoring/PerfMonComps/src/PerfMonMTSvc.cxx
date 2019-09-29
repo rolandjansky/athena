@@ -505,6 +505,8 @@ void PerfMonMTSvc::report2Stdout_Summary() {
   ATH_MSG_INFO(format( "%1% %|55t|%2$.2f ms ") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size()));
   ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall  ));
 
+  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Threads in the air:" %  (int) m_nThreads);
+
   ATH_MSG_INFO("=======================================================================================");
 
 }
@@ -631,9 +633,22 @@ void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
   }
 }
 
-bool PerfMonMTSvc::isLoop() const {
+// const?
+bool PerfMonMTSvc::isLoop() {
+  
   int eventNumber = getEventNumber();
   return (eventNumber >= 0) ? true : false;
+  
+  /*
+  m_eventId = getEventNumber(); // data race?
+  if(m_eventId >= 0){
+    eventCounter(m_eventId);
+    return true;
+  }
+  else{
+    return false;
+  }
+  */
 }
 
 int PerfMonMTSvc::getEventNumber() const {
@@ -735,15 +750,6 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_cbk);
 }
 
-/*
-
-  1 min: 60000 ms
-
-  1 hour: 3600000 ms
-
-  1 day: 86400000 ms
-
-*/
 std::string PerfMonMTSvc::scaleTime(double timeMeas){
 
   std::ostringstream ss;
@@ -757,7 +763,7 @@ std::string PerfMonMTSvc::scaleTime(double timeMeas){
 
   if(timeMeas > 1000*60*60*24){
     int dayCount = timeMeas/(1000*60*60*24);
-    timeMeas = std::fmod(timeMeas,(1000*60*60*24)); // may couse problem for double
+    timeMeas = std::fmod(timeMeas,(1000*60*60*24)); 
     result += dayCount;
     scaleFactor++;
   }
@@ -806,7 +812,7 @@ std::string PerfMonMTSvc::scaleMem(long memMeas){
 
   if(memMeas > 1024*1024*1024){
     int teraCount = memMeas/(1024*1024*1024);
-    memMeas = memMeas%(1024*1024*1024); // may couse problem for double
+    memMeas = memMeas%(1024*1024*1024); 
     result += teraCount;
     scaleFactor++;
   }
