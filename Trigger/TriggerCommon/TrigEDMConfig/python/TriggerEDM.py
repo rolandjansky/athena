@@ -180,7 +180,6 @@ def getCategory(s):
 
     for item in TriggerListRun3:
         t,k = getTypeAndKey(item[0])
-        if s in k:
 
         """ Clean up type name """
         if t.count('::'): t = t[t.index(':')+2:]
