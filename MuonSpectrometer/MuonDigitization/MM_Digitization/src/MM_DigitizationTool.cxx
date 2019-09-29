@@ -276,7 +276,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	}
 
 	//initialize the digit container
-	m_digitContainer = new MmDigitContainer(m_idHelper->detectorElement_hash_max());
+	m_digitContainer = new MmDigitContainer(m_idHelper->module_hash_max());
 	m_digitContainer->addRef();
 
 	//simulation identifier helper
@@ -564,7 +564,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 	MMSimHitCollection* inputSimHitColl=nullptr;
 
-	IdentifierHash detectorElementHash=0;
+	IdentifierHash moduleHash=0;
 
 	inputSimHitColl = new MMSimHitCollection("MicromegasSensitiveDetector");
 	ATH_CHECK( evtStore()->record(inputSimHitColl,"InputMicroMegasHits") );
@@ -921,7 +921,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			++nhits;
 
 			// contain (name, eta, phi, multiPlet)
-			m_idHelper->get_detectorElement_hash(layerID, detectorElementHash);
+			m_idHelper->get_module_hash(layerID, moduleHash);
 
 
 			const MuonGM::MuonChannelDesign* mmChannelDesign = detectorReadoutElement->getDesign(digitID);
@@ -940,8 +940,8 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			    distToChannelWithStripID = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
 			    distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface);
             }
-			ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
-							<< (int)detectorElementHash
+			ATH_MSG_DEBUG(" looking up collection using moduleHash "
+							<< (int)moduleHash
 							<< " "
 							<< m_idHelper->print_to_string(layerID)
 							<< " digitID: "
@@ -1150,16 +1150,16 @@ StatusCode MM_DigitizationTool::doDigitization() {
 		// IdentifierHash detIdhash ;
 		// set RE hash id
 		const Identifier elemId = m_idHelper->elementID( stripDigitOutputAllHits.digitID() );
-		m_idHelper->get_detectorElement_hash( elemId, detectorElementHash );
+		m_idHelper->get_module_hash( elemId, moduleHash );
 
 		MmDigitCollection* digitCollection = nullptr;
 		// put new collection in storegate
 		// Get the messaging service, print where you are
-		MmDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(detectorElementHash );
+		MmDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(moduleHash );
 		if (m_digitContainer->end() ==  it_coll) {
-			digitCollection = new MmDigitCollection( elemId, detectorElementHash );
+			digitCollection = new MmDigitCollection( elemId, moduleHash );
 			digitCollection->push_back(newDigit);
-			ATH_CHECK( m_digitContainer->addCollection(digitCollection, detectorElementHash ) );
+			ATH_CHECK( m_digitContainer->addCollection(digitCollection, moduleHash ) );
 		}
 		else {
 			digitCollection = const_cast<MmDigitCollection*>( it_coll->cptr() );
