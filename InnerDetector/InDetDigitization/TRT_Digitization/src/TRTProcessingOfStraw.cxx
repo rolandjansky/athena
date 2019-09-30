@@ -53,6 +53,7 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            const InDetDD::TRT_DetectorManager* detmgr,
                                            ITRT_PAITool* paitoolXe,
                                            ITRT_SimDriftTimeTool* simdrifttool,
+                                           MagField::IMagFieldSvc * magfieldsvc,
                                            TRTElectronicsProcessing * ep,
                                            TRTNoise * noise,
                                            TRTDigCondBase* digcond,
@@ -75,7 +76,7 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
     m_pDigConditions(digcond),
     m_pParticleTable(pdt),
     m_alreadywarnedagainstpdg0(false),
-    m_magneticfieldsvc("AtlasFieldSvc", "TRTProcessingOfStraw"),
+    m_magneticfieldsvc(magfieldsvc),
     m_msg("TRTProcessingOfStraw"),
     m_id_helper(trt_id)
 
@@ -128,13 +129,6 @@ void TRTProcessingOfStraw::Initialize()
   ATH_MSG_INFO ( "Xe barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 0) << " ns." );
   ATH_MSG_INFO ( "Kr barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 1) << " ns." );
   ATH_MSG_INFO ( "Ar barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 2) << " ns." );
-
-  /* Get the magnetic field service */
-  if ( m_magneticfieldsvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Failed to retrieve service " << m_magneticfieldsvc );
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved tool " << m_magneticfieldsvc );
-  }
 
   m_pTimeCorrection = new TRTTimeCorrection("TRTTimeCorrection", m_settings, m_detmgr, m_id_helper);
 

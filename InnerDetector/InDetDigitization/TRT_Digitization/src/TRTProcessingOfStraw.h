@@ -51,16 +51,17 @@ class TRTProcessingOfStraw {
 public:
   /** Constructor: Calls Initialize method */
   TRTProcessingOfStraw( const TRTDigSettings*,
-			const InDetDD::TRT_DetectorManager*,
-			ITRT_PAITool*,
-			ITRT_SimDriftTimeTool*,
-			TRTElectronicsProcessing * ep,
-			TRTNoise * noise,
-			TRTDigCondBase* digcond,
-			const HepPDT::ParticleDataTable*,
-			const TRT_ID*,
-		        ITRT_PAITool* = NULL,
-		        ITRT_PAITool* = NULL);
+                        const InDetDD::TRT_DetectorManager*,
+                        ITRT_PAITool*,
+                        ITRT_SimDriftTimeTool*,
+                        MagField::IMagFieldSvc * magfieldsvc,
+                        TRTElectronicsProcessing * ep,
+                        TRTNoise * noise,
+                        TRTDigCondBase* digcond,
+                        const HepPDT::ParticleDataTable*,
+                        const TRT_ID*,
+                        ITRT_PAITool* = NULL,
+                        ITRT_PAITool* = NULL);
   /** Destructor */
   ~TRTProcessingOfStraw();
 
@@ -236,7 +237,7 @@ private:
   unsigned int getRegion(int hitID);
 
   //Magnetic field stuff
-  ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc;
+  MagField::IMagFieldSvc* m_magneticfieldsvc;
   mutable Athena::MsgStreamMember m_msg;
 
 protected:

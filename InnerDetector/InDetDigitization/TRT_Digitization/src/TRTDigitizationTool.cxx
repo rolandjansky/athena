@@ -148,6 +148,8 @@ StatusCode TRTDigitizationTool::initialize()
   //Retrieve TRT_StrawNeighbourService.
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
+  // Get the magnetic field service
+  ATH_CHECK(m_magneticfieldsvc.retrieve());
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
 
@@ -304,18 +306,21 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
 
   ITRT_SimDriftTimeTool *pTRTsimdrifttimetool = &(*m_TRTsimdrifttimetool);
 
+  MagField::IMagFieldSvc *pMagfieldsvc = &(*m_magneticfieldsvc);
+
   m_pProcessingOfStraw =
     new TRTProcessingOfStraw( m_settings,
-			      m_manager,
-			      TRTpaiToolXe,
-			      pTRTsimdrifttimetool,
-			      m_pElectronicsProcessing,
-			      m_pNoise,
-			      m_pDigConditions,
-			      m_particleTable,
-			      m_trt_id,
-			      TRTpaiToolAr,
-			      TRTpaiToolKr);
+                              m_manager,
+                              TRTpaiToolXe,
+                              pTRTsimdrifttimetool,
+                              pMagfieldsvc,
+                              m_pElectronicsProcessing,
+                              m_pNoise,
+                              m_pDigConditions,
+                              m_particleTable,
+                              m_trt_id,
+                              TRTpaiToolAr,
+                              TRTpaiToolKr);
 
   ATH_MSG_INFO ( "Gas Property:             UseGasMix is " << m_UseGasMix );
 
