@@ -188,15 +188,14 @@ def _make_vbenf_label(chain_parts):
       )
       combgen
       (
-        # [(2)(10et)]
-        [(10et)]
+        [(10et, 0eta320)]
         dijet
         (
           [(%(masslo).0fdjmass, 26djdphi)]
         ) 
         simple
         (
-          [(10et)(20et)]
+          [(10et, 0eta320)(20et, 0eta320)]
         )
       )
     )""" % argvals
