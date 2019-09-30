@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnergyCalculator.h
@@ -42,11 +42,11 @@
 class ILArCalibCalculatorSvc;
 class LArG4BirksLaw;
 
-
 namespace LArG4 {
 
   namespace EC {
 
+    class HVHelper;
 
     class EnergyCalculator : public LArCalculatorSvcImp
     {
@@ -73,10 +73,7 @@ namespace LArG4 {
 
 
     private:
-      //G4int    m_compartment; -> made local for FindIdentifier functions
-
       G4bool (EnergyCalculator::*m_Process_type) (const G4Step*, std::vector<LArHitData>&) const;
-      G4double (EnergyCalculator::*m_GetHV_Value_type) (const G4ThreeVector &p, G4double /*Barret_PhiStart*/) const;
       G4double (EnergyCalculator::*m_GetGapSize_type) (const G4ThreeVector &p) const;
       G4double (EnergyCalculator::*m_distance_to_the_nearest_electrode_type) (const G4ThreeVector &p, G4double /*Barret_PhiStart*/) const;
 
@@ -87,10 +84,8 @@ namespace LArG4 {
       G4bool FindDMIdentifier_Barrett(const G4Step* step, std::vector<LArHitData>&) const;
       G4bool GetCompartment_Barrett(G4ThreeVector,G4double,G4double,G4double,
                                     G4int &, G4int &) const;
-      G4double GetHV_Value_Default(const G4ThreeVector& p, G4double /*Barret_PhiStart*/) const {
-        return GetHV_Value(p);
-      }
-      G4double GetHV_Value_Barrett(const G4ThreeVector& p, G4double PhiStartOfPhiDiv) const;
+
+      G4double GetHV_Value(const G4ThreeVector& p, G4double PhiStartOfPhiDiv) const;
       G4double GetGapSize_Default(const G4ThreeVector &p) const {
         return GetGapSize(p);
       }
@@ -179,18 +174,12 @@ namespace LArG4 {
       G4double m_FanEleThickness;             // used as const after init
       G4double m_WaveLength;                  // used as const after init
 
-      G4int m_NofPhiSections;                 // used as const after init
-      G4int m_NumberOfElectrodesInPhiSection; // used as const after init
-
       inline G4double ElectrodeFanHalfThickness() const { return m_ElectrodeFanHalfThickness; };
       inline G4double FanEleThicknessOld() const { return m_FanEleThicknessOld; };
       inline G4double FanEleFoldRadiusOld() const { return m_FanEleFoldRadiusOld; };
       inline G4double FanAbsThickness() const { return m_FanAbsThickness; };
       inline G4double FanEleThickness() const { return m_FanEleThickness; };
       inline G4double WaveLength() const { return m_WaveLength; };
-
-      inline G4int NofPhiSections() const { return m_NofPhiSections; };
-      inline G4int NumberOfElectrodesInPhiSection() const { return m_NumberOfElectrodesInPhiSection; };
 
       //variables specific for Efield calculation
 
@@ -239,39 +228,23 @@ namespace LArG4 {
         {}
       };
 
-      //G4double PhiStartOfPhiDiv;
-
       void CreateArrays(Wheel_Efield_Map &, G4int);
       inline G4int Index(const Fold_Efield_Map* foldmap, G4int i, G4int j, G4int k ) const {
         return foldmap->pLayer[i]+j*foldmap->NofPointsinLayer[i]+k;
       };
       void SetFoldArea(G4double, FoldArea & ) const;
 
-      //HV for current calculation
-
-      static       G4bool   s_HVMapRead;    // used only for initialization
       std::string m_HVMapVersion; // used only for initialization
+      G4bool m_DB_HV;
+
       static const G4double s_AverageHV;
       static const G4double s_AverageEfield;
       static const G4double s_AverageCurrent;
-      static const G4String s_HVEMECMapFileName;  //{"HVEMECMap.dat"};
-
-      static const G4int s_NofAtlasSide     = 2;
-      static const G4int s_NofEtaSection    = 9;
-      static const G4int s_NofElectrodeSide = 2;
-      static const G4int s_NofElectrodesOut = 768;
-      static const G4double s_HV_Etalim[s_NofEtaSection+1]; // = {1.375,1.5,1.6,1.8,2.,2.1,2.3,2.5,2.8,3.2};
-      static G4int s_HV_Start_phi[s_NofAtlasSide][s_NofEtaSection][s_NofElectrodeSide];  // used as const after init
-      static G4double s_HV_Values[s_NofAtlasSide][s_NofEtaSection][s_NofElectrodeSide][s_NofElectrodesOut]; // used as const after init
 
       static const G4double s_LArTemperature_ECC0;//={88.15}; //K
       static const G4double s_LArTemperature_ECC1;//={88.37};
       static const G4double s_LArTemperature_ECC5;//={87.97};
       static const G4double s_LArTemperature_av ;// ={88.16};
-
-      void GetHVMap(const G4String);  // used only for initialization
-      G4double GetHV_Value(const G4ThreeVector& p) const;
-      G4double GetHV_Value_ChColl_Wheel( const G4ThreeVector& , G4int , G4int) const;
 
       //Efield in [kv/cm], driftvelo in [mm/microsec], Temperature in [K]
 
@@ -326,8 +299,6 @@ namespace LArG4 {
 #endif
 
     private:
-      //  inline void vector_to_msg(G4ThreeVector &v) const;
-
       /* to be developed...
          std::pair<double, double>DxToFans(Hep3Vector &p);
          double XDistanceToTheNeutralFibre(const Hep3Vector& P) const;
@@ -344,9 +315,6 @@ namespace LArG4 {
       LArWheelCalculator *m_lwc;
       const LArWheelCalculator * lwc() const { return m_lwc; }
 
-      void get_HV_map_from_DB(void);
-      G4bool m_DB_HV;
-
       std::string m_suffix;
 
       // Aug 2007 AMS, lost Aug 2008, restored May 2009
@@ -354,8 +322,6 @@ namespace LArG4 {
       const LArWheelCalculator * elc() const { return m_electrode_calculator; }
 
       G4double GetCurrent1(const G4ThreeVector &, const G4ThreeVector &, G4double) const;
-
-      G4double get_HV_value(const G4ThreeVector&, const std::pair<G4int, G4int> &) const;
 
       EnergyCalculator (const EnergyCalculator&);
       EnergyCalculator& operator= (const EnergyCalculator&);
@@ -382,8 +348,30 @@ namespace LArG4 {
       }
 
       G4double getPhiStartOfPhiDiv(const G4Step* step) const;
-    };
 
+  private:
+    HVHelper *m_HVHelper;
+    const static G4double s_GA_SubstepSize;
+    G4double DistanceToEtaLine(const G4ThreeVector &p, G4double eta) const;
+
+    struct geometry_t {
+        G4int    zSide;      // +- 3 for inner wheel, +- 2 for outer wheel, z determines sign
+        G4int    sampling;
+        G4int    region;
+        G4double etaScale;   // 1/deta
+        G4double etaOffset;  // set so that the range of etaBin starts at zero for each compartment
+        G4int    maxEta;     // the maximum value of etaBin in this compartment
+        G4int    gapsPerBin; // number of phi gaps (in LArWheelSolid) for each cell bin.
+        G4int    maxPhi;     // the maximum value of phiBin in this compartment
+    };
+    static const geometry_t s_geometry[];
+
+    G4bool GetBarrettePCE(
+        const G4ThreeVector& p, G4double PhiStartOfPhiDiv,
+        G4double &phi, G4int &compartment, G4int &eta_bin
+    ) const;
+
+    };
   } // namespace EC
 } // namespace LArG4
 

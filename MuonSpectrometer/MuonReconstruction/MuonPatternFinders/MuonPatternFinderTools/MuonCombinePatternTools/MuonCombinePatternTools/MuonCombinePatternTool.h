@@ -12,10 +12,6 @@
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
 namespace MuonGM {
      class MuonDetectorManager;
 }
@@ -155,19 +151,8 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   /** vector containing temporary made patterns, which are to be deleted at end of matching */
   mutable std::vector<const Muon::MuonPrdPattern*> m_patternsToDelete;
 
-  /** pointer to muondetectormanager */
-  const MuonGM::MuonDetectorManager*  m_detMgr;
-
-  /** Pointer to RpcIdHelper */
-  const RpcIdHelper*                  m_rpcIdHelper;
-  /** Pointer to TgcIdHelper */
-  const TgcIdHelper*                  m_tgcIdHelper;
-  /** Pointer to CscIdHelper */
-  const CscIdHelper*                  m_cscIdHelper;
-  /** Pointer to MdtIdHelper */
-  const MdtIdHelper*                  m_mdtIdHelper;
-
-  ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
 };
 

@@ -39,9 +39,7 @@ Muon::UTPCMMClusterBuilderTool::UTPCMMClusterBuilderTool(const std::string& t,
                        const std::string& n,
                        const IInterface* p)
     :
-    AthAlgTool(t,n,p),
-    m_muonMgr(nullptr),
-    m_mmIdHelper(nullptr)
+    AthAlgTool(t,n,p)
 {
     declareInterface<IMMClusterBuilderTool>(this);
     declareProperty("HoughAlphaMin",m_alphaMin=-90); //
@@ -59,16 +57,8 @@ Muon::UTPCMMClusterBuilderTool::UTPCMMClusterBuilderTool(const std::string& t,
 
 
 StatusCode Muon::UTPCMMClusterBuilderTool::initialize(){
-    StatusCode sc = detStore()->retrieve(m_muonMgr);
-    if (sc.isFailure()){
-      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-      return sc;
-    }
-
-
-    m_mmIdHelper = m_muonMgr->mmIdHelper();
     ATH_MSG_INFO("Set vDrift to "<< m_vDrift <<" um/ns");
-
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );  
     return StatusCode::SUCCESS;
 }
 
@@ -77,8 +67,8 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
     std::vector<std::vector<Muon::MMPrepData>> MMprdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
     for (const auto& MMprd:MMprds){
         Identifier id = MMprd.identify();
-        int layer = 4*(m_mmIdHelper->multilayer(id)-1)+(m_mmIdHelper->gasGap(id)-1);
-        ATH_MSG_DEBUG("Sorting PRD into layer layer: "<< layer<< " gas_gap "<<m_mmIdHelper->gasGap(id) <<"multilayer "<<m_mmIdHelper->multilayer(id));
+        int layer = 4*(m_muonIdHelperTool->mmIdHelper().multilayer(id)-1)+(m_muonIdHelperTool->mmIdHelper().gasGap(id)-1);
+        ATH_MSG_DEBUG("Sorting PRD into layer layer: "<< layer<< " gas_gap "<<m_muonIdHelperTool->mmIdHelper().gasGap(id) <<"multilayer "<<m_muonIdHelperTool->mmIdHelper().multilayer(id));        
         MMprdsPerLayer.at(layer).push_back(MMprd);
     }
 
@@ -101,7 +91,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             double angleToIp=TMath::ATan(Tan)/m_toRad;
 
             stripsTime.push_back(MMprd.time()-tof); // use time minus tof as actual time
-            ATH_MSG_DEBUG("Hit channel: "<< m_mmIdHelper->channel(id_prd) <<" time "<< MMprd.time() << " localPosX "<< MMprd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_mmIdHelper->gasGap(id_prd) << " multiplet " << m_mmIdHelper->multilayer(id_prd) << " stationname " <<m_mmIdHelper->stationName(id_prd)  << " stationPhi " <<m_mmIdHelper->stationPhi(id_prd) << " stationEta "<<m_mmIdHelper->stationEta(id_prd));
+            ATH_MSG_DEBUG("Hit channel: "<< m_muonIdHelperTool->mmIdHelper().channel(id_prd) <<" time "<< MMprd.time() << " localPosX "<< MMprd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_muonIdHelperTool->mmIdHelper().gasGap(id_prd) << " multiplet " << m_muonIdHelperTool->mmIdHelper().multilayer(id_prd) << " stationname " <<m_muonIdHelperTool->mmIdHelper().stationName(id_prd)  << " stationPhi " <<m_muonIdHelperTool->mmIdHelper().stationPhi(id_prd) << " stationEta "<<m_muonIdHelperTool->mmIdHelper().stationEta(id_prd));
         }
         if(MMprdsOfLayer.size()<3) continue;
 

@@ -20,7 +20,8 @@
 #include "TrigConfigSvc/Verifyer.h"
 
 // Trigger database interface includes:
-
+#include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfData/L1Menu.h"
 #include "TrigConfL1Data/DeadTime.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/CTPConfigOnline.h"
@@ -69,9 +70,44 @@ LVL1ConfigSvc::~LVL1ConfigSvc()
 
 
 StatusCode
+LVL1ConfigSvc::writeConfigToDetectorStore() {
+
+    // load the json file into TrigConf::L1Menu
+    TrigConf::JsonFileLoader fileLoader;
+    fileLoader.setLevel(TrigConf::MSGTC::WARNING);
+
+    TrigConf::L1Menu * l1menu = new TrigConf::L1Menu;
+
+    if( m_inputType == "file" ) {
+       if( fileLoader.loadFile( m_l1FileName, *l1menu ).isSuccess() ) {
+          ATH_MSG_INFO( "Loaded L1 menu file " << m_l1FileName.value() );
+       } else {
+          ATH_MSG_WARNING( "Failed loading L1 menu file " << m_l1FileName.value());
+          return StatusCode::RECOVERABLE;
+       }
+    }
+
+    ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );    
+
+    ATH_CHECK( detStore.retrieve() );
+    if( detStore->record(l1menu,"L1TriggerMenu").isSuccess() ) {
+       ATH_MSG_INFO( "Recorded L1 menu with key 'L1TriggerMenu' in the detector store" );
+    }
+
+    return StatusCode::SUCCESS;
+} 
+
+
+
+StatusCode
 LVL1ConfigSvc::initialize() {
 
    CHECK(ConfigSvcBase::initialize());
+
+   StatusCode sc = writeConfigToDetectorStore();
+   if( !sc.isSuccess() ) {
+          ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
+   }
    
    // could be that this is needed when running from DB
    CHECK(setProperties());

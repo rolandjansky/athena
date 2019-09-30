@@ -40,6 +40,7 @@ StatusCode T2CaloEgammaReFastAlgo::initialize()
 
 StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 {
+
   SG::WriteHandle<xAOD::TrigEMClusterContainer> trigEmClusterCollection(m_clusterContainerKey, context);
   ATH_CHECK( trigEmClusterCollection.record(std::make_unique<xAOD::TrigEMClusterContainer>(),
                                             std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );

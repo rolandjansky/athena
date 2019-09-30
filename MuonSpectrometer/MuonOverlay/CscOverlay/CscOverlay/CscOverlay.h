@@ -22,6 +22,8 @@
 
 #include "AthenaKernel/IAthRNGSvc.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -92,7 +94,8 @@ private:
   SG::WriteHandleKey<CscRawDataContainer> m_outputKey{this,"OutputKey","CSCRDO",""};
 
   Gaudi::Property<bool> m_isDataOverlay{this, "isDataOverlay", false, ""};
-  const CscIdHelper   * m_cscHelper{nullptr};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CalibTool", "CscCalibTool", ""};
   PublicToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this, "CscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};
 

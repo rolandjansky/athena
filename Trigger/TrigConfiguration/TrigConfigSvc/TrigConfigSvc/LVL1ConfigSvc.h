@@ -42,6 +42,14 @@ namespace TrigConf {
       uint32_t lvl1PrescaleKey() const { return m_prescaleSetID; }
 
    private:
+
+      StatusCode writeConfigToDetectorStore();
+
+      // jobProperties
+      Gaudi::Property< std::string > m_inputType { this, "InputType", "file", "file (json file), db (Trigger DB), cool (keys from cool, content from Trigger DB), none (no menu)" };
+      Gaudi::Property< std::string > m_l1FileName { this, "JsonFileName", "L1Menu.json", "file name of L1 json file, needed if InputType is file" };
+      Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
+      Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
       
       ::StoreGateSvc* m_detectorStore;
       

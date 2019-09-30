@@ -20,7 +20,6 @@
 ///Track events
 #include "TrkSegment/TrackSegment.h"
 
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/SystemOfUnits.h"
 using Gaudi::Units::GeV;
 

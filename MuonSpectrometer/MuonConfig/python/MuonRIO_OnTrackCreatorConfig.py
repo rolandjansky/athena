@@ -17,7 +17,6 @@ def TriggerChamberClusterOnTrackCreatorCfg(flags, **kwargs):
     result.setPrivateTools(Muon__TriggerChamberClusterOnTrackCreator(**kwargs))
     return result
 
-
 def CscClusterOnTrackCreatorCfg(flags,**kwargs):
     from MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg, CscClusterUtilToolCfg
 

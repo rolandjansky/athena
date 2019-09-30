@@ -77,10 +77,6 @@ class ITrigCaloDataAccessSvc: virtual public IService {
         * @brief Loads the full collection for the missing et computation
         */
 
-/*
-  virtual StatusCode prepareFullCollections( const EventContext& context ) = 0;
-*/
-  
   virtual StatusCode loadFullCollections ( const EventContext& context,
                                            ConstDataVector<CaloCellContainer>& cont ) = 0;
 

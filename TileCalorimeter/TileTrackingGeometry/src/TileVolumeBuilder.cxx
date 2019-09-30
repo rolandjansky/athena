@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,10 +53,9 @@
 #include "GaudiKernel/SystemOfUnits.h"
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
-#include "CxxUtils/make_unique.h"
 
 using Gaudi::Units::mm;
-using CxxUtils::make_unique;
+using std::make_unique;
 
 // constructor
 Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -428,7 +427,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 
   // combined girder volume
   {
-    auto tileGirderBounds = CxxUtils::make_unique<Trk::CylinderVolumeBounds>
+    auto tileGirderBounds = std::make_unique<Trk::CylinderVolumeBounds>
       (tileBarrelGirderBounds->innerRadius(),
        tileBarrelGirderBounds->outerRadius(),
        tileZ);

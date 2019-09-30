@@ -131,33 +131,56 @@ def getCategory(s):
     # search in EDMDetails for the key corresponding to the persistent value
     # if a key is found, use this as the first part of the original string
     # put the string back together
-                 
-    if s.startswith('HLT_xAOD__') or s.startswith('HLT_Rec__') or s.startswith('HLT_Analysis__') :
-        s = s[s.index('__')+2:]
-        s = s[s.index('_')+1:]
-        if s.count('Dyn') : s = s[:s.index('Dyn')]
-        if s.count('.') : s = s[:s.index('.')]
-        s = "HLT_"+s
-    elif s.startswith('HLT_'):
-        if s.count('_'): s = s[s.index('_')+1:]
-        if s.count('_'): s = s[s.index('_')+1:]
-        s = "HLT_"+s
-        
+
     if s.count('.') : s = s[:s.index('.')]                         
     if s.count('::'): s = s[s.index(':')+2:]
     if s.count('<'):  s = s[s.index('<')+1:]
     if s.count('>'):  s = s[:s.index('>')]
+    if s.count('.') : s = s[:s.index('.')]
+    if s.count('Dyn') : s = s[:s.index('Dyn')]
 
-        # need to make unique list?
-    TriggerList = TriggerL2List + TriggerEFList + TriggerResultsList + TriggerResultsRun1List + TriggerLvl1List + TriggerIDTruth + TriggerHLTList
+    # containers from Run 1-2 and 3 require different preprocessing
+    # s12 is for Run 1-2, s is for Run 3
+    s12 = s
+
+    if s12.startswith('HLT_xAOD__') or s12.startswith('HLT_Rec__') or s12.startswith('HLT_Analysis__') :
+        s12 = s12[s12.index('__')+2:]
+        s12 = s12[s12.index('_')+1:]
+        #if s12.count('.') : s12 = s12[:s12.index('.')]
+        s12 = "HLT_"+s12
+    elif s12.startswith('HLT_'):
+        #if s.count('Dyn') : s = s[:s.index('Dyn')]
+        if s12.count('_'): s12 = s12[s12.index('_')+1:]
+        if s12.count('_'): s12 = s12[s12.index('_')+1:]
+        s12 = "HLT_"+s12
+
+    TriggerListRun1 = TriggerL2List + TriggerEFList + TriggerResultsRun1List
+    TriggerListRun2 = TriggerResultsList + TriggerLvl1List + TriggerIDTruth + TriggerHLTList
+    TriggerListRun3 = TriggerHLTListRun3
 
     category = '' 
     bestMatch = ''
- 
+
     """ Loop over all objects already defined in lists (and hopefully categorized!!) """
-    for item in TriggerList:
+    for item in TriggerListRun1+TriggerListRun2:
         t,k = getTypeAndKey(item[0])
-    
+
+        """ Clean up type name """
+        if t.count('::'): t = t[t.index(':')+2:]
+        if t.count('<'):  t = t[t.index('<')+1:]
+        if t.count('>'):  t = t[:t.index('>')]
+        if (s12.startswith(t) and s12.endswith(k)) and (len(t) > len(bestMatch)):
+            bestMatch = t
+            category = item[2]
+
+        if k.count('.'): k = k[:k.index('.')]
+        if (s12 == k):
+            bestMatch = k
+            category = item[2]
+
+    for item in TriggerListRun3:
+        t,k = getTypeAndKey(item[0])
+
         """ Clean up type name """
         if t.count('::'): t = t[t.index(':')+2:]
         if t.count('<'):  t = t[t.index('<')+1:]
@@ -167,11 +190,10 @@ def getCategory(s):
             bestMatch = t
             category = item[2]
 
-        if k.count('.'): k = k[:k.index('.')]  
+        if k.count('.'): k = k[:k.index('.')]
         if (s == k):
             bestMatch = k
             category = item[2]
-
     if category == '': return 'NOTFOUND'
     return category
 

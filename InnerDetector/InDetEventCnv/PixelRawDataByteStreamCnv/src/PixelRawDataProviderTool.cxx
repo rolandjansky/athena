@@ -46,6 +46,9 @@ StatusCode PixelRawDataProviderTool::finalize() {
 StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc) {
   if (vecRobs.size()==0) { return StatusCode::SUCCESS; }
 
+  ATH_MSG_INFO("Called wiht " << vecRobs.size() << "robs" );
+  ATH_MSG_INFO("The RDO IDC ptr " << rdoIdc << " has external cache " << rdoIdc->hasExternalCache() );
+
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
 #ifdef PIXEL_DEBUG
@@ -73,6 +76,10 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 #endif
     // remember last Lvl1ID
     m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
+
+    // and clean up the identifable container !
+    rdoIdc->cleanup();//TODO Remove this when legacy trigger code is removed
+
   }
 
   // loop over the ROB fragments
@@ -97,14 +104,15 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
     }
 
     // here the code for the timing monitoring should be reinserted
-    // using 1 container per event und subdetector
+    // using 1 container per event and subdetector
     StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc);
+    const int issuesMessageCountLimit = 100;
     if (sc==StatusCode::FAILURE) {
-      if (m_DecodeErrCount<100) {
+      if (m_DecodeErrCount < issuesMessageCountLimit) {
         ATH_MSG_INFO("Problem with Pixel ByteStream Decoding!");
         m_DecodeErrCount++;
       }
-      else if (100==m_DecodeErrCount) {
+      else if (issuesMessageCountLimit == m_DecodeErrCount) {
         ATH_MSG_INFO("Too many Problems with Pixel Decoding messages.  Turning message off.");
         m_DecodeErrCount++;
       }

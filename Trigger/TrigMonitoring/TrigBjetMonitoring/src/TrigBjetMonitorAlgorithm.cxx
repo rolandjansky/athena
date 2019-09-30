@@ -21,10 +21,12 @@ TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISv
   ,m_muonContainerKey("Muons")
   ,m_vertexContainerKey("PrimaryVertices")
   ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
+  ,m_doRun2(false)
 {
   declareProperty ("AllChains", m_allChains);
   declareProperty("MuonContainerName",m_muonContainerKey);
   declareProperty("VertexContainerName",m_vertexContainerKey);
+  declareProperty("doRun2",m_doRun2);
 }
 
 
@@ -95,7 +97,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     
     // Access to TrigFeature
     //    bool Run2_Access = true;
-    bool Run2_Access = false;
+    //    bool Run2_Access = false;
 
     
     if ( m_trigDecTool->isPassed(trigName) ) {
@@ -147,7 +149,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       // Read the TrigFeature contener
 
       // if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 trigger
-      if (Run2_Access) { // Run 2 trigger
+      //      if (Run2_Access) { // Run 2 trigger
+      if (m_doRun2) { // Run 2 trigger
 
 	ATH_MSG_INFO("  ===> Run 2 access to Trigger feature: " );
 	Trig::FeatureContainer fc = m_trigDec->features(trigName);

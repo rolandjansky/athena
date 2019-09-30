@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleBaseCnv_p2.h 
@@ -26,13 +26,12 @@
 class MsgStream;
 
 class ParticleBaseCnv_p2
-  : public T_AthenaPoolTPCnvBase<ParticleEvent::Base, ParticleBase_p2>
+  : public T_AthenaPoolTPCnvConstBase<ParticleEvent::Base, ParticleBase_p2>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -42,48 +41,36 @@ class ParticleBaseCnv_p2
    */
   virtual ~ParticleBaseCnv_p2();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c ParticleBase
    *  from its persistent representation @c ParticleBase_p2
    */
   virtual void persToTrans( const ParticleBase_p2* persObj, 
                             ParticleBase* transObj, 
-                            MsgStream &msg ) final;
+                            MsgStream &msg ) const final;
 
   /** Method creating the persistent representation @c ParticleBase_p2
    *  from its transient representation @c ParticleBase
    */
   virtual void transToPers( const ParticleBase* transObj, 
                             ParticleBase_p2* persObj, 
-                            MsgStream &msg ) final;
+                            MsgStream &msg ) const final;
 
   /** Method creating the transient representation of @c ParticleEvent::Base
    *  from its persistent representation @c ParticleBase_p2
    */
   virtual void persToTrans( const ParticleBase_p2* persObj, 
                             ParticleEvent::Base* transObj, 
-                            MsgStream &msg ) override final;
+                            MsgStream &msg ) const override final;
 
   /** Method creating the persistent representation @c ParticleBase_p2
    *  from its transient representation @c ParticleEvent::ParticleBase
    */
   virtual void transToPers( const ParticleEvent::Base* transObj, 
                             ParticleBase_p2* persObj, 
-                            MsgStream &msg ) override final;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+                            MsgStream &msg ) const override final;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline ParticleBaseCnv_p2::ParticleBaseCnv_p2()
 {}

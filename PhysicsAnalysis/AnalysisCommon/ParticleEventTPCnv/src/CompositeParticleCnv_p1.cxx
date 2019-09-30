@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompositeParticleCnv_p1.cxx 
@@ -30,27 +30,14 @@ typedef NavigableCnv_p1<
            > NavigableCnv_t;
 
 // pre-allocate converters
-static P4ImplPxPyPzECnv_p1   s_momCnv;
-static NavigableCnv_t        s_navCnv;
-static ParticleBaseCnv_p1    s_pbCnv;
+static const P4ImplPxPyPzECnv_p1   s_momCnv;
+static const NavigableCnv_t        s_navCnv;
+static const ParticleBaseCnv_p1    s_pbCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void CompositeParticleCnv_p1::persToTrans( const CompositeParticle_p1* pers,
                                            CompositeParticle* trans, 
-                                           MsgStream& msg ) 
+                                           MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading CompositeParticle from persistent state..."
 //       << endmsg;
@@ -71,7 +58,7 @@ void CompositeParticleCnv_p1::persToTrans( const CompositeParticle_p1* pers,
 
 void CompositeParticleCnv_p1::transToPers( const CompositeParticle* trans, 
                                            CompositeParticle_p1* pers, 
-                                           MsgStream& msg ) 
+                                           MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of CompositeParticle..."
 //       << endmsg;

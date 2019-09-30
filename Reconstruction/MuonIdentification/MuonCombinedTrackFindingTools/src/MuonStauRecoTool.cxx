@@ -1400,7 +1400,7 @@ namespace MuonCombined {
     std::map<Identifier, std::vector<const Muon::RpcPrepData*> >::iterator chit_end = rpcPrdsPerChamber.end();
     for( ;chit!=chit_end;++chit ){
       // cluster hits
-      Muon::RpcHitClusteringObj clustering(m_idHelper->rpcIdHelper());
+      Muon::RpcHitClusteringObj clustering(m_idHelper.get());
       //clustering.debug = true;
       if( !clustering.cluster( chit->second ) ){
         ATH_MSG_WARNING("Clustering failed");

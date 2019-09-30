@@ -2141,7 +2141,7 @@ namespace Muon {
       int sector ) const {
     
     if( tgcs.empty() ) return;
-    tgcClusteringObjs.push_back( std::make_unique<TgcHitClusteringObj>(m_muonIdHelperTool->tgcIdHelper()) );
+    tgcClusteringObjs.push_back( std::make_unique<TgcHitClusteringObj>(m_muonIdHelperTool.get()) );
     TgcHitClusteringObj& clustering = *tgcClusteringObjs.back();
     std::vector<const TgcPrepData*> prds;
     prds.insert(prds.begin(),tgcs.begin(),tgcs.end());
@@ -2156,7 +2156,7 @@ namespace Muon {
       ATH_MSG_DEBUG("TgcHitClusteringObj, no 3D clusters! ");
       if( msgLvl(MSG::DEBUG) ){
         for(std::vector<const TgcPrepData*>::iterator it=prds.begin();it!=prds.end();++it ){
-          msg(MSG::DEBUG) << "   " << m_muonIdHelperTool->toString( (*it)->identify() ) << endmsg;
+          ATH_MSG_DEBUG("   " << m_muonIdHelperTool->toString( (*it)->identify() ));
         }
       }
       return;
@@ -2165,7 +2165,7 @@ namespace Muon {
       ATH_MSG_DEBUG("TgcHitClusteringObj, no eta cluster selected! ");
       if( msgLvl(MSG::DEBUG) ){
         for(std::vector<const TgcPrepData*>::iterator it=prds.begin();it!=prds.end();++it ){
-          msg(MSG::DEBUG) << "   " << m_muonIdHelperTool->toString( (*it)->identify() ) << endmsg;
+          ATH_MSG_DEBUG("   " << m_muonIdHelperTool->toString( (*it)->identify() ));
         }
       }
       return;

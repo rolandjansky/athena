@@ -39,6 +39,7 @@ namespace NSWL1 {
     virtual int BCID()          const=0;
     //! helper  methods decoding the hit fragment position within the NSW detector
     virtual int isSmall()      const = 0;    //!< get the side (0==sideC, 1==sideA)
+    virtual int sideId() const =0;
     virtual int moduleId()    const = 0;    //!< get the physics module (ranging from 0 at lowest R to 3 at highest R)
     virtual int sectorId()    const = 0;    //!< get the sector (ranging from 0 to 15)
     virtual int wedge() const = 0;    //!< get the multiplet (ranging from 0 to 1, 1 is at lowest |z|)
