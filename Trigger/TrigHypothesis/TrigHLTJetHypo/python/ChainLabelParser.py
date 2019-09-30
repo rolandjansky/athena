@@ -337,7 +337,7 @@ class ChainLabelParser(object):
         return self.tree[0].children[0]
 
 def _test(s):
-    from .ChainLabelParser import ChainLabelParser
+    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s, debug=True)
     tree = parser.parse()
     print(tree.dump())
@@ -346,7 +346,7 @@ def _test(s):
 def test():
     import sys
     
-    from .test_cases import test_strings
+    from TrigHLTJetHypo.test_cases import test_strings
     c = sys.argv[1]
     index = -1
     try:
