@@ -22,7 +22,7 @@ Sim_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/user.sgargiul.ZPrimebb.FlatPt.9999_EVNT.pool.root" \
---outputHITSFile "Hits.pool.root" \
+--outputHITSFile "test.HITS.pool.root" \
 --maxEvents 5 \
 --imf False
 
