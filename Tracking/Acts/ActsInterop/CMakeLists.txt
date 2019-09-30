@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 
-find_package( Acts QUIET COMPONENTS Core )
+find_package(Acts COMPONENTS Core)
 
 # Component(s) in the package:
 atlas_add_library( ActsInteropLib
