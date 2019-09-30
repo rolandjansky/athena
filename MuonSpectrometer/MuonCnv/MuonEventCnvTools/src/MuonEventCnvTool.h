@@ -8,14 +8,18 @@
 #include "TrkEventCnvTools/ITrkEventCnvTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+#include "MuonPrepRawData/CscPrepDataContainer.h"
+#include "MuonPrepRawData/TgcPrepDataContainer.h"
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
+#include "MuonPrepRawData/MMPrepDataContainer.h"
+#include "MuonPrepRawData/sTgcPrepDataContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <string>
 
 class Identifier;
 class IdentifierHash;
-
-namespace Muon {
-    class MuonIdHelperTool;
-}
 
 namespace MuonGM {
     class MuonDetectorManager;
@@ -37,8 +41,6 @@ namespace Muon {
 
         MuonEventCnvTool(const std::string&,const std::string&,const IInterface*);
 
-        virtual ~MuonEventCnvTool ();
-
         virtual StatusCode initialize();
 
         /** check that the RoT is correctly filled*/
@@ -59,6 +61,8 @@ namespace Muon {
         /** Return the detectorElement associated with this Identifier*/
         virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id) const;
         
+        template<class CONT>
+        const Trk::PrepRawData* getLink( const Identifier& id,  const IdentifierHash& idHash, const SG::ReadHandleKey<CONT>& handle ) const;
         const Trk::PrepRawData* rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
         const Trk::PrepRawData* cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
         const Trk::PrepRawData* tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  ) const;
@@ -72,16 +76,22 @@ namespace Muon {
 
         ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
 
-        std::string m_rpcClusContName;
-        std::string m_cscClusContName;
-        std::string m_tgcClusContName;
-        std::string m_mdtClusContName;
-        std::string m_mmClusContName;
-        std::string m_stgcClusContName;
+        SG::ReadHandleKey<RpcPrepDataContainer>   m_rpcPrdKey
+             { this, "RpcClusterContainer", "RPC_Measurements", "Location for RPC PRDs" };
+        SG::ReadHandleKey<CscPrepDataContainer>   m_cscPrdKey
+             { this, "RpcClusterContainer", "CSC_Clusters", "Location for CSC PRDs" };
+        SG::ReadHandleKey<TgcPrepDataContainer>   m_tgcPrdKey
+             { this, "RpcClusterContainer", "TGC_MeasurementsAllBCs", "Location for TGC PRDs" };
+        SG::ReadHandleKey<MdtPrepDataContainer>   m_mdtPrdKey
+             { this, "RpcClusterContainer", "MDT_DriftCircles", "Location for MDT PRDs" };
+        SG::ReadHandleKey<MMPrepDataContainer>   m_mmPrdKey
+             { this, "RpcClusterContainer", "MM_Measurements", "Location for MM PRDs" };
+        SG::ReadHandleKey<sTgcPrepDataContainer>   m_stgcPrdKey
+             { this, "RpcClusterContainer", "STGC_Measurements", "Location for sTGC PRDs" };
         
         /** If true, search for PRDs manually - i.e. do not rely on ElementLink working
         @warning This functionality is left in primarily for debugging - will probably be removed in near future.*/
-        bool m_manuallyFindPRDs;
+        Gaudi::Property<bool> m_manuallyFindPRDs{ this, "FindPRDsManually", false, "If true, search for PRDs manually - i.e. do not rely on ElementLink working"};
 
     };
 
