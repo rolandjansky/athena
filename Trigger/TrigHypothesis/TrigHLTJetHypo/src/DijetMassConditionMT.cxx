@@ -38,7 +38,7 @@ DijetMassConditionMT::isSatisfied(const HypoJetVector& ips,
 
   auto mass = (rj0 + rj1).M();
 
-  bool pass = m_min > mass or mass >= m_max;
+  bool pass = mass >= m_min  and  mass < m_max;
 
    if(collector){
      std::stringstream ss0;

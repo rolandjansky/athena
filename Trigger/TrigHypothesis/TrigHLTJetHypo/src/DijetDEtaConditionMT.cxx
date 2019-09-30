@@ -37,7 +37,7 @@ DijetDEtaConditionMT::isSatisfied(const HypoJetVector& ips,
   auto eta1 =  j1->eta();
   auto adeta = std::abs(eta0 -eta1);
 
-  bool pass = m_min > adeta or adeta >= m_max;
+  bool pass = adeta >= m_min and adeta < m_max;
 
    if(collector){
      std::stringstream ss0;

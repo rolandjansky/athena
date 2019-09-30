@@ -38,7 +38,7 @@ DijetDPhiConditionMT::isSatisfied(const HypoJetVector& ips,
   auto dphi = std::abs(rj0.DeltaPhi(rj1));
 
 
-  bool pass = m_min > dphi or dphi >= m_max;
+  bool pass = dphi >= m_min and dphi < m_max;
 
   
    if(collector){

@@ -27,8 +27,6 @@
 
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-#include <iostream>
-
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
@@ -63,9 +61,6 @@ TrigJetHypoToolConfig_leaf::getConditions() const {
   for(const auto& cm : m_conditionMakers) {
     compoundConditions.push_back(cm->getCondition());
   }
-  std::cout<<name() << ":getConditions. No of conditions: "
-	   << compoundConditions.size() << '\n';
-  
   return std::make_optional<ConditionsMT>(std::move(compoundConditions));
 }
 
