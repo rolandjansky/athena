@@ -977,6 +977,8 @@ class checkFileTrigSize_RTT:
 
         ]
         triggerCounterCommon = Counter('triggerCommon',triggerListCommon)
+        triggerListHLTNav = []
+        triggerCounterHLTNav = Counter('triggerHLTNav',triggerListHLTNav)
     
         truthList = [
             'McEventCollection_p4_GEN_AOD',
@@ -1018,6 +1020,7 @@ class checkFileTrigSize_RTT:
         triggerCounterCommon,
         triggerCounterSteer,
         triggerCounterL1,
+        triggerCounterHLTNav,
         truthCounter,
         ]
     
@@ -1036,6 +1039,7 @@ class checkFileTrigSize_RTT:
         triggerCounterCommon,
         triggerCounterSteer,
         triggerCounterL1,
+        triggerCounterHLTNav,
         ]
     
         listofNonTrigCounters = [
@@ -1140,7 +1144,8 @@ class checkFileTrigSize_RTT:
 
             elif getCategory(name)  == 'NOTFOUND' and name in triggerListConfigID:
                 self.triggerAlgList.append([name, 'Tracking', float(sizePerEvent)])
-
+            elif getCategory(name)  == 'NOTFOUND' and name.startswith("HLTNav_"):
+                self.triggerAlgList.append([name, 'HLTNav', float(sizePerEvent)])
             ## Do some simple checks if algorithm is not found in dictionary (and isn't IOVMetaDataContainer*)
             ## Add these to triggerAlgsNotIncluded
             ## Can be used to debug the search algorithm of getCategory() in TriggerEDM.py
