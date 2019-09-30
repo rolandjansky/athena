@@ -377,7 +377,7 @@ PhotonChainParts = {
     'trigType'       : ['g'],
     'threshold'      : '',
     'extra'          : [],
-    'IDinfo'         : [],
+    'IDinfo'         : ['etcut','loose','medium','tight'],
     'isoInfo'        : [],
     'reccalibInfo'   : [],
     'trkInfo'        : [],
