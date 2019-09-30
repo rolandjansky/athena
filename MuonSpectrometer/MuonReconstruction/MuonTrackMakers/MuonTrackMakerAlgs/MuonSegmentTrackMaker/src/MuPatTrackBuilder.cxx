@@ -17,11 +17,6 @@
 
 using namespace Muon;
 
-MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcLocator)
-   : AthAlgorithm(name,pSvcLocator)
-{
-}
-
 StatusCode MuPatTrackBuilder::initialize()
 {
   if (m_trackMaker.retrieve().isFailure()){
@@ -36,7 +31,6 @@ StatusCode MuPatTrackBuilder::initialize()
   
  ATH_CHECK( m_segmentKey.initialize() );
  ATH_CHECK( m_spectroTrackKey.initialize() );
- ATH_CHECK( m_spectroPartiKey.initialize() );
 
   return StatusCode::SUCCESS; 
 }
@@ -83,9 +77,4 @@ StatusCode MuPatTrackBuilder::execute()
 
   return StatusCode::SUCCESS;
 } // execute
-
-StatusCode MuPatTrackBuilder::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 
