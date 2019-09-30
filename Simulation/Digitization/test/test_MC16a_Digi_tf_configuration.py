@@ -300,7 +300,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___CscDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.CscDigitizationTool'
-        expected_property_list = ['CSCSimDataCollectionOutputName', 'DetStore', 'DriftVelocity', 'ElectronEnergy', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'NewDigitEDM', 'OutputObjectName', 'PileUpMergeSvc', 'RndmSvc', 'WindowLowerOffset', 'WindowUpperOffset', 'amplification', 'cscCalibTool', 'isPileUp', 'pedestal']
+        expected_property_list = ['CSCSimDataCollectionOutputName', 'DetStore', 'DriftVelocity', 'ElectronEnergy', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'NewDigitEDM', 'OutputObjectName', 'PileUpMergeSvc', 'RndmSvc', 'WindowLowerOffset', 'WindowUpperOffset', 'amplification', 'cscCalibTool', 'idHelper', 'isPileUp', 'pedestal']
         expected_nonstring_properties = {'LastXing': '175', 'FirstXing': '-375'}
         expected_string_properties = {'InputObjectName': 'CSC_Hits', 'OutputObjectName': 'CSC_DIGITS'}
         self._detailed_ConfigurablePropertiesCheck(
