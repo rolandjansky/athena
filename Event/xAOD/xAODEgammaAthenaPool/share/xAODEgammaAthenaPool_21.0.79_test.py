@@ -2,11 +2,11 @@
 
 infile = 'aod/AOD-21.0.79/AOD-21.0.79-full.pool.root'
 keys = [
-    #xAOD::ElectronAuxContainer_v4
+    #xAOD::ElectronAuxContainer_v3
     'Electrons',
     'ForwardElectrons',
 
-    #xAOD::PhotonAuxContainer_v4
+    #xAOD::PhotonAuxContainer_v3
     'Photons',
          ]
 
