@@ -39,14 +39,14 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   virtual ~TRTRawDataProviderTool() ;
 
   //! initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //! finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   //! this is the main decoding method
-  StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      TRT_RDO_Container*               rdoIdc );
+  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
+		      TRT_RDO_Container*               rdoIdc ) override;
 
 private: 
   TRTRawDataProviderTool( ); //Not implemented

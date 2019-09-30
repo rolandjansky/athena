@@ -88,6 +88,8 @@ StatusCode BCM_RawDataProviderTool::convert( std::vector<const ROBFragment*>& ve
 #endif
     // remember last Lvl1ID
     m_lastLvl1ID = (*rob_it)->rod_lvl1_id();
+    // and clean up the container!
+    rdoCont->clear();
   }
 
   // loop over the ROB fragments
