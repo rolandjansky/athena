@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatHit.h"
  
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkEventPrimitives/ResidualPull.h"

@@ -5,7 +5,7 @@
 #ifndef MUPATSEGMENT_H
 #define MUPATSEGMENT_H
 
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
+#include "MuPatCandidateBase.h"
 
 #include "Identifier/Identifier.h"
 

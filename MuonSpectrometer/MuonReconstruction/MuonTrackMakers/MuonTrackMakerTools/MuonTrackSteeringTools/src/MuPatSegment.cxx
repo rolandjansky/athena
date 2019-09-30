@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonTrackFindingEvent/MuPatSegment.h"
+#include "MuPatSegment.h"
 #include <iostream>
 #define DUMP_MCTB_OBJECT_POINTERS
 namespace Muon {

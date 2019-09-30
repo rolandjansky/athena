@@ -15,7 +15,7 @@
 
 // this package
 
-#include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
+#include "MuonTrackSegmentMatchResult.h"
 
 namespace Muon {
 

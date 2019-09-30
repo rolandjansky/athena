@@ -17,8 +17,8 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatHit.h"
 
 #include "TrkDriftCircleMath/SegmentFinder.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"

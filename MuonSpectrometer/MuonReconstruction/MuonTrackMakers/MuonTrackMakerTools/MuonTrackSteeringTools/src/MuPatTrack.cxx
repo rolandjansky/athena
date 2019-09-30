@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonTrackFindingEvent/MuPatTrack.h"
+#include "MuPatTrack.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
