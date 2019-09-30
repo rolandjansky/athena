@@ -93,7 +93,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArEl
   - LArOFCComplete
   - LArOFCDB
   - LArOFCDB_V0
-  - LArOFCMC
   - LArOFCP
   - LArPedestalComplete
   - LArPedestalDB
