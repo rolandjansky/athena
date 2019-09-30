@@ -18,7 +18,6 @@
 #include <sstream>
 // ATLAS headers
 #include "StoreGate/StoreGateSvc.h"
-//#include "muonEvent/MuonParamDefs.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "GaudiKernel/IToolSvc.h"

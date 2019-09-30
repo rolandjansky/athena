@@ -210,8 +210,10 @@ StatusCode IDPerfMonZmumu::initialize()
   ATH_CHECK( m_extrapolator.retrieve());
   
   m_xZmm.setDebugMode(false);
-  if (m_doFourMuAnalysis) m_4mu.setDebugMode(false);
-
+  if (m_doFourMuAnalysis) {
+    m_4mu.Init();
+    m_4mu.setDebugMode(false);
+  }
   m_LooseT2VAssociationTool = std::make_unique<CP::LooseTrackVertexAssociationTool>("Loose");
 
   ATH_CHECK( this->bookTrees() );
@@ -565,24 +567,62 @@ StatusCode IDPerfMonZmumu::bookTrees()
     m_FourMuTree->Branch("Negative_2_d0_err", &m_negative_2_d0_err,  "Negative_2_d0_err/D");
     m_FourMuTree->Branch("Negative_2_vtx",    &m_negative_2_vtx,  "Negative_2_vtx/I");
 
-    m_FourMuTree->Branch("Positive_1_Px",  &m_positive_px,  "Positive_1_Px/D");
-    m_FourMuTree->Branch("Positive_1_Py",  &m_positive_py,  "Positive_1_Py/D");
-    m_FourMuTree->Branch("Positive_1_Pz",  &m_positive_pz,  "Positive_1_Pz/D");
-    m_FourMuTree->Branch("Positive_1_z0",  &m_positive_z0,  "Positive_1_z0/D");
-    m_FourMuTree->Branch("Positive_1_d0",  &m_positive_d0,  "Positive_1_d0/D");
-    m_FourMuTree->Branch("Positive_1_z0_err",  &m_positive_z0_err,  "Positive_1_z0_err/D");
-    m_FourMuTree->Branch("Positive_1_d0_err",  &m_positive_d0_err,  "Positive_1_d0_err/D");
-    m_FourMuTree->Branch("Positive_1_vtx",  &m_positive_1_vtx,  "Positive_1_vtx/I");
+    m_FourMuTree->Branch("Positive_1_Px",     &m_positive_px,     "Positive_1_Px/D");
+    m_FourMuTree->Branch("Positive_1_Py",     &m_positive_py,     "Positive_1_Py/D");
+    m_FourMuTree->Branch("Positive_1_Pz",     &m_positive_pz,     "Positive_1_Pz/D");
+    m_FourMuTree->Branch("Positive_1_z0",     &m_positive_z0,     "Positive_1_z0/D");
+    m_FourMuTree->Branch("Positive_1_d0",     &m_positive_d0,     "Positive_1_d0/D");
+    m_FourMuTree->Branch("Positive_1_z0_err", &m_positive_z0_err, "Positive_1_z0_err/D");
+    m_FourMuTree->Branch("Positive_1_d0_err", &m_positive_d0_err, "Positive_1_d0_err/D");
+    m_FourMuTree->Branch("Positive_1_vtx",    &m_positive_1_vtx,  "Positive_1_vtx/I");
 
-    m_FourMuTree->Branch("Positive_2_Px",  &m_positive_2_px,  "Positive_1_Px/D");
-    m_FourMuTree->Branch("Positive_2_Py",  &m_positive_2_py,  "Positive_1_Py/D");
-    m_FourMuTree->Branch("Positive_2_Pz",  &m_positive_2_pz,  "Positive_1_Pz/D");
-    m_FourMuTree->Branch("Positive_2_z0",  &m_positive_2_z0,  "Positive_1_z0/D");
-    m_FourMuTree->Branch("Positive_2_d0",  &m_positive_2_d0,  "Positive_1_d0/D");
-    m_FourMuTree->Branch("Positive_2_z0_err",  &m_positive_2_z0_err,  "Positive_1_z0_err/D");
-    m_FourMuTree->Branch("Positive_2_d0_err",  &m_positive_2_d0_err,  "Positive_1_d0_err/D");
-    m_FourMuTree->Branch("Positive_2_vtx",  &m_positive_2_vtx,  "Positive_2_vtx/I");
+    m_FourMuTree->Branch("Positive_2_Px",     &m_positive_2_px,    "Positive_1_Px/D");
+    m_FourMuTree->Branch("Positive_2_Py",     &m_positive_2_py,    "Positive_1_Py/D");
+    m_FourMuTree->Branch("Positive_2_Pz",     &m_positive_2_pz,    "Positive_1_Pz/D");
+    m_FourMuTree->Branch("Positive_2_z0",     &m_positive_2_z0,    "Positive_1_z0/D");
+    m_FourMuTree->Branch("Positive_2_d0",     &m_positive_2_d0,    "Positive_1_d0/D");
+    m_FourMuTree->Branch("Positive_2_z0_err", &m_positive_2_z0_err,"Positive_1_z0_err/D");
+    m_FourMuTree->Branch("Positive_2_d0_err", &m_positive_2_d0_err,"Positive_1_d0_err/D");
+    m_FourMuTree->Branch("Positive_2_vtx",    &m_positive_2_vtx,   "Positive_2_vtx/I");
 
+    // electrons
+    m_FourMuTree->Branch("ElNegative_1_Px",     &m_el_negative1_px,     "ElNegative_1_Px/D");
+    m_FourMuTree->Branch("ElNegative_1_Py",     &m_el_negative1_py,     "ElNegative_1_Py/D");
+    m_FourMuTree->Branch("ElNegative_1_Pz",     &m_el_negative1_pz,     "ElNegative_1_Pz/D");
+    m_FourMuTree->Branch("ElNegative_1_z0",     &m_el_negative1_z0,     "ElNegative_1_z0/D");
+    m_FourMuTree->Branch("ElNegative_1_d0",     &m_el_negative1_d0,     "ElNegative_1_d0/D");
+    m_FourMuTree->Branch("ElNegative_1_z0_err", &m_el_negative1_z0_err, "ElNegative_1_z0_err/D");
+    m_FourMuTree->Branch("ElNegative_1_d0_err", &m_el_negative1_d0_err, "ElNegative_1_d0_err/D");
+    m_FourMuTree->Branch("ElNegative_1_vtx",    &m_el_negative1_vtx,    "ElNegative_1_vtx/I"); // vertex identifier
+
+    m_FourMuTree->Branch("ElNegative_2_Px",     &m_el_negative2_px,     "ElNegative_2_Px/D");
+    m_FourMuTree->Branch("ElNegative_2_Py",     &m_el_negative2_py,     "ElNegative_2_Py/D");
+    m_FourMuTree->Branch("ElNegative_2_Pz",     &m_el_negative2_pz,     "ElNegative_2_Pz/D");
+    m_FourMuTree->Branch("ElNegative_2_z0",     &m_el_negative2_z0,     "ElNegative_2_z0/D");
+    m_FourMuTree->Branch("ElNegative_2_d0",     &m_el_negative2_d0,     "ElNegative_2_d0/D");
+    m_FourMuTree->Branch("ElNegative_2_z0_err", &m_el_negative2_z0_err, "ElNegative_2_z0_err/D");
+    m_FourMuTree->Branch("ElNegative_2_d0_err", &m_el_negative2_d0_err, "ElNegative_2_d0_err/D");
+    m_FourMuTree->Branch("ElNegative_2_vtx",    &m_el_negative2_vtx,    "ElNegative_2_vtx/I"); // vertex identifier
+
+    m_FourMuTree->Branch("ElPositive_1_Px",     &m_el_positive1_px,     "ElPositive_1_Px/D");
+    m_FourMuTree->Branch("ElPositive_1_Py",     &m_el_positive1_py,     "ElPositive_1_Py/D");
+    m_FourMuTree->Branch("ElPositive_1_Pz",     &m_el_positive1_pz,     "ElPositive_1_Pz/D");
+    m_FourMuTree->Branch("ElPositive_1_z0",     &m_el_positive1_z0,     "ElPositive_1_z0/D");
+    m_FourMuTree->Branch("ElPositive_1_d0",     &m_el_positive1_d0,     "ElPositive_1_d0/D");
+    m_FourMuTree->Branch("ElPositive_1_z0_err", &m_el_positive1_z0_err, "ElPositive_1_z0_err/D");
+    m_FourMuTree->Branch("ElPositive_1_d0_err", &m_el_positive1_d0_err, "ElPositive_1_d0_err/D");
+    m_FourMuTree->Branch("ElPositive_1_vtx",    &m_el_positive1_vtx,    "ElPositive_1_vtx/I"); // vertex identifier
+
+    m_FourMuTree->Branch("ElPositive_2_Px",     &m_el_positive2_px,     "ElPositive_2_Px/D");
+    m_FourMuTree->Branch("ElPositive_2_Py",     &m_el_positive2_py,     "ElPositive_2_Py/D");
+    m_FourMuTree->Branch("ElPositive_2_Pz",     &m_el_positive2_pz,     "ElPositive_2_Pz/D");
+    m_FourMuTree->Branch("ElPositive_2_z0",     &m_el_positive2_z0,     "ElPositive_2_z0/D");
+    m_FourMuTree->Branch("ElPositive_2_d0",     &m_el_positive2_d0,     "ElPositive_2_d0/D");
+    m_FourMuTree->Branch("ElPositive_2_z0_err", &m_el_positive2_z0_err, "ElPositive_2_z0_err/D");
+    m_FourMuTree->Branch("ElPositive_2_d0_err", &m_el_positive2_d0_err, "ElPositive_2_d0_err/D");
+    m_FourMuTree->Branch("ElPositive_2_vtx",    &m_el_positive2_vtx,    "ElPositive_2_vtx/I"); // vertex identifier
+
+    // other quantities
     m_FourMuTree->Branch("minv4mu",   &m_4mu_minv,  "minv4mu/D");
     m_FourMuTree->Branch("pv_x",      &m_pv_x   ,   "pv_x/D");
     m_FourMuTree->Branch("pv_y",      &m_pv_y   ,   "pv_y/D");
@@ -684,19 +724,27 @@ StatusCode IDPerfMonZmumu::execute()
     ATH_MSG_DEBUG(" Execute() starting on --> Run: " << m_runNumber << "  event: " << m_evtNumber);
   }
 
+  /// -- START new place for 4 lepton analysis
+  if (m_doFourMuAnalysis) {
+    StatusCode fourLeptAnaStatus = this->RunFourLeptonAnalysis();
+    if (fourLeptAnaStatus.isSuccess()) ATH_MSG_DEBUG(" RunFourLeptonAnalysis() SUCCESS -> found a new event");
+    if (fourLeptAnaStatus.isFailure()) ATH_MSG_DEBUG(" RunFourLeptonAnalysis() event did not pass selection criteria");
+  }
+  /// -- END new place for 4 lepton analysis
+
   //
   //Fill Staco muon parameters only
-  m_xZmm.setContainer(PerfMonServices::MUON_COLLECTION);
-  m_xZmm.doIsoSelection(m_doIsoSelection);
-  m_xZmm.doIPSelection(m_doIPSelection);
-  m_xZmm.doMCPSelection (m_doMCPSelection);
-  m_xZmm.SetMassWindowLow(m_MassWindowLow);
-  m_xZmm.SetMassWindowHigh(m_MassWindowHigh);
+  m_xZmm.setContainer       (PerfMonServices::MUON_COLLECTION);
+  m_xZmm.doIsoSelection     (m_doIsoSelection);
+  m_xZmm.doIPSelection      (m_doIPSelection);
+  m_xZmm.doMCPSelection     (m_doMCPSelection);
+  m_xZmm.SetMassWindowLow   (m_MassWindowLow);
+  m_xZmm.SetMassWindowHigh  (m_MassWindowHigh);
   m_xZmm.SetLeadingMuonPtCut(m_LeadingMuonPtCut);
-  m_xZmm.SetSecondMuonPtCut(m_SecondMuonPtCut);
-  m_xZmm.SetOpeningAngleCut(m_OpeningAngleCut);
-  m_xZmm.SetZ0GapCut(m_Z0GapCut);
-  m_xZmm.setDebugMode(m_doDebug);
+  m_xZmm.SetSecondMuonPtCut (m_SecondMuonPtCut);
+  m_xZmm.SetOpeningAngleCut (m_OpeningAngleCut);
+  m_xZmm.SetZ0GapCut        (m_Z0GapCut);
+  m_xZmm.setDebugMode       (m_doDebug);
 
   // check if the muon-pair passed the resonance selection cuts:
   if(!m_xZmm.Reco()){
@@ -720,6 +768,7 @@ StatusCode IDPerfMonZmumu::execute()
     }
   }
 
+
   // std::cout << " ** IDPerfMonZmumu ** extracting muon_pos and muon_neg... " << std::endl;
   const xAOD::Muon* muon_pos = m_xZmm.getCombMuon(m_xZmm.getPosMuon(ZmumuEvent::CB));
   const xAOD::Muon* muon_neg = m_xZmm.getCombMuon(m_xZmm.getNegMuon(ZmumuEvent::CB));
@@ -732,7 +781,7 @@ StatusCode IDPerfMonZmumu::execute()
   bool success_neg =false;
 
   if (muon_pos && muon_neg) { // if both combined muons exist and were retrieved
-
+    
     if (m_trackParticleName.find("InDetTrackParticles") != std::string::npos) {
       ATH_MSG_INFO("Selecting InDetTrackParticles");
       p1_comb = muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
@@ -744,7 +793,7 @@ StatusCode IDPerfMonZmumu::execute()
 	ATH_MSG_WARNING("Requested InDetTrackParticles but not present in the input file. Exiting event..");
 	return StatusCode::SUCCESS;
       }
-
+      
       if (!p1_comb_v || !p2_comb_v){
 	ATH_MSG_WARNING( "Requested InDetTrackParticles have no vertex. Exiting event");
 	return StatusCode::SUCCESS;
@@ -760,7 +809,7 @@ StatusCode IDPerfMonZmumu::execute()
 	ATH_MSG_WARNING( "Requested CombinedTrackParticles but not present in the input file. Exiting event");
 	return StatusCode::SUCCESS;
       }
-
+      
       // I'm afraid CB track has always NULL vertex, so use the one from the InnerDetectorTrackParticle
       if (muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) != nullptr) {
 	p1_comb_v = (muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle))->vertex(); 
@@ -768,7 +817,7 @@ StatusCode IDPerfMonZmumu::execute()
       if (muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) != nullptr) {
 	p2_comb_v = (muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle))->vertex();
       }
-
+      
       if (!p1_comb_v || !p2_comb_v){
 	ATH_MSG_WARNING( "Requested CombinedTrackParticles have no vertex. Exiting event");
 	return StatusCode::SUCCESS;
@@ -779,7 +828,7 @@ StatusCode IDPerfMonZmumu::execute()
     ATH_MSG_WARNING("Could not find pos/neg muons");
     return StatusCode::SUCCESS;
   }
-
+  
   if ( m_xZmm.EventPassed() ) {
     ATH_MSG_DEBUG("Accepted muon pair. Going to fill combined Staco parameters ");
     //fill Combined Staco parameters
@@ -804,7 +853,7 @@ StatusCode IDPerfMonZmumu::execute()
       success_pos = FillRecParametersTP(muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->charge(),muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->vertex());
       success_neg = FillRecParametersTP(muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->charge(),muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->vertex());
       if (success_pos && success_neg && m_storeZmumuNtuple) m_IDTree->Fill();
-
+      
       
       success_pos = FillRecParametersTP(p1_comb, muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
       success_neg = FillRecParametersTP(p2_comb, muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
@@ -817,121 +866,16 @@ StatusCode IDPerfMonZmumu::execute()
       if (success_pos && success_neg && m_storeZmumuNtuple) m_combTree->Fill();
     }
   }
-
+  
   // no good muon pair found, leave and continue
-  if ( !m_xZmm.EventPassed() ) {
+  if ( !m_xZmm.EventPassed()) {
     //failed cuts, continue to next event
     ATH_MSG_DEBUG ("No good muon pair found. Leaving Execute(). Run: " << m_runNumber << "  event: " << m_evtNumber);
     return StatusCode::SUCCESS;
   }
 
-  if (m_doFourMuAnalysis) {
-    // Four muon event
-    ATH_MSG_DEBUG ("** IDPerfMonZmumu::execute ** Let's try FourMuon...");  
-    m_4mu.setContainer(PerfMonServices::MUON_COLLECTION);
-    m_4mu.doIsoSelection (m_doIsoSelection);
-    m_4mu.doIPSelection  (m_doIPSelection);
-    m_4mu.doMCPSelection (m_doMCPSelection);
-    m_4mu.SetMassWindowLow(m_MassWindowLow);
-    m_4mu.SetMassWindowHigh(m_MassWindowHigh);
-    m_4mu.SetLeadingMuonPtCut(m_LeadingMuonPtCut);
-    m_4mu.SetSecondMuonPtCut(m_SecondMuonPtCut);
-    m_4mu.SetOpeningAngleCut(m_OpeningAngleCut);
-    m_4mu.SetZ0GapCut(m_Z0GapCut);
-    m_4mu.setDebugMode(m_doDebug);
-
-    if(m_4mu.Reco()){
-      ATH_MSG_INFO ("Sucessfull 4-muon reconstruction. # accepted events " << m_4mu.getAcceptedEvents() << "  Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
-
-      if ( m_4mu.EventPassed() ) {
-	ATH_MSG_INFO("Accepted 4-muon event. Going to fill ntuple");
-
-	const xAOD::TrackParticle* muon1_pos = m_4mu.getIDTrack(m_4mu.getPosMuon(1));
-	const xAOD::TrackParticle* muon2_pos = m_4mu.getIDTrack(m_4mu.getPosMuon(2));
-	const xAOD::TrackParticle* muon1_neg = m_4mu.getIDTrack(m_4mu.getNegMuon(1));
-	const xAOD::TrackParticle* muon2_neg = m_4mu.getIDTrack(m_4mu.getNegMuon(2));
-
-	m_positive_px = muon1_pos->p4().Px();
-	m_positive_py = muon1_pos->p4().Py();
-	m_positive_pz = muon1_pos->p4().Pz();
-	m_positive_d0 = muon1_pos->d0();
-	m_positive_z0 = muon1_pos->z0();
-	
-	m_negative_px = muon1_neg->p4().Px();
-	m_negative_py = muon1_neg->p4().Py();
-	m_negative_pz = muon1_neg->p4().Pz();
-	m_negative_d0 = muon1_neg->d0();
-	m_negative_z0 = muon1_neg->z0();
-	
-	m_positive_2_px = muon2_pos->p4().Px();
-	m_positive_2_py = muon2_pos->p4().Py();
-	m_positive_2_pz = muon2_pos->p4().Pz();
-	m_positive_2_d0 = muon2_pos->d0();
-	m_positive_2_z0 = muon2_pos->z0();
-	m_positive_2_d0_err = muon2_pos->definingParametersCovMatrix()(0,0);
-	m_positive_2_z0_err = muon2_pos->definingParametersCovMatrix()(1,1);
-	
-	m_negative_2_px = muon2_neg->p4().Px();
-	m_negative_2_py = muon2_neg->p4().Py();
-	m_negative_2_pz = muon2_neg->p4().Pz();
-	m_negative_2_d0 = muon2_neg->d0();
-	m_negative_2_z0 = muon2_neg->z0();
-	m_negative_2_d0_err = muon2_neg->definingParametersCovMatrix()(0,0);
-	m_negative_2_z0_err = muon2_neg->definingParametersCovMatrix()(1,1);
-	
-
-	m_nVertex =        m_4mu.GetNVertex ();
-	m_negative_1_vtx = m_4mu.GetVertexMuNeg1();
-	m_negative_2_vtx = m_4mu.GetVertexMuNeg2();
-	m_positive_1_vtx = m_4mu.GetVertexMuPos1();
-	m_positive_2_vtx = m_4mu.GetVertexMuPos2();
-
-	m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
-
-	if (muon1_neg->vertex() != nullptr) { // check vertex exists
-	  m_pv_x = muon1_pos->vertex()->x();
-	  m_pv_y = muon1_pos->vertex()->y();
-	  m_pv_z = muon1_pos->vertex()->z();
-	}
-	
-	m_4mu_minv = m_4mu.GetInvMass();
-	
-	// Obtain MET 
-	std::string m_metName = "MET_Reference_AntiKt4LCTopo";
-	std::string m_metRefFinalName = "FinalClus";
-	const xAOD::MissingETContainer* final_met = 0;
-
-	m_met = -1; // default value
-	m_metphi = -1;
-
-	if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
-	  ATH_MSG_WARNING ( "No Collection with name " << m_metName << " found in StoreGate");
-	  // return StatusCode::SUCCESS;
-	}
-	else {
-	  StatusCode sc = evtStore()->retrieve(final_met,m_metName);
-	  if (sc.isFailure()) {
-	    ATH_MSG_DEBUG ( "Could not retrieve Collection " << m_metName << " from StoreGate");
-	    // return StatusCode::SUCCESS;
-	  }
-	}
-	const xAOD::MissingET *met = nullptr;
-	if (final_met) met = (*final_met)[m_metRefFinalName];
-	if (met) { // load MET values
-	  m_met = met->met();
-	  m_metphi = met->phi();
-	}
-	ATH_MSG_DEBUG (" Zmumu event with MET = " << m_met);
-	ATH_MSG_INFO (" -- IDPerfMonZmumu::execute -- Accepted event " << m_4mu.getAcceptedEvents() << " with m_4mu.GetInvMass= " << m_4mu_minv);
-	m_FourMuTree->Fill();
-      }
-    } // succesful 4mu reco
-    else {
-      //failed reconstruction
-      ATH_MSG_DEBUG(" -- WARNING -- Failed 4-muon reconstruction. m_4mu.Reco() returned FALSE --> event failed selection");
-    }
-
-  } // end of fourMuon Analysis
+  // 4lepton analysis used to live here
+  
   //fill truth first in case no truth match found
   if (m_isMC) {
     if (FillTruthParameters(p1_comb).isFailure()){
@@ -1076,7 +1020,6 @@ StatusCode IDPerfMonZmumu::execute()
       ATH_MSG_DEBUG("-- >> going to fill refit1params << -- ");
       success_pos = FillRecParameters(refit1MuonTrk1, muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
       success_neg = FillRecParameters(refit1MuonTrk2, muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
-
 
       ATH_MSG_DEBUG("fill refit1Tree with parameters : ");
       ATH_MSG_DEBUG("######   (negative)   ########## ");
@@ -1320,9 +1263,12 @@ bool IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD::Trac
       PVz0res = iPandSigma->PVsigmaz0;
       //z0res = iPandSigma->sigmaz0;  //-> ?
       
-      m_pv_x = vertex->x();
-      m_pv_y = vertex->y();
-      m_pv_z = vertex->z();
+      if (vertex) {
+	ATH_MSG_INFO(" FillRecParameters::trackToVertexIPEstimator vertex does exist ");
+	m_pv_x = vertex->x();
+	m_pv_y = vertex->y();
+	m_pv_z = vertex->z();
+      }
       m_nTrkInVtx = vertex->nTrackParticles();
     }
   }
@@ -1558,7 +1504,7 @@ StatusCode IDPerfMonZmumu::CheckTriggerStatusAndPrescale ()
     if ( m_triggerDecision->isPassed(myHLTtriglist.at(i)) ) {
       // std::cout << "HLT trigger = " << i << " out of " << myHLTtriglist.size() << " --> " << myHLTtriglist.at(i) <<  "  isPassed? " << m_triggerDecision->isPassed(myHLTtriglist.at(i)) << "  prescale: " << m_triggerDecision->getChainGroup(myHLTtriglist.at(i))->getPrescale() << std::endl;
       ATH_MSG_DEBUG("HLT trigger = " << i << " out of " << myHLTtriglist.size() << " --> " << myHLTtriglist.at(i) <<  "  isPassed? " << m_triggerDecision->isPassed(myHLTtriglist.at(i)) << "  prescale: " << m_triggerDecision->getChainGroup(myHLTtriglist.at(i))->getPrescale() );
-      if (m_triggerDecision->getChainGroup(myHLTtriglist.at(i))->getPrescale() - (int) m_triggerDecision->getChainGroup(myHLTtriglist.at(i))->getPrescale() >0.1) std::cout << " -- SALVA -- fractional " << std::endl;
+      // if (m_triggerDecision->getChainGroup(myHLTtriglist.at(i))->getPrescale() - (int) m_triggerDecision->getChainGroup(myHLTtriglist.at(i))->getPrescale() >0.1) std::cout << " -- SALVA -- fractional " << std::endl;
     }
     if ( m_triggerDecision->isPassed(myHLTtriglist.at(i)) ) { // trigger is passed
       thisHLTIsPassed = true;
@@ -1608,4 +1554,316 @@ const xAOD::Vertex* IDPerfMonZmumu::GetDiMuonVertex(const xAOD::TrackParticle* m
     }
   }
   return myVtx;
+}
+
+
+//==================================================================================
+void IDPerfMonZmumu::Clear4MuNtupleVariables() 
+{
+  m_positive_px = 0.;
+  m_positive_py = 0.;
+  m_positive_pz = 0.;
+  m_positive_d0 = 0.;
+  m_positive_z0 = 0.;
+  m_positive_d0_err = 0.;
+  m_positive_z0_err = 0.;
+  m_positive_1_vtx = 0;
+	
+  m_negative_px = 0.;
+  m_negative_py = 0.;
+  m_negative_pz = 0.;
+  m_negative_d0 = 0.;
+  m_negative_z0 = 0.;
+  m_negative_d0_err = 0.;
+  m_negative_z0_err = 0.;
+  m_negative_1_vtx = 0;
+	
+  m_positive_2_px = 0.;
+  m_positive_2_py = 0.;
+  m_positive_2_pz = 0.;
+  m_positive_2_d0 = 0.;
+  m_positive_2_z0 = 0.;
+  m_positive_2_d0_err = 0.;
+  m_positive_2_z0_err = 0.;
+  m_positive_2_vtx = 0;
+	
+  m_negative_2_px = 0.;
+  m_negative_2_py = 0.;
+  m_negative_2_pz = 0.;
+  m_negative_2_d0 = 0.;
+  m_negative_2_z0 = 0.;
+  m_negative_2_d0_err = 0.;
+  m_negative_2_z0_err = 0.;
+  m_negative_2_vtx = 0;
+
+  // electrons
+  m_el_negative1_px = 0.;
+  m_el_negative1_py = 0.;
+  m_el_negative1_pz = 0.;
+  m_el_negative1_d0 = 0.;
+  m_el_negative1_z0 = 0.;
+  m_el_negative1_d0_err = 0.;
+  m_el_negative1_z0_err = 0.;
+  m_el_negative1_vtx = 0;
+
+  m_el_negative2_px = 0.;
+  m_el_negative2_py = 0.;
+  m_el_negative2_pz = 0.;
+  m_el_negative2_d0 = 0.;
+  m_el_negative2_z0 = 0.;
+  m_el_negative2_d0_err = 0.;
+  m_el_negative2_z0_err = 0.;
+  m_el_negative2_vtx = 0;
+
+  m_el_positive1_px = 0.;
+  m_el_positive1_py = 0.;
+  m_el_positive1_pz = 0.;
+  m_el_positive1_d0 = 0.;
+  m_el_positive1_z0 = 0.;
+  m_el_positive1_d0_err = 0.;
+  m_el_positive1_z0_err = 0.;
+  m_el_positive1_vtx = 0;
+  
+  m_el_positive2_px = 0.;
+  m_el_positive2_py = 0.;
+  m_el_positive2_pz = 0.;
+  m_el_positive2_d0 = 0.;
+  m_el_positive2_z0 = 0.;
+  m_el_positive2_d0_err = 0.;
+  m_el_positive2_z0_err = 0.;
+  m_el_positive2_vtx = 0;
+  
+  // other quantities
+  m_nVertex =        0;
+  m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
+  m_4mu_minv = 0.;
+
+  return;
+}
+//==================================================================================
+StatusCode IDPerfMonZmumu::RunFourLeptonAnalysis()
+{
+  StatusCode thisStatus = StatusCode::SUCCESS;
+
+  if (m_doFourMuAnalysis) {
+    ATH_MSG_INFO ("** RunFourLeptonAnalysis ** START **    run: " << m_runNumber << "    event: " << m_evtNumber << "    lumiblock:" << m_lumi_block);  
+    if (m_doDebug) {
+      std::cout << " ==================================== " << std::endl;
+      std::cout << " ** RunFourLeptonAnalysis ** START **    run: " << m_runNumber << "    event: " << m_evtNumber << "    lumiblock:" << m_lumi_block << std::endl;
+      std::cout << " ==================================== " << std::endl;
+    }
+    // Four lepton event
+    m_4mu.setContainer(PerfMonServices::MUON_COLLECTION);
+    m_4mu.doIsoSelection     (m_doIsoSelection);
+    m_4mu.doIPSelection      (m_doIPSelection);
+    m_4mu.doMCPSelection     (m_doMCPSelection);
+    m_4mu.SetMassWindowLow   (m_MassWindowLow);
+    m_4mu.SetMassWindowHigh  (m_MassWindowHigh);
+    m_4mu.SetLeadingMuonPtCut(m_LeadingMuonPtCut);
+    m_4mu.SetSecondMuonPtCut (m_SecondMuonPtCut);
+    m_4mu.SetOpeningAngleCut (m_OpeningAngleCut);
+    m_4mu.SetZ0GapCut        (m_Z0GapCut);
+    m_4mu.setDebugMode       (m_doDebug);
+
+    // This is a report of the number of true electrons in the event
+    if (false) {
+      const xAOD::TruthParticleContainer* electronTruth = evtStore()->retrieve< const xAOD::TruthParticleContainer >( "egammaTruthParticles" );
+      if( electronTruth) {
+	ATH_MSG_DEBUG ( "retrieving electron Truth container with key: \"egammaTruthParticles\" SUCCESS ");
+	// Check that the auxiliary store association was made successfully:
+	if( electronTruth->hasStore() ) {
+	  ATH_MSG_DEBUG ( "Size of Truth gamma-electrons: " << electronTruth->size() );
+	  auto tr_itr = electronTruth->begin();
+	  auto tr_end = electronTruth->end();
+	  int electronCount = 0;
+	  for( int i = 0; tr_itr != tr_end; ++tr_itr, ++i ) {
+	    ATH_MSG_DEBUG( "Truth : Investigating truth electron #" << i << "    pdgID= " << ( *tr_itr )->pdgId());
+	    if (fabs(( *tr_itr )->pdgId()) == 11) {
+	      if (( *tr_itr )->pt() > 10000 && fabs(( *tr_itr )->eta()) < 2.47) {
+		ATH_MSG_INFO( "        central electron found --> pt: " << ( *tr_itr )->charge()*( *tr_itr )->pt() << " eta  " <<( *tr_itr )->eta()  );
+		electronCount++;
+	      }
+	    }
+	  }
+	  ATH_MSG_INFO( "#central electrons: " << electronCount );
+	}
+	else {
+	  ATH_MSG_WARNING ( "electronTruth container has no Store !!! FAILURE");
+	}
+      }
+      else {
+	ATH_MSG_WARNING ( "retrieve electron Truth container with key: \"egammaTruthParticles\" FAILURE");
+      }
+    }
+
+    if (m_doDebug) std::cout << " ** RunFourLeptonAnalysis ** calling m_4mu.Reco() .... " << std::endl;  
+    bool statusOf4LeptReco = m_4mu.Reco();
+
+    // print message 
+    if(statusOf4LeptReco) {
+      thisStatus = StatusCode::SUCCESS;
+      ATH_MSG_INFO ("4-lepton reconstruction SUCCESS. # accepted events " << m_4mu.getAcceptedEvents() << "  Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
+      if (m_doDebug) std::cout << " ** RunFourLeptonAnalysis ** 4-lepton reconstruction SUCCESS. # accepted events " << m_4mu.getAcceptedEvents() << "  Invariant mass = " << m_4mu.GetInvMass() << " GeV " << std::endl;
+    }
+    else {
+      thisStatus = StatusCode::FAILURE;
+      ATH_MSG_WARNING ("4-lepton reconstruction FAILURE.  m_4mu.Reco() returned FALSE --> event failed selection");
+      if (m_doDebug) std::cout << " ** RunFourLeptonAnalysis ** 4-lepton reconstruction FAILURE.  m_4mu.Reco() returned FALSE --> event failed selection" << std::endl;
+    }
+
+    if(statusOf4LeptReco) {
+      if ( m_4mu.EventPassed() ) {
+
+	this->Clear4MuNtupleVariables(); 
+
+	const xAOD::TrackParticle* muon1_pos = m_4mu.getIDTrack(m_4mu.getPosMuon(1));
+	const xAOD::TrackParticle* muon2_pos = m_4mu.getIDTrack(m_4mu.getPosMuon(2));
+	const xAOD::TrackParticle* muon1_neg = m_4mu.getIDTrack(m_4mu.getNegMuon(1));
+	const xAOD::TrackParticle* muon2_neg = m_4mu.getIDTrack(m_4mu.getNegMuon(2));
+
+	// muons
+	if (muon1_pos) {
+	  m_positive_px = muon1_pos->p4().Px();
+	  m_positive_py = muon1_pos->p4().Py();
+	  m_positive_pz = muon1_pos->p4().Pz();
+	  m_positive_d0 = muon1_pos->d0();
+	  m_positive_z0 = muon1_pos->z0();
+	  m_positive_d0_err = muon1_pos->definingParametersCovMatrix()(0,0);
+	  m_positive_z0_err = muon1_pos->definingParametersCovMatrix()(1,1);
+	}
+	if (muon1_neg) {
+	  m_negative_px = muon1_neg->p4().Px();
+	  m_negative_py = muon1_neg->p4().Py();
+	  m_negative_pz = muon1_neg->p4().Pz();
+	  m_negative_d0 = muon1_neg->d0();
+	  m_negative_z0 = muon1_neg->z0();
+	  m_negative_d0_err = muon1_neg->definingParametersCovMatrix()(0,0);
+	  m_negative_z0_err = muon1_neg->definingParametersCovMatrix()(1,1);
+	}
+	if (muon2_pos) {
+	  m_positive_2_px = muon2_pos->p4().Px();
+	  m_positive_2_py = muon2_pos->p4().Py();
+	  m_positive_2_pz = muon2_pos->p4().Pz();
+	  m_positive_2_d0 = muon2_pos->d0();
+	  m_positive_2_z0 = muon2_pos->z0();
+	  m_positive_2_d0_err = muon2_pos->definingParametersCovMatrix()(0,0);
+	  m_positive_2_z0_err = muon2_pos->definingParametersCovMatrix()(1,1);
+	}
+	if (muon2_neg) {
+	  m_negative_2_px = muon2_neg->p4().Px();
+	  m_negative_2_py = muon2_neg->p4().Py();
+	  m_negative_2_pz = muon2_neg->p4().Pz();
+	  m_negative_2_d0 = muon2_neg->d0();
+	  m_negative_2_z0 = muon2_neg->z0();
+	  m_negative_2_d0_err = muon2_neg->definingParametersCovMatrix()(0,0);
+	  m_negative_2_z0_err = muon2_neg->definingParametersCovMatrix()(1,1);
+	}
+	
+	// electrons
+	const xAOD::TrackParticle* elec1_neg = m_4mu.getELTrack(0);
+	const xAOD::TrackParticle* elec2_neg = m_4mu.getELTrack(1);
+	const xAOD::TrackParticle* elec1_pos = m_4mu.getELTrack(2);
+	const xAOD::TrackParticle* elec2_pos = m_4mu.getELTrack(3);
+	if (elec1_neg) {
+	  m_el_negative1_px = elec1_neg->p4().Px();
+	  m_el_negative1_py = elec1_neg->p4().Py();
+	  m_el_negative1_pz = elec1_neg->p4().Pz();
+	  m_el_negative1_d0 = elec1_neg->d0();
+	  m_el_negative1_z0 = elec1_neg->z0();
+	  m_el_negative1_d0_err = elec1_neg->definingParametersCovMatrix()(0,0);
+	  m_el_negative1_z0_err = elec1_neg->definingParametersCovMatrix()(1,1);
+	}
+	if (elec2_neg) {
+	  m_el_negative2_px = elec2_neg->p4().Px();
+	  m_el_negative2_py = elec2_neg->p4().Py();
+	  m_el_negative2_pz = elec2_neg->p4().Pz();
+	  m_el_negative2_d0 = elec2_neg->d0();
+	  m_el_negative2_z0 = elec2_neg->z0();
+	  m_el_negative2_d0_err = elec2_neg->definingParametersCovMatrix()(0,0);
+	  m_el_negative2_z0_err = elec2_neg->definingParametersCovMatrix()(1,1);
+	}
+	if (elec1_pos) {
+	  m_el_positive1_px = elec1_pos->p4().Px();
+	  m_el_positive1_py = elec1_pos->p4().Py();
+	  m_el_positive1_pz = elec1_pos->p4().Pz();
+	  m_el_positive1_d0 = elec1_pos->d0();
+	  m_el_positive1_z0 = elec1_pos->z0();
+	  m_el_positive1_d0_err = elec1_pos->definingParametersCovMatrix()(0,0);
+	  m_el_positive1_z0_err = elec1_pos->definingParametersCovMatrix()(1,1);
+	}
+	if (elec2_pos) {
+	  m_el_positive2_px = elec2_pos->p4().Px();
+	  m_el_positive2_py = elec2_pos->p4().Py();
+	  m_el_positive2_pz = elec2_pos->p4().Pz();
+	  m_el_positive2_d0 = elec2_pos->d0();
+	  m_el_positive2_z0 = elec2_pos->z0();
+	  m_el_positive2_d0_err = elec2_pos->definingParametersCovMatrix()(0,0);
+	  m_el_positive2_z0_err = elec2_pos->definingParametersCovMatrix()(1,1);
+	}
+	
+	// other quantities
+	m_nVertex =        m_4mu.GetNVertex ();
+	m_negative_1_vtx = m_4mu.GetVertexMuNeg1();
+	m_negative_2_vtx = m_4mu.GetVertexMuNeg2();
+	m_positive_1_vtx = m_4mu.GetVertexMuPos1();
+	m_positive_2_vtx = m_4mu.GetVertexMuPos2();
+
+	m_el_negative1_vtx = m_4mu.GetVertexElec(0);
+	m_el_negative2_vtx = m_4mu.GetVertexElec(1);
+	m_el_positive1_vtx = m_4mu.GetVertexElec(2);
+	m_el_positive2_vtx = m_4mu.GetVertexElec(3);
+
+	m_pv_x = 0; m_pv_y = 0; m_pv_z = 0;
+
+	if (muon1_neg) {
+	  if (muon1_neg->vertex() != nullptr) { // check vertex exists
+	    m_pv_x = muon1_neg->vertex()->x();
+	    m_pv_y = muon1_neg->vertex()->y();
+	    m_pv_z = muon1_neg->vertex()->z();
+	  }
+	}
+	else if (elec1_neg) {
+	  if (elec1_neg->vertex() != nullptr) { // check vertex exists
+	    m_pv_x = elec1_neg->vertex()->x();
+	    m_pv_y = elec1_neg->vertex()->y();
+	    m_pv_z = elec1_neg->vertex()->z();
+	  }
+	}
+
+	m_4mu_minv = m_4mu.GetInvMass();
+	
+	// Obtain MET 
+	std::string m_metName = "MET_Reference_AntiKt4LCTopo";
+	std::string m_metRefFinalName = "FinalClus";
+	const xAOD::MissingETContainer* final_met = 0;
+
+	m_met = -1; // default value
+	m_metphi = -1;
+
+	if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
+	  ATH_MSG_WARNING ( "No Collection with name " << m_metName << " found in StoreGate");
+	  // return StatusCode::SUCCESS;
+	}
+	else {
+	  StatusCode sc = evtStore()->retrieve(final_met,m_metName);
+	  if (sc.isFailure()) {
+	    ATH_MSG_DEBUG ( "Could not retrieve Collection " << m_metName << " from StoreGate");
+	    // return StatusCode::SUCCESS;
+	  }
+	}
+	const xAOD::MissingET *met = nullptr;
+	if (final_met) met = (*final_met)[m_metRefFinalName];
+	if (met) { // load MET values
+	  m_met = met->met();
+	  m_metphi = met->phi();
+	}
+	ATH_MSG_DEBUG (" Zmumu event with MET = " << m_met);
+	ATH_MSG_INFO (" -- IDPerfMonZmumu::execute -- Accepted event " << m_4mu.getAcceptedEvents() << " with m_4mu.GetInvMass= " << m_4mu_minv);
+	m_FourMuTree->Fill();
+      }
+    } // succesful 4mu reco
+
+  } // end of fourMuon Analysis
+
+  return thisStatus;
 }

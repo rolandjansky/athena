@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4DEBUGGINGTOOLS_VerboseSelector_H
@@ -36,6 +36,7 @@ namespace G4UA
       double Xmin=0, Xmax=0;
       double Ymin=0, Ymax=0;
       double Zmin=0, Zmax=0;
+      std::vector<double> targetPdgIDs = {};
 
     };
 

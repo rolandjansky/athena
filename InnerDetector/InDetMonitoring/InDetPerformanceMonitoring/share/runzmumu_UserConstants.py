@@ -1,12 +1,13 @@
-##############################
+#############################
 # Rel 21
 ###############################
 import commands
 import os
 #
 print ' == runzmumu == START == TestArea = ',os.getenv("TestArea")
-print ' == runzmumu  == CHECK if the TestArea is setup such that the setup.sh is sourced '
-theCommand = "source %s/build/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
+print ' == runzmumu == CHECK if the TestArea is setup such that the setup.sh is sourced '
+#theCommand = "source %s/build/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
+theCommand = "source %s/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
 theOutput =  commands.getoutput(theCommand)
 print ' == runzmumu == Rel21 init command: ',theCommand
 print '                output: ', theOutput
@@ -24,7 +25,7 @@ except:
 ###############################
 # enable outputs
 zmumuval = True
-globalAlignmentMon = True #no refitting for extracting the recommendations, only bulk as it comes out
+globalAlignmentMon = False #no refitting for extracting the recommendations, only bulk as it comes out
 dimuonmon = False
 monitoringAllTracks = True
 
@@ -41,12 +42,12 @@ DoTrigger = False
 grid_bool = True
 
 # handle input constants
-readPool = True # default True
+readPool = False # default True
 readLocalDynamicDB = False # default False
 
 #inputConstants = "ReAlign_2018_L6_Step28_L3.root"
-#inputConstants = "step27_358395_AlignmentConstants_Iter0_Block00.root"
-inputConstants = "MisalignmentSet11_p01.pool.root"
+inputConstants = "step29_358395_AlignmentConstants_Iter0_Block00.root"
+#inputConstants = "MisalignmentSet11_p01.pool.root"
 inputdb = "Javi_Test_mycool.db"
 #inputdb = "step8_Iter1_mycool.db"
 
@@ -62,7 +63,7 @@ if (readPool):
 useWeightInMonitoring = False
 
 # use configuration for conditions (True) or autoconfigured (False)
-useConfigConditions = False
+useConfigConditions = True
 
 # use IDAlignment dynamic folders for 2016 data
 useIDADynamicFolders = True
@@ -87,15 +88,17 @@ print ' ========= runzmumu === config == end == '
 #include("InDetSimpleVisual/GetDetectorPositions.py")
 
 if (grid_bool):
-    # PoolInput = ["/afs/cern.ch/user/m/martis/mywork/ZmumuNtuples/InputFileForGridJobs/data18_13TeV.00348354.physics_Main.merge.DESDM_ZMUMU.f920_m1831_f920_m1951._0001.1"]
-    PoolInput = ["/eos/user/m/martis/data/data18_13TeV/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
+    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
+    PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/DAOD_HIGG2D1.14773488._000014.pool.root.1"]
 if (MC_bool): 
-    PoolInput = ["/eos/user/m/martis/data/mc16_13TeV/folder_mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201/ESD.13642341._000503.pool.root.1"]
+    PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ggH400NW_ZZ4lep_AOD.16564460._000001.pool.root.1"]
+    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
+    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/mc16_13TeV_361603.PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4.deriv.DAOD_HIGG2D1_file11.pool.root.1"]
+    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/mc16_13TeV.361603.PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4.AOD.file01.pool.root.1"]
 
-#EvtMax= -1
-EvtMax= 100
+EvtMax= -1
+EvtMax = 5000 #2000
 SkipEvents = 0
-
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AlgSequence import AthSequencer
@@ -124,26 +127,28 @@ athenaCommonFlags.EvtMax = EvtMax
 athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
-myConditionsTag = "auto-configured"
-if (useConfigConditions):
-    if not MC_bool: # --> real data 
-        #myConditionsTag = "CONDBR2-BLKPA-2016-21" # Hide 21/03/17 
-        #myConditionsTag = "CONDBR2-BLKPA-2018-07" 
-        myConditionsTag = "CONDBR2-BLKPA-2018-04" # For Javi test (27/August/2018)
-        print " == runzmumu == globalflags.ConditionsTag -> manually configured to ", myConditionsTag
-        globalflags.ConditionsTag.set_Value_and_Lock(myConditionsTag)
-    #else:
-    #    globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC15c-SDR-05")
-else: 
-    print " == runzmumu == globalflags.ConditionsTag -> auto configured "
 
-myDetDescr = "auto-configured"
+myConditionsTag = "auto-configured" #"CONDBR2-BLKPA-2018-10"
+if (useConfigConditions):
+    if MC_bool: # -> MC
+        #myConditionsTag = "OFLCOND-MC15c-SDR-05" # mc15
+        myConditionsTag = "OFLCOND-MC16-SDR-25"
+    if not MC_bool: # --> real data 
+        myConditionsTag = "CONDBR2-BLKPA-2018-10" # RD
+
+    print " == runzmumu == globalflags.ConditionsTag -> manually configured to ", myConditionsTag
+    globalflags.ConditionsTag.set_Value_and_Lock(myConditionsTag)
+        
+else: 
+    print " == runzmumu == globalflags.ConditionsTag -> use default: ", myConditionsTag 
+
+myDetDescr = "auto-configured" #ATLAS-R2-2015-04-00-00  ATLAS-R2-2016-00-01-00
 if (useConfigConditions):
     myDetDescr = "ATLAS-R2-2016-01-00-01"
     print " == runzmumu == globalflags.DetDescrVersion -> manually configured to ", myDetDescr
-    globalflags.DetDescrVersion.set_Value_and_Lock(myDetDescr)#ATLAS-R2-2015-04-00-00  ATLAS-R2-2016-00-01-00
+    globalflags.DetDescrVersion.set_Value_and_Lock(myDetDescr)
 else:
-    print " == runzmumu == globalflags.DetDescrVersion -> no user setting -> ", myDetDescr
+    print " == runzmumu == globalflags.DetDescrVersion -> no user setting. Using default: ", myDetDescr
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
@@ -230,44 +235,6 @@ if (useIDADynamicFolders):
             conddb.blockFolder("/Indet/AlignL3")
             conddb.blockFolder("/TRT/AlignL2")
         
-    if (False):
-        print (" == runzmumu == configuring 2018 ReAlign family (using RunSet2)") 
-        conddb.addOverride("/Indet/AlignL1/ID" ,"InDetAlignL1_ID_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/Indet/AlignL2/PIX" ,"InDetAlignL2PIX_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/Indet/AlignL2/SCT" ,"InDetAlignL2SCT_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/Indet/IBLDist", "InDetAlignIBLDist_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1_R2dynamic_data18_2ndBatch_Initial")
-        #conddb.blockFolder("/Indet/AlignL3")
-        #conddb.blockFolder("/TRT/AlignL2")
-        #conddb.addOverride("/Indet/AlignL3" ,"IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
-        #conddb.addOverride("/Indet/AlignL3" ,"InDetAlignL3_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/TRT/AlignL2", "TRTAlignL2_R2dynamic_data18_2ndBatch_Initial")
-
-    if (True):
-        print (" == runzmumu == configuring 2018 Salva test")
-        conddb.addOverride("/Indet/AlignL1/ID", "IndetAlignL1ID-R2dynamic-SALVA-2018-step27-TEST0")
-        conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX-R2dynamic-SALVA-2018-step27-TEST0")
-        conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT-R2dynamic-SALVA-2018-step27-TEST0")
-        conddb.addOverride("/Indet/IBLDist", "IndetAlignIBLDIST-R2dynamic-SALVA-2018-step27-TEST0")
-        conddb.addOverride("/Indet/AlignL3", "IndetAlignL3-R2dynamic-SALVA-2018-step27-TEST0")
-        conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1-R2dynamic-SALVA-2018-step27-TEST0")
-        conddb.addOverride("/TRT/AlignL2", "TRTAlignL2-R2dynamic-SALVA-2018-step27-TEST0")
-        if readPool and False:
-            print " == runzmumu == configuring 2018 Salva test == conddb.blockFolder(/Indet/AlignL3)"
-            conddb.blockFolder("/Indet/AlignL3")
-            conddb.blockFolder("/TRT/AlignL2")
-    if (False):
-        print (" == runzmumu == configuring 2018 Stefano test")
-        conddb.addOverride("/Indet/AlignL1/ID",  "InDetAlignL1_ID_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/Indet/AlignL2/PIX", "InDetAlignL2PIX_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/Indet/AlignL2/SCT", "InDetAlignL2SCT_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/Indet/IBLDist",     "InDetAlignIBLDist_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/Indet/AlignL3",     "InDetAlignL3_R2dynamic_data18_2ndBatch_Initial") 
-        conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1_R2dynamic_data18_2ndBatch_Initial")
-        conddb.addOverride("/TRT/AlignL2",       "TRTAlignL2_R2dynamic_data18_2ndBatch_Initial") 
-        if readPool and False:
-            conddb.blockFolder("/Indet/AlignL3")
-            conddb.blockFolder("/TRT/AlignL2")
 print " == runzmumu == user may define his favourite alignment == completed == "
 ##
 
@@ -339,7 +306,7 @@ if zmumuval == True:
                                     OutputTracksName =  "SelectedMuons",
                                     isMC = MC_bool, # If set to True, the truth parameters will be filled, have a look into FillTruthParameters
                                     doRefit = True, #True for evaluation of new alignment constants / False for update of weak mode recommendations -- refits tracks according to provided conditions db and/or external root file containing alignment constants
-                                    doIPextrToPV = True, # True for IP resolution studies, extrapolates IP parameters to primary vertex
+                                    doIPextrToPV = False, # True for IP resolution studies, extrapolates IP parameters to primary vertex
                                     UseTrackSelectionTool = False, # If set to True, it will use the specified TrackSelectionTool in the next Line
                                     TrackSelectionTool = m_TrackSelectorTool_TightPrimary,
                                     TrackParticleName = 'InnerDetectorTrackParticles', # Currently does not do anything, code fills IndetTrackParticles and CombinedTrackParticles Trees
@@ -348,14 +315,19 @@ if zmumuval == True:
                                     refit1TreeFolder = "/ZmumuValidationUserSel/refit1",# Only filled if doRefit is set to True
                                     refit2TreeFolder = "/ZmumuValidationUserSel/refit2",# Only filled if doRefit is set to True
                                     combTreeFolder = "/ZmumuValidationUserSel/comb",#always filled with information retrieved from TrackParticle associated to selected muon
+                                    FourMuTreeFolder = "/ZmumuValidationUserSel/fourmu",# Only filled if doFourMuAnalysis is set to true
                                     doIsoSelection = True,
                                     doIPSelection = True,
-                                    #loose selection to have Z and JPsi in the n tuple
-                                    MassWindowLow = 1.,
-                                    MassWindowHigh = 180.,
-                                    PtLeadingMuon = 4., #15.,
-                                    PtSecondMuon = 4., #15.,
+                                    doMCPSelection = True, # Medium 
+                                    doFourMuAnalysis = True,
+                                    StoreZmumuNtuple = False,
+                                    #loose selection to keep Z and JPsi events in the ntuple
+                                    MassWindowLow = 2.,
+                                    MassWindowHigh = 2000.,
+                                    PtLeadingMuon = 5., #10 #4 #15.,
+                                    PtSecondMuon =  5., #10 #4 #15.,
                                     OpeningAngle = 0.01, # in radians. 1 radian ~60 deg
+                                    Z0Gap = 5.0, # in mm
                                     OutputLevel = INFO)
     job += iDPerfMonZmumu
     print iDPerfMonZmumu
