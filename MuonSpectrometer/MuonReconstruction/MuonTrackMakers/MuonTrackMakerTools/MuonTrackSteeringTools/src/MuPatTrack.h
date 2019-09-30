@@ -5,8 +5,8 @@
 #ifndef MUPATTRACK_H
 #define MUPATTRACK_H
 
-#include "MuonTrackFindingEvent/MuPatSegment.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
+#include "MuPatSegment.h"
+#include "MuPatCandidateBase.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"

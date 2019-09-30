@@ -10,7 +10,7 @@
 #include <set>
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "Identifier/Identifier.h"
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatHit.h"
 
 namespace Trk {
   class MeasurementBase;
