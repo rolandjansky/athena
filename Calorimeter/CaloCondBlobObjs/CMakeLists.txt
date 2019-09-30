@@ -9,11 +9,13 @@ atlas_subdir( CaloCondBlobObjs )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-                          Control/AthenaKernel )
+                          Control/AthenaKernel
+                          AtlasTest/TestTools )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost COMPONENTS unit_test_framework )
 
 # tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
 
@@ -32,3 +34,10 @@ atlas_add_dictionary( CaloCondBlobObjsDict
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel AthenaKernel CaloCondBlobObjs )
 
+atlas_add_test( CaloCondBlobBase_test
+  SOURCES
+  test/CaloCondBlobBase_test.cxx src/CaloCondBlobBase.cxx
+  INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+  LINK_LIBRARIES ${Boost_LIBRARIES} CaloCondBlobObjs
+  POST_EXEC_SCRIPT nopost.sh
+)
