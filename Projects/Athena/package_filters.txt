@@ -61,7 +61,6 @@
 - Tools/RunTimeTester
 - Tools/CoolDozer
 - Tools/CodeCheck
-- Tools/PerformanceReports
 
 # Huge D3PD librarys not really useful any more
 - PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
