@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
+#include "TrigNavigation/NavigationCore.icc"
 
 using Amg::Vector3D;
 using CLHEP::mm;
@@ -37,19 +37,15 @@ InDet::TRT_TrigStandaloneTrackFinder::TRT_TrigStandaloneTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),
     m_nprint(0),
-    m_segToTrackTool("InDet::TRT_SegmentToTrackTool"),
     m_ntimesInvoked(0)
 {
   m_minNumDriftCircles = 15                                   ;       //Minimum number of drift circles for TRT segment tracks
   m_matEffects         = 0                                    ;
-  m_resetPRD           = false                                ;       //Reset PRD association tool during sub-detector pattern
 
   declareProperty("MinNumDriftCircles"         ,m_minNumDriftCircles); //Minimum number of drift circles for TRT segment tracks
   declareMonitoredVariable("numTRTSeg"         ,m_nTrtSeg           ); //monitor input TRT segments
   declareMonitoredVariable("numTRTTracks"      ,m_nTRTTracks        ); //monitor output TRT standalone tracks
   declareProperty("MaterialEffects"            ,m_matEffects        ); //Particle hypothesis during track fitting
-  declareProperty("ResetPRD"                   ,m_resetPRD          ); //Reset PRD association tool during sub-detector pattern
-  declareProperty("TRT_SegToTrackTool"         ,m_segToTrackTool    );
 }
 
 InDet::TRT_TrigStandaloneTrackFinder::~TRT_TrigStandaloneTrackFinder() 
@@ -73,14 +69,10 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltInitialize()
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
-  sc = m_segToTrackTool.retrieve();
-  if (sc.isFailure()) {
+  if (m_segToTrackTool.retrieve().isFailure()) {
     msg() << MSG::FATAL << "Failed to retrieve tool " << m_segToTrackTool << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-  }else{
-    msg() << MSG::INFO << "Retrieved tool " << m_segToTrackTool << endmsg;
   }
-
 
   // Get output print level
   //
@@ -109,11 +101,14 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
   m_nTrtSeg = 0; m_nTrtSegGood = 0; m_nBckTrk = 0; m_nUsedSeg = 0;
   m_nTRTTracks = 0;
 
-  //Clear all caches
-  m_segToTrackTool->resetAll();
-
-  // Clear PRD association tool
-  if(m_resetPRD) m_segToTrackTool->resetAssoTool();
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.empty()) {
+    HLT::ErrorCode stat = getFeature(outputTE, prd_to_track_map_cptr, m_prdToTrackMap.value());
+    if(stat!= HLT::OK){
+      ATH_MSG_FATAL ("Failed to get " << m_prdToTrackMap << ".");
+      return HLT::ERROR;
+    }
+  }
 
   ///Retrieve segments from HLT navigation
   if ( ( HLT::OK != getFeature(outputTE, m_Segments) ) || !m_Segments ) {
@@ -146,7 +141,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
     } else {
       
       ///Check if segment has already been assigned a Si extension
-      if(m_segToTrackTool->segIsUsed(*trackTRT)) {m_nUsedSeg++; continue;}
+      if(m_segToTrackTool->segIsUsed(*trackTRT, prd_to_track_map_cptr)) {m_nUsedSeg++; continue;}
       
       ///Cases where the min number of required TRT drift circles drops to 10
       if(int(trackTRT->numberOfMeasurementBases())<=m_minNumDriftCircles) {
@@ -184,15 +179,13 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
     }
   }
 
-  m_finalTracks = m_segToTrackTool->resolveTracks();
+  m_finalTracks = m_segToTrackTool->resolveTracks(prd_to_track_map_cptr);
 
   m_nBckTrk = m_segToTrackTool->GetnTRTTrk();
 
   //Update the total counters
   m_nTrtSegTotal += m_nTrtSeg; m_nTrtSegGoodTotal += m_nTrtSegGood; 
   m_nUsedSegTotal +=m_nUsedSeg; m_nBckTrkTotal += m_nBckTrk;
-
-  m_segToTrackTool->resetAssoTool();
 
   if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Saving tracks in container " << endmsg;
   

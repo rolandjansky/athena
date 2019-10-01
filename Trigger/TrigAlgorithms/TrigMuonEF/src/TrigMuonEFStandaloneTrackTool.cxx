@@ -97,10 +97,6 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
     m_cscClusterProvider(""),
     p_ActiveStore(0),
-    m_cscIdHelper(0),
-    m_mdtIdHelper(0),
-    m_rpcIdHelper(0),
-    m_tgcIdHelper(0),
     m_firstEvent(true),
     m_useCscData(true), 
     m_useRpcData(true), 
@@ -459,15 +455,7 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  const MuonGM::MuonDetectorManager* muonMgr;
-  if (detStore()->retrieve(  muonMgr ).isFailure()) {
-    msg() << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endmsg;
-    return StatusCode::FAILURE;
-  }
-  m_cscIdHelper =  muonMgr->cscIdHelper();
-  m_mdtIdHelper =  muonMgr->mdtIdHelper();
-  m_rpcIdHelper =  muonMgr->rpcIdHelper();
-  m_tgcIdHelper =  muonMgr->tgcIdHelper();
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // register EndEvent incident
   IIncidentSvc* pIncsvc;
@@ -1124,22 +1112,22 @@ if (m_useMdtData>0) {
       if( RPCcoll == rpcPrds->end() ) {
         if (msgLvl(MSG::VERBOSE)) {
 	       Identifier idColl;
-          IdContext rpcContext = m_rpcIdHelper->module_context();
-          int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
-          msg() << MSG::VERBOSE << "get_id code = " << code
+          IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
+          int  code = m_muonIdHelperTool->rpcIdHelper().get_id(*idit, idColl, &rpcContext);
+          ATH_MSG_VERBOSE("get_id code = " << code
                 << " collection for rpc id hash = " << (int)*idit
-                << " not found in the cont. ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endmsg;
+                << " not found in the cont. ext.id = " << m_muonIdHelperTool->rpcIdHelper().show_to_string(idColl));
         }
         continue;
       }
       if( (*RPCcoll)->size() == 0)    {
         if (msgLvl(MSG::VERBOSE)) {
           Identifier idColl;
-          IdContext rpcContext = m_rpcIdHelper->module_context();
-          int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
-          msg() << MSG::VERBOSE << "get_id code = " << code
+          IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
+          int  code = m_muonIdHelperTool->rpcIdHelper().get_id(*idit, idColl, &rpcContext);
+          ATH_MSG_VERBOSE("get_id code = " << code
                 << " collection for rpc id hash = " << (int)*idit
-                << " is empty ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endmsg;
+                << " is empty ext.id = " << m_muonIdHelperTool->rpcIdHelper().show_to_string(idColl));
         }
         continue;
       }
@@ -1149,19 +1137,19 @@ if (m_useMdtData>0) {
       nRpcHits+=(*RPCcoll)->size(); // count hits for TrigMuonEFInfo
       rpcCols.push_back(*RPCcoll);
       if (msgLvl(MSG::DEBUG)) 
-        msg() << MSG::DEBUG << "Selected Rpc Collection: "
-              << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
+        ATH_MSG_DEBUG("Selected Rpc Collection: "
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string((*RPCcoll)->identify())
               << " (hash = " << (int)*idit
-              << ") with size " << (*RPCcoll)->size() << endmsg;
+              << ") with size " << (*RPCcoll)->size());
       else if (testRoiDrivenMode) 
-        msg() << MSG::INFO << "Selected Rpc Collection: "
-				  << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
+        ATH_MSG_INFO("Selected Rpc Collection: "
+				  << m_muonIdHelperTool->rpcIdHelper().show_to_string((*RPCcoll)->identify())
               << " (hash = " << (int)*idit
-				  << "), with size " << (*RPCcoll)->size() << endmsg;
+				  << "), with size " << (*RPCcoll)->size());
 
     }
     if (rpcCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Rpc data collections selected" << endmsg;
+      ATH_MSG_DEBUG("No Rpc data collections selected");
     }
   }
   
@@ -1171,12 +1159,12 @@ if (m_useMdtData>0) {
     const MdtPrepDataContainer* mdtPrds = 0;
     SG::ReadHandle<Muon::MdtPrepDataContainer> MdtCont(m_mdtKey);
     if( !MdtCont.isValid() ) {
-      msg() << MSG::ERROR << " Cannot retrieve MDT PRD Container" << endmsg;
+      ATH_MSG_ERROR(" Cannot retrieve MDT PRD Container");
       return HLT::NAV_ERROR;
     }
     else{ 
       mdtPrds=MdtCont.cptr();
-      msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
+      ATH_MSG_DEBUG(" MDT PRD Container retrieved");
     }
     
     // Get MDT collections
@@ -1187,22 +1175,22 @@ if (m_useMdtData>0) {
       if( MDTcoll == mdtPrds->end() ) {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
-	  IdContext mdtContext = m_mdtIdHelper->module_context();
-	  int  code = m_mdtIdHelper->get_id(*idit, idColl, &mdtContext);
-	  msg() << MSG::VERBOSE << "get_id code = " << code
+	  IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
+	  int  code = m_muonIdHelperTool->mdtIdHelper().get_id(*idit, idColl, &mdtContext);
+	  ATH_MSG_VERBOSE("get_id code = " << code
 		<< " collection for mdt id hash = " << (int)*idit
-		<< " not found in the cont. ext.id = " << m_mdtIdHelper->show_to_string(idColl) << endmsg;
+		<< " not found in the cont. ext.id = " << m_muonIdHelperTool->mdtIdHelper().show_to_string(idColl));
 	}
 	continue;
       }
       if( (*MDTcoll)->size() == 0)    {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
-	  IdContext mdtContext = m_mdtIdHelper->module_context();
-	  int  code = m_mdtIdHelper->get_id(*idit, idColl, &mdtContext);
-	  msg() << MSG::VERBOSE << "get_id code = " << code
+	  IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
+	  int  code = m_muonIdHelperTool->mdtIdHelper().get_id(*idit, idColl, &mdtContext);
+	  ATH_MSG_VERBOSE("get_id code = " << code
 		<< " collection for mdt id hash = " << (int)*idit
-		<< " is empty ext.id = " << m_mdtIdHelper->show_to_string(idColl) << endmsg;
+		<< " is empty ext.id = " << m_muonIdHelperTool->mdtIdHelper().show_to_string(idColl));
 	}
 	continue;
       }
@@ -1219,9 +1207,9 @@ if (m_useMdtData>0) {
 
       	    const Muon::MdtPrepData* mdt = *cit;
       	    int TubeLayers = mdt->detectorElement()->getNLayers();
-      	    int TubeLayer = m_mdtIdHelper->tubeLayer(mdt->identify());
+      	    int TubeLayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(mdt->identify());
       	    if(TubeLayer > TubeLayers) TubeLayer -= TubeLayers;
-      	    const Amg::Vector3D mdtpos = mdt->detectorElement()->center(TubeLayer,m_mdtIdHelper->tube(mdt->identify()));
+      	    const Amg::Vector3D mdtpos = mdt->detectorElement()->center(TubeLayer,m_muonIdHelperTool->mdtIdHelper().tube(mdt->identify()));
       	    for(uint l2=0; l2<l2cont->size(); l2++){
       	      l2muon = l2cont->at(l2);
       	      if(l2muon->nMdtHits()==0){
@@ -1251,16 +1239,16 @@ if (m_useMdtData>0) {
       
       mdt_hash_ids_cache.push_back(*idit);
       mdtCols.push_back(*MDTcoll);
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Mdt Collection: "
-			 << m_mdtIdHelper->show_to_string((*MDTcoll)->identify())
-			 << " with size " << (*MDTcoll)->size() << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Mdt Collection: "
+			 << m_muonIdHelperTool->mdtIdHelper().show_to_string((*MDTcoll)->identify())
+			 << " with size " << (*MDTcoll)->size());
       else
-	if (testRoiDrivenMode) msg() << MSG::INFO << "Selected Mdt Collection: "
-				     << m_mdtIdHelper->show_to_string((*MDTcoll)->identify())
-				     << " with size " << (*MDTcoll)->size() << endmsg;
+	if (testRoiDrivenMode) ATH_MSG_INFO("Selected Mdt Collection: "
+				     << m_muonIdHelperTool->mdtIdHelper().show_to_string((*MDTcoll)->identify())
+				     << " with size " << (*MDTcoll)->size());
     }
     if (mdtCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Mdt data collections selected" << endmsg;
+      ATH_MSG_DEBUG("No Mdt data collections selected");
       mdtDataFound = false;
     }
   }
@@ -1271,12 +1259,12 @@ if (m_useMdtData>0) {
     const TgcPrepDataContainer* tgcPrds = 0;
     SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKey);
     if( !TgcCont.isValid() ) {
-      msg() << MSG::ERROR << " Cannot retrieve TGC PRD Container" << endmsg;
+      ATH_MSG_ERROR(" Cannot retrieve TGC PRD Container");
       return HLT::NAV_ERROR;
     }
     else{ 
       tgcPrds=TgcCont.cptr();
-      msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
+      ATH_MSG_DEBUG(" MDT PRD Container retrieved");
     }
 
     // Get TGC collections
@@ -1287,22 +1275,22 @@ if (m_useMdtData>0) {
       if( TGCcoll == tgcPrds->end() ) {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
-	  IdContext tgcContext = m_tgcIdHelper->module_context();
-	  int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
+	  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+	  int  code = m_muonIdHelperTool->tgcIdHelper().get_id(*idit, idColl, &tgcContext);
 	  ATH_MSG_VERBOSE("get_id code = " << code
 			  << " collection for tgc id hash = " << (int)*idit
-			  << " not found in the cont. ext.id = " << m_tgcIdHelper->show_to_string(idColl));
+			  << " not found in the cont. ext.id = " << m_muonIdHelperTool->tgcIdHelper().show_to_string(idColl));
 	}
 	continue;
       }
       if( (*TGCcoll)->size() == 0)    {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
-	  IdContext tgcContext = m_tgcIdHelper->module_context();
-	  int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
-	  msg() << MSG::VERBOSE << "get_id code = " << code
+	  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+	  int  code = m_muonIdHelperTool->tgcIdHelper().get_id(*idit, idColl, &tgcContext);
+	  ATH_MSG_VERBOSE("get_id code = " << code
 		<< " collection for tgc id hash = " << (int)*idit
-		<< " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
+		<< " is empty ext.id = " << m_muonIdHelperTool->tgcIdHelper().show_to_string(idColl));
 	}
 	continue;
       }
@@ -1310,13 +1298,13 @@ if (m_useMdtData>0) {
       tgc_hash_ids_cache.push_back(*idit);
       nTgcHits+=(*TGCcoll)->size(); // count hits for TrigMuonEFInfo
       tgcCols.push_back(*TGCcoll);
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Tgc Collection: "
-			 << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-			 << " with size " << (*TGCcoll)->size() << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Tgc Collection: "
+			 << m_muonIdHelperTool->tgcIdHelper().show_to_string((*TGCcoll)->identify())
+			 << " with size " << (*TGCcoll)->size());
       else
-	if (testRoiDrivenMode) msg() << MSG::INFO <<  "Selected Tgc Collection: "
-				     << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-				     << " with size " << (*TGCcoll)->size() << endmsg;
+	if (testRoiDrivenMode) ATH_MSG_INFO("Selected Tgc Collection: "
+				     << m_muonIdHelperTool->tgcIdHelper().show_to_string((*TGCcoll)->identify())
+				     << " with size " << (*TGCcoll)->size());
     }
     
     if(m_useTGCInPriorNextBC){
@@ -1328,40 +1316,40 @@ if (m_useMdtData>0) {
 	if( TGCcoll == tgcPrdsPriorBC->end() ) {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
-	    IdContext tgcContext = m_tgcIdHelper->module_context();
-	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
-	    msg() << MSG::VERBOSE << "get_id code = " << code
+	    IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+	    int  code = m_muonIdHelperTool->tgcIdHelper().get_id(*idit, idColl, &tgcContext);
+	    ATH_MSG_VERBOSE("get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " not found in the cont. ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
+		  << " not found in the cont. ext.id = " << m_muonIdHelperTool->tgcIdHelper().show_to_string(idColl));
 	  }
 	  continue;
 	}
 	if( (*TGCcoll)->size() == 0)    {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
-	    IdContext tgcContext = m_tgcIdHelper->module_context();
-	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
-	    msg() << MSG::VERBOSE << "get_id code = " << code
+	    IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+	    int  code = m_muonIdHelperTool->tgcIdHelper().get_id(*idit, idColl, &tgcContext);
+	    ATH_MSG_VERBOSE("get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
+		  << " is empty ext.id = " << m_muonIdHelperTool->tgcIdHelper().show_to_string(idColl));
 	  }
 	  continue;
 	}
 	nTgcHits+=(*TGCcoll)->size(); // count hits for TrigMuonEFInfo
 	tgcCols.push_back(*TGCcoll);
-	if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Tgc Collection: "
-			   << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-			   << " with size " << (*TGCcoll)->size() << endmsg;
+	if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Tgc Collection: "
+			   << m_muonIdHelperTool->tgcIdHelper().show_to_string((*TGCcoll)->identify())
+			   << " with size " << (*TGCcoll)->size());
       }
       const TgcPrepDataContainer* tgcPrdsNextBC = 0;
       SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKeyNextBC);
       if( !TgcCont.isValid() ) {
-	msg() << MSG::ERROR << " Cannot retrieve TGC PRD Container" << endmsg;
+	ATH_MSG_ERROR(" Cannot retrieve TGC PRD Container");
 	return HLT::NAV_ERROR;
       }
       else{ 
 	tgcPrds=TgcCont.cptr();
-	msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
+	ATH_MSG_DEBUG(" MDT PRD Container retrieved");
       }
 
       for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
@@ -1370,35 +1358,35 @@ if (m_useMdtData>0) {
 	if( TGCcoll == tgcPrdsNextBC->end() ) {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
-	    IdContext tgcContext = m_tgcIdHelper->module_context();
-	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
-	    msg() << MSG::VERBOSE << "get_id code = " << code
+	    IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+	    int  code = m_muonIdHelperTool->tgcIdHelper().get_id(*idit, idColl, &tgcContext);
+	    ATH_MSG_VERBOSE("get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " not found in the cont. ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
+		  << " not found in the cont. ext.id = " << m_muonIdHelperTool->tgcIdHelper().show_to_string(idColl));
 	  }
 	  continue;
 				}
 	if( (*TGCcoll)->size() == 0)    {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
-	    IdContext tgcContext = m_tgcIdHelper->module_context();
-	    int  code = m_tgcIdHelper->get_id(*idit, idColl, &tgcContext);
-	    msg() << MSG::VERBOSE << "get_id code = " << code
+	    IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+	    int  code = m_muonIdHelperTool->tgcIdHelper().get_id(*idit, idColl, &tgcContext);
+	    ATH_MSG_VERBOSE("get_id code = " << code
 		  << " collection for tgc id hash = " << (int)*idit
-		  << " is empty ext.id = " << m_tgcIdHelper->show_to_string(idColl) << endmsg;
+		  << " is empty ext.id = " << m_muonIdHelperTool->tgcIdHelper().show_to_string(idColl));
 	  }
 	  continue;
 	}
 	nTgcHits+=(*TGCcoll)->size(); // count hits for TrigMuonEFInfo
 	tgcCols.push_back(*TGCcoll);
-	if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Tgc Collection: "
-			   << m_tgcIdHelper->show_to_string((*TGCcoll)->identify())
-			   << " with size " << (*TGCcoll)->size() << endmsg;
+	ATH_MSG_DEBUG("Selected Tgc Collection: "
+			   << m_muonIdHelperTool->tgcIdHelper().show_to_string((*TGCcoll)->identify())
+			   << " with size " << (*TGCcoll)->size());
       }
     }
     
     if (tgcCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Tgc data collections selected" << endmsg;
+      ATH_MSG_DEBUG("No Tgc data collections selected");
     }
   }
   
@@ -1409,12 +1397,12 @@ if (m_useMdtData>0) {
     const CscPrepDataContainer* cscPrds = 0;
     SG::ReadHandle<Muon::CscPrepDataContainer> CscCont(m_cscKey);
     if( !CscCont.isValid() ) {
-      msg() << MSG::ERROR << " Cannot retrieve CSC PRD Container" << endmsg;
+      ATH_MSG_ERROR(" Cannot retrieve CSC PRD Container");
       return HLT::NAV_ERROR;
     }
     else{ 
       cscPrds=CscCont.cptr();
-      msg()<< MSG::DEBUG << " CSC PRD Container retrieved" << endmsg;
+      ATH_MSG_DEBUG(" CSC PRD Container retrieved");
     }
 
     // Get CSC collections
@@ -1432,16 +1420,16 @@ if (m_useMdtData>0) {
       csc_hash_ids_cache.push_back(*idit);
       nCscHits+=(*CSCcoll)->size(); // count hits for TrigMuonEFInfo
       cscCols.push_back(*CSCcoll);
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Csc Collection: "
-			 << m_cscIdHelper->show_to_string((*CSCcoll)->identify())
-			 << " with size " << (*CSCcoll)->size() << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Csc Collection: "
+			 << m_muonIdHelperTool->cscIdHelper().show_to_string((*CSCcoll)->identify())
+			 << " with size " << (*CSCcoll)->size());
       else
-	if (testRoiDrivenMode) msg() << MSG::INFO << "Selected Csc Collection: "
-				     << m_cscIdHelper->show_to_string((*CSCcoll)->identify())
-				     << " with size " << (*CSCcoll)->size() << endmsg;
+	if (testRoiDrivenMode) ATH_MSG_INFO("Selected Csc Collection: "
+				     << m_muonIdHelperTool->cscIdHelper().show_to_string((*CSCcoll)->identify())
+				     << " with size " << (*CSCcoll)->size());
     }
     if (cscCols.empty()) {
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Csc data collections selected" << endmsg;
+      ATH_MSG_DEBUG("No Csc data collections selected");
       cscDataFound = false;
     }
   }
@@ -2556,7 +2544,7 @@ int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const std::vector< const Mu
       Trk::RIO_OnTrack* rio = const_cast<Trk::RIO_OnTrack*> ((*segment)->rioOnTrack(irio));
       if(!rio) continue;
       Identifier rioId = rio->identify();
-      if(m_mdtIdHelper->is_mdt(rioId)) {
+      if(m_muonIdHelperTool->mdtIdHelper().is_mdt(rioId)) {
 	nMdt++;
 	const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rio);
 	if(mdt!=0){
@@ -2569,11 +2557,11 @@ int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const std::vector< const Mu
 	  monVars.mdtADC.push_back(mdtPrd->adc());
 	  
 	}  else ATH_MSG_ERROR("cannot cast to MdtDriftCircle ");
-      } else if (m_cscIdHelper->is_csc(rioId)) {
+      } else if (m_muonIdHelperTool->cscIdHelper().is_csc(rioId)) {
 	nCsc++;
-      } else if (m_rpcIdHelper->is_rpc(rioId)) {
+      } else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(rioId)) {
 	nRpc++;
-      } else if (m_tgcIdHelper->is_tgc(rioId)){
+      } else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(rioId)){
 	nTgc++;
       }
     } // end loop on rio

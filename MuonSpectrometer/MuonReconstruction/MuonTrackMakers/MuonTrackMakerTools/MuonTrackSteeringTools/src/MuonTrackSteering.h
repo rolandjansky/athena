@@ -5,7 +5,7 @@
 #ifndef MUONTRACKSTEERING_H
 #define MUONTRACKSTEERING_H
 
-#include "MuonRecToolInterfaces/IMuonTrackFinder.h"
+#include "MuonRecToolInterfaces/IMuonTrackFinder.h" 
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -56,7 +56,7 @@ namespace Muon {
   typedef std::vector<const Muon::MuonSegment*> MuonSegmentCollection;
 
   /** 
-      Implementation of an IMuonTrackSteering. 
+      Implementation of an IMuonTrackFinder. 
 
       For more details look at the mainpage of this package.
   */
@@ -95,25 +95,11 @@ namespace Muon {
     @param coll a reference to a MuonSegmentCollection
     @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
     */
-    TrackCollection* find( const MuonSegmentCollection& coll ) const;
-
-    /** @brief find tracks starting from a MuonSegmentCombination
-    @param combi a reference to a MuonSegmentCombination
-    @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
-    */
-    TrackCollection* find( const MuonSegmentCombination& combi ) const;
-
-    /** @brief find tracks starting from a MuonSegmentCombinationCollection
-    @param combiCol a reference to a MuonSegmentCombinationCollection
-    @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
-    */
-    //std::vector<Trk::Track*>* find( const MuonSegmentCombinationCollection& combiCol ) const;
-
-    //  std::vector<const Trk::Track*>* find( const std::vector<const MuonSegment*>& segments ) const {};
-
-    TrackCollection *selectTracks(std::vector<MuPatTrack*> & candidates, bool takeOwnership = true ) const;
+    TrackCollection* find( const MuonSegmentCollection& coll ) const override;
 
   private:
+    TrackCollection *selectTracks(std::vector<MuPatTrack*> & candidates, bool takeOwnership = true ) const;
+
     /** actual find method */
     TrackCollection* findTracks( ) const;
     bool extractSegments( const MuonSegmentCollection& coll ) const;

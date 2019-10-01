@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #Generate CA pickle files from athena and CA
 from __future__ import print_function
 from AthenaCommon.Configurable import Configurable

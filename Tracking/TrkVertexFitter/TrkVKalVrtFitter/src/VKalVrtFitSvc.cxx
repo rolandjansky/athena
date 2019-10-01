@@ -40,16 +40,12 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/) const
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
 //
 //------  extract information about selected tracks
 //
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 
     int ntrk=0;
     StatusCode sc=CvtTrkTrack(InpTrk,ntrk,state);
@@ -73,13 +69,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/) const
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
+
 //
 //------  extract information about selected tracks
 //
@@ -179,13 +172,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/) const
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
+
 //
 //------  extract information about selected tracks
 //
@@ -220,13 +210,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/)  const
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
+
 //
 //------  extract information about selected tracks
 //
@@ -295,12 +282,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         State& state,
-        bool ifCovV0)
+        bool ifCovV0) const
 {
-//
-//-----  Timing
-//
-     if(m_timingProfile)m_timingProfile->chronoStart("Trk_VKalVrtFitter");
 //
 //------ Variables and arrays needed for fitting kernel
 //
@@ -346,7 +329,6 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 
     Chi2 = 100000000.;
     if(ierr){
-      if(m_timingProfile)m_timingProfile->chronoStop("Trk_VKalVrtFitter");
       return ierr;
     }
 //  
@@ -410,7 +392,6 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
       TrkPar[2] = -TrkPar[2];        // Change of sign needed
       TrkAtVrt.push_back( TrkPar );
     }
-    if(m_timingProfile)m_timingProfile->chronoStop("Trk_VKalVrtFitter");
     return 0;
   }
 
@@ -426,7 +407,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 				      const long int& Charge,
 				      dvect& Perigee,
 				      dvect& CovPerigee,
-                                      IVKalState& istate)
+                                      IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
     int i,j,ij;				      
@@ -465,7 +446,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 
 
   void TrkVKalVrtFitter::VKalToTrkTrack( double curBMAG, double  vp1, double  vp2, double  vp3,
-                                         double& tp1, double& tp2, double& tp3)
+                                         double& tp1, double& tp2, double& tp3) const
 //tp - ATLAS parameters, vp - VKalVrt parameters//
   {   tp1= vp2;   //phi angle
       tp2= vp1;   //theta angle
@@ -535,8 +516,6 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 //                      state.m_ErrMtx[27]<<", "<<state.m_ErrMtx[35]<<", "<<state.m_ErrMtx[44]<<'\n';
  
     CovVrtTrk.resize(DIM*(DIM+1)/2);
-
-    //m_timingProfile->chronoStart("Trk_CovMatrix");
 
     ip=0;
     for( i=0; i<DIM;i++) {
@@ -640,9 +619,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   }
   
 
-  int  TrkVKalVrtFitter::VKalGetNDOF(const IVKalState& istate) const
+  int  TrkVKalVrtFitter::VKalGetNDOF(const State& state) const
   {    
-    const State& state = dynamic_cast<const State&> (istate);
     if(!state.m_FitStatus) return 0;
     int NDOF=2*state.m_FitStatus-3;
     if(state.m_usePointingCnst)         { NDOF+=2; }

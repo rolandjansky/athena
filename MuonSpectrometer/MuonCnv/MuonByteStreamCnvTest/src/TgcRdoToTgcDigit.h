@@ -6,7 +6,7 @@
 #define MUONBYTESTREAMCNVTEST_TGCRDOTOTGCDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonTGC_CnvTools/ITGC_RDO_Decoder.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "MuonRDO/TgcRdoContainer.h"
@@ -14,7 +14,7 @@
 
 class TgcIdHelper;
 
-class TgcRdoToTgcDigit : public AthAlgorithm {
+class TgcRdoToTgcDigit : public AthReentrantAlgorithm {
 
  public:
 
@@ -22,7 +22,7 @@ class TgcRdoToTgcDigit : public AthAlgorithm {
   virtual ~TgcRdoToTgcDigit() = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
   StatusCode decodeTgc( const TgcRdo *, TgcDigitContainer *, Identifier&) const;

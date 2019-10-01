@@ -1,11 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigTauRec.TrigTauRecConf import TrigTauRecMergedMT
+from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly
 
 class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
 
         def __init__(self, name = "TrigTauRecMerged_TauCaloOnly"):
             super( TrigTauRecMerged_TauCaloOnly , self ).__init__( name )
+            self.MonTool = tauMonitoringCaloOnly()
+            self._mytools = []
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []

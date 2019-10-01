@@ -1,4 +1,4 @@
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # file to simulate the HypoTool configuration of the signatures
 
 def TestHypoTool(name, prop, threshold_value):
@@ -36,6 +36,5 @@ def ElTest2HypoTool(chainDict):
 
 
 def getThreshold(name, signature):
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    dictDecoding = DictFromChainName.DictFromChainName()
-    return dictDecoding.getChainThresholdFromName(name, signature)
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainThresholdFromName
+    return getChainThresholdFromName( name.split("_"), signature)

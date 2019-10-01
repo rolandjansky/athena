@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
@@ -52,7 +51,6 @@ namespace InDetAlignment
         m_pixelIdHelper(nullptr),
         m_sctIdHelper(nullptr),
         m_trtIdHelper(nullptr),
-        m_pixelManager(nullptr),
         m_TRT_Manager(nullptr),
 	m_IDAlignDBTool("InDetAlignDBTool"),
 	m_trtaligndbservice("TRT_AlignDbSvc",name),
@@ -129,10 +127,10 @@ namespace InDetAlignment
 		// TRT
 		ATH_CHECK(detStore()->retrieve(m_trtIdHelper, "TRT_ID"));
 		ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
-		//pixel and SCT  TRT manager
-		ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
+		// TRT manager
 		ATH_CHECK(detStore()->retrieve(m_TRT_Manager, "TRT"));
                 // ReadCondHandleKey
+                ATH_CHECK(m_pixelDetEleCollKey.initialize());
                 ATH_CHECK(m_SCTDetEleCollKey.initialize());
 		// Retrieve the Histo Service
 		ITHistSvc* hist_svc;
@@ -299,16 +297,21 @@ namespace InDetAlignment
 	//__________________________________________________________________________
 	void CreateMisalignAlg::setupPixel_AlignModule(int& nPixel)
 	{
-		InDetDD::SiDetectorElementCollection::const_iterator iter;
-		
-		for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
-			
+                // SiDetectorElementCollection for Pixel
+                SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+                const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+                if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+                  ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+                  return;
+                }
+                for (const InDetDD::SiDetectorElement *element: *elements) {			
 			// get the ID
-			Identifier Pixel_ModuleID = (*iter)->identify();
+                        const Identifier Pixel_ModuleID = element->identify();
+                        const IdentifierHash Pixel_ModuleHash = m_pixelIdHelper->wafer_hash(Pixel_ModuleID);
 			// check the validity
 			if (Pixel_ModuleID.is_valid()) {
 				if (m_ModuleList.find(Pixel_ModuleID) == m_ModuleList.end()) {
-					const InDetDD::SiDetectorElement *module = m_pixelManager->getDetectorElement(Pixel_ModuleID);
+                                        const InDetDD::SiDetectorElement *module = elements->getDetectorElement(Pixel_ModuleHash);
 					m_ModuleList[Pixel_ModuleID][0] = module->center()[0];
 					m_ModuleList[Pixel_ModuleID][1] = module->center()[1];
 					m_ModuleList[Pixel_ModuleID][2] = module->center()[2];
@@ -483,6 +486,13 @@ namespace InDetAlignment
 		ATH_MSG_DEBUG( "maximum deltaPhi              = " << maxAngle/CLHEP::mrad << " mrad" );
 		ATH_MSG_DEBUG( "maximum deltaPhi for 1/r term = " << maxAngleInner/CLHEP::mrad << " mrad" );
 
+                // SiDetectorElementCollection for Pixel
+                SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+                const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+                if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+                  ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+                  return StatusCode::FAILURE;
+                }
                 // SiDetectorElementCollection for SCT
                 SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
                 const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
@@ -499,7 +509,8 @@ namespace InDetAlignment
 			const InDetDD::SiDetectorElement * SiModule = 0; //dummy to get moduleTransform() for silicon
 			
 			if (m_idHelper->is_pixel(ModuleID)) {
-				SiModule = m_pixelManager->getDetectorElement(ModuleID);
+                                const IdentifierHash Pixel_ModuleHash = m_pixelIdHelper->wafer_hash(ModuleID);
+				SiModule = pixelElements->getDetectorElement(Pixel_ModuleHash);
 				//module = SiModule;
 			} else if (m_idHelper->is_sct(ModuleID)) {
                                 const IdentifierHash SCT_ModuleHash = m_sctIdHelper->wafer_hash(ModuleID);

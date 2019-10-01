@@ -178,6 +178,7 @@ def make_all_hypo_algs(concurrent=False):
 def configure_hlt_result(hypo_algs):
     from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool, TriggerBitsMakerTool
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
+    from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
@@ -188,7 +189,7 @@ def configure_hlt_result(hypo_algs):
         ])
 
     # Data scouting example
-    resultList = [serialiser.fullResultID(), 1]
+    resultList = [getFullHLTResultID(), 1]
     serialiser.addCollectionListToResults([
         'xAOD::TrigCompositeContainer_v1#ExampleCollection1',
         'xAOD::TrigCompositeAuxContainer_v2#ExampleCollection1Aux.floatVec_1.floatVec_2.floatVec_3.floatVec_4.floatVec_5',

@@ -11,7 +11,6 @@
 // Michael Duehrssen
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "FastCaloSim/BasicCellBuilderTool.h"
 //#include "TruthHelper/GenAccessIO.h"

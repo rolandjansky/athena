@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
  /***************************************************************************
@@ -26,7 +26,6 @@
 
  // Athena/Gaudi includes
  #include "GaudiKernel/DataSvc.h"
- #include "StoreGate/StoreGateSvc.h"
  
  // LVL1 Calo Trigger
  #include "TrigT1CaloToolInterfaces/IL1EtTools.h"

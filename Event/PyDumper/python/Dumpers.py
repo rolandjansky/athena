@@ -39,9 +39,11 @@ nucone10 = 8
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):
     ROOT.TrackParticleTruthCollection()[ROOT.Rec.TrackParticleTruthKey()]
-    ROOT.Jet().jetTagInfoVector()
+    if hasattr(ROOT,'Jet'):
+        ROOT.Jet().jetTagInfoVector()
     getattr(ROOT, 'ElementLinkVector<CaloClusterContainer>')
-    getattr(ROOT, 'ElementLink<Analysis::MuonContainer>')().isValid()
+    if hasattr(ROOT,'Analysis::MuonContainer'):
+        getattr(ROOT, 'ElementLink<Analysis::MuonContainer>')().isValid()
     getattr(ROOT, 'vector<xAOD::CaloClusterBadChannelData_v1>')().__assign__(getattr(ROOT, 'vector<xAOD::CaloClusterBadChannelData_v1>')())
 if hasattr (ROOT, 'TrigInDetParticleTruth'):
     ROOT.TrigInDetTrackTruth().getFamilyTree()
@@ -4782,6 +4784,13 @@ def dump_xAODObject(o, f):
     return
 
 
+@nolist
+def dump_xAODObjectNL(o, f):
+    dump_xAOD(o, f)
+    f.write('\n')
+    return
+
+
 def dump_list (l, f, dumper, nmax = None):
     i = 0
     for x in l:
@@ -5077,8 +5086,8 @@ dumpspecs = [
     ['xAOD::MissingETComponentMap',          dump_xAOD],
     ['xAOD::EventInfo_v1',                   dump_xAODObject],
     ['xAOD::EventInfo',                      dump_xAODObject],
-    ['xAOD::EventShape_v1',                  dump_xAODObject],
-    ['xAOD::EventShape',                     dump_xAODObject],
+    ['xAOD::EventShape_v1',                  dump_xAODObjectNL],
+    ['xAOD::EventShape',                     dump_xAODObjectNL],
     ['xAOD::MissingETAssociationMap_v1',     dump_xAODObject],
     ['xAOD::MissingETAssociationMap',        dump_xAODObject],
     ['xAOD::TrigDecision_v1',                dump_xAODObject],

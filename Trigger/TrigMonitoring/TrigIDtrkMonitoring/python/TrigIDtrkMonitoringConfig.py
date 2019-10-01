@@ -50,7 +50,7 @@ def TrigIDtrkMonitoringTool():
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 			]
-		#ToolSvc += tidacosshift;
+		# ToolSvc += tidacosshift;
 		list += [ tidacosshift ]
 
 
@@ -72,8 +72,9 @@ def TrigIDtrkMonitoringTool():
                         "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF",
                         "HLT_e.*_gsf_idperf:GSFTrigTrackParticles"
                         ]
-                ToolSvc += tidaegamma
-                list += [ "TrigTestBase/IDEgammaTool" ]
+	        #  ToolSvc += tidaegamma
+                # list += [ "TrigTestBase/IDEgammaTool" ]
+		list += [ tidaegamma ]
 
 
 
@@ -103,6 +104,26 @@ def TrigIDtrkMonitoringTool():
 			]
                 #ToolSvc += tidaegammashift;
 		list += [ tidaegammashift ]
+
+
+
+		# Expert instances 
+		tidaegammaduff = TrigTestBase(name = "IDEgammaDuffTool",
+					  histoPathBase = "/Trigger/HLT")
+		tidaegammaduff.AnalysisConfig = "Tier0"
+		tidaegammaduff.SliceTag = "HLT/TRIDT/EgammaDuff/Expert"
+		# tidabase.OutputLevel = DEBUG
+		tidaegammaduff.UseHighestPT = True
+		tidaegammaduff.ntupleChainNames += [
+                        "Offline",
+                        "HLT_e.*:xAODTracks_Electron",
+                        "HLT_e.*_gsf_idperf:GSFTrigTrackParticles"
+                        ]
+                list += [ tidaegammaduff ]
+
+
+
+
 
 
 		# Shifter purity instances 
@@ -154,6 +175,9 @@ def TrigIDtrkMonitoringTool():
 		list += [ tidamuon ]
 
 
+
+
+
 		# Shifter instances 
 		tidamuonshift = TrigTestBase(name = "IDMuonShifterTool",
 					histoPathBase = "/Trigger/HLT")
@@ -200,6 +224,19 @@ def TrigIDtrkMonitoringTool():
 		list += [ tidamuonpurity ]
 
 
+		# Expert instances 
+		tidamuonduff = TrigTestBase(name = "IDMuonDuffTool",
+					histoPathBase = "/Trigger/HLT")
+		tidamuonduff.AnalysisConfig = "Tier0"
+		tidamuonduff.SliceTag = "HLT/TRIDT/MuonDuff/Expert"
+		tidamuonduff.UseHighestPT = True
+		# tidabase.OutputLevel = DEBUG
+		tidamuonduff.ntupleChainNames += [
+			"Offline",
+			"HLT_mu.*:xAODTracks_Muon",
+			]
+		# ToolSvc += tidamuon;
+		list += [ tidamuonduff ]
 
 
 
@@ -262,6 +299,23 @@ def TrigIDtrkMonitoringTool():
 			]
 		#ToolSvc += tidataupurity;
 		list += [ tidataupurity ]
+		
+
+		# Expert Duff instances 
+		tidatauduff = TrigTestBase(name = "IDTauTool",
+				       histoPathBase = "/Trigger/HLT")
+		tidatauduff.AnalysisConfig = "Tier0"
+		tidatauduff.SliceTag = "HLT/TRIDT/TauDuff/Expert"
+		tidatauduff.UseHighestPT = True
+		tidatauduff.ntupleChainNames += [
+			"Offline",
+			"HLT_tau.*tracktwo.*:key=xAODTracks_TauCore",
+			"HLT_tau.*tracktwo.*:key=xAODTracks_TauIso",
+			"HLT_tau.*tracktwo.*:key=xAODTracks_TauTau"
+			]
+		#ToolSvc += tidatau;
+		list += [ tidatauduff ]
+
 		
                 
                 ##############################################################

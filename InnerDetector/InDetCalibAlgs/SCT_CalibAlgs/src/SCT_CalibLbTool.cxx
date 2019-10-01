@@ -53,8 +53,19 @@ StatusCode
 SCT_CalibLbTool::initialize() {
   ATH_MSG_INFO("Initialize of " << PACKAGE_VERSION);
   ATH_CHECK(service("THistSvc", m_thistSvc));
+
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
-  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
+  m_swapPhiReadoutDirection.resize(m_pSCTHelper->wafer_hash_max(), false);
+
+  const InDetDD::SCT_DetectorManager* manager{nullptr};
+  ATH_CHECK(detStore()->retrieve(manager, "SCT"));
+  const InDetDD::SiDetectorElementCollection* sctDetElementColl{manager->getDetectorElementCollection()};
+  for (const InDetDD::SiDetectorElement* element: *sctDetElementColl) {
+    if (element->swapPhiReadoutDirection()) {
+      m_swapPhiReadoutDirection[element->identifyHash()] = true;
+    }
+  }
+
   std::pair<std::string, bool> msgCode{retrievedTool(m_evtInfo)};
   if (not msgCode.second) {
     ATH_MSG_ERROR(msgCode.first);
@@ -256,18 +267,11 @@ SCT_CalibLbTool::fillFromData() {
 
 void
 SCT_CalibLbTool::fillLbForWafer(const IdentifierHash& waferHash, const int theFirstStrip, const int groupSize) {
-  const InDetDD::SiDetectorElement* pElement{m_pManager->getDetectorElement(waferHash)};
-
-  if (pElement) {
-    int stripNumber{pElement->swapPhiReadoutDirection() ? lastStrip - theFirstStrip : theFirstStrip};
-    int index{static_cast<int>(waferHash)*n_chipsPerSide + stripNumber/n_stripsPerChip};
-    //--- Fill LB histograms
-    for (int j{0}; j != groupSize; ++j) {
-      m_phistoVector[index]->Fill(m_lumiBlock);
-    }
-
-  } else {
-    ATH_MSG_FATAL("Element pointer is NULL");
+  int stripNumber{m_swapPhiReadoutDirection[waferHash] ? lastStrip - theFirstStrip : theFirstStrip};
+  int index{static_cast<int>(waferHash)*n_chipsPerSide + stripNumber/n_stripsPerChip};
+  //--- Fill LB histograms
+  for (int j{0}; j != groupSize; ++j) {
+    m_phistoVector[index]->Fill(m_lumiBlock);
   }
 
 }

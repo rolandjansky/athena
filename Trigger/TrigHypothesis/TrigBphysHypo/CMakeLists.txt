@@ -45,7 +45,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigInDetToolInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs 
+                          Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigSteer/DecisionHandling)
 
 # External dependencies:
@@ -58,13 +58,10 @@ atlas_add_component( TrigBphysHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks DecisionHandling StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel GeneratorObjects Particle ElectronPhotonSelectorToolsLib TrkParameters TrkTrack VxVertex TrkVKalVrtFitterLib TrigBphysicsEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib AthViews )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks BeamSpotConditionsData DecisionHandlingLib FourMomUtils StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel GeneratorObjects Particle ElectronPhotonSelectorToolsLib TrkParameters TrkTrack VxVertex TrkVKalVrtFitterLib TrigBphysicsEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib AthViews )
 
 # Install files from the package:
-atlas_install_headers( TrigBphysHypo )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/TriggerConfig*.py share/jobO*.py )
-atlas_install_runtime( share/*.xml )
 
 # Check Python syntax:
 atlas_add_test( flake8

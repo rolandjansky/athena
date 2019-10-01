@@ -7,7 +7,7 @@
 ********************************************************************/
 
 #include "TRTCalibTrackSelectionTool.h"
-#include "TrkTrackSummaryTool/TrackSummaryTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParameters/TrackParameters.h"
 #include "CLHEP/Units/SystemOfUnits.h"

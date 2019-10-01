@@ -12,7 +12,7 @@ pp.pprint(JetChainParts)
 decodeChainName = DictFromChainName.DictFromChainName()
 
 def do_it():
-    print '\n------------------\n'
+    print('\n------------------\n')
     chain_dict = decodeChainName.getChainDict(chain_name)
     pp.pprint(chain_dict)
 

@@ -17,9 +17,6 @@
 
 #include "MdtCalibEventLoop/MdtCalibEventLoop.h"
 
-// Storegate
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -72,17 +69,9 @@ namespace MuonCalib {
     }
 
 
-    // initialize DetectorStore access
-    StoreGateSvc* detStore = 0;
-    sc = service("DetectorStore", detStore);
-    if (sc.isFailure())   {
-      log << MSG::ERROR << "Can't locate the DetectorStore" << endmsg; 
-      return sc;
-    }
-
     const MuonGM::MuonDetectorManager* detMgr;
     // initialize MuonGeoModel access
-    sc = detStore->retrieve( detMgr );
+    sc = detStore()->retrieve( detMgr );
     if (!sc.isSuccess()) {
       log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
       return sc;

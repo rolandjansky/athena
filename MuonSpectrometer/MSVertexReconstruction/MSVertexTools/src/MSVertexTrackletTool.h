@@ -39,7 +39,8 @@ namespace Muon {
   private:
     //tool handles & private data members
 
-    const MdtIdHelper* m_mdtIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     float m_SeedResidual;
     float m_minSegFinderChi2;

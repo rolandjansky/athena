@@ -23,7 +23,6 @@
 #define TRIGSTEERING_Lvl1ResultAccessTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteering/Lvl1ItemsAndRoIs.h"
 

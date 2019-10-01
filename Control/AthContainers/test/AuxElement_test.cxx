@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/test/AuxElement_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -117,6 +115,7 @@ void test1()
   assert (b.index() == 0);
   assert (b.container() == 0);
   assert (b.getAuxIDs().empty());
+  assert (b.trackIndices());
 
   assert (!ityp1.isAvailable(b));
   assert (!ityp1_c.isAvailable(b));

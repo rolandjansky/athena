@@ -16,7 +16,7 @@ containers = [
               ]
 if TriggerFlags.EDMDecodingVersion == 3 :
   # will add the MT version of TrigBphys containers once they are available in EDM
-  containers = [ ]
+  containers = [ "TrigBphysDimu", "TrigBphysEFDimu" ]
   
 DetailedChains = {
                   "BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?',

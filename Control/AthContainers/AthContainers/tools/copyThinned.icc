@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -90,7 +90,9 @@ copyThinned1 (const CONTAINER& orig,
   // so we need to call it regardless of whether or not
   // thinning is actually done.  Don't call it though if the
   // container is empty.
-  if (orig.size() > 0)
+  // We need the cast because some aux store classes define `size'
+  // as a member :(.
+  if (static_cast<const SG::IConstAuxStore&>(orig).size() > 0)
   {
     CONTAINER* newcont = new CONTAINER;
     copyAuxStoreThinned (orig, *newcont, svc);

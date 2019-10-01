@@ -59,9 +59,9 @@ def TrigL2ElectronHypoToolFromName( name, conf ):
     """ provides configuration of the hypo tool giben the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-    decoder = DictFromChainName()
-    decodedDict = decoder.getChainDict(conf)
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+
+    decodedDict = dictFromChainName(conf)
         
     return TrigL2ElectronHypoToolFromDict( decodedDict )
 

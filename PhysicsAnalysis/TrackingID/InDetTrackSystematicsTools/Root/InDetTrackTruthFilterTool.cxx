@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/InDetTrackTruthFilterTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 
-#include "CxxUtils/make_unique.h"
-
 #include <TH2.h>
 #include <TRandom3.h>
 #include <TFile.h>
 
 using std::string;
-using CxxUtils::make_unique;
+using std::make_unique;
 
 namespace InDet {
 

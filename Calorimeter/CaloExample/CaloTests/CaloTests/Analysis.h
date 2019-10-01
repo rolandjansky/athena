@@ -14,7 +14,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AIDA/IHistogram2D.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "Identifier/Identifier.h"

@@ -2,7 +2,7 @@
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkHypoMT, TrigMultiTrkHypoToolMT  # noqa: F401
 from TrigBphysHypo.TrigMultiTrkHypoMTMonitoringConfig import TrigMultiTrkHypoToolMTMonitoring
-from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMultiTrkHypoMTConfig')
@@ -25,8 +25,9 @@ def TrigMultiTrkHypoToolMTFromDict( chainDict ):
     return tool
 
 def TrigMultiTrkHypoToolFromName( name, thresholdsHLT ):
-    decoder = DictFromChainName()    
-    decodedDict = decoder.analyseShortName(thresholdsHLT, [], "") # no L1 info    
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    
+    decodedDict = dictFromChainName(thresholdsHLT)
     decodedDict['chainName'] = name # override
     return TrigMultiTrkHypoToolMTFromDict( decodedDict )
         

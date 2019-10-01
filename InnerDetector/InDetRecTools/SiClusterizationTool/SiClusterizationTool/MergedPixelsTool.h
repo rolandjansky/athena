@@ -17,25 +17,24 @@
 #include "SiClusterizationTool/PixelClusteringToolBase.h"
 
 #include "Identifier/Identifier.h"
-#include "InDetRawData/InDetRawDataCollection.h"
-#include "InDetRawData/PixelRDORawData.h"
-#include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
-#include "PixelGeoModel/IBLParameterSvc.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-
 // forward declare not possible (typedef)
 #include "InDetPrepRawData/PixelClusterCollection.h"
+#include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
+#include "InDetRawData/InDetRawDataCollection.h"
+#include "InDetRawData/PixelRDORawData.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <atomic>
 #include <vector>
 
-class IIncidentSvc;
 class PixelID;
 
 namespace InDetDD {
   class SiDetectorElement;
-  class SiDetectorManager;
 }
 
 namespace InDet {
@@ -63,7 +62,6 @@ namespace InDet {
     // It clusters together the RDOs with a pixell cell side in common.
     virtual PixelClusterCollection *clusterize
       (const InDetRawDataCollection<PixelRDORawData>& RDOs,
-       const InDetDD::SiDetectorManager& manager,
        const PixelID& pixelID) const;
     //   void init(int posstrategy, int errorstrategy);
 
@@ -125,19 +123,19 @@ namespace InDet {
                        RDO_GroupVector::iterator lastGroup,
                        TOT_GroupVector::iterator totGroup,
                        TOT_GroupVector::iterator lvl1Group,
-                       InDetDD::SiDetectorElement* element,
+                       const InDetDD::SiDetectorElement* element,
                        const PixelID& pixelID) const;
 
     // Functions for merging broken cluster segments (to be used for upgrade studies)
     // ITk: This function checks if two barrel clusters are potentially a single cluster which is broken into two pieces  
     bool mergeTwoBrokenClusters(const std::vector<Identifier>& group1, 
                                 const std::vector<Identifier>& group2,
-                                InDetDD::SiDetectorElement* element,
+                                const InDetDD::SiDetectorElement* element,
                                 const PixelID& pixelID) const;
     // ITk: this function checks if two to-be-merged barrel proto-clusters have sizeZ consistent with cluster positions 
     bool mergeTwoClusters(const std::vector<Identifier>& group1, 
                           const std::vector<Identifier>& group2,
-                          InDetDD::SiDetectorElement* element,
+                          const InDetDD::SiDetectorElement* element,
                           const PixelID& pixelID) const;
 
     // ITk: checkSizeZ compares cluster sizeZ with expected cluster size for this cluster position (+/-200 mm for beam spread)
@@ -145,15 +143,14 @@ namespace InDet {
     // checkSizeZ()=0 if cluster sizeZ is within allowed range
     // checkSizeZ()=1 if cluster is too large
     // in the future, it may be changed to return deltaSizeZ 
-    int checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
+    int checkSizeZ(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const;
     // this function returns expected sizeZ
-    int expectedSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
+    int expectedSizeZ(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const;
     // this function returns size of the maximum gap between two cluster fragments  
-    int maxGap(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
+    int maxGap(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const;
     //------- end of declaration of new functions
 
 
-    ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
     ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;
     /// for cluster splitting
     BooleanProperty m_emulateSplitter{this, "EmulateSplitting", false, "don't split - only emulate the split"};
@@ -170,6 +167,8 @@ namespace InDet {
     DoubleProperty m_lossThreshold{this, "LossProbability", 0.001, "ITk: maximum probability to loose N_mis consequitive pixels in a cluster"};
     DoubleProperty m_pixelEff{this, "MinPixelEfficiency", 0.90, "ITK: pixel efficiency (it depends on cluster eta; use smaller pixel efficiency)"};
     IntegerArrayProperty m_minToT{this, "ToTMinCut", {0,0,0,0,0,0,0}, "Minimum ToT cut [IBL, b-layer, L1, L2, Endcap, DBM, ITk extra"};
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
     bool m_IBLAbsent{true};
 

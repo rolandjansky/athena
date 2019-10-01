@@ -25,17 +25,16 @@ namespace Trk {
 namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const Trk::Track* InpTrk,const Amg::Vector3D& Vertex, const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
+                                         std::vector<double>& Impact, std::vector<double>& ImpactError) const
   {
     State state;
     initState (state);
     return VKalGetImpact (InpTrk, Vertex, Charge, Impact, ImpactError, state);
   }
 
-
   double TrkVKalVrtFitter::VKalGetImpact(const Trk::Track* InpTrk,const Amg::Vector3D& Vertex, const long int Charge,
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& istate)
+                                         IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -45,8 +44,6 @@ namespace Trk{
     std::vector<const Trk::Track*> InpTrkList;
     InpTrkList.push_back(InpTrk);
 
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -76,9 +73,8 @@ namespace Trk{
 
 
 
-//
   double TrkVKalVrtFitter::VKalGetImpact(const TrackParticleBase* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
+                                         std::vector<double>& Impact, std::vector<double>& ImpactError) const
   {
     State state;
     initState (state);
@@ -88,7 +84,7 @@ namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const TrackParticleBase* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& istate)
+                                         IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -99,8 +95,6 @@ namespace Trk{
     InpTrkList.push_back(InpTrk);
 
 
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -129,7 +123,7 @@ namespace Trk{
   }
 
   double TrkVKalVrtFitter::VKalGetImpact(const xAOD::TrackParticle* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
+                                         std::vector<double>& Impact, std::vector<double>& ImpactError) const
   {
     State state;
     initState (state);
@@ -139,7 +133,7 @@ namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const xAOD::TrackParticle* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& istate)
+                                         IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -150,8 +144,6 @@ namespace Trk{
     std::vector<const xAOD::TrackParticle*> InpTrkList(1,InpTrk);
 //
 
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //

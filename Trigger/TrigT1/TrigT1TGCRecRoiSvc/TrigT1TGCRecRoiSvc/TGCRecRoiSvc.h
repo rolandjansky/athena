@@ -8,9 +8,9 @@
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TGCcablingInterface/TGCIdBase.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class Identifier;
-class TgcIdHelper;
 class ITGCcablingSvc;
 
 namespace MuonGM
@@ -124,7 +124,8 @@ private:
   BooleanProperty m_patchForRoIWord;
 
   mutable const ITGCcablingSvc * m_cabling;
-  const TgcIdHelper   * m_idHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager * m_muonMgr;
 
   mutable bool m_isAtlas;

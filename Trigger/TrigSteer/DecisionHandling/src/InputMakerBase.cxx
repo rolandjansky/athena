@@ -59,7 +59,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
       continue;
     }
     if( inputHandle->size() == 0){ // input filtered out
-      ATH_MSG_WARNING( "Got no decisions from input "<< inputKey.key()<<": handle is valid but container is empty. Is this expected?");
+      ATH_MSG_DEBUG( "Got no decisions from input "<< inputKey.key()<<": handle is valid but container is empty.");
       outputIndex++;
       continue;
     }

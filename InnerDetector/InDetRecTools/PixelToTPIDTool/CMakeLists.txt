@@ -19,7 +19,7 @@ atlas_depends_on_subdirs(
    DetectorDescription/Identifier
    Event/EventInfo
    InnerDetector/InDetConditions/PixelConditionsData
-   InnerDetector/InDetConditions/PixelConditionsServices
+   InnerDetector/InDetConditions/PixelConditionsTools
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/PixelGeoModel
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack

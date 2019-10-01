@@ -17,8 +17,8 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatHit.h"
 
 #include "TrkDriftCircleMath/SegmentFinder.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"
@@ -64,7 +64,6 @@ namespace Muon {
   class IMuonHitSelector;
   class MuPatCandidateBase;
   class MuPatTrack;
-  class MuPatCandidateTool;
 }
 
 static const InterfaceID IID_MooTrackFitter("Muon::MooTrackFitter",1,0);
@@ -308,7 +307,6 @@ namespace Muon {
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< multi purpose helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer;            //!< tool to print out EDM objects
-    ToolHandle<MuPatCandidateTool>        m_entryHandler;       //!< tool to manipulate MuPatSegment's and MuPatTracks
     ToolHandle<IMuonTrackToSegmentTool>   m_trackToSegmentTool; //!< helper tool to convert tracks into segments
     ToolHandle<IMdtDriftCircleOnTrackCreator>   m_mdtRotCreator; //!< mdt tube hit creator
     ToolHandle<IMuonHitSelector>          m_phiHitSelector; //!< tool to clean phi hits

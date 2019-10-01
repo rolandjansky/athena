@@ -11,7 +11,3 @@ if [ $? == 0 ]; then
 fi    
 echo "art-result: $GREP_ERROR grepping log file for errors."
 
-#clean up files created by this script, because I am not sure whether anything else would do it.
-rm $1
-rm stdout_cleaned.txt
-

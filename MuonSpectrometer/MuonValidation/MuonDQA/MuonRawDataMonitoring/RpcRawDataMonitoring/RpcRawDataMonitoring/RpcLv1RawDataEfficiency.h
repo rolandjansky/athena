@@ -45,6 +45,8 @@
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataCollection.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandleKey.h"
@@ -185,7 +187,8 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
 
  private:
   // Retrieving information and data
-  const RpcIdHelper* m_rpcIdHelper; 
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager* m_muonMgr; // to retrieve coincidence informations
   
   // Trigger type stuff

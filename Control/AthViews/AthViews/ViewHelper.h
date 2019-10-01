@@ -175,8 +175,7 @@ namespace ViewHelper
       SG::ReadHandle< DataVector< T > > queryHandle( QueryKey, SourceContext );
 
       //Make accessor for bookkeeping
-      SG::AuxElement::Accessor< int > viewBookkeeper( "viewIndex" );
-
+      static SG::AuxElement::Accessor< ElementLink<TrigRoiDescriptorCollection> > viewBookkeeper( "viewIndex" );
       
       //Loop over all views
       unsigned int offset = 0;
@@ -209,7 +208,7 @@ namespace ViewHelper
           *outputObject = *inputObject;
 
           //Add aux data for bookkeeping
-          viewBookkeeper( *outputObject ) = viewIndex;
+          viewBookkeeper( *outputObject ) = inputView->getROI();
         }
         m_msg << MSG::DEBUG << "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() << endmsg;
 
@@ -221,6 +220,7 @@ namespace ViewHelper
       return StatusCode::SUCCESS;
     }
   };
+
 
   /**
    * @arg unique_index - gets appended to the view name if >= 0

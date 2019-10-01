@@ -239,7 +239,10 @@ private: // properties
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
    /// default = false.
    BooleanProperty m_persSvcPerOutput;
-
+   unsigned outputContextId();
+   std::map< EventContext::ContextID_t, std::string > m_outputConnectionForSlot;
+   mutable std::mutex  m_mutex;  // mutable so const functions can lock
+  
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
    /// container being committed to disk is not 'tainted' with the POOL overhead
    BooleanProperty m_skipFirstChronoCommit;

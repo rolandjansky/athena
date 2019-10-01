@@ -39,7 +39,7 @@ public:
    /// Extend base-class conversion methods
    virtual StatusCode updateRep(IOpaqueAddress* pAddress, DataObject* pObject) override;
 
-   virtual StatusCode updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject);
+   virtual StatusCode updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) override;
 
    virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& tname) override;
 

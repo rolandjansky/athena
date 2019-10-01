@@ -5,17 +5,7 @@
 #ifndef TRIGMUONEFCOMBINERHYPO_TRIGMUONEFCOMBINERHYPOALG_H 
 #define TRIGMUONEFCOMBINERHYPO_TRIGMUONEFCOMBINERHYPOALG_H 1 
 
-#include <string>
-
-#include "AthenaBaseComps/AthReentrantAlgorithm.h" 
-#include "AthViews/View.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-
 #include "TrigMuonEFCombinerHypoTool.h"
-
 #include "DecisionHandling/HypoBase.h"
 
 class TriggerElement;
@@ -38,7 +28,6 @@ class TrigMuonEFCombinerHypoAlg
     
   private:
  
-    TrigMuonEFCombinerHypoAlg(); 
     ToolHandleArray<TrigMuonEFCombinerHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{

@@ -18,6 +18,7 @@
 
 #include "GeoModelKernel/GeoVAlignmentStore.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
 namespace InDetDD {
 
@@ -411,7 +412,8 @@ namespace InDetDD {
 	}
 	SiDetectorElement * sielem = m_elementCollection[idHash];
         //This should work as Bowing is in L3 frame, i.e. local module frame                 
-        double z = sielem->center()[2];
+        Amg::Vector3D center = sielem->defTransform() * Amg::Vector3D{0, 0, 0};
+        double z = center[2];
         const double  y0y0  = 366.5*366.5;
                  
         double bowx = ibldist[getIdHelper()->phi_module(trans_iter->identify())] * ( z*z - y0y0 ) / y0y0;
@@ -467,7 +469,7 @@ namespace InDetDD {
     bool alignmentChange = false;
 
     ATH_MSG_INFO("Processing IBLDist alignment container with key " << key);
-    if(numerology().numLayers()==4) {
+    if(numerology().numLayers() != 4) {
       // this doesn't appear to be Run 2, i.e. the IBL isn't there. Bailing
       return alignmentChange;
     }
@@ -530,7 +532,8 @@ namespace InDetDD {
       // extract the stave number
       int stave = getIdHelper()->phi_module(detElem->identify());
 
-      double z = detElem->center()[2];
+      Amg::Vector3D center = detElem->defTransform() * Amg::Vector3D{0, 0, 0};
+      double z = center[2];
       const double y0y0 = 366.5 * 366.5;
 
       double bowx = ibldist[stave] * (z * z - y0y0) / y0y0;
@@ -556,18 +559,28 @@ namespace InDetDD {
         return false;
       }
 
+      HepGeom::Transform3D recoToHitTransform = detElem->recoToHitTransform();
+      Amg::Transform3D r2h = Amg::CLHEPTransformToEigen(recoToHitTransform);
+
       ATH_MSG_VERBOSE("Previous delta for " << repr << ":\n" << currentDelta->matrix());
       ATH_MSG_VERBOSE("Bowing-only delta for " << repr << ":\n" << shift.matrix());
-      Amg::Transform3D newDelta = shift * (*currentDelta);
+      Amg::Transform3D newDelta = shift * r2h.inverse() * (*currentDelta) * r2h;
 
       // We can probably just write it back to the geo alignment store.
       // The IBL bowing is always at the module level, and that's the delta that
       // we retrieved from the geo alignment store.
 
-      alignStore->setDelta(eat->alignableTransform(), newDelta);
+      bool status = setAlignableTransformDelta(0,
+                                               detElem->identify(),
+                                               newDelta,
+                                               InDetDD::local,
+                                               alignStore);
+
+
       ATH_MSG_VERBOSE("New delta for " << repr << ":\n"
                       << alignStore->getDelta(eat->alignableTransform())->matrix());
 
+      alignmentChange |= status;
     }
 
     return alignmentChange;

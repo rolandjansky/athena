@@ -25,6 +25,9 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "TRTDigit.h"
 
+// For magneticfield
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
@@ -130,6 +133,7 @@ private:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service"};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};
+  ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc{this, "MagFieldSvc", "AtlasFieldSvc", "MagFieldSvc used by TRTProcessingOfStraw"};
 
   Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
   SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};

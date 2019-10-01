@@ -28,7 +28,7 @@ atlas_depends_on_subdirs(
    Generators/GeneratorObjects
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetConditions/InDetConditionsSummaryService
-   InnerDetector/InDetConditions/PixelConditionsServices
+   InnerDetector/InDetConditions/PixelConditionsTools
    InnerDetector/InDetConditions/SCT_ConditionsTools
    InnerDetector/InDetConditions/TRT_ConditionsData
    InnerDetector/InDetConditions/TRT_ConditionsServices

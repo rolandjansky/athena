@@ -39,7 +39,6 @@ TileMuonFilterAlg::TileMuonFilterAlg( const std::string& name, ISvcLocator* pSvc
   declareProperty("UseCuts",         m_useCuts         = false);
   declareProperty("TrackTools",      m_trackInCalo);
   declareProperty("TrackType",       m_trackType       = 1);
-  m_storeGate =	0;
 } 
 
 //=======================================
@@ -47,7 +46,6 @@ StatusCode TileMuonFilterAlg::initialize(){
 //=======================================
   ATH_MSG_INFO("TileMuonFilterAlg::initialize()");
       
-  CHECK(service("StoreGateSvc",m_storeGate));
   CHECK(m_trackInCalo.retrieve());
 
   return StatusCode::SUCCESS;
@@ -67,11 +65,11 @@ StatusCode TileMuonFilterAlg::execute(){
 
   //Get the input tracks
   const TRACKCONTAINER* inputTracks = 0;
-  CHECK( m_storeGate->retrieve( inputTracks, m_inputTracks ) );
+  CHECK( evtStore()->retrieve( inputTracks, m_inputTracks ) );
 
   //Get the input Muons
   const MUONCONTAINER* inputMuons = 0;
-  CHECK( m_storeGate->retrieve( inputMuons, m_inputMuons ) );
+  CHECK( evtStore()->retrieve( inputMuons, m_inputMuons ) );
   ATH_MSG_DEBUG("Number of Muons: " << inputMuons->size());
 
   //Allocate the output Muons container
@@ -92,7 +90,7 @@ StatusCode TileMuonFilterAlg::execute(){
 
   //Allocate output cells container
   ConstDataVector<CELLCONTAINER>* outputCells = new ConstDataVector<CELLCONTAINER>( SG::VIEW_ELEMENTS );
-  CHECK( m_storeGate->record( outputCells, m_outputCells ) );
+  CHECK( evtStore()->record( outputCells, m_outputCells ) );
 
   //Allocate cells container which will be refilled for every muon; temporary use only
   ConstDataVector<CELLCONTAINER>* tmpCells = new ConstDataVector<CELLCONTAINER>( SG::VIEW_ELEMENTS );
@@ -173,7 +171,7 @@ StatusCode TileMuonFilterAlg::execute(){
 
   //Allocate output association between muons and cells
   ASSOCCONTAINER* muonCells = new ASSOCCONTAINER_CONSTRUCTOR(outputMuons->size());
-  CHECK( m_storeGate->record( muonCells, m_muonCells ) );
+  CHECK( evtStore()->record( muonCells, m_muonCells ) );
   ASSOCCONTAINER::iterator assocItr = muonCells->begin();
 
 

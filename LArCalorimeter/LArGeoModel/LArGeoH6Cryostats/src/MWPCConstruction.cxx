@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This will construct a generic MWPC for the H6 beamline that leads to the H1 cryostat.
@@ -43,7 +43,6 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -77,7 +76,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
   StatusCode status = svcLocator->service("MessageSvc", msgSvc);
   
   if(!status.isFailure()){
-    m_msg = CxxUtils::make_unique<MsgStream>(msgSvc, "MWPCConstruction");
+    m_msg = std::make_unique<MsgStream>(msgSvc, "MWPCConstruction");
   } else {
     throw std::runtime_error("MWPCConstruction: cannot initialze message service");
   }

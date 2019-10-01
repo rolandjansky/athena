@@ -25,7 +25,6 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-// class StoreGateSvc;
 class RegSelSiLUT;
 class MuonMDT_CablingSvc;
 #include <iostream>

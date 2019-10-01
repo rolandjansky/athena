@@ -27,8 +27,6 @@
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
-#include "GaudiKernel/Incident.h"
-
 #include <boost/dynamic_bitset.hpp>
 
 using namespace TrigDec;

@@ -17,7 +17,6 @@
 
 
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetIdentifier/PixelID.h"
@@ -41,7 +40,6 @@ PixelDCSTool::PixelDCSTool(const std::string& type, const std::string& name, con
   //m_streamer(0),
   // m_streamer("AthenaOutputStreamTool/CondStreamPixelDCSTest"),
   m_streamer("AthenaOutputStreamTool/CondStreamPixelDCSTest"),
-  m_pixman(0),
   m_pixid(0),
   m_pixelDCSData(0),
   m_temperatureKey(""),
@@ -161,28 +159,16 @@ StatusCode PixelDCSTool::initialize()
 
 
   // Get the geometry 
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
-  if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel") || m_pixman==0){
-    if (msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Could not find Pixel manager "<<endmsg; 
-    return StatusCode::FAILURE; 
-  }
   if (detStore()->retrieve(m_pixid, "PixelID").isFailure()) {
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  itermin = m_pixman->getDetectorElementBegin(); 
-  itermax = m_pixman->getDetectorElementEnd(); 
- 
-  // Check all detector elements in the present geometry setup 
-  for( iter=itermin; iter !=itermax; ++iter){ 
-    const InDetDD::SiDetectorElement* element = *iter; 
-    if(element !=0){ 
-      Identifier ident = element->identify(); 
-      if(m_pixid->is_pixel(ident)){
-	IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
-	if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "identifier   " <<ident.get_compact() << "   hash     " << (unsigned int)id_hash << endmsg;
-      }
+  for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
+    Identifier ident = *wafer_it;
+    if(m_pixid->is_pixel(ident)){
+      IdentifierHash id_hash = m_pixid->wafer_hash(ident);
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "identifier   " <<ident.get_compact() << "   hash     " << (unsigned int)id_hash << endmsg;
     }
   }
 
@@ -369,12 +355,6 @@ StatusCode PixelDCSTool::createDCSData()
 
   if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "in PixelDCSTool::createDCSData()" << endmsg;
 
-  // Get the geometry 
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
-  itermin = m_pixman->getDetectorElementBegin(); 
-  itermax = m_pixman->getDetectorElementEnd(); 
-
-
   if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "get iterator to detector element ok" << endmsg;
 
   m_pixelDCSData = new PixelDCSData();
@@ -383,15 +363,12 @@ StatusCode PixelDCSTool::createDCSData()
 
 
   // Check all detector elements in the present geometry setup 
-  for( iter=itermin; iter !=itermax; ++iter){ 
-    const InDetDD::SiDetectorElement* element = *iter; 
-    if(element !=0){ 
-      Identifier ident = element->identify(); 
-      if(m_pixid->is_pixel(ident)){
-	IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
-	PixelModuleDCSData* mdcsd = new PixelModuleDCSData(ident);
-	(*m_pixelDCSData)[id_hash] = mdcsd;
-      }
+  for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
+    Identifier ident = *wafer_it;
+    if(m_pixid->is_pixel(ident)){
+      IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
+      PixelModuleDCSData* mdcsd = new PixelModuleDCSData(ident);
+      (*m_pixelDCSData)[id_hash] = mdcsd;
     }
   }
 
@@ -410,11 +387,6 @@ StatusCode PixelDCSTool::writeDataToDB()
 
     if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Start writing default values to db " << endmsg;
 
-
-    // Get the geometry 
-    InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
-    itermin = m_pixman->getDetectorElementBegin(); 
-    itermax = m_pixman->getDetectorElementEnd(); 
 
     CondAttrListCollection* attrListColl_temp = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_temp = new coral::AttributeListSpecification(); 
@@ -442,33 +414,30 @@ StatusCode PixelDCSTool::writeDataToDB()
     IOVTime stop(IOVTime::MAXTIMESTAMP);
     IOVRange iov(start, stop);
 
-    for( iter=itermin; iter !=itermax; ++iter){ 
-      const InDetDD::SiDetectorElement* element = *iter; 
-      if(element !=0){ 
-	Identifier ident = element->identify();
-	if(m_pixid->is_pixel(ident)){
+    for (PixelID::const_id_iterator wafer_it=m_pixid->wafer_begin(); wafer_it!=m_pixid->wafer_end(); ++wafer_it) {
+      Identifier ident = *wafer_it;
+      if(m_pixid->is_pixel(ident)){
 
-	  IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
-	  CondAttrListCollection::ChanNum channum = (unsigned int)id_hash;
+        IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
+        CondAttrListCollection::ChanNum channum = (unsigned int)id_hash;
 
-	  attrList_temp[m_par_temperatureField.c_str()].setValue(m_temperatureValue);
-	  attrListColl_temp->add(channum, attrList_temp);
-	  attrListColl_temp->add(channum, iov);
+        attrList_temp[m_par_temperatureField.c_str()].setValue(m_temperatureValue);
+        attrListColl_temp->add(channum, attrList_temp);
+        attrListColl_temp->add(channum, iov);
 
-	  attrList_hv[m_par_HVField.c_str()].setValue(m_HVValue);
-	  attrListColl_hv->add(channum, attrList_hv);
-	  attrListColl_hv->add(channum, iov);
+        attrList_hv[m_par_HVField.c_str()].setValue(m_HVValue);
+        attrListColl_hv->add(channum, attrList_hv);
+        attrListColl_hv->add(channum, iov);
 
-	  attrList_fsmstatus[m_par_FSMStatusField.c_str()].setValue(m_FSMStatusValue);
-	  attrListColl_fsmstatus->add(channum, attrList_fsmstatus);
-	  attrListColl_fsmstatus->add(channum, iov);
+        attrList_fsmstatus[m_par_FSMStatusField.c_str()].setValue(m_FSMStatusValue);
+        attrListColl_fsmstatus->add(channum, attrList_fsmstatus);
+        attrListColl_fsmstatus->add(channum, iov);
 
-	  attrList_fsmstate[m_par_FSMStateField.c_str()].setValue(m_FSMStateValue);
-	  attrListColl_fsmstate->add(channum, attrList_fsmstate);
-	  attrListColl_fsmstate->add(channum, iov);
+        attrList_fsmstate[m_par_FSMStateField.c_str()].setValue(m_FSMStateValue);
+        attrListColl_fsmstate->add(channum, attrList_fsmstate);
+        attrListColl_fsmstate->add(channum, iov);
 
 
-	}
       }
     }
 

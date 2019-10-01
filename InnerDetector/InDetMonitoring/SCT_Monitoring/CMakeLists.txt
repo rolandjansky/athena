@@ -50,8 +50,12 @@ atlas_add_component( SCT_Monitoring
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry InDetPrepRawData MagFieldInterfaces ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary )
 
+# Run tests:
+atlas_add_test( SCTLorentzMonAlg_test
+                SCRIPT python -m SCT_Monitoring.SCTLorentzMonAlg
+                PROPERTIES TIMEOUT 600 )
+
 # Install files from the package:
-atlas_install_headers( SCT_Monitoring )
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
 

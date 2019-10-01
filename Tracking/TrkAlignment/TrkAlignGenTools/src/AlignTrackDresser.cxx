@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 
 #include "TrkTrack/TrackStateOnSurface.h"

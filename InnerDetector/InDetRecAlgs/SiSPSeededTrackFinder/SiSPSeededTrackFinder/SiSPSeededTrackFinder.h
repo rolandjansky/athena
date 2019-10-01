@@ -20,6 +20,7 @@
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/ToolHandle.h"
@@ -92,6 +93,9 @@ namespace InDet {
     SG::ReadHandleKey<SpacePointContainer> m_SpacePointsPixelKey{this, "SpacePointsPixelName", "PixelSpacePoints"};
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
     SG::WriteHandleKey<TrackCollection> m_outputTracksKey{this, "TracksLocation", "SiSPSeededTracks"};
+
+    SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
+      {this,"PRDtoTrackMap",""};
 
     ToolHandle<ISiSpacePointsSeedMaker> m_seedsmaker{this, "SeedsTool", "InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker", "Space poins seed maker"};
     ToolHandle<ISiZvertexMaker> m_zvertexmaker{this, "ZvertexTool", "InDet::SiZvertexMaker_xk/InDetSiZvertexMaker", "Space poins z-vertex maker"};

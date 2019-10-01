@@ -1,4 +1,7 @@
 # import flags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 #################################
@@ -14,8 +17,7 @@ if globalflags.InputFormat.is_bytestream():
 # Menu and CF construction
 ##########################################
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.triggerMenuSetup = "LS2_v1"
+
 
 
 

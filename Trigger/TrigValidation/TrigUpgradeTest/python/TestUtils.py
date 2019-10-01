@@ -11,7 +11,7 @@ def writeEmulationFiles(data):
                 f.write("\n")
 
 # Testing menu used in the L1 decoders
-class MenuTest:
+class MenuTest(object):
 
     CTPToChainMapping = {"HLT_e3_etcut":   "L1_EM3",
                          "HLT_e5_etcut":   "L1_EM3",
@@ -98,6 +98,34 @@ class L1EmulationTest(L1Decoder):
             self.roiUnpackers += [muUnpacker]
 
         self.L1DecoderSummaryKey = "L1DecoderSummary"
+
+
+
+
+chainsCounter = 0
+
+def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=[] ):
+    """
+    In addition to making the chain object fills the flags that are used to generate MnuCOnfig JSON file
+    """
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+    prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    chainDict = dictFromChainName( prop )
+    global chainsCounter
+    chainDict["chainCounter"] = chainsCounter
+    chainsCounter += 1
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
+    chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=ChainSteps )
+
+    TriggerConfigHLT.registerChain( chainDict, chainConfig )
+
+    return chainConfig
 
 if __name__ == "__main__":
     from AthenaCommon.Constants import DEBUG

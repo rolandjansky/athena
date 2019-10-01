@@ -26,19 +26,15 @@
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <iosfwd>
 #include <list>
 #include <vector>
 
 class MsgStream;
-
-namespace Trk {
-  class IPRD_AssociationTool;
-}
 
 namespace InDet {
 
@@ -120,7 +116,6 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
       
     ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
 
     ///////////////////////////////////////////////////////////////////
     // Space points container
@@ -128,12 +123,13 @@ namespace InDet {
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
+    SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
+       {this,"PRDtoTrackMap",""};                                   ///< option PRD-to-track association
 
     // Properties, which will not be changed after construction
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_sct{this, "useSCT", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", false};
-    BooleanProperty m_useassoTool{this, "UseAssociationTool", false};
     IntegerProperty m_maxsize{this, "maxSize", 100};
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 1500};
     FloatProperty m_drmin{this, "mindRadius", 5.};
@@ -216,11 +212,27 @@ namespace InDet {
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,float) const;
 
-    bool isUsed(const Trk::SpacePoint*) const;
+    bool isUsed(const Trk::SpacePoint*, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;
   };
 
 } // end of name space
+
+
+namespace InDet {
+
+  inline
+  bool InDet::SiSpacePointsSeedMaker_Cosmic::isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const {
+    const Trk::PrepRawData* d = sp->clusterList().first;
+    if (!d || !prd_to_track_map.isUsed(*d)) return false;
+
+    d = sp->clusterList().second;
+    if (!d || prd_to_track_map.isUsed(*d)) return true;
+
+    return false;
+
+  }
+}
 
 #endif // SiSpacePointsSeedMaker_Cosmic_H

@@ -37,18 +37,6 @@ namespace Trk{
            for( int i=0; i<6; i++) { state.m_vkalFitControl.vk_forcft.covvrt[i] = (double)(state.m_CovVrtForConstraint[i]); }
     }else{ for( int i=0; i<6; i++) { state.m_vkalFitControl.vk_forcft.covvrt[i] = 0.; } }
 
-    // Configure neutral particles if required
-    if(m_TrackCharge.size() > 0){
-      for(int i=0; i<(int)m_TrackCharge.size(); i++){ 
-	 int iref=m_TrackCharge[i];   if( iref < 0  || iref > NTRK-1)    continue;
-	 state.m_ich[iref]=0;
-	 if(state.m_apar[iref][4]<0){ state.m_apar[iref][4] =-state.m_apar[iref][4];      // Charge=0 is always equal to Charge=+1
-           state.m_awgt[iref][10]=-state.m_awgt[iref][10];
-           state.m_awgt[iref][11]=-state.m_awgt[iref][11];
-           state.m_awgt[iref][12]=-state.m_awgt[iref][12];
-           state.m_awgt[iref][13]=-state.m_awgt[iref][13]; }
-      }
-    }
     // Add global mass constraint if present
     if(state.m_massForConstraint >= 0.) state.m_vkalFitControl.setMassCnstData(NTRK,state.m_massForConstraint);
     // Add partial mass constraints if present
@@ -74,77 +62,7 @@ namespace Trk{
     return;
   }
 
-/*  void TrkVKalVrtFitter::VKalVrtSetOptions(long int ntrk)
-  { 
-
-    m_FitStatus = 0;     // Drop all previous fit results
-
-    double MFit    = (double) (m_massForConstraint);
-    long int Rob  = (long int) m_Robustness;
-    for(int i=0; i<6; i++){m_CovVrtCst[i] = 0.;}
-    for(int i=0; i<3; i++){m_VrtCst[i]    = 0;}
-//---
-    int i,j;
-    double SumMass = 0;
-    for(i=0; i<ntrk; i++){
-      if(i<(int)m_MassInputParticles.size()){
-         m_wm[i]  = (double)(m_MassInputParticles[i]);
-         SumMass +=   m_wm[i];      
-      }
-      else {m_wm[i]=(double)(139.5702);}
-    }
-    if ( MFit>0 && MFit < SumMass ) MFit=SumMass+1.e-4;
-//---
-    if(m_VertexForConstraint.size() >= 3){
-      m_VrtCst[0]    =m_VertexForConstraint[0] - m_refFrameX;
-      m_VrtCst[1]    =m_VertexForConstraint[1] - m_refFrameY;
-      m_VrtCst[2]    =m_VertexForConstraint[2] - m_refFrameZ;
-    }
-//---
-    if(m_CovVrtForConstraint.size() >= 6){
-      for(i=0; i<6; i++){m_CovVrtCst[i] =(double)(m_CovVrtForConstraint[i]);}
-    }
-//---
-    if(m_TrackCharge.size() > 0){
-      for(i=0; i<(int)m_TrackCharge.size(); i++){ 
-         if(m_TrackCharge[i] < 1   )    continue;
-         if(m_TrackCharge[i] > ntrk)    continue;
-	 j=m_TrackCharge[i]-1;
-//   std::cout<<" Set charge "<<i<<", "<<m_apar[j][4]<<'\n';
-	 m_ich[j]=0;
-	 if(m_apar[j][4]<0){ m_apar[j][4] =-m_apar[j][4];      // Charge=0 is always equal to Charge=+1
-	                     m_awgt[j][10]=-m_awgt[j][10];
-	                     m_awgt[j][11]=-m_awgt[j][11];
-	                     m_awgt[j][12]=-m_awgt[j][12];
-	                     m_awgt[j][13]=-m_awgt[j][13]; }
-      }
-      m_TrackCharge.clear();
-    }
-//--- This call actually resets all constraints
-    Trk::prcfit(&ntrk,m_wm,&MFit,&m_BMAG,m_VrtCst,m_CovVrtCst);
-//---
-//   Additional change of settings 
-//---
-    long int Index[NTrMaxVFit+1]={0};
-    if(m_PartMassCnst.size() > 0) {
-      for(int ic=0; ic<(int)m_PartMassCnst.size(); ic++){ 
-        long int NTrk=m_PartMassCnstTrk[ic].size();
-        for(int it=0; it<NTrk; it++) Index[it]=m_PartMassCnstTrk[ic][it];
-        double CnstMass= (double) m_PartMassCnst[ic];
-        Trk::setmasscnst_(&NTrk,Index,&CnstMass);
-      }
-    }
-//---
-    if(m_IterationNumber > 0) Trk::vksetIterationNum(int(m_IterationNumber));
-//---
-    if(m_IterationPrecision > 0.) Trk::vksetIterationPrec(double(m_IterationPrecision));
-//---
-    if(m_Robustness > 0) Trk::vksetRobustness( Rob );
-//---
-    Trk::vksetRobustScale( m_RobustScale );
-
-  }
-
+/* 
   void TrkVKalVrtFitter::initCnstList()
   {
 //--- Mass constraint is restored here
@@ -180,7 +98,6 @@ namespace Trk{
     if( TYPE == 13) { state.m_usePhiCnst = true; state.m_usePassNear  = true;}
     if( TYPE == 14) { state.m_usePhiCnst = true; state.m_useThetaCnst = true; state.m_usePassNear  = true;}
   }
-
 
 //
 // Define finctions for on-the-fly fitter configuration 
@@ -225,23 +142,6 @@ namespace Trk{
     state.m_partMassCnstTrk.push_back(TrkIndex);
   }
 
-  void TrkVKalVrtFitter::setMomCovCalc(int TYPE)
-  { m_ifcovv0 = abs(TYPE);}
-
-  void TrkVKalVrtFitter::setCascadeCnstPrec(double Prec)
-  { if(Prec!=m_cascadeCnstPrecision) msg(MSG::DEBUG)<< "Cascade precision is changed at execution stage "<<m_cascadeCnstPrecision<<"=>"<<Prec<< endmsg;
-    if(Prec<1.e-7)Prec=1.e-7;
-    if(Prec>1.   )Prec=1.;
-    m_cascadeCnstPrecision=Prec; 
-  }
-
-  void TrkVKalVrtFitter::setIterations(int Num, double Prec)
-  { if(Num!=m_IterationNumber) msg(MSG::DEBUG)<< "Iteration limit is changed at execution stage "<<m_IterationNumber<<"=>"<<Num<< endmsg;
-     if(Prec!=m_IterationPrecision) msg(MSG::DEBUG)<< "Iteration precision is changed at execution stage "<<m_IterationPrecision<<"=>"<<Prec<< endmsg;
-    m_IterationNumber    = Num;
-    m_IterationPrecision = Prec;
-  }
-
   void TrkVKalVrtFitter::setVertexForConstraint(const xAOD::Vertex & Vrt,
                                                 IVKalState& istate) const
   {
@@ -282,16 +182,6 @@ namespace Trk{
     for (double& m : state.m_MassInputParticles) {
       m = std::abs(m);
     }
-  }
-
-  void TrkVKalVrtFitter::setZeroCharge(int Track) { m_TrackCharge.push_back(Track);}
-
-
-  void TrkVKalVrtFitter::setDefault(IVKalState& /*istate*/)
-  {
-   setCascadeCnstPrec(1.e-4);
-   setMomCovCalc(0);
-   m_TrackCharge.clear();
   }
 
 } //end of namespace

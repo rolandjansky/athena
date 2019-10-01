@@ -19,7 +19,6 @@ TrigEgammaTDToolTest(const std::string& name,
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
     declareProperty("TrigEgammaMatchingTool",m_matchTool);
-    m_storeGate=nullptr;
 }
 
 //**********************************************************************
@@ -34,11 +33,6 @@ StatusCode TrigEgammaTDToolTest::initialize() {
   if ( (m_trigdec.retrieve()).isFailure() ){
       ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
       return StatusCode::FAILURE;
-  }
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if(sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to locate Service StoreGateSvc" );
-      return sc;
   }
   return StatusCode::SUCCESS;
 }
@@ -75,7 +69,7 @@ StatusCode TrigEgammaTDToolTest::execute() {
 
   const xAOD::ElectronContainer *offElectrons = 0;
   const xAOD::ElectronContainer *onlElectrons = 0;
-  if ( (m_storeGate->retrieve(offElectrons,"Electrons")).isFailure() ){
+  if ( (evtStore()->retrieve(offElectrons,"Electrons")).isFailure() ){
       ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
   }
   ATH_MSG_INFO("Offline Electron container size " << offElectrons->size());
@@ -105,7 +99,7 @@ StatusCode TrigEgammaTDToolTest::execute() {
       }
       else ATH_MSG_INFO("No caloCluster");
   } 
-  if ( (m_storeGate->retrieve(onlElectrons,"HLT_xAOD__ElectronContainer_egamma_Electrons")).isFailure() ){
+  if ( (evtStore()->retrieve(onlElectrons,"HLT_xAOD__ElectronContainer_egamma_Electrons")).isFailure() ){
       ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
   }
   ATH_MSG_INFO("Online Electron container size " << onlElectrons->size());

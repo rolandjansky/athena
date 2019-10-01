@@ -46,8 +46,18 @@ def printProperties(msg, c, nestLevel = 0):
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,ConfigurableAlgTool):
             propstr = propval.getFullName()
-        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr))
     return
+
+
+def filterComponents (comps, onlyComponents = []):
+    ret = []
+    for c in comps:
+        if not onlyComponents or c.getName() in onlyComponents:
+            ret.append ((c, True))
+        elif c.getName()+'-' in onlyComponents:
+            ret.append ((c, False))
+    return ret
 
 
 class ComponentAccumulator(object):
@@ -76,6 +86,9 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
         self._lastAddedComponent="Unknown" 
+
+    def setAsTopLevel(self):
+        self._isMergable = False
 
 
     def _inspect(self): #Create a string some basic info about this CA, useful for debugging
@@ -110,16 +123,21 @@ class ComponentAccumulator(object):
 
 
 
-    def printCondAlgs(self, summariseProps=False):
+    def printCondAlgs(self, summariseProps=False, onlyComponents=[]):
         self._msg.info( "Condition Algorithms" )
-        for c in self._conditionsAlgs:
+        for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
             self._msg.info( " " +"\\__ "+ c.name() +" (cond alg)" )
-            if summariseProps:
+            if summariseProps and flag:
                 printProperties(self._msg, c, 1)
         return
         
 
-    def printConfig(self, withDetails=False, summariseProps=False):
+    # If onlyComponents is set, then only print components with names
+    # that appear in the onlyComponents list.  If a name is present
+    # in the list with a trailing `-', then only the name of the component
+    # will be printed, not its properties.
+    def printConfig(self, withDetails=False, summariseProps=False,
+                    onlyComponents = []):
         self._msg.info( "Event Inputs" )
         self._msg.info( "Event Algorithm Sequences" )
 
@@ -127,7 +145,8 @@ class ComponentAccumulator(object):
         if withDetails:
             self._msg.info( self._sequence )
         else:
-            def printSeqAndAlgs(seq, nestLevel = 0):
+            def printSeqAndAlgs(seq, nestLevel = 0,
+                                onlyComponents = []):
                 def __prop(name):
                     if name in seq.getValuedProperties():
                         return seq.getValuedProperties()[name]
@@ -136,36 +155,37 @@ class ComponentAccumulator(object):
                 self._msg.info( " "*nestLevel +"\\__ "+ seq.name() +" (seq: %s %s)",
                                 "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND" )
                 nestLevel += 3
-                for c in seq.getChildren():
+                for (c, flag) in filterComponents (seq.getChildren(), onlyComponents):
                     if isSequence(c):
-                        printSeqAndAlgs(c, nestLevel )
+                        printSeqAndAlgs(c, nestLevel, onlyComponents = onlyComponents )
                     else:
                         self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
-                        if summariseProps:
+                        if summariseProps and flag:
                             printProperties(self._msg, c, nestLevel)
 
             for n,s in enumerate(self._allSequences):
                 self._msg.info( "Top sequence {}".format(n) )
-                printSeqAndAlgs(s)
+                printSeqAndAlgs(s, onlyComponents = onlyComponents)
 
-        self.printCondAlgs (summariseProps = summariseProps)
+        self.printCondAlgs (summariseProps = summariseProps,
+                            onlyComponents = onlyComponents)
         self._msg.info( "Services" )
-        self._msg.info( [ s.getName() for s in self._services ] )
+        self._msg.info( [ s[0].getName() for s in filterComponents (self._services, onlyComponents) ] )
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
-        for t in self._publicTools:
+        for (t, flag) in filterComponents (self._publicTools, onlyComponents):
             self._msg.info( "  {0},".format(t.getFullName()) )
             # Not nested, for now
-            if summariseProps:
+            if summariseProps and flag:
                 printProperties(self._msg, t)
         self._msg.info( "]" )
         self._msg.info( "Private Tools")
         self._msg.info( "[" )
         if (isinstance(self._privateTools, list)):
-            for t in self._privateTools:
+            for (t, flag) in filterComponents (self._privateTools, onlyComponents):
                 self._msg.info( "  {0},".format(t.getFullName()) )
                 # Not nested, for now
-                if summariseProps:
+                if summariseProps and flag:
                     printProperties(self._msg, t)
         else:
             if self._privateTools is not None:
@@ -173,6 +193,10 @@ class ComponentAccumulator(object):
                 if summariseProps:
                     printProperties(self._msg, self._privateTools)
         self._msg.info( "]" )
+        self._msg.info( "TheApp properties" )
+        for k,v in six.iteritems(self._theAppProps):
+            self._msg.info("  {} : {}".format(k,v))
+
 
     def addSequence(self, newseq, parentName = None ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
@@ -431,7 +455,7 @@ class ComponentAccumulator(object):
                 raise RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools")
         
         if not other._isMergable:
-            raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")
+            raise ConfigurationError("Attempted to merge the ComponentAccumulator that was unsafely manipulated (likely with foreach_component, ...) or is a top level ComponentAccumulator, in such case revert the order")
 
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
@@ -748,6 +772,12 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
     def createApp(self,OutputLevel=3):
+        # Create the Gaudi object early.
+        # Without this here, pyroot can sometimes get confused
+        # and report spurious type mismatch errors about this object.
+        import ROOT
+        ROOT.Gaudi
+
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
         bsh=BootstrapHelper()
@@ -810,6 +840,14 @@ class ComponentAccumulator(object):
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
+
+            seq = self.getSequence(seqName)
+            for k, v in seq.getValuedProperties().items():
+                if k!="Members": #This property his handled separatly
+                    self._msg.debug("Adding "+seqName+"."+k+" = "+str(v))
+                    bsh.addPropertyToCatalogue(jos,seqName.encode(),k.encode(),str(v).encode())
+                pass
+
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)

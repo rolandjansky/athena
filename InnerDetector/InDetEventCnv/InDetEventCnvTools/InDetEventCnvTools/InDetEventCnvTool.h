@@ -21,10 +21,10 @@ class AtlasDetectorID;
 class Identifier;
 class IdentifierHash;
 class IdDictManager;
+class PixelID;
 class SCT_ID;
 
 namespace InDetDD {
-  class PixelDetectorManager;
   class TRT_DetectorManager;
 }
 
@@ -82,11 +82,12 @@ namespace InDet {
     /** use the passed identifier to recreate the TRT Drift circle link on the passed RIO_OnTrack*/
     virtual const Trk::PrepRawData* trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash ) const;
 
-    /** use the passed IdentifierHash to get SiDetectorElement*/
+    /** use the passed IdentifierHash to get SiDetectorElement for Pixel*/
+    const InDetDD::SiDetectorElement* getPixelDetectorElement(const IdentifierHash& waferHash) const;
+
+    /** use the passed IdentifierHash to get SiDetectorElement for SCT*/
     const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash& waferHash) const;
   
-    std::string  m_pixMgrLocation;                 //!< Location of Pixel Manager
-    const InDetDD::PixelDetectorManager* m_pixMgr; //!< Pixel Detector Manager
     std::string  m_trtMgrLocation;                 //!< Location of TRT Manager
     const InDetDD::TRT_DetectorManager* m_trtMgr;  //!< TRT Detector Manager
     bool m_setPrepRawDataLink;                     //!< if true, attempt to recreate link to PRD
@@ -94,6 +95,7 @@ namespace InDet {
 
     //various id helpers
     const AtlasDetectorID* m_IDHelper;
+    const PixelID* m_pixelHelper;
     const SCT_ID* m_SCTHelper;
   
     // added to check TRT existence (SLHC geo check)
@@ -103,6 +105,7 @@ namespace InDet {
     SG::ReadHandleKey<SCT_ClusterContainer>      m_sctClusContName       {this, "SCT_ClusterContainer",     "SCT_Clusters",             "SCT Cluster container name"};   //!< location of container of sct clusters
     SG::ReadHandleKey<TRT_DriftCircleContainer>  m_trtDriftCircleContName{this, "TRT_DriftCircleContainer", "TRT_DriftCircleContainer", "TRT DriftCircle Container"};    //!< location of container of TRT drift circles
 
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   };
 

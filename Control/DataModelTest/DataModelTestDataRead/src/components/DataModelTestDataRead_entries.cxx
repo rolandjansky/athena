@@ -12,7 +12,6 @@
 #include "../AuxDataTestClearDecor.h"
 #include "../AuxDataTestTypelessRead.h"
 #include "../xAODTestRead.h"
-#include "../xAODTestReadCVec.h"
 #include "../xAODTestReadCInfo.h"
 #include "../xAODTestReadCView.h"
 #include "../xAODTestReadHVec.h"
@@ -28,7 +27,6 @@ DECLARE_COMPONENT( DMTest::AuxDataTestDecor )
 DECLARE_COMPONENT( DMTest::AuxDataTestClearDecor )
 DECLARE_COMPONENT( DMTest::AuxDataTestTypelessRead )
 DECLARE_COMPONENT( DMTest::xAODTestRead )
-DECLARE_COMPONENT( DMTest::xAODTestReadCVec )
 DECLARE_COMPONENT( DMTest::xAODTestReadCInfo )
 DECLARE_COMPONENT( DMTest::xAODTestReadCView )
 DECLARE_COMPONENT( DMTest::xAODTestReadHVec )

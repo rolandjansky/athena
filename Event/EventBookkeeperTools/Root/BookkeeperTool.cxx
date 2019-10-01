@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class BookkeeperTool
@@ -15,9 +15,6 @@
 
 // #include "FillEBCFromFlat.h"
 
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Instantiates tools for LowPt tracking
 """
@@ -34,8 +34,7 @@ InDetTrigSiSpacePointsSeedMakerLowPt =  \
                                                SpacePointsSCTName = 'SCT_TrigSpacePoints',
                                                SpacePointsPixelName = 'PixelTrigSpacePoints',
                                                SpacePointsOverlapName = 'SPTrigOverlap',
-                                               UseAssociationTool     = True,
-                                               AssociationTool        = InDetTrigPrdAssociationTool,
+                                               PRDtoTrackMap = "", # @TODO
                                                radMax = EFIDTrackingCutsLowPt.radMax(),
                                                mindRadius = 4.0
                                                )
@@ -81,7 +80,6 @@ InDetTrigSiComTrackFinderLowPt = \
                                          PropagatorTool	= InDetTrigPatternPropagator,
                                          UpdatorTool	= InDetTrigPatternUpdator,
                                          RIOonTrackTool   = InDetTrigRotCreator,
-                                         AssosiationTool  = InDetTrigPrdAssociationTool,
                                          usePixel         = DetFlags.haveRIO.pixel_on(),
                                          useSCT           = DetFlags.haveRIO.SCT_on(),   
                                          PixelClusterContainer = 'PixelTrigClusters',
@@ -97,8 +95,7 @@ if DetFlags.haveRIO.pixel_on():
     from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
     condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
                                                           ReadKey = "PixelDetectorElementCollection",
-                                                          WriteKey = "PixelDetElementBoundaryLinks_xk",
-                                                          UsePixelDetectorManager = True)
+                                                          WriteKey = "PixelDetElementBoundaryLinks_xk")
 if DetFlags.haveRIO.SCT_on():
   # Condition algorithm for SiCombinatorialTrackFinder_xk
   from AthenaCommon.AlgSequence import AthSequencer

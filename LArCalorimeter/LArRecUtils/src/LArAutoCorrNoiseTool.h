@@ -35,8 +35,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-class StoreGateSvc; 
-
 class LArAutoCorrNoiseTool: public AthAlgTool,
 			    virtual public ILArAutoCorrNoiseTool,
 		      public IIncidentListener 

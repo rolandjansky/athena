@@ -6,8 +6,6 @@
 #define MUON_MUONSTATIONINTERSECTSVC_H
 
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 const InterfaceID IID_IMuonStationIntersectSvc("MuonStationIntersectSvc", 1, 0);

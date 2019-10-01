@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //implementation
@@ -18,17 +18,11 @@
 #include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkFitterUtils/FitterTypes.h" 
 
-class StoreGateSvc;
-
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 class Identifier;
 class IdentifierHash;
-
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 
 namespace InDet {
   class PixelCluster;
@@ -65,13 +59,9 @@ class TrigFTKTrackConverter : public AthAlgTool, virtual public ITrigFTKTrackCon
 
 private:
 
-  StoreGateSvc* m_evtStore;
-
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
   
-  const InDetDD::PixelDetectorManager* m_pixelManager;
-
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
   ToolHandle<ITrigFTKClusterConverterTool>  m_clusterConverterTool;
 

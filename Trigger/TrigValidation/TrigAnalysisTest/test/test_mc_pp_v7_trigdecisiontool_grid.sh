@@ -19,6 +19,8 @@
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
 
+unset ATHENA_NPROC_NUM
+
 export NAME="mc_pp_v7_trigdecisiontool_grid"
 export JOB_LOG="athena.log"
 export TEST="TrigAnalysisTest"

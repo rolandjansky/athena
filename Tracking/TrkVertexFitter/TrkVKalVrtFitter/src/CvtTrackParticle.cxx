@@ -360,7 +360,7 @@ namespace Trk {
            mPer = dynamic_cast<const Perigee*> (&(i_ntrk->definingParameters()));
        return mPer ;
   }
-  const TrackParameters* TrkVKalVrtFitter::GetFirstPoint(const Trk::TrackParticleBase* i_ntrk)
+  const TrackParameters* TrkVKalVrtFitter::GetFirstPoint(const Trk::TrackParticleBase* i_ntrk) const
   {
       std::vector<const TrackParameters*>::const_iterator vpb = i_ntrk->trackParameters().begin();        
       std::vector<const TrackParameters*>::const_iterator vpe = i_ntrk->trackParameters().end();  
@@ -378,7 +378,7 @@ namespace Trk {
 
 //----------------------------------------------------------------------------------------------------------
 
-  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk) const
+  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk)  const
   {
        const Perigee* mPer = 0;
        if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= 0 ) 

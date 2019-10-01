@@ -117,7 +117,6 @@ def _copy_file_impl(cfg, hints):
             import AthenaPoolCnvSvc.WriteAthenaPool as wap
 
             outstream = wap.AthenaPoolOutputStream(af.infos['stream_names'][0], dst)
-            outstream.ForceRead=True
             outstream.TakeItemsFromInput=True
 
             pass

@@ -4,7 +4,6 @@
 
 #include "MicromegasSensitiveDetector.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -27,7 +26,7 @@ MicromegasSensitiveDetector::MicromegasSensitiveDetector(const std::string& name
 // Implemenation of memebr functions
 void MicromegasSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-  if (!m_MMSimHitCollection.isValid()) m_MMSimHitCollection = CxxUtils::make_unique<MMSimHitCollection>();
+  if (!m_MMSimHitCollection.isValid()) m_MMSimHitCollection = std::make_unique<MMSimHitCollection>();
 }
 
 G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 

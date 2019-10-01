@@ -47,7 +47,8 @@ namespace Analysis
        */
       virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
                                 const xAOD::Jet&,
-                                xAOD::BTagging&) const = 0;
+                                xAOD::BTagging&,
+                                const std::string&) const = 0;
       
 
       /** finalize the histos: Normalize other histos and fill the integratedNegativeIP histos.

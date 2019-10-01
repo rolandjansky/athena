@@ -37,7 +37,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 
 //Calorimeter includes
@@ -89,7 +88,6 @@ namespace LVL1
 {
 
 //class IL1CaloMappingTool;
-//class StoreGateSvc;
 
 //                 TriggerTowerMaker class declaration
 /**

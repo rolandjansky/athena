@@ -13,7 +13,6 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/PixelClusterContainerCnv_p2.h"
 #include "TestTools/leakcheck.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/PixelID.h"
@@ -102,6 +101,7 @@ void testit (const InDet::PixelClusterContainer& trans1)
 {
   MsgStream log (0, "test");
   PixelClusterContainerCnv_p2 cnv;
+  cnv.setUseDetectorElement(false);
   InDet::PixelClusterContainer_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<InDet::PixelClusterContainer> trans2
@@ -197,9 +197,6 @@ void make_dd()
   StoreGateSvc* sg = 0;
   assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
   assert ( sg->record (std::move (pix_id), "PixelID") );
-
-  auto pix_dd = std::make_unique<InDetDD::PixelDetectorManager>(sg);
-  assert ( sg->record (std::move (pix_dd), "PixelDetectorDescription") );
 }
 
 

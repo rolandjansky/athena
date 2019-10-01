@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetAlignGenTools/InDetAlignFillSiCluster.h"
 
@@ -82,15 +81,6 @@ StatusCode InDetAlignFillSiCluster::initialize() {
   }
   else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endmsg;
   
-  // get PixelDetectorManager
-  const InDetDD::PixelDetectorManager* pixelmgr;
-  if (detStore()->retrieve(pixelmgr, "Pixel").isFailure()) {
-    ATH_MSG_FATAL("Could not get PixelDetectorManager!");
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG ("Pixel_DetectorManager found!");
-    
- 
   // retrieve the NTuple Service
   if (StatusCode::SUCCESS != service("NTupleSvc", m_ntupleSvc)) {
     ATH_MSG_FATAL ("NTupleSvc service not found!");
@@ -99,6 +89,7 @@ StatusCode InDetAlignFillSiCluster::initialize() {
   
   bookNtuple();
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillSiCluster successful" << endmsg;

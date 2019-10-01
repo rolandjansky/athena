@@ -27,6 +27,5 @@ atlas_add_component( egammaCaloTools
                      LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloUtilsLib AthenaBaseComps SGTools FourMomUtils xAODCaloEvent GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( egammaCaloTools )
 atlas_install_python_modules( python/*.py )
 

@@ -53,10 +53,6 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string &name, ISvcLocato
   m_trackingGeometry(0),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_muonTgTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
-  m_mdtIdHelper(0),
-  m_rpcIdHelper(0),
-  m_cscIdHelper(0),
-  m_tgcIdHelper(0),
   m_muonMgr(0),
   m_inputSegmentCollectionMoore("MooreSegments"),
   m_inputSegmentCollectionMoMu("MuonSegments_MoMu"),
@@ -114,38 +110,17 @@ StatusCode Muon::MuonTGMeasAssocAlg::initialize()
     return StatusCode::FAILURE;
   } 
 
-  sc = detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
-    return sc;
-  }
-
-  sc = detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
-    return sc;
-  }
-
-  sc = detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve cscIdHelper");
-    return sc;
-  }
-
-  sc = detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR("Cannot retrieve TgcIdHelper");
-    return sc;
-  }
-  
   sc = detStore()->retrieve(m_muonMgr);
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
+    return sc;
+  }
+
+  sc = m_muonIdHelperTool.retrieve();
+  if (sc.isFailure())
+  {
+    ATH_MSG_ERROR("Cannot retrieve MuonIdHelperTool");
     return sc;
   }
   
@@ -174,10 +149,10 @@ StatusCode Muon::MuonTGMeasAssocAlg::initialize()
       if (!misalign.good()) break;
       Identifier id(0);
       if (station>=0) {
-	id = m_mdtIdHelper->elementID(station,eta,phi);
-        if (!m_mdtIdHelper->valid(id)) id = m_rpcIdHelper->elementID(station,eta,phi,1);
-	if (!m_rpcIdHelper->valid(id)) id = m_tgcIdHelper->elementID(station,eta,phi);
-	if (!m_tgcIdHelper->valid(id)) id = m_cscIdHelper->elementID(station,eta,phi);
+	id = m_muonIdHelperTool->mdtIdHelper().elementID(station,eta,phi);
+        if (!m_muonIdHelperTool->mdtIdHelper().valid(id)) id = m_muonIdHelperTool->rpcIdHelper().elementID(station,eta,phi,1);
+	if (!m_muonIdHelperTool->rpcIdHelper().valid(id)) id = m_muonIdHelperTool->tgcIdHelper().elementID(station,eta,phi);
+	if (!m_muonIdHelperTool->tgcIdHelper().valid(id)) id = m_muonIdHelperTool->cscIdHelper().elementID(station,eta,phi);
       }
       Amg::Translation3D shift(x,y,z); 
       Amg::Transform3D transf = shift * Amg::RotationMatrix3D::Identity();
@@ -459,16 +434,16 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
 	    if ( rots.size() > 0 ) {
 	      Identifier id = rots[0]->identify();
 	      Amg::Vector3D pos(0., 0., 0.);
-	      if (m_mdtIdHelper->is_mdt(id)) {
+	      if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {
 		const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);			
 		pos = mdtROE->tubePos(id);
-	      } else if ( m_mdtIdHelper->is_rpc(id)) {
+	      } else if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(id)) {
 		const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id);			
 		pos = rpcROE->stripPos(id);
-	      } else if ( m_mdtIdHelper->is_csc(id)) {
+	      } else if ( m_muonIdHelperTool->mdtIdHelper().is_csc(id)) {
 		const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(id);			
 		pos = cscROE->stripPos(id);
-	      } else if ( m_mdtIdHelper->is_tgc(id)) {
+	      } else if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(id)) {
 		const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);			
 		pos = tgcROE->channelPos(id);
 	      }
@@ -575,12 +550,12 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 
 	   if (!layer) {
 	     ATH_MSG_ERROR( "MuonTGMeasAssocAlg::No layer associated with this MDT  hit! (digit = " << dig_id  << ")" );
-	     ATH_MSG_ERROR( "station name,eta,phi" << m_mdtIdHelper->stationName(dig_id) << "," 
-                                                         <<  m_mdtIdHelper->stationEta(dig_id) << "," 
-                                                         << m_mdtIdHelper->stationPhi(dig_id) );
-	     ATH_MSG_ERROR( "multilayer,layer,tube:" << m_mdtIdHelper->multilayer(dig_id) << "," <<
-	                                                      m_mdtIdHelper->tubeLayer(dig_id) <<"," <<
-                                                              m_mdtIdHelper->tube(dig_id) );
+	     ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->mdtIdHelper().stationName(dig_id) << "," 
+                                                         <<  m_muonIdHelperTool->mdtIdHelper().stationEta(dig_id) << "," 
+                                                         << m_muonIdHelperTool->mdtIdHelper().stationPhi(dig_id) );
+	     ATH_MSG_ERROR( "multilayer,layer,tube:" << m_muonIdHelperTool->mdtIdHelper().multilayer(dig_id) << "," <<
+	                                                      m_muonIdHelperTool->mdtIdHelper().tubeLayer(dig_id) <<"," <<
+                                                              m_muonIdHelperTool->mdtIdHelper().tube(dig_id) );
 	     continue;
 	   } 
  
@@ -599,7 +574,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 		 //Add the hit to the layer, order hits by tube number
 		 std::vector<const Trk::PrepRawData*>::iterator piter = (*itr)->second->begin();
                  while ( piter !=(*itr)->second->end() 
-			 && m_mdtIdHelper->tube(dig_id)> m_mdtIdHelper->tube((*piter)->identify()) ) piter++;                
+			 && m_muonIdHelperTool->mdtIdHelper().tube(dig_id)> m_muonIdHelperTool->mdtIdHelper().tube((*piter)->identify()) ) piter++;                
 		 //(*itr)->second->push_back(new Muon::MdtPrepData(*(*mdtPrd)));
                  //(*itr)->second->insert(piter,new Muon::MdtPrepData(*(*mdtPrd)));
                  (*itr)->second->insert(piter,*mdtPrd);
@@ -663,14 +638,14 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 	
 	   if (!layer) {
 	     ATH_MSG_ERROR( "       No layer associated with this RPC hit! (digit = " << dig_id  << ")" );
-	     ATH_MSG_ERROR( "station name,eta,phi" << m_rpcIdHelper->stationName(dig_id) << "," 
-                                                         << m_rpcIdHelper->stationEta(dig_id) << "," 
-                                                         << m_rpcIdHelper->stationPhi(dig_id) );
-             ATH_MSG_ERROR( "doubletR,doubletZ,doubletPhi,gasGap:"<<m_rpcIdHelper->doubletR(dig_id)<<","<<
-			    m_rpcIdHelper->doubletZ(dig_id)<<","<<
-			    m_rpcIdHelper->doubletPhi(dig_id) << ","<<
-			    m_rpcIdHelper->gasGap(dig_id));
-	     ATH_MSG_ERROR( "measuresPhi:"<<m_rpcIdHelper->measuresPhi(dig_id));
+	     ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->rpcIdHelper().stationName(dig_id) << "," 
+                                                         << m_muonIdHelperTool->rpcIdHelper().stationEta(dig_id) << "," 
+                                                         << m_muonIdHelperTool->rpcIdHelper().stationPhi(dig_id) );
+             ATH_MSG_ERROR( "doubletR,doubletZ,doubletPhi,gasGap:"<<m_muonIdHelperTool->rpcIdHelper().doubletR(dig_id)<<","<<
+			    m_muonIdHelperTool->rpcIdHelper().doubletZ(dig_id)<<","<<
+			    m_muonIdHelperTool->rpcIdHelper().doubletPhi(dig_id) << ","<<
+			    m_muonIdHelperTool->rpcIdHelper().gasGap(dig_id));
+	     ATH_MSG_ERROR( "measuresPhi:"<<m_muonIdHelperTool->rpcIdHelper().measuresPhi(dig_id));
 	     continue;
 	   } 
  
@@ -760,12 +735,12 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 	
 	if (!layer) {
 	  ATH_MSG_ERROR( "       No layer associated with this CSC hit! (digit = " << dig_id  << ")" );
-	  ATH_MSG_ERROR( "station name,eta,phi" << m_cscIdHelper->stationName(dig_id) << "," 
-                                                      << m_cscIdHelper->stationEta(dig_id) << "," 
-                                                      << m_cscIdHelper->stationPhi(dig_id) );
- 	  ATH_MSG_ERROR( "chamberLayer,wireLayer,measuresPhi:" << m_cscIdHelper->chamberLayer(dig_id)<<","<<
-                                                                        m_cscIdHelper->wireLayer(dig_id)<<","<<
-                                                                        m_cscIdHelper->measuresPhi(dig_id)); 
+	  ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->cscIdHelper().stationName(dig_id) << "," 
+                                                      << m_muonIdHelperTool->cscIdHelper().stationEta(dig_id) << "," 
+                                                      << m_muonIdHelperTool->cscIdHelper().stationPhi(dig_id) );
+ 	  ATH_MSG_ERROR( "chamberLayer,wireLayer,measuresPhi:" << m_muonIdHelperTool->cscIdHelper().chamberLayer(dig_id)<<","<<
+                                                                        m_muonIdHelperTool->cscIdHelper().wireLayer(dig_id)<<","<<
+                                                                        m_muonIdHelperTool->cscIdHelper().measuresPhi(dig_id)); 
 	  continue;
 	}
  
@@ -856,11 +831,11 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
 	
 	   if (!layer) {
 	     ATH_MSG_ERROR( "       No layer associated with this TGC hit! (digit = " << dig_id  << ")" );
-	     ATH_MSG_ERROR( "station name,eta,phi" << m_tgcIdHelper->stationName(dig_id) << "," 
-		                                         << m_tgcIdHelper->stationEta(dig_id) << "," 
-                                                         << m_tgcIdHelper->stationPhi(dig_id) );
-	     ATH_MSG_ERROR( "gasGap,isStrip:" << m_tgcIdHelper->gasGap(dig_id)<<","<<
-	                                               m_tgcIdHelper->isStrip(dig_id)); 
+	     ATH_MSG_ERROR( "station name,eta,phi" << m_muonIdHelperTool->tgcIdHelper().stationName(dig_id) << "," 
+		                                         << m_muonIdHelperTool->tgcIdHelper().stationEta(dig_id) << "," 
+                                                         << m_muonIdHelperTool->tgcIdHelper().stationPhi(dig_id) );
+	     ATH_MSG_ERROR( "gasGap,isStrip:" << m_muonIdHelperTool->tgcIdHelper().gasGap(dig_id)<<","<<
+	                                               m_muonIdHelperTool->tgcIdHelper().isStrip(dig_id)); 
 	     continue;
 	   }
  
@@ -931,9 +906,9 @@ void Muon::MuonTGMeasAssocAlg::createStationMap(const Trk::TrackingVolume* vol) 
       if ( (*dter)->layerRepresentation() && (*dter)->layerRepresentation()->layerType()>0 ) {
         Identifier id((*dter)->layerRepresentation()->layerType());
         const MuonGM::MuonStation* mStation = 0;
-        if (m_mdtIdHelper->is_mdt(id)) mStation = m_muonMgr->getMdtReadoutElement(id)->parentMuonStation();      
-        if (m_rpcIdHelper->is_rpc(id)) mStation = m_muonMgr->getRpcReadoutElement(id)->parentMuonStation();      
-        if (m_tgcIdHelper->is_tgc(id)) {
+        if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) mStation = m_muonMgr->getMdtReadoutElement(id)->parentMuonStation();      
+        if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) mStation = m_muonMgr->getRpcReadoutElement(id)->parentMuonStation();      
+        if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) {
           if ( !m_muonMgr->getTgcReadoutElement(id) ) {     // tgc readout element not found, get any active layer to recover
             const Trk::Layer* lay = associatedLayer((*dter)->trackingVolume(),Identifier(0));
             if (lay) mStation = m_muonMgr->getTgcReadoutElement(Identifier(lay->layerType()))->parentMuonStation();
@@ -941,7 +916,7 @@ void Muon::MuonTGMeasAssocAlg::createStationMap(const Trk::TrackingVolume* vol) 
 	    mStation = m_muonMgr->getTgcReadoutElement(id)->parentMuonStation();      
           }  
         }
-        if (m_cscIdHelper->is_csc(id)) {
+        if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) {
           if ( !m_muonMgr->getCscReadoutElement(id) ) {
             const Trk::Layer* lay = associatedLayer((*dter)->trackingVolume(),Identifier(0));
             if (lay) mStation = m_muonMgr->getCscReadoutElement(Identifier(lay->layerType()))->parentMuonStation();
@@ -1007,7 +982,7 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(int techn, Identifie
   if (!station) {
     ATH_MSG_WARNING("no associated TG station found for hit id:"<< id << ","<< techn);
     if (techn==2 && m_allowGeomAssoc) {
-      ATH_MSG_WARNING(m_tgcIdHelper->stationName(id)<<","<<m_tgcIdHelper->stationEta(id)<< ","<<m_tgcIdHelper->stationPhi(id));
+      ATH_MSG_WARNING(m_muonIdHelperTool->tgcIdHelper().stationName(id)<<","<<m_muonIdHelperTool->tgcIdHelper().stationEta(id)<< ","<<m_muonIdHelperTool->tgcIdHelper().stationPhi(id));
     
       //Get the TgcReadoutElement and the tube position from it
       const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);                   
@@ -1015,8 +990,8 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(int techn, Identifie
       std::vector<const Trk::DetachedTrackingVolume*>* detVols = m_trackingGeometry->lowestDetachedTrackingVolumes(pos);
       for (unsigned int i = 0;i<detVols->size();i++) {
 	Identifier sId((*detVols)[i]->layerRepresentation()->layerType());
-	ATH_MSG_INFO("geom assoc with station:"<< (*detVols)[i]<<","<<(*detVols)[i]->name()<<","<<(*detVols)[i]->layerRepresentation()->layerType() <<":"<< m_tgcIdHelper->stationName(sId)<<","<<m_tgcIdHelper->stationEta(sId)
-	    <<","<<m_tgcIdHelper->stationPhi(sId) );
+	ATH_MSG_INFO("geom assoc with station:"<< (*detVols)[i]<<","<<(*detVols)[i]->name()<<","<<(*detVols)[i]->layerRepresentation()->layerType() <<":"<< m_muonIdHelperTool->tgcIdHelper().stationName(sId)<<","<<m_muonIdHelperTool->tgcIdHelper().stationEta(sId)
+	    <<","<<m_muonIdHelperTool->tgcIdHelper().stationPhi(sId) );
 	ATH_MSG_INFO("updating station map"); 
 	m_stationMap[stId]=std::pair<const MuonGM::MuonStation*,const Trk::DetachedTrackingVolume*>(mStation,(*detVols)[i]);   
       }  
@@ -1045,14 +1020,14 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(const Trk::TrackingV
       Identifier idLay( (*iLay)->layerType() );
       if (!id.get_identifier32().get_compact() && idLay.get_identifier32().get_compact()) return (*iLay);      
       if (!idLay.get_identifier32().get_compact()) continue;
-      if ( m_mdtIdHelper->is_mdt(id) &&
-	   m_mdtIdHelper->multilayer(idLay)==m_mdtIdHelper->multilayer(id) &&
-	   m_mdtIdHelper->tubeLayer(idLay)==m_mdtIdHelper->tubeLayer(id) ) return (*iLay);
-      if ( m_tgcIdHelper->is_tgc(id) &&
-	   m_tgcIdHelper->gasGap(idLay)==m_tgcIdHelper->gasGap(id) ) return (*iLay);
-      if ( m_cscIdHelper->is_csc(id) &&
-	   m_cscIdHelper->chamberLayer(idLay)==m_cscIdHelper->chamberLayer(id) &&
-	   m_cscIdHelper->wireLayer(idLay)==m_cscIdHelper->wireLayer(id) ) return (*iLay);
+      if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id) &&
+	   m_muonIdHelperTool->mdtIdHelper().multilayer(idLay)==m_muonIdHelperTool->mdtIdHelper().multilayer(id) &&
+	   m_muonIdHelperTool->mdtIdHelper().tubeLayer(idLay)==m_muonIdHelperTool->mdtIdHelper().tubeLayer(id) ) return (*iLay);
+      if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(id) &&
+	   m_muonIdHelperTool->tgcIdHelper().gasGap(idLay)==m_muonIdHelperTool->tgcIdHelper().gasGap(id) ) return (*iLay);
+      if ( m_muonIdHelperTool->cscIdHelper().is_csc(id) &&
+	   m_muonIdHelperTool->cscIdHelper().chamberLayer(idLay)==m_muonIdHelperTool->cscIdHelper().chamberLayer(id) &&
+	   m_muonIdHelperTool->cscIdHelper().wireLayer(idLay)==m_muonIdHelperTool->cscIdHelper().wireLayer(id) ) return (*iLay);
     }
     return layer;
   }
@@ -1063,11 +1038,11 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(const Trk::TrackingV
     for ( ; iLay!=confLays->end(); iLay++ ) {
       Identifier idLay( (*iLay)->layerType() );
       if (!id.get_identifier32().get_compact() && idLay.get_identifier32().get_compact()) return (*iLay);
-      if ( idLay.get_identifier32().get_compact()>0 && m_rpcIdHelper->is_rpc(id) &&
-	   m_rpcIdHelper->doubletR(idLay) == m_rpcIdHelper->doubletR(id) &&
-	   m_rpcIdHelper->doubletZ(idLay) == m_rpcIdHelper->doubletZ(id) &&
-	   //&& m_rpcIdHelper->doubletPhi(idLay) == m_rpcIdHelper->doubletPhi(id) &&
-	   m_rpcIdHelper->gasGap(idLay) == m_rpcIdHelper->gasGap(id) ) return (*iLay);
+      if ( idLay.get_identifier32().get_compact()>0 && m_muonIdHelperTool->rpcIdHelper().is_rpc(id) &&
+	   m_muonIdHelperTool->rpcIdHelper().doubletR(idLay) == m_muonIdHelperTool->rpcIdHelper().doubletR(id) &&
+	   m_muonIdHelperTool->rpcIdHelper().doubletZ(idLay) == m_muonIdHelperTool->rpcIdHelper().doubletZ(id) &&
+	   //&& m_muonIdHelperTool->rpcIdHelper().doubletPhi(idLay) == m_muonIdHelperTool->rpcIdHelper().doubletPhi(id) &&
+	   m_muonIdHelperTool->rpcIdHelper().gasGap(idLay) == m_muonIdHelperTool->rpcIdHelper().gasGap(id) ) return (*iLay);
     }
     return layer;
   }
@@ -1086,32 +1061,32 @@ const Trk::Layer* Muon::MuonTGMeasAssocAlg::associatedLayer(const Trk::TrackingV
 Identifier Muon::MuonTGMeasAssocAlg::getStationId( Identifier id ) const
 {
   Identifier stId(0);
-  if ( m_mdtIdHelper->is_mdt(id)) stId = m_mdtIdHelper->elementID(m_mdtIdHelper->stationName(id),
-								  m_mdtIdHelper->stationEta(id),
-								  m_mdtIdHelper->stationPhi(id));
+  if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) stId = m_muonIdHelperTool->mdtIdHelper().elementID(m_muonIdHelperTool->mdtIdHelper().stationName(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationEta(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationPhi(id));
   // BML station is an exception
-  if (m_mdtIdHelper->is_mdt(id) && m_mdtIdHelper->stationName(id)==2)
-                                  stId = m_rpcIdHelper->elementID(m_mdtIdHelper->stationName(id),
-  								  m_mdtIdHelper->stationEta(id),
-  								  m_mdtIdHelper->stationPhi(id),1);
+  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id) && m_muonIdHelperTool->mdtIdHelper().stationName(id)==2)
+                                  stId = m_muonIdHelperTool->rpcIdHelper().elementID(m_muonIdHelperTool->mdtIdHelper().stationName(id),
+  								  m_muonIdHelperTool->mdtIdHelper().stationEta(id),
+  								  m_muonIdHelperTool->mdtIdHelper().stationPhi(id),1);
              
-  if ( m_rpcIdHelper->is_rpc(id)) stId = m_rpcIdHelper->elementID(m_rpcIdHelper->stationName(id),
-  								  m_rpcIdHelper->stationEta(id),
-  								  m_rpcIdHelper->stationPhi(id),1);
+  if ( m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) stId = m_muonIdHelperTool->rpcIdHelper().elementID(m_muonIdHelperTool->rpcIdHelper().stationName(id),
+  								  m_muonIdHelperTool->rpcIdHelper().stationEta(id),
+  								  m_muonIdHelperTool->rpcIdHelper().stationPhi(id),1);
 
   // rpc not allways relevant    
-  if ( m_rpcIdHelper->is_rpc(id) && m_stationMap.size() && !(m_stationMap)[stId].second ) {
-                                  stId = m_mdtIdHelper->elementID(m_mdtIdHelper->stationName(id),
-								  m_mdtIdHelper->stationEta(id),
-								  m_mdtIdHelper->stationPhi(id) );
+  if ( m_muonIdHelperTool->rpcIdHelper().is_rpc(id) && m_stationMap.size() && !(m_stationMap)[stId].second ) {
+                                  stId = m_muonIdHelperTool->mdtIdHelper().elementID(m_muonIdHelperTool->mdtIdHelper().stationName(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationEta(id),
+								  m_muonIdHelperTool->mdtIdHelper().stationPhi(id) );
   }
 
-  if ( m_tgcIdHelper->is_tgc(id)) stId = m_tgcIdHelper->elementID(m_tgcIdHelper->stationName(id),
-								  m_tgcIdHelper->stationEta(id),
-								  m_tgcIdHelper->stationPhi(id));
-  if ( m_cscIdHelper->is_csc(id)) stId = m_cscIdHelper->elementID(m_cscIdHelper->stationName(id),
-								  m_cscIdHelper->stationEta(id),
-								  m_cscIdHelper->stationPhi(id));
+  if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) stId = m_muonIdHelperTool->tgcIdHelper().elementID(m_muonIdHelperTool->tgcIdHelper().stationName(id),
+								  m_muonIdHelperTool->tgcIdHelper().stationEta(id),
+								  m_muonIdHelperTool->tgcIdHelper().stationPhi(id));
+  if ( m_muonIdHelperTool->cscIdHelper().is_csc(id)) stId = m_muonIdHelperTool->cscIdHelper().elementID(m_muonIdHelperTool->cscIdHelper().stationName(id),
+								  m_muonIdHelperTool->cscIdHelper().stationEta(id),
+								  m_muonIdHelperTool->cscIdHelper().stationPhi(id));
 
   return stId;
 }

@@ -489,7 +489,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     std::vector<const xAOD::IParticle*>  iparTrkFromV0(0); 
     for(int i=0; i<(int)xaodTrkFromV0.size(); i++)iparTrkFromV0.push_back(xaodTrkFromV0[i]);
 
-    const Trk::VxSecVKalVertexInfo* res;
+    Trk::VxSecVKalVertexInfo* res;
     if(pseudoVrt){
       res =  new Trk::VxSecVKalVertexInfo(listVrtSec[0], SecVtxMass, RatioE, NBigImpTrk, iparTrkFromV0 );
     }else{
@@ -552,7 +552,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        N2trVertices  = (int)Results[2];
        EnergyJet     =      Results[6];
     }
-    const Trk::VxSecVKalVertexInfo* res = 
+    Trk::VxSecVKalVertexInfo* res = 
           new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, PartToBase(TrkFromV0) );
     if(Results.size()>8)res->setDstToMatLay(Results[7]);
 

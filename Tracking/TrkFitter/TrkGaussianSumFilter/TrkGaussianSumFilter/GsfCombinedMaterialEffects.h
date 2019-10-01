@@ -17,12 +17,11 @@ decription           : Class definition for consideration of multiple scatter an
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk {
 
-class IMaterialEffectsUpdator;
+class IGSFMaterialEffects;
 
 class GsfCombinedMaterialEffects
   : public AthAlgTool
@@ -49,14 +48,14 @@ public:
                        ParticleHypothesis = nonInteracting) const;
 
 private:
-  ToolHandle<IMaterialEffectsUpdator> m_multipleScatterEffects{ this,
-                                                                "MultipleScatteringUpdator",
-                                                                "Trk::MultipleScatterUpdator/MultipleScatterUpdator",
+  ToolHandle<IGSFMaterialEffects> m_multipleScatterEffects{ this,
+                                                            "MultipleScatteringUpdator",
+                                                            "Trk::MultipleScatterUpdator/MultipleScatterUpdator",
                                                                 "" };
-  ToolHandle<IMaterialEffectsUpdator> m_energyLossEffects{ this,
-                                                           "EnergyLossUpdator",
-                                                           "Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator",
-                                                           "" };
+  ToolHandle<IGSFMaterialEffects> m_energyLossEffects{ this,
+                                                      "EnergyLossUpdator",
+                                                      "Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator",
+                                                      "" };
   ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{ this,
                                                                 "BetheHeitlerEffects",
                                                                 "Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects",

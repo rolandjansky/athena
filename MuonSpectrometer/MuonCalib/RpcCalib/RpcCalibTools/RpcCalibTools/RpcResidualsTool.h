@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_RESIDUALTOOL
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthLinks/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -64,9 +63,9 @@ class RpcResidualsTool: public AthAlgTool{
   std::string m_clusCollection;
   ActiveStoreSvc* m_activeStore;
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   RpcExtrapolationTool*           m_rpcExtrapolTool;
-  const RpcIdHelper* m_rpcIdHelper;
 };
 
 

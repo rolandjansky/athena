@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_RPCDETECTORDBTOOL_H
@@ -10,11 +10,9 @@
 //#include "MuonCondData/Rpc_ConditionDataContainer.h"
 //#include "MuonCondData/RpcConditionPar.h"
 #include "GaudiKernel/MsgStream.h"
-//#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 class Identifier; 
-class StoreGateSvc; 
 
 class RpcIdHelper;
 class IIOVSvc;

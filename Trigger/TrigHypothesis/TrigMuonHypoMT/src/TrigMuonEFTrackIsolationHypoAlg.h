@@ -5,16 +5,6 @@
 #ifndef TRIGMUFASTHYPO_TRIGMUONEFTRACKISOLATIONHYPOALG_H 
 #define TRIGMUFASTHYPO_TRIGMUONEFTRACKISOLATIONHYPOALG_H 1 
 
-#include <string>
-
-#include "AthenaBaseComps/AthReentrantAlgorithm.h" 
-#include "AthViews/View.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "xAODMuon/MuonContainer.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
 #include "TrigMuonEFTrackIsolationHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
 
@@ -38,8 +28,6 @@ class TrigMuonEFTrackIsolationHypoAlg
     
   private:
  
-   TrigMuonEFTrackIsolationHypoAlg(); 
-   
    ToolHandleArray<TrigMuonEFTrackIsolationHypoTool> m_hypoTools { this, "HypoTools", {}, "Tools to perform selection" };
 
    SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey {

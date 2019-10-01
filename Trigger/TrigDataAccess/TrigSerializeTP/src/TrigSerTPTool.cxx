@@ -12,7 +12,6 @@
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 
 // Local include(s):
 #include "TrigSerializeTP/TrigSerTPTool.h"
@@ -54,8 +53,8 @@ StatusCode TrigSerTPTool::initialize(){
       } else {
          ATH_MSG_DEBUG( "Using " << m_msgsvcTP << " for debugging" );
          IMessageSvc* msvc = m_msgsvcTP.operator->();
-         m_logTP = CxxUtils::make_unique< MsgStream >( msvc,
-                                                       "TrigSerTPTool-T/P" );
+         m_logTP = std::make_unique< MsgStream >( msvc,
+                                                  "TrigSerTPTool-T/P" );
       }
    }
 

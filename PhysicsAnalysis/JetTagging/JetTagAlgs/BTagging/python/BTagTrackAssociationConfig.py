@@ -7,7 +7,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 from BTagging.BTaggingConf import Analysis__BTagTrackAssociation
 
-def BTagTrackAssociationCfg(flags, name, JetCollection, TaggerList, Verbose = False, options={}):
+def BTagTrackAssociationCfg(flags, name, JetCollection, TaggerList, options={}):
 
     acc=ComponentAccumulator()
 

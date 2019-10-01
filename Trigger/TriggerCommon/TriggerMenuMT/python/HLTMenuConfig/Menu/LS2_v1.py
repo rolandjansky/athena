@@ -21,7 +21,7 @@ def setupMenu():
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
     MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
-    #MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
+    MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
     SingleMETGroup = ['RATE:MET', 'BW:MET']
     MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
@@ -39,6 +39,10 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
+        #ART-19985
+        ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
+
         #ATR-20049
         ChainProp(name='HLT_mu60_0eta105_msonly_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU20', groups=SingleMuonGroup),
@@ -55,6 +59,8 @@ def setupMenu():
         ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=[''], groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup),
 
+        ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
+
         # ATR-20049
         ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu50_L1MU20', groups=SingleMuonGroup),
@@ -65,16 +71,20 @@ def setupMenu():
         ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
 
+        # ATR-19360
+        ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU20', stream=['RPCSecondaryReadout'], groups=SingleMuonGroup), # TODO: Move to Detector slice
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
         # ElectronChains----------
-        ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
+        #ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM3', stream=[PhysicsStream, 'express'], groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
         # currently disabled, seems to be a problem with the precision calo step
-        #ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         #ChainProp(name='HLT_e3_etcut_e7_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
         # enabling only one step
         #ChainProp(name='HLT_2e3_etcut1step_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
@@ -85,6 +95,13 @@ def setupMenu():
 
         # PhotonChains------------
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
+        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),  
+        #ChainProp(name='HLT_g35_etcut_g25_etcut_L12EM20VH', groups=MultiPhotonGroup),  # Not working due ATR-19962
+        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),  
+
+        # ATR-19360
+        ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_etcut_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = [
@@ -137,6 +154,9 @@ def setupMenu():
     ] 
 
     TriggerFlags.TauSlice.signatures = [
+        # ATR-19985
+        ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_idperf_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         #ATR-20049
         ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
 
@@ -173,8 +193,9 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
+        ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
         ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
-        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream, 'LArCells'], groups=EgammaStreamersGroup),  # FIXME: LArCells stream added just for testing, to be removed
+        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
     TriggerFlags.MonitorSlice.signatures   = []
 

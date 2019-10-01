@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -14,11 +13,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <string>
@@ -34,7 +28,6 @@
 #include "MuonCondSvc/MdtStringUtils.h"
 
 #include <map>
-#include "Identifier/Identifier.h"
 
 //namespace MuonCalib 
 //{      
@@ -44,13 +37,14 @@ MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
                              const IInterface* parent)
   : AthAlgTool(type, name, parent), 
     m_IOVSvc(0),
+    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_alineData(0),
     m_blineData(0),
     m_ilineData(0),
     m_asbuiltData(0),
     m_log( msgSvc(), name ),
     m_debug(false),
-    m_verbose(false)  
+    m_verbose(false)
 {
 
   declareInterface<IMuonAlignmentDbTool>(this);
@@ -59,10 +53,6 @@ MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
   m_blineDataLocation="B_LINE_CORR_updates";
   m_ilineDataLocation="I_LINE_CORR_updates";
   m_asbuiltDataLocation="ASBUILT_CORR_updates";
-  m_mdtIdHelper = 0;
-  m_cscIdHelper = 0;
-  m_rpcIdHelper = 0;
-  m_tgcIdHelper = 0;
   m_geometryVersion = "";
 
   m_parlineFolder.clear();
@@ -276,48 +266,7 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   }
   else m_log << MSG::INFO << "geometry version already know (from the MuonDetectorManager) = "<<m_geometryVersion<< endmsg;
   
-  
-  if (m_mdtIdHelper == 0)
-  {
-      sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-      if (!sc.isSuccess()) {
-          m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
-          return sc;
-      }
-      else m_log << MSG::INFO << "MdtIdHelper retrieved from the DetectorStore" << endmsg;
-  }
-  else if( m_debug )  m_log << MSG::DEBUG << "MdtIdHelper already initialized" << endmsg;
-  if (m_cscIdHelper == 0)
-  {
-      sc = detStore()->retrieve(m_cscIdHelper, "CSCIDHELPER" );
-      if (!sc.isSuccess()) {
-	m_log << MSG::ERROR << "Can't retrieve CscIdHelper" << endmsg;
-          return sc;
-      }
-      else m_log << MSG::INFO << "CscIdHelper retrieved from the DetectorStore" << endmsg;
-  }
-  else if( m_debug )  m_log << MSG::DEBUG << "CscIdHelper already initialized" << endmsg;
-  if (m_rpcIdHelper == 0)
-  {
-      sc = detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
-      if (!sc.isSuccess()) {
-          m_log << MSG::ERROR << "Can't retrieve RpcIdHelper" << endmsg;
-          return sc;
-      }
-      else m_log << MSG::INFO << "RpcIdHelper retrieved from the DetectorStore" << endmsg;
-  }
-  else if( m_debug )  m_log << MSG::DEBUG << "RpcIdHelper already initialized" << endmsg;
-  if (m_tgcIdHelper == 0)
-  {
-      sc = detStore()->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
-      if (!sc.isSuccess()) {
-          m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endmsg;
-          return sc;
-      }
-      else m_log << MSG::INFO << "TgcIdHelper retrieved from the DetectorStore" << endmsg;
-  }
-  else if( m_debug )  m_log << MSG::DEBUG << "TgcIdHelper already initialized" << endmsg;
-
+  CHECK( m_idHelperTool.retrieve() );
 
   // reinitialize
   // retreive and remove the old collection 
@@ -356,8 +305,9 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   }
   m_blineData=0;
 
-  sc = detStore()->retrieve( m_ilineData, m_ilineDataLocation );
-  if(sc.isSuccess())  {
+  if (&(m_idHelperTool->cscIdHelper())) { // only retrieve I-lines when CSCs are used
+    sc = detStore()->retrieve( m_ilineData, m_ilineDataLocation );
+    if(sc.isSuccess())  {
       m_log << MSG::INFO << "Previous I-line Container found in the DetStore <" << m_ilineData <<">"<< endmsg;
       if( m_ILinesFromDb ) {
         sc = detStore()->remove( m_ilineData );
@@ -367,8 +317,8 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
         else m_log << MSG::INFO << " wow - what is a i line , I wish I knew because then I could have removed it "<<endmsg;
       }
       else m_log << MSG::INFO << "Previous I-line Container kept in DetStore since reading from DB disabled"<<endmsg;
-  }
-  else {
+    }
+  } else {
     if (m_ilineData) {
         m_log << MSG::INFO << "Previous I-line Container not in the DetStore but pointer not NULL <" << m_ilineData <<">"<< endmsg;
         delete m_ilineData;
@@ -730,7 +680,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 	    else if( m_verbose ) log << MSG::VERBOSE <<"No B-line found"<<endmsg; 
 	  }
 	  
-	  int stationName = m_mdtIdHelper->stationNameIndex(stationType);
+	  int stationName = m_idHelperTool->mdtIdHelper().stationNameIndex(stationType);
 	  Identifier id;
 	  if( m_verbose ) log << MSG::VERBOSE<< "stationName  " << stationName << endmsg;
 	  if (stationType.substr(0,1)=="T") 
@@ -744,25 +694,25 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 		  stEta=job;
 		  if (jzz<0) stEta = -stEta;
 	      }
-	      id = m_tgcIdHelper->elementID(stationName, stEta, stPhi);
-              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_tgcIdHelper->show_to_string(id)<< endmsg;
+	      id = m_idHelperTool->tgcIdHelper().elementID(stationName, stEta, stPhi);
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_idHelperTool->tgcIdHelper().show_to_string(id)<< endmsg;
 	  }
-	  else if (stationType.substr(0,1)=="C") 
+	  else if ((&(m_idHelperTool->cscIdHelper())) && (stationType.substr(0,1)=="C"))
 	  {
 	      // csc case
-	      id = m_cscIdHelper->elementID(stationName, jzz, jff);
-              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_cscIdHelper->show_to_string(id)<< endmsg;
+	      id = m_idHelperTool->cscIdHelper().elementID(stationName, jzz, jff);
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_idHelperTool->cscIdHelper().show_to_string(id)<< endmsg;
 	  }
-	  else if (stationType.substr(0,3)=="BML" && abs(jzz)==7) 
+	  else if (stationType.substr(0,3)=="BML" && abs(jzz)==7)
 	  {
 	      // rpc case
-	      id = m_rpcIdHelper->elementID(stationName, jzz, jff, 1);
-              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_rpcIdHelper->show_to_string(id)<< endmsg;
+	      id = m_idHelperTool->rpcIdHelper().elementID(stationName, jzz, jff, 1);
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_idHelperTool->rpcIdHelper().show_to_string(id)<< endmsg;
 	  }
 	  else
           {
-              id = m_mdtIdHelper->elementID(stationName, jzz, jff);
-              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_mdtIdHelper->show_to_string(id)<< endmsg;
+              id = m_idHelperTool->mdtIdHelper().elementID(stationName, jzz, jff);
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_idHelperTool->mdtIdHelper().show_to_string(id)<< endmsg;
 	  }
           
 
@@ -842,6 +792,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 
 StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName) 
 {
+   if (!(&(m_idHelperTool->cscIdHelper()))) return StatusCode::SUCCESS; // only load I lines when CSCs are used
 
    MsgStream log(msgSvc(), name());
    StatusCode sc=StatusCode::SUCCESS;
@@ -1008,7 +959,7 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 	  if( m_verbose ) log << MSG::VERBOSE <<"I-line: tras,traz,trat "  << tras <<" "<< traz <<" "<< trat;
 	  if( m_verbose ) log << MSG::VERBOSE <<" rots,rotz,rott "  << rots <<" "<< rotz <<" "<< rott <<endmsg;
 	  
-	  int stationName = m_cscIdHelper->stationNameIndex(stationType);
+	  int stationName = m_idHelperTool->cscIdHelper().stationNameIndex(stationType);
 	  Identifier id;
 	  if( m_verbose ) log << MSG::VERBOSE<< "stationName  " << stationName << endmsg;
 	  if (stationType.substr(0,1)=="C") 
@@ -1016,8 +967,8 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
               // csc case
               int chamberLayer = 2;
               if (job != 3) log<<MSG::WARNING<<"job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2"<<endmsg;
-              id = m_cscIdHelper->channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
-              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_cscIdHelper->show_to_string(id)<< endmsg;
+              id = m_idHelperTool->cscIdHelper().channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
+              if( m_verbose ) log << MSG::VERBOSE<< "identifier being assigned is " <<m_idHelperTool->cscIdHelper().show_to_string(id)<< endmsg;
 	  }
 	  else { 
               log << MSG::ERROR<< "There is a non CSC chamber in the list of CSC internal alignment parameters."<< endmsg;
@@ -1145,7 +1096,7 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
         int jzz = 0;
         int job = 0;
         xPar.getAmdbId(stationType, jff, jzz, job);
-	Identifier id = m_mdtIdHelper->elementID(stationType, jzz, jff);
+	Identifier id = m_idHelperTool->mdtIdHelper().elementID(stationType, jzz, jff);
 
 	ATH_MSG_VERBOSE("Station type jff jzz "  << stationType  << jff << " " << jzz  );
         ++nDecodedLines;
@@ -1341,7 +1292,7 @@ void MuonAlignmentDbTool::setAsBuiltFromAscii() const
         int jzz = 0;
         int job = 0;
         xPar.getAmdbId(stName, jff, jzz, job);
-        Identifier id = m_mdtIdHelper->elementID(stName, jzz, jff);
+        Identifier id = m_idHelperTool->mdtIdHelper().elementID(stName, jzz, jff);
         if (!id.is_valid()) {
           ATH_MSG_ERROR( "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff  );
            continue;
@@ -1356,7 +1307,7 @@ void MuonAlignmentDbTool::setAsBuiltFromAscii() const
           delete oldAsBuilt; oldAsBuilt=0;
         } else {
           ATH_MSG_DEBUG( "New entry in AsBuilt container for Station "
-                         <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id) );
+                         <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_idHelperTool->mdtIdHelper().show_to_string(id) );
         }
 	  m_asbuiltData->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
 	  ++count;

@@ -564,7 +564,6 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 
   TRT_RDORawData*                   rdo     = 0;
   TRT_RDO_Collection*               theColl = 0;
-  TRT_RDO_Container::const_iterator itColl;
 
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
@@ -641,13 +640,10 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 	}
 
       // get the collection
-      itColl = rdoIdc->indexFind( idHash );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
 
       // Check if the Collection is already created.
-      if ( itColl != rdoIdc->end() )
-	// this is really nasty !
-	theColl = const_cast<TRT_RDO_Collection*>(&**itColl);
-      else
+      if ( theColl == nullptr )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \
@@ -744,7 +740,7 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
   
   TRT_RDORawData*                   rdo     = 0;
   TRT_RDO_Collection*               theColl = 0;
-  TRT_RDO_Container::const_iterator itColl;
+
   
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
@@ -867,13 +863,10 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 	}
       
       // get the collection
-      itColl = rdoIdc->indexFind( idHash );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
       
       // Check if the Collection is already created.
-      if ( itColl != rdoIdc->end() )
-	// this is really nasty !
-	theColl = const_cast<TRT_RDO_Collection*>(&**itColl);
-      else
+      if (  theColl==nullptr )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \
@@ -982,7 +975,6 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
   
   TRT_RDORawData*                   rdo     = 0;
   TRT_RDO_Collection*               theColl = 0;
-  TRT_RDO_Container::const_iterator itColl;
   
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
@@ -1149,13 +1141,10 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 	}
       
       // get the collection
-      itColl = rdoIdc->indexFind( idHash );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
       
       // Check if the Collection is already created.
-      if ( itColl != rdoIdc->end() )
-	// this is really nasty !
-	theColl = const_cast<TRT_RDO_Collection*>(&**itColl);
-      else
+      if ( theColl == nullptr )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \

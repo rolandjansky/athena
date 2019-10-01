@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -26,11 +24,14 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::T_AthenaPoolAuxContainerCnv( I
 /**
  * @brief Convert a transient object to persistent form.
  * @param trans The transient object to convert.
+ * @param key The SG key of the object being written.
  *
  * Returns a newly-allocated persistent object.
  */
 template <class AUXSTORE, class ... TPCNVS>
-AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistent( AUXSTORE* trans )
+AUXSTORE*
+T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistentWithKey( AUXSTORE* trans,
+                                                                           const std::string& /*key*/)
 {
   AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<AUXSTORE>::ID());
   return SG::copyThinned (*trans, IThinningSvc::instance());
@@ -39,12 +40,14 @@ AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistent( AU
 
 /**
  * @brief Read the persistent object and convert it to transient.
+ * @param key The SG key of the object being written.
  *
  * Returns a newly-allocated transient object.
  * Errors are reported by raising exceptions.
  */
 template <class AUXSTORE, class ... TPCNVS>
-AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransient()
+AUXSTORE*
+T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransientWithKey (const std::string& key)
 {
   AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<AUXSTORE>::ID());
   if ( this->compareClassGuid( m_guid ) ) {
@@ -53,9 +56,9 @@ AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransient()
   }
 
   // Try a converter.
-  AUXSTORE* c = m_tpcnvs.createTransient (*this, this->msg());
+  std::unique_ptr<AUXSTORE> c = m_tpcnvs.createTransient (*this, key, this->msg());
   if (c)
-    return c;
+    return c.release();
 
   // Didn't recognize the GUID.
   AthenaPoolCnvSvc::throwExcUnsupportedVersion (typeid(AUXSTORE),

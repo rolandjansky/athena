@@ -28,6 +28,7 @@
 
 #include "IdDictDetDescr/IdDictManager.h"
 
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
 #include "TrkTruthData/TrackTruth.h"
@@ -313,6 +314,7 @@ StatusCode IDStandardPerformance::initialize()
   ATH_CHECK(m_SCTtracksName.initialize(m_doHitBasedMatching));
   ATH_CHECK( m_TRTtracksKey.initialize(m_doHitBasedMatching) );
   ATH_CHECK( m_evt.initialize() );
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   sc = ManagedMonitorToolBase::initialize();
   return sc;
@@ -3577,6 +3579,13 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
 void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
   // This function determines general track properties and hit efficiencies and can be run both on data and MC
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
+
   const int nPixelLayers=m_PIX_Mgr->numerology().numLayers();
   const int nPixelDisks=m_PIX_Mgr->numerology().numDisks();
 
@@ -4019,7 +4028,6 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		    dynamic_cast<const InDet::PixelCluster*>(prd);
 		  if (sc)
 		    element = sc->detectorElement();
-		  //element = m_PIX_Mgr->getDetectorElement(surfaceID);
 		}
 	      if (!element && m_idHelper->is_sct(surfaceID))
 		{
@@ -4060,7 +4068,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
               const auto_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,
                                                              trackParameters,
                                                              resType));
-              fillPixelTrackPullHistos(surfaceID, *TSOSItr, residualPull);
+              if (m_idHelper->is_pixel(surfaceID)) {
+                 fillPixelTrackPullHistos(surfaceID, *TSOSItr, residualPull, elements);
+              }
 
               if (msgLvl(MSG::VERBOSE)) msg() << "obtained Hit Residual and Pull " << endmsg;
               residualLocX = 1000*residualPull->residual()[Trk::loc1]; // residuals in microns
@@ -4799,14 +4809,16 @@ void IDStandardPerformance::SetSafeMinimumMaximum(TH1* h, float min, float max) 
 void
 IDStandardPerformance::fillPixelTrackPullHistos(const Identifier& elementID
                                               , const Trk::TrackStateOnSurface* trackState
-                                              , const auto_ptr<const Trk::ResidualPull>& trackPull)
+                                              , const auto_ptr<const Trk::ResidualPull>& trackPull
+                                              , const InDetDD::SiDetectorElementCollection* elements)
 {
-  const InDetDD::SiDetectorElement* element = m_PIX_Mgr->getDetectorElement(elementID);
+  if (not m_idHelper->is_pixel(elementID)) {
+    ATH_MSG_FATAL( "This is not a pixel" );
+    throw std::logic_error("fillPixelTrackPullHistos called for a non-Pixel detector element.");
+  }
+  const InDetDD::SiDetectorElement* element = elements->getDetectorElement(m_pixelID->wafer_hash(elementID));
   if (not element) {
     return;
-  }
-  if (not m_idHelper->is_pixel(elementID)) {
-    msg(MSG::FATAL) << "This is not a pixel" << endmsg;
   }
   bool isBarrel = m_pixelID->is_barrel(elementID);
   int layer = m_pixelID->layer_disk(elementID);

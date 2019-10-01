@@ -45,6 +45,7 @@ class opt:
     doCombinedSlice   = True
     doBphysicsSlice   = True
     doStreamingSlice  = True
+    reverseViews      = False
     enabledSignatures = []
     disabledSignatures = []
 #
@@ -370,9 +371,20 @@ elif globalflags.InputFormat.is_bytestream():
 TriggerFlags.inputLVL1configFile = opt.setLVL1XML
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
-from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, HLTConfigSvc, findFileInXMLPATH
 svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+svcMgr.LVL1ConfigSvc.InputType = "file"
+l1JsonFile = TriggerFlags.inputLVL1configFile().replace(".xml",".json")
+l1JsonFile = findFileInXMLPATH(l1JsonFile)
+svcMgr.LVL1ConfigSvc.JsonFileName = l1JsonFile
+log.info("Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s" % l1JsonFile)
+svcMgr += HLTConfigSvc()
+hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
+hltJsonFile = findFileInXMLPATH(hltJsonFile)
+svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
+log.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+
 
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence

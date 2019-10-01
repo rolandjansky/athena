@@ -20,7 +20,6 @@ atlas_depends_on_subdirs(
    PRIVATE
    AtlasTest/TestTools
    Control/AthenaKernel
-   Control/CxxUtils
    DetectorDescription/IdDictParser
    GaudiKernel )
 
@@ -34,7 +33,7 @@ atlas_add_tpcnv_library( TrigInDetEventTPCnv
    LINK_LIBRARIES StoreGateLib AthenaPoolCnvSvcLib AthenaPoolUtilities
    RootConversions Identifier EventCommonTPCnv FourMom InDetIdentifier
    TrigCaloEventTPCnv TrigInDetEvent
-   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils IdDictParser )
+   PRIVATE_LINK_LIBRARIES AthenaKernel IdDictParser )
 
 atlas_add_dictionary( TrigInDetEventTPCnvDict
    TrigInDetEventTPCnv/TrigInDetEventTPCnvDict.h
@@ -63,7 +62,7 @@ foreach( name TrigHisto1DCnv_p1_test TrigHisto2DCnv_p1_test
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
       LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInDetEventTPCnv TestTools
-      GaudiKernel CxxUtils StoreGateLib InDetIdentifier IdDictParser
+      GaudiKernel StoreGateLib InDetIdentifier IdDictParser
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 endforeach()

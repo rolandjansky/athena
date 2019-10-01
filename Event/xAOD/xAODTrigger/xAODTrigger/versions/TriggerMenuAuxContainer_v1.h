@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerMenuAuxContainer_v1.h 636406 2014-12-17 05:19:48Z lheinric $
@@ -17,6 +17,8 @@ extern "C" {
 
 // EDM include(s):
 #include "xAODCore/AuxContainerBase.h"
+
+class xAODTriggerMenuAuxContainerCnv;
 
 namespace xAOD {
 
@@ -38,6 +40,8 @@ namespace xAOD {
       TriggerMenuAuxContainer_v1();
 
    private:
+      friend class ::xAODTriggerMenuAuxContainerCnv;
+
       /// @name Configuration identifier variables
       /// @{
       std::vector< uint32_t > smk;

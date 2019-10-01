@@ -209,8 +209,7 @@ if doPixel:
         from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
         condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
                                                               ReadKey = "PixelDetectorElementCollection",
-                                                              WriteKey = "PixelDetElementBoundaryLinks_xk",
-                                                              UsePixelDetectorManager = True)
+                                                              WriteKey = "PixelDetElementBoundaryLinks_xk")
     if numThreads >= 2:
         condSeq.InDetSiDetElementBoundaryLinksPixelCondAlg.Cardinality = numThreads
 
@@ -338,7 +337,6 @@ if doPixel:
     InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                           clusteringTool          = InDetMergedPixelsTool,
                                                           gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                          DetectorManagerName     = InDetKeys.PixelManager(), 
                                                           DataObjectName          = InDetKeys.PixelRDOs(),
                                                           ClustersName            = InDetKeys.PixelClusters())
     topSequence += InDetPixelClusterization
@@ -412,9 +410,12 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "Disappearing" or
     NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
     NewTrackingCuts.mode() == "SLHCConversionFinding"):
+
     usePrdAssociationTool = True
+
 else:
     usePrdAssociationTool = False
+
 InDetPrdAssociationTool = None
 if usePrdAssociationTool:
     # Taken from InDetRecExample/share/InDetRecLoadTools.py
@@ -440,8 +441,7 @@ InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker(name                   = "I
                                                      SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                      radMax                 = NewTrackingCuts.radMax(),
                                                      RapidityCut            = NewTrackingCuts.maxEta(),
-                                                     UseAssociationTool     = usePrdAssociationTool,
-                                                     AssociationTool        = InDetPrdAssociationTool,
+                                                     PRDtoTrackMap          = "", # @TODO
                                                      maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds(),
                                                      maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds())
 if not doBeamSpot:
@@ -528,7 +528,6 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              UpdatorTool           = InDetPatternUpdator,
                                                              RIOonTrackTool        = InDetRotCreator,
                                                              SctSummaryTool        = SCT_ConditionsSummaryTool,
-                                                             AssosiationTool       = InDetPrdAssociationTool,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),

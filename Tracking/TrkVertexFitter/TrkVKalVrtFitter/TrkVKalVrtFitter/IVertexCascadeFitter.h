@@ -31,7 +31,7 @@ namespace Trk{
 //---------------------------------------------------------------------------
 //Interface itself
 
-    virtual std::unique_ptr<IVKalState> makeState() = 0;
+    virtual std::unique_ptr<IVKalState> makeState() const = 0;
 
     virtual VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                    const  std::vector<double>& particleMass,

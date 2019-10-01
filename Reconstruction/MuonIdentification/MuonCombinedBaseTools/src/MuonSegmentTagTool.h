@@ -96,8 +96,10 @@ namespace MuonCombined {
     mutable std::atomic_uint m_npmatch;
     mutable std::atomic_uint m_natMSEntrance;
     mutable std::atomic_uint m_naccepted;
-    mutable std::array<std::atomic_int, 15> m_extrapolated; // 15 is maximum possible size
-    mutable std::array<std::atomic_int, 15> m_goodExtrapolated; // 15 is maximum possible size
+    mutable std::array<std::atomic_int, 15> m_extrapolated ATLAS_THREAD_SAFE
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // 15 is maximum possible size. Guarded by atomicity
+    mutable std::array<std::atomic_int, 15> m_goodExtrapolated ATLAS_THREAD_SAFE
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // 15 is maximum possible size. Guarded by atomicity
 
   };
 

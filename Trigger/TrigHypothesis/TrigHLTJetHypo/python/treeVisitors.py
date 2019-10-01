@@ -1,10 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+from __future__ import absolute_import
 
-from constants import lchars
+from .constants import lchars
 
 import re
 
-from ToolSetter import ToolSetter
+from .ToolSetter import ToolSetter
 class Checker(object):
     def __init__(self):
         self.known = {
@@ -166,16 +168,16 @@ class SimpleConditionsDictMaker(object):
                             result[attr_lo][-1] *= -1.  # negative eta range
                         try:
                             attributes2.remove(attr_lo)
-                        except ValueError, e:
-                            print attr_lo, 'appears twice in Conditions string?'
+                        except ValueError as e:
+                            print(attr_lo, 'appears twice in Conditions string?')
                             raise e
                     elif attr == 'et':
                         attr = 'EtThresholds'
                         result[attr].append(sf * float(lo))
                         try:
                             attributes2.remove(attr)
-                        except ValueError, e:
-                            print 'et appears twice in Conditions string?'
+                        except ValueError as e:
+                            print('et appears twice in Conditions string?')
                             raise e
                             
                 if hi:
@@ -187,8 +189,8 @@ class SimpleConditionsDictMaker(object):
                         
                         try:
                             attributes2.remove(attr_hi)
-                        except ValueError, e:
-                            print attr_hi, 'appears twice in Conditions string?'
+                        except ValueError as e:
+                            print(attr_hi, 'appears twice in Conditions string?')
                             raise e
 
             # it maybe that an attribute was not present in the chain label.
@@ -470,20 +472,20 @@ class TreeParameterExpander(object):
     def mod(self, node):
         self.expander = self.router[node.scenario]()
         self.expander.mod(node)
-        print self.expander.report()
+        print(self.expander.report())
     def report(self):
         return self.expander.report()
         
 
 def _test(s):
 
-    from ChainLabelParser import ChainLabelParser
+    from .ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s)
 
     parser.debug = True
 
     tree = parser.parse()
-    print tree.dump()
+    print(tree.dump())
     # exapnd the window cuts (strings) obtained from the chain label
     # to attributes and floating point numbers, set defaults
     # for unspecified vallues
@@ -492,32 +494,32 @@ def _test(s):
 
     tree.set_ids(0, 0)
     tree.accept(visitor)
-    print visitor.report()
-    print tree.dump()
+    print(visitor.report())
+    print(tree.dump())
 
     # set the node attribute node.tool to be the hypo  Al\gTool.
-    print 'sending in the ToolSetter visitor'
+    print('sending in the ToolSetter visitor')
     ts_visitor = ToolSetter(s)
     tree.accept_cf(ts_visitor)
-    print ts_visitor.report()
+    print(ts_visitor.report())
 
 
     # print tree.dump()
-    print tree.tool  # printing a Gaudi tool prints its nested tools
+    print(tree.tool)  # printing a Gaudi tool prints its nested tools
 
 
 def test(index):
-    from test_cases import test_strings
+    from .test_cases import test_strings
     import sys
     if index not in range(len(test_strings)):
-        print 'expected int in [1,%d] ]on comand line, got %s' % (
-            len(test_strings), c)
+        print('expected int in [1,%d] ]on comand line, got %s' % (
+            len(test_strings), c))
         sys.exit()
 
-    print 'index', index
-    print '========== Test %d ==============' % index
+    print('index', index)
+    print('========== Test %d ==============' % index)
     s = test_strings[index]
-    print s
+    print(s)
     _test(s)
 
 
@@ -529,6 +531,6 @@ if __name__ == '__main__':
     try:
         ic = int(c)
     except Exception:
-        print 'expected int on command line, got ',c
+        print('expected int on command line, got ',c)
         sys.exit()
     test(ic)

@@ -5,7 +5,6 @@
 #include "LArRegionSelector/LArRegionSelectorTable.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include <fstream>
 

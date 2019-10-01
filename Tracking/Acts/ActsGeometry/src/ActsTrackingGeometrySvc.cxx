@@ -168,7 +168,6 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
-    cfg.trackingGeometrySvc = this;
     cfg.idHelper = m_TRT_idHelper;
     gmLayerBuilder = std::make_shared<const ActsStrawLayerBuilder>(cfg,
       makeActsAthenaLogger(this, "GMSLayBldr", "ActsTGSvc"));
@@ -255,7 +254,6 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     // use class member element store
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
-    cfg.trackingGeometrySvc = this;
 
     gmLayerBuilder = std::make_shared<const ActsLayerBuilder>(cfg,
       makeActsAthenaLogger(this, "GMLayBldr", "ActsTGSvc"));

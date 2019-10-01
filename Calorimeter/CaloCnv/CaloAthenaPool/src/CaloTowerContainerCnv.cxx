@@ -12,7 +12,6 @@
 #include "GaudiKernel/IToolSvc.h"
 
 // Athena
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
 #include "CaloUtils/CaloTowerBuilderTool.h"
 

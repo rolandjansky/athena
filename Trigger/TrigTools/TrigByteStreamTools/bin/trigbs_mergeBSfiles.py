@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import eformat
 import libpyevent_storage as EventStorage
 import sys
-import os
 import getopt
 import subprocess as sp
 
@@ -18,19 +18,20 @@ def pexec(args):
 
 
 def usage():
-  print " usage: %s [options] <outbasename> <dir1> [<dir2> ..]" % sys.argv[0]
-  print "    Merges events from multiple raw files from one or more directories"
-  print "    This is mainly to used on small samples"
-  print
-  print "    Options:"
-  print "       -n <number of events per file> : defaults to 500"
-  print "       -r     : renumber event ids from 1"
-  print "       -v     : verbose output"  
+  print(" usage: %s [options] <outbasename> <dir1> [<dir2> ..]" % sys.argv[0])
+  print("    Merges events from multiple raw files from one or more directories")
+  print("    This is mainly to used on small samples")
+  print()
+  print("    Options:")
+  print("       -n <number of events per file> : defaults to 500")
+  print("       -r     : renumber event ids from 1")
+  print("       -v     : verbose output")  
   sys.exit(1)
   
 try:
   opts, args = getopt.getopt(sys.argv[1:], "vn:")
-  if len(args)<2: usage()
+  if len(args)<2:
+      usage()
 except getopt:
   usage()
 
@@ -55,7 +56,7 @@ for indir in dirs:
   for name in fileNames:
     files+=[indir+'/'+name]
 
-print 'Merging',len(files),'files'
+print('Merging',len(files),'files')
 
 ifile = 0
 id = 1
@@ -72,13 +73,13 @@ output.max_events_per_file(eventsPerFile)
 
 for input_file in files:
   ifile += 1
-  print "Opening file %d: %s" % (ifile, input_file)
+  print("Opening file %d: %s" % (ifile, input_file))
 
   input = eformat.istream([input_file])
 
   for event in input:
     if verbose:
-      print "Reading event with Lvl1 Id = %ld and rewritting with %ld" % (event.lvl1_id(),id)
+      print("Reading event with Lvl1 Id = %ld and rewritting with %ld" % (event.lvl1_id(),id))
     new_event = eformat.write.FullEventFragment(event)
     if renumber:
         new_event.lvl1_id(id)
@@ -92,4 +93,4 @@ for input_file in files:
 
     id+=1
 
-print 'Wrote %d events to %d files' % ( id-1, 1+((id-1)//eventsPerFile) )
+print('Wrote %d events to %d files' % ( id-1, 1+((id-1)//eventsPerFile) ))

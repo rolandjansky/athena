@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -94,6 +94,27 @@ public:
    */
   WriteDecorHandleKey (const std::string& key = "",
                        const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
+
+
+  /**
+   * @brief auto-declaring Property Constructor.
+   * @param owner Owning component.
+   * @param name name of the Property
+   * @param key  default StoreGate key for the object.
+   * @param doc Documentation string.
+   *
+   * will associate the named Property with this RHK via declareProperty
+   *
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store named by @c storeName is used.
+   */
+  template <class OWNER, class K,
+            typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+  WriteDecorHandleKey( OWNER* owner,
+                      const std::string& name,
+                      const K& key = {},
+                      const std::string& doc = "");
 
 
   /**

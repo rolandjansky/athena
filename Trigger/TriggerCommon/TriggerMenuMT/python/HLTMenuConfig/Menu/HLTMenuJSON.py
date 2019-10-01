@@ -15,10 +15,10 @@ def __generateJSON( chainDicts, chainConfigs, menuName ):
         streamDicts = []
         streamTags = StreamInfo.getStreamTags(chain["stream"])
         for streamTag in streamTags:
-            streamDicts.append({"name": streamTag[0],
-                                "type": streamTag[1],
-                                "obeyLB": streamTag[2],
-                                "forceFullEventBuilding": streamTag[3]})
+            streamDicts.append({"name": streamTag.name(),
+                                "type": streamTag.type(),
+                                "obeyLB": streamTag.obeysLumiBlock(),
+                                "forceFullEventBuilding": streamTag.forceFullEventBuilding()})
 
         l1Thresholds  = []
         [ l1Thresholds.append(p['L1threshold']) for p in chain['chainParts'] ]
@@ -52,6 +52,8 @@ def __generateJSON( chainDicts, chainConfigs, menuName ):
                       "streams": streamDicts,
                       # "sequences": sequences 
                     }
+
+
         menuDict["chains"].append( chainDict )
 
     __log.info( "Writing trigger menu to %s", fileName )
@@ -62,9 +64,9 @@ def generateJSON():
     __log.info("Generating HLT JSON config in the rec-ex-common job")
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-    triggerConfigHLT = TriggerConfigHLT.currentTriggerConfig()
 
-    return __generateJSON( triggerConfigHLT.allChainDicts, triggerConfigHLT.allChainConfigs, TriggerFlags.triggerMenuSetup() )
+
+    return __generateJSON( TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), TriggerFlags.triggerMenuSetup() )
     
 def generateJSON_newJO( chainDicts, chainConfigs ):
     __log.info("Generating HLT JSON config in the new JO")

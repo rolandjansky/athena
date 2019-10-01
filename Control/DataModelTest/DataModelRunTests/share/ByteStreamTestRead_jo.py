@@ -32,10 +32,11 @@ include ('DataModelRunTests/loadReadDicts.py')
 #--------------------------------------------------------------
 
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestReadCVec
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__HLTResultReader, \
      DMTest__xAODTestReadCView, \
-     DMTest__xAODTestReadCVec, \
      DMTest__xAODTestReadHVec
 
 

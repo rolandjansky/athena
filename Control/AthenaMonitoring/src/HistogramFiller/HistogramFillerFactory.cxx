@@ -28,7 +28,8 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   if (boost::starts_with(def.type, "TH1")) {
     if (def.opt.find("kCumulative") != std::string::npos) {
       return new CumulativeHistogramFiller1D(def, histogramProvider);
-    } else if (def.opt.find("kAddBinsDynamically") != std::string::npos) {
+    } else if (def.opt.find("kAddBinsDynamically") != std::string::npos
+	       || def.opt.find("kRebinAxes") != std::string::npos) {
       return new HistogramFillerRebinable1D(def, histogramProvider);
     } else if (def.opt.find("kVecUO") != std::string::npos) {
       return new VecHistogramFiller1DWithOverflows(def, histogramProvider);

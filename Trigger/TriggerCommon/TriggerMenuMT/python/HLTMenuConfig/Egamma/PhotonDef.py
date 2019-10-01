@@ -1,4 +1,6 @@
+#
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -9,8 +11,22 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import fastPhotonMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import fastPhotonMenuSequence, precisionPhotonMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
+
+#----------------------------------------------------------------
+# Static classes to configure photon chain container names
+#----------------------------------------------------------------
+
+class PhotonMenuDefs(object):
+      """Static class to collect all string manipulation in Photon sequences """
+      SuperPhotonRecCollectionName = "HLT_PhotonSuperRecCollection"
+      EgammaRecKey = "HLT_egammaRecCollection"
+      outputPhotonKey = "HLT_egamma_Photons"
+      outputClusterKey = 'HLT_egammaClusters'
+      outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
+
+
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -24,6 +40,9 @@ def fastPhotonSequenceCfg( flags ):
 
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
+
+def precisionPhotonSequenceCfg( flags ):
+    return precisionPhotonMenuSequence('Photon')
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -42,13 +61,20 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
+        etcut_sequence = [self.getFastCalo(), self.getFastPhoton(), self.getPrecisionCaloPhoton()]
+        photon_sequence = [self.getFastCalo(), self.getFastPhoton(), self.getPrecisionCaloPhoton(), self.getPrecisionPhoton()]
         stepDictionary = {
-            "": [self.getFastCalo(), self.getFastPhoton(), self.getPrecisionCaloPhoton()]
+            "etcut": etcut_sequence,
+            "etcutetcut": etcut_sequence,
+            "medium": photon_sequence,
         }
         
         ## This needs to be configured by the Egamma Developer!!
         log.debug('photon chain part = ' + str(self.chainPart))
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
+        for addInfo in self.chainPart['addInfo']:
+            key+=addInfo
+            
         log.debug('photon key = ' + key)
         steps=stepDictionary[key]
 
@@ -68,21 +94,27 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         stepName = "Step1_PhotonFastCalo"
         log.debug("Configuring step " + stepName)
         fastCalo = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [fastCalo])
+        return ChainStep(stepName, [fastCalo], self.mult)
         
     def getFastPhoton(self):
         stepName = "Step2_L2Photon"
         log.debug("Configuring step " + stepName)
         photonReco = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
-        return ChainStep(stepName, [photonReco])
+        return ChainStep(stepName, [photonReco], self.mult)
 
     def getPrecisionCaloPhoton(self):
         stepName = "Step3_PhotonPrecisionCalo"
         log.debug("Configuring step " + stepName)
         precisionCaloPhoton = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None )
-        return ChainStep(stepName, [precisionCaloPhoton])
+        return ChainStep(stepName, [precisionCaloPhoton], self.mult)
 
             
+    def getPrecisionPhoton(self):
+        stepName = "Step4_PhotonPrecision"
+        log.debug("Configuring step " + stepName)
+        precisionPhoton = RecoFragmentsPool.retrieve( precisionPhotonSequenceCfg, None )
+        return ChainStep(stepName, [precisionPhoton], self.mult)
+
             
 
         

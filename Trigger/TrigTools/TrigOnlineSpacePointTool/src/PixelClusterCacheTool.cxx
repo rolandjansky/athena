@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -33,14 +33,11 @@ PixelClusterCacheTool::PixelClusterCacheTool( const std::string& type,
 					    const std::string& name, 
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
-    m_offlineDecoder("PixelRodDecoder",this), 
-    m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_clusteringTool("InDet::MergedPixelsTool/InDetTrigMergedPixelsTool") 
 {
 
   declareInterface< IPixelClusterCacheTool>( this );
   declareProperty( "ClusterContainerName", m_containerName = "PixelClusterCache");
-  declareProperty( "PixelROD_Decoder", m_offlineDecoder,"PixelRodDecoder");
   declareProperty( "RDO_ContainerName", m_rdoContainerName = "PixelRDO_Cache");
   declareProperty( "UseOfflineClustering", m_useOfflineClustering = true);
   declareProperty( "PixelClusteringTool", m_clusteringTool,"InDet::MergedPixelsTool/InDetTrigMergedPixelsTool");
@@ -69,8 +66,6 @@ StatusCode PixelClusterCacheTool::initialize()  {
     return StatusCode::FAILURE;
   } 
 
-  p_indet_mgr = mgr;  
-
   m_clusterization.setPixelID(m_pixel_id);
   m_clusterization.initializeGeometry(mgr);
   m_clusterization.setLorentzAngleTool(m_lorentzAngleTool.get());
@@ -90,8 +85,8 @@ StatusCode PixelClusterCacheTool::initialize()  {
       return StatusCode::FAILURE; 
     }
 
-    if(StatusCode::SUCCESS !=m_bsErrorSvc.retrieve()) {
-      ATH_MSG_ERROR("initialize(): Can't get PixelByteStreamError service "<<m_bsErrorSvc);
+    if(StatusCode::SUCCESS !=m_bsErrorTool.retrieve()) {
+      ATH_MSG_ERROR("initialize(): Can't get PixelByteStreamError service "<<m_bsErrorTool);
       return StatusCode::FAILURE; 
     }
   }
@@ -132,6 +127,8 @@ StatusCode PixelClusterCacheTool::initialize()  {
     m_rdoContainer->addRef();
   }
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
   return sc;
 }
 
@@ -151,6 +148,14 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
                                                       const std::vector<IdentifierHash>& listOfPixIds,
 							std::vector<int>& errorVect, bool isFullScan)
 {
+  // Get PixelDetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(pixelDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+
   if(!evtStore()->contains<InDet::PixelClusterContainer>(m_containerName))
     {
       m_clusterContainer->cleanup();
@@ -251,7 +256,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 	  ATH_MSG_DEBUG(std::hex<<"Det ID 0x"<<detid<<" Rod version 0x"<<
 	    robFrag->rod_version()<<", Type="<<robFrag->rod_detev_type()<<std::dec);
 	
-	m_bsErrorSvc->resetCounts();
+	m_bsErrorTool->resetCounts();
 	
 	StatusCode scRod(StatusCode::SUCCESS);
 	if(!isFullScan) {
@@ -266,7 +271,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 	    n_recov_errors++;
 	    for(int idx=0;idx<MAXNUM_PIX_BS_ERRORS;idx++)
 	      {
-		int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
+		int n_errors = m_bsErrorTool->getNumberOfErrors(idx);
 		for(int ierror = 0; ierror < n_errors; ierror++)
 		  errorVect.push_back(idx);
 	      }
@@ -285,6 +290,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
   int npixels=0;
   for (std::vector<IdentifierHash>::iterator it=reducedList.begin(); it != reducedList.end(); ++it)
     {
+      const InDetDD::SiDetectorElement* element = elements->getDetectorElement((*it));
       PixelRDO_Container::const_iterator collIt=m_rdoContainer->indexFind((*it));
       if(collIt==m_rdoContainer->end())
 	continue;
@@ -302,13 +308,14 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 		  npixels++;
 		  m_clusterization.addHit(coll_id,coll_hash_id,
 					  m_pixel_id->phi_index(pixId),
-					  m_pixel_id->eta_index(pixId),(*rdoIt));
+					  m_pixel_id->eta_index(pixId),(*rdoIt),
+                                          element);
 		}
 	    }
 	  else 
 	    {
 	      const InDetRawDataCollection<PixelRDORawData>* pRdoColl = (*collIt);
-	      InDet::PixelClusterCollection* pColl=m_clusteringTool->clusterize(*pRdoColl,*p_indet_mgr,*m_pixel_id);
+	      InDet::PixelClusterCollection* pColl=m_clusteringTool->clusterize(*pRdoColl,*m_pixel_id);
 	      if(pColl!=NULL)
 		offlineCollVector.push_back(pColl);
 	    }

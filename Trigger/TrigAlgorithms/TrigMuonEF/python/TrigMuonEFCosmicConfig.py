@@ -29,7 +29,7 @@ doT0Fit = True
 #addPublicTool  = _toolFactory.addPublicTool
 
 #from TrkDetDescrSvc.TrkDetDescrSvcConf import TrackingVolumesSvc
-#ServiceMgr += TrackingVolumesSvc(BuildVolumesFromTagInfo = False)#
+#ServiceMgr += TrackingVolumesSvc()#
 #
 #from MuidCaloEnergyTools.MuidCaloEnergyToolsConf import Rec__MuidCaloEnergyMeas
 #TMEFCaloEnergyMeas = Rec__MuidCaloEnergyMeas(name = 'TMEFCaloEnergyMeas', UseCaloNoiseTool = False)

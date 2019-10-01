@@ -19,7 +19,6 @@
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "TH2S.h"
 #include "TProfile2D.h"
 #include "TrkParameters/TrackParameters.h"
@@ -32,7 +31,6 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
@@ -47,7 +45,6 @@
 
 PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent) :
     ManagedMonitorToolBase(type, name, parent),
-    m_ErrorSvc("PixelByteStreamErrorsSvc", name),
     m_pixelCableSvc("PixelCablingSvc", name),
     m_IBLParameterSvc("IBLParameterSvc", name),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
@@ -63,7 +60,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_FSM_status(new dcsDataHolder()),
     m_moduleDCSDataHolder(new moduleDcsDataHolder()) {
   // all job options flags go here
-  declareProperty("PixelByteStreamErrorsSvc", m_ErrorSvc);
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool);
@@ -401,12 +397,7 @@ StatusCode PixelMainMon::initialize() {
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_pixelCableSvc << endmsg;
   }
 
-  if (m_ErrorSvc.retrieve().isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_ErrorSvc << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_ErrorSvc << endmsg;
-  }
+  ATH_CHECK(m_ErrorSvc.retrieve());
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endmsg;

@@ -23,6 +23,8 @@
 #include "CxxUtils/CachedUniquePtr.h"
 #include "InDetIdentifier/PixelID.h"
 
+#include <memory>
+
 namespace Trk{
  class RectangleBounds;
  class SurfaceBounds;
@@ -72,7 +74,7 @@ namespace InDetDD {
 			const int cellRowsPerCircuit,
 			const int diodeColumnsPerCircuit,
 			const int diodeRowsPerCircuit,
-			const PixelDiodeMatrix * matrix,
+			std::shared_ptr<const PixelDiodeMatrix> matrix,
 			InDetDD::CarrierType carrierType,
 			int readoutSide = -1,
 			bool is3D=false);

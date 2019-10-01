@@ -44,7 +44,6 @@
 #include "LArIdentifier/LArOnlineID_Base.h"
 #include "CaloIdentifier/LArID.h"
 
-class StoreGateSvc; 
 class LArOnlineID_Base; 
 class CaloDetDescrManager_Base; 
 class LArCablingBase;

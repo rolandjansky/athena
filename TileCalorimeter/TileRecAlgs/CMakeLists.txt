@@ -44,7 +44,7 @@ atlas_add_component( TileRecAlgs
 
 atlas_add_test( TileDigitsThresholdFilter_test
                 SOURCES test/TileDigitsThresholdFilter_test.cxx
-                LINK_LIBRARIES TileEvent TileIdentifier TileConditionsLib AthenaBaseComps StoreGateLib IdDictParser TestTools CxxUtils GaudiKernel)
+                LINK_LIBRARIES TileEvent TileIdentifier TileConditionsLib AthenaBaseComps StoreGateLib IdDictParser TestTools GaudiKernel)
 # Needed for the plugin service to see the test components
 # defined in the test binary.
 set_target_properties( TileRecAlgs_TileDigitsThresholdFilter_test PROPERTIES ENABLE_EXPORTS True )
@@ -58,3 +58,14 @@ atlas_install_joboptions( share/*.py )
 atlas_add_test( flake8
                 SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
                 POST_EXEC_SCRIPT nopost.sh )
+
+
+atlas_add_test( MBTSTimeDiffEventInfoAlgConfig_test
+                SCRIPT python -m TileRecAlgs.MBTSTimeDiffEventInfoAlgConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileDigitsFilterConfig_test
+                SCRIPT python -m TileRecAlgs.TileDigitsFilterConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)

@@ -47,6 +47,7 @@ namespace NSWL1 {
     virtual bool readStrip()   const = 0;
     virtual void set_readStrip(bool readStrip) = 0;
     //! helper  methods decoding the hit fragment position within the NSW detector
+    virtual int sectorType()  const =0;
     virtual int sideId()      const = 0;    //!< get the side (0==sideC, 1==sideA)
     virtual int isSmall()      const = 0;    //!< get the side (0==sideC, 1==sideA)
     virtual int moduleId()    const = 0;    //!< get the physics module (ranging from 0 at lowest R to 3 at highest R)

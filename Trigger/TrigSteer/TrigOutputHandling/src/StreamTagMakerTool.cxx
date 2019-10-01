@@ -33,7 +33,7 @@ StatusCode StreamTagMakerTool::initialize() {
 
   ATH_MSG_INFO("Configuring from " << m_menuJSON << " with " << hltMenu.size() << " chains");
 
-  for (TrigConf::HLTChain chain : hltMenu) {
+  for (const TrigConf::Chain & chain : hltMenu) {
     std::vector<TrigConf::DataStructure> streams = chain.streams();
     if (streams.empty()) {
       ATH_MSG_ERROR("Chain " << chain.name() << " has no streams assigned");
@@ -122,6 +122,8 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     const std::vector<StreamTagInfo>& streams = mappingIter->second;
     for (const StreamTagInfo& streamTagInfo : streams) {
       auto [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
+      ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " accepted event into stream " << st_type << "_" << st_name
+                    << " (obeysLB=" << obeysLB << ", forceFullEvent=" << forceFullEvent << ")");
       std::set<uint32_t> robs;
       std::set<eformat::SubDetector> subdets;
       if (!forceFullEvent) {

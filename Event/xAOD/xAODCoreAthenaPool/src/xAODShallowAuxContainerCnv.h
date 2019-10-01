@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODCOREATHENAPOOL_XAODSHALLOWAUXCONTAINERCNV_H
@@ -9,7 +9,6 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 // EDM include(s):
-#define private public
 #include "xAODCore/ShallowAuxContainer.h"
 
 /// Base class for the converter

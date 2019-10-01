@@ -79,8 +79,6 @@
 
 class TTree;
 
-class StoreGateSvc;
-
 class TileID;
 class TileHWID;
 class TileInfo;

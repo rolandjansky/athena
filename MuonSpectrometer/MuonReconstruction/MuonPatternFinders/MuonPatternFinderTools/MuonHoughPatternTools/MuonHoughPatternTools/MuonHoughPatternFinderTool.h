@@ -19,11 +19,12 @@
 #include "MuonPattern/MuonPatternCollection.h"
 #include "TrkDriftCircleMath/DriftCircle.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class TH1F;
 class TFile;
 
 class MuonHoughHitContainer;
-class StoreGateSvc;
 class IMuonHoughPatternTool;
 
 namespace MuonGM {
@@ -31,15 +32,8 @@ namespace MuonGM {
 }
 
 namespace Muon {
-  class MuonIdHelperTool;
   class MuonEDMPrinterTool;
 }
-
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-
 
 namespace Muon {
 
@@ -125,21 +119,10 @@ namespace Muon {
 
     void addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end) const;
 
-    /** Pointer to Detectormanager */
-    const MuonGM::MuonDetectorManager*  m_detMgr;
-
-    /** Pointer to RpcIdHelper */
-    const RpcIdHelper*                  m_rpcIdHelper;
-    /** Pointer to TgcIdHelper */
-    const TgcIdHelper*                  m_tgcIdHelper;
-    /** Pointer to CscIdHelper */
-    const CscIdHelper*                  m_cscIdHelper;
-    /** Pointer to MdtIdHelper */
-    const MdtIdHelper*                  m_mdtIdHelper;
-
     ToolHandle <IMuonHoughPatternTool>   m_muonHoughPatternTool;    //!< Pointer to concrete tool
     mutable ToolHandle <Muon::IMuonCombinePatternTool>  m_muonCombinePatternTool;   //!< Pointer to concrete tool  
-    ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};  //!< Pointer to concrete tool
     /** ToolHandle for EDM printing of segments */
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
  

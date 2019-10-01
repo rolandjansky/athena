@@ -3,7 +3,6 @@
 */
 
 #include "TrigConfData/HLTMenu.h"
-#include "TrigConfData/HLTChain.h"
 
 using TV = boost::property_tree::ptree::value_type;  // tree-value type
 using namespace std;
@@ -33,12 +32,17 @@ TrigConf::HLTMenu::name() const
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::begin() const
 {
-   return {m_data.get_child("chains"), 0,  [](auto x){return HLTChain(x.second);}};
+   auto & pt = m_data.get_child("chains");
+   auto ci = const_iterator(pt, 0,  [](auto x){return Chain(x.second);});
+   return ci;
 }
 
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::end() const
 {
-   const auto & chains = m_data.get_child("chains");
-   return {chains, chains.size(), [](auto x){return HLTChain(x.second);}};
+   auto & pt = m_data.get_child("chains");
+   TrigConf::HLTMenu::const_iterator x = { pt, pt.size(), [](auto x){return Chain(x.second);} };
+   return x;
 }
+
+

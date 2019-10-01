@@ -23,7 +23,7 @@ StatusCode TrackCountHypoAlgMT::initialize()
 
   ATH_CHECK(m_tracksKey.initialize());
   ATH_CHECK(m_trackCountKey.initialize());
-  
+
   ATH_CHECK(m_min_pt.size()==m_max_z0.size());
 
   if (m_tracksKey.key() == "Undefined" || m_trackCountKey.key() == "Undefined") {
@@ -31,7 +31,9 @@ StatusCode TrackCountHypoAlgMT::initialize()
     return StatusCode::FAILURE;
   }
   ATH_CHECK(m_hypoTools.retrieve());
+  return StatusCode::SUCCESS;
 
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -96,6 +98,13 @@ StatusCode TrackCountHypoAlgMT::execute(const EventContext& context) const
   trackCounts->setDetail("z0cuts", static_cast<std::vector<float>>(m_max_z0));
   trackCounts->setDetail("counts", count);
 
+  auto mon_ntrks = Monitored::Scalar<int>("ntrks",ntrks);
+  Monitored::Group(m_monTool,mon_ntrks);
+
+  for(long unsigned int i=0;i<=m_min_pt.size();i++){
+    auto mon_counts = Monitored::Scalar<int>("counts",count[i]);
+    Monitored::Group(m_monTool,mon_counts);
+  }
 
   TrackCountHypoTool::TrkCountsInfo trkinfo{d, tracks->at(0), prev};
 

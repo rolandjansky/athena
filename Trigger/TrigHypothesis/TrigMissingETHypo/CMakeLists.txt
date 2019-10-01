@@ -23,7 +23,7 @@ find_package( CLHEP )
 atlas_add_component( TrigMissingETHypo
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent DecisionHandling  )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

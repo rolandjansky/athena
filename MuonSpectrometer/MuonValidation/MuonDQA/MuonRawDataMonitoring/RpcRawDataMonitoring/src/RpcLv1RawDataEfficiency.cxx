@@ -54,7 +54,6 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   ATH_MSG_INFO( "In initializing 'RpcLv1RawDataEfficiency'"  );
   ATH_MSG_INFO( "Package version = "<< PACKAGE_VERSION  );
   
-  m_rpcIdHelper  = 0 ;
   m_muonMgr  = 0 ;
   m_trigtype  = 0 ;
   m_event  = 0 ;
@@ -79,7 +78,7 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   m_rpclv1_sectorhits_C[5]  = 0 ;  	
   m_rpclv1_sectorhits_all[5]= 0 ;
   
-  ATH_CHECK(  detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
   ATH_MSG_DEBUG( "Found the MuonDetectorManager from detector store."  );
 
@@ -118,7 +117,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
       coindata->SetThresholdLowHigh(int((*it_collection)->threshold()), int((*it_collection)->isLowPtCoin()), int((*it_collection)->isHighPtCoin()));
       prdcoll_id   = (*it_collection)->identify();
       descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id );
-      irpcstationEta = int(m_rpcIdHelper->stationEta(prdcoll_id));
+      irpcstationEta = int(m_muonIdHelperTool->rpcIdHelper().stationEta(prdcoll_id));
       x_atlas = descriptor_Atl->stripPos(prdcoll_id ).x();
       y_atlas = descriptor_Atl->stripPos(prdcoll_id ).y();
       z_atlas = descriptor_Atl->stripPos(prdcoll_id ).z();

@@ -29,8 +29,8 @@ StatusCode CscOverlay::initialize()
   ATH_MSG_DEBUG("CscOverlay initialized");
 
   /** access to the CSC Identifier helper */
-  ATH_CHECK(detStore()->retrieve(m_cscHelper, "CSCIDHELPER"));
-  ATH_MSG_DEBUG(" Found the CscIdHelper. ");
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_MSG_DEBUG(" Found the MuonIdHelperTool. ");
 
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK(m_cscCalibTool.retrieve());
@@ -202,7 +202,7 @@ StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
         bool good = true;
         for (uint16_t j = 0; j < width; ++j) {
           const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(rdo.get(), j);
-          if (!m_cscHelper->valid(channelId)) {
+          if (!m_muonIdHelperTool->cscIdHelper().valid(channelId)) {
             ATH_MSG_WARNING("Invalid CSC Identifier! - skipping " << channelId);
             good = false;
             break;
@@ -386,18 +386,15 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
           int stationName =  ( ( address & 0x00010000) >> 16 ) + 50;
           int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
           int stationPhi  =  ( ( address & 0x0000E000) >> 13 ) + 1;
-          Identifier me= m_cscHelper->elementID(stationName,stationEta,stationPhi);
+          Identifier me= m_muonIdHelperTool->cscIdHelper().elementID(stationName,stationEta,stationPhi);
           ATH_MSG_VERBOSE("stationName,Eta,Phi="<<stationName<<","<<stationEta<<","<<stationPhi<<" - me="<<me);
           bool good=true;
           for (unsigned int j=0; j<datum->width(); ++j) {
-            int chamberLayer = ( (address & 0x00000800) >> 11) + 0;
-            std::string det=m_cscCalibTool->getDetDescr();
-            if ( det.find ("ATLAS-") != std::string::npos )
-              chamberLayer = ( (address & 0x00000800) >> 11) + 1;
+            int chamberLayer = ( (address & 0x00000800) >> 11) + 1;
             int wireLayer    = ( (address & 0x00000600) >>  9) + 1;
             int measuresPhi  = ( (address & 0x00000100) >>  8);
             int strip        = (  address & 0x000000FF) + 1 + j;
-            ATH_MSG_VERBOSE("det,chamberlayer,wirelayer,measuresphi,strip="<<det<<","<<chamberLayer<<","<<wireLayer<<","<<measuresPhi<<","<<strip);
+            ATH_MSG_VERBOSE("chamberlayer,wirelayer,measuresphi,strip="<<chamberLayer<<","<<wireLayer<<","<<measuresPhi<<","<<strip);
             // Added to Online -> Offline id  in A side number is opposite bug#56002
             if (measuresPhi) {
               int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
@@ -407,10 +404,10 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
               }
             }
             insertedstrips.insert(strip);//for checks
-            Identifier mechan= m_cscHelper->channelID(me,chamberLayer,wireLayer,measuresPhi,strip);
+            Identifier mechan= m_muonIdHelperTool->cscIdHelper().channelID(me,chamberLayer,wireLayer,measuresPhi,strip);
             ATH_MSG_VERBOSE("mechan="<<mechan);
             const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(datum, j);
-            if(!(m_cscHelper->valid(channelId))) {
+            if(!(m_muonIdHelperTool->cscIdHelper().valid(channelId))) {
               ATH_MSG_WARNING("Invalid CSC Identifier in merge! - skipping " << channelId );
               good=false;
             }
@@ -454,7 +451,7 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
   ATH_MSG_DEBUG("stripData<>() begin: gasLayer="<<gasLayer<<" spuID="<<spuID<<" isdata="<<isdata);
 
   samples.clear();
-  IdContext context = m_cscHelper->channel_context();
+  IdContext context = m_muonIdHelperTool->cscIdHelper().channel_context();
 
   uint32_t maxInt  = 2147483640;
   uint32_t address = maxInt;
@@ -472,9 +469,9 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
 
     /** find the strip Identifier given the strip hash ID */
     Identifier stripId;
-    m_cscHelper->get_id(hashOffset, stripId, &context);
-    unsigned int strip = static_cast<unsigned int> ( m_cscHelper->strip( stripId ) );
-    int layer          = m_cscHelper->wireLayer( stripId );
+    m_muonIdHelperTool->cscIdHelper().get_id(hashOffset, stripId, &context);
+    unsigned int strip = static_cast<unsigned int> ( m_muonIdHelperTool->cscIdHelper().strip( stripId ) );
+    int layer          = m_muonIdHelperTool->cscIdHelper().wireLayer( stripId );
     uint16_t width = datum->width();
 
     /** create the map only layer by layer

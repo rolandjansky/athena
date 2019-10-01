@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // System includes
 #include <typeinfo>
 #include <limits>
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
 #include "AthContainers/ConstDataVector.h"
 
 // Local includes
@@ -54,7 +53,7 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode AltMuJetOverlapTool::initializeDerived()
   {
-    using CxxUtils::make_unique;
+    using std::make_unique;
 
     // Initialize the b-jet helper
     if(!m_bJetLabel.empty())

@@ -9,7 +9,7 @@ def defineMenu():
     CtpIdMap     .... map of item names to CTP IDs
     """
     
-    from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
+    from ..LVL1.Lvl1Flags import Lvl1Flags
 
     Lvl1Flags.CTPVersion = 4 # new CTP
 

@@ -17,7 +17,6 @@
 #include "LArCabling/LArCablingLegacyService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //===========================================================
 CaloTriggerTowerService::CaloTriggerTowerService( const std::string& type,
@@ -50,93 +49,82 @@ StatusCode CaloTriggerTowerService::initialize ()
 
   msg()<<MSG::INFO<<" => CaloTriggerTowerService::initialize() "<< endmsg;
 
-
-  ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
-  StatusCode status = detStore.retrieve();
-  if(status.isSuccess())
-  {
-    const CaloIdManager*	caloMgr;
-    status = detStore->retrieve(caloMgr);
-    if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg() << MSG::DEBUG << "Successfully retrieved CaloIdManager from DetectorStore" << endmsg;
-    }
-    m_emHelper = caloMgr->getEM_ID();
-    if (!m_emHelper) {
-	msg() << MSG::ERROR << "Could not access LArEM_ID helper" << endmsg;
-	return StatusCode::FAILURE;
-    } else {
-	msg() << MSG::DEBUG << "Successfully accessed LArEM_ID helper" << endmsg;
-    }
-    m_lvl1Helper = caloMgr->getLVL1_ID();
-    if (!m_lvl1Helper) {
-	msg() << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endmsg;
-	return StatusCode::FAILURE;
-    } else {
-	msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endmsg;
-    }
-    m_ttonlineHelper = caloMgr->getTTOnlineID();
-    if (!m_ttonlineHelper) {
-	msg() << MSG::ERROR << "Could not access TTOnlineID helper" << endmsg;
-	return StatusCode::FAILURE;
-    } else {
-	msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endmsg;
-    }
-
-    const LArIdManager*	larMgr;
-    status = detStore->retrieve(larMgr);
-    if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg() << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endmsg;
-    }
-    m_onlineHelper = larMgr->getOnlineID();
-    if (!m_onlineHelper) {
-	msg() << MSG::ERROR << "Could not access LArOnlineID helper" << endmsg;
-	return StatusCode::FAILURE;
-    } else {
-	msg() << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
-    }
-
-
-    status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_TTCellMap,m_TTCellMapKey);
-    if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<<m_TTCellMapKey << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-
-    status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_caloTTOnOffIdMap,m_caloTTOnOffIdMapKey);
-    if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<<m_caloTTOnOffIdMapKey << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-
-    status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_caloTTOnAttrIdMap,m_caloTTOnAttrIdMapKey);
-    if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTOnAttrIdMapKey << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-    status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_caloTTPpmRxIdMap,m_caloTTPpmRxIdMapKey);
-    if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTPpmRxIdMapKey << endmsg;
-      return StatusCode::FAILURE;
-    }
-
+  const CaloIdManager*	caloMgr;
+  StatusCode status = detStore()->retrieve(caloMgr);
+  if (status.isFailure()) {
+    msg() << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endmsg;
+    return StatusCode::FAILURE;
+  } else {
+    msg() << MSG::DEBUG << "Successfully retrieved CaloIdManager from DetectorStore" << endmsg;
   }
-  else
-    {
-      msg()<<MSG::ERROR<<" => Failed to get DetectorStore "<< endmsg;
-    }
+  m_emHelper = caloMgr->getEM_ID();
+  if (!m_emHelper) {
+    msg() << MSG::ERROR << "Could not access LArEM_ID helper" << endmsg;
+    return StatusCode::FAILURE;
+  } else {
+    msg() << MSG::DEBUG << "Successfully accessed LArEM_ID helper" << endmsg;
+  }
+  m_lvl1Helper = caloMgr->getLVL1_ID();
+  if (!m_lvl1Helper) {
+    msg() << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endmsg;
+    return StatusCode::FAILURE;
+  } else {
+    msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endmsg;
+  }
+  m_ttonlineHelper = caloMgr->getTTOnlineID();
+  if (!m_ttonlineHelper) {
+    msg() << MSG::ERROR << "Could not access TTOnlineID helper" << endmsg;
+    return StatusCode::FAILURE;
+  } else {
+    msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endmsg;
+  }
+
+  const LArIdManager*	larMgr;
+  status = detStore()->retrieve(larMgr);
+  if (status.isFailure()) {
+    msg() << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endmsg;
+    return StatusCode::FAILURE;
+  } else {
+    msg() << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endmsg;
+  }
+  m_onlineHelper = larMgr->getOnlineID();
+  if (!m_onlineHelper) {
+    msg() << MSG::ERROR << "Could not access LArOnlineID helper" << endmsg;
+    return StatusCode::FAILURE;
+  } else {
+    msg() << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
+  }
+
+
+  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
+			     m_TTCellMap,m_TTCellMapKey);
+  if (status.isFailure()) {
+    msg() << MSG::ERROR << "Unable to regFcn for "<<m_TTCellMapKey << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+
+  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
+			     m_caloTTOnOffIdMap,m_caloTTOnOffIdMapKey);
+  if (status.isFailure()) {
+    msg() << MSG::ERROR << "Unable to regFcn for "<<m_caloTTOnOffIdMapKey << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+
+  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
+			     m_caloTTOnAttrIdMap,m_caloTTOnAttrIdMapKey);
+  if (status.isFailure()) {
+    msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTOnAttrIdMapKey << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
+			     m_caloTTPpmRxIdMap,m_caloTTPpmRxIdMapKey);
+  if (status.isFailure()) {
+    msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTPpmRxIdMapKey << endmsg;
+    return StatusCode::FAILURE;
+  }
 
   IToolSvc* toolSvc;
   status   = service( "ToolSvc",toolSvc  );

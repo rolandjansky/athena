@@ -16,11 +16,13 @@ HLTEDMCreator::HLTEDMCreator( const std::string& type,
 
 template<typename T>
 StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
+  CHECK( handles.out.initialize() );
+  renounceArray( handles.out );
   CHECK( handles.in.initialize() );
   renounceArray( handles.in );
-  CHECK( handles.out.initialize() );
-  CHECK( handles.views.initialize() );
+  CHECK( handles.views.initialize() );  
   renounceArray( handles.views );
+
   // the case w/o reading from views, both views handles and collection in views should be empty
   if ( handles.views.size() == 0 ) {
     CHECK( handles.in.size() == 0 );
@@ -35,35 +37,6 @@ StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
 
 StatusCode HLTEDMCreator::initialize()
 {  
-#define INIT(__TYPE) \
-  CHECK( initHandles( HandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
-
-#define INIT_XAOD(__TYPE) \
-  CHECK( initHandles( HandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
-
-  INIT( TrigRoiDescriptorCollection );
-  INIT_XAOD( TrigCompositeContainer );
-  INIT_XAOD( TrigEMClusterContainer );
-  INIT_XAOD( TrigCaloClusterContainer );
-  INIT_XAOD( TrigElectronContainer ); 
-  INIT_XAOD( TrigPhotonContainer );
-  INIT_XAOD( TrackParticleContainer );
-  INIT_XAOD( TrigMissingETContainer );
-
-  INIT_XAOD( L2StandAloneMuonContainer );
-  INIT_XAOD( L2CombinedMuonContainer );
-  INIT_XAOD( L2IsoMuonContainer );
-  INIT_XAOD( MuonContainer );
-  INIT_XAOD( TauJetContainer );
-  INIT_XAOD( JetContainer );
-  INIT_XAOD( VertexContainer );
-  INIT_XAOD( TrigBphysContainer );  
-
-  INIT_XAOD( CaloClusterContainer );
-
-#undef INIT
-#undef INIT_XAOD
-
   if ( m_fixLinks.size() > 0 ) {
     // Confirm that m_fixLinks is a sub-set of m_TrigCompositeContainer
     for (const std::string& entry : m_fixLinks) {
@@ -85,8 +58,47 @@ StatusCode HLTEDMCreator::initialize()
       }
     }
     ATH_CHECK( m_remapLinkColKeys.initialize() ) ;
+    renounceArray( m_remapLinkColKeys ); // This is not strictly necessary however, since we have many of these collection and no consumer for it we can spare scheduler headache renouncing them
     ATH_CHECK( m_remapLinkColIndices.initialize() );
+    renounceArray( m_remapLinkColIndices );
   }
+
+  // this section has to appear after the above initialisation of DecorHandles, else the renounce of TrigComposite does not work as expected
+
+#define INIT(__TYPE) \
+  CHECK( initHandles( HandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
+
+#define INIT_XAOD(__TYPE) \
+  CHECK( initHandles( HandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
+
+  INIT( TrigRoiDescriptorCollection );
+  INIT_XAOD( TrigCompositeContainer );
+    
+  INIT_XAOD( TrigEMClusterContainer );
+  INIT_XAOD( TrigCaloClusterContainer );
+  INIT_XAOD( TrigElectronContainer ); 
+  INIT_XAOD( ElectronContainer ); 
+  INIT_XAOD( PhotonContainer ); 
+  INIT_XAOD( TrigPhotonContainer );
+  INIT_XAOD( TrackParticleContainer );
+  INIT_XAOD( TrigMissingETContainer );
+
+  INIT_XAOD( L2StandAloneMuonContainer );
+  INIT_XAOD( L2CombinedMuonContainer );
+  INIT_XAOD( L2IsoMuonContainer );
+  INIT_XAOD( MuonContainer );
+  INIT_XAOD( TauJetContainer );
+  INIT_XAOD( JetContainer );
+  INIT_XAOD( VertexContainer );
+  INIT_XAOD( TrigBphysContainer );  
+
+  INIT_XAOD( CaloClusterContainer );
+
+#undef INIT
+#undef INIT_XAOD
+
+
+
   
   return StatusCode::SUCCESS;
 }
@@ -294,6 +306,8 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   
   CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer )
   CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer )
+  CREATE_XAOD( ElectronContainer, ElectronAuxContainer )
+  CREATE_XAOD( PhotonContainer, PhotonAuxContainer )
   CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer )
   CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
   CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )

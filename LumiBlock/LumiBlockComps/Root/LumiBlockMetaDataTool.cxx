@@ -14,10 +14,6 @@
 #include "LumiBlockComps/ILumiCalcSvc.h"
 #include "xAODLuminosity/SortLumiBlockRangeByStart.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/FileIncident.h"
-
-#include "StoreGate/StoreGateSvc.h"
 #include "DBDataModel/CollectionMetadata.h"
 
 #include "GoodRunsLists/TGRLCollection.h"

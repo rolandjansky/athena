@@ -19,13 +19,8 @@ def InDetJetFitterUtilsCfg(flags, name = 'InDetJFUtils', useBTagFlagsDefaults = 
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accBTagFullLinearizedTrackFactory = BTagFullLinearizedTrackFactoryCfg(flags, 'JFFullLinearizedTrackFactory')
-        jetFitterFullLinearizedTrackFactory = accBTagFullLinearizedTrackFactory.popPrivateTools()
-        #jetFitterFullLinearizedTrackFactory = BTagFullLinearizedTrackFactoryCfg(flags, 'JFFullLinearizedTrackFactory')
-        acc.merge(accBTagFullLinearizedTrackFactory)
-        accExtrapolator = AtlasExtrapolatorCfg(flags, 'JFExtrapolator')
-        jetFitterExtrapolator = accExtrapolator.popPrivateTools()
-        acc.merge(accExtrapolator)
+        jetFitterFullLinearizedTrackFactory = acc.popToolsAndMerge(BTagFullLinearizedTrackFactoryCfg(flags, 'JFFullLinearizedTrackFactory')) 
+        jetFitterExtrapolator= acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'JFExtrapolator'))
         defaults = { 'LinearizedTrackFactory': jetFitterFullLinearizedTrackFactory,
                      'Extrapolator' : jetFitterExtrapolator }
         for option in defaults:

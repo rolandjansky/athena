@@ -15,7 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -36,28 +36,28 @@ namespace Muon {
 }
 
 
-class MdtCondDbAlg: public AthAlgorithm{
+class MdtCondDbAlg: public AthReentrantAlgorithm{
 
 public:
 
     MdtCondDbAlg( const std::string & name, ISvcLocator* svc);
     virtual ~MdtCondDbAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute   () override;
+    virtual StatusCode execute (const EventContext&) const override;
 
  
 private:
 
-    virtual StatusCode loadDataPsHv           (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadDataPsLv           (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadDataHv             (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadDataLv             (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadDataDroppedChambers(EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadMcDroppedChambers  (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadMcDeadElements     (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadMcDeadTubes        (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-    virtual StatusCode loadMcNoisyChannels    (EventIDRange &, std::unique_ptr<MdtCondDbData>&);
-
+    StatusCode loadDataPsHv           (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDataPsLv           (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDataHv             (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDataLv             (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDataDroppedChambers(EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadMcDroppedChambers  (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadMcDeadElements     (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadMcDeadTubes        (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadMcNoisyChannels    (EventIDRange& rangeOut, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    
     bool m_isOnline{false};
     bool m_isData{false};  
     bool m_isRun1{false};   

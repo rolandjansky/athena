@@ -35,14 +35,16 @@ StatusCode TBHitPlaneContCnv::initialize()
 }
 
 
-StatusCode TBHitPlaneContCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
+StatusCode TBHitPlaneContCnv::PoolToDataObject(DataObject*& pObj,
+                                               const Token* token,
+                                               const std::string& key)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
   MsgStream log(msgSvc(), "TBHitPlaneContCnv::PoolToDataObject" );
    
-  StatusCode sc = TBHitPlaneContCnvBase::PoolToDataObject(pObj, token);
+  StatusCode sc = TBHitPlaneContCnvBase::PoolToDataObject(pObj, token, key);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;

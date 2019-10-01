@@ -6,7 +6,6 @@
 
 #include "GaudiKernel/IToolSvc.h"
 #include "xAODJet/Jet.h"
-#include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
 #include "AthenaKernel/Units.h"
 #include "TMVA/Reader.h"
@@ -82,22 +81,22 @@ namespace Analysis {
 
   StatusCode MV1Tag::tagJet(const xAOD::Vertex& /*priVtx*/,
                             const xAOD::Jet& jetToTag,
-                            xAOD::BTagging& BTag) const
+                            xAOD::BTagging& BTag,
+                            const std::string &jetName) const
   {
     std::lock_guard<std::mutex> lock (m_mutex);
 
     /* jet author: */
-    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
-    std::string alias = m_calibrationTool->channelAlias(author);
+    std::string alias = m_calibrationTool->channelAlias(jetName);
 
-    ATH_MSG_DEBUG("#BTAG# Jet author: " << author << ", alias: " << alias );
+    ATH_MSG_DEBUG("#BTAG# Jet author: " << jetName << ", alias: " << alias );
 
     /* tweak name for Flip versions: */
 
     TMVA::Reader* tmvaReader;
     std::map<std::string, TMVA::Reader*>::iterator pos;
     /* check if calibration (neural net structure or weights) has to be updated: */
-    std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib");
+    std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, jetName, m_taggerNameBase+"Calib");
     bool calibHasChanged = calib.second;
 
     std::ostringstream iss; //iss.clear();

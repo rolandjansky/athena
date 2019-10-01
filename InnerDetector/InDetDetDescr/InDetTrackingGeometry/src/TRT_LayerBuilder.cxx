@@ -34,8 +34,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/SystemOfUnits.h"
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 // STL
 #include <map>
 

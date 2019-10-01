@@ -23,7 +23,8 @@
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -123,8 +124,8 @@ private:
   SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV
   {this, "ReadKeyHV",    "PixelDCSHVCondData", "Key of input bias voltage conditions folder"};
 
-  ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc
-  {this, "PixelByteStreamErrorsSvc", "PixelByteStreamErrorsSvc", "Pixel byte stream error service"};
+  ToolHandle<IInDetConditionsTool> m_pixelSummary
+  {this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool for PixelConditionsSummaryTool"};
 
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool
   {this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};

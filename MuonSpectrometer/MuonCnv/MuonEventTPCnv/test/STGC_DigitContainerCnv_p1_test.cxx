@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonDigitContainer/STGC_DigitContainerCnv_p1.h"
 #include "TestTools/leakcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -72,7 +71,7 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
 
   sTgcDigitContainer trans1 (5);
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<sTgcDigitCollection>
+    auto coll = std::make_unique<sTgcDigitCollection>
       (muo_dd.stgcIdHelper()->elementID (57, 1, hash), // STS
        IdentifierHash(hash));
 
@@ -80,7 +79,7 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
       int offs = i*10 + hash*100;
       Identifier id = muo_dd.stgcIdHelper()->channelID (57, 1, hash,
                                                         1, 2, 1, 2+i);
-      auto dig = CxxUtils::make_unique<sTgcDigit>
+      auto dig = std::make_unique<sTgcDigit>
         (id,
          123+offs, 4.5+offs, 6.5+offs, false, false);
       coll->push_back (std::move (dig));

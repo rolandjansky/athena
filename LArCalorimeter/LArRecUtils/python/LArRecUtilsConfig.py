@@ -21,7 +21,7 @@ def LArADC2MeVCondAlgCfg(flags):
     isMC=flags.Input.isMC
     
     if isMC:
-        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScale"]
+        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
         theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
         theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
         theADC2MeVCondAlg.LArRampKey="LArRampSym"
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags (quiet = True)
+    ConfigFlags.loadAllDynamicFlags()
 
     print ('--- LArOFCCondAlg 1')
     flags1 = ConfigFlags.clone()

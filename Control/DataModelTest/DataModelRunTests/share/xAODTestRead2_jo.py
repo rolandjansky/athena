@@ -63,8 +63,9 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestReadCVec
 from DataModelTestDataRead.DataModelTestDataReadConf import \
-     DMTest__xAODTestReadCVec, \
      DMTest__xAODTestReadCInfo, \
      DMTest__xAODTestReadCView, \
      DMTest__xAODTestReadHVec, \

@@ -1226,7 +1226,7 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* ddman,
          os << "ShapeDer : ";
          for (unsigned int k = 0; k<this_ShapeDer_test.size(); ++k) {os << this_ShapeDer_test.at(k) << " ";}
          ATH_MSG_INFO( os.str() );
-         const std::vector<float>& ramp=adc2mev->ADC2MEV(chid,rcDig.gain());
+         const auto ramp=adc2mev->ADC2MEV(chid,rcDig.gain());
          const float escale = ramp[1];
          float ramp0 = ramp[0];
          if (q_gain == 0) ramp0 = 0.; // no ramp intercepts in HG
@@ -1346,7 +1346,7 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* ddman,
 	ILArOFC::OFCRef_t this_OFC_b_test = ofcs->OFC_b(chid,q_gain,delayIdx_test);
 	ILArShape::ShapeRef_t this_OFC_h_test = shapes->Shape(chid,q_gain,delayIdx_test);
 	ILArShape::ShapeRef_t this_OFC_d_test = shapes->ShapeDer(chid,q_gain,delayIdx_test);	
-	const std::vector<float>& ramp=adc2mev->ADC2MEV(chid,q_gain);
+	const auto ramp=adc2mev->ADC2MEV(chid,q_gain);
 	const std::vector<short>& samples=dig->samples();
 	const float escale = ramp[1];
 	float ramp0 = ramp[0];

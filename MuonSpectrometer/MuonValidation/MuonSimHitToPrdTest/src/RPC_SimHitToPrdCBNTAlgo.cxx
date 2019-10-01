@@ -172,7 +172,6 @@ RPC_SimHitToPrdCBNTAlgo::Clockwork::~Clockwork() {
 RPC_SimHitToPrdCBNTAlgo::RPC_SimHitToPrdCBNTAlgo(const std::string &name, ISvcLocator *pSvcLocator): 
   AthAlgorithm(name, pSvcLocator) 
   ,m_muonMgr(0)
-  ,m_rpcIdHelper(0)
   ,m_muonHelper(0)
 {
 
@@ -209,8 +208,8 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::initialize()
       ATH_MSG_FATAL ( "Could not retrieve MuonDetectorManager!" );
       return sc;
   }
-  // offline id helpers can be obtained from the MuonDetectorManager
-  m_rpcIdHelper =  m_muonMgr->rpcIdHelper();
+  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
    
   // book ntuple 
   NTupleFilePtr     file(ntupleSvc(),"/NTUPLES/FILE");
@@ -704,15 +703,15 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCDigit()
  	 m_c->m_digit_time[myCounter] = (*rpcdigit)->time(); 
 
          
- 	 m_c->m_digit_station    [myCounter] = m_rpcIdHelper->stationName(digit_id); 
- 	 m_c->m_digit_eta        [myCounter] = m_rpcIdHelper->stationEta(digit_id); 
- 	 m_c->m_digit_phi        [myCounter] = m_rpcIdHelper->stationPhi(digit_id); 
- 	 m_c->m_digit_doubletR   [myCounter] = m_rpcIdHelper->doubletR(digit_id); 
- 	 m_c->m_digit_doubletZ   [myCounter] = m_rpcIdHelper->doubletZ(digit_id); 
- 	 m_c->m_digit_doubletPhi [myCounter] = m_rpcIdHelper->doubletPhi(digit_id); 
- 	 m_c->m_digit_gasGap     [myCounter] = m_rpcIdHelper->gasGap(digit_id);  
- 	 m_c->m_digit_measuresPhi[myCounter] = m_rpcIdHelper->measuresPhi(digit_id); 
- 	 m_c->m_digit_strip      [myCounter] = m_rpcIdHelper->strip(digit_id); 
+ 	 m_c->m_digit_station    [myCounter] = m_muonIdHelperTool->rpcIdHelper().stationName(digit_id); 
+ 	 m_c->m_digit_eta        [myCounter] = m_muonIdHelperTool->rpcIdHelper().stationEta(digit_id); 
+ 	 m_c->m_digit_phi        [myCounter] = m_muonIdHelperTool->rpcIdHelper().stationPhi(digit_id); 
+ 	 m_c->m_digit_doubletR   [myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletR(digit_id); 
+ 	 m_c->m_digit_doubletZ   [myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletZ(digit_id); 
+ 	 m_c->m_digit_doubletPhi [myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletPhi(digit_id); 
+ 	 m_c->m_digit_gasGap     [myCounter] = m_muonIdHelperTool->rpcIdHelper().gasGap(digit_id);  
+ 	 m_c->m_digit_measuresPhi[myCounter] = m_muonIdHelperTool->rpcIdHelper().measuresPhi(digit_id); 
+ 	 m_c->m_digit_strip      [myCounter] = m_muonIdHelperTool->rpcIdHelper().strip(digit_id); 
       
  	 // get the digit position 
  	 const MuonGM::RpcReadoutElement* descriptor =  m_muonMgr->getRpcReadoutElement(digit_id); 
@@ -733,7 +732,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCDigit()
 			<<	 m_c->m_digit_measuresPhi[myCounter]<<" "
 			<<	 m_c->m_digit_strip[myCounter] );
 	 ++myCounter; 
-	 //	 ATH_MSG_DEBUG ( " digit number  " << myCounter<< " id = "<<m_rpcIdHelper->show_to_string(digit_id) ); 
+	 //	 ATH_MSG_DEBUG ( " digit number  " << myCounter<< " id = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(digit_id) ); 
        } //end of rpcdigit container loop 
        ++myCounterColl;
      } //end of container iteration loop      
@@ -881,15 +880,15 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCPrep()
 	 Identifier prd_id = (*rpcPrd)->identify(); 
 	
 	 m_c->m_prd_time[myCounter] = (*rpcPrd)->time(); 
-	 m_c->m_prd_station[myCounter] = m_rpcIdHelper->stationName(prd_id); 
-	 m_c->m_prd_eta[myCounter] = m_rpcIdHelper->stationEta(prd_id); 
-	 m_c->m_prd_phi[myCounter] = m_rpcIdHelper->stationPhi(prd_id); 
-	 m_c->m_prd_doubletR[myCounter] = m_rpcIdHelper->doubletR(prd_id); 
-	 m_c->m_prd_doubletZ[myCounter] = m_rpcIdHelper->doubletZ(prd_id); 
-	 m_c->m_prd_doubletPhi[myCounter] = m_rpcIdHelper->doubletPhi(prd_id); 
-	 m_c->m_prd_gasGap[myCounter] = m_rpcIdHelper->gasGap(prd_id);  
-	 m_c->m_prd_measuresPhi[myCounter] = m_rpcIdHelper->measuresPhi(prd_id); 
-	 m_c->m_prd_strip[myCounter] = m_rpcIdHelper->strip(prd_id); 
+	 m_c->m_prd_station[myCounter] = m_muonIdHelperTool->rpcIdHelper().stationName(prd_id); 
+	 m_c->m_prd_eta[myCounter] = m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id); 
+	 m_c->m_prd_phi[myCounter] = m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id); 
+	 m_c->m_prd_doubletR[myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id); 
+	 m_c->m_prd_doubletZ[myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id); 
+	 m_c->m_prd_doubletPhi[myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id); 
+	 m_c->m_prd_gasGap[myCounter] = m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id);  
+	 m_c->m_prd_measuresPhi[myCounter] = m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id); 
+	 m_c->m_prd_strip[myCounter] = m_muonIdHelperTool->rpcIdHelper().strip(prd_id); 
 	 m_c->m_prd_triggerInfo[myCounter] = (*rpcPrd)->triggerInfo(); 
 	 m_c->m_prd_ambigFlag[myCounter] = (*rpcPrd)->ambiguityFlag(); 
     

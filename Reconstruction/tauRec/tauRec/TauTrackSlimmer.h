@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TRACKSLIMMER_TAU_H
@@ -12,8 +12,6 @@
 #include "tauRecTools/TauEventData.h"
 
 #include <string>
-
-class StoreGateSvc;
 
 /**
  * @brief Class for tau tracks slimming.

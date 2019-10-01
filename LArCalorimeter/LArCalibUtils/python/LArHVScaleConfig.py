@@ -5,8 +5,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 def LArHVScaleCfg(configFlags):
     result=ComponentAccumulator()
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-    result.merge(IOVDbSvcCfg(configFlags))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    #result.merge(IOVDbSvcCfg(configFlags))
 
     if configFlags.Input.isMC:
         result.merge(addFolders(configFlags,["/LAR/Identifier/HVLineToElectrodeMap<tag>LARHVLineToElectrodeMap-001</tag>"], "LAR_OFL", className="AthenaAttributeList"))
@@ -15,8 +15,6 @@ def LArHVScaleCfg(configFlags):
         hvmapalg = LArHVIdMappingAlg(ReadKey="/LAR/Identifier/HVLineToElectrodeMap",WriteKey="LArHVIdMap")
         result.addCondAlgo(hvmapalg)
 
-        # result.merge(addFolders(configFlags,["/LAR/ElecCalibMC/HVScaleCorr"],"LAR_OFL", className="AthenaAttributeList"))
-
 
     elif not configFlags.Common.isOnline:
         result.merge(addFolders(configFlags,["/LAR/DCS/HV/BARREl/I16"], "DCS_OFL", className="CondAttrListCollection"))
@@ -24,8 +22,6 @@ def LArHVScaleCfg(configFlags):
 
         result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap"], "LAR_OFL", className="AthenaAttributeList"))
         result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Pathologies"], "LAR_OFL", className="AthenaAttributeList"))
-
-        result.merge(addFolders(configFlags,["/LAR/ElecCalibFlat/HVScaleCorr"],"LAR_ONL", className="CondAttrListCollection"))
 
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
         result.merge(LArBadChannelCfg(configFlags))
@@ -45,11 +41,8 @@ def LArHVScaleCfg(configFlags):
         hvcond = LArHVCondAlg("LArHVPathologyAlg",HVPathologies="LArHVPathology",OutputHVData="LArHVData")
         result.addCondAlgo(hvcond)
 
-        from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrFlat
-        hvscaleflat = LArHVScaleCorrFlat("LArHVScaleCorrFlat",
-                                         ReadKey="/LAR/ElecCalibFlat/HVScaleCorr",
-                                         WriteKey='LArHVScaleCorr')
-        result.addCondAlgo(hvscaleflat)
+        from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
+        result.merge(LArElecCalibDbCfg(configFlags,["HVScaleCorr",]))
 
         from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg
         hvscalecorrkey = "LArHVScaleCorrRecomputed"

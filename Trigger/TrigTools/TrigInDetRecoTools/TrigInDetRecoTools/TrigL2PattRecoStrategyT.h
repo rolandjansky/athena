@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETRECOTOOLS_TRIGL2PATTRECOSTRATEGYT_H
@@ -29,6 +29,8 @@ class PixelID;
 class TRT_ID;
 
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
+
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 class TrigTimer;
 
@@ -94,6 +96,8 @@ class TrigL2PattRecoStrategyT: public AthAlgTool, virtual public ITrigL2SeededPa
 
   ToolHandle<InDet::ITRT_TrackSegmentsMaker>    m_segmentsmaker   ;
 
+  SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap
+  {this,"PRDtoTrackMap",""};
 
   InDet::TRT_DriftCircleContainer* m_filteredDriftCircleContainer;
   std::string m_trtFilteredContName;

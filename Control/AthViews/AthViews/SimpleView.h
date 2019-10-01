@@ -11,6 +11,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthLinks/ElementLink.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include <string>
 #include <vector>
@@ -171,9 +173,13 @@ class SimpleView : public IProxyDict
                 // prints content of the view 
                 std::string dump( const std::string& indent = "" ) const;
 
+    void setROI(const ElementLink<TrigRoiDescriptorCollection>& roi);
+    const ElementLink<TrigRoiDescriptorCollection>& getROI() const;
+
 	protected:
 		//Connection to the whole event store
 		ServiceHandle< StoreGateSvc > m_store;
+		ElementLink<TrigRoiDescriptorCollection> m_roi;
 		std::string m_name;
                 std::vector< const SimpleView* > m_parents;
 

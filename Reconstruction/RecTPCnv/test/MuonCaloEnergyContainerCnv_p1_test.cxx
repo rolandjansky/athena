@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,6 @@
 
 #undef NDEBUG
 #include "RecTPCnv/MuonCaloEnergyContainerCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -89,9 +88,9 @@ std::unique_ptr<CaloEnergy> make_one (float offs)
   std::vector<DepositInCalo> deposits;
   deposits.emplace_back (CaloCell_ID::EMB2, offs+10.5, offs+11.5, offs+12.5);
   deposits.emplace_back (CaloCell_ID::EME2, offs+20.5, offs+21.5, offs+22.5);
-  return CxxUtils::make_unique<CaloEnergy> (offs+1.5, offs+2.5, offs+3.5, offs+4.5,
-                                            2, offs+5.5, offs+20,
-                                            deposits);
+  return std::make_unique<CaloEnergy> (offs+1.5, offs+2.5, offs+3.5, offs+4.5,
+                                       2, offs+5.5, offs+20,
+                                       deposits);
 }
 
 

@@ -3,6 +3,10 @@
 """Define method to construct configured Tile info loader service"""
 
 
+from __future__ import print_function
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+
 def TileInfoLoaderCfg(flags, **kwargs):
     """Return component accumulator with configured Tile info loader service
 
@@ -14,7 +18,8 @@ def TileInfoLoaderCfg(flags, **kwargs):
     msg = logging.getLogger('TileInfoLoaderCfg')
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
-    acc = TileCablingSvcCfg(flags)
+    acc = ComponentAccumulator()
+    acc.merge (TileCablingSvcCfg(flags))
 
     if 'NoiseScaleIndex' not in kwargs:
         if flags.Tile.doOpt2 and not flags.Tile.doOptATLAS:
@@ -73,7 +78,6 @@ def TileInfoLoaderCfg(flags, **kwargs):
 
 if __name__ == "__main__":
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

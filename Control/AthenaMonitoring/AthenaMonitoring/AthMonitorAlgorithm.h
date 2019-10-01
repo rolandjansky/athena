@@ -170,7 +170,7 @@ public:
      *
      * @return the current value of the class's Environment_t instance.
      */
-    Environment_t environment() const;
+    Environment_t environment() const { return m_environment; }
 
 
     /**
@@ -186,7 +186,7 @@ public:
      *
      * @return the current value of the class's DataType_t instance.
      */
-    DataType_t dataType() const;
+    DataType_t dataType() const { return m_dataType; }
 
 
     /** 
@@ -218,7 +218,7 @@ public:
      * 
      * @return m_trigDecTool
      */
-    const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool() const;
+    const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool() const {   return m_trigDecTool;  }
 
     /** 
      * Check whether triggers are passed

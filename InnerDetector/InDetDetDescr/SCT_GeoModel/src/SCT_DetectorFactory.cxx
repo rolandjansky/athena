@@ -82,6 +82,9 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   m_geometryManager = new SCT_GeometryManager{m_db};
   m_geometryManager->setOptions(options);
 
+  // Add SiCommonItems to SCT_DetectorManager to hold and delete it.
+  m_detectorManager->setCommonItems(m_geometryManager->commonItems());
+
   m_useDynamicAlignFolders = options.dynamicAlignFolders();
  
   // Set Version information

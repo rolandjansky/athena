@@ -65,7 +65,6 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
                                                     LArTT_Selector<LArCellCont>& loadedCells ) {
 
   std::vector<IdentifierHash> requestHashIDs;  
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
   unsigned int sc = prepareLArCollections( context, roi, sampling, detID );
@@ -146,7 +145,6 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
                                                         ConstDataVector<CaloCellContainer>& cont ) {
 
 
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
   // Gets all data
   {
   std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
@@ -192,6 +190,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
 
   if ( cache->lastFSEvent == context.evt() ) return 0x0; // dummy code
        cache->larContainer->eventNumber( context.evt() ) ;
+  if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
+	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+	cache->larContainer->updateBCID( *avg.cptr() ); 
+  }
 
   unsigned int status(0);
 
@@ -209,7 +211,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
       
       if ( vrodid32fullDet.size() != robFrags.size() ) {
         ATH_MSG_DEBUG( "Missing ROBs, requested " << vrodid32fullDet.size() << " obtained " << robFrags.size() );
-        status |= 0x1; // dummy code
+        //status |= 0x1; // dummy code
         clearMissing( vrodid32fullDet, robFrags, ( cache->larContainer ) );
       }
 
@@ -418,7 +420,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
       			 "event: Bad ROB block ( eformat checks ) : 0x"
       			 << std::hex << sourceID << std::dec );
       	// Data seems corrupted
-      	status |= 0x1; // dummy code
+      	//status |= 0x1; // dummy code
       	reset_LArCol ( coll );
 
       } else {
@@ -431,7 +433,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 			   "event: Empty ROD block ( less than 3 words ) : 0x"
 			   << std::hex << sourceID << std::dec );
 	  // Data seems corrupted
-	  status |= 0x1; // dummy code
+	  //status |= 0x1; // dummy code
 	  reset_LArCol ( coll );
 	} else { // End of if small size
 	  //TB the converter has state
@@ -440,7 +442,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 
 	  // Accumulates inferior byte from ROD Decoder
 	  // TB the converter has state
-	  status |= (m_larDecoder->report_error());
+	  //status |= (m_larDecoder->report_error());
 
 	  if ( m_applyOffsetCorrection ) larcell->applyBCIDCorrection( sourceID );
 	} 
@@ -567,12 +569,16 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   // if it is the same the unpacking will not be repeated
   // same in prepareLArFullCollections
   cache->larContainer->eventNumber( context.evt() );
+  if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
+	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+	cache->larContainer->updateBCID( *avg.cptr() ); 
+  }
   
   unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );
 
   if ( requestROBs.size() != robFrags.size() ) {
     ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs.size() << " obtained " << robFrags.size() );
-    status |= 0x1; // dummy code
+    //status |= 0x1; // dummy code
     clearMissing( requestROBs, robFrags, ( cache->larContainer ) );
   }
   auto roiROBs = Monitored::Scalar( "roiROBs_LAr", robFrags.size() );

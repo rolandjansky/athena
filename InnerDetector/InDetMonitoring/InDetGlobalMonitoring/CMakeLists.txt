@@ -23,7 +23,8 @@ atlas_depends_on_subdirs(
    Generators/GeneratorObjects
    InnerDetector/InDetConditions/BeamSpotConditionsData
    InnerDetector/InDetConditions/InDetConditionsSummaryService
-   InnerDetector/InDetConditions/PixelConditionsServices
+   InnerDetector/InDetConditions/PixelConditionsTools
+   InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetConditions/SCT_ConditionsTools
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -59,7 +60,7 @@ atlas_add_component( InDetGlobalMonitoring
    CommissionEvent AthenaBaseComps AthenaMonitoringLib AtlasDetDescr
    IdDictDetDescr Identifier EventInfo EventPrimitives xAODJet xAODTracking
    GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetBCM_RawData
-   InDetRawData InDetPrepRawData InDetRIO_OnTrack LWHists TrkSurfaces
+   InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetByteStreamErrors LWHists TrkSurfaces
    TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkTrack
    TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces TrkToolInterfaces
    TrkVertexFitterInterfaces PixelGeoModelLib InDetTrackSelectionToolLib )

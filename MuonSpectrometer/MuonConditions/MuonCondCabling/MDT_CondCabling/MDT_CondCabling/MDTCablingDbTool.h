@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_CONDCABLING_MDTCABLINGDBTOOL_H
@@ -12,9 +12,7 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "StoreGate/StoreGateSvc.h"
 class Identifier; 
-class StoreGateSvc; 
 class MdtIdHelper;
 class IIOVSvc;
 class IIOVDbSvc;

@@ -28,11 +28,11 @@ atlas_add_library( MuonMDT_CablingLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonMDT_Cabling
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities Identifier EventInfo MuonCablingData MuonCondInterface MuonCondSvc )
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities Identifier EventInfo MuonCablingData MuonCondInterface MuonCondSvcLib )
 
 atlas_add_component( MuonMDT_Cabling
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel MuonIdHelpersLib AthenaPoolUtilities Identifier EventInfo MuonCablingData MuonCondInterface MuonMDT_CablingLib MuonCondSvc )
+                     LINK_LIBRARIES GaudiKernel MuonMDT_CablingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

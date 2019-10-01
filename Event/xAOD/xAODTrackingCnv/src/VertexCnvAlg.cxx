@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -14,7 +14,6 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "TrkLinks/LinkToXAODNeutralParticle.h"
-#include "CxxUtils/make_unique.h"
 // Local include(s):
 #include "VertexCnvAlg.h"
 
@@ -61,8 +60,8 @@ namespace xAODMaker {
 
     // Create the xAOD container and its auxiliary store:
 
-    m_xaodout = CxxUtils::make_unique<xAOD::VertexContainer>();
-    m_xauxout = CxxUtils::make_unique<xAOD::VertexAuxContainer>();
+    m_xaodout = std::make_unique<xAOD::VertexContainer>();
+    m_xauxout = std::make_unique<xAOD::VertexAuxContainer>();
 
     if(!m_xaodout.isValid() || !m_xauxout.isValid()){
        ATH_MSG_ERROR( "Problem creating " << m_xaodout.name() );

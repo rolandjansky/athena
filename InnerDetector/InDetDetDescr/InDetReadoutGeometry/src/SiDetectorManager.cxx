@@ -14,6 +14,7 @@
 #include "GeoGenericFunctions/Variable.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
+#include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
@@ -28,6 +29,14 @@ namespace InDetDD
     {
   // Add default folder
         addFolder("/Indet/Align");
+    }
+
+    SiDetectorManager::~SiDetectorManager()
+    {
+      for (const SiDetectorDesign* design : m_designs) {
+        delete design;
+      }
+      delete m_commonItems;
     }
 
     const std::string& SiDetectorManager::tag() const
@@ -53,7 +62,7 @@ namespace InDetDD
         element_iter != getDetectorElementEnd();
         ++element_iter) {
             if (*element_iter) {
-                (*element_iter)->setAllCaches();
+                (*element_iter)->setCache();
             }
         }
     }
@@ -144,6 +153,11 @@ namespace InDetDD
     const SiDetectorDesign* SiDetectorManager::getDesign(int i) const
     {
         return m_designs[i];
+    }
+
+    void SiDetectorManager::setCommonItems(const SiCommonItems* commonItems)
+    {
+        m_commonItems = commonItems;
     }
 
 }// namespace InDetDD

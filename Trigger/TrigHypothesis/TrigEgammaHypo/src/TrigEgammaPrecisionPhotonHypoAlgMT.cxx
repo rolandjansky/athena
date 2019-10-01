@@ -57,22 +57,22 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //get RoI  
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI" );
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // not using View so commenting out following lines
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
-    ATH_CHECK( viewELInfo.isValid() );
-    auto photonHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_photonsKey, context);
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    ATH_CHECK( viewEL.isValid() );
+    auto photonHandle = ViewHelper::makeHandle( *viewEL, m_photonsKey, context);
     ATH_CHECK( photonHandle.isValid() );
     ATH_MSG_DEBUG ( "Photon handle size: " << photonHandle->size() << "..." );
     // Loop over the photonHandles
     size_t validphotons=0;
     for (size_t cl=0; cl< photonHandle->size(); cl++){
 	{
-	    auto ph = ViewHelper::makeLink( *(viewELInfo.link), photonHandle, cl );
+	    auto ph = ViewHelper::makeLink( *viewEL, photonHandle, cl );
 	    ATH_MSG_DEBUG ( "Checking ph.isValid()...");
 	    if( !ph.isValid() ) {
 		ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
@@ -83,7 +83,7 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
 	    auto d = newDecisionIn( decisions, name() );
 	    d->setObjectLink( "feature",  ph );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-	    d->setObjectLink( "roi", roiELInfo.link );
+	    d->setObjectLink( roiString(), roiELInfo.link );
 	    toolInput.emplace_back( d, roi, photonHandle.cptr()->at(cl), previousDecision );
 	    validphotons++;
 

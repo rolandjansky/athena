@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/CxxUtils
+                          Control/AthLinks
 			  AtlasTest/TestTools )
 
 # Component(s) in the package:
@@ -26,7 +27,7 @@ atlas_add_library( AthViews
                    src/*.cxx
                    PUBLIC_HEADERS AthViews
                    INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel CxxUtils TrigSteeringEvent )
+                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel CxxUtils AthLinks TrigSteeringEvent )
 
 atlas_add_component( AthViewsAlgs
                    src/*.cxx
@@ -39,6 +40,12 @@ atlas_add_component( AthViewsDFlow
                      src_dflow/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
                      LINK_LIBRARIES AthViews )
+
+atlas_add_dictionary( AthViewsAlgsDict
+                      AthViews/AthViewsWriteDict.h
+                      AthViews/selection.xml
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel CxxUtils AthLinks TrigSteeringEvent
+                      ELEMENT_LINKS TrigRoiDescriptorCollection )
 
 
 atlas_add_test( ViewLinking_test 

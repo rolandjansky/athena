@@ -106,9 +106,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
-
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 using namespace std;
@@ -118,14 +115,12 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   , m_idHelper()
   , m_pixelId( 0 )
   , m_sctId( 0 )
-  , m_PIX_mgr( 0 )
   , m_pixelContainer( 0 )
   , m_sctContainer( 0 )
   , m_particleDataTable( 0 )
   , m_truthToTrack( "Trk::TruthToTrack/InDetTruthToTrack" )
   , m_trkSummaryTool( "Trk::TrackSummaryTool/InDetTrackSummaryTool" )
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
-  , m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
   // , m_holeSearchTool( "InDetHoleSearchTool" )
   , m_pixelClustersName( "PixelClusters" )
   , m_sctClustersName( "SCT_Clusters" )
@@ -178,7 +173,6 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("useSimpleCuts" ,           m_useSimpleCuts);
   //#ifdef HAVE_VERSION_15
   declareProperty("TrigDecisionTool",         m_trigDecTool );
-  declareProperty("PixelSummarySvc" ,         m_pixelCondSummarySvc);
   declareProperty("DoTrigger" ,           m_doTrigger);
   declareProperty("DoData" ,                m_doData);
   declareProperty("DoVertex" ,                m_doVertex);
@@ -224,10 +218,6 @@ DumpSp::initialize()
     ATH_MSG_ERROR( "Unable to initialize ID helper.");
     return StatusCode::FAILURE;
   }
-  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve Pixel manager from DetectorStore");
-    return StatusCode::FAILURE;
-  }
   if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) {
     ATH_MSG_ERROR( "Unable to retrieve Pixel helper from DetectorStore");
     return StatusCode::FAILURE;
@@ -254,11 +244,11 @@ DumpSp::initialize()
   }
   if( m_doBadMod) {
     // Get PixelConditionsSummarySvc
-    if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummarySvc);
+    if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummarySvc);
+      ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
     }
     // Get SctConditionsSummaryTool
     if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
@@ -795,6 +785,13 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
   // unsigned long nchannels_multiple_barcodes_pt1gev = 0ul;
   // unsigned long nchannels_multiple_barcodes_bjet = 0ul;
 
+  // Get PixelDetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(pixelDetEle.retrieve());
+  if (pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+    return;
+  }
   const DataHandle<PixelRDO_Container> pixel_rdocontainer_iter;  
   const InDetSimDataCollection* pixelSimDataMap(0);
   const bool have_pixel_sdo = evtStore()->retrieve(pixelSimDataMap, "PixelSDO_Map").isSuccess();
@@ -807,9 +804,12 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
       ATH_MSG_DEBUG( "Pixel InDetRawDataCollection found with " << size << " RDOs");
       // loop on all RDOs
       for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
-        Identifier rdoId = (*iRDO)->identify();
+        const Identifier rdoId = (*iRDO)->identify();
+        const Identifier wafer_id = m_pixelId->wafer_id(rdoId);
+        const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
         // get the det element from the det element collection
-        const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement );
+        const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
+        assert( sielement );
         Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
         localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         const InDetDD::SiLocalPosition localPos(localPos2D);
@@ -925,9 +925,12 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         const InDetRawDataCollection<PixelRDORawData>* pixel_rdoCollection(*iColl);
         if( !pixel_rdoCollection ) { continue; }
         for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
-          Identifier rdoId = (*iRDO)->identify();
+          const Identifier rdoId = (*iRDO)->identify();
+          const Identifier wafer_id = m_pixelId->wafer_id(rdoId);
+          const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
           // get the det element from the det element collection
-          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
+          const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
+          assert( sielement);
           Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
           localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
           const InDetDD::SiLocalPosition localPos(localPos2D);
@@ -1181,7 +1184,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
       if( have_pixel_sdo && pixelSimDataMap ) { 
         for( std::vector<Identifier>::const_iterator rdoIter = (*iCluster)->rdoList().begin();
              rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
-          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter); 
+          const Identifier wafer_id = m_pixelId->wafer_id(*rdoIter);
+          const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+          const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
           assert( sielement );
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
           const int nCells = sielement->numberOfConnectedCells( sielement->cellIdOfPosition(rawPos) );
@@ -1436,11 +1441,12 @@ DumpSp::dump_bad_modules() const
 {
   if( m_doBadMod) {
     // dump list of bad pixel modules
-    for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd(); i!=f; ++i ) {
-      const InDetDD::SiDetectorElement* sielement( *i );
-      Identifier id = sielement->identify();
-      IdentifierHash idhash = sielement->identifyHash();
-      const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    PixelID::const_id_iterator pixel_wafer_end = m_pixelId->wafer_end();
+    for (PixelID::const_id_iterator wafer_it = m_pixelId->wafer_begin();
+         wafer_it!=pixel_wafer_end; wafer_it++) {
+      const Identifier id = *wafer_it;
+      const IdentifierHash idhash = m_pixelId->wafer_hash(id);
+      const bool is_bad = !(m_pixelCondSummaryTool->isGood( idhash ));
       if( is_bad ) { 
         (*m_oflraw) << "B\t"
                   << 1  << '\t' // 1  pixel 0 sct  
@@ -1455,9 +1461,9 @@ DumpSp::dump_bad_modules() const
       }
     } // end for each pixel module
     // dump list of bad sct modules
-    SCT_ID::const_id_iterator wafer_it = m_sctId->wafer_begin();
-    SCT_ID::const_id_iterator wafer_end = m_sctId->wafer_end();
-    for (; wafer_it!=wafer_end; wafer_it++) {
+    SCT_ID::const_id_iterator sct_wafer_end = m_sctId->wafer_end();
+    for (SCT_ID::const_id_iterator wafer_it = m_sctId->wafer_begin();
+         wafer_it!=sct_wafer_end; wafer_it++) {
       const Identifier id = *wafer_it;
       const IdentifierHash idhash = m_sctId->wafer_hash(id);
       const bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
@@ -1667,6 +1673,13 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
     // Alberto's code for dumping hits on tracks. this code needs to
     // be updated to use the modern track classes.
     if( m_dumpHitsOnTracks ) {
+      // // Get PixelDetectorElementCollection
+      // SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+      // const InDetDD::SiDetectorElementCollection* pixelElements(pixelDetEle.retrieve());
+      // if (pixelElements==nullptr) {
+      //   ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+      //   return;
+      // }
       // // Get SCT_DetectorElementCollection
       // SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
       // const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
@@ -1732,7 +1745,9 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       //           //         (*m_oflraw)<< "\thId=" << hitIndexMap[*pAssocHit];
       //           //       }
       //         } // end of SCT
-      //         sielement = m_PIX_mgr->getDetectorElement( rdoId );
+      //         const Identifier wafer_id = m_pixelId->wafer_id(rdoId);
+      //         const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+      //         sielement = pixelElements->getDetectorElement( wafer_hash );
       //         if( sielement && sielement->isPixel() ) { // hit is pixel
       //           // if there is no PrepRawData associated then the hit is
       //           // not a real hit seen by the detector, so skip it.

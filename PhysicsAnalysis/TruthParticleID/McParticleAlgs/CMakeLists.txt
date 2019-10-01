@@ -27,7 +27,6 @@ atlas_add_component( McParticleAlgs
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps StoreGateLib SGtests NavFourMom McParticleEvent McParticleKernel McParticleUtils )
 
 # Install files from the package:
-atlas_install_headers( McParticleAlgs )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
