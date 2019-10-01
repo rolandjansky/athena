@@ -133,14 +133,6 @@ def update_nested_dict(d, u):
          d[k] = v
    return d
 
-def set_athena_flags(args):
-   """Set athena flags based on command line args"""
-
-   from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-   jp.ConcurrencyFlags.NumThreads = args.threads
-   jp.ConcurrencyFlags.NumConcurrentEvents = args.concurrent_events
-   jp.ConcurrencyFlags.NumProcs = args.nprocs
-
 def HLTMPPy_cfgdict(args):
    """Create the configuration dictionary as expected by HLTMPPy as defined in
    https://gitlab.cern.ch/atlas-tdaq-software/HLTMPPU/blob/master/python/HLTMPPy/runner.py"""
@@ -361,7 +353,6 @@ def main():
 
    # Update args and set athena flags
    update_run_params(args)
-   set_athena_flags(args)
 
    # get HLTMPPY config dictionary
    cdict = HLTMPPy_cfgdict(args)
