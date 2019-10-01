@@ -48,8 +48,6 @@ def mergeSerial(listOfChainDefs):
         csteps = cdef.steps 
         for step in csteps:
             steps.append(step)
-        print "steps!!!"
-        print steps
 
     return chaindef
 
