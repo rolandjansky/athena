@@ -416,11 +416,13 @@ void PerfMonMTSvc::report2Stdout_Summary() {
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size (PSS) in the Finalization is:" % m_snapshotData[2].m_memMon_delta_map["pss"] % "kB");
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Finalization is:" % m_snapshotData[2].m_memMon_delta_map["swap"] % "kB");
 
-  ATH_MSG_INFO("");
+  if(m_isEventLoopMonitoring) {
+    ATH_MSG_INFO("");
 
-  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Events processed:" %  m_eventIds.size());
-  ATH_MSG_INFO(format( "%1% %|55t|%2$.2f ms ") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size()));
-  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall * 1000 ));
+    ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Events processed:" %  m_eventIds.size());
+    ATH_MSG_INFO(format( "%1% %|55t|%2$.2f ms ") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size()));
+    ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall * 1000 ));
+  }
 
   ATH_MSG_INFO("=======================================================================================");
 
