@@ -115,7 +115,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   auto HLT_vs_OFF_resolution = Monitored::Scalar<float>("HLT_vs_OFF_resolution",0.0);
   auto HLT_match_et = Monitored::Scalar<float>("HLT_match_et",0.0);
 
-  const xAOD::TrigEMCluster *hlt_match; // For matching
+  const xAOD::TrigEMCluster *hlt_match = nullptr; // For matching
 
   // Loop over OFF clusters
 
@@ -162,7 +162,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 	fill(m_mongroup_name, HLT_vs_OFF_minimum_delta_r);
 
 	// No HLT match
-	if (min_delta_r > m_max_delta_r) {
+	if (min_delta_r >= m_max_delta_r) {
 
 		++n_off_clusters_no_match;
 
