@@ -37,6 +37,17 @@ def GetDecoratePromptLeptonAlgs(name="", addSpectators=False):
     return algs
 
 #------------------------------------------------------------------------------
+def GetDecoratePromptTauAlgs():
+
+    algs  = []
+
+    algs += [DecoratePromptTau('PromptTauIso',  'TauJets', 'AntiKt4PV0TrackJets')]
+    
+    log.info('GetDecoratePromptTauAlgs - Due to the input variable has changed (missing MV2rmu), PromptTauVeto is not supported')
+
+    return algs
+
+#------------------------------------------------------------------------------
 def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False):
 
     prompt_lep_vars = []
@@ -69,6 +80,23 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False):
 
         prompt_lep_vars += ["Muons.%s" %prompt_vars]
         prompt_lep_vars += ["SecVtxContainer_Muons.%s" %secondaryvertex_vars]
+
+    return prompt_lep_vars
+
+#------------------------------------------------------------------------------
+def GetExtraPromptTauVariablesForDxAOD():
+
+    prompt_lep_vars = []
+
+    prompt_vars  = "PromptTauIso.PromptTauVeto."
+    prompt_vars += "PromptTauInput_TrackJetNTrack.PromptTauInput_rnnip."
+    prompt_vars += "PromptTauInput_MV2c10."
+    prompt_vars += "PromptTauInput_MV2rmu."
+    prompt_vars += "PromptTauInput_JetF.PromptTauInput_SV1."
+    prompt_vars += "PromptTauInput_ip2.PromptTauInput_ip3."
+    prompt_vars += "PromptTauInput_LepJetPtFrac.PromptTauInput_DRlj."
+    
+    prompt_lep_vars += ["TauJets.%s" %prompt_vars]  
 
     return prompt_lep_vars
 
@@ -114,6 +142,39 @@ def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=Fa
     return alg
 
 #------------------------------------------------------------------------------
+def DecoratePromptTau(BDT_name, lepton_name, track_jet_name):
+
+    # Check tau container is correct
+    if lepton_name == 'TauJets':
+        part_type = 'Tau'
+    else:
+        raise Exception('Decorate%s - unknown lepton type: "%s"' %(BDT_name, lepton_name))  
+
+    # Check track jet container is correct
+    if track_jet_name != 'AntiKt4PV0TrackJets':
+        raise Exception('Decorate%s - unknown track jet collection: "%s"' %(BDT_name, track_jet_name))
+
+    # Prepare DecoratePromptLepton alg
+    alg = Conf.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
+
+    alg.LeptonContainerName         = lepton_name
+    alg.TrackJetContainerName       = track_jet_name
+    alg.ConfigFileVersionOneTrack   = 'InputData-2018-02-22/%s/%sOneTrack'   %(part_type, BDT_name)
+    alg.ConfigFileVersionThreeTrack = 'InputData-2018-02-22/%s/%sThreeTrack' %(part_type, BDT_name)
+    alg.MethodTitleMVAOneTrack      = 'BDT_%s_%sOneTrack'   %(part_type, BDT_name)
+    alg.MethodTitleMVAThreeTrack    = 'BDT_%s_%sThreeTrack' %(part_type, BDT_name)
+    alg.BDTName                     = '%s' %BDT_name
+    alg.AuxVarPrefix                = 'PromptTauInput_'
+    alg.PrintTime                   = False
+
+    alg.StringIntVars   = getStringIntVars  (BDT_name)
+    alg.StringFloatVars = getStringFloatVars(BDT_name)
+
+    log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
+
+    return alg
+
+#------------------------------------------------------------------------------
 def DecorateNonPromptVertex(lepton_name):
 
     if lepton_name != 'Electrons' and lepton_name != 'Muons':
@@ -141,7 +202,7 @@ def DecorateNonPromptVertex(lepton_name):
     alg.SVContainerName                   = 'SecVtxContainer_%s' %lepton_name
 
     alg.SecVtxLinksName                   = 'SecVtxLinks'
-    alg.NoLeptonPriVtxLinkName            = 'RefittedPriVtxWithoutLeptonLink'    
+    alg.NoLeptonPriVtxLinkName            = 'RefittedPriVtxWithoutLepton_%s' %lepton_name
     alg.IndexVectorName                   = 'PromptLeptonInput_SecondaryVertexIndexVector'
 
     vtxItrMergingTool.minFitProb                  = 0.03
@@ -181,13 +242,12 @@ def DecorateReFitPrimaryVertex(lepton_name):
     alg = Conf.Prompt__PrimaryVertexReFitter('PrimaryVertexReFitter_%s_decorate%s' %(lepton_name, 'PriVtx'))
 
     alg.LeptonContainerName              = lepton_name
-    alg.PriVtxName                       = 'PrimaryVertices'
     alg.ReFitPriVtxName                  = 'RefittedPriVtx_%s' %lepton_name
 
     alg.DistToRefittedPriVtxName         = 'distToRefittedPriVtx'
     alg.NormDistToRefittedPriVtxName     = 'normDistToRefittedPriVtx'
     alg.RefittedVtxLinkName              = 'RefittedPriVtxLink'
-    alg.RefittedVtxWithoutLeptonLinkName = 'RefittedPriVtxWithoutLeptonLink'
+    alg.RefittedVtxWithoutLeptonLinkName = 'RefittedPriVtxWithoutLepton_%s' %lepton_name
     alg.PrintTime                        = False
     alg.Debug                            = False
 
@@ -207,6 +267,9 @@ def getStringIntVars(BDT_name):
                      'sv1_jf_ntrkv']
 
     elif BDT_name == 'PromptLeptonVeto':
+        int_vars += ['TrackJetNTrack']
+
+    elif BDT_name == 'PromptTauIso':
         int_vars += ['TrackJetNTrack']
 
     else:
@@ -236,6 +299,15 @@ def getStringFloatVars(BDT_name):
                        'TopoEtCone30Rel',
                        'PtVarCone30Rel']
 
+    elif BDT_name == 'PromptTauIso':
+        float_vars += ['MV2c10',                      
+                       'JetF',
+                       'SV1',
+                       'ip2',
+                       'ip3',
+                       'LepJetPtFrac',
+                       'DRlj']
+
     else:
         raise Exception('getStringFloatVars - unknown alg: "%s"' %BDT_name)
    
@@ -264,6 +336,9 @@ def getStringFloatSpecVars(BDT_name):
                        'JetEta',
                        'JetPhi',
                        'JetM']
+
+    elif BDT_name == 'PromptTauIso':
+        float_vars += []
 
     else:
         raise Exception('getStringFloatVars - unknown alg: "%s"' %BDT_name)

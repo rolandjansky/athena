@@ -80,7 +80,7 @@ namespace Prompt
     bool                                                   m_debug;
 
     std::string                                            m_leptonContainerName;
-    std::string                                            m_primaryVertexName;
+    std::string                                            m_primaryVertexContainerName;
     std::string                                            m_reFitPrimaryVertexName;
 
     std::string                                            m_distToRefittedPriVtxName;
