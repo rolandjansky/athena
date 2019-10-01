@@ -58,7 +58,6 @@
 
 # obsolete packages to be removed in a second step
 - Tracking/TrkTools/TrkSegmentConverter
-- Tools/CoolDozer
 
 # Huge D3PD librarys not really useful any more
 - PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
