@@ -223,7 +223,7 @@ def HLTMPPy_cfgdict(args):
          'logLevels' : args.log_level
       })
       # Special case for running from a json file
-      if os.path.splitext(args.jobOptions)[1].lower()=='json':
+      if os.path.splitext(args.jobOptions)[1].lower()=='.json':
          cdict['trigger']['pythonSetupFile'] = 'TrigPSC/TrigPSCPythonDbSetup.py'
    else:
       cdict['trigger'].update({
