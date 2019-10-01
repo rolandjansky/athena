@@ -106,7 +106,8 @@ def setupCommonServices():
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
     # Online services for ByteStream input/output
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigByteStreamInputSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc
     svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
     svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
     svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
