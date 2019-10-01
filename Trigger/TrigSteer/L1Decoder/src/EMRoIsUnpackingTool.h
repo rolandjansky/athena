@@ -36,6 +36,7 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode updateConfiguration(const IRoIsUnpackingTool::SeedingMap& ) override;
   virtual StatusCode finalize() override;
+  virtual StatusCode start() override;
   
 private: 
 
