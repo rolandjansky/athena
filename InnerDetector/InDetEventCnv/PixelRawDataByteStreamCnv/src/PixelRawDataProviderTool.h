@@ -51,6 +51,7 @@ private:
 
   int m_DecodeErrCount;
   uint32_t m_LastLvl1ID;
+  bool m_checkLVL1ID;
 };
 
 #endif
