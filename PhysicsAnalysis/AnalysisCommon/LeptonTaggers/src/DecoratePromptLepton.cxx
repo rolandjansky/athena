@@ -669,6 +669,22 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
     //
     vars.AddVar(var.first, var.second);
   } 
+ 
+  //
+  // r21 MV2 vars
+  //
+  std::vector<VarPair> MV2Vars = {std::make_pair(Prompt::Def::MV2c10, -100.0)};
+
+  for(VarPair &var: MV2Vars) {
+    if(!btag->MVx_discriminant(Prompt::Def::AsStr(var.first), var.second)) {    
+      ATH_MSG_WARNING("Missing " << Prompt::Def::AsStr(var.first));
+    }
+
+    //
+    // Add MV2 vars to VarHolder
+    //
+    vars.AddVar(var.first, var.second);
+  } 
   
   //
   // Add vars to VarHolder

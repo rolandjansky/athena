@@ -50,6 +50,7 @@ Prompt::NonPromptLeptonVertexingAlg::NonPromptLeptonVertexingAlg(const std::stri
   declareProperty("maxTrackPixHoles",                  m_maxTrackPixHoles      = 1);
 
   declareProperty("LeptonContainerName",               m_leptonContainerName);
+  declareProperty("PriVertexContainerName",            m_primaryVertexContainerName = "PrimaryVertices");
   declareProperty("ReFitPriVtxContainerName",          m_refittedPriVtxContainerName);
   declareProperty("SVContainerName",                   m_svContainerName);
 
@@ -77,6 +78,11 @@ StatusCode Prompt::NonPromptLeptonVertexingAlg::initialize()
     // Start full timer
     //
     m_timerAll.Start();
+  }
+
+  if(m_svContainerName.empty()) {
+    ATH_MSG_ERROR("NonPromptLeptonVertexingAlg::initialize - empty SV container name: \"" << m_svContainerName << "\"");
+    return StatusCode::FAILURE;    
   }
 
   ATH_CHECK(m_vertexMerger   .retrieve());
@@ -129,7 +135,7 @@ StatusCode Prompt::NonPromptLeptonVertexingAlg::finalize()
 
 //=============================================================================
 StatusCode Prompt::NonPromptLeptonVertexingAlg::execute()
-{  
+{
   //
   // Start execute timer for new event
   //
@@ -148,23 +154,28 @@ StatusCode Prompt::NonPromptLeptonVertexingAlg::execute()
   }
 
   //
-  // Create secondary vertex container
+  // Check that SG does not already contain our output vertex collection
   //
-  if(m_svContainerName.empty() || evtStore()->contains<xAOD::VertexContainer>(m_svContainerName)) {
-    ATH_MSG_ERROR("NonPromptLeptonVertexingAlg::execute - SV container already exists or invalid name: \"" << m_svContainerName << "\"");
+  if(evtStore()->contains<xAOD::VertexContainer>(m_svContainerName)) {
+    ATH_MSG_ERROR("NonPromptLeptonVertexingAlg::execute - SV container already exists with name=: \"" << m_svContainerName << "\"");
     return StatusCode::FAILURE;    
   }
 
   //
-  // Helper object for organising vertex objects
+  // Create vertex containers and record them in StoreGate
   //
   std::set< xAOD::Vertex* > svSet;
 
-  unique_ptr<xAOD::VertexContainer>    SVContainer    = std::make_unique<xAOD::VertexContainer>();
-  unique_ptr<xAOD::VertexAuxContainer> SVAuxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+  std::unique_ptr<xAOD::VertexContainer>    SVContainer    = std::make_unique< xAOD::VertexContainer>();
+  std::unique_ptr<xAOD::VertexAuxContainer> SVAuxContainer = std::make_unique< xAOD::VertexAuxContainer>();
    
   SVContainer->setStore(SVAuxContainer.get());
   
+  xAOD::VertexContainer &SVContainerRef = *SVContainer; // Take reference BEFORE pointers moved to SG
+
+  CHECK(evtStore()->record(std::move(SVAuxContainer), m_svContainerName+"Aux."));
+  CHECK(evtStore()->record(std::move(SVContainer),    m_svContainerName));
+
   //
   // Retrieve containers from evtStore
   //
@@ -173,7 +184,7 @@ StatusCode Prompt::NonPromptLeptonVertexingAlg::execute()
   const xAOD::VertexContainer    *refittedVertices  = 0;
 	
   ATH_CHECK(evtStore()->retrieve(leptonContainer,   m_leptonContainerName)); 
-  ATH_CHECK(evtStore()->retrieve(vertices,          "PrimaryVertices"));
+  ATH_CHECK(evtStore()->retrieve(vertices,          m_primaryVertexContainerName));
   ATH_CHECK(evtStore()->retrieve(refittedVertices,  m_refittedPriVtxContainerName));
 
   ATH_MSG_DEBUG ("NonPromptLeptonVertexingAlg::execute - Read " << vertices->size()          << " primary vertices");
@@ -193,6 +204,7 @@ StatusCode Prompt::NonPromptLeptonVertexingAlg::execute()
 
   if(!fittingInput.priVtx) {
     ATH_MSG_INFO("Failed to find primary vertex - skip this event");
+
     return StatusCode::SUCCESS;    
   }
 
@@ -309,14 +321,14 @@ StatusCode Prompt::NonPromptLeptonVertexingAlg::execute()
     //
     // Record 2-track vertexes and simple merged vertexes
     //
-    saveSecondaryVertices(twoTrk_vertices, index_vector_twoTrk, sv_links, *SVContainer, svSet);
-    saveSecondaryVertices(merged_vertices, index_vector_merged, sv_links, *SVContainer, svSet);
+    saveSecondaryVertices(twoTrk_vertices, index_vector_twoTrk, sv_links, SVContainerRef, svSet);
+    saveSecondaryVertices(merged_vertices, index_vector_merged, sv_links, SVContainerRef, svSet);
 
     //
     // Record both merged multi-track vertices and also unmerged 2-track vertices
     //
-    saveSecondaryVertices(deep_merged_result.vtxs_new_merged,             index_vector_deep_merged, sv_links, *SVContainer, svSet);
-    saveSecondaryVertices(deep_merged_result.vtxs_init_passed_not_merged, index_vector_deep_merged, sv_links, *SVContainer, svSet);
+    saveSecondaryVertices(deep_merged_result.vtxs_new_merged,             index_vector_deep_merged, sv_links, SVContainerRef, svSet);
+    saveSecondaryVertices(deep_merged_result.vtxs_init_passed_not_merged, index_vector_deep_merged, sv_links, SVContainerRef, svSet);
 
     ATH_MSG_DEBUG ("NonPromptLeptonVertexingAlg::execute -- number of two-track   SV = " << twoTrk_vertices.size());
     ATH_MSG_DEBUG ("NonPromptLeptonVertexingAlg::execute -- number of merged      SV = " << merged_vertices.size());
@@ -331,9 +343,6 @@ StatusCode Prompt::NonPromptLeptonVertexingAlg::execute()
 		  << "___________________________________________________________________________");
   }
 
-  CHECK(evtStore()->record(std::move(SVAuxContainer), m_svContainerName+"Aux."));
-  CHECK(evtStore()->record(std::move(SVContainer),    m_svContainerName));
-  
   ATH_MSG_DEBUG("SV Vertex container " << m_svContainerName << " recorded in store");
 
   //

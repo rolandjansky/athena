@@ -99,6 +99,7 @@ namespace Prompt
     double                                                 m_mergeChi2OverDoF;
 
     std::string                                            m_leptonContainerName;
+    std::string                                            m_primaryVertexContainerName;
     std::string                                            m_refittedPriVtxContainerName;
     std::string                                            m_svContainerName;
 

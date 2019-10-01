@@ -22,7 +22,7 @@ Prompt::PrimaryVertexReFitter::PrimaryVertexReFitter(const std::string& name, IS
   declareProperty("Debug",                             m_debug         = false);
 
   declareProperty("LeptonContainerName",               m_leptonContainerName);
-  declareProperty("PriVtxName",                        m_primaryVertexName);
+  declareProperty("PriVertexContainerName",            m_primaryVertexContainerName = "PrimaryVertices");
   declareProperty("ReFitPriVtxName",                   m_reFitPrimaryVertexName);
 
   declareProperty("DistToRefittedPriVtxName",          m_distToRefittedPriVtxName);
@@ -36,6 +36,20 @@ Prompt::PrimaryVertexReFitter::PrimaryVertexReFitter(const std::string& name, IS
 //=============================================================================
 StatusCode Prompt::PrimaryVertexReFitter::initialize()
 {   
+  //
+  // Must have non-empty container name for refitted primary vertex with/without lepton
+  //
+  if(m_reFitPrimaryVertexName.empty()) {
+    ATH_MSG_FATAL("initialize - SecVtx container invalid name: \"" << m_reFitPrimaryVertexName << "\""); 
+    return StatusCode::FAILURE;
+  }
+
+  m_distToRefittedPriVtx      = std::make_unique<decoratorFloat_t>  (m_distToRefittedPriVtxName);
+  m_normdistToRefittedPriVtx  = std::make_unique<decoratorFloat_t>  (m_normDistToRefittedPriVtxName);
+  m_lepRefittedRMVtxLinkDec   = std::make_unique<decoratorElemVtx_t>(m_lepRefittedVtxWithoutLeptonLinkName);
+
+  ATH_CHECK(m_vertexFitterSvc.retrieve());
+
   if(m_printTime) {
     //
     // Reset timers
@@ -48,12 +62,6 @@ StatusCode Prompt::PrimaryVertexReFitter::initialize()
     //
     m_timerAll.Start();
   }
-
-  m_distToRefittedPriVtx      = std::make_unique<decoratorFloat_t>  (m_distToRefittedPriVtxName);
-  m_normdistToRefittedPriVtx  = std::make_unique<decoratorFloat_t>  (m_normDistToRefittedPriVtxName);
-  m_lepRefittedRMVtxLinkDec   = std::make_unique<decoratorElemVtx_t>(m_lepRefittedVtxWithoutLeptonLinkName);
-
-  ATH_CHECK(m_vertexFitterSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -76,8 +84,7 @@ StatusCode Prompt::PrimaryVertexReFitter::finalize()
 
 //=============================================================================
 StatusCode Prompt::PrimaryVertexReFitter::execute()
-{  
-
+{
   //
   // Start execute timer
   //
@@ -94,13 +101,26 @@ StatusCode Prompt::PrimaryVertexReFitter::execute()
   }
 
   //
+  // Create output vertex collections and record them immediately in StoreGate for memory management
+  //
+  std::unique_ptr<xAOD::VertexContainer>    refitVtxContainer    = std::make_unique< xAOD::VertexContainer>();
+  std::unique_ptr<xAOD::VertexAuxContainer> refitVtxContainerAux = std::make_unique< xAOD::VertexAuxContainer>();
+   
+  refitVtxContainer->setStore(refitVtxContainerAux.get());
+  
+  xAOD::VertexContainer &refitVtxContainerRef = *refitVtxContainer; // Take reference BEFORE pointers moved to SG
+
+  CHECK(evtStore()->record(std::move(refitVtxContainerAux), m_reFitPrimaryVertexName+"Aux."));
+  CHECK(evtStore()->record(std::move(refitVtxContainer),    m_reFitPrimaryVertexName));
+
+  //
   // Retrieve containers from evtStore
   //
   const xAOD::IParticleContainer *leptonContainer = 0;
   const xAOD::VertexContainer    *vertices        = 0;
 	
   ATH_CHECK(evtStore()->retrieve(leptonContainer, m_leptonContainerName)); 
-  ATH_CHECK(evtStore()->retrieve(vertices,        m_primaryVertexName));
+  ATH_CHECK(evtStore()->retrieve(vertices,        m_primaryVertexContainerName));
 
   Prompt::FittingInput fittingInput(inDetTracks, 0, 0);
 
@@ -112,7 +132,7 @@ StatusCode Prompt::PrimaryVertexReFitter::execute()
   }
 
   if(!fittingInput.priVtx) {
-    ATH_MSG_WARNING("Failed to find primary vertices");
+    ATH_MSG_INFO("Failed to find primary vertices - save empty containers");
     return StatusCode::SUCCESS;    
   }
 
@@ -130,31 +150,18 @@ StatusCode Prompt::PrimaryVertexReFitter::execute()
   }
 
   //
-  // Create/get container for refitted primary vertex with/without lepton
-  //
-  if(m_reFitPrimaryVertexName.empty()) {
-    ATH_MSG_FATAL("execute - SecVtx container invalid name: \"" << m_reFitPrimaryVertexName << "\"");    
-    return StatusCode::FAILURE;
-  }
-
-  std::unique_ptr<xAOD::VertexContainer>    refitVtxContainer    = std::make_unique<xAOD::VertexContainer>();
-  std::unique_ptr<xAOD::VertexAuxContainer> refitVtxContainerAux = std::make_unique<xAOD::VertexAuxContainer>();
-
-  refitVtxContainer->setStore(refitVtxContainerAux.get());
-
-  //
   // Refit primary vertex
   //
   xAOD::Vertex *refittedPriVtx = m_vertexFitterSvc->fitVertexWithSeed(fittingInput, priVtx_tracks, fittingInput.priVtx->position(), Prompt::kRefittedPriVtx).first;
 
   if(!refittedPriVtx) {
-    ATH_MSG_WARNING("Failed to refit primary vertex");
+    ATH_MSG_WARNING("Failed to refit primary vertex - save empty containers");
     return StatusCode::SUCCESS;    
   }
 
-  if(!m_vertexFitterSvc->moveVertexPointerToContainer(refittedPriVtx, *refitVtxContainer)) {
-    ATH_MSG_WARNING("execute - failed to release xAOD::Vertex from fitting service - expect troubles");
-    return StatusCode::SUCCESS;
+  if(!m_vertexFitterSvc->moveVertexPointerToContainer(refittedPriVtx, refitVtxContainerRef)) {
+    ATH_MSG_ERROR("execute - failed to release xAOD::Vertex from fitting service - expect troubles");
+    return StatusCode::FAILURE;
   }
 
   //
@@ -203,13 +210,9 @@ StatusCode Prompt::PrimaryVertexReFitter::execute()
       continue;
     }
 
-    decorateLepWithReFitPrimaryVertex(fittingInput, tracklep, lepton, priVtx_tracks, *refitVtxContainer);
+    decorateLepWithReFitPrimaryVertex(fittingInput, tracklep, lepton, priVtx_tracks, refitVtxContainerRef);
   }
 
-
-  CHECK(evtStore()->record(std::move(refitVtxContainerAux), m_reFitPrimaryVertexName+"Aux."));
-  CHECK(evtStore()->record(std::move(refitVtxContainer),    m_reFitPrimaryVertexName));
-  
   ATH_MSG_DEBUG("SV Vertex container " << m_reFitPrimaryVertexName << " recorded in store");
 
   //
