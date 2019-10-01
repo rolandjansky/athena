@@ -116,13 +116,6 @@ ToolSvc += FTAG5TCCThinningTool
 log_setup(FTAG5TCCThinningTool)
 
 
-#====================================================================
-# TRUTH SETUP
-#====================================================================
-if globalflags.DataSource()!='data':
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
-    addStandardTruthContents()
-    addHFAndDownstreamParticles()
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -168,11 +161,11 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets", # <- Crashes without this,
                   "AntiKt10LCTopoJets", # <- while building this collection
                   "AntiKt10TrackCaloClusterJets",
-                  "AntiKt4TruthJets"]
+                  "AntiKt4TruthJets",
+                  "AntiKt10TruthJets"]
 
 extendedFlag = 0 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
 replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5", extendedFlag)
-
 
 #===================================================================
 # Add trimmed large-R jets
@@ -185,6 +178,24 @@ fatJetCollections = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
     "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
 ]
+
+#====================================================================
+# TRUTH in excess of TRUTH3
+#====================================================================
+if globalflags.DataSource()!='data':
+
+    from DerivationFrameworkMCTruth.MCTruthCommon import (
+        addStandardTruthContents,
+        addHFAndDownstreamParticles,
+        addWbosonsAndDownstreamParticles,
+        addBosonsAndDownstreamParticles,
+        addTopQuarkAndDownstreamParticles,
+    )
+    addStandardTruthContents()
+    addHFAndDownstreamParticles()
+    addWbosonsAndDownstreamParticles()
+    addBosonsAndDownstreamParticles() # H/W/Z bosons
+    addTopQuarkAndDownstreamParticles() # top
 
 #===================================================================
 # Variable Radius (VR) Jets
@@ -327,5 +338,9 @@ FTAG5SlimmingHelper.IncludeBJetTriggerContent = False
 
 # Add truth3
 addTruth3ContentToSlimmerTool(FTAG5SlimmingHelper)
+# extra for H/W/Z/t taggers
+FTAG5SlimmingHelper.AllVariables += [
+    "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+]
 
 FTAG5SlimmingHelper.AppendContentToStream(FTAG5Stream)
