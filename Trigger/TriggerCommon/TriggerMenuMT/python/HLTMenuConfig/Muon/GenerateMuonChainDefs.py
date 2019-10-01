@@ -27,12 +27,31 @@ def generateChainConfigs(chainDict):
         
 
     if len(listOfChainDefs)>1:
-        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
+        if 'noL1' in chainDict['chainName']:
+            theChainDef = mergeSerial(listOfChainDefs)
+        else:
+            theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 
     log.debug("theChainDef %s" , theChainDef)
 
     return theChainDef
+
+def mergeSerial(listOfChainDefs):
+
+    chaindef = listOfChainDefs[0]
+    listOfChainDefs.pop(0)
+    steps = chaindef.steps
+
+    for cdef in listOfChainDefs:
+        csteps = cdef.steps 
+        for step in csteps:
+            steps.append(step)
+        print "steps!!!"
+        print steps
+
+    return chaindef
+
 
 

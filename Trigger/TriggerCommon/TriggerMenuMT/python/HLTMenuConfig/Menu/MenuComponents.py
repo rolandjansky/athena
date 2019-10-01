@@ -468,9 +468,9 @@ class Chain(object):
             if len(step.sequences) == 0:
                 continue
 
-            if len(chainDict['chainParts']) != len(step.sequences):
-                log.error("Error in step %s for chain %s: found %d chain parts and %d sequences", step.name, self.name, len(chainDict['chainParts']), len(step.sequences))
-                log.error(chainDict['chainParts'])
+#            if len(chainDict['chainParts']) != len(step.sequences):
+#                log.error("Error in step %s for chain %s: found %d chain parts and %d sequences", step.name, self.name, len(chainDict['chainParts']), len(step.sequences))
+#                log.error(chainDict['chainParts'])
 
             for seq, chainDictPart in zip(step.sequences, chainDict['chainParts']):
                 if seq.ca is not None: # The CA merging took care of everything
