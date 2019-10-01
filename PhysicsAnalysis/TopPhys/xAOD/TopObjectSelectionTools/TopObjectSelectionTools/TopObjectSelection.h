@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TopObjectSelection.h 810745 2017-09-29 14:03:01Z iconnell $
@@ -281,6 +281,8 @@ private:
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
     
     // do decorate the large-R jets with the boosted-tagging flags 
+    // and decorate jets with TAccept object containing detailed tag result informaiton
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendation2017#TAcceptUsageSection
     std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
     
     // Boolean to handle only running selection on nominal/systematics
