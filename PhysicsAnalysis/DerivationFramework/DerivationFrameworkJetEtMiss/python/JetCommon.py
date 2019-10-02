@@ -372,7 +372,7 @@ def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, namesuffix="",
-                    outputGroup="CustomJets", customGetters=None, pretools = []):
+                    outputGroup="CustomJets", customGetters=None, pretools = [], constmods = []):
     jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
@@ -406,6 +406,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",
                        "TrackCaloCluster":"tcc_ungroomed",
+                       "UFO":"tcc_ungroomed",
                        }
         if mods=="default":
             mods = defaultmods[inputtype] if inputtype in defaultmods else []
@@ -421,7 +422,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         # map the input to the jtm code for PseudoJetGetter
         getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged', 
-                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc' )
+                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFO = 'tcc' )
 
         # set input pseudojet getter -- allows for custom getters
         if customGetters is None:
@@ -430,7 +431,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             inGetter = customGetters
 
         # create the finder for the temporary collection
-        finderTool = jtm.addJetFinder(jetname, jetalg, rsize, inGetter,
+        finderTool = jtm.addJetFinder(jetname, jetalg, rsize, inGetter, constmods=constmods,
                                       **finderArgs   # pass the prepared arguments
                                       )
 

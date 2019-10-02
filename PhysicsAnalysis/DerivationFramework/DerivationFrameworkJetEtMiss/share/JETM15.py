@@ -73,7 +73,7 @@ thinningTools = []
 
 #Track particles associated to any of the large-R jet collections
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-JETM15Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetTPThinningTool",
+JETM15Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetLCTopoTPThinningTool",
                                                                         ThinningService         = "JETM15ThinningSvc",
                                                                         JetKey                  = "AntiKt10LCTopoJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -81,7 +81,7 @@ JETM15Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( na
 ToolSvc += JETM15Akt10JetTPThinningTool
 thinningTools.append(JETM15Akt10JetTPThinningTool)
 
-JETM15Akt10JetTPThinningToolCSSK = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetTPThinningTool",
+JETM15Akt10JetTPThinningToolCSSK = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10CSSKLCTopoJetTPThinningTool",
                                                                         ThinningService         = "JETM15ThinningSvc",
                                                                         JetKey                  = "AntiKt10LCTopoCSSKJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -89,7 +89,7 @@ JETM15Akt10JetTPThinningToolCSSK = DerivationFramework__JetTrackParticleThinning
 ToolSvc += JETM15Akt10JetTPThinningToolCSSK
 thinningTools.append(JETM15Akt10JetTPThinningToolCSSK)
 
-JETM15Akt10JetTPThinningToolPFO = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetTPThinningTool",
+JETM15Akt10JetTPThinningToolPFO = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10CSSKPFOJetTPThinningTool",
                                                                         ThinningService         = "JETM15ThinningSvc",
                                                                         JetKey                  = "AntiKt10EMPFlowCSSKJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -97,7 +97,7 @@ JETM15Akt10JetTPThinningToolPFO = DerivationFramework__JetTrackParticleThinning(
 ToolSvc += JETM15Akt10JetTPThinningToolPFO
 thinningTools.append(JETM15Akt10JetTPThinningToolPFO)
 
-JETM15Akt10JetTPThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetTPThinningTool",
+JETM15Akt10JetTPThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10TCCJetTPThinningTool",
                                                                         ThinningService         = "JETM15ThinningSvc",
                                                                         JetKey                  = "AntiKt10TrackCaloClusterJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -257,6 +257,7 @@ addDefaultTrimmedJets(jetm15Seq,"JETM15")
 
 addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm15Seq, "JETM15", ptmin=40000, 
                     ptminFilter=50000, mods="lctopo_ungroomed", addGetters=[])
+
 addCHSPFlowObjects()
 
 addConstModJets("AntiKt", 1.0, "EMPFlow", ["CS", "SK"], jetm15Seq, "JETM15", ptmin=40000, 
@@ -269,12 +270,17 @@ emcsskufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CSSK")
 
 from JetRec.JetRecConf import PseudoJetGetter
 
-csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="TrackCaloCluster", SkipNegativeEnergy=True)
+csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="UFO", SkipNegativeEnergy=True)
 jtm+=csskufopjgetter
-ufopjgetter     = PseudoJetGetter("ufoPJGetter",     InputContainer="CHSUFO",     OutputContainer="CHSUFOPJ",     Label="TrackCaloCluster", SkipNegativeEnergy=True)
+ufopjgetter     = PseudoJetGetter("ufoPJGetter",     InputContainer="CHSUFO",     OutputContainer="CHSUFOPJ",     Label="UFO", SkipNegativeEnergy=True)
 jtm+=ufopjgetter
-addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = [csskufopjgetter], namesuffix = "CSSK")
-addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = [ufopjgetter],     namesuffix = "CHS")
+
+# These lines make sure that we also retrieve all of the other getters, like track association
+# addConstModJets doesn't have a good way of dealing with UFOs at the moment unfortunately
+csskufogetters = [csskufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
+chsufogetters = [ufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
+addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = csskufogetters, constmods=["CSSK"])
+addStandardJets("AntiKt", 1.0, "UFOCHS", ptmin=40000, ptminFilter=50000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = chsufogetters, constmods=["CHS"])
 
 
 # Create TCC objects
