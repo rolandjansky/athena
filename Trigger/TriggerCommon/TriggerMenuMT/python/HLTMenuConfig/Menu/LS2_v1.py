@@ -140,7 +140,7 @@ def setupMenu():
         ChainProp(name='HLT_3j200_L1J100', l1SeedThresholds=[''], groups=MultiJetGroup),
 
         ChainProp(name='HLT_j80_j60_L1J15', l1SeedThresholds=['']*2, groups=MultiJetGroup),
-        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20'l1SeedThresholds=['']*3, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', l1SeedThresholds=['']*3, groups=MultiJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = [
