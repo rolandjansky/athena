@@ -29,7 +29,8 @@ namespace Muon {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
-    StatusCode smearAndSelect(Identifier id, double& time, double& charge, bool& accepted);
+    StatusCode smearTimeAndCharge(Identifier id, double& time, double& charge, bool& accepted);
+    StatusCode smearCharge(Identifier id, double& charge, bool& accepted);
 
   private:
     
@@ -39,6 +40,9 @@ namespace Muon {
     DoubleArrayProperty m_chargeSmear;
 
     DoubleArrayProperty m_efficiency;
+
+    BooleanArrayProperty m_phiSectors;
+    BooleanArrayProperty m_etaSectors;
 
     TRandom3 m_random;
 
