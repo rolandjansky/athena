@@ -213,18 +213,20 @@ class InputMakerNode(AlgNode):
 
 from DecisionHandling.DecisionHandlingConf import ComboHypo
 class ComboMaker(AlgNode):
-    def __init__(self, name):
+    def __init__(self, name, multiplicity):
         Alg = ComboHypo(name)
         log.debug("Making combo Alg %s", name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.prop="MultiplicitiesMap"
+        self.mult=multiplicity
 
 
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
         log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chainName)
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
-        allMultis = [int(x) for x in getChainMultFromDict( chainDict )]
+        #from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
+        allMultis = self.mult
+        #allMultis = [int(x) for x in getChainMultFromDict( chainDict )]
 
         newdict = {chainName : allMultis}
 
@@ -575,14 +577,14 @@ class CFSequence(object):
 
 class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined"""
-    def __init__(self, name,  Sequences=[], multiplicity=1):
+    def __init__(self, name,  Sequences=[], multiplicity=[1]):
         self.name = name
         self.sequences=[]
         self.multiplicity = multiplicity
-        self.isCombo=multiplicity>1
+        self.isCombo=multiplicity.sum()>1
         self.combo=None
         if self.isCombo:
-            self.makeCombo(Sequences)
+            self.makeCombo(Sequences )
         else:
             self.sequences = Sequences
 
@@ -592,7 +594,7 @@ class ChainStep(object):
             return
 
         # For combo sequences, duplicate the sequence, the Hypo with differnt names and create the ComboHypoAlg
-        self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
+        self.combo = ComboMaker(CFNaming.comboHypoName(self.name), self.multiplicity)
         duplicatedHypos = []
         for sequence in Sequences:
             if type(sequence.hypo) is list:
@@ -626,7 +628,7 @@ class ChainStep(object):
                self.sequences.append(new_sequence)
 
     def __repr__(self):
-        return "--- ChainStep %s ---\n + isCombo: %d, multiplicity= %d \n +  %s \n "%(self.name, self.isCombo,self.multiplicity, ' '.join(map(str, self.sequences) ))
+        return "--- ChainStep %s ---\n + isCombo: %d, multiplicity= %d \n +  %s \n "%(self.name, self.isCombo,self.multiplicity.sum(), ' '.join(map(str, self.sequences) ))
 
 
 
