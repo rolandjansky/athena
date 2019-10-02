@@ -23,7 +23,7 @@ import os
 partitionName = os.getenv("TDAQ_PARTITION","ATLAS")
 
 # set name of this publisher as it will appear in IS
-publishName       = "l1calo-athenaHLT-cosmics"
+publishName       = "l1calo-athenaHLT-stability"
 
 # name of the stream type (physics,express, etc.)
 streamType = os.getenv("L1CALO_PTIO_STREAM_TYPE","physics")
@@ -31,7 +31,11 @@ streamType = os.getenv("L1CALO_PTIO_STREAM_TYPE","physics")
 # name of the stream (Egamma,JetTauEtmiss,MinBias,Standby, etc.)
 # this can be a colon(:) separated list of streams that use
 # the 'streamLogic' to combine
-streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo:Standby")
+# stream for 2011 HI run: HardProbes
+#streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo:Egamma:JetTauEtmiss:MinBias:Muons:HardProbes")
+#streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo:CosmicMuons:Egamma:HLTPassthrough:HLT_IDCosmic:IDCosmic:L1Muon:L1Calo:MinBias:Jet:MinBias")
+#streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo:L1Calo:Main:MinBias")
+streamName = os.getenv("L1CALO_PTIO_STREAM_NAME","CosmicCalo:L1Calo:Main:MinBias:EnhancedBias:ZeroBias:HardProbes:Standby:ALFACalib")
 
 # logic used to combine multiple streams
 # can be set to 'Ignore' which means the stream selection isn't used
@@ -186,6 +190,15 @@ doLVL1CaloMon = True
 #doCTPMon = True
 #doLucidMon= doAllMon
 isOnline  = True
+
+
+from TrigT1CaloMonitoringTools.LVL1CaloMonFlags import LVL1CaloMonFlags
+LVL1CaloMonFlags.doPPrStabilityMon = True #False #True
+LVL1CaloMonFlags.doFineTimeMonitoring = False
+LVL1CaloMonFlags.doPedestalMonitoring = True
+LVL1CaloMonFlags.doPedestalCorrectionMonitoring = True
+LVL1CaloMonFlags.doEtCorrelationMonitoring = False
+
 
 rec.doInDet.set_Value_and_Lock(False)
 from JetRec.JetRecFlags import jetFlags
@@ -363,7 +376,7 @@ print '--------------------------------------------------------------'
 if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS") >= 0) :
 #if (partitionName.find("L1CaloStandalone") >= 0) :
   print "L1Calo Monitoring is overriding the run number and lumiblock number."
-  svcMgr.IOVDbSvc.forceRunNumber=313285 #312649 #312424(HI) #309640 #271733 #182519 #238735
+  svcMgr.IOVDbSvc.forceRunNumber=313285 #312424 #309640 #271733 #182519 #238735
   svcMgr.IOVDbSvc.forceLumiblockNumber=1
   print "L1Calo Monitoring set run to ",svcMgr.IOVDbSvc.forceRunNumber,"and lumi block to",svcMgr.IOVDbSvc.forceLumiblockNumber
 

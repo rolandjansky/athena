@@ -5,35 +5,118 @@
 isOnline          = True
 isOnlineStateless = True
 
-## this is used for testing in lxplus
-## isOfflineTest = True  (lxplus)
-## isOfflineTest = False  (P1)
-##
+# for testing on lxplus
 isOfflineTest     = False
 
 #for the time being, running over file is not possible ONLINE (please see RecExOnline_File_Offline.py) 
-
 useEmon           = True
-keycount          = 250
+## KeyCount value in the EMON service defined as 1-byte, i.e. the maximum allowed value is 255. 
+keycount          = 150
 buffersize        = 10
 updateperiod      = 200
+# timeout is in ms
 timeout           = 600000
-#keyname           = 'CompleteEvent'
+#keyname           = 'efd'   #AK: 21-05-2014
 keyname           = 'dcm'
-# keyname           = 'SFI'
-#streamName        ='CosmicCalo_physics'
-streamName        ='express_express'
+
+import os
+
+partitionName     = os.environ.get("TDAQ_PARTITION", "ATLAS")
+publishNumber     = os.environ.get("GLOBAL_JOB_NUMBER", "1")
+publishName       = os.environ.get("TDAQ_APPLICATION_NAME", "GlobalMonitoring")
+
+print publishName
+isserverName = 'Histogramming-Global-iss'  # Ak: 26-05-2014 - needed to write out the gathere hsitograms to the correct server
+
+#streamName       = 'MinBias'
+streamName        = 'express'
+streamLogic       = 'Or'
+
+# When using ATLAS partition
+# Use different streams for "atlas standby" and "atlas ready"
+#
+if (partitionName == 'ATLAS'):
+    streamLogic       = 'Or'
+    
+    import RecExOnline.OnlineISConfiguration
+    import ispy
+    from ispy import *
+    from ipc import IPCPartition
+    from ispy import ISObject
+
+    obj = ispy.ISObject(ispy.IPCPartition(partitionName), 'RunParams.RunParams', 'RunParams')
+    obj.checkout()
+    ### if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV'):
+    if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV' or obj.T0_project_tag == 'data15_5TeV' or obj.T0_project_tag == 'data16_comm' or obj.T0_project_tag == 'data16_13TeV' or obj.T0_project_tag == 'data16_5TeV' or obj.T0_project_tag == 'data16_1beam'):
+        #streamName        = 'MinBias'
+        #streamName        = 'Main' # Switching due to missingg Minbias stream -= 13/06/2015 AK
+        try:
+            if RecExOnline.OnlineISConfiguration.GetAtlasReady():
+                print "ATLAS READY, reading express stream"
+                streamName = 'express'
+            else:
+                print "ATLAS NOT READY, reading standby stream"
+                ### streamName = 'standby'
+                ### streamName = 'physics_Standby'
+                streamName = 'Standby'
+        except:
+            streamName = 'express'
+    else:
+        streamName        = 'express:IDCosmic:HLT_IDCosmic:CosmicMuons:MinBias'
+else:
+    streamLogic       = 'Ignore'
+
+#
+# When NOT using ATLAS partition
+#
+if (partitionName != 'ATLAS'):
+    publishName     = 'YJ_test'
+    isserverName    = 'Histogramming'
+
+
+print "GlobalMonitoring : streamName streamLogic= ",streamName,streamLogic
+print "publishName      : ",publishName
+
+
+#import time
+#myfloat = float(publishNumber)
+#tosleep = myfloat*5
+#time.sleep(tosleep)
+
+import commands
+pids=commands.getoutput("/sbin/pidof -o %u python" % os.getpid()).split(" ")
+print "pids",pids
+
+for pid in pids:
+  print "pid",pid
+  #if (False):
+  #if (1):
+  if (0):
+    print "pid = ",pid
+    #thisnumber=commands.getoutput("grep GLOBAL_JOB_NUMBER /proc/%u/fd/1 -m 1 | cut -f2 -d'='" % int(pid))
+    thisname=commands.getoutput("grep TDAQ_APPLICATION_NAME /proc/%u/fd/1 -m 1 | cut -f2 -d'='" % int(pid))
+    print "thisname = ",thisname
+    print "publishName = ",publishName
+    if (thisname == publishName):
+      print "found a match! Will Kill pid = ",pid
+      killreturn = commands.getoutput("kill %u" % int(pid))
+
 
 useAtlantisEmon   = False
-evtMax            = 100
 
-## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)
-import os
-partitionName   = os.environ.get("TDAQ_PARTITION", "TestDataProvider_TCT")
-#"TestPartitionGlobalMonitoring" 
+### evtMax            = -1
+### evtMax            = 50
 
-publishName     = 'SMW_GMtestM7_20_2_0_2_1_29may15'
-isserverName    = 'Histogramming'
+if (partitionName == 'ATLAS'):
+    evtMax            = -1
+
+if (partitionName != 'ATLAS'):
+    evtMax            = 40
+
+
+## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)                    
+
+isGlobalMonitoring = True
 
 ## ------------------------------------------- flags set in: RecExOnline_globalconfig.py  (from RecExOnline_jobOptions.py)
 #read the pickle file if you want to use the AMI tag info
@@ -43,19 +126,21 @@ pickleconfigfile  = './ami_recotrf.pickle'
 DataSource        = 'data'
 InputFormat       = 'bytestream'
 fileName          = './0.data'
+#beamType          = 'cosmics'  
+beamType          = 'collisions'  #AK: 21-05-2014
 
-#COND tag and GEO are needed for running over a test partition or against ATLAS cosmics, calib
-ConditionsTag     = 'CONDBR2-HLTP-2015-08'  ### tag created : 2015-11-04
-### ConditionsTag     = 'CONDBR2-HLTP-2014-00'
-###
-### ConditionsTag     = 'CONDBR2-BLKPA-2014-03'
+#COND tag and GEO are needed for running over a test partition online
+ConditionsTag     = 'CONDBR2-HLTP-2015-08' # 20160317
+### ConditionsTag     = 'CONDBR2-HLTP-2015-07'   # created 2015-08-10
+### ConditionsTag     = 'CONDBR2-HLTP-2015-05'
+### ConditionsTag     = 'CONDBR2-HLTP-2015-04'
+### ConditionsTag     = 'CONDBR2-HLTP-2015-01'
 ### ConditionsTag     = 'CONDBR2-ES1PA-2014-01'  ### new for offline (19.3.0.1)
 
 ### DetDescrVersion   = 'ATLAS-R2-2015-01-01-00'
-### DetDescrVersion   = 'ATLAS-R2-2015-02-00-00'
-DetDescrVersion   = 'ATLAS-R2-2015-03-01-00'
+### DetDescrVersion   = 'ATLAS-R2-2015-02-00-00'  ### new for offline (19.3.0.1)
+DetDescrVersion   = 'ATLAS-R2-2015-03-01-00'  ### new for offline (19.3.0.1)
 
-beamType = 'cosmics'
 
 doESD             = True
 writeESD          = False
@@ -65,7 +150,6 @@ IOVDbSvcMessage   = False
 
 abortonuncheckedstatuscode = False
 
-
 ## ------------------------------------------ flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
 doAllReco   = True
 
@@ -73,7 +157,7 @@ doInDet     = doAllReco
 ### doInDet     = False
 
 doMuon      = doAllReco
-### doMuon      = False
+###doMuon      = False
 
 doLArg      = doAllReco
 doTile      = doAllReco
@@ -96,7 +180,7 @@ doAllMon  = True
 doCaloMon = doAllMon
 
 doTileMon = doAllMon #AK: new since 09 july 2014 (M4)
-#doTileMon = False
+# doTileMon = False
 
 doPhysMon = doAllMon
 
@@ -110,9 +194,11 @@ doTRTMon  = doAllMon
 ###doTRTMon  = False
 
 doMuonMon = doAllMon
-###doMuonMon = False
+### doMuonMon = False
 
 doCTPMon  = False #doAllMon #AK: 25-01-2014
+
+doHIMon   = False # doAllMon
 
 ## ------------------------------------------ flags set in : RecExOnline_postconfig.py    (called from RecExOnline_jobOptions.py)
 
@@ -140,7 +226,7 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 DQMonFlags.doStreamAwareMon.set_Value_and_Lock(False)
 DQMonFlags.enableLumiAccess.set_Value_and_Lock(False)
 DQMonFlags.doCTPMon.set_Value_and_Lock(False)         
-DQMonFlags.doLVL1CaloMon.set_Value_and_Lock(False)
+DQMonFlags.doLVL1CaloMon.set_Value_and_Lock(False)    
 ### DQMonFlags.doMuonTrkPhysMon.set_Value_and_Lock(False) #xx
 DQMonFlags.doMuonTrkPhysMon.set_Value_and_Lock(True) #xx
 ### DQMonFlags.doJetTagMon.set_Value_and_Lock(False)
@@ -164,6 +250,7 @@ MuonDQADetFlags.doTGCMon.set_Value_and_Lock(True)
 jobproperties.InDetJobProperties.doTrackSegmentsSCT.set_Value_and_Lock(False)
 jobproperties.InDetJobProperties.doTrackSegmentsPixel.set_Value_and_Lock(False)
 jobproperties.InDetJobProperties.doTrackSegmentsTRT.set_Value_and_Lock(False)
+
 
 ##---------------------------------------Bunch Spacing 25ns  --------
 from InDetRecExample.InDetJobProperties import InDetFlags
