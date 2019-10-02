@@ -3,7 +3,6 @@
 #
 include.block("FastSiDigitization/PixelDigitization_jobOptions.py")
 
-include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
 #
 from GaudiKernel.GaudiHandles import ServiceHandle
 #
@@ -47,9 +46,6 @@ if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
 from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
 ToolSvc += PixelRecoDbTool()
 ToolSvc.PixelRecoDbTool.InputSource = 1
-
-from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
-ToolSvc += PixelCalibDbTool()
 
 if not conddb.folderRequested('/PIXEL/ReadoutSpeed'):
   conddb.addFolder("PIXEL_OFL","/PIXEL/ReadoutSpeed")
