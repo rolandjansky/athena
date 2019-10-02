@@ -38,35 +38,39 @@
   JetForwardPFlowJvtTool::JetForwardPFlowJvtTool(const std::string& name) :
     AsgTool(name),
     m_fjvtThresh(15e3){
-    declareProperty("OverlapDec",         m_orLabel          = ""                        );
-    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets"        );
-    declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"            );
-    declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices"         );
-    declareProperty("JetChargedp4",       m_jetchargedp4     = "JetChargedScaleMomentum" );
-    declareProperty("EtaThresh",          m_etaThresh        = 2.5                       );
-    declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3                      );
-    declareProperty("ForwardMaxPt",       m_forwardMaxPt     = -1                        );
-    declareProperty("CentralMinPt",       m_centerMinPt      = 20e3                      );
-    declareProperty("CentralMaxPt",       m_centerMaxPt      = -1                        );
-    declareProperty("CentralJvtThresh",   m_centerJvtThresh  = 0.2                       );
-    declareProperty("UseTightOP",         m_tightOP          = false                     );//Tight or Loose
-    declareProperty("PVIndexHS",          m_pvind            = -1                        );
-    declareProperty("RptThresValue",      m_rptCut           = 0.1                       );
-    declareProperty("JVTThresValue",      m_jvtCut           = 0.2                       );
-    declareProperty("DzThresValue",       m_dzCut            = 2.                        );
-    declareProperty("JetsFromVertices",   m_vertices         = 10                         );
-    declareProperty("JetBuildingMaxRap",  m_maxRap           = 2.5                       );
-    declareProperty("NeutralMaxRap",      m_neutMaxRap       = 2.5                       );
-    declareProperty("PFOWeight",          m_weight           = 0                         );
-    declareProperty("PFOToolName",        m_pfoToolName      = "PFOTool"                 );
-    declareProperty("PFOWeightToolName",  m_wpfoToolName     = "WPFOTool"                );
-    declareProperty("JetCalibToolName",   m_pfoJESName       = "pfoJES"                  );
-    declareProperty("JetCalibCollection", m_jetAlgo          = "AntiKt4EMPFlow"          );
-    declareProperty("JetCalibConfigFile", m_caliconfig       = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config");
-    declareProperty("JetCalibSequence",   m_calibSeq         = "JetArea_Residual_EtaJES" );
-    declareProperty("JetCalibArea",       m_calibArea        = "00-04-82"                );
-    declareProperty("JetCalibIsData",     m_isdata           = false                     );
+    declareProperty("orLabel",     m_orLabel          = ""                        );
+    declareProperty("jetsName",    m_jetsName         = "AntiKt4PUPFlowJets"      ,   "Container name for the output reconstructed PU jets "                                                        );
+    declareProperty("tightOP",     m_tightOP          = false                     ,   "If true a tight fjvt threshold value is applied"                                                             );
+    declareProperty("outLabelFjvt",m_outLabelFjvt     = "passOnlyFJVT"            ,   "Decorator for passing fJVT threshold (tight or loose)"                                                       );
+    declareProperty("verticesName",m_verticesName     = "PrimaryVertices"         ,   "Container name of vertices to be retrieved"                                                                  );
+    declareProperty("jetchargedp4",m_jetchargedp4     = "JetChargedScaleMomentum" ,   "Name of the jet charged momentum 4-vector"                                                                   );
+    declareProperty("etaThresh",   m_etaThresh        = 2.5                       ,   "Maximum eta value for considering a jet as central"                                                          );
+    declareProperty("forwardMinPt",m_forwardMinPt     = 20e3                      ,   "Minimum forward jet pt"                                                                                      );
+    declareProperty("forwardMaxPt",m_forwardMaxPt     = -1                        ,   "Maximum forward jet pt. If -1 no threshold is applied"                                                       );
+    declareProperty("centralMinPt",m_centerMinPt      = 20e3                      ,   "Minimum central jet pt"                                                                                      );
+    declareProperty("centralMaxPt",m_centerMaxPt      = -1                        ,   "Maximum central jet pt. If -1 no threshold is applied"                                                       );
+    declareProperty("pvind",       m_pvind            = -1                        ,   "Hard-Scatter primary vertex index of the event. If -1 it's automatically retrieved from the event"           );
+    declareProperty("rptCut",      m_rptCut           = 0.1                       ,   "Rpt cut value for central PU jets contributing in the missing momentum calculation"                          );
+    declareProperty("jvtCut",      m_jvtCut           = 0.2                       ,   "JVT threshold value for considering a central PU jet as HS"                                                  );
+    declareProperty("dzCut",       m_dzCut            = 2.                        ,   "Dz=z-z0 cut value for pfo objects participating in the HS vertex jet reco"                                   );
+    declareProperty("vertices",    m_vertices         = 10                        ,   "Number of vertices for which the missing momentum is calculated"                                             );
+    declareProperty("maxRap",      m_maxRap           = 2.5                       ,   "Maximum rapidity value in fastjet::AreaDefinition"                                                           );
+    declareProperty("neutMaxRap",  m_neutMaxRap       = 2.5                       ,   "Maximum rapidity value for neutral pfos participating in jet reco"                                           );
+    declareProperty("weight",      m_weight           = 0                         ,   "PFO weight value"                                                                                            );
+    declareProperty("pfoToolName", m_pfoToolName      = "PFOTool"                 ,   "Name of PFO retriever tool"                                                                                  );
+    declareProperty("wpfoToolName",m_wpfoToolName     = "WPFOTool"                ,   "Name of PFO weighting tool"                                                                                  );
+    declareProperty("pfoJESName",  m_pfoJESName       = "pfoJES"                  ,   "Name of jet calibration tool"                                                                                );
+    declareProperty("jetAlgo",     m_jetAlgo          = "AntiKt4EMPFlow"          ,   "Jet calibration collection name"                                                                             );
+    declareProperty("caliconfig",  m_caliconfig       = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",   "Calibration config for PFlow jets, need to be updated with latest one" );
+    declareProperty("calibSeq",    m_calibSeq         = "JetArea_Residual_EtaJES" ,   "Calibration sequence to be applied"                                                                          );
+    declareProperty("calibArea",   m_calibArea        = "00-04-82"                ,   "Calibration area"                                                                                            );
+    declareProperty("isdata",      m_isdata           = false                     ,   "True if data"                                                                                                );
   }
+  
+ // Destructor
+  ///////////////
+  JetForwardPFlowJvtTool::~JetForwardPFlowJvtTool()
+  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -78,26 +82,20 @@
     if (m_orLabel!="")  Dec_OR = std::make_unique<SG::AuxElement::Decorator<char> >(m_orLabel);
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
 
-    m_pfotool = std::make_unique<CP::RetrievePFOTool>(m_pfoToolName);
-    m_pfotool->initialize();
+    m_pfotool.setTypeAndName("CP::RetrievePFOTool/"+ m_pfoToolName );
+    m_pfotool.retrieve();
 
-    m_wpfotool = std::make_unique<CP::WeightPFOTool>(m_wpfoToolName);
-    m_wpfotool->initialize();
-
-    m_pfoJES= std::make_unique<JetCalibrationTool>(m_pfoJESName);
-    m_pfoJES->setProperty("JetCollection",m_jetAlgo);
-    m_pfoJES->setProperty("ConfigFile",m_caliconfig);
-    m_pfoJES->setProperty("CalibSequence",m_calibSeq);
-    m_pfoJES->setProperty("CalibArea",m_calibArea);
-    m_pfoJES->setProperty("IsData",m_isdata);
-    m_pfoJES->initializeTool(m_pfoJESName);
-    
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode JetForwardPFlowJvtTool::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
+    m_wpfotool.setTypeAndName("CP::WeightPFOTool/"+ m_wpfoToolName );
+    m_wpfotool.retrieve();
+  
+    m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName    );
+    m_pfoJES.setProperty("JetCollection",m_jetAlgo                 );
+    m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig              );
+    m_pfoJES.setProperty("CalibSequence",m_calibSeq                );
+    m_pfoJES.setProperty("CalibArea"    ,m_calibArea               );
+    m_pfoJES.setProperty("IsData"       ,m_isdata                  );
+    m_pfoJES.retrieve();
+  
     return StatusCode::SUCCESS;
   }
 
@@ -192,13 +190,15 @@
   }
 
   void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
+    
+    int pv_index = (m_pvind==-1) ? getPV() : m_pvind;
 
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
       if (pfo->charge()!=0) { 
-        if (vx.index()==0 && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
-        if (vx.index()!=0 && &vx!=pfo->track(0)->vertex()) continue;
+        if (vx.index()==pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
+        if (vx.index()!=pv_index && &vx!=pfo->track(0)->vertex()) continue;
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
@@ -207,9 +207,6 @@
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
       }
     }
-    // xAOD::JetContainer* vertjets = new xAOD::JetContainer();
-    // xAOD::JetAuxContainer* vertjetsAux = new xAOD::JetAuxContainer();
-    // vertjets->setStore(vertjetsAux);
     std::unique_ptr<xAOD::JetContainer> vertjets = std::make_unique<xAOD::JetContainer>();
     std::unique_ptr<xAOD::JetAuxContainer> vertjetsAux = std::make_unique<xAOD::JetAuxContainer>();
     vertjets->setStore(vertjetsAux.get());
@@ -223,11 +220,9 @@
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet=  new xAOD::Jet();
-      //std::unique_ptr<xAOD::Jet> jet = std::make_unique<xAOD::Jet>();
       xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
       xAOD::JetFourMom_t newArea(inclusive_jets[i].area_4vector().perp(),inclusive_jets[i].area_4vector().rap(),inclusive_jets[i].area_4vector().phi(),0);
       vertjets->push_back(jet);
-      //vertjets->push_back((jet.release());
       jet->setJetP4(tempjetp4);
       jet->setJetP4("JetConstitScaleMomentum",tempjetp4);
       jet->setJetP4("JetPileupScaleMomentum",tempjetp4);
@@ -260,7 +255,7 @@
       pfo_p4= pfo->GetVertexCorrectedEMFourVec(*vx);
     }
     fastjet::PseudoJet psj(pfo_p4);
-    // user index is used to identify the xAOD object used for the PSeudoJet
+    // User index is used to identify the xAOD object used for the PSeudoJet
     psj.set_user_index(pfo->index());
 
     return psj;
