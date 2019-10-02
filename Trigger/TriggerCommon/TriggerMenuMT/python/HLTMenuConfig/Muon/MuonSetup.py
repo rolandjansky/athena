@@ -575,7 +575,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   # Monitoring tool for MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
-  themuoncreatoralg.MonTool = MuonCreatorAlgMonitoring()
+  themuoncreatoralg.MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlg_"+name)
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
@@ -742,6 +742,10 @@ def muEFCBRecoSequence( RoIs, name ):
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
   themuoncbcreatoralg.CombinedLocation = "HLT_CBCombinedMuon_"+name
+
+  # Monitoring tool for MuonCBCreatorAlg
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
+  themuoncbcreatoralg.MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgCB_"+name)
 
   #Add all algorithms
   efAlgs.append(theIndetCandidateAlg)
