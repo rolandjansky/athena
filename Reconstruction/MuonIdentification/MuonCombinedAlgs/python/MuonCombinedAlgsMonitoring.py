@@ -21,7 +21,7 @@ class MuonCreatorAlgMonitoring(GenericMonitoringTool):
         self.defineHistogram( "cbtrks_phi", type="TH1F", path="EXPERT", title="Combined Trk phi", xbins=50, xmin=-5, xmax=5)
 
         self.defineHistogram( "mstrks_n", type="TH1F", path="EXPERT", title="MS-only Extrapolated Trk n", xbins=50, xmin=0, xmax=50)
-        self.defineHistogram( "mstrks_pt", type="TH1F", path="EXPERT", title="MS-only Extrapolated Trk pT", xbins=100, xmin=0, xmax=500)
+        self.defineHistogram( "mstrks_pt", type="TH1F", path="EXPERT", title="MS-only Extrapolated Trk pT", xbins=100, xmin=0, xmax=300)
         self.defineHistogram( "mstrks_eta", type="TH1F", path="EXPERT", title="MS-only Extrapolated Trk eta", xbins=50, xmin=-5, xmax=5)
         self.defineHistogram( "mstrks_phi", type="TH1F", path="EXPERT", title="MS-only Extrapolated Trk phi", xbins=50, xmin=-5, xmax=5)
 

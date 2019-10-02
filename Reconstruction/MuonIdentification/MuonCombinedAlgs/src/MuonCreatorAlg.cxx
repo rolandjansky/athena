@@ -79,8 +79,6 @@ StatusCode MuonCreatorAlg::execute()
   // Create the xAOD container and its auxiliary store:
   SG::WriteHandle<xAOD::MuonContainer> wh_muons(m_muonCollectionName);
   ATH_CHECK(wh_muons.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>()));
-  ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName.key() );
-
   MuonCombined::IMuonCreatorTool::OutputData output(*(wh_muons.ptr()));
 
   // Create and record track particles:
@@ -163,12 +161,12 @@ StatusCode MuonCreatorAlg::execute()
     std::vector<double> ini_cbtrkspt(0);
     std::vector<double> ini_cbtrkseta(0);
     std::vector<double> ini_cbtrksphi(0);
-    std::vector<double> ini_mstrksn(0);
+    std::vector<int>    ini_mstrksn(0);
     std::vector<double> ini_mstrkspt(0);
     std::vector<double> ini_mstrkseta(0);
     std::vector<double> ini_mstrksphi(0);
     // ToDo:
-    std::vector<double> ini_segsn(0);
+    std::vector<int>    ini_segsn(0);
     std::vector<double> ini_segsphi(0);
     std::vector<double> ini_segseta(0);
 
