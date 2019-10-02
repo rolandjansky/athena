@@ -86,13 +86,10 @@
     /// Destructor:
     virtual ~JetForwardPFlowJvtTool();
 
-    // Athena algtool's Hooks
-    // StatusCode  initialize();
-    // StatusCode  finalize();
     virtual StatusCode  initialize() override;
-    //virtual StatusCode finalize() override;
+ 
 
-    virtual int modify(xAOD::JetContainer& jetCont) const override;
+    virtual int modify(xAOD::JetContainer& jetCont) const;
 
     float getFJVT(const xAOD::Jet *jet,std::vector<TVector2> pileupMomenta) const;
     bool isForwardJet(const xAOD::Jet *jet) const;
