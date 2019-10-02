@@ -36,13 +36,15 @@ void PixelCablingCondData::add_entry_offrob(const Identifier offlineId, const ui
 }
 
 void PixelCablingCondData::add_entry_rodrob(int rodid, int robid) {
-  m_idMap_rodrob.insert(std::make_pair(rodid, robid)); // add RODId identifier -> offline ROBId pair in m_idMap_rodrob
-  m_allRods.push_back(rodid);
+  auto [iter, newElementAdded] = m_idMap_rodrob.insert(std::make_pair(rodid, robid)); // add RODId identifier -> offline ROBId pair in m_idMap_rodrob
+  if ( newElementAdded )
+    m_allRods.push_back(rodid);
 }
 
 void PixelCablingCondData::add_entry_robrod(int robid, int rodid) {
-  m_idMap_robrod.insert(std::make_pair(robid, rodid));
-  m_allRobs.push_back(robid);
+  auto [iter, newElementAdded] = m_idMap_robrod.insert(std::make_pair(robid, rodid));
+  if ( newElementAdded )
+    m_allRobs.push_back(robid);
 }
 
 void PixelCablingCondData::add_entry_offlineList(const uint32_t robid, const Identifier offlineId) {
