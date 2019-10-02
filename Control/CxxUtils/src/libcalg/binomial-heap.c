@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2005-2008, Simon Howard
+Copyright (c) 2005-2008, 2019, Simon Howard
 
 Permission to use, copy, modify, and/or distribute this software 
 for any purpose with or without fee is hereby granted, provided 
@@ -76,7 +76,7 @@ static void binomial_tree_unref(BinomialTree *tree)
 	
 	/* Subtract a reference */
 
-	--tree->refcount;
+	tree->refcount -= 1;
 
 	/* If this removed the last reference, unreference all subtrees
 	 * and free. */

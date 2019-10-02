@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,6 @@
 #include "CLHEP/Geometry/Vector3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoModelKernel/RCBase.h"
 #include "InDetDD_Defs.h"
 
 #include <list>
@@ -52,7 +51,7 @@ enum DetectorShape {
     @author A. Calvet, Grant Gorfine
  */
 
-class SiDetectorDesign: public RCBase {
+class SiDetectorDesign {
 public:
     enum Axis {
         xAxis=0, yAxis, zAxis

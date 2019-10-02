@@ -163,8 +163,8 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     std::vector< ElementLink<xAOD::TrackParticleContainer> > all_tracks;
 
     for (const Decision* previousDecision: *previousDecisionsHandle) {
-		const auto viewELInfo = findLink< ViewContainer >( previousDecision, "view" );
-  		ATH_CHECK( viewELInfo.isValid() );
+		  const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+  		ATH_CHECK( viewEL.isValid() );
   		
   		//could implement something templated for tracks/muon tracks/electron tracks
   		//auto tracks = get_correct_tracks();//templated in some .icc file, hide away all
@@ -173,27 +173,25 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
   		
   		//tracks are SG::ReadHandle<xAOD::TrackParticleContainer>	
   		if(m_particleType == 0){
-  		auto tracks = ViewHelper::makeHandle( *viewELInfo.link, m_trackParticleContainerKey, context );
+  		auto tracks = ViewHelper::makeHandle( *viewEL, m_trackParticleContainerKey, context );
   		ATH_CHECK( tracks.isValid() );
     	 //so each time the loop starts, tracks is reset to contain tracks from a different view
     	 ATH_MSG_DEBUG( "Made handle " << m_trackParticleContainerKey << " size: "
                   << tracks->size() );  
  
          if(tracks->size() == 0) continue;
-         
-         const xAOD::TrackParticleContainer* tpcont = dynamic_cast<const xAOD::TrackParticleContainer* > (tracks->at(0)->container());
-          
+
          for(auto track : *tracks){
         
             const ElementLink<xAOD::TrackParticleContainer> track_link = 
-                     ElementLink<xAOD::TrackParticleContainer>(*tpcont, track->index(), context);       
+                     ElementLink<xAOD::TrackParticleContainer>(*tracks, track->index(), context);
             ATH_CHECK(track_link.isValid());
 
         	all_tracks.push_back(track_link);
         	track_decision_map[track_link] = previousDecision;
          }
          } else if(m_particleType == 1){
-             auto muons = ViewHelper::makeHandle( *viewELInfo.link, m_muonContainerKey, context );
+             auto muons = ViewHelper::makeHandle( *viewEL, m_muonContainerKey, context );
   		     ATH_CHECK( muons.isValid() );
     	     //so each time the loop starts, tracks is reset to contain tracks from a different view
     	     ATH_MSG_DEBUG( "Made handle " << m_muonContainerKey << " size: "
@@ -202,16 +200,19 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
              if(muons->size() == 0) continue;
                    
              for(auto muon : *muons){
-        
-                const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();       
-                ATH_CHECK(track_link.isValid());
+                //check if this is a combined muon
+                const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+                if (!tr) {
+                    ATH_MSG_DEBUG("No CombinedTrackParticle found.");
+                    continue;
+                } else {
+                    const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();
+                    ATH_CHECK(track_link.isValid());
 
-            	all_tracks.push_back(track_link);
-                track_decision_map[track_link] = previousDecision;
-         }
-
-         
-         
+            	    all_tracks.push_back(track_link);
+                    track_decision_map[track_link] = previousDecision;
+                }
+             } 
          }           
     }
     mon_NTrk = all_tracks.size();
@@ -222,7 +223,6 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     }  
     mon_accepted_highptNTrk = good_tracks.size();
 
-    TLorentzVector tlv0, tlv1;
     ATH_MSG_DEBUG("Passed NTrack and track pT cuts: " << mon_accepted_highptNTrk << " tracks sent to vertexing");
     
     const auto nTracks = good_tracks.size();

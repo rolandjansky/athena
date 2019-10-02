@@ -18,21 +18,9 @@ if not 'stream' in dir():
         print("WARNING Unable to determine input stream name. Will Print all streams.")
         stream = 'any'
 
-# GetSkimCycle method do not exist anymore in the RecoFunctions package
-# if not 'cycle' in dir():
-#     print "INFO cycle info is not yet used by CutFlowSvc::print(). Coming soon!"
-#     from RecExConfig.InputFilePeeker import inputFileSummary
-#     from RecExConfig.RecoFunctions import GetSkimCycle
-#     cycle=GetSkimCycle(inputFileSummary)
-
 from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
 svcMgr+=CutFlowSvc()
 theApp.CreateSvc+=['CutFlowSvc']
-
-
-#Arbitrarily changing cycle into cycle+1 since in this example
-# we are not using Reco_trf and all the tools which do this automatically
-#cycle=cycle+1
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence=AlgSequence()
@@ -56,10 +44,5 @@ _myLFC.cmdstring = "myCpp1 or myCpp2"
 _myLFC.OutputLevel=INFO
 topSequence+=_myLFC
 
-
-
-svcMgr.CutFlowSvc.OutputLevel=INFO
 svcMgr.CutFlowSvc.OutputLevel=DEBUG
-svcMgr.CutFlowSvc.SkimmingCycle=cycle
-
 svcMgr.MessageSvc.defaultLimit = 9999999

@@ -80,11 +80,7 @@ StatusCode Muon::MuonHolesOnTrackTool::initialize()
   // Get the messaging service, print where you are
   ATH_MSG_INFO("MuonHolesOnTrackTool::initialize()");
  
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // get measurement tool
   StatusCode sc = m_measTool.retrieve();
@@ -271,16 +267,16 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
        
       unsigned int lId = layer->layerType();
       Identifier layId(lId);
-      if ( assocMeas<1  &&  lId && m_mdtIdHelper->is_mdt(layId)  ) {
+      if ( assocMeas<1  &&  lId && m_muonIdHelperTool->mdtIdHelper().is_mdt(layId)  ) {
         bool measPhi = false;
 	const Trk::TrackStateOnSurface* hole = createHole(nextPar,layer,measPhi);
         if (hole) temp_holes->push_back(hole); 
       }
 
-      if ( assocMeas<3  &&  lId && !m_mdtIdHelper->is_mdt(layId) ) {
+      if ( assocMeas<3  &&  lId && !m_muonIdHelperTool->mdtIdHelper().is_mdt(layId) ) {
         // create a hole 
-        if ( m_tgcIdHelper->is_tgc(layId) && assocMeas<2) {
-          if (m_tgcIdHelper->gasGap(layId)==2 && m_tgcIdHelper->gasGapMax(layId)==3) assocMeas+=2;
+        if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(layId) && assocMeas<2) {
+          if (m_muonIdHelperTool->tgcIdHelper().gasGap(layId)==2 && m_muonIdHelperTool->tgcIdHelper().gasGapMax(layId)==3) assocMeas+=2;
           //if (layId == 0) std::cout << "TGC layer not identified, this phi hole can be fake" << std::endl;
         }
 	if (assocMeas<2){
@@ -452,7 +448,7 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
        
       unsigned int lId = layer->layerType();  
       Identifier layId(lId);
-      if ( assocMeas<1  &&  lId && m_mdtIdHelper->is_mdt(layId)  ) {
+      if ( assocMeas<1  &&  lId && m_muonIdHelperTool->mdtIdHelper().is_mdt(layId)  ) {
         bool measPhi = false;
 	const Trk::TrackStateOnSurface* hole = createHole(nextPar,layer,measPhi);
         if (hole) temp_holes->push_back(hole); 
@@ -460,10 +456,10 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
         if (outlier) temp_holes->push_back(outlier); 
       }
 
-      if ( assocMeas<3  &&  lId && !m_mdtIdHelper->is_mdt(layId) ) {
+      if ( assocMeas<3  &&  lId && !m_muonIdHelperTool->mdtIdHelper().is_mdt(layId) ) {
         // create a hole 
-        if ( m_tgcIdHelper->is_tgc(layId) && assocMeas<2) {
-          if (m_tgcIdHelper->gasGap(layId)==2 && m_tgcIdHelper->gasGapMax(layId)==3) assocMeas+=2;
+        if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(layId) && assocMeas<2) {
+          if (m_muonIdHelperTool->tgcIdHelper().gasGap(layId)==2 && m_muonIdHelperTool->tgcIdHelper().gasGapMax(layId)==3) assocMeas+=2;
           //if (layId == 0) std::cout << "TGC layer not identified, this phi hole can be fake" << std::endl;
         }
 	if (assocMeas<2){
@@ -636,16 +632,16 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::findAssociatedMeasuremen
 	Identifier hid = (*tit)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier() ;
         if (hid.get_identifier32().get_compact()>0) {
           assoc = true;
-	  if (m_mdtIdHelper->is_rpc(hid)) {
-	    if ( m_rpcIdHelper->measuresPhi(hid) ) {assocMeasPhi = true;}
+	  if (m_muonIdHelperTool->mdtIdHelper().is_rpc(hid)) {
+	    if ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(hid) ) {assocMeasPhi = true;}
 	    else { assocMeasEtaZ = true;}
 	  }
-	  if (m_mdtIdHelper->is_csc(hid)) {
-	    if ( m_cscIdHelper->measuresPhi(hid) ) {assocMeasPhi = true;}
+	  if (m_muonIdHelperTool->mdtIdHelper().is_csc(hid)) {
+	    if ( m_muonIdHelperTool->cscIdHelper().measuresPhi(hid) ) {assocMeasPhi = true;}
 	    else { assocMeasEtaZ = true;}
 	  }
-	  if (m_mdtIdHelper->is_tgc(hid)) {
-	    if ( m_tgcIdHelper->isStrip(hid) ) {assocMeasPhi = true;}
+	  if (m_muonIdHelperTool->mdtIdHelper().is_tgc(hid)) {
+	    if ( m_muonIdHelperTool->tgcIdHelper().isStrip(hid) ) {assocMeasPhi = true;}
 	    else { assocMeasEtaZ = true;}
 	  }
 	}
@@ -685,16 +681,16 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::findAssociatedMeasuremen
 	if (rio) {
 	  Identifier id = rio->identify();
           res = fabs(m_measTool->residual(nextPar,id));
-	  if (m_mdtIdHelper->is_rpc(id)) {
-	    if ( m_rpcIdHelper->measuresPhi(id) ) {assocMeasPhi = true;}
+	  if (m_muonIdHelperTool->mdtIdHelper().is_rpc(id)) {
+	    if ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) {assocMeasPhi = true;}
 	    else { assocMeasEtaZ = true;}
 	  }
-	  if (m_mdtIdHelper->is_csc(id)) {
-	    if ( m_cscIdHelper->measuresPhi(id) ) {assocMeasPhi = true;}
+	  if (m_muonIdHelperTool->mdtIdHelper().is_csc(id)) {
+	    if ( m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ) {assocMeasPhi = true;}
 	    else { assocMeasEtaZ = true;}
 	  }
-	  if (m_mdtIdHelper->is_tgc(id)) {
-	    if ( m_tgcIdHelper->isStrip(id) ) {assocMeasPhi = true;}
+	  if (m_muonIdHelperTool->mdtIdHelper().is_tgc(id)) {
+	    if ( m_muonIdHelperTool->tgcIdHelper().isStrip(id) ) {assocMeasPhi = true;}
 	    else { assocMeasEtaZ = true;}
 	  }
 	}
@@ -763,9 +759,9 @@ const Trk::TrackStateOnSurface* Muon::MuonHolesOnTrackTool::createOutlier(const 
       bool rioMeasPhi=false;   
       if (rio) {
 	Identifier id = rio->identify();
-	if ( m_mdtIdHelper->is_rpc(id) && m_rpcIdHelper->measuresPhi(id) ) rioMeasPhi = true;
-	if ( m_mdtIdHelper->is_csc(id) && m_cscIdHelper->measuresPhi(id) ) rioMeasPhi = true;
-	if ( m_mdtIdHelper->is_tgc(id) && m_tgcIdHelper->isStrip(id) )     rioMeasPhi = true;
+	if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(id) && m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) rioMeasPhi = true;
+	if ( m_muonIdHelperTool->mdtIdHelper().is_csc(id) && m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ) rioMeasPhi = true;
+	if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(id) && m_muonIdHelperTool->tgcIdHelper().isStrip(id) )     rioMeasPhi = true;
       }
       if ( (!measPhi && !rioMeasPhi) || (measPhi && rioMeasPhi) ) {
 	if ( rio && m_measTool->residual(layer,nextPar,rio) < m_outlierLim ) {
@@ -844,18 +840,18 @@ void Muon::MuonHolesOnTrackTool::countHoles( const Trk::Track& input_track,  std
 
     Identifier	hid = (*hit)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier() ;
     if (hid.get_identifier32().get_compact()>0) {
-      if (m_mdtIdHelper->is_mdt(hid)) information[25]++;   
+      if (m_muonIdHelperTool->mdtIdHelper().is_mdt(hid)) information[25]++;   
 
-      else if (m_mdtIdHelper->is_rpc(hid)) {
-	if ( m_rpcIdHelper->measuresPhi(hid) ) information[24]++; 
+      else if (m_muonIdHelperTool->mdtIdHelper().is_rpc(hid)) {
+	if ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(hid) ) information[24]++; 
 	else                                   information[23]++; 
       
-      } else if (m_mdtIdHelper->is_csc(hid)) {
-	if ( m_cscIdHelper->measuresPhi(hid) ) information[22]++; 
+      } else if (m_muonIdHelperTool->mdtIdHelper().is_csc(hid)) {
+	if ( m_muonIdHelperTool->cscIdHelper().measuresPhi(hid) ) information[22]++; 
 	else                                   information[21]++; 
 	  
-      } else if (m_mdtIdHelper->is_tgc(hid)) {
-	if ( m_tgcIdHelper->isStrip(hid) )     information[27]++; 
+      } else if (m_muonIdHelperTool->mdtIdHelper().is_tgc(hid)) {
+	if ( m_muonIdHelperTool->tgcIdHelper().isStrip(hid) )     information[27]++; 
 	else                                   information[26]++; 
       }
     }

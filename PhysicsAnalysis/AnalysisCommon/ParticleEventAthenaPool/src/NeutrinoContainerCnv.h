@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // NeutrinoContainerCnv.h 
@@ -14,57 +14,21 @@
 // STL includes
 
 // AthenaPoolCnvSvc includes
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 
 // ParticleEvent includes
 #include "ParticleEvent/NeutrinoContainer.h"
 
 // ParticleEventTPCnv includes
-#include "ParticleEventTPCnv/NeutrinoContainer_p2.h"
+#include "ParticleEventTPCnv/NeutrinoContainerCnv_p1.h"
+#include "ParticleEventTPCnv/NeutrinoContainerCnv_p2.h"
 
-// Forward declaration
 
-// the latest persistent representation type of DataCollection:
-typedef NeutrinoContainer_p2  NeutrinoContainer_PERS;
+typedef T_AthenaPoolTPCnvCnv< NeutrinoContainer,
+                              NeutrinoContainerCnv_p2,
+                              NeutrinoContainerCnv_p1,
+                              T_TPCnvNull<NeutrinoContainer> >
+ NeutrinoContainerCnv;
 
-class NeutrinoContainerCnv: public T_AthenaPoolCustomCnv<
-                                      NeutrinoContainer, 
-                                      NeutrinoContainer_PERS 
-                                   > 
-
-{
-
-  // make the factory for this converter our friend
-  friend class CnvFactory<NeutrinoContainerCnv>;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-
-  /** Create the converter from the service locator
-   */
-public:
-  NeutrinoContainerCnv(ISvcLocator* svcloc);
-protected:
-
-  /** Build the persistent representation from the transient one.
-   */
-  virtual NeutrinoContainer_PERS*
-    createPersistent( NeutrinoContainer* transCont );
-  
-  /** Build the transient representation from a persistent one
-   */
-  virtual NeutrinoContainer* createTransient();
-
-};
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline NeutrinoContainerCnv::NeutrinoContainerCnv( ISvcLocator* svcLocator ) :
-  T_AthenaPoolCustomCnv<NeutrinoContainer, NeutrinoContainer_PERS>(svcLocator)
-{}
 
 #endif //> PARTICLEEVENTATHENAPOOL_NEUTRINOCONTAINERCNV_H

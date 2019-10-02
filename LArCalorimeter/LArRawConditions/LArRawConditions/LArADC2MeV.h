@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <array>
+#include "LArElecCalib/LArVectorProxy.h"
 
 class LArADC2MeV {
 
@@ -22,35 +23,45 @@ class LArADC2MeV {
   LArADC2MeV() = delete;
   LArADC2MeV(const LArOnlineID_Base* onlineID, 
 	     const LArOnOffIdMapping* cabling,
-	     const size_t nGains);
+	     const size_t nGains,
+	     const unsigned rampDegree);
 
   ~LArADC2MeV();
 
-  const std::vector<float>& ADC2MEV(const HWIdentifier& id, int gain) const {
+  const LArVectorProxy ADC2MEV(const HWIdentifier& id, int gain) const {
     const IdentifierHash h=m_onlineID->channel_Hash(id);
-    return m_adc2MeV[gain][h];
+    return ADC2MEV(h,gain);
   }
 
-  const std::vector<float>& ADC2MEV(const IdentifierHash& hid, int gain) const {
-    return m_adc2MeV[gain][hid];
-  }
+  const LArVectorProxy ADC2MEV(const IdentifierHash& hid, int gain) const {
+    if (!m_adc2MeV[gain].valid.test(hid)) {
+      return LArVectorProxy();
+    }
+    else {
+      const float* ptr1=&(m_adc2MeV[gain].data[hid*m_rampDegree]);
+      return LArVectorProxy(ptr1,ptr1+m_rampDegree);
+    }
+  };
 
-  const std::vector<float>& ADC2MEV(const Identifier& offid, int gain) const {
+  const LArVectorProxy ADC2MEV(const Identifier& offid, int gain) const {
     const HWIdentifier hwid=m_cabling->createSignalChannelID(offid);
     return ADC2MEV(hwid,gain);
   }
 
-  bool set(const IdentifierHash& hid, const int gain, std::vector<float>& adc2mev);
+  bool set(const IdentifierHash& hid, const int gain, const std::vector<float>& adc2mev);
 
  private:
-  std::array<std::vector<std::vector<float> >,CaloGain::LARNGAIN> m_adc2MeV; 
-  
-  //Possible optimizations: 
-  //Make one flat vector and use something else (magic number?) to denote validity
-  //In real life, the size of the inner vector (eg the degree of the ramp-polynom) is always 2
+ 
+  struct validVec_t {
+    std::vector<float> data;
+    std::bitset<200000> valid;
+  };
 
+  std::array<validVec_t,CaloGain::LARNGAIN> m_adc2MeV; 
+  
   const LArOnlineID_Base* m_onlineID;
   const LArOnOffIdMapping* m_cabling;
+  const unsigned m_rampDegree;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

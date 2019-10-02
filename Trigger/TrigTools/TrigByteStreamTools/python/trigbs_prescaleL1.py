@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 Module for applying L1 prescales to the input data
 
@@ -8,14 +8,12 @@ Used as a "-Z" plugin to athenaHLT:
 athenaHLT -Z TrigByteStreamTools.trigbs_prescaleL1 ...
 """
 
-import os
 import random
 import zlib
 import sys
 from AthenaCommon.Logging import logging
 
 import eformat
-import libpyevent_storage as EventStorage
 
 import cppyy
 cppyy.loadDictionary('TrigByteStreamToolsDict')
@@ -32,10 +30,10 @@ def loadPrescales(config):
   database = config['db-server']
   l1psk = int(config['db-extra']['lvl1key'])
 
-  log.info('Applying L1 prescale set %s from %s' % (l1psk,database))
+  log.info('Applying L1 prescale set %s from %s', l1psk, database)
   from TrigConfigSvc.TrigConfigSvcUtils import getL1Prescales
   name, prescales = getL1Prescales(database,l1psk)
-  log.debug('Prescales: %s' % str(prescales))
+  log.debug('Prescales: %s', str(prescales))
   return prescales
 
   
@@ -43,7 +41,7 @@ def modify_general(**kwargs):
   """Prescale L1 items in CTP fragment used by HLT"""  
   global prescales
   
-  if prescales==None:
+  if prescales is None:
     prescales = loadPrescales(kwargs['configuration'])
 
   event = kwargs["event"]
@@ -65,14 +63,16 @@ def modify_general(**kwargs):
       TAVpos = CTPfragment._versioned(CTPdataformat,'TAVpos',v)
             
       L1TBP = CTPfragment.decodeTriggerBits(data[TBPpos:TBPpos+TBPwords])
-      log.debug('L1TBP: %s' % L1TBP)
+      log.debug('L1TBP: %s', L1TBP)
       newL1TAV = []
       for ctp in L1TBP:
-        if prescales[ctp]<=0: continue
-        if random.uniform(0,prescales[ctp])>1: continue
+        if prescales[ctp]<=0:
+          continue
+        if random.uniform(0,prescales[ctp])>1:
+          continue
         newL1TAV.append(ctp)
 
-      log.debug('New L1TAV: %s' % newL1TAV)        
+      log.debug('New L1TAV: %s', newL1TAV)
       newL1TAVBits = CTPfragment.encodeTriggerBits(newL1TAV,TBPwords)
       for i,value in enumerate(newL1TAVBits):
         data[TAVpos+i] = value
@@ -91,7 +91,7 @@ def modify_general(**kwargs):
 
 if __name__ == "__main__":
   if len(sys.argv)<=1:
-    print "Syntax: trigbs_prescaleL1.py FILE"
+    print("Syntax: trigbs_prescaleL1.py FILE")
     sys.exit(1)
 
   log.setLevel(logging.DEBUG)    
@@ -101,12 +101,8 @@ if __name__ == "__main__":
   kwargs = {'configuration' : {'db-server':'TRIGGERDBREPR',
                                'db-extra' : {'lvl1key' : 30}}}  
 
-  os = eformat.ostream()
+  ost = eformat.ostream()
   for e in eformat.istream(sys.argv[1]):
     kwargs['event'] = e
     new_event = modify_general(**kwargs)
-    os.write(new_event)
-
-
-  
-
+    ost.write(new_event)

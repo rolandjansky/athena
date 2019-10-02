@@ -25,6 +25,8 @@
 #include "TH2I.h"
 
 // Local includes:
+#include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfData/HLTMenu.h"
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IStorageMgr.h"
@@ -78,6 +80,35 @@ HLTConfigSvc::~HLTConfigSvc()
 {}
 
 
+StatusCode
+HLTConfigSvc::writeConfigToDetectorStore() {
+
+    // load the json file into TrigConf::HLTMenu
+    TrigConf::JsonFileLoader fileLoader;
+    fileLoader.setLevel(TrigConf::MSGTC::WARNING);
+
+    TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
+
+    if( m_inputType == "file" ) {
+       if( fileLoader.loadFile( m_hltFileName, *hltmenu ).isSuccess() ) {
+          ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
+       } else {
+          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());
+          return StatusCode::RECOVERABLE;
+       }
+    }
+
+    ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );
+
+    ATH_CHECK( detStore.retrieve() );
+    if( detStore->record(hltmenu,"HLTTriggerMenu").isSuccess() ) {
+       ATH_MSG_INFO( "Recorded HLT menu with key 'HLTTriggerMenu' in the detector store" );
+    }
+
+    return StatusCode::SUCCESS;
+} 
+
+
 // Suppress warnings for two functions of this class marked as deprecated.
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -115,7 +146,12 @@ HLTConfigSvc::sequences() const {
 StatusCode
 HLTConfigSvc::initialize() {
 
-   CHECK(ConfigSvcBase::initialize());
+   ATH_CHECK(ConfigSvcBase::initialize());
+
+   StatusCode sc = writeConfigToDetectorStore();
+   if( !sc.isSuccess() ) {
+          ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
+   }
 
    //////////////////////////////////////////////////////////////
    // BEGIN RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
@@ -129,7 +165,8 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_e5_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_e7_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_g5_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_g5_etcut_larpeb_L1EM3"] = "L1_EM3";
+      dummyChains["HLT_g5_etcut_LArPEB_L1EM3"] = "L1_EM3";
+      dummyChains["HLT_g20_etcut_LArPEB_L1EM15"] = "L1_EM15";
       dummyChains["HLT_g10_etcut_L1EM7"] = "L1_EM7";
       dummyChains["HLT_g15_etcut_L1EM12"] = "L1_EM12";
       dummyChains["HLT_mu6_L1MU6"] = "L1_MU6";
@@ -160,6 +197,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j460_a10t_lcw_jes_30smcINF_L1J100"] = "L1_J100";
       dummyChains["HLT_mu26_ivarmedium_L1MU20"] = "L1_MU20";
       dummyChains["HLT_mu50_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_mu50_RPCPEBSecondaryReadout_L1MU20"] = "L1_MU20";
       dummyChains["HLT_2mu14_L12MU10"] = "L1_2MU10";
       dummyChains["HLT_j420_L1J100"] = "L1_J100";
       dummyChains["HLT_j260_320eta490_L1J75_31ETA49"] = "L1_J75.31ETA49";
@@ -175,6 +213,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_2mu6_L12MU6"] = "L1_2MU6";
       dummyChains["HLT_2mu6Comb_L12MU6"] = "L1_2MU6";
       dummyChains["HLT_2mu6_bJpsimumu_L12MU6"] = "L1_2MU6";
+      dummyChains["HLT_2mu6_10invm70_L1MU6"] = "L1_2MU6";
       dummyChains["HLT_3j200_L1J20"] = "L1_J20";
       dummyChains["HLT_5j70_0eta240_L14J20"] = "L1_4J20";
       dummyChains["HLT_e3_etcut1step_mu6fast_L1EM8I_MU10"] = "L1_EM8I_MU10";
@@ -218,6 +257,12 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"] = "L1_TAU100";
       dummyChains["HLT_2mu10_bJpsimumu_L12MU10"] = "L1_2MU10";
       dummyChains["HLT_2mu10_bUpsimumu_L12MU10"] = "L1_2MU10";
+      // ATR-19985
+      dummyChains["HLT_mu6_idperf_L1MU6"] = "L1_MU6";
+      dummyChains["HLT_mu24_idperf_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_tau25_idperf_tracktwo_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_tau25_idperf_tracktwoEF_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_tau25_idperf_tracktwoMVA_L1TAU12IM"] = "L1_TAU12IM";
 
       m_HLTFrame.setMergedHLT( m_setMergedHLT );
       for (const auto& mapPair : dummyChains) {

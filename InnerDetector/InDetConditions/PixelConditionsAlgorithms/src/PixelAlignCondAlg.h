@@ -42,8 +42,8 @@ class PixelAlignCondAlg : public AthAlgorithm
     this, "ReadKeyDynamicL2", "/Indet/AlignL2/PIX", "Key for the dynamic L2 alignment folder"};
   SG::ReadCondHandleKey<AlignableTransformContainer> m_readKeyDynamicL3{
     this, "ReadKeyDynamicL3", "/Indet/AlignL3", "Key for the dynamic L3 alignment folder"};
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyDynamicIBL{
-    this, "ReadKeyDynamicIBL", "/Indet/IBLDist", "Key for the dynamic IBL alignment folder"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyIBLDist{
+    this, "ReadKeyIBLDist", "/Indet/IBLDist", "Key for the IBL alignment folder"};
 
   SG::WriteCondHandleKey<GeoAlignmentStore> m_writeKey;
 

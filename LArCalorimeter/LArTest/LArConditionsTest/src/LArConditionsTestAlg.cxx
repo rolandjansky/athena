@@ -29,7 +29,6 @@
 #include "GaudiKernel/ListItem.h"
 
 #include "LArRawConditions/LArRampMC.h" 
-// #include "LArRawConditions/LArShapeMC.h" 
 #include "LArRawConditions/LArConditionsChannelSet.h" 
 //#include "LArRawConditions/LArNoiseDB.h" 
 #include "LArElecCalib/ILArOFC.h" 

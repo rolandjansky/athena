@@ -27,6 +27,11 @@ namespace {
    * a property set from the EDM configuration to avoid multiple definitions, but the value should never change from 0.
    */
   constexpr uint16_t fullResultModuleId = 0;
+  /**
+   * HLT ROBFragment ROD minor version.
+   * Changed from 0.0 to 1.0 in September 2019 to differentiate Run-3 HLT ByteStream format from earlier formats.
+   */
+  constexpr uint16_t hltRodMinorVersion = 0x0100;
 }
 
 // =============================================================================
@@ -37,6 +42,7 @@ HLT::HLTResultMTByteStreamCnv::HLTResultMTByteStreamCnv(ISvcLocator* svcLoc) :
   AthMessaging(msgSvc(), "HLTResultMTByteStreamCnv"),
   m_ByteStreamEventAccess("ByteStreamCnvSvc", "HLTResultMTByteStreamCnv") {
     m_fullEventAssembler.idMap().setDetId(eformat::TDAQ_HLT);
+    m_fullEventAssembler.setRodMinorVersion(hltRodMinorVersion);
   }
 
 // =============================================================================

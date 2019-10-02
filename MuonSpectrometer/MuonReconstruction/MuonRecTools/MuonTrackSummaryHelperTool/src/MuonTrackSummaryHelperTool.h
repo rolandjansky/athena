@@ -5,7 +5,7 @@
 #ifndef MUONTRACKSUMMARYHELPERTOOL_H
 #define MUONTRACKSUMMARYHELPERTOOL_H
 
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
 //
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -33,6 +33,7 @@ namespace Trk {
   class RIO_OnTrack;
   class TrackStateOnSurface;
   class CompetingRIOsOnTrack;
+  class TrackSummary;
 }
 
 namespace MuonGM {
@@ -41,7 +42,7 @@ namespace MuonGM {
 
 namespace Muon {
 
-  class MuonTrackSummaryHelperTool :  virtual public Trk::ITrackSummaryHelperTool, public AthAlgTool   {
+  class MuonTrackSummaryHelperTool :  public extends<AthAlgTool,Trk::IExtendedTrackSummaryHelperTool>    {
   public:
     MuonTrackSummaryHelperTool(const std::string&,const std::string&,const IInterface*);
         
@@ -63,10 +64,37 @@ namespace Muon {
                          std::vector<int>& information,
                          std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
 
+    virtual void analyse(
+                         const Trk::Track& trk,
+                         const Trk::PRDtoTrackMap *prd_to_track_map,
+                         const Trk::RIO_OnTrack* rot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information,
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern  ) const override {
+      (void) prd_to_track_map;
+      analyse(trk,rot,tsos,information,hitPattern);
+    }
+
+    virtual void analyse(
+                         const Trk::Track& trk,
+                         const Trk::PRDtoTrackMap *prd_to_track_map,
+                         const Trk::CompetingRIOsOnTrack* crot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information,
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override {
+      (void) prd_to_track_map;
+      analyse(trk,crot,tsos,information, hitPattern);
+    }
+
     virtual
     void searchForHoles(
                         const Trk::Track& track,
                         std::vector<int>& information, Trk::ParticleHypothesis hyp) const override;
+
+    virtual
+    void updateSharedHitCount(const Trk::Track&,
+                              const Trk::PRDtoTrackMap *,
+                              Trk::TrackSummary&) const override  {};
 
     virtual
     void addDetailedTrackSummary( const Trk::Track& track, Trk::TrackSummary& summary ) const override;

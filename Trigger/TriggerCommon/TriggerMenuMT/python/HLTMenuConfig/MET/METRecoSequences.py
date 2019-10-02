@@ -21,7 +21,7 @@ def metCellAthSequence(ConfigFlags):
 def metCellRecoSequence():
 
     from TrigT2CaloCommon.CaloDef import HLTFSCellMakerRecoSequence
-    (metCellRecoSequence, CellsName) = HLTFSCellMakerRecoSequence()
+    (cellMakerSeq, CellsName) = HLTFSCellMakerRecoSequence()
 
     #################################################
     # Add EFMissingETAlg and associated tools
@@ -39,10 +39,10 @@ def metCellRecoSequence():
     cellTool.CellsCollection = CellsName
     metAlg.METTools = [cellTool, flagsTool]
 
-    metCellRecoSequence += metAlg
+    met_recoSequence = seqAND("metCellRecoSequence", [cellMakerSeq, metAlg])
 
     seqOut = metAlg.METContainerKey
-    return (metCellRecoSequence, seqOut)
+    return (met_recoSequence, seqOut)
 
 
 def metClusterAthSequence(ConfigFlags):
@@ -56,8 +56,7 @@ def metClusterAthSequence(ConfigFlags):
 def metClusterRecoSequence():
 
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-    (metClusterRecoSequence, ClustersName) = HLTFSTopoRecoSequence()
-
+    (tcSeq, ClustersName) = HLTFSTopoRecoSequence()
 
     #################################################
     # Add EFMissingETAlg and associated tools
@@ -71,13 +70,11 @@ def metClusterRecoSequence():
     #///////////////////////////////////////////
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersMT
     clusterTool = EFMissingETFromClustersMT( name="METFromClustersTool" )
-
-    ### WARNING: this setting does not work for the scheduler: the variable is set, but the scheduler retrieves the default one
     clusterTool.ClustersCollection = ClustersName
 
     metAlg.METTools = [clusterTool]
 
-    metClusterRecoSequence += metAlg
+    metClusterRecoSequence = seqAND("metClusterRecoSequence", [tcSeq, metAlg])
 
     seqOut = metAlg.METContainerKey
     return (metClusterRecoSequence, seqOut)
@@ -94,8 +91,7 @@ def metClusterPufitAthSequence(ConfigFlags):
 def metClusterPufitRecoSequence(RoIs = 'FSJETRoI'):
 
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-
-    (metClusterPufitRecoSequence, ClustersName) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence, RoIs)
+    (tcSeq, ClustersName) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence, RoIs)
 
     #################################################
     # Add EFMissingETAlg and associated tools
@@ -109,12 +105,11 @@ def metClusterPufitRecoSequence(RoIs = 'FSJETRoI'):
         #///////////////////////////////////////////
     from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPufitMT
     clusterPufitTool = EFMissingETFromClustersPufitMT( name="METFromClustersPufitTool" )
-
     clusterPufitTool.ClustersCollection = ClustersName
 
     metAlg.METTools = [clusterPufitTool]
 
-    metClusterPufitRecoSequence += metAlg
+    metClusterPufitRecoSequence = seqAND("metClusterPufitRecoSequence", [tcSeq ,metAlg])
 
     seqOut = metAlg.METContainerKey
     return (metClusterPufitRecoSequence, seqOut)
@@ -128,11 +123,11 @@ def metJetAthSequence(ConfigFlags):
     return (MetAthSequence, InputMakerAlg, sequenceOut)
 
 
-def metJetRecoSequence(RoIs = 'FSJetRoI'):
+def metJetRecoSequence(RoIs = 'FSJETRoI'):
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
     jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjes"}
-    (recoSequence, sequenceOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
+    (jetSeq, sequenceOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
 
 
     #################################################
@@ -152,8 +147,8 @@ def metJetRecoSequence(RoIs = 'FSJetRoI'):
     
     metAlg.METTools = [mhtTool]
 
-    recoSequence += metAlg
+    metJetRecoSequence = seqAND("metJetRecoSequence", [jetSeq, metAlg])
 
     seqOut = metAlg.METContainerKey
-    return (recoSequence, seqOut)
+    return (metJetRecoSequence, seqOut)
 

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/test/TPCnvElt_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,7 @@
 #include "AthenaPoolCnvSvcTestDict.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TSystem.h"
+#include "TestConverterBase.h"
 #include <iostream>
 #include <typeinfo>
 #include <cassert>
@@ -25,11 +24,16 @@ using namespace AthenaPoolCnvSvcTest;
 
 
 class XCnv_p1
+  : public TestConverterBase
 {
 public:
   typedef X Trans_t;
   typedef X_p1 Pers_t;
   
+  X* createTransientWithKey (const X_p1* pers, const std::string&, MsgStream& log)
+  {
+    return createTransient (pers, log);
+  }
   X* createTransient (const X_p1* pers, MsgStream&)
   { return new X(pers->m_a*2); }
 
@@ -77,28 +81,30 @@ void test2()
   AthenaPoolCnvSvc::TPCnvElt<TestConverter, XCnv_p1> tpcnv;
 
   TestConverter cnv1 (X_p1_guid);
-  X* x = tpcnv.createTransient (cnv1, msg);
-  assert (x->m_a == 20);
-  delete x;
+  {
+    std::unique_ptr<X> xptr = tpcnv.createTransient (cnv1, "key", msg);
+    assert (xptr->m_a == 20);
+  }
 
   X x2 (0);
-  assert (tpcnv.persToTrans (cnv1, &x2, msg));
+  assert (tpcnv.persToTrans (cnv1, &x2, "key", msg));
   assert (x2.m_a == 20);
   
   TestConverter cnv2 ("8ADE9DD7-ED1F-447E-A096-0F8F786291CD");
-  assert (tpcnv.createTransient (cnv2, msg) == nullptr);
-  assert (!tpcnv.persToTrans (cnv2, &x2, msg));
+  assert (tpcnv.createTransient (cnv2, "key", msg) == nullptr);
+  assert (!tpcnv.persToTrans (cnv2, &x2, "key", msg));
 
   AthenaPoolCnvSvc::TPCnvElt<TestConverter, T_TPCnvNull<X> > tpcnv_null;
   TestConverter cnv3 (X_guid);
-  x = tpcnv_null.createTransient (cnv3, msg);
-  assert (x->m_a == 10);
-  delete x;
-  assert (tpcnv_null.createTransient (cnv1, msg) == nullptr);
+  {
+    std::unique_ptr<X> xptr = tpcnv_null.createTransient (cnv3, "key", msg);
+    assert (xptr->m_a == 10);
+  }
+  assert (tpcnv_null.createTransient (cnv1, "key", msg) == nullptr);
 
-  assert (tpcnv_null.persToTrans (cnv3, &x2, msg));
+  assert (tpcnv_null.persToTrans (cnv3, &x2, "key", msg));
   assert (x2.m_a == 10);
-  assert (!tpcnv_null.persToTrans (cnv1, &x2, msg));
+  assert (!tpcnv_null.persToTrans (cnv1, &x2, "key", msg));
 }
 
 

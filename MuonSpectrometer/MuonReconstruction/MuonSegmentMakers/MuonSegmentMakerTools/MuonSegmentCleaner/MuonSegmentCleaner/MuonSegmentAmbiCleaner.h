@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentCleaner.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class RpcIdHelper;
 class MdtIdHelper;
@@ -47,12 +48,8 @@ class MuonSegmentAmbiCleaner : public AthAlgTool, virtual public Muon::IMuonSegm
 
  private:
 
-  const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to the detector manager
-
-  const RpcIdHelper*                  m_rpcIdHelper; //!< Pointer to RPC id helper
-  const TgcIdHelper*                  m_tgcIdHelper; //!< Pointer to TGC id helper
-  const CscIdHelper*                  m_cscIdHelper; //!< Pointer to CSC id helper
-  const MdtIdHelper*                  m_mdtIdHelper; //!< Pointer to MDT id helper
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   /** flag to print out debugging information */
   bool m_debug;

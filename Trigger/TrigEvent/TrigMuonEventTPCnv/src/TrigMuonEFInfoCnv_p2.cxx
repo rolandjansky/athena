@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfo_p2.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoCnv_p2.h"
-#include "CxxUtils/make_unique.h"
 
 
 void TrigMuonEFInfoCnv_p2::persToTrans(const TrigMuonEFInfo_p2* persObj,
@@ -23,7 +22,7 @@ void TrigMuonEFInfoCnv_p2::persToTrans(const TrigMuonEFInfo_p2* persObj,
     (createTransFromPStore( &m_cbTrackCnv, persObj->m_combinedTrack, log));
 
   *transObj = TrigMuonEFInfo (persObj->m_roi,
-                              CxxUtils::make_unique<TrigMuonEFInfoTrackContainer>(),
+                              std::make_unique<TrigMuonEFInfoTrackContainer>(),
                               std::move (spectrometerTrack),
                               std::move (extrapolatedTrack),
                               std::move (combinedTrack));

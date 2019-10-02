@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTEMPERATURECORRECTIONTOOL_H
@@ -35,7 +35,7 @@ class LArTemperatureCorrectionTool : public asg::AsgMessaging
 {
 public:
   struct AllValues { double barrel; double endcapA; double endcapC; };
-  LArTemperatureCorrectionTool(std::string filename);
+  LArTemperatureCorrectionTool(const std::string& filename);
   /** correction should be applied on MC as a multiplication: E = E * correction **/
   AllValues get_corrections(int run) const;
   double get_correction_barrel(int run) const { return get_corrections(run).barrel; }

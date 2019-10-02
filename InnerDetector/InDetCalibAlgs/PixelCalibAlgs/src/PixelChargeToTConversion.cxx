@@ -5,7 +5,6 @@
 // conditions
 #include "PixelCalibAlgs/PixelChargeToTConversion.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
-#define private public
 
 #include "PixelGeoModel/IBLParameterSvc.h" 
 #include "InDetIdentifier/PixelID.h"
@@ -122,8 +121,7 @@ StatusCode PixelChargeToTConversion::execute(){
     sumToT += totInt;
   }
   ATH_MSG_DEBUG( "sumToT   " << sumToT);
-  theNonConstCluster->m_totList = totList; 
-  theNonConstCluster->m_totalToT =  sumToT;
+  theNonConstCluster->setToTList (std::move (totList));
       }
 
     }//loop over clusters

@@ -12,7 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "TrigL2MuonSA/PtEndcapLUT.h"
@@ -50,7 +50,7 @@ class TgcRoadDefiner: public AthAlgTool
                         TrigL2MuonSA::TgcFitResult&  tgcFitResult);
 
   void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector, 
-                      const MdtIdHelper* mdtIdHelper);
+                      const Muon::MuonIdHelperTool* muonIdHelperTool);
   void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
   void setRoadWidthForFailure(double rWidth_TGC_Failed);
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
@@ -71,7 +71,7 @@ class TgcRoadDefiner: public AthAlgTool
   double m_rWidth_TGC_Failed;
   
   ServiceHandle<IRegSelSvc> m_regionSelector;
-  const MdtIdHelper* m_mdtIdHelper;
+  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
 
 };
 

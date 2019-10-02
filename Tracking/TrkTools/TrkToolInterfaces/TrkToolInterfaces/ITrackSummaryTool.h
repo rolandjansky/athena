@@ -6,6 +6,8 @@
 #define TRKITRACKSUMMARYTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "CxxUtils/checker_macros.h"
+
 #include <memory>
 namespace Trk {
 
@@ -29,11 +31,11 @@ class ITrackSummaryTool : virtual public IAlgTool {
       If the track has a summary already a clone is returned back.
       @param onlyUpdateTrack If false (default) then the summary is cloned and added to the track,                      
       and a separate summary returned. If true, only update track and return nullptr */
-  virtual const Trk::TrackSummary* createSummary( const Track& track, bool onlyUpdateTrack=false ) const = 0;
+  virtual const Trk::TrackSummary* createSummary ATLAS_NOT_THREAD_SAFE ( const Track& track, bool onlyUpdateTrack=false ) const = 0;
 
   /** create a summary object of passed track without doing the tedious hole search.
       Same comments as for createSummary apply here, of course, too. */	   
-  virtual const Trk::TrackSummary* createSummaryNoHoleSearch( const Track& track ) const = 0;
+  virtual const Trk::TrackSummary* createSummaryNoHoleSearch ATLAS_NOT_THREAD_SAFE ( const Track& track ) const = 0;
  
   /** create a summary object from a passed Track.
     If the track has a summary already a clone is returned back.

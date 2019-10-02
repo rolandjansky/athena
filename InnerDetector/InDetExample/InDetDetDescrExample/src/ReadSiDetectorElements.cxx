@@ -517,9 +517,9 @@ ReadSiDetectorElements::printDifference() const {
     if (diff[0]!=0. or diff[1]!=0. or diff[2]!=0.) {
       ATH_MSG_ALWAYS("----------------------------------------------");
       ATH_MSG_ALWAYS("hash: " << (*elementC)->identifyHash());
-      ATH_MSG_ALWAYS("center (store) " << (*elementC)->center());
-      ATH_MSG_ALWAYS("center (manager) " << (*elementM)->center());
-      ATH_MSG_ALWAYS("diff (store-manager) " << diff);
+      ATH_MSG_ALWAYS("center (store) " << (*elementC)->center().transpose());
+      ATH_MSG_ALWAYS("center (manager) " << (*elementM)->center().transpose());
+      ATH_MSG_ALWAYS("diff (store-manager) " << diff.transpose());
       ATH_MSG_ALWAYS("----------------------------------------------");
     }
   }

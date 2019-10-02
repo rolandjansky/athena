@@ -15,13 +15,6 @@ import getopt, string
 
 
 runBatch=1
-
-# start-up athfile server early on to prevent race-conditions later on...
-try:
-   import PyUtils.AthFile as af
-   af.msg.debug('starting athfile server...')
-except ImportError:
-   pass
    
 ### python interpreter configuration -----------------------------------------
 if not os.getcwd() in sys.path:

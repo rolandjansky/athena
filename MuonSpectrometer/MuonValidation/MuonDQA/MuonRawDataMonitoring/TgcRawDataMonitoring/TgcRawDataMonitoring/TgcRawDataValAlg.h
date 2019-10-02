@@ -28,7 +28,7 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
@@ -74,9 +74,11 @@ public:
 private:
   
   // Muon Detector Manager
-  const MuonGM::MuonDetectorManager* m_muonMgr;
-  // TGC Id Helper
-  const TgcIdHelper* m_tgcIdHelper;  
+  const MuonGM::MuonDetectorManager* m_muonMgr = nullptr;
+  
+  // Tool for TGC Id Helper
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   // event properties
   int m_event;

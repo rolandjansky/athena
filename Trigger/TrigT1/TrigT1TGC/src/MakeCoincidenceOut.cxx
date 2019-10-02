@@ -39,8 +39,7 @@ namespace LVL1TGCTrigger {
   extern TGCCoincidences * g_TGCCOIN;
   
   MakeCoincidenceOut::MakeCoincidenceOut(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator),
-    m_tgcIdHelper(0)
+    AthAlgorithm(name,pSvcLocator)
     //m_ntuplePtr(0)
   {
     declareProperty("InputData_perEvent",  m_key);
@@ -61,21 +60,16 @@ namespace LVL1TGCTrigger {
       msg(MSG::DEBUG) << "MakeCoincidenceOut::initialize() called" << endmsg;
     }
     msg(MSG::INFO) << "MakeCoincidenceOut initialize" << endmsg;
-
-    // get TGC ID helper
-    StatusCode sc = detStore()->retrieve( m_tgcIdHelper, "TGCIDHELPER");
-    if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not get TgcIdHelper !" << endmsg;
-      return sc;
-    }
     
+    // get ID helper
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );    
 
     if (0==g_OUTCOINCIDENCE) {
       msg(MSG::INFO) << "You should make LVL1TGCTrigger::OUTCOINCIDENCE=1 in your jobOptions file" << endmsg;
       return StatusCode::FAILURE;
     }
 
-    sc = bookHistos();
+    StatusCode sc = bookHistos();
     if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "Cannot book histograms" << endmsg;
       return StatusCode::FAILURE;
@@ -144,12 +138,12 @@ namespace LVL1TGCTrigger {
       while ( h!=(*c)->end() && m_ndig<MaxNdig) {
 	Identifier id = (*h)->identify();
 	// ID information
-	m_stationName[m_ndig] = m_tgcIdHelper->stationName(id);
-	m_stationEta [m_ndig] = m_tgcIdHelper->stationEta(id);
-	m_stationPhi [m_ndig] = m_tgcIdHelper->stationPhi(id);
-	m_gasGap     [m_ndig] = m_tgcIdHelper->gasGap(id);
-	m_isStrip    [m_ndig] = m_tgcIdHelper->isStrip(id);
-	m_channel    [m_ndig] = m_tgcIdHelper->channel(id); 	
+	m_stationName[m_ndig] = m_muonIdHelperTool->tgcIdHelper().stationName(id);
+	m_stationEta [m_ndig] = m_muonIdHelperTool->tgcIdHelper().stationEta(id);
+	m_stationPhi [m_ndig] = m_muonIdHelperTool->tgcIdHelper().stationPhi(id);
+	m_gasGap     [m_ndig] = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+	m_isStrip    [m_ndig] = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
+	m_channel    [m_ndig] = m_muonIdHelperTool->tgcIdHelper().channel(id); 	
 	m_ndig++;  h++;
       }
     }

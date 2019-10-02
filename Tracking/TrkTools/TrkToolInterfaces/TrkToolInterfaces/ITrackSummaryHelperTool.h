@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRACKSUMMARYHELPERTOOL
@@ -16,6 +16,7 @@ class Identifier;
 
 namespace Trk {
 
+  class Track;
   class RIO_OnTrack;
   class TrackStateOnSurface;
   class CompetingRIOsOnTrack;
@@ -33,7 +34,8 @@ namespace Trk {
 
     @author Edward Moyse, Martin Siebel <http://consult.cern.ch/xwho>
 */
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
   class ITrackSummaryHelperTool : virtual public IAlgTool {
   public:
     static const InterfaceID& interfaceID();
@@ -58,19 +60,19 @@ namespace Trk {
 				  std::vector<int>& information ,
 				  const Trk::ParticleHypothesis partHyp = Trk::pion) const =0;
                   
-      virtual void updateSharedHitCount(const Trk::Track&, TrackSummary&) const {};
+      virtual void updateSharedHitCount(const Trk::Track&, Trk::TrackSummary&) const {};
 
-       virtual void  updateExpectedHitInfo(const Trk::Track&, TrackSummary&) const {};
+      virtual void  updateExpectedHitInfo(const Trk::Track&, Trk::TrackSummary&) const {};
 
-       virtual void updateAdditionalInfo(TrackSummary&, std::vector<float>&, float&,int&, int&) const {};
+      virtual void updateAdditionalInfo(Trk::TrackSummary&, std::vector<float>&, float&,int&, int&) const {};
                   
 
-    virtual void addDetailedTrackSummary(const Track& track, TrackSummary& summary ) const = 0;
+      virtual void addDetailedTrackSummary(const Trk::Track& track, Trk::TrackSummary& summary ) const = 0;
 
     
 
   };
-
+#pragma GCC diagnostic pop
   inline const InterfaceID& Trk::ITrackSummaryHelperTool::interfaceID()
   { 
     return IID_ITrackSummaryHelperTool; 

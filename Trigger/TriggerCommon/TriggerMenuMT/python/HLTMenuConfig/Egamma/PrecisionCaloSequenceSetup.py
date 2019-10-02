@@ -30,8 +30,8 @@ def precisionCaloSequence(ConfigFlags):
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
     
     # connect EVC and reco
-    precisionCaloSequence = seqAND("precisionCaloSequence", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
-    return (precisionCaloSequence, precisionCaloViewsMaker, sequenceOut)
+    theSequence = seqAND("precisionCaloSequence", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
+    return (theSequence, precisionCaloViewsMaker, sequenceOut)
 
 def precisionCaloMenuSequence(name):
     """ Creates precisionCalo MENU sequence """

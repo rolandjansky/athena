@@ -189,10 +189,11 @@ else:
       fname = 'HLTJobOptions'
       with open(fname+'.pkl') as f:
          import cPickle
-         # for the moment we only load the `jocat` dict, could also merge with `jocfg`
-         props = cPickle.load(f)
+         jocat = cPickle.load(f)   # basic job properties
+         jocfg = cPickle.load(f)   # some specialized services
+         jocat.update(jocfg)       # merge the two dictionaries
          log.info('Dumping joboptions to "%s.json"', fname)
-         create_joboptions_json(props, fname+".json")
+         create_joboptions_json(jocat, fname+".json")
 
    del log
 

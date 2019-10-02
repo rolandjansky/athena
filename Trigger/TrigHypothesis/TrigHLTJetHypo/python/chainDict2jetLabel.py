@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
+from __future__ import print_function
+from __future__ import absolute_import
 import re
 
 # substrings that cannot occur in any chainPartName for simple chains.
@@ -106,7 +107,7 @@ def _make_simple_comb_label(chain_dict):
     simple_strs = []
 
     for cp in cps:
-        print cp
+        print(cp)
         simple_strs.append(_make_simple_label([cp]))
 
         label = 'combgen([(%d)]' % len(cps)
@@ -363,10 +364,10 @@ and([]
 
 def _tests():
 
-    print '\n--------- _tests() starts _______'
+    print('\n--------- _tests() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from ChainLabelParser import ChainLabelParser
+    from .ChainLabelParser import ChainLabelParser
 
     chain_names = (
         'HLT_j85_L1J20',
@@ -383,23 +384,23 @@ def _tests():
     for cn in chain_names:
         chain_dict = decodeChainName.getChainDict(cn)
         label = chainDict2jetLabel(chain_dict)
-        print '\n'
-        print cn
-        print '  ', label
-        print '\n'
+        print('\n')
+        print(cn)
+        print('  ', label)
+        print('\n')
 
         parser = ChainLabelParser(label, debug=False)
         parser.parse()
 
-    print '\n--------- _tests() ends _______'
+    print('\n--------- _tests() ends _______')
 
     
 def _tests1():
     
-    print '\n--------- _tests1() starts _______'
+    print('\n--------- _tests1() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from ChainLabelParser import ChainLabelParser
+    from .ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()
@@ -407,21 +408,21 @@ def _tests1():
     chain_dict = decodeChainName.getChainDict(chain_name)
     label = _make_simple_partition_label(chain_dict)
     
-    print '\n'
-    print chain_name
-    print '  ', label
-    print '\n'
+    print('\n')
+    print(chain_name)
+    print('  ', label)
+    print('\n')
     
     parser = ChainLabelParser(label, debug=False)
     parser.parse()
 
-    print '\n--------- _tests1() ends _______'
+    print('\n--------- _tests1() ends _______')
     
 def _tests2():
-    print '\n--------- _tests2() starts _______'
+    print('\n--------- _tests2() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from ChainLabelParser import ChainLabelParser
+    from .ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()
@@ -429,15 +430,15 @@ def _tests2():
     chain_dict = decodeChainName.getChainDict(chain_name)
     label = _make_simple_comb_label(chain_dict)
 
-    print '\n'
-    print chain_name
-    print '  ', label
-    print '\n'
+    print('\n')
+    print(chain_name)
+    print('  ', label)
+    print('\n')
 
     parser = ChainLabelParser(label, debug=False)
     parser.parse()
 
-    print '\n--------- _tests2() ends _______'
+    print('\n--------- _tests2() ends _______')
 
 
 if __name__ == '__main__':

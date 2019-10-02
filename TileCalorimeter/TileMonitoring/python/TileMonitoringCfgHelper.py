@@ -68,7 +68,7 @@ def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = Fals
         for module in range(1, Tile.MAX_DRAWER + 1): # modules start from 1
             label = partition + '0' + str(module) if module < 10 else partition + str(module)
             labels.append(label)
-            
+
         for channel in range(0, Tile.MAX_CHAN):
             cellName = getCellName(partition, channel)
             label = cellName + '_' + 'ch' + str(channel) if cellName else 'ch' + str(channel)
@@ -90,3 +90,56 @@ def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = Fals
         group.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
                                xbins = 64, xmin = 0.5, xmax = 64.5, ybins = 48, ymin = -0.5, ymax = 47.5, 
                                labels = labels )
+
+
+def addTilePartitionMapsArray(helper, algorithm, name, title, path,
+                              subDirectory = False, type = 'TH2D', value = '', trigger = '', run = ''):
+    '''
+    This function configures 2D histograms (maps) with Tile monitored value vs module and channel per partition.
+
+    Arguments:
+        helper    -- Helper
+        algorithm -- Monitoring algorithm
+        name    -- Name of histogram (actual name is constructed dynamicaly like: name + partition + trigger)
+        title   -- Title of histogram (actual title is constructed dynamicaly like: run + trigger + partion + title)
+        path    -- Path in file for histogram (relative to the path of given group)
+        subDirectory -- Put the configured histograms into sub directory named like partion (True, False)
+        type    -- Type of histogram (TH2D, TProfile2D)
+        value   -- Name of monitored value (needed for TProfile2D)
+        trigger -- Name of trigger (given it will be put into title and name of histogram)
+        run     -- Run number (given it will be put into the title)
+    '''
+
+    from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
+
+    array = helper.addArray([int(Tile.MAX_ROS - 1)], algorithm, name)
+    for postfix, tool in array.Tools.items():
+        ros = int( postfix.split('_')[1:][0] ) + 1
+
+        partition = getPartitionName(ros)
+        labels = [Tile.getDrawerString(ros, module) for module in range(0, Tile.MAX_DRAWER)]
+
+        for channel in range(0, Tile.MAX_CHAN):
+            cellName = getCellName(partition, channel)
+            label = cellName + '_' + 'ch' + str(channel) if cellName else 'ch' + str(channel)
+            labels.append(label)
+
+        fullName = 'module,channel'
+        if 'Profile' in type:
+            fullName += (',' + value)
+        fullName += ';' + name + partition + trigger
+
+        fullPath = path + '/' + partition if subDirectory else path
+
+        fullTitle = 'Partition ' + partition + ': ' + title
+        if trigger:
+            fullTitle = 'Trigger ' + trigger + ' ' + fullTitle
+        if run:
+            fullTitle = 'Run ' + run + ' ' + fullTitle
+
+        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
+                              xbins = Tile.MAX_DRAWER, xmin = 0.5, xmax = Tile.MAX_DRAWER + 0.5,
+                              ybins = Tile.MAX_CHAN, ymin = -0.5, ymax = Tile.MAX_CHAN - 0.5,
+                              labels = labels )
+
+    return array

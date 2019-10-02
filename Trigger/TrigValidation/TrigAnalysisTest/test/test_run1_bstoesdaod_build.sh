@@ -31,10 +31,10 @@ Reco_tf.py --maxEvents $EVENTS \
 N_CONTAINERS=$(grep -o HLT_xAOD__ ${RECO_LOG} | wc -l)
 if [ $N_CONTAINERS -gt 0 ]; then 
   echo "xAOD Container Check: ${N_CONTAINERS} xAOD HLT containers found. OK."; 
-  echo "art-result: xAODContainers 0"
+  echo "art-result: 0 xAODContainers"
 else 
   echo "ERROR no converted HLT xAOD containers found in the output root file. Please check whether the conversion was scheduled"; 
-  echo "art-result: xAODContainers 1"
+  echo "art-result: 1 xAODContainers"
 fi
 
 source exec_art_triggertest_post.sh

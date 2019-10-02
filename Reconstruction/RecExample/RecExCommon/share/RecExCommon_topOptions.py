@@ -1287,7 +1287,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
 
         #Exception for DPD pass-through mode
         if rec.doDPD.passThroughMode:
-            svcMgr.CutFlowSvc.SkimmingCycle=0
             svcMgr.CutFlowSvc.InputStream="Virtual"
             pass
 

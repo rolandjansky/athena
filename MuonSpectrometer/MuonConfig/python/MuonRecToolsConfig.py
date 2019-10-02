@@ -29,9 +29,12 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
         kwargs.setdefault("SegmentMakerNoHoles", seg_maker) #FIXME. Just remove one.
     if not flags.Detector.GeometryCSC:
         kwargs.setdefault("CscPrepDataContainer","")
-    else:
+    if not flags.Detector.GeometrysTGC:
         kwargs.setdefault("sTgcPrepDataContainer","")
+    if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
+    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     
     muon_seeded_segment_finder = Muon__MuonSeededSegmentFinder(name, **kwargs)
     result.setPrivateTools(muon_seeded_segment_finder)
@@ -282,13 +285,8 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     kwargs.setdefault("RejectLargeNScat"     , True)
 
     # take propagator and navigator from the extrapolator
-    extrapolator_CA = MuonExtrapolatorCfg(flags)
-    result.addPublicTool(extrapolator_CA.getPrimary()) # TODO remove
-    result.merge(extrapolator_CA)
-    
-    kwargs["ExtrapolationTool"] = extrapolator
-    kwargs["PropagatorTool"]    = extrapolator.Propagators[0]
-    kwargs["NavigatorTool"]     = extrapolator.Navigator
+    kwargs.setdefault("PropagatorTool", extrapolator.Propagators[0])
+    kwargs.setdefault("NavigatorTool",  extrapolator.Navigator)
 
     fitter = Trk__GlobalChi2Fitter(name=name, **kwargs)
     result.setPrivateTools(fitter)
@@ -324,7 +322,7 @@ def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator',**kwargs):
     result.merge(acc)
     kwargs.setdefault("Propagators", [ prop ]) 
     kwargs.setdefault("ResolveMuonStation", False)
-    acc = MuonExtrapolatorCfg(flags, name=name, **kwargs)
+    acc = MuonExtrapolatorCfg(flags, name=name)
     result.setPrivateTools(acc.getPrimary())
     result.merge(acc)
     
@@ -341,7 +339,12 @@ def MCTBFitterCfg(flags, name='MCTBFitter', **kwargs):
     kwargs.setdefault("ExtrapolationTool", mctbExtrapolator)
     kwargs.setdefault("GetMaterialFromTrack", True)
     kwargs.setdefault("Momentum", flags.Muon.straightLineFitMomentum)
-    acc = MuonChi2TrackFitterCfg(flags, name=name, **kwargs)
+    
+    extra_kwargs = {}
+    if 'StraightLine' in kwargs:
+      # Pass this on! Can't safely just pass on kwargs, because MuonChi2TrackFitterCfg also has a property ExtrapolationTool
+      extra_kwargs.setdefault('StraightLine', kwargs['StraightLine'])
+    acc = MuonChi2TrackFitterCfg(flags, name=name, **extra_kwargs)
     mctbfitter = acc.getPrimary()
     result.merge(acc)
     # print mctbfitter

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,10 @@
 
 class MsgStream;
 
+namespace Trk {
+  class PRDtoTrackMap;
+}
+
 namespace InDet {
 
   static const InterfaceID IID_ITRT_SegmentToTrackTool("InDet::ITRT_SegmentToTrackTool", 1, 0);
@@ -42,14 +46,14 @@ namespace InDet {
 
     virtual Trk::Track* segToTrack(const Trk::TrackSegment&) = 0;
     /** Check if the TRT segment has already been assigned a Si extension  */
-    virtual bool segIsUsed(const Trk::TrackSegment&) = 0;
+    virtual bool segIsUsed(const Trk::TrackSegment&, const Trk::PRDtoTrackMap *) = 0;
     virtual bool toLower(const Trk::TrackSegment&) = 0;
     virtual void resetAll() = 0;
     virtual void resetAssoTool() = 0;
     /** Add track into the track-score multimap */
     virtual void addNewTrack(Trk::Track*) = 0;
     /** Resolve the standalone TRT tracks based on the number of shared TRT hits */
-    virtual TrackCollection* resolveTracks() = 0;
+    virtual TrackCollection* resolveTracks(const Trk::PRDtoTrackMap *) = 0;
 
     virtual int GetnTrkScoreZero() = 0;
     virtual int GetnTrkSegUsed() = 0;

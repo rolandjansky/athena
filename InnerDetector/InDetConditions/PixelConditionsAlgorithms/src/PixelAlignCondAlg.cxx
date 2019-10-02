@@ -30,7 +30,7 @@ StatusCode PixelAlignCondAlg::initialize()
   ATH_CHECK(m_readKeyDynamicL1.initialize(m_useDynamicAlignFolders.value()));
   ATH_CHECK(m_readKeyDynamicL2.initialize(m_useDynamicAlignFolders.value()));
   ATH_CHECK(m_readKeyDynamicL3.initialize(m_useDynamicAlignFolders.value()));
-  ATH_CHECK(m_readKeyDynamicIBL.initialize(m_useDynamicAlignFolders.value()));
+  ATH_CHECK(m_readKeyIBLDist.initialize());
 
   // Write Handles
   ATH_CHECK(m_writeKey.initialize());
@@ -77,17 +77,40 @@ StatusCode PixelAlignCondAlg::execute()
       ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKeyStatic.key());
       return StatusCode::FAILURE;
     }
+
+    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist};
+    const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
+    if (readCdoIBLDist==nullptr) {
+      ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());
+      return StatusCode::FAILURE;
+    }
+
+
     // ____________ Apply alignments to Pixel GeoModel ____________
     // Construct Container for read CDO.
     InDetDD::RawAlignmentObjects readCdoContainerStatic;
     readCdoContainerStatic.emplace(m_readKeyStatic.key(), readCdoStatic);
     ATH_CHECK(m_detManager->align(readCdoContainerStatic, writeCdo.get()));
 
-    // Define validity of the output cond object and record it
+    // This absolutely needs to go last, since it relies on deltas from other alignment
+    // already be set in the alignment store!!!
+    InDetDD::RawAlignmentObjects readCdoContainerIBLDist;
+    readCdoContainerIBLDist.emplace(m_readKeyIBLDist.key(), readCdoIBLDist);
+    ATH_CHECK(m_detManager->align(readCdoContainerIBLDist, writeCdo.get()));
+
     if (not readHandleStatic.range(rangeW)) {
       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleStatic.key());
       return StatusCode::FAILURE;
     }
+
+    EventIDRange rangeWIBL;
+    if (not readHandleIBLDist.range(rangeWIBL)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleIBLDist.key());
+      return StatusCode::FAILURE;
+    }
+
+    rangeW = EventIDRange::intersect(rangeW, rangeWIBL);
+
   } else { // Dynamic
     // ____________ Get Read Cond Object ____________
     SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1};
@@ -111,10 +134,10 @@ StatusCode PixelAlignCondAlg::execute()
       return StatusCode::FAILURE;
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicIBL{m_readKeyDynamicIBL};
-    const CondAttrListCollection* readCdoDynamicIBL{*readHandleDynamicIBL};
-    if (readCdoDynamicIBL==nullptr) {
-      ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleDynamicIBL.key());
+    SG::ReadCondHandle<CondAttrListCollection> readHandleIBLDist{m_readKeyIBLDist};
+    const CondAttrListCollection* readCdoIBLDist{*readHandleIBLDist};
+    if (readCdoIBLDist==nullptr) {
+      ATH_MSG_FATAL("Null pointer to the read conditions object of " << readHandleIBLDist.key());
       return StatusCode::FAILURE;
     }
 
@@ -135,9 +158,9 @@ StatusCode PixelAlignCondAlg::execute()
 
     // This absolutely needs to go last, since it relies on deltas from other alignment
     // already be set in the alignment store!!!
-    InDetDD::RawAlignmentObjects readCdoContainerDynamicIBL;
-    readCdoContainerDynamicIBL.emplace(m_readKeyDynamicIBL.key(), readCdoDynamicIBL);
-    ATH_CHECK(m_detManager->align(readCdoContainerDynamicIBL, writeCdo.get()));
+    InDetDD::RawAlignmentObjects readCdoContainerIBLDist;
+    readCdoContainerIBLDist.emplace(m_readKeyIBLDist.key(), readCdoIBLDist);
+    ATH_CHECK(m_detManager->align(readCdoContainerIBLDist, writeCdo.get()));
 
     // Define validity of the output cond object and record it
     EventIDRange rangeWL1;
@@ -159,8 +182,8 @@ StatusCode PixelAlignCondAlg::execute()
     }
 
     EventIDRange rangeWIBL;
-    if (not readHandleDynamicIBL.range(rangeWIBL)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleDynamicIBL.key());
+    if (not readHandleIBLDist.range(rangeWIBL)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleIBLDist.key());
       return StatusCode::FAILURE;
     }
 

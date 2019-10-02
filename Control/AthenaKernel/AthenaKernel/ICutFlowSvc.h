@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- //////////////////////////////////////////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header file for class ICutFlowSvc                                                                  //
@@ -76,12 +76,6 @@ public:
   /// Set the description of an existing EventBookkeeper
   virtual void setFilterDescription( CutIdentifier cutID,
                                      const std::string& descr ) = 0;
-
-  /// Tells CutFlowSvc to update the event counter of a CutIdentifier cutID,
-  /// using the CutIdentifier returned by selfRegisterFilter or registerCut
-  /// Internally, the Monte Carlo event weight will be retrieved from the
-  /// xAOD::EventInfo object as evtWeight = evtInfo->mcEventWeight();
-  virtual void addEvent( CutIdentifier cutID ) = 0;
 
   /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
   /// using CutIdentifier returned by selfRegisterFilter or registerCut

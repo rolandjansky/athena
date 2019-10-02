@@ -23,8 +23,8 @@ namespace RpcGM
   
   
    
-  std::vector<int>	     	 RpcStripShift    (const MuonGM::MuonDetectorManager* m_muonMgr,const RpcIdHelper* m_rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo);
-  std::vector<std::string>   	 RpcLayerSectorSideName(const RpcIdHelper* m_rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo);
+  std::vector<int>	     	 RpcStripShift    (const MuonGM::MuonDetectorManager* m_muonMgr, const RpcIdHelper& rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo);
+  std::vector<std::string>   	 RpcLayerSectorSideName(const RpcIdHelper& rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo);
     
     
 }

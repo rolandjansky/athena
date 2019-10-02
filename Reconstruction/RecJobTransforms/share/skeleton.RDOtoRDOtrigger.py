@@ -123,6 +123,18 @@ if TriggerFlags.doMT():
     topSequence += Lvl1SimulationSequence(None)
     recoLog.info( "Configuring HLT (MT)" )
 
+    # this configuration of the HLTConfigSvc is only temporary
+    if not hasattr(svcMgr, 'HLTConfigSvc'):
+        from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc
+        svcMgr += HLTConfigSvc()
+    if TriggerFlags.readHLTconfigFromXML():
+        hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig", "HLTmenu")
+    else:
+        hltJsonFile = TriggerFlags.outputHLTconfigFile().replace(".xml",".json").replace("HLTconfig", "HLTmenu")
+    svcMgr.HLTConfigSvc.InputType = "file"
+    svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
+    recoLog.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
     
@@ -158,6 +170,7 @@ if TriggerFlags.doMT():
         TriggerFlags.TauSlice.setAll()
         TriggerFlags.BjetSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
+        TriggerFlags.BphysicsSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
     allChainConfigs = menu.generateMT()
@@ -240,14 +253,16 @@ for i in outSequence.getAllChildren():
         # Still need to produce Run-2 style L1 xAOD output
         topSequence += RoIBResultToAOD("RoIBResultToxAOD")
 
-        from TrigEDMConfig.TriggerEDM import getLvl1ESDList
-        StreamRDO.ItemList += preplist(getLvl1ESDList())
-        StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-        for item in TriggerHLTListRun3:
-            if "ESD" in item[1] or "AOD" in item[1]:
-                StreamRDO.ItemList += [item[0]]
+        trigEDMListESD = {}
+        trigEDMListAOD = {}
+        # do the two lines above this need to be changed to this?
+        trigEDMListESD.update(getTriggerEDMList(TriggerFlags.ESDEDMSet(),  3) )
+        trigEDMListAOD.update(getTriggerEDMList(TriggerFlags.AODEDMSet(),  3) ) 
+
+        StreamRDO.ItemList += preplist(trigEDMListESD)
+        StreamRDO.ItemList += preplist(trigEDMListAOD)
 
         from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
         hypos = collectHypos( findSubSequence(topSequence, "HLTAllSteps") )
@@ -255,9 +270,6 @@ for i in outSequence.getAllChildren():
         decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
-
-        StreamRDO.ItemList += [ "xAOD::TrigDecision#xTrigDecision" ]            # TODO - move this back in to TrigEDMRun3
-        StreamRDO.ItemList += [ "xAOD::TrigDecisionAuxInfo#xTrigDecisionAux." ] # TODO - move this back in to TrigEDMRun3
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc

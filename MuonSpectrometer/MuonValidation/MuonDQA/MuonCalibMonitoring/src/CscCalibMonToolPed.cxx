@@ -540,7 +540,7 @@ StatusCode CscCalibMonToolPed::postProc()
 {
   ATH_MSG_DEBUG( "CscCalibMonToolPed : in postProc()"  );
 
-  IdContext chanContext = m_cscIdHelper->channel_context();
+  IdContext chanContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
   genThreshold(m_pedDiffColl, m_noiseDiffColl, m_tholdDiffColl, 3.5);
 
@@ -572,8 +572,8 @@ StatusCode CscCalibMonToolPed::postProc()
     for(unsigned int hashId = 0; hashId < nEntries; hashId++){
       ATH_MSG_DEBUG( "Filling rmsVnoise for hash id " << hashId  );
       Identifier chanId;
-      m_cscIdHelper->get_id(IdentifierHash(hashId), chanId, &chanContext);
-      int measuresPhi = m_cscIdHelper->measuresPhi(chanId);
+      m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(hashId), chanId, &chanContext);
+      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
 
       if(m_expectedHashIdsAll.count(hashId)) {
         if(measuresPhi)
@@ -641,13 +641,13 @@ StatusCode CscCalibMonToolPed::postProc()
         TH1I * sourceHist;
 
         Identifier chanId;
-        m_cscIdHelper->get_id(IdentifierHash(idItr), chanId, &chanContext);
-        int stationSize = m_cscIdHelper->stationName(chanId);
-        int stationEta = m_cscIdHelper->stationEta(chanId);
-        int stationPhi = m_cscIdHelper->stationPhi(chanId);
-        int wireLayer = m_cscIdHelper->wireLayer(chanId);
-        int measuresPhi = m_cscIdHelper->measuresPhi(chanId);
-        int strip = m_cscIdHelper->strip(chanId);
+        m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(idItr), chanId, &chanContext);
+        int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(chanId);
+        int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(chanId);
+        int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(chanId);
+        int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(chanId);
+        int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
+        int strip = m_muonIdHelperTool->cscIdHelper().strip(chanId);
         int sector = getSector(stationPhi, stationSize);
 
         string geoPath = getGeoPath(stationEta, sector, wireLayer, measuresPhi);

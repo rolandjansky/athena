@@ -48,19 +48,19 @@ class PixelCablingCondData {
     std::string find_entry_offlineDCS(const Identifier offlineId) const;
     uint64_t getOnlineIdFromRobId(uint32_t robid, uint32_t link) const;
 
-    std::vector<uint32_t>& get_allRods() const;
-    std::vector<uint32_t>& get_allRobs() const;
+    const std::vector<uint32_t>& get_allRods() const;
+    const std::vector<uint32_t>& get_allRobs() const;
 
     unsigned int get_size_onoff() {return m_idMap_onoff.size();}
 
     void set_readout_map(std::map<uint32_t,bool> rodReadoutMap);
 
-    std::unordered_map<uint64_t, Identifier> get_idMap_onoff() const;
-    std::unordered_map<Identifier, uint64_t, idHasher> get_idMap_offon() const;
-    std::unordered_map<Identifier, uint32_t, idHasher> get_idMap_offrob() const;
-    std::unordered_map<int,int> get_idMap_rodrob() const;
-    std::unordered_map<int,int> get_idMap_robrod() const;
-    std::unordered_map<std::string, Identifier> get_idMapDCSoff() const;
+    const std::unordered_map<uint64_t, Identifier>& get_idMap_onoff() const;
+    const std::unordered_map<Identifier, uint64_t, idHasher>& get_idMap_offon() const;
+    const std::unordered_map<Identifier, uint32_t, idHasher>& get_idMap_offrob() const;
+    const std::unordered_map<int,int>& get_idMap_rodrob() const;
+    const std::unordered_map<int,int>& get_idMap_robrod() const;
+    const std::unordered_map<std::string, Identifier>& get_idMapDCSoff() const;
 
     void clear();
 
@@ -75,8 +75,8 @@ class PixelCablingCondData {
     std::unordered_map<std::string, Identifier> m_idMapDCSoff;     ///< DCS name -> offline identifier
     std::map<uint32_t,bool> m_rodReadoutMap;     ///< Readout speed for each ROD. false=40MBit, true=80MBit
 
-    std::vector<uint32_t>* m_allRods;   // vector containing all RODs in the m_idMap_rodrob
-    std::vector<uint32_t>* m_allRobs;   // vector containing all ROBs
+    std::vector<uint32_t> m_allRods;   // vector containing all RODs in the m_idMap_rodrob
+    std::vector<uint32_t> m_allRobs;   // vector containing all ROBs
 };
 
 CLASS_DEF( PixelCablingCondData , 107566278 , 1 )   // class definition with CLID

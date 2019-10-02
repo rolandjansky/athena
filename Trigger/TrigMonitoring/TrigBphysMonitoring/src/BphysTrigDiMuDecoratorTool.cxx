@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // BphysTrigDiMuDecoratorTool.cxx 
@@ -17,7 +17,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
-#include "CxxUtils/make_unique.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "xAODTracking/TrackingPrimitives.h"
@@ -122,7 +121,7 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
                       << evtInfo->beamPosSigmaX() << " " << evtInfo->beamPosSigmaY() << " "
                       << evtInfo->beamPosSigmaZ() );
     }
-    std::unique_ptr<xAOD::Vertex> bsVertex = CxxUtils::make_unique<xAOD::Vertex>();
+    std::unique_ptr<xAOD::Vertex> bsVertex = std::make_unique<xAOD::Vertex>();
     bsVertex->makePrivateStore();
     if (evtInfo) {
         bsVertex->setX(evtInfo->beamPosX());

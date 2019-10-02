@@ -128,7 +128,7 @@ StatusCode PixelCablingCondAlg::execute() {
   ATH_MSG_DEBUG("PixelCablingCondAlg::execute()");
 
   SG::WriteCondHandle<PixelCablingCondData> writeHandle(m_writeKey);
-  ATH_MSG_WARNING("Conditions updates every event!!! This should be avoided once RegionSelectorTable was fixed!!");
+  ATH_MSG_DEBUG("Conditions updates every event!!! This should be avoided once RegionSelectorTable is fixed!!");
 //   if (writeHandle.isValid()) {
 //     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
 //     return StatusCode::SUCCESS; 
@@ -197,7 +197,7 @@ StatusCode PixelCablingCondAlg::execute() {
     std::ifstream fin(filename.c_str());
     if (!fin) { return StatusCode::FAILURE; }
     instr << fin.rdbuf();
-    ATH_MSG_INFO("Refilled pixel cabling from file \"" << m_final_mapping_file << "\"");
+    ATH_MSG_DEBUG("Refilled pixel cabling from file \"" << m_final_mapping_file << "\"");
   }
 
   // Each entry in the mapping is sepated by a newline.
@@ -305,7 +305,7 @@ StatusCode PixelCablingCondAlg::execute() {
     ATH_MSG_FATAL("Could not record PixelCablingCondData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

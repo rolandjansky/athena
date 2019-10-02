@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataLinkCnv_p1.icc
@@ -12,45 +12,46 @@
 
 template <typename DLINK_TYPE>
 inline
-void DataLinkCnv_p1<DLINK_TYPE>::transToPers(const DLink_t* trans, PersDLink_t* pers, MsgStream& /*log*/) 
+void DataLinkCnv_p1<DLINK_TYPE>::transToPers(const DLink_t& trans, PersDLink_t& pers, MsgStream& /*log*/) const
 {
-   const_cast<DLink_t*>(trans)->toPersistent(); // ??? May not be needed now.
-   pers->m_SGKeyHash = trans->key();
+   DLink_t tmp = trans;
+   tmp.toPersistent(); // ??? May not be needed now.
+   pers.m_SGKeyHash = tmp.key();
 }
 
 template <typename DLINK_TYPE>
 inline
 void
 DataLinkCnv_p1<DLINK_TYPE>
-::transToPers(const DLink_t& trans, PersDLink_t& pers, MsgStream& log) 
+::transToPers(const DLink_t* trans, PersDLink_t* pers, MsgStream& log) const
 {
-   this->transToPers(&trans, &pers, log);
+   this->transToPers(*trans, *pers, log);
 }
 
 
    
 template <typename DLINK_TYPE >
 inline
-void DataLinkCnv_p1< DLINK_TYPE >::persToTrans(const PersDLink_t* pers, DLink_t* trans, MsgStream& /*log*/) 
+void DataLinkCnv_p1< DLINK_TYPE >::persToTrans(const PersDLink_t& pers, DLink_t& trans, MsgStream& /*log*/) const
 {
-  if ( !pers->m_link.empty() ) {
-    trans->toIdentifiedObject(pers->m_link);
-    if( !trans->toTransient() ) {
+  if ( !pers.m_link.empty() ) {
+    trans.toIdentifiedObject(pers.m_link);
+    if( !trans.toTransient() ) {
       throw std::runtime_error("persToTrans: failed to convert DataLink.");
     }
   }
-  else if (pers->m_SGKeyHash != 0) {
-    trans->toIdentifiedObject (pers->m_SGKeyHash);
+  else if (pers.m_SGKeyHash != 0) {
+    trans.toIdentifiedObject (pers.m_SGKeyHash);
   }
   else
-    trans->clear();
+    trans.clear();
 }
  
 template <typename DLINK_TYPE >
 inline
 void
 DataLinkCnv_p1< DLINK_TYPE >
-::persToTrans(const PersDLink_t& pers, DLink_t& trans, MsgStream& log) 
+::persToTrans(const PersDLink_t* pers, DLink_t* trans, MsgStream& log) const
 {
-   this->persToTrans(&pers, &trans, log);
+   this->persToTrans(*pers, *trans, log);
 }

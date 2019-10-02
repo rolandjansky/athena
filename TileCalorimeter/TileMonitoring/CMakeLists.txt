@@ -69,3 +69,13 @@ atlas_add_test( TileJetMonitorAlgorithm_test
                 SCRIPT python -m TileMonitoring.TileJetMonitorAlgorithm
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileDQFragMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileDQFragMonitorAlgorithm
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileMBTSMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileMBTSMonitorAlgorithm
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)

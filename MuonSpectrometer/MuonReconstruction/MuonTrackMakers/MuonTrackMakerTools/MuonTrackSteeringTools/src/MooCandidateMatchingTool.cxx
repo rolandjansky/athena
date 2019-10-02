@@ -4,9 +4,9 @@
 
 #include "MooCandidateMatchingTool.h"
 #include "MuPatCandidateTool.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatSegment.h"
+#include "MuPatTrack.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatSegment.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 

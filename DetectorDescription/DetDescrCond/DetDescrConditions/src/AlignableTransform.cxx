@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AlignableTransform.cxx
@@ -9,7 +9,7 @@
 #include <iostream>
 #include "DetDescrConditions/AlignableTransform.h"
 
-AlignableTransform::AlignableTransform(std::string tag) : 
+AlignableTransform::AlignableTransform(const std::string& tag) : 
    m_tag(tag), m_vec()
 {}
 

@@ -143,8 +143,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   if (m_rawDataTool->convert(vecROBFrags, 
                              *rdoInterface, 
                              bsErrContainer.ptr(), 
-                             bsFracContainer.ptr(),
-                             ctx).isFailure()) {
+                             bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 

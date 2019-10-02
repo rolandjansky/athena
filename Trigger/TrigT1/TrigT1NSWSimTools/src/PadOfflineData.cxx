@@ -12,7 +12,7 @@
 #include "TVector3.h"
 
 #include <string>
-
+#include <math.h>
 
 namespace NSWL1 {
 
@@ -76,5 +76,27 @@ namespace NSWL1 {
         if (m_helper) return m_helper->padPhi(m_id);
         return -1;
     }
+
+    float PadOfflineData::stationPhiAngle() const{
+        float phiAngle=-999;
+        switch( this->sectorType() ){
+
+            case(0)://S
+                phiAngle=(2*this->sectorId()-1 )*(M_PI/8);
+                break;
+
+            case(1)://L
+                phiAngle=(this->sectorId()-1)*(M_PI/4);
+                break;
+
+            default:
+                break;
+        }
+
+        if(phiAngle > M_PI) phiAngle-=2*M_PI;
+        
+        return phiAngle;
+    }
+
 
 }

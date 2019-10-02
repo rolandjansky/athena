@@ -236,7 +236,7 @@ namespace Muon {
     if( !rpcsPerCollection.empty() ){
       std::map<IdentifierHash,std::vector<const RpcPrepData*> >::const_iterator rcit = rpcsPerCollection.begin();
       std::map<IdentifierHash,std::vector<const RpcPrepData*> >::const_iterator rcit_end = rpcsPerCollection.end();
-      RpcHitClusteringObj rpcClustering(m_idHelperTool->rpcIdHelper());
+      RpcHitClusteringObj rpcClustering(m_idHelperTool.get());
       int offset = 0;
       for( ;rcit!=rcit_end;++rcit ){
         ATH_MSG_DEBUG(" rpc Prd size " << rcit->second.size() );
@@ -268,7 +268,7 @@ namespace Muon {
     if( !tgcsPerCollection.empty() ){
       std::map<IdentifierHash,std::vector<const TgcPrepData*> >::const_iterator rcit = tgcsPerCollection.begin();
       std::map<IdentifierHash,std::vector<const TgcPrepData*> >::const_iterator rcit_end = tgcsPerCollection.end();
-      TgcHitClusteringObj tgcClustering(m_idHelperTool->tgcIdHelper());
+      TgcHitClusteringObj tgcClustering(m_idHelperTool.get());
       int offset = 0;
       for( ;rcit!=rcit_end;++rcit ){
 	if( !tgcClustering.cluster( rcit->second ) ) {

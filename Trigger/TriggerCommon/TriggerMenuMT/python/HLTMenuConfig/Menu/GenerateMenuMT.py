@@ -9,7 +9,7 @@ from TriggerJobOpts.TriggerFlags              import TriggerFlags
 
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
@@ -147,12 +147,11 @@ class GenerateMenuMT(object):
         chainsInMenu = self.getChainsFromMenu()
         
         # decoding of the chain name
-        decodeChainName = DictFromChainName.DictFromChainName()
         chainCounter = 0
 
         for chain in chainsInMenu:
             log.debug("Currently processing chain: %s ", chain) 
-            chainDict = decodeChainName.getChainDict(chain)
+            chainDict = dictFromChainName(chain)
 
             chainCounter += 1
             chainDict['chainCounter'] = chainCounter
@@ -298,7 +297,14 @@ class GenerateMenuMT(object):
 
         else:
             theChainConfig = listOfChainConfigs[0]
-            
+        
+        # Configure event building strategy
+        eventBuildType = mainChainDict['eventBuildType']
+        if eventBuildType:
+            log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
+            from TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup import addEventBuildingSequence
+            addEventBuildingSequence(theChainConfig, eventBuildType)
+
         return theChainConfig
 
 

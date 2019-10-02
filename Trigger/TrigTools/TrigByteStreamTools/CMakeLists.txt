@@ -18,7 +18,10 @@ atlas_add_dictionary( TrigByteStreamToolsDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} )
 
 # Install files from the package:
-atlas_install_headers( TrigByteStreamTools )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( bin/*.py python/addL1.py python/replaceMUCTPI.py python/trigbs_replaceLB.py python/trigbs_prescaleL1.py python/slimHLTBSFile.py )
+atlas_install_scripts( bin/*.py python/trigbs_replaceLB.py python/trigbs_prescaleL1.py python/slimHLTBSFile.py )
 
+# Check python syntax:
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}
+                POST_EXEC_SCRIPT nopost.sh )

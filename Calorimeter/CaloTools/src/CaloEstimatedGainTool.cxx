@@ -243,7 +243,7 @@ float CaloEstimatedGainTool::adc2mev (const EventContext& ctx,
                                       CaloGain::CaloGain gain) const
 {
   SG::ReadCondHandle adc2mev (m_adc2mevKey, ctx);
-  const std::vector<float>& p = adc2mev->ADC2MEV (caloDDE.identify(), gain);
+  const auto& p = adc2mev->ADC2MEV (caloDDE.identify(), gain);
   if (p.size() >= 2) {
     return p[1];
   }

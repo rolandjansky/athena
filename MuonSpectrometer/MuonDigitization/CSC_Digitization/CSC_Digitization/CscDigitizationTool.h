@@ -12,7 +12,7 @@
 #include "CSC_Digitization/CSC_Digitizer.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
 #include "MuonSimEvent/CSCSimHit.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "HitManagement/TimedHitCollection.h"
@@ -96,7 +96,8 @@ private:
   const MuonGM::MuonDetectorManager * m_geoMgr{nullptr};
   CSC_Digitizer             * m_cscDigitizer{nullptr};
 
-  const CscIdHelper         * m_cscIdHelper{nullptr};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   Gaudi::Property<double> m_pedestal{this, "pedestal",0.0, ""};
   Gaudi::Property<bool> m_maskBadChannel{this, "maskBadChannels", true, ""};

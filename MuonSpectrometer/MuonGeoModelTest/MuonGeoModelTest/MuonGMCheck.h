@@ -18,14 +18,8 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class sTgcIdHelper;
-class MmIdHelper;
 class Identifier;
 
 namespace MuonGM
@@ -89,14 +83,10 @@ private:
     
 
     const MuonGM::MuonDetectorManager*	p_MuonMgr;
-    const RpcIdHelper*            p_RpcIdHelper;
-    const TgcIdHelper*            p_TgcIdHelper;
-    const CscIdHelper*            p_CscIdHelper;
-    const MdtIdHelper*            p_MdtIdHelper;
-    const sTgcIdHelper*           p_sTgcIdHelper;
-    const MmIdHelper*             p_MmIdHelper;
 
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     int m_mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
     int m_cpu[2]; //<! counter for cpu time read from /proc/<pid>/cpu

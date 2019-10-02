@@ -335,7 +335,8 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
   return StatusCode::SUCCESS;
 }
 
-void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info, const xAOD::TrackParticleContainer* AllTracks) const {
+void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info, 
+                                             const xAOD::TrackParticleContainer* AllTracks) const {
 
   //update the summary of the non-const track without hole search
   m_summaryTool->updateTrackNoHoleSearch(*(Info.track));
@@ -344,32 +345,43 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info, const x
 
   size_t origIndex = Info.origIndex;
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
+  
   uint8_t dummy(0);
   if (m_doPix) {
+    //copy over dead sensors
+    uint8_t deadPixel= original->summaryValue(dummy,xAOD::numberOfPixelDeadSensors)?dummy:0;
+    summary->update(Trk::numberOfPixelDeadSensors,deadPixel);
+    
     int nPixHitsRefitted = summary->get(Trk::numberOfPixelHits);
+    int nPixOutliersRefitted = summary->get(Trk::numberOfPixelOutliers);
     int nPixHitsOriginal = original->summaryValue(dummy,xAOD::numberOfPixelHits) ? dummy:-1;
     int nPixHolesOriginal = original->summaryValue(dummy,xAOD::numberOfPixelHoles)? dummy:-1;
     int nPixOutliersOriginal = original->summaryValue(dummy,xAOD::numberOfPixelOutliers)? dummy:-1;
-    int nPixOutliersRefitted = summary->get(Trk::numberOfPixelOutliers);
     summary->update(Trk::numberOfPixelHoles, nPixHitsOriginal+nPixHolesOriginal+nPixOutliersOriginal
                     -nPixOutliersRefitted-nPixHitsRefitted);
   }
   if (m_doSCT) {
+    uint8_t deadSCT= original->summaryValue(dummy,xAOD::numberOfSCTDeadSensors)?dummy:0;
+    summary->update(Trk::numberOfSCTDeadSensors,deadSCT); 
+
+    uint8_t SCTDoubleHoles = original->summaryValue(dummy,xAOD::numberOfSCTDoubleHoles )?dummy:0;
+    summary->update(Trk::numberOfSCTDoubleHoles , SCTDoubleHoles); 
+
     int nSCTHitsRefitted = summary->get(Trk::numberOfSCTHits);
+    int nSCTOutliersRefitted = summary->get(Trk::numberOfSCTOutliers);
     int nSCTHitsOriginal = original->summaryValue(dummy,xAOD::numberOfSCTHits) ? dummy:-1;
     int nSCTHolesOriginal = original->summaryValue(dummy,xAOD::numberOfSCTHoles) ? dummy:-1;
     int nSCTOutliersOriginal = original->summaryValue(dummy,xAOD::numberOfSCTOutliers) ? dummy:-1;
-    int nSCTOutliersRefitted = summary->get(Trk::numberOfSCTOutliers);
 
     summary->update(Trk::numberOfSCTHoles, nSCTHitsOriginal+nSCTHolesOriginal+nSCTOutliersOriginal
                     -nSCTOutliersRefitted-nSCTHitsRefitted);
 
   }
   int nTRTHitsRefitted = summary->get(Trk::numberOfTRTHits);
+  int nTRTOutliersRefitted = summary->get(Trk::numberOfTRTOutliers);
   int nTRTHitsOriginal = original->summaryValue(dummy,xAOD::numberOfTRTHits) ? dummy:-1;
   int nTRTHolesOriginal = original->summaryValue(dummy,xAOD::numberOfTRTHoles) ? dummy:-1;
   int nTRTOutliersOriginal = original->summaryValue(dummy,xAOD::numberOfTRTOutliers) ? dummy:-1;
-  int nTRTOutliersRefitted = summary->get(Trk::numberOfTRTOutliers);
   summary->update(Trk::numberOfTRTHoles, nTRTHitsOriginal+nTRTHolesOriginal+nTRTOutliersOriginal
                   -nTRTOutliersRefitted-nTRTHitsRefitted);
 

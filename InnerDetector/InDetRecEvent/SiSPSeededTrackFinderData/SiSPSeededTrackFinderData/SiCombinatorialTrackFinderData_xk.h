@@ -36,7 +36,7 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
   public:
     SiCombinatorialTrackFinderData_xk();
     ~SiCombinatorialTrackFinderData_xk() = default;
@@ -44,11 +44,13 @@ namespace InDet {
     void setTools(const Trk::IPatternParametersPropagator* propTool,
                   const Trk::IPatternParametersUpdator* updatorTool,
                   const Trk::IRIO_OnTrackCreator* rioTool,
-                  const Trk::IPRD_AssociationTool* assoTool,
                   MagField::IMagFieldSvc* fieldService,
                   const IInDetConditionsTool* pixCondTool,
                   const IInDetConditionsTool* sctCondTool,
                   const Trk::MagneticFieldProperties* fieldProp);
+
+    const Trk::PRDtoTrackMap* PRDtoTrackMap() const { return m_tools.PRDtoTrackMap(); }
+
     bool isInitialized() const;
 
     SiTrajectory_xk& trajectory();
@@ -74,6 +76,12 @@ namespace InDet {
     double& xi2max();
     double& xi2maxNoAdd();
     double& xi2maxlink();
+
+  protected:
+    virtual void dummy() = 0;
+    void setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {
+      m_tools.setPRDtoTrackMap(prd_to_track_map);
+    }
 
   private:
 

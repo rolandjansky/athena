@@ -103,10 +103,6 @@ SG::ReadHandle<xAOD::EventInfo> AthMonitorAlgorithm::GetEventInfo( const EventCo
 }
 
 
-AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::environment() const {
-    return m_environment;
-}
-
 
 AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const std::string& str ) const {
     // convert the string to all lowercase
@@ -135,10 +131,6 @@ AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const s
     }
 }
 
-
-AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataType() const {
-    return m_dataType;
-}
 
 
 AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const std::string& str ) const {
@@ -182,11 +174,6 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
     }
     // return the tool handle
     return toolHandle;
-}
-
-
-const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() const {
-    return m_trigDecTool;
 }
 
 

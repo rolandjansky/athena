@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """\
 Dumping HLT chains PS bit vs the chain counter and vs the L1 event number
@@ -44,8 +44,8 @@ def my_dump(bsfile):
   """Runs the dumping routines"""
   
   # open a file
-  print "="*100
-  print "Opening", bsfile
+  print("="*100)
+  print("Opening %s" % bsfile)
   
   
   events = {}  
@@ -79,30 +79,30 @@ def my_comp(f1, f2):
 
   one = cPickle.load(file(f1))
   two = cPickle.load(file(f2))
-  print '.. eventdumps read in correctly %s %s' % (f1, f2)
+  print('.. eventdumps read in correctly %s %s' % (f1, f2))
 
   if one == two:
-    print ".. the prescale bits are the same"
+    print(".. the prescale bits are the same")
   else:
     diff=False
     kone = set(one.keys())
     ktwo = set(two.keys())
     if kone != ktwo:
-      print ".... the event sets are different in the two files; one has: %d  two has: %d events" % (len(kone), len(ktwo))
-      print ".... will compare only events present in both sets"
+      print(".... the event sets are different in the two files; one has: %d  two has: %d events" % (len(kone), len(ktwo)))
+      print(".... will compare only events present in both sets")
     komon = kone & ktwo
     for k in komon:      
       if one[k] != two[k]:
-        print ".. event difference global_id: %d l1_id: %d, fmt: chain_counter: PS bit,... " %k
-        print ".. event in file: %s " % opt.one
+        print(".. event difference global_id: %d l1_id: %d, fmt: chain_counter: PS bit,... " % k)
+        print(".. event in file: %s " % opt.one)
         pprint.pprint(one[k])
-        print ".. event in file: %s" % opt.two
+        print(".. event in file: %s" % opt.two)
         pprint.pprint(two[k])
         diff=True
     if not diff:
-      print '.. prescale bits are the same in all %d common events ' % len(komon)
+      print('.. prescale bits are the same in all %d common events ' % len(komon))
     else:
-      print '.. there are differences !'
+      print('.. there are differences !')
 
   
 

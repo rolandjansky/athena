@@ -14,7 +14,6 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 PixelRawDataProviderTool::PixelRawDataProviderTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_robIdSet(),
   m_LVL1CollectionKey("PixelLVL1ID"),
   m_BCIDCollectionKey("PixelBCID"),
   m_DecodeErrCount(0),
@@ -47,6 +46,7 @@ StatusCode PixelRawDataProviderTool::finalize() {
 StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc) {
   if (vecRobs.size()==0) { return StatusCode::SUCCESS; }
 
+
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
 #ifdef PIXEL_DEBUG
@@ -74,10 +74,10 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 #endif
     // remember last Lvl1ID
     m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
-    // reset list of known robIds
-    m_robIdSet.clear();
+
     // and clean up the identifable container !
-    rdoIdc->cleanup();
+    rdoIdc->cleanup();//TODO Remove this when legacy trigger code is removed
+
   }
 
   // loop over the ROB fragments
@@ -101,25 +101,21 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 #endif
     }
 
-    // check if this ROBFragment was already decoded (EF case in ROIs
-    if (!m_robIdSet.insert(robid).second) {
-#ifdef PIXEL_DEBUG
-      ATH_MSG_DEBUG(" ROB Fragment with ID  " << std::hex<<robid<<std::dec<< " already decoded, skip");
-#endif
-    } 
-    else {
-      // here the code for the timing monitoring should be reinserted
-      // using 1 container per event und subdetector
-      StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc);
-      if (sc==StatusCode::FAILURE) {
-        if (m_DecodeErrCount<100) {
-          ATH_MSG_INFO("Problem with Pixel ByteStream Decoding!");
-          m_DecodeErrCount++;
-        }
-        else if (100==m_DecodeErrCount) {
-          ATH_MSG_INFO("Too many Problems with Pixel Decoding messages.  Turning message off.");
-          m_DecodeErrCount++;
-        }
+    // here the code for the timing monitoring should be reinserted
+    // using 1 container per event and subdetector
+    StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc);
+
+
+
+    const int issuesMessageCountLimit = 100;
+    if (sc==StatusCode::FAILURE) {
+      if (m_DecodeErrCount < issuesMessageCountLimit) {
+        ATH_MSG_INFO("Problem with Pixel ByteStream Decoding!");
+        m_DecodeErrCount++;
+      }
+      else if (issuesMessageCountLimit == m_DecodeErrCount) {
+        ATH_MSG_INFO("Too many Problems with Pixel Decoding messages.  Turning message off.");
+        m_DecodeErrCount++;
       }
     }
   }

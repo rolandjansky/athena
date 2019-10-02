@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -34,6 +34,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "InDetRecToolInterfaces/ITRT_SeededTrackFinder.h" 
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 
 class MsgStream;
@@ -98,6 +99,8 @@ namespace InDet {
       SG::ReadHandle<Trk::SegmentCollection> m_Segments     ;  /** TRT segments to use */
       SG::WriteHandle<TrackCollection>       m_outTracks   ;
 
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};
 
       ToolHandle<Trk::IExtrapolator>   m_extrapolator; //!< the extrapoator
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };

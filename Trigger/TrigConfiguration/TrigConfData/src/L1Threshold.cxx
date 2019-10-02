@@ -7,9 +7,11 @@
 TrigConf::L1Threshold::L1Threshold()
 {}
 
-TrigConf::L1Threshold::L1Threshold(const boost::property_tree::ptree & data) 
+TrigConf::L1Threshold::L1Threshold(const std::string & name, const boost::property_tree::ptree & data) 
    : DataStructure(data)
-{}
+{
+   m_data.put("name", name);
+}
 
 TrigConf::L1Threshold::~L1Threshold()
 {}

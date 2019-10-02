@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
@@ -30,6 +29,9 @@
 #include "TCanvas.h"
 #include "TVirtualFitter.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_TrackSegmentsMaker_ECcosmics.h"
+
+#include "StoreGate/ReadHandle.h"
+
 
 
 ///////////////////////////////////////////////////////////////////
@@ -43,8 +45,6 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
     m_phaseMode(false),
     m_riomakerD ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"                      ),
     m_riomakerN ("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
-    m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_useassoTool(false),
     m_useDriftTime(false),
     m_removeSuspicious(false),
     m_scaleTube(2.0),
@@ -62,12 +62,10 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
   
   declareProperty("RIOonTrackToolYesDr"  ,m_riomakerD  );
   declareProperty("RIOonTrackToolNoDr"   ,m_riomakerN  );
-  declareProperty("AssosiationTool"      ,m_assoTool   );
 
   declareProperty("TruthName",m_multiTruthCollectionTRTName);
   declareProperty("Phase",m_phaseMode);
 
-  declareProperty("UseAssosiationTool",m_useassoTool);
   declareProperty("UseDriftTime", m_useDriftTime);
   declareProperty("RemoveSuspicious",m_removeSuspicious);
   declareProperty("ScaleFactorTube", m_scaleTube);
@@ -171,17 +169,9 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ECcosmics::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_riomakerN << endmsg;
   }
 
-  // Get tool for track-prd association
+  // optional PRD to track association map
   //
-  if( m_useassoTool ) {
-    if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
-    }
-  }
-
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
 
   std::string fit_name1="ztanphi";
   std::string fit_name2="zphi";
@@ -193,7 +183,7 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ECcosmics::initialize()
     fit_name3+="_phase";
   }
 
-  if(m_useassoTool){
+  if(!m_prdToTrackMap.key().empty()){
     fit_name1+="_asso";
     fit_name2+="_asso";
     fit_name3+="_asso";
@@ -1761,6 +1751,16 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
+
+  SG::ReadHandle<Trk::PRDtoTrackMap> prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr=nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map = SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap );
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
   
   const InDet::TRT_DriftCircleContainer*   mjo_trtcontainer = trtcontainer.get();
   
@@ -1799,7 +1799,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
 
     for(; c!=ce; ++c) {
 
-      if(m_useassoTool &&  m_assoTool->isUsed(*(*c))) continue; //don't use hits that have already been used
+      if(prd_to_track_map_cptr &&  prd_to_track_map_cptr->isUsed(*(*c))) continue; //don't use hits that have already been used
 
 
 

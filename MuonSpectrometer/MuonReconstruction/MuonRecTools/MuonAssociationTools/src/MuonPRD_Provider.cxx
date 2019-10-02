@@ -14,8 +14,7 @@
 
 namespace Muon {
   MuonPRD_Provider::MuonPRD_Provider(const std::string& t, const std::string& n, const IInterface* p):
-    AthAlgTool(t,n,p),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    AthAlgTool(t,n,p)
   {
     declareInterface<Trk::IPRD_Provider>(this);
     // PRD container name
@@ -32,10 +31,7 @@ namespace Muon {
   {
     ATH_MSG_VERBOSE("Initializing ...");           
     // Set up ATLAS ID helper to be able to identify the PRD's det-subsystem
-    ATH_CHECK( m_idHelper.retrieve() );
-    ATH_CHECK( detStore()->retrieve( m_mmIdHelper ) );
-    ATH_CHECK( detStore()->retrieve( m_stgcIdHelper ) ); 
-
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
     return StatusCode::SUCCESS;
   }           
 
@@ -79,15 +75,15 @@ namespace Muon {
 
 
     // check validity of the Identifier
-    if (!ide.is_valid() || !m_idHelper->isMuon(ide) ){
+    if (!ide.is_valid() || !m_muonIdHelperTool->isMuon(ide) ){
       ATH_MSG_VERBOSE("The identifier is not valid ! Return 0.");
       return 0;
     }
     ndof = 1;
-    if ( m_mdtPrds && m_idHelper->isMdt(ide) ){
+    if ( m_mdtPrds && m_muonIdHelperTool->isMdt(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_idHelper->mdtIdHelper().get_module_hash(ide,ideHash);
+      m_muonIdHelperTool->mdtIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -96,10 +92,10 @@ namespace Muon {
       return prdFromIdentifierContainer<MdtPrepData>(*m_mdtPrds,ide,ideHash);
     }
 
-    if ( m_cscPrds && m_idHelper->isCsc(ide) ){
+    if ( m_cscPrds && m_muonIdHelperTool->isCsc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_idHelper->cscIdHelper().get_module_hash(ide,ideHash);
+      m_muonIdHelperTool->cscIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -108,10 +104,10 @@ namespace Muon {
       return prdFromIdentifierContainer<CscPrepData>(*m_cscPrds,ide,ideHash);
     }
 
-    if ( m_tgcPrds && m_idHelper->isTgc(ide) ){
+    if ( m_tgcPrds && m_muonIdHelperTool->isTgc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_idHelper->tgcIdHelper().get_module_hash(ide,ideHash);
+      m_muonIdHelperTool->tgcIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -120,10 +116,10 @@ namespace Muon {
       return prdFromIdentifierContainer<TgcPrepData>(*m_tgcPrds,ide,ideHash);
     }
 
-    if ( m_rpcPrds && m_idHelper->isRpc(ide) ){
+    if ( m_rpcPrds && m_muonIdHelperTool->isRpc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_idHelper->rpcIdHelper().get_module_hash(ide,ideHash);
+      m_muonIdHelperTool->rpcIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -131,10 +127,10 @@ namespace Muon {
       }
       return prdFromIdentifierContainer<RpcPrepData>(*m_rpcPrds,ide,ideHash);
     }
-    if ( m_mmPrds && m_mmIdHelper->is_mm(ide) ){
+    if ( m_mmPrds && m_muonIdHelperTool->mmIdHelper().is_mm(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_mmIdHelper->get_module_hash(ide,ideHash);
+      m_muonIdHelperTool->mmIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -145,10 +141,10 @@ namespace Muon {
       return prd;
     }
 
-    if ( m_stgcPrds && m_stgcIdHelper->is_stgc(ide) ){
+    if ( m_stgcPrds && m_muonIdHelperTool->stgcIdHelper().is_stgc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_stgcIdHelper->get_module_hash(ide,ideHash);
+      m_muonIdHelperTool->stgcIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");

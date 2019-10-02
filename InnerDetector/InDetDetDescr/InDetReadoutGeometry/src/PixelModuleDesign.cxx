@@ -33,7 +33,7 @@ PixelModuleDesign::PixelModuleDesign(const double thickness,
 				     const int cellRowsPerCircuit,
 				     const int diodeColumnsPerCircuit,
 				     const int diodeRowsPerCircuit,
-				     const PixelDiodeMatrix * matrix,
+				     std::shared_ptr<const PixelDiodeMatrix> matrix,
 				     InDetDD::CarrierType carrierType,
 				     int readoutSide,
 				     bool is3D) :

@@ -61,8 +61,13 @@ namespace TrigConf {
       const_iterator end() const;
 
       /** List of L1 thresholds */
-      std::vector<TrigConf::L1Threshold> thresholds() const;
+      std::vector<TrigConf::L1Threshold> thresholds(const std::string & type = "ALL") const;
 
+      /** List of L1 thresholds types */
+      std::vector<std::string> thresholdTypes() const;
+
+      /** print overview of L1 Menu */
+      void printStats() const;
    };
 
 }

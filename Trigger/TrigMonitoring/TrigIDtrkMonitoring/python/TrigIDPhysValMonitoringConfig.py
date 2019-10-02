@@ -8,17 +8,20 @@ def TrigIDPhysValMonitoringTool():
     from AthenaMonitoring.DQMonFlags import DQMonFlags
   dataType = DQMonFlags.monManDataType()
 
+  # disable everything
+  outputlist = []
+  return outputlist
 
   if not 'rec' in dir():
     from RecExConfig.RecFlags  import rec
 
-  outputlist = []
   if rec.doInDet:
     from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestPhysValMon
     from AthenaCommon.AppMgr import release_metadata
     d = release_metadata()
 
     def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False, useOffline = False, doFS=False ):
+
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name

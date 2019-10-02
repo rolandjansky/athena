@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Athena runs topoclustering from an ESD file
+# art-description: Athena runs topoclustering reconstruction, using the new job configuration for Run 3, from an ESD file
 # art-type: grid
 # art-include: master/Athena
 

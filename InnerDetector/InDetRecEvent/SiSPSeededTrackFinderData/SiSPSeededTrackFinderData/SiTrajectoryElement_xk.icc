@@ -24,12 +24,12 @@ int InDet::SiTrajectoryElement_xk::searchClustersSub
   } else {
     if (not m_stereo) {
       if (m_ndf == 2) {
-        return searchClustersWithoutStereoAssPIX<T>(Tp, L);
+        return searchClustersWithoutStereoAssPIX<T>(Tp, L,*m_prdToTrackMap);
       } else {
-        return searchClustersWithoutStereoAssSCT<T>(Tp, L);
+        return searchClustersWithoutStereoAssSCT<T>(Tp, L,*m_prdToTrackMap);
       }
     } else {
-      return searchClustersWithStereoAss<T>(Tp, L);
+      return searchClustersWithStereoAss<T>(Tp, L, *m_prdToTrackMap);
     }
   }
 }
@@ -219,7 +219,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 
 template <typename T>
 int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
+(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L, const Trk::PRDtoTrackMap &prd_to_track_map) 
 {
   if (m_detstatus<=0) return 0;
 
@@ -238,10 +238,10 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
   T* sibegin = std::any_cast<T>(&m_sibegin);
   T* siend = std::any_cast<T>(&m_siend);
   if (sibegin==nullptr or siend==nullptr) return 0;
-
   for (T p=*sibegin; p!=*siend; ++p) {
     const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(*p); 
-    if (m_assoTool->isUsed(*c)) continue;
+
+    if (prd_to_track_map.isUsed(*c)) continue;
     const Amg::Vector2D& M = c->localPosition();
     const Amg::MatrixX& V = c->localCovariance();
 
@@ -284,7 +284,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
 
 template <typename T>
 int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
+(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L, const Trk::PRDtoTrackMap &prd_to_track_map)
 {
   if (m_detstatus<=0) return 0;
 
@@ -305,7 +305,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 
   for (T p=*sibegin; p!=*siend; ++p) {
     const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(*p);
-    if (m_assoTool->isUsed(*c)) continue;
+    if (prd_to_track_map.isUsed(*c)) continue;
     const Amg::Vector2D& M = c->localPosition();
 
     double MV0 = c->width().phiR();
@@ -340,7 +340,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 
 template <typename T>
 int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
-(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
+(Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L, const Trk::PRDtoTrackMap &prd_to_track_map) 
 {
   if (m_detstatus<=0) return 0;
 
@@ -361,7 +361,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 
   for (T p=*sibegin; p!=*siend; ++p) {
     const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(*p); 
-    if (m_assoTool->isUsed(*c)) continue;
+    if (prd_to_track_map.isUsed(*c)) continue;
     const Amg::Vector2D& M = c->localPosition();
 
     double MV0 = c->width().phiR()   ;
