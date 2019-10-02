@@ -215,8 +215,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
-    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
     
     hole_rec_tool = Muon__MuonChamberHoleRecoveryTool(name, **kwargs)
     result.setPrivateTools(hole_rec_tool)
@@ -437,6 +436,12 @@ if __name__=="__main__":
     msgService = cfg.getService('MessageSvc')
     msgService.Format = "% F%48W%S%7W%R%T %0W%M"
     msgService.OutputLevel=DEBUG
+    
+    # Fix for ATLASRECTS-5151
+    from MuonEventCnvTools.MuonEventCnvToolsConf import Muon__MuonEventCnvTool
+    cnvTool = Muon__MuonEventCnvTool(name='MuonEventCnvTool')
+    cnvTool.FixTGCs = True
+    cfg.addPublicTool(cnvTool)
     
     cfg.printConfig(withDetails = True, summariseProps = True)
               
