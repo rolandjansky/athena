@@ -34,11 +34,22 @@ StatusCode TAURoIsUnpackingTool::initialize() {
 
 StatusCode TAURoIsUnpackingTool::start() {
   ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("TAU") == 0;  } ) );
+  // for taus, since there is threshold name change from HA to TAU we need to fill up mapping wiht same threshold but prefixed by HA
+  // TODO remove once L1 configuration switches to TAU
+  for ( const auto& [threshold, chains] : m_thresholdToChainMapping ) {
+    if ( threshold.name().find("TAU") == 0 ) {
+      std::string newThresholdName = "HA"+threshold.name().substr(3);
+      ATH_MSG_INFO("Temporary fix due to renaming the HA to TAU thresholds, adding decoding of " << newThresholdName );
+      m_thresholdToChainMapping[HLT::Identifier(newThresholdName)] = chains;
+    }
+  }
+
+
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TAURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+StatusCode TAURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
   using namespace TrigConf;
 
   m_tauThresholds.clear();
