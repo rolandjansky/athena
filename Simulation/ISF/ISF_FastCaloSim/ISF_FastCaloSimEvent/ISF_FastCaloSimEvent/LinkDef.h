@@ -81,11 +81,11 @@
 #pragma link C++ class TFCS1DFunction_Numeric<double,float>+;
 #pragma link C++ class TFCS1DFunction_Numeric<double,double>+;
 
-#pragma link C++ class TFCS1DFunction_Array<float>+;
-#pragma link C++ class TFCS1DFunction_Array<double>+;
-#pragma link C++ class TFCS1DFunction_Array<uint8_t>+;
-#pragma link C++ class TFCS1DFunction_Array<uint16_t>+;
-#pragma link C++ class TFCS1DFunction_Array<uint32_t>+;
+#pragma link C++ class TFCS1DFunction_Array<float>-;
+#pragma link C++ class TFCS1DFunction_Array<double>-;
+#pragma link C++ class TFCS1DFunction_Array<uint8_t>-;
+#pragma link C++ class TFCS1DFunction_Array<uint16_t>-;
+#pragma link C++ class TFCS1DFunction_Array<uint32_t>-;
 
 #pragma link C++ class TFCS1DFunction_HistogramContent<float,float>+;
 #pragma link C++ class TFCS1DFunction_HistogramContent<double,float>+;
