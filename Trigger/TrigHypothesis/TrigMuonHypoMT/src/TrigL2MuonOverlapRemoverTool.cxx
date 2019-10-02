@@ -170,6 +170,8 @@ StatusCode TrigL2MuonOverlapRemoverTool::checkOverlap(std::vector<L2SAMuonOverla
    std::vector<unsigned int> mufastResult;
    std::vector<TrigL2MuonOverlapRemoverTool::L2SAMuonOverlapInfo> uniqueMuon;
 
+   bool errorWhenIdentifyingOverlap = false;
+
    for(i=0; i<numMuon; i++) {mufastResult.emplace_back(i); }
    for(i=0; i<numMuon-1; i++){
       for(j=i+1; j<numMuon; j++){
@@ -178,24 +180,24 @@ StatusCode TrigL2MuonOverlapRemoverTool::checkOverlap(std::vector<L2SAMuonOverla
          if( ! overlapped ){ // judged as different
             ATH_MSG_DEBUG("   judged as: different objects");
             if( mufastResult[i] == mufastResult[j] ) { // but marked as same by someone
-               ATH_MSG_ERROR( "inconsistentency in muFast based overlap removal for more than two objects" );
+               ATH_MSG_DEBUG( "inconsistentency in muFast based overlap removal for more than two objects" );
                ATH_MSG_DEBUG( "two objects are judged as different but both were already marked as identical by someone else as: " );
                ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mufastResult[i] << " / "  << mufastResult[j] );
                auto mufastError  = Monitored::Scalar("MufastError", -9999.);
                auto monitorIt    = Monitored::Group(m_monTool, mufastError);
                mufastError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap1;
-               return StatusCode::FAILURE;
+               errorWhenIdentifyingOverlap = true;
             }
          }
          else{ // judged as overlap
             if( (mufastResult[j] != j && mufastResult[i] != mufastResult[j]) || (mufastResult[j] == j && mufastResult[i] != i) ){
-               ATH_MSG_ERROR( "inconsistentency in muFast based overlap removal for more than two objects" );
+               ATH_MSG_DEBUG( "inconsistentency in muFast based overlap removal for more than two objects" );
                ATH_MSG_DEBUG( "two objects are judged as overlap but only either was already marked as overlap to someone else: " );
                ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mufastResult[i] << " / "  << mufastResult[j] );
                auto mufastError  = Monitored::Scalar("MufastError", -9999.);
                auto monitorIt    = Monitored::Group(m_monTool, mufastError);
                mufastError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap2;
-               return StatusCode::FAILURE;
+               errorWhenIdentifyingOverlap = true;
             }
             ATH_MSG_DEBUG("   judged as: overlapped objects");
             if( mufastResult[i] == i ) {
@@ -208,6 +210,15 @@ StatusCode TrigL2MuonOverlapRemoverTool::checkOverlap(std::vector<L2SAMuonOverla
             }
          }
       }
+   }
+
+   if( errorWhenIdentifyingOverlap ) {
+      ATH_MSG_WARNING( "error when resolving overlap. exitting with all EVs active..." );
+      auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+      auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
+      mufastNrActiveEVs = numMuon;
+      for(i=0; i<numMuon; i++) TrigCompositeUtils::addDecisionID( m_decisionId, toolInput[i].decision );
+      return StatusCode::SUCCESS;
    }
 
    unsigned int n_uniqueMuon = 0;
@@ -560,6 +571,8 @@ StatusCode TrigL2MuonOverlapRemoverTool::checkOverlap(std::vector<L2CBMuonOverla
    std::vector<unsigned int> mucombResult;
    std::vector<TrigL2MuonOverlapRemoverTool::L2CBMuonOverlapInfo> uniqueMuon;
 
+   bool errorWhenIdentifyingOverlap = false;
+
    for(i=0; i<numMuon; i++) {mucombResult.emplace_back(i); }
    for(i=0; i<numMuon-1; i++){
       for(j=i+1; j<numMuon; j++){
@@ -568,24 +581,24 @@ StatusCode TrigL2MuonOverlapRemoverTool::checkOverlap(std::vector<L2CBMuonOverla
          if( ! overlapped ){ // judged as different
             ATH_MSG_DEBUG("   judged as: differenr objects");
             if( mucombResult[i] == mucombResult[j] ) { // but marked as same by someone
-               ATH_MSG_ERROR( "inconsistentency in muComb based overlap removal for more than two objects" );
+               ATH_MSG_DEBUG( "inconsistentency in muComb based overlap removal for more than two objects" );
                ATH_MSG_DEBUG( "two objects are judged as different but both were already marked as identical by someone else as: " );
                ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mucombResult[i] << " / "  << mucombResult[j] );
                auto mucombError  = Monitored::Scalar("MucombError", -9999.);
                auto monitorIt    = Monitored::Group(m_monTool, mucombError);
                mucombError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap1;
-               return StatusCode::FAILURE;
+               errorWhenIdentifyingOverlap = true;
             }
          }
          else{ // judged as overlap
             if( (mucombResult[j] != j && mucombResult[i] != mucombResult[j]) || (mucombResult[j] == j && mucombResult[i] != i) ){
-               ATH_MSG_ERROR( "inconsistentency in muComb based overlap removal for more than two objects" );
+               ATH_MSG_DEBUG( "inconsistentency in muComb based overlap removal for more than two objects" );
                ATH_MSG_DEBUG( "two objects are judged as overlap but only either was already marked as overlap to someone else: " );
                ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mucombResult[i] << " / "  << mucombResult[j] );
                auto mucombError  = Monitored::Scalar("MucombError", -9999.);
                auto monitorIt    = Monitored::Group(m_monTool, mucombError);
                mucombError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap2;
-               return StatusCode::FAILURE;
+               errorWhenIdentifyingOverlap = true;
             }
             ATH_MSG_DEBUG("   judged as: overlapped objects");
             if( mucombResult[i] == i ) {
@@ -598,6 +611,15 @@ StatusCode TrigL2MuonOverlapRemoverTool::checkOverlap(std::vector<L2CBMuonOverla
             }
          }
       }
+   }
+
+   if( errorWhenIdentifyingOverlap ) {
+      ATH_MSG_WARNING( "error when resolving overlap. exitting with all EVs active..." );
+      auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+      auto monitorIt          = Monitored::Group(m_monTool, mucombNrActiveEVs);
+      mucombNrActiveEVs = numMuon;
+      for(i=0; i<numMuon; i++) TrigCompositeUtils::addDecisionID( m_decisionId, toolInput[i].decision );
+      return StatusCode::SUCCESS;
    }
 
    unsigned int n_uniqueMuon = 0;
