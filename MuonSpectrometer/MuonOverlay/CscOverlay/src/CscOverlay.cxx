@@ -19,7 +19,7 @@ namespace {
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -49,25 +49,25 @@ StatusCode CscOverlay::initialize()
 }
 
 //================================================================
-StatusCode CscOverlay::execute() {
+StatusCode CscOverlay::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute() begin");
 
 
-  SG::ReadHandle<CscRawDataContainer> bkgContainer(m_bkgInputKey);
+  SG::ReadHandle<CscRawDataContainer> bkgContainer(m_bkgInputKey, ctx);
   if(!bkgContainer.isValid()) {
     ATH_MSG_ERROR("Could not get background CscRawDataContainer called " << bkgContainer.name() << " from store " << bkgContainer.store());
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found background CscRawDataContainer called " << bkgContainer.name() << " in store " << bkgContainer.store());
 
-  SG::ReadHandle<CscRawDataContainer> signalContainer(m_signalInputKey);
+  SG::ReadHandle<CscRawDataContainer> signalContainer(m_signalInputKey, ctx);
   if(!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal CscRawOverlayContainer called " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found signal CscRawOverlayContainer called " << signalContainer.name() << " in store " << signalContainer.store());
 
-  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<CscRawDataContainer>(bkgContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output CscRawOverlayContainer called " << outputContainer.name() << " to store " << outputContainer.store());
@@ -86,7 +86,7 @@ StatusCode CscOverlay::execute() {
 //================================================================
 StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
                                         const CscRawDataContainer *signalContainer,
-                                        CscRawDataContainer *outputContainer)
+                                        CscRawDataContainer *outputContainer) const
 {
   ATH_MSG_DEBUG("overlayContainer() begin");
 
@@ -260,7 +260,8 @@ CscOverlay::copyCollection(const CscRawDataCollection *collection,
   return outputCollection;
 }
 
-void CscOverlay::spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data) {
+void CscOverlay::spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data) const
+{
   data.clear();  if ( !coll ) return;
   CscRawDataCollection::const_iterator idata = coll->begin();
   CscRawDataCollection::const_iterator edata = coll->end();
@@ -270,7 +271,8 @@ void CscOverlay::spuData( const CscRawDataCollection * coll, const uint16_t spuI
   ATH_MSG_DEBUG("spuData(): made data vector of size "<<data.size()<<" for SPU "<<spuID);
 }
 
-bool CscOverlay::needtoflip(const int address) const {
+bool CscOverlay::needtoflip(const int address) const
+{
          int measuresPhi  = ( (address & 0x00000100) >>  8);
          if (address<2147483640 && measuresPhi) {
            int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
@@ -284,7 +286,7 @@ bool CscOverlay::needtoflip(const int address) const {
 void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
                                   const CscRawDataCollection *signalCollection,
                                   CscRawDataCollection *outputCollection,
-                                  CLHEP::HepRandomEngine *rndmEngine)
+                                  CLHEP::HepRandomEngine *rndmEngine) const
 {
   ATH_MSG_DEBUG("mergeCollection() begin");
 
@@ -446,7 +448,7 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
                                  std::map< int,std::vector<uint16_t> >& samples,
                                  uint32_t& hash,
                                  const uint16_t spuID,
-                                 const int gasLayer, bool isdata)
+                                 const int gasLayer, bool isdata) const
 {
   ATH_MSG_DEBUG("stripData<>() begin: gasLayer="<<gasLayer<<" spuID="<<spuID<<" isdata="<<isdata);
 
@@ -547,7 +549,7 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
                                               const uint16_t spuID,
                                               const uint16_t collId,
                                               const uint32_t hash,
-                                              CLHEP::HepRandomEngine *rndmEngine)
+                                              CLHEP::HepRandomEngine *rndmEngine) const
 {
   ATH_MSG_DEBUG("overlay<>() begin: hash="<<hash<<" address="<<address);
   std::vector<CscRawData*> datas;
