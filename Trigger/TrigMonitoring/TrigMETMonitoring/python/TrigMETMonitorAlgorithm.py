@@ -55,7 +55,7 @@ def TrigMETMonConfig(inputFlags):
     #    HLT_xe0noL1_l2fsperf_L1gXERHO50,HLT_xe0noL1_l2fsperf_L1gXEPUFIT50,
     #    HLT_xe0noL1_l2fsperf_pufit_L1gXERHO50,HLT_xe0noL1_l2fsperf_pufit_L1gXEPUFIT50
     # without filters, all events are processed.
-    TrigMETMonAlg.TriggerChain = 'L1_XE10'
+    #TrigMETMonAlg.TriggerChain = 'L1_XE10'
     TrigMETMonChainAlg.TriggerChain = 'HLT_xe30_tcpufit_L1XE10'
     
 
@@ -111,7 +111,7 @@ def TrigMETMonConfig(inputFlags):
     metGroup.defineHistogram('tcpufit_Ey',title='tcpufit Missing E_{y};E_{y} (GeV);Events',
                                  path='Shifter/tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
     metGroup.defineHistogram('tcpufit_Et',title='tcpufit Missing E_{T};E_{T} (GeV);Events',
-                                 path='Shifter/tcpufit',xbins=205,xmin=-13.5,xmax=401.5)
+                                 path='Shifter/Eff',xbins=205,xmin=-13.5,xmax=401.5)
     metGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} (GeV);Events',
                                 path='Expert/mht',xbins=199,xmin=-298.5,xmax=298.5)
     metGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} (GeV);Events',

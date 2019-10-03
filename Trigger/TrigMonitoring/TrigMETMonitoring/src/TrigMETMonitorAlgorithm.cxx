@@ -43,31 +43,31 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // access met containers
     SG::ReadHandle<xAOD::EnergySumRoI> l1_roi_cont(m_lvl1_roi_key, ctx);
     if (! l1_roi_cont.isValid() ) {     
-      ATH_MSG_WARNING("evtStore() does not contain L1 MET Collection with name "<< m_lvl1_roi_key);
+      ATH_MSG_WARNING("Container "<< m_lvl1_roi_key << " does not exist or is empty");
       //return StatusCode::FAILURE;
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
     if (hlt_cell_met_cont->size()==0 || ! hlt_cell_met_cont.isValid() ) {
-      ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_cell_met_key);
+      ATH_MSG_WARNING("Container "<< m_hlt_cell_met_key << " does not exist or is empty");
       //return StatusCode::FAILURE;
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mht_met_cont(m_hlt_mht_met_key, ctx);
     if (hlt_mht_met_cont->size()==0 || ! hlt_mht_met_cont.isValid() ) {
-	ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_mht_met_key);
+	ATH_MSG_WARNING("Container "<< m_hlt_mht_met_key << " does not exist or is empty");
 	//return StatusCode::FAILURE;
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_met_cont(m_hlt_tc_met_key, ctx);
     if (hlt_tc_met_cont->size()==0 || ! hlt_tc_met_cont.isValid() ) {
-	ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tc_met_key);
+	ATH_MSG_WARNING("Container "<< m_hlt_tc_met_key << " does not exist or is empty");
 	//return StatusCode::FAILURE;
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_met_cont(m_hlt_tcpufit_met_key, ctx);
     if (hlt_tcpufit_met_cont->size()==0 || ! hlt_tcpufit_met_cont.isValid() ) {
-	ATH_MSG_WARNING("evtStore() does not contain HLT MET Collection with name "<< m_hlt_tcpufit_met_key);
+	ATH_MSG_WARNING("Container "<< m_hlt_tcpufit_met_key << " does not exist or is empty");
 	//return StatusCode::FAILURE;
     }
     
