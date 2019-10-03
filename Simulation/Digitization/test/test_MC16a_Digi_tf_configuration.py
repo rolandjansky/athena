@@ -262,7 +262,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TRTDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TRTDigitizationTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HardScatterSplittingMode', 'InDetTRTStrawStatusSummaryTool', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'Override_TrtRangeCutProperty', 'PAI_Tool_Ar', 'PAI_Tool_Kr', 'PAI_Tool_Xe', 'RndmSvc', 'SimDriftTimeTool', 'TRT_StrawNeighbourSvc']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HardScatterSplittingMode', 'InDetTRTStrawStatusSummaryTool', 'LastXing', 'MagFieldSvc', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'Override_TrtRangeCutProperty', 'PAI_Tool_Ar', 'PAI_Tool_Kr', 'PAI_Tool_Xe', 'RndmSvc', 'SimDriftTimeTool', 'TRT_StrawNeighbourSvc']
         expected_nonstring_properties = {'LastXing': '50', 'FirstXing': '-50'}
         expected_string_properties = {'OutputObjectName': 'TRT_RDOs', 'OutputSDOName': 'TRT_SDO_Map'} # No Input name property
         self._detailed_ConfigurablePropertiesCheck(
@@ -300,7 +300,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___CscDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.CscDigitizationTool'
-        expected_property_list = ['CSCSimDataCollectionOutputName', 'DetStore', 'DriftVelocity', 'ElectronEnergy', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'NewDigitEDM', 'OutputObjectName', 'PileUpMergeSvc', 'RndmSvc', 'WindowLowerOffset', 'WindowUpperOffset', 'amplification', 'cscCalibTool', 'isPileUp', 'pedestal']
+        expected_property_list = ['CSCSimDataCollectionOutputName', 'DetStore', 'DriftVelocity', 'ElectronEnergy', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'NewDigitEDM', 'OutputObjectName', 'PileUpMergeSvc', 'RndmSvc', 'WindowLowerOffset', 'WindowUpperOffset', 'amplification', 'cscCalibTool', 'idHelper', 'isPileUp', 'pedestal']
         expected_nonstring_properties = {'LastXing': '175', 'FirstXing': '-375'}
         expected_string_properties = {'InputObjectName': 'CSC_Hits', 'OutputObjectName': 'CSC_DIGITS'}
         self._detailed_ConfigurablePropertiesCheck(

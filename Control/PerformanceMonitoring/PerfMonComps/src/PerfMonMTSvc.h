@@ -144,7 +144,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
 
-    BooleanProperty m_isEventLoopMonitoring; 
+    BooleanProperty m_isEventLoopMonitoring;
 
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];

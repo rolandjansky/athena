@@ -13,4 +13,9 @@ set( ATLAS_PYTHON_CHECKER "@ATLAS_PYTHON_CHECKER@"
 # is called, packages using it might get duplicate library linkage command line
 # parameters, leading to linking errors. Consistently importing targets here
 # solves this issue.
-find_package( Acts COMPONENTS Core )
+if( Athena_FIND_QUIETLY )
+   find_package( Acts QUIET COMPONENTS Core )
+else()
+   find_package( Acts COMPONENTS Core )
+endif()
+

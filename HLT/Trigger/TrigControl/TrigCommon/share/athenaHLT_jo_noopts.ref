@@ -4,6 +4,7 @@
     <numForks>1</numForks>
     <InfoServiceLibrary>MonSvcInfoService</InfoServiceLibrary>
     <softTimeoutFraction>0.95</softTimeoutFraction>
+    <dontPublishIS>1</dontPublishIS>
     <HLTImplementationLibraries>
       <library>TrigPSC</library>
     </HLTImplementationLibraries>
@@ -12,6 +13,7 @@
     <finalizeTimeout>120</finalizeTimeout>
     <numberOfEventSlots>1</numberOfEventSlots>
     <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>
+    <maximumHltResultMb>10</maximumHltResultMb>
     <numberOfAthenaMTThreads>1</numberOfAthenaMTThreads>
     <DataSource>
       <HLTDFFileBackend>
@@ -23,7 +25,6 @@
         <UID>DataSource-is-DCM</UID>
         <compressionLevel>2</compressionLevel>
         <loopOverFiles>False</loopOverFiles>
-        <hltresultSizeBytes>10485760</hltresultSizeBytes>
         <skipEvents>0</skipEvents>
         <compressionFormat>ZLIB</compressionFormat>
         <rosHitStatFileName>ros_hitstats</rosHitStatFileName>

@@ -103,11 +103,8 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
   declareProperty("DecodeCscRDO", m_decodeCscRDO = true);
   declareProperty("DecodeRpcRDO", m_decodeRpcRDO = true);
   declareProperty("DecodeTgcRDO", m_decodeTgcRDO = true);
-  // Keep the NSW decoders off as they will cause issues with tests
-  // or are simply not needed in 21.3 currently
-  // Alexandre.laurier@cern.ch - August 2019
-  declareProperty("DecodeSTGC_RDO", m_decodesTgcRDO = false);
-  declareProperty("DecodeMM_RDO", m_decodeMmRDO = false);
+  declareProperty("DecodeSTGC_RDO", m_decodesTgcRDO = true);
+  declareProperty("DecodeMM_RDO", m_decodeMmRDO = true);
   
   declareProperty("cscCalibTool",  m_cscCalibTool);
   declareProperty("mdtRdoDecoderTool",  m_mdtRdoDecoderTool);
@@ -130,6 +127,10 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK( m_acSvc.retrieve() );
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
+  if (m_decodeCscRDO && !m_muonIdHelperTool->hasCSC()) m_decodeCscRDO = false;
+  if (m_decodesTgcRDO && !m_muonIdHelperTool->hasSTgc()) m_decodesTgcRDO = false;
+  if (m_decodeMmRDO && !m_muonIdHelperTool->hasMM()) m_decodeMmRDO = false;
+
   // get RPC cablingSvc
   ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
   ATH_CHECK( RpcCabGet.retrieve() );
@@ -137,7 +138,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK( m_cscCalibTool.retrieve() );
-
 
   ATH_CHECK(m_mdtRdoKey.initialize(m_decodeMdtRDO));
   ATH_CHECK(m_mdtDigitKey.initialize(m_decodeMdtRDO));
@@ -151,7 +151,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK(m_stgcDigitKey.initialize(m_decodesTgcRDO));
   ATH_CHECK(m_mmRdoKey.initialize(m_decodeMmRDO));
   ATH_CHECK(m_mmDigitKey.initialize(m_decodeMmRDO));
-
 
   if (m_decodeMdtRDO) ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
   if (m_decodeCscRDO) ATH_CHECK( m_cscRdoDecoderTool.retrieve() );

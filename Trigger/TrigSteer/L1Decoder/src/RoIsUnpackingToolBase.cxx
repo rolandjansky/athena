@@ -6,29 +6,54 @@
 #include "RoIsUnpackingToolBase.h"
 #include "TrigConfL1Data/TriggerItem.h"
 
-RoIsUnpackingToolBase::RoIsUnpackingToolBase(const std::string& type, 
-                                             const std::string& name, 
-                                             const IInterface* parent) 
+RoIsUnpackingToolBase::RoIsUnpackingToolBase(const std::string& type,
+                                             const std::string& name,
+                                             const IInterface* parent)
   : base_class(type, name, parent)
 {
 }
 
 
-StatusCode RoIsUnpackingToolBase::initialize() 
+StatusCode RoIsUnpackingToolBase::initialize()
 {
-  if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
-  CHECK( m_decisionsKey.initialize() );
-
+  if ( !m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
+  ATH_CHECK( m_decisionsKey.initialize() );
+  ATH_CHECK( m_HLTMenuKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
+StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
+
+  SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  ATH_CHECK( hltMenuHandle.isValid() );
+
+  for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
+    const std::vector<std::string> thresholds{ chain.l1thresholds() };
+    int prefix = -1;
+    for ( const std::string& th: thresholds ) {
+      prefix++;
+      if ( filter(th) ) {
+	m_thresholdToChainMapping[ HLT::Identifier( th ) ].push_back(  HLT::Identifier( chain.name() ) );
+	ATH_MSG_DEBUG( "Associating " << chain.name() << " with threshold " << th );
+	if ( thresholds.size() > 1 ) {
+	  std::string legName = "leg000_" + chain.name();
+	  const std::string ps = std::to_string(prefix);
+	  legName.replace( 6-ps.size(), ps.size(), ps );
+	  m_thresholdToChainMapping[ HLT::Identifier(th) ].push_back( HLT::Identifier( legName ) );
+	  ATH_MSG_INFO( "Associating additional chain leg " << legName << " with threshold " << th );
+	}
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
 StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const TrigConf::TriggerThreshold*)> filter, const TrigConf::ItemContainer& l1Items, const IRoIsUnpackingTool::SeedingMap& seeding ) {
   for ( auto chainItemPair: seeding) {
     std::string chainName = chainItemPair.first;
     std::string itemName = chainItemPair.second;
     auto itemsIterator = l1Items.get<TrigConf::tag_name_hash>().find(itemName);
-    
+
     if ( itemsIterator != l1Items.get<TrigConf::tag_name_hash>().end() ) {
 
       const TrigConf::TriggerItem* item = *itemsIterator;
@@ -83,15 +108,12 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
 StatusCode RoIsUnpackingToolBase::copyThresholds( const std::vector<TrigConf::TriggerThreshold*>& src, std::vector<TrigConf::TriggerThreshold*>& dest ) const {
   for ( auto th: src ) {
     if ( th == nullptr ) {
-      ATH_MSG_INFO( "Nullptr TrigConf::TriggerThreshold" ); 
+      ATH_MSG_INFO( "Nullptr TrigConf::TriggerThreshold" );
     } else {
-      ATH_MSG_INFO( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
-      dest.push_back( th );      
+      ATH_MSG_INFO( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() );
+      dest.push_back( th );
     }
   }
 
   return StatusCode::SUCCESS;
 }
-
-
-

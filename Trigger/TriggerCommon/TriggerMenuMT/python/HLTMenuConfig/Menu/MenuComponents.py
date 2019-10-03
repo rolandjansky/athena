@@ -436,7 +436,7 @@ class Chain(object):
 
     def setSeedsToSequences(self):
         """ Set the L1 seeds to the menu sequences """
-
+        
         # check if the number of seeds is enought for all the seuqences:
         max_seq= max(len(step.sequences) for step in self.steps)
         tot_seed=len(self.vseeds)
@@ -467,10 +467,6 @@ class Chain(object):
         for step in self.steps:
             if len(step.sequences) == 0:
                 continue
-
-            if len(chainDict['chainParts']) != len(step.sequences):
-                log.error("Error in step %s for chain %s: found %d chain parts and %d sequences", step.name, self.name, len(chainDict['chainParts']), len(step.sequences))
-                log.error(chainDict['chainParts'])
 
             for seq, chainDictPart in zip(step.sequences, chainDict['chainParts']):
                 if seq.ca is not None: # The CA merging took care of everything

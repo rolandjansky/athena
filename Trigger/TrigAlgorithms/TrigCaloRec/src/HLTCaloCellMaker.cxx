@@ -128,7 +128,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
 	cellContainerV->push_back( c.release()->asDataVector() );
-		
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 

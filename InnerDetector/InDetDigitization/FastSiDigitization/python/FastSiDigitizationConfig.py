@@ -47,9 +47,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and not 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
         PixelConfigCondAlg.UseCalibConditions=False
     else:
-        from AthenaCommon.Include import include
-        include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
-        include.block( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
         from AthenaCommon.AppMgr import ToolSvc
         if not hasattr(ToolSvc, "PixelRecoDbTool"):
             from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
@@ -66,12 +63,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
         if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
             condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-
-
-        # setup PixelCalibDbTool in ToolSvc
-        if not hasattr(ToolSvc, "PixelCalibDbTool"):
-            from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
-            ToolSvc += PixelCalibDbTool()
 
         if not conddb.folderRequested('/PIXEL/ReadoutSpeed'):
             conddb.addFolder("PIXEL_OFL","/PIXEL/ReadoutSpeed")

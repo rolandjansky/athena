@@ -4,9 +4,9 @@
 
 #include "MuPatCandidateTool.h"
 #include "MuPatHitTool.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatSegment.h"
+#include "MuPatTrack.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatSegment.h"
 #include "SortMuPatHits.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"

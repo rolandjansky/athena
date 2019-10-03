@@ -65,7 +65,6 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
                                                     LArTT_Selector<LArCellCont>& loadedCells ) {
 
   std::vector<IdentifierHash> requestHashIDs;  
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
   unsigned int sc = prepareLArCollections( context, roi, sampling, detID );
@@ -146,7 +145,6 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
                                                         ConstDataVector<CaloCellContainer>& cont ) {
 
 
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
   // Gets all data
   {
   std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
@@ -192,6 +190,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
 
   if ( cache->lastFSEvent == context.evt() ) return 0x0; // dummy code
        cache->larContainer->eventNumber( context.evt() ) ;
+  if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
+	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+	cache->larContainer->updateBCID( *avg.cptr() ); 
+  }
 
   unsigned int status(0);
 
@@ -567,6 +569,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   // if it is the same the unpacking will not be repeated
   // same in prepareLArFullCollections
   cache->larContainer->eventNumber( context.evt() );
+  if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
+	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+	cache->larContainer->updateBCID( *avg.cptr() ); 
+  }
   
   unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );
 

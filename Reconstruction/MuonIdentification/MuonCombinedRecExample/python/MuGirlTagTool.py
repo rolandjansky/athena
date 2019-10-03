@@ -15,10 +15,11 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonRecExample.MooreTools import MuonSeededSegmentFinder, MuonChamberHoleRecoveryTool
 from MuonRecExample.MuonRecTools import DCMathSegmentMaker
 
-from MuonRecExample.MuonRecFlags import muonRecFlags
-
 ###logfile
 from AthenaCommon.Logging import log
+
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ###############################################################################
 ### Configure MuGirlTag###
@@ -61,15 +62,18 @@ def DCMathStauSegmentMaker( name="DCMathStauSegmentMaker", **kwargs ):
 
 def MuonStauChamberHoleRecoveryTool(name="MuonStauChamberHoleRecoveryTool",**kwargs):
    kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
+   if not MuonGeometryFlags.hasCSC():
+      kwargs.setdefault("CscRotCreator", "" )
+      kwargs.setdefault("CscPrepDataContainer", "" )
    return MuonChamberHoleRecoveryTool(name,**kwargs)
 
 def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):
     kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
     kwargs.setdefault("SegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
     kwargs.setdefault("SegmentMakerNoHoles", getPublicTool("DCMathStauSegmentMaker") )
-    if muonRecFlags.doNSWNewThirdChain():
+    if not MuonGeometryFlags.hasCSC():
        kwargs.setdefault("CscPrepDataContainer","")
-    else:
+    if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
        kwargs.setdefault("sTgcPrepDataContainer","")
        kwargs.setdefault("MMPrepDataContainer","")
 

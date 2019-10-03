@@ -31,6 +31,21 @@ rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
+
+
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+    recoLog.info("transform pre-exec")
+    for cmd in runArgs.preExec:
+        recoLog.info(cmd)
+        exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"): 
+    for fragment in runArgs.preInclude:
+        include(fragment)
+
+
 ## Input
 # BS
 DRAWInputs = [ prop for prop in dir(runArgs) if prop.startswith('inputDRAW') and prop.endswith('File')]
@@ -46,6 +61,7 @@ if len(DRAWInputs) == 1:
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( getattr(runArgs, DRAWInputs[0]) )
 elif len(DRAWInputs) > 1:
     raise RuntimeError('Impossible to run RAWtoESD with multiple input DRAW files (viz.: {0})'.format(DRAWInputs))
+
 
 # RDO
 if hasattr(runArgs,"inputRDOFile"):
@@ -219,18 +235,6 @@ if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):
     
 
 rec.OutputFileNameForRecoStep="RAWtoESD"
-
-## Pre-exec
-if hasattr(runArgs,"preExec"):
-    recoLog.info("transform pre-exec")
-    for cmd in runArgs.preExec:
-        recoLog.info(cmd)
-        exec(cmd)
-
-## Pre-include
-if hasattr(runArgs,"preInclude"): 
-    for fragment in runArgs.preInclude:
-        include(fragment)
 
 #========================================================
 # Central topOptions (this is one is a string not a list)

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
     Control/AthenaBaseComps
     Event/ByteStreamData
   PRIVATE
+    Control/AthenaMonitoring
     Event/ByteStreamCnvSvcBase
     Event/ByteStreamCnvSvc
     Event/xAOD/xAODEventInfo
@@ -35,6 +36,7 @@ atlas_add_library(
     ${TDAQ-COMMON_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES
     ${TDAQ-COMMON_LIBRARIES}
+    AthenaMonitoringLib
     ByteStreamCnvSvcBaseLib
     ByteStreamCnvSvcLib
     GaudiKernel
@@ -50,5 +52,5 @@ atlas_add_component(
 )
 
 # Install files from the package
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )

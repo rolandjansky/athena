@@ -15,10 +15,10 @@ def __generateJSON( chainDicts, chainConfigs, menuName ):
         streamDicts = []
         streamTags = StreamInfo.getStreamTags(chain["stream"])
         for streamTag in streamTags:
-            streamDicts.append({"name": streamTag[0],
-                                "type": streamTag[1],
-                                "obeyLB": streamTag[2],
-                                "forceFullEventBuilding": streamTag[3]})
+            streamDicts.append({"name": streamTag.name(),
+                                "type": streamTag.type(),
+                                "obeyLB": streamTag.obeysLumiBlock(),
+                                "forceFullEventBuilding": streamTag.forceFullEventBuilding()})
 
         l1Thresholds  = []
         [ l1Thresholds.append(p['L1threshold']) for p in chain['chainParts'] ]

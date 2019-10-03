@@ -17,7 +17,6 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
-muonRecFlags.doNSWNewThirdChain    = False
 muonCombinedRecFlags.doCaloTrkMuId = False
 muonCombinedRecFlags.printSummary = False
 
