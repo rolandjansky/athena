@@ -39,7 +39,7 @@ StatusCode EMRoIsUnpackingTool::start() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+StatusCode EMRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
   m_emThresholds.clear();
   using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
