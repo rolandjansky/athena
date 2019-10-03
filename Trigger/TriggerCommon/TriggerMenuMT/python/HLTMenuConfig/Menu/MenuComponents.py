@@ -572,9 +572,9 @@ class CFSequence(object):
 
 
 class ChainStep(object):
-    """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined"""
+    """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1]):
-        # one multiplicity value per sequence
+       
         self.name = name
         self.sequences=[]
         self.multiplicity = multiplicity
