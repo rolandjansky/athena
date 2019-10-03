@@ -7,6 +7,7 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doEgamma', True)
     acf.addFlag('DQ.Steering.HLT.doMET', True)
     acf.addFlag('DQ.Steering.HLT.doBjet', True)
+    acf.addFlag('DQ.Steering.HLT.doCalo', True)
     
     return acf
 
@@ -25,6 +26,10 @@ def TrigHLTMonitoringConfig(flags):
     if flags.DQ.Steering.HLT.doBjet:
         from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig
         result.merge(TrigBjetMonConfig(flags))
+
+    if flags.DQ.Steering.HLT.doCalo:
+        from TrigCaloMonitoring.TrigCaloMonitorAlgorithm import TrigCaloMonConfig
+        result.merge(TrigCaloMonConfig(flags))
 
     return result
 
