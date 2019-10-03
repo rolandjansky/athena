@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANALYSISTOP_TOPPARTONS_CALCThqPARTONHISTORY_H
@@ -24,7 +24,7 @@ namespace top{
       virtual ~CalcThqPartonHistory() {}
 
       struct tH_values{
-    //Higgs
+        //Higgs
         TLorentzVector Higgs_p4;
         TLorentzVector Tau1_from_Higgs_p4;
         int Tau1_from_Higgs_pdgId;
@@ -38,18 +38,18 @@ namespace top{
         int W_decay1_from_Tau1_pdgId;
         TLorentzVector W_decay2_from_Tau1_p4;
         int W_decay2_from_Tau1_pdgId;
-    TLorentzVector W_decay1_from_Tau2_p4;
+        TLorentzVector W_decay1_from_Tau2_p4;
         int W_decay1_from_Tau2_pdgId;
         TLorentzVector W_decay2_from_Tau2_p4;
         int W_decay2_from_Tau2_pdgId;
 
-    //Bools
-    int TauJets1; 
-    int TauJets2; 
+        //Bools
+        int TauJets1; 
+        int TauJets2; 
     
-    //b
-    TLorentzVector b_p4;
-    int b_pdgId;
+        //b
+        TLorentzVector b_p4;
+        int b_pdgId;
 
       }tH;
       //Storing parton history for ttbar resonance analysis
@@ -62,8 +62,8 @@ namespace top{
     //handle gamma radiation of taus
     const xAOD::TruthParticle* findAfterGamma(const xAOD::TruthParticle* particle);
 
-      ///Store the four-momentum of several particles in the Higgs decay chain
-      bool Higgstautau( const xAOD::TruthParticleContainer* truthParticles, int start);
+    ///Store the four-momentum of several particles in the Higgs decay chain
+    bool Higgstautau( const xAOD::TruthParticleContainer* truthParticles, int start);
 
     //Store four-momentum of bottom quark 
     bool bottom(const xAOD::TruthParticleContainer* truthParticles, int start);
@@ -74,7 +74,6 @@ namespace top{
 
   };
   
-
 }
 
 #endif
