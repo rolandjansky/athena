@@ -55,6 +55,7 @@ def TrigMETMonConfig(inputFlags):
     #    HLT_xe0noL1_l2fsperf_L1gXERHO50,HLT_xe0noL1_l2fsperf_L1gXEPUFIT50,
     #    HLT_xe0noL1_l2fsperf_pufit_L1gXERHO50,HLT_xe0noL1_l2fsperf_pufit_L1gXEPUFIT50
     # without filters, all events are processed.
+    TrigMETMonAlg.TriggerChain = 'L1_XE10'
     TrigMETMonChainAlg.TriggerChain = 'HLT_xe30_tcpufit_L1XE10'
     
 
@@ -88,7 +89,7 @@ def TrigMETMonConfig(inputFlags):
     metGroup = helper.addGroup(TrigMETMonAlg,'TrigMETMonitor','HLT/METMon/')
 
     # Add a GMT for the other example monitor algorithm
-    metChainGroup = helper.addGroup(TrigMETMonChainAlg,'TrigMETMonitor','HLT/METMon/Expert/Chain/')
+    metChainGroup = helper.addGroup(TrigMETMonChainAlg,'TrigMETMonitor','HLT/METMon/Chain/')
 
     ### STEP 5 ###
     # Configure histograms

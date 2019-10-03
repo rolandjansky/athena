@@ -137,20 +137,26 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
 
     // TDT test
+    ATH_MSG_INFO("MetMon: TST test");
+    if (m_trigDecTool->isPassed("L1_XE10")) {
+      ATH_MSG_INFO("passed L1_XE10");
+    } else {
+      ATH_MSG_INFO("not passed L1_XE10");
+    }
     if (m_trigDecTool->isPassed("HLT_xe30_cell_L1XE10")) {
       ATH_MSG_INFO("passed HLT_xe30_cell_L1XE10");
     } else {
       ATH_MSG_INFO("not passed HLT_xe30_cell_L1XE10");
     }
-    if (m_trigDecTool->isPassed("HLT_xe30_cell_xe30_tcpufit_L1XE10")) {
-      ATH_MSG_INFO("passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
-    } else {
-      ATH_MSG_INFO("not passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
-    }
     if (m_trigDecTool->isPassed("HLT_xe30_tcpufit_L1XE10")) {
       ATH_MSG_INFO("passed HLT_xe30_tcpufit_L1XE10");
     } else {
       ATH_MSG_INFO("not passed HLT_xe30_tcpufit_L1XE10");
+    }
+    if (m_trigDecTool->isPassed("HLT_xe30_cell_xe30_tcpufit_L1XE10")) {
+      ATH_MSG_INFO("passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
+    } else {
+      ATH_MSG_INFO("not passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
     }
 
     // check active triggers
