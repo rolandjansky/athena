@@ -80,24 +80,24 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
  private:
 
   // private method for the decoding RDO --> digits
-  StatusCode decodeMdtRDO();
-  StatusCode decodeMdt( const MdtCsm *, MdtDigitCollection*&, Identifier& );
+  StatusCode decodeMdtRDO(MdtDigitContainer*);
+  StatusCode decodeMdt(MdtDigitContainer*, const MdtCsm *, MdtDigitCollection*&, Identifier& );
 
-  StatusCode decodeCscRDO();
+  StatusCode decodeCscRDO(CscDigitContainer*);
   //  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*, Identifier&, CscRDO_Decoder& decoder );
-  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
+  StatusCode decodeCsc(CscDigitContainer*, const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
 
-  StatusCode decodeRpcRDO();
-  StatusCode decodeRpc( const RpcPad *, RpcDigitCollection*& );
+  StatusCode decodeRpcRDO(RpcDigitContainer*);
+  StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*& );
  
-  StatusCode decodeTgcRDO();
-  StatusCode decodeTgc( const TgcRdo *, Identifier&);
+  StatusCode decodeTgcRDO(TgcDigitContainer*);
+  StatusCode decodeTgc(TgcDigitContainer*, const TgcRdo *, Identifier&);
 
-  StatusCode decodeSTGC_RDO();
-  StatusCode decodeSTGC( const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
+  StatusCode decodeSTGC_RDO(sTgcDigitContainer*);
+  StatusCode decodeSTGC(sTgcDigitContainer*, const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
 
-  StatusCode decodeMM_RDO();
-  StatusCode decodeMM( const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
+  StatusCode decodeMM_RDO(MmDigitContainer*);
+  StatusCode decodeMM(MmDigitContainer*, const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
 
   StatusCode getTgcCabling();
 
@@ -119,14 +119,6 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   //  const MDTcablingSvc  * m_mdtCabling;
   const IRPCcablingSvc * m_rpcCabling;
   const ITGCcablingSvc * m_tgcCabling;
-
-  // digit containers
-  MdtDigitContainer *   m_mdtContainer;
-  CscDigitContainer *   m_cscContainer;
-  RpcDigitContainer *   m_rpcContainer;
-  TgcDigitContainer *   m_tgcContainer;
-  sTgcDigitContainer *   m_stgcContainer;
-  MmDigitContainer *   m_mmContainer;
 
   // algorithm properties
   bool m_decodeMdtRDO;
