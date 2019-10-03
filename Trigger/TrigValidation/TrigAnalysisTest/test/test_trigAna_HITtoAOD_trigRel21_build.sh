@@ -51,6 +51,7 @@ Reco_tf.py \
 --maxEvents=${EVENTS} \
 --inputRDOFile=RDO.pool.root \
 --outputRDO_TRIGFile=RDO_TRIG.pool.root \
+--triggerConfig="MCRECO:DBF:TRIGGERDBMC:2233,87,279" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 
@@ -68,9 +69,10 @@ echo "Running RDO_TRIG->AOD with Reco_tf command:"
 Reco_tf.py \
 --imf=True \
 --maxEvents=${EVENTS} \
---inputRDOFile=RDO_TRIG.pool.root \
+--inputRDO_TRIGFile=RDO_TRIG.pool.root \
 --outputAODFile=AOD.pool.root \
 --outputESDFile=ESD.pool.root \
+--steering="doRDO_TRIG" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 
