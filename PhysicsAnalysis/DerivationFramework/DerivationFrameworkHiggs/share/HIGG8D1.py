@@ -47,9 +47,9 @@ augmentationTools = []
 
 from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauSelectionWrapper
 HIGG8D1TauWrapper = DerivationFramework__TauSelectionWrapper(name = "HIGG8D1TauSelectionWrapper",
-                                                             IsTauFlag			= 19,
+                                                             IsTauFlag			= 29,
                                                              CollectionName		= "TauJets",
-                                                             StoreGateEntryName	= "HIGG8D1JetBDTSigLoose")
+                                                             StoreGateEntryName	= "HIGG8D1JetRNNSigLoose")
 ToolSvc += HIGG8D1TauWrapper
 augmentationTools.append(HIGG8D1TauWrapper)
 
@@ -276,11 +276,12 @@ if StoreAdditionalAmbiguityContent:
     thinningTools.append(HIGG8D1ElectronAddTPThinningTool)
 
 # Tracks associated with Taus
+HIGG8D1TauSelectionString = "(TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG8D1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "HIGG8D1TauTPThinningTool",
                                                                           ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
                                                                           TauKey                  = "TauJets",
-                                                                          SelectionString         = "TauJets.pt > 15*GeV",
+                                                                          SelectionString         = HIGG8D1TauSelectionString,
                                                                           ConeSize                = 0.6,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG8D1TauTPThinningTool
