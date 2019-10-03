@@ -201,7 +201,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
-def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, *pos_opts, **opts):
+def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, training='201810', *pos_opts, **opts):
     from AthenaCommon import Logging
 
     if logger is None:
@@ -214,14 +214,24 @@ def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, *pos_op
     if opts or pos_opts:
         logger.error('Options specified for VR jets, they will be ignored')
 
-    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger)
+    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger, training)
     linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
 
-def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
+def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False, training='201810'):
+
+    # Check allowed trainings
+    # Is there a better way to do this with a central DB?
+    if training not in ['201810', '201903']:
+      print "WARNING: Using an supported training tag! This is UNDEFINED, probably will default to 201810 training."
+
     from JetRec.JetRecStandard import jtm
 
-    VRJetName="AntiKtVR30Rmax4Rmin02Track"
-    VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
+    # If using the default training, we don't yet want the label (this will be added once validation is done)
+    # So only add the _201903 (etc.) for trainings that aren't 201810
+    trainingTag = '_BTagging%s' % (training) if training != '201810' else ''
+
+    VRJetName="AntiKtVR30Rmax4Rmin02Track%s" % (trainingTag)
+    VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet%s" % (trainingTag)
     VRJetAlg="AntiKt"
     VRJetRadius=0.4
     VRJetInputs='pv0track'
@@ -241,15 +251,19 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     # Build VR jets
     #==========================================================
 
-    VRJetAlgName = "jfind_%sJets" % (VRJetName)
-    VRJetRecToolName = "%sJets" % (VRJetName)
-    VRJetBTagName = "BTagging_%s" % (VRJetName)
+    VRJetRecToolName = "%sJets" % (VRJetName) if training == '201810' else VRJetName.replace('_BTagging','Jets_BTagging')
+    VRJetAlgName = "jfind_%s" % (VRJetRecToolName)
+    VRJetBTagName = "BTagging_%s" % (VRJetName.replace('BTagging',''))
+
+    print "VR Btag Name", VRJetBTagName
+    print "VR jet name ", VRJetRecToolName
 
     from AthenaCommon.AppMgr import ToolSvc
 
     #make the btagging tool for VR jets
     from BTagging.BTaggingFlags import BTaggingFlags
     BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+    BTaggingFlags.CalibrationChannelAliases += ["%s->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo" % (VRJetName)]
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
@@ -259,7 +273,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
         },
         SetupScheme = "",
         TaggerList = BTaggingFlags.ExpertTaggers if doFlipTagger else BTaggingFlags.StandardTaggers,
-        TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
+        TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks",
     )
 
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
@@ -320,10 +334,12 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     else:
         print "Add", pjgettername, "to jtm in sequence", sequence
 
+        inputContainerName = jetFlags.containerNamePrefix() + VRJetName + "Jets" if "BTagging" not in VRJetName else jetFlags.containerNamePrefix() + VRJetName.replace("_BTagging", "Jets_BTagging")
+
         from JetRec.JetRecConf import PseudoJetGetter
         jtm += PseudoJetGetter(
           pjgettername,                                                          # give a unique name
-          InputContainer = jetFlags.containerNamePrefix() + VRJetName + "Jets",  # SG key
+          InputContainer = inputContainerName,                                   # SG key
           Label = VRGhostLabel,                                                  # this is the name you'll use to retrieve ghost associated VR track jets
           OutputContainer = "PseudoJet" + VRGhostLabel,
           SkipNegativeEnergy = True,
@@ -342,8 +358,11 @@ def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
     # AntiKt10LCTopo hard-coded for now
     #==========================================================
     LargeRJetAlg     = "jfind_%s_%s" %(baseLargeRJets.lower(), VRJetName.lower())
-    LargeRJets       = "%s_%sJets"   %(baseLargeRJets, VRJetName)
     LargeRJetPrefix  = "%s_%s"       %(baseLargeRJets, VRJetName)
+    if '_BTagging' in LargeRJetPrefix:
+      LargeRJets = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
+    else:
+      LargeRJets       = "%sJets" % (LargeRJetPrefix)
     newLCTopo        = "%s_%s"            %(baseGetterMap, VRJetName.lower())
     LinkTransferAlg  = "LinkTransfer_%s_%s"     %(baseLargeRJets, VRJetName)
 
@@ -370,7 +389,7 @@ def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
         jetalg_largefr10_lctopo = JetAlgorithm(LargeRJetAlg, Tools = [ jtm[LargeRJets] ])
         sequence += jetalg_largefr10_lctopo
         DFJetAlgs[LargeRJetAlg] = jetalg_largefr10_lctopo
-
+    
     #==========================================================
     # Transfer the link from re-clustered jet to original jet
     # AntiKt10LCTopo hard-coded for now
