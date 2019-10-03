@@ -186,7 +186,6 @@ namespace Muon {
     bool m_excludeEES;
     bool m_onlyEO;
     bool m_useFitterOutlierLogic;
-    bool m_doNSW;
 
   };
 }
