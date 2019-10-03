@@ -30,7 +30,7 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) override;
   virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
-
+  virtual StatusCode start() override;
 private: 
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
     this, "OutputTrigRoIs", "JETRoIs", "Name of the RoIs object produced by the unpacker"};
