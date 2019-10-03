@@ -73,9 +73,9 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   MuonRdoToMuonDigitTool(const std::string& type, const std::string& name, const IInterface* pIID);
   ~MuonRdoToMuonDigitTool();
     
-  StatusCode initialize();
-  StatusCode digitize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode digitize()   override;
+  virtual StatusCode finalize()   override;
 
  private:
 
