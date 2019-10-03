@@ -684,7 +684,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     result.merge(acc)
     return result
     
-def MuonSegmentFindingCfg(flags):
+def MuonSegmentFindingCfg(flags, cardinality=1):
     # Set up some general stuff needed by muon reconstruction
     
     result = ComponentAccumulator()
@@ -697,10 +697,10 @@ def MuonSegmentFindingCfg(flags):
     result.addService( muon_edm_helper_svc )
 
     # We need to add two algorithms - one for normal collisions, one for NCB
-    acc = MooSegmentFinderAlgCfg(flags)
+    acc = MooSegmentFinderAlgCfg(flags, Cardinality=cardinality)
     result.merge(acc)
 
-    acc = MooSegmentFinderAlg_NCBCfg(flags)
+    acc = MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality)
     result.merge(acc)
     return result
 
@@ -759,7 +759,13 @@ if __name__=="__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    cfg.merge(MuonSegmentFindingCfg(ConfigFlags))
+    acc = MuonSegmentFindingCfg(ConfigFlags, cardinality=args.threads)
+    cfg.merge(acc)
+    
+    if args.threads>1:
+        # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
+        from GaudiHive.GaudiHiveConf import AlgResourcePool
+        cfg.addService(AlgResourcePool( OverrideUnClonable=True ) )
 
     # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
     # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
