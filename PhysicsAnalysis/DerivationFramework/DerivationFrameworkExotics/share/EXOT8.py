@@ -319,10 +319,10 @@ augmentationTools.append(TrigMatchAug)
 # Require 2 b-tags from the same algorithm
 
 #Write the taggers out by hand because we don't have a CDI
-bfix77_DL1r_2019   ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.224999999999999))'
+bfix77_DL1r_2019   ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.195))'
 bfix77_DL1rmu_2019 ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1rmu_pb/(0.03*BTagging_AntiKt4EMPFlow_201903.DL1rmu_pc+(1-0.03)*BTagging_AntiKt4EMPFlow_201903.DL1rmu_pu))>2.195))'
 bfix77_DL1_2019    ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1_pu))>2.015))'
-bfix77_MV2_2019    ='(count(BTagging_AntiKt4EMPFlow_201903.MV2c10_discriminant>0.689))'
+bfix77_MV2_2019    ='(count(BTagging_AntiKt4EMPFlow_201903.MV2c10_discriminant>0.691))'
 bfix77_DL1r_2018   ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1r_pb/(0.08*BTagging_AntiKt4EMPFlow_201810.DL1r_pc+(1-0.08)*BTagging_AntiKt4EMPFlow_201810.DL1r_pu))>0.7550000000000002))'
 bfix77_DL1rmu_2018 ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1rmu_pb/(0.03*BTagging_AntiKt4EMPFlow_201810.DL1rmu_pc+(1-0.03)*BTagging_AntiKt4EMPFlow_201810.DL1rmu_pu))>2.1650000000000005))'
 bfix77_DL1_2018    ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1_pb/(0.08*BTagging_AntiKt4EMPFlow_201810.DL1_pc+(1-0.08)*BTagging_AntiKt4EMPFlow_201810.DL1_pu))>1.4150000000000003))'
@@ -462,6 +462,7 @@ addStandardJets("AntiKt",0.2,"LCTopo", mods="lctopo_ungroomed", calibOpt="none",
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(exot8Seq)
 addVRJets(exot8Seq, do_ghost=True)
+addVRJets(exot8Seq, training='201903') #new trackjet training!
 
 # Also add Hbb Tagger
 addHbbTagger(exot8Seq, ToolSvc)
@@ -471,7 +472,8 @@ addHbbTagger(exot8Seq, ToolSvc,nn_file_name="BoostedJetTaggers/HbbTagger/Summer2
 
 # use alias for VR jets
 from BTagging.BTaggingFlags import BTaggingFlags
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track"]
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903->AntiKt4EMTopo"]
 
 #tag pFlow jets
 FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = exot8Seq)
@@ -524,6 +526,10 @@ EXOT8SlimmingHelper.SmartCollections = ["PrimaryVertices",
                                         "AntiKt2LCTopoJets",
                                         "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                         "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                        "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
                                         "AntiKt4EMPFlowJets",
                                         "AntiKt4EMPFlowJets_BTagging201810",
                                         "AntiKt4EMPFlowJets_BTagging201903",
@@ -580,14 +586,7 @@ EXOT8SlimmingHelper.AllVariables   = ["TruthEvents",
                                       "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
                                       ]
 
-EXOT8SlimmingHelper.StaticContent = [
-                                     "xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                     "xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.",
-                                     "xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
-                                     "xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.",
-                                     "xAOD::JetContainer#AntiKt10LCTopoCSSKJets",
-                                     "xAOD::JetAuxContainer#AntiKt10LCTopoCSSKJetsAux.",
-                                    ]
+EXOT8SlimmingHelper.StaticContent = []
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT8SlimmingHelper.AppendToDictionary = {
@@ -597,6 +596,8 @@ EXOT8SlimmingHelper.AppendToDictionary = {
     "BTagging_AntiKt4EMPFlow_201810Aux"              :   "xAOD::BTaggingAuxContainer",
     "BTagging_AntiKt4EMPFlow_201903"                 :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKt4EMPFlow_201903Aux"              :   "xAOD::BTaggingAuxContainer",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"                 :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"              :   "xAOD::BTaggingAuxContainer",
 }
                                
 # Save certain b-tagging variables for VR track-jet
@@ -607,7 +608,6 @@ EXOT8SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
-    "AntiKtVR30Rmax4Rmin02TrackGhostTagJets.GhostBHadronsFinal.GhostCHadronsFinal",
     "AntiKt10LCTopoJets.NumTrkPt500.NumTrkPt1000.SumPtTrkPt500.SumPtTrkPt1000.TrackWidthPt500.TrackWidthPt1000",
 ]
 
