@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTrigger
+   Trigger/TrigConfiguration/TrigConfData
    Trigger/TrigConfiguration/TrigConfHLTData
    Trigger/TrigConfiguration/TrigConfInterfaces
    Trigger/TrigConfiguration/TrigConfL1Data
@@ -33,7 +34,7 @@ find_package( ROOT COMPONENTS Core RIO )
 atlas_add_library( TrigConfxAODLib
    TrigConfxAOD/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfxAOD
-   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData
+   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData TrigConfData
    TrigConfInterfaces )
 
 if( NOT XAOD_STANDALONE )

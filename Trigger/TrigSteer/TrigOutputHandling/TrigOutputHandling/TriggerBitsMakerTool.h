@@ -8,7 +8,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
-
+#include "TrigConfData/HLTMenu.h"
 
 /**
  * @class TriggerBitsMakerTool
@@ -23,6 +23,7 @@ public:
   StatusCode fill( std::vector<uint32_t>& place ) const;
   
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
   virtual StatusCode finalize() override;
 
 private:
@@ -40,7 +41,7 @@ private:
 
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary", "Container with final chain decisions"  };
 
-  Gaudi::Property<std::string> m_menuJSON {this, "HLTmenuFile", "UNSET", "Filename of just-generated HLT Menu JSON used to configure the TriggerBitsMakerTool"};
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
 
   Gaudi::Property<std::map<std::string, uint32_t>> m_extraChainToBit { this, "ExtraChainToBit", {},
     "Special case and testing purposes hard-coded chain-to-bit mappings to use in addition to those from the HLT menu."};

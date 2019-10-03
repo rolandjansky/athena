@@ -52,24 +52,6 @@ TrigConfigSvc::initialize() {
 
       ATH_MSG_INFO("    => " << testsvc);
 
-      //////////////////////////////////////////////////////////////
-      // BEGIN RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
-      ////////////////////////////////////////////////////////////// 
-      if ( testsvc == "run3_dummy" ) {
-         ATH_CHECK( AAH::setProperty( m_hltSvc, "ConfigSource", testsvc ) );
-         if (m_hltSvc.retrieve().isSuccess()) {
-            m_hltservice = m_hltSvc.operator->();
-            ATH_MSG_WARNING("Got HLT Svc " << m_hltSvc.typeAndName() << ", will use R3 dummy menu");
-            hltfromxml = true;
-         } else {
-            ATH_MSG_FATAL("failed to retrieve HLT ConfigSvc: " << m_hltSvc << " using R3 dummy menu");
-            return StatusCode::FAILURE;
-         }
-      }
-      //////////////////////////////////////////////////////////////
-      // END RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
-      ////////////////////////////////////////////////////////////// 
-
       if ( testsvc == "ds" ) {
          if (m_dsSvc.retrieve().isSuccess()) {
             if(m_l1service==0) m_l1service = m_dsSvc.operator->();

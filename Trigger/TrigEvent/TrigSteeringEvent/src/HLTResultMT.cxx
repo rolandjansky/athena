@@ -96,8 +96,8 @@ const std::vector<uint32_t>& HLT::HLTResultMT::getHltBitsAsWords() {
   }
   m_hltBitWords.resize(m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks() + m_hltRerunBits.num_blocks());
   boost::to_block_range(m_hltPassRawBits, m_hltBitWords.begin());
-  boost::to_block_range(m_hltPrescaledBits, m_hltBitWords.begin());
-  boost::to_block_range(m_hltRerunBits, m_hltBitWords.begin());
+  boost::to_block_range(m_hltPrescaledBits, m_hltBitWords.begin() + m_hltPassRawBits.num_blocks());
+  boost::to_block_range(m_hltRerunBits, m_hltBitWords.begin() + m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks());
   return m_hltBitWords;
 }
 

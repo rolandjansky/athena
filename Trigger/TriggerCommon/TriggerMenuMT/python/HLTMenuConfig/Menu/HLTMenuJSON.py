@@ -5,7 +5,7 @@ from AthenaCommon.Logging import logging
 __log = logging.getLogger( 'HLTMenuJSON.py' )
 
 
-def __generateJSON( chainDicts, chainConfigs, menuName ):
+def __generateJSON( chainDicts, chainConfigs, menuName, menuFileName ):
     """ Generates JSON given the ChainProps and sequences
     """
     menuDict = {"name": menuName, "chains": []}
@@ -56,8 +56,8 @@ def __generateJSON( chainDicts, chainConfigs, menuName ):
 
         menuDict["chains"].append( chainDict )
 
-    __log.info( "Writing trigger menu to %s", fileName )
-    with open( fileName, 'w' ) as fp:
+    __log.info( "Writing trigger menu to %s", menuFileName )
+    with open( menuFileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=True )
 
 def generateJSON():
@@ -65,11 +65,18 @@ def generateJSON():
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
-
-    return __generateJSON( TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), TriggerFlags.triggerMenuSetup() )
+    return __generateJSON(
+        TriggerConfigHLT.dictsList(),
+        TriggerConfigHLT.configsList(),
+        TriggerFlags.triggerMenuSetup(),
+        TriggerFlags.outputHLTmenuJsonFile() )
     
 def generateJSON_newJO( chainDicts, chainConfigs ):
     __log.info("Generating HLT JSON config in the new JO")
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
                                     
-    return __generateJSON( chainDicts, chainConfigs, ConfigFlags.Trigger.triggerMenuSetup )
+    return __generateJSON(
+        chainDicts,
+        chainConfigs,
+        ConfigFlags.Trigger.triggerMenuSetup,
+        ConfigFlags.Trigger.outputHLTmenuJsonFile )

@@ -242,7 +242,6 @@ def triggerBSOutputCfg( flags, decObj ):
     stmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
         
     bitsmaker = TriggerBitsMakerTool()
-    bitsmaker.HLTmenuFile = flags.Trigger.HLTMenuJsonFile
     
     hltResultMakerTool            = HLTResultMTMakerCfg("MakerTool") # want short nme to see in the log
     hltResultMakerTool.MakerTools = [ serialiser, stmaker, bitsmaker ] 

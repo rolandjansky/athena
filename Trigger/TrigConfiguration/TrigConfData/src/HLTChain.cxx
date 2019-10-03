@@ -28,7 +28,7 @@ TrigConf::Chain::counter() const
 }
 
 unsigned int
-TrigConf::HLTChain::namehash() const
+TrigConf::Chain::namehash() const
 {
    return data().get_child("nameHash").get_value<unsigned int>();
 }

@@ -149,7 +149,6 @@ if configureBSResult:
             stmaker.PEBDecisionKeys.append(decisionKey)
 
     bitsmaker = TriggerBitsMakerTool()
-    bitsmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
 
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr

@@ -134,6 +134,11 @@ if TriggerFlags.doMT():
     svcMgr.HLTConfigSvc.InputType = "file"
     svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
     recoLog.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+    # We reverse the priority list here such that the HLTConfigSvc is used, rather than the DSConfigSvc
+    if not hasattr(svcMgr, 'TrigConfigSvc'):
+        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+        ServiceMgr += TrigConfigSvc("TrigConfigSvc")
+    ServiceMgr.TrigConfigSvc.PriorityList = ["xml", "ds"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
@@ -147,6 +152,24 @@ if TriggerFlags.doMT():
     l1Decoder = findAlgorithm( topSequence, "L1Decoder" )
     l1Decoder.ExtraInputs += [fakeTypeKey]
     l1Decoder.ctpUnpacker.ForceEnableAllChains=False # this will make HLT respecting L1 chain decisions
+
+    # Configure a stripped-down HLT Results Maker in order to generate the HLT trigger bits.
+    # Note: The HLTResultMT object is transient only here. It is used to fill the xAOD::TriggerDecision
+    # This ensures that trigger bits follow the same path online & in MC
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg, TriggerBitsMakerTool
+    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
+    bitsmakerTool                 = TriggerBitsMakerTool()
+    bitsmakerTool.OutputLevel = VERBOSE
+    #TIMM
+    hltResultMakerTool            = HLTResultMTMakerCfg("MakerTool")
+    hltResultMakerTool.MakerTools = [ bitsmakerTool ]
+    hltResultMakerAlg             = HLTResultMTMakerAlg()
+    hltResultMakerAlg.ResultMaker = hltResultMakerTool
+    topSequence += hltResultMakerAlg
+
+    # TIMM
+    ServiceMgr.MessageSvc.defaultLimit = 0
+    ServiceMgr.MessageSvc.enableSuppression = False
 
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
@@ -236,19 +259,19 @@ for i in outSequence.getAllChildren():
 
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
 
+        ### Produce the trigger bits:
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        topSequence += TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'WriteTrigDecisionToAOD' )
-        log.info('TrigDecision writing enabled')
+        tdm = TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
+        tdm.OutputLevel = VERBOSE         #  TIMM
+        topSequence += tdm
+        log.info('xTrigDecision writing enabled')
 
-        # Note: xAODMaker__TrigDecisionCnvAlg no longer needed. TrigDecisionMakerMT goes straight to xAOD
-        # Note: xAODMaker__TrigNavigationCnvAlg no longer needed. MT navigation is natively xAOD 
-        
-        # *** June 2019 TEMPORARY *** for use with TrigDecMakerMT until a proper config svc is available
-        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-        ServiceMgr += TrigConfigSvc("TrigConfigSvc")
-        ServiceMgr.TrigConfigSvc.PriorityList = ["run3_dummy", "ds", "xml"]
+        ### Produce the metadata:
+        from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+        md = TrigConf__xAODMenuWriterMT()
+        md.OutputLevel = VERBOSE # TIMM
+        topSequence += md
+        log.info('TriggerMenu Metadata writing enabled')
 
         # Still need to produce Run-2 style L1 xAOD output
         topSequence += RoIBResultToAOD("RoIBResultToxAOD")
@@ -273,15 +296,15 @@ for i in outSequence.getAllChildren():
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
-from TrigDecisionTool.TrigDecisionToolConf import *
+
 
 if hasattr(ToolSvc, 'TrigDecisionTool'):
     if TriggerFlags.doMT():
-        ToolSvc.TrigDecisionTool.NavigationFormat = "TrigComposite"
-        # To pick up hacked config svc
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+        # No functional TDT in MT in RDOtoRDOTrigger
+        pass
     else:
     	# Causes TDT to use Run-1 style behaviour in this part of the transform
+        from TrigDecisionTool.TrigDecisionToolConf import *
         ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
         ToolSvc.TrigDecisionTool.UseAODDecision = True
 
