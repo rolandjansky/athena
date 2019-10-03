@@ -161,14 +161,15 @@ StatusCode MuonCreatorAlg::execute()
     std::vector<double> ini_cbtrkspt(0);
     std::vector<double> ini_cbtrkseta(0);
     std::vector<double> ini_cbtrksphi(0);
-    std::vector<int>    ini_mstrksn(0);
-    std::vector<double> ini_mstrkspt(0);
-    std::vector<double> ini_mstrkseta(0);
-    std::vector<double> ini_mstrksphi(0);
     // ToDo:
+    std::vector<int>    ini_mstrksn(0);
+    // std::vector<double> ini_mstrkspt(0);
+    // std::vector<double> ini_mstrkseta(0);
+    // std::vector<double> ini_mstrksphi(0);
     std::vector<int>    ini_segsn(0);
-    std::vector<double> ini_segsphi(0);
-    std::vector<double> ini_segseta(0);
+    // std::vector<double> ini_segsphi(0);
+    // std::vector<double> ini_segseta(0);
+
 
     // Monitoring histograms
     auto muon_pt      = Monitored::Collection("muon_pt", ini_mupt);
@@ -181,15 +182,15 @@ StatusCode MuonCreatorAlg::execute()
     auto cbtrks_eta   = Monitored::Collection("cbtrks_eta", ini_cbtrkseta);
     auto cbtrks_phi   = Monitored::Collection("cbtrks_phi", ini_cbtrksphi);
     auto mstrks_n     = Monitored::Collection("mstrks_n", ini_mstrksn);
-    auto mstrks_pt    = Monitored::Collection("mstrks_pt", ini_mstrkspt);
-    auto mstrks_eta   = Monitored::Collection("mstrks_eta", ini_mstrkseta);
-    auto mstrks_phi   = Monitored::Collection("mstrks_phi", ini_mstrksphi);
+    // auto mstrks_pt    = Monitored::Collection("mstrks_pt", ini_mstrkspt);
+    // auto mstrks_eta   = Monitored::Collection("mstrks_eta", ini_mstrkseta);
+    // auto mstrks_phi   = Monitored::Collection("mstrks_phi", ini_mstrksphi);
     auto segs_n       = Monitored::Collection("segs_n", ini_segsn);
-    auto segs_eta     = Monitored::Collection("segs_eta", ini_segseta);
-    auto segs_phi     = Monitored::Collection("segs_phi", ini_segsphi);
-
-    auto monitorIt = Monitored::Group(m_monTool, muon_pt, muon_eta, muon_phi, satrks_pt, satrks_eta, satrks_phi, cbtrks_pt, cbtrks_eta, cbtrks_phi, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi, segs_n, segs_eta, segs_phi);
-
+    // auto segs_eta     = Monitored::Collection("segs_eta", ini_segseta);
+    // auto segs_phi     = Monitored::Collection("segs_phi", ini_segsphi);
+    
+    auto monitorIt = Monitored::Group(m_monTool, muon_pt, muon_eta, muon_phi, satrks_pt, satrks_eta, satrks_phi, cbtrks_pt, cbtrks_eta, cbtrks_phi, mstrks_n, segs_n);
+    
     // Muon
     for (auto const& muon : *(wh_muons.ptr())) {
       ini_mupt.push_back(muon->pt()/1000.0); // converted to GeV
@@ -206,18 +207,18 @@ StatusCode MuonCreatorAlg::execute()
 
     // Combined tracks
     for (auto const& cbtrk : *(wh_combtp.ptr())) {
-      ini_cbtrkspt.push_back(cbtrk->pt()/1000.0); // converted to GeV
-      ini_cbtrkseta.push_back(cbtrk->eta());
-      ini_cbtrksphi.push_back(cbtrk->phi());
+	ini_cbtrkspt.push_back(cbtrk->pt()/1000.0); // converted to GeV
+	ini_cbtrkseta.push_back(cbtrk->eta());
+	ini_cbtrksphi.push_back(cbtrk->phi());
     }
-    
+
     // MS-only extrapolated tracks
     int count_mstrks = 0;
     for (auto const& mstrk : *(wh_msextrtp.ptr())) {
       count_mstrks++;
-      ini_mstrkspt.push_back(mstrk->pt()/1000.0); // converted to GeV
-      ini_mstrkseta.push_back(mstrk->eta());
-      ini_mstrksphi.push_back(mstrk->phi());
+      // ini_mstrkspt.push_back(mstrk->pt()/1000.0); // converted to GeV
+      // ini_mstrkseta.push_back(mstrk->eta());
+      // ini_mstrksphi.push_back(mstrk->phi());
     }
     ini_mstrksn.push_back(count_mstrks);
 
