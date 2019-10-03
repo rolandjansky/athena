@@ -265,7 +265,7 @@ class TrigMufastHypoConfig(object):
         tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            if (thvalue is 'passthrough'):
+            if (thvalue == 'passthrough'):
                 tool.PtBins[th] = [-10000.,10000.]
                 tool.PtThresholds[th] = [ -1. * GeV ]
                 tool.AcceptAll = True
@@ -284,7 +284,6 @@ class TrigMufastHypoConfig(object):
                 try:
                     tool.AcceptAll = False
                     values = muFastThresholds[thvaluename]
-                    print values
                     tool.PtBins[th] = values[0]
                     tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
                     log.debug('Configration of threshold[%d] %s', th, tool.PtThresholds[th])
@@ -409,7 +408,7 @@ class TrigmuCombHypoConfig(object):
         tool.PtThresholds = [ [ 5.83 * GeV ] ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            if thvalue is 'passthrough':
+            if thvalue == 'passthrough':
                 tool.AcceptAll = True
                 tool.PtBins[th] = [-10000.,10000.]
                 tool.PtThresholds[th] = [ -1. * GeV ]

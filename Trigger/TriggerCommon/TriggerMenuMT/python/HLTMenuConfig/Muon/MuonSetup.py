@@ -869,7 +869,6 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
 
   #Need to configure tools to avoid accessing calo data in muon trigger
-
   theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyTool", "MuidCaloEnergyTool", EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
 
   from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
