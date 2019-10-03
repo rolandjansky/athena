@@ -188,6 +188,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
         stepName = 'Step5_muInvM'
         log.debug("Configuring step " + stepName)
         seq = RecoFragmentsPool.retrieve( muEFCBInvMSequenceCfg, None)
-        return ChainStep(stepName, [seq], multiplicity=1)
+        return ChainStep(stepName, [seq], multiplicity=[1])
 
 

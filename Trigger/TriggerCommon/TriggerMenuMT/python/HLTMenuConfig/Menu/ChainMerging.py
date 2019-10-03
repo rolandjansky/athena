@@ -49,6 +49,7 @@ def mergeParallel(chainDefList, offset):
     myOrderedSteps = deepcopy(orderedSteps)
 
     combChainSteps =[]
+    # why do we need to order he steps?
     for steps in myOrderedSteps:
         mySteps = list(steps)
         combStep = makeChainSteps(mySteps)
@@ -74,7 +75,7 @@ def mergeParallel(chainDefList, offset):
 def makeChainSteps(steps):
     stepName = ''
     stepSeq = []
-    stepMult = 0
+    stepMult = []
     stepNumber = ''
     log.debug(" steps %s ", steps)
     stepName = "merged"
@@ -82,12 +83,12 @@ def makeChainSteps(steps):
         if step is None:
             continue
         if len(step.sequences) > 1:
-            log.error("More than one menu sequence found in combined chain!!")
+            log.error("More than one menu sequence found in combined chain!!") # why cannot happen?
         seq = step.sequences[0]
         log.debug(" step type  %s", type(step.sequences))
         log.debug(" step.name %s", step.name)
         log.debug(" step.seq %s", step.sequences)
-        log.debug(" step.mult %s", step.multiplicity)
+        log.debug(" step.mult %s", sum(step.multiplicity))
         currentStep = step.name
         stepNameParts = currentStep.split('_')
         if stepNumber == '':
@@ -96,13 +97,14 @@ def makeChainSteps(steps):
         # the step naming for combined chains needs to be revisted!!
         stepName += '_' +step.name #stepNumber + '_' + stepNameParts[1]
         stepSeq.append(seq)
-        stepMult += step.multiplicity
+        stepMult.append(sum(step.multiplicity))
+        #stepMult += step.multiplicity
         
     log.debug(" - BB stepName %s", stepName)
     log.debug(" - BB stepSeq %s", stepSeq)
     log.debug(" - BB stepMult %s", stepMult)
     
-    theChainStep = ChainStep(stepName, stepSeq, stepMult)
+    theChainStep = ChainStep(stepName, stepSeq, stepMult) 
     log.debug(" - BBB the chain step %s", theChainStep)
     
     return theChainStep
