@@ -35,7 +35,6 @@ namespace Muon {
             ATH_MSG_WARNING(" Cannot retrieve CscIdHelper, please consider setting HasCSC property to false in the future when running a layout without CSC chambers");
             m_hasCSC = false;
             m_cscIdHelper = nullptr;
-
         }
     } else m_cscIdHelper = nullptr;
     if ( detStore()->retrieve( m_rpcIdHelper ).isFailure() ) {

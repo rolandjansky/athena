@@ -30,7 +30,7 @@ inline void CscIdHelper::create_mlog() const
 /// Constructor/Destructor
 
 CscIdHelper::CscIdHelper() : MuonIdHelper(), m_CHAMBERLAYER_INDEX(0),
-  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0) {}
+  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0), m_hasChamLay1(false) {}
 
 /// Destructor
 
@@ -340,6 +340,8 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	   << "Initializing CSC hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
   
+  // check whether the current layout contains chamberLayer 1 Identifiers (pre-Run3) in the vector of module Identifiers
+  if (m_module_vec.size() && chamberLayer(m_module_vec.at(0))==1) m_hasChamLay1 = true;
   m_init = true;
   return (status);
 }
@@ -367,11 +369,24 @@ int CscIdHelper::init_id_to_hashes() {
   return 0;
 }
 
-int CscIdHelper::get_module_hash(const Identifier& id,
-                                 IdentifierHash& hash_id) const {
-  //Identifier moduleId = elementID(id);
-  //IdContext context = module_context();
-  //return get_hash(moduleId,hash_id,&context);
+
+int CscIdHelper::get_module_hash(const Identifier& id, IdentifierHash& hash_id) const {
+  // if the current layout contains Identifiers for CSC chamberLayer 1, need to call the
+  // get_module_hash function with an Identifier which is actually from chamberLayer 1
+  if (m_hasChamLay1) return MuonIdHelper::get_module_hash(parentID(id), hash_id);
+  // otherwise just use the default implementation
+  return MuonIdHelper::get_module_hash(id, hash_id);
+}
+int CscIdHelper::get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const {
+  // if the current layout contains Identifiers for CSC chamberLayer 1, need to call the
+  // get_detectorElement_hash function with an Identifier which is actually from chamberLayer 1
+  if (m_hasChamLay1) return MuonIdHelper::get_detectorElement_hash(parentID(id), hash_id);
+  // otherwise just use the default implementation
+  return MuonIdHelper::get_detectorElement_hash(id, hash_id);
+}
+  
+int CscIdHelper::get_geo_module_hash(const Identifier& id,
+                                   IdentifierHash& hash_id) const {
   int station   = this->stationName(id);
   int eta       = this->stationEta(id) + 2; // for negative etas
   int phi       = this->stationPhi(id);
@@ -379,7 +394,7 @@ int CscIdHelper::get_module_hash(const Identifier& id,
   return 0;
 }
 
-int CscIdHelper::get_detectorElement_hash(const Identifier& id,
+int CscIdHelper::get_geo_detectorElement_hash(const Identifier& id,
                                           IdentifierHash& hash_id) const {
   //Identifier multilayerId = multilayerID(id);
   //IdContext context = multilayer_context();
@@ -392,9 +407,9 @@ int CscIdHelper::get_detectorElement_hash(const Identifier& id,
   return 0;
 }
 
-int CscIdHelper::get_channel_hash(const Identifier& id, IdentifierHash& hash_id) const {
+int CscIdHelper::get_geo_channel_hash(const Identifier& id, IdentifierHash& hash_id) const {
   const IdContext context=this->channel_context();
-  return get_hash_calc(id,hash_id,&context);
+  return get_geo_hash_calc(id,hash_id,&context);
 }
 
 void CscIdHelper::idChannels (const Identifier& id, std::vector<Identifier>& vect) const {
@@ -835,12 +850,16 @@ bool CscIdHelper::validElement(const Identifier& id, int stationName,
       (stationEta > stationEtaMax(id)) ||
       (0 == stationEta)                 )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationEta=" << stationEta
-	       << " for stationName=" << name
-	       << " stationEtaMin=" << stationEtaMin(id)
-	       << " stationEtaMax=" << stationEtaMax(id)
-	       << endmsg;
+      static bool stationWarningPrinted=false;
+      if (!stationWarningPrinted) {
+          (*m_Log) << MSG::WARNING
+         << "Invalid stationEta=" << stationEta
+         << " for stationName=" << name
+         << " stationEtaMin=" << stationEtaMin(id)
+         << " stationEtaMax=" << stationEtaMax(id)
+         << endmsg;
+        stationWarningPrinted=true;
+      }
       return false;
     }
   if ((stationPhi < stationPhiMin(id)) ||
@@ -909,7 +928,7 @@ bool CscIdHelper::validChannel(const Identifier& id, int stationName, int statio
 }
 
 // Create hash from compact
-int CscIdHelper::get_hash_calc   (const Identifier& compact_id,
+int CscIdHelper::get_geo_hash_calc   (const Identifier& compact_id,
 				  IdentifierHash& hash_id,
 				  const IdContext* context) const
 {
@@ -922,10 +941,10 @@ int CscIdHelper::get_hash_calc   (const Identifier& compact_id,
   if (0 == begin) {
     // No hashes yet for ids with prefixes
     if (m_MODULE_INDEX == end) {
-      result = this->get_module_hash(compact_id, hash_id);
+      result = get_geo_module_hash(compact_id, hash_id);
     }
     else if (m_DETECTORELEMENT_INDEX == end) {
-      result = this->get_detectorElement_hash(compact_id, hash_id);
+      result = get_geo_detectorElement_hash(compact_id, hash_id);
     }
     else if (m_CHANNEL_INDEX == end) {
       int stationIndex         = stationName(compact_id);
