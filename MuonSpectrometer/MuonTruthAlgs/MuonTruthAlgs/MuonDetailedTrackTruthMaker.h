@@ -48,8 +48,9 @@ private:
   // Tool Handle for truth tool
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
 
-  bool m_useNSW;
   bool m_hasCSC;
+  bool m_hasSTgc;
+  bool m_hasMM;
 
 };
 

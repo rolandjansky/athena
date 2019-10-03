@@ -63,7 +63,6 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.useTGCPriorNextBC",False) # Use TGC measurements from Prior and Next Bunch Crossings. These measurements are available in the real data since somewhere in 2008.
     mcf.addFlag("Muon.useAlignmentCorrections",False) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
     mcf.addFlag("Muon.useWireSagCorrections",False) # tApply wire sag corrections.
-    #   doNSWNewThirdChain redundant - check e.g. Detector.GeometryCSC   
     
     # makePRDs - surely this is top level and redundant with makeRIO?
     

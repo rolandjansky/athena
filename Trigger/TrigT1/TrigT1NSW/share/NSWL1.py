@@ -34,7 +34,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.AllowIgnoreConfigError=False #This job will stop if an include fails.
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-RUN12-SDR-25")
-globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R3-2021-00-00-00")
+globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R3S-2021-01-00-00")
 
 from RecExConfig.RecFlags import rec as recFlags 
 recFlags.doNameAuditor = True
@@ -82,11 +82,14 @@ from AtlasGeoModel import GeoModelInit
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
+# use the symmetric NSW layout (no CSCs anymore)
 GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.09.00.NSW"
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-MuonDetectorTool=MuonDetectorTool(UseCSC=False)
+MuonDetectorTool=MuonDetectorTool(HasCSC=False, HasSTgc=True, HasMM=True)
 DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
-DetDescrCnvSvc.UseCSC = False
+DetDescrCnvSvc.HasCSC = False
+DetDescrCnvSvc.HasSTgc = True
+DetDescrCnvSvc.HasMM = True
 
 
 

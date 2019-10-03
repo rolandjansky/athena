@@ -1081,7 +1081,7 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
     }
 
     //add here the CscDetectorElement and/or add this readoutElement to the DetectorElement
-    IdentifierHash idh = x->collectionHash(); 
+    IdentifierHash idh = x->detectorElementHash(); 
     if ( idh< CscDetElMaxHash ) 
     {
 	if ( !(m_cscDEArray[idh]) )

@@ -73,7 +73,7 @@ namespace Muon {
     m_trackFitterPrefit("Trk::GlobalChi2Fitter/MCTBFitter"),                          
     m_hitHandler("Muon::MuPatHitTool/MuPatHitTool"),
     m_momentumEstimator("MuonSegmentMomentum/MuonSegmentMomentum"),
-    m_magFieldProperties(Trk::NoField),
+    m_magFieldProperties(Trk::FullField),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
@@ -102,6 +102,7 @@ namespace Muon {
     declareProperty("TrackCleaner",m_cleaner);
     declareProperty("SegmentInOverlapTool",m_overlapResolver);
 
+    declareProperty("SLProp",              m_slProp = false, "Enable straight line propagation");
     declareProperty("SLFit",               m_slFit = true);
     declareProperty("RunOutlier",          m_runOutlier = false);
     declareProperty("MatEffects",          m_matEffects = 2);
@@ -141,6 +142,7 @@ namespace Muon {
     // Configuration of the material effects
     Trk::ParticleSwitcher particleSwitch;
     m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
+    m_magFieldProperties = m_slProp ? Trk::NoField : Trk::FullField;
 
     ATH_CHECK( m_trackToSegmentTool.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );

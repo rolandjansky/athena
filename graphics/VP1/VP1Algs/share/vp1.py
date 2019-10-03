@@ -90,8 +90,8 @@ if (vp1InputFiles == []):
     # Set geometry version
     if (not "DetDescrVersion" in dir()):
         if (vp1NSW): 
-            print("You set the '-nsw' flag, so the Geometry Tag 'ATLAS-R3-2021-00-00-00' will be used...")
-            DetDescrVersion="ATLAS-R3-2021-00-00-00"
+            print("You set the '-nsw' flag, so the Geometry Tag 'ATLAS-R3S-2021-01-00-00' will be used...")
+            DetDescrVersion="ATLAS-R3S-2021-01-00-00"
             globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
         else:
             #DetDescrVersion = "ATLAS-GEO-20-00-01" # old
