@@ -28,3 +28,5 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist )
                       src/components/*.cxx
 		      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps MuonPrepRawData MuonIdHelpers NSWCalibToolsLib )
+
+atlas_install_python_modules( python/*.py )

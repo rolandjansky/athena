@@ -129,7 +129,8 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_timeJitterElectronicsStrip(0),
     m_timeJitterElectronicsPad(0),
     m_hitTimeMergeThreshold(0),
-    m_energyDepositThreshold(300.0*CLHEP::eV)
+    m_energyDepositThreshold(300.0*CLHEP::eV),
+    m_smearingTool("Muon::NSWSmearingTool/NSWSmearingTool",this)
 
 {
   declareInterface<IMuonDigitizationTool>(this);
@@ -1024,13 +1025,19 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
     for(std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
       for(std::vector< sTgcDigit >::iterator it_digit = it_REID->second.begin(); it_digit != it_REID->second.end(); ++it_digit){
+
+	// apply the smearing before adding the digit
+	
+
         sTgcDigit* finalDigit = new sTgcDigit(it_digit->identify(), it_digit->bcTag(), it_digit->time(), it_digit->charge(), it_digit->isDead(), it_digit->isPileup());
         digitCollection->push_back(finalDigit);
         ATH_MSG_VERBOSE("Final Digit") ;
         ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
         ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
         ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
+
       } // end of loop for all the digit object of the same ReadoutElementID
+
     } // end of loop for all the ReadoutElementID
 
     if(digitCollection->size()){
