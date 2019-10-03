@@ -34,6 +34,8 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
     kwargs.setdefault('MultiThreading', is_hive)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
 
     kwargs.setdefault('TruthRecordService', simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')
