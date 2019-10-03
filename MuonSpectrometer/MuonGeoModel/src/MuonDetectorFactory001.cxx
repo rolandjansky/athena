@@ -90,7 +90,7 @@ namespace MuonGM {
     : m_includeCutouts(0), m_includeCutoutsBog(0), m_includeCtbBis(0), m_rdb(1), m_controlAlines(0),
       m_minimalGeoFlag(0), m_controlCscIntAlines(0), m_dumpAlines(false), m_dumpCscIntAlines(false),
       m_useCscIntAlinesFromGM(true), m_caching(0), m_cacheFillingFlag(0), m_mdtDeformationFlag(0),
-      m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_useCSC(true), m_muon(NULL), m_manager(NULL),
+      m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_muon(NULL), m_manager(NULL),
       m_pDetStore(pDetStore), m_pRDBAccess(0)
   {
     MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
@@ -195,139 +195,42 @@ namespace MuonGM {
   
     StatusCode sc =StatusCode::SUCCESS;
 
-    //     if (m_idhfromconverters != 0)
-    //     {
-
-    const MdtIdHelper*  mdtidh = nullptr;
+    const DataHandle<MdtIdHelper> mdtidh;
     sc = m_pDetStore->retrieve(mdtidh,"MDTIDHELPER");
     if (sc.isFailure())log<<MSG::ERROR<<" not found MDT "<<endmsg;
     else log<<MSG::INFO<<"MDTIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_mdtIdHelper(mdtidh);
-    const RpcIdHelper* rpcidh = nullptr;
+    const DataHandle<RpcIdHelper> rpcidh;
     sc = m_pDetStore->retrieve(rpcidh,"RPCIDHELPER");
     if (sc.isFailure() )log<<MSG::ERROR<<" not found RPC "<<endmsg;
     else log<<MSG::INFO<<"RPCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_rpcIdHelper(rpcidh);
-    const TgcIdHelper* tgcidh = nullptr;
+    const DataHandle<TgcIdHelper> tgcidh;
     sc = m_pDetStore->retrieve(tgcidh,"TGCIDHELPER");
     if (sc.isFailure() )log<<MSG::ERROR<<" not found TGC "<<endmsg;
     else log<<MSG::INFO<<"TGCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_tgcIdHelper(tgcidh);
-    if (m_useCSC) {
+    if (m_hasCSC) {
         const DataHandle<CscIdHelper> cscidh;
         sc = m_pDetStore->retrieve(cscidh,"CSCIDHELPER");
         if (sc.isFailure() )log<<MSG::ERROR<<" not found CSC "<<endmsg;
         else log<<MSG::INFO<<"CSCIDHELPER retrieved from DetStore"<<endmsg;
         m_manager->set_cscIdHelper(cscidh);
     }
-
-    //for nSW
-    const sTgcIdHelper* stgcidh = nullptr;
-    sc = m_pDetStore->retrieve(stgcidh,"STGCIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found sTGC "<<endmsg;
-    else log<<MSG::INFO<<"STGCIDHELPER retrieved from DetStore"<<endmsg;
-    m_manager->set_stgcIdHelper(stgcidh);
-
-    const MmIdHelper* mmidh = nullptr;
-    sc = m_pDetStore->retrieve(mmidh,"MMIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found MicroMegas "<<endmsg;
-    else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endmsg;
-    m_manager->set_mmIdHelper(mmidh);
-
-
-
-    //     }
-    //     else 
-    //     {
-
-    // // hand-made IdHelper Initialization 
-    // // MdtIdHelper
-    // bool mdtidhInitialized=false;
-    // MdtIdHelper *mdtidh = new MdtIdHelper;
-    // const IdDictManager * idDictMgr = 0; 
-    // sc = m_pDetStore->retrieve(idDictMgr, "IdDict");
-    // if (sc.isFailure()) {
-    //   log<<MSG::ERROR << " Could not get IdDictManager !" << endmsg;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, could not get IdDictManager");
-    // }
-    
-    
-    // //  if (StatusCode::SUCCESS == sc) {
-    // if (idDictMgr) {
-    //   if (!idDictMgr->initializeHelper(*mdtidh)) { // Returns 1 if there is a problem
-    //     mdtidhInitialized=true;
-    //     log<<MSG::INFO << " MdtIdHelper has been initialised! "
-    //        << endmsg;
-    //   }
-    //   else 
-    //   {
-    //     log<<MSG::WARNING<<" IdDictManager found BUT initializeHelper ="
-    //        <<idDictMgr->initializeHelper(*mdtidh)<<endmsg;
-    //   }
-    // }
-    // else log<<MSG::WARNING<<" IdDictManager not found in the Detector Store"<<endmsg;
-    // //  }
-    // //  else log<<MSG::ERROR<<" FAILURE:: IdDictManager not found in the Detector Store"
-    // //<<endmsg;
-    // if (!mdtidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize MdtIdHelper ! "
-    //      << endmsg;
-    //   delete mdtidh;
-    //   mdtidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize MdtIdHelper");
-    // }
-    // m_manager->set_mdtIdHelper(mdtidh);
-    
-    // // CscIdHelper
-    // bool cscidhInitialized=false;
-    // CscIdHelper *cscidh = new CscIdHelper;
-    // if (!idDictMgr->initializeHelper(*cscidh)) { // Returns 1 if there is a problem
-    //   cscidhInitialized=true;
-    //   log<<MSG::INFO << " CscIdHelper has been initialised! "
-    //      << endmsg;
-    // }
-    // if (!cscidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize CscIdHelper ! " << endmsg;
-    //   delete cscidh;
-    //   cscidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize CscIdHelper");
-    //   return;
-    // }  
-    // m_manager->set_cscIdHelper(cscidh);
-  
-    // // RpcIdHelper
-    // bool rpcidhInitialized=false;
-    // RpcIdHelper *rpcidh = new RpcIdHelper;
-    // if (!idDictMgr->initializeHelper(*rpcidh)) { // Returns 1 if there is a problem
-    //   rpcidhInitialized=true;
-    //   log<<MSG::INFO << " RpcIdHelper has been initialised! " << endmsg;
-    // }
-    // if (!rpcidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize RpcIdHelper ! " << endmsg;
-    //   delete rpcidh;
-    //   rpcidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize RpcIdHelper");
-    //   return;
-    // }  
-    // m_manager->set_rpcIdHelper(rpcidh);
-
-    // // TgcIdHelper
-    // bool tgcidhInitialized=false;
-    // TgcIdHelper *tgcidh = new TgcIdHelper;
-    // if (!idDictMgr->initializeHelper(*tgcidh)) { // Returns 1 if there is a problem
-    //   tgcidhInitialized=true;
-    //   log<<MSG::INFO << " TgcIdHelper has been initialised! " << endmsg;
-    // }
-    // if (!tgcidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize TgcIdHelper ! " << endmsg;
-    //   delete tgcidh;
-    //   tgcidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize TgcIdHelper");
-    //   return;
-    // }  
-    // m_manager->set_tgcIdHelper(tgcidh);
-    // //}
-  
+    if (m_hasSTgc) {
+        const DataHandle<sTgcIdHelper> stgcidh;
+        sc = m_pDetStore->retrieve(stgcidh,"STGCIDHELPER");
+        if (sc.isFailure() )log<<MSG::ERROR<<" not found sTGC "<<endmsg;
+        else log<<MSG::INFO<<"STGCIDHELPER retrieved from DetStore"<<endmsg;
+        m_manager->set_stgcIdHelper(stgcidh);
+    }
+    if (m_hasMM) {
+        const DataHandle<MmIdHelper> mmidh;
+        sc = m_pDetStore->retrieve(mmidh,"MMIDHELPER");
+        if (sc.isFailure() )log<<MSG::ERROR<<" not found MicroMegas "<<endmsg;
+        else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endmsg;
+        m_manager->set_mmIdHelper(mmidh);
+    }
 
     if (m_dumpMemoryBreakDown)
       {

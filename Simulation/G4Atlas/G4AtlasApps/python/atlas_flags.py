@@ -326,15 +326,6 @@ class VertexOverrideEventFile(JobProperty):
     allowedTypes = ['str']
     StoredValues = 'VertexOverrideEventFile.txt'
 
-class SimulateNewSmallWheel(JobProperty):
-    """
-    Will this job simulate the New Small Wheel in the Muon
-    Spectrometer?
-    """
-    statusOn = False
-    allowedTypes = ['bool']
-    StoredValue = False
-
 class BeamEffectOptions(JobProperty):
     """
     Set options for beam effects transport
