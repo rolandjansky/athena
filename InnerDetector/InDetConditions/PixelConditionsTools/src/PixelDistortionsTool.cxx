@@ -107,36 +107,28 @@ bool
 PixelDistortionsTool::initializeDistortions() 
 {
   m_ownDistortions = true;
-  StatusCode sc;
 
   switch (m_inputSource) {
   case 0: // no bow correction
     m_distortions = 0;
     return false;
-    break;
   case 1: // constant bow
     m_distortions = generateConstantBow();
     return true;
-    break;
   case 2: // read from file
     m_distortions = readFromTextFile();
     return m_distortions; // converts to bool
-    break;
   case 3: // random generation
     m_distortions = generateRandomBow();
     return m_distortions; // converts to bool
-    break;
   case 4: // read from database here 
     m_ownDistortions = false;
     m_distortions  = 0;
-    sc = registerCallBack();
-    return !sc.isFailure();
-    break;
+    return !((StatusCode) registerCallBack().isFailure());
   default: // any other case: do not apply bow correction
     if(msgLvl(MSG::WARNING))msg(MSG::WARNING) << "Input source option " << m_inputSource 
 	  << " is not implemented: no bow correction is applied" << endreq;
     return false;
-    break;
   }
   // return a random value. The program never gets here anyway.
   // but it's needed to fix a compilation warning.
