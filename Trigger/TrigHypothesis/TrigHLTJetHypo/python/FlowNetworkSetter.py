@@ -27,7 +27,7 @@ class FlowNetworkSetter(object):
         # completed because simple can conain any single jet condition
         self.tool_factories = {
             'et': [TrigJetConditionConfig_et, 0], 
-            'eta': [TrigJetConditionConfig_eta, 0],
+            'eta': [TrigJetConditionConfig_abs_eta, 0],
             }
 
         self.nodeToParent=defaultdict(list)
