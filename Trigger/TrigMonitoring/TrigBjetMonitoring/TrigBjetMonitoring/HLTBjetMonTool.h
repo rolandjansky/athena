@@ -67,7 +67,6 @@ class HLTBjetMonTool : public IHLTMonTool {
   std::vector<std::string> m_Shifter_jSplit, m_Expert_jSplit, m_Shifter_jUnSplit,  m_Expert_jUnSplit, m_Shifter_mujet, m_Expert_mujet;
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey;
-  //SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey {this,"PriVtxKey","HLT_EFHistoPrmVtx","Key of bjet primary vertexes"}; // Tim Martin 170919
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 

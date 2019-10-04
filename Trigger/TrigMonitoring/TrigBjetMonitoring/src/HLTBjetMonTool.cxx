@@ -1023,14 +1023,14 @@ StatusCode HLTBjetMonTool::book(){
 	
       } // Run2 access 
       else { // Run3 access
-	ATH_MSG_INFO("  ===> Run 3 access for Trigger Item: " << trigItem);
+	ATH_MSG_DEBUG("  ===> Run 3 access for Trigger Item: " << trigItem);
 
 	// online PV from SG
 
 	SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey);
 	for (const xAOD::Vertex* vtx : *vtxContainer) {
 	  if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-	    ATH_MSG_INFO("        PVz_jet from SG: " << vtx->z());
+	    ATH_MSG_DEBUG("        PVz_jet from SG: " << vtx->z());
 	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
 	  } // if vtx type
 	} // loop on vtxContainer
@@ -1048,7 +1048,7 @@ StatusCode HLTBjetMonTool::book(){
 	  if (ijet == 0) {
 	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
-	    ATH_MSG_INFO("        PVz_jet from jet link info: " << vtx->z());
+	    ATH_MSG_DEBUG("        PVz_jet from jet link info: " << vtx->z());
 	    // if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
 	  }
 	  ijet++;
