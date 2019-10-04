@@ -17,6 +17,6 @@ DECLARE_COMPONENT( BTagJetPtScaling )
 DECLARE_COMPONENT( BTagTool )
 DECLARE_COMPONENT( JetBTaggerTool )
 DECLARE_COMPONENT( JetBTaggerAlg )
-
+DECLARE_COMPONENT( BTagTrackAugmenterAlg )
 /** factory entries need to have the name of the package */
 
