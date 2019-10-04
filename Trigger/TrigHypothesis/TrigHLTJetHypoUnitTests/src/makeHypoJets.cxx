@@ -26,17 +26,4 @@ HypoJetVector makeHypoJets(const std::vector<double>& etas){
   return jets;
 }
 
-/*
-HypoJetVector makeHypoJets(const std::vector<double>& etas) {
-  auto gmockJets = makeGMockJets(etas);
-  HypoJetVector jets(gmockJets.begin(), gmockJets.end());
-  return jets;
-}
-
-
-HypoJetVector makeHypoJets(const std::vector<MockJetWithLorentzVector*>& gj) {
-  HypoJetVector jets(gj.begin(), gj.end());
-  return jets;
-}
-*/
 
