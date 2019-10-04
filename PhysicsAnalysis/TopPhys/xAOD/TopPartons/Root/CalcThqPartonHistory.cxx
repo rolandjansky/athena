@@ -131,7 +131,7 @@ namespace top {
   }
   void CalcThqPartonHistory::THHistorySaver(const xAOD::TruthParticleContainer* truthParticles, xAOD::PartonHistory* ThqPartonHistory) {
 
-    ThqPartonHistory->IniVarThq();
+    ThqPartonHistory->IniVarThqtautau();
     TLorentzVector t_before, t_after, t_after_SC;
     TLorentzVector Wp;
     TLorentzVector b;

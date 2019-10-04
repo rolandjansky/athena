@@ -333,7 +333,7 @@ int main(int argc, char** argv) {
       top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarGammaPartonHistory");
     }
 
-    else if (settings->value("TopPartonHistory") == "tHq") {
+    else if (settings->value("TopPartonHistory") == "tHqtautau") {
       topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcThqPartonHistory("top::CalcThqPartonHistory"));
       top::check(topPartonHistory->setProperty("config", topConfig), "Failed to setProperty of top::CalcThqPartonHistory");
     }

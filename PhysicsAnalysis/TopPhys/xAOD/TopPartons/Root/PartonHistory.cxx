@@ -480,8 +480,8 @@ namespace xAOD{
 
   }
 
-  // Initialize variables for thq events
-  void PartonHistory::IniVarThq() {
+  // Initialize variables for thqtautau events
+  void PartonHistory::IniVarThqtautau() {
     //t variables
     this->auxdecor< float >("MC_t_beforeFSR_m") = -1000;
     this->auxdecor< float >("MC_t_beforeFSR_pt") = -1000;
