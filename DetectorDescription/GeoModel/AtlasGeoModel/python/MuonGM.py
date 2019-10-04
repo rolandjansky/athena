@@ -4,9 +4,10 @@ from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from AthenaCommon import Logging
 
 if ( jobproperties.Global.DetGeo() == "ctbh8" or jobproperties.Global.DetGeo() == "ctbh6" ):
-    print " CTB layout for Muon Spectrometer is not supported anymore"
+    Logging.log.warning(" CTB layout for Muon Spectrometer is not supported anymore")
 
 elif ( DetFlags.detdescr.Muon_on() ):
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
