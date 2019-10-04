@@ -20,9 +20,9 @@ namespace Muon {
 
   public:  // interface methods 
   
-    virtual StatusCode  smearTimeAndCharge(Identifier id, double& time, double& charge, bool& accepted) = 0;
+    virtual StatusCode  smearTimeAndCharge(Identifier id, float& time, float& charge, bool& accepted) = 0;
 
-    virtual StatusCode  smearCharge(Identifier id, double& charge, bool& accepted) = 0;
+    virtual StatusCode  smearCharge(Identifier id, float& charge, bool& accepted) = 0;
     
   };
   

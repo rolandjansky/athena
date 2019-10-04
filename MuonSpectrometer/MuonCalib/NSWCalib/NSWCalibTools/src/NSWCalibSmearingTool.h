@@ -29,8 +29,8 @@ namespace Muon {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
-    StatusCode smearTimeAndCharge(Identifier id, double& time, double& charge, bool& accepted);
-    StatusCode smearCharge(Identifier id, double& charge, bool& accepted);
+    StatusCode smearTimeAndCharge(Identifier id, float& time, float& charge, bool& accepted);
+    StatusCode smearCharge(Identifier id, float& charge, bool& accepted);
 
   private:
     

@@ -54,7 +54,7 @@ StatusCode Muon::NSWCalibSmearingTool::finalize()
 //
 // smear only the charge
 //
-StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, double& charge, bool& accepted)
+StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge, bool& accepted)
 {
   
   unsigned int gasGap = 0;
@@ -103,7 +103,7 @@ StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, double& charge
 //
 // smear time and charge
 //
-StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, double& time, double& charge, bool& accepted)
+StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& time, float& charge, bool& accepted)
 {
   
   unsigned int gasGap = 0;

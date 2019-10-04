@@ -124,6 +124,7 @@ private:
   std::list<sTGCSimHitCollection*>  m_STGCHitCollList;
 
   ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool;
+  BooleanProperty m_doSmearing;
 
   std::string m_inputHitCollectionName; // name of the input objects
   std::string m_outputDigitCollectionName; // name of the output digits
