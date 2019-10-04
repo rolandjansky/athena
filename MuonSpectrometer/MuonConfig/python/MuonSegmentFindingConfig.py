@@ -242,6 +242,8 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     acc = MdtCondDbAlgCfg(flags)
     result.merge(acc)
     
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
+    
     dc_segment_maker = Muon__DCMathSegmentMaker(**kwargs)
     result.setPrivateTools(dc_segment_maker)
     return result
@@ -788,6 +790,12 @@ if __name__=="__main__":
     outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
 
+    # Fix for ATLASRECTS-5151
+    from MuonEventCnvTools.MuonEventCnvToolsConf import Muon__MuonEventCnvTool
+    cnvTool = Muon__MuonEventCnvTool(name='MuonEventCnvTool')
+    cnvTool.FixTGCs = True
+    cfg.addPublicTool(cnvTool)
+    
     # cfg.getService("StoreGateSvc").Dump = True
     cfg.printConfig()
     f=open("MuonSegmentFinding.pkl","w")
