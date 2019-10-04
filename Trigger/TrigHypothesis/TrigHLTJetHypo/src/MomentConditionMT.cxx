@@ -24,14 +24,16 @@ bool MomentConditionMT::isSatisfied(const pHypoJet& ip,
 
   if (!(ip -> getAttribute(m_moment, momentValue))){
 
-    auto j_addr = static_cast<const void*>(ip);
+    if(collector){
+      auto j_addr = static_cast<const void*>(ip);
 
-    std::stringstream ss0;
-    ss0 << "MomentCondition: " 
-        << " unable to retrieve " << m_moment << '\n';
-    std::stringstream ss1;
-    ss1 <<  "     jet : ("<< j_addr << ")";
-    collector->collect(ss0.str(), ss1.str());
+      std::stringstream ss0;
+      ss0 << "MomentCondition: " 
+	  << " unable to retrieve " << m_moment << '\n';
+      std::stringstream ss1;
+      ss1 <<  "     jet : ("<< j_addr << ")";
+      collector->collect(ss0.str(), ss1.str());
+    }
     return false;
   }
 
