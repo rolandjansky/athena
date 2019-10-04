@@ -3,6 +3,7 @@
 */
 
 #include "TrigMETMonitorAlgorithm.h"
+#include <TVector3.h>
 
 TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
@@ -89,7 +90,13 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto tc_Et = Monitored::Scalar<float>("tc_Et",0.0);
     auto tcpufit_Ex = Monitored::Scalar<float>("tcpufit_Ex",0.0);
     auto tcpufit_Ey = Monitored::Scalar<float>("tcpufit_Ey",0.0);
+    auto tcpufit_Ez = Monitored::Scalar<float>("tcpufit_Ez",0.0);
     auto tcpufit_Et = Monitored::Scalar<float>("tcpufit_Et",0.0);
+    auto tcpufit_sumEt = Monitored::Scalar<float>("tcpufit_sumEt",0.0);
+    auto tcpufit_sumE = Monitored::Scalar<float>("tcpufit_sumE",0.0);
+    auto tcpufit_eta = Monitored::Scalar<float>("tcpufit_eta",0.0);
+    auto tcpufit_phi = Monitored::Scalar<float>("tcpufit_phi",0.0);
+    auto pass_HLT1 = Monitored::Scalar<float>("pass_HLT1",0.0);
 
     // access L1 MET values
     // The following code was commented till we can get a proper input AOD file
@@ -132,7 +139,17 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       hlt_met = hlt_tcpufit_met_cont->at(0);
       tcpufit_Ex = (hlt_met->ex())/1000.;
       tcpufit_Ey = (hlt_met->ey())/1000.;
+      tcpufit_Ez = (hlt_met->ez())/1000.;
       tcpufit_Et = sqrt(tcpufit_Ex*tcpufit_Ex + tcpufit_Ey*tcpufit_Ey);
+      tcpufit_sumEt = (hlt_met->sumEt())/1000.;
+      tcpufit_sumE = (hlt_met->sumE())/1000.;
+
+      TVector3 v(tcpufit_Ex, tcpufit_Ey, tcpufit_Ez);
+      tcpufit_eta = v.Eta();
+      tcpufit_phi = v.Phi();
+      
+      // temporary fake trigger decision
+      if (tcpufit_Et > 30.) pass_HLT1 = 1.0; 
     }
 
 
@@ -180,7 +197,9 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     fill(tool,cell_Ex,cell_Ey,cell_Et);
     fill(tool,mht_Ex,mht_Ey,mht_Et);
     fill(tool,tc_Ex,tc_Ey,tc_Et);
-    fill(tool,tcpufit_Ex,tcpufit_Ey,tcpufit_Et);
+    fill(tool,tcpufit_Ex,tcpufit_Ey,tcpufit_Ez,tcpufit_Et,tcpufit_sumEt,tcpufit_sumE);
+    fill(tool,tcpufit_eta,tcpufit_phi);
+    fill(tool,pass_HLT1);
 
     return StatusCode::SUCCESS;
 }

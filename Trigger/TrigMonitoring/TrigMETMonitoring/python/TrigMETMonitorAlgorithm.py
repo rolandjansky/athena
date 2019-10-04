@@ -94,43 +94,81 @@ def TrigMETMonConfig(inputFlags):
     ### STEP 5 ###
     # Configure histograms
     #NB! The histograms defined here must match the ones in the cxx file exactly
-    metGroup.defineHistogram('L1_Ex',title='L1 Missing E_{x};E_{x} (GeV);Events',
-                                 path='Shifter/L1',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('L1_Ey',title='L1 Missing E_{y};E_{y} (GeV);Events',
-                                 path='Shifter/L1',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('L1_Et',title='L1 Missing E_{T};E_{T} (GeV);Events',
-                                 path='Shifter/L1',xbins=205,xmin=-13.5,xmax=401.5)
-    metGroup.defineHistogram('cell_Ex',title='cell Missing E_{x};E_{x} (GeV);Events',
-                                 path='Shifter/cell',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('cell_Ey',title='cell Missing E_{y};E_{y} (GeV);Events',
-                                 path='Shifter/cell',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('cell_Et',title='cell Missing E_{T};E_{T} (GeV);Events',
-                                 path='Shifter/cell',xbins=205,xmin=-13.5,xmax=401.5)
-    metGroup.defineHistogram('tcpufit_Ex',title='tcpufit Missing E_{x};E_{x} (GeV);Events',
-                                 path='Shifter/tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('tcpufit_Ey',title='tcpufit Missing E_{y};E_{y} (GeV);Events',
-                                 path='Shifter/tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('tcpufit_Et',title='tcpufit Missing E_{T};E_{T} (GeV);Events',
-                                 path='Shifter/Eff',xbins=205,xmin=-13.5,xmax=401.5)
-    metGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} (GeV);Events',
-                                path='Expert/mht',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} (GeV);Events',
-                                path='Expert/mht',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('mht_Et', title='mht E_{T};E_{T} (GeV);Events',
-                                path='Expert/mht',xbins=205,xmin=-13.5,xmax=401.5)
-    metGroup.defineHistogram('tc_Ex',title='tc Missing E_{x};E_{x} (GeV);Events',
-                                path='Expert/tc',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('tc_Ey',title='tc Missing E_{y};E_{y} (GeV);Events',
-                                path='Expert/tc',xbins=199,xmin=-298.5,xmax=298.5)
-    metGroup.defineHistogram('tc_Et', title='tc E_{T};E_{T} (GeV);Events',
-                                path='Expert/tc',xbins=205,xmin=-13.5,xmax=401.5)
-    metChainGroup.defineHistogram('tcpufit_Ex',title='tcpufit Missing E_{x};E_{x} (GeV);Events',
-                                 path='HLT_xe30_tcpufit_L1XE10/tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
-    metChainGroup.defineHistogram('tcpufit_Ey',title='tcpufit Missing E_{y};E_{y} (GeV);Events',
-                                 path='HLT_xe30_tcpufit_L1XE10/tcpufit',xbins=199,xmin=-298.5,xmax=298.5)
-    metChainGroup.defineHistogram('tcpufit_Et',title='tcpufit Missing E_{T};E_{T} (GeV);Events',
-                                 path='HLT_xe30_tcpufit_L1XE10/tcpufit',xbins=205,xmin=-13.5,xmax=401.5)
-
+    #
+    # Binning
+    et_bins=205 #Et
+    et_min=-13.5
+    et_max=401.5
+    ec_bins=199 #Ex, Ey, Ez
+    ec_min=-298.5
+    ec_max=298.5
+    sumet_bins=305 #sumEt
+    sumet_min=-27.0
+    sumet_max=4203.0
+    sume_bins=153 #sumE
+    sume_min=-27.0
+    sume_max=24003.0
+    phi_bins=32 # phi
+    phi_min=-3.1416
+    phi_max=3.1416
+    eta_bins=24 # eta
+    eta_min=-4.8
+    eta_max=4.8
+    eff_bins=42 # efficiency
+    eff_min=-13.5
+    eff_max=406.5
+    # Histograms
+    metGroup.defineHistogram('L1_Ex',title='L1 Missing E_{x};E_{x} [GeV];Events',
+                             path='Shifter/L1',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('L1_Ey',title='L1 Missing E_{y};E_{y} [GeV];Events',
+                             path='Shifter/L1',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('L1_Et',title='L1 Missing E_{T};E_{T} [GeV];Events',
+                             path='Shifter/L1',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metGroup.defineHistogram('cell_Ex',title='cell Missing E_{x};E_{x} [GeV];Events',
+                             path='Shifter/cell',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('cell_Ey',title='cell Missing E_{y};E_{y} [GeV];Events',
+                             path='Shifter/cell',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('cell_Et',title='cell Missing E_{T};E_{T} [GeV];Events',
+                             path='Shifter/cell',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metGroup.defineHistogram('tcpufit_Ex',title='tcpufit Missing E_{x};E_{x} [GeV];Events',
+                             path='Shifter/tcpufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('tcpufit_Ey',title='tcpufit Missing E_{y};E_{y} [GeV];Events',
+                             path='Shifter/tcpufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('tcpufit_Ez',title='tcpufit Missing E_{z};E_{z} [GeV];Events',
+                             path='Shifter/tcpufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('tcpufit_Et',title='tcpufit Missing E_{T};E_{T} [GeV];Events',
+                             path='Shifter/tcpufit',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metGroup.defineHistogram('tcpufit_sumEt',title='tcpufit Missing sumEt;sumEt [GeV];Events',
+                             path='Shifter/tcpufit',xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
+    metGroup.defineHistogram('tcpufit_sumE',title='tcpufit Missing sumE;sumE [GeV];Events',
+                             path='Shifter/tcpufit',xbins=sume_bins,xmin=sume_min,xmax=sume_max)
+    metGroup.defineHistogram('tcpufit_eta',title='tcpufit #eta;#eta;Events',
+                             path='Shifter/tcpufit',xbins=eta_bins,xmin=eta_min,xmax=eta_max)
+    metGroup.defineHistogram('tcpufit_phi',title='tcpufit #phi;#phi;Events',
+                             path='Shifter/tcpufit',xbins=phi_bins,xmin=phi_min,xmax=phi_max)
+    metGroup.defineHistogram('tcpufit_eta,tcpufit_phi', type='TH2F',title='tcpufit #eta - #phi;#eta;#phi',
+                             path='Shifter/tcpufit',xbins=eta_bins,xmin=eta_min,xmax=eta_max,ybins=phi_bins,ymin=phi_min,ymax=phi_max)
+    metGroup.defineHistogram('pass_HLT1, tcpufit_Et', type='TEfficiency',title='HLT efficiency;E_{T} [GeV];Efficiency',
+                             path='Shifter/Eff',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} [GeV];Events',
+                             path='Expert/mht',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} [GeV];Events',
+                             path='Expert/mht',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('mht_Et', title='mht E_{T};E_{T} [GeV];Events',
+                             path='Expert/mht',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metGroup.defineHistogram('tc_Ex',title='tc Missing E_{x};E_{x} [GeV];Events',
+                             path='Expert/tc',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('tc_Ey',title='tc Missing E_{y};E_{y} [GeV];Events',
+                             path='Expert/tc',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('tc_Et', title='tc E_{T};E_{T} [GeV];Events',
+                             path='Expert/tc',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metChainGroup.defineHistogram('tcpufit_Ex',title='tcpufit Missing E_{x};E_{x} [GeV];Events',
+                                  path='HLT_xe30_tcpufit_L1XE10/tcpufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metChainGroup.defineHistogram('tcpufit_Ey',title='tcpufit Missing E_{y};E_{y} [GeV];Events',
+                                  path='HLT_xe30_tcpufit_L1XE10/tcpufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metChainGroup.defineHistogram('tcpufit_Et',title='tcpufit Missing E_{T};E_{T} [GeV];Events',
+                                  path='HLT_xe30_tcpufit_L1XE10/tcpufit',xbins=et_bins,xmin=et_min,xmax=et_max)
+    
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     # and the sequence containing the created algorithms. If we haven't called
@@ -153,7 +191,7 @@ if __name__=='__main__':
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     #ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.Files = ['/hep300/data/khamano/data18_athenaMT/fromElin/AOD.pool.root']
+    ConfigFlags.Input.Files = ['/hep300/data/khamano/mc16_athenaMT/fromElin/AOD.pool.root']
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigMETMonitorOutput.root'
     
