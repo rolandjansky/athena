@@ -30,9 +30,9 @@ public:
 private:
 
   Gaudi::Property<bool>      m_doOnlyBLayer{this, "doOnlyBLayer",false, " "};
-  Gaudi::Property<int> m_pixModuleThreshold{this, "pixModuleThreshold", 50, "Dont take modules with SP Count higher than this threshold in Pixel Det."};
-  Gaudi::Property<int> m_sctModuleThreshold{this, "sctModuleThreshold", 100, "Dont take modules with SP Count higher than this threshold in SCT"};
-
+  Gaudi::Property<int> m_pixModuleThreshold{this, "pixModuleThreshold", 100, "Dont take modules with SP Count higher than this threshold in Pixel Det."};
+  Gaudi::Property<int> m_sctModuleHigherThreshold{this, "sctModuleHigherThreshold", 2000000, "Dont take modules with SP Count higher than this threshold in SCT"};
+  Gaudi::Property<int> m_sctModuleLowerThreshold{this, "sctModuleLowerThreshold", 100, "Dont take modules with SP Count lowerer than this threshold in SCT"};
 //The need for these flags have to be reviewed
 
   /*Gaudi::Property<bool>      m_sct_barrel_a_side{this, "sct_barrel_a_side",true, "SCT Barrel side A"};
