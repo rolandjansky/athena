@@ -1969,8 +1969,8 @@ class TopoAlgoDef:
             for bitid,minDphi in enumerate(minDphiList):  # noqa: F821
                 alg.addvariable('MinET1', ocut1, bitid)# noqa: F821
                 alg.addvariable('MinET2', ocut2, bitid)# noqa: F821
-                alg.addvariable('MinMSqr', minInvm*minInvm , bitid)        # noqa: F821         
-                alg.addvariable('MaxMSqr', maxInvm*maxInvm , bitid)        # noqa: F821
+                alg.addvariable('MinMSqr', minInvm*minInvm*_emscale_for_decision , bitid)        # noqa: F821 #ATR-18824 only one factor is needed as there is one EM object         
+                alg.addvariable('MaxMSqr', maxInvm*maxInvm*_emscale_for_decision , bitid)        # noqa: F821 #ATR-18824 only one factor is needed as there is one EM object
                 alg.addvariable('MinDeltaPhi', minDphi, bitid) # noqa: F821
                 alg.addvariable('MaxDeltaPhi', maxDphi, bitid) # noqa: F821
 
