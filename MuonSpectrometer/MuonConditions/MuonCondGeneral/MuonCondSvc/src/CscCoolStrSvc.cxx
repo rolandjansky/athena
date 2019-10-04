@@ -37,7 +37,6 @@ namespace MuonCalib {
     AthService(name,svc),
     p_detstore(nullptr),
     m_log(msgSvc(),name), 
-    m_cscId(nullptr),
     m_maxChamberHash(32), //retrieved later from cscIdHelper
     m_maxChanHash(61440), //retrieved later from cscIdHelper
     m_dbCache(0),
@@ -127,10 +126,10 @@ namespace MuonCalib {
 
     if(sc.isSuccess())
     {
-      sc = detStore->retrieve(m_cscId,"CSCIDHELPER");
+      sc = m_muonIdHelperTool.retrieve();
       if(sc.isFailure())
       {
-        m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endmsg;
+        m_log << MSG::FATAL << "Cannot retrieve MuonIdHelperTool" << endmsg;
         return sc;
       }
     }
@@ -140,8 +139,8 @@ namespace MuonCalib {
       return StatusCode::FAILURE;
     } 
 
-    m_moduleContext = m_cscId->module_context();
-    m_channelContext = m_cscId->channel_context();
+    m_moduleContext = m_muonIdHelperTool->cscIdHelper().module_context();
+    m_channelContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
     m_rmsCondData = 0;
     m_slopeCondData = 0;
@@ -166,7 +165,7 @@ namespace MuonCalib {
           {
             for(int measuresPhi = 0; measuresPhi <2; measuresPhi++)
             {
-              Identifier id = m_cscId->channelID(
+              Identifier id = m_muonIdHelperTool->cscIdHelper().channelID(
                   stationName+1,
                   (stationEta? 1:-1),
                   stationPhi+1,
@@ -202,7 +201,7 @@ namespace MuonCalib {
       {
         for(int stationPhi = 0; stationPhi <8; stationPhi++)
         {
-              Identifier id = m_cscId->channelID(
+              Identifier id = m_muonIdHelperTool->cscIdHelper().channelID(
                   stationName+1,
                   (stationEta? 1:-1),
                   stationPhi+1,
@@ -223,8 +222,8 @@ namespace MuonCalib {
       }
     }
     *(const_cast<unsigned int*>(&m_maxChamberCoolChannel)) = hash - 1; //-1 because hash overshoots in loop
-    //*(const_cast<unsigned int*>(&m_maxChamberHash)) = m_cscId->module_hash_max() - 1;
-    *(const_cast<unsigned int*>(&m_maxChanHash)) = m_cscId->channel_hash_max() - 1;
+    //*(const_cast<unsigned int*>(&m_maxChamberHash)) = m_muonIdHelperTool->cscIdHelper().module_hash_max() - 1;
+    *(const_cast<unsigned int*>(&m_maxChanHash)) = m_muonIdHelperTool->cscIdHelper().channel_hash_max() - 1;
 
     if(m_debug) m_log << MSG::DEBUG << "Maximum Chamber hash is " << m_maxChamberHash 
       << endmsg;
@@ -238,7 +237,7 @@ namespace MuonCalib {
 
     ////////////
     // Loop over csc detector elements and add in the hash ids
-    std::vector<Identifier> modules = m_cscId->idVector();
+    std::vector<Identifier> modules = m_muonIdHelperTool->cscIdHelper().idVector();
 
     //Prepare local cache.
     m_dbCache = new CscCondDataContainer();
@@ -1078,7 +1077,7 @@ namespace MuonCalib {
           // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
           // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
           bool isValid = true;
-          chanId = m_cscId->channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
+          chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
           static bool conversionFailPrinted = false;
           if (!isValid) {
             if (!conversionFailPrinted) {
@@ -1089,7 +1088,7 @@ namespace MuonCalib {
             }
             continue;
           }
-          if (m_cscId->get_channel_hash(chanId, hashIdentifier)) {
+          if (m_muonIdHelperTool->cscIdHelper().get_channel_hash(chanId, hashIdentifier)) {
             ATH_MSG_WARNING("Failed to retrieve channel hash for identifier " << chanId.get_compact());
           }
 
@@ -1132,19 +1131,19 @@ namespace MuonCalib {
   //-------------------------------------------------------------------
   int CscCoolStrSvc::swapChamberLayerReturnHash(const Identifier & id) const
   {
-    int stationName = m_cscId->stationName(id);
-    int stationEta = m_cscId->stationEta(id); 
-    int stationPhi = m_cscId->stationPhi(id); 
-    int chamberLayer = m_cscId->chamberLayer(id) == 1 ? 2 : 1; //Swap chamber layer
-    int measuresPhi = m_cscId->measuresPhi(id); 
-    int wireLayer = m_cscId->wireLayer(id);
-    int strip = m_cscId->strip(id);
-    Identifier newId = m_cscId->channelID(stationName, stationEta, stationPhi, 
+    int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id);
+    int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(id); 
+    int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(id); 
+    int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(id) == 1 ? 2 : 1; //Swap chamber layer
+    int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(id); 
+    int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
+    int strip = m_muonIdHelperTool->cscIdHelper().strip(id);
+    Identifier newId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
         chamberLayer, wireLayer, measuresPhi, strip);
     IdentifierHash hash;
-    m_cscId->get_channel_hash(newId, hash);
-    m_log << MSG::INFO << "swap chamber layer " << m_cscId->show_to_string(id) 
-          << " to " << m_cscId->show_to_string(newId) << " (" << hash << ")" << endmsg;
+    m_muonIdHelperTool->cscIdHelper().get_channel_hash(newId, hash);
+    m_log << MSG::INFO << "swap chamber layer " << m_muonIdHelperTool->cscIdHelper().show_to_string(id) 
+          << " to " << m_muonIdHelperTool->cscIdHelper().show_to_string(newId) << " (" << hash << ")" << endmsg;
     return (int)hash;
   }
 
@@ -1156,20 +1155,20 @@ namespace MuonCalib {
     //Phi,wireLayer,and strip all are offset by one between the two schemes.
     //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
     //the online id.
-    int stationName  	((m_cscId->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
-    int phi =   		(m_cscId->stationPhi(id) - 1)&0x7  ;		    // 0000 1110 0000 0000 0000
-    int eta = 		((m_cscId->stationEta(id) == 1) ? 1:0) &0x1;  // 0000 0001 0000 0000 0000
-    int chamLay = 		(m_cscId->chamberLayer(id)-1) &0x1;		    // 0000 0000 1000 0000 0000
-    int wireLay = 		(m_cscId->wireLayer(id)-1) &0x3;		      // 0000 0000 0110 0000 0000
-    int measuresPhi = 	(m_cscId->measuresPhi(id) &0x1);		    // 0000 0000 0001 0000 0000
+    int stationName  	((m_muonIdHelperTool->cscIdHelper().stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(m_muonIdHelperTool->cscIdHelper().stationPhi(id) - 1)&0x7  ;		    // 0000 1110 0000 0000 0000
+    int eta = 		((m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1) ? 1:0) &0x1;  // 0000 0001 0000 0000 0000
+    int chamLay = 		(m_muonIdHelperTool->cscIdHelper().chamberLayer(id)-1) &0x1;		    // 0000 0000 1000 0000 0000
+    int wireLay = 		(m_muonIdHelperTool->cscIdHelper().wireLayer(id)-1) &0x3;		      // 0000 0000 0110 0000 0000
+    int measuresPhi = 	(m_muonIdHelperTool->cscIdHelper().measuresPhi(id) &0x1);		    // 0000 0000 0001 0000 0000
     int strip;     		                                          // 0000 0000 0000 1111 1111
 
     //Online and offline phi ids are flipped on A wheel
     if(m_onlineOfflinePhiFlip && measuresPhi && eta == 1){
-      strip = (48 - (m_cscId->strip(id))) & 0xff;  
+      strip = (48 - (m_muonIdHelperTool->cscIdHelper().strip(id))) & 0xff;  
     }
     else {
-      strip = (m_cscId->strip(id)-1) & 0xff;     		     
+      strip = (m_muonIdHelperTool->cscIdHelper().strip(id)-1) & 0xff;     		     
     }
 
 
@@ -1188,13 +1187,13 @@ namespace MuonCalib {
   StatusCode CscCoolStrSvc::offlineToAsmId(const Identifier & id, std::string & AsmId,
       unsigned int & iChamber, unsigned int & iASM) const
   { 
-    int stationEta  = m_cscId->stationEta(id);
+    int stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(id);
     std::string stationEtaString  = (stationEta == 1 ? "A":"C");
-    int stationPhi  = m_cscId->stationPhi(id);
-    int stationName = m_cscId->stationName(id);
-    int wireLayer   = m_cscId->wireLayer(id);
-    int measuresPhi = m_cscId->measuresPhi(id);
-    int strip       = m_cscId->strip(id);
+    int stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(id);
+    int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id);
+    int wireLayer   = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
+    int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
+    int strip       = m_muonIdHelperTool->cscIdHelper().strip(id);
 
     iChamber = getChamberCoolChannel(id) - 1; //0-31
 
@@ -1224,9 +1223,9 @@ namespace MuonCalib {
     //Phi,wireLayer,and strip all are offset by one between the two schemes.
     //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
     //the online id.
-    int stationName  	((m_cscId->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
-    int phi =   		(m_cscId->stationPhi(id) - 1)&0x7  ;		// 0000 1110 0000 0000 0000
-    int eta = 		((m_cscId->stationEta(id) == 1) ? 1:0) &0x1;  	// 0000 0001 0000 0000 0000
+    int stationName  	((m_muonIdHelperTool->cscIdHelper().stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(m_muonIdHelperTool->cscIdHelper().stationPhi(id) - 1)&0x7  ;		// 0000 1110 0000 0000 0000
+    int eta = 		((m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1) ? 1:0) &0x1;  	// 0000 0001 0000 0000 0000
     int chamLay = 		1;		// 0000 0000 1000 0000 0000
     int wireLay = 		0;		// 0000 0000 0110 0000 0000
     int measuresPhi = 0;		// 0000 0000 0001 0000 0000
@@ -1262,12 +1261,12 @@ namespace MuonCalib {
       strip = ((onlineId)&0xff) +1;
     }
 
-    elementId = m_cscId->elementID(stationName,eta,phi);
+    elementId = m_muonIdHelperTool->cscIdHelper().elementID(stationName,eta,phi);
     // The following call of channelID with check=true ensures that the identifier is checked to be physically valid.
     // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
     // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
     bool isValid = true;
-    channelId = m_cscId->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
+    channelId = m_muonIdHelperTool->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
     static bool conversionFailPrinted = false;
     if (!isValid) {
       if (!conversionFailPrinted) {
@@ -1290,7 +1289,7 @@ namespace MuonCalib {
     int phi =               ((onlineId >> 13)&0x7)+1;
     int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
 
-    elementId = m_cscId->elementID(stationName,eta,phi);
+    elementId = m_muonIdHelperTool->cscIdHelper().elementID(stationName,eta,phi);
 
     return StatusCode::SUCCESS;
   }
@@ -1315,7 +1314,7 @@ namespace MuonCalib {
       strip = ((onlineId)&0xff) +1;
     }
 
-    chanId = m_cscId->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+    chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
 
     return StatusCode::SUCCESS;
   }
@@ -1324,16 +1323,16 @@ namespace MuonCalib {
   //-----------------------------------------------------------------------------------
   unsigned int CscCoolStrSvc::getLayerHash( const Identifier & id) const 
   {
-    unsigned int stationName = m_cscId->stationName(id);
-    if(m_cscId->stationName(id) >= 50 ) stationName = stationName - 50;
+    unsigned int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id);
+    if(m_muonIdHelperTool->cscIdHelper().stationName(id) >= 50 ) stationName = stationName - 50;
     else {
       ATH_MSG_ERROR("stationName: " << stationName << " is not CSC - emergency stop.");
       throw std::runtime_error(Form("File: %s, Line: %d\nCscCoolStrSvc::getLayerHash() - given identifier is no CSC identifier", __FILE__, __LINE__));
     }
-    unsigned int stationEta = (m_cscId->stationEta(id) == 1 ? 1 :0);
-    unsigned int stationPhi = m_cscId->stationPhi(id) -1; 
-    unsigned int wireLayer = m_cscId->wireLayer(id) -1;
-    unsigned int measuresPhi = m_cscId->measuresPhi(id);
+    unsigned int stationEta = (m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1 ? 1 :0);
+    unsigned int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(id) -1; 
+    unsigned int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(id) -1;
+    unsigned int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
 
     return m_layerHashes[stationName][stationEta][stationPhi][wireLayer][measuresPhi];
   }
@@ -1343,9 +1342,9 @@ namespace MuonCalib {
   unsigned int CscCoolStrSvc::getChamberCoolChannel( const Identifier & id) const
   {
 
-    unsigned int stationName = m_cscId->stationName(id) -50;
-    unsigned int eta = (m_cscId->stationEta(id) == 1 ? 1 : 0);
-    unsigned int phi = m_cscId->stationPhi(id) -1; 
+    unsigned int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id) -50;
+    unsigned int eta = (m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1 ? 1 : 0);
+    unsigned int phi = m_muonIdHelperTool->cscIdHelper().stationPhi(id) -1; 
 
     if(stationName > 1
         || phi > 7
@@ -1513,7 +1512,7 @@ namespace MuonCalib {
     if(cat == "CHAMBER")
     {
       IdentifierHash chamberHash;
-      m_cscId->get_geo_module_hash(chamberId,chamberHash);
+      m_muonIdHelperTool->cscIdHelper().get_geo_module_hash(chamberId,chamberHash);
       index = (unsigned int)chamberHash; 
     } 
     else if(cat == "LAYER")
@@ -1523,7 +1522,7 @@ namespace MuonCalib {
     else if(cat == "CHANNEL")
     {
       IdentifierHash chanHash;
-      m_cscId->get_channel_hash(channelId, chanHash);
+      m_muonIdHelperTool->cscIdHelper().get_channel_hash(channelId, chanHash);
       index = (unsigned int)chanHash;
     }
 
@@ -1558,7 +1557,7 @@ namespace MuonCalib {
     {
 
       Identifier chamberId;
-      m_cscId->get_id(IdentifierHash(index), chamberId, &m_moduleContext);
+      m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(index), chamberId, &m_moduleContext);
       if(!offlineElementToOnlineId(chamberId, onlineId).isSuccess()) {
         m_log << MSG::ERROR 
           << "Failed converting chamber identifier to online id during stringId gen. " 
@@ -1578,7 +1577,7 @@ namespace MuonCalib {
     else if(cat == "CHANNEL")
     {
       Identifier channelId;
-      m_cscId->get_id(IdentifierHash(index), channelId, &m_channelContext);
+      m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(index), channelId, &m_channelContext);
       if(!offlineToOnlineId(channelId, onlineId).isSuccess()) {
         m_log << MSG::ERROR
           << "Failed converting chamber identifier to online id during stringId gen. "

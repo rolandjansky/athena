@@ -12,6 +12,7 @@
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "AthenaBaseComps/AthService.h"
 
@@ -23,7 +24,7 @@
 
 //Added to use CscIdHelper
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //Calib conditions data classes
 #include "MuonCondData/CscCondDataContainer.h"
@@ -184,7 +185,8 @@ namespace MuonCalib {
 
     /**CscIdHelper is used to convert from identifiers to hash ids. MuonDetector manager is a
       requirement on CscIdHelper*/
-    const CscIdHelper* m_cscId;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     //      const MuonGM::MuonDetectorManager * m_muonMgr;
 
     /// Conditions Attribute List collections used for getting datahandles for callback functions*/
