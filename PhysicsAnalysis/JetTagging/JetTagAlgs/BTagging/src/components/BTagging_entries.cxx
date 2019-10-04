@@ -7,6 +7,7 @@
 #include "BTagging/JetBTaggerTool.h"
 #include "BTagging/JetBTaggerAlg.h"
 #include "BTagging/StandAloneJetBTaggerAlg.h"
+#include "BTagging/BTagTrackAugmenterAlg.h"
 
 using namespace Analysis ;
 

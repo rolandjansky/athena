@@ -11,11 +11,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
-
-namespace Trk  {
-  class ITrackToVertexIPEstimator;
-  class IExtrapolator;
-}
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 namespace Analysis {
   class Vector3DDecorator {
