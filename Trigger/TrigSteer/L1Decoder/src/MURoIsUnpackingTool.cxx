@@ -41,7 +41,7 @@ StatusCode MURoIsUnpackingTool::start() {
 }
 
 
-StatusCode MURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+StatusCode MURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap&  ) {
   using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {
