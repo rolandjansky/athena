@@ -420,7 +420,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, overlappingEtaRegions){
 
   xAODJetCollector j_collector;
   std::unique_ptr<ITrigJetHypoInfoCollector> d_collector(nullptr);
-  // d_collector.reset(new DebugInfoCollector("overlapping"));
 
   auto grouper = SingleJetGrouper{};
   auto begin = jets.begin();
