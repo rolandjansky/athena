@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCnv_p4.cxx 
@@ -36,17 +36,10 @@ typedef NavigableCnv_p1<
            > NavigableCnv_t;
 
 // pre-allocate converters
-static P4ImplPxPyPzECnv_p1   momCnv;
-static NavigableCnv_t        navCnv;
-static ParticleBaseCnv_p1 pbsCnv;
+static const P4ImplPxPyPzECnv_p1   momCnv;
+static const NavigableCnv_t        navCnv;
+static const ParticleBaseCnv_p1 pbsCnv;
 
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 
 JetCnv_p4::JetCnv_p4()
   : m_badIndex (false),
@@ -63,7 +56,7 @@ JetCnv_p4::JetCnv_p4()
 
 void JetCnv_p4::persToTrans( const Jet_p4* pers,
                              Jet* trans, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "Loading Jet from persistent state...  e = "<< pers->m_momentum.m_ene
       << endmsg;
@@ -113,7 +106,7 @@ void JetCnv_p4::persToTrans( const Jet_p4* pers,
     }
     
     vector<const JetTagInfoBase *> *ptags =
-      m_taginfoCnv.createTransient(&(pers->m_tagJetInfo), msg);
+      m_taginfoCnv.createTransientConst(&(pers->m_tagJetInfo), msg);
     if (ptags != 0) {
       vector<const JetTagInfoBase*> &tags (*ptags);
       for (unsigned int i = 0; i < tags.size(); i++) {
@@ -138,7 +131,7 @@ void JetCnv_p4::persToTrans( const Jet_p4* pers,
     }
     trans->m_assocStore = new vector<const JetAssociationBase*> ();
     vector<const JetAssociationBase *> *pass =
-      m_tagAssCnv.createTransient(&(pers->m_associations), msg);
+      m_tagAssCnv.createTransientConst(&(pers->m_associations), msg);
 
     if (pass != 0) {
       vector<const JetAssociationBase *> &ass (*pass);
@@ -214,7 +207,7 @@ void JetCnv_p4::persToTrans( const Jet_p4* pers,
 
 void JetCnv_p4::transToPers( const Jet* trans, 
                              Jet_p4* pers, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
   navCnv.transToPers( &trans->navigableBase(), &pers->m_nav, msg );
   momCnv.transToPers( &trans->momentumBase(), &pers->m_momentum, msg );

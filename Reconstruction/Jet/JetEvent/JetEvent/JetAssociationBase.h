@@ -49,6 +49,7 @@ protected:
   friend class Analysis::MuonAssociationCnv_p1;
   friend class Analysis::ElectronAssociationCnv_p1;
   friend class Analysis::ISvxAssociationCnv_p1;
+  friend class JetAssociationBaseCnv_p1;
   
   // JetAssociationBase();
   
