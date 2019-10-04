@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
-from TrigHLTJetHypo.TrigHLTJetHypoConf import (
-    TrigJetHypoToolMT,)
+from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
@@ -44,7 +43,6 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
 
     # debug flag to be relayed to C++ objects
-    # visitor = ToolSetter(chain_name)
     tool = None
     if toolSetter is None:
         toolSetter = ConditionsToolSetterTree(chain_name)
@@ -59,7 +57,6 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
             print ('using tool setter', toolSetter.__class__.__name__)
             tree.accept(modifier=toolSetter)
 
-    # tool = tree.children[0].tool
     tool = tree.tool
     log.info(visitor.report())
 
