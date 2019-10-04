@@ -18,7 +18,7 @@ from TrigHLTJetHypo.test_cases import test_strings
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetter
+from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree as ConditionsToolSetter
 
 class PartitionvsFlowNetworkTests(object):
 
