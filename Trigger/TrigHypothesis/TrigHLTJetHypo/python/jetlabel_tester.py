@@ -6,8 +6,6 @@ from __future__ import print_function
 from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
-# from  TrigHLTJetHypo.ToolSetter import ToolSetter
-
 
 def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
     print ('compile:',  label)
