@@ -632,10 +632,10 @@ class L2EFChain_MB(L2EFChainDef):
                                      'L2_mb_step2']]
             
             if doSumEt:
-                self.EFsequenceList += [[['L2_mb_step2'],
+                self.EFsequenceList += [[[''],
                                          [theEFMETFex, theEFMETHypo],
                                          'EF_mb_step1']]
-                self.EFsequenceList += [[['EF_mb_step1'],
+                self.EFsequenceList += [[['L2_mb_step2'],
                                          theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
                                          'EF_mb_step2']]
             else:
@@ -644,10 +644,10 @@ class L2EFChain_MB(L2EFChainDef):
                                          'EF_mb_step1']]
         else:
              if doSumEt:
-                 self.EFsequenceList += [[['L2_mb_step1'],
+                 self.EFsequenceList += [[[''],
                                          [theEFMETFex, theEFMETHypo],
                                          'EF_mb_step1']]
-                 self.EFsequenceList += [[['EF_mb_step1'],
+                 self.EFsequenceList += [[['L2_mb_step2'],
                                          theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
                                          'EF_mb_step2']]
              else:
@@ -778,10 +778,10 @@ class L2EFChain_MB(L2EFChainDef):
                                  [theL2Fex2, theL2Hypo2],
                                  'L2_mb_step2']]
             
-        self.EFsequenceList += [[['L2_mb_step2'],
+        self.EFsequenceList += [[[''],
                                  [theEFMETFex, theEFMETHypo],
                                  'EF_mb_step1']]
-        self.EFsequenceList += [[['EF_mb_step1'],
+        self.EFsequenceList += [[['L2_mb_step2'],
                                  theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
                                  'EF_mb_step2']]
 

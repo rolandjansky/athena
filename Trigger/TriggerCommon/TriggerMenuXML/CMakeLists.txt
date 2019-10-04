@@ -10,7 +10,7 @@
 # For cmake testing:
 # TMXML_BUILD_TEST=1 make    : Create dummy XML files without running athena
 #
- 
+  
 # Declare the package name:
 atlas_subdir( TriggerMenuXML )
 
