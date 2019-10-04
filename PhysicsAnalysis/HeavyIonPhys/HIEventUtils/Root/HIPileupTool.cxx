@@ -132,7 +132,8 @@ if(m_year=="2015"){
 
  // Configuration in-time pileup 2018
 if(m_year=="2018"){
-   TFile* f_itp_In = TFile::Open(PathResolverFindCalibFile(m_itp_fname).c_str(), "READ");
+   std::unique_ptr< TFile > f_itp_In(TFile::Open( PathResolverFindCalibFile(m_itp_fname).c_str(), "READ" ) );
+
 	if( !f_itp_In ){
 		ANA_MSG_ERROR( "Could not find input In-time Pileup calibration file "<< m_itp_fname << ", exiting");
 		 return StatusCode::FAILURE;
@@ -191,16 +192,16 @@ bool HIPileupTool::is_Outpileup(const xAOD::HIEventShapeContainer& evShCont, con
    double mean{m_oop_hMean->GetBinContent(nBin)};
    double sigma{m_oop_hSigma->GetBinContent(nBin)};
 
-   if (m_nside == 1) // one side cut
-        if (oop_Et - mean > -4 * sigma) // 4 sigma cut
-          return 0;
+   switch (m_nside){
 
-      if (m_nside == 2) // two side cut
-        if (abs(oop_Et - mean) < 4 * sigma) // 4 sigma cut
-          return 0;
-
-      return 1;
-
+   	case 1: if (oop_Et - mean > -4 * sigma) return 0;
+        	break;
+    	case 2: if (abs(oop_Et - mean) < 4 * sigma) return 0;
+        	break;
+    	default: if (oop_Et - mean > -4 * sigma) return 0;
+	}
+      
+   return 1;
 }
 
 /*bool HIPileupTool::is_pileup2(const xAOD::HIEventShapeContainer& evShCont, const xAOD::ZdcModuleContainer& ZdcCont) const {
@@ -248,7 +249,7 @@ double HIPileupTool::get_nNeutrons(const xAOD::ZdcModuleContainer& ZdcCont) cons
 
    bool isCalib=1;
     double ZdcE=0;
-   for (const auto *zdcModule : ZdcCont) {
+   for (const xAOD::ZdcModule* zdcModule : ZdcCont) {
       if (zdcModule->type()!=0) continue;
 
       if (!(zdcModule->isAvailable<float>("CalibEnergy"))) {isCalib = 0; continue;} 
@@ -264,7 +265,7 @@ double HIPileupTool::get_ZDC_E(const xAOD::ZdcModuleContainer& ZdcCont) const{
 
     double ZdcE=0;
     bool isCalib=1;
-   for (const auto *zdcModule : ZdcCont) {
+   for (const xAOD::ZdcModule* zdcModule : ZdcCont) {
       if (!(zdcModule->isAvailable<float>("CalibEnergy"))) {isCalib = 0; continue;}
       float modE = zdcModule->auxdataConst<float>("CalibEnergy")*1e-3;
       ZdcE += modE;

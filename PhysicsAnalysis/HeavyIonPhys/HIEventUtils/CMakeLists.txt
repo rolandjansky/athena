@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( HIEventUtils )
 
-# Extra dependencies, based on the environment we are in:
-if( NOT XAOD_STANDALONE )
-    set( extra_deps GaudiKernel )
-    set( extra_libs GaudiKernel )
-    set( extra_sources src/*.cxx )
- endif()
-
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloGeoHelpers
