@@ -65,11 +65,11 @@ def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", jetnameove
     # 
     # To facilitate running in serial mode, we also prepare
     # the constituent PseudoJetGetter here (needed for rho)
-    inputcomps = JetInputCfg(deps["inputs"], configFlags, sequenceName=jetsfullname)
+    inputcomps = JetInputCfg(deps["inputs"], configFlags)
     constitpjalg = inputcomps.getPrimary()
     constitpjkey = constitpjalg.PJGetter.OutputContainer
 
-    components.merge(inputcomps)
+    components.merge(inputcomps,sequencename)
     pjs = [constitpjkey]
 
     # Schedule the ghost PseudoJetGetterAlgs
@@ -235,13 +235,13 @@ def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
 #
 # This includes constituent modifications, track selection, copying of
 # input truth particles and event density calculations
-def JetInputCfg(inputdeps, configFlags, sequenceName):
+def JetInputCfg(inputdeps, configFlags):
     jetlog.info("Setting up jet inputs.")
-    components = ComponentAccumulator(sequenceName)
+    components = ComponentAccumulator()
 
     jetlog.info("Inspecting input file contents")
     filecontents = configFlags.Input.Collections
-    
+
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
     if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle] and constit.inputname!=constit.rawname:
