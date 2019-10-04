@@ -86,6 +86,7 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
   m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
   m_Shifter_jSplit{}, m_Expert_jSplit{}, m_Shifter_jUnSplit{},  m_Expert_jUnSplit{}, m_Shifter_mujet{},m_Expert_mujet{},
+  m_vertexContainerKey("PrimaryVertices"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_etCut(10.), m_sv1_infosource("SV1")
 {
@@ -125,6 +126,7 @@ StatusCode HLTBjetMonTool::init() {
   m_sv1_infosource = "SV1";
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - SV1  parameters: inputSV1SourceName = "  <<  m_sv1_infosource);
 
+  ATH_CHECK( m_vertexContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -1024,19 +1026,15 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_INFO("  ===> Run 3 access for Trigger Item: " << trigItem);
 
 	// online PV from SG
-	/* for the moment don't know how to handle SG::ReadHandle in legacy code
-	   SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey, ctx);
-	   for (const xAOD::Vertex* vtx : *vtxContainer) {
-	   if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-	   std::string NameH = "PVz_tr_"+trigName;
-	   ATH_MSG_INFO( " NameH: " << NameH  );
-	   auto PVz_tr = Monitored::Scalar<float>(NameH,0.0);
-	   PVz_tr = vtx->z();
-	   ATH_MSG_INFO("        PVz_tr: " << PVz_tr);
-	   fill("TrigBjetMonitor",PVz_tr);
-	   } // if vtx type
-	   } // loop on vtxContainer
-	*/
+
+	SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey);
+	for (const xAOD::Vertex* vtx : *vtxContainer) {
+	  if (vtx->vertexType() == xAOD::VxType::PriVtx) {
+	    ATH_MSG_INFO("        PVz_jet from SG: " << vtx->z());
+	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
+	  } // if vtx type
+	} // loop on vtxContainer
+
 	
 	  // Jets and PV through jet link
 	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
@@ -1050,8 +1048,8 @@ StatusCode HLTBjetMonTool::book(){
 	  if (ijet == 0) {
 	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
-	    ATH_MSG_INFO("        PVz_jet: " << vtx->z());
-	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
+	    ATH_MSG_INFO("        PVz_jet from jet link info: " << vtx->z());
+	    // if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
 	  }
 	  ijet++;
 	} // onlinejets
