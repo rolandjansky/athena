@@ -181,7 +181,6 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     #mon.FinalChainStep = allChains
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
     allChains.update( l1Decoder.ChainToCTPMapping.keys() )
-    mon.ChainsList = list( allChains )
     
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
