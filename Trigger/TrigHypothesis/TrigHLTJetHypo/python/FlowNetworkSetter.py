@@ -6,7 +6,7 @@ from a hypo tree."""
 from __future__ import print_function
 
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
-    TrigJetConditionConfig_eta,
+    TrigJetConditionConfig_abs_eta,
     TrigJetConditionConfig_et,
     TrigJetHypoToolHelperMT,
     CombinationsHelperTool,
