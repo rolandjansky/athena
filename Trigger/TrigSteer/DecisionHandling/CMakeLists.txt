@@ -25,13 +25,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigMonitoring/TrigCostMonitorMT
-			  Control/AthenaMonitoring )
+                          Control/AthenaMonitoringKernel )
 
 atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES xAODTrigger GaudiKernel TrigSteeringEvent
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigTimeAlgsLib AthenaMonitoringLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigTimeAlgsLib AthenaMonitoringKernelLib )
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
