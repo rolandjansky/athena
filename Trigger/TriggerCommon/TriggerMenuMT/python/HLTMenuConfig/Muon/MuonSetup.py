@@ -354,11 +354,12 @@ def muFastRecoSequence( RoIs ):
 
   return muFastRecoSequence, sequenceOut
 
-def muonIDFastTrackingSequence( RoIs ):
+def muonIDFastTrackingSequence( RoIs, name ):
 
   from AthenaCommon.CFElements import parOR
 
-  muonIDFastTrackingSequence = parOR("l2muCombIDViewNode")
+  viewNodeName=name+"FastIDViewNode"
+  muonIDFastTrackingSequence = parOR(viewNodeName)
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
@@ -756,30 +757,118 @@ def muEFCBRecoSequence( RoIs, name ):
 
 def muEFInsideOutRecoSequence(RoIs, name):
 
-  from AthenaCommon.CFElements import parOR
+  from AthenaCommon.CFElements import parOR, seqAND
   from AthenaCommon import CfgMgr
   from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 
-  from AthenaCommon.AppMgr import ToolSvc
+  from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
   import AthenaCommon.CfgGetter as CfgGetter
+  from MuonRecExample.MuonRecFlags import muonRecFlags
 
   efAlgs = []
 
-  efmuInsideOutRecoSequence = parOR("efmuInsideOutViewNode")
+  viewNodeName="efmuInsideOutViewNode"
+  if "Late" in name:
+    viewNodeName = "latemuInsideOutViewNode"
+  efmuInsideOutRecoSequence = parOR(viewNodeName)
 
-  #Need PRD containers for inside-out reco
-  ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
-  ViewVerifyInsideOut.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                     ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                                     ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                     ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                     ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                     ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
-  efmuInsideOutRecoSequence += ViewVerifyInsideOut
+  if "Late" in name:
+    #May be able to do this more nicely in the future to run only if we haven't run this in other chains
+    #Need PRD containers for inside-out reco
+    ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
+    ViewVerifyInsideOut.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
+                                       ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
+                                       ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                       ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )]
+
+    efmuInsideOutRecoSequence += ViewVerifyInsideOut
+
+    #Need to run hough transform at start of late muon chain
+    from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
+    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc")
+
+    #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
+    from AthenaCommon.AlgSequence import AthSequencer
+    from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
+    if not athenaCommonFlags.isOnline:
+      condSequence = AthSequencer("AthCondSeq")
+      if not hasattr(condSequence,"MdtCondDbAlg"):
+        condSequence += MdtCondDbAlg("MdtCondDbAlg")
+
+
+    theSegmentFinder = CfgGetter.getPublicToolClone("LateMuonSegmentFinder","MooSegmentFinder")
+    CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
+    theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_"+name,
+                                                    SegmentFinder=theSegmentFinder,
+                                                    MuonSegmentOutputLocation = "MooreSegments",
+                                                    UseCSC = muonRecFlags.doCSCs(),
+                                                    UseMDT = muonRecFlags.doMDTs(),
+                                                    UseRPC = muonRecFlags.doRPCs(),
+                                                    UseTGC = muonRecFlags.doTGCs(),
+                                                    doClusterTruth=False,
+                                                    UseTGCPriorBC = False,
+                                                    UseTGCNextBC  = False,
+                                                    doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
+                                                    doRPCClust = muonRecFlags.doRPCClusterSegmentFinding())
+    efAlgs.append(theSegmentFinderAlg)
+
+    # need to run precisions tracking for late muons, since we don't run it anywhere else
+    TrackCollection="TrigFastTrackFinder_Tracks_Muon" 
+    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("lateMuonIDViewDataVerifier")
+
+    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_xAODTracks_Muon' ),
+                                 ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
+                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+HLT_xAODTracks_Muon' )]
+    
+    if globalflags.InputFormat.is_bytestream():
+      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                    ( 'SCT_ByteStreamFractionContainer' , 'StoreGateSvc+SCT_ByteStreamFrac' ) ]
+    efmuInsideOutRecoSequence += ViewVerifyTrk
+
+
+    #Precision Tracking
+    PTAlgs = [] #List of precision tracking algs
+    PTTracks = [] #List of TrackCollectionKeys
+    PTTrackParticles = [] #List of TrackParticleKeys
+
+    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    #When run in a different view than FTF some data dependencies needs to be loaded through verifier
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  ViewVerifyTrk, inputFTFtracks= TrackCollection )
+    PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
+
+    efmuInsideOutRecoSequence += PTSeq
+    trackParticles = PTTrackParticles[-1]
+
+    #Make InDetCandidates
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonSystemExtensionTool
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+  
+    muonExtTool = Muon__MuonSystemExtensionTool(Extrapolator = AtlasExtrapolator(),
+                                                ParticleCaloExtensionTool = pcExtensionTool)
+
+    theIndetCandidateAlg = CfgMgr.MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackSelector=getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool"),TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, MuonSystemExtensionTool=muonExtTool, InDetCandidateLocation="InDetCandidates_"+name)
+
+    efAlgs.append(theIndetCandidateAlg)
+
+
+  else:
+    # for non-latemu chains, the decoding/hough transform is run in an earlier step
+    #Need PRD containers for inside-out reco
+    ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
+    ViewVerifyInsideOut.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
+                                       ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
+                                       ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                       ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
+                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
+    efmuInsideOutRecoSequence += ViewVerifyInsideOut
 
 
   #Need to configure tools to avoid accessing calo data in muon trigger
-
   theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyTool", "MuidCaloEnergyTool", EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
 
   from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
@@ -810,15 +899,27 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
   theMuonCandidateTrackBuilderTool = getPublicToolClone("TrigMuonCandidateTrackBuilderTool", "MuonCandidateTrackBuilderTool", MuonTrackBuilder=theTrackBuilderTool,)
   insideOutRecoTool = getPublicToolClone("TrigMuonInsideOutRecoTool", "MuonInsideOutRecoTool",MuonTrackBuilder=theTrackBuilderTool,MuonCandidateTrackBuilderTool=theMuonCandidateTrackBuilderTool)
-
-  theInsideOutRecoAlg = CfgMgr.MuonCombinedInDetExtensionAlg("TrigMuonInsideOutRecoAlg",InDetCandidateLocation="InDetCandidates_"+name,MuonCombinedInDetExtensionTools=[insideOutRecoTool],usePRDs=True)
+  if 'Late' in name:
+    insideOutRecoTool = getPublicToolClone("TrigMuonStauRecoTool", "MuonStauRecoTool",MuonInsideOutRecoTool="TMEF_MuonStauInsideOutRecoTool")
+  theInsideOutRecoAlg = CfgMgr.MuonCombinedInDetExtensionAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name,MuonCombinedInDetExtensionTools=[insideOutRecoTool],usePRDs=True)
+  if 'Late' in name:
+    theInsideOutRecoAlg.TagMap = "stauTagMap"
 
   #Create the xAOD muons
   cbMuonName = muNames.EFCBInOutName
+  if 'Late' in name:
+    cbMuonName = cbMuonName+"_Late"
 
   muonparticlecreator = getPublicToolClone("MuonParticleCreatorInsideOut", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
   thecreatortool= getPublicToolClone("MuonCreatorTool_triggerInsideOut", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False,TrackQuery=theTrackQueryNoFit,TrackParticleCreator=muonparticlecreator)
-  insideoutcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgInsideOut",BuildSlowMuon=True, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name)
+  if 'Late' in name:
+    thecreatortool= getPublicToolClone("MuonCreatorTool_LateMu", "MuonCreatorTool", ScatteringAngleTool="", CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False,TrackQuery=theTrackQueryNoFit,TrackParticleCreator=muonparticlecreator,BuildStauContainer=True)
+  insideoutcreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlgInsideOut_"+name, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name)
+  if 'Late' in name:
+    insideoutcreatoralg.BuildSlowMuon=True
+    insideoutcreatoralg.TagMaps = ["stauTagMap"]
+  else:
+    insideoutcreatoralg.TagMaps = ["muGirlMap"]
   insideoutcreatoralg.MuonCreatorTool=thecreatortool
   insideoutcreatoralg.MakeClusters=False
   insideoutcreatoralg.ClusterContainerName=""
