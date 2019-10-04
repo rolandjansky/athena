@@ -93,9 +93,7 @@ class ConditionsToolSetterTree(object):
     def _mod_z(self, node):
         """z is the root node: process its children"""
 
-        print ('_mod_z: treating ', len(node.children), 'children')
         for cn in node.children:
-            print ('treating child ', node.node_id)
             self.mod_router[cn.scenario](cn)
 
     def mod_logical_binary(self, node):
@@ -206,11 +204,8 @@ class ConditionsToolSetterTree(object):
         1. map conaining parent child ids for the node
         2. map conainting the AlgTool used to instanitiate the node Conditions
         """
-        print ('ConditionsToolSetter processing node with scenario',
-               node.scenario)
 
         self.treeMap[node.node_id] = node.parent_id
-        print ('_mod_leaf', node.node_id, node.parent_id, len(node.children))
 
         #
         # parameters: (10et,0eta320)(20et)
@@ -256,7 +251,6 @@ class ConditionsToolSetterTree(object):
         # navigate the tree filling in node-parent and node- Condtion factory
         # relations
         
-        print (self.__class__.__name__, node.scenario, 'start')
         self.mod_router[node.scenario](node)
 
     def __str__(self):
