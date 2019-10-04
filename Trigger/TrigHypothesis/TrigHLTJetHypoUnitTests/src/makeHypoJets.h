@@ -11,6 +11,4 @@
 
 HypoJetVector makeHypoJets(const std::vector<double>& etas);
 
-// HypoJetVector makeHypoJets(const std::vector<MockJetWithLorentzVector*>& gj);
-
 #endif
