@@ -55,7 +55,6 @@ class ToolSetter(object):
             'combgen': self.mod_combgen,  #  shared with partgen
             'partgen': self.mod_combgen,  #  shared with combgen
             'dijet': self.mod_dijet,
-            # 'flownetwork': self.mod_flownetwork,
         }
 
     def mod_logical_binary(self, node):
