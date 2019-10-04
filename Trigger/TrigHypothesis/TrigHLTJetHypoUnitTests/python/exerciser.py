@@ -14,8 +14,6 @@ from TrigHLTJetHypo.TrigJetHypoToolConfig import (
 
 from TrigHLTJetHypo.test_cases import test_strings
 
-# from TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree as ConditionsToolSetter
