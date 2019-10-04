@@ -59,9 +59,7 @@ class ConditionsToolSetter(object):
     def _mod_z(self, node):
         """z is the root node: process its children"""
 
-        print ('_mod_z: treating ', len(node.children), 'children')
         for cn in node.children:
-            print ('treating child ', node.node_id)
             self.mod_router[cn.scenario](cn)
 
     def _mod_leaf(self, node):
@@ -69,11 +67,8 @@ class ConditionsToolSetter(object):
         1. map conaining parent child ids for the node
         2. map conainting the AlgTool used to instanitiate the node Conditions
         """
-        print ('ConditionsToolSetter processing node with scenario',
-               node.scenario)
 
         self.treeMap[node.node_id] = node.parent_id
-        print ('_mod_leaf', node.node_id, node.parent_id, len(node.children))
 
         scen = node.scenario
 
@@ -116,16 +111,10 @@ class ConditionsToolSetter(object):
  
         # navigate the tree fillin]g in node-parent and node- Condtion factory
         # relations
-        print ('ConditionsToolSetter - node.scenario', node.scenario)
         self.mod_router[node.scenario](node)
-
-        
-        print ('ConditionsToolSetter result:')
-        print (node)
 
         config_tool = TrigJetHypoToolConfig_flownetwork()
 
-        print ('treeMap: ', self.treeMap)
         treeVec = [0 for i in range(len(self.treeMap))]
         for n, p in self.treeMap.items():
             treeVec[n] = p
@@ -135,9 +124,6 @@ class ConditionsToolSetter(object):
         conditionMakers = [None for i in range(len(self.treeMap))]
         for n, p in self.conditionMakers.items():
             conditionMakers[n] = p
-
-        
-        print (conditionMakers)
 
         assert None not in conditionMakers 
 
