@@ -8,6 +8,7 @@ atlas_subdir( MuonSegmentTrackMaker )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+			  Control/AthenaMonitoring
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate
@@ -22,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MuonSegmentTrackMaker
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib SGtests MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces Particle TrkSegment TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringLib GaudiKernel StoreGateLib SGtests MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces Particle TrkSegment TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( MuonSegmentTrackMaker )

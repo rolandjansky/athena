@@ -49,10 +49,15 @@ StatusCode MuPatTrackBuilder::initialize()
   }
   if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved " << m_trackMaker << endmsg;
   
- ATH_CHECK( m_segmentKey.initialize() );
- ATH_CHECK( m_spectroTrackKey.initialize() );
- ATH_CHECK( m_spectroPartiKey.initialize() );
-
+  ATH_CHECK( m_segmentKey.initialize() );
+  ATH_CHECK( m_spectroTrackKey.initialize() );
+  ATH_CHECK( m_spectroPartiKey.initialize() );
+ 
+  // Check if the monitoring tool is not yet initialized
+  if ( not m_monTool.name().empty() ) {
+    ATH_CHECK( m_monTool.retrieve() );
+  }
+  
   return StatusCode::SUCCESS; 
 }
 
@@ -95,6 +100,40 @@ StatusCode MuPatTrackBuilder::execute()
       return StatusCode::RECOVERABLE;
   }
   ATH_MSG_DEBUG ("TrackCollection '" << m_spectroTrackKey.key() << "' recorded in storegate, ntracks: " << newtracks->size());
+
+  //---------------------------------------------------------------------------------------------------------------------//
+  //------------                Monitoring of muon segments and tracks inside the trigger algs               ------------//
+  //------------ Author:  Laurynas Mince                                                                     ------------//
+  //------------ Created: 03/10/2019                                                                         ------------//
+  //---------------------------------------------------------------------------------------------------------------------//
+
+  // Only run monitoring for online algorithms
+  if ( not m_monTool.name().empty() ) {
+    std::vector<int>    ini_mstrksn(0);
+    std::vector<double> ini_mstrkspt(0);
+    std::vector<double> ini_mstrkseta(0);
+    std::vector<double> ini_mstrksphi(0);
+    auto mstrks_n     = Monitored::Collection("mstrks_n", ini_mstrksn);
+    auto mstrks_pt    = Monitored::Collection("mstrks_pt", ini_mstrkspt);
+    auto mstrks_eta   = Monitored::Collection("mstrks_eta", ini_mstrkseta);
+    auto mstrks_phi   = Monitored::Collection("mstrks_phi", ini_mstrksphi);
+
+    auto monitorIt = Monitored::Group(m_monTool, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi);
+
+    // MS-only extrapolated tracks
+    int count_mstrks = 0;
+    for (auto const& mstrk : msc) {
+      count_mstrks++;
+      ini_mstrkspt.push_back(mstrk->pt()/1000.0); // converted to GeV
+      ini_mstrkseta.push_back(mstrk->eta());
+      ini_mstrksphi.push_back(mstrk->phi());
+    }
+    ini_mstrksn.push_back(count_mstrks);
+
+
+  }
+
+
 
   return StatusCode::SUCCESS;
 } // execute
