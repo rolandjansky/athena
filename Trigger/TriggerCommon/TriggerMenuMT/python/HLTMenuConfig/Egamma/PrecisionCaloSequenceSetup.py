@@ -26,7 +26,7 @@ def precisionCaloSequence(ConfigFlags):
 
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec import precisionCaloRecoSequence
-    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(InViewRoIs)
+    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None,InViewRoIs)
 
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
     

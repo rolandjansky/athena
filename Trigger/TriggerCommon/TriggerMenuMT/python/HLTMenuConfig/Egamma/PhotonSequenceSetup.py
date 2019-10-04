@@ -1,13 +1,14 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-import AthenaCommon.CfgMgr as CfgMgr
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+import AthenaCommon.CfgMgr as CfgMgr
 
-
+# logger
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup' )
 
 
 def fastPhotonMenuSequence():
@@ -24,7 +25,7 @@ def fastPhotonMenuSequence():
     #thePhotonFex.RoIs="EMIDRoIs"
 
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")
-    l2PhotonViewsMaker.RoIsLink = "roi"
+    l2PhotonViewsMaker.RoIsLink = "initialRoI"
     l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs" 
     #l2PhotonViewsMaker.InViewRoIs = "EMCaloRoIs"
     l2PhotonViewsMaker.Views = "EMPhotonViews"
@@ -60,17 +61,20 @@ def fastPhotonMenuSequence():
 def precisionPhotonSequence(ConfigFlags):
     """ This function creates the PrecisionPhoton sequence"""
 
+    # Prepare first the EventView
     InViewRoIs="PrecisionPhotonRoIs"                                          
     precisionPhotonViewsMaker = EventViewCreatorAlgorithm( "IMprecisionPhoton") 
     precisionPhotonViewsMaker.ViewFallThrough = True                          
-    precisionPhotonViewsMaker.RoIsLink = "PrecisionCaloRoIs"  # <------ Is it here the output of the previous step?
-    precisionPhotonViewsMaker.InViewRoIs = InViewRoIs                         
-    precisionPhotonViewsMaker.Views = "precisionPhotonViews"                    
+    precisionPhotonViewsMaker.RequireParentView = True
+    precisionPhotonViewsMaker.RoIsLink = "initialRoI"            # 
+    precisionPhotonViewsMaker.InViewRoIs = InViewRoIs            # names to use for the collection of which the RoIs are picked up
+    precisionPhotonViewsMaker.Views = "precisionPhotonViews"     # Output container which has the view objects
 
     # Configure the reconstruction algorithm sequence
     from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import precisionPhotonRecoSequence
     (precisionPhotonInViewSequence, sequenceOut) = precisionPhotonRecoSequence(InViewRoIs)
 
+    precisionPhotonViewsMaker.ViewNodeName = precisionPhotonInViewSequence.name()
 
     theSequence = seqAND("precisionPhotonSequence", [precisionPhotonViewsMaker,precisionPhotonInViewSequence])
     return (theSequence, precisionPhotonViewsMaker, sequenceOut)
@@ -78,11 +82,6 @@ def precisionPhotonSequence(ConfigFlags):
 
 
 def precisionPhotonMenuSequence(name):
-    # First the data verifiers:
-    # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::CaloClusterContainer','StoreGateSvc+'+ precisionCaloMenuDefs.precisionCaloClusters)]
 
     # This will be executed after pricisionCalo, so we need to pickup indeed the topoClusters by precisionCalo and add them here as requirements
 
