@@ -25,7 +25,6 @@
 #include "./ITrigJetConditionConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
-// #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigJetHypoToolConfig_leaf:
