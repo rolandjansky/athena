@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 void
 JetMomentMapCnv_p6::transToPers(const JetMomentMap* transObj,
 				JetMomentMap_p6* persObj,
-				MsgStream &reporter )
+				MsgStream &reporter ) const
 {
   reporter << MSG::DEBUG << "JetMomentMapConverterBase toPers() Template _p6" << endmsg;
   
@@ -58,7 +58,7 @@ JetMomentMapCnv_p6::transToPers(const JetMomentMap* transObj,
 void
 JetMomentMapCnv_p6::persToTrans(const JetMomentMap_p6* persObj,
 				JetMomentMap* transObj,
-				MsgStream &reporter )
+				MsgStream &reporter ) const
 {
   reporter << MSG::DEBUG << "JetMomentMapConverterBase toTrans() Template _p6" << endmsg;
 
