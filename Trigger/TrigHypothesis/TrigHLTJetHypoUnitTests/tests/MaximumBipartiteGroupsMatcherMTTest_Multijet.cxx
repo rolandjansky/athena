@@ -11,10 +11,8 @@
 #include "TrigHLTJetHypo/../src/MultijetFlowNetworkBuilder.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
-// #include "./MockJetWithLorentzVector.h"
 #include "../src/makeHypoJets.h"
 #include "gtest/gtest.h"
-// #include "gmock/gmock.h"
 
 #include <TLorentzVector.h>
 #include <memory>
@@ -39,12 +37,6 @@
  * - ICondition
  */
 
-/*
-using ::testing::Return;
-using ::testing::_;
-using ::testing::SetArgReferee;
-using ::testing::AnyNumber;
-*/
 
 class MaximumBipartiteGroupsMatcherMTTest_Multijet: public ::testing::Test {
 public:
@@ -239,7 +231,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_2){
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
-  // collector.reset(new DebugInfoCollector("mj_flowNetworkBuilder_2_collector"));
 
   auto G = builder->create(groups.begin(), groups.end(), collector, nodeToJet);
   EXPECT_TRUE(G.has_value());
