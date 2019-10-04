@@ -22,16 +22,12 @@ def rotate_(node):
     to_rotate = ('and', 'combgen')
 
     while node.scenario in to_rotate:
-        print ("rotating ", node.scenario)
         newnodes = copy.deepcopy(node.children)
         newnode0 = newnodes[0]
         curnode = newnodes[0]
         for n in newnodes[1:]:
             curnode.children.append(n)
             curnode = n
-        print ('node rotation done: new node: ')
-        print (newnode0)
-        print ('===== end new node =====\n')
         node = newnode0
 
 
