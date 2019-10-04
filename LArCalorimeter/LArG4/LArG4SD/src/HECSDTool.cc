@@ -38,7 +38,7 @@ namespace LArG4
   //---------------------------------------------------------------------------
   // Create the SD wrapper for current worker thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* HECSDTool::makeSD()
+  G4VSensitiveDetector* HECSDTool::makeSD() const
   {
     // Create the wrapper
     auto sdWrapper = new SimpleSDWrapper("LArHECSDWrapper", m_outputCollectionNames[0]);

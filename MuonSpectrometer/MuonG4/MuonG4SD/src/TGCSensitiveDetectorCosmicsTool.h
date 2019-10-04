@@ -14,7 +14,7 @@ class TGCSensitiveDetectorCosmicsTool: public SensitiveDetectorBase {
   TGCSensitiveDetectorCosmicsTool(const std::string& type, const std::string& name, const IInterface *parent);
   ~TGCSensitiveDetectorCosmicsTool() {}
 protected:
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif

@@ -27,7 +27,7 @@ class ZDC_StripSDTool : public SensitiveDetectorBase
 
 protected:
   // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif //ZDC_SD_ZDC_STRIP_SDTOOL_H
