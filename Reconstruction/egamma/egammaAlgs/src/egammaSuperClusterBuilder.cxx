@@ -155,6 +155,12 @@ StatusCode egammaSuperClusterBuilder::initialize() {
   ATH_CHECK(m_clusterCorrectionTool.retrieve());
   ATH_CHECK(m_MVACalibSvc.retrieve());
 
+  if (!m_egammaCheckEnergyDepositTool.empty()) {
+    ATH_CHECK( m_egammaCheckEnergyDepositTool.retrieve() );
+  } else {
+    m_egammaCheckEnergyDepositTool.disable();
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -293,13 +299,15 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   ///Calculate the kinematics of the new cluster, after all cells are added
   CaloClusterKineHelper::calculateKine(newCluster.get(), true, true);
 
-  //If adding all EM cells I am somehow below the seed threshold then remove 
+  //If adding all EM cells we are somehow below the seed threshold then remove 
   if(newCluster->et()<m_EtThresholdCut ){
     return nullptr;
   }
 
-  //Check to see if the cluster has some minimal energy in 2nd sampling
-  if( newCluster->energyBE(2) < m_thrE2min){
+   //Check to see if cluster pases basic requirements. If not, kill it.
+  if( !m_egammaCheckEnergyDepositTool.empty() && 
+      !m_egammaCheckEnergyDepositTool->checkFractioninSamplingCluster( newCluster.get() ) ) {
+    ATH_MSG_DEBUG("Cluster failed sample check: dont make ROI");
     return nullptr;
   }
 
