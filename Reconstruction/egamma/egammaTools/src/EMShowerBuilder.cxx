@@ -225,10 +225,10 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::Cal
     // retrieve the corresponding CaloCell_ID for LarHec and TILE
     static const std::vector<CaloCell_ID::SUBCALO> theVecCalo={CaloCell_ID::LARHEC,CaloCell_ID::TILE};
    // define a new Calo Cell list
-    std::unique_ptr<CaloCellList> HADccl = std::make_unique<CaloCellList>(cellcoll,theVecCalo);
+    CaloCellList HADccl(cellcoll,theVecCalo);
     // calculate information concerning just the hadronic leakage
     IegammaIso::Info info;
-    StatusCode sc =  m_HadronicLeakageTool->execute(*clus,*HADccl,info);
+    StatusCode sc =  m_HadronicLeakageTool->execute(*clus,HADccl,info);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("call to Iso returns failure for execute");
         return sc;
