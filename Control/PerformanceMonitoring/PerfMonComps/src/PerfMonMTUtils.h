@@ -17,11 +17,6 @@
 
 #include <sys/stat.h>  // to check whether /proc/* exists in the machine
 
-// Following includes enables the usage of gettid() system call
-#include <unistd.h>
-#include <sys/syscall.h>
-#define gettid() syscall(SYS_gettid)
-
 typedef std::map< std::string, long > memory_map_t; // e.g. Vmem : 1200(kB)
 
 /*
@@ -52,38 +47,25 @@ namespace PMonMT {
       return std::make_pair( this->stepName, this->compName ) < std::make_pair( sc.stepName, sc.compName );
     }
   
-  };
-                                   
-  // Step Name, Component name and event number triple. e.g. Execute - StoreGateSvc - 3 
-  struct StepCompEvent {
-  
-    std::string stepName;
-    std::string compName;
-    int eventNumber;
-  
-    //Overload < operator, because we are using a custom key(StepCompEvent)  for std::map
-    bool operator<(const StepCompEvent& sce) const {
-      return std::make_pair( this->eventNumber, this->compName ) < std::make_pair( sce.eventNumber, sce.compName );
-    }
-  };
-  
+  };  
 
   // Basic Measurement
   struct Measurement {
 
-    // These two variables stores the measurements captured outside the event loop
+    // Variables to store measurements
     double cpu_time;
     double wall_time;
-
     memory_map_t mem_stats; // Vmem, Rss, Pss, Swap
     
     // This map stores the measurements captured in the event loop
-    std::map< StepCompEvent, Measurement > parallel_meas_map;
+    std::map< int, Measurement > parallel_meas_map; // [Event count so far]: Measurement
 
+    // Peak values for Vmem, Rss and Pss
     long vmemPeak = LONG_MIN;
     long rssPeak = LONG_MIN;
     long pssPeak = LONG_MIN;
 
+    // Capture for serial steps
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
@@ -100,9 +82,10 @@ namespace PMonMT {
         
     }
 
-    void capture_MT ( StepCompEvent sce ) {
-           
-      cpu_time = get_thread_cpu_time();
+    // Capture for serial steps
+    void capture_MT ( int eventCount ) {
+          
+      cpu_time = get_process_cpu_time();
       wall_time = get_wall_time(); 
 
       Measurement meas;
@@ -122,10 +105,8 @@ namespace PMonMT {
       meas.cpu_time = cpu_time;
       meas.wall_time = wall_time;
 
-      parallel_meas_map[sce] = meas;
+      parallel_meas_map[eventCount] = meas;
     }
-
-
 
     Measurement() : cpu_time{0.}, wall_time{0.} { }
   };
@@ -133,16 +114,19 @@ namespace PMonMT {
   // Basic Data
   struct MeasurementData {
 
-    // These variables are used to calculate the serial monitoring
+    // These variables are used to calculate and store the serial component level measurements
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
-    
     memory_map_t m_memMon_tmp_map;
     memory_map_t m_memMon_delta_map;
 
-    // These maps are used to calculate the parallel monitoring
-    std::map< StepCompEvent, Measurement > m_parallel_tmp_map;
-    std::map< StepCompEvent, Measurement > m_parallel_delta_map;    
+    // This map is used to store the event level measurements
+    std::map< int, Measurement > m_parallel_delta_map;  
+
+    // Offset variables
+    double m_offset_cpu;
+    double m_offset_wall;
+    memory_map_t m_offset_mem;
     
     void addPointStart(const Measurement& meas) {          
 
@@ -162,23 +146,26 @@ namespace PMonMT {
         m_memMon_delta_map = meas.mem_stats - m_memMon_tmp_map;   
     }
 
-    // Clear -> Make generic + make meas const
-    void addPointStart_MT(Measurement& meas, StepCompEvent sce ){
+    // Record the event level measurements
+    void record_MT(Measurement& meas, int eventCount ){
 
-      m_parallel_tmp_map[sce] = meas.parallel_meas_map[sce];
-    }
+      // If it is the first event, set it as offset
+      if(eventCount == 0){
+        m_offset_cpu = meas.parallel_meas_map[eventCount].cpu_time;
+        m_offset_wall = meas.parallel_meas_map[eventCount].wall_time;
+        m_offset_mem = meas.parallel_meas_map[eventCount].mem_stats;
+      }
 
-    void addPointStop_MT (Measurement& meas, StepCompEvent sce  ){
-
-      m_parallel_delta_map[sce].cpu_time = meas.parallel_meas_map[sce].cpu_time - m_parallel_tmp_map[sce].cpu_time;
-      m_parallel_delta_map[sce].wall_time = meas.parallel_meas_map[sce].wall_time - m_parallel_tmp_map[sce].wall_time;
+      m_parallel_delta_map[eventCount].cpu_time = meas.parallel_meas_map[eventCount].cpu_time - m_offset_cpu;
+      m_parallel_delta_map[eventCount].wall_time = meas.parallel_meas_map[eventCount].wall_time - m_offset_wall;
 
       if(isDirectoryExist("/proc")){
-        m_parallel_delta_map[sce].mem_stats["vmem"] = meas.parallel_meas_map[sce].mem_stats["vmem"] - m_parallel_tmp_map[sce].mem_stats["vmem"];
-        m_parallel_delta_map[sce].mem_stats["rss"] = meas.parallel_meas_map[sce].mem_stats["rss"] - m_parallel_tmp_map[sce].mem_stats["rss"];
-        m_parallel_delta_map[sce].mem_stats["pss"] = meas.parallel_meas_map[sce].mem_stats["pss"] - m_parallel_tmp_map[sce].mem_stats["pss"];
-        m_parallel_delta_map[sce].mem_stats["swap"] = meas.parallel_meas_map[sce].mem_stats["swap"] - m_parallel_tmp_map[sce].mem_stats["swap"];
+        m_parallel_delta_map[eventCount].mem_stats["vmem"] = meas.parallel_meas_map[eventCount].mem_stats["vmem"] - m_offset_mem["vmem"];
+        m_parallel_delta_map[eventCount].mem_stats["rss"] = meas.parallel_meas_map[eventCount].mem_stats["rss"] - m_offset_mem["rss"];
+        m_parallel_delta_map[eventCount].mem_stats["pss"] = meas.parallel_meas_map[eventCount].mem_stats["pss"] - m_offset_mem["pss"];
+        m_parallel_delta_map[eventCount].mem_stats["swap"] = meas.parallel_meas_map[eventCount].mem_stats["swap"] - m_offset_mem["swap"];
       }
+
     }
 
     
@@ -226,11 +213,12 @@ inline double PMonMT::get_wall_time() {
 /*
  * Memory statistics for serial steps
  */
+
+ // Read from process
 inline memory_map_t PMonMT::get_mem_stats(){
 
   memory_map_t result;
-  pid_t tid = gettid(); // get kernel thread id
-  std::string fileName = "/proc/self/task/" + std::to_string(tid) + "/smaps";
+  std::string fileName = "/proc/self/smaps";
   std::ifstream smaps_file(fileName); 
  
   std::string line;

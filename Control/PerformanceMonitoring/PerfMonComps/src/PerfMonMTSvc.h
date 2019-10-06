@@ -120,18 +120,17 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
 
 
-    int getEventNumber() const;
-    void eventCounter(int eventNumber);
+    int getEventID() const;
+    int eventCounter(int eventID);
     
     bool isLoop(); // Returns true if the execution is at the event loop, false o/w.
 
-    void parallelDataAggregator(); // 
-
-    void divideData2Steps_serial();    
-    void divideData2Steps_parallel();   
+    void divideData2Steps_serial();     
 
     std::string scaleTime(double timeMeas);
     std::string scaleMem(long memMeas);
+
+    bool isCheckPoint(int eventID, int eventCount);
  
     std::string get_cpu_model_info() const;
     int get_cpu_core_info() const;
@@ -139,9 +138,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     PMonMT::StepComp generate_serial_state( const std::string& stepName,
                                             const std::string& compName) const;
 
-    PMonMT::StepCompEvent generate_parallel_state( const std::string& stepName,
-                                                   const std::string& compName,
-                                                   const int& eventNumber) const;
 
     
   private:
@@ -155,6 +151,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     BooleanProperty m_isEventLoopMonitoring; 
     Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
 
+    // Event ID's are stored to count the number of events. There should be a better way!
+    std::unordered_set<int> m_eventIDsSeenSoFar;
+
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
 
@@ -162,14 +161,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     //const static std::string m_snapshotStepNames[3];
     std::vector< std::string > m_snapshotStepNames;
   
+    // Store event level measurements
+    PMonMT::MeasurementData m_eventLevelData;
 
-    // Comp level measurements inside event loop
-    PMonMT::MeasurementData m_parallelCompLevelData;
-
-    std::mutex m_mutex_capture; // lock for capturing event loop measurements
-
-    // Event ID's are stored to count the number of events. There should be a better way!
-    std::set<int> m_eventIds;
+    // Lock for capturing event loop measurements
+    std::mutex m_mutex_capture; 
 
 
     /* Data structure  to store component level measurements
@@ -186,23 +182,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_cbk; // callback
     
-    std::vector<std::map < PMonMT::StepComp , PMonMT::MeasurementData* > > m_stdoutVec_serial;
-    
-
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap;
-    
-    // m_aggParallelCompLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_parallel.
-    // There should be a more clever way!
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_evt;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_stop;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_plp;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_cbk;
-
-    std::vector<std::map < PMonMT::StepComp , PMonMT::Measurement> > m_stdoutVec_parallel;
-
-
-
-    
+    std::vector<std::map < PMonMT::StepComp , PMonMT::MeasurementData* > > m_stdoutVec_serial;    
 
 }; // class PerfMonMTSvc
 
