@@ -16,6 +16,10 @@ if not hasattr(svcMgr, 'PerfMonMTSvc'):
     theApp.CreateSvc.insert( 0, "PerfMonMTSvc/PerfMonMTSvc" )
     # Disable event loop monitoring by default
     svcMgr.PerfMonMTSvc.doEventLoopMonitoring = False
+    # Configure the check point sequence in the event loop monitoring.
+    # By default common difference is the number of threads with which the job is running
+    svcMgr.PerfMonMTSvc.checkPointType = "Geometric" 
+    svcMgr.PerfMonMTSvc.checkPointFactor = jp.ConcurrencyFlags.NumThreads()
 
     svcMgr.PerfMonMTSvc.nThreads = jp.ConcurrencyFlags.NumThreads()
     pass

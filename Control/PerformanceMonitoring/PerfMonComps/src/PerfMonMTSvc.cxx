@@ -220,7 +220,19 @@ bool PerfMonMTSvc::isCheckPoint(int eventID, int eventCount){
   // Since we are capturing the beginning of 0th, kth, 2kth... event, we check if it's beginning or not with the following line.
   bool isBeginning = (m_eventIDsSeenSoFar.find(eventID) == m_eventIDsSeenSoFar.end());
   m_eventIDsSeenSoFar.insert(eventID); // not clear
-  return ( (eventCount % m_nThreads == 0) && (isBeginning) ) ? true : false;
+
+  if(m_checkPointType == "Arithmetic")
+    return  (eventCount % m_checkPointFactor == 0) && isBeginning;
+  else
+    return isPower(eventCount, m_checkPointFactor) && isBeginning;
+
+  
+}
+
+bool PerfMonMTSvc::isPower(int input, int base){
+  while(input >= base  && input % base == 0)
+    input /= base;
+  return (input == 1);
 }
 
 // Report the results

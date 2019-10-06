@@ -123,6 +123,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     int getEventID() const;
     int eventCounter(int eventID);
     
+    bool isPower(int input, int base); // check if input is power of base or not
     bool isLoop(); // Returns true if the execution is at the event loop, false o/w.
 
     void divideData2Steps_serial();     
@@ -150,6 +151,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // Properties
     BooleanProperty m_isEventLoopMonitoring; 
     Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
+
+    Gaudi::Property< std::string > m_checkPointType { this, "checkPointType", "Arithmetic", "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)" };
+    Gaudi::Property<int> m_checkPointFactor {this, "checkPointFactor", 10, "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric"};
 
     // Event ID's are stored to count the number of events. There should be a better way!
     std::unordered_set<int> m_eventIDsSeenSoFar;
