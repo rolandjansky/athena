@@ -309,10 +309,10 @@ void PerfMonMTSvc::report2Stdout_Time_Parallel() {
   ATH_MSG_INFO("                             CPU & Wall Time Monitoring                                ");
   ATH_MSG_INFO("                                    (Event Loop)                                       ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Event CheckPoint             CPU Time [ms]       Wall Time [ms]");
+  ATH_MSG_INFO("Event CheckPoint             CPU Time [ms]");
 
   for(auto it : m_eventLevelData.m_parallel_delta_map){
-    ATH_MSG_INFO(format("%1%  %|29t|%2$.2f  %|49t|%3% ") % it.first % it.second.cpu_time % it.second.wall_time );
+    ATH_MSG_INFO(format("%1%  %|29t|%2$.2f ") % it.first % it.second.cpu_time );
   }
   ATH_MSG_INFO("=======================================================================================");
 

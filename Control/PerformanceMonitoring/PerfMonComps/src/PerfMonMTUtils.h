@@ -86,7 +86,6 @@ namespace PMonMT {
     void capture_MT ( int eventCount ) {
           
       cpu_time = get_process_cpu_time();
-      wall_time = get_wall_time(); 
 
       Measurement meas;
 
@@ -103,7 +102,6 @@ namespace PMonMT {
       }
       
       meas.cpu_time = cpu_time;
-      meas.wall_time = wall_time;
 
       parallel_meas_map[eventCount] = meas;
     }
@@ -125,7 +123,6 @@ namespace PMonMT {
 
     // Offset variables
     double m_offset_cpu;
-    double m_offset_wall;
     memory_map_t m_offset_mem;
     
     void addPointStart(const Measurement& meas) {          
@@ -152,12 +149,10 @@ namespace PMonMT {
       // If it is the first event, set it as offset
       if(eventCount == 0){
         m_offset_cpu = meas.parallel_meas_map[eventCount].cpu_time;
-        m_offset_wall = meas.parallel_meas_map[eventCount].wall_time;
         m_offset_mem = meas.parallel_meas_map[eventCount].mem_stats;
       }
 
       m_parallel_delta_map[eventCount].cpu_time = meas.parallel_meas_map[eventCount].cpu_time - m_offset_cpu;
-      m_parallel_delta_map[eventCount].wall_time = meas.parallel_meas_map[eventCount].wall_time - m_offset_wall;
 
       if(isDirectoryExist("/proc")){
         m_parallel_delta_map[eventCount].mem_stats["vmem"] = meas.parallel_meas_map[eventCount].mem_stats["vmem"] - m_offset_mem["vmem"];
