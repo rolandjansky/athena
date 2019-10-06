@@ -205,13 +205,6 @@ StatusCode MuonRdoToMuonDigitTool::digitize() {
 }
 
 
-StatusCode MuonRdoToMuonDigitTool::finalize() {
-    
-   ATH_MSG_DEBUG( "finalize."  );
-
-   return StatusCode::SUCCESS;
-}
-
 StatusCode MuonRdoToMuonDigitTool::decodeMdtRDO(MdtDigitContainer *mdtContainer) {
 
   ATH_MSG_DEBUG( "Decoding MDT RDO into MDT Digit"  );

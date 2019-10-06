@@ -75,7 +75,6 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
     
   virtual StatusCode initialize() override;
   virtual StatusCode digitize()   override;
-  virtual StatusCode finalize()   override;
 
  private:
 
