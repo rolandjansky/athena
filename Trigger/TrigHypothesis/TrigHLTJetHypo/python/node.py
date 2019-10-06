@@ -12,39 +12,6 @@ name TrigJetHypoToolConfig_XXX.
 from __future__ import print_function
 
 from constants import logicals
-import copy
-
-def rotate_(node):
-    """define rotable nodes. replace each rotatable node in a tree
-    by a vertical (by generation) linear sequence of nodes.
-    """
-    
-    to_rotate = ('and', 'combgen')
-
-    while node.scenario in to_rotate:
-        newnodes = copy.deepcopy(node.children)
-        newnode0 = newnodes[0]
-        curnode = newnodes[0]
-        for n in newnodes[1:]:
-            curnode.children.append(n)
-            curnode = n
-        node = newnode0
-
-
-    node.children = [rotate_(cn) for cn in node.children]
-
-    return node
-
-def rotate(node):
-
-    
-    node_id = node.node_id
-    parent_id = node.parent_id
-
-    node = rotate_(node)
-    node.set_ids(node_id, parent_id)
-
-    return node
 
     
 class Node(object):
@@ -70,11 +37,13 @@ class Node(object):
         self.node_id = node_id
         self.parent_id = parent_id
 
-        c_node_id = self.node_id + 1
+        c_node_id = node_id + 1
         for c in self.children:
-            c.set_ids(c_node_id, self.node_id)
-            c_node_id += 1
-
+            print('bumping child id %s %s %s' % (
+                str(c_node_id), self.scenario, c.scenario))
+            c_node_id = c.set_ids(c_node_id, self.node_id)
+        return c_node_id
+    
     def add_child(self, c):
         self.children.append(c)
         
@@ -116,6 +85,13 @@ class Node(object):
              indent + 'conf_attrs [%d]:' % len(self.conf_attrs)]
         for ca in self.conf_attrs:
             s.append(indent + str(ca))
+        try:
+            # this attribute added by flow network setter tool
+            s.append(indent + 'compound_condition_tools [%d]' % len(
+                self.compound_condition_tools))
+        except:
+            pass
+            
         s.append(indent + 'AlgTool: %s' % str(self.tool))
         s.append(indent + 'No of children: %d\n' % len(self.children))
 
