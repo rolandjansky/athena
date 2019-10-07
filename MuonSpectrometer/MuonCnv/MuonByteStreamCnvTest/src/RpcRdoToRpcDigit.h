@@ -29,7 +29,6 @@ class RpcRdoToRpcDigit : public AthReentrantAlgorithm {
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ServiceHandle<IRPCcablingServerSvc> m_rpcCablingServerSvc{this, "RPCcablingServerSvc", "RPCcablingServerSvc", ""};
-  const RpcIdHelper *   m_rpcHelper{};
   const IRPCcablingSvc * m_rpcCabling{};
   SG::ReadHandleKey<RpcPadContainer> m_rpcRdoKey{this, "RpcRdoContainer", "RPCPAD", "Rpc RDO Input"};
   SG::WriteHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RpcDigitContainer", "RPC_DIGITS", "Rpc Digit Output"};
