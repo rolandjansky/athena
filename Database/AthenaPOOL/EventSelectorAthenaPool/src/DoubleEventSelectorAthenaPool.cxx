@@ -1217,12 +1217,12 @@ StatusCode DoubleEventSelectorAthenaPool::io_finalize() {
 */
 void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
 {
-  if (not inc.context().hasExtension<Atlas::ExtendedEventContext>()) {
+  if (not Atlas::hasExtendedEventContext(inc.context()) ) {
     ATH_MSG_WARNING("No extended event context available.");
     return;
   }
 
-  const SGImplSvc *sg = static_cast<SGImplSvc *>(inc.context().getExtension<Atlas::ExtendedEventContext>().proxy());
+  const SGImplSvc *sg = static_cast<SGImplSvc *>(Atlas::getExtendedEventContext(inc.context()).proxy());
 
   // Primary guid
   SG::SourceID fid1;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ConditionTestAlg.cxx 
@@ -73,7 +73,7 @@ StatusCode ConditionTestAlg::execute()
   const EventContext& ctx = *getContext();
 #endif
 
-  ATH_MSG_INFO( name() << " running with store " << ctx.getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
+  ATH_MSG_INFO( name() << " running with store " << Atlas::getExtendedEventContext(ctx).proxy()->name() );
 
   // Make a (large) validity range
   EventIDBase begin (0,
