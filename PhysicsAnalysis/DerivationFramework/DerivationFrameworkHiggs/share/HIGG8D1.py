@@ -276,12 +276,12 @@ if StoreAdditionalAmbiguityContent:
     thinningTools.append(HIGG8D1ElectronAddTPThinningTool)
 
 # Tracks associated with Taus
-HIGG8D1TauSelectionString = "(TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV)"
+#HIGG8D1TauPtSelectionString = "(TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG8D1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "HIGG8D1TauTPThinningTool",
                                                                           ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
                                                                           TauKey                  = "TauJets",
-                                                                          SelectionString         = HIGG8D1TauSelectionString,
+                                                                          SelectionString         = "TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV",
                                                                           ConeSize                = 0.6,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG8D1TauTPThinningTool
@@ -390,7 +390,8 @@ eleRequirements = '(Electrons.pt > 5*GeV) && (abs(Electrons.eta) < 2.6) && (Elec
 leadElectron = eleRequirements + ' && (Electrons.pt > 15*GeV)'
 muRequirements = '(Muons.DFCommonGoodMuon) && (Muons.muonType == 0) && (Muons.pt > 5*GeV) && (abs(Muons.eta) < 2.6)'
 leadMuon = muRequirements + ' && (Muons.pt > 15*GeV)'
-tauRequirements = '(TauJets.pt > 15*GeV) && HIGG8D1JetBDTSigLoose && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3))'
+tauRequirements = '(TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV) && HIGG8D1JetRNNSigLoose && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3))'
+#tauRequirements = 'HIGG8D1TauPtSelectionString && HIGG8D1JetRNNSigLoose && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3))'
 
 #=======================================
 # DeltaR (tau skimming)
