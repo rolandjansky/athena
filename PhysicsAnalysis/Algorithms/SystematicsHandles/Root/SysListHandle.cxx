@@ -118,7 +118,7 @@ namespace CP
 
 
   StatusCode SysListHandle ::
-  foreach (const std::function<StatusCode(const CP::SystematicSet)>& func)
+  foreach (const std::function<StatusCode(const CP::SystematicSet&)>& func)
   {
     assert (isInitialized());
 
