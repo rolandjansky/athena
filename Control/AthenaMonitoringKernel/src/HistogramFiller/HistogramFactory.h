@@ -15,6 +15,8 @@
 
 #include "HistogramException.h"
 
+#include <mutex>
+
 namespace Monitored {
   /**
    * @brief Bridge between ROOT framework and monitoring code
@@ -138,6 +140,8 @@ namespace Monitored {
     ServiceHandle<ITHistSvc> m_histSvc;
     std::string m_streamName; //!< defines the stream for THistSvc
     std::string m_groupName;  //!< defines location of group of histograms
+
+    mutable std::mutex m_createLock;
   };
 }
 
