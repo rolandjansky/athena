@@ -20,6 +20,7 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
+#include <mutex>
 
 inline void CscIdHelper::create_mlog() const
 {
@@ -854,16 +855,14 @@ bool CscIdHelper::validElement(const Identifier& id, int stationName,
       (stationEta > stationEtaMax(id)) ||
       (0 == stationEta)                 )
     {
-      static bool stationWarningPrinted=false;
-      if (!stationWarningPrinted) {
-          (*m_Log) << MSG::WARNING
+      static std::once_flag flag ATLAS_THREAD_SAFE;
+      std::call_once(flag, [&](){
+        (*m_Log) << MSG::WARNING
          << "Invalid stationEta=" << stationEta
          << " for stationName=" << name
          << " stationEtaMin=" << stationEtaMin(id)
          << " stationEtaMax=" << stationEtaMax(id)
-         << endmsg;
-        stationWarningPrinted=true;
-      }
+         << endmsg; });
       return false;
     }
   if ((stationPhi < stationPhiMin(id)) ||
