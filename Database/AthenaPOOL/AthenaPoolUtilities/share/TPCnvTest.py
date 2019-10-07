@@ -77,6 +77,14 @@ if have_atlas_geo:
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
+    #svcMgr.GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasSTgc = False
+
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from TrkEventCnvTools import TrkEventCnvToolsConf
+EventCnvSuperTool = TrkEventCnvToolsConf.Trk__EventCnvSuperTool('EventCnvSuperTool')
+EventCnvSuperTool.MuonCnvTool.IdHelperTool.HasSTgc = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+EventCnvSuperTool.MuonCnvTool.IdHelperTool.HasMM = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+ToolSvc += EventCnvSuperTool
 
 #
 # If a new xAOD variable appears, print a warning, but don't treat
