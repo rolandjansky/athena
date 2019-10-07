@@ -36,6 +36,7 @@ if not 'vp1Cavern' in dir(): vp1Cavern=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
 if not 'vp1NSW' in dir(): vp1NSW=False
+if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
 
 def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
 
@@ -272,6 +273,19 @@ DetFlags.Print()
 # --- GeoModel
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
+from AthenaCommon.AppMgr import ToolSvc
+
+if vp1Muon and len(vp1NSWAGDDFiles)>0:
+    print "*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) instead from built-in geometry"
+    from AthenaCommon.AppMgr import theApp
+    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+    AGDD2Geo = AGDDtoGeoSvc()
+    theApp.CreateSvc += ["AGDDtoGeoSvc"]
+    svcMgr += AGDD2Geo
+    from AthenaCommon import CfgMgr
+    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+    NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
+    AGDD2Geo.Builders += [ NSWAGDDTool ]
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
