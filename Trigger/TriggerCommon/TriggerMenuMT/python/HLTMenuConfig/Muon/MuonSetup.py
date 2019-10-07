@@ -364,7 +364,7 @@ def muonIDFastTrackingSequence( RoIs, name ):
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs("Muon")
+  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="Muon", rois = RoIs)
 
   global TrackParticlesName
   global theFTF_name
@@ -372,10 +372,6 @@ def muonIDFastTrackingSequence( RoIs, name ):
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
-      if "RoIs" in viewAlg.properties():
-          viewAlg.RoIs = RoIs
-      if "roiCollectionName" in viewAlg.properties():
-          viewAlg.roiCollectionName = RoIs
       if "InDetTrigTrackParticleCreatorAlg" in  viewAlg.name():
           TrackParticlesName = viewAlg.TrackParticlesName
       if "TrigFastTrackFinder" in  viewAlg.name():
@@ -618,15 +614,11 @@ def muEFCBRecoSequence( RoIs, name ):
   if "FS" in name:
     #Need to run tracking for full scan chains
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS") 
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
 
      #TrackParticlesName = ""
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
-      if "RoIs" in viewAlg.properties():
-        viewAlg.RoIs = RoIs
-      if "roiCollectionName" in viewAlg.properties():
-        viewAlg.roiCollectionName = RoIs
       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName
@@ -950,15 +942,11 @@ def efmuisoRecoSequence( RoIs, Muons ):
   efmuisoRecoSequence = parOR("efmuIsoViewNode")
 
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs("MuonIso")
+  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
 
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
     efmuisoRecoSequence += viewAlg
-    if "RoIs" in viewAlg.properties():
-      viewAlg.RoIs = RoIs
-    if "roiCollectionName" in viewAlg.properties():
-      viewAlg.roiCollectionName = RoIs
     if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName
