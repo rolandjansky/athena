@@ -24,6 +24,7 @@ HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
 
 
 TNamed* HistogramFactory::create(const HistogramDef& def) {
+  std::scoped_lock lock(m_createLock);
   TNamed* rootObj(0);
 
   if (def.type == "TH1F") {
