@@ -767,7 +767,7 @@ namespace EL
         ANA_CHECK (openInputFile (fileName));
         eventRange.m_endEvent = inputFileNumEntries();
 
-        if (skipEvents >= eventRange.m_endEvent)
+        if (skipEvents != 0 && skipEvents >= eventRange.m_endEvent)
         {
           skipEvents -= eventRange.m_endEvent;
           continue;
