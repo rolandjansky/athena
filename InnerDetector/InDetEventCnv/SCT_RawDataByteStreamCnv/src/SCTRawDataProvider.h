@@ -24,7 +24,6 @@
 class ISCTRawDataProviderTool;
 class ISCT_CablingTool;
 class SCT_ID;
-class SCT_ByteStreamFractionContainer;
 
 /** 
  * @class SCTRawDataProvider
@@ -121,11 +120,6 @@ class SCTRawDataProvider : public AthReentrantAlgorithm
                                                               "SCT_ByteStreamErrs", 
                                                               "SCT BS error key"};
 
-  /** Write handle for SCT ByteStream fraction container. */
-  SG::WriteHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerKey{this, 
-                                                                           "ByteStreamFracContainer", 
-                                                                           "SCT_ByteStreamFrac", 
-                                                                           "SCT BS fraction key"};
   /** Update handle for SCT RDO Cache. */
   SG::UpdateHandleKey<SCT_RDO_Cache> m_rdoContainerCacheKey;
 };

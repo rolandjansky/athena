@@ -7,7 +7,6 @@
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 #include "EventContainers/IdentifiableContTemp.h"
 
 #include <memory>
@@ -47,7 +46,6 @@ StatusCode SCTRawDataProvider::initialize()
   ATH_CHECK(m_lvl1CollectionKey.initialize());
   ATH_CHECK(m_bcIDCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
-  ATH_CHECK(m_bsFracContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
 
   ATH_CHECK( m_rawDataTool.retrieve() );
@@ -76,9 +74,6 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey, ctx);
   ATH_CHECK(bsErrContainer.record(std::make_unique<InDetBSErrContainer>()));
-
-  SG::WriteHandle<SCT_ByteStreamFractionContainer> bsFracContainer(m_bsFracContainerKey, ctx);
-  ATH_CHECK(bsFracContainer.record(std::make_unique<SCT_ByteStreamFractionContainer>()));
 
   // Ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs
   std::vector<const ROBFragment*> vecROBFrags;
@@ -142,8 +137,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags, 
                              *rdoInterface, 
-                             bsErrContainer.ptr(), 
-                             bsFracContainer.ptr()).isFailure()) {
+                             bsErrContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 
