@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PartonHistory.cxx 800464 2017-03-13 18:06:24Z tpelzer $
@@ -21,7 +21,7 @@ namespace xAOD{
 
   //Initialize variables for ttbar events
   void PartonHistory::IniVarTtbar(){
-	
+  
    //ttbar variables  
    this->auxdecor< float >( "MC_ttbar_beforeFSR_m" ) = -1;
    this->auxdecor< float >( "MC_ttbar_beforeFSR_pt") = -1; 
@@ -212,7 +212,7 @@ namespace xAOD{
 
   //Initialize variables for tbbar events
   void PartonHistory::IniVarTbbar(){
-	
+  
    //ttbar variables  
    this->auxdecor< float >( "MC_tbbar_beforeFSR_m" ) = -1;
    this->auxdecor< float >( "MC_tbbar_beforeFSR_pt") = -1; 
@@ -266,7 +266,7 @@ namespace xAOD{
   
     //Initialize variables for Wlv events
   void PartonHistory::IniVarWlv(){
-	
+  
    // W
    this->auxdecor< float >( "MC_W_m" ) = -1 ; 
    this->auxdecor< float >( "MC_W_pt" ) = -1 ; 
@@ -384,7 +384,7 @@ namespace xAOD{
 
   //Initialize variables for ttbargamma events
   void PartonHistory::IniVarTtGamma(){
-	
+  
    //ttbar variables  
    this->auxdecor< float >( "MC_ttbar_beforeFSR_m" ) = -1;
    this->auxdecor< float >( "MC_ttbar_beforeFSR_pt") = -1; 
@@ -480,7 +480,111 @@ namespace xAOD{
 
   }
 
+  // Initialize variables for thqtautau events
+  void PartonHistory::IniVarThqtautau() {
+    //t variables
+    this->auxdecor< float >("MC_t_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_t_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_t_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_t_beforeFSR_phi") = -1000;
 
+    this->auxdecor< float >("MC_t_afterFSR_m") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_phi") = -1000;
+
+    this->auxdecor< float >("MC_t_afterFSR_SC_m") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_SC_pt") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_SC_eta") = -1000;
+    this->auxdecor< float >("MC_t_afterFSR_SC_phi") = -1000;
+
+    this->auxdecor< float >("MC_W_from_t_m") = -1000;
+    this->auxdecor< float >("MC_W_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_W_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_W_from_t_phi") = -1000;
+
+    this->auxdecor< float >("MC_b_from_t_m") = -1000;
+    this->auxdecor< float >("MC_b_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_b_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_b_from_t_phi") = -1000;
+
+    this->auxdecor< float >("MC_Wdecay1_from_t_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_t_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay1_from_t_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_Wdecay2_from_t_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_t_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_t_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_t_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay2_from_t_pdgId") = -9999;
+
+    // Higgs variables
+    this->auxdecor< float >("MC_Higgs_m") = -1000;
+    this->auxdecor< float >("MC_Higgs_pt") = -1000;
+    this->auxdecor< float >("MC_Higgs_eta") = -1000;
+    this->auxdecor< float >("MC_Higgs_phi") = -1000;
+
+    this->auxdecor< float >("MC_Tau1_from_Higgs_m") = -1000;
+    this->auxdecor< float >("MC_Tau1_from_Higgs_pt") = -1000;
+    this->auxdecor< float >("MC_Tau1_from_Higgs_eta") = -1000;
+    this->auxdecor< float >("MC_Tau1_from_Higgs_phi") = -1000;
+    this->auxdecor< int >("MC_Tau1_from_Higgs_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_Tau2_from_Higgs_m") = -1000;
+    this->auxdecor< float >("MC_Tau2_from_Higgs_pt") = -1000;
+    this->auxdecor< float >("MC_Tau2_from_Higgs_eta") = -1000;
+    this->auxdecor< float >("MC_Tau2_from_Higgs_phi") = -1000;
+    this->auxdecor< int >("MC_Tau2_from_Higgs_pdgId") = -9999;
+
+
+    this->auxdecor< float >("MC_nu_from_Tau1_m") = -1000;
+    this->auxdecor< float >("MC_nu_from_Tau1_pt") = -1000;
+    this->auxdecor< float >("MC_nu_from_Tau1_eta") = -1000;
+    this->auxdecor< float >("MC_nu_from_Tau1_phi") = -1000;
+    this->auxdecor< int >("MC_nu_from_Tau1_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_nu_from_Tau2_m") = -1000;
+    this->auxdecor< float >("MC_nu_from_Tau2_pt") = -1000;
+    this->auxdecor< float >("MC_nu_from_Tau2_eta") = -1000;
+    this->auxdecor< float >("MC_nu_from_Tau2_phi") = -1000;
+    this->auxdecor< int >("MC_nu_from_Tau2_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_Wdecay1_from_Tau1_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_Tau1_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_Tau1_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_Tau1_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay1_from_Tau1_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_Wdecay2_from_Tau1_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_Tau1_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_Tau1_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_Tau1_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay2_from_Tau1_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_Wdecay1_from_Tau2_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_Tau2_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_Tau2_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_Tau2_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay1_from_Tau2_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_Wdecay2_from_Tau2_m") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_Tau2_pt") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_Tau2_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_Tau2_phi") = -1000;
+    this->auxdecor< int >("MC_Wdecay2_from_Tau2_pdgId") = -9999;
+
+    this->auxdecor< float >("MC_b_m") = -1000;
+    this->auxdecor< float >("MC_b_pt") = -1000;
+    this->auxdecor< float >("MC_b_eta") = -1000;
+    this->auxdecor< float >("MC_b_phi") = -1000;
+    this->auxdecor< int >("MC_b_pdgId") = -9999;
+
+    this->auxdecor< int >("MC_hadr_Tau_Jet1") = 0;
+    this->auxdecor< int >("MC_hadr_Tau_Jet2") = 0;
+
+  }
 
 }
 ADD_NS_DV_PROXY( xAOD , PartonHistoryContainer );
