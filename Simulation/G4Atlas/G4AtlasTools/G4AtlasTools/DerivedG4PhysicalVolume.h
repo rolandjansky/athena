@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef G4MyPhysicalVolume_h
 #define G4MyPhysicalVolume_h
 
@@ -19,21 +23,21 @@ public:
   
   ~G4MyPhysicalVolume() {}
 
-  G4int GetCopyNo() const
+  G4int GetCopyNo() const final
   {
     return copyNo;
   }
 
-  void  SetCopyNo(G4int CopyNo)
+  void  SetCopyNo(G4int CopyNo) final 
   {
     copyNo = CopyNo;
   }
   
-  G4bool IsMany() const {return true;}
-  G4bool IsReplicated() const {return true;}
-  G4bool IsParameterised() const {return true;}
-  G4VPVParameterisation* GetParameterisation() const {return NULL;}  
-  void GetReplicationData(EAxis& axis, G4int& nReplicas, G4double& width, G4double& offset, G4bool& consuming) const 
+  G4bool IsMany() const final {return true;}
+  G4bool IsReplicated() const final {return true;}
+  G4bool IsParameterised() const final {return true;}
+  G4VPVParameterisation* GetParameterisation() const final {return nullptr;}  
+  void GetReplicationData(EAxis& axis, G4int& nReplicas, G4double& width, G4double& offset, G4bool& consuming) const final
 {
   axis = (EAxis)1;
   nReplicas = 0;
@@ -41,8 +45,8 @@ public:
   offset = 0.0;
   consuming = true;
 }
-  G4bool  IsRegularStructure() const {return true;}
-  G4int  GetRegularStructureId() const {return 0;}
+  G4bool  IsRegularStructure() const final {return true;}
+  G4int  GetRegularStructureId() const final {return 0;}
 
   G4int copyNo;
 

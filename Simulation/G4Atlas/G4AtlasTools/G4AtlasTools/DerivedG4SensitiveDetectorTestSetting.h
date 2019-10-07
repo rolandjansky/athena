@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
 #include "G4TouchableHistory.hh"
@@ -12,12 +16,12 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "G4MyProcess.h"
+#include "DerivedG4Process.h"
 
 void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydeposit, G4String& physicalname, G4String& logicalname1, G4int& copyno, G4ThreeVector& preStepPos, G4ThreeVector& postStepPos, G4double& globaltime0/*for preSP*/, G4double& kineticenergy0/*for preSP*/, G4double& velocity0/*for preSP*/, G4double& globaltime/*for track*/, G4double& kineticenergy/*for track*/, G4double& globaltime1/*for postSP*/, G4double& kineticenergy1/*for postSP*/, G4double& velocity1/*for postSP*/, G4double& steplength, G4double& charge, G4int& encoding, G4int& antiencoding, G4String& astring, G4ProcessType& atype, G4String& nop1, G4String& nop2, G4String& nop3)
 {
 //decorate sp with the variable called TotalEnergyDeposit
-  G4double TotalEnergyDeposit = totalenergydeposit;//para
+  G4double TotalEnergyDeposit = totalenergydeposit;//para(i.e. there is a parameter in this line)
   sp.SetTotalEnergyDeposit( TotalEnergyDeposit );
 //end
 
@@ -32,7 +36,7 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
   G4String name = "logicalName";
   G4LogicalVolume* fLogical = new G4LogicalVolume(box, material, name);
   G4String PhysicalName = physicalname;//para
-  G4VPhysicalVolume* pPhysical = NULL;
+  G4VPhysicalVolume* pPhysical = nullptr;
   G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName, fLogical, pPhysical);
   G4int CopyNo = copyno;
   physicalVolume->SetCopyNo(CopyNo);//para
@@ -58,7 +62,6 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
 
 //decorate sp with another G4StepPoint object
   G4StepPoint* stepPoint1 = new G4StepPoint();
-//  G4ThreeVector postStepPos(0, 0, 2);
   stepPoint1->SetPosition(postStepPos);//para
   G4double GlobalTime1 = globaltime1;
   G4double KineticEnergy1 = kineticenergy1;
@@ -86,7 +89,7 @@ G4ParticleDefinition* particle = new G4ParticleDefinition(NOP1,         0.0*MeV,
                     2,              -1,            -1,
                     0,               0,             0,
               NOP2,               0,             0,          Encoding,//para
-              true,               -1.0,          NULL,
+              true,               -1.0,          nullptr,
              false,           NOP3,          Antiencoding//para
               );
   G4ThreeVector aMomentumDirection(0,0,0);

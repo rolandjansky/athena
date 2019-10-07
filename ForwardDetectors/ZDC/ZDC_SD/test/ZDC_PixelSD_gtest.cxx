@@ -18,7 +18,7 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "G4AtlasTools/G4MyPhysicalVolume.h"
+#include "G4AtlasTools/DerivedG4PhysicalVolume.h"
 #include "G4AtlasTools/DerivedG4SensitiveDetectorTestSetting.h"
 
 //set environment
