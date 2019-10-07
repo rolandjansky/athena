@@ -3,6 +3,7 @@
 */
 
 #include "MuonCondAlg/RpcCondDbAlg.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 RpcCondDbAlg::RpcCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -62,9 +63,7 @@ RpcCondDbAlg::execute(const EventContext& ctx) const {
     std::unique_ptr<RpcCondDbData> writeCdo{std::make_unique<RpcCondDbData>()};
 
     //Start with an infinite range and narrow it down as needed
-    const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-    const EventIDBase stop{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-    EventIDRange rangeW{start, stop};
+    EventIDRange rangeW=IOVInfiniteRange::infiniteMixed();
 
     // data only
     if(m_isData) {
