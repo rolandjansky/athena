@@ -257,6 +257,95 @@ def mem_plotter(complevel_data, plotname):
   fig.savefig(plotname)
 
 
+def eventLevelTimeMon_plotter(eventlevel_data, plotname):
+
+  sorted_data = sorted(eventlevel_data.items(), key=lambda i: int(i[0]))
+
+  
+  checkPoint_list = []
+  cpu_list = []
+
+  for entry in sorted_data:
+
+    checkPoint = entry[0]
+    measurement = entry[1]
+
+    cpu_time = measurement["cpu_time"]
+
+    checkPoint_list.append(checkPoint)
+    cpu_list.append(cpu_time)
+
+  fig = plt.figure()
+ 
+  plt.plot(checkPoint_list, cpu_list, label = "CPU Time")
+  plt.xlabel('Events')
+  plt.ylabel('CPU Time[ms]')
+
+  index = np.arange(len(checkPoint_list))
+
+  plt.xticks(index, checkPoint_list, rotation='vertical')
+  plt.tick_params(axis='x', labelsize=3)
+
+  plt.title('Event Level CPU Measurements')
+  plt.legend()
+
+  fig.set_tight_layout( True )
+    
+   
+  fig.savefig(plotname)
+
+
+def eventLevelMemMon_plotter(eventlevel_data, plotname):
+
+  # Sort by event check points
+  sorted_data = sorted(eventlevel_data.items(), key=lambda i: int(i[0]))
+  
+  checkPoint_list = []
+  vmem_list = []
+  rss_list = []
+  pss_list = []
+  swap_list = []
+
+  for entry in sorted_data:
+
+    checkPoint = entry[0]
+    measurement = entry[1]
+
+    vmem = measurement["vmem"]
+    rss = measurement["rss"]
+    pss = measurement["pss"]
+    swap = measurement["swap"]
+
+    checkPoint_list.append(checkPoint)
+    vmem_list.append(vmem)
+    rss_list.append(rss)
+    pss_list.append(pss)
+    swap_list.append(swap)
+
+  fig = plt.figure()
+ 
+  plt.plot(checkPoint_list, vmem_list, label = "Vmem")
+  plt.plot(checkPoint_list, rss_list, label= "Rss")
+  plt.plot(checkPoint_list, pss_list,  label = "Pss")
+  plt.plot(checkPoint_list, swap_list,  label = "Swap")
+  plt.xlabel('Events')
+  plt.ylabel('Memory[kB]')
+
+  index = np.arange(len(checkPoint_list))
+
+  plt.xticks(index, checkPoint_list, rotation='vertical')
+  plt.tick_params(axis='x', labelsize=3)
+
+  plt.title('Event Level Memory Measurements')
+  plt.legend()
+
+  fig.set_tight_layout( True )
+   
+  fig.savefig(plotname)
+
+
+  
+
 with open( result_file ) as json_file:
   data = json.load(json_file)
 
@@ -267,10 +356,10 @@ with open( result_file ) as json_file:
   time_plotter(timeMon_serial_data, 'TimeMon_Serial.pdf')
 
   timeMon_parallel_data = data['TimeMon_Parallel']
-  time_plotter(timeMon_parallel_data, 'TimeMon_Parallel.pdf')
+  eventLevelTimeMon_plotter(timeMon_parallel_data, 'TimeMon_Parallel.pdf')
 
   memMon_serial_data = data['MemMon_Serial']
   mem_plotter(memMon_serial_data, 'MemMon_Serial.pdf')
 
   memMon_parallel_data = data['MemMon_Parallel']
-  mem_plotter(memMon_parallel_data, 'MemMon_Parallel.pdf')
+  eventLevelMemMon_plotter(memMon_parallel_data, 'MemMon_Parallel.pdf')
