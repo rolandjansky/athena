@@ -8,6 +8,7 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doMET', True)
     acf.addFlag('DQ.Steering.HLT.doBjet', True)
     acf.addFlag('DQ.Steering.HLT.doCalo', True)
+    acf.addFlag('DQ.Steering.HLT.doMuon', True)
     
     return acf
 
@@ -30,6 +31,11 @@ def TrigHLTMonitoringConfig(flags):
     if flags.DQ.Steering.HLT.doCalo:
         from TrigCaloMonitoring.TrigCaloMonitorAlgorithm import TrigCaloMonConfig
         result.merge(TrigCaloMonConfig(flags))
+
+    if flags.DQ.Steering.HLT.doMuon:
+        from TrigMuonMonitoringMT.TrigMuonMonitoringMTConfig import TrigMuonMonConfig
+        result.merge(TrigMuonMonConfig(flags))
+
 
     return result
 
