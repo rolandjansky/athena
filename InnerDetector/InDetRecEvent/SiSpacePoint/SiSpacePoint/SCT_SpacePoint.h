@@ -45,23 +45,23 @@ namespace InDet
        In order to ensure initialisation, the global Position has to be 
       on the surface associated to the FIRST member of the PRD-pair clusList. */
 
-      SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
-		     const Amg::Vector3D* position, 
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
+      SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,
+                     const Amg::Vector3D* position, 
+                     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
       
       SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
-		     const Amg::Vector3D* position,
-		     const Amg::MatrixX* loccov,//assumes ownership of loccov
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
+                     const Amg::Vector3D* position,
+                     const Amg::MatrixX* loccov,//assumes ownership of loccov
+                     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
       
       SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
-		     const Amg::Vector3D& position, 
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
+                     const Amg::Vector3D& position, 
+                     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
       
       SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList, 
-		     const Amg::Vector3D& position,
-		     const Amg::MatrixX& loccov,//assumes ownership of loccov
-		     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
+                     const Amg::Vector3D& position,
+                     const Amg::MatrixX& loccov,//assumes ownership of loccov
+                     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) ;
       
       /** Copy Constructor */
       SCT_SpacePoint(const SCT_SpacePoint &) ;
@@ -86,9 +86,9 @@ namespace InDet
       void setupLocalCovarianceSCT() ;
 
       /** common method used in constructors. */
-      void setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-		 const Amg::Vector3D& position,
-		 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList);
+      void setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,
+                 const Amg::Vector3D& position,
+                 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList);
       
     };
   

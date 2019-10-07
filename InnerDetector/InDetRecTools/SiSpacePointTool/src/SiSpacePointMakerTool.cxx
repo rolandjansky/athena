@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
 
@@ -83,24 +83,49 @@ namespace InDet{
     }
     
     ///////////////////////////////////////////////////////////////////
-    // Fill pixels collection
+    // Fill pixels collection (optimized to be ~3 times faster than old algorithm)
     ///////////////////////////////////////////////////////////////////
     
     void SiSpacePointMakerTool::fillPixelSpacePointCollection (const InDet::PixelClusterCollection* clusters, 
-                                                                  SpacePointCollection* spacepointCollection) {
+                                                               SpacePointCollection* spacepointCollection) {
+      
+      InDet::PixelClusterCollection::const_iterator clusStart  = clusters->begin();
+      InDet::PixelClusterCollection::const_iterator clusFinish = clusters->end  ();
+    
+      if ((*clusStart)->detectorElement()) {
+    
         IdentifierHash idHash = clusters->identifyHash();
-        InDet::PixelClusterCollection::const_iterator clusStart = clusters->begin();
-        InDet::PixelClusterCollection::const_iterator clusFinish = clusters->end();
-        if ((*clusStart)->detectorElement()!=0) {
-            // AA080506: since all the clusters in a PixelClusterCollection
-            // are from the same detector element, it is enough to test on the
-            // first cluster.
-            spacepointCollection->reserve(spacepointCollection->size()+clusters->size());
-            for(; clusStart!=clusFinish; ++clusStart){
-                Trk::SpacePoint* sp(new InDet::PixelSpacePoint(idHash, *clusStart));
-                spacepointCollection->push_back(sp);
-            }
+    
+        const Amg::Transform3D& T = (*clusStart)->detectorElement()->surface().transform();
+    
+        double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+        double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+        double Az[3] = {T(0,2),T(1,2),T(2,2)};
+        double R [3] = {T(0,3),T(1,3),T(2,3)};
+    
+        spacepointCollection->reserve(clusters->size());
+       
+        for(; clusStart!=clusFinish; ++clusStart){
+    
+          const InDet::SiCluster* c = (*clusStart);
+          const Amg::Vector2D&    M = c->localPosition();
+          const Amg::MatrixX&     V = c->localCovariance();
+         
+          Amg::Vector3D  pos(M[0]*Ax[0]+M[1]*Ay[0]+R[0],M[0]*Ax[1]+M[1]*Ay[1]+R[1],M[0]*Ax[2]+M[1]*Ay[2]+R[2]);
+                 
+          double B0[2] = {Ax[0]*V(0,0)+Ax[1]*V(1,0),Ax[0]*V(1,0)+Ax[1]*V(1,1)};
+          double B1[2] = {Ay[0]*V(0,0)+Ay[1]*V(1,0),Ay[0]*V(1,0)+Ay[1]*V(1,1)};
+          double B2[2] = {Az[0]*V(0,0)+Az[1]*V(1,0),Az[0]*V(1,0)+Az[1]*V(1,1)};
+         
+          Amg::MatrixX   cov(3,3);
+          cov<<
+            B0[0]*Ax[0]+B0[1]*Ax[1],B0[0]*Ay[0]+B0[1]*Ay[1],B0[0]*Az[0]+B0[1]*Az[1],
+            B1[0]*Ax[0]+B1[1]*Ax[1],B1[0]*Ay[0]+B1[1]*Ay[1],B1[0]*Az[0]+B1[1]*Az[1],
+            B2[0]*Ax[0]+B2[1]*Ax[1],B2[0]*Ay[0]+B2[1]*Ay[1],B2[0]*Az[0]+B2[1]*Az[1];
+    
+          spacepointCollection->push_back( new InDet::PixelSpacePoint(idHash,c,pos,cov) );
         }
+      }
     }
     
     ///////////////////////////////////////////////////////////////////
