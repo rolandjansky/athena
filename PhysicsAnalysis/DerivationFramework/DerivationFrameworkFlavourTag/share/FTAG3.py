@@ -134,6 +134,7 @@ FTAG3SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
                                         "AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets",
                                         "MET_Reference_AntiKt4EMTopo",]
 
 FTAG3SlimmingHelper.AllVariables =  ["AntiKt10TruthWZJets",
