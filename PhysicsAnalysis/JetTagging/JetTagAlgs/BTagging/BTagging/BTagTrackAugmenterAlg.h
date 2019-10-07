@@ -31,7 +31,6 @@ namespace Analysis {
 
     StatusCode initialize() override final;
     StatusCode execute() override final;
-    StatusCode finalize() override final;
   private:
     const xAOD::Vertex* getPrimaryVertex() const;
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_track_to_vx;

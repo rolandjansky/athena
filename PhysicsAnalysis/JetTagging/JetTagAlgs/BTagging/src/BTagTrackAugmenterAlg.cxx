@@ -60,10 +60,6 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode BTagTrackAugmenterAlg::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode BTagTrackAugmenterAlg::execute() {
     const xAOD::Vertex* primary = getPrimaryVertex();
 
