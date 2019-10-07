@@ -93,14 +93,13 @@ def  trigJetHypoToolFromDict(chain_dict):
 import unittest
 class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
-        chainNameDecoder = DictFromChainName.DictFromChainName()
         # chain_names = ('HLT_j85_L1J20', 'HLT_j35_0eta320_L1J20')
         chain_names = ('HLT_j0_vbenf_L1J20',)
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:
-            chain_dict = chainNameDecoder.getChainDict(chain_name)
+            chain_dict = dictFromChainName(chain_name)
             tool = trigJetHypoToolFromDict(chain_dict)
             self.assertIsNotNone(tool) 
             log.info('%s %s', chain_name.rjust(wid), tool)
@@ -108,11 +107,10 @@ class TestStringMethods(unittest.TestCase):
 
 class TestDebugFlagIsFalse(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
-        chainNameDecoder = DictFromChainName.DictFromChainName()
         chain_name = 'HLT_j85_L1J20'
-        chain_dict = chainNameDecoder.getChainDict(chain_name)
+        chain_dict = dictFromChainName(chain_name)
         tool = trigJetHypoToolFromDict(chain_dict)
         self.assertIsNotNone(tool) 
         self.assertFalse(tool.visit_debug) 
