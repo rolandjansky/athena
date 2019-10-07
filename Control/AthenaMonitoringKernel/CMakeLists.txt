@@ -16,7 +16,7 @@ atlas_add_library(
     AthenaMonitoringKernelLib
     src/*.cxx
     src/HistogramFiller/*.cxx
-    PUBLIC_HEADERS AthenaMonitroingKernel
+    PUBLIC_HEADERS AthenaMonitoringKernel
     LINK_LIBRARIES AthenaBaseComps EventInfo
 )
 
