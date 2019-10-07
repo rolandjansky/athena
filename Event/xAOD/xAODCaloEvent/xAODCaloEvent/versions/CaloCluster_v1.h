@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCluster_v1.h 794609 2017-01-30 15:51:25Z menke $
@@ -13,6 +11,7 @@ extern "C" {
 #   include <stdint.h>
 }
 #include <bitset>
+#include <memory>
 
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
@@ -146,10 +145,10 @@ namespace xAOD {
          /// Total em-scale energy of cells with bad HV in this cluster
          ENG_BAD_HV_CELLS  = 828,
          N_BAD_HV_CELLS    = 829, ///< number of cells with bad HV
-	 /// relative spread of pT of constiuent cells = sqrt(n)*RMS/Mean
-	 PTD               = 830,
- 	 /// cell based mass i.e. the mass of the 4-vector sum of all massless positive energetic cells
-	 MASS              = 831,
+         /// relative spread of pT of constiuent cells = sqrt(n)*RMS/Mean
+         PTD               = 830,
+         /// cell based mass i.e. the mass of the 4-vector sum of all massless positive energetic cells
+         MASS              = 831,
          EM_PROBABILITY    = 900, ///< Classification probability to be em-like
          HAD_WEIGHT        = 901, ///< Hadronic weight (E_w/E_em)
          OOC_WEIGHT        = 902, ///< Out-of-cluster weight (E_ooc/E_w)
@@ -157,15 +156,15 @@ namespace xAOD {
          /// Confidence Level of a tile calorimeter cluster to be noise
          TILE_CONFIDENCE_LEVEL = 904,
 
-	 VERTEX_FRACTION = 1000, /**< Vertex fraction of this cluster wrt. primary vertex of the event. Calculated in CaloRec/CaloClusterVertexFractionMaker.cxx */
-	 NVERTEX_FRACTION = 1001, /**< slightly updated vertex fraction more pile up independent (similar to nJVF) */
+         VERTEX_FRACTION = 1000, /**< Vertex fraction of this cluster wrt. primary vertex of the event. Calculated in CaloRec/CaloClusterVertexFractionMaker.cxx */
+         NVERTEX_FRACTION = 1001, /**< slightly updated vertex fraction more pile up independent (similar to nJVF) */
 
-	 ETACALOFRAME  = 1100, ///< Eta in the calo frame (for egamma)
-	 PHICALOFRAME  = 1101, ///< Phi in the calo frame (for egamma)
-	 ETA1CALOFRAME = 1102, ///< Eta of sampling 1 in the calo frame (for egamma)
-	 PHI1CALOFRAME = 1103, ///< Phi of sampling 1 in the calo frame (for egamma)
-	 ETA2CALOFRAME = 1104, ///< Eta of sampling 2 in the calo frame (for egamma)
-	 PHI2CALOFRAME = 1105, ///< Phi of sampling 2 in the calo frame (for egamma)
+         ETACALOFRAME  = 1100, ///< Eta in the calo frame (for egamma)
+         PHICALOFRAME  = 1101, ///< Phi in the calo frame (for egamma)
+         ETA1CALOFRAME = 1102, ///< Eta of sampling 1 in the calo frame (for egamma)
+         PHI1CALOFRAME = 1103, ///< Phi of sampling 1 in the calo frame (for egamma)
+         ETA2CALOFRAME = 1104, ///< Eta of sampling 2 in the calo frame (for egamma)
+         PHI2CALOFRAME = 1105, ///< Phi of sampling 2 in the calo frame (for egamma)
 
          /// Calibration Hit energy inside the cluster
          ENG_CALIB_TOT     = 10001,
@@ -368,9 +367,6 @@ namespace xAOD {
      /*! \brief Returns cluster size in \f$ \varphi \f$ for a given sampling */
      float phisize(const CaloSample sampling) const;
      
-
-
-
 
      /**@brief Get the energy in one layer of the EM Calo 
       * @param layer Layer between 0 (Presampler) and 3 (Back)
@@ -595,11 +591,9 @@ namespace xAOD {
 
      /// Current signal state 
      State m_signalState;
-     ///Non-const ptr to cell links (for cluster building, transient-only)
-     CaloClusterCellLink* m_cellLinks;
-
-     ///Flag to indicate if the cell-links are owned by ths cluster or by a separate DataVector
-     bool m_ownCellLinks;
+     ///Unique ptr to cell links. For cluster building 
+     /// transient only , holds cells owned by the cluster if non-nullptr
+     std::unique_ptr<CaloClusterCellLink> m_cellLinks;
 
      ///Reco status (transient only)
      CaloRecoStatus m_recoStatus;
@@ -620,24 +614,12 @@ namespace xAOD {
      /// Takes ownership of CCCL.
      /// Deprecated; use the unique_ptr version for new code.
      void addCellLink(CaloClusterCellLink* CCCL) {
-       if (m_ownCellLinks && m_cellLinks) {
-	 //Delete link if there is one
-	 delete m_cellLinks;
-       }
-
-       m_cellLinks=CCCL;
-       m_ownCellLinks=true;
+       m_cellLinks.reset(CCCL);
      }
 
      /// Set up an ElementLink to a CaloClusterCellLink object
      void addCellLink(std::unique_ptr<CaloClusterCellLink> CCCL) {
-       if (m_ownCellLinks && m_cellLinks) {
-	 //Delete link if there is one
-	 delete m_cellLinks;
-       }
-
-       m_cellLinks=CCCL.release();
-       m_ownCellLinks=true;
+       m_cellLinks=std::move(CCCL);
      }
      /**@brief Set up an ElementLink to a CaloClusterCellLink object
       * @param CCCL_key StoreGate key of the CaloClusterCellLinkContainer
@@ -659,11 +641,11 @@ namespace xAOD {
       */  
      const CaloClusterCellLink* getCellLinks() const;
 
-     /**@brief Get a pointer to the CaloClusterCellLink object (non-const version)
-      * @return ptr to CaloClusterCellLink obj, NULL if no valid link
+     /**@brief Get a pointer to the owned CaloClusterCellLink object (non-const version)
+      * @return ptr to CaloClusterCellLink obj, NULL if no valid owned cell links.
       */ 
-     CaloClusterCellLink* getCellLinks() {
-       return m_cellLinks;
+     CaloClusterCellLink* getOwnCellLinks() {
+       return m_cellLinks.get();
      }
 
       /**@brief Method to add a cell to the cluster (Beware: Kinematics not updated!)
@@ -696,16 +678,16 @@ namespace xAOD {
      const_cell_iterator cell_cbegin() const { 
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
-	 return CaloClusterCellLink::dummyIt;
+         return CaloClusterCellLink::dummyIt;
        else
-	 return links->begin();
+         return links->begin();
      }
      const_cell_iterator cell_cend() const { 
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
-	 return CaloClusterCellLink::dummyIt;
+         return CaloClusterCellLink::dummyIt;
        else
-	 return getCellLinks()->end();
+         return getCellLinks()->end();
      } 
 
      ///Iterator of the underlying CaloClusterCellLink (const version)
@@ -715,8 +697,8 @@ namespace xAOD {
      ///Iterator of the underlying CaloClusterCellLink (non-const version)
      typedef CaloClusterCellLink::iterator cell_iterator; 
      //Fixme: Check ret-val of getCellLinks (might be NULL);
-     cell_iterator cell_begin() { return getCellLinks()->begin();}
-     cell_iterator cell_end() { return getCellLinks()->end();} 
+     cell_iterator cell_begin() { return getOwnCellLinks()->begin();}
+     cell_iterator cell_end() { return getOwnCellLinks()->end();} 
 
      /// STL-compatible iterators.
      typedef const_cell_iterator const_iterator;

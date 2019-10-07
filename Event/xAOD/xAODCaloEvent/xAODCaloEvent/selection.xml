@@ -6,7 +6,6 @@
   <class name="xAOD::CaloCluster_v1" >
     <field name="m_signalState"  transient="true" />
     <field name="m_cellLinks"    transient="true" />
-    <field name="m_ownCellLinks"    transient="true" />
     <field name="m_recoStatus"    transient="true" />
   </class>
   <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
@@ -19,12 +18,6 @@
         targetClass="xAOD::CaloCluster_v1" source="" target="m_cellLinks" >
     <![CDATA[
        m_cellLinks=0;
-    ]]>
-  </read>
-  <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
-        targetClass="xAOD::CaloCluster_v1" source="" target="m_ownCellLinks" >
-    <![CDATA[
-       m_ownCellLinks=false;
     ]]>
   </read>
   <class name="xAOD::CaloClusterContainer_v1"
@@ -73,9 +66,6 @@
   <class name="ElementLink<xAOD::CaloTowerContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::CaloTowerContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::CaloTowerContainer_v1> > >" />
-
-
-
 
 
   <!-- Additional type(s) needed: -->
