@@ -4,7 +4,7 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeFTagAnalysisSequence( seq, dataType, jetContainer,
+def makeFTagAnalysisSequence( seq, dataType, jetCollection,
                               btagWP = "FixedCutBEff_77",
                               btagger = "MV2c10",
                               postfix = "",
@@ -18,7 +18,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
-      jetContainer -- Jet container to run on
+      jetCollection -- Jet container to run on
       btagWP -- Flavour tagging working point
       btagger -- Flavour tagger
       kinematicSelection -- Wether to run kinematic selection
@@ -28,7 +28,12 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
-    bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root"
+    # Remove b-tagging calibration from the container name
+    btIndex = jetCollection.find('_BTagging')
+    if btIndex != -1:
+        jetCollection = jetCollection[:btIndex]
+
+    bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root"
 
     # # Create the analysis algorithm sequence object:
     # seq = AnaAlgSequence( "FTagAnalysisSequence" )
@@ -56,7 +61,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
     addPrivateTool( alg, 'selectionTool', 'BTaggingSelectionTool' )
     alg.selectionTool.TaggerName = btagger
     alg.selectionTool.OperatingPoint = btagWP
-    alg.selectionTool.JetAuthor = jetContainer
+    alg.selectionTool.JetAuthor = jetCollection
     alg.selectionTool.FlvTagCutDefinitionsFileName = bTagCalibFile
     if preselection is not None:
         alg.preselection = preselection
@@ -73,7 +78,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetContainer,
                         'BTaggingEfficiencyTool' )
         alg.efficiencyTool.TaggerName = btagger
         alg.efficiencyTool.OperatingPoint = btagWP
-        alg.efficiencyTool.JetAuthor = jetContainer
+        alg.efficiencyTool.JetAuthor = jetCollection
         alg.efficiencyTool.ScaleFactorFileName = bTagCalibFile
         alg.efficiencyTool.SystematicsStrategy = "Envelope"
         alg.scaleFactorDecoration = 'ftag_effSF_' + btagger + '_' + btagWP + '_%SYS%'
