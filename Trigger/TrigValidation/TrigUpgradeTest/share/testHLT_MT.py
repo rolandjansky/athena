@@ -35,8 +35,7 @@ class opt:
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
 #Individual slice flags
-    doElectronSlice   = True
-    doPhotonSlice     = True
+    doEgammaSlice     = True
     doMuonSlice       = True
     doJetSlice        = True
     doMETSlice        = True
@@ -88,8 +87,6 @@ else:
 # This is temporary and will be re-worked for after M3.5
 for s in slices:
     signature = s[2:].replace('Slice', '')
-    if 'Electron' in s or 'Photon' in s:
-        signature = 'Egamma'
 
     if eval('opt.'+s) is True:
         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
