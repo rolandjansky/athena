@@ -61,10 +61,6 @@ namespace MuonCalib {
   MuonSegmentToCalibSegment::MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
     m_detMgr(NULL),
-    m_mdtIdHelper(NULL),
-    m_cscIdHelper(NULL),
-    m_rpcIdHelper(NULL),
-    m_tgcIdHelper(NULL),
     m_calibrationTool("MdtCalibrationTool",this),
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool")
@@ -124,18 +120,8 @@ namespace MuonCalib {
     ATH_CHECK( m_idToFixedIdTool.retrieve() );
     ATH_CHECK( m_assocTool.retrieve() );
 
-    // initialize MuonIdHelpers
-    if (m_detMgr) {
-      m_mdtIdHelper = m_detMgr->mdtIdHelper();
-      m_cscIdHelper = m_detMgr->cscIdHelper();
-      m_rpcIdHelper = m_detMgr->rpcIdHelper();
-      m_tgcIdHelper = m_detMgr->tgcIdHelper();
-    } else {
-      m_mdtIdHelper = 0;
-      m_cscIdHelper = 0;
-      m_rpcIdHelper = 0;
-      m_tgcIdHelper = 0;
-    }
+    // initialize MuonIdHelperTool
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     // Get the maximum number of segments each algorithm can
     // store in the ntuple
@@ -400,9 +386,9 @@ namespace MuonCalib {
       // use pointer to rot
       const Trk::RIO_OnTrack* rot = *rit;
       
-      if( m_mdtIdHelper->is_mdt( rot->identify() ) ){
+      if( m_muonIdHelperTool->mdtIdHelper().is_mdt( rot->identify() ) ){
 	return rot->identify();
-      }else if( m_cscIdHelper->is_csc( rot->identify() ) ){
+      }else if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ){
 	return rot->identify();
       }
     }
@@ -414,28 +400,28 @@ namespace MuonCalib {
   Amg::Transform3D MuonSegmentToCalibSegment::getGlobalToStation( const Identifier& id ) const
   {
     
-    if( m_mdtIdHelper->is_mdt( id ) ){
+    if( m_muonIdHelperTool->mdtIdHelper().is_mdt( id ) ){
       const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->GlobalToAmdbLRSTransform();
       }
-    }else if( m_cscIdHelper->is_csc( id ) ){
+    }else if( m_muonIdHelperTool->cscIdHelper().is_csc( id ) ){
       const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
-    }else if( m_tgcIdHelper->is_tgc( id ) ){
+    }else if( m_muonIdHelperTool->tgcIdHelper().is_tgc( id ) ){
       const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
-    }else if( m_rpcIdHelper->is_rpc( id ) ){
+    }else if( m_muonIdHelperTool->rpcIdHelper().is_rpc( id ) ){
       const MuonGM::RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
@@ -584,7 +570,7 @@ namespace MuonCalib {
           } else { continue;}
       }
       
-      if( m_mdtIdHelper->is_mdt(id)) {
+      if( m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {
         if (competingRio) {
           ATH_MSG_WARNING( "  MDT hit is competing Rio !!! "  );
          continue;
@@ -693,9 +679,9 @@ namespace MuonCalib {
 	if( prd->localPosition()[Trk::locY] ){
 	  Identifier test_prd_Id = prd->detectorElement()->identify();
 	  ATH_MSG_DEBUG( " Twin Position :  prd->localPosition()[Trk::locY] = " <<  prd->localPosition()[Trk::locY] 
-                         << " in station " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(test_prd_Id))
-                         << "  multilayer = " << m_mdtIdHelper->multilayer(test_prd_Id) << "  layer = " << m_mdtIdHelper->tubeLayer(test_prd_Id)
-                         << " tube = " <<  m_mdtIdHelper->tube(test_prd_Id) << "  modulo4 = " << (m_mdtIdHelper->tube(test_prd_Id)%4)  );
+                         << " in station " << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(test_prd_Id))
+                         << "  multilayer = " << m_muonIdHelperTool->mdtIdHelper().multilayer(test_prd_Id) << "  layer = " << m_muonIdHelperTool->mdtIdHelper().tubeLayer(test_prd_Id)
+                         << " tube = " <<  m_muonIdHelperTool->mdtIdHelper().tube(test_prd_Id) << "  modulo4 = " << (m_muonIdHelperTool->mdtIdHelper().tube(test_prd_Id)%4)  );
 	  
       
 	 Amg::Vector3D lposTrking(0.,0., prd->localPosition()[Trk::locY]);
@@ -748,7 +734,7 @@ namespace MuonCalib {
 	input.pointOfClosestApproach = &calibHit.globalPointOfClosestApproach();
 	bool sameChamber = false; 
 	if (cachedId.is_valid()) { 
-	  sameChamber = (m_mdtIdHelper->stationName(id) == m_mdtIdHelper->stationName(cachedId)) && (m_mdtIdHelper->stationEta(id) == m_mdtIdHelper->stationEta(cachedId)) && (m_mdtIdHelper->stationPhi(id) == m_mdtIdHelper->stationPhi(cachedId)); 
+	  sameChamber = (m_muonIdHelperTool->mdtIdHelper().stationName(id) == m_muonIdHelperTool->mdtIdHelper().stationName(cachedId)) && (m_muonIdHelperTool->mdtIdHelper().stationEta(id) == m_muonIdHelperTool->mdtIdHelper().stationEta(cachedId)) && (m_muonIdHelperTool->mdtIdHelper().stationPhi(id) == m_muonIdHelperTool->mdtIdHelper().stationPhi(cachedId)); 
 	} 
 	if (!sameChamber) ATH_MSG_DEBUG( "Moving to a new chamber! " << cachedId << " to " << id  );
 	// We're done with the cached Id for now, so immediately reassign it 
@@ -832,7 +818,7 @@ namespace MuonCalib {
 	// 	std::cout << " MDT hit " << calibHit << std::endl;
 	// 	std::cout << " base hit " << *basehit << std::endl;
 
-      }else if( m_rpcIdHelper->is_rpc( id ) ){
+      }else if( m_muonIdHelperTool->rpcIdHelper().is_rpc( id ) ){
 	// rpc ROT
 	++nr;
 
@@ -856,13 +842,13 @@ namespace MuonCalib {
 
   	  const Muon::RpcPrepData* rprd = rrot->prepRawData();
 	  id = rprd->identify();
-	//	m_rpcIdHelper->print(id);
+	//	m_muonIdHelperTool->rpcIdHelper().print(id);
 	  int nStrips = rprd->rdoList().size();
 	// get detector element
 	  const MuonGM::RpcReadoutElement* detEl = rprd->detectorElement();
 
 	
-  	  double stripWidth =  detEl->StripWidth( m_rpcIdHelper->measuresPhi(id ));
+  	  double stripWidth =  detEl->StripWidth( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id ));
 	  double time = rprd->time();
 	  double error = sqrt( rrot->localCovariance()(0,0) );
 	  Amg::Vector3D rgp = rrot->globalPosition();
@@ -873,10 +859,10 @@ namespace MuonCalib {
 	  Amg::Vector3D rlp = gToStation*rgp;
 
 	// get strip lengths
-	  double stripLen = detEl->StripLength(m_rpcIdHelper->measuresPhi(id));
+	  double stripLen = detEl->StripLength(m_muonIdHelperTool->rpcIdHelper().measuresPhi(id));
 
 	  double distRO;
-	  if( m_rpcIdHelper->measuresPhi(id) ){
+	  if( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ){
 	    distRO = detEl->distanceToPhiReadout( rgp, id );
   	  }else{
 	    distRO = detEl->distanceToEtaReadout( rgp, id );
@@ -891,7 +877,7 @@ namespace MuonCalib {
 	
 	  mdtSeg->addHitOnTrack( rpcCH );
         }
-      }else if( m_tgcIdHelper->is_tgc( id ) ){
+      }else if( m_muonIdHelperTool->tgcIdHelper().is_tgc( id ) ){
 	++nt;
 
         int nRios = 1;
@@ -915,7 +901,7 @@ namespace MuonCalib {
 	  const Muon::TgcPrepData* tprd = trot->prepRawData();
 	  id = tprd->identify();
 	  ATH_MSG_DEBUG( "TGC RIO "  );
-	//	m_tgcIdHelper->print(id);
+	//	m_muonIdHelperTool->tgcIdHelper().print(id);
 
 	  int nStrips = tprd->rdoList().size();
 //          if (competingRio) {
@@ -923,9 +909,9 @@ namespace MuonCalib {
 //          }
 
 	  double stripWidth;
-	  bool measuresPhi = (bool) m_tgcIdHelper->isStrip(tprd->identify());
-	  int gasGap = m_tgcIdHelper->gasGap(tprd->identify());
-	  int channel = m_tgcIdHelper->channel(tprd->identify());
+	  bool measuresPhi = (bool) m_muonIdHelperTool->tgcIdHelper().isStrip(tprd->identify());
+	  int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(tprd->identify());
+	  int channel = m_muonIdHelperTool->tgcIdHelper().channel(tprd->identify());
 	  const MuonGM::TgcReadoutElement* detEl = tprd->detectorElement();
 	  if (!measuresPhi){
 	    stripWidth = detEl->gangMaxZ(gasGap,channel)-detEl->gangMinZ(gasGap,channel);
@@ -950,7 +936,7 @@ namespace MuonCalib {
 
 	  mdtSeg->addHitOnTrack( tgcCH );
         }
-      }else if( m_cscIdHelper->is_csc( id ) ){
+      }else if( m_muonIdHelperTool->cscIdHelper().is_csc( id ) ){
 	++nc;
 
         int nRios = 1;
@@ -970,15 +956,15 @@ namespace MuonCalib {
 
   	  const Muon::CscPrepData* cprd = crot->prepRawData();
 	  Identifier id = cprd->identify();
-	// m_cscIdHelper->print(id);
+	// m_muonIdHelperTool->cscIdHelper().print(id);
 
 	  int nStrips = cprd->rdoList().size();
 //        if (competingRio) {
 //          nStrips = rotc->numberOfContainedROTs();
 //        }
 
-	  int measuresPhi    = m_cscIdHelper->measuresPhi(id);
-	  int chamberLayer   = m_cscIdHelper->chamberLayer(id);
+	  int measuresPhi    = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
+	  int chamberLayer   = m_muonIdHelperTool->cscIdHelper().chamberLayer(id);
 	  double stripWidth   = cprd->detectorElement()->cathodeReadoutPitch( chamberLayer, measuresPhi );
 	  int charge = cprd->charge();
 
@@ -1071,16 +1057,16 @@ namespace MuonCalib {
 	  std::vector< const Trk::PrepRawData* >::const_iterator prd_it = prdvec.begin();
 	  for( ; prd_it!= prdvec.end() ;++prd_it ) {
 	    Identifier id = (*prd_it)->identify();
-	    if( m_mdtIdHelper->is_mdt(id) ) {
+	    if( m_muonIdHelperTool->mdtIdHelper().is_mdt(id) ) {
 	      nmdt += 1000; //a mdt is always an eta-hit.
-	    } else if ( m_rpcIdHelper->is_rpc(id) ) {
-	      if      ( m_rpcIdHelper->measuresPhi(id) ) nrpc += 1;
+	    } else if ( m_muonIdHelperTool->rpcIdHelper().is_rpc(id) ) {
+	      if      ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) nrpc += 1;
 	      else    nrpc += 1000 ;
-	    } else if ( m_tgcIdHelper->is_tgc(id) ) {
-	      if      ( m_tgcIdHelper->isStrip(id) ) ntgc +=    1 ;
+	    } else if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(id) ) {
+	      if      ( m_muonIdHelperTool->tgcIdHelper().isStrip(id) ) ntgc +=    1 ;
 	      else    ntgc += 1000 ;
-	    } else if ( m_cscIdHelper->is_csc(id) ) {
-	      if      ( m_cscIdHelper->measuresPhi(id) ) ncsc += 1 ;
+	    } else if ( m_muonIdHelperTool->cscIdHelper().is_csc(id) ) {
+	      if      ( m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ) ncsc += 1 ;
 	      else    ncsc += 1000 ;
 	    } else    ATH_MSG_INFO( "PrepRawData on pat is not a muon-technom_logy"  );
 	  }

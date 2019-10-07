@@ -22,8 +22,7 @@ static const int maxPrd =    5000;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadMdtPRD::ReadMdtPRD(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
-  m_mdtIdHelper(0)
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0)
 {
   // Declare the properties
 
@@ -36,7 +35,7 @@ ReadMdtPRD::ReadMdtPRD(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode ReadMdtPRD::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
 
@@ -93,9 +92,9 @@ StatusCode ReadMdtPRD::execute ATLAS_NOT_THREAD_SAFE ()
 	  m_tdc[m_nPrd] = (*mdtPrd)->tdc();
 	  m_adc[m_nPrd] = (*mdtPrd)->adc();
 	  
-	  m_multi[m_nPrd] = m_mdtIdHelper->multilayer(dig_id); 
-	  m_layer[m_nPrd] = m_mdtIdHelper->tubeLayer(dig_id);
-	  m_wire[m_nPrd]  = m_mdtIdHelper->tube(dig_id); 
+	  m_multi[m_nPrd] = m_muonIdHelperTool->mdtIdHelper().multilayer(dig_id); 
+	  m_layer[m_nPrd] = m_muonIdHelperTool->mdtIdHelper().tubeLayer(dig_id);
+	  m_wire[m_nPrd]  = m_muonIdHelperTool->mdtIdHelper().tube(dig_id); 
 	  ++m_nPrd;
 	  ATH_MSG_DEBUG( " MdtPrepData number:  " << m_nPrd );
 	  

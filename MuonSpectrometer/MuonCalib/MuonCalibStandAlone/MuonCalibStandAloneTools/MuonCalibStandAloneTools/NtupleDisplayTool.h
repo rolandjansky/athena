@@ -36,13 +36,13 @@ class TCanvas;
 class TControlBar;
 class TApplication;
 
-class MdtIdHelper;
-
 // STL //
 #include <string>
 
 // MuonCalib
 #include "MdtCalibInterfaces/IMdtPatRecFitter.h"
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace MuonGM{
 class MuonDetectorManager;
@@ -91,7 +91,8 @@ class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationToo
 
     private:
             //for retrieving the chamber geometry
-            const MdtIdHelper* m_mdtIdHelper;
+            ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+                "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
             const MuonGM::MuonDetectorManager* m_detMgr;
             const MuonCalib::IIdToFixedIdTool *m_id_tool;
             
