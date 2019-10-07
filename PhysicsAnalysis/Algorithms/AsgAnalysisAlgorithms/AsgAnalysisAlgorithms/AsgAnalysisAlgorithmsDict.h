@@ -13,6 +13,7 @@
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
 #include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
+#include <AsgAnalysisAlgorithms/AsgOriginalObjectLinkAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
