@@ -28,7 +28,7 @@ public:
   //! the method to fill the IDC
   virtual StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				      TRT_RDO_Container* rdoIdc,
-				      std::vector<IdentifierHash>* vecHash = 0 ) = 0;
+				      const std::vector<IdentifierHash>* vecHash = 0 ) = 0;
 
 
 };
