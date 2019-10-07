@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
 #include "MuonCondData/CscCondDataCollection.h"
@@ -22,7 +23,9 @@
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "AthenaKernel/errorcheck.h"
 
-class CscIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
+
 class StoreGateSvc;
 
 namespace MuonCalib {
@@ -99,7 +102,9 @@ namespace MuonCalib {
 
       /**CscIdHelper is used to convert from identifiers to hash ids. MuonDetector manager is a
         requirement on CscIdHelper*/
-      const CscIdHelper* m_cscId;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
   };
 
 

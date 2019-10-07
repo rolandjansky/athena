@@ -13,7 +13,6 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -33,13 +32,11 @@ namespace InDet {
     m_rawDataTool     ("SCTRawDataProviderTool"),
     m_id(nullptr),
     m_container(nullptr),
-    m_bsErrCont(nullptr),
-    m_bsFracCont(nullptr)
+    m_bsErrCont(nullptr)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "SCT_RDOs_EFID");
     declareProperty("ByteStreamErrContainer", m_bsErrCont_Key = "SCT_ByteStreamErrs");
-    declareProperty("ByteStreamFracContainer", m_bsFracCont_Key = "SCT_ByteStreamFrac");
     declareProperty("RawDataTool", m_rawDataTool);
   }
 
@@ -134,22 +131,6 @@ namespace InDet {
       }
     }
 
-    m_bsFracCont = nullptr;
-    if (!evtStore()->transientContains<SCT_ByteStreamFractionContainer>(m_bsFracCont_Key)) {
-      m_bsFracCont = new SCT_ByteStreamFractionContainer();
-      if (evtStore()->record(m_bsFracCont, m_bsFracCont_Key, true, true).isFailure()) {
-        ATH_MSG_FATAL("Unable to record " << m_bsFracCont_Key);
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG(m_bsFracCont_Key << " recorded into SG");
-    } else {
-      if (!evtStore()->retrieve(m_bsFracCont, m_bsFracCont_Key)) {
-        ATH_MSG_FATAL("Unable to retrieve existing " << m_bsFracCont_Key);
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Retrieved existing " << m_bsFracCont_Key);
-    }
-
     m_bsErrCont = nullptr;
     if (!evtStore()->transientContains<InDetBSErrContainer>(m_bsErrCont_Key)) {
       m_bsErrCont = new InDetBSErrContainer();
@@ -204,7 +185,7 @@ namespace InDet {
     // ask SCTRawDataProviderTool to decode it and to fill the IDC
     StatusCode scon = StatusCode::FAILURE;
     if (m_container){
-      scon =  m_rawDataTool->convert(listOfRobf,*m_container,m_bsErrCont,m_bsFracCont);
+      scon =  m_rawDataTool->convert(listOfRobf,*m_container,m_bsErrCont);
       if (scon==StatusCode::FAILURE)
 	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }

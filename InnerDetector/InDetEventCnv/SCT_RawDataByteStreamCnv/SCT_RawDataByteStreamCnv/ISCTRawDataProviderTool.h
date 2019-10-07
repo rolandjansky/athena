@@ -16,7 +16,6 @@
 #include "ByteStreamData/RawEvent.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 #include "GaudiKernel/IAlgTool.h"
 
@@ -40,8 +39,7 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
   /** Main decoding methods */
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
                              ISCT_RDO_Container&,
-                             InDetBSErrContainer* errs,
-                             SCT_ByteStreamFractionContainer* bsFracCont) const = 0;
+                             InDetBSErrContainer* errs) const = 0;
 
 };
 

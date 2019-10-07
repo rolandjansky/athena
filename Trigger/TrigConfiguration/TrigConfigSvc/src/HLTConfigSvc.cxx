@@ -40,7 +40,7 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
 #include "boost/lexical_cast.hpp"
@@ -238,6 +238,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_mu6_mu6noL1_L1MU6"] = "L1_MU6";
       dummyChains["HLT_mu6_mu4_L12MU4"] = "L1_2MU4";
       dummyChains["HLT_mu80_msonly_3layersEC_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_mu10_lateMu_L1MU10"] = "L1_MU10";
       dummyChains["HLT_xe30_cell_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe30_tcpufit_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";

@@ -215,8 +215,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
-    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
     
     hole_rec_tool = Muon__MuonChamberHoleRecoveryTool(name, **kwargs)
     result.setPrivateTools(hole_rec_tool)
@@ -350,9 +349,8 @@ def MuonTrackBuildingCfg(flags):
     result.addPublicTool(track_steering)
     
     track_builder = MuPatTrackBuilder("MuPatTrackBuilder", TrackSteering = track_steering, MuonSegmentCollection="MuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
-    track_builder.Cardinality=10
 
-    result.addEventAlgo( track_builder )
+    result.addEventAlgo( track_builder, primary=True )
     return result
     
 
@@ -412,8 +410,16 @@ if __name__=="__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    cfg.merge(MuonTrackBuildingCfg(ConfigFlags))
+    acc = MuonTrackBuildingCfg(ConfigFlags)
+    cfg.merge(acc)
     
+    if args.threads>1:
+        # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
+        from GaudiHive.GaudiHiveConf import AlgResourcePool
+        cfg.addService(AlgResourcePool( OverrideUnClonable=True ) )
+        track_builder = acc.getPrimary()
+        track_builder.Cardinality=args.threads
+            
     # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
     # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
     from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
@@ -437,6 +443,12 @@ if __name__=="__main__":
     msgService = cfg.getService('MessageSvc')
     msgService.Format = "% F%48W%S%7W%R%T %0W%M"
     msgService.OutputLevel=DEBUG
+    
+    # Fix for ATLASRECTS-5151
+    from MuonEventCnvTools.MuonEventCnvToolsConf import Muon__MuonEventCnvTool
+    cnvTool = Muon__MuonEventCnvTool(name='MuonEventCnvTool')
+    cnvTool.FixTGCs = True
+    cfg.addPublicTool(cnvTool)
     
     cfg.printConfig(withDetails = True, summariseProps = True)
               

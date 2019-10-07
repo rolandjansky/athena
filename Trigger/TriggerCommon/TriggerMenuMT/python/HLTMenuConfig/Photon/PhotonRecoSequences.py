@@ -1,15 +1,18 @@
-#
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.CFElements import parOR
+
+#logging
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences' )  
 
 def precisionPhotonRecoSequence(RoIs):
     """ With this function we will setup the sequence of offline EgammaAlgorithms so to make a photon for TrigEgamma 
 
     Sequence of algorithms is the following:
-      - egammaRecBuilder creates egammaObjects out of clusters and tracks. Here, at HLT photons we will only use clusters. 
+      - egammaRecBuilder/TrigEgammaRecPhoton creates egammaObjects out of clusters and tracks. Here, at HLT photons we will only use clusters. 
       - photonSuperClusterBuilder algorithm will create superclusters out of the toposlusters and tracks in egammaRec under the photon hypothesis
           https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/python/egammaSuperClusterBuilder.py#L26 
       - TopoEgammBuilder will create photons and electrons out of trakcs and SuperClusters. Here at HLT photons the aim is to ignore electrons and not use tracks at all.
@@ -17,70 +20,36 @@ def precisionPhotonRecoSequence(RoIs):
     """
 
 
+    log.debug('precisionPhotonRecoSequence(RoIs = %s)',RoIs)
 
-
-
-    from egammaAlgs import egammaAlgsConf
-    from egammaTools import egammaToolsConf
-    from egammaRec.Factories import AlgFactory, ToolFactory
-    #from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
-
+    # First the data verifiers:
+    # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import PhotonMenuDefs
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import ElectronMenuDefs
-
-    from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool, EMTrackMatchBuilder, EMConversionBuilder
-
-    TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
-                             OutputClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters, #PhotonMenuDefs.outputClusterKey,
-                             OutputTopoSeededClusterContainerName = PhotonMenuDefs.outputTopoSeededClusterKey,
-                             ClusterCorrectionTool = egammaSwTool,
-                             doSuperCluster = True,
-                             MVACalibSvc = egammaMVASvc                             
-                             )
+    import AthenaCommon.CfgMgr as CfgMgr
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier")
+    ViewVerify.DataObjects = [ ( 'xAOD::CaloClusterContainer','StoreGateSvc+'+ precisionCaloMenuDefs.precisionCaloClusters) ]
 
 
-    # Prepare first egammaRec:
-    TrigEgammaRecBuilder = AlgFactory( egammaAlgsConf.egammaRecBuilder,
-            name = 'TrigEgammaRecBuilder' ,
-            InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters, # Use as input, the clusters made by precisionCalo
-            egammaRecContainer=PhotonMenuDefs.EgammaRecKey,
-            doTrackMatching = False,
-            doConversions = False,
-            ## Builder tools
-            TrackMatchBuilderTool = EMTrackMatchBuilder, # Don't want to use these for trigger....
-            ConversionBuilderTool = EMConversionBuilder,  # Don't want to use these for trigger....
-            doAdd = False,
-            )
-    TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBuilder,
-                                            name = 'TrigPhotonSuperClusterBuilder',
-                                            InputEgammaRecContainerName=PhotonMenuDefs.EgammaRecKey,
-                                            SuperPhotonRecCollectionName=PhotonMenuDefs.SuperPhotonRecCollectionName,
-                                            ClusterCorrectionTool=egammaSwTool,
-                                            MVACalibSvc= egammaMVASvc,
-                                            doConversions = False,
-                                            AddClustrsMatchingVtxTracks = False,
-                                            ConversionBuilderTool = EMConversionBuilder,
-                                            doAdd = False
-                                            )
 
-    TrigTopoEgammaBuilder = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = 'TrigTopoEgammaBuilder',
-        SuperElectronRecCollectionName = ElectronMenuDefs.SuperElectronRecCollectionName,
-        SuperPhotonRecCollectionName = PhotonMenuDefs.SuperPhotonRecCollectionName,
-        ElectronOutputName = ElectronMenuDefs.outputElectronKey,
-        PhotonOutputName = PhotonMenuDefs.outputPhotonKey,  
-        AmbiguityTool = EGammaAmbiguityTool,
-        EMClusterTool = TrigEMClusterTool,
-        doAdd = False,
-        )
+    # Retrieve the factories now
+    from TriggerMenuMT.HLTMenuConfig.Photon.TrigPhotonFactories import TrigEgammaRecPhoton, TrigPhotonSuperClusterBuilder, TrigTopoEgammaPhotons
 
+
+
+
+
+
+
+
+    log.debug('retrieve(precisionPhotonRecoSequence,None,RoIs = %s)',RoIs)
 
     # The sequence of these algorithms
-    thesequence = parOR( "precisionPhoton_"+RoIs)
+    thesequence = parOR( "precisionPhotonAlgs") # This thing creates the sequence with name precisionPhotonAlgs
+    thesequence += ViewVerify
 
-    # Create the sequence of three steps:
-    #  - TrigEgammaBuilder, TrigPhotonSuperClusters, TrigTopoEgammaBuilder
-    TrigEgammaAlgo = TrigEgammaRecBuilder()
+    # Add to the sequence the three steps:
+    #  - TrigEgammaBuilder, TrigPhotonSuperClusters, TrigTopoEgammaPhotons
+    TrigEgammaAlgo = TrigEgammaRecPhoton()
     TrigEgammaAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
     thesequence += TrigEgammaAlgo
 
@@ -88,7 +57,7 @@ def precisionPhotonRecoSequence(RoIs):
     trigPhotonAlgo.InputEgammaRecContainerName = TrigEgammaAlgo.egammaRecContainer
     thesequence += trigPhotonAlgo
 
-    trigTopoEgammaAlgo = TrigTopoEgammaBuilder()
+    trigTopoEgammaAlgo = TrigTopoEgammaPhotons()
     trigTopoEgammaAlgo.SuperPhotonRecCollectionName = trigPhotonAlgo.SuperPhotonRecCollectionName
     collectionOut = trigTopoEgammaAlgo.PhotonOutputName
     thesequence += trigTopoEgammaAlgo
@@ -118,7 +87,7 @@ def l2PhotonRecoCfg( flags ):
 
     reco = InViewReco("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
-    reco.inputMaker().RoIsLink="roi"
+    reco.inputMaker().RoIsLink="initialRoI"
     import AthenaCommon.CfgMgr as CfgMgr
 
     moveClusters = CfgMgr.AthViews__ViewDataVerifier("photonViewDataVerifier")

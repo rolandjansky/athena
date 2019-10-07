@@ -92,6 +92,7 @@ namespace Muon {
         /** If true, search for PRDs manually - i.e. do not rely on ElementLink working
         @warning This functionality is left in primarily for debugging - will probably be removed in near future.*/
         Gaudi::Property<bool> m_manuallyFindPRDs{ this, "FindPRDsManually", false, "If true, search for PRDs manually - i.e. do not rely on ElementLink working"};
+        Gaudi::Property<bool> m_fixTGCs{ this, "FixTGCs", false, "If true, try to fix broken EL, e.g. ATLASRECTS-5151"};
 
     };
 

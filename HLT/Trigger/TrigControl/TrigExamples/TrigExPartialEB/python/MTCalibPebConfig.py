@@ -222,11 +222,18 @@ def configure_hlt_result(hypo_algs):
     chain_to_streams['HLT_MTCalibPeb3'] = [streamExampleDataScoutingPEB]
     menu_json = write_dummy_menu_json(chain_to_streams.keys(), chain_to_streams)
 
+    # Give the menu json name to HLTConfigSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'HLTConfigSvc'):
+        from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc
+        svcMgr += HLTConfigSvc()
+    svcMgr.HLTConfigSvc.JsonFileName = menu_json
+
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerTool()
     stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
-    stmaker.HLTmenuFile = menu_json
+    stmaker.HLTmenuFile = menu_json  # TODO: remove after !26849
 
     # Tool adding HLT bits to HLT result
     bitsmaker = TriggerBitsMakerTool()

@@ -5,16 +5,10 @@
 #pragma once
  
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
-
-// Forward declare detector helpers
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class sTgcIdHelper;
-class MmIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 
 // Class for setting up PRD cache containers
@@ -45,14 +39,9 @@ protected:
   SG::WriteHandleKey<TgcPrepDataCollection_Cache>       m_TgcCacheKey;
   SG::WriteHandleKey<sTgcPrepDataCollection_Cache>      m_sTgcCacheKey;
   SG::WriteHandleKey<MMPrepDataCollection_Cache>        m_MmCacheKey;
-  
-  /// ID helpers
-  const MdtIdHelper*  m_mdtIdHelper  = 0;
-  const CscIdHelper*  m_cscIdHelper  = 0;
-  const RpcIdHelper*  m_rpcIdHelper  = 0;
-  const TgcIdHelper*  m_tgcIdHelper  = 0;  
-  const sTgcIdHelper* m_stgcIdHelper = 0;    
-  const MmIdHelper*   m_mmIdHelper   = 0;  
+
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   mutable bool m_disableWarning = false;
   bool isInsideView(const EventContext&) const;

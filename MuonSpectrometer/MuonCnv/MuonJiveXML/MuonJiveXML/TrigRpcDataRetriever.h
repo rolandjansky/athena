@@ -14,9 +14,10 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 
-class RpcIdHelper;
 class IRPCcablingSvc;
 
 namespace JiveXML {
@@ -45,8 +46,9 @@ namespace JiveXML {
     ///The storegate key for the CSC collection
     std::string m_sgKey;
 
-    /// RPC identifier helper
-    const RpcIdHelper* m_rpcIdHelper;
+    /// Tool for RPC identifier helper
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     /// RPC cabling Svc
     const IRPCcablingSvc *m_rpcCabling;

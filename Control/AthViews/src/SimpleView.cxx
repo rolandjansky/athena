@@ -63,16 +63,15 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
   const std::string viewKey = m_name + "_" + key;
   auto localProxy = m_store->proxy( id, viewKey );
+  if ( isValid( localProxy ) ) {
+    return localProxy;
+  }
   
   for ( auto parent: m_parents ) {
     // Don't allow parents to access whole-event store independently of this view
     auto inParentProxy = parent->findProxy( id, key, false );
     if ( isValid( inParentProxy ) ) {
-      if ( isValid( localProxy ) ) {
-        throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
-      }
-      localProxy = inParentProxy;
-      break;
+      return inParentProxy;
     }
   }
   
@@ -81,7 +80,7 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
     auto mainStoreProxy = m_store->proxy( id, key );
     return mainStoreProxy;
   }
-  return localProxy; // can be the nullptr still
+  return nullptr;
 }
 
 

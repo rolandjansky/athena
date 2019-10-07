@@ -2,6 +2,7 @@
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags, CommonGeometryFlags
+from AthenaCommon import Logging
 
 # -------------------------------------------------------------------------------------
 #  Muon geometry flags initialization
@@ -25,9 +26,9 @@ class MuonGMFlags(CommonGMFlags, object):
         else: self.__dict__["HasCSC"] = True
 
     def dump(self):
-        print "MuonGMFlags:"
-        print "Layout      = ",self.__dict__["Layout"]
-        print "HasCSC      = ",self.__dict__["HasCSC"]
+        Logging.log.info("MuonGMFlags:")
+        Logging.log.info("Layout      = "+self.__dict__["Layout"])
+        Logging.log.info("HasCSC      = "+self.__dict__["HasCSC"])
 
 
 class GeoLayout(JobProperty):
@@ -59,8 +60,8 @@ class MuonGeometryFlags_JobProperties(JobPropertyContainer):
         self.hasCSC.unlock()
 
     def dump(self):
-        print "Layout      = ", self.GeoLayout()
-        print "HasCSC      = ", self.hasCSC()
+        Logging.log.info("Layout      = "+self.GeoLayout())
+        Logging.log.info("HasCSC      = "+self.hasCSC())
 
 
 jobproperties.add_Container(MuonGeometryFlags_JobProperties)

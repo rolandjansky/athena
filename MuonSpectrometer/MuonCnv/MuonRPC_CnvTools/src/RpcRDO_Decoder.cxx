@@ -23,7 +23,6 @@
 Muon::RpcRDO_Decoder::RpcRDO_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
-  m_rpcIdHelper(0),
   m_cablingSvc(0)
 {
   declareInterface<IRPC_RDO_Decoder>( this );
@@ -34,13 +33,7 @@ StatusCode Muon::RpcRDO_Decoder::initialize()
   
   ATH_MSG_DEBUG ( "initialize"); 
   
-  // Get the RPC id helper from the detector store
-  if (detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER").isFailure()) {
-    ATH_MSG_FATAL ( "Could not get RpcIdHelper !" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Found the RpcIdHelper. " );
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // Get MuonDetectorManager
   if (detStore()->retrieve( m_muonMgr ).isFailure())

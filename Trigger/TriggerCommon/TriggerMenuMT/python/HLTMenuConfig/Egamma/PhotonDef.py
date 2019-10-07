@@ -14,19 +14,6 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import fastPhotonMenuSequence, precisionPhotonMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
-#----------------------------------------------------------------
-# Static classes to configure photon chain container names
-#----------------------------------------------------------------
-
-class PhotonMenuDefs(object):
-      """Static class to collect all string manipulation in Photon sequences """
-      SuperPhotonRecCollectionName = "HLT_PhotonSuperRecCollection"
-      EgammaRecKey = "HLT_egammaRecCollection"
-      outputPhotonKey = "HLT_egamma_Photons"
-      outputClusterKey = 'HLT_egammaClusters'
-      outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-
-
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 

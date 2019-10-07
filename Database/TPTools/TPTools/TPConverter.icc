@@ -125,6 +125,16 @@ TRANS* TPConverterConstBase<TRANS, PERS>::createTransientConst
 }
 
 
+template< class TRANS, class PERS >
+PERS* TPConverterConstBase<TRANS, PERS>::createPersistentConst
+  (const TRANS* transObj, MsgStream& log) const
+{
+  std::unique_ptr<PERS> pers(new PERS());
+  transToPers(transObj, pers.get(), log);
+  return(pers.release());
+}
+
+
 //--------------------------------------------------------------------
 /*
   persToTrans() and transToPers() implementation for a converter between

@@ -32,4 +32,10 @@ print topSequence.L1Decoder
 #from TrigUpgradeTest.jetDefs import jetRecoSequence
 #(recoSequence, sequenceOut) = jetRecoSequence("FSRoI") 
 #topSequence += recoSequence
-    
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags    
+hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
+from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc, findFileInXMLPATH
+hltJsonFile = findFileInXMLPATH(hltJsonFile)
+svcMgr += HLTConfigSvc()
+svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile

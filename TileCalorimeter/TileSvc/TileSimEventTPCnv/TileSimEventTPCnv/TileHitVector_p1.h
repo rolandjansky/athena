@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEHITVECTOR_P1_H
@@ -32,7 +32,6 @@ class TileHitVector_p1 {
     const std::string&  name() const {return m_name;}
     const HitVector&    getVector() const {return m_cont;}
 
-  private:
     std::vector<TileHit_p1> m_cont; 
     std::string             m_name;
 };

@@ -5,6 +5,7 @@
 # specify branches of athena that are being targeted:
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
+# art-include: master/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 

@@ -28,7 +28,7 @@ public:
 
 protected:
   // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif //AFP_G4_SD_AFP_SiDSensitiveDetectorTool_h

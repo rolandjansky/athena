@@ -112,7 +112,14 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
         if (m_manuallyFindPRDs) prd = cscClusterLink(id, rioOnTrack.idDE());
       } else if(m_idHelperTool->isTgc(id)){
         detEl = m_muonMgr->getTgcReadoutElement( id ) ;
-        if (m_manuallyFindPRDs) prd = tgcClusterLink(id, rioOnTrack.idDE());
+        if ( m_manuallyFindPRDs) prd = tgcClusterLink(id, rioOnTrack.idDE());
+        if ( m_fixTGCs && !rioOnTrack.prepRawData() ) {
+          // Okay, so we might have hit the nasty issue that the TGC EL is broken in some samples
+          // Need to fix by pointing to the key defined here (assumung it has been configured correctly for this sample)
+          const Muon::TgcClusterOnTrack* tgc = dynamic_cast<const Muon::TgcClusterOnTrack*>(&rioOnTrack);
+          ElementLinkToIDC_TGC_Container& el = const_cast<ElementLinkToIDC_TGC_Container&>( tgc->m_rio );
+          el.resetWithKeyAndIndex(m_tgcPrdKey.key(), el.index());
+        }
       }else if(m_idHelperTool->isMdt(id)){
         detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mdtDriftCircleLink(id, rioOnTrack.idDE());

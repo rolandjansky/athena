@@ -100,9 +100,6 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
     // DEBUG
-    auto muFastInfo = (*muCombEL)->muSATrack(); 
-    ATH_MSG_DEBUG("REGTEST: muSATrack pt in " << m_muCombKey.key() << " = " << muFastInfo->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: muSATrack eta/phi in " << m_muCombKey.key() << " = " << muFastInfo->eta() << "/" << muFastInfo->phi());
     ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
     ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );

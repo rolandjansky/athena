@@ -80,17 +80,12 @@ StatusCode RPCCablingDbTool::initialize()
   log << MSG::INFO << "Initializing - folders names are: conf "<<m_mapFolder <<" / corr "<<m_corrFolder<< endmsg;
    				    
 
-  // retrieve the rpc id helper
-  StatusCode sc = detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve RpcIdHelper" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
+  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
   {
        log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;

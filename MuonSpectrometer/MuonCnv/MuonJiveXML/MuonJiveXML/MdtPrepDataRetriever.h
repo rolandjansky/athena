@@ -11,7 +11,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class MdtIdHelper;
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 namespace JiveXML {
   
@@ -39,8 +41,9 @@ namespace JiveXML {
     ///The storegate key for the CSC collection
     std::string m_sgKey;
 
-    /// MDT identifier helper
-    const MdtIdHelper* m_mdtIdHelper;
+    /// Tool for MDT identifier helper
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     int m_adcCut;
     bool m_obeyMasked;
