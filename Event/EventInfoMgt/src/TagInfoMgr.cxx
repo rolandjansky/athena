@@ -679,7 +679,7 @@ TagInfoMgr::handle(const Incident& inc) {
         m_newFileIncidentSeen = false;
 
         // get conditionsRun from the Context - can be used if no EventID in the SG (for HLT) 
-        m_conditionsRun = inc.context().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+        m_conditionsRun = Atlas::getExtendedEventContext(inc.context()).conditionsRun();
 
         // Print out EventInfo
         // can't use a ref here!

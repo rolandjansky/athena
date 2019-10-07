@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_READMETAHANDLE_H
@@ -80,7 +80,7 @@ namespace SG {
   ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key,
                                     const EventContext& ctx):
     SG::VarHandleBase( key, &ctx ),
-    m_sid( ctx.getExtension<Atlas::ExtendedEventContext>().proxy()->sourceID() ),
+      m_sid( Atlas::getExtendedEventContext(ctx).proxy()->sourceID() ),
     m_cont( key.getContainer() ),
     m_hkey(key)
   {
