@@ -44,13 +44,7 @@ def bJetStep1Sequence():
     RoIs=RoIBuilder.RoIOutputKey
 
     # Fast Tracking
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS")
-
-    for viewAlg in viewAlgs:
-        if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = RoIs
-        if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = RoIs
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS", rois=RoIs)
 
     # Primary Vertex 
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
@@ -105,14 +99,8 @@ def bJetStep1SequenceALLTE():
 
 
     # Fast Tracking 
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS",rois=RoIs)
 
-
-    for viewAlg in viewAlgs:
-        if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = RoIs
-        if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = RoIs
 
     # Primary Vertex 
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
