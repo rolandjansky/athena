@@ -715,9 +715,13 @@ int CscIdHelper::stripMax(const Identifier& id) const
 	      if (phi_field.has_maximum())
 		{  
 		  if (measuresPhi(id)){
-		    m_phiStripMax=phi_field.get_maximum(); return m_phiStripMax;
+        auto max = phi_field.get_maximum();
+		    m_phiStripMax = max;
+        return max;
 		  } else {
-		    m_etaStripMax=phi_field.get_maximum(); return m_etaStripMax;
+        auto max = phi_field.get_maximum();
+		    m_etaStripMax = max;
+        return max;
 		  } 
 		}
 	    }

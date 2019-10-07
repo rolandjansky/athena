@@ -16,6 +16,7 @@
 // Includes
 
 #include "MuonIdHelpers/MuonIdHelper.h"
+#include <atomic>
 
 // ******************************************************************************
 // class CscIdHelper
@@ -218,8 +219,8 @@ class CscIdHelper : public MuonIdHelper
     };
   int m_hashOffset[2][2];
 
-  mutable unsigned int m_etaStripMax;
-  mutable unsigned int m_phiStripMax;
+  mutable std::atomic<unsigned int> m_etaStripMax;
+  mutable std::atomic<unsigned int> m_phiStripMax;
   inline void create_mlog() const override;
   bool m_hasChamLay1;
 };
