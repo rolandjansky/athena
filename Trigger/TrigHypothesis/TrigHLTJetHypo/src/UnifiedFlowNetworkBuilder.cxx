@@ -12,9 +12,13 @@
 
 
 UnifiedFlowNetworkBuilder::UnifiedFlowNetworkBuilder(ConditionsMT conditions,
-						     const Tree& tree):
-  FlowNetworkBuilderBase(std::move(conditions)), m_tree(tree){
-}
+						     const Tree& tree,
+						     const std::vector<std::vector<int>>& sharedNodes):
+  FlowNetworkBuilderBase(std::move(conditions)),
+  m_tree(tree),
+  m_sharedNodes(sharedNodes){
+  }
+
 
 std::optional<std::vector<std::shared_ptr<FlowEdge>>>
 UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,

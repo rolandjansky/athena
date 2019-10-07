@@ -65,7 +65,7 @@ if __name__ == '__main__':
     print('index', index)
     label = test_strings[index]
 
-    # setter = ConditionsToolSetterTree('toolSetter')
+    setter = ConditionsToolSetterTree('toolSetter')
     setter = ConditionsToolSetterFlowNetwork('fnToolSetter')
     
     tree = compile(label, setter=setter,  expand=True, do_dump=True)

@@ -26,7 +26,7 @@ class Node(object):
         self.children = []
         self.conf_attrs = []  # list of dictionaries
         self.tool = None
-
+        self.compound_condition_tools = []
         # self.tree_top kludge carensure top level tools get chain name
         # as Tool name
         self.tree_top = False
@@ -85,13 +85,11 @@ class Node(object):
              indent + 'conf_attrs [%d]:' % len(self.conf_attrs)]
         for ca in self.conf_attrs:
             s.append(indent + str(ca))
-        try:
+        
             # this attribute added by flow network setter tool
             s.append(indent + 'compound_condition_tools [%d]' % len(
                 self.compound_condition_tools))
-        except:
-            pass
-            
+
         s.append(indent + 'AlgTool: %s' % str(self.tool))
         s.append(indent + 'No of children: %d\n' % len(self.children))
 

@@ -28,6 +28,8 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'djdetahi': 'inf',
                 'djdphilo': '0.',
                 'djdphihi': 'inf',
+                'qjmasslo': '0.0',
+                'qjmasshi': 'inf',
                 'momwidthlo': '-inf',
                 'momwidthhi': 'inf',
                 'smclo': '0',
@@ -51,6 +53,7 @@ def scaleFactors(parameter):
         'djdeta': 0.1,
         'djmass': 1000.,
         'djdphi': 0.1,
+        'qjmass': 1000.,
         'momwidth': 1.0,
     }
     return defaults[parameter]
@@ -397,6 +400,7 @@ class TreeParameterExpander(object):
         'simple': TreeParameterExpander_simple,
         'simplepartition': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,
+        'qjet': TreeParameterExpander_simple,
         'not': TreeParameterExpander_null,
         'and': TreeParameterExpander_null,
         'or': TreeParameterExpander_null,

@@ -11,17 +11,14 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetConditionConfig_dijet_mass,
     TrigJetConditionConfig_dijet_deta,
     TrigJetConditionConfig_dijet_dphi,
+    TrigJetConditionConfig_qjet_mass,
     TrigJetConditionConfig_moment,
     TrigJetConditionConfig_smc,
     TrigJetConditionConfig_compound,
     TrigJetHypoToolConfig_flownetwork,
     TrigJetHypoToolHelperMT,
-    TrigJetHypoToolConfig_leaf,
     )
 
-from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
-    AgreeHelperTool,
-)
 
 from TrigHLTJetHypo.node import Node
 
@@ -31,7 +28,7 @@ import copy
 
 
 def is_leaf(node):
-    return node.scenario in  ('simple', 'etaet', 'dijet')
+    return node.scenario in  ('simple', 'etaet', 'dijet', 'qjet')
 
 
 def is_inner(node):
@@ -54,6 +51,7 @@ class ConditionsToolSetterFlowNetwork(object):
             'djmass': [TrigJetConditionConfig_dijet_mass, 0],
             'djdphi': [TrigJetConditionConfig_dijet_dphi, 0],
             'djdeta': [TrigJetConditionConfig_dijet_deta, 0],
+            'qjmass': [TrigJetConditionConfig_qjet_mass, 0],
             'momwidth': [TrigJetConditionConfig_moment, 0],
             'smc': [TrigJetConditionConfig_smc, 0],
             'compound': [TrigJetConditionConfig_compound, 0],
@@ -95,8 +93,6 @@ class ConditionsToolSetterFlowNetwork(object):
 
         # rotate the first combgen child (parent) into the position of the
         # combgen node, and set its child node.
-        print ('parent_children ' + str(parent_children))
-        print( node.children)
         for pos, p_c in parent_children.items():
             node.children[pos] = p_c[0]
             node.children[pos].children = [p_c[1]]
@@ -236,7 +232,9 @@ class ConditionsToolSetterFlowNetwork(object):
                     self._find_shared(cn, shared)
 
         else:
-            print ('illegal node: ', node.scenario)
+            raise RuntimeError('%s illegal node. scenario: %s' %
+                               self.__class__.__name__,
+                               node.scenario)
 
         return shared
 
@@ -303,7 +301,7 @@ class ConditionsToolSetterFlowNetwork(object):
         print ('%s: start step 1' % self.__class__.__name__)
 
         # Alg step 1: add root node
-        root = Node(scenario='root');
+        root = Node(scenario='root')
         root.children = [node]
 
         print ('%s: checking scenarios' % self.__class__.__name__)
@@ -331,14 +329,24 @@ class ConditionsToolSetterFlowNetwork(object):
         # Alg step 5: identify the leaf nodes that are to shared
         # ie that see the input jet collection. Then remove And nodes
         shared = []
-        self._find_shared(root, shared)
+        slist = self._find_shared(root, shared)
         self._remove_scenario(root, 'and')
 
         root.set_ids(node_id=0, parent_id = 0)
         
-        self.shared = []
-        for slist in shared:
-            self.shared.append([n.node_id for n in slist])
+        if len(slist) < 2:
+            self.shared = slist[:]
+        else:
+            self.shared = []
+            for slist in shared:
+                # would like to pass a list of lists to the C++ tools
+                # but this cannot be done using Gaudi::Properties.
+                # use -1 to separate the list sections all entries of which
+                # are >= 0.
+                self.shared.extend(slist)
+                self.shared.append(-1)
+            self.shared = self.shared[:-1]  # remove trailing -1.
+            
         tree_map = {}
         self._fill_tree_map(root, tree_map)
         self.treeVec = self._map_2_vec(tree_map)

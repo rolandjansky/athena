@@ -34,6 +34,29 @@ TrigJetHypoToolConfig_flownetwork::~TrigJetHypoToolConfig_flownetwork(){
 }
 
 StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
+
+  // gymanastics as cannot pass vecor<vecotr<int>> as a Gaudi::Property
+  if(m_sharedNodesVec.empty()){return StatusCode::FAILURE;}
+
+  if(m_sharedNodesVec.size() == 1){
+    if(m_sharedNodesVec[0] >= 0){
+      m_sharedNodes.push_back(m_sharedNodesVec);
+      return StatusCode::SUCCESS;
+    } else  {
+      return StatusCode::FAILURE;
+    }
+  }
+  
+  auto be = m_sharedNodesVec.begin();
+  auto en = m_sharedNodesVec.end();
+  auto it = std::find(be, en, -1);
+  while(true){
+    m_sharedNodes.push_back(std::vector<int>(be, it));
+    if(it >= en - 1){break;}
+    be = it + 1;
+    it = std::find(be, it, -1);
+  };
+    
   return StatusCode::SUCCESS;
 }
 
@@ -51,14 +74,6 @@ TrigJetHypoToolConfig_flownetwork::getConditions() const {
     conditions.push_back(cm->getCondition());
   }
     
-
-  // Conditions no longre have ID - FIXME
-  // sort the conditions by the conditionID. The ordering must match the
-  // that expected by the "parents" vector.
-  // std::sort(conditions.begin(), conditions.end(), [](const auto& l,
-  //						     const auto& r){
-  //	      return l->conditionID() < r->conditionID();});
-
   return std::make_optional<ConditionsMT>(std::move(conditions));
 }
 
@@ -85,7 +100,8 @@ TrigJetHypoToolConfig_flownetwork::getMatcher () const {
   }
 
   return groupsMatcherFactoryMT_Unified(std::move(*opt_conds),
-					m_treeVec);
+					m_treeVec,
+					m_sharedNodes);
 }
 
 StatusCode TrigJetHypoToolConfig_flownetwork::checkVals() const {

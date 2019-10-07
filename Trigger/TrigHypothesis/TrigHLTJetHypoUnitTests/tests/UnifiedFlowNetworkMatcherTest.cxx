@@ -124,8 +124,10 @@ bool simpleBuildAndRunMatcher(const std::vector<double>& etaMins,
   xAODJetCollector j_collector;
   
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
+  std::vector<std::vector<int>> sharedNodes {};
   matcher.reset(new UnifiedFlowNetworkMatcher(std::move(conditions),
-					      treeVec));
+					      treeVec,
+					      sharedNodes));
 
   bool pass =  *(matcher->match(groups.cbegin(),
 				groups.cend(),
@@ -169,8 +171,10 @@ bool buildAndRunMatcher(ConditionsMT conditions,
   xAODJetCollector j_collector;
   
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
+  std::vector<std::vector<int>> sharedNodes {};
   matcher.reset(new UnifiedFlowNetworkMatcher(std::move(conditions),
-					      treeVec));
+					      treeVec,
+					      sharedNodes));
   bool pass =  *(matcher->match(groups.cbegin(),
 				groups.cend(),
 				j_collector,
