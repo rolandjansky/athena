@@ -470,12 +470,12 @@ void PerfMonMTSvc::report2JsonFile() {
 
   if(isDirectoryExist("/proc")){
     report2JsonFile_Mem_Serial(j);
-    //if(m_isEventLoopMonitoring)
-      //report2JsonFile_Mem_Parallel(j);
+    if(m_isEventLoopMonitoring)
+      report2JsonFile_Mem_Parallel(j);
   }
   
-  //if(m_isEventLoopMonitoring)
-    //report2JsonFile_Time_Parallel(j);
+  if(m_isEventLoopMonitoring)
+    report2JsonFile_Time_Parallel(j);
  
 
   std::ofstream o("PerfMonMTSvc_result.json");
@@ -513,23 +513,32 @@ void PerfMonMTSvc::report2JsonFile_Time_Serial(nlohmann::json& j) const {
 
   }
 }
+
 /*
+  {
+    "TimeMon_Parallel" : {
+      "0" : {
+        cpu : 0
+      }
+    }
+
+  }
+
+*/
+
 void PerfMonMTSvc::report2JsonFile_Time_Parallel(nlohmann::json& j) const {
 
-  // Report component level time measurements in parallel steps
-  for(auto& it : m_aggParallelCompLevelDataMap){
+  // Report event level CPU measurements
+  for(auto it : m_eventLevelData.m_parallel_delta_map){
 
-    std::string stepName = it.first.stepName;
-    std::string compName = it.first.compName;
-
-    double wall_time = it.second.wall_time;
+    std::string checkPoint = std::to_string(it.first);
     double cpu_time = it.second.cpu_time;
 
-    j["TimeMon_Parallel"][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
+    j["TimeMon_Parallel"][checkPoint] = { {"cpu_time", cpu_time} } ;
 
   }
 }
-*/
+
 void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
   
   // Report component level memory measurements in serial steps
@@ -550,25 +559,26 @@ void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
     delete it.second;
   }
 }
-/*
+
+
 void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
   
-  // Report component level memory measurements in parallel steps
-  for(auto& it : m_aggParallelCompLevelDataMap){
+  // Report event level memory measurements
+  for(auto it : m_eventLevelData.m_parallel_delta_map){
 
-    std::string stepName = it.first.stepName;
-    std::string compName = it.first.compName;
-
+    std::string checkPoint = std::to_string(it.first);
+    
     long vmem = it.second.mem_stats["vmem"];
     long rss = it.second.mem_stats["rss"];
     long pss = it.second.mem_stats["pss"];
     long swap = it.second.mem_stats["swap"];
 
-    j["MemMon_Parallel"][stepName][compName] = { {"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap} } ; 
+
+    j["MemMon_Parallel"][checkPoint] = { {"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap} } ;
 
   }
 }
-*/
+
 // const?
 bool PerfMonMTSvc::isLoop() {
   
