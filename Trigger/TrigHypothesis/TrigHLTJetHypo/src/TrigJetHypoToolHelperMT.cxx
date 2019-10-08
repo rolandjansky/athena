@@ -52,7 +52,6 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 			      xAODJetCollector& jetCollector,
 			      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
 
-
   JetTrigTimer timer;
   timer.start();
 

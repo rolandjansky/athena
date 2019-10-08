@@ -24,10 +24,9 @@
 
 
 #include "./ConditionsDefsMT.h"
+#include "./ITrigJetConditionConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigJetHypoToolConfig_partgen:
 public extends<AthAlgTool, ITrigJetHypoToolConfig> {
@@ -48,18 +47,9 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual std::size_t requiresNJets() const override {return 0;}
 
  private:
-  
-  Gaudi::Property<std::vector<double>>
-    m_EtThresholds{this, "EtThresholds", {}, "Etthresholds by eta region"};
-  
-  Gaudi::Property<std::vector<double>>
-    m_etaMins{this, "eta_mins", {}, "Eta min for eta regions"};
-  
-  Gaudi::Property<std::vector<double>>
-    m_etaMaxs{this, "eta_maxs", {}, "Eta max for eta regions"};
 
-  Gaudi::Property<std::vector<int>>
-    m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
+   ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers{
+    this, "conditionMakers", {}, "conditions makers for a leaf node."};
 
   Gaudi::Property<unsigned int>
     m_size{this, "groupSize", {}, "Jet group size"};

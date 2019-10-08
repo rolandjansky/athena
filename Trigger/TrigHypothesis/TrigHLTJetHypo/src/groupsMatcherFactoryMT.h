@@ -15,4 +15,8 @@ groupsMatcherFactoryMT_MaxBipartite(ConditionsMT&&);
 std::unique_ptr<IGroupsMatcherMT>
 groupsMatcherFactoryMT_Partitions(ConditionsMT&&);
 
+std::unique_ptr<IGroupsMatcherMT>
+groupsMatcherFactoryMT_Unified(ConditionsMT&&,
+			       const std::vector<std::size_t>& treeVec);
+
 #endif
