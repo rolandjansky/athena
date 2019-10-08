@@ -244,6 +244,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializeDefault()
 
 std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2015G4()
 {
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples;
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
     ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCut;
@@ -408,7 +409,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
     zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting
     zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
-    //  }
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
     return zdcDataAnalyzer;
 }
@@ -517,6 +518,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting, requested by BAC 4/6/19
     zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
     return zdcDataAnalyzer;
 }
