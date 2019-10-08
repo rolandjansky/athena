@@ -49,6 +49,7 @@
     declareProperty("CentralMaxStochPt",  m_maxStochPt       = 35e3             );
     declareProperty("JetScaleFactor",     m_jetScaleFactor   = 0.4              );
     declareProperty("UseTightOP",         m_tightOP          = false            );//Tight or Loose
+    declareProperty("UseFirstVertex",     m_useFirstVertex   = false            );
   }
 
   // Destructor
@@ -193,6 +194,7 @@
   void JetForwardJvtTool::getPV() const {
     const xAOD::VertexContainer *vxCont = 0;
     m_pvind = 0;
+    if (m_useFirstVertex) return;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     } else if(vxCont->empty()) {

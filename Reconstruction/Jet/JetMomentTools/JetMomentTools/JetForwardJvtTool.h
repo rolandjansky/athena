@@ -87,6 +87,7 @@
     bool m_tightOP;
     mutable std::vector<TVector2> m_pileupMomenta;
     mutable size_t m_pvind;
+    size_t m_useFirstVertex;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
