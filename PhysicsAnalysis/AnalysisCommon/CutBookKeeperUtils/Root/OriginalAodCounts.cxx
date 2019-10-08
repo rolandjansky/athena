@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CutBookKeeperUtils/OriginalAodCounts.h"
+#include "CutBookkeeperUtils/OriginalAodCounts.h"
 
 #include "xAODCutflow/CutBookkeeper.h"
 #include "xAODCutflow/CutBookkeeperContainer.h"

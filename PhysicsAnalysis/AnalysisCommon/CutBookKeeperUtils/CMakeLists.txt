@@ -1,5 +1,5 @@
 # Set the project's name and version.
-atlas_subdir( CutBookKeeperUtils )
+atlas_subdir( CutBookkeeperUtils )
 
 atlas_depends_on_subdirs(
   PUBLIC
@@ -9,7 +9,7 @@ atlas_depends_on_subdirs(
   )
 
 # Add the hdf tuple library
-atlas_add_library(CutBookKeeperUtils
+atlas_add_library(CutBookkeeperUtils
   Root/OriginalAodCounts.cxx
   PUBLIC_HEADERS CutBookKeeperUtils
   LINK_LIBRARIES xAODCore xAODCutFlow xAODRootAccess)
