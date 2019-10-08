@@ -237,7 +237,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','20invm60', '10invm60', '10invm70', '0invm60', '20invm80', '10invm80', 'pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','20invm60', '10invm60', '10invm70', '0invm60', '20invm80', '10invm80', 'pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose','qualityL','qualityM'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],
