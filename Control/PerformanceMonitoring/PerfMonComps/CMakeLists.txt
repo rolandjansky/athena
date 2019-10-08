@@ -40,4 +40,3 @@ atlas_add_component( PerfMonComps
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( scripts/PerfMonMTSvc_plotter.py )
