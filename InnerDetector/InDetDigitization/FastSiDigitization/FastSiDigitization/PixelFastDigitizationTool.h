@@ -113,8 +113,6 @@ private:
   std::string                           m_prdTruthNamePixel;
   PRD_MultiTruthCollection*             m_pixPrdTruth;              //!< the PRD truth map for Pixel measurements
 
-  //  ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;   //!< Handle to pixel conditions service
-
   ToolHandle< InDet::PixelGangedAmbiguitiesFinder > m_gangedAmbiguitiesFinder;
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
@@ -154,7 +152,6 @@ private:
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
   {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
-  //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, const InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;
 
   PixelFastDigitizationTool();
