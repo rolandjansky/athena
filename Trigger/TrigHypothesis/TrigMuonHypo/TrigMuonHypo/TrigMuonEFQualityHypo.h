@@ -59,6 +59,8 @@ private:
     
     float m_isBadMuon;
 
+    BooleanProperty m_looseCut;
+
 };//class TrigMuonEFQuality
 
 #endif //TRIG_TRIGMUONEFQUALITY_H

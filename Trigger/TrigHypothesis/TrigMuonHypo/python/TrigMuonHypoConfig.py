@@ -1807,6 +1807,12 @@ class TrigMuonEFQualityHypoConfig(TrigMuonEFQualityHypo) :
             else:
                 self.RequireCombinedMuon = True
 
+            if 'Loose' in args[1]:
+                self.LooseCut = True
+            else :
+                self.LooseCut = False
+
+
         except LookupError:
             if(args[1]=='passthrough') :
                 print 'Setting passthrough'
