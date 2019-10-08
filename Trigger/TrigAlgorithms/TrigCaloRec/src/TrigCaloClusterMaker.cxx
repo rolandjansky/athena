@@ -399,7 +399,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     m_clusterSize.push_back(cl->clusterSize());
     m_signalState.push_back(cl->signalState());
     
-    CaloClusterCellLink* num_cell_links = cl->getCellLinks();
+    const CaloClusterCellLink* num_cell_links = cl->getCellLinks();
     if(! num_cell_links) {
     //m_size.push_back(0);
       (*m_ncellDeco)( *cl ) = 0;  

@@ -291,7 +291,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
   // fill monitored variables
   for (xAOD::CaloCluster* cl : *pCaloClusterContainer) {
     
-    CaloClusterCellLink* num_cell_links = cl->getCellLinks();
+    const CaloClusterCellLink* num_cell_links = cl->getCellLinks();
     if(! num_cell_links) {
       sizeVec.push_back(0);
       mDecor_ncells(*cl) = 0;
