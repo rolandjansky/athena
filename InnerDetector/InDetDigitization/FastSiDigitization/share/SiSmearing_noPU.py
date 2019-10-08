@@ -70,9 +70,6 @@ from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
 ToolSvc += PixelRecoDbTool()
 ToolSvc.PixelRecoDbTool.InputSource = 1
 
-from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
-ToolSvc += PixelCalibDbTool()
-
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.enableSuppression = False
 ServiceMgr.MessageSvc.Format       = "% F%50W%S%7W%R%T %0W%M"

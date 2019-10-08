@@ -77,7 +77,7 @@ namespace eflowSubtract {
 
   void Subtractor::annihilateCluster(xAOD::CaloCluster* cluster) {
 
-    CaloClusterCellLink* theCellLink = cluster->getCellLinks();
+    CaloClusterCellLink* theCellLink = cluster->getOwnCellLinks();
 
     CaloClusterCellLink::iterator theFirstCell = theCellLink->begin();
     CaloClusterCellLink::iterator theLastCell = theCellLink->end();

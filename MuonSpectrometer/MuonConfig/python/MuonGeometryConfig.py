@@ -6,6 +6,8 @@ from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
 from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
@@ -15,7 +17,11 @@ def MuonGeoModelCfg(flags):
     gms=gmsAcc.getPrimary()
     acc.merge(gmsAcc)
 
-    detTool = MuonDetectorTool()
+    detTool = MuonDetectorTool(
+        HasCSC=MuonGeometryFlags.hasCSC(),
+        HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
+        HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+        )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
     detTool.BuildFromNova = 0
@@ -103,6 +109,10 @@ def MuonGeoModelCfg(flags):
     gms.DetectorTools += [ detTool ]
 
     # Temporary, until we move to services/private tools
-    acc.addPublicTool( Muon__MuonIdHelperTool() )
+    acc.addPublicTool( Muon__MuonIdHelperTool("MuonIdHelperTool",
+        HasCSC=MuonGeometryFlags.hasCSC(),
+        HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
+        HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+        ) )
 
     return acc

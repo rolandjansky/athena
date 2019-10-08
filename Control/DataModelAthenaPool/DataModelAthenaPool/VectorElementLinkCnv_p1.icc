@@ -9,7 +9,7 @@
 
 
 #include "AthenaKernel/IThinningSvc.h"
-#include "DataModelAthenaPool/getThinningCache.h"
+#include "AthenaKernel/getThinningCache.h"
 
 
 template <typename LINK_VECT>
@@ -36,7 +36,7 @@ void VectorElementLinkCnv_p1<LINK_VECT>::transToPers(const LinkVect_t& trans,
                                                      MsgStream& msg)  const
 {
   transToPers (trans, pers,
-               DataModelAthenaPool::getThinningCache(),
+               SG::getThinningCache(),
                msg);
 }
 

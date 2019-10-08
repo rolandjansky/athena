@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETKEYDESCRIPTOR_H
@@ -44,7 +44,6 @@ class JetKeyDescriptor
 {
   // allow access to private data members for these classes
   friend class JetKeyDescriptorCnv_p1;
-  friend class JetKeyDescriptorCnv;
   friend class JetKeyDescriptorInstance;
   friend class TPPolyCnvBase<JetKeyDescriptor,JetKeyDescriptor, JetKeyDescriptor_p1>;  
  public:
@@ -102,6 +101,11 @@ class JetKeyDescriptorInstance
   friend class JetKeyDescriptor;
   friend class JetCollection;
   friend class JetKeyDescriptorCnv_p1;
+  friend class JetCollectionCnv_p2;
+  friend class JetCollectionCnv_p3;
+  friend class JetCollectionCnv_p4;
+  friend class JetCollectionCnv_p5;
+  friend class JetCollectionCnv_p6;
 
   
  public:

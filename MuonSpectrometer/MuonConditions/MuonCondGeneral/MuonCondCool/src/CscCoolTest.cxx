@@ -25,8 +25,7 @@ using namespace MuonCalib; //So we don't need to type MuonCalib:: in front of Cs
 CscCoolTest::CscCoolTest(const std::string& name, 
     ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
                                m_log(msgSvc(),name),
-                               p_cscCoolStrSvc(0),
-                               m_cscId(0)
+                               p_cscCoolStrSvc(0)
 {
 
   declareProperty("StripHash",m_stripHash = 800);
@@ -50,10 +49,10 @@ StatusCode CscCoolTest::initialize()
     m_log << MSG::FATAL << "Detector store not found" << endmsg;
     return StatusCode::FAILURE;
   }
-  StatusCode sc = detstore->retrieve(m_cscId,"CSCIDHELPER");
+  StatusCode sc = m_muonIdHelperTool.retrieve();
   if(sc.isFailure())
   {
-    m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endmsg;
+    m_log << MSG::FATAL << "Cannot retrieve MuonIdHelperTool" << endmsg;
     return sc;
   }
 
@@ -113,7 +112,7 @@ StatusCode CscCoolTest::execute()
 
   //Count how man of each bad status result we have
   if(m_doStatusTest){
-    IdContext channelContext = m_cscId->channel_context();   
+    IdContext channelContext = m_muonIdHelperTool->cscIdHelper().channel_context();   
 
     const unsigned int nIds = 61440;
     const unsigned int expectedChamberLayer = 2;
@@ -123,8 +122,8 @@ StatusCode CscCoolTest::execute()
 
     for( unsigned int idItr = 0; idItr < nIds; idItr++){
       Identifier stripId;
-      m_cscId->get_id(idItr, stripId, &channelContext);
-      unsigned int chamLayer = m_cscId->chamberLayer(stripId);
+      m_muonIdHelperTool->cscIdHelper().get_id(idItr, stripId, &channelContext);
+      unsigned int chamLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(stripId);
 
       if( chamLayer == expectedChamberLayer){ //skip missing layer
         sc = p_cscCoolStrSvc->getParameter(status,"status",idItr);

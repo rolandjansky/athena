@@ -22,6 +22,8 @@ from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getPrivateTo
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 
 import sys
+
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 #==============================================================
 
 # call  setDefaults to update default flags
@@ -85,7 +87,9 @@ class MuonStandalone(ConfiguredMuonRec):
         if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
             SegmentLocation = "ThirdChainSegments"
 
-        if muonRecFlags.doNSWNewThirdChain():
+        # we assume that RUN3 or RUN4 means that at least one sTgc and one MM chamber is present
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+        if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
             getPublicTool("MuonLayerHoughTool")
             self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
             if not muonStandaloneFlags.patternsOnly():
@@ -102,17 +106,18 @@ class MuonStandalone(ConfiguredMuonRec):
                                                                     MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
                                                                     MuonTruthSummaryTool = None,
                                                                     PrintSummary = muonStandaloneFlags.printSummary() )
-                if( muonRecFlags.doCSCs() ):
+                # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
+                if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():
                     getPublicTool("CscSegmentUtilTool")
                     getPublicTool("Csc2dSegmentMaker")
                     getPublicTool("Csc4dSegmentMaker")
                 else:
-                    MuonSegmentFinderAlg.Csc2dSegmentMaker = None
-                    MuonSegmentFinderAlg.Csc4dSegmentMaker = None
+                    MuonSegmentFinderAlg.Csc2dSegmentMaker = ""
+                    MuonSegmentFinderAlg.Csc4dSegmentMaker = ""
                 self.addAlg( MuonSegmentFinderAlg )
         else:
             getPublicTool("MuonLayerHoughTool")
-            self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
+            self.addAlg( CfgMgr.MooSegmentFinderAlg("MuonSegmentMaker",
                                                      SegmentFinder = getPublicToolClone("MuonSegmentFinder","MooSegmentFinder",
                                                                                         DoSummary=muonStandaloneFlags.printSummary()),
                                                      MuonClusterSegmentFinderTool=getPublicTool("MuonClusterSegmentFinder"),
@@ -128,15 +133,15 @@ class MuonStandalone(ConfiguredMuonRec):
 
             self.addAlg(CfgMgr.MooSegmentFinderAlg("MuonSegmentMaker_NCB",
                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
-                                                    DoSummary=False,
-                                                    Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
+                                                     DoSummary=False,
+                                                     Csc2dSegmentMaker = (getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
                                                                                            segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
                                                                                                                             "CscSegmentUtilTool",
                                                                                                                             TightenChi2 = False, 
-                                                                                                                            IPconstraint=False)),
-                                                    Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
-                                                                                           segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
-                                                    DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
+                                                                                                                            IPconstraint=False)) if MuonGeometryFlags.hasCSC() else ""),
+                                                     Csc4dSegmentMaker = (getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
+                                                                                           segmentTool = getPublicTool("CscSegmentUtilTool_NCB")) if MuonGeometryFlags.hasCSC() else ""),
+                                                     DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
                                                      MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
                                                      MuonSegmentOutputLocation = "NCB_MuonSegments", 
                                                      UseCSC = muonRecFlags.doCSCs(),

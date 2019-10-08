@@ -38,6 +38,7 @@
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 class RegionSelectionSvc;
 
 //root 
@@ -45,8 +46,6 @@ class TFile;
 class TNtuple;
 class TH1F;
 class TH1I;
-
-class MdtIdHelper;
 
 namespace MuonGM{
 class MuonDetectorManager;
@@ -93,7 +92,8 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
 		}
     private:
 
-	const MdtIdHelper* m_mdtIdHelper;
+	ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+                "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 	const MuonGM::MuonDetectorManager* m_detMgr;
 	const MuonCalib::IIdToFixedIdTool *m_id_tool;
 

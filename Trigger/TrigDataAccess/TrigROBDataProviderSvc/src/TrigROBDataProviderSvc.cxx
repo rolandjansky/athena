@@ -12,7 +12,7 @@
 
 // Include files.
 #include "TrigROBDataProviderSvc.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ITHistSvc.h"

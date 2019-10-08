@@ -15,6 +15,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "DecisionCollectorTool.h"
+#include "TrigConfData/HLTMenu.h"
 
 #include "TimeDivider.h"
 #include "AthenaKernel/AlgorithmTimer.h"
@@ -38,9 +39,8 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
  private:
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTNav_Summary", "Final stage of all decisions" };
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
 
-  Gaudi::Property<std::vector<std::string> > m_allChains{ this, "ChainsList", {}, "List of all configured chains" };
- 
   std::map<unsigned int, int> m_chainIDToBinMap;
   
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
@@ -62,11 +62,11 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
 
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
-  int nBinsX() const;
+  int nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
   int nBinsY() const;
   void callback() const;
   void updatePublished(unsigned int duration) const;
-  StatusCode initHist(std::unique_ptr<TH2>&);
+  StatusCode initHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>& );
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
   StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;

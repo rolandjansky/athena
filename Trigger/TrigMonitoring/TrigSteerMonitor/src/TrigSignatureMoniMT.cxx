@@ -15,6 +15,7 @@ StatusCode TrigSignatureMoniMT::initialize() {
 
   ATH_CHECK( m_l1DecisionsKey.initialize() );
   ATH_CHECK( m_finalDecisionKey.initialize() );
+  ATH_CHECK( m_HLTMenuKey.initialize() );
   ATH_CHECK( m_collectorTools.retrieve() );
   ATH_CHECK( m_histSvc.retrieve() );
       
@@ -26,7 +27,10 @@ StatusCode TrigSignatureMoniMT::initialize() {
 StatusCode TrigSignatureMoniMT::start() {
   std::string outputName ("Rate" + std::to_string(m_duration) + "s");
 
-  const int x = nBinsX();
+  SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
+  ATH_CHECK( hltMenuHandle.isValid() );
+
+  const int x = nBinsX(hltMenuHandle);
   const int y = nBinsY();
   ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
 
@@ -35,10 +39,10 @@ StatusCode TrigSignatureMoniMT::start() {
   std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCountBuffer", "Rate of positive decisions buffer", x, 1, x + 1, y, 1, y + 1);
   std::unique_ptr<TH2> ho = std::make_unique<TH2I>(outputName.c_str(), "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
 
-  ATH_CHECK( initHist( h1 ) );
-  ATH_CHECK( initHist( h2 ) );
-  ATH_CHECK( initHist( h3 ) );
-  ATH_CHECK( initHist( ho ) );
+  ATH_CHECK( initHist( h1, hltMenuHandle ) );
+  ATH_CHECK( initHist( h2, hltMenuHandle ) );
+  ATH_CHECK( initHist( h3, hltMenuHandle ) );
+  ATH_CHECK( initHist( ho, hltMenuHandle ) );
 
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/SignatureAcceptance", std::move(h1), m_passHistogram));
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/DecisionCount", std::move(h2), m_countHistogram));
@@ -236,20 +240,22 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
-int TrigSignatureMoniMT::nBinsX() const {
-  return m_allChains.size()+1;
+int TrigSignatureMoniMT::nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
+  return hltMenuHandle->size()+1;
 }
 int TrigSignatureMoniMT::nBinsY() const {     
   return m_collectorTools.size()+3; // in, after ps, out
 }
 
-StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist) {
-
+StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) {
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
   int bin = 2; // 1 is for total count, (remember bins numbering in ROOT start from 1)
 
-  std::vector<std::string> sortedChainsList( m_allChains );
+  std::vector<std::string> sortedChainsList;
+  for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
+    sortedChainsList.push_back( chain.name() );
+  }
   std::sort( sortedChainsList.begin(), sortedChainsList.end() );
   
   for ( auto chainName:  sortedChainsList ) {

@@ -30,6 +30,8 @@ StatusCode CTPUnpackingTool::initialize()
 }
 
 
+
+
 StatusCode CTPUnpackingTool::start() {
   // TODO switch to the L1 menu once available
   ATH_MSG_INFO( "Updating CTP bits decoding configuration");
@@ -48,13 +50,10 @@ StatusCode CTPUnpackingTool::start() {
     return StatusCode::FAILURE;
   };
 
-
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
   ATH_CHECK( hltMenuHandle.isValid() );
-
   for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
-    HLT::Identifier chainID = HLT::Identifier( chain.name() );
-
+    HLT::Identifier chainID{ chain.name() };
     if ( chain.l1item().empty() ) { // unseeded chain
       m_ctpToChain[ s_CTPIDForUndeededChains ].push_back( chainID );
     } else if ( chain.l1item().find(',') != std::string::npos ) { // OR seeds

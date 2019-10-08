@@ -26,10 +26,10 @@ namespace Overlay
   template<>
   void mergeChannelData(sTgcDigit& signalDigit,
                         const sTgcDigit& bkgDigit,
-                        IDC_MuonOverlayBase *algorithm)
+                        const IDC_MuonOverlayBase *algorithm)
   {
     // We want to use the integration window provided by sTgcOverlay, thus the constraint
-    STGC_Overlay *parent = dynamic_cast<STGC_Overlay *>(algorithm);
+    const STGC_Overlay *parent = dynamic_cast<const STGC_Overlay *>(algorithm);
     if (!parent) {
       throw std::runtime_error("mergeChannelData<sTgcDigit>() called by a wrong parent algorithm? Must be STGC_Overlay.");
     }
@@ -87,13 +87,13 @@ StatusCode STGC_Overlay::initialize()
 }
 
 //================================================================
-StatusCode STGC_Overlay::execute() {
+StatusCode STGC_Overlay::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute() begin");
 
 
   const sTgcDigitContainer *bkgContainerPtr = nullptr;
   if (m_includeBkg) {
-    SG::ReadHandle<sTgcDigitContainer> bkgContainer (m_bkgInputKey);
+    SG::ReadHandle<sTgcDigitContainer> bkgContainer (m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background sTGC container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -105,7 +105,7 @@ StatusCode STGC_Overlay::execute() {
     ATH_MSG_VERBOSE("sTGC background has digit_size " << bkgContainer->digit_size());
   }
 
-  SG::ReadHandle<sTgcDigitContainer> signalContainer(m_signalInputKey);
+  SG::ReadHandle<sTgcDigitContainer> signalContainer(m_signalInputKey, ctx);
   if(!signalContainer.isValid() ) {
     ATH_MSG_ERROR("Could not get signal sTgc container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -114,7 +114,7 @@ StatusCode STGC_Overlay::execute() {
   ATH_MSG_DEBUG("sTGC Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
   ATH_MSG_VERBOSE("sTGC signal has digit_size " << signalContainer->digit_size());
 
-  SG::WriteHandle<sTgcDigitContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<sTgcDigitContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<sTgcDigitContainer>(signalContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output sTgcDigitContainer called " << outputContainer.name() << " to store " << outputContainer.store());

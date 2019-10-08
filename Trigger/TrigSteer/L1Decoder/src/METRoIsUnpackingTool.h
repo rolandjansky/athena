@@ -13,29 +13,30 @@
 #include <string>
 
 
-class METRoIsUnpackingTool : public RoIsUnpackingToolBase { 
-public: 
+class METRoIsUnpackingTool : public RoIsUnpackingToolBase {
+public:
 
   METRoIsUnpackingTool( const std::string& type,
-			const std::string& name, 
+			const std::string& name,
 			const IInterface* parent );
-  
+
   virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) override;
-  
+
   virtual StatusCode initialize() override;
 
   StatusCode unpack(const EventContext& ctx,
                     const ROIB::RoIBResult& roib,
                     const HLT::IDSet& activeChains) const override;
+  virtual StatusCode start() override;
 
-private: 
+private:
   Gaudi::Property<std::string> m_fsRoIKey{ this, "FSRoIKey", "FSRoI", "The key of FS RoI made earlier by the L1Decoder" };
-  
+
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   LVL1::JEPRoIDecoder m_jepDecoder;
   HLT::IDSet m_allMETChains;
   std::vector<const TrigConf::TriggerThreshold*> m_thresholds;
-}; 
+};
 
 
 #endif //> !L1DECODER_JROISUNPACKINGTOOL_H

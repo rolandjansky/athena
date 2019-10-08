@@ -55,8 +55,8 @@ namespace Trk
       virtual bool noGeometry() const {return !(m_haveIdCnvTool&&m_haveMuonCnvTool);}
 
     private:
-      ToolHandle<Trk::ITrkEventCnvTool>   m_idCnvTool; //!< Tool used to handle ID RoTs etc
-      ToolHandle<Trk::ITrkEventCnvTool>   m_muonCnvTool; //!< Tool used to handle Muon RoTs etc
+      ToolHandle<Trk::ITrkEventCnvTool>   m_idCnvTool {this, "IdCnvTool", "InDet::InDetEventCnvTool/InDetEventCnvTool", "Tool used to handle ID RoTs etc"}; //!< Tool used to handle ID RoTs etc
+      ToolHandle<Trk::ITrkEventCnvTool>   m_muonCnvTool {this, "MuonCnvTool", "Muon::MuonEventCnvTool/MuonEventCnvTool", "Tool used to handle Muon RoTs etc"}; //!< Tool used to handle Muon RoTs etc
       const AtlasDetectorID*              m_detID;             // atlas id helper
 
       bool                                m_haveIdCnvTool; //!< Flag set in intialise, letting us know whether the tool has been found.

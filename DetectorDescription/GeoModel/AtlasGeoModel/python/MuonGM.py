@@ -2,16 +2,21 @@
 
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from AthenaCommon import Logging
 
 if ( jobproperties.Global.DetGeo() == "ctbh8" or jobproperties.Global.DetGeo() == "ctbh6" ):
-    print " CTB layout for Muon Spectrometer is not supported anymore"
+    Logging.log.warning(" CTB layout for Muon Spectrometer is not supported anymore")
 
 elif ( DetFlags.detdescr.Muon_on() ):
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
     GeoModelSvc = GeoModelSvc()
 
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-    GeoModelSvc.DetectorTools += [ MuonDetectorTool() ]
+    GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(),
+                                                    HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
+                                                    HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"])) ]
     import os
     GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].BuildFromNova = 0
     if ( ( not DetFlags.simulate.any_on() or DetFlags.overlay.any_on() ) and "AthSimulation_DIR" not in os.environ ):

@@ -24,7 +24,7 @@ PixelSensorSDTool::PixelSensorSDTool(const std::string& type, const std::string&
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* PixelSensorSDTool::makeSD()
+G4VSensitiveDetector* PixelSensorSDTool::makeSD() const
 {
   // Make sure the job has been set up properly
   ATH_MSG_DEBUG( "Initializing SD" );

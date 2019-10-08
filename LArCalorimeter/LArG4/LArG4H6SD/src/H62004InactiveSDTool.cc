@@ -45,7 +45,7 @@ namespace LArG4
   //---------------------------------------------------------------------------
   // Create the SD wrapper for current worker thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* H62004InactiveSDTool::makeSD()
+  G4VSensitiveDetector* H62004InactiveSDTool::makeSD() const
   {
     // Create the wrapper
     auto sdWrapper = new CalibSDWrapper("LArH62004InactiveSDWrapper", m_hitCollName);

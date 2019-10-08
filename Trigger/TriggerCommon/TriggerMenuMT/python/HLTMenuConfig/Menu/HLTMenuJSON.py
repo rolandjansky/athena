@@ -1,14 +1,17 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import json
+from collections import OrderedDict as odict
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTMenuFileName
+
 from AthenaCommon.Logging import logging
 __log = logging.getLogger( 'HLTMenuJSON.py' )
 
 
-def __generateJSON( chainDicts, chainConfigs, menuName, menuFileName ):
+def __generateJSON( chainDicts, chainConfigs, menuName, fileName ):
     """ Generates JSON given the ChainProps and sequences
     """
-    menuDict = {"name": menuName, "chains": []}
+    menuDict = odict([("filetype", "hltmenu"), ("name", menuName), ("chains", [])])
 
     from TriggerMenuMT.HLTMenuConfig.Menu import StreamInfo
     for chain in chainDicts:
@@ -43,40 +46,34 @@ def __generateJSON( chainDicts, chainConfigs, menuName, menuFileName ):
 
 
 
-        chainDict = { "counter": chain["chainCounter"],
-                      "name": chain["chainName"],
-                      "nameHash": chain["chainNameHash"],
-                      "l1item": chain["L1item"],
-                      "l1thresholds": l1Thresholds,
-                      "groups": chain["groups"],
-                      "streams": streamDicts,
-                      # "sequences": sequences 
-                    }
+        chainDict = odict([ 
+            ("counter", chain["chainCounter"]),
+            ("name", chain["chainName"]),
+            ("nameHash", chain["chainNameHash"]),
+            ("l1item", chain["L1item"]),
+            ("l1thresholds", l1Thresholds),
+            ("groups", chain["groups"]),
+            ("streams", streamDicts),
+            #("sequences", sequences)
+        ])
 
 
         menuDict["chains"].append( chainDict )
 
-    __log.info( "Writing trigger menu to %s", menuFileName )
-    with open( menuFileName, 'w' ) as fp:
-        json.dump( menuDict, fp, indent=4, sort_keys=True )
+    __log.info( "Writing trigger menu to %s", fileName )
+    with open( fileName, 'w' ) as fp:
+        json.dump( menuDict, fp, indent=4, sort_keys=False )
 
 def generateJSON():
     __log.info("Generating HLT JSON config in the rec-ex-common job")
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
-    return __generateJSON(
-        TriggerConfigHLT.dictsList(),
-        TriggerConfigHLT.configsList(),
-        TriggerFlags.triggerMenuSetup(),
-        TriggerFlags.outputHLTmenuJsonFile() )
+
+    return __generateJSON( TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), TriggerFlags.triggerMenuSetup(), getHLTMenuFileName() )
     
 def generateJSON_newJO( chainDicts, chainConfigs ):
     __log.info("Generating HLT JSON config in the new JO")
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-                                    
-    return __generateJSON(
-        chainDicts,
-        chainConfigs,
-        ConfigFlags.Trigger.triggerMenuSetup,
-        ConfigFlags.Trigger.outputHLTmenuJsonFile )
+
+    return __generateJSON( chainDicts, chainConfigs, ConfigFlags.Trigger.triggerMenuSetup, getHLTMenuFileName( ConfigFlags) )

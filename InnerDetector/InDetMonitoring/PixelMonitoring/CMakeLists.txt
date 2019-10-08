@@ -49,3 +49,4 @@ atlas_add_component( PixelMonitoring
    TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib PathResolver 
    InDetTrackSelectionToolLib )
 
+atlas_install_python_modules( python/*.py )

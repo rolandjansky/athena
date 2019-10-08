@@ -22,7 +22,7 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/INav4MomAssocsCnv_p3.h"
 
-#include "DataModelAthenaPool/getThinningCache.h"
+#include "AthenaKernel/getThinningCache.h"
 
 // some useful typedefs
 typedef INav4MomAssocs::object_link INav4MomLink_t;
@@ -87,7 +87,7 @@ INav4MomAssocsCnv_p3::transToPers( const INav4MomAssocs* trans,
     ++j;
   }
   
-  const SG::ThinningCache* cache = DataModelAthenaPool::getThinningCache();
+  const SG::ThinningCache* cache = SG::getThinningCache();
 
   j = 0;
   pers->m_assocs.resize( trans->size() );

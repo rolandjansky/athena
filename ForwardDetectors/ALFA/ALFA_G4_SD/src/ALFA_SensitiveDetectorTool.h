@@ -26,7 +26,7 @@ public:
   StatusCode Gather() override final; //FIXME would be good to be able to avoid this.
 protected:
   // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif //ALFA_G4_SD_ALFA_SensitiveDetectorTool_h

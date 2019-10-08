@@ -59,6 +59,18 @@ if DoNSWDBlob :
    # GeoModel is needed to make a test build of the volumes - in case of bugs it crashes
    database_layout=""
    include("MuonGeoModel/MuonGeoModel_MinimalSetup.py")
+   # after the above include, GeoModelSvc should be setup, now use a recent layout to start from
+   GeoModelSvc.AtlasVersion='ATLAS-R3S-2021-01-00-00'
+   # since we have chosen a symmetric NSW layout and we execute this jobOptions file outside of a 
+   # standard job transform, set the MuonDetectorTool and DetDescrCnvSvc properties by hand
+   GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasCSC = False
+   GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasSTgc = True
+   GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasMM = True
+   if hasattr(svcMgr,'DetDescrCnvSvc'):
+       svcMgr.DetDescrCnvSvc.HasCSC=False
+       svcMgr.DetDescrCnvSvc.HasSTgc=True
+       svcMgr.DetDescrCnvSvc.HasMM=True
+
    # include writing settings for MuonAGDD
    include("MuonAGDD/NSWAGDD_BlobProduction.py")
 
@@ -78,5 +90,17 @@ if CheckAGDDBlob :
 if CheckNSWDBlob :
    # to get the AGDD blob from a dedicated layout (needs database_layout to be defined)
    include("MuonGeoModel/MuonGeoModel_MinimalSetup.py")
+   # after the above include, GeoModelSvc should be setup, now use a recent layout to start from
+   GeoModelSvc.AtlasVersion='ATLAS-R3S-2021-01-00-00'
+   # since we have chosen a symmetric NSW layout and we execute this jobOptions file outside of a 
+   # standard job transform, set the MuonDetectorTool and DetDescrCnvSvc properties by hand
+   GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasCSC = False
+   GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasSTgc = True
+   GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasMM = True
+   if hasattr(svcMgr,'DetDescrCnvSvc'):
+       svcMgr.DetDescrCnvSvc.HasCSC=False
+       svcMgr.DetDescrCnvSvc.HasSTgc=True
+       svcMgr.DetDescrCnvSvc.HasMM=True
+
    # include checking settings for NSWAGDD
    include("MuonAGDD/NSWAGDD_BlobCheck.py")

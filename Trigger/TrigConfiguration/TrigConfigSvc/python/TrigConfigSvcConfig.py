@@ -434,8 +434,8 @@ def TrigConfigSvcCfg( flags ):
 
     from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTConfigSvc
     hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
-    hltJsonFile = flags.Trigger.HLTConfigFile.replace(".xml",".json").replace("HLTconfig","HLTmenu")
-    hltJsonFile = findFileInXMLPATH(hltJsonFile)
+    hltJsonFile = flags.Trigger.HLTMenuFile.replace(".xml",".json").replace("HLTconfig","HLTmenu")
+    #hltJsonFile = findFileInXMLPATH(hltJsonFile)
     log.debug( "HLTConfigSvc input file:"+hltJsonFile  )
     hltConfigSvc.JsonFileName = hltJsonFile
 

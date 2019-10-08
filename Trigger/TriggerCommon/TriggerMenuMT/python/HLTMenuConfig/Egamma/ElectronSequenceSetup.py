@@ -38,7 +38,7 @@ def fastElectronSequence(ConfigFlags):
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
-    l2ElectronViewsMaker.RoIsLink = "roi" # -||-
+    l2ElectronViewsMaker.RoIsLink = "initialRoI" # -||-
     l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
     l2ElectronViewsMaker.Views = "EMElectronViews"
     l2ElectronViewsMaker.ViewFallThrough = True

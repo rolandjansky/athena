@@ -11,7 +11,7 @@
 
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/IThinningSvc.h"
-#include "DataModelAthenaPool/getThinningCache.h"
+#include "AthenaKernel/getThinningCache.h"
 //#define ELLINK_DEBUG
 
 
@@ -104,7 +104,7 @@ transToPers(const Link_t& trans, PersLink_t& pers,
             MsgStream& msg) const
 {
   transToPers (trans, pers,
-               DataModelAthenaPool::getThinningCache(),
+               SG::getThinningCache(),
                msg);
 }
 

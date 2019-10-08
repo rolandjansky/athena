@@ -110,7 +110,7 @@ if TriggerFlags.doCalo:
 
      mon = TrigSignatureMoniMT()
      from TrigUpgradeTest.TestUtils import MenuTest
-     mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+     mon.HLTTriggerMenu = list( set( MenuTest.CTPToChainMapping.keys() ) )
 
      hltTop = seqOR( "hltTop", [ HLTsteps, summMaker, mon ] )
      topSequence += hltTop

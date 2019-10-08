@@ -19,31 +19,31 @@ TrigConf::L1Threshold::~L1Threshold()
 const std::string &
 TrigConf::L1Threshold::name() const
 {
-   return data().get_child("name").data();
+   return m_data.get_child("name").data();
 }
 
 const std::string &
 TrigConf::L1Threshold::type() const
 {
-   return data().get_child("type").data();
+   return m_data.get_child("type").data();
 }
 
 const std::string &
 TrigConf::L1Threshold::input() const
 {
-   return data().get_child("input").data();
+   return m_data.get_child("input").data();
 }
 
 unsigned int
 TrigConf::L1Threshold::mapping() const
 {
-   return data().get_child("mapping").get_value<unsigned int>();
+   return m_data.get_child("mapping").get_value<unsigned int>();
 }
 
 unsigned int
 TrigConf::L1Threshold::id() const
 {
-   return data().get_child("id").get_value<unsigned int>();
+   return m_data.get_child("id").get_value<unsigned int>();
 }
 
 std::vector<TrigConf::DataStructure>

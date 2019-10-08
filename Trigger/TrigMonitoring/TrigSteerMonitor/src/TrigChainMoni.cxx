@@ -6,7 +6,7 @@
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/SteeringChain.h"
 #include "TrigInterfaces/AlgoConfig.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include <EventInfo/EventID.h>
 
 #include "EventInfo/TriggerInfo.h"

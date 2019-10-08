@@ -22,8 +22,6 @@
 MuonPrdSelectorAlg::MuonPrdSelectorAlg(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name,pSvcLocator),
 
-    m_detMgr(0),
-    m_mdtIdHelper(0), m_cscIdHelper(0), m_rpcIdHelper(0), m_tgcIdHelper(0), 
     m_muonIdCutTool("MuonIdCutTool/MuonIdCutTool"),
     m_mdtPRDs_in(0), m_rpcPRDs_in(0), m_tgcPRDs_in(0), m_cscPRDs_in(0),
     m_mdtPRDs_out(0), m_rpcPRDs_out(0), m_tgcPRDs_out(0), m_cscPRDs_out(0)
@@ -59,25 +57,14 @@ StatusCode MuonPrdSelectorAlg::initialize()
 {
   ATH_MSG_DEBUG( "initialize() called"  );
 
-  // retrieve MuonDetectorManager
-  std::string managerName="Muon";
-  if ( detStore()->retrieve(m_detMgr).isFailure() ) {
-    ATH_MSG_INFO( "Could not find the MuonReadoutGeometry Manager: "
-                  << managerName << " ! "  );
-  } 
-  else {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-  } 
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // retrieve test tool
   ATH_CHECK(  m_muonIdCutTool.retrieve() );
 
   
   try {     
-    m_mdtPRDs_out = new Muon::MdtPrepDataContainer(m_mdtIdHelper->module_hash_max());
+    m_mdtPRDs_out = new Muon::MdtPrepDataContainer(m_muonIdHelperTool->mdtIdHelper().module_hash_max());
   } catch(const std::bad_alloc&) {
     ATH_MSG_FATAL( "Could not create a new MDT PrepRawData container!" );
     return StatusCode::FAILURE;
@@ -87,7 +74,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
  
     
     try {
-      m_rpcPRDs_out = new Muon::RpcPrepDataContainer(m_rpcIdHelper->module_hash_max());
+      m_rpcPRDs_out = new Muon::RpcPrepDataContainer(m_muonIdHelperTool->rpcIdHelper().module_hash_max());
     } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new RPC PrepRawData container!" );
       return StatusCode::FAILURE;
@@ -95,7 +82,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
     m_rpcPRDs_out->addRef();
 
     try {
-      m_tgcPRDs_out = new Muon::TgcPrepDataContainer(m_tgcIdHelper->module_hash_max());
+      m_tgcPRDs_out = new Muon::TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max());
     } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new TGC PrepRawData container!" );
       return StatusCode::FAILURE;
@@ -104,7 +91,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
   
     
     try {
-      m_cscPRDs_out = new Muon::CscStripPrepDataContainer(m_cscIdHelper->module_hash_max());
+      m_cscPRDs_out = new Muon::CscStripPrepDataContainer(m_muonIdHelperTool->cscIdHelper().module_hash_max());
     } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new CSC PrepRawData container!" );
       return StatusCode::FAILURE;

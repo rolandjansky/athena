@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h" // for AAH::setProperty. Header only, not linked
 
-#include "TrigConfigSvc/TrigConfigSvc.h"
-#include "TrigConfigSvc/HLTConfigSvc.h"
+#include "./TrigConfigSvc.h"
+#include "./HLTConfigSvc.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
 

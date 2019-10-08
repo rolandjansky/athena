@@ -26,7 +26,7 @@ StatusCode SchedulerProxyAlg::initialize()
 
 StatusCode SchedulerProxyAlg::execute() {
   
-  auto proxyPtr = getContext().getExtension<Atlas::ExtendedEventContext>().proxy();
+  auto proxyPtr = Atlas::getExtendedEventContext(getContext()).proxy();
   auto viewPtr = dynamic_cast<SG::View*>(proxyPtr);
   if ( viewPtr != nullptr ) {
     ATH_MSG_DEBUG( ".. The alg operates on the view " << viewPtr->impl()->name() );

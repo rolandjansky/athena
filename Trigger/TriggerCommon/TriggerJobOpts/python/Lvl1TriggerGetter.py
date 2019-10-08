@@ -85,7 +85,12 @@ class Lvl1SimulationGetter (Configured):
                                                                  DecodeTgcRDO = True,
                                                                  DecodeCscRDO = False,
                                                                  DecodeSTGC_RDO = False,
-                                                                 DecodeMM_RDO = False)
+                                                                 DecodeMM_RDO = False,
+                                                                 # for those subdetectors where the decoding is turned off, no need to create a RDO_Decoder ToolHandle
+                                                                 mdtRdoDecoderTool="",
+                                                                 cscRdoDecoderTool="",
+                                                                 stgcRdoDecoderTool="",
+                                                                 mmRdoDecoderTool="")
                 from AthenaCommon.AppMgr import ToolSvc
                 ToolSvc += MuonRdoToMuonDigitTool
                 from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit

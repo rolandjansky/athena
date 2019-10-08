@@ -51,13 +51,11 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
    * @param vecROBFrags Vector containing ROB framgents.
    * @param rdoIDCont RDO ID Container to be filled.
    * @param errs Byte stream error container.
-   * @param bsFracCont Byte stream fraction container.
    * @param ctx EventContext of the event
    *  */
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecROBFrags,
                              ISCT_RDO_Container& rdoIDCont,
-                             InDetBSErrContainer* errs,
-                             SCT_ByteStreamFractionContainer* bsFracCont) const override;
+                             InDetBSErrContainer* errs) const override;
 
  private: 
 

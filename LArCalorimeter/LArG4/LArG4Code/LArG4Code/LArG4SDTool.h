@@ -50,7 +50,7 @@ class LArG4SDTool : public SensitiveDetectorBase
 
  protected:
 
-  G4VSensitiveDetector* makeSD() override final { return nullptr; }
+  G4VSensitiveDetector* makeSD() const override final { return nullptr; }
 
   /// Are we set up to run with PID hits?
   G4bool m_doPID;

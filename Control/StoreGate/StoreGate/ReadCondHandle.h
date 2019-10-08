@@ -92,7 +92,7 @@ namespace SG {
   {
     try {
       EventIDBase::number_type conditionsRun =
-        ctx.template getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+        Atlas::getExtendedEventContext(ctx).conditionsRun();
       if (conditionsRun != EventIDBase::UNDEFNUM) {
         m_eid.set_run_number (conditionsRun);
       }

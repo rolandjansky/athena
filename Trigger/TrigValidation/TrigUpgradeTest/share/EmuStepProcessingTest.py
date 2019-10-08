@@ -36,6 +36,16 @@ makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 TriggerFlags.outputHLTconfigFile = TriggerFlags.outputHLTconfigFile().replace('config', 'menu')
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
+
+
+# once MR unifying this setup in replce by an import from config svc
+from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, HLTConfigSvc, findFileInXMLPATH
+svcMgr += HLTConfigSvc()
+hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
+hltJsonFile = findFileInXMLPATH(hltJsonFile)
+svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
+log.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+
    
 print "EmuStepProcessing: dump top Sequence after CF/DF Tree build"
 from AthenaCommon.AlgSequence import dumpMasterSequence, dumpSequence

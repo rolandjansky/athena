@@ -155,11 +155,6 @@ if configureBSResult:
     hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
     hltResultMaker.MakerTools = [stmaker, serialiser, bitsmaker]
 
-m = findAlgorithm(topSequence,'TrigSignatureMoniMT')
-print m
-m.OutputLevel=DEBUG
-
-
 # Debugging for view cross-dependencies
 if opt.reverseViews:
     from TriggerJobOpts.TriggerConfig import collectViewMakers

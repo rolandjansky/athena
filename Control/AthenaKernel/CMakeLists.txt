@@ -140,3 +140,7 @@ atlas_add_test( RecyclableDataObject_test
   SOURCES test/RecyclableDataObject_test.cxx
   INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
   LINK_LIBRARIES AthenaKernel TestTools ${TBB_LIBRARIES} )
+
+atlas_add_test( ExtendedEventContext_test
+  SOURCES test/ExtendedEventContext_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )

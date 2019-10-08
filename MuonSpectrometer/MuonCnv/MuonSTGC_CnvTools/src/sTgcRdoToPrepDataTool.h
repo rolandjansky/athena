@@ -15,12 +15,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class AtlasDetectorID;
 class Identifier;
 
 class ITGCcablingSvc;
-class sTgcIdHelper;
 
 namespace MuonGM 
 {
@@ -87,7 +87,8 @@ namespace Muon
       const MuonGM::MuonDetectorManager * m_muonMgr;
 
       /** TGC identifier helper */
-      const sTgcIdHelper* m_stgcIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
       bool m_fullEventDone;
 

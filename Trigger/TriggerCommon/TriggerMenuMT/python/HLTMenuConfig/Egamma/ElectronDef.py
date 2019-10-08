@@ -14,17 +14,6 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectro
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
 #----------------------------------------------------------------
-# Static classes to configure photon chain container names
-#----------------------------------------------------------------
-
-class ElectronMenuDefs(object):
-      """Static class to collect all string manipulation in Electron sequences """
-      SuperElectronRecCollectionName = "HLT_ElectronSuperRecCollection"
-      EgammaRecKey = "HLT_egammaRecCollection"
-      outputElectronKey = "HLT_egamma_Electrons"
-
-
-#----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------

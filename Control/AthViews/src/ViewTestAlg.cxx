@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ViewTestAlg.cxx 
@@ -60,7 +60,7 @@ StatusCode ViewTestAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  auto theStore = getContext().getExtension<Atlas::ExtendedEventContext>().proxy();
+  auto theStore = Atlas::getExtendedEventContext(getContext()).proxy();
   ATH_MSG_INFO( name() << " running with store " << theStore->name() );
 
   // Identify if this is a view

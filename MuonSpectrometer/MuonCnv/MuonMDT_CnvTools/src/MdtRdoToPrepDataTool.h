@@ -21,10 +21,11 @@
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <string>
 class AtlasDetectorID;
 class Identifier;
-class MdtIdHelper;
 class MdtDigit;
 class MdtCalibrationTool;
 class MdtCalibrationSvcSettings;
@@ -116,8 +117,9 @@ namespace Muon
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager * m_muonMgr;
         
-    /// MDT identifier helper
-    const MdtIdHelper * m_mdtHelper;
+    /// Tool for MDT identifier helper
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
         
     /// MDT calibration service
     ToolHandle<MdtCalibrationTool> m_calibrationTool;

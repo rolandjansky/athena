@@ -27,8 +27,7 @@ static const int maxDig =    5000;
 
 ReadMdtDigit::ReadMdtDigit(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
-  m_activeStore("ActiveStoreSvc", name),
-  m_mdtIdHelper(0)
+  m_activeStore("ActiveStoreSvc", name)
 {
   // Declare the properties
 
@@ -42,7 +41,7 @@ StatusCode ReadMdtDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
  
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
@@ -95,9 +94,9 @@ StatusCode ReadMdtDigit::execute()
 	m_tdc[m_nDig] = (*dig)->tdc();
 	m_adc[m_nDig] = (*dig)->adc();
 
-	m_multi[m_nDig] = m_mdtIdHelper->multilayer(dig_id); 
-	m_layer[m_nDig] = m_mdtIdHelper->tubeLayer(dig_id);
-	m_wire[m_nDig]  = m_mdtIdHelper->tube(dig_id); 
+	m_multi[m_nDig] = m_muonIdHelperTool->mdtIdHelper().multilayer(dig_id); 
+	m_layer[m_nDig] = m_muonIdHelperTool->mdtIdHelper().tubeLayer(dig_id);
+	m_wire[m_nDig]  = m_muonIdHelperTool->mdtIdHelper().tube(dig_id); 
 	++m_nDig;
         ATH_MSG_DEBUG( " Digit number  " << m_nDig );
 

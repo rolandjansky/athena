@@ -17,7 +17,7 @@ namespace Overlay
 template <class Datum, class Alg>
 void mergeChannelData(Datum &/* baseDatum */,
                       const Datum &/* additionalDatum */,
-                      Alg */* algorithm */)
+                      const Alg */* algorithm */)
 {
   throw std::logic_error("Merging of data on the same channel is not implemented for "
                  + std::string(typeid(Datum).name()));
@@ -28,7 +28,7 @@ template <class Collection, class Alg>
 void mergeCollections(Collection *bkgCollection,
                       Collection *signalCollection,
                       Collection *outputCollection,
-                      Alg *algorithm)
+                      const Alg *algorithm)
 {
   if (bkgCollection->identify() != signalCollection->identify()) {
     throw std::runtime_error("mergeCollections<>(): collection Id mismatch");

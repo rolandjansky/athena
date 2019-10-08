@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from future.utils import iteritems
 
 ####################################################################
@@ -121,24 +122,14 @@ if TriggerFlags.doMT():
     recoLog.info( "Configuring LVL1 simulation (MT)" )
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence(None)
-    recoLog.info( "Configuring HLT (MT)" )
 
-    # this configuration of the HLTConfigSvc is only temporary
-    if not hasattr(svcMgr, 'HLTConfigSvc'):
-        from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc
-        svcMgr += HLTConfigSvc()
-    if TriggerFlags.readHLTconfigFromXML():
-        hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig", "HLTmenu")
-    else:
-        hltJsonFile = TriggerFlags.outputHLTconfigFile().replace(".xml",".json").replace("HLTconfig", "HLTmenu")
-    svcMgr.HLTConfigSvc.InputType = "file"
-    svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
-    recoLog.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+    recoLog.info( "Configuring HLT (MT)" )
+    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+    svcMgr += getHLTConfigSvc()
+
+    # TIMM REMOVE THIS?
     # We reverse the priority list here such that the HLTConfigSvc is used, rather than the DSConfigSvc
-    if not hasattr(svcMgr, 'TrigConfigSvc'):
-        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-        ServiceMgr += TrigConfigSvc("TrigConfigSvc")
-    ServiceMgr.TrigConfigSvc.PriorityList = ["xml", "ds"]
+    svcMgr.TrigConfigSvc.PriorityList = ["xml", "ds"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()

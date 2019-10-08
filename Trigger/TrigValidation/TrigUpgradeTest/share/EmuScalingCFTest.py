@@ -142,6 +142,14 @@ def process():
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
     generateJSON()
 
+    # once MR unifying this setup in replce by an import from config svc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, HLTConfigSvc, findFileInXMLPATH
+    svcMgr += HLTConfigSvc()
+    hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
+    hltJsonFile = findFileInXMLPATH(hltJsonFile)
+    svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
+    log.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
 
 
 process()

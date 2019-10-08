@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloClusterMatchingTool.cxx 
@@ -16,7 +16,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
-#include "CxxUtils/make_unique.h"
 #include <algorithm>
 #include <utility>
 

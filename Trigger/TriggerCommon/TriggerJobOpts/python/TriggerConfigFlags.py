@@ -87,7 +87,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', 'MCRECO:DEFAULT')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_newJO')
+    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')
 
     # version of the menu
     from AthenaCommon.AppMgr import release_metadata
@@ -95,25 +95,26 @@ def createTriggerFlags():
                   lambda prevFlags:  release_metadata()['release'] )
     
     # generate or not the HLT configuration
-    flags.addFlag('Trigger.generateHLTConfig', False)
+    flags.addFlag('Trigger.generateHLTMenu', False)
     
-    # HLT XML file name (R2 Legacy)
-    flags.addFlag('Trigger.HLTConfigFile',
-                lambda prevFlags: 'HLTconfig_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+    # HLT XML file name 
+    flags.addFlag('Trigger.HLTMenuFile',
+                  lambda prevFlags: 'HLTMenu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
     # HLT JSON file name (R3)
     flags.addFlag('Trigger.outputHLTmenuJsonFile',
                 lambda prevFlags: 'HLTmenu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
 
     # generate or not the L1 configuration
-    flags.addFlag('Trigger.generateLVL1Config', False)
+    flags.addFlag('Trigger.generateL1Menu', False)
     
     # L1 XML file name 
     flags.addFlag('Trigger.LVL1ConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+                  lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
-    # generate or not the L1 topo configuration
-    flags.addFlag('Trigger.generateLVL1TopoConfig', False)
+    # L1 Json file name 
+    flags.addFlag('Trigger.L1MenuFile',
+                  lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
     
     # L1 topo XML file name
     def _deriveTopoConfigName(prevFlags):

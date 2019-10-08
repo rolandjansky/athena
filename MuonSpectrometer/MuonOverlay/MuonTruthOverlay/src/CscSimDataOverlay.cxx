@@ -12,7 +12,7 @@
 
 
 CscSimDataOverlay::CscSimDataOverlay(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator) {}
+  : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode CscSimDataOverlay::initialize()
 {
@@ -40,7 +40,7 @@ StatusCode CscSimDataOverlay::initialize()
 }
 
 
-StatusCode CscSimDataOverlay::execute()
+StatusCode CscSimDataOverlay::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
@@ -48,7 +48,7 @@ StatusCode CscSimDataOverlay::execute()
   
   const CscSimDataCollection *bkgContainerPtr = nullptr;
   if (!m_bkgInputKey.key().empty()) {
-    SG::ReadHandle<CscSimDataCollection> bkgContainer(m_bkgInputKey);
+    SG::ReadHandle<CscSimDataCollection> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {   
       ATH_MSG_ERROR("Could not get background CscSimDataCollection container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -58,7 +58,7 @@ StatusCode CscSimDataOverlay::execute()
     ATH_MSG_DEBUG("Found background CscSimDataCollection container " << bkgContainer.name() << " in store " << bkgContainer.store());
   }
 
-  SG::ReadHandle<CscSimDataCollection> signalContainer(m_signalInputKey);
+  SG::ReadHandle<CscSimDataCollection> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal CscSimDataCollection container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -66,7 +66,7 @@ StatusCode CscSimDataOverlay::execute()
   ATH_MSG_DEBUG("Found signal CscSimDataCollection container " << signalContainer.name() << " in store " << signalContainer.store());
 
   // Creating output RDO container
-  SG::WriteHandle<CscSimDataCollection> outputContainer(m_outputKey);
+  SG::WriteHandle<CscSimDataCollection> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<CscSimDataCollection>()));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output CscSimDataCollection container " << outputContainer.name() << " to store " << outputContainer.store());

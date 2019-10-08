@@ -18,6 +18,7 @@
 #include "CSC_Hid2RESrcID.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class IROBDataProviderSvc;
 
@@ -54,6 +55,9 @@ protected:
   ToolHandle<ICSC_ROD_Decoder>        m_decoder;
 
   const MuonGM::MuonDetectorManager*  m_muonMgr;
+  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   SG::WriteHandleKey<CscRawDataContainer> m_containerKey{
      this, "RdoLocation", "CSCRDO", "Name of the CSCRDO produced by RawDataProvider"};
