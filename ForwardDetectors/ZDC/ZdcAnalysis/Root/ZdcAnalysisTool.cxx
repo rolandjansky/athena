@@ -360,7 +360,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
     std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
-
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
     slewingParamsHG[0][0] = {0, 0, 0, 0};
     slewingParamsHG[0][1] = { -4.780244e-01, -7.150874e-02, 4.614585e-02,  8.015731e-04};
     slewingParamsHG[0][2] = { -5.253412e-01, -5.718167e-02, 5.243121e-02,  2.128398e-03};
@@ -464,7 +464,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
     std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
-
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
     slewingParamsHG[0][0] = { -1.335560e-01, -6.071869e-03, 5.858193e-02,  2.473300e-03};
     slewingParamsHG[0][1] = { -1.223062e-01, -4.379469e-02, 4.452285e-02,  2.130210e-03};
     slewingParamsHG[0][2] = { -1.021415e-01, -4.254239e-02, 4.939866e-02,  3.849738e-03};
