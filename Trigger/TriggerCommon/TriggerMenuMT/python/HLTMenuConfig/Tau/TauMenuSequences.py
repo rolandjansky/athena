@@ -72,7 +72,8 @@ def tauCaloMVAMenuSequence(name):
 def tauCoreTrackSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgsTP, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore")
+    RoIs = "TCoreViewRoIs"
+    (viewAlgsTP, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
@@ -89,20 +90,15 @@ def tauCoreTrackSequence():
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
     fastTrackViewsMaker.RoIsLink = "roi" # -||-
-    fastTrackViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
+    fastTrackViewsMaker.InViewRoIs = RoIs
     fastTrackViewsMaker.Views = "TAUIDViews"
     fastTrackViewsMaker.ViewFallThrough = True
     fastTrackViewsMaker.RequireParentView = True
 
 
     for viewAlg in viewAlgsTP:
-       if "RoIs" in viewAlg.properties():
-         viewAlg.RoIs = fastTrackViewsMaker.InViewRoIs
-       if "roiCollectionName" in viewAlg.properties():
-         viewAlg.roiCollectionName = fastTrackViewsMaker.InViewRoIs
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
-
 
     TrackRoiUpdater.RoIInputKey = fastTrackViewsMaker.InViewRoIs
     TrackRoiUpdater.fastTracksKey = TrackCollection
@@ -131,8 +127,8 @@ def tauCoreTrackSequence():
 def tauPrecisionSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgsPT, eventAlgs) = makeInDetAlgs("Tau")
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau")
+    RoIs = "TCoreViewRoIs" # contract with the fastCalo
+    (viewAlgsPT, eventAlgs) = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
 
     TrackParticlesName = ""
     for viewAlg in viewAlgsPT:
@@ -166,16 +162,10 @@ def tauPrecisionSequence():
 
     precisionViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTau")
     precisionViewsMaker.RoIsLink = "roi" # -||-
-    precisionViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
+    precisionViewsMaker.InViewRoIs = RoIs # contract with the fastCalo
     precisionViewsMaker.Views = "TAUID2Views"
     precisionViewsMaker.ViewFallThrough = True
     precisionViewsMaker.RequireParentView = True
-
-    for viewAlg in viewAlgsPT:
-       if "RoIs" in viewAlg.properties():
-         viewAlg.RoIs = precisionViewsMaker.InViewRoIs
-       if "roiCollectionName" in viewAlg.properties():
-         viewAlg.roiCollectionName = precisionViewsMaker.InViewRoIs
 
     precisionTRU.RoIInputKey = precisionViewsMaker.InViewRoIs
 
