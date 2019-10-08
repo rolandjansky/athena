@@ -277,4 +277,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
   theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
   viewAlgs.append(theTrackParticleCreatorAlg)
 
-  return (viewAlgs, eventAlgs)
+
+
+  
+  return (viewAlgs, eventAlgs) 
