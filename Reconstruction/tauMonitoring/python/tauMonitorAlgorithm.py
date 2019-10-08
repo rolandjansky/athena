@@ -100,12 +100,11 @@ def tauMonitoringConfig(inputFlags):
         (igroup, postfix) = itup
         igroup.defineHistogram('Eflow', title='Eflow;Eflow;Events', path='Kinematics', 
                                xbins=100, xmin=0., xmax=1000.)
-        #igroup.defineHistogram('Phi,eTa-here', type='TH2F', title='title;x;y',path='ToBringThemAll',
-        #                       xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
         igroup.defineHistogram('eta,phi', type='TH2F', title='PhiVsEtaTitle;#eta;#phi', path='Kinematics', 
                                #xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
                                #xbins=[0,4.,8.,10.,15.],ybins=[0.,1.,2.,3.,4.])
                                xbins=30,xmin=-3.0,xmax=3.0,ybins=32,ymin=-3.15,ymax=3.15)
+
 
     # myKinGroupBA.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
     #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
