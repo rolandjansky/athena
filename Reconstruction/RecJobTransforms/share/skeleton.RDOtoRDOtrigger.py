@@ -127,9 +127,6 @@ if TriggerFlags.doMT():
     from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
     svcMgr += getHLTConfigSvc()
 
-    # TIMM REMOVE THIS?
-    # We reverse the priority list here such that the HLTConfigSvc is used, rather than the DSConfigSvc
-    svcMgr.TrigConfigSvc.PriorityList = ["xml", "ds"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()

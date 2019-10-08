@@ -79,7 +79,7 @@ def getHLTConfigSvc( flags = None ):
     from AthenaCommon.AppMgr import theApp
     hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
     hltXMLFile = "None"
-    hltConfigSvc.ConfigSource = "Run3_Dummy"
+    hltConfigSvc.ConfigSource = "None"
     hltConfigSvc.XMLMenuFile = hltXMLFile
     hltConfigSvc.InputType = "file"
     hltJsonFileName = getHLTMenuFileName( flags )

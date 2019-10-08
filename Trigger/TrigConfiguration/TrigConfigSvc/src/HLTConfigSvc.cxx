@@ -182,7 +182,7 @@ HLTConfigSvc::initialize() {
             m_inputType = "db";
             m_smk = joSvc->superMasterKey();
             m_dbConnection = joSvc->server();
-            m_configSourceString = "RUN3_Dummy";
+            m_configSourceString = "";
          }
       } else {
          ATH_MSG_INFO("Did not locate TrigConf::JobOptionsSvc, not running athenaHLT");
@@ -196,8 +196,8 @@ HLTConfigSvc::initialize() {
 
    ATH_CHECK(ConfigSvcBase::initialize());
 
-
-   if( !fromDB() and m_xmlFile=="NONE" ) {
+   std::string xmlFile(boost::to_lower_copy(m_xmlFile)); // lower case
+   if( !fromDB() and (xmlFile=="none" or xmlFile == "")) {
       ATH_MSG_INFO("xml file set to NONE, will not load HLT Menu");
       return StatusCode::SUCCESS;
    }
