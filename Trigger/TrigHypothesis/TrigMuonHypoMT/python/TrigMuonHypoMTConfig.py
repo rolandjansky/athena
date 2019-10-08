@@ -479,6 +479,27 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
+def TrigMuonEFMSonlyHypoToolFromName(chainDict):
+    #For full scan chains, we need to configure the thresholds based on all muons
+    #in the chain to get the counting correct. Currently a bit convoluted as 
+    #the chain dict is (improperly) overwritten when merging for FS chains.
+    #Can probably improve this once serial merging is officially implemented
+    thresholds=[]
+    chainName = chainDict["chainName"]
+    hltChainName = chainName[:chainName.index("_L1")]
+    cparts = hltChainName.split("_")
+    if 'HLT' in hltChainName:
+        cparts.remove('HLT')
+    for part in cparts:
+        if 'mu' in part:
+            thr=part.replace('mu','')
+            if 'noL1' in part:
+                thr =thr.replace('noL1','')
+            thresholds.append(thr)
+    config = TrigMuonEFMSonlyHypoConfig()
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
+    addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
+    return tool
     
 class TrigMuonEFMSonlyHypoConfig(object):
 
@@ -527,6 +548,28 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
        thresholds = getThresholdsFromDict( chainDict )
     config = TrigMuonEFCombinerHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
+    return tool
+
+def TrigMuonEFCombinerHypoToolFromName(chainDict):
+    #For full scan chains, we need to configure the thresholds based on all muons
+    #in the chain to get the counting correct. Currently a bit convoluted as 
+    #the chain dict is (improperly) overwritten when merging for FS chains.
+    #Can probably improve this once serial merging is officially implemented
+    thresholds=[]
+    chainName = chainDict["chainName"]
+    hltChainName = chainName[:chainName.index("_L1")]
+    cparts = hltChainName.split("_")
+    if 'HLT' in hltChainName:
+        cparts.remove('HLT')
+    for part in cparts:
+        if 'mu' in part:
+            thr=part.replace('mu','')
+            if 'noL1' in part:
+                thr =thr.replace('noL1','')
+            thresholds.append(thr)
+    config = TrigMuonEFCombinerHypoConfig()
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
     
