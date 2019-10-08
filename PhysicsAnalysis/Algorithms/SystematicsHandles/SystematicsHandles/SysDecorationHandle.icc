@@ -13,6 +13,8 @@
 #include <AsgTools/StatusCode.h>
 #include <SystematicsHandles/Helpers.h>
 
+#include <regex>
+
 //
 // method implementations
 //
@@ -27,6 +29,35 @@ namespace CP
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
     owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
+  }
+
+
+
+  template<typename T> ::StatusCode SysDecorationHandle<T> ::
+  preExecute (SysListHandle &systematics)
+  {
+    if (isPrepared())
+    {
+      return StatusCode::SUCCESS;
+    }
+
+    ANA_CHECK (systematics.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
+    {
+      getData (sys);
+      return StatusCode::SUCCESS;
+    }));
+
+    m_isPrepared = true;
+
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<typename T> inline bool SysDecorationHandle<T> ::
+  isPrepared () const noexcept
+  {
+    return m_isPrepared;
   }
 
 
@@ -50,6 +81,8 @@ namespace CP
   template<typename T> const std::string& SysDecorationHandle<T> ::
   getName (const CP::SystematicSet& sys) const
   {
+    assert (isPrepared());
+
     const auto& data = getData (sys);
     return std::get<0> (data);
   }
@@ -60,6 +93,8 @@ namespace CP
   get (const SG::AuxElement& object,
        const CP::SystematicSet& sys) const
   {
+    assert (isPrepared());
+
     const auto& data = getData (sys);
     return std::get<1> (data) (object);
   }
@@ -70,6 +105,8 @@ namespace CP
   set (SG::AuxElement& object, const T& value,
        const CP::SystematicSet& sys) const
   {
+    assert (isPrepared());
+
     const auto& data = getData (sys);
     std::get<2> (data) (object) = value;
   }

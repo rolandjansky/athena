@@ -46,6 +46,7 @@ namespace CP
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -54,6 +55,16 @@ namespace CP
   StatusCode MuonEfficiencyScaleFactorAlg ::
   execute ()
   {
+    if (m_scaleFactorDecoration) {
+      ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
+    }
+    if (m_mcEfficiencyDecoration) {
+      ANA_CHECK (m_mcEfficiencyDecoration.preExecute (m_systematicsList));
+    }
+    if (m_dataEfficiencyDecoration) {
+      ANA_CHECK (m_dataEfficiencyDecoration.preExecute (m_systematicsList));
+    }
+
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyScaleFactorTool->applySystematicVariation (sys));
         xAOD::MuonContainer *muons = nullptr;

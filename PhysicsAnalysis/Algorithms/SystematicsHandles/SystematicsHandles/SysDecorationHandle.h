@@ -13,6 +13,7 @@
 #include <AthContainers/AuxElement.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
+#include <SystematicsHandles/SysListHandle.h>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -47,6 +48,17 @@ namespace CP
     SysDecorationHandle (T2 *owner, const std::string& propertyName,
                              const std::string& propertyValue,
                              const std::string& propertyDescription);
+
+
+    /// \brief register a set of used systematics for in the current
+    /// execut call (usually obtained from \ref CP::SystListHandle)
+  public:
+    StatusCode preExecute (SysListHandle &systematics);
+
+
+    /// \brief whether \ref preExecute has been called successfully at least once
+  public:
+    bool isPrepared () const noexcept;
 
 
     /// \brief whether we have a name configured
@@ -88,6 +100,10 @@ namespace CP
     //
     // private interface
     //
+
+    /// \brief the value of \ref isPrepared
+  private:
+    bool m_isPrepared{false};
 
     /// \brief the input name we use
   private:
