@@ -3,57 +3,56 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "MuonIdHelpers/MuonIdHelperSvc.h"
 
 #include <iostream>
 
 namespace Muon {
 
-  MuonIdHelperTool::MuonIdHelperTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true)
+  MuonIdHelperSvc::MuonIdHelperSvc(const std::string& name, ISvcLocator* svc)
+    : base_class(name, svc), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_detStore("DetectorStore", name)
   {
-    declareInterface<MuonIdHelperTool>(this);
     declareProperty("HasCSC", m_hasCSC);
     declareProperty("HasSTgc", m_hasSTgc);
     declareProperty("HasMM", m_hasMM);
   }
 
 
-  MuonIdHelperTool::~MuonIdHelperTool(){}
+  MuonIdHelperSvc::~MuonIdHelperSvc(){}
 
 
-  StatusCode MuonIdHelperTool::initialize()  {
+  StatusCode MuonIdHelperSvc::initialize()  {
+    ATH_CHECK( m_detStore.retrieve() );
 
-    if ( detStore()->retrieve( m_mdtIdHelper ).isFailure() ) {
+    if ( m_detStore->retrieve( m_mdtIdHelper ).isFailure() ) {
       ATH_MSG_ERROR(" Cannot retrieve MdtIdHelper ");
       return StatusCode::FAILURE;
     }
 
     if (m_hasCSC) {
-        if ( detStore()->retrieve( m_cscIdHelper ).isFailure() ) {
+        if ( m_detStore->retrieve( m_cscIdHelper ).isFailure() ) {
             ATH_MSG_WARNING(" Cannot retrieve CscIdHelper, please consider setting HasCSC property to false in the future when running a layout without CSC chambers");
             m_hasCSC = false;
             m_cscIdHelper = nullptr;
         }
     } else m_cscIdHelper = nullptr;
-    if ( detStore()->retrieve( m_rpcIdHelper ).isFailure() ) {
+    if ( m_detStore->retrieve( m_rpcIdHelper ).isFailure() ) {
       ATH_MSG_ERROR(" Cannot retrieve RpcIdHelper ");
       return StatusCode::FAILURE;
     }
-    if ( detStore()->retrieve( m_tgcIdHelper ).isFailure() ) {
+    if ( m_detStore->retrieve( m_tgcIdHelper ).isFailure() ) {
       ATH_MSG_ERROR(" Cannot retrieve TgcIdHelper ");
       return StatusCode::FAILURE;
     }
     if (m_hasSTgc) {
-        if ( detStore()->retrieve( m_stgcIdHelper ).isFailure() ) {
+        if ( m_detStore->retrieve( m_stgcIdHelper ).isFailure() ) {
             ATH_MSG_WARNING(" Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers");
             m_hasSTgc = false;
             m_stgcIdHelper = nullptr;
         }
     } else m_stgcIdHelper = nullptr;
     if (m_hasMM) {
-        if ( detStore()->retrieve( m_mmIdHelper ).isFailure() ) {
+        if ( m_detStore->retrieve( m_mmIdHelper ).isFailure() ) {
             ATH_MSG_WARNING(" Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers");
             m_hasMM = false;
             m_mmIdHelper = nullptr;
@@ -147,12 +146,12 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonIdHelperTool::finalize() {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
+  StatusCode MuonIdHelperSvc::finalize() {
+    if( AthService::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 
-  int MuonIdHelperTool::gasGap( const Identifier& id ) const {
+  int MuonIdHelperSvc::gasGap( const Identifier& id ) const {
     if( isRpc(id) ) {
       return m_rpcIdHelper->gasGap(id);
 
@@ -173,42 +172,42 @@ namespace Muon {
     return 1;
   }
 
-  bool MuonIdHelperTool::isMuon( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isMuon( const Identifier& id ) const {
     return m_mdtIdHelper->is_muon(id);
   }
 
-  bool MuonIdHelperTool::isMdt( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isMdt( const Identifier& id ) const {
     if (!m_mdtIdHelper) return false;
     return m_mdtIdHelper->is_mdt(id);
   }
 
-  bool MuonIdHelperTool::isMM( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isMM( const Identifier& id ) const {
     if (!m_mmIdHelper) return false;
     return m_mmIdHelper->is_mm(id);
   }
 
-  bool MuonIdHelperTool::isCsc( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isCsc( const Identifier& id ) const {
     if (!m_cscIdHelper) return false;
     return m_cscIdHelper->is_csc(id);
   }
 
-  bool MuonIdHelperTool::isRpc( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isRpc( const Identifier& id ) const {
     if (!m_rpcIdHelper) return false;
     return m_rpcIdHelper->is_rpc(id);
   }
 
-  bool MuonIdHelperTool::isTgc( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isTgc( const Identifier& id ) const {
     if (!m_tgcIdHelper) return false;
     return m_tgcIdHelper->is_tgc(id);
   }
 
-  bool MuonIdHelperTool::issTgc( const Identifier& id ) const {
+  bool MuonIdHelperSvc::issTgc( const Identifier& id ) const {
     if (!m_stgcIdHelper) return false;
     return m_stgcIdHelper->is_stgc(id);
   }
 
 
-  bool MuonIdHelperTool::measuresPhi( const Identifier& id ) const {
+  bool MuonIdHelperSvc::measuresPhi( const Identifier& id ) const {
     if( isRpc(id) ) {
       return m_rpcIdHelper->measuresPhi(id);
     }else if( isTgc(id) ) {
@@ -223,22 +222,22 @@ namespace Muon {
   }
 
 
-  bool MuonIdHelperTool::isTrigger( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isTrigger( const Identifier& id ) const {
     if( isRpc(id) ) return true;
     else if( isTgc(id) ) return true;
     return false;
   }
 
-  bool MuonIdHelperTool::isEndcap( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isEndcap( const Identifier& id ) const {
     return m_mdtIdHelper->isEndcap(id);
   }
 
-  bool MuonIdHelperTool::isSmallChamber( const Identifier& id ) const {
+  bool MuonIdHelperSvc::isSmallChamber( const Identifier& id ) const {
     return m_mdtIdHelper->isSmall(id);
   }
 
 
-  MuonStationIndex::ChIndex MuonIdHelperTool::chamberIndex( const Identifier& id ) const {
+  MuonStationIndex::ChIndex MuonIdHelperSvc::chamberIndex( const Identifier& id ) const {
     if( !id.is_valid() || !isMuon(id) ){
       if( id.is_valid() ) ATH_MSG_WARNING("chamberIndex: invalid ID " << m_mdtIdHelper->print_to_string(id));
       return MuonStationIndex::ChUnknown;
@@ -247,7 +246,7 @@ namespace Muon {
   }
 
 
-  MuonStationIndex::StIndex MuonIdHelperTool::stationIndex( const Identifier& id ) const {
+  MuonStationIndex::StIndex MuonIdHelperSvc::stationIndex( const Identifier& id ) const {
     if( !id.is_valid() || !isMuon(id) ){
       if( id.is_valid() ) ATH_MSG_WARNING("stationIndex: invalid ID " << m_mdtIdHelper->print_to_string(id));
       return MuonStationIndex::StUnknown;
@@ -255,7 +254,7 @@ namespace Muon {
     return m_stationNameData[m_mdtIdHelper->stationName(id)].stIndex;
   }
 
-  MuonStationIndex::PhiIndex MuonIdHelperTool::phiIndex( const Identifier& id ) const {
+  MuonStationIndex::PhiIndex MuonIdHelperSvc::phiIndex( const Identifier& id ) const {
     if( !id.is_valid() || !isMuon(id) ){
       if( id.is_valid() ) ATH_MSG_WARNING("phiIndex: invalid ID " << m_mdtIdHelper->print_to_string(id));
       return MuonStationIndex::PhiUnknown;
@@ -286,16 +285,16 @@ namespace Muon {
     return index;
   }
   
-  MuonStationIndex::DetectorRegionIndex MuonIdHelperTool::regionIndex( const Identifier& id ) const {
+  MuonStationIndex::DetectorRegionIndex MuonIdHelperSvc::regionIndex( const Identifier& id ) const {
     if( isEndcap(id) ) return stationEta(id) < 0 ? MuonStationIndex::EndcapC : MuonStationIndex::EndcapA;
     return MuonStationIndex::Barrel;
   }
 
-  MuonStationIndex::LayerIndex MuonIdHelperTool::layerIndex( const Identifier& id ) const {
+  MuonStationIndex::LayerIndex MuonIdHelperSvc::layerIndex( const Identifier& id ) const {
     return MuonStationIndex::toLayerIndex(stationIndex(id));
   }
 
-  MuonStationIndex::TechnologyIndex MuonIdHelperTool::technologyIndex( const Identifier& id ) const {
+  MuonStationIndex::TechnologyIndex MuonIdHelperSvc::technologyIndex( const Identifier& id ) const {
     if( isMdt(id) )  return MuonStationIndex::MDT;
     if( isCsc(id) )  return MuonStationIndex::CSCI;
     if( isTgc(id) )  return MuonStationIndex::TGC;
@@ -305,7 +304,7 @@ namespace Muon {
     return MuonStationIndex::TechnologyUnknown;//m_technologies[m_mdtIdHelper->technology(id)];
   }
 
-  std::string MuonIdHelperTool::toString( const Identifier& id ) const  {
+  std::string MuonIdHelperSvc::toString( const Identifier& id ) const  {
     std::ostringstream sout;
     if( !id.is_valid() ) return " Invalid Identifier";
     sout << toStringGasGap(id);
@@ -327,7 +326,7 @@ namespace Muon {
     return sout.str();
   }
 
-  std::string MuonIdHelperTool::toStringTech( const Identifier& id ) const  {
+  std::string MuonIdHelperSvc::toStringTech( const Identifier& id ) const  {
     std::ostringstream sout;
     if( !id.is_valid() ) return " Invalid Identifier";
     if( isRpc(id) ) {
@@ -347,11 +346,11 @@ namespace Muon {
 
   }
 
-  std::string MuonIdHelperTool::chamberNameString( const Identifier& id ) const  {
+  std::string MuonIdHelperSvc::chamberNameString( const Identifier& id ) const  {
     return m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
   }
 
-  std::string MuonIdHelperTool::toStringStation( const Identifier& id ) const {
+  std::string MuonIdHelperSvc::toStringStation( const Identifier& id ) const {
     std::ostringstream sout;
     if( !id.is_valid() ) return " Invalid Identifier";
     if( isRpc(id) ) {
@@ -388,7 +387,7 @@ namespace Muon {
     return sout.str();
   }
 
-  std::string MuonIdHelperTool::toStringChamber( const Identifier& id ) const  {
+  std::string MuonIdHelperSvc::toStringChamber( const Identifier& id ) const  {
     std::ostringstream sout;
     if( !id.is_valid() ) return " Invalid Identifier";
     if( isRpc(id) ) {
@@ -426,7 +425,7 @@ namespace Muon {
     return sout.str();
   }
 
-  std::string MuonIdHelperTool::toStringDetEl( const Identifier& id ) const  {
+  std::string MuonIdHelperSvc::toStringDetEl( const Identifier& id ) const  {
     std::ostringstream sout;
     if( !id.is_valid() ) return " Invalid Identifier";
     if( isRpc(id) ) {
@@ -451,7 +450,7 @@ namespace Muon {
     return sout.str();
   }
 
-  std::string MuonIdHelperTool::toStringGasGap( const Identifier& id ) const  {
+  std::string MuonIdHelperSvc::toStringGasGap( const Identifier& id ) const  {
     std::ostringstream sout;
     if( !id.is_valid() ) return " Invalid Identifier";
     if( isRpc(id) ) {
@@ -476,7 +475,7 @@ namespace Muon {
     return sout.str();
   }
 
-  Identifier MuonIdHelperTool::chamberId( const Identifier& id) const  {
+  Identifier MuonIdHelperSvc::chamberId( const Identifier& id) const  {
     Identifier chId;
     // use phi hits on segment
     if( isTgc(id) ){
@@ -508,7 +507,7 @@ namespace Muon {
     return chId;
   }
 
-  Identifier MuonIdHelperTool::detElId( const Identifier& id) const  {
+  Identifier MuonIdHelperSvc::detElId( const Identifier& id) const  {
 
 
     Identifier detElId;
@@ -543,7 +542,7 @@ namespace Muon {
     return detElId;
   }
 
-  Identifier MuonIdHelperTool::layerId( const Identifier& id ) const  {
+  Identifier MuonIdHelperSvc::layerId( const Identifier& id ) const  {
     Identifier layerId;
     // use phi hits on segment
     if( isTgc(id) ){
@@ -587,7 +586,7 @@ namespace Muon {
     return layerId;
   }
 
-  Identifier MuonIdHelperTool::gasGapId( const Identifier& id ) const  {
+  Identifier MuonIdHelperSvc::gasGapId( const Identifier& id ) const  {
 
     Identifier gasGapId;
     // use phi hits on segment
@@ -631,7 +630,7 @@ namespace Muon {
     return gasGapId;
   }
 
-  int MuonIdHelperTool::stationPhi( const Identifier& id ) const {
+  int MuonIdHelperSvc::stationPhi( const Identifier& id ) const {
     if( !id.is_valid() ) {
       ATH_MSG_WARNING("stationPhi: invalid ID");
       return 0;
@@ -652,7 +651,7 @@ namespace Muon {
     return 0;
   }
 
-  int MuonIdHelperTool::stationEta( const Identifier& id ) const {
+  int MuonIdHelperSvc::stationEta( const Identifier& id ) const {
     if( !id.is_valid() ) {
       ATH_MSG_WARNING("stationEta: invalid ID");
       return 0;
@@ -673,13 +672,13 @@ namespace Muon {
     return 0;
   }
 
-  int MuonIdHelperTool::sector( const Identifier& id ) const {
+  int MuonIdHelperSvc::sector( const Identifier& id ) const {
     // TGC has different segmentation, return 0 for the moment
     if( isTgc(id) ) {
       static std::vector<int> tgcSectorMapping;
       if( tgcSectorMapping.empty() ){
         std::vector<int>* mapping = 0;
-        StatusCode sc = detStore()->retrieve(mapping,"TGC_SectorMapping");
+        StatusCode sc = m_detStore->retrieve(mapping,"TGC_SectorMapping");
         if( sc.isFailure() || !mapping ){
           ATH_MSG_WARNING("sector: failed to retrieve TGC sector mapping");
           return 0;

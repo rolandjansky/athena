@@ -1,9 +1,9 @@
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/MuonIdHelperSvc.h"
 
 
 
 
 using namespace Muon;
 
-DECLARE_COMPONENT( MuonIdHelperTool )
+DECLARE_COMPONENT( MuonIdHelperSvc )
 
