@@ -11,6 +11,7 @@
 
 #include "AthenaKernel/getThinningCache.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/ThinningCache.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -50,9 +51,12 @@ const SG::ThinningCache* getThinningCache()
  *
  * Returns nullptr if there is no thinning for @c key.
  */
-const SG::ThinningDecisionBase* getThinningDecision (const EventContext& /*ctx*/,
-                                                     const std::string& /*key*/)
+const SG::ThinningDecisionBase* getThinningDecision (const EventContext& ctx,
+                                                     const std::string& key)
 {
+  if (const SG::ThinningCache* cache = getThinningCache (ctx)) {
+    return cache->thinning (key);
+  }
   return nullptr;
 }
 
@@ -76,9 +80,12 @@ const SG::ThinningDecisionBase* getThinningDecision (const std::string& key)
  *
  * Returns nullptr if there is no thinning for @c sgkey.
  */
-const SG::ThinningDecisionBase* getThinningDecision (const EventContext& /*ctx*/,
-                                                     const sgkey_t /*sgkey*/)
+const SG::ThinningDecisionBase* getThinningDecision (const EventContext& ctx,
+                                                     const sgkey_t sgkey)
 {
+  if (const SG::ThinningCache* cache = getThinningCache (ctx)) {
+    return cache->thinning (sgkey);
+  }
   return nullptr;
 }
 
