@@ -345,7 +345,7 @@ class MuonIdHelper : public AtlasDetectorID
   };
 
  protected:
-  mutable std::unique_ptr<MsgStream> m_Log;
+  mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
   bool m_init;
 };
 
