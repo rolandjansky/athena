@@ -17,12 +17,8 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 /*******************************************************************************/ 
-inline void MmIdHelper::create_mlog() const {
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "MmIdHelper");
-} 
-/*******************************************************************************/ 
 // Constructor/Destructor
-MmIdHelper::MmIdHelper() : MuonIdHelper() {
+MmIdHelper::MmIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "MmIdHelper")) {
     m_GASGAP_INDEX = 6;
 }
 /*******************************************************************************/ 
@@ -33,8 +29,6 @@ MmIdHelper::~MmIdHelper() {
 /*******************************************************************************/ 
 // Initialize dictionary
 int MmIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
-  create_mlog();
-
   int status = 0;
   
   // Check whether this helper should be reinitialized
@@ -586,7 +580,6 @@ int MmIdHelper::channelMax(const Identifier& id) const {
 /*******************************************************************************/ 
 // validation of levels
 bool MmIdHelper::valid(const Identifier& id) const {
-  create_mlog();
   if( !validElement(id) ) return false;
 
   int mplet     = multilayer(id);
@@ -626,8 +619,6 @@ bool MmIdHelper::valid(const Identifier& id) const {
 }  //end MmIdHelper::valid
 /*******************************************************************************/ 
 bool MmIdHelper::validElement(const Identifier& id) const {
-  create_mlog();
-  
   int station = stationName(id);
   std::string name = stationNameString(station);
 
@@ -667,8 +658,6 @@ bool MmIdHelper::validElement(const Identifier& id) const {
 /*******************************************************************************/ 
 // Private validation of levels
 bool MmIdHelper::validElement(const Identifier& id, int stationName, int stationEta, int stationPhi) const {
-  create_mlog();
-
   std::string name = stationNameString(stationName);
 
   if ('M' != name[0]) {
@@ -702,8 +691,6 @@ bool MmIdHelper::validElement(const Identifier& id, int stationName, int station
 /*******************************************************************************/ 
 // Check values down to readout channel level
 bool MmIdHelper::validChannel(const Identifier& id, int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel) const {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
 

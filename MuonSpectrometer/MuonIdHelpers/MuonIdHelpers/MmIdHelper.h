@@ -172,7 +172,6 @@ class MmIdHelper : public MuonIdHelper {
     ChannelMax    = 200
   };
  
-  inline virtual void create_mlog() const;
 };    //end class MmIdHelper
 /*******************************************************************************/ 
 // For backwards compatibility  

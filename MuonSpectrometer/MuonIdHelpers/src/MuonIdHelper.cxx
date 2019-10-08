@@ -19,17 +19,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-inline void MuonIdHelper::create_mlog() const
-{
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "MuonIdHelper");
-}
 
 const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
 
 // Constructor
 
-MuonIdHelper::MuonIdHelper(): m_station_region_index(0), m_module_hash_max(0),
-  m_channel_hash_max(0), m_detectorElement_hash_max(0), m_Log(NULL), m_init(false) {
+MuonIdHelper::MuonIdHelper(std::unique_ptr<MsgStream> log): m_station_region_index(0), m_module_hash_max(0),
+  m_channel_hash_max(0), m_detectorElement_hash_max(0), m_init(false) {
 
   m_MUON_INDEX           =  0;
   m_GROUP_INDEX           =  6500;
@@ -45,21 +41,18 @@ MuonIdHelper::MuonIdHelper(): m_station_region_index(0), m_module_hash_max(0),
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
   if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
-
+  m_Log = log ? std::move(log) : std::make_unique<MsgStream>(m_msgSvc, "MuonIdHelper");
 }
 
 // Destructor
 
 MuonIdHelper::~MuonIdHelper()
 {
-  if(m_Log) delete m_Log;
 }
 
 int
 MuonIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
-  create_mlog();
-
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
     (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
@@ -168,7 +161,6 @@ int MuonIdHelper::get_module_hash(const Identifier& id,
       }
     }
   }
-  create_mlog();
   (*m_Log)<<MSG::WARNING<< "MuonIdHelper::get_module_hash(): Could not determine hash for identifier " << id.get_compact() << endmsg; 
   return 1;
 }
@@ -189,7 +181,6 @@ int MuonIdHelper::get_detectorElement_hash(const Identifier& id,
       }
     }
   }
-  create_mlog();
   (*m_Log) << MSG::WARNING << "MuonIdHelper::get_detectorElement_hash(): Could not determine hash for identifier " << id.get_compact() << endmsg;
   return 1;
 }
@@ -331,15 +322,12 @@ MuonIdHelper::get_hash_calc (const Identifier& compact_id,
       }
     }
   }
-  create_mlog();
   (*m_Log) << MSG::WARNING << "MuonIdHelper::get_hash_calc(): Could not determine hash for identifier " << compact_id.get_compact() << endmsg;
   return 1;
 }
 
 int MuonIdHelper::initLevelsFromDict() {
  
-  create_mlog();
-
   if(!m_dict) {
     (*m_Log) << MSG::ERROR << " initLevelsFromDict - dictionary NOT initialized "
 	     << endmsg;
@@ -465,8 +453,6 @@ int MuonIdHelper::initLevelsFromDict() {
 
 int MuonIdHelper::init_hashes(void) {
 
-  create_mlog();
-
   //
   // create a vector(s) to retrieve the hashes for compact ids. For
   // the moment, we implement a hash for modules
@@ -517,8 +503,6 @@ int MuonIdHelper::init_hashes(void) {
 }
 
 int MuonIdHelper::init_detectorElement_hashes(void) {
-
-  create_mlog();
 
   //
   // create a vector(s) to retrieve the hashes for compact ids. For
@@ -576,8 +560,6 @@ int MuonIdHelper::init_detectorElement_hashes(void) {
 }
 
 int MuonIdHelper::init_channel_hashes(void) {
-
-  create_mlog();
 
   //
   // create a vector(s) to retrieve the hashes for compact ids. For
@@ -677,7 +659,7 @@ int MuonIdHelper::init_neighbors(void)
   // create a vector(s) to retrieve the hashes for compact ids for
   // module neighbors.
   //
-  create_mlog();
+  
   (*m_Log) << MSG::VERBOSE << "MuonIdHelper::init_neighbors " << endmsg;
 
   m_prev_phi_module_vec.resize(m_module_hash_max, NOT_VALID_HASH);
@@ -823,8 +805,6 @@ int MuonIdHelper::init_neighbors(void)
 
 void MuonIdHelper::test_module_packing (void) const {
 
-  create_mlog();
-
   if (m_dict) {	
     int nids = 0;
     IdContext context = module_context();
@@ -863,8 +843,6 @@ void MuonIdHelper::test_module_packing (void) const {
 
 void MuonIdHelper::test_id (const Identifier& id, const IdContext& context) const {
 
-  create_mlog();
-
   Identifier compact = id;
   ExpandedIdentifier new_id;
   if (get_expanded_id(compact, new_id, &context)) {
@@ -892,7 +870,6 @@ void MuonIdHelper::addStationID(Identifier& id, int stationName, int stationEta,
   ExpandedIdentifier exp_id;
   IdContext muon_context(exp_id, 0, m_MUON_INDEX);
   if(get_expanded_id(id, exp_id, &muon_context)) {
-    create_mlog();
     (*m_Log)<<MSG::ERROR<<" MUON_ID result is NOT ok. MUON id " 
 	    << show_to_string(id) 
 	    << " Fields not appended " << endmsg;
@@ -910,7 +887,6 @@ int MuonIdHelper::stationRegion(const Identifier& id) const {
   if ('M' == name[1] || '2' == name[1] ) return 2;
   if ('O' == name[1] || '3' == name[1] ) return 3;
   if ( name == "CSS" || name == "CSL"  ) return 0;
-  create_mlog();
   (*m_Log) << MSG::ERROR << " MuonId::stationRegion / id = " 
 	   << show_to_string(id) 
 	   << " stationnamestring = "

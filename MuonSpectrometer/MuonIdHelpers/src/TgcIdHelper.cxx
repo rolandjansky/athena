@@ -21,14 +21,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-inline void TgcIdHelper::create_mlog() const
-{
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "TgcIdHelper");
-}
 
 // Constructor/Destructor
 
-TgcIdHelper::TgcIdHelper() : MuonIdHelper(), m_GASGAP_INDEX(0),
+TgcIdHelper::TgcIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "TgcIdHelper")), m_GASGAP_INDEX(0),
   m_ISSTRIP_INDEX(0) {}
 
 // Destructor
@@ -42,8 +38,6 @@ TgcIdHelper::~TgcIdHelper()
 
 int TgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
-  create_mlog();
-
   int status = 0;
   
   // Check whether this helper should be reinitialized
@@ -540,8 +534,6 @@ int TgcIdHelper::channelMax(const Identifier& id) const {
 
 bool TgcIdHelper::valid(const Identifier& id) const {
 
-  create_mlog();
-
   if (! validElement(id)) return false;
 
   int station  = stationName(id);
@@ -584,8 +576,6 @@ bool TgcIdHelper::valid(const Identifier& id) const {
 }
 
 bool TgcIdHelper::validElement(const Identifier& id) const {
-
-  create_mlog();
 
   int station = stationName(id);
   std::string name = stationNameString(station);
@@ -635,8 +625,6 @@ bool TgcIdHelper::validElement(const Identifier& id) const {
 bool TgcIdHelper::validElement(const Identifier& id, int stationName,
                                int stationEta, int stationPhi) const
 {
-  create_mlog();
-
   std::string name = stationNameString(stationName);
 
   if ('T' != name[0])
@@ -679,8 +667,6 @@ bool TgcIdHelper::validChannel(const Identifier& id, int stationName,
 			       int stationEta, int stationPhi, 
 			       int gasGap, int isStrip, int channel) const
 {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
   if (gasGap  < gasGapMin() || 

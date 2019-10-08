@@ -221,7 +221,6 @@ class CscIdHelper : public MuonIdHelper
 
   mutable std::atomic<unsigned int> m_etaStripMax;
   mutable std::atomic<unsigned int> m_phiStripMax;
-  inline void create_mlog() const override;
   bool m_hasChamLay1;
 };
 

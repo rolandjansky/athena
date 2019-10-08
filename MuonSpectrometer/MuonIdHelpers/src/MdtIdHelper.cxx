@@ -21,14 +21,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-inline void MdtIdHelper::create_mlog() const
-{
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "MdtIdHelper");
-}
 
 /// Constructor
 
-MdtIdHelper::MdtIdHelper() : MuonIdHelper(), m_TUBELAYER_INDEX(0) {}
+MdtIdHelper::MdtIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "MdtIdHelper")), m_TUBELAYER_INDEX(0) {}
 
 /// Destructor
 
@@ -42,8 +38,6 @@ MdtIdHelper::~MdtIdHelper()
 
 int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
-  create_mlog();
-
   int status = 0;
 
   // Check whether this helper should be reinitialized
@@ -697,8 +691,6 @@ int MdtIdHelper::tubeMax(const Identifier& id) const
 
 bool MdtIdHelper::valid(const Identifier& id) const
 {
-  create_mlog();
-
   if (! validElement(id)) return false;
 
   int mlayer     = multilayer(id);
@@ -742,8 +734,6 @@ bool MdtIdHelper::valid(const Identifier& id) const
 
 bool MdtIdHelper::validElement(const Identifier& id) const
 {
-  create_mlog();
-
   int station        = stationName(id);
   std::string name   = stationNameString(station);
 
@@ -788,8 +778,6 @@ bool MdtIdHelper::validElement(const Identifier& id) const
 bool MdtIdHelper::validElement(const Identifier& id, int stationName,
                                int stationEta, int stationPhi) const
 {
-  create_mlog();
-
   std::string name = stationNameString(stationName);
 
   if (('B' != name[0]) && ('E' != name[0]))
@@ -828,8 +816,6 @@ bool MdtIdHelper::validChannel(const Identifier& id, int stationName,
 			       int stationEta, int stationPhi, 
 			       int multilayer, int tubeLayer, int tube) const
 {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
   if ((multilayer < multilayerMin(id)) ||

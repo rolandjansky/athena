@@ -22,15 +22,10 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include <mutex>
 
-inline void CscIdHelper::create_mlog() const
-{
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "CscIdHelper");
-}
-
 
 /// Constructor/Destructor
 
-CscIdHelper::CscIdHelper() : MuonIdHelper(), m_CHAMBERLAYER_INDEX(0),
+CscIdHelper::CscIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "CscIdHelper")), m_CHAMBERLAYER_INDEX(0),
   m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0), m_hasChamLay1(false) {}
 
 /// Destructor
@@ -46,8 +41,6 @@ CscIdHelper::~CscIdHelper()
 
 int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
-  create_mlog();
-
   int status = 0;
 
   // Check whether this helper should be reinitialized
@@ -736,8 +729,6 @@ int CscIdHelper::stripMax(const Identifier& id) const
 
 bool CscIdHelper::valid(const Identifier& id) const
 {
-  create_mlog();
-
   if (! validElement(id)) return false;
 
   int cLayer  = chamberLayer(id);
@@ -793,8 +784,6 @@ bool CscIdHelper::valid(const Identifier& id) const
 
 bool CscIdHelper::validElement(const Identifier& id) const
 {
-  create_mlog();
-
   int station = stationName(id);
   std::string name = stationNameString(station);
   if ('C' != name[0])
@@ -840,8 +829,6 @@ bool CscIdHelper::validElement(const Identifier& id) const
 bool CscIdHelper::validElement(const Identifier& id, int stationName,
 			       int stationEta, int stationPhi) const
 {
-  create_mlog();
-      
   std::string name = stationNameString(stationName);
 
   if ('C' != name[0])
@@ -883,8 +870,6 @@ bool CscIdHelper::validChannel(const Identifier& id, int stationName, int statio
 			       int stationPhi,int chamberLayer, int wireLayer, 
 			       int measuresPhi, int strip) const
 {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
   if ((chamberLayer < chamberLayerMin(id)) ||

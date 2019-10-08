@@ -94,7 +94,7 @@ class MuonIdHelper : public AtlasDetectorID
 
   // Constructor
 
-  MuonIdHelper();
+  MuonIdHelper(std::unique_ptr<MsgStream> log);
 
   // Destructor
 
@@ -345,8 +345,7 @@ class MuonIdHelper : public AtlasDetectorID
   };
 
  protected:
-  mutable MsgStream *m_Log;
-  inline virtual void create_mlog() const;
+  mutable std::unique_ptr<MsgStream> m_Log;
   bool m_init;
 };
 
