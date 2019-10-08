@@ -274,6 +274,7 @@ private:
 
     // Store boosted jet tagger names
     std::vector<std::string> m_boostedJetTaggersNames;
+    std::vector<std::string> m_boostedJetTaggersNamesCalibrated;
 
     //some event weights
     float m_weight_mc;
@@ -643,6 +644,7 @@ private:
     std::vector<char> m_ljet_isZTagged_50;
     
     std::unordered_map<std::string,std::vector<char> > m_ljet_isTagged;
+    std::unordered_map<std::string,std::vector<float> > m_ljet_tagSF;
 
     //track jets
     std::vector<float> m_tjet_pt;

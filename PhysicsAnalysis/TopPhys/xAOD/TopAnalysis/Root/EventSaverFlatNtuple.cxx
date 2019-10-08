@@ -879,6 +879,10 @@ namespace top {
 	  systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName],"ljet_isTagged_"+taggerName);
 	}
 
+	for(const std::string& taggerName : m_boostedJetTaggersNamesCalibrated){
+          systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_"+taggerName);
+        }
+
       }
 
       //track jets
@@ -2588,6 +2592,7 @@ namespace top {
       m_ljet_sd12.resize(nLargeRJets);
 
       for (const std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated ) m_ljet_tagSF[taggerName].resize(nLargeRJets);
 
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
@@ -2601,9 +2606,13 @@ namespace top {
         m_ljet_sd12[i] = Split12;
 
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames ) {
-        try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
-      }
+        for (const std::string& taggerName : m_boostedJetTaggersNames ) {
+          m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName);
+        }
+
+        for (const std::pair<std::string, std::string> &tagSF : m_config->boostedTaggerSFnames()) {
+          m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+        }
 
         ++i;
       }
