@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfig_DSConfigSvc
@@ -11,7 +11,7 @@
 #include "TrigConfHLTData/HLTFrame.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfigSvc/ConfigSvcBase.h"
+#include "./ConfigSvcBase.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -119,7 +119,7 @@ namespace TrigConf {
       uint32_t hltPrescaleKey() const { return m_hltPsKey; }
 
       // access to a description of the source of the configuration (TriggerDB/XMLfilename)
-      const std::string& configurationSource() const {
+      std::string configurationSource() const override {
          return m_configSrc;
       }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_LVL1ConfigSvc
@@ -7,9 +7,11 @@
 
 #include <string>
 
-#include "TrigConfigSvc/ConfigSvcBase.h"
+#include "./ConfigSvcBase.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+
+#include "TrigConfData/L1Menu.h"
 
 class StoreGateSvc;
 
@@ -50,7 +52,11 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_l1FileName { this, "JsonFileName", "L1Menu.json", "file name of L1 json file, needed if InputType is file" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
-      
+
+      //SG::WriteHandleKey<TrigConf::L1Menu> m_l1MenuKey{"DetectorStore+L1TriggerMenu"};
+
+
+
       ::StoreGateSvc* m_detectorStore;
       
       // the configuration

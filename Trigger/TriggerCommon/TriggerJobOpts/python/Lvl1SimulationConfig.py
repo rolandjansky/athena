@@ -25,19 +25,9 @@ def Lvl1SimulationSequence( flags = None ):
     # this configuration of the LVL1ConfigSvc is only temporary
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
-    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
-    svcMgr += LVL1ConfigSvc()
-    svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
-    svcMgr.LVL1ConfigSvc.InputType = "file"
-    l1JsonFile = TriggerFlags.inputLVL1configFile().replace(".xml",".json")
-    svcMgr.LVL1ConfigSvc.JsonFileName = l1JsonFile
-    log.info("Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFile)
-
-    # L1 menu provider Run 3
-    from TrigConfIO.TrigConfCondSetup import setupMenuProvider
-    setupMenuProvider()
-
-
+    log.info("setting up LVL1ConfigSvc, including the menu generation")
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+    svcMgr += getL1ConfigSvc()
     
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
     caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
@@ -163,7 +153,7 @@ def Lvl1SimulationSequence( flags = None ):
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = False
-    ctp.UseCondL1Menu = True
+    ctp.UseCondL1Menu = False
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
 

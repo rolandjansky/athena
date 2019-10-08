@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 
 #include "TriggerD3PDMaker/TriggerKeyTool.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfigSvc/DSConfigSvc.h"
 #include "CxxUtils/crc64.h"
 #include "AthenaKernel/errorcheck.h"
 #include <sstream>
@@ -33,16 +32,12 @@ TriggerKeyTool::TriggerKeyTool (const std::string& type,
                                 const std::string& name,
                                 const IInterface* parent)
   : AthAlgTool (type, name, parent),
-    m_trigConfigSvc ("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-    m_dsSvc ("TrigConf::DSConfigSvc/DSConfigSvc", name)
+    m_trigConfigSvc ("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
 {
   declareInterface<TriggerKeyTool> (this);
 
   declareProperty ("TrigConfigSvc", m_trigConfigSvc,
                    "Trigger configuration service instance.");
-  declareProperty ("DSSvc", m_dsSvc,
-                   "DS configuration instance "
-                   "(sometimes used when reading MC).");
 }
 
 
@@ -74,24 +69,11 @@ TriggerKeyTool::Keys TriggerKeyTool::getKeys() const
   if ( (keys.first == 0 && keys.second.first == 0 && keys.second.second == 0) ||
        keys.first < 0 || keys.second.first < 0 || keys.second.second < 0 )
   {
-    // See if we are reading an AOD:
-    const TrigConf::DSConfigSvc* dsSvc = 0;
-    if (m_dsSvc)
-      dsSvc = dynamic_cast<const TrigConf::DSConfigSvc*> (&*m_dsSvc);
-     
-    if( ! dsSvc ) {
-      REPORT_MESSAGE( MSG::ERROR )
-        << "The trigger configuration keys don't seem to make sense, "
-        << "and we're not using TrigConf::DSConfigSvc...";
-      keys.first = -1;
-    }
-    else {
-      // Turn the configuration source name (probably an XML file in this case)
-      // into an imaginary Super Master Key:
-      keys =
-        std::make_pair( ( CxxUtils::crc64( dsSvc->configurationSource() ) & 0xffff ),
+     // Turn the configuration source name (probably an XML file in this case)
+     // into an imaginary Super Master Key:
+     keys =
+        std::make_pair( ( CxxUtils::crc64( m_trigConfigSvc->configurationSource() ) & 0xffff ),
                         std::make_pair( 0, 0 ) );
-    }
   }
   return keys;
 }
@@ -111,15 +93,7 @@ std::string TriggerKeyTool::getString() const
     ss << "SMK" << smk;
     return ss.str();
   }
-
-  if (m_dsSvc) {
-    const TrigConf::DSConfigSvc* dsSvc =
-      dynamic_cast<const TrigConf::DSConfigSvc*> (&*m_dsSvc);
-    if (dsSvc)
-      return dsSvc->configurationSource();
-  }
-
-  return "";
+  return m_trigConfigSvc->configurationSource();
 }
 
 

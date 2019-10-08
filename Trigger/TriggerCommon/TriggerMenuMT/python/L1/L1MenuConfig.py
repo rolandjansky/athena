@@ -38,7 +38,7 @@ class L1MenuConfig(object):
         self.menuFullName   = menuName if menuName else TriggerFlags.triggerMenuSetup()
         self.menuName       = self._getMenuBaseName(self.menuFullName)
         self.inputFile      = inputFile
-        self.outputFile     = outputFile
+        self.outputFile     = outputFile if outputFile else TriggerFlags.inputLVL1configFile()
         self.l1menuFromFile = (self.inputFile is not None)
 
         # all registered items
@@ -57,6 +57,8 @@ class L1MenuConfig(object):
         # menu
         self.l1menu = L1Menu(self.menuName)
         self.l1menu.setBunchGroupSplitting() # I like this much more, but let's see what the menu group says
+
+        log.info("=== Generating L1 menu %s ===", self.menuName)
 
         log.info("=== Reading definition of algorithms, thresholds, and items ===")
 
@@ -225,13 +227,19 @@ class L1MenuConfig(object):
         Menu.defineMenu() defines the menu via L1MenuFlags "items", "thresholds", 
         """
 
-        log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuName)
-        menumodule = __import__('Menu.Menu_%s' % self.menuName, globals(), locals(), ['defineMenu'], -1)
-        menumodule.defineMenu()
-        log.info("... L1 menu '%s' contains:", self.menuName)
+        # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
+        menuToLoad = self.menuName
+        if menuToLoad == "LS2_v1":
+            menuToLoad = "MC_pp_v8"
+            log.info("Menu LS2_v1 was requested but is not available yet. Will load MC_pp_v8 instead. This is a TEMPORARY meassure")
 
-        log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs", self.menuName)
-        topomenumodule = __import__('Menu.Menu_%s_inputs' % self.menuName, globals(), locals(), ['defineMenu'], -1)
+        log.info("Reading TriggerMenuMT.Menu.Menu_%s", menuToLoad)
+        menumodule = __import__('Menu.Menu_%s' % menuToLoad, globals(), locals(), ['defineMenu'], -1)
+        menumodule.defineMenu()
+        log.info("... L1 menu '%s' contains:", menuToLoad)
+
+        log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs", menuToLoad)
+        topomenumodule = __import__('Menu.Menu_%s_inputs' % menuToLoad, globals(), locals(), ['defineMenu'], -1)
         topomenumodule.defineMenu()
         algoCount = 0
         for boardName, boardDef in L1MenuFlags.boards().items():
@@ -242,13 +250,13 @@ class L1MenuConfig(object):
                     else:
                         for t in c["algorithmGroups"]:
                             algoCount += len(t["algorithms"])
-        log.info("... L1Topo menu '%s' contains %i algorithms", self.menuName, algoCount)
+        log.info("... L1Topo menu '%s' contains %i algorithms", menuToLoad, algoCount)
 
         try:
-            log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs_legacy", self.menuName)
-            legacymenumodule = __import__('Menu.Menu_%s_inputs_legacy' % self.menuName, globals(), locals(), ['defineMenu'], -1)
+            log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs_legacy", menuToLoad)
+            legacymenumodule = __import__('Menu.Menu_%s_inputs_legacy' % menuToLoad, globals(), locals(), ['defineMenu'], -1)
             legacymenumodule.defineLegacyMenu()
-            log.info("... L1 legacy menu %s contains %i legacy boards (%s)", self.menuName, len(L1MenuFlags.legacyBoards()), ', '.join(L1MenuFlags.legacyBoards().keys()))
+            log.info("... L1 legacy menu %s contains %i legacy boards (%s)", menuToLoad, len(L1MenuFlags.legacyBoards()), ', '.join(L1MenuFlags.legacyBoards().keys()))
         except ImportError:
             log.info("==> No menu defining the legacy inputs was found, will assume this intended")
 
