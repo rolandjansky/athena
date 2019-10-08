@@ -22,7 +22,7 @@ def tauMonitoringConfig(inputFlags):
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'tauAthMonitorCfg')
+    cfgHelper = AthMonitorCfgHelper(inputFlags, monName='tauMonitorAlgFamily')
 
 
     ### STEP 2 ###
@@ -32,16 +32,18 @@ def tauMonitoringConfig(inputFlags):
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
     from tauMonitoring.tauMonitoringConf import tauMonitorAlgorithm
-    tauMonAlgBA = helper.addAlgorithm(tauMonitorAlgorithm,'tauMonAlgBA')
+    tauMonAlgBA = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgBA')
+    tauMonAlgCR = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgCR')
+    tauMonAlgEC = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEC')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    #anotherTauMonAlg = helper.addAlgorithm(tauMonitorAlgorithm,'AnotherTauMonAlg')
+    #anotherTauMonAlg = cfgHelper.addAlgorithm(tauMonitorAlgorithm,'AnotherTauMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
     # # properties and add the algorithm to the monitoring sequence.
-    # helper.AddAlgorithm(myExistingAlg)
+    # cfgHelper.AddAlgorithm(myExistingAlg)
 
 
     ### STEP 3 ###
@@ -50,6 +52,17 @@ def tauMonitoringConfig(inputFlags):
     # exampleMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
     #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+
+    tauMonAlgBA.etaMin = -1.
+    tauMonAlgBA.etaMax = 1.3
+    tauMonAlgCR.etaMin = 1.3
+    tauMonAlgCR.etaMax = 1.7
+    tauMonAlgEC.etaMin = 1.7
+    tauMonAlgEC.etaMax = 3.5
+
+    tauMonAlgBA.kinGroupName = 'tauMonKinGroupBA'
+    tauMonAlgCR.kinGroupName = 'tauMonKinGroupCR'
+    tauMonAlgEC.kinGroupName = 'tauMonKinGroupEC'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -62,32 +75,39 @@ def tauMonitoringConfig(inputFlags):
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
-    myGroup = helper.addGroup(
-        tauMonAlgBA,
-        'tauMonitor',
-        'run/'
-    )
+    myKinGroupBA = cfgHelper.addGroup(alg=tauMonAlgBA, name='tauMonKinGroupBA', topPath='run/BA/' )
+    myKinGroupCR = cfgHelper.addGroup(alg=tauMonAlgCR, name='tauMonKinGroupCR', topPath='run/CR/' )
+    myKinGroupEC = cfgHelper.addGroup(alg=tauMonAlgEC, name='tauMonKinGroupEC', topPath='run/EC/' )
 
     # Add a GMT for the other example monitor algorithm
-    # anotherGroup = helper.addGroup(anotherTauMonAlg,'tauMonitor')
+    # anotherGroup = cfgHelper.addGroup(anotherTauMonAlg,'tauMonitor')
 
 
     ### STEP 5 ###
     # Configure histograms
-    # myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
+    # myKinGroupBA.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
     #                         path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
-    # myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
+    # myKinGroupBA.defineHistogram('lb', title='Luminosity Block;lb;Events',
     #                         path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
-    # myGroup.defineHistogram('random', title='LB;x;Events',
+    # myKinGroupBA.defineHistogram('random', title='LB;x;Events',
     #                         path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
-    # myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
+    # myKinGroupBA.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
     #                         xbins=[0,.1,.2,.4,.8,1.6])
-    # myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
-    #                         xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
+    #myKinGroupBA.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
+    #                             xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
     
-    myGroup.defineHistogram('Eflow', title='Eflow;Eflow;Events', path='Kinematics', xbins=100, xmin=0., xmax=1000.)
+    for itup in [(myKinGroupBA,'BA'),(myKinGroupCR,'CR'),(myKinGroupEC,'EC')]:
+        (igroup, postfix) = itup
+        igroup.defineHistogram('Eflow', title='Eflow;Eflow;Events', path='Kinematics', 
+                               xbins=100, xmin=0., xmax=1000.)
+        #igroup.defineHistogram('Phi,eTa-here', type='TH2F', title='title;x;y',path='ToBringThemAll',
+        #                       xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
+        igroup.defineHistogram('eta,phi', type='TH2F', title='PhiVsEtaTitle;#eta;#phi', path='Kinematics', 
+                               #xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
+                               #xbins=[0,4.,8.,10.,15.],ybins=[0.,1.,2.,3.,4.])
+                               xbins=30,xmin=-3.0,xmax=3.0,ybins=32,ymin=-3.15,ymax=3.15)
 
-    # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
+    # myKinGroupBA.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
     #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
 
     # anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
@@ -101,22 +121,22 @@ def tauMonitoringConfig(inputFlags):
     # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
     #for alg in [exampleMonAlg,anotherTauMonAlg]:
     #    # Using an array of groups
-    #    array = helper.addArray([2],alg,'tauMonitor')
+    #    array = cfgHelper.addArray([2],alg,'tauMonitor')
     #    array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
     #                          xbins=10,xmin=0.0,xmax=10.0,
     #                          ybins=10,ymin=0.0,ymax=10.0)
     #    array.defineHistogram('c',title='C',path='Eta',
     #                          xbins=10,xmin=0.0,xmax=10.0)
-    #    array = helper.addArray([4,2],alg,'tauMonitor')
+    #    array = cfgHelper.addArray([4,2],alg,'tauMonitor')
     #    array.defineHistogram('a',title='A',path='EtaPhi',
     #                          xbins=10,xmin=0.0,xmax=10.0)
     #    # Using a map of groups
     #    layerList = ['layer1','layer2']
     #    clusterList = ['clusterX','clusterB']
-    #    array = helper.addArray([layerList],alg,'tauMonitor')
+    #    array = cfgHelper.addArray([layerList],alg,'tauMonitor')
     #    array.defineHistogram('c',title='C',path='Layer',
     #                          xbins=10,xmin=0,xmax=10.0)
-    #    array = helper.addArray([layerList,clusterList],alg,'tauMonitor')
+    #    array = cfgHelper.addArray([layerList,clusterList],alg,'tauMonitor')
     #    array.defineHistogram('c',title='C',path='LayerCluster',
     #                          xbins=10,xmin=0,xmax=10.0)
 
@@ -125,10 +145,10 @@ def tauMonitoringConfig(inputFlags):
     # and the sequence containing the created algorithms. If we haven't called
     # any configuration other than the AthMonitorCfgHelper here, then we can 
     # just return directly (and not create "result" above)
-    return helper.result()
+    return cfgHelper.result()
     
     # # Otherwise, merge with result object and return
-    # acc = helper.result()
+    # acc = cfgHelper.result()
     # result.merge(acc)
     # return result
 
@@ -148,7 +168,7 @@ if __name__=='__main__':
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'tauMonitorOutput.root'
+    ConfigFlags.Output.HISTFileName = 'tauRegions.root'
     
     ConfigFlags.lock()
 
@@ -158,11 +178,13 @@ if __name__=='__main__':
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    exampleMonitorAcc = tauMonitoringConfig(ConfigFlags)
+    exampleMonitorAcc = tauMonitoringConfig(ConfigFlags)   # calls the main function above
     cfg.merge(exampleMonitorAcc)
 
     # If you want to turn on more detailed messages ...
-    # exampleMonitorAcc.getEventAlgo('tauMonAlg').OutputLevel = 2 # DEBUG
-    cfg.printConfig(withDetails=False) # set True for exhaustive info
+    exampleMonitorAcc.getEventAlgo('tauMonAlgBA').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgCR').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgEC').OutputLevel = 2 # DEBUG
+    cfg.printConfig(withDetails=True) # set True for exhaustive info
 
     cfg.run() #use cfg.run(20) to only run on first 20 events
