@@ -224,10 +224,7 @@ class ComboMaker(AlgNode):
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
         log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chainName)
-        #from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
         allMultis = self.mult
-        #allMultis = [int(x) for x in getChainMultFromDict( chainDict )]
-
         newdict = {chainName : allMultis}
 
         cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
@@ -625,7 +622,7 @@ class ChainStep(object):
                self.sequences.append(new_sequence)
 
     def __repr__(self):
-        return "--- ChainStep %s ---\n + isCombo: %d, multiplicity= %d \n +  %s \n "%(self.name, self.isCombo,sum(self.multiplicity), ' '.join(map(str, self.sequences) ))
+        return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d \n + MenuSequences = %s \n "%(self.name, self.isCombo,sum(self.multiplicity), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
 
 
 

@@ -76,7 +76,7 @@ def makeChainSteps(steps):
     stepSeq = []
     stepMult = []
     stepNumber = ''
-    log.debug(" steps %s ", steps)
+    log.verbose(" steps %s ", steps)
     stepName = "merged"
     for step in steps:
         if step is None:
@@ -85,10 +85,9 @@ def makeChainSteps(steps):
         if len(step.sequences) > 1:
             log.error("More than one menu sequence found in combined chain!!")
         seq = step.sequences[0]
-        log.debug(" step type  %s", type(step.sequences))
-        log.debug(" step.name %s", step.name)
-        log.debug(" step.seq %s", step.sequences)
-        log.debug(" step.mult %s", sum(step.multiplicity))
+        log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
+        log.debug("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
+
         currentStep = step.name
         stepNameParts = currentStep.split('_')
         if stepNumber == '':
@@ -100,13 +99,10 @@ def makeChainSteps(steps):
         # set the multiplicity of all the legs 
         stepMult.append(sum(step.multiplicity))
         
-        
-    log.debug(" - BB stepName %s", stepName)
-    log.debug(" - BB stepSeq %s", stepSeq)
-    log.debug(" - BB stepMult %s", stepMult)
-    
+
     theChainStep = ChainStep(stepName, stepSeq, stepMult) 
-    log.debug(" - BBB the chain step %s", theChainStep)
+    log.debug("Merged step: \n %s", theChainStep)
+  
     
     return theChainStep
 

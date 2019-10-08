@@ -199,8 +199,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
     testHLTTree( topSequence )
 
-
-def matrixDisplay( allCFSeq ):
+def matrixDisplayOld( allCFSeq ):
     from collections import defaultdict
     longestName = 5
     mx = defaultdict(lambda: dict())
@@ -211,13 +210,13 @@ def matrixDisplay( allCFSeq ):
             longestName = max(longestName, len(seq.step.name) )
 
     longestName = longestName + 1
-    def __getHyposOfStep( s ):
-        if len(s.step.sequences):
-           if type(s.step.sequences[0].hypo) is list:
-              return s.step.sequences[0].hypo[0].tools
-           else:
-              return s.step.sequences[0].hypo.tools
+    def __getHyposOfStep( step ):
+        if len(step.sequences)==1:
+            return step.sequences[0].hypo.tools
+        elif len(step.sequences):          
+            return step.combo.getChains().keys()
         return []
+   
 
 
 
@@ -241,6 +240,45 @@ def matrixDisplay( allCFSeq ):
     log.debug( "" )
 
 
+
+
+
+
+    
+def matrixDisplay( allCFSeq ):
+    from collections import defaultdict
+    mx2 = defaultdict(list)
+    
+    def __getHyposOfStep( step ):
+        if len(step.sequences)==1:
+            return step.sequences[0].hypo.tools
+        elif len(step.sequences):          
+            return step.combo.getChains().keys()
+        return []
+
+
+    for stepNumber,cfseq_list in enumerate(allCFSeq, 1):
+        for cfseq in cfseq_list:
+            chains = __getHyposOfStep(cfseq.step)
+            for seq in cfseq.step.sequences:
+                mx2[seq.sequence.Alg.name(),stepNumber].extend(chains)
+
+                
+    log.debug("" )
+    log.debug( "="*90 )
+    log.debug( "Cumulative Summary of steps ->")
+    log.debug( "(seq, step)  ==>            Chains: ")
+    log.debug( "="*90 )
+
+
+    for (seq,step), chains in mx2.items():
+        log.debug( "(%s, %d)  ==>  %s ", seq, step, ", ".join(chains))
+
+    log.debug( "="*90 )
+
+
+
+   
 
 def decisionTree_From_Chains(HLTNode, chains, allDicts, newJO):
     """ creates the decision tree, given the starting node and the chains containing the sequences  """
