@@ -33,6 +33,7 @@
 #include "xAODTrigger/TrigDecision.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
+#include "TrigOutputHandling/ITriggerBitsMakerTool.h"
 
 // containers
 #include <vector>
@@ -81,7 +82,6 @@ namespace TrigDec {
   private:
 
     StatusCode getL1Result (const LVL1CTP::Lvl1Result*& result, const EventContext& context) const; //!< retrieve LVL1 result (called in execute)
-    StatusCode getHLTResult(const HLT::HLTResultMT*& result, const EventContext& context) const; //!< retrieve HLT results (called in execute)
 
     char getBGByte(int BCId) const; //!< to get the BG byte encoded for a given BC
 
@@ -95,8 +95,10 @@ namespace TrigDec {
     ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
     Gaudi::Property<std::string> m_lvl1ToolLocation{this, "Lvl1ToolLocation", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"};
 
+    ToolHandle<ITriggerBitsMakerTool> m_bitsMakerTool{this, "BitsMakerTool", "", "Tool to create trigger bits for MC"};
+
     // Input keys configuration
-    SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultKeyIn {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object" };
+    SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultKeyIn {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object to get bits from online bytestream" };
     SG::ReadHandleKey<LVL1CTP::Lvl1Result> m_L1ResultKeyIn {this, "Lvl1Result", "Lvl1Result", "Lvl1 Result Object Key"};
     SG::ReadHandleKey<ROIB::RoIBResult> m_ROIBResultKeyIn {this, "RoIBResult", "RoIBResult", "RoIB Result Object Key"};
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKeyIn {this, "EventInfo", "EventInfo", "Event Info Object Key"};

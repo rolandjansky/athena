@@ -41,7 +41,16 @@ TrigDecisionMakerMT::~TrigDecisionMakerMT() {}
 
 StatusCode TrigDecisionMakerMT::initialize()
 {
-  ATH_CHECK( m_hltResultKeyIn.initialize() );
+
+  if (!m_bitsMakerTool.empty()) {
+    ATH_MSG_INFO("TrigDecisionMakerMT is setting up for MC to use the TriggerBitsMakerTool");
+    ATH_CHECK( m_bitsMakerTool.retrieve() );
+  } else {
+    ATH_MSG_INFO("TrigDecisionMakerMT is setting up for Data to use the HLTResultMT. "
+      "If this job is for MC, make sure that the BitsMakerTool property is set instead.");
+    ATH_CHECK( m_hltResultKeyIn.initialize() );
+  }
+
   ATH_CHECK( m_ROIBResultKeyIn.initialize() );
   ATH_CHECK( m_EventInfoKeyIn.initialize() );
 
@@ -77,57 +86,73 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
   // increment event counter
   m_nEvents++;
 
-  // Retrieve the results
-  const LVL1CTP::Lvl1Result* l1Result = nullptr;
-  if (m_doL1) {
-    ATH_CHECK(getL1Result(l1Result, context));
-    if (l1Result->isAccepted()) {
-      ++m_l1Passed;
-    }
-  }
-
-  const HLT::HLTResultMT* hltResult = nullptr;
-  if (m_doHLT) {
-    ATH_CHECK(getHLTResult(hltResult, context));
-  }
-
   std::unique_ptr<xAOD::TrigDecision>        trigDec    = std::make_unique<xAOD::TrigDecision>();
   std::unique_ptr<xAOD::TrigDecisionAuxInfo> trigDecAux = std::make_unique<xAOD::TrigDecisionAuxInfo>();
   trigDec->setStore(trigDecAux.get());
 
   trigDec->setSMK( m_trigConfigSvc->masterKey() );
 
-  if (l1Result) {
+  if (m_doL1) {
+    const LVL1CTP::Lvl1Result* l1Result = nullptr;
+    ATH_CHECK(getL1Result(l1Result, context));
+
     trigDec->setTAV(l1Result->itemsAfterVeto());
     trigDec->setTAP(l1Result->itemsAfterPrescale());
     trigDec->setTBP(l1Result->itemsBeforePrescale());
+
+    if (l1Result->isAccepted()) {
+      ++m_l1Passed;
+    }
   }
 
-  if (hltResult) {
+  if (m_doHLT) {
 
-    std::vector<uint32_t> hltPassRawBits;
-    std::vector<uint32_t> hltPrescaledBits;
-    std::vector<uint32_t> hltRerunBits;
+    boost::dynamic_bitset<uint32_t> passRawBitset, prescaledBitset, rerunBitset;
 
-    hltPassRawBits.resize(hltResult->getHltPassRawBits().num_blocks());
-    hltPrescaledBits.resize(hltResult->getHltPrescaledBits().num_blocks());
-    hltRerunBits.resize(hltResult->getHltRerunBits().num_blocks());
+    if (m_bitsMakerTool.isSet()) {
 
-    boost::to_block_range(hltResult->getHltPassRawBits(),hltPassRawBits.begin());
-    boost::to_block_range(hltResult->getHltPrescaledBits(),hltPrescaledBits.begin());
-    boost::to_block_range(hltResult->getHltRerunBits(),hltRerunBits.begin());
+      ATH_MSG_DEBUG ("MC Mode: Creating bits with TriggerBitsMakerTool");
+      ATH_CHECK(m_bitsMakerTool->getBits(passRawBitset, prescaledBitset, rerunBitset, context));
 
-    ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << hltResult->getHltPassRawBits().count());
-    ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << hltResult->getHltPrescaledBits().count());
-    ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << hltResult->getHltRerunBits().count());
+     } else {
 
-    trigDec->setEFPassedRaw(hltPassRawBits);
-    trigDec->setEFPrescaled(hltPrescaledBits);
-    trigDec->setEFResurrected(hltRerunBits);
+      ATH_MSG_DEBUG ("Data Mode: Reading bits from HLTResultMT");
+      SG::ReadHandle<HLT::HLTResultMT> hltResult = SG::makeHandle<HLT::HLTResultMT>(m_hltResultKeyIn, context);
+      ATH_CHECK(hltResult.isValid());
 
-    if (hltResult->getHltPassRawBits().any()) {
+      passRawBitset = hltResult->getHltPassRawBits();
+      prescaledBitset = hltResult->getHltPrescaledBits();
+      rerunBitset = hltResult->getHltRerunBits();
+
+    }
+
+    ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << passRawBitset.count());
+    ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << prescaledBitset.count());
+    ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << rerunBitset.count());
+
+    if (passRawBitset.any()) {
       ++m_hltPassed;
     }
+
+    std::vector<uint32_t> passRaw, prescaled, rerun;
+
+    passRaw.resize(passRawBitset.num_blocks());
+    prescaled.resize(prescaledBitset.num_blocks());
+    rerun.resize(rerunBitset.num_blocks());
+
+    boost::to_block_range(passRawBitset, passRaw.begin());
+    boost::to_block_range(prescaledBitset, prescaled.begin());
+    boost::to_block_range(rerunBitset, rerun.begin());
+
+    if (passRaw.size() != prescaled.size() or passRaw.size() != rerun.size()) {
+      ATH_MSG_ERROR("Trigger bitsets are not all the same size! passRaw:" 
+        << passRaw.size() << " prescaled:" << prescaled.size() << " rerun:" << rerun.size() );
+      return StatusCode::FAILURE;
+    } 
+
+    trigDec->setEFPassedRaw(passRaw);
+    trigDec->setEFPrescaled(prescaled);
+    trigDec->setEFResurrected(rerun);
 
   }
 
@@ -151,30 +176,23 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
 
 StatusCode TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result*& result, const EventContext& context) const
 {
-  const ROIB::RoIBResult* roIBResult = SG::get(m_ROIBResultKeyIn, context);
+  SG::ReadHandle<ROIB::RoIBResult> roIBResult = SG::makeHandle<ROIB::RoIBResult>(m_ROIBResultKeyIn, context);
+  ATH_CHECK(roIBResult.isValid());
 
   std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig();
 
-  if (roIBResult && (roIBResult->cTPResult()).isComplete()) {  
+  if (roIBResult->cTPResult().isComplete()) {
     m_lvl1Tool->createL1Items(itemConfig, *roIBResult, &result);
     ATH_MSG_DEBUG ( "Built LVL1CTP::Lvl1Result from valid CTPResult.");
   }
 
   if (result == nullptr) {
-    ATH_MSG_DEBUG ( "Could not construct L1 result from roIBResult");
+    ATH_MSG_ERROR ( "Could not construct L1 result from roIBResult");
     return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode TrigDecisionMakerMT::getHLTResult(const HLT::HLTResultMT*& result, const EventContext& context) const
-{
-  result = SG::get(m_hltResultKeyIn, context);
-  return StatusCode::SUCCESS;
-}
-
 
 char TrigDecisionMakerMT::getBGByte(int BCId) const {
   const TrigConf::BunchGroupSet* bgs = m_trigConfigSvc->bunchGroupSet();

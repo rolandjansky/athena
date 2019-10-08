@@ -69,15 +69,23 @@ StatusCode TriggerBitsMakerTool::preInsertCheck(const std::string& chain, const 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
-
+StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRaw,
+  boost::dynamic_bitset<uint32_t>& prescaled,
+  boost::dynamic_bitset<uint32_t>& rerun,
+  const EventContext& ctx) const
+{
   using namespace TrigCompositeUtils;
 
-  auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
-  if (!chainsHandle.isValid()) {
-    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
-    return StatusCode::FAILURE;
-  }
+  passRaw.clear();
+  prescaled.clear();
+  rerun.clear();
+
+  passRaw.resize(m_largestBit + 1);
+  prescaled.resize(m_largestBit + 1);
+  rerun.resize(m_largestBit + 1);
+
+  auto chainsHandle = SG::makeHandle(m_finalChainDecisions, ctx);
+  ATH_CHECK(chainsHandle.isValid());
 
   const Decision* HLTPassRaw = nullptr;
   const Decision* HLTPrescaled = nullptr;
@@ -110,18 +118,34 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   decisionIDs(HLTPrescaled, prescaledIDs);
   decisionIDs(HLTRerun, rerunIDs);
 
-  resultToFill.reserveHltBits( m_largestBit );
-
-  for ( TrigCompositeUtils::DecisionID chain: passRawIDs ) {
-    ATH_CHECK(setBit(chain, HLTPassRawCategory, resultToFill));
+  for ( DecisionID chain: passRawIDs ) {
+    ATH_CHECK(setBit(chain, HLTPassRawCategory, passRaw));
   }
 
-  for ( TrigCompositeUtils::DecisionID chain: prescaledIDs ) {
-    ATH_CHECK(setBit(chain, HLTPrescaledCategory, resultToFill));
+  for ( DecisionID chain: prescaledIDs ) {
+    ATH_CHECK(setBit(chain, HLTPrescaledCategory, prescaled));
   }
 
-  for ( TrigCompositeUtils::DecisionID chain: rerunIDs ) {
-    ATH_CHECK(setBit(chain, HLTRerunCategory, resultToFill));
+  for ( DecisionID chain: rerunIDs ) {
+    ATH_CHECK(setBit(chain, HLTRerunCategory, rerun));
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
+StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const {
+
+  {
+    boost::dynamic_bitset<uint32_t> passRaw;
+    boost::dynamic_bitset<uint32_t> prescaled;
+    boost::dynamic_bitset<uint32_t> rerun;
+
+    ATH_CHECK(getBits(passRaw, prescaled, rerun, ctx));
+
+    resultToFill.setHltPassRawBits(passRaw);
+    resultToFill.setHltPrescaledBits(prescaled);
+    resultToFill.setHltRerunBits(rerun);
   }
 
   if ( msgLvl( MSG::DEBUG ) ) {
@@ -144,11 +168,15 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     ATH_MSG_DEBUG("HLT result now has " << resultToFill.getHltBitsAsWords().size() << " words with the final trigger bits:");
     for (const auto& w : resultToFill.getHltBitsAsWords()) ATH_MSG_DEBUG("0x" << MSG::hex << w << MSG::dec);
   }
+
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID chain, const BitCategory category, HLT::HLTResultMT& resultToFill) const {
+StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID chain,
+  const BitCategory category,
+  boost::dynamic_bitset<uint32_t>& resultToFill) const
+{
   auto mappingIter = m_mapping.find( chain );
   // each chain has to have stream
   if( mappingIter == m_mapping.end() ) {
@@ -157,17 +185,13 @@ StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID cha
   }
   const int chainBitPosition = mappingIter->second;
   static const std::vector<std::string> bitCategoryStr {"PassRaw","Prescaled","Rerun"};
-  ATH_MSG_DEBUG("Setting bit " << chainBitPosition << " corresponding to chain " << HLT::Identifier(chain) << " in BitCategory " << bitCategoryStr.at(category));
+  ATH_MSG_DEBUG("Setting bit " << chainBitPosition << " corresponding to chain "
+    << HLT::Identifier(chain) << " in BitCategory " << bitCategoryStr.at(category));
   switch (category) {
-    case HLTPassRawCategory: ATH_CHECK(resultToFill.addHltPassRawBit(chainBitPosition)); break;
-    case HLTPrescaledCategory: ATH_CHECK(resultToFill.addHltPrescaledBit(chainBitPosition)); break;
-    case HLTRerunCategory: ATH_CHECK(resultToFill.addHltRerunBit(chainBitPosition)); break;
+    case HLTPassRawCategory: resultToFill.set(chainBitPosition); break;
+    case HLTPrescaledCategory: resultToFill.set(chainBitPosition); break;
+    case HLTRerunCategory: resultToFill.set(chainBitPosition); break;
     default: ATH_MSG_ERROR("Unknown BitCategory"); return StatusCode::FAILURE; break;
   }
   return StatusCode::SUCCESS;
 }
-
-StatusCode TriggerBitsMakerTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-

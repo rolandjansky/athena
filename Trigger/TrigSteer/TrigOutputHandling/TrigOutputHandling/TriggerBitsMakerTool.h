@@ -8,38 +8,45 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
+#include "TrigOutputHandling/ITriggerBitsMakerTool.h"
 #include "TrigConfData/HLTMenu.h"
 
 /**
  * @class TriggerBitsMakerTool
- * @brief fills trigger bits in the HLTResultMT object
+ * @brief Obtains trigger bits from Navigation summary via getBits and (online) fills trigger bits in the HLTResultMT object
  **/
-class TriggerBitsMakerTool : public extends<AthAlgTool, HLTResultMTMakerTool> {
+class TriggerBitsMakerTool : public extends<AthAlgTool, HLTResultMTMakerTool, ITriggerBitsMakerTool> {
 public:
   TriggerBitsMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~TriggerBitsMakerTool() override;
 
-  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
-  StatusCode fill( std::vector<uint32_t>& place ) const;
+  virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
+
+  virtual StatusCode getBits(boost::dynamic_bitset<uint32_t>& passRaw,
+    boost::dynamic_bitset<uint32_t>& prescaled,
+    boost::dynamic_bitset<uint32_t>& rerun,
+    const EventContext& ctx) const override;
   
   virtual StatusCode initialize() override;
   virtual StatusCode start() override;
-  virtual StatusCode finalize() override;
 
 private:
   enum BitCategory{ HLTPassRawCategory, HLTPrescaledCategory, HLTRerunCategory };
 
-  StatusCode setBit(const TrigCompositeUtils::DecisionID chain, const BitCategory category, HLT::HLTResultMT& resultToFill) const;
+  StatusCode setBit(const TrigCompositeUtils::DecisionID chain, const BitCategory category, boost::dynamic_bitset<uint32_t>& resultToFill) const;
 
-  /// Check that a chain's hash in the menu JSON (via python) agrees with the C++ implementation
-  ///
+  /**
+   * @brief Check that a chain's hash in the menu JSON (via python) agrees with the C++ implementation
+   **/
   StatusCode hashConsistencyCheck(const std::string& chain, const size_t hash) const;
 
-  /// Check that no existing key maps to a given value
-  ///
+  /**
+   * @brief Check that no existing key maps to a given value
+   **/
   StatusCode preInsertCheck(const std::string& chain, const uint32_t bit) const;
 
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary", "Container with final chain decisions"  };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary",
+    "Container with final chain decisions"  };
 
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
 

@@ -78,12 +78,6 @@ namespace HLT {
     /// Const-getter for HLT bits as uint32_t array. Ordering: PassRaw, Prescaled, Rerun.
     const std::vector<uint32_t>& getHltBitsAsWords();
 
-    /** @brief Reserve space for HLT bits
-     *  @param numberOfChains Number of chains configured in the menu
-     *  @return FAILURE on memory allocation error
-     **/
-    StatusCode reserveHltBits(size_t numberOfChains);
-
     /// Replace HLT pass raw bits with the given bitset
     void setHltPassRawBits(const boost::dynamic_bitset<uint32_t>& bitset);
 
@@ -92,45 +86,7 @@ namespace HLT {
 
     /// Replace HLT rerun raw bits with the given bitset
     void setHltRerunBits(const boost::dynamic_bitset<uint32_t>& bitset);
-
-    /** @brief Sets bit at the given index to true
-     *  @return FAILURE on memory error
-     **/
-    StatusCode addHltPassRawBit(size_t index);
-
-    /** @brief Sets bit at the given index to true
-     *  @return FAILURE on memory error
-     **/
-    StatusCode addHltPrescaledBit(size_t index);
-
-    /** @brief Sets bit at the given index to true
-     *  @return FAILURE on memory error
-     **/
-    StatusCode addHltRerunBit(size_t index);
-
-    /** @brief Sets bits at the given indices to true
-     *  @return FAILURE on memory error
-     **/
-    StatusCode addHltPassRawBits(const std::vector<size_t>& indices);
-
-    /** @brief Sets bits at the given indices to true
-     *  @return FAILURE on memory error
-     **/
-    StatusCode addHltPrescaledBits(const std::vector<size_t>& indices);
-
-    /** @brief Sets bits at the given indices to true
-     *  @return FAILURE on memory error
-     **/
-    StatusCode addHltRerunBits(const std::vector<size_t>& indices);
-
-
-    /** @brief Intnernally sets bit at the given indices to true
-     *  @return FAILURE on memory error
-     **/
-  private:
-    StatusCode addHltBitInternal(size_t index, boost::dynamic_bitset<uint32_t>& bitset);
-  public:
-
+    
     // ------------------------- Serialised data getters/setters ---------------
 
     /** @brief Serialised data getter

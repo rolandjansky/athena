@@ -136,7 +136,6 @@ if configureBSResult:
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerTool()
-    stmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
     import AthenaCommon.AlgSequence as acas

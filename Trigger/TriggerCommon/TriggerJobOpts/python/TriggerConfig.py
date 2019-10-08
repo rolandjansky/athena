@@ -238,8 +238,7 @@ def triggerBSOutputCfg( flags, decObj ):
         serialiser.addCollectionListToMainResult( [ serialisedTypeColl ] )
 
     stmaker = StreamTagMakerTool()
-    stmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
-        
+
     bitsmaker = TriggerBitsMakerTool()
     
     hltResultMakerTool            = HLTResultMTMakerCfg("MakerTool") # want short nme to see in the log

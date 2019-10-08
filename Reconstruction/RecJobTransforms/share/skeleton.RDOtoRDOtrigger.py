@@ -141,20 +141,6 @@ if TriggerFlags.doMT():
     l1Decoder.ExtraInputs += [fakeTypeKey]
     l1Decoder.ctpUnpacker.ForceEnableAllChains=False # this will make HLT respecting L1 chain decisions
 
-    # Configure a stripped-down HLT Results Maker in order to generate the HLT trigger bits.
-    # Note: The HLTResultMT object is transient only here. It is used to fill the xAOD::TriggerDecision
-    # This ensures that trigger bits follow the same path online & in MC
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg, TriggerBitsMakerTool
-    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
-    bitsmakerTool                 = TriggerBitsMakerTool()
-    bitsmakerTool.OutputLevel = VERBOSE
-    #TIMM
-    hltResultMakerTool            = HLTResultMTMakerCfg("MakerTool")
-    hltResultMakerTool.MakerTools = [ bitsmakerTool ]
-    hltResultMakerAlg             = HLTResultMTMakerAlg()
-    hltResultMakerAlg.ResultMaker = hltResultMakerTool
-    topSequence += hltResultMakerAlg
-
     # TIMM
     ServiceMgr.MessageSvc.defaultLimit = 0
     ServiceMgr.MessageSvc.enableSuppression = False
@@ -248,8 +234,12 @@ for i in outSequence.getAllChildren():
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
 
         ### Produce the trigger bits:
+        from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        bitsmakerTool = TriggerBitsMakerTool()
+        bitsmakerTool.OutputLevel = VERBOSE
         tdm = TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
+        tdm.BitsMakerTool = bitsmakerTool
         tdm.OutputLevel = VERBOSE         #  TIMM
         topSequence += tdm
         log.info('xTrigDecision writing enabled')

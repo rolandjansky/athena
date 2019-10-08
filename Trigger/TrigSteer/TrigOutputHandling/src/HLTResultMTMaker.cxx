@@ -136,7 +136,7 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
   auto time =  Monitored::Timer("TIME_build" );
   StatusCode finalStatus = StatusCode::SUCCESS;
   for (auto& maker: m_makerTools) {
-    if (StatusCode sc = maker->fill(*hltResult); sc.isFailure()) {
+    if (StatusCode sc = maker->fill(*hltResult, eventContext); sc.isFailure()) {
       ATH_MSG_ERROR(maker->name() << " failed");
       finalStatus = sc;
     }
