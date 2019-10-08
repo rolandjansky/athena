@@ -512,6 +512,7 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
             except LookupError:
                 if (thvalue=='passthrough'):
+                    tool.AcceptAll = True
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
@@ -556,6 +557,7 @@ class TrigMuonEFCombinerHypoConfig(object):
 
             except LookupError:
                 if (thvalue=='passthrough'):
+                    tool.AcceptAll = True
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
