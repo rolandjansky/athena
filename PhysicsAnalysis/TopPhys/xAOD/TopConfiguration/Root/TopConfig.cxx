@@ -1648,6 +1648,10 @@ namespace top{
     }
   }
 
+  void TopConfig::setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname) {
+    m_boostedTaggerSFnames[WP] = SFname;
+  }
+
   std::string TopConfig::FormatedWP(std::string raw_WP) {
     // just to have some backward compatibility...
     if (raw_WP=="60%") return "FixedCutBEff_60";

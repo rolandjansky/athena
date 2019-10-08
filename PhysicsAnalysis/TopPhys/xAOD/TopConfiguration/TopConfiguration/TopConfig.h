@@ -832,6 +832,8 @@ class TopConfig final {
 
   
   const std::vector<std::pair<std::string, std::string> > boostedJetTaggers() const { return m_chosen_boostedJetTaggers;}
+  const std::unordered_map<std::string, std::string> boostedTaggerSFnames() const {return m_boostedTaggerSFnames;}
+  void setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname);
   // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
   const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
@@ -1436,6 +1438,7 @@ class TopConfig final {
 
   // Boosted jet taggers requested by user
   std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
+  std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };

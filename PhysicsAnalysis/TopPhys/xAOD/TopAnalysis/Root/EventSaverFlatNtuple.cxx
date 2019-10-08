@@ -374,8 +374,10 @@ namespace top {
     }
 
     if (m_config->useLargeRJets()) {
-    for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
+      for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
         m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
+      for (const std::pair<std::string, std::string>& taggerSF : m_config->boostedTaggerSFnames())
+        m_boostedJetTaggersNamesCalibrated.push_back(taggerSF.first);
     }
 
     //loop over systematics and attach variables

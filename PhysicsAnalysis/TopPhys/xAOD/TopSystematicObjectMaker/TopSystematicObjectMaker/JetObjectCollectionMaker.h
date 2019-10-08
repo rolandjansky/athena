@@ -134,6 +134,7 @@ namespace top{
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario4;
 
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
+      std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool>> m_tagSFuncertTool;
      
       ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
       ToolHandle<IJetModifier> m_fjvtTool;
