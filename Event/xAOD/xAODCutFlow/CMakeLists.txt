@@ -11,7 +11,6 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
    Control/AthLinks
-   Control/xAODRootAccess
    Event/xAOD/xAODCore )
 
 # External dependencies:
@@ -22,7 +21,7 @@ atlas_add_library( xAODCutFlow
    xAODCutFlow/*.h Root/*.cxx
    PUBLIC_HEADERS xAODCutFlow
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODRootAccess
+   LINK_LIBRARIES AthContainers AthLinks xAODCore
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( xAODCutFlowDict
