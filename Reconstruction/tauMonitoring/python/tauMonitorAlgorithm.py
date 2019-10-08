@@ -32,11 +32,11 @@ def tauMonitoringConfig(inputFlags):
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
     from tauMonitoring.tauMonitoringConf import tauMonitorAlgorithm
-    exampleMonAlg = helper.addAlgorithm(tauMonitorAlgorithm,'tauMonAlg')
+    tauMonAlgBA = helper.addAlgorithm(tauMonitorAlgorithm,'tauMonAlgBA')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    anotherTauMonAlg = helper.addAlgorithm(tauMonitorAlgorithm,'AnotherTauMonAlg')
+    #anotherTauMonAlg = helper.addAlgorithm(tauMonitorAlgorithm,'AnotherTauMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
@@ -63,62 +63,62 @@ def tauMonitoringConfig(inputFlags):
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
     myGroup = helper.addGroup(
-        exampleMonAlg,
+        tauMonAlgBA,
         'tauMonitor',
         'run/'
     )
 
     # Add a GMT for the other example monitor algorithm
-    anotherGroup = helper.addGroup(anotherTauMonAlg,'tauMonitor')
+    # anotherGroup = helper.addGroup(anotherTauMonAlg,'tauMonitor')
 
 
     ### STEP 5 ###
     # Configure histograms
-    myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
-                            path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
-    myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
-                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
-    myGroup.defineHistogram('random', title='LB;x;Events',
-                            path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
-    myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
-                            xbins=[0,.1,.2,.4,.8,1.6])
-    myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
-                            xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
+    # myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
+    #                         path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
+    # myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
+    #                         path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
+    # myGroup.defineHistogram('random', title='LB;x;Events',
+    #                         path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
+    # myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
+    #                         xbins=[0,.1,.2,.4,.8,1.6])
+    # myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
+    #                         xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
     
-    myGroup.defineHistogram('Eflow', title='Eflow;Eflow;Events', path='ToBringThemAll', xbins=100, xmin=0., xmax=1000.)
+    myGroup.defineHistogram('Eflow', title='Eflow;Eflow;Events', path='Kinematics', xbins=100, xmin=0., xmax=1000.)
 
     # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
     #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
 
-    anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
-                                 path='top',xbins=1000,xmin=-0.5,xmax=999.5)
-    anotherGroup.defineHistogram('run',title='Run Number;run;Events',
-                                 path='top',xbins=1000000,xmin=-0.5,xmax=999999.5)
+    # anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
+    #                             path='top',xbins=1000,xmin=-0.5,xmax=999.5)
+    # anotherGroup.defineHistogram('run',title='Run Number;run;Events',
+    #                             path='top',xbins=1000000,xmin=-0.5,xmax=999999.5)
 
     # Example defining an array of histograms. This is useful if one seeks to create a
     # number of histograms in an organized manner. (For instance, one plot for each ASIC
     # in the subdetector, and these components are mapped in eta, phi, and layer.) Thus,
     # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
-    for alg in [exampleMonAlg,anotherTauMonAlg]:
-        # Using an array of groups
-        array = helper.addArray([2],alg,'tauMonitor')
-        array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
-                              xbins=10,xmin=0.0,xmax=10.0,
-                              ybins=10,ymin=0.0,ymax=10.0)
-        array.defineHistogram('c',title='C',path='Eta',
-                              xbins=10,xmin=0.0,xmax=10.0)
-        array = helper.addArray([4,2],alg,'tauMonitor')
-        array.defineHistogram('a',title='A',path='EtaPhi',
-                              xbins=10,xmin=0.0,xmax=10.0)
-        # Using a map of groups
-        layerList = ['layer1','layer2']
-        clusterList = ['clusterX','clusterB']
-        array = helper.addArray([layerList],alg,'tauMonitor')
-        array.defineHistogram('c',title='C',path='Layer',
-                              xbins=10,xmin=0,xmax=10.0)
-        array = helper.addArray([layerList,clusterList],alg,'tauMonitor')
-        array.defineHistogram('c',title='C',path='LayerCluster',
-                              xbins=10,xmin=0,xmax=10.0)
+    #for alg in [exampleMonAlg,anotherTauMonAlg]:
+    #    # Using an array of groups
+    #    array = helper.addArray([2],alg,'tauMonitor')
+    #    array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
+    #                          xbins=10,xmin=0.0,xmax=10.0,
+    #                          ybins=10,ymin=0.0,ymax=10.0)
+    #    array.defineHistogram('c',title='C',path='Eta',
+    #                          xbins=10,xmin=0.0,xmax=10.0)
+    #    array = helper.addArray([4,2],alg,'tauMonitor')
+    #    array.defineHistogram('a',title='A',path='EtaPhi',
+    #                          xbins=10,xmin=0.0,xmax=10.0)
+    #    # Using a map of groups
+    #    layerList = ['layer1','layer2']
+    #    clusterList = ['clusterX','clusterB']
+    #    array = helper.addArray([layerList],alg,'tauMonitor')
+    #    array.defineHistogram('c',title='C',path='Layer',
+    #                          xbins=10,xmin=0,xmax=10.0)
+    #    array = helper.addArray([layerList,clusterList],alg,'tauMonitor')
+    #    array.defineHistogram('c',title='C',path='LayerCluster',
+    #                          xbins=10,xmin=0,xmax=10.0)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator

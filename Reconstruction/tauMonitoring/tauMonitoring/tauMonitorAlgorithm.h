@@ -10,6 +10,11 @@
 
 #include "TRandom3.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+
+#include "xAODTau/TauJetContainer.h" 
+
 class tauMonitorAlgorithm : public AthMonitorAlgorithm {
 public:
     tauMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
@@ -22,5 +27,13 @@ private:
     std::vector<std::vector<int>> m_abGroups2;
     std::map<std::string,int> m_cGroups1;
     std::map<std::string,std::map<std::string,int>> m_cGroups2;
+
+    SG::ReadHandleKey<xAOD::TauJetContainer> m_TauContainerKey;
+
+    Gaudi::Property<float> m_etaMin {this, "etaMin", -1.};
+    Gaudi::Property<float> m_etaMax {this, "etaMax", 3.0};
+
+    Gaudi::Property<std::string> m_kinGroupName {this, "kinGroupName", "tauMonKinGroupBA"};
+
 };
 #endif
