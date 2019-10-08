@@ -30,6 +30,19 @@ if hasattr(runArgs,"inputESDFile"):
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
 
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+    recoLog.info("transform pre-exec")
+    for cmd in runArgs.preExec:
+        recoLog.info(cmd)
+        exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"): 
+    for fragment in runArgs.preInclude:
+        print("preInclude",fragment)
+        include(fragment)
+
 ## Outputs
 if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
@@ -39,10 +52,8 @@ if hasattr(runArgs,"outputAODFile"):
     from RecExConfig.ObjKeyStore import objKeyStore
     if TriggerFlags.doMT():
         recoLog.info("Scheduling temporary ESDtoAOD propagation of Trigger MT EDM collections")
-        recoLog.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d (currently hardcoded to 3)", TriggerFlags.AODEDMSet(), TriggerFlags.EDMDecodingVersion())
-        
-        edmset = TriggerFlags.AODEDMSet()
-        recoLog.info(edmset)
+        recoLog.info("AOD content set according to the AODEDMSet flag: %s and EDM version (default setting) %d (for doMT() currently hardcoded to 3)", 
+                     TriggerFlags.AODEDMSet(), TriggerFlags.EDMDecodingVersion())
 
         trigEDMListESD = {}
         trigEDMListAOD = {}
@@ -133,19 +144,6 @@ if hasattr(runArgs, 'outputXML_JiveXMLFile'):
     jp.Rec.doJiveXML.set_Value_and_Lock(True)
 
 rec.OutputFileNameForRecoStep="ESDtoAOD"
-
-## Pre-exec
-if hasattr(runArgs,"preExec"):
-    recoLog.info("transform pre-exec")
-    for cmd in runArgs.preExec:
-        recoLog.info(cmd)
-        exec(cmd)
-
-## Pre-include
-if hasattr(runArgs,"preInclude"): 
-    for fragment in runArgs.preInclude:
-        print("preInclude",fragment)
-        include(fragment)
 
 #========================================================
 # Central topOptions (this is one is a string not a list)

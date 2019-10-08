@@ -217,13 +217,13 @@ def generateL1DecoderAndChains():
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM", ThresholdPrefix="EM" )
     emUnpacker.ThresholdToChainMapping =  thresholdToChains( ElChains ) + [ m for m in thresholdToChains( CombChains ) if "EM" in m] #EnabledElChains + EnabledElComboChains
     emUnpacker.Decisions="L1EM"
     log.debug("EMRoIsUnpackingTool enables chians:")
     log.debug(emUnpacker.ThresholdToChainMapping)
 
-    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
+    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU", ThresholdPrefix="MU" )
     muUnpacker.ThresholdToChainMapping = thresholdToChains( MuChains ) +   [ m for m in thresholdToChains( CombChains ) if "MU" in m] #EnabledMuChains + EnabledMuComboChains
     muUnpacker.Decisions="L1MU"
     log.debug("MURoIsUnpackingTool enables chians:")

@@ -77,6 +77,8 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( TrigEMClusterContainer );
   INIT_XAOD( TrigCaloClusterContainer );
   INIT_XAOD( TrigElectronContainer ); 
+  INIT_XAOD( ElectronContainer ); 
+  INIT_XAOD( PhotonContainer ); 
   INIT_XAOD( TrigPhotonContainer );
   INIT_XAOD( TrackParticleContainer );
   INIT_XAOD( TrigMissingETContainer );
@@ -304,6 +306,8 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   
   CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer )
   CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer )
+  CREATE_XAOD( ElectronContainer, ElectronAuxContainer )
+  CREATE_XAOD( PhotonContainer, PhotonAuxContainer )
   CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer )
   CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
   CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )

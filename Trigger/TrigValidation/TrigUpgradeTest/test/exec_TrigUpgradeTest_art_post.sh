@@ -158,6 +158,10 @@ if [ -f ${AODTOCHECK} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running CheckxAOD AOD"
   timeout 10m checkxAOD.py ${AODTOCHECK} >${AODTOCHECK}.checkxAOD 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckXAOD"
+  echo $(date "+%FT%H:%M %Z")"     Running checkFileTrigSize_RTT.py AOD"
+  export TRIGSIZE_LOG=${JOB_LOG%%.*}.TrigEDMSize.${JOB_LOG#*.}
+  timeout 10m checkFileTrigSize_RTT.py ${AODTOCHECK} > ${TRIGSIZE_LOG} 2>&1
+  echo "art-result: ${PIPESTATUS[0]} checkFileTrigSize_RTT.py"
 else
   echo $(date "+%FT%H:%M %Z")"     No AOD file to check"
 fi

@@ -35,7 +35,6 @@ namespace Muon {
             ATH_MSG_WARNING(" Cannot retrieve CscIdHelper, please consider setting HasCSC property to false in the future when running a layout without CSC chambers");
             m_hasCSC = false;
             m_cscIdHelper = nullptr;
-
         }
     } else m_cscIdHelper = nullptr;
     if ( detStore()->retrieve( m_rpcIdHelper ).isFailure() ) {
@@ -699,15 +698,5 @@ namespace Muon {
     int sect = 2 * stationPhi( id );
     if( !isSmallChamber( id ) ) --sect;
     return sect;
-  }
-
-  bool MuonIdHelperTool::hasCSC() const {
-    return m_hasCSC;
-  }
-  bool MuonIdHelperTool::hasSTgc() const {
-    return m_hasSTgc;
-  }
-  bool MuonIdHelperTool::hasMM() const {
-    return m_hasMM;
   }
 }

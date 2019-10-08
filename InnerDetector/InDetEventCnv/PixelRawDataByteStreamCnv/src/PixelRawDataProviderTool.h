@@ -50,8 +50,6 @@ private:
   ToolHandle<IPixelRodDecoder>  m_decoder
   {this, "Decoder", "PixelRodDecoder", "Tool for PixelRodDecoder"};
 
-  // bookkeeping if we have decoded a ROB already
-  std::set<uint32_t> m_robIdSet;
 
   SG::WriteHandleKey<InDetTimeCollection> m_LVL1CollectionKey;
   SG::WriteHandle<InDetTimeCollection>    m_LVL1Collection;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompositeParticleCnv_p1.h 
@@ -24,46 +24,33 @@ class MsgStream;
 class CompositeParticle;
 
 class CompositeParticleCnv_p1 
-  : public T_AthenaPoolTPCnvBase<CompositeParticle, CompositeParticle_p1>
+  : public T_AthenaPoolTPCnvConstBase<CompositeParticle, CompositeParticle_p1>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   CompositeParticleCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c CompositeParticle
    *  from its persistent representation @c CompositeParticle_p1
    */
   virtual void persToTrans( const CompositeParticle_p1* persObj, 
                             CompositeParticle* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c CompositeParticle_p1
    *  from its transient representation @c CompositeParticle
    */
   virtual void transToPers( const CompositeParticle* transObj, 
                             CompositeParticle_p1* persObj, 
-                            MsgStream& msg );
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline CompositeParticleCnv_p1::CompositeParticleCnv_p1()
 {}

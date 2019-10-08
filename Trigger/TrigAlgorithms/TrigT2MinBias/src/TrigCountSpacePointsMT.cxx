@@ -35,15 +35,15 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
   SG::ReadHandle<SpacePointContainer> pixelSP (m_pixelSpKey, context );
   SG::ReadHandle<PixelID> pixelHelper(m_pixelHelperKey, context );
 
-  ATH_MSG_DEBUG ("Successfully retrieved pixel SP container of size" << pixelSP->size());
+  ATH_MSG_DEBUG ("Successfully retrieved pixel SP container of size " << pixelSP->size());
 
   //Here monitor
-  int nPixSP{},nPixCL_1{},nPixCL_2{},nPixCLmin3{},totPixBeforeCuts{};
+  int totPixBeforeCuts{};
   int totNumPixSP{};
   int totNumPixCL_1{} ;
   int totNumPixCL_2{} ;
   int totNumPixCLmin3{};
-  int pixClBarrel{} ;
+  int pixClBarrel{};
   int pixClEndcapA{} ;
   int pixClEndcapC{} ;
 
@@ -61,7 +61,7 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
     int  SPpixBarr{};
     int  SPpixECA{};
     int  SPpixECC{};
-
+    int nPixSP{},nPixCL_1{},nPixCL_2{},nPixCLmin3{};
     for(const auto pSP:*pixSPointColl){
       pixClust = static_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
 
@@ -102,6 +102,7 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
       pixClEndcapC += SPpixECC;
     }
   }
+
   ATH_MSG_DEBUG("REGTEST : Formed  " <<totPixBeforeCuts << " pixel spacepoints in total before cuts.");
   ATH_MSG_DEBUG("REGTEST : " << totNumPixCL_1 << " have cl size == 1 in total.");
   ATH_MSG_DEBUG("REGTEST : " << totNumPixCL_2 << " have cl size == 2 in total.");
@@ -116,7 +117,7 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
 
   SG::ReadHandle<SpacePointContainer> SctSP (m_sctSpKey, context );
   SG::ReadHandle<SCT_ID> SctHelper(m_sctHelperKey, context );
-  ATH_MSG_DEBUG ("Successfully retrieved SCT SP container of size" << SctSP->size());
+  ATH_MSG_DEBUG ("Successfully retrieved SCT SP container of size " << SctSP->size());
 
   //Here monitor define
   int nSctSP{};
@@ -135,6 +136,8 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
     Identifier Sctid = (SctSPointColl)->identify();
     int bec = (int)SctHelper->barrel_ec(Sctid);
 
+
+
     ATH_MSG_VERBOSE(" Formed " << nSctSP << " sct spacepoints"<<" with sctid module " << Sctid);
     // barrel
     if( bec==0 ){
@@ -148,9 +151,9 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext& context) const
       ATH_MSG_VERBOSE(" Formed  " << nSctSP << " SCT ECC spacepoints.");
     }
     // total
-    if(nSctSP > m_sctModuleThreshold){
+    if(nSctSP < m_sctModuleLowerThreshold && nSctSP > m_sctModuleHigherThreshold){
       //this is noise
-      ATH_MSG_DEBUG(" This SCT module : " << Sctid << " produced " << nSctSP << " SCT spacepoints. Ignoring these spacepoints as the maximum allowed spacepoints per module is " << m_sctModuleThreshold);
+      ATH_MSG_DEBUG(" This SCT module : " << Sctid << " produced " << nSctSP << " SCT spacepoints. Ignoring these spacepoints as the number of allowed spacepoints per module is between" << m_sctModuleLowerThreshold<<" and "<<m_sctModuleHigherThreshold);
 
 
     } else { // Accept the spacepoints

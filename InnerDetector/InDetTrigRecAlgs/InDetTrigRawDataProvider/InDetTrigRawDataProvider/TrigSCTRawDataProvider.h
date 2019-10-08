@@ -41,7 +41,6 @@ class MsgStream;
 class IRoiDescriptor;
 class ISCTRawDataProviderTool;
 class Incident;
-class SCT_ByteStreamFractionContainer;
 
 namespace InDet {
   class TrigSCTRawDataProvider :  virtual public ITrigRawDataProviderTool,
@@ -75,10 +74,8 @@ namespace InDet {
     //! the RDO container
     SCT_RDO_Container*                  m_container;
     InDetBSErrContainer*                m_bsErrCont;
-    SCT_ByteStreamFractionContainer*    m_bsFracCont;
     std::string                         m_RDO_Key;
     std::string                         m_bsErrCont_Key;
-    std::string                         m_bsFracCont_Key;
 
     //
   };

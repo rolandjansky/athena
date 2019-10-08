@@ -1053,8 +1053,8 @@ StatusCode EventSelectorAthenaPool::io_finalize() {
 void EventSelectorAthenaPool::handle(const Incident& inc)
 {
    SG::SourceID fid;
-   if ( inc.context().hasExtension<Atlas::ExtendedEventContext>() ) {
-     fid = inc.context().getExtension<Atlas::ExtendedEventContext>().proxy()->sourceID();
+   if ( Atlas::hasExtendedEventContext(inc.context()) ) {
+     fid = Atlas::getExtendedEventContext(inc.context()).proxy()->sourceID();
    }
    if( fid.empty() ) {
       ATH_MSG_WARNING("could not read event source ID from incident event context");

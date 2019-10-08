@@ -17,49 +17,17 @@
 #include <string>
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
+#include "xAODTrigCompositeAuxContainerCnv_v1.h"
 
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::TrigCompositeAuxContainer,
-                               xAOD::TrigCompositeAuxContainer >
-   xAODTrigCompositeAuxContainerCnvBase;
+typedef T_AthenaPoolAuxContainerCnv< xAOD::TrigCompositeAuxContainer,
+                                     xAODTrigCompositeAuxContainerCnv_v1 >
+   xAODTrigCompositeAuxContainerCnv;
 
-/**
- *  @short POOL converter for the xAOD::TrigCompositeAuxContainer class
- *
- *         This is the converter doing the actual schema evolution
- *         of the package via the Aux container
- *
- */
-class xAODTrigCompositeAuxContainerCnv :
-   public xAODTrigCompositeAuxContainerCnvBase {
-
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrigCompositeAuxContainerCnv >;
-
-protected:
-   /// Converter constructor
-public:
-   xAODTrigCompositeAuxContainerCnv( ISvcLocator* svcLoc );
-protected:
-
-   /// Function preparing the container to be written out
-   virtual xAOD::TrigCompositeAuxContainer*
-   createPersistent( xAOD::TrigCompositeAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::TrigCompositeAuxContainer* createTransient();
-
-   /// Re-implemented function in order to get access to the SG key
-   virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );
-
-private:
-  std::string m_key;
-
-
-}; // class xAODTrigCompositeAuxContainerCnv
 
 #endif // not XAODTRIGGERATHENAPOOL_XAODTRIGCOMPOSITEAUXCONTAINER_H

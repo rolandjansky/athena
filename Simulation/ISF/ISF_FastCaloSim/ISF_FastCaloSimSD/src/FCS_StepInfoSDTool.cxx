@@ -208,7 +208,7 @@ namespace FCS_Param
   //---------------------------------------------------------------------------
   // Create SD wrapper for current thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* FCS_StepInfoSDTool::makeSD()
+  G4VSensitiveDetector* FCS_StepInfoSDTool::makeSD() const
   {
     // Create the wrapper
     auto sdWrapper = new FCS_StepInfoSDWrapper("FCS_StepInfoSDWrapper", m_hitCollName);

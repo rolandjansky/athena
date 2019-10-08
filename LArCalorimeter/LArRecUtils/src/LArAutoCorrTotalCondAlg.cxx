@@ -317,7 +317,7 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
           float MinBiasRMS = larMinBias->minBiasRMS(chid);
           if (fSampl != 0)
             MinBiasRMS /= fSampl;
-          const std::vector<float> polynom_adc2mev =
+          const auto polynom_adc2mev =
               larADC2MeV->ADC2MEV(hid, igain);
           float Adc2MeV = 0.;
           if (polynom_adc2mev.size() > 0) {

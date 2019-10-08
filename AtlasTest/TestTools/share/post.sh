@@ -173,7 +173,7 @@ PP="$PP"'|XMLFileCatalog|File is not in Catalog|Failed to open container to chec
 PP="$PP"'|^Py:ConfigurableDb'
 PP="$PP"'|^DBReplicaSvc +INFO'
 PP="$PP"'|INFO ... COOL  exception caught: The database does not exist|Create a new conditions database'
-PP="$PP"'|^SetGeometryVersion.py obtained'
+PP="$PP"'|SetGeometryVersion.py obtained'
 PP="$PP"'|^ConditionStore +INFO Start ConditionStore'
 PP="$PP"'|^ConditionStore +INFO Stop ConditionStore'
 PP="$PP"'|INFO Found XML file:|INFO copying from'
@@ -233,6 +233,10 @@ PP="$PP"'|^TileInfoLoader +INFO'
 
 # Ignore new output stream helper tools.
 PP="$PP"'|Found HelperTools'
+
+# Ignore ID helper verbosity.
+PP="$PP"'|filling address for'
+
 
 
 if [ "$extrapatterns" != "" ]; then

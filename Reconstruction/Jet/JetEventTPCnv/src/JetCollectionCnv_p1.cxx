@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCollectionCnv_p1.cxx 
@@ -13,12 +13,8 @@
 #include "AthAllocators/DataPool.h"
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
-#undef private
-#undef protected
 
 
 // JetEventTPCnv includes
@@ -29,26 +25,13 @@
 #include <sstream>
 
 // preallocate converters
-static JetCnv_p1 jetCnv;
+static const JetCnv_p1 jetCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 JetCollectionCnv_p1::persToTrans( const JetCollection_p1* pers, 
                                   JetCollection* trans, 
-                                  MsgStream& msg ) 
+                                  MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading JetCollection from persistent state..."
 //       << endmsg;
@@ -62,7 +45,7 @@ JetCollectionCnv_p1::persToTrans( const JetCollection_p1* pers,
     pool.reserve( pool.allocated() + nJets );
   }
 
-  trans->m_ordered   = static_cast<JetCollection::OrderedVar>(pers->m_ordered);
+  trans->setOrdered (static_cast<JetCollection::OrderedVar>(pers->m_ordered));
   // the transient version does not have this data member any more,
   // each jet knows its ROI
   // trans->m_ROIauthor = //pers->m_roiAuthor;
@@ -96,12 +79,12 @@ JetCollectionCnv_p1::persToTrans( const JetCollection_p1* pers,
 void 
 JetCollectionCnv_p1::transToPers( const JetCollection* trans, 
                                   JetCollection_p1* pers, 
-                                  MsgStream& msg ) 
+                                  MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection..."
 //       << endmsg;
 
-  pers->m_ordered   = static_cast<short>(trans->m_ordered);
+  pers->m_ordered   = static_cast<short>(trans->ordered());
   //pers->m_roiAuthor = trans->m_ROIauthor;
 
   std::size_t size = trans->size();     
@@ -120,18 +103,3 @@ JetCollectionCnv_p1::transToPers( const JetCollection* trans,
   return;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 

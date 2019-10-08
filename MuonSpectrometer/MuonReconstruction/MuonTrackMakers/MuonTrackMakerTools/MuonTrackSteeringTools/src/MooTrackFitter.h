@@ -17,8 +17,8 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatHit.h"
 
 #include "TrkDriftCircleMath/SegmentFinder.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"
@@ -315,6 +315,7 @@ namespace Muon {
     ToolHandle<Trk::ITrackSummaryHelperTool>         m_trackSummaryTool; //<! muon track summary helper
 
     bool         m_slFit;              //<! perform sl fit
+    bool         m_slProp;             //<! perform sl propagation
     bool         m_seedWithSegmentTheta; //<! seed with theta connecting first + last eta hit
     bool         m_seedWithAvePhi;       //<! seed with average phi of all phi hits
     bool         m_seedPhiWithEtaHits;   //<! seed phi from positions first last eta hit

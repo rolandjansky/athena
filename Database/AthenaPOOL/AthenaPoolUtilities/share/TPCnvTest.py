@@ -25,6 +25,10 @@ topSequence = AlgSequence()
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
+
 # Make sure we don't have a stale file catalog.
 import os
 if os.path.exists ('PoolFileCatalog.xml'):
@@ -73,6 +77,36 @@ if have_atlas_geo:
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
+    #svcMgr.GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasSTgc = False
+
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from TrkEventCnvTools import TrkEventCnvToolsConf
+EventCnvSuperTool = TrkEventCnvToolsConf.Trk__EventCnvSuperTool('EventCnvSuperTool')
+EventCnvSuperTool.MuonCnvTool.IdHelperTool.HasSTgc = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+EventCnvSuperTool.MuonCnvTool.IdHelperTool.HasMM = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+ToolSvc += EventCnvSuperTool
+
+#
+# If a new xAOD variable appears, print a warning, but don't treat
+# it as a failure.
+#
+def checknewvars (output):
+    names = set()
+    for l in output.split ('\n'):
+        if not l: continue
+        if l.startswith ('+++') or l.startswith ('---'): continue
+        if l[0] == '-': return None
+        if l[0] == '+':
+            pos = l.find (':')
+            if l.startswith ('+     ') and pos > 0:
+                names.add (l[6:pos])
+            else:
+                return None
+    l = list(names)
+    l.sort()
+    return l
+            
+
 if not globals().has_key ('get_dumper_fct'):
     from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena
@@ -106,9 +140,14 @@ class Dumper (PyAthena.Alg):
 
     def finalize (self):
         self.ofile.close()
-        ret = os.system ('diff -u %s %s' % (self.reffile_name, self.ofile_name))
+        ret, output = subprocess.getstatusoutput ('diff -u %s %s' % (self.reffile_name, self.ofile_name))
         if ret != 0:
-            print 'ERROR running diff with reference'
+            newvars = checknewvars (output)
+            if newvars:
+                print 'WARNING: new xAOD variables ', newvars
+            else:
+                print 'ERROR running diff with reference'
+                print output
         return 1
 
     def execute (self):

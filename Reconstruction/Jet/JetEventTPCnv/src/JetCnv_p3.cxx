@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCnv_p3.cxx 
@@ -31,27 +31,13 @@ typedef NavigableCnv_p1<
            > NavigableCnv_t;
 
 // pre-allocate converters
-static P4ImplPxPyPzECnv_p1   momCnv;
-static NavigableCnv_t        navCnv;
+static const P4ImplPxPyPzECnv_p1   momCnv;
+static const NavigableCnv_t        navCnv;
 
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void JetCnv_p3::persToTrans( const Jet_p3* pers,
                              Jet* trans, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "Loading Jet from persistent state...  e = "<< pers->m_momentum.m_ene
       << endmsg;
@@ -114,7 +100,7 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
 
   // Jet comes from a DataPool.
   // So we need to be sure to re-initialize everything in the Jet.
-  static Jet jtmp;
+  static const Jet jtmp;
   trans->particleBase() = jtmp.particleBase();
 
    msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]"
@@ -124,7 +110,7 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
 
 void JetCnv_p3::transToPers( const Jet* trans, 
                              Jet_p3* pers, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "Creating persistent state of Jet... e="<< trans->e() << "  "<< trans->momentumBase().e()
       << endmsg;

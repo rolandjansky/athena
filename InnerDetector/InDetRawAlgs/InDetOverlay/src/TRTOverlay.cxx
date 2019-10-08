@@ -43,7 +43,7 @@ namespace Overlay
 
 
 TRTOverlay::TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
   declareProperty("TRT_HT_OccupancyCorrectionBarrel", m_HTOccupancyCorrectionB=0.110);
   declareProperty("TRT_HT_OccupancyCorrectionEndcap", m_HTOccupancyCorrectionEC=0.090);
@@ -97,14 +97,14 @@ StatusCode TRTOverlay::initialize()
 }
 
 
-StatusCode TRTOverlay::execute()
+StatusCode TRTOverlay::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
   // Reading the input RDOs
   const TRT_RDO_Container *bkgContainerPtr = nullptr;
   if (m_includeBkg) {
-    SG::ReadHandle<TRT_RDO_Container> bkgContainer(m_bkgInputKey);
+    SG::ReadHandle<TRT_RDO_Container> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background TRT RDO container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -115,7 +115,7 @@ StatusCode TRTOverlay::execute()
     ATH_MSG_DEBUG("TRT Background = " << Overlay::debugPrint(bkgContainer.cptr()));
   }
 
-  SG::ReadHandle<TRT_RDO_Container> signalContainer(m_signalInputKey);
+  SG::ReadHandle<TRT_RDO_Container> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal TRT RDO container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -123,7 +123,7 @@ StatusCode TRTOverlay::execute()
   ATH_MSG_DEBUG("Found signal TRT RDO container " << signalContainer.name() << " in store " << signalContainer.store());
   ATH_MSG_DEBUG("TRT Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
 
-  SG::ReadHandle<InDetSimDataCollection> signalSDOContainer(m_signalInputSDOKey);
+  SG::ReadHandle<InDetSimDataCollection> signalSDOContainer(m_signalInputSDOKey, ctx);
   if (!signalSDOContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal TRT SDO map container " << signalSDOContainer.name() << " from store " << signalSDOContainer.store());
     return StatusCode::FAILURE;
@@ -131,7 +131,7 @@ StatusCode TRTOverlay::execute()
   ATH_MSG_DEBUG("Found signal TRT SDO map container " << signalSDOContainer.name() << " in store " << signalSDOContainer.store());
 
   // Creating output RDO container
-  SG::WriteHandle<TRT_RDO_Container> outputContainer(m_outputKey);
+  SG::WriteHandle<TRT_RDO_Container> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<TRT_RDO_Container>(signalContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output TRT RDO container " << outputContainer.name() << " to store " << outputContainer.store());
@@ -150,7 +150,7 @@ StatusCode TRTOverlay::execute()
 StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
                                         const TRT_RDO_Container *signalContainer,
                                         TRT_RDO_Container *outputContainer,
-                                        const InDetSimDataCollection *signalSDOCollection)
+                                        const InDetSimDataCollection *signalSDOCollection) const
 {
   // Get all the hashes for the signal container
   const std::vector<IdentifierHash> signalHashes = signalContainer->GetAllCurrentHashes();
@@ -253,7 +253,7 @@ void TRTOverlay::mergeCollections(TRT_RDO_Collection *bkgCollection,
                                   TRT_RDO_Collection *outputCollection,
                                   double occupancy,
                                   const InDetSimDataCollection *signalSDOCollection,
-                                  CLHEP::HepRandomEngine *rndmEngine)
+                                  CLHEP::HepRandomEngine *rndmEngine) const
 {
   if (bkgCollection->identify() != signalCollection->identify()) {
     throw std::runtime_error("mergeCollections(): collection Id mismatch");

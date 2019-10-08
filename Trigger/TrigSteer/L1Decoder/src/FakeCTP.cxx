@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
-#include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "./FakeCTP.h"
 
@@ -46,8 +45,8 @@ StatusCode FakeCTP::initialize() {
 }
 
 StatusCode FakeCTP::execute() {
-  m_decisions = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  m_decisionsAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();
+  m_decisions = std::make_unique< xAOD::TrigCompositeContainer >();
+  m_decisionsAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
   m_decisions->setStore(m_decisionsAux.ptr());
 
 

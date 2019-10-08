@@ -5,6 +5,7 @@
 #define TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H
 
 // Trigger includes
+#include "TrigConfData/HLTMenu.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h" // Defines PEBInfo and keys to retrieve it
@@ -33,12 +34,16 @@ public:
   virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
 
   virtual StatusCode initialize() override;
+
   virtual StatusCode finalize() override;
 
   /// Type describing StreamTag information needed by the tool: {name, type, obeysLumiBlock, forceFullEventBuilding}
   typedef std::tuple<std::string, std::string, bool, bool> StreamTagInfo;
 
 private:
+
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_hltMenuKey{"DetectorStore+HLTTriggerMenu"};
+
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions {this, "ChainDecisions", "HLTNav_Summary",
     "Container with final chain decisions" };
 

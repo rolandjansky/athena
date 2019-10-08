@@ -35,6 +35,7 @@ class MURoIsUnpackingTool : public RoIsUnpackingToolBase
   virtual StatusCode unpack(const EventContext& ctx,
                             const ROIB::RoIBResult& roib,
                             const HLT::IDSet& activeChains) const override;
+  virtual StatusCode start() override;
 private: 
 
   ///@{ @name Properties

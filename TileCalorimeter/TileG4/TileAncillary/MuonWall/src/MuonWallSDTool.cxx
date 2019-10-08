@@ -63,7 +63,7 @@ StatusCode MuonWallSDTool::Gather() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* MuonWallSDTool::makeSD() {
+G4VSensitiveDetector* MuonWallSDTool::makeSD() const {
   ATH_MSG_DEBUG("Initializing SD");
 
   int verboseLevel=1;

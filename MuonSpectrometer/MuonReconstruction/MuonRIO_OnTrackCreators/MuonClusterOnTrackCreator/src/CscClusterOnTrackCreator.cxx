@@ -18,9 +18,6 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonPrepRawData/TgcPrepData.h"
@@ -54,9 +51,6 @@ namespace Muon {
   (const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_muonMgr(0),
-      m_cscIdHelper(0),
-      m_rpcIdHelper(0),
-      m_tgcIdHelper(0),
       m_stripFitter("CalibCscStripFitter/CalibCscStripFitter", this),
       m_clusterFitter("QratCscClusterFitter/QratCscClusterFitter", this),
       m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool", this),
@@ -96,21 +90,7 @@ namespace Muon {
 	return StatusCode::FAILURE;
     }
 
-    if (m_doCsc) {
-      m_cscIdHelper = m_muonMgr->cscIdHelper();
-    } else {
-      ATH_MSG_WARNING ( "CSC deactivated via option." );
-    }
-    if (m_doRpc) {
-      m_rpcIdHelper = m_muonMgr->rpcIdHelper();
-    } else {
-      ATH_MSG_WARNING ( "RPC deactivated via option." );
-    }
-    if (m_doTgc) {
-      m_tgcIdHelper = m_muonMgr->tgcIdHelper();
-    } else {
-      ATH_MSG_WARNING ( "TGC deactivated via option." );
-    }
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     // -- check this, maybe the helpers are not necessary after all.
 
@@ -208,29 +188,29 @@ namespace Muon {
     //
     Amg::MatrixX  loce = RIO.localCovariance();
 
-    if ( m_cscIdHelper
-         && m_cscIdHelper->is_csc(RIO.identify())
+    if ( m_doCsc
+         && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify())
          && !m_cscErrorScalingKey.key().empty()) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_cscErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
       ATH_MSG_VERBOSE ( "CSC: new cov(0,0) is " << loce(0,0) );
     }
-    if ( m_rpcIdHelper
-	 && m_rpcIdHelper->is_rpc(RIO.identify())
+    if ( m_doRpc
+	 && m_muonIdHelperTool->rpcIdHelper().is_rpc(RIO.identify())
 	 && !m_rpcErrorScalingKey.key().empty()) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_rpcErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
       ATH_MSG_VERBOSE ( "RPC: new cov(0,0) is " << loce(0,0) );
     }
-    if ( m_tgcIdHelper
-	 && m_tgcIdHelper->is_tgc(RIO.identify())
+    if ( m_doTgc
+	 && m_muonIdHelperTool->tgcIdHelper().is_tgc(RIO.identify())
 	 && !m_tgcErrorScalingKey.key().empty() ) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_tgcErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
       ATH_MSG_VERBOSE ( "TGC: new cov(1,1) is " << loce(0,0) );
     }
 
-    if(  m_rpcIdHelper && m_rpcIdHelper->is_rpc(RIO.identify()) ){
+    if(  m_doRpc && m_muonIdHelperTool->rpcIdHelper().is_rpc(RIO.identify()) ){
       // cast to RpcPrepData
       const RpcPrepData* MClus   = dynamic_cast<const RpcPrepData*> (&RIO);
       if (!MClus) {
@@ -239,7 +219,7 @@ namespace Muon {
       }
       MClT = new RpcClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
-    }else if( m_tgcIdHelper && m_tgcIdHelper->is_tgc(RIO.identify()) ){
+    }else if( m_doTgc && m_muonIdHelperTool->tgcIdHelper().is_tgc(RIO.identify()) ){
       
       // cast to TgcPrepData
       const TgcPrepData* MClus   = dynamic_cast<const TgcPrepData*> (&RIO);
@@ -249,11 +229,11 @@ namespace Muon {
       }
 
       // calculation of 2D error matrix for TGC phi strips
-      if ( m_tgcIdHelper->isStrip(RIO.identify())){
+      if ( m_muonIdHelperTool->tgcIdHelper().isStrip(RIO.identify())){
 
-	int stationeta=m_tgcIdHelper->stationEta(RIO.identify());
-	int stripNo = m_tgcIdHelper->channel(RIO.identify());
-	int gasGap = m_tgcIdHelper->gasGap(RIO.identify());
+	int stationeta=m_muonIdHelperTool->tgcIdHelper().stationEta(RIO.identify());
+	int stripNo = m_muonIdHelperTool->tgcIdHelper().channel(RIO.identify());
+	int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(RIO.identify());
 
 	const MuonGM::TgcReadoutElement *ele= MClus->detectorElement();
 
@@ -283,7 +263,7 @@ namespace Muon {
           
       MClT = new TgcClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
-    } else if ( m_cscIdHelper && m_cscIdHelper->is_csc(RIO.identify()) ){
+    } else if ( m_doCsc && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify()) ){
       
       // cast to CscPrepData
       const CscPrepData* MClus   = dynamic_cast<const CscPrepData*> (&RIO);
@@ -306,7 +286,7 @@ namespace Muon {
   createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP,
                     const Amg::Vector3D& GD) const {
 
-    if ( ! ( m_cscIdHelper && m_cscIdHelper->is_csc(RIO.identify()) ) ) {
+    if ( ! ( m_doCsc && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify()) ) ) {
       ATH_MSG_WARNING ( "CscClusterOnTrackCreator::createRIO_OnTrack is called by the other muon tech" );
       return 0;
     }
@@ -330,7 +310,7 @@ namespace Muon {
     // in RIO_OnTrack the local param and cov should have the same dimension
     Trk::LocalParameters locpar = Trk::LocalParameters (RIO.localPosition ());
     if (RIO.localCovariance().cols() > 1 || 
-	(m_tgcIdHelper->is_tgc(RIO.identify()) && m_tgcIdHelper->isStrip(RIO.identify()))) {
+	(m_muonIdHelperTool->tgcIdHelper().is_tgc(RIO.identify()) && m_muonIdHelperTool->tgcIdHelper().isStrip(RIO.identify()))) {
       ATH_MSG_VERBOSE ( "Making 2-dim local parameters" );
     } else {
       Trk::DefinedParameter  radiusPar(RIO.localPosition().x(),Trk::locX);
@@ -353,8 +333,8 @@ namespace Muon {
     //
     Amg::MatrixX  loce = RIO.localCovariance();
     
-    if ( m_cscIdHelper 
-	 && m_cscIdHelper->is_csc(RIO.identify())
+    if ( m_doCsc 
+	 && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify())
          && !m_cscErrorScalingKey.key().empty()) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_cscErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);

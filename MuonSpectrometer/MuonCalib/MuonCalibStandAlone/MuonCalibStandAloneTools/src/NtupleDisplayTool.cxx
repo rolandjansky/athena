@@ -32,7 +32,6 @@
 
 
 #include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MdtCalibInterfaces/IMdtSegmentFitter.h"
 
@@ -136,7 +135,7 @@ StatusCode NtupleDisplayTool::initialize() {
     //-- Get the StoreGate Stuff --//
     //-----------------------------//
 
-    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
@@ -256,11 +255,11 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     Identifier station_id = m_id_tool->fixedIdToId(Mid);
     NtupleStationId st_id((segment.mdtHOT()[0])->identify());
     st_id.SetMultilayer(0);
-    if (!st_id.InitializeGeometry(m_mdtIdHelper, m_detMgr))
+    if (!st_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr))
     	return StatusCode::SUCCESS;
 
     if(m_nb_multilayers<0){  
- 	m_nb_multilayers = m_mdtIdHelper->numberOfMultilayers(station_id);
+ 	m_nb_multilayers = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
     }
 
 
@@ -279,7 +278,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
         for (int multilayer=1; multilayer<m_nb_multilayers+1; multilayer++) {
             
             const MuonGM::MdtReadoutElement* MdtRoEl = 
-                m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(station_id,multilayer,1,1) );
+                m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
              
             //loop over layers
             for (int layer=st_id.LayerMin(multilayer-1); layer<=st_id.LayerMax(multilayer-1); layer++) {

@@ -53,7 +53,6 @@
 #include "IOVDbStringFunctions.h"
 #include "IOVDbCoolFunctions.h"
 #include "TagFunctions.h"
-#include "CxxUtils/make_unique.h"
 
 #include "Cool2Json.h"
 #include "Json2Cool.h"

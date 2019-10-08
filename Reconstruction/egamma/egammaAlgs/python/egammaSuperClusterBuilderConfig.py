@@ -9,6 +9,7 @@ from egammaTools.EMTrackMatchBuilderConfig import EMTrackMatchBuilderCfg
 from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
 from egammaTools.egammaMVACalibConfig import egammaMVASvcCfg
 from egammaTools.egammaSwToolConfig import egammaSwToolCfg
+from egammaCaloTools.egammaCaloToolsConf import egammaCheckEnergyDepositTool
 
 
 def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **kwargs):
@@ -37,6 +38,7 @@ def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **
 
     kwargs.setdefault("InputEgammaRecContainerName",    flags.Egamma.Keys.Internal.EgammaRecs)
     kwargs.setdefault("SuperElectronRecCollectionName", flags.Egamma.Keys.Internal.ElectronSuperRecs)
+    kwargs.setdefault("egammaCheckEnergyDepositTool", egammaCheckEnergyDepositTool())
 
     elscAlg = electronSuperClusterBuilder(name, **kwargs)
 
@@ -70,6 +72,7 @@ def photonSuperClusterBuilderCfg(flags, name='photonSuperClusterBuilder', **kwar
 
     kwargs.setdefault("InputEgammaRecContainerName",    flags.Egamma.Keys.Internal.EgammaRecs)
     kwargs.setdefault("SuperPhotonRecCollectionName", flags.Egamma.Keys.Internal.PhotonSuperRecs)
+    kwargs.setdefault("egammaCheckEnergyDepositTool", egammaCheckEnergyDepositTool())
 
     phscAlg = photonSuperClusterBuilder(name, **kwargs)
 

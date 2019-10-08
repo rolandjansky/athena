@@ -61,7 +61,7 @@ StatusCode SegmentRawdataSelector::initialize(void) {
   ATH_CHECK( m_reg_sel_svc.retrieve() );
 
 // MDT ID helper //
-  ATH_CHECK( detStore()->retrieve(m_MdtIdHelper, m_MDT_ID_helper) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
 // muon detector manager //
   ATH_CHECK( detStore()->retrieve(m_detMgr) );
@@ -94,7 +94,7 @@ void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *&event, std::
     station_identifier.SetMultilayer(0);
     Identifier station_id = m_id_tool->fixedIdToId(hit->identify());
     const MuonGM::MdtReadoutElement *MdtRoEl =
-      m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(station_id,
+      m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(station_id,
 	hit->identify().mdtMultilayer(),hit->identify().mdtTubeLayer(),hit->identify().mdtTube()));
 
     if (MdtRoEl==0) {

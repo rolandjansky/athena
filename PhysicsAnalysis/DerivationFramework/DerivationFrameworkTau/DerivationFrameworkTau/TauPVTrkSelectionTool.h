@@ -44,8 +44,7 @@ namespace DerivationFramework {
       bool m_maxDeltaR;
       bool m_minPt;
 
-#warning FIXME: ToolHandle constness workaround.
-      mutable ToolHandle < TauAnalysisTools::ITauTruthTrackMatchingTool > m_T3MT;
+      ToolHandle < TauAnalysisTools::ITauTruthTrackMatchingTool > m_T3MT;
 
       StatusCode select(xAOD::TrackParticleContainer*& tauPVTracks) const;
 

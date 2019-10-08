@@ -11,14 +11,12 @@
 
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class MdtIdHelper;
 
-class CscIdHelper;
 class ICscStripFitter;
 
-class RpcIdHelper;
-class TgcIdHelper;
 class TileTBID;
 
 namespace MuonGM {
@@ -122,11 +120,9 @@ namespace MuonCalib {
     // Tool to cut on identifiers
     ToolHandle<IMuonIdCutTool> m_muonIdCutTool;
    
-    /* Pointers to the Identifier Helpers */
-    const MdtIdHelper*  m_mdtIdHelper;              //!< MDT specific ID helper
-    const CscIdHelper*  m_cscIdHelper;              //!< CSC specific ID helper
-    const RpcIdHelper*  m_rpcIdHelper;              //!< RPC specific ID helper
-    const TgcIdHelper*  m_tgcIdHelper;              //!< TGC specific ID helper
+    /* Tool for Identifier Helpers */
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     std::vector <const MuonCalibEvent*> m_events;         //!< vector holding pointers to events, for deletion at finalize
 

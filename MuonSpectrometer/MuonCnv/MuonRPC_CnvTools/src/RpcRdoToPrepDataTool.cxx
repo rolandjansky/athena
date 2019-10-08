@@ -7,7 +7,6 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "RPCcablingInterface/IRPCcablingSvc.h"
@@ -57,7 +56,6 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_timeShift(0.),                      //!< any global time shift ?!
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
     m_muonMgr(nullptr),
-    m_rpcHelper(nullptr),
     m_rpcCabling(nullptr),
     //m_padHashIdHelper(0),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder", this),
@@ -135,8 +133,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   // Get RpcRdoDecoderTool
   ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );  
 
-  /// init rpcidhelper 
-  m_rpcHelper = m_muonMgr->rpcIdHelper();
+  /// init muonidhelpertool 
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   // get here the pad id helper 
   //m_padHashIdHelper = new RpcPadIdHash();
   
@@ -278,7 +276,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   }
   
   /// RPC context
-  IdContext rpcContext = m_rpcHelper->module_context();
+  IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
   
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
@@ -404,12 +402,12 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
       if (!(*rpcColli)->empty()) {	
 	temIdWithDataVect.push_back(*ii);
 	ATH_MSG_VERBOSE("Accepting non empty coll. "
-			<<m_rpcHelper->show_to_string((*rpcColli)->identify())
+			<<m_muonIdHelperTool->rpcIdHelper().show_to_string((*rpcColli)->identify())
 			<<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
       }
       else {	
 	ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
-		      <<m_rpcHelper->show_to_string((*rpcColli)->identify())
+		      <<m_muonIdHelperTool->rpcIdHelper().show_to_string((*rpcColli)->identify())
 		      <<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
 	delete m_rpcPrepDataContainer->removeCollection(*ii); // from Scott Snyder #43275 // fix mem.leak
       }            
@@ -494,7 +492,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
   ATH_MSG_DEBUG("Decoding RPC RDO into RPC PrepRawData");
   
   /// RPC context
-  IdContext rpcContext = m_rpcHelper->module_context();
+  IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
 
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
@@ -592,13 +590,13 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
       if (!(*rpcColli)->empty()) {
         temIdWithDataVect.push_back(hashId);
         ATH_MSG_VERBOSE("Accepting non empty coll. "
-                     << m_rpcHelper->show_to_string((*rpcColli)->identify())
+                     << m_muonIdHelperTool->rpcIdHelper().show_to_string((*rpcColli)->identify())
                      << " hashId = " << (unsigned int)hashId
                      << " in PREPDATA container at " << m_rpcPrepDataContainer);
       }
       else {
         ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
-                   << m_rpcHelper->show_to_string((*rpcColli)->identify())
+                   << m_muonIdHelperTool->rpcIdHelper().show_to_string((*rpcColli)->identify())
                    << " hashId = " << (unsigned int)hashId
                    << " in PREPDATA container at " << m_rpcPrepDataContainer);
         delete m_rpcPrepDataContainer->removeCollection(hashId);
@@ -632,7 +630,7 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
   msg (MSG::INFO) << "***************** Listing RpcPad Collections --- i.e. input RDO ****************************************" << endmsg;
   
   /// RPC context
-  IdContext rpcContext = m_rpcHelper->module_context();
+  IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
   /// RPC RDO container --- assuming it is available
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
@@ -663,10 +661,10 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
 		 <<" # of CM inside is "<< rdoColl->size());
     IdentifierHash rpcHashId = rdoColl->identifyHash();
     Identifier rdoId;
-    int  code = m_rpcHelper->get_id(rpcHashId, rdoId, &rpcContext);
+    int  code = m_muonIdHelperTool->rpcIdHelper().get_id(rpcHashId, rdoId, &rpcContext);
     if  (code != 0) 
       msg (MSG::INFO) <<" A problem in hash -> id conversion for hashId= "<<(int)rpcHashId<<endmsg;
-    std::string extIdstring = m_rpcHelper->show_to_string(rdoId);
+    std::string extIdstring = m_muonIdHelperTool->rpcIdHelper().show_to_string(rdoId);
     ATH_MSG_INFO("*** Offine HashId = "<<static_cast<unsigned int>(rpcHashId)<<" extended = "<<extIdstring);
 
     // For each pad, loop on the coincidence matrices
@@ -769,7 +767,7 @@ void Muon::RpcRdoToPrepDataTool::printPrepData()
     const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
         
     if ( rpcColl->size() > 0 ) {
-      msg (MSG::INFO) <<"PrepData Collection ID "<<m_rpcHelper->show_to_string(rpcColl->identify())<<endmsg;
+      msg (MSG::INFO) <<"PrepData Collection ID "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
       RpcPrepDataCollection::const_iterator it_rpcPrepData;
       int icc = 0;
       int iccphi = 0;
@@ -785,7 +783,7 @@ void Muon::RpcRdoToPrepDataTool::printPrepData()
 	//                 }
 	//                 else
 	//                 {                    
-	if (m_rpcHelper->measuresPhi((*it_rpcPrepData)->identify())) {
+	if (m_muonIdHelperTool->rpcIdHelper().measuresPhi((*it_rpcPrepData)->identify())) {
 	  iccphi++;
 	  ictphi++;
 	  if ((*it_rpcPrepData)->ambiguityFlag()>1) ictamb++;
@@ -796,7 +794,7 @@ void Muon::RpcRdoToPrepDataTool::printPrepData()
 	}                    
 	//                 }
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" prepData id = "
-			<<m_rpcHelper->show_to_string((*it_rpcPrepData)->identify())
+			<<m_muonIdHelperTool->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify())
 			<<" time "<<(*it_rpcPrepData)->time()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
 			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endmsg;
       }
@@ -842,7 +840,7 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
         const Muon::RpcCoinDataCollection* rpcColl = *rpcColli;
         
         if ( rpcColl->size() > 0 ) {	  
-	  msg (MSG::INFO) <<"CoinData Collection ID "<<m_rpcHelper->show_to_string(rpcColl->identify())<<endmsg;
+	  msg (MSG::INFO) <<"CoinData Collection ID "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpcColl->identify())<<endmsg;
 	  RpcCoinDataCollection::const_iterator it_rpcCoinData;
 	  int icc = 0;
 	  int iccphi = 0;
@@ -862,7 +860,7 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
 	    //                 }
 	    //                 else
 	    //                 {                    
-	    if (m_rpcHelper->measuresPhi((*it_rpcCoinData)->identify())) {
+	    if (m_muonIdHelperTool->rpcIdHelper().measuresPhi((*it_rpcCoinData)->identify())) {
 	      
 	      iccphi++;
 	      ictphi++;
@@ -889,7 +887,7 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
 	    }                    
 	    //                 }
 	    msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" coinData id = "
-			    <<m_rpcHelper->show_to_string((*it_rpcCoinData)->identify())
+			    <<m_muonIdHelperTool->rpcIdHelper().show_to_string((*it_rpcCoinData)->identify())
 			    <<" time "<<(*it_rpcCoinData)->time()<<" ijk = "<<(*it_rpcCoinData)->ijk()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
 			    <<" cm/pad/sl ids = "
 			    <<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
@@ -1083,8 +1081,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	  // Prepare the prepdata for this identifier 
 	  // channel Id
 	  Identifier channelId = *itVec;
-	  Identifier parentId = m_rpcHelper->elementID(channelId);
-	  if (m_rpcHelper->get_hash(parentId, rpcHashId, &rpcContext)) {
+	  Identifier parentId = m_muonIdHelperTool->rpcIdHelper().elementID(channelId);
+	  if (m_muonIdHelperTool->rpcIdHelper().get_hash(parentId, rpcHashId, &rpcContext)) {
 	    msg (MSG::ERROR) << "Unable to get RPC hash id from RPC collection " 
 			     << "context begin_index = " << rpcContext.begin_index()
 			     << " context end_index  = " << rpcContext.end_index()
@@ -1099,12 +1097,12 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	  //                     }
 	  if ( msgLvl (MSG::DEBUG) ) {	    
 	    msg (MSG::DEBUG) << "CM Hit decoded into offline Id " 
-			     << m_rpcHelper->show_to_string(channelId) 
+			     << m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId) 
 			     << " time "<<time<<endmsg; 
 	    msg (MSG::DEBUG) << "           Parent collection   " 
-			     << m_rpcHelper->show_to_string(parentId)
-			     << " oldID = "<<m_rpcHelper->show_to_string(oldId)
-			     << " oldIDtrg = "<<m_rpcHelper->show_to_string(oldIdTrg)
+			     << m_muonIdHelperTool->rpcIdHelper().show_to_string(parentId)
+			     << " oldID = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(oldId)
+			     << " oldIDtrg = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(oldIdTrg)
 			     << endmsg;
 	  }
 	  bool hasAMatchingEtaHit = 0;
@@ -1113,23 +1111,23 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	    if ( (oldIdTrg != parentId) || collectionTrg == 0 ) {
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
-			    <<m_rpcHelper->show_to_string(parentId)<<" hash = "
+			    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(parentId)<<" hash = "
 			    <<static_cast<unsigned int>(rpcHashId)<<" in COINDATA container at "<<m_rpcCoinDataContainer);
-	      collectionTrg = Muon::IDC_Helper::getCollection<RpcCoinDataContainer, RpcIdHelper>(parentId, m_rpcCoinDataContainer , m_rpcHelper, msg());
+	      collectionTrg = Muon::IDC_Helper::getCollection<RpcCoinDataContainer, RpcIdHelper>(parentId, m_rpcCoinDataContainer , m_muonIdHelperTool->rpcIdHelper(), msg());
 	      if ( collectionTrg ==0 ) msg (MSG::WARNING) <<"Failed to get/create RpcCoinData collection"<<endmsg;
 	      oldIdTrg = parentId;
-	      ATH_MSG_DEBUG(" Resetting oldIDtrg to current parentID = "<<m_rpcHelper->show_to_string(oldIdTrg));
+	      ATH_MSG_DEBUG(" Resetting oldIDtrg to current parentID = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(oldIdTrg));
 	    }
 	  }
 	  else {
 	    if ( (oldId    != parentId) || collection    == 0 ) {	      
 	      // Get collection from IDC if it exists, or create it and add it if not.
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
-			    <<m_rpcHelper->show_to_string(parentId)<<" hash = "
+			    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(parentId)<<" hash = "
 			    <<static_cast<unsigned int>(rpcHashId)<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
 	      collection =	Muon::IDC_Helper::getCollection<RpcPrepDataContainer, RpcIdHelper>(parentId,
 										   		   m_rpcPrepDataContainer,
-										   		   m_rpcHelper,
+										   		   m_muonIdHelperTool->rpcIdHelper(),
 										   		   msg() );
 	      if (collection) {                            
            bool alreadyRecorded = false;
@@ -1142,13 +1140,13 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
            if (!alreadyRecorded) {		  
              idWithDataVect.push_back(rpcHashId); // Record that this collection contains data                 
              ATH_MSG_DEBUG(" A new collection add to the RPC PrepData container with identifier "
-             <<m_rpcHelper->show_to_string(collection->identify()));
+             <<m_muonIdHelperTool->rpcIdHelper().show_to_string(collection->identify()));
            }
 	      }
 	      else msg (MSG::WARNING) <<"Failed to get/create RpcPrepData collection"<<endmsg;
 	      oldId = parentId;
 	      ATH_MSG_DEBUG(" Resetting oldID to current parentID = "
-			    <<m_rpcHelper->show_to_string(oldId));
+			    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(oldId));
 	    }
 	  }
           
@@ -1165,9 +1163,9 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	      int current_dbz   = 0;
 	      int current_gg    = 0;
 	      if (processingphiview) {		
-          current_dbphi = m_rpcHelper->doubletPhi(channelId);
-          current_dbz   = m_rpcHelper->doubletZ(channelId);
-          current_gg    = m_rpcHelper->gasGap(channelId);
+          current_dbphi = m_muonIdHelperTool->rpcIdHelper().doubletPhi(channelId);
+          current_dbz   = m_muonIdHelperTool->rpcIdHelper().doubletZ(channelId);
+          current_gg    = m_muonIdHelperTool->rpcIdHelper().gasGap(channelId);
           ATH_MSG_VERBOSE("Check also for eta hits matching dbz, dbphi, gg  "
             <<current_dbz<<" "<<current_dbphi<<" "<< current_gg);
 	      }
@@ -1180,7 +1178,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 		  hasAMatchingEtaHit = false; // we don't want to increment the number of strips with
 		  // a matching eta due to a cabling overlap 
 		  ATH_MSG_VERBOSE("Duplicated RpcPrepData(not recorded) = "
-				  << m_rpcHelper->show_to_string(channelId));
+				  << m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId));
 		  float previous_time = (*it_rpcPrepData)->time();
 		  // choose the smallest time within timeTolerance 
 		  if (time < previous_time) {		    
@@ -1194,16 +1192,16 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 		if (processingphiview) {
 		  if (solvePhiAmb_thisHit) {
 		    if (!unsolvedAmbiguity) {
-		      if (m_rpcHelper->measuresPhi( (*it_rpcPrepData)->identify() )==0) {
+		      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi( (*it_rpcPrepData)->identify() )==0) {
 			// check if there's a eta hit in the same gap
 			// of the RPC module (doubletZ, doubletPhi, gg)
-			if (current_dbz == m_rpcHelper->doubletZ( (*it_rpcPrepData)->identify() ) ) {
-			  if (current_dbphi == m_rpcHelper->doubletPhi( (*it_rpcPrepData)->identify() ) ) {                                                    
-			    if (current_gg == m_rpcHelper->gasGap( (*it_rpcPrepData)->identify() ) ) {                                                        
+			if (current_dbz == m_muonIdHelperTool->rpcIdHelper().doubletZ( (*it_rpcPrepData)->identify() ) ) {
+			  if (current_dbphi == m_muonIdHelperTool->rpcIdHelper().doubletPhi( (*it_rpcPrepData)->identify() ) ) {                                                    
+			    if (current_gg == m_muonIdHelperTool->rpcIdHelper().gasGap( (*it_rpcPrepData)->identify() ) ) {                                                        
 			      if ( fabs(time - (*it_rpcPrepData)->time()) < m_etaphi_coincidenceTime ) {
 				hasAMatchingEtaHit = true;
 				ATH_MSG_VERBOSE("There's a matching eta hit with id "
-						<<m_rpcHelper->show_to_string((*it_rpcPrepData)->identify()));
+						<<m_muonIdHelperTool->rpcIdHelper().show_to_string((*it_rpcPrepData)->identify()));
 				//here there can be a break ? NO, we need to keep looping in order to check
 				// if this preprawdata has been already recorded (due to cabling overlaps)
 			      }
@@ -1269,20 +1267,20 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 		hasAMatchingEtaHit = false;
 		duplicate          = false;
 		msg (MSG::WARNING) <<"Detector Element not found for Identifier from the cabling service <"
-				   <<m_rpcHelper->show_to_string(channelId)<<">  =>>ignore this hit"<<endmsg;
+				   <<m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId)<<">  =>>ignore this hit"<<endmsg;
 		continue;
 	      }
 	      else if (!descriptor->containsId(channelId)) {
 		hasAMatchingEtaHit = false;
 		duplicate          = false;
-		if (m_rpcHelper->stationNameString(m_rpcHelper->stationName(channelId))=="BOG") 
+		if (m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(channelId))=="BOG") 
 		  ATH_MSG_DEBUG("Identifier from the cabling service <"
-				<<m_rpcHelper->show_to_string(channelId)<<"> inconsistent with the geometry of detector element <"
-				<<m_rpcHelper->show_to_string(descriptor->identify())<<">  =>>ignore this hit /// there are unmasked channels in BOG");
+				<<m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId)<<"> inconsistent with the geometry of detector element <"
+				<<m_muonIdHelperTool->rpcIdHelper().show_to_string(descriptor->identify())<<">  =>>ignore this hit /// there are unmasked channels in BOG");
 		else
 		  msg (MSG::WARNING) <<"Identifier from the cabling service <"
-				     <<m_rpcHelper->show_to_string(channelId)<<"> inconsistent with the geometry of detector element <"
-				     <<m_rpcHelper->show_to_string(descriptor->identify())<<">  =>>ignore this hit"<<endmsg;
+				     <<m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId)<<"> inconsistent with the geometry of detector element <"
+				     <<m_muonIdHelperTool->rpcIdHelper().show_to_string(descriptor->identify())<<">  =>>ignore this hit"<<endmsg;
 		continue;
 	      }
               
@@ -1298,7 +1296,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	      Amg::Vector2D pointLocPos;
 	      descriptor->surface(channelId).globalToLocal(tempGlobalPosition,tempGlobalPosition,pointLocPos);
 	      //if (fabs(pointLocPos->y())>0.001) 
-	      //  std::cout<<" Local Position for id = "<<m_rpcHelper->show_to_string(channelId)
+	      //  std::cout<<" Local Position for id = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId)
 	      //<<" is ("<<pointLocPos->x()<<",  "<<pointLocPos->y()<<")"<<std::endl;
 	      // the globalToLocal should not fail, if it does produce a WARNING
 	      
@@ -1307,7 +1305,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	      identifierList.push_back(channelId);
 	      
 	      // width of the cluster (self) 
-	      float stripWidth   = descriptor->StripWidth( m_rpcHelper->measuresPhi(channelId) );
+	      float stripWidth   = descriptor->StripWidth( m_muonIdHelperTool->rpcIdHelper().measuresPhi(channelId) );
 	      
 	      // Error matrix
 	      double errPos      = stripWidth / sqrt(12.0);
@@ -1356,12 +1354,12 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 							   rpcChan->ijk(), threshold, overlap,
 							   cmaId, padId, sectorId,
 							   !(highPtCm));
-		//if (fabs(pointLocPos->y())>0.001) std::cout<<"NEW RPCCOINDATA with id, hash, descriptor "<<m_rpcHelper->show_to_string(channelId)<<" "<<(unsigned int)rpcHashId<<" "<<(long)descriptor<<std::endl;
+		//if (fabs(pointLocPos->y())>0.001) std::cout<<"NEW RPCCOINDATA with id, hash, descriptor "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId)<<" "<<(unsigned int)rpcHashId<<" "<<(long)descriptor<<std::endl;
 		
 		
 		// record the new data in the collection     
 		ATH_MSG_DEBUG(" Adding RpcCoinData @ "<<newCoinData
-			      <<" to collection "<<m_rpcHelper->show_to_string(collectionTrg->identify()));
+			      <<" to collection "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(collectionTrg->identify()));
 		
 		newCoinData->setHashAndIndex(collectionTrg->identifyHash(), collectionTrg->size());
 		collectionTrg->push_back(newCoinData);
@@ -1382,12 +1380,12 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 							   descriptor,
 							   (float)time,
 							   ambiguityFlag);
-		//if (fabs(pointLocPos->y())>0.001) std::cout<<"NEW RPCPREPDATA with id, hash, descriptor "<<m_rpcHelper->show_to_string(channelId)<<" "<<(unsigned int)rpcHashId<<" "<<(long)descriptor<<std::endl;
+		//if (fabs(pointLocPos->y())>0.001) std::cout<<"NEW RPCPREPDATA with id, hash, descriptor "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId)<<" "<<(unsigned int)rpcHashId<<" "<<(long)descriptor<<std::endl;
 		
 		
 		// record the new data in the collection     
 		ATH_MSG_DEBUG(" Adding digit @ "<<newPrepData
-			      <<" to collection "<<m_rpcHelper->show_to_string(collection->identify()));
+			      <<" to collection "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(collection->identify()));
 		
 		newPrepData->setHashAndIndex(collection->identifyHash(), collection->size());
 		collection->push_back(newPrepData);
@@ -1435,7 +1433,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
   if(!rpcPrepDataHandle.isPresent()) {
     firstTimeInTheEvent = true;
 
-    StatusCode status = rpcPrepDataHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_rpcHelper->module_hash_max()));
+    StatusCode status = rpcPrepDataHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
 
     if (status.isFailure() || !rpcPrepDataHandle.isValid() ) 	{
       ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainerKey.key());
@@ -1448,7 +1446,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
     if (m_producePRDfromTriggerWords){
       /// create an empty RPC trigger hit container for filling
       SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
-      status = rpcCoinDataHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_rpcHelper->module_hash_max()));
+      status = rpcCoinDataHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
 
       if (status.isFailure() || !rpcCoinDataHandle.isValid() ) 	{
         ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcCoinDataContainerKey.key());

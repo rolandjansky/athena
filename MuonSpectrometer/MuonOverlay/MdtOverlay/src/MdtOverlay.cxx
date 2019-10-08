@@ -25,10 +25,10 @@ namespace Overlay
   template<>
   void mergeChannelData(MdtDigit& signalDigit,
                         const MdtDigit& bkgDigit,
-                        IDC_MuonOverlayBase *algorithm)
+                        const IDC_MuonOverlayBase *algorithm)
   {
     // We want to use the integration window provided by MdtOverlay, thus the constraint
-    MdtOverlay *parent = dynamic_cast<MdtOverlay *>(algorithm);
+    const MdtOverlay *parent = dynamic_cast<const MdtOverlay *>(algorithm);
     if (!parent) {
       throw std::runtime_error("mergeChannelData<MdtDigit>() called by a wrong parent algorithm? Must be MdtOverlay.");
     }
@@ -88,13 +88,13 @@ StatusCode MdtOverlay::initialize()
 }
 
 //================================================================
-StatusCode MdtOverlay::execute() {
+StatusCode MdtOverlay::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute() begin");
 
 
   const MdtDigitContainer *bkgContainerPtr = nullptr;
   if (m_includeBkg) {
-    SG::ReadHandle<MdtDigitContainer> bkgContainer (m_bkgInputKey);
+    SG::ReadHandle<MdtDigitContainer> bkgContainer (m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background MDT container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -106,7 +106,7 @@ StatusCode MdtOverlay::execute() {
     ATH_MSG_VERBOSE("MDT background has digit_size " << bkgContainer->digit_size());
   }
 
-  SG::ReadHandle<MdtDigitContainer> signalContainer(m_signalInputKey);
+  SG::ReadHandle<MdtDigitContainer> signalContainer(m_signalInputKey, ctx);
   if(!signalContainer.isValid() ) {
     ATH_MSG_ERROR("Could not get signal MDT container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -115,7 +115,7 @@ StatusCode MdtOverlay::execute() {
   ATH_MSG_DEBUG("MDT Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
   ATH_MSG_VERBOSE("MDT signal has digit_size " << signalContainer->digit_size());
 
-  SG::WriteHandle<MdtDigitContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<MdtDigitContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<MdtDigitContainer>(signalContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output MdtDigitContainer called " << outputContainer.name() << " to store " << outputContainer.store());

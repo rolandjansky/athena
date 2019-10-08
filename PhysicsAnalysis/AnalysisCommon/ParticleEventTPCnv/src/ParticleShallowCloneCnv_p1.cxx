@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleShallowCloneCnv_p1.cxx 
@@ -30,27 +30,14 @@ typedef ElementLinkCnv_p3< ElementLink< VxContainer > > OriginLinkCnv_t;
 
 
 // pre-allocate converters
-static P4PxPyPzECnv_p1 s_momCnv;
-static MasterLinkCnv_t s_masterLinkCnv;
-static OriginLinkCnv_t s_originLinkCnv;
+static const P4PxPyPzECnv_p1 s_momCnv;
+static const MasterLinkCnv_t s_masterLinkCnv;
+static const OriginLinkCnv_t s_originLinkCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* pers,
                                               Analysis::ParticleShallowClone* trans, 
-                                              MsgStream& msg ) 
+                                              MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading ParticleShallowClone from persistent state..."
 //       << endmsg;
@@ -81,7 +68,7 @@ void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* per
 
 void ParticleShallowCloneCnv_p1::transToPers( const Analysis::ParticleShallowClone* trans, 
                                               ParticleShallowClone_p1* pers, 
-                                              MsgStream& msg ) 
+                                              MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of ParticleShallowClone..."
 //       << endmsg;

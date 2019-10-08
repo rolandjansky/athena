@@ -9,7 +9,6 @@
 #include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "MuonSegment/MuonSegment.h"
-//#include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
@@ -20,10 +19,10 @@
 #include "MuonRecToolInterfaces/IMuonSegmentFittingTool.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 
-#include "MuonTrackFindingEvent/MuPatSegment.h"
+#include "MuPatSegment.h"
 #include "MuPatCandidateTool.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatTrack.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 
 #include "MuonSegment/MuonSegment.h"
@@ -131,6 +130,8 @@ namespace Muon {
   }
 
   //-----------------------------------------------------------------------------------------------------------
+  // Private Methods
+  //-----------------------------------------------------------------------------------------------------------
  
   TrackCollection* MuonTrackSteering::find( const MuonSegmentCollection& coll ) const {
     TrackCollection* result = 0;
@@ -151,59 +152,7 @@ namespace Muon {
   } 
      
   //-----------------------------------------------------------------------------------------------------------
- 
-  TrackCollection* MuonTrackSteering::find( const MuonSegmentCombination& combi ) const {
-      
-    //+ 
-    // This function is meant to provide backwards compatibility with the MuonCombiTrackMaker.
-    // It creates a MuonSegmentCollection from the input MuonSegmentCombinationCollection and
-    // then runs the find() on that to provide a vector of tracks
-    //-
-      
-    // Initialise vectors etc.
-    init();
-    
-    ATH_MSG_DEBUG("find: MuonSegmentCombination  " );
 
-    TrackCollection* result = 0;
-    MuonSegmentCollection muColl;
-    MuonSegmentCollection segVec;
-
-    // Loop over stations within combi
-    unsigned int nstations = combi.numberOfStations();
-    if ( nstations > 0 ) {                  
-      for (unsigned int i=0; i < nstations; ++i) {
-
-        // Loop over segments within station
-        const MuonSegmentCombination::SegmentVec* stationSegs = combi.stationSegments( i );
-        if ( 0 != stationSegs &&!stationSegs->empty() ) {
-          MuonSegmentCombination::SegmentVec::const_iterator ipsg    =stationSegs->begin();
-          MuonSegmentCombination::SegmentVec::const_iterator ipsg_end=stationSegs->end();
-          for (; ipsg != ipsg_end; ++ipsg) {
-            const MuonSegment* seg = dynamic_cast<const MuonSegment*>((*ipsg).get());
-            if ( 0 != seg ) {
-
-              // Add segment to the MuonSegmentCollection
-              // This should be made more efficient
-              segVec.push_back(seg);
-            }
-          }            
-        }
-      }
-      muColl.insert(muColl.end(),segVec.begin(),segVec.end());
-      result = find( muColl );
-    }
-    // Tracking complete - cleanup   
-    cleanUp();
-
-    return result;      
-  }
-  //-----------------------------------------------------------------------------------------------------------
- 
-  //-----------------------------------------------------------------------------------------------------------
-  // Private Methods
-  //-----------------------------------------------------------------------------------------------------------
- 
   void MuonTrackSteering::cleanUp() const {
      
     std::for_each(m_constsegmentsToDelete.begin(),m_constsegmentsToDelete.end(),MuonDeleteObject<const MuonSegment>());
@@ -1005,13 +954,11 @@ namespace Muon {
   TrackCollection* MuonTrackSteering::selectTracks(std::vector<MuPatTrack*>& candidates, bool takeOwnership ) const {
     TrackCollection* result = takeOwnership ? new TrackCollection() : new TrackCollection(SG::VIEW_ELEMENTS);
     result->reserve(candidates.size());
-
     std::vector<MuPatTrack*>::iterator cit     = candidates.begin();
     std::vector<MuPatTrack*>::iterator cit_end = candidates.end();
     for( ; cit!=cit_end; ++cit ){
       // if track selector is configured, use it and remove bad tracks
-      if( !m_trackSelector.empty() && !m_trackSelector->decision((*cit)->track() ) ) continue;
-
+      if(!m_trackSelector.empty() && !m_trackSelector->decision((*cit)->track())) continue;
       if( takeOwnership ) result->push_back(const_cast<Trk::Track*>( &(*cit)->releaseTrack()) );
       else                result->push_back(const_cast<Trk::Track*>( &(*cit)->track()) );
     }

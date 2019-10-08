@@ -14,7 +14,7 @@ static const int maxDig  = 2000;
 ReadRpcDigit::ReadRpcDigit(const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_activeStore("ActiveStoreSvc", name),
-    m_ntuplePtr(0)
+    m_ntuplePtr(nullptr)
 {
   declareProperty("NtupleLocID", m_NtupleLocID);  
   declareProperty("WriteRpcNtuple", m_rpcNtuple = false);

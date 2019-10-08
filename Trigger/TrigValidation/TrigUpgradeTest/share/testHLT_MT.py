@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TrigUpgradeTest/testHLT_MT.py
 #
@@ -35,8 +36,7 @@ class opt:
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
 #Individual slice flags
-    doElectronSlice   = True
-    doPhotonSlice     = True
+    doEgammaSlice     = True
     doMuonSlice       = True
     doJetSlice        = True
     doMETSlice        = True
@@ -88,8 +88,6 @@ else:
 # This is temporary and will be re-worked for after M3.5
 for s in slices:
     signature = s[2:].replace('Slice', '')
-    if 'Electron' in s or 'Photon' in s:
-        signature = 'Egamma'
 
     if eval('opt.'+s) is True:
         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
@@ -368,17 +366,27 @@ elif globalflags.InputFormat.is_bytestream():
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-TriggerFlags.inputLVL1configFile = opt.setLVL1XML
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
-from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
-svcMgr += LVL1ConfigSvc()
-svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+l1JsonFile = generateL1Menu()
+
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+svcMgr += getL1ConfigSvc()
+svcMgr += getHLTConfigSvc()
+
+# ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence()
 
+
+# ---------------------------------------------------------------
+# HLT prep: RoIBResult and L1Decoder
+# ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg

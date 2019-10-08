@@ -16,7 +16,7 @@
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
 
 //-------------------------
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include <array>
@@ -273,14 +273,13 @@ using namespace MuonCalib;
 
 HistogramManager::HistogramManager() {
   // m_rootfile = new TFile();
-  m_MdtIdHelper = NULL;
   m_rootfile = NULL;
   m_hList(0);
   m_doTracks = false;
 }
-HistogramManager::HistogramManager(const MdtIdHelper* mdtIdHelper) {
+HistogramManager::HistogramManager(const Muon::MuonIdHelperTool* muonIdHelperTool) {
   // m_rootfile = new TFile();
-  m_MdtIdHelper = mdtIdHelper;
+  m_muonIdHelperTool = muonIdHelperTool;
   m_rootfile = NULL;
   m_hList(0);
   m_doTracks = false;
@@ -1541,17 +1540,17 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
   tubeNumberOffsetML[0] = GetTubeOffsetML1(chamberName);
   tubeNumberOffsetML[1] = 0;
 
-  if ( m_MdtIdHelper ) {
-    Identifier  station_id = m_MdtIdHelper->elementID(chamberType, eta_id, phi_id);
-    numML = m_MdtIdHelper->numberOfMultilayers(station_id);
-    Identifier  MdtML1_id = m_MdtIdHelper->multilayerID(station_id,1);
+  if ( m_muonIdHelperTool ) {
+    Identifier  station_id = m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
+    numML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
+    Identifier  MdtML1_id = m_muonIdHelperTool->mdtIdHelper().multilayerID(station_id,1);
     Identifier  MdtML2_id;
-    if ( numML>1) MdtML2_id = m_MdtIdHelper->multilayerID(station_id,2);
-    numLayersPerML = m_MdtIdHelper->tubeLayerMax(MdtML1_id) - m_MdtIdHelper->tubeLayerMin(MdtML1_id) + 1; 
+    if ( numML>1) MdtML2_id = m_muonIdHelperTool->mdtIdHelper().multilayerID(station_id,2);
+    numLayersPerML = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(MdtML1_id) - m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(MdtML1_id) + 1; 
     if (chamberName.substr(0,4)=="BIS8") numLayersPerML=3; // PATCH TO MdtIdHelper BUG (should be fixed in next release)
-    numTubesPerLayer[0] = m_MdtIdHelper->tubeMax(MdtML1_id) - m_MdtIdHelper->tubeMin(MdtML1_id) + 1;
+    numTubesPerLayer[0] = m_muonIdHelperTool->mdtIdHelper().tubeMax(MdtML1_id) - m_muonIdHelperTool->mdtIdHelper().tubeMin(MdtML1_id) + 1;
 
-    if ( numML>1 ) numTubesPerLayer[1] = m_MdtIdHelper->tubeMax(MdtML2_id) - m_MdtIdHelper->tubeMin(MdtML2_id) + 1;
+    if ( numML>1 ) numTubesPerLayer[1] = m_muonIdHelperTool->mdtIdHelper().tubeMax(MdtML2_id) - m_muonIdHelperTool->mdtIdHelper().tubeMin(MdtML2_id) + 1;
 
     numMaxTubesPerLayer = numTubesPerLayer[0];
     if (numTubesPerLayer[1]>numTubesPerLayer[0]) numMaxTubesPerLayer = numTubesPerLayer[1];
@@ -2163,16 +2162,16 @@ std::vector<MDTName> HistogramManager::GetChamberList(string region, string side
   //ToString ts;
   std::vector<MDTName> chamberList;
 
-    if ( m_MdtIdHelper ) {
-      MdtIdHelper::const_id_iterator it     = m_MdtIdHelper->module_begin();
-      MdtIdHelper::const_id_iterator it_end = m_MdtIdHelper->module_end();
+    if ( m_muonIdHelperTool ) {
+      MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
+      MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
       for(; it!=it_end;++it ) {
 
-	if  ( !m_MdtIdHelper->is_mdt(*it) ) continue;
-	int station_index = m_MdtIdHelper->stationName(*it);
-	string stationName = m_MdtIdHelper->stationNameString(station_index);
-	int phi_id = m_MdtIdHelper->stationPhi(*it);
-	int eta_id = m_MdtIdHelper->stationEta(*it);
+	if  ( !m_muonIdHelperTool->mdtIdHelper().is_mdt(*it) ) continue;
+	int station_index = m_muonIdHelperTool->mdtIdHelper().stationName(*it);
+	string stationName = m_muonIdHelperTool->mdtIdHelper().stationNameString(station_index);
+	int phi_id = m_muonIdHelperTool->mdtIdHelper().stationPhi(*it);
+	int eta_id = m_muonIdHelperTool->mdtIdHelper().stationEta(*it);
                 
 	MDTName chamber(stationName,phi_id,eta_id);
 

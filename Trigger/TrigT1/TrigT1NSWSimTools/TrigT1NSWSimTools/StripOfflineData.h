@@ -36,72 +36,86 @@ namespace NSWL1 {
   private:
     const Identifier    m_id;            //!< offline identifier of the strip hit
     const sTgcIdHelper* m_helper;        //!< helper for the identifier decoding
-    int                 m_trig_bcid;     //!< trig BCID 
+    int                 m_trig_bcid;
     int m_padTrigIndex;
-    float               m_strip_charge;  //!< strip charge
-    float               m_strip_time;  //!< strip time
-    int               m_strip_charge_10bit;  //!< strip 10 bit charge
-    int               m_strip_charge_6bit;  //!< strip 6 bit charge
-    int                 m_band_id;       //!< band id
-    int                 m_phi_id;        //!< phi id
+    float               m_strip_charge;
+    float               m_strip_time;
+    int                 m_strip_charge_10bit;
+    int                 m_strip_charge_6bit;
+    int                 m_band_id;
+    int                 m_phi_id;
     float               m_x,m_y,m_z=0;
     float               m_lx,m_ly,m_lz=0;
     bool                m_read_strip;
     
+    int m_sideId;
+    int m_sectorType;
+    int m_sectorId;
+    int m_moduleId;
+    int m_wedgeId;
+    int m_layerId;
 
   public:
     StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit);
     ~StripOfflineData();
 
-    void setTrigBCID(int bcid);          //!< set the trig BCID
+    void setTrigBCID(int bcid);
     void setTrigIndex(int );
-    void setStripCharge(float charge);   //!< set the strip charge
-    void setStripCharge_6bit(int charge);   //!< set the 6bit strip charge
-    void setStripCharge_10bit(int charge);   //!< set the 10 bit strip charge
-    void setBandId(int band_id);         //!< set the band id
-    void setPhiId(int phi_id);           //!< set the phi id
+    void setStripCharge(float charge);
+    void setStripCharge_6bit(int charge);
+    void setStripCharge_10bit(int charge);
+    void setBandId(int band_id);
+    void setPhiId(int phi_id);
     void set_readStrip(bool readStrip);
+
+    void setSideId(int);
+    void setSectorType(int);
+    void setSectorId(int);
+    void setModuleId(int);
+    void setWedgeId(int);
+    void setLayerId(int);
+
+
         
     //! methods for retrieving the bare data
-    uint32_t id()        const;  //!< get the 32 bit word identifing the fragment
-    float time()     const;
+    uint32_t id()             const;  //!< get the 32 bit word identifing the fragment
+    float time()              const;
     Identifier Identity()     const;  //!< return indentifier
-    int BCID()        const;  //!< get the BCID
-    int trigIndex() const;
-    float charge()     const;  //!< get the charge
-    int trig_BCID()    const;  //!< get the BCID
-    float strip_charge()   const;  //!< get the charge
-    int strip_charge_6bit()  const;  //!< get the charge
-    int strip_charge_10bit() const;  //!< get the charge
-    bool readStrip() const;  //!< Check if strip should be read
-    int bandId()      const;  //!< get the band id
-    int phiId()       const;  //!< get the phi id
+    int BCID()                const;
+    int trigIndex()           const;
+    float charge()            const;
+    int trig_BCID()           const;
+    float strip_charge()      const;
+    int strip_charge_6bit()   const;
+    int strip_charge_10bit()  const;
+    bool readStrip()          const;  //!< Check if strip should be read
+    int bandId()              const;
+    int phiId()               const;
 
     //! helper  methods decoding the hit fragment position within the NSW detector
     int sideId()      const;  //!< get the side (0==sideC, 1==sideA)
-    int isSmall()      const;  //!< get the side (0==sideC, 1==sideA)
+    int isSmall()     const;  //!< get the side (0==sideC, 1==sideA)
     int moduleId()    const;  //!< get the physics module (ranging from 0 at lowest R to 3 at highest R)
     int sectorId()    const;  //!< get the sector (ranging from 0 to 15)
+    int sectorType() const;
     int wedge() const;  //!< get the multiplet (ranging from 0 to 1, 1 is at lowest |z|)
     int layer()    const;  //!< get the gas gap (ranging from 0 to 3, 1 is at lowest |z|)
     int channelId()   const;  //!< get the channel
-    float globX()       const;  //!< get the X position
-    float globY()       const;  //!< get the Y position
-    float globZ()       const;  //!< get the Z position
-    void set_globX(float pos);  //!< get the X position
-    void set_globY(float pos);  //!< get the Y position
-    void set_globZ(float pos);  //!< get the Z position
+    float globX()       const;
+    float globY()       const;
+    float globZ()       const;
+    void set_globX(float pos);
+    void set_globY(float pos);
+    void set_globZ(float pos);
     char type()    const;
     std::string stationName() const;
-    float locX()       const;  //!< get the X position
-    float locY()       const;  //!< get the Y position
-    float locZ()       const;  //!< get the Z position
-    void set_locX(float pos);  //!< get the X position
-    void set_locY(float pos);  //!< get the Y position
-    void set_locZ(float pos);  //!< get the Z position
-
-    
-  };  // end of StripOfflineData class
+    float locX()       const;
+    float locY()       const;
+    float locZ()       const;
+    void set_locX(float pos);
+    void set_locY(float pos);
+    void set_locZ(float pos);
+  };
 
 } // namespace NSWL1
 

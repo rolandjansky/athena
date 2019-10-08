@@ -49,8 +49,6 @@ simFlags.EventFilter.set_Off()
 ## No magnetic field
 #simFlags.MagneticField.set_Off()
 
-simFlags.SimulateNewSmallWheel=True
-
 ## Register callback functions at various init stages
 #def test_preInit():
 #    print "CALLBACK AT PREINIT"

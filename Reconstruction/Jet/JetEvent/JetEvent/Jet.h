@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JET_H
@@ -727,6 +727,7 @@ protected:
   friend class JetCnv_p2;
   friend class JetCnv_p3;
   friend class JetCnv_p4;
+  friend class JetCollectionCnv_p6;
 
   static const size_t s_defaultJetAuthor;
   /** @brief Jet author store */

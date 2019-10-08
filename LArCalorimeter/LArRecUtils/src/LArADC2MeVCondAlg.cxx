@@ -167,13 +167,21 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
   unsigned nNoRamp=0;
   unsigned nNoHVScaleCorr=0;
 
-  //Create output object
-  std::unique_ptr<LArADC2MeV> lArADC2MeVObj=std::make_unique<LArADC2MeV>(m_larOnlineID,cabling,m_nGains);
-
-  //Start loop over channels
+  //'Guess' the degree of the ramp polynom (should be all the same):
+  unsigned rampPolyDeg=0;
   std::vector<HWIdentifier>::const_iterator it  = m_larOnlineID->channel_begin();
   std::vector<HWIdentifier>::const_iterator it_e= m_larOnlineID->channel_end();
-  for (;it!=it_e;++it) {    
+  while (rampPolyDeg==0 && it!=it_e) {
+    rampPolyDeg=larRamp->ADC2DAC(*it,0).size();
+  }
+
+  ATH_MSG_INFO("Working with a ramp polynom of degree " << rampPolyDeg);
+  //Create output object
+  std::unique_ptr<LArADC2MeV> lArADC2MeVObj=std::make_unique<LArADC2MeV>(m_larOnlineID,cabling,m_nGains,rampPolyDeg);
+
+  it  = m_larOnlineID->channel_begin();
+  it_e= m_larOnlineID->channel_end();
+  for (;it!=it_e;++it) {
     const HWIdentifier chid=*it;
     const IdentifierHash hid=m_larOnlineID->channel_Hash(chid);
 
@@ -226,18 +234,18 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
 	}//end loop over gains
       }//end if have MPhysOverMcal
 
-    
-    
+   
       for(unsigned int igain=0;igain<m_nGains;igain++) {
 
-	std::vector<float> ADC2MeV;
 	// ADC2DAC is a vector (polynomial fit of ramps)
 	const ILArRamp::RampRef_t adc2dac = larRamp->ADC2DAC(chid,igain);
 	if (adc2dac.size()<2) {
           // Some channels can be missing in some configurations.
-          msg(MSG::VERBOSE) << "No Ramp found for channel " << m_larOnlineID->channel_name(chid) << ", gain " << igain << endmsg;
+          ATH_MSG_VERBOSE("No Ramp found for channel " << m_larOnlineID->channel_name(chid) << ", gain " << igain);
 	  continue;
 	}
+      
+	std::vector<float> ADC2MeV; //output data
 
 	//Determine if the intercept is to be used:
 	if (igain==0 || (igain==1 && febConfig && febConfig->lowerGainThreshold(chid)<5)) { 
@@ -249,7 +257,6 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
 	  ADC2MeV.push_back(factorGain[igain]*adc2dac[0]);
 	}
 
-      
 	//Fill remaining polynom terms (usualy only one left)
 	for (size_t i=1;i<adc2dac.size();++i) {
 	  ADC2MeV.push_back(factorGain[igain]*adc2dac[i]);
@@ -264,16 +271,6 @@ StatusCode LArADC2MeVCondAlg::execute(const EventContext& ctx) const{
 
       }//end loop over gains
     }//end if connected
-    else {
-      //Disconnected channel:
-      for (unsigned igain=0;igain<m_nGains;++igain) {
-	std::vector<float> empty;
-	bool stat=lArADC2MeVObj->set(hid,igain,empty);
-	if (!stat) {
-	  msg(MSG::ERROR) << "LArADC2MeV::set fails for gain " << igain << ", hash " << hid << endmsg;
-	}
-      }//end loop over gains of a disconnected channels
-    }//end disconnectd channel
   }//end loop over readout channels
 
 

@@ -11,6 +11,7 @@
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "CSCcabling/CSCcablingSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <string>
 
@@ -18,7 +19,6 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class CscIdHelper;
 class ICscCalibTool;
 class CscRawDataContainer;
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,8 @@ namespace Muon {
     const MuonGM::MuonDetectorManager * m_muonMgr;
     
     /// CSC identifier helper
-    const CscIdHelper * m_cscHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     /// CscStripPrepRawData containers
     Muon::CscStripPrepDataContainer* m_outputCollection;

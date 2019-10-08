@@ -15,6 +15,8 @@
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 
 #include "MuonMDT_CnvTools/IMDT_RDOtoByteStreamTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 class MdtCsmContainer; 
 class MsgStream;
@@ -66,7 +68,8 @@ private:
 
   MDT_Hid2RESrcID* m_hid2re; 
 
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   FullEventAssembler<MDT_Hid2RESrcID> m_fea ;    
 

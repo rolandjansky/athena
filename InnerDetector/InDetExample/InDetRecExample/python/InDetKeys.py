@@ -148,12 +148,6 @@ class SCT_ByteStreamErrs(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SCT_ByteStreamErrs'
 
-class SCT_ByteStreamFrac(JobProperty):
-    """StoreGate key for SCT BS fractions"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'SCT_ByteStreamFrac'
-
 class TRT_ByteStreamErrs(JobProperty):
     """StoreGate key for TRT BS errors"""
     statusOn     = True
@@ -1105,7 +1099,6 @@ jobproperties.InDetContainerKeys.add_JobProperty(BCM_RDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(BCM_CompactDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelByteStreamErrs)
 jobproperties.InDetContainerKeys.add_JobProperty(SCT_ByteStreamErrs)
-jobproperties.InDetContainerKeys.add_JobProperty(SCT_ByteStreamFrac)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_ByteStreamErrs)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_ByteStreamIdErrs)
 jobproperties.InDetContainerKeys.add_JobProperty(GangedPixelMap)

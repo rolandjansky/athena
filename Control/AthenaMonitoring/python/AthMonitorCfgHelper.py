@@ -117,7 +117,7 @@ class AthMonitorCfgHelper(object):
         tool -- a GenericMonitoringToolArray object. This is used to define histograms
                 associated with each group in the array.
         '''
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringArray
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringArray
         array = GenericMonitoringArray(baseName,dimensions)
 
         if self.inputFlags.DQ.isReallyOldStyle:
@@ -226,7 +226,7 @@ class AthMonitorCfgHelperOld(object):
         tool -- a GenericMonitoringTool Configurable object. This can be used to define histograms
                 associated with that group (using defineHistogram).
         '''
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         tool = GenericMonitoringTool(name)
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if not hasattr(svcMgr, 'THistSvc'):

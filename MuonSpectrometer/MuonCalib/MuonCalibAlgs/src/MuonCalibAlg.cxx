@@ -29,12 +29,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "CscClusterization/ICscStripFitter.h"
-
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 
 
 // calibration 
@@ -88,10 +83,6 @@ namespace MuonCalib {
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
     m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
     m_muonIdCutTool("MuonIdCutTool/MuonIdCutTool"),
-    m_mdtIdHelper(NULL),
-    m_cscIdHelper(NULL),
-    m_rpcIdHelper(NULL),
-    m_tgcIdHelper(NULL),
     m_tileTBID(NULL),
     m_ntupFileOpen(false)
   {
@@ -213,18 +204,8 @@ namespace MuonCalib {
 	  << managerName << " ! " << endmsg;
     } 
   
-    // initialize MuonIdHelpers
-    if (m_detMgr) {
-      m_mdtIdHelper = m_detMgr->mdtIdHelper();
-      m_cscIdHelper = m_detMgr->cscIdHelper();
-      m_rpcIdHelper = m_detMgr->rpcIdHelper();
-      m_tgcIdHelper = m_detMgr->tgcIdHelper();
-    } else {
-      m_mdtIdHelper = 0;
-      m_cscIdHelper = 0;
-      m_rpcIdHelper = 0;
-      m_tgcIdHelper = 0;
-    }
+    // initialize MuonIdHelperTool
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     
     log << MSG::INFO << "Initialization ended     " << endmsg;
@@ -836,7 +817,7 @@ namespace MuonCalib {
 		  const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(id);
 		  if( !detEl ){
 		    log << MSG::WARNING << "Found CSC Identifier which seems to have no readout element " 
-			<< m_mdtIdHelper->print_to_string(id) << endmsg;
+			<< m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
 		    continue;
 		  }
 		  MuonFixedId mfi = m_idToFixedIdTool->idToFixedId(id);
@@ -1280,8 +1261,8 @@ namespace MuonCalib {
         // time of first sample is not very useful. we need fitted time
         // invoke fitter first and then set the time
 	    //rawCscHit->setT( (*csc_it)->timeOfFirstSample() );
-	    int measuresPhi    = m_cscIdHelper->measuresPhi((*csc_it)->identify());
-	    int chamberLayer   = m_cscIdHelper->chamberLayer((*csc_it)->identify());
+	    int measuresPhi    = m_muonIdHelperTool->cscIdHelper().measuresPhi((*csc_it)->identify());
+	    int chamberLayer   = m_muonIdHelperTool->cscIdHelper().chamberLayer((*csc_it)->identify());
 	    float stripWidth   = (*csc_it)->detectorElement()->cathodeReadoutPitch( chamberLayer, measuresPhi );
 	    rawCscHit->setWidth( stripWidth );
         // invoke the strip fitter to fit the time samples (which is a vector of 4 elements)
@@ -1342,9 +1323,9 @@ namespace MuonCalib {
 	    for( ; tgc_it!=tgc_it_end; ++ tgc_it){
 	      MuonCalibRawTgcHit* rawTgcHit = new MuonCalibRawTgcHit();      
 	      MuonFixedId fID = m_idToFixedIdTool->idToFixedId( (*tgc_it)->identify() ) ; 
-	      bool measuresPhi = (bool) m_tgcIdHelper->isStrip((*tgc_it)->identify());
-	      int gasGap = m_tgcIdHelper->gasGap((*tgc_it)->identify());
-	      int channel = m_tgcIdHelper->channel((*tgc_it)->identify());
+	      bool measuresPhi = (bool) m_muonIdHelperTool->tgcIdHelper().isStrip((*tgc_it)->identify());
+	      int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap((*tgc_it)->identify());
+	      int channel = m_muonIdHelperTool->tgcIdHelper().channel((*tgc_it)->identify());
 	      
 	      const MuonGM::TgcReadoutElement* detEl = (*tgc_it)->detectorElement();
 	      double width       = -999.;
@@ -1365,9 +1346,9 @@ namespace MuonCalib {
 	      
 	      rawTgcHit->setId( fID );
 	      rawTgcHit->setGlobalPosition( (*tgc_it)->globalPosition() );
-	      rawTgcHit->setStation( m_tgcIdHelper->stationName((*tgc_it)->identify()) );
-	      rawTgcHit->setEta( m_tgcIdHelper->stationEta((*tgc_it)->identify()) );
-	      rawTgcHit->setPhi( m_tgcIdHelper->stationPhi((*tgc_it)->identify()) );
+	      rawTgcHit->setStation( m_muonIdHelperTool->tgcIdHelper().stationName((*tgc_it)->identify()) );
+	      rawTgcHit->setEta( m_muonIdHelperTool->tgcIdHelper().stationEta((*tgc_it)->identify()) );
+	      rawTgcHit->setPhi( m_muonIdHelperTool->tgcIdHelper().stationPhi((*tgc_it)->identify()) );
 	      rawTgcHit->setGasGap( gasGap );
 	      rawTgcHit->setIsStrip( static_cast<int>(measuresPhi) ); 
 	      rawTgcHit->setChannel( channel );
@@ -1448,7 +1429,7 @@ namespace MuonCalib {
 		rawTgcCoin->setGlobalPositionIn((*tgcCoin_it)->globalposIn());
 		rawTgcCoin->setGlobalPositionOut((*tgcCoin_it)->globalposOut());
 		rawTgcCoin->setType(0);
-		rawTgcCoin->setEta(m_tgcIdHelper->stationEta((*tgcCoin_it)->identify()));
+		rawTgcCoin->setEta(m_muonIdHelperTool->tgcIdHelper().stationEta((*tgcCoin_it)->identify()));
 		rawTgcCoin->setPhi((*tgcCoin_it)->phi());
 		rawTgcCoin->setSector(sector);
 		rawTgcCoin->setIsForward(static_cast<int>((*tgcCoin_it)->isForward()));
@@ -1469,7 +1450,7 @@ namespace MuonCalib {
 		rawTgcCoin->setGlobalPositionIn((*tgcCoin_it)->globalposIn());
 		rawTgcCoin->setGlobalPositionOut((*tgcCoin_it)->globalposOut());
 		rawTgcCoin->setType(1);
-		rawTgcCoin->setEta(m_tgcIdHelper->stationEta((*tgcCoin_it)->identify()));
+		rawTgcCoin->setEta(m_muonIdHelperTool->tgcIdHelper().stationEta((*tgcCoin_it)->identify()));
 		rawTgcCoin->setPhi((*tgcCoin_it)->phi());
 		rawTgcCoin->setSector(sector);
 		rawTgcCoin->setIsForward(static_cast<int>((*tgcCoin_it)->isForward()));
@@ -1491,7 +1472,7 @@ namespace MuonCalib {
 		rawTgcCoin->setGlobalPositionIn(tmp);
 		rawTgcCoin->setGlobalPositionOut((*tgcCoin_it)->globalposOut());
 		rawTgcCoin->setType(2);
-		rawTgcCoin->setEta(m_tgcIdHelper->stationEta((*tgcCoin_it)->identify()));
+		rawTgcCoin->setEta(m_muonIdHelperTool->tgcIdHelper().stationEta((*tgcCoin_it)->identify()));
 		rawTgcCoin->setPhi((*tgcCoin_it)->phi());
 		rawTgcCoin->setSector(sector);
 		rawTgcCoin->setIsForward(static_cast<int>((*tgcCoin_it)->isForward()));
@@ -1703,8 +1684,8 @@ namespace MuonCalib {
     rawRpcHit->setT( prd.time() );
     // get detector element
     const MuonGM::RpcReadoutElement* detEl = prd.detectorElement();
-    rawRpcHit->setWidth( detEl->StripWidth( m_rpcIdHelper->measuresPhi(prd.identify()) ) );
-    rawRpcHit->setLength( detEl->StripLength(m_rpcIdHelper->measuresPhi(prd.identify())));
+    rawRpcHit->setWidth( detEl->StripWidth( m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd.identify()) ) );
+    rawRpcHit->setLength( detEl->StripLength(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd.identify())));
     return rawRpcHit;
   }
   

@@ -24,6 +24,9 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
+
 class StoreGate;
 class MsgStream;
 
@@ -137,16 +140,13 @@ namespace Muon {
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator; //<! pointer to mdt rio ontrack creator
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! tool to print EDM objects
-    ToolHandle<MuonIdHelperTool>              m_idHelperTool;    //<! tool to interpret and print Identifiers
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"}; //<! tool to interpret and print Identifiers
     StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
 
   
     const MuonGM::MuonDetectorManager*  m_detMgr;
 
-    const RpcIdHelper*                  m_rpcIdHelper;
-    const TgcIdHelper*                  m_tgcIdHelper;
-    const CscIdHelper*                  m_cscIdHelper;
-    const MdtIdHelper*                  m_mdtIdHelper;
 
     MsgStream* m_log;       //<! pointer to message stream
     bool m_debug; 

@@ -50,6 +50,16 @@ def printProperties(msg, c, nestLevel = 0):
     return
 
 
+def filterComponents (comps, onlyComponents = []):
+    ret = []
+    for c in comps:
+        if not onlyComponents or c.getName() in onlyComponents:
+            ret.append ((c, True))
+        elif c.getName()+'-' in onlyComponents:
+            ret.append ((c, False))
+    return ret
+
+
 class ComponentAccumulator(object):
 
     def __init__(self,sequenceName='AthAlgSeq'):
@@ -113,16 +123,21 @@ class ComponentAccumulator(object):
 
 
 
-    def printCondAlgs(self, summariseProps=False):
+    def printCondAlgs(self, summariseProps=False, onlyComponents=[]):
         self._msg.info( "Condition Algorithms" )
-        for c in self._conditionsAlgs:
+        for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
             self._msg.info( " " +"\\__ "+ c.name() +" (cond alg)" )
-            if summariseProps:
+            if summariseProps and flag:
                 printProperties(self._msg, c, 1)
         return
         
 
-    def printConfig(self, withDetails=False, summariseProps=False):
+    # If onlyComponents is set, then only print components with names
+    # that appear in the onlyComponents list.  If a name is present
+    # in the list with a trailing `-', then only the name of the component
+    # will be printed, not its properties.
+    def printConfig(self, withDetails=False, summariseProps=False,
+                    onlyComponents = []):
         self._msg.info( "Event Inputs" )
         self._msg.info( "Event Algorithm Sequences" )
 
@@ -130,7 +145,8 @@ class ComponentAccumulator(object):
         if withDetails:
             self._msg.info( self._sequence )
         else:
-            def printSeqAndAlgs(seq, nestLevel = 0):
+            def printSeqAndAlgs(seq, nestLevel = 0,
+                                onlyComponents = []):
                 def __prop(name):
                     if name in seq.getValuedProperties():
                         return seq.getValuedProperties()[name]
@@ -139,36 +155,37 @@ class ComponentAccumulator(object):
                 self._msg.info( " "*nestLevel +"\\__ "+ seq.name() +" (seq: %s %s)",
                                 "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND" )
                 nestLevel += 3
-                for c in seq.getChildren():
+                for (c, flag) in filterComponents (seq.getChildren(), onlyComponents):
                     if isSequence(c):
-                        printSeqAndAlgs(c, nestLevel )
+                        printSeqAndAlgs(c, nestLevel, onlyComponents = onlyComponents )
                     else:
                         self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
-                        if summariseProps:
+                        if summariseProps and flag:
                             printProperties(self._msg, c, nestLevel)
 
             for n,s in enumerate(self._allSequences):
                 self._msg.info( "Top sequence {}".format(n) )
-                printSeqAndAlgs(s)
+                printSeqAndAlgs(s, onlyComponents = onlyComponents)
 
-        self.printCondAlgs (summariseProps = summariseProps)
+        self.printCondAlgs (summariseProps = summariseProps,
+                            onlyComponents = onlyComponents)
         self._msg.info( "Services" )
-        self._msg.info( [ s.getName() for s in self._services ] )
+        self._msg.info( [ s[0].getName() for s in filterComponents (self._services, onlyComponents) ] )
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
-        for t in self._publicTools:
+        for (t, flag) in filterComponents (self._publicTools, onlyComponents):
             self._msg.info( "  {0},".format(t.getFullName()) )
             # Not nested, for now
-            if summariseProps:
+            if summariseProps and flag:
                 printProperties(self._msg, t)
         self._msg.info( "]" )
         self._msg.info( "Private Tools")
         self._msg.info( "[" )
         if (isinstance(self._privateTools, list)):
-            for t in self._privateTools:
+            for (t, flag) in filterComponents (self._privateTools, onlyComponents):
                 self._msg.info( "  {0},".format(t.getFullName()) )
                 # Not nested, for now
-                if summariseProps:
+                if summariseProps and flag:
                     printProperties(self._msg, t)
         else:
             if self._privateTools is not None:

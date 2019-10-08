@@ -73,6 +73,8 @@ namespace TrigConf {
 
     virtual std::vector<std::string> getClients() const override { return m_josvc->getClients(); }
     virtual StatusCode readOptions(const std::string& file, const std::string& path = "") override;
+
+    StatusCode readOptionsDB(const std::string& db_server, int smk);
     ///@}
 
     /// @name TrigConf::IJobOptionsSvc interface

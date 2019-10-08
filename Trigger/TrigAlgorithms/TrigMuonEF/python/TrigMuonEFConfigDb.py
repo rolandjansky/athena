@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addAlgorithm,addTool,addService
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 addTool("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFStandaloneTrackToolConfig", "TrigMuonEFStandaloneTrackTool")
 
@@ -41,7 +42,7 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TrkMaterialProviderTool", "TMEF_TrkMat
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCandidateTrackBuilderTool", "TMEF_MuonCandidateTrackBuilderTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonInsideOutRecoTool", "TMEF_MuonInsideOutRecoTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonPRDSelectionTool", "TMEF_MuonPRDSelectionTool")
-addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonLayerSegmentFinderTool", "TMEF_MuonLayerSegmentFinderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonLayerSegmentFinderTool", "TMEF_MuonLayerSegmentFinderTool", Csc2DSegmentMaker=("Csc2dSegmentMaker/Csc2dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""), Csc4DSegmentMaker=("Csc4dSegmentMaker/Csc4dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""))
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinderTool", "TMEF_MuonClusterSegmentFinderTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinder", "TMEF_MuonClusterSegmentFinder")
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** R.Goncalo - 21/10/2007 - add tests for TrigDecisionTool:
@@ -53,7 +53,6 @@
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 
-#include "TrigConfigSvc/DSConfigSvc.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
 
 #include "CxxUtils/crc64.h"
@@ -85,7 +84,6 @@ TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *p
   m_mu_sum(0.0),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
-  m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name ),
   m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
 {
     
@@ -307,25 +305,8 @@ StatusCode TrigDecisionChecker::execute()
        ( static_cast< int >( m_smk )    < 0 ) ||
        ( static_cast< int >( m_l1psk )  < 0 ) ||
        ( static_cast< int >( m_hltpsk ) < 0 ) ) {
-        
-        // See if we are reading an AOD:
-        if( ! m_dsSvc ) {
-            msg() <<  MSG::FATAL
-            << "The trigger configuration keys don't seem to make sense, and we're not using "
-            << "TrigConf::DSConfigSvc...";
-            return StatusCode::FAILURE;
-        }
-        TrigConf::DSConfigSvc* dsSvc = dynamic_cast< TrigConf::DSConfigSvc* >( m_dsSvc.operator->() );
-        if( ! dsSvc ) {
-            msg() <<  MSG::FATAL
-            << "The trigger configuration keys don't seem to make sense, and we're not using "
-            << "TrigConf::DSConfigSvc...";
-            return StatusCode::FAILURE;
-        }
-        
-        // Turn the configuration source name (probably an XML file in this case) into an
-        // imaginary Super Master Key:
-        m_smk = CxxUtils::crc64( dsSvc->configurationSource() ) & 0xffff;
+
+        m_smk = CxxUtils::crc64( m_configSvc->configurationSource() ) & 0xffff;
         m_l1psk = 0;
         m_hltpsk = 0;
     }

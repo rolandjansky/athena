@@ -19,6 +19,7 @@
 #include "xAODEgamma/EgammaEnums.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaMVASvc.h"
+#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 
 #include <memory>
 
@@ -50,7 +51,7 @@ protected:
 
   /** @brief Seed selection requirements */
   Gaudi::Property<float> m_EtThresholdCut {this,
-      "EtThresholdCut", 1.25*Gaudi::Units::GeV,
+      "EtThresholdCut", 1.5*Gaudi::Units::GeV,
       "The minimum EM Et required of SEED clusters (not applied to secondaries)"};
 
   /** @brief Seed selection requirements */
@@ -176,10 +177,7 @@ private:
       "ExtraL0L1PhiSize", 1,
       "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance. Make large to remove limit"};
  
-  /** @brief Threshold on minimum energy reconstructed in 2nd sampling */
-  Gaudi::Property<double> m_thrE2min{this, "ThrE2min", 100.,
-    "Threshold on minimum  energy reconstructed in 2nd sampling"};
-  
+ 
   /** @brief Handle to the MVA calibration service **/
   ServiceHandle<IegammaMVASvc>  m_MVACalibSvc {this,
       "MVACalibSvc", "egammaMVASvc", "calibration service"};
@@ -188,6 +186,11 @@ private:
   ToolHandle<IegammaSwTool>   m_clusterCorrectionTool {this,
       "ClusterCorrectionTool", "egammaSwTool/egammaswtool", 
       "tool that applies cluster corrections"};
+
+  /** @brief Pointer to the egammaCheckEnergyDepositTool*/
+  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this,
+    "egammaCheckEnergyDepositTool", "",
+    "Optional tool that performs basic checks of viability of cluster"};
 
   /** @brief Position in Calo frame**/  
   CaloCellDetPos m_caloCellDetPos;

@@ -185,7 +185,6 @@
   <class name="LArOFCComplete" >
     <field name="m_cache" transient="true" />
   </class>
-  <class name="LArOFCMC" />
   <class name="LArOFCP" />
   <class name="LArConditionsSubset<LArOFCP>"  id="3E5389EF-D163-4099-91D9-D3F0EE06C1CD" >
     <field name="m_subsetMap" transient="true" />

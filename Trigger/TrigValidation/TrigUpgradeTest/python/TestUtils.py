@@ -114,9 +114,8 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=[]
 
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-    decoder = DictFromChainName()
-    chainDict = decoder.getChainDict( prop )
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    chainDict = dictFromChainName( prop )
     global chainsCounter
     chainDict["chainCounter"] = chainsCounter
     chainsCounter += 1

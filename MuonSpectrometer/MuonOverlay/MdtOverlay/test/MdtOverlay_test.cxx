@@ -37,18 +37,23 @@ namespace OverlayTesting {
     virtual void SetUp() override {
       m_alg = new MdtOverlay{"MdtOverlay", g_svcLoc};
       ASSERT_TRUE( m_alg->setProperties().isSuccess() );
+      ASSERT_TRUE( g_svcLoc->service("StoreGateSvc", m_sg) );
     }
 
     virtual void TearDown() override {
       ASSERT_TRUE( m_alg->finalize().isSuccess() );
       delete m_alg;
+      ASSERT_TRUE( m_sg->clearStore().isSuccess() );
     }
 
-    MdtOverlay* m_alg;
+    MdtOverlay* m_alg{};
+    StoreGateSvc* m_sg{};
   };   // MdtOverlay_test fixture
 
 
   TEST_F(MdtOverlay_test, set_properties) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
     std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
@@ -57,10 +62,12 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isFailure() ); //inputs don't exist
+    ASSERT_TRUE( m_alg->execute(ctx).isFailure() ); //inputs don't exist
   }
 
   TEST_F(MdtOverlay_test, empty_containers_alg_execute) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     inputSigDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
@@ -75,11 +82,13 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
   }
 
   TEST_F(MdtOverlay_test, containers_with_matching_empty_collections) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG1"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     IdentifierHash sigElementHash(1);
     IdentifierHash bkgElementHash(1);
@@ -87,23 +96,23 @@ namespace OverlayTesting {
     std::unique_ptr<MdtDigitCollection> sigCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),sigElementHash);
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG1"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),bkgElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG1'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG1'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS1'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS1"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection!=nullptr );
@@ -111,7 +120,9 @@ namespace OverlayTesting {
   }
 
   TEST_F(MdtOverlay_test, containers_with_different_empty_collections) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG2"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     IdentifierHash sigElementHash(1);
     IdentifierHash bkgElementHash(2);
@@ -119,23 +130,23 @@ namespace OverlayTesting {
     std::unique_ptr<MdtDigitCollection> sigCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),sigElementHash);
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG2"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),bkgElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG2'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG2'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS2'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS2"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection1!=nullptr );
@@ -146,7 +157,9 @@ namespace OverlayTesting {
   }
 
   TEST_F(MdtOverlay_test, containers_with_matching_collections_one_with_a_digit) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG3"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
     const IdentifierHash bkgElementHash(1);
@@ -159,23 +172,23 @@ namespace OverlayTesting {
     sigCollection->push_back(sigDigit.release());
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG3"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),bkgElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG3'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG3'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS3'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS3"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection1!=nullptr );
@@ -188,7 +201,9 @@ namespace OverlayTesting {
   }
 
   TEST_F(MdtOverlay_test, containers_with_different_collections_one_digit_each) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG4"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
     const IdentifierHash bkgElementHash(2);
@@ -203,7 +218,7 @@ namespace OverlayTesting {
     sigCollection->push_back(sigDigit.release());
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG4"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     //Add an MdtDigit
@@ -213,16 +228,16 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG4'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG4'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS4'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS4"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection1!=nullptr );
@@ -243,7 +258,9 @@ namespace OverlayTesting {
   }
 
   TEST_F(MdtOverlay_test, containers_with_matching_collections_one_different_digit_each) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG5"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
     const IdentifierHash bkgElementHash(1);
@@ -258,7 +275,7 @@ namespace OverlayTesting {
     sigCollection->push_back(sigDigit.release());
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG5"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     //Add an MdtDigit
@@ -268,16 +285,16 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG5'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG5'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS5'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS5"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection!=nullptr );
@@ -295,7 +312,9 @@ namespace OverlayTesting {
   }
 
   TEST_F(MdtOverlay_test, containers_with_matching_collections_one_matching_digit_each) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG6"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
     const IdentifierHash bkgElementHash(1);
@@ -310,7 +329,7 @@ namespace OverlayTesting {
     sigCollection->push_back(sigDigit.release());
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG6"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     //Add an MdtDigit
@@ -320,16 +339,16 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG6'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG6'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS6'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS6"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection!=nullptr );
@@ -342,7 +361,9 @@ namespace OverlayTesting {
   }
 
   TEST_F(MdtOverlay_test, two_digits_with_matching_id_signal_first) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG7"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
     const IdentifierHash bkgElementHash(1);
@@ -357,7 +378,7 @@ namespace OverlayTesting {
     sigCollection->push_back(sigDigit.release());
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG7"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     //Add an MdtDigit
@@ -367,16 +388,16 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG7'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG7'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS7'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS7"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection!=nullptr );
@@ -389,7 +410,9 @@ namespace OverlayTesting {
   }
 
   TEST_F(MdtOverlay_test, two_digits_with_matching_id_bkg_first) {
-    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG8"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandle<MdtDigitContainer> inputSigDataHandle{"StoreGateSvc+MDT_DIGITS_SIG"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
     const IdentifierHash bkgElementHash(1);
@@ -404,7 +427,7 @@ namespace OverlayTesting {
     sigCollection->push_back(sigDigit.release());
     ASSERT_TRUE(inputSigDataHandle->addCollection(sigCollection.get(),sigElementHash).isSuccess());
     sigCollection.release(); // Now owned by inputSigDataHandle
-    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG8"};
+    SG::WriteHandle<MdtDigitContainer> inputBkgDataHandle{"StoreGateSvc+MDT_DIGITS_BKG"};
     inputBkgDataHandle = std::make_unique<MdtDigitContainer>(containerSize);
     std::unique_ptr<MdtDigitCollection> bkgCollection = std::make_unique<MdtDigitCollection>(Identifier(1234),bkgElementHash);
     //Add an MdtDigit
@@ -414,16 +437,16 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
-    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG8'";
-    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG8'";
-    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS8'";
+    std::string  inputSigPropertyValue = "'StoreGateSvc+MDT_DIGITS_SIG'";
+    std::string  inputBkgPropertyValue = "'StoreGateSvc+MDT_DIGITS_BKG'";
+    std::string    outputPropertyValue = "'StoreGateSvc+MDT_DIGITS'";
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",    inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "SignalInputKey", inputSigPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey",      outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
-    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS8"};
+    SG::ReadHandle<MdtDigitContainer> outputDataHandle{"StoreGateSvc+MDT_DIGITS"};
     ASSERT_TRUE( outputDataHandle.isValid() );
     const MdtDigitCollection *outputCollection = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_TRUE( outputCollection!=nullptr );

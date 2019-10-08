@@ -21,7 +21,7 @@ xAODTrigPassBitsContainerCnv::createTransientWithKey (const std::string& key) {
 
    // Get the object using the base class:
    std::unique_ptr< xAOD::TrigPassBitsContainer >
-         ondisk( xAODTrigPassBitsContainerCnvBase::createTransientWithKey (key) );
+     ondisk{ xAODTrigPassBitsContainerCnvBase::createTransientWithKey(key) };
 
    // Create a copy of it:
    xAOD::TrigPassBitsContainer* result = new xAOD::TrigPassBitsContainer();

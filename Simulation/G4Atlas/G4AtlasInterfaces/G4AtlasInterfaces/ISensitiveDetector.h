@@ -43,7 +43,7 @@ class ISensitiveDetector : virtual public IAlgTool {
  protected:
   /** Method to make the actual SD itself, which will be owned by the tool.  Must be
    implemented in all concrete base classes. */
-  virtual G4VSensitiveDetector* makeSD() = 0;
+  virtual G4VSensitiveDetector* makeSD() const = 0;
 };
 
 #endif

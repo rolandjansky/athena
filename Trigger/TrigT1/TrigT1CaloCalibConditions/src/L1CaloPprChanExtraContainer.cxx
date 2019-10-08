@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprChanExtraContainer.h"
@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <memory>
 
-#include "CxxUtils/make_unique.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -43,7 +42,7 @@ L1CaloPprChanExtraContainer::L1CaloPprChanExtraContainer(const std::string& fold
 
 DataObject* L1CaloPprChanExtraContainer::makePersistent() const
 {
-  using CxxUtils::make_unique;
+  using std::make_unique;
 
   if(m_coolFolderKey.empty()) return nullptr;
 

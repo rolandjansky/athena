@@ -24,7 +24,6 @@ namespace Muon {
 
   MuonLayerHoughTool::MuonLayerHoughTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
     m_detMgr(0),
@@ -37,7 +36,7 @@ namespace Muon {
     declareInterface<MuonLayerHoughTool>(this);
     declareInterface<IMuonHoughPatternFinderTool>(this);
     
-    declareProperty("MuonIdHelperTool",m_idHelper);
+    declareProperty("MuonIdHelperTool",m_muonIdHelperTool);
     declareProperty("MuonTruthSummaryTool",m_truthSummaryTool);
     declareProperty("DoNtuple",m_doNtuple = false);
     
@@ -62,7 +61,7 @@ namespace Muon {
 
   StatusCode MuonLayerHoughTool::initialize() {
 
-    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
 
     if( m_doTruth && !m_truthSummaryTool.empty() ){
@@ -97,7 +96,7 @@ namespace Muon {
       std::string postfix = "_TruthMap";
       std::string allNames("");
       for( unsigned int tech=0; tech<m_ntechnologies;++tech ){
-        std::string thisname = std::string(m_idHelper->mdtIdHelper().technologyString(tech)) + postfix;
+        std::string thisname = std::string(m_muonIdHelperTool->mdtIdHelper().technologyString(tech)) + postfix;
         m_truthNames.emplace_back( thisname );
         allNames += " ";
         allNames += thisname;
@@ -263,8 +262,8 @@ namespace Muon {
 
     // return DetectorRegionIndex and sectorLayerHash
     auto getHashes = [this]( const Identifier& id ){
-      MuonStationIndex::DetectorRegionIndex regionIndex = m_idHelper->regionIndex(id);
-      MuonStationIndex::LayerIndex layerIndex = m_idHelper->layerIndex(id);
+      MuonStationIndex::DetectorRegionIndex regionIndex = m_muonIdHelperTool->regionIndex(id);
+      MuonStationIndex::LayerIndex layerIndex = m_muonIdHelperTool->layerIndex(id);
       unsigned int sectorLayerHash = MuonStationIndex::sectorLayerHash(regionIndex,layerIndex);
       return std::make_pair(regionIndex,sectorLayerHash);
     };
@@ -272,7 +271,7 @@ namespace Muon {
     for( auto col : mdtCols ){
       if( !col ) continue;
       Identifier id = col->identify();
-      int sector = m_idHelper->sector(id);
+      int sector = m_muonIdHelperTool->sector(id);
       auto hashes = getHashes(id);
       fill(state.truthHits,*col,state.houghDataPerSectorVec->vec[sector-1].hitVec[hashes.second]);
     }
@@ -280,7 +279,7 @@ namespace Muon {
     for( auto col : rpcCols ){
       if( !col ) continue;
       Identifier id = col->identify();
-      int sector = m_idHelper->sector(id);
+      int sector = m_muonIdHelperTool->sector(id);
       auto hashes = getHashes(id);
       fill(state.truthHits,*col,state.houghDataPerSectorVec->vec[sector-1].hitVec[hashes.second],state.houghDataPerSectorVec->vec[sector-1].phiHitVec[hashes.first]);
     }
@@ -293,7 +292,7 @@ namespace Muon {
     for( auto col : tgcCols ){
       if( !col ) continue;
       Identifier id = col->identify();
-      int sector = m_idHelper->sector(id);
+      int sector = m_muonIdHelperTool->sector(id);
       auto hashes = getHashes(id);
       // fill current sector
       fill(state.truthHits, state.houghDataPerSectorVec->tgcClusteringObjs, *col,state.houghDataPerSectorVec->vec[sector-1].hitVec[hashes.second],
@@ -515,7 +514,7 @@ namespace Muon {
                     << " " << Muon::MuonStationIndex::layerName(layer)
                     << " maximum " << seed.max << " position " << seed.pos << " angle " << seed.theta << " ptr " << &seed );
 
-      bool isNSW=m_idHelper->issTgc(seed.hits[0]->prd->identify()) || m_idHelper->isMM(seed.hits[0]->prd->identify());
+      bool isNSW=m_muonIdHelperTool->issTgc(seed.hits[0]->prd->identify()) || m_muonIdHelperTool->isMM(seed.hits[0]->prd->identify());
       // extend seed within the current sector
       // sector indices have an offset of -1 because the numbering of the sectors are from 1 to 16 but the indices in the vertices are of course 0 to 15
       extendSeed( detectorHoughTransforms, truthHits, foundTruthHits, road, houghDataPerSectorVec->vec[sector-1] );
@@ -805,7 +804,7 @@ namespace Muon {
           if (!etaHit.tgc->phiCluster.hitList.empty()) tgcClusters.insert(etaHit.tgc);
         }
         else if( etaHit.prd ){
-          triggerLayers.insert(m_idHelper->gasGapId(etaHit.prd->identify()));        
+          triggerLayers.insert(m_muonIdHelperTool->gasGapId(etaHit.prd->identify()));        
         }
       }
     }
@@ -821,7 +820,7 @@ namespace Muon {
         if (tgcClusters.find((*phit)->tgc) != tgcClusters.end()) phiHitsInMaximum.push_back(phiHit);
       }
       else if (phiHit->prd){
-        if (triggerLayers.find(m_idHelper->gasGapId(phiHit->prd->identify())) != triggerLayers.end()) phiHitsInMaximum.push_back(phiHit);
+        if (triggerLayers.find(m_muonIdHelperTool->gasGapId(phiHit->prd->identify())) != triggerLayers.end()) phiHitsInMaximum.push_back(phiHit);
       }
     }
     
@@ -875,10 +874,10 @@ namespace Muon {
         // case 2: phiHit is prepared raw data -> use phiHit to extend the triggerLayersPhinMinMax map
         if( phiHit.tgc ){
           if(  phiHit.tgc->phiCluster.hitList.empty() ) ATH_MSG_WARNING(" TGC 3D cluster without phi hits ");
-          else tgcClusters[m_idHelper->stationIndex( phiHit.tgc->phiCluster.hitList.front()->identify() )].insert(phiHit.tgc);
+          else tgcClusters[m_muonIdHelperTool->stationIndex( phiHit.tgc->phiCluster.hitList.front()->identify() )].insert(phiHit.tgc);
         }
         else if( phiHit.prd ){
-          Identifier gpId = m_idHelper->gasGapId(phiHit.prd->identify());
+          Identifier gpId = m_muonIdHelperTool->gasGapId(phiHit.prd->identify());
           auto mit = triggerLayersPhiMinMax.find(gpId);
           if( mit == triggerLayersPhiMinMax.end() ) triggerLayersPhiMinMax[gpId] = std::make_pair(phiHit.phimin,phiHit.phimax);
           else{
@@ -891,7 +890,7 @@ namespace Muon {
       if( msgLvl(MSG::DEBUG) && false ){
         ATH_MSG_DEBUG("Trigger layers " << triggerLayersPhiMinMax.size() << " tgc layers " << tgcClusters.size() );
         for( auto tit = triggerLayersPhiMinMax.begin() ;tit!=triggerLayersPhiMinMax.end();++tit ){
-          ATH_MSG_VERBOSE("  " << m_idHelper->toString(tit->first) );
+          ATH_MSG_VERBOSE("  " << m_muonIdHelperTool->toString(tit->first) );
         }
         
         // loop over the stations and the contained tgcClusters found in the previous step, print out information
@@ -901,7 +900,7 @@ namespace Muon {
           std::set<const TgcClusterObj3D*>::const_iterator ttit = stit->second.begin();
           std::set<const TgcClusterObj3D*>::const_iterator ttit_end = stit->second.end();
           for( ;ttit!=ttit_end;++ttit ){
-            ATH_MSG_VERBOSE("  " << m_idHelper->toString( (*ttit)->phiCluster.hitList.front()->identify() ) << "  nhits " <<  (*ttit)->phiCluster.hitList.size() );
+            ATH_MSG_VERBOSE("  " << m_muonIdHelperTool->toString( (*ttit)->phiCluster.hitList.front()->identify() ) << "  nhits " <<  (*ttit)->phiCluster.hitList.size() );
           }
         }
       }
@@ -943,8 +942,8 @@ namespace Muon {
               }
             }
           }else if( etaHit.prd ){
-            if( !m_idHelper->isRpc(etaHit.prd->identify()) ) continue;
-            Identifier gpId = m_idHelper->gasGapId( etaHit.prd->identify() );
+            if( !m_muonIdHelperTool->isRpc(etaHit.prd->identify()) ) continue;
+            Identifier gpId = m_muonIdHelperTool->gasGapId( etaHit.prd->identify() );
             auto mit = triggerLayersPhiMinMax.find(gpId);
             if( mit == triggerLayersPhiMinMax.end() )  ++nNoOverlaps;
             else{
@@ -1056,7 +1055,7 @@ namespace Muon {
                 if( hit.debugInfo() ) {
                   hit.debugInfo()->phn = maxi2.max;
                   Identifier id = hit.tgc ? hit.tgc->etaCluster.hitList.front()->identify() : hit.prd->identify();
-                  ATH_MSG_VERBOSE(" " << m_idHelper->toString(id) << " setphn " << hit.debugInfo()->phn);
+                  ATH_MSG_VERBOSE(" " << m_muonIdHelperTool->toString(id) << " setphn " << hit.debugInfo()->phn);
                 }
               }
             }
@@ -1105,19 +1104,19 @@ namespace Muon {
         
         if( phiHit.tgc ){
           if(  phiHit.tgc->phiCluster.hitList.empty() ) ATH_MSG_WARNING(" TGC 3D cluster without phi hits ");
-          else tgcClusters[m_idHelper->stationIndex( phiHit.tgc->phiCluster.hitList.front()->identify() )].insert(phiHit.tgc);
+          else tgcClusters[m_muonIdHelperTool->stationIndex( phiHit.tgc->phiCluster.hitList.front()->identify() )].insert(phiHit.tgc);
         }
         else if( phiHit.prd ){
           Identifier colId = phiHit.prd->identify();
-          Identifier layId = m_idHelper->gasGapId( colId ); // !!!!
+          Identifier layId = m_muonIdHelperTool->gasGapId( colId ); // !!!!
           //std::pair<std::map<Identifier,std::pair<double,double> >::iterator,bool> resins;
         
           // for sTGC PAD compute the boundaries in the radial coordinate
-          if ( m_idHelper->issTgc( colId ) && m_idHelper->stgcIdHelper().channelType( colId )==0 ) {
+          if ( m_muonIdHelperTool->issTgc( colId ) && m_muonIdHelperTool->stgcIdHelper().channelType( colId )==0 ) {
             // const sTgcPrepData* prd = dynamic_cast<const sTgcPrepData*>(hit.prd);
             // const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( colId );
             // if( !design ) {
-            //   ATH_MSG_WARNING("No design found for " << m_idHelper->toString( colId ) );
+            //   ATH_MSG_WARNING("No design found for " << m_muonIdHelperTool->toString( colId ) );
             //   continue;
             // }
             // double chWidth = 0.5*design->channelWidth(prd->localPosition(),false);
@@ -1153,7 +1152,7 @@ namespace Muon {
               auto tit = triggerLayers.begin();
               auto tit_end = triggerLayers.end();
               for( ;tit!=tit_end;++tit ){
-                ATH_MSG_VERBOSE("  " << m_idHelper->toString(*tit) );
+                ATH_MSG_VERBOSE("  " << m_muonIdHelperTool->toString(*tit) );
               }
               
               std::map<MuonStationIndex::StIndex,std::set<const TgcClusterObj3D*> >::const_iterator stit = tgcClusters.begin();
@@ -1162,7 +1161,7 @@ namespace Muon {
                 std::set<const TgcClusterObj3D*>::const_iterator ttit = stit->second.begin();
                 std::set<const TgcClusterObj3D*>::const_iterator ttit_end = stit->second.end();
                 for( ;ttit!=ttit_end;++ttit ){
-                  ATH_MSG_VERBOSE("  " << m_idHelper->toString( (*ttit)->phiCluster.hitList.front()->identify() ) << "  nhits " <<  (*ttit)->phiCluster.hitList.size() );
+                  ATH_MSG_VERBOSE("  " << m_muonIdHelperTool->toString( (*ttit)->phiCluster.hitList.front()->identify() ) << "  nhits " <<  (*ttit)->phiCluster.hitList.size() );
                 }
               }
             }
@@ -1227,12 +1226,12 @@ namespace Muon {
               }
             }
             else if( etaHit.prd ){
-              Identifier layId = m_idHelper->gasGapId( etaHit.prd->identify() );
-              ATH_MSG_VERBOSE(" eta layer hit " << m_idHelper->toString(layId) );
-              if( m_idHelper->isMM(layId) ) ++nmmHits;
+              Identifier layId = m_muonIdHelperTool->gasGapId( etaHit.prd->identify() );
+              ATH_MSG_VERBOSE(" eta layer hit " << m_muonIdHelperTool->toString(layId) );
+              if( m_muonIdHelperTool->isMM(layId) ) ++nmmHits;
               if( triggerLayers.count(layId) ){
-                if( m_idHelper->isRpc(layId) )       ++nrpcOverlaps;
-                else if( m_idHelper->issTgc(layId) ) ++nstgcOverlaps;
+                if( m_muonIdHelperTool->isRpc(layId) )       ++nrpcOverlaps;
+                else if( m_muonIdHelperTool->issTgc(layId) ) ++nstgcOverlaps;
 
 //                   std::map<Identifier,std::pair<double,double> >::iterator it = triggerLayersP.find( layId );
 //                   if (it==triggerLayersP.end()) {
@@ -1247,8 +1246,8 @@ namespace Muon {
 //                 }
             }
             else{
-              if( m_idHelper->isRpc(layId) )       ++nrpcNoOverlaps;
-              else if( m_idHelper->issTgc(layId) ) ++nstgcNoOverlaps;
+              if( m_muonIdHelperTool->isRpc(layId) )       ++nrpcNoOverlaps;
+              else if( m_muonIdHelperTool->issTgc(layId) ) ++nstgcNoOverlaps;
             }
           }
         }
@@ -1386,11 +1385,11 @@ namespace Muon {
   for( ;hit!=hit_end;++hit ) {
     Identifier chId;
     if( (*hit)->tgc ){
-      chId = m_idHelper->chamberId( (*hit)->tgc->etaCluster.hitList.front()->identify() );
+      chId = m_muonIdHelperTool->chamberId( (*hit)->tgc->etaCluster.hitList.front()->identify() );
       prdsPerChamber[chId].insert((*hit)->tgc->etaCluster.hitList.begin(),(*hit)->tgc->etaCluster.hitList.end());
     }
     else if( (*hit)->prd ){
-      chId = m_idHelper->chamberId( (*hit)->prd->identify() );
+      chId = m_muonIdHelperTool->chamberId( (*hit)->prd->identify() );
       prdsPerChamber[chId].insert((*hit)->prd);
     }
   }
@@ -1400,7 +1399,7 @@ namespace Muon {
       std::map< Identifier, std::set< const Trk::PrepRawData* > >::iterator chit = prdsPerChamber.begin();
       std::map< Identifier, std::set< const Trk::PrepRawData* > >::iterator chit_end = prdsPerChamber.end();
       for( ;chit!=chit_end;++chit ){
-  ATH_MSG_DEBUG("Adding chamber " << m_idHelper->toStringChamber(chit->first) << " hits " << chit->second.size() );
+  ATH_MSG_DEBUG("Adding chamber " << m_muonIdHelperTool->toStringChamber(chit->first) << " hits " << chit->second.size() );
   std::vector<const Trk::PrepRawData*> prds;
   prds.insert(prds.end(),chit->second.begin(),chit->second.end());
         std::stable_sort(prds.begin(),prds.end(),sortPrdIds);
@@ -1442,11 +1441,11 @@ namespace Muon {
       for( ;phit!=phit_end;++phit ){
   const MuonHough::PhiHit& hit = **phit; 
   if( hit.tgc ){
-    Identifier chId = m_idHelper->chamberId( hit.tgc->phiCluster.hitList.front()->identify() );
+    Identifier chId = m_muonIdHelperTool->chamberId( hit.tgc->phiCluster.hitList.front()->identify() );
     phiHitsPerChamber[chId].insert(hit.tgc->phiCluster.hitList.begin(),hit.tgc->phiCluster.hitList.end());
   }
   else if( hit.prd ){
-    Identifier chId = m_idHelper->chamberId( hit.prd->identify() );
+    Identifier chId = m_muonIdHelperTool->chamberId( hit.prd->identify() );
     phiHitsPerChamber[chId].insert(hit.prd);
   }
       }
@@ -1487,23 +1486,23 @@ namespace Muon {
   for( ;hit!=hit_end;++hit ) {
     Identifier chId;
     if( (*hit)->tgc ){
-      chId = m_idHelper->chamberId( (*hit)->tgc->etaCluster.hitList.front()->identify() );
+      chId = m_muonIdHelperTool->chamberId( (*hit)->tgc->etaCluster.hitList.front()->identify() );
       prdsPerChamber[chId].insert((*hit)->tgc->etaCluster.hitList.begin(),(*hit)->tgc->etaCluster.hitList.end());
     }
     else if( (*hit)->prd ){
-      chId = m_idHelper->chamberId( (*hit)->prd->identify() );
+      chId = m_muonIdHelperTool->chamberId( (*hit)->prd->identify() );
       prdsPerChamber[chId].insert((*hit)->prd);
     }else{
       ATH_MSG_WARNING("Hit without associated PRDs");
       continue;
     }
     // the first time we have a maximun in this layer store the position and direction 
-    MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(chId);
+    MuonStationIndex::ChIndex chIndex = m_muonIdHelperTool->chamberIndex(chId);
     if( !directionsPerChamberLayer.count(chIndex) ) {
       // eta maximum has z(r) and theta parameters but these are local
       double maxpos = max.pos;
       double refPlane = 0.;
-      bool isBarrel = !m_idHelper->isEndcap(chId) || chIndex == MuonStationIndex::BEE;
+      bool isBarrel = !m_muonIdHelperTool->isEndcap(chId) || chIndex == MuonStationIndex::BEE;
       if( max.hough ) refPlane = max.hough->m_descriptor.referencePosition;
       else{
         if( (*hit)->tgc ) refPlane = (*hit)->tgc->p11.z();
@@ -1560,13 +1559,13 @@ namespace Muon {
       std::map< Identifier, std::set< const Trk::PrepRawData* > >::iterator chit = prdsPerChamber.begin();
       std::map< Identifier, std::set< const Trk::PrepRawData* > >::iterator chit_end = prdsPerChamber.end();
       for( ;chit!=chit_end;++chit ){
-  ATH_MSG_DEBUG("Adding chamber " << m_idHelper->toStringChamber(chit->first) << " hits " << chit->second.size() );
+  ATH_MSG_DEBUG("Adding chamber " << m_muonIdHelperTool->toStringChamber(chit->first) << " hits " << chit->second.size() );
   std::vector<const Trk::PrepRawData*> prds;
   prds.insert(prds.end(),chit->second.begin(),chit->second.end());
         std::stable_sort(prds.begin(),prds.end(),sortPrdIds);
   const Trk::PrepRawData& prd = **prds.begin();
 
-  MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(prd.identify());
+  MuonStationIndex::ChIndex chIndex = m_muonIdHelperTool->chamberIndex(prd.identify());
   std::map< MuonStationIndex::ChIndex, std::pair<Amg::Vector3D,Amg::Vector3D> >::const_iterator pos = directionsPerChamberLayer.find(chIndex);
   Amg::Vector3D  gpos;
   Amg::Vector3D  gdir;
@@ -1616,7 +1615,7 @@ namespace Muon {
 
     if( hough.m_descriptor.chIndex < 0 || hough.m_descriptor.chIndex >= Muon::MuonStationIndex::ChIndexMax ){
       Identifier id = hits.front()->tgc ? hits.front()->tgc->etaCluster.hitList.front()->identify() : hits.front()->prd->identify();
-      ATH_MSG_WARNING("Bad ChIndex " << m_idHelper->toString(id) << "  " << hough.m_descriptor.chIndex );
+      ATH_MSG_WARNING("Bad ChIndex " << m_muonIdHelperTool->toString(id) << "  " << hough.m_descriptor.chIndex );
       return false;
     }
 
@@ -1657,17 +1656,17 @@ namespace Muon {
           Identifier id = hit.tgc ? hit.tgc->etaCluster.hitList.front()->identify() : hit.prd->identify();
           int nhits = hit.tgc ? hit.tgc->etaCluster.hitList.size() : 1;
 
-          if( m_idHelper->isMdt(id) ) ++nmdt;
-          else if( m_idHelper->isTgc(id) ) ++ntgc;
-          else if( m_idHelper->issTgc(id) ) ++nstgc;
-          else if( m_idHelper->isMM(id) ) ++nmm;
+          if( m_muonIdHelperTool->isMdt(id) ) ++nmdt;
+          else if( m_muonIdHelperTool->isTgc(id) ) ++ntgc;
+          else if( m_muonIdHelperTool->issTgc(id) ) ++nstgc;
+          else if( m_muonIdHelperTool->isMM(id) ) ++nmm;
 
           if( m_doTruth ){
             if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add(id,1);
             if( truthHits.count(id) )       foundTruthHits.insert(id);
           }
 
-          ATH_MSG_VERBOSE("findMaxima: hit " << hit.layer << "  " << m_idHelper->toString(id) << " hits " << nhits );
+          ATH_MSG_VERBOSE("findMaxima: hit " << hit.layer << "  " << m_muonIdHelperTool->toString(id) << " hits " << nhits );
         }
 
         // only store maxima that have MDT hits        
@@ -1730,7 +1729,7 @@ namespace Muon {
           }
           
           int nhits = hit.tgc ? hit.tgc->phiCluster.hitList.size() : 1;
-          ATH_MSG_VERBOSE("findMaxima(Phi) phiHit " << m_idHelper->toString(id) << " hits " << nhits );
+          ATH_MSG_VERBOSE("findMaxima(Phi) phiHit " << m_muonIdHelperTool->toString(id) << " hits " << nhits );
         }
         
         maximum.sector = sector; // very fragile passing on of sector
@@ -1883,10 +1882,10 @@ namespace Muon {
     if( mdts.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
     Identifier chid = mdts.identify();
-    MuonStationIndex::DetectorRegionIndex region = m_idHelper->regionIndex(chid);
-    MuonStationIndex::LayerIndex layer = m_idHelper->layerIndex(chid);
-    int sector     = m_idHelper->sector(chid);
-    unsigned int technology = m_idHelper->technologyIndex(chid);
+    MuonStationIndex::DetectorRegionIndex region = m_muonIdHelperTool->regionIndex(chid);
+    MuonStationIndex::LayerIndex layer = m_muonIdHelperTool->layerIndex(chid);
+    int sector     = m_muonIdHelperTool->sector(chid);
+    unsigned int technology = m_muonIdHelperTool->technologyIndex(chid);
     bool barrelLike = (region == MuonStationIndex::Barrel || layer == MuonStationIndex::BarrelExtended);
     unsigned int nmdts = 0;
     unsigned int nmdtsBad = 0;
@@ -1917,10 +1916,10 @@ namespace Muon {
       hits.push_back(hit);
     }
     
-    ATH_MSG_DEBUG("fillMDT: Filling " << m_idHelper->toStringChamber(chid) << ": loc s"         << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
+    ATH_MSG_DEBUG("fillMDT: Filling " << m_muonIdHelperTool->toStringChamber(chid) << ": loc s"         << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
                                                                            << " -> hits: "        << nmdts 
                                                                            << " bad "            << nmdtsBad 
-                                                                           << " isSmallChamber " << m_idHelper->isSmallChamber(chid) );
+                                                                           << " isSmallChamber " << m_muonIdHelperTool->isSmallChamber(chid) );
 
 
   }
@@ -1931,10 +1930,10 @@ namespace Muon {
     if( rpcs.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
     Identifier chid = rpcs.identify();
-    unsigned int technology                      = m_idHelper->technologyIndex(chid);
-    MuonStationIndex::LayerIndex layer           = m_idHelper->layerIndex(chid);
-    MuonStationIndex::DetectorRegionIndex region = m_idHelper->regionIndex(chid);
-    int sector                                   = m_idHelper->sector(chid);
+    unsigned int technology                      = m_muonIdHelperTool->technologyIndex(chid);
+    MuonStationIndex::LayerIndex layer           = m_muonIdHelperTool->layerIndex(chid);
+    MuonStationIndex::DetectorRegionIndex region = m_muonIdHelperTool->regionIndex(chid);
+    int sector                                   = m_muonIdHelperTool->sector(chid);
 
     // check whether there are eta and phi hits
     unsigned int neta = 0;
@@ -1942,10 +1941,10 @@ namespace Muon {
     RpcPrepDataCollection::const_iterator mit = rpcs.begin();
     RpcPrepDataCollection::const_iterator mit_end = rpcs.end();
     for( ;mit!=mit_end;++mit ){
-      if( m_idHelper->rpcIdHelper().measuresPhi((*mit)->identify()) )  ++nphi;
+      if( m_muonIdHelperTool->rpcIdHelper().measuresPhi((*mit)->identify()) )  ++nphi;
       else ++neta;
     }
-    ATH_MSG_DEBUG("fillTGC: Filling " << m_idHelper->toStringChamber(chid) 
+    ATH_MSG_DEBUG("fillTGC: Filling " << m_muonIdHelperTool->toStringChamber(chid) 
                                       << ": loc s"    << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
                                       << " -> eta hits " << neta 
                                       << " phi hits "  << nphi );
@@ -1963,7 +1962,7 @@ namespace Muon {
       if( technology < truthCollections.size() ) matchTruth(truthHits, *truthCollections[technology],id,*debug);
 
       float weight = (neta && nphi) ? 2 : 1;
-      if( m_idHelper->rpcIdHelper().measuresPhi(id) ) {
+      if( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) {
         const float r = rCor(prd);
         const float phi = prd.globalPosition().phi();
         const double phi1 = phi; //phiCor(phi,sector);
@@ -1990,11 +1989,11 @@ namespace Muon {
     if( mms.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
     Identifier chid = mms.identify();
-    MuonStationIndex::DetectorRegionIndex region = m_idHelper->regionIndex(chid);
-    MuonStationIndex::LayerIndex layer = m_idHelper->layerIndex(chid);
-    int sector = m_idHelper->sector(chid);
-    unsigned int technology = m_idHelper->technologyIndex(chid);
-    ATH_MSG_DEBUG("fillMM: Filling " << m_idHelper->toStringChamber(chid) << ": loc s" << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
+    MuonStationIndex::DetectorRegionIndex region = m_muonIdHelperTool->regionIndex(chid);
+    MuonStationIndex::LayerIndex layer = m_muonIdHelperTool->layerIndex(chid);
+    int sector = m_muonIdHelperTool->sector(chid);
+    unsigned int technology = m_muonIdHelperTool->technologyIndex(chid);
+    ATH_MSG_DEBUG("fillMM: Filling " << m_muonIdHelperTool->toStringChamber(chid) << ": loc s" << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
                                                                           << " -> hits "  << mms.size() );
 
     MMPrepDataCollection::const_iterator mit = mms.begin();
@@ -2024,12 +2023,12 @@ namespace Muon {
     if( stgcs.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
     Identifier chid = stgcs.identify();
-    MuonStationIndex::DetectorRegionIndex region = m_idHelper->regionIndex(chid);
-    MuonStationIndex::LayerIndex layer = m_idHelper->layerIndex(chid);
-    int sector = m_idHelper->sector(chid);
+    MuonStationIndex::DetectorRegionIndex region = m_muonIdHelperTool->regionIndex(chid);
+    MuonStationIndex::LayerIndex layer = m_muonIdHelperTool->layerIndex(chid);
+    int sector = m_muonIdHelperTool->sector(chid);
     bool isNeighbouringSector = sector!=selectedSector;
-    unsigned int technology = m_idHelper->technologyIndex(chid);
-    ATH_MSG_DEBUG("fillsTGC: Filling " << m_idHelper->toStringChamber(chid) 
+    unsigned int technology = m_muonIdHelperTool->technologyIndex(chid);
+    ATH_MSG_DEBUG("fillsTGC: Filling " << m_muonIdHelperTool->toStringChamber(chid) 
                          << ": loc s" << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
                          << " -> hits: " << stgcs.size() );
 
@@ -2038,7 +2037,7 @@ namespace Muon {
     for( ;mit!=mit_end;++mit ){
       const sTgcPrepData& prd = **mit;
       const Identifier& id = prd.identify();
-      int channelType = m_idHelper->stgcIdHelper().channelType(id);
+      int channelType = m_muonIdHelperTool->stgcIdHelper().channelType(id);
 
       // only pick up phi hits in neighbouring sectors
       if( isNeighbouringSector && channelType == 1 ) continue;
@@ -2051,7 +2050,7 @@ namespace Muon {
       debug->time = prd.getBcBitMap();
       if( technology < truthCollections.size() ) matchTruth(truthHits, *truthCollections[technology],id,*debug);
 
-      if( m_idHelper->stgcIdHelper().channelType(id) == 1 ) {
+      if( m_muonIdHelperTool->stgcIdHelper().channelType(id) == 1 ) {
         // eta strips
         float x = prd.globalPosition().z();
         float y = rCor(prd);
@@ -2059,7 +2058,7 @@ namespace Muon {
         const MuonGM::MuonChannelDesign* design = prd.detectorElement()->getDesign( id );
         if(design) {
           double stripWidth=design->inputWidth;
-          double stripLength=design->channelLength(m_idHelper->stgcIdHelper().channel(id));
+          double stripLength=design->channelLength(m_muonIdHelperTool->stgcIdHelper().channel(id));
           if(m_debugHough) std::cout << " eta strip width " << stripWidth << " stripLength " << stripLength << std::endl;
           stripCor = 0.5*stripWidth;
         }
@@ -2071,12 +2070,12 @@ namespace Muon {
       }
       else{
         double chWidth = 0;
-        if( m_idHelper->stgcIdHelper().channelType(id) == 0 ) {
+        if( m_muonIdHelperTool->stgcIdHelper().channelType(id) == 0 ) {
             
           // pads
           const MuonGM::MuonPadDesign* design = prd.detectorElement()->getPadDesign(id);
           if( !design ) {
-            ATH_MSG_WARNING("No design found for " << m_idHelper->toString(id) );
+            ATH_MSG_WARNING("No design found for " << m_muonIdHelperTool->toString(id) );
             delete debug;
             continue;
           }
@@ -2090,10 +2089,10 @@ namespace Muon {
 
           if(m_debugHough) std::cout << " Pad chWidth " << chWidth  << " OLD " << chWidthOLD << " phi global " << prd.globalPosition().phi() << std::endl;
         }
-        else if( m_idHelper->stgcIdHelper().channelType(id) == 2 ) {
+        else if( m_muonIdHelperTool->stgcIdHelper().channelType(id) == 2 ) {
           const MuonGM::MuonChannelDesign* design = prd.detectorElement()->getDesign(id);
           if( !design ) {
-            ATH_MSG_WARNING("No design found for " << m_idHelper->toString(id) );
+            ATH_MSG_WARNING("No design found for " << m_muonIdHelperTool->toString(id) );
             delete debug;
             continue;
           }
@@ -2122,7 +2121,7 @@ namespace Muon {
           ATH_MSG_WARNING("bad local phi: in " << phi1 << ", " << phi2 << " sector phi " << m_sectorMapping.sectorPhi(selectedSector) << " phicor " << phi1c << ", " << phi2c );
         }
         if( isNeighbouringSector && !(m_sectorMapping.insideSector(selectedSector,phi1)||m_sectorMapping.insideSector(selectedSector,phi2)) ){
-          ATH_MSG_DEBUG("Dropping phi hit in neighbouring sector " << m_idHelper->toString(id) << " phi min " 
+          ATH_MSG_DEBUG("Dropping phi hit in neighbouring sector " << m_muonIdHelperTool->toString(id) << " phi min " 
                         << std::min(phi1c,phi2c) << " max " << std::max(phi1c,phi2c)
                         << " global phi: in " << phi1 << ", " << phi2 << " sector phi " << m_sectorMapping.sectorPhi(selectedSector) );
           delete debug;
@@ -2130,7 +2129,7 @@ namespace Muon {
         } 
         float r = rCor(prd);
         MuonHough::PhiHit* phiHit = new MuonHough::PhiHit(sublayer,r,std::min(phi1c,phi2c),std::max(phi1c,phi2c),1,debug,&prd);
-        ATH_MSG_VERBOSE("Phi hit " << m_idHelper->toString(id) << " r " << r << " phi min " << phiHit->phimin << " phi max " << phiHit->phimax 
+        ATH_MSG_VERBOSE("Phi hit " << m_muonIdHelperTool->toString(id) << " r " << r << " phi min " << phiHit->phimin << " phi max " << phiHit->phimax 
             << " bc " << debug->barcode << " chw " << chWidth << " trigC " << debug->trigConfirm << " g phi " << phi1 << " " << phi2 );
         phiHits.push_back(phiHit);
       }
@@ -2142,7 +2141,7 @@ namespace Muon {
       int sector ) const {
     
     if( tgcs.empty() ) return;
-    tgcClusteringObjs.push_back( std::make_unique<TgcHitClusteringObj>(m_idHelper->tgcIdHelper()) );
+    tgcClusteringObjs.push_back( std::make_unique<TgcHitClusteringObj>(m_muonIdHelperTool.get()) );
     TgcHitClusteringObj& clustering = *tgcClusteringObjs.back();
     std::vector<const TgcPrepData*> prds;
     prds.insert(prds.begin(),tgcs.begin(),tgcs.end());
@@ -2150,14 +2149,14 @@ namespace Muon {
     clustering.buildClusters3D();
 
     Identifier chid = tgcs.identify();
-    MuonStationIndex::DetectorRegionIndex region = m_idHelper->regionIndex(chid);
-    MuonStationIndex::LayerIndex layer = m_idHelper->layerIndex(chid);
+    MuonStationIndex::DetectorRegionIndex region = m_muonIdHelperTool->regionIndex(chid);
+    MuonStationIndex::LayerIndex layer = m_muonIdHelperTool->layerIndex(chid);
 
     if( clustering.clusters3D.empty() ) {
       ATH_MSG_DEBUG("TgcHitClusteringObj, no 3D clusters! ");
       if( msgLvl(MSG::DEBUG) ){
         for(std::vector<const TgcPrepData*>::iterator it=prds.begin();it!=prds.end();++it ){
-          msg(MSG::DEBUG) << "   " << m_idHelper->toString( (*it)->identify() ) << endmsg;
+          ATH_MSG_DEBUG("   " << m_muonIdHelperTool->toString( (*it)->identify() ));
         }
       }
       return;
@@ -2166,7 +2165,7 @@ namespace Muon {
       ATH_MSG_DEBUG("TgcHitClusteringObj, no eta cluster selected! ");
       if( msgLvl(MSG::DEBUG) ){
         for(std::vector<const TgcPrepData*>::iterator it=prds.begin();it!=prds.end();++it ){
-          msg(MSG::DEBUG) << "   " << m_idHelper->toString( (*it)->identify() ) << endmsg;
+          ATH_MSG_DEBUG("   " << m_muonIdHelperTool->toString( (*it)->identify() ));
         }
       }
       return;
@@ -2174,7 +2173,7 @@ namespace Muon {
     auto truthCollections = m_truthNames.makeHandles();
     std::vector<int> sectors;
     getSectors(clustering.clusters3D.front(),sectors);
-    unsigned int technology = m_idHelper->technologyIndex(chid);
+    unsigned int technology = m_muonIdHelperTool->technologyIndex(chid);
     for( unsigned int si=0;si<sectors.size();++si ){
       if( sectors[si] != sector ) continue;
       //int sector = sectors[si];
@@ -2184,7 +2183,7 @@ namespace Muon {
       for( ;clit!=clit_end;++clit ){
   const TgcClusterObj3D& cl = *clit;
   if( cl.etaCluster.hitList.empty() ) {
-    ATH_MSG_WARNING("Incomplete TgcClusterObj3D in chamber " << m_idHelper->toString(chid) );
+    ATH_MSG_WARNING("Incomplete TgcClusterObj3D in chamber " << m_muonIdHelperTool->toString(chid) );
     continue;
   }
   const Identifier& id = cl.etaCluster.hitList.front()->identify();
@@ -2220,7 +2219,7 @@ namespace Muon {
   phiDebug->clusterLayers = cl.phiCluster.layers();
   phiDebug->isEtaPhi = cl.etaCluster.layers();
 
-  //ATH_MSG_VERBOSE(" " << m_idHelper->toString(id) << " x " << x  << " ymin " << ymin << " ymax " << ymax << " sublay " << sublayer << " tgc " << &cl );
+  //ATH_MSG_VERBOSE(" " << m_muonIdHelperTool->toString(id) << " x " << x  << " ymin " << ymin << " ymax " << ymax << " sublay " << sublayer << " tgc " << &cl );
 
   MuonHough::Hit* hit = new MuonHough::Hit(sublayer,x,ymin,ymax,2*cl.etaCluster.layers(),debug,0,&cl);
   MuonHough::PhiHit* phiHit = new MuonHough::PhiHit(sublayer,y11,phi1,phi2,2*cl.phiCluster.layers(), phiDebug,0,&cl);
@@ -2228,20 +2227,20 @@ namespace Muon {
   phiHits.push_back(phiHit);
       }
     }
-    ATH_MSG_DEBUG("fillTGC: Filling " << m_idHelper->toStringChamber(chid) << ": loc s"    << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
+    ATH_MSG_DEBUG("fillTGC: Filling " << m_muonIdHelperTool->toStringChamber(chid) << ": loc s"    << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
                                                                            << " -> etaHits: " << hits.size() 
                                                                            << " phiHits: "  << phiHits.size() 
                                                                            << " sectors: "  << sectors.size() );
   }
  
   void MuonLayerHoughTool::insertHash( const IdentifierHash& hash, const Identifier& id ) {
-    insertHash(m_idHelper->sector(id),hash,id);
+    insertHash(m_muonIdHelperTool->sector(id),hash,id);
   }
 
   void MuonLayerHoughTool::insertHash( int sector, const IdentifierHash& hash, const Identifier& id ) {
-    MuonStationIndex::TechnologyIndex techIndex = m_idHelper->technologyIndex(id);
-    int sectorLayerHash = MuonStationIndex::sectorLayerHash(m_idHelper->regionIndex(id),m_idHelper->layerIndex(id));
-    // ATH_MSG_VERBOSE("Inserting " << m_idHelper->toStringChamber(id) << " sector " << sector << " sectorLayerHash "
+    MuonStationIndex::TechnologyIndex techIndex = m_muonIdHelperTool->technologyIndex(id);
+    int sectorLayerHash = MuonStationIndex::sectorLayerHash(m_muonIdHelperTool->regionIndex(id),m_muonIdHelperTool->layerIndex(id));
+    // ATH_MSG_VERBOSE("Inserting " << m_muonIdHelperTool->toStringChamber(id) << " sector " << sector << " sectorLayerHash "
     //                 << sectorLayerHash << " tech " << tech << " tech index " << MuonStationIndex::technologyName(techIndex) );
     // if( sector < 1 || sector > m_collectionsPerSector.size() ) ATH_MSG_WARNING("Bad sector index " << sector << " max " << m_collectionsPerSector.size() );
     // if( tech < 0 || tech >= m_collectionsPerSector[sector-1].technologyRegionHashVecs.size() ) 
@@ -2253,7 +2252,7 @@ namespace Muon {
 
   // all chambers are mapped onto a layer and sector map
   void MuonLayerHoughTool::initializeSectorMapping() {
-    m_ntechnologies = m_idHelper->mdtIdHelper().technologyNameIndexMax()+1;
+    m_ntechnologies = m_muonIdHelperTool->mdtIdHelper().technologyNameIndexMax()+1;
     m_collectionsPerSector.resize(MuonStationIndex::numberOfSectors());
     // set sector numbers
     unsigned int nsectorHashMax = MuonStationIndex::sectorLayerHashMax();
@@ -2267,66 +2266,72 @@ namespace Muon {
     ATH_MSG_DEBUG("Initializing hashes: number of sectors " << MuonStationIndex::numberOfSectors() 
                   << " technologies " << m_ntechnologies << " sectorLayers " << MuonStationIndex::sectorLayerHashMax() );
     // loop over all available MDT collection identifiers and order them per sector
-    MuonIdHelper::const_id_iterator it = m_idHelper->mdtIdHelper().module_begin();
-    MuonIdHelper::const_id_iterator it_end = m_idHelper->mdtIdHelper().module_end();
+    MuonIdHelper::const_id_iterator it = m_muonIdHelperTool->mdtIdHelper().module_begin();
+    MuonIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
     for( ;it!=it_end; ++it ){
       IdentifierHash hash;
-      m_idHelper->mdtIdHelper().get_module_hash(*it,hash);
+      m_muonIdHelperTool->mdtIdHelper().get_module_hash(*it,hash);
       insertHash(hash,*it);
     }
 
     // loop over all available RPC collection identifiers and order them per sector
-    it = m_idHelper->rpcIdHelper().module_begin();
-    it_end = m_idHelper->rpcIdHelper().module_end();
+    it = m_muonIdHelperTool->rpcIdHelper().module_begin();
+    it_end = m_muonIdHelperTool->rpcIdHelper().module_end();
     for( ;it!=it_end; ++it ){
       IdentifierHash hash;
-      m_idHelper->rpcIdHelper().get_module_hash(*it,hash);
+      m_muonIdHelperTool->rpcIdHelper().get_module_hash(*it,hash);
       insertHash(hash,*it);
     }
 
     // loop over all available CSC collection identifiers and order them per sector
-    it = m_idHelper->cscIdHelper().module_begin();
-    it_end = m_idHelper->cscIdHelper().module_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_idHelper->cscIdHelper().get_module_hash(*it,hash);
-      insertHash(hash,*it);
+    if (m_muonIdHelperTool->hasCSC()) {
+      it = m_muonIdHelperTool->cscIdHelper().module_begin();
+      it_end = m_muonIdHelperTool->cscIdHelper().module_end();
+      for( ;it!=it_end; ++it ){
+        IdentifierHash hash;
+        m_muonIdHelperTool->cscIdHelper().get_module_hash(*it,hash);
+        insertHash(hash,*it);
+      }
     }
 
     // loop over all available MM collection identifiers and order them per sector
-    it = m_idHelper->mmIdHelper().detectorElement_begin();
-    it_end = m_idHelper->mmIdHelper().detectorElement_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_idHelper->mmIdHelper().get_module_hash(*it,hash);
-      insertHash(hash,*it);
+    if (m_muonIdHelperTool->hasMM()) {
+      it = m_muonIdHelperTool->mmIdHelper().detectorElement_begin();
+      it_end = m_muonIdHelperTool->mmIdHelper().detectorElement_end();
+      for( ;it!=it_end; ++it ){
+        IdentifierHash hash;
+        m_muonIdHelperTool->mmIdHelper().get_module_hash(*it,hash);
+        insertHash(hash,*it);
+      }
     }
 
     // loop over all available STGC collection identifiers and order them per sector
-    it = m_idHelper->stgcIdHelper().detectorElement_begin();
-    it_end = m_idHelper->stgcIdHelper().detectorElement_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_idHelper->stgcIdHelper().get_module_hash(*it,hash);
-      int sector = m_idHelper->sector(*it);
-      insertHash(sector,hash,*it);
-      int sectorU = sector != 1 ? sector-1 : 16;
-      int sectorD = sector != 16 ? sector+1 : 1;
-      insertHash(sectorU,hash,*it);
-      insertHash(sectorD,hash,*it);
+    if (m_muonIdHelperTool->hasSTgc()) {
+      it = m_muonIdHelperTool->stgcIdHelper().detectorElement_begin();
+      it_end = m_muonIdHelperTool->stgcIdHelper().detectorElement_end();
+      for( ;it!=it_end; ++it ){
+        IdentifierHash hash;
+        m_muonIdHelperTool->stgcIdHelper().get_module_hash(*it,hash);
+        int sector = m_muonIdHelperTool->sector(*it);
+        insertHash(sector,hash,*it);
+        int sectorU = sector != 1 ? sector-1 : 16;
+        int sectorD = sector != 16 ? sector+1 : 1;
+        insertHash(sectorU,hash,*it);
+        insertHash(sectorD,hash,*it);
+      }
     }
 
     // loop over all available TGC collection identifiers and order them per sector
-    it = m_idHelper->tgcIdHelper().module_begin();
-    it_end = m_idHelper->tgcIdHelper().module_end();
+    it = m_muonIdHelperTool->tgcIdHelper().module_begin();
+    it_end = m_muonIdHelperTool->tgcIdHelper().module_end();
     for( ;it!=it_end; ++it ){
       const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(*it);
       if( !detEl ) {
-        ATH_MSG_DEBUG(" No detector element found for " << m_idHelper->toString(*it) );
+        ATH_MSG_DEBUG(" No detector element found for " << m_muonIdHelperTool->toString(*it) );
         continue;
       }
       IdentifierHash hash;
-      m_idHelper->tgcIdHelper().get_module_hash(*it,hash);
+      m_muonIdHelperTool->tgcIdHelper().get_module_hash(*it,hash);
       int nstrips = detEl->getNStrips(1);
       Amg::Vector3D p1 = detEl->channelPos(1,1,1);
       Amg::Vector3D p2 = detEl->channelPos(1,1,nstrips);
@@ -2391,7 +2396,7 @@ namespace Muon {
       std::vector<Identifier>::iterator pos = std::set_difference(truth.begin(),truth.end(),found.begin(),found.end(),result.begin());
       result.resize(pos-result.begin());
       for( std::vector<Identifier>::iterator it=result.begin();it!=result.end();++it ){
-        ATH_MSG_DEBUG("  " << m_idHelper->toString(*it) );
+        ATH_MSG_DEBUG("  " << m_muonIdHelperTool->toString(*it) );
       }
     }
   }

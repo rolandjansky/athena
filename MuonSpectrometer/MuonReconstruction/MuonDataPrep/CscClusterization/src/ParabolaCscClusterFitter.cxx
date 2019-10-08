@@ -111,7 +111,7 @@ double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane &plane, double &raw
 
 ParabolaCscClusterFitter::
 ParabolaCscClusterFitter(string type, string aname, const IInterface* parent)
-: AthAlgTool(type, aname, parent), m_detMgr(nullptr), m_cscIdHelper(nullptr) {
+: AthAlgTool(type, aname, parent), m_detMgr(nullptr) {
   declareInterface<ICscClusterFitter>(this);
   m_max_width.push_back(5);  // CSS eta
   m_max_width.push_back(5);  // CSL eta
@@ -141,7 +141,8 @@ StatusCode ParabolaCscClusterFitter::initialize() {
     ATH_MSG_FATAL ( "Could not find the MuonGeoModel Manager! " );
     return StatusCode::FAILURE;
   } 
-  m_cscIdHelper = m_detMgr->cscIdHelper();
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+
 
   ATH_MSG_DEBUG ( "Properties for " << name() << ":" );
   ATH_MSG_DEBUG ( "    tan(theta) error coeff: " << m_error_tantheta );
@@ -208,11 +209,11 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
   Identifier idStrip0 = pstrip->identify();
   const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
   //  const CscReadoutElement* pro = pstrip->detectorElement(); fixed by Woochun
-  bool measphi = m_cscIdHelper->CscIdHelper::measuresPhi(idStrip0);
+  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   unsigned int maxstrip = pro->maxNumberOfStrips(measphi);
-  unsigned int strip0 = m_cscIdHelper->strip(idStrip0) - 1;
-  int station = m_cscIdHelper->stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
+  unsigned int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
+  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
   CscPlane plane = findPlane(station, measphi);
   if ( plane == UNKNOWN_PLANE ) {
     ATH_MSG_WARNING ( "Invalid CSC plane: station=" << station << "; measphi=" << measphi );
@@ -226,7 +227,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
   for ( unsigned int istrip=0; istrip<nstrip; ++istrip ) {
     Identifier id = sfits[istrip].strip->identify();
     if (sfits[istrip].charge>=20000) ++nstrip_threshold;
-    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_cscIdHelper->strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke." );
+    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_muonIdHelperTool->cscIdHelper().strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke." );
   }
   
   // Find the highest peak and count all peaks above threshold.
@@ -242,7 +243,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
     float qnext = sfits[istrip+1].charge;
     double thr = m_multi * sfits[istrip].dcharge / 10; // correct noise*10 
     Identifier id = sfits[istrip].strip->identify();
-    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_cscIdHelper->strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke, thr: " << (int)(thr/1000) << " ke " << ((qthis>thr)?"signal":"noise") << sfits[istrip].dcharge/1000);
+    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_muonIdHelperTool->cscIdHelper().strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke, thr: " << (int)(thr/1000) << " ke " << ((qthis>thr)?"signal":"noise") << sfits[istrip].dcharge/1000);
     charge_clu += qthis;
 
     // Peak if the adjacent strips have less charge.    
@@ -402,7 +403,7 @@ double ParabolaCscClusterFitter::getCorrectedError(const CscPrepData* pclu, doub
   double dpos = Amg::error(pclu->localCovariance(),ierr);
 
   Identifier idStrip0 = pclu->identify();
-  int station = m_cscIdHelper->stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
   // Calculate the angle of incidence.
   double tantht = 0.0;
   if ( station == 1 ) {
@@ -445,7 +446,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits) const {
     // Fetch the chamber type.
     const CscStripPrepData* pstrip = sfits[0].strip;
     Identifier idStrip0 = pstrip->identify();
-    int station = m_cscIdHelper->stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+    int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
     // Calculate the angle of incidence.
     double tantht = 0.0;
     double pos = res.position;

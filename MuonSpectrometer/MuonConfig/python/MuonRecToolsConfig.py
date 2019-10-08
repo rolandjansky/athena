@@ -29,9 +29,12 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
         kwargs.setdefault("SegmentMakerNoHoles", seg_maker) #FIXME. Just remove one.
     if not flags.Detector.GeometryCSC:
         kwargs.setdefault("CscPrepDataContainer","")
-    else:
+    if not flags.Detector.GeometrysTGC:
         kwargs.setdefault("sTgcPrepDataContainer","")
+    if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
+    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     
     muon_seeded_segment_finder = Muon__MuonSeededSegmentFinder(name, **kwargs)
     result.setPrivateTools(muon_seeded_segment_finder)

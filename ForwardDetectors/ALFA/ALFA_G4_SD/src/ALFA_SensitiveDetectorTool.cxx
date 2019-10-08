@@ -70,7 +70,7 @@ StatusCode ALFA_SensitiveDetectorTool::Gather()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* ALFA_SensitiveDetectorTool::makeSD()
+G4VSensitiveDetector* ALFA_SensitiveDetectorTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   // Create a fresh SD

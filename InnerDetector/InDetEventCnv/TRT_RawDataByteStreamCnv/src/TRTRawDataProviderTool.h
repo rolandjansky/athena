@@ -39,14 +39,14 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   virtual ~TRTRawDataProviderTool() ;
 
   //! initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //! finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   //! this is the main decoding method
-  StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      TRT_RDO_Container*               rdoIdc );
+  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
+		      TRT_RDO_Container*               rdoIdc ) override;
 
 private: 
   TRTRawDataProviderTool( ); //Not implemented
@@ -56,7 +56,6 @@ private:
   ServiceHandle<ITRT_ByteStream_ConditionsSvc>   m_bsErrSvc;
 
   // bookkeeping if we have decoded a ROB already
-  std::set<uint32_t> m_robIdSet;
   uint32_t      m_LastLvl1ID;
   InDetTimeCollection* m_LVL1Collection;
   InDetTimeCollection* m_BCCollection;
