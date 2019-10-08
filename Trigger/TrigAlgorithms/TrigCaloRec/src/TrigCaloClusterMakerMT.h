@@ -54,7 +54,6 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
   ToolHandleArray<CaloClusterProcessor> m_clusterCorrections
   { this, "ClusterCorrectionTools", {}, "" };
 
-
   // Following used for testing only :
   //bool        m_useMeaningfullNames;      
   std::string m_clustersOutputName;
@@ -93,6 +92,12 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
       "CaloClusters",                  // property name
       "caloclusters",                                             // default value of StoreGate key
       "output CaloClusterContainer"};
+
+  // This is to write out the cells container so it is available at later steps
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterCellLinkOutput{ this,
+      "CellLinks",
+      "celllinks",
+      "Output cell links"};
 
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
