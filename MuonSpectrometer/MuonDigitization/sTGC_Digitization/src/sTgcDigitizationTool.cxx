@@ -105,6 +105,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_digitizer(0),
     m_thpcsTGC(0),
     m_sdoContainer(0), 
+    m_smearingTool("Muon::NSWSmearingTool/NSWSmearingTool",this),
     m_inputHitCollectionName("sTGCSensitiveDetector"),
     m_outputDigitCollectionName("sTGC_DIGITS"),
     m_outputSDO_CollectionName("sTGC_SDO"),
@@ -113,8 +114,8 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_readoutThreshold(0),
     m_neighborOnThreshold(0),
     m_saturation(0),
-	m_deadtimeON(1),
-	m_produceDeadDigits(0),
+    m_deadtimeON(1),
+    m_produceDeadDigits(0),
     m_deadtimeStrip(50.),
     m_deadtimePad(5.),
     m_deadtimeWire(5.),
@@ -130,11 +131,10 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_timeJitterElectronicsPad(0),
     m_hitTimeMergeThreshold(0),
     m_energyDepositThreshold(300.0*CLHEP::eV)
-
 {
   declareInterface<IMuonDigitizationTool>(this);
-  declareProperty("RndmSvc",                 m_rndmSvc,                                             "Random Number Service used in Muon digitization");
-  declareProperty("RndmEngine",              m_rndmEngineName,                                      "Random engine name");
+  declareProperty("RndmSvc",                 m_rndmSvc,  "Random Number Service used in Muon digitization");
+  declareProperty("RndmEngine",              m_rndmEngineName,  "Random engine name");
   declareProperty("InputObjectName",         m_inputHitCollectionName    = "sTGCSensitiveDetector", "name of the input object");
   declareProperty("OutputObjectName",        m_outputDigitCollectionName = "sTGC_DIGITS",           "name of the output object");
   declareProperty("OutputSDOName",           m_outputSDO_CollectionName  = "sTGC_SDO"); 
@@ -145,7 +145,8 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareProperty("DeadtimeElectronicsPad",  m_deadtimePad); 
   declareProperty("timeWindowPad",           m_timeWindowPad); 
   declareProperty("timeWindowStrip",         m_timeWindowStrip); 
-  declareProperty("energyDepositThreshold",  m_energyDepositThreshold,           "Minimum energy deposit considered for digitization");
+  declareProperty("energyDepositThreshold",  m_energyDepositThreshold, "Minimum energy deposit considered for digitization");
+  declareProperty("doSmearing",m_doSmearing=false);
 }
 /*******************************************************************************/
 // member function implementation
@@ -1024,13 +1025,29 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
     for(std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
       for(std::vector< sTgcDigit >::iterator it_digit = it_REID->second.begin(); it_digit != it_REID->second.end(); ++it_digit){
-        sTgcDigit* finalDigit = new sTgcDigit(it_digit->identify(), it_digit->bcTag(), it_digit->time(), it_digit->charge(), it_digit->isDead(), it_digit->isPileup());
-        digitCollection->push_back(finalDigit);
-        ATH_MSG_VERBOSE("Final Digit") ;
-        ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
-        ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
-        ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
+
+	// apply the smearing before adding the digit
+	bool acceptDigit = true;
+	float chargeAfterSmearing(it_digit->charge());
+
+	if ( m_doSmearing ) {
+	  ATH_CHECK(m_smearingTool->smearCharge(it_digit->identify(), chargeAfterSmearing, acceptDigit) );
+	} 
+
+	if ( acceptDigit ) { 
+	  
+	  sTgcDigit* finalDigit = new sTgcDigit(it_digit->identify(), it_digit->bcTag(), it_digit->time(), chargeAfterSmearing, 
+						it_digit->isDead(), it_digit->isPileup());	  
+	  digitCollection->push_back(finalDigit);
+	  ATH_MSG_VERBOSE("Final Digit") ;
+	  ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
+	  ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
+	  ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
+
+	}
+
       } // end of loop for all the digit object of the same ReadoutElementID
+
     } // end of loop for all the ReadoutElementID
 
     if(digitCollection->size()){

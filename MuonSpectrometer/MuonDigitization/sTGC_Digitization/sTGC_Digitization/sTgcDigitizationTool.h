@@ -25,6 +25,8 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
+#include "NSWCalibTools/INSWCalibSmearingTool.h"
+
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -111,6 +113,7 @@ protected:
   std::string m_rndmEngineName;// name of random engine
 
 private:
+
   sTgcHitIdHelper*                         m_hitIdHelper;
   sTgcDigitContainer*                      m_digitContainer;
   const sTgcIdHelper*                      m_idHelper;
@@ -119,6 +122,9 @@ private:
   TimedHitCollection<sTGCSimHit>*   m_thpcsTGC;
   MuonSimDataCollection*                   m_sdoContainer;
   std::list<sTGCSimHitCollection*>  m_STGCHitCollList;
+
+  ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool;
+  BooleanProperty m_doSmearing;
 
   std::string m_inputHitCollectionName; // name of the input objects
   std::string m_outputDigitCollectionName; // name of the output digits
