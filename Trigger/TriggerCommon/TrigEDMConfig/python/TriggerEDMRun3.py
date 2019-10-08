@@ -87,8 +87,6 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'BS ESD', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.slot.roi.start.stop.', 'BS ESD', 'Steer'),
 
-    ('HLT::HLTResultMT#HLTResultMT',                         'ESD', 'Steer'),
-
     # Run-2 L1 (temporary)
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.' ,          'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
