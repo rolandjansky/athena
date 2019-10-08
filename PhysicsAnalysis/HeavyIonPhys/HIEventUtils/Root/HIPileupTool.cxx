@@ -169,37 +169,48 @@ bool HIPileupTool::is_pileup(const xAOD::HIEventShapeContainer& evShCont, const 
    	nNeutrons = get_nNeutrons(ZdcCont);
    	if (nNeutrons > m_hCut->GetBinContent(m_hCut->FindBin(FCal_Et))) kPileup = true; // 2015 cut based in Number of neutrons
    }
-   if(m_year=="2018"){
+   else if(m_year=="2018"){
    	double ZDC_energy = get_ZDC_E(ZdcCont); 
 	if (ZDC_energy > m_hCut->GetBinContent(m_hCut->FindBin(FCal_Et))) kPileup = true; // 2018 cut based in ZDC (A+C) energy 
    }
+
+   else{
+	ATH_MSG_INFO("Warning:In-time pileup rejection not calibrated for year: " << m_year);
+	kPileup = false;
+   }
+
    return kPileup;
 }
 
 bool HIPileupTool::is_Outpileup(const xAOD::HIEventShapeContainer& evShCont, const int nTrack) const {
+   if(m_year=="2018"){
+   	if (nTrack > 3000) // The selection is only for [0, 3000]
+        	return 0;
 
-   if (nTrack > 3000) // The selection is only for [0, 3000]
-        return 0;
+   	float Fcal_Et = 0.0;
+   	float Tot_Et = 0.0;
+   	float oop_Et = 0.0;
+   	Fcal_Et = evShCont.at(5)->et()*1e-6;
+   	Tot_Et = evShCont.at(0)->et()*1e-6;
+   	oop_Et = Tot_Et - Fcal_Et;// Barrel + Endcap calo
 
-   float Fcal_Et = 0.0;
-   float Tot_Et = 0.0;
-   float oop_Et = 0.0;
-   Fcal_Et = evShCont.at(5)->et()*1e-6;
-   Tot_Et = evShCont.at(0)->et()*1e-6;
-   oop_Et = Tot_Et - Fcal_Et;// Barrel + Endcap calo
+   	int nBin{m_oop_hMean->GetXaxis()->FindFixBin(nTrack)};
+   	double mean{m_oop_hMean->GetBinContent(nBin)};
+   	double sigma{m_oop_hSigma->GetBinContent(nBin)};
 
-   int nBin{m_oop_hMean->GetXaxis()->FindFixBin(nTrack)};
-   double mean{m_oop_hMean->GetBinContent(nBin)};
-   double sigma{m_oop_hSigma->GetBinContent(nBin)};
+   	switch (m_nside){
 
-   switch (m_nside){
-
-   	case 1: if (oop_Et - mean > -4 * sigma) return 0;
-        	break;
-    	case 2: if (abs(oop_Et - mean) < 4 * sigma) return 0;
-        	break;
-    	default: if (oop_Et - mean > -4 * sigma) return 0;
+   		case 1: if (oop_Et - mean > -4 * sigma) return 0;
+        		break;
+    		case 2: if (abs(oop_Et - mean) < 4 * sigma) return 0;
+        		break;
+    		default: if (oop_Et - mean > -4 * sigma) return 0;
 	}
+   }
+   else{
+        ATH_MSG_INFO("Warning:Out-of-time pileup rejection not calibrated for year: " << m_year);
+        return 0;
+   }  
       
    return 1;
 }
