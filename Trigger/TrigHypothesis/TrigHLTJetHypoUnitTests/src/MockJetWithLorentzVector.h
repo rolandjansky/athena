@@ -6,10 +6,15 @@
 #define TRIGHLTJETHYPOUNITTESTS_MOCKJETWITHLORENTZVECTOR_H
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
+#include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include <TLorentzVector.h>
 
 using ::testing::Invoke;
+using ::testing::Return;
+using ::testing::_;
+using ::testing::SetArgReferee;
+using ::testing::AnyNumber;
 
 class MockJetWithLorentzVector: public HypoJet::IJet {
 public:

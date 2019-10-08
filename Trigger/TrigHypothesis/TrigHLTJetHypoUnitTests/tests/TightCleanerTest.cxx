@@ -2,25 +2,27 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/LooseCleaner.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TightCleaner.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/UncleanableJet.h"  // exception class
-#include "./MockJet.h"
+#include "../src//MockJet.h"
 #include "gtest/gtest.h"
 // #include <TLorentzVector.h>
 #include "gmock/gmock.h"
 #include <array>
+#include <math.h>
 
 using ::testing::Return;
 using ::testing::_;
 using ::testing::SetArgReferee;
 
-LooseCleaner makeLooseCleaner(float fSampMaxTightThreshold,
-			      float etaTightThreshold,
-			      float emfLowTightThreshold,
-			      float emfHighTightThreshold,
-			      float hecfTightThreshold){
+TightCleaner makeCleaner(float fSampMaxTightThreshold,
+			 float etaTightThreshold,
+			 float emfLowTightThreshold,
+			 float emfHighTightThreshold,
+			 float hecfTightThreshold){
 
-  return LooseCleaner(fSampMaxTightThreshold,
+  return TightCleaner(fSampMaxTightThreshold,
 		      etaTightThreshold,
 		      emfLowTightThreshold,
 		      emfHighTightThreshold,
@@ -28,7 +30,7 @@ LooseCleaner makeLooseCleaner(float fSampMaxTightThreshold,
 }
 
 
-TEST(LooseCleanerTest, SimpleThresholds) {
+TEST(TightCleanerTest, SimpleThresholds) {
 
   MockJet jet;
   
@@ -55,7 +57,7 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   // jet on accept side of all boundaries
   {
     std::array<float, 5> args{1., 1., 1., 2., 1.};
-    auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
+    auto cleaner = makeCleaner(args[0], args[1], args[2], args[3], args[4]);
     EXPECT_TRUE(cleaner(&jet));
   }
 
@@ -65,21 +67,21 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   // jet above  fSampMaxTightThreshold, inside applicable eta range
   {
     std::array<float, 5> args{1.-eps, 1+ eps, 1,  2., 1.};
-    auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
+    auto cleaner = makeCleaner(args[0], args[1], args[2], args[3], args[4]);
     EXPECT_FALSE(cleaner(&jet));
   }
 
   // jet above  fSampMaxTightThreshold, outside applicable eta range
   {
     std::array<float, 5> args{1.-eps, 0.5- eps, 1,  2., 1.};
-    auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
+    auto cleaner = makeCleaner(args[0], args[1], args[2], args[3], args[4]);
     EXPECT_TRUE(cleaner(&jet));
   }
 
   // jet below _emfLowTightThreshold
   {
     std::array<float, 5> args{1., 1., 1+eps,  2., 1.};
-    auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
+    auto cleaner = makeCleaner(args[0], args[1], args[2], args[3], args[4]);
     EXPECT_FALSE(cleaner(&jet));
   }
 
@@ -87,7 +89,7 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   // jet above _emfHighTightThreshold
   {
     std::array<float, 5> args{1., 1., 0.5,  1.-eps, 1.};
-    auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
+    auto cleaner = makeCleaner(args[0], args[1], args[2], args[3], args[4]);
     EXPECT_FALSE(cleaner(&jet));
   }
 
@@ -95,16 +97,16 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   // jet above _emfLowTightThreshold
   {
     std::array<float, 5> args{1., 1., 1.0,  1.0, 1. -eps};
-    auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
+    auto cleaner = makeCleaner(args[0], args[1], args[2], args[3], args[4]);
     EXPECT_FALSE(cleaner(&jet));
   }
 
 }
 
-TEST(LooseCleanerTest, ThrowsOnUncleanableJet) {
+TEST(TightCleanerTest, ThrowsOnUncleanableJet) {
   MockJet jet;
 
-  LooseCleaner cleaner(1., 1., 1., 2., 1.);
+  TightCleaner cleaner(1., 1., 1., 2., 1.);
 
   EXPECT_CALL(jet, getAttribute("FracSamplingMax", _))
     .WillOnce(DoAll(SetArgReferee<1>(0.9), Return(false)));

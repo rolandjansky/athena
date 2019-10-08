@@ -3,6 +3,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetHypoToolConfig_simple,
+    TrigJetConditionConfig_et,
+    TrigJetConditionConfig_abs_eta,
+    TrigJetConditionConfig_dijet_mass,
+    TrigJetConditionConfig_dijet_deta,
+    TrigJetConditionConfig_dijet_dphi,
     TrigJetHypoToolConfig_simple_partition,
     TrigJetHypoToolConfig_dijet,
     NotHelperTool,
@@ -33,6 +38,11 @@ class ToolSetter(object):
             'dijet': [TrigJetHypoToolConfig_dijet, 0],
             'combgen': [TrigJetHypoToolConfig_combgen, 0],
             'partgen': [TrigJetHypoToolConfig_partgen, 0],
+            'et': [TrigJetConditionConfig_et, 0],
+            'eta': [TrigJetConditionConfig_abs_eta, 0],
+            'dijet_mass': [TrigJetConditionConfig_dijet_mass, 0],
+            'dijet_deta': [TrigJetConditionConfig_dijet_deta, 0],
+            'dijet_dphi': [TrigJetConditionConfig_dijet_dphi, 0],
             }
 
         self.mod_router = {
@@ -117,10 +127,13 @@ class ToolSetter(object):
 
         scen = node.scenario
         klass = self.tool_factories[scen][0]
+
         sn = self.tool_factories[scen][1]
         name = '%s_%d' % (scen, sn)
         
         self.tool_factories[scen][1] += 1
+
+        
 
         config_tool = klass(name=name+'_config')
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]

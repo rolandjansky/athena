@@ -5,8 +5,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/PartitionsGrouper.h"
 
-#include "./TLorentzVectorFactory.h"
-#include "./TLorentzVectorAsIJet.h"
+#include "../src/TLorentzVectorFactory.h"
+#include "../src/TLorentzVectorAsIJet.h"
 
 #include <TLorentzVector.h>
 

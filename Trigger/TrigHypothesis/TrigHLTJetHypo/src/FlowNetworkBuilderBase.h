@@ -12,6 +12,7 @@
 class FlowNetworkBuilderBase: virtual public IFlowNetworkBuilder{
  public:
   FlowNetworkBuilderBase(ConditionsMT);
+  ~FlowNetworkBuilderBase(){}
   virtual std::optional<std::unique_ptr<FlowNetwork>>
     create(const HypoJetGroupCIter&,
            const HypoJetGroupCIter&,

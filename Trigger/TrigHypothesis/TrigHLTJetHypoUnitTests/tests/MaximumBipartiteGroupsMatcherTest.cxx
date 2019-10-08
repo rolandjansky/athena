@@ -8,8 +8,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
-#include "./MockJetWithLorentzVector.h"
-#include "./TLorentzVectorFactory.h"
+#include "../src/MockJetWithLorentzVector.h"
+#include "../src/TLorentzVectorFactory.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 

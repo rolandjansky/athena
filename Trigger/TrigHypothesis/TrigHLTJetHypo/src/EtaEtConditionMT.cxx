@@ -12,8 +12,9 @@
 
 EtaEtConditionMT::EtaEtConditionMT(double etaMin,
                                    double etaMax,
-                                   double threshold): 
-  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){
+                                   double threshold):
+
+m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){
 }
 
 

@@ -11,8 +11,8 @@
 #include "TrigHLTJetHypo/../src/xAODJetCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
-#include "./TLorentzVectorAsIJet.h"
-#include "./TLorentzVectorFactory.h"
+#include "../src/TLorentzVectorAsIJet.h"
+#include "../src/TLorentzVectorFactory.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
