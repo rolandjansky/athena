@@ -343,11 +343,12 @@ def triggerRunCfg( flags, menu=None ):
     top of the trigger config (for real triggering online or on MC)
     Returns: ca only
     """
-    if flags.Trigger.doLVL1:
-        # conigure L1 simulation
-        pass
-
     acc = ComponentAccumulator()
+
+    if flags.Trigger.doLVL1:
+        from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, L1ConfigSvcCfg
+        generateL1Menu( flags )
+        acc.merge( L1ConfigSvcCfg(flags) )
 
     acc.merge( triggerIDCCacheCreatorsCfg( flags ) )
 

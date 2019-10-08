@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -63,7 +63,9 @@ namespace TrigConf {
       uint32_t masterKey() const ;
       uint32_t lvl1PrescaleKey() const ;
       uint32_t hltPrescaleKey() const ;
-      std::string configurationSource() const;
+      std::string configurationSource() const override {
+         return "";
+      }
 
       StatusCode updatePrescaleSets(uint requestcount);
 

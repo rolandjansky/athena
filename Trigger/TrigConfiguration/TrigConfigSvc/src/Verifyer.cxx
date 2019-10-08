@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,7 +13,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/L1DataDef.h"
 
-#include "TrigConfigSvc/Verifyer.h"
+#include "./Verifyer.h"
 
 using namespace std;
 

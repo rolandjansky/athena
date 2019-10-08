@@ -10,6 +10,9 @@ from RecExConfig.RecFlags  import rec
 rec.doESD=True
 rec.doWriteESD=True
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 ##########################################

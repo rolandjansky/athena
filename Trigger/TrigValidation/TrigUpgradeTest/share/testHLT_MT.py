@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TrigUpgradeTest/testHLT_MT.py
 #
@@ -365,28 +366,27 @@ elif globalflags.InputFormat.is_bytestream():
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-TriggerFlags.inputLVL1configFile = opt.setLVL1XML
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
-from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, HLTConfigSvc, findFileInXMLPATH
-svcMgr += LVL1ConfigSvc()
-svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
-svcMgr.LVL1ConfigSvc.InputType = "file"
-l1JsonFile = TriggerFlags.inputLVL1configFile().replace(".xml",".json")
-l1JsonFile = findFileInXMLPATH(l1JsonFile)
-svcMgr.LVL1ConfigSvc.JsonFileName = l1JsonFile
-log.info("Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s" % l1JsonFile)
-svcMgr += HLTConfigSvc()
-hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
-hltJsonFile = findFileInXMLPATH(hltJsonFile)
-svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
-log.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
 
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+l1JsonFile = generateL1Menu()
 
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+svcMgr += getL1ConfigSvc()
+svcMgr += getHLTConfigSvc()
+
+# ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence()
 
+
+# ---------------------------------------------------------------
+# HLT prep: RoIBResult and L1Decoder
+# ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg

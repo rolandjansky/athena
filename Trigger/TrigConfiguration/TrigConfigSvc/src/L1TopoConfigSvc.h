@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFIGSVC_L1TOPOCONFIGSVC
 #define TRIGCONFIGSVC_L1TOPOCONFIGSVC
 
 #include "TrigConfInterfaces/IL1TopoConfigSvc.h"
-#include "TrigConfigSvc/ConfigSvcBase.h"
+#include "./ConfigSvcBase.h"
 
 #include <memory>
 

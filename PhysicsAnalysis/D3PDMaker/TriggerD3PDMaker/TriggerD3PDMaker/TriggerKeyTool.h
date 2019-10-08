@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -106,9 +106,6 @@ public:
 private:
   /// Property: Trigger configuration service instance.
   ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc;
-
-  /// Property: DS configuration instance (sometimes used when reading MC).
-  ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
 };
 
 

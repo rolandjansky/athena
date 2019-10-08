@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_HLTConfigSvc
 #define TrigConfigSvc_HLTConfigSvc
+
+#include "./ConfigSvcBase.h"
 
 #include <string>
 #include <vector>
@@ -12,8 +14,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
-#include "TrigConfigSvc/ConfigSvcBase.h"
 #include "TrigConfHLTData/HLTFrame.h"
+
+#include "TrigConfData/HLTMenu.h"
 
 class TH1F;
 class TH2I;
@@ -71,6 +74,8 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_hltFileName { this, "JsonFileName", "HLTMenu.json", "file name of HLT json file, needed if InputType is file" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
+
+      // SG::WriteHandleKey<TrigConf::HLTMenu> m_hltMenuKey{"DetectorStore+HLTTriggerMenu"};
 
       StatusCode assignPrescalesToChains(uint lumiblock );
 

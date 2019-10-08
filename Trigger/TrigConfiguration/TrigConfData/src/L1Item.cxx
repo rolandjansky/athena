@@ -17,43 +17,43 @@ TrigConf::L1Item::~L1Item()
 const std::string &
 TrigConf::L1Item::name() const
 {
-   return data().get_child("name").data();
+   return m_data.get_child("name").data();
 }
 
 unsigned int
 TrigConf::L1Item::ctpId() const
 {
-   return data().get_child("ctpId").get_value<unsigned int>();
+   return m_data.get_child("ctpId").get_value<unsigned int>();
 }
 
 const std::string &
 TrigConf::L1Item::definition() const
 {
-   return data().get_child("definition").data();
+   return m_data.get_child("definition").data();
 }
 
 unsigned int
 TrigConf::L1Item::complexDeadtime() const
 {
-   return data().get_child("complexDeadtime").get_value<unsigned int>();
+   return m_data.get_child("complexDeadtime").get_value<unsigned int>();
 }
 
 const std::string &
 TrigConf::L1Item::monitor() const
 {
-   return data().get_child("monitor").data();
+   return m_data.get_child("monitor").data();
 }
 
 unsigned int
 TrigConf::L1Item::partition() const
 {
-   return data().get_child("partition").get_value<unsigned int>();
+   return m_data.get_child("partition").get_value<unsigned int>();
 }
 
 const std::string &
 TrigConf::L1Item::triggerType() const
 {
-   return data().get_child("triggerType").data();
+   return m_data.get_child("triggerType").data();
 }
 
 TrigConf::DataStructure
