@@ -730,7 +730,7 @@ Trk::FitQualityOnSurface* Trk::KalmanWeightUpdator::makeChi2Object( Amg::VectorX
 {   // sign: -1 = updated, +1 = predicted parameters.
     Amg::MatrixX R = covRio + sign* covTrk.similarity(H);
     // get chi2 = r.T() * R^-1 * r
-    double  chiSquared = residual.transpose()*R.reverse()*residual;
+    double  chiSquared = residual.transpose()*R.inverse()*residual;
     ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?"predicted":"updated")
                      <<" state, chi2 :" << chiSquared << " / ndof= " << covRio.cols()  );
 
