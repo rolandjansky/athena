@@ -40,6 +40,7 @@ public:
   virtual ~CscCalibTool () = default;
 
   virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
 
   /** given a charge on the CSC strip, convert that to ADC counts
       this is needed in the digitization for example where it is the charges

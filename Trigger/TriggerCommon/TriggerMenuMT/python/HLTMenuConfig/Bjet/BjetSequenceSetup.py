@@ -53,11 +53,19 @@ def bJetStep1Sequence():
             viewAlg.roiCollectionName = RoIs
 
     # Primary Vertex 
-    from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
-    prmVtx = EFHistoPrmVtxAllTEMT_Jet( "EFHistoPrmVtxAllTEMT_Jet" ) 
-    prmVtx.InputRoIsKey = RoIs
-    prmVtx.InputTracksKey = "HLT_xAODTracks_FS"
-    prmVtx.OutputVertexKey = recordable("HLT_EFHistoPrmVtx")
+    #from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
+    #prmVtx = EFHistoPrmVtxAllTEMT_Jet( "EFHistoPrmVtxAllTEMT_Jet" ) 
+    #prmVtx.InputRoIsKey = RoIs
+    #prmVtx.InputTracksKey = "HLT_xAODTracks_FS"
+    #prmVtx.OutputVertexKey = recordable("HLT_EFHistoPrmVtx")
+
+    from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+
+  
+    #TODO need to change the name of the output vertex collection to something recordable
+    outputVertexKey = "HLT_EFHistoPrmVtx"
+    vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", outputVertexKey  )
+    prmVtx = vtxAlgs[-1]
 
     # Shortlis of jets
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
@@ -66,7 +74,8 @@ def bJetStep1Sequence():
     jetSplitter.Jets = sequenceOut
     jetSplitter.OutputJets = recordable("HLT_SplitJet")
     jetSplitter.OutputRoi = "SplitJets"
-    jetSplitter.InputVertex = prmVtx.OutputVertexKey
+    #jetSplitter.InputVertex = prmVtx.OutputVertexKey
+    jetSplitter.InputVertex = outputVertexKey
 
     fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
     bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,prmVtx,jetSplitter] )
@@ -79,7 +88,7 @@ def bJetStep1Sequence():
     hypo.PrmVtxLink = "xPrimVx"
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.PrmVtx = prmVtx.OutputVertexKey
+    hypo.PrmVtx = outputVertexKey
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])

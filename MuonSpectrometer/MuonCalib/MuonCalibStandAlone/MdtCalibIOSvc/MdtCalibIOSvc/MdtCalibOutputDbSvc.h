@@ -47,9 +47,9 @@
 
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 class RegionSelectionSvc;
 class MdtCalibInputSvc;
-class MdtIdHelper;
 namespace MuonGM {
   class MuonDetectorManager;
 }
@@ -134,7 +134,8 @@ private:
 // iov range in run numbers//
   int m_iov_start, m_iov_end;
 //access to geomodel
-  const MdtIdHelper *m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager *m_detMgr;
 //region selection service
   ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;

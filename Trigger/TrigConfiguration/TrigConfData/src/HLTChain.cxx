@@ -18,19 +18,19 @@ TrigConf::Chain::~Chain()
 const std::string &
 TrigConf::Chain::name() const
 {
-   return data().get_child("name").data();
+   return m_data.get_child("name").data();
 }
 
 unsigned int
 TrigConf::Chain::counter() const
 {
-   return data().get_child("counter").get_value<unsigned int>();
+   return m_data.get_child("counter").get_value<unsigned int>();
 }
 
 const std::string &
 TrigConf::Chain::l1item() const
 {
-   return data().get_child("l1item").data();
+   return m_data.get_child("l1item").data();
 }
 
 

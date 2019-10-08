@@ -35,6 +35,7 @@ public:
 //We do not use the event-number to limit IOV-Ragnes (only Run/LB). So the event-number is always invalid
 
 
+inline
 EventIDRange IOVInfiniteRange::infiniteRunLB() {
 //                              Run                 Event                    time                   time_ns                LumiBlock               BCID
   const EventIDBase start {0                      , EventIDBase::UNDEFEVT  , EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM, 0                      ,0};
@@ -42,6 +43,7 @@ EventIDRange IOVInfiniteRange::infiniteRunLB() {
   return EventIDRange{start,stop};
 }
 
+inline
 EventIDRange IOVInfiniteRange::infiniteTime() {
 //                            Run                 Event                    time                   time_ns                    LumiBlock          BCID
   const EventIDBase start {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,  0                     , 0                      , EventIDBase::UNDEFNUM, 0};
@@ -49,7 +51,7 @@ EventIDRange IOVInfiniteRange::infiniteTime() {
   return EventIDRange{start, stop};
 }
 
-
+inline
 EventIDRange IOVInfiniteRange::infiniteMixed() {
 //                            Run                   Event                  time                    time_ns                   LB                      BCID
   const EventIDBase start {0                      , EventIDBase::UNDEFEVT, 0                      ,0                       , 0                      ,0};

@@ -70,7 +70,13 @@ Double_t dualbipfunc(const Double_t *x, const Double_t *par){
   return ( bipfunc(x,par) + bipfunc(x,&par[5]) );
 }
 
-
+StatusCode CscCalibTool::finalize() {
+  delete m_addedfunc;
+  delete m_bipolarFunc;
+  m_addedfunc = nullptr;
+  m_bipolarFunc = nullptr;
+  return StatusCode::SUCCESS;
+}
 
 
 StatusCode CscCalibTool::initialize() {

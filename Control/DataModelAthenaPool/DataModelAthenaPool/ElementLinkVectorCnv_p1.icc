@@ -11,7 +11,7 @@
 
 #include "AthLinks/ElementLinkVector.h"
 #include "AthenaKernel/IThinningSvc.h"
-#include "DataModelAthenaPool/getThinningCache.h"
+#include "AthenaKernel/getThinningCache.h"
 
 //#include <iostream>
 //using namespace std;
@@ -129,7 +129,7 @@ void ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
                                                      MsgStream& msg) const
 {
   transToPers (trans, pers,
-               DataModelAthenaPool::getThinningCache(),
+               SG::getThinningCache(),
                msg);
 }
 

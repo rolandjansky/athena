@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
 #include "RPCcablingInterface/IRPCcablingSvc.h"
@@ -22,7 +23,7 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-class RpcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -71,12 +72,10 @@ private:
 
   SG::WriteHandleKey<RpcPadContainer> m_padContainerKey{this,"OutputObjectName","RPCPAD","WriteHandleKey for Output RpcPadContainer"};
   SG::ReadHandleKey<RpcDigitContainer> m_digitContainerKey{this,"InputObjectName","RPC_DIGITS","ReadHandleKey for Input RpcDigitContainer"};
-
   const MuonGM::MuonDetectorManager* m_MuonMgr{};
-
-  const RpcIdHelper*    m_rpcHelper{};
-
   std::string  m_cablingType{"UNKNOWN"};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 };
 
 #endif

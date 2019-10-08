@@ -10,6 +10,9 @@ from RecExConfig.RecFlags  import rec
 rec.doESD=True
 rec.doWriteESD=True
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 ##########################################
@@ -122,7 +125,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [ makeChain(name='HLT_mu6nol1_L1MU6', L1Thresholds=["MU6"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=[""],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 

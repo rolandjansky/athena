@@ -643,7 +643,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
   // number with the conditions run number from the event context,
   // if it is defined.
   EventIDBase::number_type conditionsRun =
-    ctx.template getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+    Atlas::getExtendedEventContext(ctx).conditionsRun();
   if (conditionsRun != EventIDBase::UNDEFNUM) {
     m_iovTime.setRunEvent (conditionsRun, m_iovTime.event());
   }

@@ -235,7 +235,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                                   (['hi'], 'HeavyIon', 'mb'),
                                   (AllowedCosmicChainIdentifiers, 'Cosmic', 'cosmic'),
                                   (AllowedCalibChainIdentifiers, 'Calibration', 'calib'),
-                                  (AllowedMonitorChainIdentifiers, 'Monitoring', 'calib'),
+                                  (AllowedMonitorChainIdentifiers, 'Monitor', 'calib'),
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb') ]:
                 if cpart in chainCatrgory[0]:
@@ -323,7 +323,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 & (chainProperties['signature'] != 'Calibration')\
                 & (chainProperties['signature'] != 'Streaming') \
                 & (chainProperties['signature'] != 'Beamspot') \
-                & (chainProperties['signature'] != 'Monitoring') :
+                & (chainProperties['signature'] != 'Monitor') :
             parts.pop(0)
 
 

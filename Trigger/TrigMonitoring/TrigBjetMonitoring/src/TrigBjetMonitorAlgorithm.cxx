@@ -148,8 +148,6 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
       // Read the TrigFeature contener
 
-      // if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 trigger
-      //      if (Run2_Access) { // Run 2 trigger
       if (m_doRun2) { // Run 2 trigger
 
 	ATH_MSG_INFO("  ===> Run 2 access to Trigger feature: " );
@@ -280,7 +278,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       } else { // Run 3 trigger
 	ATH_MSG_INFO("  ===> Run 3 access to Trigger feature: " );
 
-	// bjet chains 
+	// bjet chains
 	if (bjetChain) {
 	  // online PV 
 	  SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey, ctx);

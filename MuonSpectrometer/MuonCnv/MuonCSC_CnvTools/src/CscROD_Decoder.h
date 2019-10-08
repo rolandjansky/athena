@@ -24,7 +24,6 @@
 #include "CSCcabling/CSCcablingSvc.h"
 
 class CscRawDataContainer;
-class CscIdHelper;
 
 //using namespace OFFLINE_FRAGMENTS_NAMESPACE ; 
 //using eformat::helper::SourceIdentifier; 
@@ -73,7 +72,8 @@ private:
 private:
 
   CSC_Hid2RESrcID                   m_hid2re;
-  const CscIdHelper *               m_cscHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ServiceHandle<CSCcablingSvc>      m_cabling;
 
   bool                              m_isCosmic;

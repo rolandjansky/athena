@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCacheCreator.h"
@@ -40,7 +40,7 @@ StatusCode MuonCacheCreator::initialize() {
 
 bool MuonCacheCreator::isInsideView(const EventContext& context) const
 {
-   const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
+   const IProxyDict* proxy = Atlas::getExtendedEventContext(context).proxy();
    const SG::View* view = dynamic_cast<const SG::View*>(proxy);
    return view != nullptr;
 }

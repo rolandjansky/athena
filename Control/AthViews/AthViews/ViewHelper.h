@@ -78,7 +78,8 @@ namespace ViewHelper
 
     //Make a context with the view attached
     auto viewContext = std::make_unique< EventContext >( SourceContext );
-    viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
+    Atlas::setExtendedEventContext (*viewContext,
+                                    Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
 
     //Attach the view to the named node
     StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, std::move( viewContext ) );
@@ -93,12 +94,12 @@ namespace ViewHelper
                                    EventContext const& SourceContext, SmartIF<IScheduler> Scheduler, bool reverseOrder = false  )
   {
     //Prevent view nesting - test if source context has view attached
-    if ( SourceContext.template hasExtension<Atlas::ExtendedEventContext>() ) {
-      if ( dynamic_cast< SG::View* >( SourceContext.template getExtension<Atlas::ExtendedEventContext>().proxy() ) ) {
+    if ( Atlas::hasExtendedEventContext (SourceContext) ) {
+      if ( dynamic_cast< SG::View* >( Atlas::getExtendedEventContext (SourceContext).proxy() ) ) {
         return StatusCode::FAILURE;
       }
     }
-    // Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+    // Atlas::ExtendedEventContext const* extendedContext = Atlas::getExtendedEventContext(SourceContext);
     // if ( dynamic_cast< SG::View* >( extendedContext->proxy() ) )
     // {
     //   return StatusCode::FAILURE;
@@ -112,7 +113,8 @@ namespace ViewHelper
 
     if ( not ViewVector->empty() )
     {
-      Atlas::ExtendedEventContext const extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+      Atlas::ExtendedEventContext const extendedContext =
+        Atlas::getExtendedEventContext (SourceContext);
       if ( reverseOrder ) {
 	for ( auto iter = ViewVector->rbegin(); iter != ViewVector->rend(); ++iter ) {
 	  if ( ScheduleSingleView( *iter, NodeName, SourceContext, extendedContext, Scheduler ).isFailure() ) {

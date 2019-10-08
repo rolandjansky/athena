@@ -75,7 +75,6 @@ StatusCode JetHypoExerciserAlg::execute() {
   ++m_ncall;
 
   // make a HypoJet, add to vector and send to helper tool
-
   
   HypoJetVector jv = m_generator->get();
   

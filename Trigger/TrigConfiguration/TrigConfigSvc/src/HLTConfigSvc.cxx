@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class declaration
-#include "TrigConfigSvc/HLTConfigSvc.h"
+#include "./HLTConfigSvc.h"
 
 #include <exception>
 #include <vector>
@@ -26,6 +26,7 @@
 
 // Local includes:
 #include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/StorageMgr.h"
@@ -41,6 +42,10 @@
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
+
+#include "TrigConfInterfaces/IJobOptionsSvc.h"
+
+#include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
 #include "boost/lexical_cast.hpp"
@@ -83,29 +88,51 @@ HLTConfigSvc::~HLTConfigSvc()
 StatusCode
 HLTConfigSvc::writeConfigToDetectorStore() {
 
-    // load the json file into TrigConf::HLTMenu
-    TrigConf::JsonFileLoader fileLoader;
-    fileLoader.setLevel(TrigConf::MSGTC::WARNING);
-
     TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
 
-    if( m_inputType == "file" ) {
-       if( fileLoader.loadFile( m_hltFileName, *hltmenu ).isSuccess() ) {
-          ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
-       } else {
-          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());
-          return StatusCode::RECOVERABLE;
-       }
-    }
+   if( m_inputType == "db" ) {
 
-    ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );
+      // db menu loader
+      TrigConf::TrigDBMenuLoader dbloader(m_dbConnection);
+      dbloader.setLevel(TrigConf::MSGTC::WARNING);
 
-    ATH_CHECK( detStore.retrieve() );
-    if( detStore->record(hltmenu,"HLTTriggerMenu").isSuccess() ) {
-       ATH_MSG_INFO( "Recorded HLT menu with key 'HLTTriggerMenu' in the detector store" );
-    }
+      if( dbloader.loadHLTMenu( m_smk, *hltmenu ) ) {
+         ATH_MSG_INFO( "Loaded HLT menu from DB " << m_dbConnection << " for SMK " << m_smk.value() );
+      } else {
+         ATH_MSG_WARNING( "Failed loading HLT menu from DB for SMK " << m_smk.value());
+         return StatusCode::RECOVERABLE;
+      }
 
-    return StatusCode::SUCCESS;
+   } else if ( m_inputType == "file" ) {
+
+      // load the json file into TrigConf::HLTMenu
+      TrigConf::JsonFileLoader fileLoader;
+      fileLoader.setLevel(TrigConf::MSGTC::WARNING);
+
+      if( fileLoader.loadFile( m_hltFileName, *hltmenu ).isSuccess() ) {
+         ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
+      } else {
+         ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());
+         return StatusCode::RECOVERABLE;
+      }
+
+   } else if( m_inputType == "cool" ) {
+      ATH_MSG_FATAL( "Loading of HLT menu from COOL + DB not implemented");
+      return StatusCode::FAILURE;
+   }
+
+   // To the reviewers: I will need to leave this commented, as one has to understand why this solution does not work
+   // auto writeHandle = SG::makeHandle(m_hltMenuKey);
+   // ATH_MSG_INFO("Recording HLT menu with " << m_hltMenuKey);
+   // ATH_CHECK( writeHandle.record( std::unique_ptr<TrigConf::HLTMenu>(hltmenu) ));
+
+   ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );
+   ATH_CHECK( detStore.retrieve() );
+   if( detStore->record(hltmenu,"HLTTriggerMenu").isSuccess() ) {
+      ATH_MSG_INFO( "Recorded HLT menu with key 'HLTTriggerMenu' in the detector store" );
+   }
+
+   return StatusCode::SUCCESS;
 } 
 
 
@@ -146,12 +173,29 @@ HLTConfigSvc::sequences() const {
 StatusCode
 HLTConfigSvc::initialize() {
 
+   // ATH_CHECK( m_hltMenuKey.initialize() );
+
+   {
+      /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
+      if( auto joSvc = serviceLocator()->service<TrigConf::IJobOptionsSvc>( "JobOptionsSvc" ) ) {
+         if( joSvc->superMasterKey()>0 ) {
+            m_inputType = "db";
+            m_smk = joSvc->superMasterKey();
+            m_dbConnection = joSvc->server();
+            m_configSourceString = "RUN3_Dummy";
+         }
+      } else {
+         ATH_MSG_INFO("Did not locate TrigConf::JobOptionsSvc, not running athenaHLT");
+      }
+
+      StatusCode sc = writeConfigToDetectorStore();
+      if( !sc.isSuccess() ) {
+         ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
+      }
+   }
+
    ATH_CHECK(ConfigSvcBase::initialize());
 
-   StatusCode sc = writeConfigToDetectorStore();
-   if( !sc.isSuccess() ) {
-          ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
-   }
 
    //////////////////////////////////////////////////////////////
    // BEGIN RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
@@ -295,7 +339,7 @@ HLTConfigSvc::initialize() {
    if(m_PartitionName.value() !="") {
       m_partition = m_PartitionName;
    } else {
-      ServiceHandle<IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
+      ServiceHandle<::IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
       if (jobOptionsSvc.retrieve().isFailure()) {
          ATH_MSG_WARNING("Cannot retrieve JobOptionsSvc");
       } else {

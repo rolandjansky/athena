@@ -31,7 +31,6 @@ class HTConditionMT: public IConditionMT{
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   std::string toString() const noexcept override;
-
   virtual unsigned int capacity() const override {return s_capacity;}
 
  private:

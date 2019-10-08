@@ -42,7 +42,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     // auto viewVector = std::make_unique< ViewContainer >();
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = context.getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+  unsigned int conditionsRun = Atlas::getExtendedEventContext(context).conditionsRun();
 
   //map all RoIs that are stored
   ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
@@ -82,7 +82,8 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
           viewVector->push_back( newView );
           contexts.emplace_back( context );
-          contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, *roiEL ) );
+          Atlas::setExtendedEventContext (contexts.back(),
+                                          Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, *roiEL ) );
           
           // link decision to this view
           outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC

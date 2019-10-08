@@ -56,7 +56,7 @@ endfunction( _add_test )
 
 # Unit tests of the test scripts
 atlas_add_test( flake8_test_dir
-                SCRIPT flake8 --select=ATL,ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/test
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/test
                 POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( TrigValSteeringUT

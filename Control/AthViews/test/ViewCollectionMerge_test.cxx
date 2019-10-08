@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -694,7 +694,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
 
   // Make a dummy event context
   EventContext dummyContext( 0, 0 );
-  dummyContext.setExtension( Atlas::ExtendedEventContext( evtStore(), 0 ) );
+  Atlas::setExtendedEventContext (dummyContext, Atlas::ExtendedEventContext( evtStore(), 0 ) );
 
   // Parcel the view data
   auto viewData = std::vector< DataVector< DummyData > >( 2 );

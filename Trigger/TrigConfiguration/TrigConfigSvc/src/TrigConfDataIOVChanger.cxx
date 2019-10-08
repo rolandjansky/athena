@@ -24,7 +24,7 @@
  **
  **************************************************************************/
 
-#include "TrigConfigSvc/TrigConfDataIOVChanger.h"
+#include "./TrigConfDataIOVChanger.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
