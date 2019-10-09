@@ -87,17 +87,9 @@ StatusCode electronSuperClusterBuilder::execute(){
 
     // Seed selections
     const xAOD::CaloCluster* clus= egRec->caloCluster();
-    static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-    double emFrac(0.);
-    if (acc.isAvailable(*clus)) {
-      emFrac = acc(*clus);
-    }
-    else if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
+    double emFrac(0);
+    if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
       ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
-    }
-    //Require minimum EMFrac
-    if(emFrac<m_EMFracThresholdCut){
-      continue;
     }
     //Require minimum energy for supercluster seeding.
     if (clus->et()*emFrac < m_EtThresholdCut){
