@@ -245,7 +245,17 @@ replaceAODReducedJets(reducedJetList,HIGG1D1Seq,"HIGG1D1Jets")
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG1D1Seq)
 
+# Augment AntiKt4 jets with QG tagging variables
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D1Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG1D1Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
+
 DerivationFrameworkJob += HIGG1D1Seq
+
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -321,6 +331,9 @@ HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType
                                         "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
                                         "TruthIsoCentralEventShape.DensitySigma.Density.DensityArea",
                                         "TruthIsoForwardEventShape.DensitySigma.Density.DensityArea",
+                                        "DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta",
+                                        "DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+                                        "NumTrkPt500PV.PartonTruthLabelID",        
                                         "BTagging_AntiKt4EMTopo_201810.MV2cl100_discriminant"]
 
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
