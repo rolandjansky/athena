@@ -13,7 +13,7 @@ def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
     algo.RoIInputKey  = inputRoIs
-    algo.RoIOutputKey = recordable("RoiForTau")
+    algo.RoIOutputKey = recordable("HLT_RoiForTau")
     algo.CaloClustersKey = clusters
     return algo
 
@@ -41,7 +41,7 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     algo = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     algo.RoIInputKey   = inputRoIs
-    algo.RoIOutputKey  = recordable("RoiForID2")
+    algo.RoIOutputKey  = recordable("HLT_RoiForID2")
     algo.fastTracksKey = tracks
     return algo
 
@@ -171,10 +171,10 @@ def tauIsoTrackSequence( RoIs , name):
          viewAlg.roiCollectionName = RoIs
        if "TrackRoiUpdater" in viewAlg.name():
          viewAlg.RoIInputKey = RoIs
-       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-         TrackCollection = viewAlg.TrackParticlesName
+       #if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+       #  TrackCollection = viewAlg.TrackParticlesName
        if "TrigFastTrackFinder" in  viewAlg.name():
-         theFTFIso_name = viewAlg.getName()
+         TrackCollection = viewAlg.TracksName
 
 
     #Precision Tracking
@@ -201,7 +201,11 @@ def tauIsoTrackSequence( RoIs , name):
 
     tauPrecisionMVAAlg = _algoTauPrecisionMVA(inputRoIs = RoIs, tracks = trackParticles)
 
+    tauIsoTrackSequence += tauPrecisionMVAAlg
+
     sequenceOut = tauPrecisionMVAAlg.TrigTauRecOutputKey
+
+    print "Here_too: ", sequenceOut
 
     return tauIsoTrackSequence, sequenceOut
 
@@ -230,7 +234,7 @@ def tauFTFIsoSequence(ConfigFlags):
 
     ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
     ftfIsoViewsMaker.RoIsLink          = "roi" # -||-                                                                            
-    ftfIsoViewsMaker.InViewRoIs        = "TCoreViewRoIs" # contract with the fast track core
+    ftfIsoViewsMaker.InViewRoIs        = "TIsoViewRoIs" # contract with the fast track core
     ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
     ftfIsoViewsMaker.ViewFallThrough   = True
     ftfIsoViewsMaker.RequireParentView = True
