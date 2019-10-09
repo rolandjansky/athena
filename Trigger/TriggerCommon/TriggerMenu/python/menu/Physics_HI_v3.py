@@ -13,6 +13,8 @@ def setupMenu():
     
     if tcl1.current:
         log.info("L1 items: %s " % tcl1.current.menu.items.itemNames())
+    else:
+        log.info("ERROR L1 menu has not yet been defined")
 
     HardProbesStream="HardProbes"
     MinBiasStream="MinBias"
