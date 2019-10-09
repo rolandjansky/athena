@@ -87,8 +87,8 @@ TEST_F( ZDC_StripSDtest, ProcessHits )
   sd2.StartOfAthenaEvent();
   sd2.ProcessHits(&sp, &th);
 
-  ASSERT_FLOAT_EQ(sd2.m_Edep_Cherenkov_Strip[0][0], 1.4782044e-05);
-  ASSERT_EQ(sd2.m_NPhoton_Cherenkov_Strip[0][0], 5);
+  ASSERT_FLOAT_EQ(sd2.m_Edep_Cherenkov_Strip[0][0], 1.4782044e-05); //Based on my setting, Side=0, Zloc=0, so m_Edep_Cherenkov_Strip[0][0] was accumulated and finally its value should be 1.4782044e-05
+  ASSERT_EQ(sd2.m_NPhoton_Cherenkov_Strip[0][0], 5); //Similarly, based on my setting, Side=0, Zloc=0, so m_NPhoton_Cherenkov_Strip[0][0] was accumulated for five times and finally its value should be 5
 }
 
 TEST_F( ZDC_StripSDtest, StartOfAthenaEvent )
@@ -98,7 +98,7 @@ TEST_F( ZDC_StripSDtest, StartOfAthenaEvent )
   sd3.Initialize(&hce);
   sd3.StartOfAthenaEvent();
 
-  for (int I=0; I<2; I++)
+  for (int I=0; I<2; I++) //test if the Hit info is the same with what the member function StartOfAthenaEvent() sets
     {
       for (int J=0; J<4; J++)
         {
@@ -117,7 +117,7 @@ TEST_F( ZDC_StripSDtest, EndOfAthenaEvent )
   sd4.EndOfAthenaEvent();
   
   ZDC_SimStripHit_Collection * a = sd4.m_HitColl.ptr();
-  ASSERT_TRUE(a->begin()->GetSide()==0);
+  ASSERT_TRUE(a->begin()->GetSide()==0); //test if the Side value is the same with what the member function EndOfAthenaEvent() sets, the same below
   ASSERT_TRUE((a->end()-1)->GetSide()==1);
   ASSERT_TRUE(a->begin()->GetMod()==0);
   ASSERT_TRUE((a->end()-1)->GetMod()==3);
@@ -141,7 +141,7 @@ TEST_F( ZDC_StripSDtest, AddHit )
   sd5.AddHit( i, j, NPhoton, energy );
 
   ZDC_SimStripHit_Collection * a = sd5.m_HitColl.ptr();
-  ASSERT_TRUE(a->begin()->GetSide()==1);
+  ASSERT_TRUE(a->begin()->GetSide()==1); //test if the Side value is same with my input value 1, the same below
   ASSERT_TRUE(a->begin()->GetMod()==2);
   ASSERT_TRUE(a->begin()->GetEdep()==5.0);
   ASSERT_TRUE(a->begin()->GetNPhotons()==4);

@@ -87,8 +87,8 @@ TEST_F( ZDC_PixelSDtest, ProcessHits )
   sd2.StartOfAthenaEvent();
   sd2.ProcessHits(&sp, &th);
 
-  ASSERT_FLOAT_EQ(sd2.m_Edep_Cherenkov_Pixel[1][1][78], 2.2452348e-05);
-  ASSERT_EQ(sd2.m_NPhoton_Cherenkov_Pixel[1][1][78], 7);
+  ASSERT_FLOAT_EQ(sd2.m_Edep_Cherenkov_Pixel[1][1][78], 2.2452348e-05); //Based on my setting, Side=1, Module=1, Pixel_No=78, so m_Edep_Cherenkov_Pixel[1][1][78] was accumulated and finally it should be 2.2452348e-05
+  ASSERT_EQ(sd2.m_NPhoton_Cherenkov_Pixel[1][1][78], 7); //Likewise, based on my setting, Side=1, Module=1, Pixel_No=78, so m_NPhoton_Cherenkov_Pixel[1][1][78] was accumulated and finally it should be 7
 }
 
 TEST_F( ZDC_PixelSDtest, StartOfAthenaEvent )
@@ -98,7 +98,7 @@ TEST_F( ZDC_PixelSDtest, StartOfAthenaEvent )
   sd3.Initialize(&hce);
   sd3.StartOfAthenaEvent();
 
-  for (int I=0; I<=1; I++)
+  for (int I=0; I<=1; I++) //test if the Hit info is the same with what the member function StartOfAthenaEvent() sets
     {
       for (int J=0; J<=1; J++)
         {
@@ -120,7 +120,7 @@ TEST_F( ZDC_PixelSDtest, EndOfAthenaEvent )
   sd4.EndOfAthenaEvent();
 
   ZDC_SimPixelHit_Collection * a = sd4.m_HitColl.ptr();
-  ASSERT_TRUE(a->begin()->GetSide()==0);
+  ASSERT_TRUE(a->begin()->GetSide()==0); //test if the Side value is the same with what the member function EndOfAthenaEvent() sets, the same below
   ASSERT_TRUE((a->end()-1)->GetSide()==1);
   ASSERT_TRUE(a->begin()->GetMod()==0);
   ASSERT_TRUE((a->end()-1)->GetMod()==1);
@@ -146,7 +146,7 @@ TEST_F( ZDC_PixelSDtest, AddHit )
   sd5.AddHit( i, j, k, NPhoton, energy );
 
   ZDC_SimPixelHit_Collection * a = sd5.m_HitColl.ptr();
-  ASSERT_TRUE(a->begin()->GetSide()==1);
+  ASSERT_TRUE(a->begin()->GetSide()==1); //test if the Side value is the same with the input value 1, the same below
   ASSERT_TRUE(a->begin()->GetMod()==2);
   ASSERT_TRUE(a->begin()->GetPix()==3);
   ASSERT_TRUE(a->begin()->GetEdep()==5.0);
