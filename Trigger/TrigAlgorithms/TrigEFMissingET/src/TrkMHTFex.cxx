@@ -67,6 +67,8 @@ namespace HLT { namespace MET {
         "The minimum jet pT to apply JVT to");
     declareProperty("MaxJetJVTPt", m_maxJetJVTPt = 50 * Gaudi::Units::GeV,
         "The maximum jet pT to apply JVT to");
+    declareProperty("TrackSoftTermPtCeiling", m_tstPtCeil = 0,
+        "The maximum pt for tracks going into the track soft term");
   }
 
   HLT::ErrorCode TrkMHTFex::hltInitialize()
@@ -262,7 +264,8 @@ namespace HLT { namespace MET {
       for (const xAOD::TrackParticle* trk : pvTracks) {
         if (trk->pt() < m_trackPtCut)
           continue;
-        // TODO remove this
+        if (m_tstPtCeil > 0 && trk->pt() > m_tstPtCeil)
+          continue;
         if (fabs(trk->eta() ) > 2.4)
           continue;
         bool isIsolated = true;

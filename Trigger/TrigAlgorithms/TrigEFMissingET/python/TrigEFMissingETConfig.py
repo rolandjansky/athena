@@ -24,6 +24,7 @@ from TriggerMenu.menu.SignatureDicts import METChainParts_Default
 default_cluster_calib = METChainParts_Default["calib"]
 default_jet_calib = METChainParts_Default["jetCalib"]
 default_do_FTK = "FTK" in METChainParts_Default["addInfo"]
+default_tst_ceiling = "tstceil" in METChainParts_Default["addInfo"]
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 import logging
@@ -182,14 +183,19 @@ class EFMissingET_Fex_Jets (HLT__MET__MHTFex):
 
 class TrkMHTFex(HLT__MET__TrkMHTFex):
     __slots__ = []
-    def __new__(cls, name = Configurable.DefaultName, do_FTK=False):
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, tst_ceiling=False):
         if name == Configurable.DefaultName:
-            name = "EFMissingET_Fex_{0}TrackAndJets".format("FTK" if do_FTK else "")
-        return super(TrkMHTFex, cls).__new__(cls, name, do_FTK)
+            name = "EFMissingET_Fex_{0}TrackAndJets{1}".format(
+                    "FTK" if do_FTK else "",
+                    "_tstceil" if tst_ceiling else "")
+        return super(TrkMHTFex, cls).__new__(cls, name, do_FTK, tst_ceiling)
 
-    def __init__(self, name, do_FTK):
-        key_suffix = "FTK" if do_FTK else ""
+    def __init__(self, name, do_FTK, tst_ceiling):
         super(TrkMHTFex, self).__init__(name)
+        key_suffix = "FTK" if do_FTK else ""
+        if tst_ceiling:
+            self.TrackSoftTermPtCeiling = 20 * GeV
+            key_suffix += "_tstceil"
         self.MissingETOutputKey = "TrigEFMissingET_trkmht{0}".format(key_suffix)
 
 
@@ -214,14 +220,19 @@ class TrkMHTFex(HLT__MET__TrkMHTFex):
 
 class TrkTCFex(HLT__MET__TrkTCFex):
     __slots__ = []
-    def __new__(cls, name = Configurable.DefaultName, do_FTK=False):
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, tst_ceiling=False):
         if name == Configurable.DefaultName:
-            name = "EFMissingET_Fex_{0}TrackAndClusters".format("FTK" if do_FTK else "")
-        return super(TrkTCFex, cls).__new__(cls, name, do_FTK)
+            name = "EFMissingET_Fex_{0}TrackAndClusters{1}".format(
+                    "FTK" if do_FTK else "",
+                    "_tstceil" if tst_ceiling else "")
+        return super(TrkTCFex, cls).__new__(cls, name, do_FTK, tst_ceiling)
 
-    def __init__(self, name, do_FTK):
-        key_suffix = "FTK" if do_FTK else ""
+    def __init__(self, name, do_FTK, tst_ceiling):
         super(TrkTCFex, self).__init__(name)
+        key_suffix = "FTK" if do_FTK else ""
+        if tst_ceiling:
+            key_suffix += "_tstceil"
+            self.TrackSoftTermPtCeiling = 20 * GeV
 
         self.MissingETOutputKey = "TrigEFMissingET_trktc{0}".format(key_suffix)
 
@@ -255,7 +266,8 @@ def getFEX(
         reco_alg,
         cluster_calib = default_cluster_calib,
         jet_calib = default_jet_calib,
-        do_FTK = default_do_FTK):
+        do_FTK = default_do_FTK,
+        tst_ceiling = default_tst_ceiling):
     """
         Get the correct FEX algorithm for this configuration
     """
@@ -279,9 +291,9 @@ def getFEX(
     elif reco_alg == "mht":
         return EFMissingET_Fex_Jets(key_suffix=jet_calib_string)
     elif reco_alg == "trkmht":
-        return TrkMHTFex(do_FTK = do_FTK)
+        return TrkMHTFex(do_FTK = do_FTK, tst_ceiling=tst_ceiling)
     elif reco_alg == "trktc":
-        return TrkTCFex(do_FTK = do_FTK)
+        return TrkTCFex(do_FTK = do_FTK, tst_ceiling=tst_ceiling)
     else:
         log.error("Unknown reco algo {0} requested".format(reco_alg) )
         return None
@@ -299,4 +311,5 @@ def getFEXFromDict(chainDict):
             chainDict["EFrecoAlg"],
             chainDict["calib"],
             chainDict["jetCalib"],
-            "FTK" in chainDict["addInfo"])
+            "FTK" in chainDict["addInfo"],
+            'tstceil' in chainDict["addInfo"])

@@ -30,6 +30,8 @@ namespace HLT { namespace MET {
     declareProperty("CVFTool", m_cvfTool, "The CVF tool to use");
     declareProperty("CVFThreshold", m_cvfThreshold = 0.1,
         "The CVF threshold to use to determine HS vs PU");
+    declareProperty("TrackSoftTermPtCeiling", m_tstPtCeil = 0,
+        "The maximum pt for tracks going into the track soft term");
   }
 
   TrkTCFex::~TrkTCFex() {}
@@ -161,6 +163,8 @@ namespace HLT { namespace MET {
           continue;
         // Skip tracks below 1 GeV
         if (track->pt() < 1*Gaudi::Units::GeV)
+          continue;
+        if (m_tstPtCeil > 0 && track->pt() > m_tstPtCeil)
           continue;
         isolatedTracks.push_back(track);
       }
