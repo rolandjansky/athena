@@ -51,8 +51,8 @@ def generateChains( flags,  chainDict ):
     accTrk.addSequence(stepView)
 
     # # # fast ID
-    from TrigUpgradeTest.InDetConfig import indetInViewRecoCfg
-    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet')
+    from TrigInDetConfig.InDetConfig import indetInViewRecoCfg
+    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet', signature='Electron')
     accTrk.merge( fastInDetReco, sequenceName=stepReco.getName() )
     # TODO once tracking fully works remove fake hypos
 

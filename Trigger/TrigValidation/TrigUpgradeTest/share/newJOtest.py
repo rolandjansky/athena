@@ -59,7 +59,7 @@ from RegionSelector.RegSelConfig import regSelCfg
 acc.merge( regSelCfg( flags ) )
 
 
-from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
+from TrigInDetConfig.InDetConfig import TrigInDetCondConfig
 acc.merge( TrigInDetCondConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
