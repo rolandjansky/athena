@@ -248,21 +248,27 @@ namespace InDet {
   }
 
   inline void StagedTrackingGeometryBuilder::checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const {
+
+    // range into non-overlapping layers
+
+    if (!radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
     
-    bool exists = false;
-    for ( auto& p : radii) {
-      if (((p.first-rmin)*(p.first-rmin) < m_ringTolerance*m_ringTolerance) and ((p.second-rmax)*(p.second-rmax) < m_ringTolerance*m_ringTolerance)) {
-	exists = true; break;
-      } else if ((p.first-rmin)*(p.first-rmin) < m_ringTolerance*m_ringTolerance) {
-	p.second = std::max(p.second, rmax);
-	exists = true; break;
-      } else if ((p.second-rmax)*(p.second-rmax) < m_ringTolerance*m_ringTolerance) {
-	p.first = std::min(p.first, rmin);
-	exists = true; break;
-      } 
+    unsigned int ir=0;
+    while ( ir != radii.size() && rmin > radii[ir].second ) ir++;
+
+    if (ir==radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
+    // insert ?
+    else if (rmax<radii[ir].first) radii.insert(radii.begin()+ir,std::pair<double,double>(rmin,rmax));
+    // overlaps
+    else {
+      // resolve low edge
+      if (rmin<radii[ir].first) radii[ir].first=rmin;
+      // resolve upper edge
+      unsigned int imerge = ir;
+      while (imerge<radii.size()-1 && rmax>radii[imerge+1].first) imerge++;
+      radii[ir].second = rmax > radii[imerge].second ? rmax : radii[imerge].second;
+      if (imerge>ir) radii.erase(radii.begin()+ir+1,radii.begin()+imerge);       
     }
-    //insert
-    if (!exists) radii.push_back(std::pair<double,double>(rmin,rmax));
   }
   
 } // end of namespace
