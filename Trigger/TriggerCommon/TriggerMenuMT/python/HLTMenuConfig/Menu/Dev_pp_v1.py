@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
-# LS2_pp_v1.py menu for the long shutdown development
+# Dev_pp_v1.py menu for the long shutdown development
 #------------------------------------------------------------------------#
 
 # This defines the input format of the chain and it's properties with the defaults set
@@ -80,7 +80,6 @@ def setupMenu():
 
         # ATR-19360
         ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g20_etcut_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = [

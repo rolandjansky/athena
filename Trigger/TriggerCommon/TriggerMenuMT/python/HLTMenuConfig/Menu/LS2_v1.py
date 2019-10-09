@@ -118,7 +118,7 @@ def setupMenu():
     TriggerFlags.JetSlice.signatures = [
         #ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
         #ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
-        ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
+        #ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
 
         #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup),
         #ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
@@ -159,7 +159,7 @@ def setupMenu():
         #ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         #ChainProp(name="HLT_tau25_idperf_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         #ATR-20049
-        #ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100", groups=SingleTauGroup),
 
         #ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
