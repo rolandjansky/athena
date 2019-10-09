@@ -216,16 +216,6 @@ std::map<std::string, double> MassDecoXbbTagger::getScores(const xAOD::Jet& jet)
       cleaner.first, cleaner.second->replace(inputs.at(cleaner.first)));
   }
     
-  if (msgLvl(MSG::VERBOSE)) {
-    ATH_MSG_VERBOSE("Mass decorrelated Xbb cleaned inputs:");
-    for (auto& input_node: cleaned) {
-      ATH_MSG_VERBOSE(" input node: " << input_node.first);
-      for (auto& input: input_node.second) {
-        ATH_MSG_VERBOSE("  " << input.first << ": " << input.second);
-      }
-    }
-  }
-
   auto nn_output = m_lwnn->compute(cleaned);
   ATH_MSG_VERBOSE("Mass decorrelated Xbb QCD score " << nn_output.at(m_output_value_names.at(0)));
   ATH_MSG_VERBOSE("Mass decorrelated Xbb Higgs score " << nn_output.at(m_output_value_names.at(1)));
@@ -363,7 +353,7 @@ namespace MassDecoXbb {
     std::map<std::string, double> inputs;
 
     // fat jet inputs
-    inputs["pt"] = jet.pt()/1000.0;
+    inputs["pt"] = jet.pt()/1000.0;  // The pt of fat jet is in GeV in training
     inputs["eta"] = jet.eta();
 
     // get subjets
@@ -389,20 +379,16 @@ namespace MassDecoXbb {
         const auto* btag = subjet->btagging();
         for (const auto& pair: m_acc_btag_floats) {
           inputs[pair.first + order] = pair.second(*btag);
-	  std::cout<<"!!!  "<<pair.first + order<<"   "<<pair.second(*btag)<<std::endl;
         }
         for (const auto& pair: m_acc_btag_doubles) {
           inputs[pair.first + order] = pair.second(*btag);
-	  std::cout<<"!!!  "<<pair.first + order<<"   "<<pair.second(*btag)<<std::endl;
         }
         for (const auto& pair: m_acc_btag_ints) {
           inputs[pair.first + order] = pair.second(*btag);
-	  std::cout<<"!!!  "<<pair.first + order<<"   "<<pair.second(*btag)<<std::endl;
         }
       } else {
         for (const std::string& input_name: m_float_subjet_inputs) {
           inputs[input_name + order] = m_offsets.at(input_name + order);
-	  std::cout<<"$$$  "<<input_name + order<<"   "<<inputs[input_name + order]<<std::endl;
         }
         for (const std::string& input_name: m_int_subjet_inputs) {
           inputs[input_name + order] = m_offsets.at(input_name + order);
