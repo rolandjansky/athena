@@ -19,9 +19,9 @@
 
 // FourMom includes
 #include "FourMom/Lib/P4BasePtEtaPhiM.h"
-#include "FourMom/DeepCopyPointer.h"
 #include "FourMom/FourMomentumError.h"
 
+#include<memory>
 // forward declare
 class P4ImplPtEtaPhiMCnv_p1; //> for persistency
 
@@ -123,7 +123,7 @@ class P4ImplPtEtaPhiM : public P4BasePtEtaPhiM
   double m_eta;
   double m_phi;
   double m_m;
-  DeepCopyPointer< ErrorType> m_error;
+  std::unique_ptr< ErrorType> m_error;
 
 };
 
@@ -137,7 +137,7 @@ inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM() :
   m_eta( 0.     ),
   m_phi( 0.     ),
   m_m  ( 0.*CLHEP::GeV ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const P4ImplPtEtaPhiM& rhs ) :
@@ -146,7 +146,7 @@ inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const P4ImplPtEtaPhiM& rhs ) :
   m_eta( rhs.m_eta ),
   m_phi( rhs.m_phi ),
   m_m  ( rhs.m_m   ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const double pt,  const double eta,
@@ -156,7 +156,7 @@ inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const double pt,  const double eta,
   m_eta( eta ),
   m_phi( phi ),
   m_m  ( m   ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const CLHEP::HepLorentzVector& hlv ) :
@@ -165,7 +165,7 @@ inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const CLHEP::HepLorentzVector& hlv ) :
   m_eta( hlv.eta()  ),
   m_phi( hlv.phi()  ),
   m_m  ( hlv.m()    ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const I4Momentum& i4mom ) :
@@ -174,7 +174,7 @@ inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const I4Momentum& i4mom ) :
   m_eta( i4mom.eta() ),
   m_phi( i4mom.phi() ),
   m_m  ( i4mom.m()   ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const I4Momentum * const i4Mom ) :
@@ -183,7 +183,7 @@ inline P4ImplPtEtaPhiM::P4ImplPtEtaPhiM( const I4Momentum * const i4Mom ) :
   m_eta( i4Mom->eta() ),
   m_phi( i4Mom->phi() ),
   m_m  ( i4Mom->m()   ),
-  m_error(0)
+  m_error(nullptr)
 {}
 
 inline P4ImplPtEtaPhiM::~P4ImplPtEtaPhiM()
@@ -266,7 +266,7 @@ inline void P4ImplPtEtaPhiM::set4Mom( const CLHEP::HepLorentzVector & hlv)
 
 inline void P4ImplPtEtaPhiM::setErrors( const ErrorMatrixPtEtaPhiM& err)
 {
-  m_error = DeepCopyPointer< ErrorType>(new ErrorType( err, *this));
+  m_error = std::make_unique< ErrorType>(err, *this);
 }
 
 #endif // FOURMOM_P4IMPLPTETAPHIM_H
