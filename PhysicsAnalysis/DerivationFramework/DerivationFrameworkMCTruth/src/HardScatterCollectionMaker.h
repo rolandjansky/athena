@@ -12,11 +12,7 @@
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-// Just a couple of EDM includes
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthVertexContainer.h"
 // Standard library includes
-#include <vector>
 #include <string>
 
 namespace DerivationFramework {
@@ -32,12 +28,6 @@ namespace DerivationFramework {
       std::string m_eventsKey; //!< Input particle collection (navigates to the vertices)
       std::string m_collectionName; //!< Output collection name stem
       int m_generations; //!< Number of generations after the particle in question to keep
-      int addTruthParticle(const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont,
-                          xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
-                          const int generations) const;
-      int addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont,
-                          xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
-                          const int generations) const;
   }; 
 }
 

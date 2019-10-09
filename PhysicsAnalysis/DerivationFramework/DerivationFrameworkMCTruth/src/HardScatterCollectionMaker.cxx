@@ -8,6 +8,7 @@
 // Based on TruthDecayCollectionMaker (but simpler)
 
 #include "HardScatterCollectionMaker.h"
+#include "CollectionMakerHelpers.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
@@ -17,8 +18,6 @@
 // STL includes
 #include <vector>
 #include <string>
-// For a find in the vector
-#include <algorithm>
 
 // Constructor
 DerivationFramework::HardScatterCollectionMaker::HardScatterCollectionMaker(const std::string& t,
@@ -105,7 +104,7 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
     // make a mini truth collection based on those
     std::vector<int> seen_particles; // Loop protection
     // Let's assume a reasonable case...
-    addTruthParticle( *(my_tv->incomingParticle(0)), newParticleCollection, newVertexCollection, seen_particles, m_generations );
+    CollectionMakerHelpers::addTruthParticle( *(my_tv->incomingParticle(0)), newParticleCollection, newVertexCollection, seen_particles, m_generations );
     // Are there any other incoming particles we need to add?
     for (size_t i=1;i<my_tv->nIncomingParticles();++i){
         // Set up decorators
@@ -151,93 +150,4 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
     } // Done adding incoming particles -- all finished!
 
     return StatusCode::SUCCESS;
-}
-
-int DerivationFramework::HardScatterCollectionMaker::addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont,
-                                                                 xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
-                                                                 const int generations) const {
-    // Make a new vertex and add it to the container
-    xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();
-    vert_cont->push_back( xTruthVertex );
-    // Get a link to this vertex -- will be used to set production vertices on all the next particles
-    int my_index = vert_cont->size()-1;
-    ElementLink<xAOD::TruthVertexContainer> eltv(*vert_cont, my_index);
-    // Set properties
-    xTruthVertex->setId(old_vert.id());
-    xTruthVertex->setBarcode(old_vert.barcode());
-    xTruthVertex->setX(old_vert.x());
-    xTruthVertex->setY(old_vert.y());
-    xTruthVertex->setZ(old_vert.z());
-    xTruthVertex->setT(old_vert.t());
-    // If we are done, then stop here
-    if (generations==0) return my_index;
-    // Add all the outgoing particles
-    for (size_t n=0;n<old_vert.nOutgoingParticles();++n){
-        if (!old_vert.outgoingParticle(n)) continue; // Just in case we removed some truth particles, e.g. G4 decays
-        int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles, generations-1);
-        ElementLink<xAOD::TruthParticleContainer> eltp( *part_cont, part_index);
-        xTruthVertex->addOutgoingParticleLink( eltp );
-        (*part_cont)[part_index]->setProdVtxLink( eltv );
-    }
-    // Return a link to this vertex
-    return my_index;
-}
-
-int DerivationFramework::HardScatterCollectionMaker::addTruthParticle( const xAOD::TruthParticle& old_part, xAOD::TruthParticleContainer* part_cont,
-                                                                   xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
-                                                                   const int generations) const {
-    // See if we've seen it - note, could also do this with a unary function on the container itself
-    if (std::find(seen_particles.begin(),seen_particles.end(),old_part.barcode())!=seen_particles.end()){
-      for (size_t p=0;p<part_cont->size();++p){
-        // Was it a hit?
-        if ((*part_cont)[p]->barcode()==old_part.barcode()) return p;
-      } // Look through the old container
-    } // Found it in the old container
-    // Now we have seen it
-    seen_particles.push_back(old_part.barcode());
-    // Set up decorators
-    const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
-    const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
-    const static SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
-    const static SG::AuxElement::Decorator< int > motherIDDecorator("motherID");
-    const static SG::AuxElement::Decorator< int > daughterIDDecorator("daughterID");
-    // Make a truth particle and add it to the container
-    xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
-    part_cont->push_back( xTruthParticle );
-    // Make a link to this particle
-    int my_index = part_cont->size()-1;
-    ElementLink<xAOD::TruthParticleContainer> eltp(*part_cont, my_index);
-    // Decay vertex information
-    if (old_part.hasDecayVtx()) {
-        int vert_index = addTruthVertex( *old_part.decayVtx(), part_cont, vert_cont, seen_particles, generations);
-        ElementLink<xAOD::TruthVertexContainer> eltv( *vert_cont, vert_index );
-        xTruthParticle->setDecayVtxLink( eltv );
-        (*vert_cont)[vert_index]->addIncomingParticleLink( eltp );
-    }
-    // Fill with numerical content
-    xTruthParticle->setPdgId(old_part.pdgId());
-    xTruthParticle->setBarcode(old_part.barcode());
-    xTruthParticle->setStatus(old_part.status());
-    xTruthParticle->setM(old_part.m());
-    xTruthParticle->setPx(old_part.px());
-    xTruthParticle->setPy(old_part.py());
-    xTruthParticle->setPz(old_part.pz());
-    xTruthParticle->setE(old_part.e());
-    // Copy over the polarization information if it's there
-    if (old_part.polarization().valid()){
-        xTruthParticle->setPolarizationParameter( old_part.polarizationParameter( xAOD::TruthParticle::polarizationPhi ) , xAOD::TruthParticle::polarizationPhi );
-        xTruthParticle->setPolarizationParameter( old_part.polarizationParameter( xAOD::TruthParticle::polarizationTheta ) , xAOD::TruthParticle::polarizationTheta );
-    }
-    // Copy over the decorations if they are available
-    if (old_part.isAvailable<unsigned int>("classifierParticleType")) {
-        typeDecorator(*xTruthParticle) = old_part.auxdata< unsigned int >( "classifierParticleType" );
-    } else {typeDecorator(*xTruthParticle) = 0;}
-    if (old_part.isAvailable<unsigned int>("classifierParticleOrigin")) {
-        originDecorator(*xTruthParticle) = old_part.auxdata< unsigned int >( "classifierParticleOrigin" );
-    } else {originDecorator(*xTruthParticle) = 0;}
-    if (old_part.isAvailable<unsigned int>("classifierParticleOutCome")) {
-        outcomeDecorator(*xTruthParticle) = old_part.auxdata< unsigned int >( "classifierParticleOutCome" );
-    } else {outcomeDecorator(*xTruthParticle) = 0;}
-    // Return a link to this particle
-    return my_index;
 }
