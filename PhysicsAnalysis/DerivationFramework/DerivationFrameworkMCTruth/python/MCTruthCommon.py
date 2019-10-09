@@ -72,26 +72,23 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets"):
         # AntiKt2 truth charged jets ghost association
         from JetRec.JetRecConf import PseudoJetGetter
-        jtm += PseudoJetGetter(
-        "gakt2truthchargedget", # give a unique name
-        InputContainer = "AntiKt2TruthChargedJets", # SG key
-        Label = "GhostAntiKt2TruthChargedJets",   # this is the name you'll use to retrieve associated ghosts
-        OutputContainer = "PseudoJetGhostAntiKt2TruthChargedJet",
-        SkipNegativeEnergy = True,
-        GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
-        )
-
+        if not 'gakt2truthchargedget' in jtm.tools:
+            jtm += PseudoJetGetter("gakt2truthchargedget", # give a unique name
+                                    InputContainer = "AntiKt2TruthChargedJets", # SG key
+                                    Label = "GhostAntiKt2TruthChargedJets",   # this is the name you'll use to retrieve associated ghosts
+                                    OutputContainer = "PseudoJetGhostAntiKt2TruthChargedJet",
+                                    SkipNegativeEnergy = True,
+                                    GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+                                   )
         trackjetgetters = []
         trackjetgetters += [jtm.gakt2truthchargedget]
         truthgetters = [jtm.truthget]
         truthgetters += trackjetgetters
         flavorgetters = []
         for ptype in jetFlags.truthFlavorTags():
-          flavorgetters += [getattr(jtm, "gtruthget_" + ptype)]
+            flavorgetters += [getattr(jtm, "gtruthget_" + ptype)]
         truthgetters   += flavorgetters
-        print 'jtm.gettersMap = ', jtm.gettersMap["truth"]
         jtm.gettersMap["truth"]   = list(truthgetters)
-        print 'jtm.gettersMap = ', jtm.gettersMap["truth"]
 
         #Large R ungroomed jets
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
@@ -132,12 +129,13 @@ def addTruthJets(kernel=None, decorationDressing=None):
             barCodeFromMetadata=0
         from JetRec.JetRecStandardToolManager import jtm
         from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-        jtm += CopyTruthJetParticles("truthpartdressedwz", OutputName="JetInputTruthParticlesDressedWZ",
-                                     MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                     IncludePromptLeptons=False,IncludePromptPhotons=False,
-                                     IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
-                                     FSRPhotonCone=-1., DressingDecorationName=decorationDressing
-                                     )
+        if not 'truthpartdressedwz' in jtm.tools:
+            jtm += CopyTruthJetParticles("truthpartdressedwz", OutputName="JetInputTruthParticlesDressedWZ",
+                                          MCTruthClassifier=jtm.JetMCTruthClassifier,
+                                          IncludePromptLeptons=False,IncludePromptPhotons=False,
+                                          IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
+                                          FSRPhotonCone=-1., DressingDecorationName=decorationDressing
+                                         )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
         jtm += JetToolRunner("jetdressedwzrun", EventShapeTools=[], Tools=[jtm.truthpartdressedwz], Timer=jetFlags.timeJetToolRunner() )
@@ -145,14 +143,14 @@ def addTruthJets(kernel=None, decorationDressing=None):
         kernel += JetAlgorithm("jetdressedwzalg")
         jetdressedwzalg = kernel.jetdressedwzalg
         jetdressedwzalg.Tools = [ jtm.jetdressedwzrun ]
-        jtm += PseudoJetGetter(
-          "truthdressedwzget",
-          Label = "TruthDressedWZ",
-          InputContainer = jtm.truthpartdressedwz.OutputName,
-          OutputContainer = "PseudoJetTruthDressedWZ",
-          GhostScale = 0.0,
-          SkipNegativeEnergy = True
-        )
+        if not 'truthdressedwzget' in jtm.tools:
+            jtm += PseudoJetGetter("truthdressedwzget",
+                                   Label = "TruthDressedWZ",
+                                   InputContainer = jtm.truthpartdressedwz.OutputName,
+                                   OutputContainer = "PseudoJetTruthDressedWZ",
+                                   GhostScale = 0.0,
+                                   SkipNegativeEnergy = True
+                                  )
         jtm.gettersMap['truthdressedwz'] = list(jtm.gettersMap['truth'])
         jtm.gettersMap['truthdressedwz'][0] = jtm.truthdressedwzget
     if not hasattr(jtm,'truthpartcharged'):
@@ -166,10 +164,11 @@ def addTruthJets(kernel=None, decorationDressing=None):
             barCodeFromMetadata=0
         from JetRec.JetRecStandardToolManager import jtm
         from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-        jtm += CopyTruthJetParticles("truthpartcharged", OutputName="JetInputTruthParticlesCharged",
-                                     MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                     ChargedParticlesOnly=True
-                                    )
+        if not 'truthpartcharged' in jtm.tools:
+            jtm += CopyTruthJetParticles("truthpartcharged", OutputName="JetInputTruthParticlesCharged",
+                                         MCTruthClassifier=jtm.JetMCTruthClassifier,
+                                         ChargedParticlesOnly=True
+                                        )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
         jtm += JetToolRunner("jetchargedrun", EventShapeTools=[], Tools=[jtm.truthpartcharged], Timer=jetFlags.timeJetToolRunner() )
@@ -177,14 +176,14 @@ def addTruthJets(kernel=None, decorationDressing=None):
         kernel += JetAlgorithm("jetchargedalg")
         jetchargedalg = kernel.jetchargedalg
         jetchargedalg.Tools = [ jtm.jetchargedrun ]
-        jtm += PseudoJetGetter(
-          "truthchargedget",
-          Label = "TruthCharged",
-          InputContainer = jtm.truthpartcharged.OutputName,
-          OutputContainer = "PseudoJetTruthCharged",
-          GhostScale = 0.0,
-          SkipNegativeEnergy = True
-        )
+        if not 'truthchargedget' in jtm.tools:
+            jtm += PseudoJetGetter("truthchargedget",
+                                   Label = "TruthCharged",
+                                   InputContainer = jtm.truthpartcharged.OutputName,
+                                   OutputContainer = "PseudoJetTruthCharged",
+                                   GhostScale = 0.0,
+                                   SkipNegativeEnergy = True
+                                  )
         jtm.gettersMap['truthcharged'] = [jtm.truthchargedget]
     # Propagate that downward
     if dfInputIsEVNT:
