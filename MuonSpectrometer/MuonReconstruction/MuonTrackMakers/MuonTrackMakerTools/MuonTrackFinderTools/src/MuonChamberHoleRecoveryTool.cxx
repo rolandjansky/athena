@@ -119,11 +119,11 @@ namespace Muon {
     ATH_CHECK( m_intersectSvc.retrieve() );
     
     ATH_CHECK(m_key_mdt.initialize());
-    ATH_CHECK(m_key_csc.initialize());
+    if (!m_key_csc.empty()) ATH_CHECK(m_key_csc.initialize());
     ATH_CHECK(m_key_tgc.initialize());
     ATH_CHECK(m_key_rpc.initialize());
-    if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
-    if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
+    if(!m_key_stgc.empty()) ATH_CHECK(m_key_stgc.initialize());
+    if(!m_key_mm.empty()) ATH_CHECK(m_key_mm.initialize());
     if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());    
     
     return StatusCode::SUCCESS;
@@ -134,22 +134,17 @@ namespace Muon {
   }
   
   Trk::Track* MuonChamberHoleRecoveryTool::recover( const Trk::Track& track ) const {
-    
-    m_chamberLayersOnTrack.clear();
-    m_checkForBadSort = true;
-    
+        
     // call actual recovery routine
     Trk::Track* newTrack = recoverTrack(track);
-    
-    m_chamberLayersOnTrack.clear();
-    m_checkForBadSort = false;
-    
+        
     // return result
     return newTrack;
   }
 
   Trk::Track* MuonChamberHoleRecoveryTool::recoverTrack( const Trk::Track& track ) const {
-    
+    std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack;
+
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* trkstates = track.trackStateOnSurfaces();
     if ( !trkstates ) {
@@ -226,7 +221,7 @@ namespace Muon {
 	stations.insert(stIndex);
 	
 	// MDT case: Run hole search in chamber.
-	tsit = insertMdtsWithHoleSearch( tsit, tsit_end, newStates );
+	tsit = insertMdtsWithHoleSearch( tsit, tsit_end, newStates, chamberLayersOnTrack );
 	continue;
       } else if ( m_idHelperTool->isTrigger(id) || m_idHelperTool->isCsc(id) || m_idHelperTool->isMM(id) || m_idHelperTool->issTgc(id) ) {
 	// Non-MDT case: Look for missing layers in chamber, add them to track
@@ -366,8 +361,8 @@ namespace Muon {
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator
   MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
 							 std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
-							 std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states
-							 ) const {
+							 std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states,
+							 std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack) const {
     // iterator should point to a valid element
     if ( tsit == tsit_end ) {
       ATH_MSG_WARNING(" iterator pointing to end of vector, this should no happen " );
@@ -440,16 +435,14 @@ namespace Muon {
     
     // check if chamber index is already processed
     bool doHoleSearch = true;
-    if ( m_checkForBadSort ) {
-      if ( m_chamberLayersOnTrack.count(currentChIndex) ) {
+      if ( chamberLayersOnTrack.count(currentChIndex) ) {
 	if ( m_detectBadSort ) ATH_MSG_WARNING("Detected badly sorted track, not adding holes in current chamber");
 	else                  ATH_MSG_DEBUG("Detected badly sorted track, not adding holes in current chamber");
 	doHoleSearch = false;
       } else {
-	m_chamberLayersOnTrack.insert(currentChIndex);
+	chamberLayersOnTrack.insert(currentChIndex);
       }
-    }
-    
+        
     if ( doHoleSearch ) {
       
       // ensure that we are not passing in the same parameters

@@ -47,7 +47,9 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm
   SG::WriteHandleKey<Trk::SegmentCollection> m_segments{this,"SegmentCollection","MuGirlSegments","Segment collection"};
 
   bool m_usePRDs;
-  bool m_useNSW;
+  bool m_hasCSC;
+  bool m_hasSTGC;
+  bool m_hasMM;
 };
 
 
