@@ -127,6 +127,9 @@ if TriggerFlags.doMT():
     from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
     svcMgr += getHLTConfigSvc()
 
+    from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+    svcMgr += TrigConfigSvc("TrigConfigSvc")
+    svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
@@ -140,10 +143,6 @@ if TriggerFlags.doMT():
     l1Decoder = findAlgorithm( topSequence, "L1Decoder" )
     l1Decoder.ExtraInputs += [fakeTypeKey]
     l1Decoder.ctpUnpacker.ForceEnableAllChains=False # this will make HLT respecting L1 chain decisions
-
-    # TIMM
-    ServiceMgr.MessageSvc.defaultLimit = 0
-    ServiceMgr.MessageSvc.enableSuppression = False
 
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
@@ -237,17 +236,14 @@ for i in outSequence.getAllChildren():
         from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
         bitsmakerTool = TriggerBitsMakerTool()
-        bitsmakerTool.OutputLevel = VERBOSE
         tdm = TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
         tdm.BitsMakerTool = bitsmakerTool
-        tdm.OutputLevel = VERBOSE         #  TIMM
         topSequence += tdm
         log.info('xTrigDecision writing enabled')
 
         ### Produce the metadata:
         from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
         md = TrigConf__xAODMenuWriterMT()
-        md.OutputLevel = VERBOSE # TIMM
         topSequence += md
         log.info('TriggerMenu Metadata writing enabled')
 

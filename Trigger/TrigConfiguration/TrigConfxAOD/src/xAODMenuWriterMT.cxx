@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: xAODMenuWriter.cxx 717661 2016-01-14 08:16:47Z tbold $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"

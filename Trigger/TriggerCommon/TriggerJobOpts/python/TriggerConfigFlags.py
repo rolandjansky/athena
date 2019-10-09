@@ -101,10 +101,6 @@ def createTriggerFlags():
     flags.addFlag('Trigger.HLTMenuFile',
                   lambda prevFlags: 'HLTMenu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
-    # HLT JSON file name (R3)
-    flags.addFlag('Trigger.outputHLTmenuJsonFile',
-                lambda prevFlags: 'HLTmenu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
-
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateL1Menu', False)
     

@@ -301,9 +301,10 @@ class SetupTrigConfigSvc(object):
             """
             state == xml -> read the trigger configuration from 2 xml files, one for L1, one for HLT
             stats == ds  -> read the trigger configuration from the detector store = esd header
+            state == none -> service is not directly serving the run3 configuration
             """
             self.states = ["xml"]
-            self.allowedStates = set(['xml','ds'])
+            self.allowedStates = set(['none','xml','ds'])
             self.initialised = False
 
             from AthenaCommon.Logging import logging

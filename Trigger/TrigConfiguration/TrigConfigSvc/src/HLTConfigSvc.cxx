@@ -182,7 +182,7 @@ HLTConfigSvc::initialize() {
             m_inputType = "db";
             m_smk = joSvc->superMasterKey();
             m_dbConnection = joSvc->server();
-            m_configSourceString = "";
+            m_configSourceString = "none";
          }
       } else {
          ATH_MSG_INFO("Did not locate TrigConf::JobOptionsSvc, not running athenaHLT");

@@ -65,6 +65,10 @@ namespace TrigConf {
             ctpConfig.prescaleSet().setPrescale( menu->itemCtpIds()[ i ],
 						 static_cast< float >( menu->itemPrescales()[ i ] ) );
          }
+         if( msg.level() <= MSG::VERBOSE ) {
+            msg << MSG::VERBOSE << "L1 item " << menu->itemNames()[ i ]
+                << " has ctpid " << menu->itemCtpIds()[ i ] << endmsg;
+         }
       }
 
       // Clear the current HLT configuration:
@@ -115,8 +119,9 @@ namespace TrigConf {
              */
 
             if( msg.level() <= MSG::VERBOSE ) {
-               msg << MSG::VERBOSE << "chain has " << counters.size()
-                   << " signatures" << endmsg;
+               msg << MSG::VERBOSE << "chain " << menu->chainNames()[ i ]
+                   << " has counter " << menu->chainIds()[ i ]
+                   << " and " << counters.size() << " signatures" << endmsg;
             }
             for( size_t sig = 0; sig < counters.size(); ++sig ) {
                std::vector< HLTTriggerElement* > outTEs;

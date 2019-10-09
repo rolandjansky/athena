@@ -27,7 +27,7 @@ ConfigSvcBase::~ConfigSvcBase()
 void
 ConfigSvcBase::declareCommonProperties() {
    declareProperty( "ConfigSource",     m_configSourceString,
-                    "Source of trigger configuration; can be \"XML\", \"MySQL\", \"Oracle\", \"DBLookup\"");
+                    "Source of trigger configuration; can be \"XML\", \"MySQL\", \"Oracle\", \"DBLookup\", or \"none\"");
    declareProperty( "XMLMenuFile",      m_xmlFile,
                     "XML file containing the trigger configuration.");
    declareProperty( "DBServer",         m_dbServer,

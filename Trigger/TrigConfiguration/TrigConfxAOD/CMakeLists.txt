@@ -40,7 +40,7 @@ atlas_add_library( TrigConfxAODLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrigConfxAOD
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel
+      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel TrigConfData
       TrigConfxAODLib )
 endif()
 
