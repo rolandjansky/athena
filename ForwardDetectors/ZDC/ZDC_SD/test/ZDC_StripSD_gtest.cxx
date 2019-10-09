@@ -26,13 +26,12 @@
 #include "G4AtlasTools/DerivedG4SensitiveDetectorTestSetting.h"
 
 //set environment
-ISvcLocator* g_svcLoc = nullptr;
 class GaudiEnvironment : public ::testing::Environment {
   protected:
     virtual void SetUp() override {
-   Athena_test::initGaudi("ZDC_SD/optionForTest.txt", g_svcLoc);
+   Athena_test::initGaudi("ZDC_SD/optionForTest.txt", m_svcLoc);
   }
-//  ISvcLocator* g_svcLoc = nullptr;
+  ISvcLocator* m_svcLoc = nullptr;
 };
 class ZDC_StripSDtest : public ::testing::Test {	
   protected:
