@@ -21,7 +21,7 @@
 #include <inttypes.h>
 #include <vector>
 #include <string>
-#include <atomic>
+#include <mutex>
 
 #include "CscRODReadOut.h"
 
@@ -50,9 +50,9 @@ namespace Muon {
     virtual StatusCode initialize() override final;
 
     virtual void getDigit(const CscRawData * rawData, Identifier& moduleId,
-                  Identifier& channelId, double& adc, double& time) override final;
-    virtual Identifier stationIdentifier(const CscRawData* rawData) override final;
-    virtual Identifier channelIdentifier(const CscRawData * rawData, int j) override final;
+                  Identifier& channelId, double& adc, double& time) const override final;
+    virtual Identifier stationIdentifier(const CscRawData* rawData) const override final;
+    virtual Identifier channelIdentifier(const CscRawData * rawData, int j) const override final;
 
   private:
     std::string m_detdescr;
@@ -64,8 +64,8 @@ namespace Muon {
     double   m_samplingTime ;
     double   m_signalWidth  ;
     // the read out structure
-    CscRODReadOut m_rodReadOut;
-
+    mutable CscRODReadOut m_rodReadOut ATLAS_THREAD_SAFE; // guarded by m_mutex
+    mutable std::mutex m_mutex;
   };
 }
 

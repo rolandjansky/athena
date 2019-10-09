@@ -12,6 +12,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include <atomic>
 
 // TGC ROD encoder/decoder for CscRDO
 // Author Ketevi A. Assamagan
@@ -102,24 +103,24 @@ private:
   }
 
   const Muon::MuonIdHelperTool* m_muonIdHelperTool;
-  uint16_t  m_sourceID;
-  uint16_t  m_moduleType;
-  uint16_t  m_rodId;
-  uint16_t  m_subDetectorId;
-  uint16_t  m_amp1;
-  uint16_t  m_amp2;
-  uint32_t  m_address;
-  uint32_t  m_chamberBitValue;
-  double    m_norm;
-  
-  double   m_TIME_OFFSET; 
-  double   m_SIGNAL_WIDTH;  
-  double   m_SAMPLING_TIME; 
-  int      m_NUMBER_OF_INTEGRATION;
-  double   m_CHARGE_TO_ADC_COUNT;
-  double   m_Z0; 
+  std::atomic<uint16_t>  m_sourceID;
+  std::atomic<uint16_t>  m_moduleType;
+  std::atomic<uint16_t>  m_rodId;
+  std::atomic<uint16_t>  m_subDetectorId;
+  std::atomic<uint16_t>  m_amp1;
+  std::atomic<uint16_t>  m_amp2;
+  std::atomic<uint32_t>  m_address;
+  std::atomic<uint32_t>  m_chamberBitValue;
+  std::atomic<double>  m_norm;
+		     
+  std::atomic<double> m_TIME_OFFSET; 
+  std::atomic<double> m_SIGNAL_WIDTH;  
+  std::atomic<double> m_SAMPLING_TIME; 
+  std::atomic<int> m_NUMBER_OF_INTEGRATION;
+  std::atomic<double> m_CHARGE_TO_ADC_COUNT;
+  std::atomic<double> m_Z0; 
 
-  uint32_t m_TRIGGER_INFO[3];
+  std::atomic<uint32_t> m_TRIGGER_INFO[3];
 
   static const uint32_t ROD_HEADER_SIZE   = 12;
   

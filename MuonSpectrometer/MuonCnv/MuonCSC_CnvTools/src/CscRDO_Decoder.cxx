@@ -56,8 +56,9 @@ StatusCode Muon::CscRDO_Decoder::initialize()
 
 void Muon::CscRDO_Decoder::getDigit(const CscRawData * rawData, 
                                     Identifier& moduleId, Identifier& channelId, 
-                                    double& adc, double& time)  {
+                                    double& adc, double& time) const {
 
+  std::lock_guard<std::mutex> lockGuard(m_mutex);
   // get the raw data
   uint32_t address = rawData->address();
 
@@ -75,8 +76,9 @@ void Muon::CscRDO_Decoder::getDigit(const CscRawData * rawData,
 
 
 
-Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData) 
+Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData) const 
 {
+  std::lock_guard<std::mutex> lockGuard(m_mutex);
   /** get the raw data */
   uint32_t address = rawData->address();
 
@@ -88,8 +90,9 @@ Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData)
   return m_rodReadOut.decodeAddress();
 }
 
-Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, int j) 
+Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, int j) const 
 {
+  std::lock_guard<std::mutex> lockGuard(m_mutex);
   /** get the raw data */
   uint32_t address = rawData->address();
 
