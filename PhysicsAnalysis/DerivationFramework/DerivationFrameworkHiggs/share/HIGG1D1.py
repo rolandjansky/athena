@@ -183,7 +183,7 @@ from egammaRec.Factories import ToolFactory, AlgFactory
 import PhotonVertexSelection.PhotonVertexSelectionConf as PVS 
 
 PhotonPointingTool = ToolFactory(PVS.CP__PhotonPointingTool, isSimulation = rec.doTruth() )
-PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool, saveNeuralNetVars=True)
+PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool)
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__DiphotonVertexDecorator
 DiphotonVertexDecorator = ToolFactory(DerivationFramework__DiphotonVertexDecorator, PhotonVertexSelectionTool = PhotonVertexSelectionTool,PhotonPointingTool = PhotonPointingTool)()

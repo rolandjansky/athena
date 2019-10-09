@@ -74,6 +74,7 @@ namespace DerivationFramework {
       double m_minPhotonPt;
       bool   m_removeCrack;
       double m_maxEta;
+      bool   m_ignoreConv;
 
       bool  PhotonPreselect(const xAOD::Photon *ph) const;
 
