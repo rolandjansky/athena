@@ -31,7 +31,8 @@ namespace CP {
     IsolationCloseByCorrectionTool::IsolationCloseByCorrectionTool(const std::string& toolName) :
                 asg::AsgTool(toolName),
                 m_selectorTool(""),
-                m_coreCone(0.1),
+                m_coreConeEl(0.1),
+                m_coreConeMu(0.05),
                 m_ptvarconeRadius(1.e4),
                 m_maxTopoPolution(1.1),
                 m_ConeSizeVariation(1.2),
@@ -78,7 +79,9 @@ namespace CP {
         declareProperty("VertexContainer", m_VertexContainerName, "Name of the primary vertex container");
         declareProperty("CaloClusterContainer", m_CaloClusterContainerName, "Name of the primary calo cluster container");
 
-        declareProperty("CoreCone", m_coreCone, "This is the size of the core cone for the topoetcone variables.");
+        declareProperty("CoreConeElectrons", m_coreConeEl, "This is the size of the core cone for the topoetcone variables.");
+        declareProperty("CoreConeMuons", m_coreConeMu, "This is the size of the core cone for the topoetcone variables.");
+        
         declareProperty("PtvarconeRadius", m_ptvarconeRadius, "This is the kT parameter for the ptvarcone variables.");
         declareProperty("MaxClusterFrac", m_maxTopoPolution, "Maximum energy fraction a single cluster can make up to be considered as contributed to the isolation");
         declareProperty("ExtrapolationConeSize", m_ConeSizeVariation, "Constant factor to be multiplied on top of the topo-etcone size if the reference particle is not a calorimeter particle in order to account for extrapolation effects");
@@ -162,7 +165,7 @@ namespace CP {
         getTrackCandidates(Electrons, Vtx, Tracks);
         getTrackCandidates(Muons, Vtx, Tracks);
         getTrackCandidates(Photons, Vtx, Tracks);
-        //Now grep every cluster with dR< m_CoreCone to the object
+        //Now grep every cluster with dR< m_coreConeEl to the object
         ClusterCollection Clusters;
         if (topoetconeModel == TopoConeCorrectionModel::DirectCaloClusters) {
             getClusterCandidates(Electrons, Clusters);
@@ -334,7 +337,7 @@ namespace CP {
         for (const auto& cluster : *topoClusters) {
             if (!cluster || fabs(cluster->eta()) > 7.0 || cluster->pt() <= 1.e-3) continue;
             //Consider also the cluster of Egamma if they are in the container
-            if (isSame(Ref, cluster) || overlap(cluster, Ref, m_coreCone)){
+            if (isSame(Ref, cluster) || overlap(cluster, Ref, P->type() == xAOD::Type::ObjectType::Muon ? m_coreConeMu: m_coreConeEl)){
                  ATH_MSG_DEBUG("Add cluster with pt: "<<cluster->pt()/1.e3<<" GeV, eta: "<<cluster->eta()<<" phi: "<<cluster->phi()<< " associated with " << particleName(P) << " having pt: " << P->pt() / 1.e3 << " eta: " << P->eta() << " phi: " << P->phi());
                  clusters.push_back(cluster);
             }
@@ -456,7 +459,7 @@ namespace CP {
         for (auto& cluster : clusters) {
             ATH_MSG_DEBUG("Cluster with pt: " << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(deltaR2(cluster, par)) << " (" << MaxDR << ")");
             bool Subtract = false;            
-            if (overlap(cluster, Ref, m_coreCone)){
+            if (overlap(cluster, Ref, par->type() == xAOD::Type::ObjectType::Muon ? m_coreConeMu : m_coreConeEl)){
                 ATH_MSG_DEBUG("The cluster belongs to the core cone");
             } else if (Ref->type() == xAOD::Type::ObjectType::CaloCluster) {
                 Subtract = overlap(cluster, Ref, MaxDR);
@@ -478,16 +481,16 @@ namespace CP {
         if (isSame(P, P1)) return 0.;
         float fraction = 0.;
         double dR = sqrt(deltaR2(P, P1));
-        if (Model == TopoConeCorrectionModel::ParticleCaloCorrection && coneSize > m_coreCone && dR <= coneSize) fraction = 1.;
-        else if (Model == TopoConeCorrectionModel::CaloCorrectionExtCore && dR > 2.0 * m_coreCone && dR <= (coneSize - m_coreCone)) fraction = 1.;
+        if (Model == TopoConeCorrectionModel::ParticleCaloCorrection && coneSize > m_coreConeEl && dR <= coneSize) fraction = 1.;
+        else if (Model == TopoConeCorrectionModel::CaloCorrectionExtCore && dR > 2.0 * m_coreConeEl && dR <= (coneSize - m_coreConeEl)) fraction = 1.;
         else if (Model == TopoConeCorrectionModel::CaloCorrectionVarAnulus) {
-            float drA = fmin(2.0 * m_coreCone, coneSize - m_coreCone);
-            fraction = fmin(dR / m_coreCone, 1.0);
+            float drA = fmin(2.0 * m_coreConeEl, coneSize - m_coreConeEl);
+            fraction = fmin(dR / m_coreConeEl, 1.0);
             if (dR > drA) {
-                float drB = fmax(2 * m_coreCone, coneSize - m_coreCone);
-                fraction = fmin(drA / m_coreCone, 1.0);
+                float drB = fmax(2 * m_coreConeEl, coneSize - m_coreConeEl);
+                fraction = fmin(drA / m_coreConeEl, 1.0);
                 if (dR > drB) {
-                    float drC = coneSize + m_coreCone;
+                    float drC = coneSize + m_coreConeEl;
                     fraction = fraction * (drC - dR) / (drC - drB);
                 }
             }
