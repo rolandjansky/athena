@@ -118,6 +118,12 @@ class doNewTracking(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
+    
+class doFastTracking(InDetFlagsJobProperty):
+    """Turn running of newTracking on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 class doPseudoTracking(InDetFlagsJobProperty):
     """Turn running of the truth seeded pseudo tracking on and off"""
@@ -2692,6 +2698,7 @@ jobproperties.add_Container(InDetJobProperties)
 _list_InDetJobProperties = [Enabled,
                             doPrintConfigurables,
                             doNewTracking,
+                            doFastTracking,
                             doPseudoTracking,
                             doSplitReco,
                             doxKalman,
