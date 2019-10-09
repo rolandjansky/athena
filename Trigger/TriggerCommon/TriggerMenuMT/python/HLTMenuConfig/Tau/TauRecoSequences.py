@@ -171,8 +171,6 @@ def tauIsoTrackSequence( RoIs , name):
          viewAlg.roiCollectionName = RoIs
        if "TrackRoiUpdater" in viewAlg.name():
          viewAlg.RoIInputKey = RoIs
-       #if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-       #  TrackCollection = viewAlg.TrackParticlesName
        if "TrigFastTrackFinder" in  viewAlg.name():
          TrackCollection = viewAlg.TracksName
 
@@ -204,8 +202,6 @@ def tauIsoTrackSequence( RoIs , name):
     tauIsoTrackSequence += tauPrecisionMVAAlg
 
     sequenceOut = tauPrecisionMVAAlg.TrigTauRecOutputKey
-
-    print "Here_too: ", sequenceOut
 
     return tauIsoTrackSequence, sequenceOut
 
