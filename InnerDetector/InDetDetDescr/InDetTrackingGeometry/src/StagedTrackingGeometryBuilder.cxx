@@ -15,6 +15,7 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
 // Trk Geometry stuff
+#include "TrkDetDescrGeoModelCnv/GeoMaterialConverter.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkVolumes/VolumeBounds.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
@@ -46,7 +47,7 @@ InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::s
   m_magneticFieldProperties(0),
   m_indexStaticLayers(true),
   m_checkForRingLayout(false),
-  m_ringTolerance(10*Gaudi::Units::mm),
+  m_ringTolerance(0.*Gaudi::Units::mm),
   m_namespace("InDet::"),
   m_exitVolume("InDet::Containers::InnerDetector")
 {
@@ -70,7 +71,7 @@ InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::s
   // force robust layer indexing  
   declareProperty("IndexStaticLayers",                m_indexStaticLayers);
   declareProperty("CheckForRingLayout",               m_checkForRingLayout);
-  // volume namespace & contaienr name
+  // volume namespace & container name
   declareProperty("VolumeNamespace",                  m_namespace); 
   declareProperty("ExitVolumeName",                   m_exitVolume);
 }
@@ -205,7 +206,8 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
             // [b] cache is not empty - let's see what is going on:
             ATH_MSG_VERBOSE("       -> new sector does not fit the current cache specs -> flushing the cache." );
             // create the outer boundary
-            double flushRadius = 0.5*(layerSetupCache[layerSetupCache.size()-1].rMax + lSetup.rMin);
+            double flushRadius = layerSetupCache[layerSetupCache.size()-1].rMax > lSetup.rMin ? 
+	      0.5*(layerSetupCache[layerSetupCache.size()-1].rMax + lSetup.rMax) :  0.5*(layerSetupCache[layerSetupCache.size()-1].rMax + lSetup.rMin)  ;
             // create a flush volume - clears the cache
             const Trk::TrackingVolume* fVolume = createFlushVolume(layerSetupCache,lastFlushRadius,flushRadius,maximumLayerExtendZ);
             // stuff it into the idVolume
@@ -480,7 +482,7 @@ bool InDet::StagedTrackingGeometryBuilder::setupFitsCache(LayerSetup& layerSetup
 bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Trk::Layer*>& layers, std::vector<double>& rmins, std::vector<double>& rmaxs) const {
   // get the maximum extent in z
   std::vector<std::pair<double,double>> radii;
-  ATH_MSG_INFO("Checking for Ring layout ... ");
+  ATH_MSG_DEBUG("Checking for Ring layout ... ");
   for (auto& ring : layers) {
     // Surface
     const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
@@ -495,7 +497,7 @@ bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Tr
       //checkForInsert(rmaxs,rMax);
       // take and check the couple rmin/rmax
       checkForInsert(rMin, rMax, radii);
-      ATH_MSG_INFO(" -> Ring at z-position " << zpos << " - with rMin/rMax = " << rMin << "/" << rMax );
+      ATH_MSG_DEBUG(" -> Ring at z-position " << zpos << " - with rMin/rMax = " << rMin << "/" << rMax );
     }
   }
   
@@ -505,7 +507,7 @@ bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Tr
   for (auto& rs: radii) {
     bool found = false;
     for (auto& tmprs: tmpradii) {
-      if ((rs.first<tmprs.first and rs.first>tmprs.second) or (rs.second>tmprs.first and rs.second<tmprs.second)) {
+      if ((rs.first<tmprs.second and rs.second>tmprs.first) ) {
 	tmprs.first  = std::min(tmprs.first ,rs.first );
 	tmprs.second = std::max(tmprs.second,rs.second);
 	found = true;
@@ -517,6 +519,7 @@ bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Tr
   }
    
   // now you fill rmin and rmax
+  rmins.clear(); rmaxs.clear();
   for (auto& r: tmpradii) {
     rmins.push_back(r.first);
     rmaxs.push_back(r.second);
@@ -540,40 +543,73 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
     std::vector<double> ringRmins;
     std::vector<double> ringRmaxa;
     if (m_checkForRingLayout && ringLayout(layers,ringRmins, ringRmaxa)){
-        ATH_MSG_INFO("Ring layout is present for volume '" << volumeName << "' dealing with it.");
-        // create the vector for the sub volumes
-        std::vector<const Trk::TrackingVolume* > ringVolumes;
+      ATH_MSG_DEBUG("Ring layout is present for volume '" << volumeName << "' dealing with it.");
+      
+      // create the vector for the sub volumes
+      std::vector<const Trk::TrackingVolume* > ringVolumes;
 
-        // now sort the necessary layers --- for the sub volumes
-        std::vector< std::vector< const Trk::Layer*> > groupedDiscs(ringRmins.size(), std::vector< const Trk::Layer*>() );
-        // second loop over the rings
-        for (auto& ring : layers){
-            // Surface
-            const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
-            const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
-            if (ringBounds){
-                // get the main parameters
-                double rMax         = ringBounds->rMax();
-                size_t rPos         = 0;
-                // fill into the right group
-                for (auto& rm : ringRmaxa){
-                    if (rMax < rm+m_ringTolerance) break;
-                    ++rPos;
-                }
-                // fill it it 
-                const Trk::DiscLayer* dring = dynamic_cast<const Trk::DiscLayer*>(ring);
-                if (dring) groupedDiscs[rPos].push_back(dring);
-            }
-        }
-        // we are now grouped in cylinder rings per volume
-        for (int idset = 0; idset < int(groupedDiscs.size()); idset++){
-            // always keep the boundaries in mind for the radial extend
-            double crmin = idset ? ringRmaxa[idset-1]+m_layerEnvelopeCover : innerRadius;
-            double crmax = ringRmaxa[idset]+m_layerEnvelopeCover;
-	    if(idset==int(groupedDiscs.size())-1 && !doAdjustOuterRadius) crmax = outerRadius; 
+      // now sort the necessary layers --- for the sub volumes
+      std::vector< std::vector< const Trk::Layer*> > groupedDiscs(ringRmins.size(), std::vector< const Trk::Layer*>() );
+      // second loop over the rings
+      for (auto& ring : layers){
+	// Surface
+	const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
+	const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
+	if (ringBounds){
+	  // get the main parameters
+	  double rMax         = ringBounds->rMax();
+	  size_t rPos         = 0;
+	  // fill into the right group
+	  for (auto& rm : ringRmaxa){
+	    if (rMax <= rm+m_ringTolerance) break;
+	    ++rPos;
+	  }
+	  // fill it it 
+	  const Trk::DiscLayer* dring = dynamic_cast<const Trk::DiscLayer*>(ring);
+	  if (dring) groupedDiscs[rPos].push_back(dring);
+	}
+      }
+        // layer merging may be needed 
+	std::vector< std::vector< const Trk::Layer*> > mergedLayers;
+	std::vector< float > mergedRmax;
+	std::vector< std::vector< int > > merge;
+	std::vector<int> laySet(1,0); merge.push_back(laySet);
+        double rCurr = ringRmaxa[0];
+        mergedRmax.push_back(rCurr);
+        for (int idset = 1; idset < int(groupedDiscs.size()); idset++){
+	  if (ringRmins[idset]<=rCurr) {
+	    merge.back().push_back(idset);
+            if (ringRmaxa[idset]>mergedRmax.back()) mergedRmax.back()=ringRmaxa[idset]; 
+          } else {
+	    merge.push_back(std::vector<int>(1,idset));
+            mergedRmax.push_back(ringRmaxa[idset]);
+	  } 
+	  rCurr = ringRmaxa[idset];
+	} 
+        for ( auto layset : merge ) {
+	  std::vector<const Trk::Layer*> ringSet;
+          for ( auto lay : layset ) {
+            for ( auto ring : groupedDiscs[lay]) {
+              float zPos = ring->surfaceRepresentation().center().z();
+	      if (!ringSet.size() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
+              else {
+		std::vector<const Trk::Layer*>::iterator lit = ringSet.begin();
+                while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) lit++;
+                ringSet.insert(lit,ring);  
+	      }   
+	    }
+	  } 
+          mergedLayers.push_back(ringSet);
+	}	  
+     
+        for (int idset = 0; idset < int(mergedLayers.size()); idset++){
+           // always keep the boundaries in mind for the radial extend
+            double crmin = idset ? mergedRmax[idset-1]+m_layerEnvelopeCover : innerRadius;
+            double crmax = mergedRmax[idset]+m_layerEnvelopeCover;
+	    if(idset==int(mergedLayers.size())-1 && !doAdjustOuterRadius) crmax = outerRadius; 
             // now create the sub volume
             std::string ringVolumeName = volumeName+"Ring"+boost::lexical_cast<std::string>(idset);
-            const Trk::TrackingVolume* ringVolume = m_trackingVolumeCreator->createTrackingVolume(groupedDiscs[idset],
+            const Trk::TrackingVolume* ringVolume = m_trackingVolumeCreator->createTrackingVolume(mergedLayers[idset],
                                                                                                   *m_materialProperties,
                                                                                                   crmin,crmax,
                                                                                                   zMin,zMax,
@@ -582,12 +618,14 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
              // push back into the 
              ringVolumes.push_back(ringVolume);
         }
+
         // set the outer radius
         if(doAdjustOuterRadius) outerRadius = ringRmaxa[ringRmaxa.size()-1]+m_layerEnvelopeCover;
         //
-        ATH_MSG_INFO("      -> adjusting the outer radius to the last ring at " << outerRadius );
-        ATH_MSG_INFO("      -> created " << ringVolumes.size() << " ring volumes for Volume '" << volumeName << "'.");
-        // create the tiple container
+        ATH_MSG_DEBUG("      -> adjusting the outer radius to the last ring at " << outerRadius );
+        ATH_MSG_DEBUG("      -> created " << ringVolumes.size() << " ring volumes for Volume '" << volumeName << "'.");
+
+        // create the container
         return m_trackingVolumeCreator->createContainerTrackingVolume(ringVolumes,
                                                                       *m_materialProperties,
                                                                       volumeName,
@@ -743,3 +781,4 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::packVolumeTripl
                                                                 m_replaceJointBoundaries);
    return tripleContainer;
 }
+
