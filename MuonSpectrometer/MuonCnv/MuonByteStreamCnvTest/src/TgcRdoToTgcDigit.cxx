@@ -3,7 +3,7 @@
 */
 
 #include "TgcRdoToTgcDigit.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 TgcRdoToTgcDigit::TgcRdoToTgcDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
@@ -13,7 +13,7 @@ TgcRdoToTgcDigit::TgcRdoToTgcDigit(const std::string& name,
 
 StatusCode TgcRdoToTgcDigit::initialize()
 {
-  ATH_CHECK( detStore()->retrieve(m_tgcHelper, "TGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
   ATH_CHECK(m_tgcRdoKey.initialize());
   ATH_CHECK(m_tgcDigitKey.initialize());
@@ -37,7 +37,7 @@ StatusCode TgcRdoToTgcDigit::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " TGC RDOs." );
 
   SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey, ctx);
-  ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_tgcHelper->module_hash_max())));
+  ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_muonIdHelperTool->tgcIdHelper().module_hash_max())));
   ATH_MSG_DEBUG( "Decoding TGC RDO into TGC Digit"  );
 
   Identifier oldElementId;
@@ -59,7 +59,7 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 {
   TgcDigitCollection* collection = nullptr;
 
-  const IdContext tgcContext = m_tgcHelper->module_context();
+  const IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
 
   ATH_MSG_DEBUG( "Number of RawData in this rdo "
                  << rdoColl->size()  );
@@ -217,7 +217,7 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 
           // check new element or not
           IdentifierHash coll_hash;
-          if (m_tgcHelper->get_hash(elementId, coll_hash, &tgcContext)) {
+          if (m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, coll_hash, &tgcContext)) {
             ATH_MSG_WARNING( "Unable to get TGC digit collection hash "
                              << "context begin_index = " << tgcContext.begin_index()
                              << " context end_index  = " << tgcContext.end_index()

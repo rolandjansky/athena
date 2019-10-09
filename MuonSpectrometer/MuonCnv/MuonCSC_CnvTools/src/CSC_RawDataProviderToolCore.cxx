@@ -55,9 +55,8 @@ StatusCode Muon::CSC_RawDataProviderToolCore::initialize()
   ATH_CHECK( m_robDataProvider.retrieve() );
   ATH_MSG_INFO ( "Retrieved service " << m_robDataProvider );
   
-  
-  const CscIdHelper* idHelper = m_muonMgr->cscIdHelper();
-  m_hid2re.set( &(*m_cabling), idHelper );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  m_hid2re.set( &(*m_cabling), m_muonIdHelperTool.get() );
 
   // Retrieve decoder
   if (m_decoder.retrieve().isFailure()) {

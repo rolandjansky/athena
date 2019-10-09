@@ -352,12 +352,6 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info,
     uint8_t deadPixel= original->summaryValue(dummy,xAOD::numberOfPixelDeadSensors)?dummy:0;
     summary->update(Trk::numberOfPixelDeadSensors,deadPixel);
     
-    uint8_t expectInnermostPixel= original->summaryValue(dummy,xAOD::expectInnermostPixelLayerHit)?dummy:0;
-    summary->update(Trk::expectInnermostPixelLayerHit,expectInnermostPixel);
-    
-    uint8_t expectNextToInnermostPixel = original->summaryValue(dummy,xAOD::expectNextToInnermostPixelLayerHit)?dummy:0;
-    summary->update(Trk::expectNextToInnermostPixelLayerHit,expectNextToInnermostPixel);
-  
     int nPixHitsRefitted = summary->get(Trk::numberOfPixelHits);
     int nPixOutliersRefitted = summary->get(Trk::numberOfPixelOutliers);
     int nPixHitsOriginal = original->summaryValue(dummy,xAOD::numberOfPixelHits) ? dummy:-1;

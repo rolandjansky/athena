@@ -68,6 +68,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     virtual void stopAud ( const std::string& stepName,
                            const std::string& compName ) override;
 
+    /// Count the number of processed events
+    virtual void incrementEventCounter() override { m_eventCounter++; };
     
     /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
     void startSnapshotAud ( const std::string& stepName,
@@ -93,19 +95,19 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // Report the results
     void report();
 
-    void report2Stdout();
+    void report2Log();
   
-    void report2Stdout_Description() const;
+    void report2Log_Description() const;
 
-    void report2Stdout_Time_Serial();
-    void report2Stdout_Time_Parallel();
+    void report2Log_Time_Serial();
+    void report2Log_Time_Parallel();
 
-    void report2Stdout_Mem_Serial();
-    void report2Stdout_Mem_Parallel();
+    void report2Log_Mem_Serial();
+    void report2Log_Mem_Parallel();
 
-    void report2Stdout_Parallel();
-    void report2Stdout_Summary();  // make it const
-    void report2Stdout_CpuInfo() const;
+    void report2Log_Parallel();
+    void report2Log_Summary();  // make it const
+    void report2Log_CpuInfo() const;
 
     void report2JsonFile() const;
 
@@ -116,10 +118,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
 
-
-
     int getEventNumber() const;
-    void eventCounter(int eventNumber);
     
     bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
 
@@ -144,7 +143,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
 
-    BooleanProperty m_isEventLoopMonitoring; 
+    /// Do event loop monitoring
+    BooleanProperty m_doEventLoopMonitoring;
+
+    /// Print detailed tables
+    BooleanProperty m_printDetailedTables;
 
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
@@ -159,8 +162,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     std::mutex m_mutex_capture; // lock for capturing event loop measurements
 
-    // Event ID's are stored to count the number of events. There should be a better way!
-    std::set<int> m_eventIds;
+    // Count the number of events processed 
+    std::atomic<unsigned long long> m_eventCounter;
 
     /* Data structure  to store component level measurements
      * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!

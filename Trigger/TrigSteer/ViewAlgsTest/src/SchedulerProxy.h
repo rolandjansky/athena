@@ -30,14 +30,14 @@ namespace SchedulerProxy {
 
 	{
 	  SG::ReadHandle<ConstDataVector<TrigRoiDescriptorCollection> > rois("RegionOfReco");
-	  CHECK(rois.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>().proxy()));
+	  CHECK(rois.setProxyDict(Atlas::getExtendedEventContext(context).proxy()));
 	  
 	  SG::WriteHandle< TestClusterContainer > clusterContainer("Clusters");
-	  CHECK(clusterContainer.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>().proxy()));
+	  CHECK(clusterContainer.setProxyDict(Atlas::getExtendedEventContext(context).proxy()));
 	  ATH_CHECK (clusterContainer.record (std::make_unique< TestClusterContainer >()) );
 	  
 	  SG::WriteHandle< TestClusterAuxContainer > clusterContainerAux("ClustersAux.");
-	  CHECK(clusterContainerAux.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>().proxy()));
+	  CHECK(clusterContainerAux.setProxyDict(Atlas::getExtendedEventContext(context).proxy()));
 	  ATH_CHECK( clusterContainerAux.record (std::make_unique< TestClusterAuxContainer>()) );
 	  clusterContainer->setStore(clusterContainerAux.ptr());
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleShallowCloneContainerCnv_p1.cxx 
@@ -24,24 +24,11 @@
 // preallocate converters
 static ParticleShallowCloneCnv_p1 s_cpCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 ParticleShallowCloneContainerCnv_p1::persToTrans( const ParticleShallowCloneContainer_p1* pers, 
                                                   ParticleShallowCloneContainer* trans, 
-                                                  MsgStream& msg ) 
+                                                  MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading ParticleShallowCloneContainer from persistent state..."
 //       << endmsg;
@@ -74,7 +61,7 @@ ParticleShallowCloneContainerCnv_p1::persToTrans( const ParticleShallowCloneCont
 void 
 ParticleShallowCloneContainerCnv_p1::transToPers( const ParticleShallowCloneContainer* trans, 
                                                   ParticleShallowCloneContainer_p1* pers, 
-                                                  MsgStream& msg ) 
+                                                  MsgStream& msg ) const
 {
 //    msg << MSG::DEBUG
 //        << "Creating persistent state of ParticleShallowCloneContainer..."

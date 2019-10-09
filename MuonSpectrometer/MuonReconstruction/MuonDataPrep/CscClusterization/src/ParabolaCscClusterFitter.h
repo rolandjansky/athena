@@ -16,6 +16,8 @@ May 2009
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace Muon {
   class CscPrepData;
@@ -24,7 +26,6 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class CscIdHelper;
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
@@ -89,6 +90,8 @@ private:
   double m_multi;
 
   const MuonGM::MuonDetectorManager* m_detMgr;
-  const CscIdHelper* m_cscIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
 };
 #endif

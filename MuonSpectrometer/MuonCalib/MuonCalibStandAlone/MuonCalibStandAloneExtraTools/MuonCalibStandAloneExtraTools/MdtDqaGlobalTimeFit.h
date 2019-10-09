@@ -43,10 +43,13 @@ class TNtuple;
 class TH1F;
 class TH1I;
 
-class MdtIdHelper;
 
 namespace MuonGM{
   class MuonDetectorManager;
+}
+
+namespace Muon {
+  class MuonIdHelperTool;
 }
 
 namespace MuonCalib {
@@ -73,7 +76,7 @@ class MdtDqaGlobalTimeFit {
   // Methods //
 	
   /** tool initialize */
-  StatusCode initialize(const MdtIdHelper*, const MuonGM::MuonDetectorManager*, const MuonCalib::IIdToFixedIdTool *,RegionSelectionSvc *, HistogramManager *);
+  StatusCode initialize(const Muon::MuonIdHelperTool*, const MuonGM::MuonDetectorManager*, const MuonCalib::IIdToFixedIdTool *,RegionSelectionSvc *, HistogramManager *);
   
   /** tool finalize */
   StatusCode finalize();
@@ -92,7 +95,7 @@ class MdtDqaGlobalTimeFit {
   IRtRelation *getDefaultRtRelation(int BfieldON);
   
  private:
-  const MdtIdHelper *m_mdtIdHelper;
+  const Muon::MuonIdHelperTool *m_muonIdHelperTool;
   const MuonGM::MuonDetectorManager *m_detMgr;
   const MuonCalib::IIdToFixedIdTool *m_id_tool;
   // pointer to region selection service

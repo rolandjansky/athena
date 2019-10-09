@@ -19,11 +19,11 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 

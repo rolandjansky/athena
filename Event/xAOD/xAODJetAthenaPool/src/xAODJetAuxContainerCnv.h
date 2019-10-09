@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODJetAuxContainerCnv.h 566967 2013-10-24 13:24:31Z krasznaa $
@@ -9,14 +9,13 @@
 #define XAODJETATHENAPOOL_XAODJETAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODJet/JetAuxContainer.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::JetAuxContainer,
-                               xAOD::JetAuxContainer >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::JetAuxContainer>
    xAODJetAuxContainerCnvBase;
 
 /**
@@ -34,22 +33,15 @@ typedef T_AthenaPoolCustomCnv< xAOD::JetAuxContainer,
  * $Date: 2013-10-24 15:24:31 +0200 (Thu, 24 Oct 2013) $
  */
 class xAODJetAuxContainerCnv :
-   public xAODJetAuxContainerCnvBase {
-
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODJetAuxContainerCnv >;
-
-protected:
-   /// Converter constructor
+   public xAODJetAuxContainerCnvBase
+{
 public:
-   xAODJetAuxContainerCnv( ISvcLocator* svcLoc );
-protected:
+   using xAODJetAuxContainerCnvBase::xAODJetAuxContainerCnvBase;
 
-   /// Function preparing the container to be written out
+  /// Function preparing the container to be written out
    virtual xAOD::JetAuxContainer*
-   createPersistent( xAOD::JetAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::JetAuxContainer* createTransient();
+   createPersistentWithKey( xAOD::JetAuxContainer* trans,
+                            const std::string& key) override;
 
 }; // class xAODJetAuxContainerCnv
 

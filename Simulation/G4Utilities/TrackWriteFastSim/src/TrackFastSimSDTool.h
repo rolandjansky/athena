@@ -22,7 +22,7 @@ public:
   ~TrackFastSimSDTool() {}
 protected:
   // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif //TRACKWRITEFASTSIM_TRACKFASTSIMSDTOOL_H

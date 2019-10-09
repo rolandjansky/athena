@@ -25,10 +25,10 @@ namespace Muon {
     for( ; cit!=cit_end;++cit ) {
       const Muon::RpcPrepData* prd = *cit;
       const Identifier& id = prd->identify();
-      Identifier elId = m_rpcIdHelper->elementID(id);	
-      int doubZ = m_rpcIdHelper->doubletZ(id);
-      int doubPhi = m_rpcIdHelper->doubletPhi(id);
-      Identifier detElId = m_rpcIdHelper->channelID(elId,doubZ,doubPhi,1,0,1);
+      Identifier elId = m_muonIdHelperTool->rpcIdHelper().elementID(id);	
+      int doubZ = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
+      int doubPhi = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
+      Identifier detElId = m_muonIdHelperTool->rpcIdHelper().channelID(elId,doubZ,doubPhi,1,0,1);
       subModuleIds.insert(detElId);
     }
     if( debug ) {
@@ -36,7 +36,7 @@ namespace Muon {
       std::set<Identifier>::iterator it = subModuleIds.begin();
       std::set<Identifier>::iterator it_end = subModuleIds.end();
       for( ;it!=it_end;++it ){
-	std::cout << " sub module " << m_rpcIdHelper->print_to_string(*it) << std::endl;
+	std::cout << " sub module " << m_muonIdHelperTool->rpcIdHelper().print_to_string(*it) << std::endl;
       }
     }
     std::set<Identifier>::iterator it = subModuleIds.begin();
@@ -74,18 +74,18 @@ namespace Muon {
     std::vector<const RpcPrepData*>::const_iterator cit_begin = col.begin();
     std::vector<const RpcPrepData*>::const_iterator cit_end = col.end();
     if( cit_begin == cit_end ) return false;
-    if( debug ) std::cout << " RPC performing clustering: " << col.size() << "  " << m_rpcIdHelper->print_to_string(subid) << std::endl;
+    if( debug ) std::cout << " RPC performing clustering: " << col.size() << "  " << m_muonIdHelperTool->rpcIdHelper().print_to_string(subid) << std::endl;
     
     // find the first PRD matching the subid
-    int doubZ = m_rpcIdHelper->doubletZ(subid);
-    int doubPhi = m_rpcIdHelper->doubletPhi(subid);
+    int doubZ = m_muonIdHelperTool->rpcIdHelper().doubletZ(subid);
+    int doubPhi = m_muonIdHelperTool->rpcIdHelper().doubletPhi(subid);
     std::vector<const RpcPrepData*>::const_iterator cit = cit_begin;
     const Muon::RpcPrepData* prd_first = 0;
     for( ; cit!=cit_end;++cit ) {
       const Muon::RpcPrepData* prd = *cit;
       const Identifier& id = prd->identify();
-      if( doubZ != m_rpcIdHelper->doubletZ(id) ) continue;
-      if( doubPhi != m_rpcIdHelper->doubletPhi(id) ) continue;
+      if( doubZ != m_muonIdHelperTool->rpcIdHelper().doubletZ(id) ) continue;
+      if( doubPhi != m_muonIdHelperTool->rpcIdHelper().doubletPhi(id) ) continue;
       prd_first = prd;
       break;
     }
@@ -109,14 +109,14 @@ namespace Muon {
       // drop hits in other subid's
       const Muon::RpcPrepData* prd = *cit;
       const Identifier& id = prd->identify();
-      if( doubZ != m_rpcIdHelper->doubletZ(id) ) continue;
-      if( doubPhi != m_rpcIdHelper->doubletPhi(id) ) continue;
-      if( debug ) std::cout << "  adding prd " << m_rpcIdHelper->print_to_string(id) << std::endl;
+      if( doubZ != m_muonIdHelperTool->rpcIdHelper().doubletZ(id) ) continue;
+      if( doubPhi != m_muonIdHelperTool->rpcIdHelper().doubletPhi(id) ) continue;
+      if( debug ) std::cout << "  adding prd " << m_muonIdHelperTool->rpcIdHelper().print_to_string(id) << std::endl;
       
       // decode identifier
-      bool measuresPhi = m_rpcIdHelper->measuresPhi(id); 
-      int gasgap = m_rpcIdHelper->gasGap(id);
-      int channel = m_rpcIdHelper->strip(id)-1;
+      bool measuresPhi = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id); 
+      int gasgap = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
+      int channel = m_muonIdHelperTool->rpcIdHelper().strip(id)-1;
       if(measuresPhi) channelsPtr = &channelsPhi;
       else            channelsPtr = &channelsEta;
       if( channel >= (int)channelsPtr->size() ){
@@ -143,11 +143,11 @@ namespace Muon {
 // 	  if( measuresPhi ) std::cout << " phi " << channelClusterNumber << std::endl;
 // 	  else              std::cout << " eta " << channelClusterNumber << std::endl;
 
-// 	  std::cout << " new id " << m_rpcIdHelper->print_to_string(prd->identify()) << std::endl;
+// 	  std::cout << " new id " << m_muonIdHelperTool->rpcIdHelper().print_to_string(prd->identify()) << std::endl;
 // 	  RpcClusterObj::HitIt it = cluster.hitList.begin(); 
 // 	  RpcClusterObj::HitIt it_end = cluster.hitList.end(); 
 // 	  for( ;it!=it_end;++it ){ 
-// 	    std::cout << " added id " << m_rpcIdHelper->print_to_string((*it)->identify()) << std::endl;
+// 	    std::cout << " added id " << m_muonIdHelperTool->rpcIdHelper().print_to_string((*it)->identify()) << std::endl;
 // 	  }
 // 	  dump();
 //      std::cout << "could not find duplicate rpc prd " << std::endl; 
@@ -203,8 +203,8 @@ namespace Muon {
 	    RpcClusterObj::HitIt h_end = cluster.hitList.end();
 	    for( ;h!=h_end;++h ) {
 	      const Identifier& cid = (*h)->identify();
-	      int ch = m_rpcIdHelper->strip(cid)-1;
-	      int gp = m_rpcIdHelper->gasGap(cid);
+	      int ch = m_muonIdHelperTool->rpcIdHelper().strip(cid)-1;
+	      int gp = m_muonIdHelperTool->rpcIdHelper().gasGap(cid);
 	      Doublet& doub = (*channelsPtr)[ch];
 	      if( gp==1 )  doub.first  = currentClusterId;
 	      else         doub.second = currentClusterId;
@@ -233,7 +233,7 @@ namespace Muon {
       for( auto& cl : clustersEtaTmp ){
         std::cout << "   cluster " << cl.ngasgap1 << " " << cl.ngasgap2 << " hits " << cl.hitList.size() << std::endl;
         for( auto hit : cl.hitList ){
-          std::cout << "       " << m_rpcIdHelper->print_to_string(hit->identify()) << std::endl;
+          std::cout << "       " << m_muonIdHelperTool->rpcIdHelper().print_to_string(hit->identify()) << std::endl;
         }
       }
     }
@@ -282,8 +282,8 @@ namespace Muon {
       for( ;hit!=hit_end;++hit ){	
 	const Muon::RpcPrepData& prd = **hit;
 	const Identifier& id = prd.identify();
-	std::cout << "   hit " << m_rpcIdHelper->gasGap(id) << " " << m_rpcIdHelper->strip(id)-1;
-	bool measuresPhi = m_rpcIdHelper->measuresPhi(id); 
+	std::cout << "   hit " << m_muonIdHelperTool->rpcIdHelper().gasGap(id) << " " << m_muonIdHelperTool->rpcIdHelper().strip(id)-1;
+	bool measuresPhi = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id); 
 	if(measuresPhi) std::cout << " phi" << std::endl;
 	else            std::cout << " eta" << std::endl;
       }

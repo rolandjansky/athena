@@ -181,7 +181,6 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     #mon.FinalChainStep = allChains
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
     allChains.update( l1Decoder.ChainToCTPMapping.keys() )
-    mon.ChainsList = list( allChains )
     
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
@@ -344,11 +343,12 @@ def triggerRunCfg( flags, menu=None ):
     top of the trigger config (for real triggering online or on MC)
     Returns: ca only
     """
-    if flags.Trigger.doLVL1:
-        # conigure L1 simulation
-        pass
-
     acc = ComponentAccumulator()
+
+    if flags.Trigger.doLVL1:
+        from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, L1ConfigSvcCfg
+        generateL1Menu( flags )
+        acc.merge( L1ConfigSvcCfg(flags) )
 
     acc.merge( triggerIDCCacheCreatorsCfg( flags ) )
 

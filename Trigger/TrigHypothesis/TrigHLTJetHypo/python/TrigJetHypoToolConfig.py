@@ -3,8 +3,8 @@ from __future__ import print_function
 
 from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
-from  TrigHLTJetHypo.ToolSetter import ToolSetter
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
+from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
@@ -15,12 +15,15 @@ from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
-def  trigJetHypoToolHelperFromDict_(chain_label, chain_name):
+def  trigJetHypoToolHelperFromDict_(chain_label,
+                                    chain_name,
+                                    toolSetter=None):
 
     parser = ChainLabelParser(chain_label, debug=False)
 
     tree = parser.parse()
-    
+
+  
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
@@ -40,12 +43,24 @@ def  trigJetHypoToolHelperFromDict_(chain_label, chain_name):
     log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
 
     # debug flag to be relayed to C++ objects
-    visitor = ToolSetter(chain_name)
-    tree.accept(visitor)
+    tool = None
+    if toolSetter is None:
+        toolSetter = ConditionsToolSetterTree(chain_name)
+        tree.accept(modifier=toolSetter)
+        tool = tree.tool
+    else:
+        if toolSetter.__class__.__name__ == 'FlowNetworkSetter':
+            toolSetter.mod(tree)
+            tool = toolSetter.tool
+        else:
+            toolSetter = ConditionsToolSetterTree(chain_name)
+            print ('using tool setter', toolSetter.__class__.__name__)
+            tree.accept(modifier=toolSetter)
 
+    tool = tree.tool
     log.info(visitor.report())
 
-    return tree.tool
+    return tool
 
 
 def  trigJetHypoToolHelperFromDict(chain_dict):
@@ -69,7 +84,8 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
         raise e
     
     chain_name = chain_dict['chainName']
-    return trigJetHypoToolHelperFromDict_(chain_label, chain_name)
+    return trigJetHypoToolHelperFromDict_(chain_label,
+                                          chain_name)
  
 
 def  trigJetHypoToolFromDict(chain_dict):
@@ -93,14 +109,12 @@ def  trigJetHypoToolFromDict(chain_dict):
 import unittest
 class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-
-        chainNameDecoder = DictFromChainName.DictFromChainName()
-        # chain_names = ('HLT_j85_L1J20', 'HLT_j35_0eta320_L1J20')
+        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
+            dictFromChainName,)
         chain_names = ('HLT_j0_vbenf_L1J20',)
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:
-            chain_dict = chainNameDecoder.getChainDict(chain_name)
+            chain_dict = dictFromChainName(chain_name)
             tool = trigJetHypoToolFromDict(chain_dict)
             self.assertIsNotNone(tool) 
             log.info('%s %s', chain_name.rjust(wid), tool)
@@ -108,11 +122,11 @@ class TestStringMethods(unittest.TestCase):
 
 class TestDebugFlagIsFalse(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
+            dictFromChainName,)
 
-        chainNameDecoder = DictFromChainName.DictFromChainName()
         chain_name = 'HLT_j85_L1J20'
-        chain_dict = chainNameDecoder.getChainDict(chain_name)
+        chain_dict = dictFromChainName(chain_name)
         tool = trigJetHypoToolFromDict(chain_dict)
         self.assertIsNotNone(tool) 
         self.assertFalse(tool.visit_debug) 

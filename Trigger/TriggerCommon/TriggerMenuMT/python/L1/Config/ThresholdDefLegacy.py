@@ -17,6 +17,11 @@ class ThresholdDefLegacy:
     @staticmethod
     def registerThresholds(tc):
 
+        isV6 = '_v6' in TriggerFlags.triggerMenuSetup()
+        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup()
+        isHI = '_HI' in TriggerFlags.triggerMenuSetup()
+
+
         if ThresholdDefLegacy.alreadyExecuted:
             return
         ThresholdDefLegacy.alreadyExecuted = True
@@ -70,7 +75,7 @@ class ThresholdDefLegacy:
             .addThrValue(10, -25, -18, priority=2).addThrValue(10, 18, 25, priority=2)
 
         #ATR-19302
-        if '_v8' in TriggerFlags.triggerMenuSetup():
+        if isV8:
             LegacyThreshold( 'EM10VHI', 'EM').addThrValue(11, priority=1)\
                 .addThrValue(11, -8, 0, priority=2).addThrValue(11, 0, 8, priority=2)\
                 .addThrValue(9, -11, -8, priority=2).addThrValue(9, 8, 11, priority=2)\
@@ -130,7 +135,7 @@ class ThresholdDefLegacy:
         # (V)HI section
 
         # new egamma v7 menu (ATR-16089)
-        if '_v6' not in TriggerFlags.triggerMenuSetup() and '_HI' not in TriggerFlags.triggerMenuSetup():
+        if not isV6 and not isHI:
 
            ThresholdValue.setDefaults('EM', {'isobits' : '00001', 'use_relIso' : True })
            LegacyThreshold( 'EM22VH', 'EM').addThrValue(24, priority=1)\
@@ -157,7 +162,7 @@ class ThresholdDefLegacy:
 
         ThresholdValue.setDefaults('EM', {'isobits' : '00100', 'use_relIso' : True })
 
-        if '_v6' not in TriggerFlags.triggerMenuSetup() and '_HI' not in TriggerFlags.triggerMenuSetup():
+        if not isV6 and not isHI:
            LegacyThreshold( 'EM15VHI', 'EM').addThrValue(17, priority=1)\
             .addThrValue(17, -7, 0, priority=2).addThrValue(17, 0, 7, priority=2)\
             .addThrValue(16, -9, -7, priority=2).addThrValue(16, 7, 9, priority=2)\
@@ -253,7 +258,7 @@ class ThresholdDefLegacy:
             LegacyThreshold('HA%iIL' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00010', 'use_relIso' : True })
-        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
+        if isV6 or isHI:
             for thrV in [12,20]:
                 LegacyThreshold('HA%iIM' % thrV, 'TAU').addThrValue(thrV)
         else:
@@ -261,7 +266,7 @@ class ThresholdDefLegacy:
                 LegacyThreshold('HA%iIM' % thrV, 'TAU').addThrValue(thrV)   
         
         ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
-        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
+        if isV6 or isHI:
             for thrV in [12,20,25]:
                 LegacyThreshold('HA%iIT' % thrV, 'TAU').addThrValue(thrV)
         else:

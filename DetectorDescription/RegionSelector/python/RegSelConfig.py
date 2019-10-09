@@ -64,37 +64,42 @@ def regSelCfg( flags ):
                                                                    PrintHashId = True,
                                                                    PrintTable  = False)
 
-    if flags.Detector.GeometryRPC:
+    # by default, all 'enableX' flags of RegSelSvc are set to True, so turn them off if not needed
+    if not flags.Detector.GeometryRPC:
+        regSel.enableRPC  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableRPC  = True
         from MuonRegionSelector.MuonRegionSelectorConf import RPC_RegionSelectorTable
         regSel.RPCRegionSelectorTable = RPC_RegionSelectorTable(name = "RPC_RegionSelectorTable")
 
-    if flags.Detector.GeometryMDT:
+    if not flags.Detector.GeometryMDT:
+        regSel.enableMDT  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableMDT  = True
         from MuonRegionSelector.MuonRegionSelectorConf import MDT_RegionSelectorTable
         regSel.MDTRegionSelectorTable = MDT_RegionSelectorTable(name = "MDT_RegionSelectorTable")
 
-    if flags.Detector.GeometryTGC:
+    if not flags.Detector.GeometryTGC:
+        regSel.enableTGC  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableTGC  = True
         from MuonRegionSelector.MuonRegionSelectorConf import TGC_RegionSelectorTable
         regSel.TGCRegionSelectorTable = TGC_RegionSelectorTable(name = "TGC_RegionSelectorTable")
 
-    if flags.Detector.GeometryCSC:
+    if not flags.Detector.GeometryCSC:
+        regSel.enableCSC  = False
+    else:
         regSel.enableMuon = True
-        regSel.enableCSC  = True
         from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
         regSel.CSCRegionSelectorTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
 
+    if not flags.Detector.GeometryMM:
+        regSel.enableMM = False
 
-    if flags.Detector.GeometryMM:
-        regSel.enableMM  = True   
+    if not flags.Detector.GeometrysTGC:
+        regSel.enablesTGC = False
 
     acc.addService( regSel )
-
-
 
     return acc
 
@@ -107,15 +112,24 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Constants import DEBUG
 
-    ConfigFlags.Detector.GeometryPixel = True     
-    ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True 
-    ConfigFlags.Detector.GeometryLAr   = True     
-    ConfigFlags.Detector.GeometryTile  = True     
-    ConfigFlags.Detector.GeometryMDT   = True 
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
+    ConfigFlags.Detector.GeometryPixel = True
+    ConfigFlags.Detector.GeometrySCT   = True
+    ConfigFlags.Detector.GeometryTRT   = True
+    ConfigFlags.Detector.GeometryLAr   = True
+    ConfigFlags.Detector.GeometryTile  = True
+    ConfigFlags.Detector.GeometryMDT   = True
     ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True     
+    ConfigFlags.Detector.GeometryRPC   = True
+    ConfigFlags.Detector.GeometryCSC   = True
+    if not MuonGeometryFlags.hasCSC(): ConfigFlags.Detector.GeometryCSC = False
+    ConfigFlags.Detector.GeometryMM   = True
+    ConfigFlags.Detector.GeometrysTGC   = True
+    if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+        ConfigFlags.Detector.GeometryMM   = False
+        ConfigFlags.Detector.GeometrysTGC   = False
     
     ConfigFlags.Input.Files = defaultTestFiles.RAW    
     ConfigFlags.Input.isMC = False

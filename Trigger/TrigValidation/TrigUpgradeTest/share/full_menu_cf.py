@@ -10,6 +10,9 @@ from RecExConfig.RecFlags  import rec
 rec.doESD=True
 rec.doWriteESD=True
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 ##########################################
@@ -28,7 +31,7 @@ from TrigUpgradeTest.TestUtils import makeChain
 ##################################################################
 # egamma chains
 ##################################################################
-if opt.doElectronSlice == True:
+if opt.doEgammaSlice == True:
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
     fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
     electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
@@ -38,7 +41,7 @@ if opt.doElectronSlice == True:
     FastElectronStep = ChainStep("ElectronFastTrackStep", [electronSeq])
     PrecisionCaloStep = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
 
-    egammaChains  = [
+    electronChains  = [
         makeChain(name='HLT_e3_etcut1step_L1EM3',  L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep]  ),
         makeChain(name='HLT_e3_etcut_L1EM3',       L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
         makeChain(name='HLT_e5_etcut_L1EM3',       L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
@@ -48,13 +51,8 @@ if opt.doElectronSlice == True:
 #    DiEleStep1=ChainStep("DiEleStep1",[fastCaloSeq, fastCaloSeq], multiplicity=2) #same step
 #    DiEleStep2=ChainStep("DiEleStep2",[electronSeq, electronSeq], multiplicity=2) #need to be: one leg with only one step, one with 3 steps!
     
-#    egammaChains += [Chain(name='HLT_e5_etcut1step_e8_etcut',  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
-    testChains += egammaChains
-
-##################################################################
-# photon chains
-##################################################################
-if opt.doPhotonSlice == True:
+#    electronChains += [Chain(name='HLT_e5_etcut1step_e8_etcut',  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
+    testChains += electronChains
 
     from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
 
@@ -127,7 +125,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [ makeChain(name='HLT_mu6nol1_L1MU6', L1Thresholds=["MU6"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=[""],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 

@@ -10,7 +10,7 @@ MDTSensitiveDetectorCosmicsTool::MDTSensitiveDetectorCosmicsTool(const std::stri
 {
 }
 
-G4VSensitiveDetector* MDTSensitiveDetectorCosmicsTool::makeSD()
+G4VSensitiveDetector* MDTSensitiveDetectorCosmicsTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   return new MDTSensitiveDetectorCosmics(name(), m_outputCollectionNames[0]);

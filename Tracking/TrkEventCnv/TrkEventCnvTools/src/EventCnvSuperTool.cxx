@@ -17,8 +17,6 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     const IInterface*  p )
     :
     AthAlgTool(t,n,p),
-    m_idCnvTool("InDet::InDetEventCnvTool/InDetEventCnvTool"),
-    m_muonCnvTool("Muon::MuonEventCnvTool/MuonEventCnvTool"),
     m_detID(0),
     m_haveIdCnvTool(false),   // Will be set to true on retrieval
     m_haveMuonCnvTool(false), // Will be set to true on retrieval

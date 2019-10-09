@@ -106,7 +106,34 @@ createTransientWithKey ([[maybe_unused]] const PERS* persObj,
     }
 }
 
+
+template< class TRANS, class PERS >
+TRANS* TPConverterConstBase<TRANS, PERS>::createTransientConst
+  (const PERS* persObj, MsgStream& log) const
+{
+  if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
+      log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+    }
+  else{
+    // this is by default equivalent to 'new TRANS()'
+    std::unique_ptr<TRANS> trans = std::make_unique<TRANS>();
    
+    this->persToTrans(persObj, trans.get(), log);
+    return( trans.release() );
+  }
+}
+
+
+template< class TRANS, class PERS >
+PERS* TPConverterConstBase<TRANS, PERS>::createPersistentConst
+  (const TRANS* transObj, MsgStream& log) const
+{
+  std::unique_ptr<PERS> pers(new PERS());
+  transToPers(transObj, pers.get(), log);
+  return(pers.release());
+}
+
 
 //--------------------------------------------------------------------
 /*
@@ -130,6 +157,36 @@ template<class TRANS, class PERS, class CONV>
 void TPCnvVector<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
 		PERS* persVect,
 		MsgStream &log)  {
+   size_t size = transVect->size();	
+   persVect->resize(size);
+   // convert vector entries one by one
+   CONV element_cnv;
+   typename TRANS::const_iterator it = transVect->begin();
+   typename PERS::iterator pit = persVect->begin();
+   while(size) {
+     element_cnv.transToPers( *it, &(*pit), log );
+     ++pit; ++it; --size;
+   }
+}
+
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvVectorConst<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
+                                                      TRANS* transVect,
+                                                      MsgStream &log) const {
+   CONV	element_cnv;
+   typename PERS::const_iterator it;
+   transVect->clear();
+   transVect->reserve(persVect->size());
+   for (it = persVect->begin(); it != persVect->end(); ++it) {
+      transVect->push_back(element_cnv.createTransient(&(*it), log));
+   }
+}
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvVectorConst<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
+                                                      PERS* persVect,
+                                                      MsgStream &log)  const {
    size_t size = transVect->size();	
    persVect->resize(size);
    // convert vector entries one by one

@@ -260,7 +260,7 @@ StatusCode TRT_RodDecoder::finalize() {
 StatusCode
 TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
-				 std::vector<IdentifierHash>* vecHash )
+				 const std::vector<IdentifierHash>* vecHash )
 {
 
   std::lock_guard<std::mutex> lock(m_cacheMutex);
@@ -538,7 +538,7 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 StatusCode
 TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 				  TRT_RDO_Container* rdoIdc,
-				  std::vector<IdentifierHash>* vecHash )
+				  const std::vector<IdentifierHash>* vecHash )
 {
   // get the ROBid
   uint32_t robid = robFrag->rod_source_id();
@@ -564,7 +564,6 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 
   TRT_RDORawData*                   rdo     = 0;
   TRT_RDO_Collection*               theColl = 0;
-  TRT_RDO_Container::const_iterator itColl;
 
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
@@ -627,7 +626,7 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 #endif
 	      lastHash = idHash;
 	      // maybe the new hash is not in the list, so test it
-	      std::vector<IdentifierHash>::iterator p = find(vecHash->begin(),vecHash->end(),idHash);
+	      std::vector<IdentifierHash>::const_iterator p = find(vecHash->begin(),vecHash->end(),idHash);
 	      if (p == vecHash->end())
 		{
 #ifdef TRT_BSC_DEBUG
@@ -641,13 +640,10 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 	}
 
       // get the collection
-      itColl = rdoIdc->indexFind( idHash );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
 
       // Check if the Collection is already created.
-      if ( itColl != rdoIdc->end() )
-	// this is really nasty !
-	theColl = const_cast<TRT_RDO_Collection*>(&**itColl);
-      else
+      if ( theColl == nullptr )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \
@@ -717,7 +713,7 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 StatusCode
 TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 					TRT_RDO_Container* rdoIdc,
-					std::vector<IdentifierHash>* vecHash)
+					const std::vector<IdentifierHash>* vecHash)
 {
   static int err_count = 0;
   
@@ -744,7 +740,7 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
   
   TRT_RDORawData*                   rdo     = 0;
   TRT_RDO_Collection*               theColl = 0;
-  TRT_RDO_Container::const_iterator itColl;
+
   
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
@@ -853,7 +849,7 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 #endif
 	      lastHash = idHash;
 	      // maybe the new hash is not in the list, so test it
-	      std::vector<IdentifierHash>::iterator p = find(vecHash->begin(),vecHash->end(),idHash);
+	      std::vector<IdentifierHash>::const_iterator p = find(vecHash->begin(),vecHash->end(),idHash);
 	      if (p == vecHash->end())
 		{
 #ifdef TRT_BSC_DEBUG
@@ -867,13 +863,10 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 	}
       
       // get the collection
-      itColl = rdoIdc->indexFind( idHash );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
       
       // Check if the Collection is already created.
-      if ( itColl != rdoIdc->end() )
-	// this is really nasty !
-	theColl = const_cast<TRT_RDO_Collection*>(&**itColl);
-      else
+      if (  theColl==nullptr )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \
@@ -951,7 +944,7 @@ StatusCode
 TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 				      TRT_RDO_Container* rdoIdc,
 				      t_CompressTable* Ctable,
-				      std::vector<IdentifierHash>* vecHash)
+				      const std::vector<IdentifierHash>* vecHash)
 {
   static int err_count = 0;
 
@@ -982,7 +975,6 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
   
   TRT_RDORawData*                   rdo     = 0;
   TRT_RDO_Collection*               theColl = 0;
-  TRT_RDO_Container::const_iterator itColl;
   
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
@@ -1135,7 +1127,7 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 #endif
 	      lastHash = idHash;
 	      // maybe the new hash is not in the list, so test it
-	      std::vector<IdentifierHash>::iterator p = find(vecHash->begin(),vecHash->end(),idHash);
+	      std::vector<IdentifierHash>::const_iterator p = find(vecHash->begin(),vecHash->end(),idHash);
 	      if (p == vecHash->end())
 		{
 #ifdef TRT_BSC_DEBUG
@@ -1149,13 +1141,10 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 	}
       
       // get the collection
-      itColl = rdoIdc->indexFind( idHash );
+      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
       
       // Check if the Collection is already created.
-      if ( itColl != rdoIdc->end() )
-	// this is really nasty !
-	theColl = const_cast<TRT_RDO_Collection*>(&**itColl);
-      else
+      if ( theColl == nullptr )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \

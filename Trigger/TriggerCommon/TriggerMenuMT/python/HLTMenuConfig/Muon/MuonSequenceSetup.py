@@ -17,7 +17,6 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
-muonRecFlags.doNSWNewThirdChain    = False
 muonCombinedRecFlags.doCaloTrkMuId = False
 muonCombinedRecFlags.printSummary = False
 
@@ -103,7 +102,7 @@ def muCombAlgSequence(ConfigFlags):
     
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
-    muFastIDRecoSequence, eventAlgs = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs )
+    muFastIDRecoSequence, eventAlgs = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs,"muComb" )
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
@@ -327,10 +326,13 @@ def muEFCBInvMassSequence():
 ######################
 def muEFSAFSAlgSequence(ConfigFlags):
 
-    efsafsInputMaker = EventViewCreatorAlgorithm("IMMuonFS", RoIsLink="initialRoI")
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
+    efsafsInputMaker = EventViewCreatorAlgorithmWithMuons("IMMuonFS", RoIsLink="initialRoI")
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
     efsafsInputMaker.Views = "MUFSViewRoI"
     efsafsInputMaker.ViewFallThrough=True
+    efsafsInputMaker.CreateFSRoI=True
+    efsafsInputMaker.RoisWriteHandleKey="MuonFS_RoIs"
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
@@ -351,19 +353,19 @@ def muEFSAFSSequence():
     trigMuonEFSAFSHypo = TrigMuonEFMSonlyHypoAlg( "TrigMuonEFSAFSHypoAlg" )
     trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
     
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromName
     
     return MenuSequence( Sequence    = muonEFSAFSSequence,
                          Maker       = efsafsInputMaker,
                          Hypo        = trigMuonEFSAFSHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
 
 ######################
 ### EF CB full scan ###
 ######################
 def muEFCBFSAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("IMEFCBFS") #can we call it EFCBFSEventViewCreator?
+    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("IMEFCBFS") 
     efcbfsInputMaker.ViewFallThrough = True
     efcbfsInputMaker.mergeOutputs = False
     efcbfsInputMaker.Views = "MUCBFSViews"
@@ -393,13 +395,48 @@ def muEFCBFSSequence():
     trigMuonEFCBFSHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFFSCombinerHypoAlg" )
     trigMuonEFCBFSHypo.MuonDecisions = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromName
 
     return MenuSequence( Sequence    = muonEFCBFSSequence,
                          Maker       = efcbfsInputMaker,
                          Hypo        = trigMuonEFCBFSHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromName )
 
+def efLateMuAlgSequence(ConfigFlags):
+
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence
+    
+    eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemu")
+    eflateViewsMaker.ViewFallThrough = True
+    eflateViewsMaker.RoIsLink = "initialRoI" # -||-
+    eflateViewsMaker.InViewRoIs = "MUEFLATERoIs" # contract with the consumer
+    eflateViewsMaker.Views = "MUEFLATEViewRoIs"
+    eflateViewsMaker.RequireParentView = True
+
+    #inside-out reco sequence 
+    muonEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( eflateViewsMaker.InViewRoIs, "RoILate")
+
+    #Final sequence running in view
+    eflateViewsMaker.ViewNodeName = muonEFInsideOutRecoSequence.name()
+    muonSequence = seqAND("lateMuonOutSequence", [eflateViewsMaker, muonEFInsideOutRecoSequence])
+
+    return (muonSequence, eflateViewsMaker, sequenceOut)
+
+def efLateMuSequence():
+
+    (muonEFLateSequence, eflateViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(efLateMuAlgSequence, ConfigFlags)
+
+    # setup EFCB hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
+    trigMuonEFLateHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFCombinerLateMuHypoAlg" )
+    trigMuonEFLateHypo.MuonDecisions = sequenceOut
+    
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    return MenuSequence( Sequence    = muonEFLateSequence,
+                         Maker       = eflateViewsMaker,
+                         Hypo        = trigMuonEFLateHypo,
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 
 

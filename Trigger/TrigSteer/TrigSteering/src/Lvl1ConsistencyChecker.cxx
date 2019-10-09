@@ -17,7 +17,7 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigNavigation/Navigation.h"
 
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
 #include "TrigT1Result/RoIBResult.h"

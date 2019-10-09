@@ -1090,7 +1090,7 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
     const CaloCellContainer* cell_container = cluster->getCellLinks()->getCellContainer();
     // We're filling the cluster with cells from StoreGate.
     // First, remove existing cells.
-    cluster->getCellLinks()->clear();
+    cluster->getOwnCellLinks()->clear();
  
     //Leave the option to use a different cell container 
     if (!m_cellsName.key().empty()) {

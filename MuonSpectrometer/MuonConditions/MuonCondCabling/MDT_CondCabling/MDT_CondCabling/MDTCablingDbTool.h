@@ -12,8 +12,10 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ToolHandle.h"
+
 class Identifier; 
-class MdtIdHelper;
 class IIOVSvc;
 class IIOVDbSvc;
 class StatusCode;
@@ -55,7 +57,8 @@ public:
 
   IIOVSvc* m_IOVSvc;
   IIOVDbSvc* m_IOVDbSvc;
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   MuonMDT_CablingMap* m_cablingData; 
   std::string      m_DataLocation;

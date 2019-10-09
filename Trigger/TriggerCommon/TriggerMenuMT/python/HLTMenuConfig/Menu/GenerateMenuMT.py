@@ -48,27 +48,27 @@ class GenerateMenuMT(object):
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau', 
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias', 
                               'Monitor', 'Calib', 'Streaming', 'Combined'] #, AFP
-        self.calibCosmicMonSigs = ['Streaming'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+        self.calibCosmicMonSigs = ['Streaming','Monitor'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
-        self.doEgammaChains         = True 
-        self.doJetChains            = True 
-        self.doBjetChains           = True 
-        self.doMuonChains           = True 
-        self.doBphysicsChains       = True 
-        self.doMETChains            = True 
-        self.doTauChains            = True 
-        self.doAFPChains            = True 
-        self.doMinBiasChains        = True 
-        self.doHeavyIonChains       = True 
-        self.doCosmicChains         = True 
-        self.doCalibrationChains    = True 
-        self.doStreamingChains      = True 
-        self.doMonitorChains        = True 
-        self.doBeamspotChains       = True 
-        self.doEnhancedBiasChains   = True 
-        self.doTestChains           = True         
-        self.doCombinedChains       = True 
+        self.doEgammaChains         = True
+        self.doJetChains            = True
+        self.doBjetChains           = True
+        self.doMuonChains           = True
+        self.doBphysicsChains       = True
+        self.doMETChains            = True
+        self.doTauChains            = True
+        self.doAFPChains            = True
+        self.doMinBiasChains        = True
+        self.doHeavyIonChains       = True
+        self.doCosmicChains         = True
+        self.doCalibrationChains    = True
+        self.doStreamingChains      = True
+        self.doMonitorChains        = True
+        self.doBeamspotChains       = True
+        self.doEnhancedBiasChains   = True
+        self.doTestChains           = True
+        self.doCombinedChains       = True
 
         
     def setTriggerConfigHLT(self):
@@ -217,7 +217,6 @@ class GenerateMenuMT(object):
                     else:
                         sigFolder = sig
                         subSigs = [sig]
-
                     for ss in subSigs: 
                         if sigFolder == 'Combined':
                             continue

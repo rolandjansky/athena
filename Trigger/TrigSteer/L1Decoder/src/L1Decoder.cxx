@@ -56,9 +56,6 @@ void L1Decoder::handle(const Incident& incident) {
     if ( t->updateConfiguration( m_chainToCTPProperty ).isFailure() ) {
       ATH_MSG_ERROR( "Problem in configuring " << t->name() );
     }
-  if ( m_ctpUnpacker->updateConfiguration( m_chainToCTPProperty ).isFailure() ) {
-    ATH_MSG_ERROR( "Problem in configuring CTP unpacker tool" );
-  }
 }
 
 

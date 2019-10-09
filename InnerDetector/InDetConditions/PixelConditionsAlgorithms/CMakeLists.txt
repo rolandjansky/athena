@@ -42,7 +42,7 @@ find_package( ROOT COMPONENTS Core Hist RIO )
 atlas_add_library( PixelConditionsAlgorithmsLib
    PixelConditionsAlgorithms/*.h
    INTERFACE
-   PUBLIC_HEADERS PixelConditionsAlgorithms
+   NO_PUBLIC_HEADERS
    LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData DetDescrConditions
    AthenaPoolUtilities PathResolver TrkGeometry)
 

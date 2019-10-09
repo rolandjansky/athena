@@ -35,7 +35,7 @@ def get_sor_params(run_number):
       return d
    except Exception as e:
       d = {}
-      log.verbose('Could not read SOR reacord from cache: %s' % e)
+      log.verbose('Could not read SOR record from cache: %s' % e)
       log.info('Reading SOR record for run %s from COOL', run_number)
 
    from CoolConvUtilities import AtlCoolLib

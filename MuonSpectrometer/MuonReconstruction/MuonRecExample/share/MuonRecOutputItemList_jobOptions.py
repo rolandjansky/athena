@@ -3,6 +3,9 @@ from RecExConfig.RecFlags import rec
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from AthenaCommon.BeamFlags import jobproperties
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 #AOD list, also added to the ESD
 MuonAODList = []
 
@@ -62,10 +65,10 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
 
 
    #PRDs
-   if muonRecFlags.doNSWNewThirdChain():
+   if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
       MuonESDList+=["Muon::MMPrepDataContainer#MM_Measurements"]
       MuonESDList+=["Muon::sTgcPrepDataContainer#STGC_Measurements"]
-   if muonRecFlags.doCSCs:
+   if MuonGeometryFlags.hasCSC():
       MuonESDList+=["Muon::CscPrepDataContainer#CSC_Clusters"]
       MuonESDList+=["Muon::CscStripPrepDataContainer#CSC_Measurements"]
    MuonESDList+=["Muon::RpcPrepDataContainer#RPC_Measurements"]
@@ -99,12 +102,12 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
       MuonESDList+=["TrackTruthCollection#MuonSpectrometerTracksTruth"]
 
       if muonRecFlags.writeSDOs():
-         if muonRecFlags.doCSCs:
+         if MuonGeometryFlags.hasCSC():
             MuonESDList+=["CscSimDataCollection#CSC_SDO"]
          MuonESDList+=["MuonSimDataCollection#MDT_SDO"]
          MuonESDList+=["MuonSimDataCollection#RPC_SDO"]
          MuonESDList+=["MuonSimDataCollection#TGC_SDO"]
-         if muonRecFlags.doNSWNewThirdChain():
+         if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
             MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
             MuonESDList+=["MuonSimDataCollection#MM_SDO"]
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODPhotonAuxContainerCnv.h 614855 2014-09-03 11:42:57Z krasznaa $
@@ -9,45 +9,19 @@
 #define XAODEGAMMAATHENAPOOL_XAODPHOTONAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
+#include "xAODPhotonAuxContainerCnv_v1.h"
+#include "xAODPhotonAuxContainerCnv_v2.h"
 
 // EDM include(s):
 #include "xAODEgamma/PhotonAuxContainer.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::PhotonAuxContainer,
-                               xAOD::PhotonAuxContainer >
-   xAODPhotonAuxContainerCnvBase;
+typedef T_AthenaPoolAuxContainerCnv< xAOD::PhotonAuxContainer,
+                                     xAODPhotonAuxContainerCnv_v2,
+                                     xAODPhotonAuxContainerCnv_v1 >
 
-/**
- *  @short POOL converter for the xAOD::PhotonAuxContainer class
- *
- *         This is one of the the first xAOD POOL converter to implement
- *         real schema evolution. Because ROOT can't handle the change in
- *         inheritance that was done between _v1 and _v2.
- *
- * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
- *
- * $Revision: 614855 $
- * $Date: 2014-09-03 13:42:57 +0200 (Wed, 03 Sep 2014) $
- */
-class xAODPhotonAuxContainerCnv : public xAODPhotonAuxContainerCnvBase {
+   xAODPhotonAuxContainerCnv;
 
-   /// Declare the factory as our friend
-   friend class CnvFactory< xAODPhotonAuxContainerCnv >;
-
-protected:
-   /// Converter constructor
-public:
-   xAODPhotonAuxContainerCnv( ISvcLocator* svcLoc );
-protected:
-
-   /// Function preparing the container to be written out
-   virtual xAOD::PhotonAuxContainer*
-   createPersistent( xAOD::PhotonAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::PhotonAuxContainer* createTransient();
-
-}; // class xAODPhotonAuxContainerCnv
 
 #endif // XAODEGAMMAATHENAPOOL_XAODPHOTONAUXCONTAINERCNV_H

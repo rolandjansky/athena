@@ -20,11 +20,12 @@
 
 #include "MuonRDO/TgcRdoContainer.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class AtlasDetectorID;
 class Identifier;
 
 class ITGCcablingSvc;
-class TgcIdHelper;
 
 namespace MuonGM 
 {
@@ -313,8 +314,9 @@ namespace Muon
       /** muon detector manager */
       const MuonGM::MuonDetectorManager * m_muonMgr;
 
-      /** TGC identifier helper */
-      const TgcIdHelper* m_tgcHelper;
+      /** Tool for TGC identifier helper */
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
       
       /* TGC Cabling service */
       const ITGCcablingSvc* m_tgcCabling;

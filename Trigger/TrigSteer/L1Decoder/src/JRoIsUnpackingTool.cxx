@@ -25,12 +25,14 @@ StatusCode JRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding) {
-  using namespace TrigConf;  
+StatusCode JRoIsUnpackingTool::start() {
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("J") == 0 or name.find("JF") == 0 or name.find("JB") == 0;  } ) );
+  return StatusCode::SUCCESS;
+}
 
-  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::JET; }, 
-			    m_configSvc->ctpConfig()->menu().itemVector(),
-			    seeding ) );
+
+StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
+  using namespace TrigConf;  
 
   m_jetThresholds.clear();  
   ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::JET ), m_jetThresholds ) );

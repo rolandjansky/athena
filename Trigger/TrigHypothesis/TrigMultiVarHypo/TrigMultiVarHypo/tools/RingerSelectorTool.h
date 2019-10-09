@@ -19,7 +19,7 @@
 #include "TrigMultiVarHypo/tools/procedures/MultiLayerPerceptron.h"
 #include "TrigMultiVarHypo/tools/procedures/Norm1.h"
 
-#include "AthenaMonitoring/MonitoredTimer.h"
+#include "AthenaMonitoringKernel/MonitoredTimer.h"
 #include "AsgTools/AsgMessaging.h"
 #include <memory>
 #include <string>

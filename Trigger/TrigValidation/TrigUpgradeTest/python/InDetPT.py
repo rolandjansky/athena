@@ -9,6 +9,7 @@ include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to ge
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetPT")
 
+#dbgLevel = 2
 
 def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "InDetTrigPT" ):
 #def makeInDetPrecisionTracking( whichSignature, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "InDetTrigPT" ):
@@ -55,6 +56,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                            Extrapolator                = InDetTrigExtrapolator,
                                                            InputEmClusterContainerName = '', #need to be reset to empty string
                                                            doEmCaloSeed                = False,
+                                                           #OutputLevel   = dbgLevel,
                                                            SummaryTool                 = InDetTrigTrackSummaryTool)
 
   ToolSvc += InDetTrigAmbiScoringTool
@@ -64,12 +66,14 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
   InDetTrigAmbiguityScoreProcessor = ScoreProcessorTool(name = 'InDetTrigAmbiguityScoreProcessor'+signature,
                                                              ScoringTool        = InDetTrigAmbiScoringTool,
+                                                             #OutputLevel   = dbgLevel,
                                                              SelectionTool      = InDetTrigAmbiTrackSelectionTool)
 
   from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
   InDetTrigAmbiguityScore = Trk__TrkAmbiguityScore(name = 'InDetTrigAmbiguityScore'+signature,
                                                    TrackInput         = [ inputFTFtracks ],
                                                    TrackOutput        = 'ScoredMap'+signature,
+                                                   #OutputLevel   = dbgLevel,
                                                    AmbiguityScoreProcessor =  InDetTrigAmbiguityScoreProcessor 
   ) 
          
@@ -81,6 +85,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   InDetTrigMTAmbiguityProcessor = ProcessorTool(name          = 'InDetTrigMTAmbiguityProcessor' + signature,
                                                 Fitter        = InDetTrigTrackFitter,
                                                 ScoringTool   = InDetTrigAmbiScoringTool,
+                                                #OutputLevel   = dbgLevel,
                                                 SelectionTool = InDetTrigAmbiTrackSelectionTool)
   
   
@@ -91,6 +96,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name         = 'InDetTrigMTAmbiguitySolver' + signature,
                                                        TrackInput         = 'ScoredMap'+signature,
                                                        TrackOutput        = nameAmbiTrackCollection, 
+                                                       #OutputLevel = dbgLevel,
                                                        AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
   
   #allViewAlgorithms += InDetTrigMTAmbiguitySolver
@@ -139,6 +145,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                         xAODContainerName = '',  
                                                                         RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
                                                                         #PrintIDSummaryInfo = True, #Just to test and have some output
+                                                                        #OutputLevel = dbgLevel,
                                                                         TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
                                                                         )
   

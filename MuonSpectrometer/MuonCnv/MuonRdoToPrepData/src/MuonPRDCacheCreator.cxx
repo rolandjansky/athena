@@ -48,12 +48,7 @@ StatusCode MuonPRDCacheCreator::initialize() {
   ATH_CHECK( m_MmCacheKey.initialize( !m_MmCacheKey.key().empty() ));
 
   // Retrieve ID tools
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_stgcIdHelper,"STGCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_mmIdHelper,"MMIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -77,19 +72,19 @@ StatusCode MuonPRDCacheCreator::execute (const EventContext& ctx) const {
 
   // Create all the cache containers
   // CSC
-  ATH_CHECK(createContainer(m_CscCacheKey, m_cscIdHelper->module_hash_max(), ctx));
-  ATH_CHECK(createContainer(m_CscStripCacheKey, m_cscIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_CscCacheKey, m_muonIdHelperTool->cscIdHelper().module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_CscStripCacheKey, m_muonIdHelperTool->cscIdHelper().module_hash_max(), ctx));
   // MDT
-  auto maxHashMDTs = m_mdtIdHelper->stationNameIndex("BME") != -1 ? m_mdtIdHelper->detectorElement_hash_max() : m_mdtIdHelper->module_hash_max();
+  auto maxHashMDTs = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1 ? m_muonIdHelperTool->mdtIdHelper().detectorElement_hash_max() : m_muonIdHelperTool->mdtIdHelper().module_hash_max();
   ATH_CHECK(createContainer(m_MdtCacheKey, maxHashMDTs, ctx));
   // RPC
-  ATH_CHECK(createContainer(m_RpcCacheKey, m_rpcIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_RpcCacheKey, m_muonIdHelperTool->rpcIdHelper().module_hash_max(), ctx));
   // TGC
-  ATH_CHECK(createContainer(m_TgcCacheKey, m_tgcIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_TgcCacheKey, m_muonIdHelperTool->tgcIdHelper().module_hash_max(), ctx));
   // NSW STGC
-  ATH_CHECK(createContainer(m_sTgcCacheKey, m_stgcIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_sTgcCacheKey, m_muonIdHelperTool->stgcIdHelper().module_hash_max(), ctx));
   // NSW MM
-  ATH_CHECK(createContainer(m_MmCacheKey, m_mmIdHelper->module_hash_max(), ctx));
+  ATH_CHECK(createContainer(m_MmCacheKey, m_muonIdHelperTool->mmIdHelper().module_hash_max(), ctx));
 
   ATH_MSG_DEBUG("Created cache container " << m_CscCacheKey );
   ATH_MSG_DEBUG("Created cache container " << m_CscStripCacheKey );

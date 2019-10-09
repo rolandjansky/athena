@@ -5,7 +5,7 @@
 #include "TrigOpMonitor.h"
 
 #include "AthenaKernel/IOVRange.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "StoreGate/ReadCondHandle.h"
 
 #include <algorithm>

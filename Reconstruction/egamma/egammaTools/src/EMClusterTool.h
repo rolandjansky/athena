@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "GaudiKernel/EventContext.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaBaseTool.h"
 
@@ -58,8 +58,9 @@ class EMClusterTool : public AthAlgTool, virtual public IEMClusterTool {
   /** @brief initialize method */
   virtual StatusCode initialize() override;
   /** @brief execute on container */
-  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
-				 xAOD::PhotonContainer *photonContainer) override;
+  virtual StatusCode contExecute(const EventContext& ctx,
+ 				 xAOD::ElectronContainer *electronContainer, 
+				 xAOD::PhotonContainer *photonContainer) const override;
   /** @brief finalize method */
   virtual StatusCode finalize() override;
   
@@ -68,17 +69,19 @@ class EMClusterTool : public AthAlgTool, virtual public IEMClusterTool {
 
   /** @brief Set new cluster to the egamma object, decorate the new cluster
     * with a link to the old one **/
-  void setNewCluster(xAOD::Egamma *eg,
+  void setNewCluster(const EventContext& ctx,
+                     xAOD::Egamma *eg,
                      xAOD::CaloClusterContainer *outputClusterContainer,
-                     xAOD::EgammaParameters::EgammaType egType);
+                     xAOD::EgammaParameters::EgammaType egType) const;
   
   /** @brief creation of new cluster based on existing one 
     * Return a new cluster using the seed eta0, phi0 from the existing one, 
     * applying cluster corrections and MVA calibration (requires the egamma object).
     * The cluster size depends on the given EgammaType
     */
-  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, 
-					    xAOD::EgammaParameters::EgammaType);
+  virtual xAOD::CaloCluster* makeNewCluster(const EventContext&, 
+  					   const xAOD::CaloCluster&, xAOD::Egamma *eg, 
+					    xAOD::EgammaParameters::EgammaType) const;
 
   /** @brief creation of new cluster based on existing one 
     * Return a new cluster with the given size using the seed eta0, phi0 from the
@@ -86,11 +89,12 @@ class EMClusterTool : public AthAlgTool, virtual public IEMClusterTool {
     * If doDecorate is true, copy the cal to the raw signal state
     * and set the raw one to the cal e,eta,phi from the existing cluster
     */
-  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, 
-                                            const xAOD::CaloCluster::ClusterSize&);
+  virtual xAOD::CaloCluster* makeNewCluster(const EventContext& ctx,
+                                            const xAOD::CaloCluster&, 
+                                            const xAOD::CaloCluster::ClusterSize&) const;
 
   /** @brief creation of new super cluster based on existing one */
-  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg);  
+  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg) const;  
 
   /** @brief Key of the output cluster container **/
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClusterContainerKey {this,

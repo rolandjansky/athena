@@ -62,7 +62,7 @@ def _IncTool(name, threshold, sel):
     tool.CARCOREthr     = same( -9999. ) 
     tool.CAERATIOthr    = same( -9999. )
 
-    if sel == 'nocut':
+    if sel == 'nocut' or 'idperf' in name:
         tool.AcceptAll = True
         tool.ETthr          = same( float( threshold )*GeV ) 
         tool.dETACLUSTERthr = 9999.

@@ -15,7 +15,7 @@
 // INCLUDE HEADER FILES:
 #include <vector>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -35,7 +35,7 @@
 #include "egammaInterfaces/IegammaBaseTool.h" 
 class egammaRec;
 
-class topoEgammaBuilder : public AthAlgorithm
+class topoEgammaBuilder : public AthReentrantAlgorithm
 {
 public:
 
@@ -47,7 +47,7 @@ public:
     /** @brief finalize method*/
     StatusCode finalize() override final;
     /** @brief execute method*/
-    StatusCode execute() override final;
+    StatusCode execute(const EventContext& ctx) const override final;
 
 private:
 
@@ -79,24 +79,24 @@ private:
      * calling the relevant tools **/
 
     bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
-            const unsigned int author, const uint8_t type);
+            const unsigned int author, const uint8_t type) const;
 
     /** Given an egammaRec object, a pointer to the photon container and the author, 
      * create and dress a photon, pushing it back to the container and 
      * calling the relevant tools **/
     bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
-            const unsigned int author, uint8_t type);
+            const unsigned int author, uint8_t type) const;
 
 
     /** @brief Do the final ambiguity **/  
     StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
-            xAOD::PhotonContainer *photonContainer);
+            xAOD::PhotonContainer *photonContainer) const ;
 
     /** @brief Call a tool using contExecute and electrons, photon containers if given **/
     StatusCode CallTool(const EventContext& ctx,
-            ToolHandle<IegammaBaseTool>& tool, 
+            const ToolHandle<IegammaBaseTool>& tool, 
             xAOD::ElectronContainer *electronContainer = 0, 
-            xAOD::PhotonContainer *photonContainer = 0);
+            xAOD::PhotonContainer *photonContainer = 0) const;
 
     /** @brief Name of the electron output collection*/
     SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,

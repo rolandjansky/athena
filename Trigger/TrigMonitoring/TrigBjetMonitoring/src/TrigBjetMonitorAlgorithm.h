@@ -31,5 +31,6 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey;
   //SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey {this,"PriVtxKey","HLT_EFHistoPrmVtx","Key of bjet primary vertexes"}; // Tim Martin 170919
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
+  bool m_doRun2;
 };
 #endif

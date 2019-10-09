@@ -219,7 +219,8 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
     // get IDTrack
     bool ID_con=false;
-    std::string ID_con_name="HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTF";
+    std::string ID_con_name="HLT_xAODTracks_Muon"; // run 3 ID track container name
+    if(getTDT()->getNavigationFormat() == "TriggerElement") ID_con_name="HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTF"; // run 2 ID track container name
     const xAOD::TrackParticle *ptr_trk = nullptr;
     const xAOD::TrackParticleContainer* Idcbtrk = nullptr;
     StatusCode sc_idcb = m_storeGate->retrieve(Idcbtrk, ID_con_name.c_str());

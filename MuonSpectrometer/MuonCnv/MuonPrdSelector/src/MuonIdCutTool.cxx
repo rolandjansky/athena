@@ -16,12 +16,7 @@
 
 MuonIdCutTool::MuonIdCutTool(const std::string& t,const std::string& n,const IInterface* p)  :  
   AthAlgTool(t,n,p),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
-  m_detMgr(nullptr),
-  m_rpcIdHelper(nullptr),
-  m_tgcIdHelper(nullptr),
-  m_cscIdHelper(nullptr),
-  m_mdtIdHelper(nullptr)
+  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
   declareInterface<IMuonIdCutTool>(this);
   
@@ -77,16 +72,7 @@ MuonIdCutTool::~MuonIdCutTool() {
 
 StatusCode MuonIdCutTool::initialize() {
   ATH_CHECK( m_idToFixedIdTool.retrieve() );
-
-  if (detStore()->retrieve(m_detMgr).isFailure()) {
-    ATH_MSG_INFO( "Could not find the MuonReadoutGeometry Manager" );
-  } 
-  else {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   if (!m_cutStationName && !m_cutStationRegion && !m_cutEta && !m_cutPhi && !m_cutEE){
     ATH_MSG_WARNING( "MuonIdCutTool invoked with no cuts performed"   );
@@ -160,24 +146,32 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
   //ATH_MSG_DEBUG( "isCut called, give hit ID:" << ID   );
   
   std::vector<int> cutList; //this will chose the correct cut list (StationName or Station Region)
-  const MuonIdHelper * pIdHelper = 0; //this will end up pointing to the correct technology IdHelper
   
+  enum class IdEnum { MDT, CSC, RPC, TGC } idEnum;
+  auto pIdHelper = [&]() -> const MuonIdHelper& {
+    switch (idEnum) {
+      case IdEnum::MDT: { return m_muonIdHelperTool->mdtIdHelper(); }
+      case IdEnum::CSC: { return m_muonIdHelperTool->cscIdHelper(); }
+      case IdEnum::RPC: { return m_muonIdHelperTool->rpcIdHelper(); }
+      default:          { return m_muonIdHelperTool->tgcIdHelper(); }
+    }
+  };
 
   //determine technology
-  if (m_mdtIdHelper->is_mdt(ID)){
-    pIdHelper = m_mdtIdHelper;
+  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
+    idEnum = IdEnum::MDT;
     ATH_MSG_DEBUG( "ID is an MDT"   );
   }
-  else if (m_cscIdHelper->is_csc(ID)){
-    pIdHelper = m_cscIdHelper;
+  else if (m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
+    idEnum = IdEnum::CSC;
     ATH_MSG_DEBUG( "ID is an CSC"   );
   } 
-  else if (m_rpcIdHelper->is_rpc(ID)){
-    pIdHelper = m_rpcIdHelper;
+  else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
+    idEnum = IdEnum::RPC;
     ATH_MSG_DEBUG( "ID is an RPC"   );
   } 
-  else if (m_tgcIdHelper->is_tgc(ID)){
-    pIdHelper = m_tgcIdHelper;
+  else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
+    idEnum = IdEnum::TGC;
     ATH_MSG_DEBUG( "ID is a TGC"   );
   } 
   else{
@@ -185,8 +179,8 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     return false;
   }
 
-  unsigned int staName = pIdHelper->stationName(ID);
-  unsigned int staPhi = pIdHelper->stationPhi(ID);
+  unsigned int staName = pIdHelper().stationName(ID);
+  unsigned int staPhi = pIdHelper().stationPhi(ID);
 
   int sector = FindSector(staName,staPhi);
 
@@ -201,7 +195,7 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
   if(m_cutEE && staName == 14){
     int listSize = m_EELeta.size();
     for (int i=0;i<listSize;i++){
-      if(m_EELeta[i]==(pIdHelper->stationEta(ID)) && m_EELsector[i]==sector) break;
+      if(m_EELeta[i]==(pIdHelper().stationEta(ID)) && m_EELsector[i]==sector) break;
       if(i==(listSize-1)) return true; //if fails last entry, cut = true
     }
   }
@@ -209,16 +203,16 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
   //Routine for cutting on Station Region
 
   if (m_cutStationRegion){ 
-    if (m_mdtIdHelper->is_mdt(ID)){
+    if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
       cutList = m_mdtRegionList;
     }
-    else if (m_cscIdHelper->is_csc(ID)){
+    else if (m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
       cutList = m_cscRegionList;
     } 
-    else if (m_rpcIdHelper->is_rpc(ID)){
+    else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
       cutList = m_rpcRegionList;
     } 
-    else if (m_tgcIdHelper->is_tgc(ID)){
+    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
       cutList = m_tgcRegionList;
     } 
     else{
@@ -228,9 +222,9 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     
     int listSize = cutList.size();
     for (int i=0; i<listSize;i++){                      
-      ATH_MSG_DEBUG( "Region " << pIdHelper->stationRegion(ID) 
+      ATH_MSG_DEBUG( "Region " << pIdHelper().stationRegion(ID) 
                      << " compared with " << cutList[i]  );
-      if( cutList[i] == pIdHelper->stationRegion(ID)){
+      if( cutList[i] == pIdHelper().stationRegion(ID)){
 	ATH_MSG_DEBUG( "Return True"  );
 	return true;
       }
@@ -243,16 +237,16 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     
   
   if (m_cutStationName){ 
-    if (m_mdtIdHelper->is_mdt(ID)){
+    if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
       cutList = m_mdtStationNameList;
     }
-    else if (m_cscIdHelper->is_csc(ID)){
+    else if (m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
       cutList = m_cscStationNameList;
     } 
-    else if (m_rpcIdHelper->is_rpc(ID)){
+    else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
       cutList = m_rpcStationNameList;
     } 
-    else if (m_tgcIdHelper->is_tgc(ID)){
+    else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
       cutList = m_tgcStationNameList;
     } 
     else{
@@ -262,34 +256,34 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
 
     int listSize = cutList.size();
     for (int i=0; i<listSize;i++){
-      ATH_MSG_DEBUG( "Station Name " << pIdHelper->stationName(ID) <<  " compared with " 
+      ATH_MSG_DEBUG( "Station Name " << pIdHelper().stationName(ID) <<  " compared with " 
                      <<cutList[i]    );
-      if( cutList[i] == pIdHelper->stationName(ID)){
+      if( cutList[i] == pIdHelper().stationName(ID)){
 	if (!m_cutSubstation){
 	  return true;
 	}
 	
 	else {  //proceed with more specific cuts
 
-	  if (m_mdtIdHelper->is_mdt(ID)){
-	    ATH_MSG_DEBUG( "MDT multilayer " <<m_mdtIdHelper->multilayer(ID)
+	  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
+	    ATH_MSG_DEBUG( "MDT multilayer " <<m_muonIdHelperTool->mdtIdHelper().multilayer(ID)
                            <<  " compared with " << m_mdtMultilayerList[i]   );
-	    if(m_mdtMultilayerList[i] == m_mdtIdHelper->multilayer(ID))
+	    if(m_mdtMultilayerList[i] == m_muonIdHelperTool->mdtIdHelper().multilayer(ID))
 	      return true;
 	  }
 
 
-	  else if (m_rpcIdHelper->is_rpc(ID)){
-	    ATH_MSG_DEBUG( "RPC doublet R " <<m_rpcIdHelper->doubletR(ID)
+	  else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
+	    ATH_MSG_DEBUG( "RPC doublet R " <<m_muonIdHelperTool->rpcIdHelper().doubletR(ID)
                            <<  " compared with " << m_rpcDoubletRList[i]   );
-	    if( m_rpcDoubletRList[i] == m_rpcIdHelper->doubletR(ID) ){
+	    if( m_rpcDoubletRList[i] == m_muonIdHelperTool->rpcIdHelper().doubletR(ID) ){
 	      if (m_rpcGasGapList.size() == 0){
 		return true;
 	      }
 	      else {
-		ATH_MSG_DEBUG( "RPC gasgap " <<m_rpcIdHelper->gasGap(ID)
+		ATH_MSG_DEBUG( "RPC gasgap " <<m_muonIdHelperTool->rpcIdHelper().gasGap(ID)
                                <<  " compared with " << m_rpcGasGapList[i]   );
-		if (m_rpcGasGapList[i] == m_rpcIdHelper->gasGap(ID))
+		if (m_rpcGasGapList[i] == m_muonIdHelperTool->rpcIdHelper().gasGap(ID))
 		  return true;
 	      }
 	          
@@ -297,10 +291,10 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
 	  }
 	  
 	      
-	  else if (m_tgcIdHelper->is_tgc(ID)){
-	    ATH_MSG_DEBUG( "TGC gasgap " <<m_tgcIdHelper->gasGap(ID)
+	  else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
+	    ATH_MSG_DEBUG( "TGC gasgap " <<m_muonIdHelperTool->tgcIdHelper().gasGap(ID)
                            <<  " compared with " << m_tgcGasGapList[i]   );
-	    if (m_tgcGasGapList[i] == m_tgcIdHelper->gasGap(ID))
+	    if (m_tgcGasGapList[i] == m_muonIdHelperTool->tgcIdHelper().gasGap(ID))
 	      return true;
 	  }
 	      
@@ -322,8 +316,8 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     int etaListSize;
     int phiListSize;
     int phi; //this variable is the phi index for tgcs, the sector for everyone else
-    unsigned int staName = pIdHelper->stationName(ID);
-    unsigned int staPhi = pIdHelper->stationPhi(ID);
+    unsigned int staName = pIdHelper().stationName(ID);
+    unsigned int staPhi = pIdHelper().stationPhi(ID);
     int sector = FindSector(staName,staPhi);
     phi = sector;
     
@@ -333,12 +327,12 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     ATH_MSG_DEBUG( "Phi Sector is " << sector  );
     
     //Is it tgc?
-    if (m_tgcIdHelper->is_tgc(ID)){
+    if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ID)){
       //If no cuts specified, don't cut anything
       if (m_tgcEtaList.size()==0 && m_tgcEndPhiList.size()==0 && m_tgcForPhiList.size()==0)
 	return false;
       genEtaList = m_tgcEtaList;
-      phi =  pIdHelper->stationPhi(ID);
+      phi =  pIdHelper().stationPhi(ID);
       //Is it forward?
       if (staName == 41 || staName == 43 || staName == 45 || staName == 47)
 	genPhiList = m_tgcForPhiList;
@@ -348,19 +342,19 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     
     
     //mdt?
-    else if(m_mdtIdHelper->is_mdt(ID)){
+    else if(m_muonIdHelperTool->mdtIdHelper().is_mdt(ID)){
       //If no cuts specified, don't cut anything
       if (m_mdtSectorList.size()==0 && m_mdtEndEtaList.size()==0 && m_mdtBarEtaList.size()==0)
 	return false;
       genPhiList = m_mdtSectorList;
-      if (pIdHelper->isBarrel(ID))
+      if (pIdHelper().isBarrel(ID))
 	genEtaList = m_mdtBarEtaList;
       else
 	genEtaList = m_mdtEndEtaList;
     }
     
     //rpc?
-    else if(m_rpcIdHelper->is_rpc(ID)){
+    else if(m_muonIdHelperTool->rpcIdHelper().is_rpc(ID)){
       //If no cuts specified, don't cut anything
       if (m_rpcSectorList.size()==0 && m_rpcEtaList.size()==0)
 	return false;
@@ -369,7 +363,7 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     }
     
     //csc?
-    else if(m_cscIdHelper->is_csc(ID)){
+    else if(m_muonIdHelperTool->cscIdHelper().is_csc(ID)){
       //If no cuts specified, don't cut anything
       if (m_cscSectorList.size()==0 && m_cscEtaList.size()==0)
 	return false;
@@ -386,9 +380,9 @@ bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are 
     if(m_cutEta){
       etapass = false;
       for (int i=0; i<etaListSize;i++){
-	ATH_MSG_DEBUG( "Eta Station " << pIdHelper->stationEta(ID) 
+	ATH_MSG_DEBUG( "Eta Station " << pIdHelper().stationEta(ID) 
                        << " compared with list to keep " << genEtaList[i]  );
-	if( genEtaList[i] == pIdHelper->stationEta(ID))
+	if( genEtaList[i] == pIdHelper().stationEta(ID))
 	  etapass = true;
       }
     }

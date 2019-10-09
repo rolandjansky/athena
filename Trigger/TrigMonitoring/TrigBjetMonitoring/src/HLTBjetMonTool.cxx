@@ -86,6 +86,7 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
   m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
   m_Shifter_jSplit{}, m_Expert_jSplit{}, m_Shifter_jUnSplit{},  m_Expert_jUnSplit{}, m_Shifter_mujet{},m_Expert_mujet{},
+  m_vertexContainerKey("PrimaryVertices"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_etCut(10.), m_sv1_infosource("SV1")
 {
@@ -125,6 +126,7 @@ StatusCode HLTBjetMonTool::init() {
   m_sv1_infosource = "SV1";
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - SV1  parameters: inputSV1SourceName = "  <<  m_sv1_infosource);
 
+  ATH_CHECK( m_vertexContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -681,7 +683,7 @@ StatusCode HLTBjetMonTool::book(){
 
     ATH_MSG_DEBUG(" ======== Offline histograms are retrieved successfully ! ==== Start online histograms to retrieve ====== ");
 
-    // Get online combinations
+    // Get online triggers
 
     bool SplitKey;
     bool FTKchain;
@@ -779,244 +781,285 @@ StatusCode HLTBjetMonTool::book(){
       } // FTK chain
       */  
 
-      Trig::FeatureContainer fc = m_trigDec->features(trigItem);
-      const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
-      ATH_MSG_DEBUG("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
+    // Access to Trigger elements
 
-      // Loop on combinations
-      std::vector< Trig::Combination >::const_iterator bjetComb;
-      for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
-	const Trig::Combination& comb = *bjetComb;
-	ATH_MSG_DEBUG("------------ NEW COMBINATION ------------");
-	zPrmVtx = 0.; // used for muon-jets
+      if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 access
 
-	if (!FTKchain) {
 
-	  // Get online PV
-	  bool DummyVtx = false;
-	  const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(priVtxKey);
-	  ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
-	  if ( not onlinepvs.empty() ) {
-	    const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
-	    ATH_MSG_DEBUG("   for VertexContainer: " << priVtxKey << " nVert: " << onlinepv->size());
-	    if( not onlinepv->empty()) {
-	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
-		if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
-		if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
-		if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
-		zPrmVtx = (*(onlinepv))[0]->z();
-		if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);
-		ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
-	      } // if PV not dummy
-	      else {
-		DummyVtx = true;
-		ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << jetKey << " HistExt = " << HistExt << " m_priVtxKey " << priVtxKey );
-		ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
-			     << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
-		int dummyflag = -1;
-		if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dummyflag);
-		//	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
-	      } // else
-	      if (!DummyVtx && HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
-	    }  // if onlinepv not empty
-	  } // if onlinepvs not empty
-	  if ( SplitKey && DummyVtx ) {
-	    // for SplitJets and DummyVtx monitor Vtx with Histogram algorithm
-	    const std::vector< Trig::Feature<xAOD::VertexContainer> >onlinepvsd = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
-	    ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
-	    if ( not onlinepvsd.empty() ) {
-	      const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
-	      ATH_MSG_DEBUG(" for VertexContainer EFHistoPrmVtx  - nVert: " << onlinepv->size());
+	Trig::FeatureContainer fc = m_trigDec->features(trigItem);
+	const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
+	ATH_MSG_DEBUG("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
+	
+	// Loop on combinations
+	std::vector< Trig::Combination >::const_iterator bjetComb;
+	for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
+	  const Trig::Combination& comb = *bjetComb;
+	  ATH_MSG_DEBUG("------------ NEW COMBINATION ------------");
+	  zPrmVtx = 0.; // used for muon-jets
+	  
+	  if (!FTKchain) {
+	    
+	    // Get online PV
+	    bool DummyVtx = false;
+	    const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(priVtxKey);
+	    ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
+	    if ( not onlinepvs.empty() ) {
+	      const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
+	      ATH_MSG_DEBUG("   for VertexContainer: " << priVtxKey << " nVert: " << onlinepv->size());
 	      if( not onlinepv->empty()) {
 		if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
-		  if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
-		  if(HistPV) hist("PVy_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
-		  if(HistPV) hist("PVz_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
-		  if(HistPV) hist("nPV_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
-		  ATH_MSG_DEBUG(" Dummy PV using Histogram algorithm - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
-			       << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
-		} // if VertexType
-	      } // if not onlinepv
-	    } // if not onlinepvs
-	    continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
-	  } // if DummyVtx
+		  if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
+		  if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
+		  if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
+		  zPrmVtx = (*(onlinepv))[0]->z();
+		  if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);
+		  ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
+		} // if PV not dummy
+		else {
+		  DummyVtx = true;
+		  ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << jetKey << " HistExt = " << HistExt << " m_priVtxKey " << priVtxKey );
+		  ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
+				<< " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
+		  int dummyflag = -1;
+		  if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dummyflag);
+		  //	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
+		} // else
+		if (!DummyVtx && HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
+	      }  // if onlinepv not empty
+	    } // if onlinepvs not empty
+	    if ( SplitKey && DummyVtx ) {
+	      // for SplitJets and DummyVtx monitor Vtx with Histogram algorithm
+	      const std::vector< Trig::Feature<xAOD::VertexContainer> >onlinepvsd = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
+	      ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
+	      if ( not onlinepvsd.empty() ) {
+		const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
+		ATH_MSG_DEBUG(" for VertexContainer EFHistoPrmVtx  - nVert: " << onlinepv->size());
+		if( not onlinepv->empty()) {
+		  if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
+		    if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
+		    if(HistPV) hist("PVy_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
+		    if(HistPV) hist("PVz_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
+		    if(HistPV) hist("nPV_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
+		    ATH_MSG_DEBUG(" Dummy PV using Histogram algorithm - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
+				  << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
+		  } // if VertexType
+		} // if not onlinepv
+	      } // if not onlinepvs
+	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
+	    } // if DummyVtx
+	    
+	  } // if (!FTKchain)
 	  
-	} // if (!FTKchain)
-
-	ATH_MSG_DEBUG(" ======== End of retrival of PV histograms  ==============  ");
-
-	// Get online jet
-	const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(jetKey);
-	ATH_MSG_DEBUG("RETRIEVED JETS   -   size: " << onlinejets.size());
-	if( not onlinejets.empty()) {  // SR
-	  const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
-	  ATH_MSG_DEBUG("                 -   nJet: " << onlinejet->size());
-	  int nJet = onlinejet->size();
-	  if(HistJet) hist("nJet"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nJet);
-	  for(const auto* jet : *onlinejet) {
-	    ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
-	    if(HistJet) hist("jetPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((jet->pt())*1.e-3);
-	    if(HistJet) hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(jet->eta(),jet->phi());
-	  } // for online jet
-	}//onlinejets.size
-
-	ATH_MSG_DEBUG(" Jets histograms are stored successfully !");
-
-	// Get online muon
-	const std::vector< Trig::Feature<xAOD::MuonContainer> > onlinemuons = comb.get<xAOD::MuonContainer>();
-	ATH_MSG_DEBUG("RETRIEVED MUONS   -   size: " << onlinemuons.size());
-	if( not onlinemuons.empty()) {  // SR
-	  const xAOD::MuonContainer* onlinemuon = onlinemuons[0].cptr();
-	  ATH_MSG_DEBUG("                 -   nMuon: " << onlinemuon->size());
-	  int nMuon = onlinemuon->size();
-	  if(HistMuJet) hist("nMuon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nMuon);
-	  for(const auto* muon : *onlinemuon) {
-	    ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (muon->pt())*1.e-3 << " / " << muon->eta() << " / " << muon->phi());
-	    if(HistMuJet) hist("muonPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((muon->pt())*1.e-3);
-	    if(HistMuJet) hist2("muonEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(muon->eta(),muon->phi());
-	  } // for online muon
-	}//onlinemuons.size
-
-	// Loop over muons and jets to monitor muon-jets m_deltaZ and m_dR
-	float muonEta=0, muonPhi=0, muonZ=0;
-	float jetEta=0,  jetPhi=0, jetZ=0;
-	float deltaEta=0, deltaPhi=0, deltaZ=0;
-	double dR = 0.;
-	if( not onlinemuons.empty()) { // SR
-	  const xAOD::MuonContainer* onlinemuon = onlinemuons[0].cptr();
-	  for(const auto* muon : *onlinemuon) {
-	    //	  if(onlinejets.size()) {
-	    if( not onlinejets.empty()) { // SR
-	      const xAOD::Muon::MuonType muontype = muon->muonType();
-	      if( muontype != xAOD::Muon::MuonType::Combined ) continue; // to correct coverity issue - see next commented line
-	      //	    if(!(muontype == xAOD::Muon::MuonType::Combined) ) continue;
-	      muonEta = muon->eta();
-	      muonPhi = muon->phi();
-	      muonZ=0;
-	      //	    muonZ= (*(muon->combinedTrackParticleLink()))->z0();
-	      muonZ = (*(muon->combinedTrackParticleLink()))->z0()  + (*(muon->combinedTrackParticleLink()))->vz(); //LZ 131115
-	      const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
-	      for(const auto* jet : *onlinejet) {
-		if((jet)->p4().Et() < m_etCut) continue;
-		jetEta = (jet)->eta();
-		jetPhi = (jet)->phi();
-		jetZ=zPrmVtx;
-		deltaEta = muonEta - jetEta;
-		deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
-		deltaZ   = fabs(muonZ-jetZ);
-		dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
-		if(HistMuJet) hist("DeltaZAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(deltaZ);
-		if(HistMuJet) hist("DeltaRAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dR);
-	      } // for online jet
-	    }//onlinejets.size
-	  } // for online muon
-	}//onlinemuons.size
-
-	ATH_MSG_DEBUG(" Muon histograms are stored successfully !");
-
-	// Get online track particles
-	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(trackKey);
-	ATH_MSG_DEBUG("RETRIEVED TRACKS -   size: " << onlinetracks.size());
-	if ( not onlinetracks.empty() ) { // SR
-	  const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
-	  ATH_MSG_DEBUG("                 -   nTrack: " << onlinetrack->size());
-	  int nTrack = onlinetrack->size();
-	  if (HistTrack) hist("nTrack"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nTrack);
-	  for(const auto* trk : *onlinetrack) {
-	    ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() );
-	    if (HistTrack) hist("d0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->d0());
-	    if (HistTrack) hist("z0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0());
-	    if (HistTrack) hist("ed0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
-	    if (HistTrack) hist("ez0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
-	    if (HistTrack) hist("trkPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->pt())*1.e-3 );
-	    if (HistTrack) hist2("trkEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->eta(),trk->phi());
-	    float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
-	    if (FTKchain) {
-	      if (EofflinepvFTK) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvzFTK ); // John A
-	      if (EofflinepvFTK && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvzFTK); // John Alison
-	      if ( errz0 >0. && EofflinepvFTK && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvzFTK)/errz0 ); // John Alison
-	    } else { // if FTKchain
-	      if (Eofflinepv) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvz ); // John A
-	      if (Eofflinepv && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvz); // John Alison
-	      if ( errz0 >0. && Eofflinepv && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvz)/errz0 ); // John Alison
-	    } // else
-	  } // for online track particles
-	} // onlinetracks.size
-
-	ATH_MSG_DEBUG(" Track histograms are stored successfully !");
-
-	// Get online bjet from xAOD BTaggingContainer
-	const std::vector< Trig::Feature<xAOD::BTaggingContainer> > onlinebjets = comb.get<xAOD::BTaggingContainer>();
-	ATH_MSG_DEBUG("RETRIEVED BJETS  from xAOD BTaggingContainer -   size: " << onlinebjets.size());
-	if(not onlinebjets.empty()) { // SR
-	  const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
-	  ATH_MSG_DEBUG("                 -   nBjet: " << onlinebjet->size());
-	  for(const auto* bjet : *onlinebjet) {
-	    double wIP3D, wSV1, wCOMB, wMV2c00, wMV2c10, wMV2c20  = 0.; // discriminant variables
-	    //	  double wMV1  = 0.;
-	    float svp_efrc, svp_mass = -1.; int svp_n2t = -1; // SV1 variables
-	    bjet->loglikelihoodratio("IP3D", wIP3D);
-	    bjet->loglikelihoodratio("SV1", wSV1);
-	    double SV1_loglikelihoodratioLZ = bjet->SV1_loglikelihoodratio();
-	    wCOMB = wIP3D+wSV1;
-	    wMV2c00 = bjet->auxdata<double>("MV2c00_discriminant");
-	    wMV2c10 = bjet->auxdata<double>("MV2c10_discriminant");
-	    wMV2c20 = bjet->auxdata<double>("MV2c20_discriminant");
-	    //	  wMV1 = bjet->MV1_discriminant();
-	    // Suggestion of LZ
-	    bjet->variable<float>("SV1", "masssvx", svp_mass);
-	    bjet->variable<float>("SV1", "efracsvx", svp_efrc);
-	    bjet->variable<int>("SV1", "N2Tpair", svp_n2t);
-	    ATH_MSG_DEBUG("                 -   Before SV1 check - MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
-	    if (HistBjet) hist("xNVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
-	    if ( svp_n2t > 0 ) {
-	      if (HistBjet) hist("xMVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass * 1.e-3 );
-	      if (HistBjet) hist("xEVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
-	    } // if svp_n2t
-	    // end of suggestion of LZ
-	    ATH_MSG_DEBUG("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc() );
-	    if (HistBjet) hist("IP3D_pu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pu());
-	    if (HistBjet) hist("IP3D_pb_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pb());
-	    if (HistBjet) hist("IP3D_pc_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pc());
-	    ATH_MSG_DEBUG("                 -   IP3D / SV1 / IP3D+SV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB );
-	    ATH_MSG_DEBUG("                 -   SV1 LZ: " << SV1_loglikelihoodratioLZ );
-	    ATH_MSG_DEBUG("                 -   MV2c00 / MV2c10 / MV2c20: " << wMV2c00 << " / " << wMV2c10 << " / " << wMV2c20);
-	    if (HistBjet) hist("wIP3D_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wIP3D);
-	    if (HistBjet) hist("wSV1_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wSV1);
-	    if (HistBjet) hist("wCOMB_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wCOMB);
-	    if (HistBjet) hist("wMV2c00_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c00);
-	    if (HistBjet) hist("wMV2c10_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c10);
-	    if (HistBjet) hist("wMV2c20_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c20);
-
-	    // Get SV1 secondary vtx information, see:
-	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/MV2Tag.cxx#0486 and
-	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/GaiaNNTool.cxx#0349
-	    std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-	    ATH_MSG_DEBUG("    SV1 info source name before calling VertexContainer: " << m_sv1_infosource ) ;
-	    bjet->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices);
-	    ATH_MSG_DEBUG("    SV1 info source name after calling VertexContainer: " << m_sv1_infosource ) ;
-	    if ( myVertices.size() > 0 && myVertices[0].isValid() ) {
-	      ATH_MSG_DEBUG("    SV1 vertex size: " << myVertices.size() << " is it valid? " << myVertices[0].isValid() ) ;
-	      bjet->variable<float>(m_sv1_infosource, "masssvx", svp_mass);
-	      bjet->variable<float>(m_sv1_infosource, "efracsvx", svp_efrc);
-	      bjet->variable<int>(m_sv1_infosource, "N2Tpair", svp_n2t);
-	      ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
+	  ATH_MSG_DEBUG(" ======== End of retrival of PV histograms  ==============  ");
+	  
+	  // Get online jet
+	  const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(jetKey);
+	  ATH_MSG_DEBUG("RETRIEVED JETS   -   size: " << onlinejets.size());
+	  if( not onlinejets.empty()) {  // SR
+	    const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
+	    ATH_MSG_DEBUG("                 -   nJet: " << onlinejet->size());
+	    int nJet = onlinejet->size();
+	    if(HistJet) hist("nJet"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nJet);
+	    for(const auto* jet : *onlinejet) {
+	      ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
+	      if(HistJet) hist("jetPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((jet->pt())*1.e-3);
+	      if(HistJet) hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(jet->eta(),jet->phi());
+	    } // for online jet
+	  }//onlinejets.size
+	  
+	  ATH_MSG_DEBUG(" Jets histograms are stored successfully !");
+	  
+	  // Get online muon
+	  const std::vector< Trig::Feature<xAOD::MuonContainer> > onlinemuons = comb.get<xAOD::MuonContainer>();
+	  ATH_MSG_DEBUG("RETRIEVED MUONS   -   size: " << onlinemuons.size());
+	  if( not onlinemuons.empty()) {  // SR
+	    const xAOD::MuonContainer* onlinemuon = onlinemuons[0].cptr();
+	    ATH_MSG_DEBUG("                 -   nMuon: " << onlinemuon->size());
+	    int nMuon = onlinemuon->size();
+	    if(HistMuJet) hist("nMuon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nMuon);
+	    for(const auto* muon : *onlinemuon) {
+	      ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (muon->pt())*1.e-3 << " / " << muon->eta() << " / " << muon->phi());
+	      if(HistMuJet) hist("muonPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((muon->pt())*1.e-3);
+	      if(HistMuJet) hist2("muonEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(muon->eta(),muon->phi());
+	    } // for online muon
+	  }//onlinemuons.size
+	  
+	  // Loop over muons and jets to monitor muon-jets m_deltaZ and m_dR
+	  float muonEta=0, muonPhi=0, muonZ=0;
+	  float jetEta=0,  jetPhi=0, jetZ=0;
+	  float deltaEta=0, deltaPhi=0, deltaZ=0;
+	  double dR = 0.;
+	  if( not onlinemuons.empty()) { // SR
+	    const xAOD::MuonContainer* onlinemuon = onlinemuons[0].cptr();
+	    for(const auto* muon : *onlinemuon) {
+	      //	  if(onlinejets.size()) {
+	      if( not onlinejets.empty()) { // SR
+		const xAOD::Muon::MuonType muontype = muon->muonType();
+		if( muontype != xAOD::Muon::MuonType::Combined ) continue; // to correct coverity issue - see next commented line
+		//	    if(!(muontype == xAOD::Muon::MuonType::Combined) ) continue;
+		muonEta = muon->eta();
+		muonPhi = muon->phi();
+		muonZ=0;
+		//	    muonZ= (*(muon->combinedTrackParticleLink()))->z0();
+		muonZ = (*(muon->combinedTrackParticleLink()))->z0()  + (*(muon->combinedTrackParticleLink()))->vz(); //LZ 131115
+		const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
+		for(const auto* jet : *onlinejet) {
+		  if((jet)->p4().Et() < m_etCut) continue;
+		  jetEta = (jet)->eta();
+		  jetPhi = (jet)->phi();
+		  jetZ=zPrmVtx;
+		  deltaEta = muonEta - jetEta;
+		  deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
+		  deltaZ   = fabs(muonZ-jetZ);
+		  dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+		  if(HistMuJet) hist("DeltaZAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(deltaZ);
+		  if(HistMuJet) hist("DeltaRAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dR);
+		} // for online jet
+	      }//onlinejets.size
+	    } // for online muon
+	  }//onlinemuons.size
+	  
+	  ATH_MSG_DEBUG(" Muon histograms are stored successfully !");
+	  
+	  // Get online track particles
+	  const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(trackKey);
+	  ATH_MSG_DEBUG("RETRIEVED TRACKS -   size: " << onlinetracks.size());
+	  if ( not onlinetracks.empty() ) { // SR
+	    const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
+	    ATH_MSG_DEBUG("                 -   nTrack: " << onlinetrack->size());
+	    int nTrack = onlinetrack->size();
+	    if (HistTrack) hist("nTrack"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nTrack);
+	    for(const auto* trk : *onlinetrack) {
+	      ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() );
+	      if (HistTrack) hist("d0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->d0());
+	      if (HistTrack) hist("z0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0());
+	      if (HistTrack) hist("ed0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
+	      if (HistTrack) hist("ez0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
+	      if (HistTrack) hist("trkPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->pt())*1.e-3 );
+	      if (HistTrack) hist2("trkEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->eta(),trk->phi());
+	      float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
+	      if (FTKchain) {
+		if (EofflinepvFTK) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvzFTK ); // John A
+		if (EofflinepvFTK && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvzFTK); // John Alison
+		if ( errz0 >0. && EofflinepvFTK && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvzFTK)/errz0 ); // John Alison
+	      } else { // if FTKchain
+		if (Eofflinepv) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvz ); // John A
+		if (Eofflinepv && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvz); // John Alison
+		if ( errz0 >0. && Eofflinepv && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvz)/errz0 ); // John Alison
+	      } // else
+	    } // for online track particles
+	  } // onlinetracks.size
+	  
+	  ATH_MSG_DEBUG(" Track histograms are stored successfully !");
+	  
+	  // Get online bjet from xAOD BTaggingContainer
+	  const std::vector< Trig::Feature<xAOD::BTaggingContainer> > onlinebjets = comb.get<xAOD::BTaggingContainer>();
+	  ATH_MSG_DEBUG("RETRIEVED BJETS  from xAOD BTaggingContainer -   size: " << onlinebjets.size());
+	  if(not onlinebjets.empty()) { // SR
+	    const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
+	    ATH_MSG_DEBUG("                 -   nBjet: " << onlinebjet->size());
+	    for(const auto* bjet : *onlinebjet) {
+	      double wIP3D, wSV1, wCOMB, wMV2c00, wMV2c10, wMV2c20  = 0.; // discriminant variables
+	      //	  double wMV1  = 0.;
+	      float svp_efrc, svp_mass = -1.; int svp_n2t = -1; // SV1 variables
+	      bjet->loglikelihoodratio("IP3D", wIP3D);
+	      bjet->loglikelihoodratio("SV1", wSV1);
+	      double SV1_loglikelihoodratioLZ = bjet->SV1_loglikelihoodratio();
+	      wCOMB = wIP3D+wSV1;
+	      wMV2c00 = bjet->auxdata<double>("MV2c00_discriminant");
+	      wMV2c10 = bjet->auxdata<double>("MV2c10_discriminant");
+	      wMV2c20 = bjet->auxdata<double>("MV2c20_discriminant");
+	      //	  wMV1 = bjet->MV1_discriminant();
+	      // Suggestion of LZ
+	      bjet->variable<float>("SV1", "masssvx", svp_mass);
+	      bjet->variable<float>("SV1", "efracsvx", svp_efrc);
+	      bjet->variable<int>("SV1", "N2Tpair", svp_n2t);
+	      ATH_MSG_DEBUG("                 -   Before SV1 check - MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
+	      if (HistBjet) hist("xNVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
 	      if ( svp_n2t > 0 ) {
+		if (HistBjet) hist("xMVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass * 1.e-3 );
+		if (HistBjet) hist("xEVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
 	      } // if svp_n2t
-	    } else {
-	      ATH_MSG_DEBUG("  No valid SV1 vertex found --  SV1 vertex size: " << myVertices.size() );
-	      if ( myVertices.size() > 0 ) ATH_MSG_DEBUG("  No valid SV1 vertex found -- myVertices[0].isValid(): " << myVertices[0].isValid() ) ;
-	    } // if vertex valid
-	  } // for online bjet
-	} // onlinebjets.size
+	      // end of suggestion of LZ
+	      ATH_MSG_DEBUG("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc() );
+	      if (HistBjet) hist("IP3D_pu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pu());
+	      if (HistBjet) hist("IP3D_pb_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pb());
+	      if (HistBjet) hist("IP3D_pc_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pc());
+	      ATH_MSG_DEBUG("                 -   IP3D / SV1 / IP3D+SV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB );
+	      ATH_MSG_DEBUG("                 -   SV1 LZ: " << SV1_loglikelihoodratioLZ );
+	      ATH_MSG_DEBUG("                 -   MV2c00 / MV2c10 / MV2c20: " << wMV2c00 << " / " << wMV2c10 << " / " << wMV2c20);
+	      if (HistBjet) hist("wIP3D_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wIP3D);
+	      if (HistBjet) hist("wSV1_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wSV1);
+	      if (HistBjet) hist("wCOMB_Rbu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wCOMB);
+	      if (HistBjet) hist("wMV2c00_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c00);
+	      if (HistBjet) hist("wMV2c10_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c10);
+	      if (HistBjet) hist("wMV2c20_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c20);
+	      
+	      // Get SV1 secondary vtx information, see:
+	      // /PhysicsAnalysis/JetTagging/JetTagTools/src/MV2Tag.cxx#0486 and
+	      // /PhysicsAnalysis/JetTagging/JetTagTools/src/GaiaNNTool.cxx#0349
+	      std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
+	      ATH_MSG_DEBUG("    SV1 info source name before calling VertexContainer: " << m_sv1_infosource ) ;
+	      bjet->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices);
+	      ATH_MSG_DEBUG("    SV1 info source name after calling VertexContainer: " << m_sv1_infosource ) ;
+	      if ( myVertices.size() > 0 && myVertices[0].isValid() ) {
+		ATH_MSG_DEBUG("    SV1 vertex size: " << myVertices.size() << " is it valid? " << myVertices[0].isValid() ) ;
+		bjet->variable<float>(m_sv1_infosource, "masssvx", svp_mass);
+		bjet->variable<float>(m_sv1_infosource, "efracsvx", svp_efrc);
+		bjet->variable<int>(m_sv1_infosource, "N2Tpair", svp_n2t);
+		ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
+		if ( svp_n2t > 0 ) {
+		} // if svp_n2t
+	      } else {
+		ATH_MSG_DEBUG("  No valid SV1 vertex found --  SV1 vertex size: " << myVertices.size() );
+		if ( myVertices.size() > 0 ) ATH_MSG_DEBUG("  No valid SV1 vertex found -- myVertices[0].isValid(): " << myVertices[0].isValid() ) ;
+	      } // if vertex valid
+	    } // for online bjet
+	  } // onlinebjets.size
+	  
+	  ATH_MSG_DEBUG(" Bjet histograms are stored successfully !");
+	  
+	} // for bjetComb
+	
+      } // Run2 access 
+      else { // Run3 access
+	ATH_MSG_DEBUG("  ===> Run 3 access for Trigger Item: " << trigItem);
 
-	ATH_MSG_DEBUG(" Bjet histograms are stored successfully !");
+	// online PV from SG
 
-      } // for bjetComb
+	SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey);
+	for (const xAOD::Vertex* vtx : *vtxContainer) {
+	  if (vtx->vertexType() == xAOD::VxType::PriVtx) {
+	    ATH_MSG_DEBUG("        PVz_jet from SG: " << vtx->z());
+	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
+	  } // if vtx type
+	} // loop on vtxContainer
+
+	
+	  // Jets and PV through jet link
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
+	int ijet = 0;
+	for(const auto jetLinkInfo : onlinejets) {
+	  // jetPt
+	  const xAOD::Jet* jet = *(jetLinkInfo.link);
+	  ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
+	  if(HistJet) hist("jetPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((jet->pt())*1.e-3);
+	  // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
+	  if (ijet == 0) {
+	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
+	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
+	    ATH_MSG_DEBUG("        PVz_jet from jet link info: " << vtx->z());
+	    // if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
+	  }
+	  ijet++;
+	} // onlinejets
+	
+      } // else Run3 access
+      
     } // ichain
-
+    
   } // FiredChainNames.empty()
-
+  
   ATH_MSG_DEBUG("====> Ended successfully HLTBjetMonTool::fill()" );
 
 

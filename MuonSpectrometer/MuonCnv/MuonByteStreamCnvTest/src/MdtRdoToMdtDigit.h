@@ -10,8 +10,7 @@
 #include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
-
-class MdtIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class MdtRdoToMdtDigit : public AthReentrantAlgorithm {
 
@@ -27,7 +26,8 @@ class MdtRdoToMdtDigit : public AthReentrantAlgorithm {
   StatusCode decodeMdt( const MdtCsm *, MdtDigitContainer *, MdtDigitCollection*&, Identifier& ) const;
 
   ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtRdoDecoderTool{this, "mdtRdoDecoderTool", "Muon::MdtRDO_Decoder", ""};
-  const MdtIdHelper *   m_mdtHelper{};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   SG::ReadHandleKey<MdtCsmContainer> m_mdtRdoKey{this, "MdtRdoContainer", "MDTCSM", "Mdt RDO Input"};
   SG::WriteHandleKey<MdtDigitContainer> m_mdtDigitKey{this, "MdtDigitContainer", "MDT_DIGITS", "Mdt Digit Output"};
 };

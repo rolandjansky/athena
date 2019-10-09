@@ -7,10 +7,6 @@
 
 #include "LArRawConditions/LArDAC2uAComplete.h"
 
-#include <vector>
-
-class ILArMCSymTool;
-
 /** Implementation of the interface ILArDAC2uA for MC
  *  Derives from LArDAC2uAComplete, and implements the phi-z symmetry
  *

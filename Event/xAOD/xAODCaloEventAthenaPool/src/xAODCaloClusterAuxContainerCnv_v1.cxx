@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODCaloClusterAuxContainerCnv_v1.cxx 628099 2014-11-13 09:30:05Z krasznaa $
@@ -30,15 +30,13 @@
    } while( 0 )
 
 xAODCaloClusterAuxContainerCnv_v1::xAODCaloClusterAuxContainerCnv_v1()
-  : T_AthenaPoolTPCnvBase< xAOD::CaloClusterAuxContainer,
-                           xAOD::CaloClusterAuxContainer_v1 >() {
-
+{
 }
 
 void xAODCaloClusterAuxContainerCnv_v1::
 persToTrans( const xAOD::CaloClusterAuxContainer_v1* oldObj,
              xAOD::CaloClusterAuxContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::CaloClusterAuxContainer_v1 to current version..." );
@@ -63,7 +61,7 @@ persToTrans( const xAOD::CaloClusterAuxContainer_v1* oldObj,
 void xAODCaloClusterAuxContainerCnv_v1::
 transToPers( const xAOD::CaloClusterAuxContainer*,
              xAOD::CaloClusterAuxContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODCaloClusterAuxContainerCnv_v1::transToPers"

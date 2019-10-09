@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETBYTESTREAMERRORSDICT_H
@@ -8,7 +8,6 @@
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 #include "InDetByteStreamErrors/TRT_BSIdErrContainer.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 namespace {
   // Need this to create the dict entries

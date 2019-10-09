@@ -12,8 +12,6 @@ def setupMenu():
     from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1 as tcl1
     if tcl1.current:
         log.info("L1 items: %s " % tcl1.current.menu.items.itemNames())
-    else:
-        log.info("ERROR L1 menu has not yet been defined")
 
     PhysicsStream="Main"
 

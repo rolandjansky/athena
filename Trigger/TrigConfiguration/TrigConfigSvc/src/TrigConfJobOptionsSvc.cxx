@@ -9,6 +9,9 @@
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/Property.h"
 
+#include "TrigConfIO/TrigDBJobOptionsLoader.h"
+#include "TrigConfData/DataStructure.h"
+
 #include "TrigConfJobOptionsSvc.h"
 
 TrigConf::JobOptionsSvc::JobOptionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -32,8 +35,7 @@ StatusCode TrigConf::JobOptionsSvc::initialize()
   else if (m_sourceType == "DB") {
     parseDBString(m_sourcePath);
     ATH_MSG_INFO("Reading SMK " << m_smk << " from '" << m_server << "'");
-    ATH_MSG_FATAL("Reading from DB not implemented yet");
-    return StatusCode::FAILURE;
+    ATH_CHECK(readOptionsDB(m_server, m_smk));
   }
   else if (m_sourceType == "PYTHON") {
     /* "PYTHON" refers to loading properties directly from Python files
@@ -97,6 +99,31 @@ StatusCode TrigConf::JobOptionsSvc::readOptions(const std::string& file, const s
 
   return StatusCode::SUCCESS;
 }
+
+StatusCode TrigConf::JobOptionsSvc::readOptionsDB(const std::string& db_server, int smk)
+{
+  // db job options loader
+  TrigConf::TrigDBJobOptionsLoader jodbloader(db_server);
+
+  TrigConf::DataStructure jo;
+  jodbloader.loadJobOptions( smk, jo );
+  if (jo) {
+    unsigned int nClients(0), nProps(0);
+    for( const auto client : jo.getObject("properties").data()) {
+      nClients++;
+      for( const auto property : client.second ) {
+        nProps++;
+        ATH_CHECK(addPropertyToCatalogue(client.first, Gaudi::Property<std::string>(property.first, property.second.data())));
+      }
+    }
+    ATH_MSG_INFO("Loaded job options from " << nClients << " clients with " << nProps << " in total");
+  } else {
+    ATH_MSG_FATAL("Could not load job options from database " << db_server << " with SMK " << smk);
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
 
 /**
  * This is mainly for debugging purposes and to compare the JobOptions

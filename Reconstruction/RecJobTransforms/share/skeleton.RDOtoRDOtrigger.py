@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from future.utils import iteritems
 
 ####################################################################
@@ -121,7 +122,10 @@ if TriggerFlags.doMT():
     recoLog.info( "Configuring LVL1 simulation (MT)" )
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence(None)
+
     recoLog.info( "Configuring HLT (MT)" )
+    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+    svcMgr += getHLTConfigSvc()
 
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()

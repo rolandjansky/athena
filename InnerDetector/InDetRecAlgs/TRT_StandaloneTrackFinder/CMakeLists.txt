@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          Control/CxxUtils
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters )
 

@@ -777,7 +777,7 @@ def ConfigureConditionsTag():
         try:
             year=int(rec.projectName()[4:6])
         except:
-            logAutoConfiguration.warning("Failed to extract year from project tag "+ projectName+". Guessing 2015")
+            logAutoConfiguration.warning("Failed to extract year from project tag "+ rec.projectName() +". Guessing 2015")
             year=15
         if (year<14): #Run1
             globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-BLKPA-RUN1-09")

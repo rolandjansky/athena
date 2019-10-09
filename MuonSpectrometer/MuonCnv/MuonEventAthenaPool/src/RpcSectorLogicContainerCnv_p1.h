@@ -16,7 +16,6 @@
 #include "MuonRDO/RpcSectorLogicContainer.h"
 #include "MuonEventAthenaPool/RpcSectorLogicContainer_p1.h"
 
-class IRPCcablingSvc;
 class MsgStream;
 
 class RpcSectorLogicContainerCnv_p1 : public T_AthenaPoolTPCnvBase< RpcSectorLogicContainer, RpcSectorLogicContainer_p1 >

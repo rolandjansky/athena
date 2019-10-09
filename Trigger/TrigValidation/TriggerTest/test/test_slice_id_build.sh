@@ -11,7 +11,7 @@
 
 export NAME="slice_id_build"
 export EVENTS="10"
-export JOBOPTIONS="TriggerTest/testIDAthenaTrigRDO.py"
+export JOBOPTION="TriggerTest/testIDAthenaTrigRDO.py"
 export COST_MONITORING="False"
 
 source exec_athena_art_trigger_validation.sh

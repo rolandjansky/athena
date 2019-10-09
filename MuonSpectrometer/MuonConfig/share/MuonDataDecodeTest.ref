@@ -1,5 +1,7 @@
 RpcRawDataProvider                          0      INFO RpcRawDataProvider::initialize
 RpcRawDataProvider                          0      INFO  'DoSeededDecoding':False
+RpcRawDataProvider.RPC_RawDataProvide...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+RpcRawDataProvider.RPC_RawDataProvide...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
 RpcRawDataProvider.RPC_RawDataProvide...    0      INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderToolMT
 TgcRawDataProvider                          0      INFO TgcRawDataProvider::initialize
 TgcRawDataProvider                          0      INFO  'DoSeededDecoding':False
@@ -10,11 +12,17 @@ TgcRawDataProvider.TGC_RawDataProvide...    0      INFO initialize() successful 
 MdtRawDataProvider                          0      INFO MdtRawDataProvider::initialize
 MdtRawDataProvider                          0      INFO  'DoSeededDecoding':False
 MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+MdtRawDataProvider.MDT_RawDataProvide...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+MdtRawDataProvider.MDT_RawDataProvide...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
 MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Processing configuration for layouts with BME chambers.
 MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Processing configuration for layouts with BMG chambers.
 MdtRawDataProvider.MDT_RawDataProvide...    0      INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
 MdtRawDataProvider.MDT_RawDataProvide...    0      INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderToolMT
 CscRawDataProvider.CSC_RawDataProvide...    0      INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+CscRawDataProvider.CSC_RawDataProvide...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+CscRawDataProvider.CSC_RawDataProvide...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
+CscRawDataProvider.CSC_RawDataProvide...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+CscRawDataProvider.CSC_RawDataProvide...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
 CscRawDataProvider.CSC_RawDataProvide...    0      INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
 CscRawDataProvider.CSC_RawDataProvide...    0      INFO The Muon Geometry version is R.08.01
 CscRawDataProvider.CSC_RawDataProvide...    0      INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderToolMT
@@ -28,15 +36,29 @@ RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO timeShift               
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO etaphi_coincidenceTime             20
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO overlap_timeTolerance              10
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO Correct prd time from cool db      0
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...    0      INFO Rpc Cabling Svc name is dataLike
 RpcRdoToRpcPrepData                         0      INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
+TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
 TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...    0      INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
 TgcRdoToTgcPrepData                         0      INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0      INFO Processing configuration for layouts with BMG chambers.
+MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
+MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0      INFO Processing configuration for layouts with BME chambers.
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...    0      INFO Processing configuration for layouts with BMG chambers.
 MdtRdoToMdtPrepData                         0      INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
 CscRdoToCscPrepData.CscRdoToCscPrepDa...    0      INFO The Geometry version is MuonSpectrometer-R.08.01
+CscRdoToCscPrepData.CscRdoToCscPrepDa...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+CscRdoToCscPrepData.CscRdoToCscPrepDa...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
+CscRdoToCscPrepData.CscRdoToCscPrepDa...    0   WARNING  Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers
+CscRdoToCscPrepData.CscRdoToCscPrepDa...    0   WARNING  Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers
 CscRdoToCscPrepData                         0      INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
 TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...19  0      INFO finalize(): input RDOs->output PRDs [Hit: 6807->6807, Tracklet: 28->28, TrackletEIFI: 692->692, HiPt: 4031->4031, SL: 3->3]
 MdtRawDataProvider.MDT_RawDataProvide...19  0      INFO Fraction of fills that use the cache = 0

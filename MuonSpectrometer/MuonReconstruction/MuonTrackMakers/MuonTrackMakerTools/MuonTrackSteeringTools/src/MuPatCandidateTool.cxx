@@ -4,9 +4,9 @@
 
 #include "MuPatCandidateTool.h"
 #include "MuPatHitTool.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatSegment.h"
+#include "MuPatTrack.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatSegment.h"
 #include "SortMuPatHits.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
@@ -464,31 +464,31 @@ namespace Muon {
     IdClusIt chit_end = idClusters.end();
     for( ;chit!=chit_end;++chit ){
       if( msgLvl(MSG::VERBOSE) ) {
-	msg(MSG::VERBOSE) << " in " << m_idHelperTool->toStringDetEl(chit->first)
-	       << "  clusters: " << chit->second.size() << std::endl;
+        msg(MSG::VERBOSE) << " in " << m_idHelperTool->toStringDetEl(chit->first)
+          << "  clusters: " << chit->second.size() << std::endl;
 
-	std::vector<const MuonClusterOnTrack*>::iterator clit = chit->second.begin();
-	std::vector<const MuonClusterOnTrack*>::iterator clit_end = chit->second.end();
-	for( ;clit!=clit_end;++clit){
-	  msg(MSG::VERBOSE) << "   " << m_idHelperTool->toString((*clit)->identify());
+        std::vector<const MuonClusterOnTrack*>::iterator clit = chit->second.begin();
+        std::vector<const MuonClusterOnTrack*>::iterator clit_end = chit->second.end();
+        for( ;clit!=clit_end;++clit){
+          msg(MSG::VERBOSE) << "   " << m_idHelperTool->toString((*clit)->identify());
 	  
-	  // hack to get correct print-out
-	  if( clit+1 == clit_end ) msg(MSG::VERBOSE) << endmsg;
-	  else                     msg(MSG::VERBOSE) << std::endl;
-	}
+          // hack to get correct print-out
+          if( clit+1 == clit_end ) msg(MSG::VERBOSE) << endmsg;
+          else                     msg(MSG::VERBOSE) << std::endl;
+        }
       }
 
       if( chit->second.empty() ){
-	ATH_MSG_WARNING(" empty list, could not create CompetingMuonClustersOnTrack in chamber   "
-	       << m_idHelperTool->toString(chit->first) );
-	continue;
+        ATH_MSG_WARNING(" empty list, could not create CompetingMuonClustersOnTrack in chamber   "
+          << m_idHelperTool->toString(chit->first) );
+        continue;
       }
 
       // only create competing ROT if there is more than one PRD
       if( chit->second.size() == 1 ) {
-	hits.push_back(chit->second.front());
-	allHits.push_back(chit->second.front());
-	continue;
+        hits.push_back(chit->second.front());
+        allHits.push_back(chit->second.front());
+        continue;
       }
 
       // create list of PRDs 
@@ -496,13 +496,18 @@ namespace Muon {
       std::vector<const MuonClusterOnTrack*>::iterator clit = chit->second.begin();
       std::vector<const MuonClusterOnTrack*>::iterator clit_end = chit->second.end();
       for( ;clit!=clit_end;++clit){
-	prds.push_back( (*clit)->prepRawData() );
+        const Trk::PrepRawData* prd = (*clit)->prepRawData();
+        if (prd){ 
+          prds.push_back( prd );
+        } else {
+          ATH_MSG_ERROR("MuonClusterOnTrack has no PRD.");
+        }
       }
 
       const CompetingMuonClustersOnTrack* comprot = m_compClusterCreator->createBroadCluster(prds,0);
       if( !comprot ){
-	ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperTool->toString(chit->first));
-	continue;
+        ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperTool->toString(chit->first));
+        continue;
       }
       hits.push_back(comprot);
       allHits.push_back(comprot);

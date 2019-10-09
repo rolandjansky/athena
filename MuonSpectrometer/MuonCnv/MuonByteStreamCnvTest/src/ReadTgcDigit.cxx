@@ -15,8 +15,7 @@ const int maxDig  = 4096;
 ReadTgcDigit::ReadTgcDigit(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator), 
     m_ntuplePtr(0), 
-    m_activeStore("ActiveStoreSvc", name),
-    m_tgcIdHelper(0)
+    m_activeStore("ActiveStoreSvc", name)
 {
   // Declare the properties
   declareProperty("NtupleLocID",m_NtupleLocID);
@@ -29,7 +28,7 @@ StatusCode ReadTgcDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( detStore()->retrieve( m_tgcIdHelper, "TGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS;
 
@@ -101,20 +100,20 @@ StatusCode ReadTgcDigit::execute()
           ATH_MSG_DEBUG( "Digit number " << m_nDig  );
 
 	  // ID information
-	  m_stationName[m_nDig] = m_tgcIdHelper->stationName(id);
-	  m_stationEta [m_nDig] = m_tgcIdHelper->stationEta(id);
-	  m_stationPhi [m_nDig] = m_tgcIdHelper->stationPhi(id);
-	  m_gasGap     [m_nDig] = m_tgcIdHelper->gasGap(id);
-	  m_isStrip    [m_nDig] = m_tgcIdHelper->isStrip(id);
-	  m_channel    [m_nDig] = m_tgcIdHelper->channel(id); 
+	  m_stationName[m_nDig] = m_muonIdHelperTool->tgcIdHelper().stationName(id);
+	  m_stationEta [m_nDig] = m_muonIdHelperTool->tgcIdHelper().stationEta(id);
+	  m_stationPhi [m_nDig] = m_muonIdHelperTool->tgcIdHelper().stationPhi(id);
+	  m_gasGap     [m_nDig] = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+	  m_isStrip    [m_nDig] = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
+	  m_channel    [m_nDig] = m_muonIdHelperTool->tgcIdHelper().channel(id); 
 	  m_bcTag      [m_nDig] = bctag;
 
 	  ATH_MSG_DEBUG( MSG::hex
-                         << " N_" << m_tgcIdHelper->stationName(id)
-                         << " E_" << m_tgcIdHelper->stationEta(id)
-                         << " P_" << m_tgcIdHelper->stationPhi(id)
-                         << " G_" << m_tgcIdHelper->gasGap(id)
-                         << " C_" << m_tgcIdHelper->channel(id) );
+                         << " N_" << m_muonIdHelperTool->tgcIdHelper().stationName(id)
+                         << " E_" << m_muonIdHelperTool->tgcIdHelper().stationEta(id)
+                         << " P_" << m_muonIdHelperTool->tgcIdHelper().stationPhi(id)
+                         << " G_" << m_muonIdHelperTool->tgcIdHelper().gasGap(id)
+                         << " C_" << m_muonIdHelperTool->tgcIdHelper().channel(id) );
 
 	  ++m_nDig;
 	}

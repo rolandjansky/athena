@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 from JetMonitoring.HistoDefinitionHelpers import createHistoDefTool as hdef
 from JetMonitoring.HistoDefinitionHelpers import mergeHistoDefinition
-from JetMonitoring.JetMonitoringConf import JetAttributeHisto, JetSelectorAttribute
+from JetMonitoring.JetMonitoringConf import JetAttributeHisto, JetSelectorAttributeRunII
 from JetMonitoring.JetHistoManager import jetHistoManager as jhm
 
 
@@ -71,10 +71,10 @@ class AttributeHistoManager(object):
 
     def addSelector(self, selectString, name="", typ="float"):
         if name != "" and self.jhm.hasTool(name) :
-            print "ERROR  JetSelectorAttribute with name ", name ," already exists. Can't add a new one"
+            print "ERROR  JetSelectorAttributeRunII with name ", name ," already exists. Can't add a new one"
             return None
         if  self.jhm.hasTool(selectString) :
-            print "ERROR  JetSelectorAttribute  ", selectString ," already exists. Can't add a new one"
+            print "ERROR  JetSelectorAttributeRunII  ", selectString ," already exists. Can't add a new one"
             return None        
         tool = createAttSelector( selectString, name=name, typ=typ)
         # selectors are public tools :
@@ -122,7 +122,7 @@ def create2DHistoTool( name, binning=None, attributeInfo1=None, attributeInfo2=N
 
 
 def createAttSelector(selectString, name="", typ="float"):
-    """A short cut to create JetSelectorAttribute out of a simple string """
+    """A short cut to create JetSelectorAttributeRunII out of a simple string """
     cmin, att, cmax = interpretSelStr(selectString)
     att, ind = findSelectIndex(att)
     if ind>-1 and 'vector' not in typ :
@@ -135,7 +135,7 @@ def createAttSelector(selectString, name="", typ="float"):
         name = name.replace(']','_')
         name = name.replace('.','_')
         name = 'sel_'+name
-    tool = JetSelectorAttribute(name, Attribute=att, AttributeType=typ, VectorIndex=ind)
+    tool = JetSelectorAttributeRunII(name, Attribute=att, AttributeType=typ, VectorIndex=ind)
     if cmin is not None: tool.CutMin = cmin
     if cmax is not None: tool.CutMax = cmax
     return tool

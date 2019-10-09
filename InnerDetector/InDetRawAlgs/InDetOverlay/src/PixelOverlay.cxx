@@ -15,7 +15,7 @@ namespace Overlay
   template <>
   void mergeChannelData(PixelRDORawData &/* baseDatum */,
                         const PixelRDORawData &/* additionalDatum */,
-                        IDC_OverlayBase *algorithm)
+                        const IDC_OverlayBase *algorithm)
   {
     algorithm->msg(MSG::WARNING) << "Overlay::mergeChannelData<PixelRDORawData>(): "
       << "Merging of data on the same channel is not implemented for PixelRDORawData" << endmsg;
@@ -65,7 +65,7 @@ StatusCode PixelOverlay::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelOverlay::execute()
+StatusCode PixelOverlay::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
@@ -74,7 +74,7 @@ StatusCode PixelOverlay::execute()
 
   const PixelRDO_Container *bkgContainerPtr = nullptr;
   if (m_includeBkg) {
-    SG::ReadHandle<PixelRDO_Container> bkgContainer(m_bkgInputKey);
+    SG::ReadHandle<PixelRDO_Container> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background Pixel RDO container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -85,7 +85,7 @@ StatusCode PixelOverlay::execute()
     ATH_MSG_DEBUG("Pixel Background = " << Overlay::debugPrint(bkgContainer.cptr()));
   }
 
-  SG::ReadHandle<PixelRDO_Container> signalContainer(m_signalInputKey);
+  SG::ReadHandle<PixelRDO_Container> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal Pixel RDO container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -94,7 +94,7 @@ StatusCode PixelOverlay::execute()
   ATH_MSG_DEBUG("Pixel Signal     = " << Overlay::debugPrint(signalContainer.cptr()));
 
   // Creating output RDO container
-  SG::WriteHandle<PixelRDO_Container> outputContainer(m_outputKey);
+  SG::WriteHandle<PixelRDO_Container> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<PixelRDO_Container>(signalContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output Pixel RDO container " << outputContainer.name() << " to store " << outputContainer.store());

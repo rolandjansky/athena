@@ -63,20 +63,10 @@ StatusCode Muon::RpcPadContByteStreamTool::initialize() {
     return StatusCode::FAILURE; 
   }  
 
-  // Get the RPC id helper from the detector store
-  const RpcIdHelper* rpc_id;
-  StatusCode status = detStore()->retrieve(rpc_id, "RPCIDHELPER");
-  if (status.isFailure()) {
-    msg(MSG::FATAL) << "Could not get RpcIdHelper !" << endmsg;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::DEBUG) << " Found the RpcIdHelper. " << endmsg;
-  }
- 
-  m_hid2re.set(m_cabling, rpc_id);
-  m_rpcHelper = rpc_id;
-  return sc;
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  m_hid2re.set(m_cabling, m_muonIdHelperTool.get());
+
+  return StatusCode::SUCCESS;
 }
 
  
@@ -91,7 +81,7 @@ StatusCode Muon::RpcPadContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
 					     MsgStream& log ) {
 
    m_fea.clear();
-   m_fea.idMap().set(m_cabling,m_rpcHelper);
+   m_fea.idMap().set(m_cabling, m_muonIdHelperTool.get());
 
    FullEventAssembler<RPC_Hid2RESrcID>::RODDATA*  theROD ;
  

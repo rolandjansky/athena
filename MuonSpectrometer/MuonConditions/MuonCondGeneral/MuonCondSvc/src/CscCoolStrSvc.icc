@@ -55,8 +55,8 @@ namespace MuonCalib {
 
       //If we are looking at invalid chamber layer (1), check corresponding channel in chamber layer 2
       Identifier id;
-      m_cscId->get_id(index,id,&m_channelContext);
-      if(m_cscId->chamberLayer(id) == 1)
+      m_muonIdHelperTool->cscIdHelper().get_id(index,id,&m_channelContext);
+      if(m_muonIdHelperTool->cscIdHelper().chamberLayer(id) == 1)
       {
         int newHash = swapChamberLayerReturnHash(id); 
         condData = coll->at(newHash);
@@ -234,7 +234,7 @@ namespace MuonCalib {
         }
         else if (cat == "CHANNEL") {
           Identifier id;
-          m_cscId->get_id((IdentifierHash)index,id, &m_channelContext);
+          m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
           unsigned int onlineId; 
           if(!offlineToOnlineId(id, onlineId).isSuccess()) {
             m_log << MSG::ERROR << "Failed at geting online id!" << endmsg; 
@@ -254,7 +254,7 @@ namespace MuonCalib {
 
         else if (cat == "ASM")
         { Identifier id;
-          m_cscId->get_id((IdentifierHash)index,id, &m_channelContext);
+          m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
 
           unsigned int iChamber;
           unsigned int iASM;

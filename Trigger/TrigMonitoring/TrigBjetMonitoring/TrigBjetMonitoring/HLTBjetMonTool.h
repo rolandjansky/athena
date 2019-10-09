@@ -65,6 +65,9 @@ class HLTBjetMonTool : public IHLTMonTool {
 
   std::map<std::string,std::string> m_Chain2Dir;
   std::vector<std::string> m_Shifter_jSplit, m_Expert_jSplit, m_Shifter_jUnSplit,  m_Expert_jUnSplit, m_Shifter_mujet, m_Expert_mujet;
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey;
+
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 
   float phiCorr(float);
