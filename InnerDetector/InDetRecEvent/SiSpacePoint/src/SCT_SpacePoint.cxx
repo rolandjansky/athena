@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkPrepRawData/PrepRawData.h"
@@ -20,9 +20,9 @@ namespace InDet
 
   //-------------------------------------------------------------
 
-  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-				 const Amg::Vector3D* position,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
+  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,
+                                 const Amg::Vector3D* position,
+                                 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
     :
     Trk::SpacePoint()
   {
@@ -34,10 +34,10 @@ namespace InDet
 
   //-------------------------------------------------------------
 
-  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-				 const Amg::Vector3D* position,
-				 const Amg::MatrixX* loccov,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
+  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,
+                                 const Amg::Vector3D* position,
+                                 const Amg::MatrixX* loccov,
+                                 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
     :
     Trk::SpacePoint()
   {
@@ -48,9 +48,9 @@ namespace InDet
     delete position;
   }
 
-  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-				 const Amg::Vector3D& position,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
+  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,
+                                 const Amg::Vector3D& position,
+                                 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
     :
     Trk::SpacePoint()
   {
@@ -61,10 +61,10 @@ namespace InDet
 
   //-------------------------------------------------------------
 
-  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-				 const Amg::Vector3D& position,
-				 const Amg::MatrixX& loccov,
-				 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
+  SCT_SpacePoint::SCT_SpacePoint(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,
+                                 const Amg::Vector3D& position,
+                                 const Amg::MatrixX& loccov,
+                                 const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList) 
     :
     Trk::SpacePoint()
   {
@@ -76,9 +76,9 @@ namespace InDet
   
   //-------------------------------------------------------------
   
-  void SCT_SpacePoint::setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,  		    
-			     const Amg::Vector3D& position,
-			     const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList)
+  void SCT_SpacePoint::setup(const std::pair<IdentifierHash, IdentifierHash>& elementIdList,
+                             const Amg::Vector3D& position,
+                             const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>* clusList)
   {
     m_clusList = clusList ;
     m_position = position ;

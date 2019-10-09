@@ -40,18 +40,24 @@ namespace InDet
 
     /** parametrised constructors */
     PixelSpacePoint( IdentifierHash elementId, 
-		     const Trk::PrepRawData* clus);
+                     const Trk::PrepRawData* clus);
     
     /** add Covariance Matrix so for L2 at the moment */
     PixelSpacePoint( IdentifierHash elementId,  
-		     const Trk::PrepRawData* clus, 
-		     const Amg::MatrixX* globcov);
+                     const Trk::PrepRawData* clus, 
+                     const Amg::MatrixX* globcov);
     
     /** add Covariance Matrix so for L2 at the moment */
     PixelSpacePoint( IdentifierHash elementId,  
-		     const Trk::PrepRawData* clus, 
-		     const Amg::MatrixX& globcov);
+                     const Trk::PrepRawData* clus, 
+                     const Amg::MatrixX& globcov);
     
+    /** add Covariance Matrix and global position directly */
+    PixelSpacePoint( IdentifierHash elementId,
+                     const Trk::PrepRawData* clus,
+                     Amg::Vector3D& globpos,
+                     Amg::MatrixX& globcov);
+
     /** Copy constructor */
     PixelSpacePoint( const PixelSpacePoint & PSP);
 
