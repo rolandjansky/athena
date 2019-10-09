@@ -5,10 +5,12 @@
 #ifndef ORIGINALAODCOUNTS_H
 #define ORIGINALAODCOUNTS_H
 
-class TFile;
 namespace xAOD {
   class TEvent;
 }
+class StatusCode;
+
+
 
 struct OriginalAodCounts {
   OriginalAodCounts();
@@ -23,6 +25,9 @@ OriginalAodCounts operator+(const OriginalAodCounts& a,
 OriginalAodCounts operator+=(const OriginalAodCounts& a,
                              const OriginalAodCounts& b);
 
-OriginalAodCounts getOriginalAodCounts(TFile& file, xAOD::TEvent& event);
+OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event);
+
+// RECOMMENDED INTERFACE
+StatusCode incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts&);
 
 #endif

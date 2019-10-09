@@ -6,10 +6,11 @@ atlas_depends_on_subdirs(
   Control/xAODRootAccess
   Event/xAOD/xAODCore
   Event/xAOD/xAODCutFlow
+  Control/AthToolSupport/AsgMessaging
   )
 
 # Add the hdf tuple library
 atlas_add_library(CutBookkeeperUtils
   Root/OriginalAodCounts.cxx
   PUBLIC_HEADERS CutBookKeeperUtils
-  LINK_LIBRARIES xAODCore xAODCutFlow xAODRootAccess)
+  LINK_LIBRARIES xAODCore xAODCutFlow xAODRootAccess AsgMessagingLib)

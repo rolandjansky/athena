@@ -9,8 +9,9 @@
 
 #include "xAODRootAccess/TEvent.h"
 
+#include "AsgMessaging/StatusCode.h"
+
 #include "TFile.h"
-#include "TTree.h"
 
 OriginalAodCounts::OriginalAodCounts():
   nEventsProcessed(0),
@@ -39,32 +40,21 @@ OriginalAodCounts operator+(const OriginalAodCounts& a, const OriginalAodCounts&
 // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisMetadata#Analysis_Metadata_Root_or_athena
 
 
-OriginalAodCounts getOriginalAodCounts(TFile& file, xAOD::TEvent& event) {
-  // get the MetaData tree once a new file is opened, with
-  TTree *MetaData = dynamic_cast<TTree*>(file.Get("MetaData"));
-  if (!MetaData) {
-    throw std::logic_error("MetaData not found! Exiting.");
-  }
-  MetaData->LoadTree(0);
-
-  //check if file is from a DxAOD
-  bool isDerivation = !MetaData->GetBranch("StreamAOD");
-
-  if(!isDerivation) throw std::logic_error("this isn't a DAOD");
+OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event) {
 
   OriginalAodCounts counts;
 
   // check for corruption
   const xAOD::CutBookkeeperContainer* incompleteCBC = nullptr;
   if(!event.retrieveMetaInput(incompleteCBC, "IncompleteCutBookkeepers").isSuccess()){
-    throw std::logic_error("Failed to retrieve IncompleteCutBookkeepers from MetaData!");
+    throw std::runtime_error("Failed to retrieve IncompleteCutBookkeepers from MetaData!");
   }
   counts.nIncomplete = incompleteCBC->size();
 
   // Now, let's find the actual information
   const xAOD::CutBookkeeperContainer* completeCBC = 0;
   if(!event.retrieveMetaInput(completeCBC, "CutBookkeepers").isSuccess()){
-    throw std::logic_error("Failed to retrieve CutBookkeepers from MetaData!");
+    throw std::runtime_error("Failed to retrieve CutBookkeepers from MetaData!");
   }
 
   // Now, let's actually find the right one that contains all the needed info...
@@ -82,4 +72,13 @@ OriginalAodCounts getOriginalAodCounts(TFile& file, xAOD::TEvent& event) {
   counts.sumOfWeights        = allEventsCBK->sumOfEventWeights();
   counts.sumOfWeightsSquared = allEventsCBK->sumOfEventWeightsSquared();
   return counts;
+}
+
+StatusCode incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts& counts) {
+  try {
+    counts += getOriginalAodCounts(event);
+    return StatusCode::SUCCESS;
+  } catch (std::runtime_error& e) {
+    return StatusCode::FAILURE;
+  }
 }

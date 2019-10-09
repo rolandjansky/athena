@@ -20,7 +20,14 @@ several fields:
 You can get this object from a given file by calling
 
 ```
-OriginalAodCounts counts = getOriginalAodCounts(tfile, tevent)
+OriginalAodCounts counts = getOriginalAodCounts(tevent)
+```
+
+or (recommended interface)
+
+```
+OriginalAodCounts counts
+ATH_CHECK(incrementAodCounts(counts, tevent)
 ```
 
 where `tfile` is a `TFile` object pointing to the ROOT file, and
