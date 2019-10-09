@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ClusteringTool.h
@@ -22,6 +22,7 @@
 #include "Identifier/Identifier.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
@@ -58,6 +59,12 @@ namespace InDet {
     clusterize( const InDetRawDataCollection<SCT_RDORawData> & RDOs,
                 const InDetDD::SiDetectorManager& manager,
                 const SCT_ID& idHelper) const;
+                
+    /// Clusterize the SCT RDOs... implemented for ITk
+    virtual SCT_ClusterCollection *
+    clusterizeITk( const InDetRawDataCollection<SCT_RDORawData> & RDOs,
+                   const InDetDD::SiDetectorManager& manager,
+                   const SCT_ID& idHelper) const;
     
   private:
     //    mutable MsgStream                         m_log;
@@ -70,20 +77,32 @@ namespace InDet {
     std::string                               m_timeBinStr;
     int                                       m_timeBinBits[3];
     bool                                      m_useRowInformation;
+    bool                                      m_doITkClustering;
     
     ///Add strips to a cluster vector without checking for bad strips
-    void  addStripsToCluster(const Identifier & firstStripId, const unsigned int nStrips,IdVec_t & clusterVector,const SCT_ID& idHelper) const;
+    void  addStripsToCluster(const Identifier & firstStripId, 
+                             const unsigned int nStrips,
+                             IdVec_t & clusterVector,
+                             const SCT_ID& idHelper) const;
                                   
     ///Add strips to a cluster vector checking for bad strips
-    void addStripsToClusterWithChecks(const Identifier & firstStripId, const unsigned int nStrips, IdVec_t & clusterVector, 
-				      std::vector<IdVec_t > & idGroups, const SCT_ID& idHelper) const;
+    void addStripsToClusterWithChecks(const Identifier & firstStripId, 
+                                      const unsigned int nStrips,
+                                      IdVec_t & clusterVector, 
+                                      std::vector<IdVec_t > & idGroups, 
+                                      const SCT_ID& idHelper) const;
 
-    void addStripsToClusterInclRows(const Identifier & firstStripId, const unsigned int nStrips, IdVec_t & clusterVector,std::vector<IdVec_t > & idGroups, const SCT_ID& idHelper) const;
+    void addStripsToClusterInclRows(const Identifier & firstStripId, 
+                                    const unsigned int nStrips, 
+                                    IdVec_t & clusterVector,
+                                    std::vector<IdVec_t > & idGroups,
+                                    const SCT_ID& idHelper) const;
 
     /** Recluster the current vector, splitting on bad strips, and insert those new groups to the idGroups vector.
      * The cluster vector referenced will be changed by this, as well as the idGroups
      **/
-    IdVec_t recluster(IdVec_t & clusterVector, std::vector<IdVec_t > & idGroups) const;
+    IdVec_t recluster(IdVec_t & clusterVector, 
+                      std::vector<IdVec_t > & idGroups) const;
 
     /// In-class struct to store the centre and width of a cluster                                
     struct DimensionAndPosition{
@@ -93,10 +112,17 @@ namespace InDet {
     };
     
     ///Calculate the cluster position and width given the first and last strip numbers for this element
-    DimensionAndPosition clusterDimensions(const int firstStrip, const int lastStrip, const InDetDD::SiDetectorElement* element,
-					   const SCT_ID& idHelper) const;    
+    DimensionAndPosition clusterDimensions(const int firstStrip, 
+                                           const int lastStrip, 
+                                           const InDetDD::SiDetectorElement* element,
+                                           const SCT_ID& idHelper) const;    
    
-    DimensionAndPosition clusterDimensionsInclRow(const int firstStrip, const int lastStrip, const int row, const InDetDD::SiDetectorElement* element, const InDetDD::SCT_ModuleSideDesign* design) const;
+    DimensionAndPosition clusterDimensionsInclRow(const int firstStrip, 
+                                                  const int lastStrip, 
+                                                  const int row, 
+                                                  const InDetDD::SiDetectorElement* element, 
+                                                  const InDetDD::SCT_ModuleSideDesign* design) const;
+  
     /// In-class facade on the 'isGood' method for a strip identifier
     bool isBad(const Identifier & stripId) const;   
 
@@ -106,7 +132,29 @@ namespace InDet {
     StatusCode decodeTimeBin(const char& timeBin, int& bit);    
     // Test the clusters time bin to see if matches pattern
     bool       testTimeBins(int timeBin) const;
+    bool       testTimeBinsN   (std::bitset<3>&) const;
 
   };//end of class  
+
+  ///////////////////////////////////////////////////////////////////
+  // Inline methods
+  ///////////////////////////////////////////////////////////////////
+
+  inline bool SCT_ClusteringTool::testTimeBinsN(std::bitset<3>& timePattern) const {
+
+    // Convert the given timebin to a bit set and test each bit
+    // if bit is -1 (i.e. X) it always passes, other wise require exact match of 0/1
+    // N.B bitset has opposite order to the bit pattern we define
+
+    if (m_timeBinBits[0] != -1 && timePattern.test(2) != bool(m_timeBinBits[0])) return false; 
+    if (m_timeBinBits[1] != -1 && timePattern.test(1) != bool(m_timeBinBits[1])) return false; 
+    if (m_timeBinBits[2] != -1 && timePattern.test(0) != bool(m_timeBinBits[2])) return false; 
+    return true;
+  }
+
+  inline bool SCT_ClusteringTool::isBad(const Identifier & stripId) const{
+    return (not m_conditionsSvc->isGood(stripId, InDetConditions::SCT_STRIP));
+  }
+
 }//end of namespace
 #endif // SiClusterizationTool_SCT_ClusteringTool_H
