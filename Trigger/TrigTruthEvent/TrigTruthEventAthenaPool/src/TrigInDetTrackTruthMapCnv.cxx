@@ -23,7 +23,7 @@ TrigInDetTrackTruthMap_PERS* TrigInDetTrackTruthMapCnv::createPersistent(TrigInD
 
     mlog << MSG::DEBUG << "TrigInDetTrackTruthMapCnv::createPersistent" << endreq;
 
-    TrigInDetTrackTruthMap_PERS* persObj = m_trigInDetTrackTruthMapCnv_tlp2.createPersistent( transObj, mlog );
+    TrigInDetTrackTruthMap_PERS* persObj = m_trigInDetTrackTruthMapCnv_tlp3.createPersistent( transObj, mlog );
 
     return persObj;
 }

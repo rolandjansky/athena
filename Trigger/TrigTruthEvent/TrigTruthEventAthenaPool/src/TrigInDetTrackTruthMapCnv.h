@@ -29,7 +29,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 //typedef to the latest top level persistent class
-typedef TrigInDetTrackTruthMap_tlp2  TrigInDetTrackTruthMap_PERS;
+typedef TrigInDetTrackTruthMap_tlp3  TrigInDetTrackTruthMap_PERS;
 
 typedef T_AthenaPoolCustomCnv<TrigInDetTrackTruthMap, TrigInDetTrackTruthMap_PERS > TrigInDetTrackTruthMapCnvBase; 
 
