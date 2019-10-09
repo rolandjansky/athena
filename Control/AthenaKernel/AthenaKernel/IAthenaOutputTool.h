@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IATHENAOUTPUTTOOL_H
@@ -21,10 +21,8 @@ class IAthenaOutputTool : virtual public IAlgTool {
 
 public:    
    /// Gaudi boilerplate
-   static const InterfaceID& interfaceID();
+   DeclareInterfaceID( IAthenaOutputTool, 1, 0 );
 
-   /// Initialize AlgTool
-   virtual StatusCode initialize() = 0;
    /// Called at the end of initialize
    virtual StatusCode postInitialize() = 0;
    /// Called at the beginning of execute
@@ -33,13 +31,7 @@ public:
    virtual StatusCode postExecute() = 0;
    /// Called at the beginning of finalize
    virtual StatusCode preFinalize() = 0;
-   /// Finalize AlgTool
-   virtual StatusCode finalize() = 0;
 };
 
-inline const InterfaceID& IAthenaOutputTool::interfaceID() {
-   static const InterfaceID IID("IAthenaOutputTool", 1, 0);
-   return IID;
-}
 
 #endif
