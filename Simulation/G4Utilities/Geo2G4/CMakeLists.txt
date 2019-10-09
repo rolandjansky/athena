@@ -32,7 +32,7 @@ find_package( GeoModel )
 # Component(s) in the package:
 atlas_add_library( Geo2G4Lib
                    src/*.cxx
-                   PUBLIC_HEADERS Geo2G4
+                   NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
