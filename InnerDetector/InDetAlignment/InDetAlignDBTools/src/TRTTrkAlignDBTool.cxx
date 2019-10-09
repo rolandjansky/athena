@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -373,15 +373,15 @@ void TRTTrkAlignDBTool::updateDB()
             continue;
       }
 
-      ATH_MSG_DEBUG("DB transform");
+      ATH_MSG_DEBUG("DB transform for " << module->name() << " at alignment level " << level);
       printTransform(dbtransform);
 
       // tweak applies the transform onto already existing transform in the DB
       // or sets it if it doesn't exist yet
-      if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isFailure())
-         msg(MSG::ERROR)<<"Error setting constants for module \'"<<module->name()<<"\'"<<endreq;
-      else
+      if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isSuccess())
          ATH_MSG_DEBUG("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
+      else
+         msg(MSG::ERROR)<<"Error setting constants for TRT module \'"<<module->name()<<"\'"<<endreq;
    }
    ATH_MSG_INFO("-------------------------------------------------------");
 
