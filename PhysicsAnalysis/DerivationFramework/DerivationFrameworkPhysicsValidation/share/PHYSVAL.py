@@ -62,7 +62,7 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYSVAL",dotruth=True)
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(DerivationFrameworkJob)
 
-FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets' ], Sequencer = DerivationFrameworkJob)
+FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets' ], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
 # Truth collections
@@ -120,7 +120,8 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
 
 PHYSVALSlimmingHelper.SmartCollections = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
                                            "AntiKt4EMTopoJets","AntiKt4LCTopoJets", "AntiKt4EMPFlowJets",
-                                           "BTagging_AntiKt4EMTopo_201810",
+                                           "BTagging_AntiKt4EMTopo_201810","BTagging_AntiKt4EMPFlow_201810","BTagging_AntiKt4EMPFlow_201903",
+                                           "AntiKt4EMTopoJets_BTagging201810","AntiKt4EMPFlowJets_BTagging201810","AntiKt4EMPFlowJets_BTagging201903",
                                            "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
                                            "TauJets",
                                            ]
