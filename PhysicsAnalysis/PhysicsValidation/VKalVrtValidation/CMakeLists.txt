@@ -24,7 +24,7 @@ find_package( HepPDT )
 # Libraries in the package:
 atlas_add_library( VKalVrtValidationLib
    VKalVrtValidation/*.h src/*.cxx
-   PUBLIC_HEADERS VKalVrtValidation
+   NO_PUBLIC_HEADERS 
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
    INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase AthenaBaseComps AthAnalysisBaseCompsLib xAODTracking JpsiUpsilonToolsLib

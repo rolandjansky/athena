@@ -11,7 +11,7 @@ atlas_subdir( Horace_i )
 # Component(s) in the package:
 atlas_add_library( Horace_i
                    src/*.F
-                   PUBLIC_HEADERS Horace_i )
+                   NO_PUBLIC_HEADERS )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
