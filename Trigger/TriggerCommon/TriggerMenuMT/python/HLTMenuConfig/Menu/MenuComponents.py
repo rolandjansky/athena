@@ -270,6 +270,8 @@ def isFilterAlg(alg):
 
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
+    """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
+    
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
         self.sequence     = Node( Alg=Sequence)
@@ -281,6 +283,7 @@ class MenuSequence(object):
         self.ca = CA
 
         if type(Hypo) is list:
+           log.warning("Sequence %s has more than one Hypo; correct your sequence for next develpments")
            self.name=[]
            self.hypoToolConf=[]
            self._hypo=[]

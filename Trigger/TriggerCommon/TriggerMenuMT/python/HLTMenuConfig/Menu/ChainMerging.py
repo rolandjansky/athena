@@ -81,12 +81,13 @@ def makeChainSteps(steps):
     for step in steps:
         if step is None:
             continue
+        log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
+        log.debug("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
+
          # this function only works if the input chains are single-object chains (one menu seuqnce)
         if len(step.sequences) > 1:
             log.error("More than one menu sequence found in combined chain!!")
         seq = step.sequences[0]
-        log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
-        log.debug("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
 
         currentStep = step.name
         stepNameParts = currentStep.split('_')

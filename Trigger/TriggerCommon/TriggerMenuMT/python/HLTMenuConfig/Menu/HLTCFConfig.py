@@ -210,11 +210,16 @@ def matrixDisplayOld( allCFSeq ):
             longestName = max(longestName, len(seq.step.name) )
 
     longestName = longestName + 1
-    def __getHyposOfStep( step ):
-        if len(step.sequences)==1:
-            return step.sequences[0].hypo.tools
-        elif len(step.sequences):          
-            return step.combo.getChains().keys()
+
+    def __getHyposOfStep( s ):
+        if len(s.step.sequences):
+            if len(s.step.sequences)==1:
+                if type(s.step.sequences[0].hypo) is list:
+                    return s.step.sequences[0].hypo[0].tools
+                else:
+                    return s.step.sequences[0].hypo.tools
+            else:
+                return s.step.combo.getChains().keys()
         return []
    
 
@@ -240,41 +245,46 @@ def matrixDisplayOld( allCFSeq ):
     log.debug( "" )
 
 
-
-
-
-
     
 def matrixDisplay( allCFSeq ):
-    from collections import defaultdict
-    mx2 = defaultdict(list)
-    
+ 
     def __getHyposOfStep( step ):
-        if len(step.sequences)==1:
-            return step.sequences[0].hypo.tools
-        elif len(step.sequences):          
-            return step.combo.getChains().keys()
+        if len(step.sequences):
+            if len(step.sequences)==1:
+                if type(step.sequences[0].hypo) is list:
+                    return step.sequences[0].hypo[0].tools
+                else:
+                    return step.sequences[0].hypo.tools
+            else:
+                return step.combo.getChains().keys()
         return []
-
+ 
+   
+    # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
+    from collections import defaultdict
+    mx = defaultdict(list)
 
     for stepNumber,cfseq_list in enumerate(allCFSeq, 1):
         for cfseq in cfseq_list:
             chains = __getHyposOfStep(cfseq.step)
             for seq in cfseq.step.sequences:
-                mx2[seq.sequence.Alg.name(),stepNumber].extend(chains)
-
-                
-    log.debug("" )
-    log.debug( "="*90 )
-    log.debug( "Cumulative Summary of steps ->")
-    log.debug( "(seq, step)  ==>            Chains: ")
-    log.debug( "="*90 )
+                mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
 
 
-    for (seq,step), chains in mx2.items():
-        log.debug( "(%s, %d)  ==>  %s ", seq, step, ", ".join(chains))
+    # sort dictionary by fist key=step
+    from collections import  OrderedDict
+    sorted_mx = OrderedDict(sorted( mx.items(), key= lambda k: k[0]))
 
-    log.debug( "="*90 )
+    log.info( "" )
+    log.info( "="*90 )
+    log.info( "Cumulative Summary of steps")
+    log.info( "="*90 )
+    for (step, seq), chains in sorted_mx.items():
+        log.info( "(step, sequence)  ==> (%d, %s) is in chains: ",  step, seq)
+        for chain in chains:
+            log.info( "              %s",chain)
+
+    log.info( "="*90 )
 
 
 
