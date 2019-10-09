@@ -63,6 +63,7 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
   const std::string viewKey = m_name + "_" + key;
   auto localProxy = m_store->proxy( id, viewKey );
+
   if ( isValid( localProxy ) ) {
     return localProxy;
   }

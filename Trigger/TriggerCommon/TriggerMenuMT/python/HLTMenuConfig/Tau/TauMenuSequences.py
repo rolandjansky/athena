@@ -89,7 +89,7 @@ def tauCoreTrackSequence():
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    TrackRoiUpdater.RoIOutputKey = "RoiForID2"
+    TrackRoiUpdater.RoIOutputKey = recordable("HLT_RoiForID")
 
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
@@ -148,13 +148,13 @@ def tauPrecisionSequence():
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     precisionTRU = TrigTauTrackRoiUpdaterMT("precisionTRU")
     #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    precisionTRU.RoIOutputKey = "RoiForID2"
+    precisionTRU.RoIOutputKey = recordable("HLT_RoiForID1")
     precisionTRU.fastTracksKey = TrackCollection
     #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
-    trigTauMVA.RoIInputKey = "RoiForID2"
+    trigTauMVA.RoIInputKey = precisionTRU.RoIOutputKey
     trigTauMVA.L1RoIKey    = "TAUCaloRoIs"
     trigTauMVA.TrigTauRecOutputKey = recordable("HLT_TrigTauRecMerged_MVA")
     trigTauMVA.TrigTauJet = "HLT_TrigTauRecMerged"
@@ -166,7 +166,7 @@ def tauPrecisionSequence():
 
     precisionViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTau")
     precisionViewsMaker.RoIsLink = "roi" # -||-
-    precisionViewsMaker.InViewRoIs = RoIs # contract with the fastCalo
+    precisionViewsMaker.InViewRoIs = "TPrecViewRoIs" # contract with the fastCalo
     precisionViewsMaker.Views = "TAUID2Views"
     precisionViewsMaker.ViewFallThrough = True
     precisionViewsMaker.RequireParentView = True
@@ -182,7 +182,7 @@ def tauPrecisionSequence():
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
     precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlg")
-    precisionHypo.taujetcontainer = "HLT_TrigTauRecMerged_MVA"
+    precisionHypo.taujetcontainer = trigTauMVA.TrigTauRecOutputKey
 
     from TrigTauHypo.TrigEFTauMVHypoTool import TrigEFTauMVHypoToolFromDict
 
