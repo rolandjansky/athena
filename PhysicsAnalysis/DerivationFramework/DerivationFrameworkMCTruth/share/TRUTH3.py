@@ -56,10 +56,15 @@ TRUTH3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContai
                                            'AntiKt4TruthDressedWZJets':'xAOD::JetContainer','AntiKt4TruthDressedWZJetsAux':'xAOD::JetAuxContainer',
                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                           }
-TRUTH3SlimmingHelper.AllVariables = ["MET_Truth", "MET_TruthRegions", "TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson", "TruthWbosonWithDecayParticles", "TruthWbosonWithDecayVertices"]
-TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor", 
-                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
-                                       "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
+from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+addTruth3ContentToSlimmerTool(TRUTH3SlimmingHelper)
+
 TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)
+
 # Keep the metadata of course!
 TRUTH3Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
+
+# Remove the old-style event info. It just duplicates information, and it's quite large in the case of multiple event weights.
+# Note that in 21.2, this means we can't read the file in athena. A bit too dangerous given truth analyses that might be of interest.
+# In master, this is safe and saves us another 0.75kB/event or so
+#TRUTH3Stream.RemoveItem('EventInfo#*')
