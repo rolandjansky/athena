@@ -10,9 +10,11 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addBSMAndDownstreamParticles,addHFAndDownstreamParticles
   addStandardTruthContents()
   addMiniTruthCollectionLinks()
+  addBSMAndDownstreamParticles()
+  addHFAndDownstreamParticles()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -271,7 +273,7 @@ SUSY5SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
                                         ]
 
-SUSY5SlimmingHelper.AllVariables = ["TruthVertices", "MET_Truth", "MET_Track"]
+SUSY5SlimmingHelper.AllVariables = ["MET_Truth", "MET_Track"]
 SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.TruthLink",
                                       "Photons.author.Loose.Tight.TruthLink",
@@ -320,9 +322,14 @@ if DerivationFrameworkIsMonteCarlo:
 
   SUSY5SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthHFWithDecayParticles':'xAOD::TruthParticleContainer','TruthHFWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer' ,
+                                            'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthHFWithDecayVertices':'xAOD::TruthVertexContainer','TruthHFWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer' }
 
-  SUSY5SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+  SUSY5SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson", 
+                                       "TruthBSMWithDecayParticles", "TruthHFWithDecayParticles", "TruthBSMWithDecayVertices", "TruthHFWithDecayVertices"]
 
 SUSY5SlimmingHelper.AppendContentToStream(SUSY5Stream)
 
