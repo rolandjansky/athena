@@ -39,6 +39,7 @@ MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
 	m_stripResponseQThreshold(0),
 	m_stripResponseDriftGapWidth(0),
 	m_stripResponseDriftVelocity(0),
+	m_useNeighborLogic(true),
 	m_decoupleShaperFunctionParamaters(false)
 {
 }
@@ -101,7 +102,6 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(co
 }
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip){
-
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
 		//find min and max times for each strip:
@@ -110,26 +110,29 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
 		double maxChargeRightNeighbor = 0;
 
 		// find the maximum charge:
-		if ( ii > 0 ) {
-			shaperInputTime = tStrip.at(ii-1);
-			shaperInputCharge = qStrip.at(ii-1);
-			maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-		}
+		if(m_useNeighborLogic){// only check neighbor strips if VMM neighbor logic is enabled
+			if ( ii > 0 ) {
+				shaperInputTime = tStrip.at(ii-1);
+				shaperInputCharge = qStrip.at(ii-1);
+				maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+			}
 
-		if ( ii+1 < numberofStrip.size() ) {
-			shaperInputTime = tStrip.at(ii+1);
-			shaperInputCharge = qStrip.at(ii+1);
-			maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+			if ( ii+1 < numberofStrip.size() ) {
+				shaperInputTime = tStrip.at(ii+1);
+				shaperInputCharge = qStrip.at(ii+1);
+				maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+			}
 		}
-
 		shaperInputTime = tStrip.at(ii);
 		shaperInputCharge = qStrip.at(ii);
 		maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
 
 
+		//check if neighbor strip was above threshold
+		bool neighborFired = maxChargeLeftNeighbor > m_electronicsThreshold || maxChargeRightNeighbor > m_electronicsThreshold;
 
-		// Look at strip if it or its neighbor was above threshold:
-		if ( maxChargeLeftNeighbor > m_electronicsThreshold || maxChargeRightNeighbor > m_electronicsThreshold || maxChargeThisStrip > m_electronicsThreshold ) {
+		// Look at strip if it or its neighbor was above threshold  and if neighbor logic of the VMM is enabled:
+		if (maxChargeThisStrip > m_electronicsThreshold || (m_useNeighborLogic && neighborFired) ) {
 			shaperInputTime = tStrip.at(ii);
 			shaperInputCharge = qStrip.at(ii);
 			// float localPeak = 0;
