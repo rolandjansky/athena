@@ -13,8 +13,6 @@
 #include <algorithm>
 #include <sstream>
 
-#include <assert.h>
-#include <iostream>
 TrigJetHypoToolHelperMT::TrigJetHypoToolHelperMT(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent) :
@@ -57,8 +55,6 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
   if(collector){
     std::string msg = "No of jets " + std::to_string(jets.size());
     collector->collect(name(), msg);
-    std::cout<<msg<<'\n';
-    assert(false);
   }
 
   JetTrigTimer timer;
