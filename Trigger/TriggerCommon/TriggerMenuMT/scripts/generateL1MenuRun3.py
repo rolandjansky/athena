@@ -61,6 +61,7 @@ def main():
         ("mc"   , "MC_pp_v8"     ),
         ("mcp"  , ["MC_pp_v8_no_prescale", "MC_pp_v8_loose_mc_prescale", "MC_pp_v8_tight_mc_prescale"]),
         ("ls"   , "LS2_v1"       ),
+        ("dev"   , "Dev_pp_run3_v1"       ),
         ("hiphy4","Physics_HI_v4"),
         ("hiphy", "Physics_HI_v4"),
         ("himc4", "MC_HI_v4"     ),

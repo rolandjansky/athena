@@ -21,7 +21,8 @@ if globalflags.InputFormat.is_bytestream():
 # very hacky indeed, the L1 part should be in in the GenerateMenuMT part
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.triggerMenuSetup = "LS2_v1"
+#TriggerFlags.triggerMenuSetup = "LS2_v1"
+TriggerFlags.triggerMenuSetup = "Dev_pp_run3_v1"
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 g = GenerateMenuMT()

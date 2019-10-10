@@ -9,30 +9,31 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
+PhysicsStream="Main"
+SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
+MultiMuonGroup = ['RATE:MultiMuon', 'BW:Muon']
+SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
+MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
+SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
+MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
+SingleMETGroup = ['RATE:MET', 'BW:MET']
+#MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
+SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
+MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
+SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
+#MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
+SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
+#MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
+BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
+MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
+EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
+
 def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1.py' )
 
-    PhysicsStream="Main"
-    SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
-    MultiMuonGroup = ['RATE:MultiMuon', 'BW:Muon']
-    SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
-    MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
-    SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
-    MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
-    SingleMETGroup = ['RATE:MET', 'BW:MET']
-    #MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
-    SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
-    MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
-    SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
-    #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
-    SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
-    #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
-    BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
-    #MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
-    #EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
 
     TriggerFlags.Slices_all_setOff()
 
@@ -194,12 +195,12 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
-        #ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
-        #ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
+        ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
+        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
         #ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
     TriggerFlags.MonitorSlice.signatures   = [
-        #ChainProp(name='HLT_costmonitor_L1TE5',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
+        ChainProp(name='HLT_costmonitor_L1TE5',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
