@@ -71,10 +71,7 @@ if __name__ == '__main__':
     tree = compile(label, setter=setter,  expand=True, do_dump=True)
 
     print ('tvec: %s' % str(setter.treeVec))
-    s = 'shared: '
-    for sl in setter.shared:
-        s += str(sl)
-    print (s)
+    print ('svec: %s' % setter.shared)
     print ('conditionsVec [%d]: %s' % (len(setter.conditionsVec),
                                        str(setter.conditionsVec)))
 

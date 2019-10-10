@@ -15,6 +15,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetConditionConfig_moment,
     TrigJetConditionConfig_smc,
     TrigJetConditionConfig_compound,
+    TrigJetConditionConfig_acceptAll,
     TrigJetHypoToolConfig_flownetwork,
     TrigJetHypoToolHelperMT,
     )
@@ -54,6 +55,7 @@ class ConditionsToolSetterFlowNetwork(object):
             'qjmass': [TrigJetConditionConfig_qjet_mass, 0],
             'momwidth': [TrigJetConditionConfig_moment, 0],
             'smc': [TrigJetConditionConfig_smc, 0],
+            'all': [TrigJetConditionConfig_acceptAll, 0],
             'compound': [TrigJetConditionConfig_compound, 0],
             'flownetwork': [TrigJetHypoToolConfig_flownetwork, 0],
             'helper': [TrigJetHypoToolHelperMT, 0],
@@ -126,7 +128,7 @@ class ConditionsToolSetterFlowNetwork(object):
         klass = self.tool_factories[key][0]
         sn = self.tool_factories[key][1]
         
-        name = '%s_%d' % (key, sn)
+        name = '%s_%d_fn' % (key, sn)
         if extra: name += '_' + extra
         tool = klass(name=name)            
         self.tool_factories[key][1] += 1
@@ -263,7 +265,8 @@ class ConditionsToolSetterFlowNetwork(object):
             cmap[node.node_id] = node.compound_condition_tools[0]
 
         else:
-            cmap[node.node_id] = None
+            # must have a tool for Gaudi to instantiate in
+            cmap[node.node_id] = self._get_tool_instance('all')
         
         for cn in node.children:
             self._fill_conditions_map(cn, cmap)
@@ -333,19 +336,19 @@ class ConditionsToolSetterFlowNetwork(object):
         self._remove_scenario(root, 'and')
 
         root.set_ids(node_id=0, parent_id = 0)
-        
-        if len(slist) < 2:
-            self.shared = slist[:]
-        else:
-            self.shared = []
-            for slist in shared:
-                # would like to pass a list of lists to the C++ tools
-                # but this cannot be done using Gaudi::Properties.
-                # use -1 to separate the list sections all entries of which
-                # are >= 0.
-                self.shared.extend(slist)
-                self.shared.append(-1)
-            self.shared = self.shared[:-1]  # remove trailing -1.
+
+        # would like to pass a list of lists to the C++ tools
+        # but this cannot be done using Gaudi::Properties.
+        # use -1 to separate the list sections all entries of which
+        # are >= 0.
+
+        self.shared = []
+        for ilist in slist:
+            for n in ilist:
+                self.shared.append(n.node_id)
+            self.shared.append(-1)
+
+        self.shared = self.shared[:-1] # remnove trailing -1
             
         tree_map = {}
         self._fill_tree_map(root, tree_map)
@@ -355,3 +358,16 @@ class ConditionsToolSetterFlowNetwork(object):
         self._fill_conditions_map(root, conditionsMap)
         self.conditionsVec = self._map_2_vec(conditionsMap)
                
+                # make a config tool and provide it with condition makers
+        config_tool = self._get_tool_instance('flownetwork')
+        config_tool.conditionMakers = self.conditionsVec
+        config_tool.treeVector = self.treeVec
+        config_tool.sharedVector = self.shared
+
+        nodestr = 'n%dp%d' % (node.node_id, node.parent_id)
+        helper_tool = self._get_tool_instance('helper', extra=nodestr)
+        helper_tool.HypoConfigurer = config_tool
+        helper_tool.node_id = node.node_id
+        helper_tool.parent_id = node.parent_id
+
+        self.tool = helper_tool

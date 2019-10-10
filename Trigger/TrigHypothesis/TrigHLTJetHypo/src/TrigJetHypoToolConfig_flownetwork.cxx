@@ -38,25 +38,19 @@ StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
   // gymanastics as cannot pass vecor<vecotr<int>> as a Gaudi::Property
   if(m_sharedNodesVec.empty()){return StatusCode::FAILURE;}
 
-  if(m_sharedNodesVec.size() == 1){
-    if(m_sharedNodesVec[0] >= 0){
-      m_sharedNodes.push_back(m_sharedNodesVec);
-      return StatusCode::SUCCESS;
-    } else  {
-      return StatusCode::FAILURE;
+  std::vector<int> shared;
+  for(const auto& i : m_sharedNodesVec){
+    if(i  == -1){
+      m_sharedNodes.push_back(shared);
+      shared = std::vector<int>();
+    } else {
+      shared.push_back(i);
     }
   }
-  
-  auto be = m_sharedNodesVec.begin();
-  auto en = m_sharedNodesVec.end();
-  auto it = std::find(be, en, -1);
-  while(true){
-    m_sharedNodes.push_back(std::vector<int>(be, it));
-    if(it >= en - 1){break;}
-    be = it + 1;
-    it = std::find(be, it, -1);
-  };
-    
+  if(!shared.empty()){
+     m_sharedNodes.push_back(shared);
+  }
+
   return StatusCode::SUCCESS;
 }
 

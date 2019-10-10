@@ -31,6 +31,19 @@ test_strings = [
                                  combgen([] 
                                          dijet([(djmass)])
                                          simple([(12et)(13et)])))))""",
+
+    'and([]simple([(30et,500neta)(30et,peta500)])combgen([(10et)]dijet([(34djmass,26djdphi)])simple([(10et)(20et)])))',
+    'qjet([(34qjmass)])',
+    """partgen([]simple([(neta)(peta)])
+                 combgen([]
+                         qjet([(qjmass)])
+                         partgen([]
+                                 combgen([] 
+                                         dijet([(80djmass90)])
+                                         simple([(84et)(84et)]))
+                                 combgen([] 
+                                         dijet([(81djmass91)])
+                                         simple([(84et)(84et)])))))""",
 ]
 
 

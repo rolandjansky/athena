@@ -16,7 +16,6 @@
 #include "./ITrigJetHypoInfoCollector.h"
 #include "./xAODJetCollector.h"
 
-#include <cassert>
 #include <algorithm>
 
 PartitionsGroupsToHelpersMatcherMT::PartitionsGroupsToHelpersMatcherMT(const HelperToolArray& helpers):
@@ -42,7 +41,6 @@ PartitionsGroupsToHelpersMatcherMT::match(const HypoJetGroupCIter& groups_b,
  
   // minimal input correctness checks. More detailed checking
   // responsibility of the caller.
-
   auto iter_diff = groups_e - groups_b;
   if (iter_diff < 0){return std::optional<bool>();}
   auto n_jetvecs = static_cast<std::size_t>(iter_diff);

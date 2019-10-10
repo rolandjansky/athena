@@ -56,7 +56,7 @@ std::ostream& operator<< (std::ostream& out, const Tree& t){
   out << "[";
   auto n = t.size();
   auto i = 0u;
-  for(; i < n; ++i){out << i << " ";}
+  for(; i < n; ++i){out << t.getParent(i) << " ";}
   out << "]";
   return out;
 }

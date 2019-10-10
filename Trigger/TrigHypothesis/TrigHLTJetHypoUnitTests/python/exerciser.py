@@ -145,37 +145,6 @@ class PartitionsTests(CombinationsTests) :
     def logfile_name(self, chain_name):
         return  chain_name + '_b' + str(self.n_bkgd) + '_parts.log'
 
-class FlowNetworkQFBCompTests(CombinationsTests) :
-
-    def __init__(self,
-                 n_sgnl=4,
-                 n_bkgd=4,
-                 bkgd_etmax=50000.,  # MeV
-    ):
-        # useEtaEtNotEtaE = False 
-        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
-        self.chain_name = 'HLT_FNvsPartition'
-
-    def make_helper_tool(self):
-        chain_label = """
-        agree([]
-        simple([(80et)(81et)(82et)(83et)])
-        
-        partgen(
-        []
-        simple([(80et)(81et)])
-        simple([(82et)(83et)]))
-        )"""
-        
-        return trigJetHypoToolHelperFromDict_(chain_label,
-                                              self.chain_name)
-
-
-    def logfile_name(self, chain_name):
-        return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
-            str(self.n_bkgd) + '.log'
-
-    
 
 class SimpleConditionsTests(CombinationsTests) :
 

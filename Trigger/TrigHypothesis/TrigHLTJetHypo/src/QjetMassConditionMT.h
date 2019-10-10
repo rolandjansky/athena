@@ -44,7 +44,7 @@ class QjetMassConditionMT: public IConditionMT{
   double m_min;
   double m_max;
 
-  const static unsigned int s_capacity{2};
+  const static unsigned int s_capacity{4};
 };
 
 #endif

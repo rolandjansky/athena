@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <sstream>
 
+#include <iostream>
+
 FlowNetworkBuilderBase::FlowNetworkBuilderBase(ConditionsMT conditions):
   m_conditions(std::move(conditions)){
 }
@@ -22,6 +24,7 @@ FlowNetworkBuilderBase::create(const HypoJetGroupCIter& groups_b,
 
   auto edges = make_flowEdges(groups_b, groups_e, collector, V, nodeToJet);
   if(!edges.has_value()){return std::optional<std::unique_ptr<FlowNetwork>>();}
+  std::cout<<"FlownetworkBase - received edges\n";
 
   auto G = std::make_unique<FlowNetwork>(V);
 

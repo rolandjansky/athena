@@ -36,8 +36,13 @@ StatusCode TrigJetHypoToolConfig_combgen::initialize() {
 
     if(c->requiresNJets() != mult){
       ATH_MSG_ERROR(name() << " Children require differing number of jets:");
-      ATH_MSG_ERROR(" First child name: " << (*m_children.begin()) -> name());
-      ATH_MSG_ERROR(" Differing mult child name: " <<(c -> name()));
+      ATH_MSG_ERROR(" First child name: "
+		    << (*m_children.begin()) -> name()
+		    << " " << mult);
+      ATH_MSG_ERROR(" Differing mult child name: "
+		    << c -> name()
+		    << c-requiresNJets()
+		    );
 	
       return StatusCode::FAILURE;
     }
@@ -81,6 +86,9 @@ TrigJetHypoToolConfig_combgen::getJetGrouper() const {
 }
 
 StatusCode TrigJetHypoToolConfig_combgen::checkVals() const {
+
+  if(m_children.empty()){return  StatusCode::FAILURE;}
+  
   return StatusCode::SUCCESS;
 }
 
@@ -101,7 +109,8 @@ TrigJetHypoToolConfig_combgen::getMatcher () const {
 
 std::size_t
 TrigJetHypoToolConfig_combgen::requiresNJets() const {
-  std::size_t result{0};
-  for(const auto& c : m_children){result += c->requiresNJets();}
-  return result;
+
+  // at least one child, all children with same multiplicity requirements
+  // checked from initialize
+  return m_children[0]->requiresNJets();
 }

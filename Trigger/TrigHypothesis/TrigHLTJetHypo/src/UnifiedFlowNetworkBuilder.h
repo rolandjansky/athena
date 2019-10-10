@@ -13,6 +13,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
 
 using TreeVec = std::vector<std::size_t>;
+using IDJetGroup = std::map<std::size_t, HypoJetVector>;
 
 class UnifiedFlowNetworkBuilder: 
 virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
@@ -41,6 +42,40 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
   //a vector of shared nodes. All shared nodes are leaf node that
   // see the jet collection.
   std::vector<std::vector<int>> m_sharedNodes;
+
+  std::optional<std::vector<std::shared_ptr<FlowEdge>>>
+    make_flowEdges_(const HypoJetGroupCIter& groups_b,
+		    const HypoJetGroupCIter& groups_e,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
+		    int& V,
+		    std::map<int, pHypoJet>& nodeToJet,
+		    const std::vector<int>& leaves) const;
+  
+  void makeSourceToLeafEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
+			     const std::vector<int>& leaves) const;
+
+  void makeLeafJobGroupEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
+			     const std::vector<int>& leaves,
+			     const HypoJetGroupCIter& groups_b,
+			     const HypoJetGroupCIter& groups_e,
+			     std::map<int, pHypoJet>& nodeToJet,
+			     std::map<std::size_t, HypoJetGroupVector>& satBy,
+			     IDJetGroup& jetgroups,
+ 			     std::set<std::size_t>& toSink, 
+			     std::size_t& cur_jg,
+			     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+
+  
+  void propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
+		      const std::vector<int>& leaves,
+		      std::map<std::size_t, HypoJetGroupVector>& satisfiedBy,
+		      std::size_t& cur_jg,
+		      IDJetGroup& jetgroups,
+		      std::set<std::size_t>& toSink, 
+		      int& V,
+		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+  
+
 };
 
 #endif
