@@ -14,6 +14,8 @@
 #undef NDEBUG
 #include "AthLinks/ElementLink.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <cassert>
@@ -51,6 +53,27 @@ void test1()
   cnv.persToTrans (p1, el2, log);
   assert (el1.index() == el2.index());
   assert (el1.key() == el2.key());
+
+  SG::ThinningDecisionBase dec;
+  dec.resize (50);
+  dec.keepAll();
+  dec.thin (10);
+  dec.buildIndexMap();
+
+  SG::ThinningCache cache;
+  cache.addThinning ("key",
+                     std::vector<SG::sgkey_t> {el1.key()},
+                     &dec);
+  cnv.transToPers (el1, p1, &cache, log);
+  assert (p1.m_elementIndex == 22);
+  assert (p1.m_SGKeyHash == 152280269);
+  assert (p1.m_contName.empty());
+
+  ELI el3 ("key", 5);
+  cnv.transToPers (el3, p1, &cache, log);
+  assert (p1.m_elementIndex == 5);
+  assert (p1.m_SGKeyHash == 152280269);
+  assert (p1.m_contName.empty());
 }
 
 
