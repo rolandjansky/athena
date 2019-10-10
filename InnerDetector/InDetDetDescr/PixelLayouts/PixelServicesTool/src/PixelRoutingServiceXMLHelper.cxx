@@ -186,11 +186,6 @@ std::string PixelRoutingServiceXMLHelper::getServiceSetName(int index) const
   return getString("ServiceSet",index,"name");  
 }
 
-std::string PixelRoutingServiceXMLHelper::getServiceSetNameId(int index) const
-{
-  return getString("ServiceSet",index,"id");  
-}
-
 std::vector<std::string> PixelRoutingServiceXMLHelper::getTypeMaterialNames( int layer, const std::string& pattern) const
 {
   std::vector<std::string> matNameList;
@@ -258,12 +253,12 @@ std::vector<double> PixelRoutingServiceXMLHelper::EOScardLength(int index) const
 
 double PixelRoutingServiceXMLHelper::getZGap(int index) const
 {
-  return getDouble("PixelSvcRoute",index,"zgap", 0, 0.);
+  return getDouble("PixelSvcRoute",index,"zgap", 0);
 }
 
 double PixelRoutingServiceXMLHelper::getRGap(int index) const
 {
-  return getDouble("PixelSvcRoute",index,"rgap", 0, 0.);
+  return getDouble("PixelSvcRoute",index,"rgap", 0);
 }
 
 double PixelRoutingServiceXMLHelper::getMaterialFudgeModuleSvc(int iLayer) const

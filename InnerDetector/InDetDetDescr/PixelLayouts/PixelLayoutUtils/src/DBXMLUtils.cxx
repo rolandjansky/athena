@@ -29,7 +29,7 @@ void DBXMLUtils::readXMLtableFromDB()
     {
       return;
     }
-  
+
 }
 
 
@@ -65,4 +65,33 @@ std::string DBXMLUtils::readXMLFromDB(std::string xmlName) const
   return res;
 }
 
+int DBXMLUtils::getSchemaVersion(std::string xmlName) const
+{
+
+  int res=-1;
+
+  // Remove .xml suffix if it exists
+  std::string prefix=""; 
+  if(xmlName.size()>4)prefix=xmlName.substr(xmlName.size()-4,4);
+ 
+  if(prefix.size()>0) xmlName=xmlName.substr(0,xmlName.size()-4);
+ 
+
+  msg(MSG::VERBOSE)<<"Read XML file Version from DB : "<<xmlName<<endreq;
+  std::string xmlNameGeo = xmlName+"Geo";
+
+  int nbCLOB=0;
+  for(int i=0; i<(int)geoAccessor().getTableSize(pixelXMLTable_ptr);i++)
+    {
+      std::string keyword = geoAccessor().getString(pixelXMLTable_ptr,"KEYWORD",i);
+      if(keyword==xmlName||keyword==xmlNameGeo){
+	msg(MSG::DEBUG)<<"CLOB : "<<i<<" "<<keyword<<" / "<<xmlName<<endreq;
+	res = geoAccessor().getInt(pixelXMLTable_ptr,"VERSION",i);
+	nbCLOB++;
+      }
+    }
+
+  if(res==-1)msg(MSG::ERROR)<<"No XML-VERSION entry found for "<<xmlName<<endreq;
+  return res;
+}
 

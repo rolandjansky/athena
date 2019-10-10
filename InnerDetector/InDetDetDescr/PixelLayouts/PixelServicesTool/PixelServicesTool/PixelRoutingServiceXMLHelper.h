@@ -30,7 +30,6 @@ class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder
   int getServiceSetIndex(const std::string& ctype, int layer, int module=0) const;
   std::vector<std::string> getServiceSetContent(int index) const;
   std::string getServiceSetName(int index) const;
-  std::string getServiceSetNameId(int index) const;
   std::string getRouteType(int index) const;
   std::vector<std::string> getTypeMaterialNames( int layer, const std::string& pattern) const;
 

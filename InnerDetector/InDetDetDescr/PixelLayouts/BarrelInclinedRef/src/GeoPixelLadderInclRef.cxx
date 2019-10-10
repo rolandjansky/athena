@@ -1,3 +1,6 @@
+
+
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -204,9 +207,13 @@ void GeoPixelLadderInclRef::preBuild( ) {
   m_thicknessP =  serviceOffsetX + (0.5*staveSupportThick);
   if (ecRadialPos>0) m_thicknessP += ecRadialPos;
   
-  m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;
+  m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;//why do we need this safety factor added by hand? Can't we just put the correct value????
   m_width  = m_staveDBHelpers[0]->getStaveSupportWidth();
-  if(m_width<0.01) m_width = m_barrelModule->Width()*.7;  // <<------ This needs to be set properly in the xml
+  //catching old layouts before support width was correctly specified
+  if(m_width<0){
+    m_width = m_barrelModule->Width()*.7;
+    msg(MSG::DEBUG)<<"Special Case for old layouts! m_width set to"<<m_width<<" due via m_barrelModule->Width()*.7 - not to be relied on in new developments! Please set your stave support width correctly!"<<endreq;
+  }
 
   if (m_staveDBHelpers[0]->getStaveSupportType() == "Standard" ) {
     m_staveSupport = new GeoPixelStaveSupportInclRef( getBasics(), m_layer, *m_barrelModule, m_barrelModuleTilt, 0., m_gapPlanarStave, ecMinRadialPos, ecMaxRadialPos, zEndOfNBarrelModulePos);
@@ -1199,6 +1206,7 @@ std::vector<double> GeoPixelLadderInclRef:: ConstructAndPlaceModuleService(std::
     
     // Get service volume dimensions
     double svcHalfThick = m_moduleSvcThickness;
+    //Why the magic numbers here?????
     double svcHalfWidth = m_barrelModule->Width()*0.75*.25;
     if (type == "endcap") svcHalfThick *= 2.0; // = Barrel + Endcap service thickness
 

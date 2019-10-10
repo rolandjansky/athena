@@ -139,7 +139,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   int lengthChip = getInt("Module", moduleIndex, "lengthInChips");
   int circuitsEta = lengthChip;
 
-  int widthChipMax = getInt("Module", moduleIndex, "widthMaxInChips", 0, -1);
+  int widthChipMax = getInt("Module", moduleIndex, "widthMaxInChips", 0);
  
   int widthChip=widthChipMax;
   int circuitsPhi = widthChip;
