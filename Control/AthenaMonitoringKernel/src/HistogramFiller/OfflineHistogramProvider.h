@@ -11,6 +11,8 @@
 #include "AthenaMonitoringKernel/HistogramDef.h"
 #include "AthenaMonitoringKernel/IHistogramProvider.h"
 
+#include "GaudiKernel/ContextSpecificPtr.h"
+
 #include "HistogramFactory.h"
 
 namespace Monitored {
@@ -33,6 +35,7 @@ namespace Monitored {
     , m_gmTool(gmTool)
     , m_factory(factory)
     , m_histDef(new HistogramDef(histDef))
+    , m_objcache({0, 0, nullptr})
     {}
 
     /**
@@ -48,6 +51,15 @@ namespace Monitored {
       const unsigned runNumber = m_gmTool->runNumber();
       const unsigned lumiBlock = m_gmTool->lumiBlock();
 
+      // do we have the object already?
+      std::scoped_lock lock(m_cacheMutex);
+      objcache& objcacheref = m_objcache;
+      if (objcacheref.lumiBlock == lumiBlock
+	  && objcacheref.runNumber == runNumber
+	  && objcacheref.object) {
+	return objcacheref.object;
+      }
+
       std::string conv = m_histDef->convention;
       std::string lbString;
       if ( conv.find("run")!=std::string::npos ) {
@@ -60,12 +72,24 @@ namespace Monitored {
       }
       m_histDef->tld = "/run_"+std::to_string(runNumber)+lbString+"/";
 
-      return m_factory->create(*m_histDef);
+      objcacheref.lumiBlock = lumiBlock;
+      objcacheref.runNumber = runNumber;
+      objcacheref.object = m_factory->create(*m_histDef);
+      return objcacheref.object;
     }
 
+  private:
     GenericMonitoringTool* const m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
     std::shared_ptr<HistogramDef> m_histDef;
+
+    struct objcache {
+      unsigned int runNumber;
+      unsigned int lumiBlock;
+      TNamed* object;
+    };
+    mutable Gaudi::Hive::ContextSpecificData<objcache> m_objcache ATLAS_THREAD_SAFE;
+    std::mutex m_cacheMutex;
   };
 }
 

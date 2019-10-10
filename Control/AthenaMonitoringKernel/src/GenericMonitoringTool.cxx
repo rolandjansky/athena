@@ -104,14 +104,14 @@ namespace Monitored {
 std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredVariables) const {
   std::vector<std::shared_ptr<HistogramFiller>> result;
 
-  for (auto filler : m_fillers) {
+  for (const auto& filler : m_fillers) {
     // Find the associated monitored variable for each histogram's variable(s)
-    auto fillerVariables = filler->histogramVariablesNames();
+    const auto& fillerVariables = filler->histogramVariablesNames();
 
     std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
 
-    for (auto fillerVariable : fillerVariables) {
-      for (auto monValue : monitoredVariables) {
+    for (const auto& fillerVariable : fillerVariables) {
+      for (const auto& monValue : monitoredVariables) {
         if (fillerVariable.compare(monValue.get().name()) == 0) {
           variables.push_back(monValue);
           break;
@@ -120,10 +120,10 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
     }
 
     // Find the weight variable in the list of monitored variables
-    auto fillerWeight = filler->histogramWeightName();
+    const auto& fillerWeight = filler->histogramWeightName();
     Monitored::IMonitoredVariable* weight = nullptr;
     if ( fillerWeight != "" ) {
-      for (auto monValue : monitoredVariables) {
+      for (const auto& monValue : monitoredVariables) {
         if (fillerWeight.compare(monValue.get().name()) == 0) {
           weight = &monValue.get();
           break;
