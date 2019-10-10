@@ -27,8 +27,7 @@ atlas_add_library(
   TrigByteStreamCnvSvcLib
     TrigByteStreamCnvSvc/*.h
     src/*.cxx
-  PUBLIC_HEADERS
-    TrigByteStreamCnvSvc
+  NO_PUBLIC_HEADERS
   LINK_LIBRARIES
     AthenaBaseComps
     ByteStreamData

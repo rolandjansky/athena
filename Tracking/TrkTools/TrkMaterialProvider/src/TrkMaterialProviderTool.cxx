@@ -152,7 +152,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
   // back extrapolate to perigee, get pAtCaloEntry from list of TSOSs 
   // and update/add calo+ID material to mstrack to be refitted.
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(track.trackStateOnSurfaces());
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS = track.trackStateOnSurfaces();
 
   // Iterators
   DataVector<const Trk::TrackStateOnSurface>::iterator lastIDwP  = inputTSOS->end();
@@ -275,8 +275,8 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
 {
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack)");    
   
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(idTrack.trackStateOnSurfaces());
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(extrapolatedTrack.trackStateOnSurfaces());
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = idTrack.trackStateOnSurfaces();
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = extrapolatedTrack.trackStateOnSurfaces();
   
 
   // find last ID TSOS

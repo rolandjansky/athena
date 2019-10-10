@@ -11,7 +11,11 @@ class LArDQGlobals(object):
                    'N_FEB_Parttions_Max','N_FEB', 'N_Partitions','Partitions','N_Gains','Gains',
                    'N_DigitsSummary','DigitsSummary',
                    'N_SubDet','SubDet','Samples_Bins','Samples_Min','Samples_Max',
-                   'Energy_Bins','Energy_Min','Energy_Max','L1Trig_Bins','L1Trig_Min','L1Trig_Max')
+                   'Energy_Bins','Energy_Min','Energy_Max', 'DSPEnergy_Bins', 'DSPEnergy_Min', 'DSPEnergy_Max',
+                   'DSPTime_Bins', 'DSPTime_Min', 'DSPTime_Max', 'DSPQuality_Bins', 'DSPQuality_Min', 'DSPQuality_Max',
+                   'DSP1Energy_Bins', 'DSP1Energy_Min', 'DSP1Energy_Max','DSPRanges_Bins', 'DSPRanges_Min', 'DSPRanges_Max', 'DSPRanges',
+                   'DSPEonEoff_Bins','DSPEonEoff_Max', 'DSPTonToff_Bins','DSPTonToff_Max', 'DSPQonQoff_Bins','DSPQonQoff_Max',
+                   'L1Trig_Bins','L1Trig_Min','L1Trig_Max')
 
 lArDQGlobals = LArDQGlobals()
 
@@ -90,6 +94,30 @@ lArDQGlobals.Samples_Max=lArDQGlobals.Samples_Bins-0.5
 lArDQGlobals.Energy_Bins=300
 lArDQGlobals.Energy_Min=0.
 lArDQGlobals.Energy_Max=3000.
+
+#DSP  diff
+lArDQGlobals.DSPEnergy_Bins=400
+lArDQGlobals.DSPEnergy_Min=-40.
+lArDQGlobals.DSPEnergy_Max=40.
+lArDQGlobals.DSPTime_Bins=400
+lArDQGlobals.DSPTime_Min=-800.
+lArDQGlobals.DSPTime_Max=800.
+lArDQGlobals.DSPQuality_Bins=400
+lArDQGlobals.DSPQuality_Min=-3000.
+lArDQGlobals.DSPQuality_Max=3000.
+lArDQGlobals.DSP1Energy_Bins=5000
+lArDQGlobals.DSP1Energy_Min=-515.
+lArDQGlobals.DSP1Energy_Max=515.
+lArDQGlobals.DSPRanges_Bins=4
+lArDQGlobals.DSPRanges_Min=0
+lArDQGlobals.DSPRanges_Max=4
+lArDQGlobals.DSPRanges=["E < 2^{13} MeV","E < 2^{16} MeV","E < 2^{19} MeV","E < 2^{22} MeV"]
+lArDQGlobals.DSPEonEoff_Bins=300
+lArDQGlobals.DSPEonEoff_Max=20000.
+lArDQGlobals.DSPTonToff_Bins=300
+lArDQGlobals.DSPTonToff_Max=80000.
+lArDQGlobals.DSPQonQoff_Bins=300
+lArDQGlobals.DSPQonQoff_Max=66000.
 
 #trigger word range
 lArDQGlobals.L1Trig_Bins=256

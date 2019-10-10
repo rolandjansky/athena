@@ -675,17 +675,18 @@ namespace Muon {
   int MuonIdHelperSvc::sector( const Identifier& id ) const {
     // TGC has different segmentation, return 0 for the moment
     if( isTgc(id) ) {
-      static std::vector<int> tgcSectorMapping;
-      if( tgcSectorMapping.empty() ){
-        std::vector<int>* mapping = 0;
+      auto initTgcSectorMapping = [&]() -> std::vector<int>* {
+        std::vector<int>* mapping = nullptr;
         StatusCode sc = m_detStore->retrieve(mapping,"TGC_SectorMapping");
         if( sc.isFailure() || !mapping ){
           ATH_MSG_WARNING("sector: failed to retrieve TGC sector mapping");
-          return 0;
+          return nullptr;
         }
         ATH_MSG_DEBUG("sector: retrieve TGC sector mapping " << mapping->size() );
-        tgcSectorMapping = *mapping;
-      }
+        return mapping;
+      };
+      static const std::vector<int> tgcSectorMapping = *initTgcSectorMapping();
+      
       IdentifierHash hash;
       m_tgcIdHelper->get_module_hash(id,hash);
       if( hash >= tgcSectorMapping.size() ){

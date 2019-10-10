@@ -16,21 +16,28 @@ EMECCell::~EMECCell()
 }
 
 unsigned int EMECCell::getNumElectrodes() const {
-  if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  if(!m_initHVdone) initHV();
   return m_electrode.size();
 }
 
 const EMECHVElectrode& EMECCell::getElectrode (unsigned int i) const {
-  if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  //if ((m_electrode.size()==0 || m_electrode[i] == nullptr) && !m_presamplerModule) initHV();
+  if(!m_initHVdone) initHV();
   return *(m_electrode[i]);
 }
 
 const EMECPresamplerHVModule& EMECCell::getPresamplerHVModule () const {
-  if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
+  if(!m_initHVdone) initHV();
   return *m_presamplerModule;
 }
 
 void EMECCell::initHV() const {
+
+  if(m_initHVdone) return; // should be done only once
+
+  std::lock_guard<std::mutex> lock(m_mut);
 
   if (getSamplingIndex()==0) {
     const EMECPresamplerHVManager& presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
@@ -94,6 +101,7 @@ void EMECCell::initHV() const {
     }
     
   } 
+  m_initHVdone = true;
 }
 
 

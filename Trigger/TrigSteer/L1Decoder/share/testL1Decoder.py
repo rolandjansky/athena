@@ -23,10 +23,6 @@ for unpack in topSequence.L1Decoder.roiUnpackers:
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-
-#testChains =[x for x, y in CTPToChainMapping.items()]
-#topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
-#print testChains
 print topSequence.L1Decoder
 
 #from TrigUpgradeTest.jetDefs import jetRecoSequence

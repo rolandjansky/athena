@@ -208,6 +208,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
         kwargs.setdefault("CscRotCreator", csc_cluster_creator)
     else:
         kwargs["CscRotCreator"] = None
+        kwargs.setdefault("CscPrepDataContainer","")
     
     if not flags.Detector.GeometrysTGC:
         kwargs.setdefault("sTgcPrepDataContainer","")

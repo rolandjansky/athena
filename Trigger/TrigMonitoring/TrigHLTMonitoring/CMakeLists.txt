@@ -34,7 +34,7 @@ atlas_add_library( TrigHLTMonitoringLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel EventInfo xAODTrigger )
 
 atlas_add_component( TrigHLTMonitoring
-                     src/components/*.cxx
+                     src/components/*.cxx 
                      LINK_LIBRARIES TrigHLTMonitoringLib )
 
 # Install files from the package:

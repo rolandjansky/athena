@@ -8,7 +8,6 @@
 #include "RpcSectorLogicContainerCnv_p1.h"
 
 
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // Gaudi
@@ -23,9 +22,6 @@
 
 #include "AthAllocators/DataPool.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "boost/range/iterator_range.hpp"
 #include <assert.h>
 
