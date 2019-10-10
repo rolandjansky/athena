@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
+from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
@@ -108,8 +108,7 @@ def MuonGeoModelCfg(flags):
 
     gms.DetectorTools += [ detTool ]
 
-    # Temporary, until we move to services/private tools
-    acc.addPublicTool( Muon__MuonIdHelperTool("MuonIdHelperTool",
+    acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
         HasCSC=MuonGeometryFlags.hasCSC(),
         HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
         HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
