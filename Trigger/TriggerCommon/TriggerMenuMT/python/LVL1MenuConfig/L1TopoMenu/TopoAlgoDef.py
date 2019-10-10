@@ -26,7 +26,7 @@ class TopoAlgoDef(object):
 
         if '_v7' in TriggerFlags.triggerMenuSetup():
             usev7 = True
-        if 'LS2_v' in TriggerFlags.triggerMenuSetup():
+        if 'LS2_v' in TriggerFlags.triggerMenuSetup() or 'run3' in TriggerFlags.triggerMenuSetup():
             usev7 = True
         
         _emscale_for_decision = 2 # global scale for EM, TAU        

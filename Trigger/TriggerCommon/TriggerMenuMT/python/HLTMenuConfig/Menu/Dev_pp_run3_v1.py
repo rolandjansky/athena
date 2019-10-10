@@ -11,6 +11,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
+import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
 from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,SinglePhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup
 
@@ -18,15 +19,16 @@ from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import PhysicsStream,SingleMuonGrou
 def setupMenu():
 
     mc_menu.setupMenu()
+    p1_menu.addP1Signatures()
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_pp_v1.py' )
+    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.Dev_pp_run3_v1.py' )
 
 
-    TriggerFlags.TestSlice.signatures = []
+    TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
-    TriggerFlags.MuonSlice.signatures = [
+    TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         #ART-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
@@ -49,7 +51,7 @@ def setupMenu():
 
      ]
 
-    TriggerFlags.EgammaSlice.signatures = [
+    TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
         # ElectronChains----------
         #ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
@@ -65,7 +67,7 @@ def setupMenu():
         ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
     ]
 
-    TriggerFlags.METSlice.signatures = [
+    TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
         ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
@@ -74,7 +76,7 @@ def setupMenu():
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
 
-    TriggerFlags.JetSlice.signatures = [
+    TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
@@ -89,13 +91,13 @@ def setupMenu():
 
     ]
 
-    TriggerFlags.BjetSlice.signatures = [
+    TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
         #ATR-20049
         ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
         #ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
     ] 
 
-    TriggerFlags.TauSlice.signatures = [
+    TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
         # ATR-19985
         #ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         #ChainProp(name="HLT_tau25_idperf_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
@@ -105,16 +107,16 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
 
     ]
-    TriggerFlags.BphysicsSlice.signatures = [
+    TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
     ]
-    TriggerFlags.CombinedSlice.signatures = [ 
+    TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [ 
    ]
-    TriggerFlags.HeavyIonSlice.signatures  = []
-    TriggerFlags.BeamspotSlice.signatures  = []   
-    TriggerFlags.MinBiasSlice.signatures   = []    
-    TriggerFlags.CalibSlice.signatures     = []
-    TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = [
+    TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
+    TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + []   
+    TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [] 
+    TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
+    TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + []
+    TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
         #ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
         #ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
@@ -124,7 +126,7 @@ def setupMenu():
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
-    TriggerFlags.EnhancedBiasSlice.signatures = [ ]
+    TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
     signatureList=[]
     for prop in dir(TriggerFlags):
