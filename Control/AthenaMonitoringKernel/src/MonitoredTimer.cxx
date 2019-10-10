@@ -10,10 +10,10 @@ namespace Monitored {
 
   constexpr const char* Timer::TIMER_PREFIX;
 
-  Timer::Timer(std::string name) : IMonitoredVariable(std::move(name)) {
+  Timer::Timer(std::string tname) : IMonitoredVariable(std::move(tname)) {
     // Enforce some naming convention for timers
-    if (!boost::algorithm::starts_with(m_name, TIMER_PREFIX)) {
-      throw std::runtime_error("Name of Timer \"" + m_name + "\" needs to start with \"" +
+    if (!boost::algorithm::starts_with(name(), TIMER_PREFIX)) {
+      throw std::runtime_error("Name of Timer \"" + name() + "\" needs to start with \"" +
                                TIMER_PREFIX + "\"");
     }
     start();

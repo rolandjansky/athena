@@ -74,8 +74,8 @@ namespace Monitored {
     /// Type of the collection elements
     using value_type = typename detail::get_value_type<T>::value_type;
 
-    static_assert(std::is_convertible<value_type, double>::value,
-                  "Collection values must be convertable to double");
+    static_assert(std::is_convertible<value_type, double>::value or std::is_constructible<std::string, value_type>::value, "Conversion of collection values to double or string is impossible");
+
 
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     friend ValuesCollection<T> Collection<T>(std::string name, const T& collection);
@@ -83,16 +83,44 @@ namespace Monitored {
     ValuesCollection(ValuesCollection&&) = default;
 
     const std::vector<double> getVectorRepresentation() const override {
-      return std::vector<double>(std::begin(m_collection), std::end(m_collection));
+      return convertToDouble( m_collection );
+    }
+
+    virtual std::vector<std::string> getStringVectorRepresentation() const override {
+      return convertToString( m_collection );
+    }
+    virtual bool hasStringRepresentation() const override {
+      return std::is_constructible<std::string, value_type>::value;
     }
 
   private:
     const T& m_collection;
 
-    ValuesCollection(std::string name, const T& collection)
-        : IMonitoredVariable(std::move(name)), m_collection(collection) {}
+    ValuesCollection(std::string vname, const T& collection)
+        : IMonitoredVariable(std::move(vname)), m_collection(collection) {
+    }
     ValuesCollection(ValuesCollection const&) = delete;
     ValuesCollection& operator=(ValuesCollection const&) = delete;
+
+    template< typename U, typename = typename std::enable_if< std::is_constructible<std::string, typename detail::get_value_type<U>::value_type>::value >::type >
+    std::vector<std::string> convertToString( const U& collection ) const {
+      return std::vector<std::string>(std::begin(collection), std::end(collection));
+    }
+
+    template< typename U, typename = typename std::enable_if< ! std::is_constructible<std::string, typename detail::get_value_type<U>::value_type>::value >::type, typename = void >
+    std::vector<std::string> convertToString( const U& ) const {
+      return {};
+    }
+
+    template< typename U, typename = typename std::enable_if< !std::is_convertible<double, U>::value >::type >
+    std::vector<double> convertToDouble( const U&  ) const {
+      return {};
+    }
+
+    template< typename U, typename = typename std::enable_if< std::is_convertible<double, U>::value >::type, typename = void >
+    std::vector<double> convertToDouble(const U& collection ) const {
+      return std::vector<double>(std::begin(collection), std::end(collection));
+    }
   };
 
   /**
@@ -105,6 +133,7 @@ namespace Monitored {
     /// Type of the collection elements
     using value_type = typename detail::get_value_type<T>::value_type;
     using const_value_type = typename detail::make_pointer_const<value_type>::type;
+
 
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     // With a non-template friend declaration, clang 4.0.1
@@ -123,6 +152,13 @@ namespace Monitored {
 
       return result;
     }
+    
+    virtual std::vector<std::string> getStringVectorRepresentation() const override {
+      return std::vector<std::string>();
+    };
+    virtual bool hasStringRepresentation() const override {
+      return false;
+    };
 
   private:
     const T& m_collection;
@@ -135,7 +171,9 @@ namespace Monitored {
           m_converterToDouble(std::move(converterToDouble)) {}
     ObjectsCollection(ObjectsCollection const&) = delete;
     ObjectsCollection& operator=(ObjectsCollection const&) = delete;
+
   };
+
 
 } // namespace Monitored
 
