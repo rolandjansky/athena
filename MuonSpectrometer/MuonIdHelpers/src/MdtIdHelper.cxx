@@ -24,7 +24,7 @@
 
 /// Constructor
 
-MdtIdHelper::MdtIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "MdtIdHelper")), m_TUBELAYER_INDEX(0) {}
+MdtIdHelper::MdtIdHelper() : MuonIdHelper("MdtIdHelper"), m_TUBELAYER_INDEX(0) {}
 
 /// Destructor
 

@@ -24,7 +24,7 @@ const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
 
 // Constructor
 
-MuonIdHelper::MuonIdHelper(std::unique_ptr<MsgStream> log): m_station_region_index(0), m_module_hash_max(0),
+MuonIdHelper::MuonIdHelper(std::string logName): m_station_region_index(0), m_module_hash_max(0),
   m_channel_hash_max(0), m_detectorElement_hash_max(0), m_init(false) {
 
   m_MUON_INDEX           =  0;
@@ -41,7 +41,7 @@ MuonIdHelper::MuonIdHelper(std::unique_ptr<MsgStream> log): m_station_region_ind
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
   if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
-  m_Log = log ? std::move(log) : std::make_unique<MsgStream>(m_msgSvc, "MuonIdHelper");
+  m_Log = std::make_unique<MsgStream>(m_msgSvc, logName.empty() ? "MuonIdHelper" : logName);
 }
 
 // Destructor

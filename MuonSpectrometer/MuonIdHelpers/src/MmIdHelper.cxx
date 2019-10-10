@@ -18,7 +18,7 @@
 
 /*******************************************************************************/ 
 // Constructor/Destructor
-MmIdHelper::MmIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "MmIdHelper")) {
+MmIdHelper::MmIdHelper() : MuonIdHelper("MmIdHelper") {
     m_GASGAP_INDEX = 6;
 }
 /*******************************************************************************/ 

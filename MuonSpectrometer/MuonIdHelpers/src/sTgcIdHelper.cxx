@@ -19,7 +19,7 @@
 
 /*******************************************************************************/
 // Constructor/Destructor
-sTgcIdHelper::sTgcIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "sTgcIdHelper")) {
+sTgcIdHelper::sTgcIdHelper() : MuonIdHelper("sTgcIdHelper") {
     m_GASGAP_INDEX = 6;
     m_CHANNELTYPE_INDEX = 7;
 }

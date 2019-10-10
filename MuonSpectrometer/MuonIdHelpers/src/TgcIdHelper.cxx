@@ -24,7 +24,7 @@
 
 // Constructor/Destructor
 
-TgcIdHelper::TgcIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "TgcIdHelper")), m_GASGAP_INDEX(0),
+TgcIdHelper::TgcIdHelper() : MuonIdHelper("TgcIdHelper"), m_GASGAP_INDEX(0),
   m_ISSTRIP_INDEX(0) {}
 
 // Destructor

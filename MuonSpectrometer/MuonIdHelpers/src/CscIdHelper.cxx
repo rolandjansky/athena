@@ -25,7 +25,7 @@
 
 /// Constructor/Destructor
 
-CscIdHelper::CscIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "CscIdHelper")), m_CHAMBERLAYER_INDEX(0),
+CscIdHelper::CscIdHelper() : MuonIdHelper("CscIdHelper"), m_CHAMBERLAYER_INDEX(0),
   m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0), m_hasChamLay1(false) {}
 
 /// Destructor

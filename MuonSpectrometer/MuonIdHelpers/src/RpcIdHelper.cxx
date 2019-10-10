@@ -24,7 +24,7 @@
 
 // Constructor
 
-RpcIdHelper::RpcIdHelper() : MuonIdHelper(std::make_unique<MsgStream>(m_msgSvc, "RpcIdHelper")), m_DOUBLETR_INDEX(0), 
+RpcIdHelper::RpcIdHelper() : MuonIdHelper("RpcIdHelper"), m_DOUBLETR_INDEX(0), 
   m_DOUBLETZ_INDEX(0), m_DOUBLETPHI_INDEX(0), m_GASGAP_INDEX(0),
   m_MEASURESPHI_INDEX(0) {}
 
