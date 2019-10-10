@@ -18,7 +18,7 @@ class ThresholdDefLegacy:
     def registerThresholds(tc):
 
         isV6 = '_v6' in TriggerFlags.triggerMenuSetup()
-        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup() or 'Dev_pp_run3_v1' in TriggerFlags.triggerMenuSetup()
+        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup()
         isHI = '_HI' in TriggerFlags.triggerMenuSetup()
 
 

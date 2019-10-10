@@ -229,7 +229,7 @@ class L1MenuConfig(object):
 
         # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
         menuToLoad = self.menuName
-        if menuToLoad == "LS2_v1" or menuToLoad == "Dev_pp_run3_v1":
+        if menuToLoad == "LS2_v1":
             menuToLoad = "MC_pp_v8"
             log.info("Menu LS2_v1 was requested but is not available yet. Will load MC_pp_v8 instead. This is a TEMPORARY meassure")
 

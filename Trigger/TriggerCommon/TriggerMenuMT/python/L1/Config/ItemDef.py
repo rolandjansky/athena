@@ -38,7 +38,7 @@ class ItemDef:
         # define local flag for menu version
         isV6 = '_v6' in TriggerFlags.triggerMenuSetup()
         isV7 = '_v7' in TriggerFlags.triggerMenuSetup()
-        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup() or 'Dev_pp_run3_v1' in TriggerFlags.triggerMenuSetup()
+        isV8 = '_v8' in TriggerFlags.triggerMenuSetup() or 'LS2_v1'==TriggerFlags.triggerMenuSetup()
         isHI = '_HI' in TriggerFlags.triggerMenuSetup()
         isHIV5 = 'HI_v5' in TriggerFlags.triggerMenuSetup()
         isPhaseII = '_PhaseII' in TriggerFlags.triggerMenuSetup()

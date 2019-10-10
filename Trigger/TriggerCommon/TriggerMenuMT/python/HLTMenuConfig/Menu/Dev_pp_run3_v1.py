@@ -53,12 +53,9 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
         # ElectronChains----------
-        #ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM3', stream=[PhysicsStream, 'express'], groups=SingleElectronGroup),
-        # enabling only one step
-        #ChainProp(name='HLT_2e3_etcut1step_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # PhotonChains------------
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
@@ -94,15 +91,10 @@ def setupMenu():
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
         #ATR-20049
         ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
-        #ChainProp(name="HLT_j35_gsc45_bmv2c1070_L1J20", groups=SingleBjetGroup),
     ] 
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
-        # ATR-19985
-        #ChainProp(name="HLT_tau25_idperf_tracktwo_L1TAU12IM", groups=SingleTauGroup),
-        #ChainProp(name="HLT_tau25_idperf_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         #ATR-20049
-        #ChainProp(name="HLT_tau0_perf_ptonly_L1TAU12", groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwo_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
 
@@ -117,12 +109,9 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + []
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
-        #ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
-        #ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
     TriggerFlags.MonitorSlice.signatures   = [
-        #ChainProp(name='HLT_costmonitor_L1TE5',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
