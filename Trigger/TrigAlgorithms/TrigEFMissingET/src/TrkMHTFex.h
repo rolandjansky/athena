@@ -64,6 +64,8 @@ namespace HLT { namespace MET {
       std::string m_jvtHistoName;
       /// The maximum pT for tracks in the TST
       float m_tstPtCeil;
+      /// Whether or not to use the muon OR
+      bool m_doMuonOR;
 
       /************************************************************************
        * Internals

@@ -196,6 +196,9 @@ class TrkMHTFex(HLT__MET__TrkMHTFex):
         if tst_ceiling:
             self.TrackSoftTermPtCeiling = 20 * GeV
             key_suffix += "_tstceil"
+            self.DoMuonOR = False
+        else:
+            self.DoMuonOR = True
         self.MissingETOutputKey = "TrigEFMissingET_trkmht{0}".format(key_suffix)
 
 
@@ -216,7 +219,10 @@ class TrkMHTFex(HLT__MET__TrkMHTFex):
             add_monitor(self, target, ["standard"])
 
     def request_inputs(self):
-        return ["jets", "fs_tracks", "muons"]
+        inputs = ["jets", "fs_tracks"]
+        if self.DoMuonOR:
+            inputs.append("muons")
+        return inputs
 
 class TrkTCFex(HLT__MET__TrkTCFex):
     __slots__ = []
@@ -233,6 +239,9 @@ class TrkTCFex(HLT__MET__TrkTCFex):
         if tst_ceiling:
             key_suffix += "_tstceil"
             self.TrackSoftTermPtCeiling = 20 * GeV
+            self.DoMuonOR = False
+        else:
+            self.DoMuonOR = True
 
         self.MissingETOutputKey = "TrigEFMissingET_trktc{0}".format(key_suffix)
 
@@ -247,7 +256,10 @@ class TrkTCFex(HLT__MET__TrkTCFex):
             add_monitor(self, target, ["standard"])
 
     def request_inputs(self):
-        return ["clusters", "fs_tracks", "muons"]
+        inputs = ["clusters", "fs_tracks"]
+        if self.DoMuonOR:
+            inputs.append("muons")
+        return inputs
 
 class MuonFex(HLT__MET__MuonFex):
     __slots__ = []

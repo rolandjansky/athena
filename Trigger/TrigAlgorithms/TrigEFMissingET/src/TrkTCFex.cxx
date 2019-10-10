@@ -32,6 +32,9 @@ namespace HLT { namespace MET {
         "The CVF threshold to use to determine HS vs PU");
     declareProperty("TrackSoftTermPtCeiling", m_tstPtCeil = 0,
         "The maximum pt for tracks going into the track soft term");
+    declareProperty("DoMuonOR", m_doMuonOR=true,
+        "Whether or not to do overlap removal between muons and tracks. "
+        "Tracks should be provided if and only if this is true.");
   }
 
   TrkTCFex::~TrkTCFex() {}
@@ -69,7 +72,8 @@ namespace HLT { namespace MET {
     const xAOD::TrackParticleContainer* tracks = nullptr;
     const xAOD::VertexContainer* vertices = nullptr;
     const xAOD::MuonContainer* muons = nullptr;
-    if (tes_in.size() != 3 || tes_in.at(0).size() != 1 || tes_in.at(1).size() != 1) {
+    std::size_t nExpected = m_doMuonOR ? 3 : 2;
+    if (tes_in.size() != nExpected || tes_in.at(0).size() != 1 || tes_in.at(1).size() != 1) {
       ATH_MSG_ERROR("Unexpected number of input trigger elements");
       return HLT::NAV_ERROR;
     }
@@ -78,7 +82,7 @@ namespace HLT { namespace MET {
     HLT_CHECK( getFeature(tes_in.at(1).at(0), vertices) );
     // TODO. This is the way it works *now*, but it's probably actually wrong...
     // We need every muon, not just the last one
-    if (tes_in.at(2).size() != 0) {
+    if (m_doMuonOR && tes_in.at(2).size() != 0) {
       HLT_CHECK( getFeature(tes_in.at(2).back(), muons) );
     }
     if (msgLvl(MSG::DEBUG) ) {
@@ -94,6 +98,7 @@ namespace HLT { namespace MET {
 
     // TODO - both trkmht and this algorithm do this - combine them?
     // Get the tracks from our muons
+    // If the muon OR is turned off then this is never filled
     std::vector<const xAOD::TrackParticle*> muonTracks;
     if (muons) {
       for (const xAOD::Muon* imu : *muons) {
