@@ -4,13 +4,9 @@
 
 def TauMonitoringConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from .DQTDataFlowMonAlg import DQTDataFlowMonAlgConfig
-    from .DQTDetSynchMonAlg import DQTDetSynchMonAlgConfig
-    
     result = ComponentAccumulator()
-    result.merge(DQTDataFlowMonAlgConfig(flags))
 
-    # really should only configure when input is RAW
-    result.merge(DQTDetSynchMonAlgConfig(flags))
+    from .tauMonitorAlgorithm import tauMonitoringConfig
+    result.merge(tauMonitoringConfig(flags))
 
     return result
