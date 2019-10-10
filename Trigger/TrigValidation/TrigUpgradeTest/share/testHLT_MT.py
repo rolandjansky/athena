@@ -465,3 +465,8 @@ if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
     #
     ServiceMgr.AuditorSvc += TrigCostMTAuditor()
     theApp.AuditAlgorithms=True
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

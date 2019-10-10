@@ -31,6 +31,7 @@ Reco_tf.py \
 --numberOfLowPtMinBias="59.3447981771" \
 --pileupFinalBunch="6" \
 --jobNumber="1" \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 
@@ -73,6 +74,7 @@ Reco_tf.py \
 --outputAODFile=AOD.pool.root \
 --outputESDFile=ESD.pool.root \
 --steering="doRDO_TRIG" \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

@@ -33,6 +33,7 @@ Reco_tf.py \
 --numberOfLowPtMinBias="59.3447981771" \
 --pileupFinalBunch="6" \
 --jobNumber="1" \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 
@@ -54,6 +55,7 @@ Reco_tf.py \
 --maxEvents=${EVENTS} \
 --inputRDOFile=RDO.pool.root \
 --outputRDO_TRIGFile=RDO_TRIG.pool.root \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

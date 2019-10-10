@@ -13,12 +13,14 @@ rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
 rdo2aod.threads = 1
 rdo2aod.args = '--AMI=q221 --outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
+rdo2aod.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 physval = ExecStep.ExecStep('PhysVal')
 physval.type = 'Reco_tf'
 physval.input = ''
 physval.explicit_input = True
 physval.args = '--AMI=q221 --inputAODFile=AOD.pool.root --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root'
+physval.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 test = Test.Test()
 test.art_type = 'build'
