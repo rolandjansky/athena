@@ -55,12 +55,9 @@ l1Decoder.ctpUnpacker = ctpUnpacker
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                         Decisions = "EMRoIDecisions")
 
-emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]
-
 muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", 
                                         Decisions = "MURoIDecisions")
 
-muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "MU4 : HLT_e15mu4"] 
 # do not know yet how to configure the services for it
 
 l1Decoder.roiUnpackers = [emUnpacker]
@@ -94,13 +91,10 @@ makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-# once MR unifying this setup in replce by an import from config svc
-from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, HLTConfigSvc, findFileInXMLPATH
-svcMgr += HLTConfigSvc()
-hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
-hltJsonFile = findFileInXMLPATH(hltJsonFile)
-svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
-log.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+from AthenaCommon.AppMgr import ServiceMgr
+ServiceMgr += getHLTConfigSvc()
+
 
 print "topSequence dump:", topSequence
 #

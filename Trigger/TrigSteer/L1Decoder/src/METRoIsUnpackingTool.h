@@ -20,7 +20,7 @@ public:
 			const std::string& name,
 			const IInterface* parent );
 
-  virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) override;
+  virtual StatusCode updateConfiguration() override;
 
   virtual StatusCode initialize() override;
 

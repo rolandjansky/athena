@@ -201,9 +201,7 @@ def generateL1DecoderAndChains():
         HLTChains += CombChains
 
 
-    # this is a temporary hack to include new test chains
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getOverallL1item
-    EnabledChainNamesToCTP = dict([ (c.name,  getOverallL1item(c.name))  for c in HLTChains])
+
 
     ########################## L1 #################################################
 
@@ -211,23 +209,18 @@ def generateL1DecoderAndChains():
 
     l1Decoder = L1Decoder( RoIBResult="" )
     l1Decoder.prescaler.EventInfo=""
-    l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
     emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM", ThresholdPrefix="EM" )
-    emUnpacker.ThresholdToChainMapping =  thresholdToChains( ElChains ) + [ m for m in thresholdToChains( CombChains ) if "EM" in m] #EnabledElChains + EnabledElComboChains
     emUnpacker.Decisions="L1EM"
-    log.debug("EMRoIsUnpackingTool enables chians:")
-    log.debug(emUnpacker.ThresholdToChainMapping)
+
 
     muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU", ThresholdPrefix="MU" )
-    muUnpacker.ThresholdToChainMapping = thresholdToChains( MuChains ) +   [ m for m in thresholdToChains( CombChains ) if "MU" in m] #EnabledMuChains + EnabledMuComboChains
     muUnpacker.Decisions="L1MU"
-    log.debug("MURoIsUnpackingTool enables chians:")
-    log.debug(muUnpacker.ThresholdToChainMapping)
+
 
     l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 
