@@ -71,12 +71,12 @@ namespace Monitored {
     void setMonitoredWeight(Monitored::IMonitoredVariable* monitoredWeight) {
       m_monWeight = monitoredWeight;
     }
-  
-    std::vector<std::string> histogramVariablesNames() const {
+
+    const std::vector<std::string>& histogramVariablesNames() const {
       return m_histDef->name;
     }
 
-    std::string histogramWeightName() {
+    const std::string& histogramWeightName() {
       return m_histDef->weight;
     }
     
