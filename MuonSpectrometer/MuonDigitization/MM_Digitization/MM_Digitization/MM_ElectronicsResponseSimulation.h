@@ -99,6 +99,7 @@ public :
   inline void setStripResponseQThreshold    (float val) { m_stripResponseQThreshold    = val; };
   inline void setStripResponseDriftVelocity (float val) { m_stripResponseDriftVelocity = val; };
   inline void setStripResponseDriftGapWidth (float val) { m_stripResponseDriftGapWidth = val; };
+  inline void setNeighborLogic              (bool  val) { m_useNeighborLogic           = val; };
 
 
   float getPeakTime() const { return m_peakTime;};
@@ -127,6 +128,7 @@ private:
   float m_stripResponseQThreshold;
   float m_stripResponseDriftGapWidth;
   float m_stripResponseDriftVelocity;
+  bool  m_useNeighborLogic;
 
   int  m_decoupleShaperFunctionParamaters;
 
