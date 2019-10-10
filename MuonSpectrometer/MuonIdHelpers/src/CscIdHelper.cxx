@@ -20,16 +20,12 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
-
-inline void CscIdHelper::create_mlog() const
-{
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "CscIdHelper");
-}
+#include <mutex>
 
 
 /// Constructor/Destructor
 
-CscIdHelper::CscIdHelper() : MuonIdHelper(), m_CHAMBERLAYER_INDEX(0),
+CscIdHelper::CscIdHelper() : MuonIdHelper("CscIdHelper"), m_CHAMBERLAYER_INDEX(0),
   m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0), m_hasChamLay1(false) {}
 
 /// Destructor
@@ -45,8 +41,6 @@ CscIdHelper::~CscIdHelper()
 
 int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
-  create_mlog();
-
   int status = 0;
 
   // Check whether this helper should be reinitialized
@@ -715,9 +709,13 @@ int CscIdHelper::stripMax(const Identifier& id) const
 	      if (phi_field.has_maximum())
 		{  
 		  if (measuresPhi(id)){
-		    m_phiStripMax=phi_field.get_maximum(); return m_phiStripMax;
+        auto max = phi_field.get_maximum();
+		    m_phiStripMax = max;
+        return max;
 		  } else {
-		    m_etaStripMax=phi_field.get_maximum(); return m_etaStripMax;
+        auto max = phi_field.get_maximum();
+		    m_etaStripMax = max;
+        return max;
 		  } 
 		}
 	    }
@@ -731,8 +729,6 @@ int CscIdHelper::stripMax(const Identifier& id) const
 
 bool CscIdHelper::valid(const Identifier& id) const
 {
-  create_mlog();
-
   if (! validElement(id)) return false;
 
   int cLayer  = chamberLayer(id);
@@ -788,8 +784,6 @@ bool CscIdHelper::valid(const Identifier& id) const
 
 bool CscIdHelper::validElement(const Identifier& id) const
 {
-  create_mlog();
-
   int station = stationName(id);
   std::string name = stationNameString(station);
   if ('C' != name[0])
@@ -835,8 +829,6 @@ bool CscIdHelper::validElement(const Identifier& id) const
 bool CscIdHelper::validElement(const Identifier& id, int stationName,
 			       int stationEta, int stationPhi) const
 {
-  create_mlog();
-      
   std::string name = stationNameString(stationName);
 
   if ('C' != name[0])
@@ -850,16 +842,14 @@ bool CscIdHelper::validElement(const Identifier& id, int stationName,
       (stationEta > stationEtaMax(id)) ||
       (0 == stationEta)                 )
     {
-      static bool stationWarningPrinted=false;
-      if (!stationWarningPrinted) {
-          (*m_Log) << MSG::WARNING
+      static std::once_flag flag ATLAS_THREAD_SAFE;
+      std::call_once(flag, [&](){
+        (*m_Log) << MSG::WARNING
          << "Invalid stationEta=" << stationEta
          << " for stationName=" << name
          << " stationEtaMin=" << stationEtaMin(id)
          << " stationEtaMax=" << stationEtaMax(id)
-         << endmsg;
-        stationWarningPrinted=true;
-      }
+         << endmsg; });
       return false;
     }
   if ((stationPhi < stationPhiMin(id)) ||
@@ -880,8 +870,6 @@ bool CscIdHelper::validChannel(const Identifier& id, int stationName, int statio
 			       int stationPhi,int chamberLayer, int wireLayer, 
 			       int measuresPhi, int strip) const
 {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
   if ((chamberLayer < chamberLayerMin(id)) ||
