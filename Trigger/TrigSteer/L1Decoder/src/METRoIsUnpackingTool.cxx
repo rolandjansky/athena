@@ -36,7 +36,7 @@ StatusCode METRoIsUnpackingTool::start() {
 }
 
 
-StatusCode METRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap&  ) {
+StatusCode METRoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
 
   for ( auto thresholdToChain: m_thresholdToChainMapping ) {

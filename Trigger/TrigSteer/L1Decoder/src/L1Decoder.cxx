@@ -51,9 +51,9 @@ StatusCode L1Decoder::initialize() {
 void L1Decoder::handle(const Incident& incident) {
   if (incident.type()!="BeginRun") return;
   ATH_MSG_DEBUG( "In L1Decoder BeginRun incident" );
-
+    
   for ( auto t: m_roiUnpackers )
-    if ( t->updateConfiguration( m_chainToCTPProperty ).isFailure() ) {
+    if ( t->updateConfiguration( ).isFailure() ) {
       ATH_MSG_ERROR( "Problem in configuring " << t->name() );
     }
 }

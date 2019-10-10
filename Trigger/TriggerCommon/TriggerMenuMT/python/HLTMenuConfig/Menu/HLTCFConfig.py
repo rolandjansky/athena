@@ -144,10 +144,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # take L1Decoder out of topSeq
     topSequence.remove( l1decoder )
 
-    # set CTP chains before creating the full tree (and the monitor)
-    EnabledChainNamesToCTP = dict([ (c["chainName"], c["L1item"])  for c in triggerConfigHLT.dictsList()])
-    l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
-
     # main HLT top sequence
     hltTop = seqOR("HLTTop")
 
