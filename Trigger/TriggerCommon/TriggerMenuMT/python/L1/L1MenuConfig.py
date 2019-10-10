@@ -40,6 +40,7 @@ class L1MenuConfig(object):
         self.inputFile      = inputFile
         self.outputFile     = outputFile if outputFile else TriggerFlags.inputLVL1configFile()
         self.l1menuFromFile = (self.inputFile is not None)
+        self.generated      = False
 
         # all registered items
         self.registeredItems = {}
@@ -58,7 +59,13 @@ class L1MenuConfig(object):
         self.l1menu = L1Menu(self.menuName)
         self.l1menu.setBunchGroupSplitting() # I like this much more, but let's see what the menu group says
 
-        log.info("=== Generating L1 menu %s ===", self.menuName)
+        if not self._checkMenuExistence():
+            log.warning("Generating L1 menu %s is not possible", self.menuName)
+        else:
+            log.info("=== Generating L1 menu %s ===", self.menuName)
+            self._generate()
+
+    def _generate(self):
 
         log.info("=== Reading definition of algorithms, thresholds, and items ===")
 
@@ -74,6 +81,8 @@ class L1MenuConfig(object):
         self._generateTopoMenu()
 
         self._generateMenu()
+
+        self.generated = True
         
 
     def thresholdExists(self,thrName):
@@ -215,9 +224,27 @@ class L1MenuConfig(object):
         return None
 
 
-    def writeJSON(self, destdir="./", screenprint = False):
-        outputFile = destdir.rstrip('/') + '/' + self.outputFile.replace(".xml",".json")
-        return L1MenuJSONConverter(l1menu = self.l1menu, outputFile = outputFile).writeJSON(pretty=True)
+    def writeJSON(self, outputFile, destdir="./", screenprint = False):
+        if self.generated:
+            outputFile = destdir.rstrip('/') + '/' + outputFile
+            L1MenuJSONConverter(l1menu = self.l1menu, outputFile = outputFile).writeJSON(pretty=True)
+            return outputFile
+        else:
+            log.warning("No menu was generated, can not create json file")
+            return None
+
+
+    def _checkMenuExistence(self):
+        menuToLoad = self.menuName
+        if menuToLoad == "LS2_v1":
+            menuToLoad = "MC_pp_v8"
+        try:
+            __import__('Menu.Menu_%s' % menuToLoad, globals(), locals(), ['defineMenu'], -1)
+        except ImportError, ie:
+            log.warning("No L1 menu available for %s (%s)", self.menuName, ie.message )
+            return False
+
+        return True
 
 
     def _importMenuDefinition(self):
