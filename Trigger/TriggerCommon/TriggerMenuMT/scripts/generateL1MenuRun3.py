@@ -33,9 +33,9 @@ def generateL1Menu(menu, cmdline):
 
     # L1 menu generation
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-    l1cfg = L1MenuConfig( outputFile = TriggerFlags.outputLVL1configFile() )
+    l1cfg = L1MenuConfig()
 
-    l1cfg.writeJSON(destdir=cmdline.dest)
+    l1cfg.writeJSON( outputFile = TriggerFlags.outputLVL1configFile(), destdir = cmdline.dest)
 
     if cmdline.writeXML:
         outfilename = l1cfg.writeXML()

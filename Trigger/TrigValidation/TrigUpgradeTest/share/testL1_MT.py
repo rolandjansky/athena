@@ -5,7 +5,7 @@
 #   Job options for trigger MT tests to be used as first include
 #   in signature specific job options. Example:
 #
-#      include('TrigUpgradeTest/testHLT_MT.py')
+#      include('TrigUpgradeTest/testL1_MT.py')
 #      ... your job options ...
 #
 # Several flags are supported on the command line to steer these job options.
@@ -18,12 +18,12 @@
 #
 class opt:
     setupForMC       = None           # force MC setup
-    setMenu          = 'LS2_v1'
+    setLVL1XML       = 'TriggerMenuMT/LVL1config_LS2_v1.xml' # 'TriggerMenu/LVL1config_Physics_pp_v7.xml' # default for legacy
     setDetDescr      = None           # force geometry tag
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
     condOverride     = {}             # overwrite conditions folder tags e.g. '{"Folder1":"Tag1", "Folder2":"Tag2"}'
-    doHLT            = True           # run HLT?
+    doHLT            = False          # run HLT?
     doID             = True           # TriggerFlags.doID
     doCalo           = True           # TriggerFlags.doCalo
     doMuon           = True           # TriggerFlags.doMuon
@@ -31,33 +31,30 @@ class opt:
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
     doWriteESD       = True           # Write out an ESD?
-    doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
-    doL1Sim          = False          # (re)run L1 simulation
+    doL1Unpacking    = False          # decode L1 data in input file if True, else setup emulation
+    doL1Sim          = True           # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
-    endJobAfterGenerate = False       # Finish job after menu generation
 #Individual slice flags
-    doEgammaSlice     = True
-    doMuonSlice       = True
-    doJetSlice        = True
-    doMETSlice        = True
-    doBjetSlice       = True
-    doTauSlice        = True
-    doCombinedSlice   = True
-    doBphysicsSlice   = True
-    doStreamingSlice  = True
-    doMonitorSlice    = True
+    doElectronSlice   = False
+    doPhotonSlice     = False
+    doMuonSlice       = False
+    doJetSlice        = False
+    doMETSlice        = False
+    doBjetSlice       = False
+    doTauSlice        = False
+    doCombinedSlice   = False
+    doBphysicsSlice   = False
+    doStreamingSlice  = False
     reverseViews      = False
     enabledSignatures = []
     disabledSignatures = []
 
-
-#
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
-log = logging.getLogger('testHLT_MT.py')
+log = logging.getLogger('testL1_MT.py')
 
 #-------------------------------------------------------------
 # Setup options
@@ -73,32 +70,35 @@ for option in defaultOptions:
 
 
 import re
-sliceRe = re.compile("^do.*Slice")
-slices = [a for a in dir(opt) if sliceRe.match(a)]
-if opt.doEmptyMenu is True:
-    log.info("Disabling all slices")
-    for s in slices:
-        if s in globals():
-            log.info("re-enabling %s ", s)
-            setattr(opt, s, globals()[s])
-        else:
-            setattr(opt, s, False)
-else:
-    for s in slices:
-        setattr(opt, s, True)
-    opt.doTauSlice =False #Wait for ATR-17399
+## sliceRe = re.compile("^do.*Slice")
+## slices = [a for a in dir(opt) if sliceRe.match(a)]
+## if opt.doEmptyMenu is True:
+##     log.info("Disabling all slices")
+##     for s in slices:
+##         if s in globals():
+##             log.info("re-enabling %s ", s)
+##             setattr(opt, s, globals()[s])
+##         else:
+##             setattr(opt, s, False)
+## else:
+##     for s in slices:
+##         setattr(opt, s, True)
+##     opt.doTauSlice =False #Wait for ATR-17399
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
 # This is temporary and will be re-worked for after M3.5
-for s in slices:
-    signature = s[2:].replace('Slice', '')
+## for s in slices:
+##     signature = s[2:].replace('Slice', '')
+##     if 'Electron' in s or 'Photon' in s:
+##         signature = 'Egamma'
+## 
+##     if eval('opt.'+s) is True:
+##         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+##         opt.enabledSignatures.append( enabledSig )
+##     else:
+##         disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+##         opt.disabledSignatures.append( disabledSig )
 
-    if eval('opt.'+s) is True:
-        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.enabledSignatures.append( enabledSig )
-    else:
-        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.disabledSignatures.append( disabledSig )
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -198,11 +198,6 @@ else:           # More data modifiers
                      #'L1TopoCheck',
                      'forceTileRODMap',
     ]
-
-#make some more common trig cost operations easier to setup
-if opt.enableCostD3PD:
-    enableCostMonitoring = True # This goes without saying!
-    enableCostForCAF = True # This sets the cost mon to monitor every event and always export the data.
 
 
 TriggerFlags.doID = opt.doID
@@ -321,24 +316,6 @@ from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
 
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-svcMgr += RegSelSvcDefault()
-
-if TriggerFlags.doID():
-    include( "InDetRecExample/InDetRecCabling.py" )
-
-if TriggerFlags.doCalo():
-    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
-    svcMgr.ToolSvc += TrigDataAccess()
-
-if TriggerFlags.doMuon():
-    import MuonCnvExample.MuonCablingConfig  # noqa: F401
-    import MuonRecExample.MuonReadCalib      # noqa: F401
-    if globalflags.InputFormat.is_pool():
-        include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
-
-    include ("MuonRecExample/MuonRecLoadTools.py")
-
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -370,16 +347,16 @@ elif globalflags.InputFormat.is_bytestream():
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-TriggerFlags.triggerMenuSetup = opt.setMenu
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
 l1JsonFile = generateL1Menu()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
 svcMgr += getL1ConfigSvc()
-
+if TriggerFlags.doHLT():
+    svcMgr += getHLTConfigSvc()
 
 # ---------------------------------------------------------------
 # Level 1 simulation
@@ -390,68 +367,9 @@ if opt.doL1Sim:
 
 
 # ---------------------------------------------------------------
-# HLT prep: RoIBResult and L1Decoder
-# ---------------------------------------------------------------
-if opt.doL1Unpacking:
-    if globalflags.InputFormat.is_bytestream():
-        from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-        from L1Decoder.L1DecoderConfig import L1Decoder
-        topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
-        topSequence += L1Decoder("L1Decoder")
-        #topSequence.L1Decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
-    elif opt.doL1Sim:
-        from L1Decoder.L1DecoderConfig import L1Decoder
-        topSequence += L1Decoder("L1Decoder")
-    else:
-        from TrigUpgradeTest.TestUtils import L1EmulationTest
-        topSequence += L1EmulationTest()
-
-
-# ---------------------------------------------------------------
-# HLT generation
-# ---------------------------------------------------------------
-
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-menu = GenerateMenuMT()
-
-# define the function that enable the signatures
-def signaturesToGenerate():
-    TriggerFlags.Slices_all_setOff()
-    for sig in opt.enabledSignatures:
-        eval(sig)
-
-menu.overwriteSignaturesWith(signaturesToGenerate)
-
-# generating the HLT structure requires 
-# the L1Decoder to be defined in the topSequence
-menu.generateMT()
-
-if endJobAfterGenerate:
-    import sys
-    sys.exit(0)
-
-
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-svcMgr += getHLTConfigSvc()
-
-
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-
-if TriggerFlags.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-  
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
-
-
-# ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------
-if not hasattr(svcMgr, 'THistSvc'):
+if not hasattr(svcMgr, 'THistSvc'):        
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
@@ -478,27 +396,3 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
     print(svcMgr)
 
 
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=True
-from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-ConfigFlags.lock()
-triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
-Configurable.configurableRun3Behavior=False
-
-#-------------------------------------------------------------
-# Non-ComponentAccumulator Cost Monitoring
-#-------------------------------------------------------------
-
-from AthenaCommon.AppMgr import ServiceMgr
-from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
-
-# This should be temporary, it is doing the same job as TrigCostMonitorMTConfig but without using a ComponentAccumulator
-if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
-    trigCostService = TrigCostMTSvc()
-    trigCostService.MonitorAllEvents = ConfigFlags.Trigger.CostMonitoring.monitorAllEvents
-    trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
-    ServiceMgr += trigCostService
-    #
-    ServiceMgr.AuditorSvc += TrigCostMTAuditor()
-    theApp.AuditAlgorithms=True

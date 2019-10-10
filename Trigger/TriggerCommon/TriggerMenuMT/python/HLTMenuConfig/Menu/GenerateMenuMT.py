@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from PyUtils.Decorators import memoize
+from six import add_metaclass
+
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
@@ -20,8 +23,20 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
 
 _func_to_modify_signatures = None
 
+
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+# for now we make this a singleton because calling menu generation twice leads to problems
+@add_metaclass(Singleton)
 class GenerateMenuMT(object):
 
+    @staticmethod
     def overwriteSignaturesWith(f):
         """
         == Function to generate menu for certain signatures only
@@ -32,7 +47,6 @@ class GenerateMenuMT(object):
             log.warning('Updating the function to modify signatures from %s to %s',
                         _func_to_modify_signatures.__name__, f.__name__)
         _func_to_modify_signatures = f
-    overwriteSignaturesWith = staticmethod(overwriteSignaturesWith)
             
     
     def __init__(self):
@@ -136,7 +150,7 @@ class GenerateMenuMT(object):
         else:
             log.info("Doing nothing with L1 menu configuration...")
                        
-
+    @memoize
     def generateAllChainConfigs(self):
         """
         == Obtains chain configs for all chains in menu
@@ -157,7 +171,7 @@ class GenerateMenuMT(object):
             chainDict['chainCounter'] = chainCounter
 
             log.debug("Next: getting chain configuration for chain %s ", chain) 
-            chainConfig= self.generateChainConfig(chainDict)
+            chainConfig= self.__generateChainConfig(chainDict)
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
             TriggerConfigHLT.registerChain( chainDict, chainConfig )
@@ -165,6 +179,7 @@ class GenerateMenuMT(object):
 
         return TriggerConfigHLT.configsList()
 
+    @memoize
     def getChainsFromMenu(self):
         """
         == Returns the list of chain names that are in the menu 
@@ -199,7 +214,7 @@ class GenerateMenuMT(object):
         return chains 
                                 
 
-    def generateChainConfig(self, mainChainDict):
+    def __generateChainConfig(self, mainChainDict):
         """
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
@@ -306,7 +321,7 @@ class GenerateMenuMT(object):
 
         return theChainConfig
 
-
+    @memoize
     def generateMT(self):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu

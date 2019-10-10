@@ -10,26 +10,6 @@ TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-
-
-##################################################################
-# Generate the menu
-##################################################################
-
-
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-menu = GenerateMenuMT()
-
-
-def signaturesToGenerate():
-    TriggerFlags.Slices_all_setOff()
-    for sig in opt.enabledSignatures:
-        eval(sig)    
-        
-menu.overwriteSignaturesWith(signaturesToGenerate)
-allChainConfigs = menu.generateMT()
-
-
 ##########################################
 # Some debug
 ##########################################
