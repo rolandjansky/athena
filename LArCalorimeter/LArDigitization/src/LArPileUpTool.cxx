@@ -575,6 +575,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
            digitContList).isSuccess()) || digitContList.size()==0)
       {
          ATH_MSG_ERROR("Cannot retrieve LArDigitContainer for random event overlay or empty Container");
+	 ATH_MSG_ERROR("Random Digit Key= " << m_RandomDigitContainer << ",size=" << digitContList.size());
          return StatusCode::FAILURE ;
       }
       TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin()) ;
