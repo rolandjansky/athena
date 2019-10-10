@@ -223,12 +223,10 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
         return StatusCode::FAILURE;
     }
     
-    if ( m_doElectrons && m_doPhotons){
-	ATH_MSG_DEBUG("Calling egammaTools: " );
-	for (auto& tool : m_egammaTools){
-	    ATH_MSG_DEBUG("Calling tool " << tool );
-	    CHECK( CallTool(ctx, tool, electronContainer.ptr(), photonContainer.ptr()) );
-	}
+    ATH_MSG_DEBUG("Calling egammaTools: " );
+    for (auto& tool : m_egammaTools){
+	ATH_MSG_DEBUG("Calling tool " << tool );
+	CHECK( CallTool(ctx, tool, electronContainer.ptr(), photonContainer.ptr()) );
     }
 
     if ( m_doElectrons ){
