@@ -36,6 +36,9 @@ namespace Monitored {
 
     const std::vector<double> getVectorRepresentation() const override { return {double(*this)}; }
 
+    virtual std::vector<std::string> getStringVectorRepresentation() const override { return std::vector<std::string>(); };
+    virtual bool hasStringRepresentation() const override { return false; };
+
   private:
     static constexpr const char* TIMER_PREFIX = "TIME_"; //<! prefix required for all timers
 

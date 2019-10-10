@@ -49,16 +49,24 @@ namespace Monitored {
 
     unsigned simpleFill() {
       auto histogram = this->histogram<TH1>();
-      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+      if ( not m_monVariables[0].get().hasStringRepresentation() ) {
+	auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+	for ( double value : valuesVector) {
+	  histogram->Fill(value);
+	}
+	return std::size(valuesVector);
+      } 
 
-      for (auto value : valuesVector) {
-        histogram->Fill(value);
+      auto valuesVector = m_monVariables[0].get().getStringVectorRepresentation();
+      for (const std::string& value : valuesVector) {
+	histogram->Fill(value.c_str(), 1.);
       }
-
-      return std::size(valuesVector);
+      return std::size(valuesVector);	
     }
 
     unsigned weightedFill() {
+      if ( m_monVariables[0].get().hasStringRepresentation() )
+	throw std::runtime_error("Weighted filling with strings is not supported");
       auto histogram = this->histogram<TH1>();
       auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
       auto weightVector = m_monWeight->getVectorRepresentation();
@@ -75,3 +83,4 @@ namespace Monitored {
 }
 
 #endif /* AthenaMonitoringKernel_HistogramFiller_HistogramFiller1D_h */
+
