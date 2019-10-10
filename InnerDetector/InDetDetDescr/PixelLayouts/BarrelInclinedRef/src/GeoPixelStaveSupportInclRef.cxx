@@ -62,7 +62,12 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   double yOffset = staveDBHelper.getServiceOffsetY();
   if(m_barrelTilt<0) yOffset=-yOffset;
   double ec_xOffset = staveDBHelper.getServiceECOffsetX();
-  if(width<0.01) width = m_barrelModule.Width()*.7;
+  //catching old layouts before support width was correctly specified
+  if(width<0){
+    width = m_barrelModule.Width()*.7;
+    msg(MSG::DEBUG)<<"Special Case for old layouts! m_width set to"<<m_width<<" due via m_barrelModule->Width()*.7 - not to be relied on in new developments! Please set your stave support width correctly!"<<endreq;
+  }
+ 
   m_svcRouting = staveDBHelper.getSvcRoutingPos();
 
   double endcapRadialPos=m_endcapMaxRadialPos;
@@ -132,7 +137,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
 
   //lateral junction  (between planar and end of stave)
   GeoBox* lat_box = new GeoBox(0.5*fabs(endcapRadialPos), 0.5*width, 0.5*thickness);
-  // HepGeom::Transform3D latA_trf = HepGeom::Translate3D(loc_xOffset,yOffset,zpos)*HepGeom::RotateZ3D(m_barrelTilt);
+
   HepGeom::Transform3D latA_trf(HepGeom::Translate3D(loc_xOffset,yOffset,zpos));
   lastShape = addShape(lastShape, lat_box, latA_trf); 
   HepGeom::Transform3D latC_trf(HepGeom::Translate3D(loc_xOffset,yOffset,-zpos));

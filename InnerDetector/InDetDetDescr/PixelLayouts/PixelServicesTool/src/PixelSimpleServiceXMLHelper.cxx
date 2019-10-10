@@ -174,7 +174,7 @@ int PixelSimpleServiceXMLHelper::radialDiv(int index) const
 std::string PixelSimpleServiceXMLHelper::shapeType(int index) const
 {
   if (m_schema.has_shapeType()) {  
-    std::string tmp=getString("SimpleService", index, m_schema.shapeType().c_str(),0,"TUBE");
+    std::string tmp=getString("SimpleService", index, m_schema.shapeType().c_str(),0);
     tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
     return tmp;
     }
@@ -183,7 +183,7 @@ std::string PixelSimpleServiceXMLHelper::shapeType(int index) const
 
 std::string PixelSimpleServiceXMLHelper::volName(int index) const
 {
-  std::string tmp=getString("SimpleService", index, m_schema.volName().c_str(),0,"");
+  std::string tmp=getString("SimpleService", index, m_schema.volName().c_str(),0);
   tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
   return tmp;
 }
@@ -198,7 +198,7 @@ std::string PixelSimpleServiceXMLHelper::materialName(int index) const
 
 int PixelSimpleServiceXMLHelper::volId(int index) const
 {
-  int volNumber= getInt("SimpleService", index, m_schema.volId().c_str(),0,-1);
+  int volNumber= getInt("SimpleService", index, m_schema.volId().c_str(),0);
 
   if(volNumber<0)return index;
   return volNumber;

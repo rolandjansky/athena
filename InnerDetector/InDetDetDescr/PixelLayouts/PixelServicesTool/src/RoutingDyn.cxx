@@ -1153,12 +1153,6 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
 	    configurationType.insert(std::pair<std::string,std::vector<int> >("odd",nbModulePerType_tmp));
 	  }
 	
-	// Material identifiers
-	std::string materialId;
-	for(int iType=0 ; iType<nbModuleType; iType++) {
-	  int svcSetIndex  = m_svcRoutingXMLHelper->getServiceSetIndex("barrel", iLayer, iType);
-	  materialId+=m_svcRoutingXMLHelper->getServiceSetNameId(svcSetIndex);
-	}
 
 	// Loop over configuration types
 	for (const auto& config: configurationType)
@@ -1183,11 +1177,11 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
 		
 		if (msgLvl(MSG::DEBUG)) { 
 		  msg(MSG::DEBUG)<<endreq;
-		  msg(MSG::DEBUG)<<"MODULE per layer : "<<iModule<<" : "; for(int i=0; i<(int)nbModuleLayer.size(); i++) msg(MSG::DEBUG)<<nbModuleLayer[i]<<"  "; msg(MSG::DEBUG)<<"// "<<materialId<<endreq;
+		  msg(MSG::DEBUG)<<"MODULE per layer : "<<iModule<<" : "; for(int i=0; i<(int)nbModuleLayer.size(); i++) msg(MSG::DEBUG)<<nbModuleLayer[i]<<"  ";
 		}
- 
-		std::string matName0 = constructBarrelLayerName(materialId, nbModuleLayer, iLayer);     // "old" style / 1 per layer
-		std::string matName = constructBarrelLayerName(materialId, nbModuleLayer, iLayer, iStaveTmp);
+		//empty string used to be materialId, which is not longer defined in Xml files 
+		std::string matName0 = constructBarrelLayerName("", nbModuleLayer, iLayer);     // "old" style / 1 per layer
+		std::string matName = constructBarrelLayerName("", nbModuleLayer, iLayer, iStaveTmp);
 		bool bAlreadyDefined = (std::find(brlModuleMaterialNames.begin(), brlModuleMaterialNames.end(), matName)!=brlModuleMaterialNames.end());	 
 		
 		// Register material name / per stave

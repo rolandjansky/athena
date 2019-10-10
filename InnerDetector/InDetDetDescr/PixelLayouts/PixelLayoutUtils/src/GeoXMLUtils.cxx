@@ -14,6 +14,7 @@ GeoXMLUtils::GeoXMLUtils():
   m_doc(0)
 {
   m_ConfigFileParser = 0;
+  m_schemaVersion = 9999;//by default, this is the higest => "newest"
 }
 
 GeoXMLUtils::~GeoXMLUtils()
@@ -191,9 +192,6 @@ bool GeoXMLUtils::ParseBuffer(std::string xmlBuffer, std::string xmlBufferGeo)
     myxml = myxml.insert(lastXML, myxmlGeo.substr(firstGeo,lastGeo-firstGeo));
   }
 
-  //  std::cout<<"---- XML buffer ------------------------------------------------"<<std::endl;
-  //  std::cout<<myxml<<std::endl;
-  //  std::cout<<"----------------------------------------------------"<<std::endl;
 
   MemBufInputSource myxml_buf((const XMLByte*)myxml.c_str(), myxml.size()-1,"dummy");
   m_ConfigFileParser->parse(myxml_buf);
@@ -205,21 +203,24 @@ bool GeoXMLUtils::ParseBuffer(std::string xmlBuffer, std::string xmlBufferGeo)
 
 
 std::string GeoXMLUtils::getString(const char* parentTag,int parentIndex,
-				const char* childTag, int childIndex,
-				std::string defaultValue) const
+				const char* childTag, int childIndex) const
 {
 
   std::string res = getChildValue( parentTag, parentIndex, childTag, childIndex);
-  if(res=="") res=defaultValue;
+  if(res==""){
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("String field not defined in Xml!");
+  } 
 
   return res;
 }
 
+
+
 std::string GeoXMLUtils::getString(const char* parentTag,std::vector<int> parentIndexList,
-				const char* childTag, int childIndex,
-				std::string defaultValue) const
+				const char* childTag, int childIndex) const
 {
-  std::string res=defaultValue;
+  std::string res="";
   
   try {
     for(int i=0; i<(int)parentIndexList.size(); i++){
@@ -228,33 +229,32 @@ std::string GeoXMLUtils::getString(const char* parentTag,std::vector<int> parent
     }
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("String field not defined in Xml!");
   }
   
   return res;
 }
 
+
 double GeoXMLUtils::getDouble(const char* parentTag,int parentIndex,
-				const char* childTag, int childIndex,
-				double defaultValue) const
+				const char* childTag, int childIndex) const
 {
-  double res=defaultValue;
-
-
-  //We have multiple cases where values cannot be retrieved that do not seem problematic. We should decide if things are allowed not to be defined (in which case we should not print a message that could be misleading) or if they must be defined, but can be zero.
+  double res=0.0;
   try {
     std::string tmp = getChildValue( parentTag, parentIndex, childTag, childIndex);
-    if(tmp.length()>0)
+    if(tmp.length()>0){
       res = atof(tmp.c_str());
+    }
     else {
-      
-       std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      throw std::runtime_error("Double field not defined in Xml!");
     }
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Double field not defined in Xml");
   }
-
   return res;
 }
 
@@ -271,12 +271,13 @@ std::vector<double> GeoXMLUtils::getVectorDouble(const char* parentTag,int paren
       while (s >> d) res.push_back(d);
     }
     else {
-      //     std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
-      std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      throw std::runtime_error("Vector Double field not defined in Xml!");
     }
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Vector Double field not defined in Xml!");
   }
 
   return res; 
@@ -296,10 +297,14 @@ std::vector<double> GeoXMLUtils::getVectorDouble(const char* parentTag, std::vec
 	while (s >> d) res.push_back(d);
       }
     }
-    if (res.size() == 0)  std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    if (res.size() == 0){  
+      std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      throw std::runtime_error("Vector Double field not defined in Xml!");
+    }
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Vector Double field not defined in Xml!");
   }
 
   return res; 
@@ -318,12 +323,13 @@ std::vector<int> GeoXMLUtils::getVectorInt(const char* parentTag,int parentIndex
       while (s >> d) res.push_back(d);
     }
     else {
-      //     std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
-      std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      throw std::runtime_error("Vector Int field not defined in Xml!");
     }
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Vector Int field not defined in Xml!");
   }
 
   return res; 
@@ -342,12 +348,13 @@ std::vector<std::string> GeoXMLUtils::getVectorString(const char* parentTag,int 
       while (s >> d) res.push_back(d);
     }
     else {
-      //     std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
-      std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+      throw std::runtime_error("Vector String field not defined in Xml!");
     }
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Vector String field not defined in Xml!");
   }
 
   return res; 
@@ -367,21 +374,21 @@ std::vector<std::string> GeoXMLUtils::getVectorString(const char* parentTag,  st
 	while (s >> d) res.push_back(d);
       }
     }
-    if (res.size() == 0)  std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    if (res.size() == 0)  {std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;throw std::runtime_error("Vector String field not defined in Xml!");}
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Vector String field not defined in Xml!");
   }
 
   return res; 
 }
 
 double GeoXMLUtils::getDouble(const char* parentTag,std::vector<int> parentIndexList,
-				const char* childTag, int childIndex,
-				double defaultValue) const
+				const char* childTag, int childIndex) const
 {
-  double res=defaultValue;
-  
+  //This looks in all instances for the value and returns the first one it finds? Is this the logic we want? I guess this is only OK because the zeroth is always a "global" set, and the others are assumed to have the same value? If so, why not set this globally?
+  double res=0.0;
   try {
     for(int i=0; i<(int)parentIndexList.size(); i++){
       std::string tmp = getChildValue( parentTag, parentIndexList[i], childTag, childIndex);
@@ -390,9 +397,12 @@ double GeoXMLUtils::getDouble(const char* parentTag,std::vector<int> parentIndex
 	return res;
       }
     }
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Double field not defined in Xml!"); 
   }
   catch(...){
-    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Double field not defined in Xml!");
   }
   
   return res;
@@ -400,16 +410,16 @@ double GeoXMLUtils::getDouble(const char* parentTag,std::vector<int> parentIndex
 
 
 int GeoXMLUtils::getInt(const char* parentTag,int parentIndex,
-		     const char* childTag, int childIndex,
-		     int defaultValue) const
+		     const char* childTag, int childIndex) const
 {
-  int res=defaultValue;
+  int res=0;
 
   std::string tmp=getChildValue( parentTag, parentIndex, childTag, childIndex);
   if(tmp.length()>0)
     res = atoi(tmp.c_str());
   else {
     std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Int field not defined in Xml!");
   }
 
   return res;
@@ -427,6 +437,7 @@ bool GeoXMLUtils::getBoolean(const char* parentTag,int parentIndex,
   }
   else {
     std::cerr << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+    throw std::runtime_error("Bool field not defined in Xml!");
   }
 
   return res;
@@ -470,7 +481,6 @@ std::string GeoXMLUtils::getChildValue(const char* parentTag,
 				    int childIndex) const
 {
 
-  //  std::cout<<"GetChildValue : "<<parentTag<<" "<<parentIndex<<" "<<childTag<<" "<<childIndex<<std::endl;
 
     XMLCh* temp = XMLString::transcode(parentTag);
     DOMNodeList* list = m_doc->getElementsByTagName(temp);
@@ -631,8 +641,6 @@ std::string GeoXMLUtils::getChildAttribute(const char* parentTag,
   
   std::string value;
   if (child) {
-    
-    std::cout<<"MATERIAL Child found - "<<childTag<<" "<<childIndex<<"    get "<<attributeTag<<std::endl;
 
     temp = XMLString::transcode(attributeTag);
     char* temp2 = XMLString::transcode(child->getAttribute(temp));
@@ -659,34 +667,10 @@ int GeoXMLUtils::getChildCount(const char* parentTag, int parentIndex,
   return (int)childList->getLength();
 }
 
+void GeoXMLUtils::setSchemaVersion(int schema){
+  m_schemaVersion = schema;
+}
 
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string>
-// #include <iostream>
-// #include "XmlDomDocument.h"
- 
-// int main(int argc, char** argv)
-// {
-//     string value;
-//     XmlDomDocument* doc = new XmlDomDocument("./bookstore.xml");
-//     if (doc) {
-//         for (int i = 0; i < doc->getChildCount("bookstore", 0, "book"); i++) {
-//             printf("Book %d\n", i+1);
-//             value = doc->getChildAttribute("bookstore", 0, "book", i, "category");
-//             printf("book category   - %s\n", value.c_str());
-//             value = doc->getChildValue("book", i, "title");
-//             printf("book title      - %s\n", value.c_str());
-//             value = doc->getChildAttribute("book", i, "title", 0, "lang");
-//             printf("book title lang - %s\n", value.c_str);
-//             value = doc->getChildValue("book", i, "author");
-//             printf("book author     - %s\n", value.c_str());
-//             value = doc->getChildValue("book", i, "year");
-//             printf("book year       - %s\n", value.c_str());
-//             value = doc->getChildValue("book", i, "price");
-//             printf("book price      - %s\n", value.c_str());
-//         }
-//         delete doc;
-//     }
-//     exit(0);
-// }
+int GeoXMLUtils::getSchemaVersion() const{
+  return m_schemaVersion;
+}

@@ -40,6 +40,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
       msg(MSG::DEBUG)<< "XML input : DB CLOB "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(m_xmlFileName);
+      setSchemaVersion(dbUtils.getSchemaVersion(m_xmlFileName));
       InitializeXML();
       bParsed = ParseBuffer(XMLtext,std::string(""));
     }
@@ -167,7 +168,9 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
       std::string matName = getChildValue("MaterialWeight", iMat, "name");
       std::string baseName = getChildValue("MaterialWeight", iMat, "base");
       double weight = getDouble("MaterialWeight", iMat, "weight");
-      double linearWeight = getInt("MaterialWeight", iMat, "linearweight",0,0);
+      double linearWeight = 0.0;
+      if(getSchemaVersion() > 1) linearWeight = getInt("MaterialWeight", iMat, "linearweight",0);
+      else msg(MSG::DEBUG)<<"Material XML: MaterialWeight linearweight for "<<matName<<" "<<baseName<<" not found in old schema("<<getSchemaVersion()<<"), setting to zero..."<<endreq;
 
       matName.erase(std::remove(matName.begin(),matName.end(),' '),matName.end());
       baseName.erase(std::remove(baseName.begin(),baseName.end(),' '),baseName.end());
