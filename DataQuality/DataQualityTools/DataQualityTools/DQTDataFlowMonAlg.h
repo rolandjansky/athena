@@ -8,7 +8,7 @@
 // PACKAGE:  DataQualityTools
 //
 // AUTHOR:   Peter Onyisi <ponyisi@cern.ch>
-//	     
+//
 //
 // ********************************************************************
 #ifndef DQTDataFlowMonAlg_H
@@ -20,13 +20,13 @@ class DQTDataFlowMonAlg: public AthMonitorAlgorithm
 {
 
  public:
-  
+
   DQTDataFlowMonAlg(const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual ~DQTDataFlowMonAlg() {};
 
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
- 
+
 };
 
 #endif
