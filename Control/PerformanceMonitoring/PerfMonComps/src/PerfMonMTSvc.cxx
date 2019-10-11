@@ -202,18 +202,18 @@ void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
 
   std::lock_guard<std::mutex> lock( m_mutex_capture );
 
-  if(isCheckPoint(m_eventCounter)){
+  if(isCheckPoint()){
     m_measurement.capture_MT( m_eventCounter ); 
     m_eventLevelData.record_MT(m_measurement, m_eventCounter);
   }
 }
 
-bool PerfMonMTSvc::isCheckPoint(int eventCounter){
+bool PerfMonMTSvc::isCheckPoint(){
 
   if(m_checkPointType == "Arithmetic")
-    return  (eventCounter % m_checkPointFactor == 0);
+    return  (m_eventCounter % m_checkPointFactor == 0);
   else
-    return isPower(eventCounter, m_checkPointFactor);
+    return isPower(m_eventCounter, m_checkPointFactor);
 
   
 }

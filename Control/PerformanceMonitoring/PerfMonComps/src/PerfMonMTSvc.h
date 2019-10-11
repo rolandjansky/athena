@@ -131,7 +131,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::string scaleTime(double timeMeas);
     std::string scaleMem(long memMeas);
 
-    bool isCheckPoint(int eventCounter);
+    bool isCheckPoint();
  
     std::string get_cpu_model_info() const;
     int get_cpu_core_info() const;
