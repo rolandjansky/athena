@@ -126,12 +126,12 @@ TriggerHLTListRun3 = [
     # These are for precision photon and precision Electron Keeping same names as in Run2
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
     ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux',      'BS ESD AODFULL', 'Egamma'),
-    ('xAOD::ElectronContainer#HLT_egamma_Iso_Electrons',            'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
+    ('xAOD::ElectronContainer#HLT_egamma_Iso_Electrons',            'BS ESD AODFULL', 'Egamma', 'inViews:precisionIsoElectronViews'),
     ('xAOD::ElectronTrigAuxContainer#HLT_egamma_Iso_ElectronsAux',  'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',         'BS ESD AODFULL', 'Egamma'),
-    ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews'),
+    ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionIsoPhotonViews'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux',      'BS ESD AODFULL', 'Egamma'),
 
     # Muon
