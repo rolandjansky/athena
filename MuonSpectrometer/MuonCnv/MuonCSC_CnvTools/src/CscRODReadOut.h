@@ -12,6 +12,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include <atomic>
 
 // TGC ROD encoder/decoder for CscRDO
 // Author Ketevi A. Assamagan
@@ -110,14 +111,14 @@ private:
   uint16_t  m_amp2;
   uint32_t  m_address;
   uint32_t  m_chamberBitValue;
-  double    m_norm;
-  
-  double   m_TIME_OFFSET; 
-  double   m_SIGNAL_WIDTH;  
-  double   m_SAMPLING_TIME; 
-  int      m_NUMBER_OF_INTEGRATION;
-  double   m_CHARGE_TO_ADC_COUNT;
-  double   m_Z0; 
+  double  m_norm;
+  	     
+  double m_TIME_OFFSET; 
+  double m_SIGNAL_WIDTH;  
+  double m_SAMPLING_TIME; 
+  int m_NUMBER_OF_INTEGRATION;
+  double m_CHARGE_TO_ADC_COUNT;
+  double m_Z0; 
 
   uint32_t m_TRIGGER_INFO[3];
 
