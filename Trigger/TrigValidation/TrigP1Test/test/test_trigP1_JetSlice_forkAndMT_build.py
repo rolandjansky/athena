@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # art-description: Same as slice_mu test from TrigUpgradeTest, but with athenaHLT, MP & MT
-# art-type: build                                                                  
-# art-include: master/Athena                                                       
+# art-type: build
+# art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # art-description: Same as full_menu test from TrigUpgradeTest, but with athenaHLT, MP
-# art-type: build                                                                  
-# art-include: master/Athena                                                       
+# art-type: build
+# art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
