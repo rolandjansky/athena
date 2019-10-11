@@ -15,7 +15,7 @@ class DepthComparison{
 public:
   DepthComparison(const Tree& t) : m_tree(t){}
   bool operator () (const std::size_t& lhs, const std::size_t rhs){
-    return m_tree.depth(rhs) < m_tree.depth(lhs);
+    return m_tree.depth(rhs) > m_tree.depth(lhs);
   }
 private:
   Tree m_tree;
@@ -258,7 +258,12 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
   // constructed. One by one these combinations are tested for
   // parent satisfaction. If the parent is satisfied, it is placed in the
   // queue for later processing.
-  std::queue<std::size_t> to_process;  // conditions to be processed.
+  typedef std::priority_queue<std::size_t,
+			      std::vector<std::size_t>,
+			      DepthComparison> DepthQueue;
+
+  auto comparator = DepthComparison(m_tree);
+  DepthQueue to_process(comparator); // conditions to be processed.
 
   // keep track if a condition's sibling has been processed.
   std::vector<bool> checked(m_conditions.size(), false);
@@ -274,7 +279,7 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
 
   std::size_t counts_to_assert{1};
   while(!to_process.empty()){
-    auto k = to_process.front();
+    auto k = to_process.top();
     std::cout << "processing " << k << '\n';
     if (checked[k]){
       // condition taken into account when process one of its siblings.
@@ -357,7 +362,7 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
     if(par != 0){to_process.push(par);}
     std::cout<< "pushing onto q: " << par << '\n';
   
-    std::cout<< "popping from  q: " <<to_process.front() << '\n';
+    std::cout<< "popping from  q: " <<to_process.top() << '\n';
     to_process.pop();
     --counts_to_assert;
     // if(counts_to_assert){throw std::runtime_error("debug break");}

@@ -62,7 +62,7 @@ std::optional<HypoJetVector> JetGroupProduct::next(){
     if(indices.size() == unique_indices.size()){
       for(const auto& i : j_indices){
 	groups.push_back(m_indJetGroups.at(i));
-      }
+      } 
       
       auto iter {groups.cbegin()};
       auto end {groups.cend()};
@@ -74,6 +74,8 @@ std::optional<HypoJetVector> JetGroupProduct::next(){
 		 std::ostream_iterator<std::size_t>(std::cout, " "));
       std::cout << '\n';
       return result;
+    }else {
+      std::cout << "JetGroupProduct combined group rejected due to bad size\n";
     }
   }
 }
