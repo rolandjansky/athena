@@ -131,16 +131,12 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
     } // loop over decisions   
   }// loop over output keys
 
-  // debug option to reorder views
-  if ( m_reverseViews ) {
-    std::reverse( viewVector->begin(), viewVector->end() );
-  }
-
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
                                         m_viewNodeName,       // CF node to attach views to
                                         context,              // Source context
-                                        getScheduler() ) );
+                                        getScheduler(),
+                                        m_reverseViews ) );
 
   if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
   return StatusCode::SUCCESS;
