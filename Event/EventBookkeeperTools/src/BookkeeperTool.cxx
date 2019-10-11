@@ -8,7 +8,7 @@
 // Authors: Jack Cranshaw <Jack.Cranshaw@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-#include "EventBookkeeperTools/BookkeeperTool.h"
+#include "BookkeeperTool.h"
 
 // STL include
 #include <algorithm>
