@@ -879,8 +879,11 @@ namespace top {
 	  systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName],"ljet_isTagged_"+taggerName);
 	}
 
-	for(const std::string& taggerName : m_boostedJetTaggersNamesCalibrated){
-          systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_"+taggerName);
+        if (m_config->isMC()) {
+          systematicTree->makeOutputVariable(m_ljet_truthLabel, "ljet_truthLabel");
+          for(const std::string& taggerName : m_boostedJetTaggersNamesCalibrated){
+            systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_"+taggerName);
+          }
         }
 
       }
@@ -2591,8 +2594,13 @@ namespace top {
       m_ljet_m.resize(nLargeRJets);
       m_ljet_sd12.resize(nLargeRJets);
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
-      for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated ) m_ljet_tagSF[taggerName].resize(nLargeRJets);
+      for (const std::string& taggerName : m_boostedJetTaggersNames)
+        m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      if (m_config->isMC()) {
+        m_ljet_truthLabel.resize(nLargeRJets);
+        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated)
+          m_ljet_tagSF[taggerName].resize(nLargeRJets);
+      }
 
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
@@ -2605,13 +2613,15 @@ namespace top {
         jetPtr->getAttribute("Split12", Split12);
         m_ljet_sd12[i] = Split12;
 
-
-        for (const std::string& taggerName : m_boostedJetTaggersNames ) {
+        for (const std::string& taggerName : m_boostedJetTaggersNames) {
           m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName);
         }
 
-        for (const std::pair<std::string, std::string> &tagSF : m_config->boostedTaggerSFnames()) {
-          m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+        if (m_config->isMC()) {
+          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("FatjetTruthLabel");
+          for (const std::pair<std::string, std::string> &tagSF : m_config->boostedTaggerSFnames()) {
+            m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+          }
         }
 
         ++i;
