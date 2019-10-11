@@ -340,9 +340,14 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
 	// edges.push_back(std::make_shared<FlowEdge>(par, cur_jg, jg.size()));
 	std::cout<< "UFNB adding edge: " << *(edges.back())<<'\n';
 	for(const auto& sib : siblings){
+	  auto capacity = m_conditions[sib]->capacity();
+	  if(capacity == 0){ // "accept all conditions have capacity 0
+	    // find the size of a job group passed to the condition
+	    capacity = indJetGroups[satisfiedBy[sib][0]].size();
+	  }
 	  edges.push_back(std::make_shared<FlowEdge>(sib,
 						     cur_jg,
-						     m_conditions[sib]->capacity()));
+						     capacity));
 	  std::cout<< "UFNB sib-jg edge: " << *(edges.back())<<'\n';
 	}
 	edges.push_back(std::make_shared<FlowEdge>(cur_jg,
