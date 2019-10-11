@@ -313,10 +313,10 @@ void PerfMonMTSvc::report2Log_Time_Parallel() {
   ATH_MSG_INFO("                             CPU & Wall Time Monitoring                                ");
   ATH_MSG_INFO("                                    (Event Loop)                                       ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Event CheckPoint             CPU Time [ms]");
+  ATH_MSG_INFO("Event CheckPoint             CPU Time [ms]       Wall Time [ms]");
 
   for(auto it : m_eventLevelData.m_parallel_delta_map){
-    ATH_MSG_INFO(format("%1%  %|29t|%2$.2f ") % it.first % it.second.cpu_time );
+    ATH_MSG_INFO(format("%1%  %|29t|%2$.2f  %|49t|%3% ") % it.first % it.second.cpu_time % it.second.wall_time );
   }
   ATH_MSG_INFO("=======================================================================================");
 
@@ -419,7 +419,7 @@ void PerfMonMTSvc::report2Log_Summary() {
   ATH_MSG_INFO(format( "%1% %|35t|%2$.0f ") % "CPU usage per event [ms]:" % (m_snapshotData[1].m_delta_cpu / m_eventCounter));
   ATH_MSG_INFO(format( "%1% %|35t|%2$.3f ") % "Events per second:" % (m_eventCounter / m_snapshotData[1].m_delta_wall * 1000.));
 
-  ATH_MSG_INFO("");
+  ATH_MSG_INFO("***************************************************************************************");
 
   ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Vmem: " % scaleMem(m_measurement.vmemPeak));
   ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Rss: " % scaleMem(m_measurement.rssPeak));
@@ -506,8 +506,9 @@ void PerfMonMTSvc::report2JsonFile_Time_Parallel(nlohmann::json& j) const {
 
     std::string checkPoint = std::to_string(it.first);
     double cpu_time = it.second.cpu_time;
+    double wall_time = it.second.wall_time;
 
-    j["TimeMon_Parallel"][checkPoint] = { {"cpu_time", cpu_time} } ;
+    j["TimeMon_Parallel"][checkPoint] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ;
 
   }
 }
