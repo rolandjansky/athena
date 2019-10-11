@@ -1802,11 +1802,6 @@ class TrigMuonEFQualityHypoConfig(TrigMuonEFQualityHypo) :
         try:
             self.AcceptAll = False
 
-            if 'MS' in args[1]:
-                self.RequireCombinedMuon = False
-            else:
-                self.RequireCombinedMuon = True
-
             if 'Loose' in args[1]:
                 self.LooseCut = True
             else :
