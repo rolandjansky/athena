@@ -426,7 +426,7 @@ menu.overwriteSignaturesWith(signaturesToGenerate)
 # the L1Decoder to be defined in the topSequence
 menu.generateMT()
 
-if endJobAfterGenerate:
+if opt.endJobAfterGenerate:
     import sys
     sys.exit(0)
 
