@@ -268,10 +268,10 @@ bool psc::Psc::configure(const ptree& config)
       // Normally this is TrigPSC/TrigPSCPythonDbSetup
       std::string pyBasicFile = m_config->getOption("PYTHONSETUPFILE") ;
       if ( pyBasicFile != "" ) {
-	if ( !psc::Utils::pyInclude(pyBasicFile) ) {
-	  ERS_PSC_ERROR("Basic Python configuration failed.");
-	  return false;
-	}
+        if ( !psc::Utils::pyInclude(pyBasicFile) ) {
+          ERS_PSC_ERROR("Basic Python configuration failed.");
+          return false;
+        }
       }
     }   
   }
@@ -657,11 +657,17 @@ bool psc::Psc::doEventLoop()
 
 bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 {
-  using namespace std;
   psc::Utils::ScopeTimer timer("Psc prepareWorker");
 
-  ERS_LOG("Individualizing DF properties");
+  /* Release the Python GIL (which we inherited from the mother)
+     to avoid dead-locking on the first call to Python. Only relevant
+     if Python is initialized and Python-based algorithms are used. */
+  if ( PyEval_ThreadsInitialized() ) {
+    ERS_DEBUG(1, "Releasing Python GIL");
+    PyEval_SaveThread();
+  }
 
+  ERS_LOG("Individualizing DF properties");
   m_config->prepareWorker(args);
 
   if (!setDFProperties({{"DF_Pid", "DF_PID"},
