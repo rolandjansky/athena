@@ -24,7 +24,6 @@
 */
 
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Service.h"
 #include "AthenaKernel/MsgStreamMember.h"
