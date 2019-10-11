@@ -46,6 +46,7 @@ class opt:
     doBphysicsSlice   = True
     doStreamingSlice  = True
     doMonitorSlice    = True
+    doBeamspotSlice   = True
     reverseViews      = False
     enabledSignatures = []
     disabledSignatures = []
