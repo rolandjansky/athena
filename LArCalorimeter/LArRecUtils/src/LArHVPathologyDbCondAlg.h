@@ -12,6 +12,7 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "LArRecConditions/LArHVPathology.h"
 #include "LArRecConditions/LArHVIdMapping.h"
+#include<mutex>
 
 class LArEM_ID;
 class LArHEC_ID;
@@ -47,6 +48,7 @@ class LArHVPathologyDbCondAlg: public AthReentrantAlgorithm
   const LArOnlineID*      m_laronline_id;
   const LArHVLineID*      m_hvlineHelper;
 
+  mutable std::mutex m_mut;
 };
 
 #endif

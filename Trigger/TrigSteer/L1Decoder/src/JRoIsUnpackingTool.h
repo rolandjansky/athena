@@ -28,7 +28,7 @@ public:
                     const HLT::IDSet& activeChains) const override;
   
   virtual StatusCode initialize() override;
-  virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) override;
+  virtual StatusCode updateConfiguration() override;
   virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   virtual StatusCode start() override;
 private: 

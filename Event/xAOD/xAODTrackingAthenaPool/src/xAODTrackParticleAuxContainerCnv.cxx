@@ -13,7 +13,6 @@
 
 // Athena/Gaudi include(s):
 #include "AthContainers/tools/copyThinned.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Local include(s):

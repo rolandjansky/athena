@@ -18,6 +18,16 @@
 #include <sstream>
 
 
+namespace {
+
+const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
+const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+const EventIDRange fullrange (EventIDBase (0, UNDEFEVT, 0, 0, 0),
+                              EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM-1, 0, 0));
+
+} // anonymous namespace
+
+
 /**
  * @brief Gaudi initialize method.
  */
@@ -50,10 +60,6 @@ LuminosityCondAlg::execute (const EventContext& ctx) const
 
   if (m_luminosityFolderInputKey.empty()) {
     // MC case.
-    const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
-    const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
-    EventIDRange fullrange (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                            EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
     range = fullrange;
   }
   else {
@@ -231,6 +237,7 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
   if (lumi.lbAverageLuminosity() <= 0.) {
     ATH_MSG_WARNING( "LBAvInstLumi is zero or negative in updatePerBunchLumi():"
                      << lumi.lbAverageLuminosity());
+    range = EventIDRange::intersect (range, fullrange);
     return StatusCode::SUCCESS;
   }
 

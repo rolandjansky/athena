@@ -111,7 +111,7 @@ def setupMenu():
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
-    TriggerFlags.MonitorSlice.signatures   = [
+    TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits

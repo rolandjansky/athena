@@ -20,13 +20,6 @@ if TriggerFlags.doCalo:
 
 
     # menu items
-     CTPToChainMapping = {
-       "HLT_j85":       "L1_J20"  ,
-       "HLT_j45" : "L1_J20"
-     }
-     testChains =[x for x, y in CTPToChainMapping.items()]
-     topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
-     print testChains
 
      # get L1 decisions
      for unpack in topSequence.L1Decoder.roiUnpackers:

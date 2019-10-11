@@ -89,15 +89,16 @@ def make_l1_seq():
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
     all_algs.append(RoIBResultByteStreamDecoderAlg())
 
+    # Set menu for L1ConfigSvc
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.triggerMenuSetup = "LS2_v1"
+
     # Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
     # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
-    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, getL1ConfigSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr += LVL1ConfigSvc()
-
-    # Set the LVL1 menu (needed for initialising LVL1ConfigSvc)
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+    l1JsonFile = generateL1Menu()
+    svcMgr += getL1ConfigSvc()
 
     # Initialise L1 decoding tools
     from L1Decoder.L1DecoderConf import CTPUnpackingTool
@@ -114,7 +115,6 @@ def make_l1_seq():
     from L1Decoder.L1DecoderConf import L1Decoder
     l1decoder = L1Decoder()
     l1decoder.ctpUnpacker = ctpUnpacker
-    l1decoder.ChainToCTPMapping = chainCTPMap
     all_algs.append(l1decoder)
 
     from AthenaCommon.CFElements import seqOR

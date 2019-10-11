@@ -48,42 +48,6 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
   }
   return StatusCode::SUCCESS;
 }
-StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const TrigConf::TriggerThreshold*)> filter, const TrigConf::ItemContainer& l1Items, const IRoIsUnpackingTool::SeedingMap& seeding ) {
-  for ( auto chainItemPair: seeding) {
-    std::string chainName = chainItemPair.first;
-    std::string itemName = chainItemPair.second;
-    auto itemsIterator = l1Items.get<TrigConf::tag_name_hash>().find(itemName);
-
-    if ( itemsIterator != l1Items.get<TrigConf::tag_name_hash>().end() ) {
-
-      const TrigConf::TriggerItem* item = *itemsIterator;
-      const TrigConf::TriggerItemNode* node = item->topNode();
-      std::vector<TrigConf::TriggerThreshold*> itemThresholds;
-      node->getAllThresholds(itemThresholds);
-      const int thresholdCount = itemThresholds.size();
-      ATH_MSG_DEBUG( "Item " << item->name() << " with thresholds " <<  thresholdCount);
-      int prefix = -1;
-      for ( const TrigConf::TriggerThreshold* th: itemThresholds ) {
-	prefix++;
-	if ( filter(th) ) {
-	  m_thresholdToChainMapping[HLT::Identifier(th->name())].push_back( HLT::Identifier(chainName) );
-	  ATH_MSG_DEBUG( "Associating " << chainName << " with threshold " << th->name() );
-	  if ( thresholdCount > 1 ) {
-	    std::string legName = "000_" + chainName;
-	    const std::string ps = std::to_string(prefix);
-	    legName.replace(3-ps.size(), ps.size(), ps );
-	    m_thresholdToChainMapping[HLT::Identifier(th->name())].push_back( HLT::Identifier(legName) );
-	    ATH_MSG_INFO( "Associating " << legName << " with threshold " << th->name() );
-	  }
-	}
-      }
-    } else {
-      // we may wish to change that to ERROR at some point
-      ATH_MSG_WARNING( "Could not find item: " << itemName << " that is used in seeding");
-    }
-  }
-  return StatusCode::SUCCESS;
-}
 
 void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
                                                  TrigCompositeUtils::Decision* d,
