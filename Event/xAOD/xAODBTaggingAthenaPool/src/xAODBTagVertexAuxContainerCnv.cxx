@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODBTaggingAuxContainerCnv.cxx 566967 2013-10-24 13:24:31Z krasznaa $
@@ -15,48 +15,25 @@
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthContainers/tools/copyThinned.h"
-#include "AthenaKernel/IThinningSvc.h"
 
 
-xAODBTagVertexAuxContainerCnv::xAODBTagVertexAuxContainerCnv( ISvcLocator* svcLoc )
-   : xAODBTagVertexAuxContainerCnvBase( svcLoc ) {
+#define LOAD_DICTIONARY( name ) do {  TClass* cl = TClass::GetClass( name ); \
+    if( ( ! cl ) || ( ! cl->IsLoaded() ) ) {  ATH_MSG_ERROR( "Couldn't load dictionary for type: " << name ); } } while(0)
 
-}
 
 xAOD::BTagVertexAuxContainer*
 xAODBTagVertexAuxContainerCnv::
-createPersistent( xAOD::BTagVertexAuxContainer* trans ) {
-  
-  static const char* trackParticleType = 
-    "std::vector<std::vector<ElementLink<DataVector<xAOD::TrackParticle_v1> > > >";
-  static bool dictLoaded = false;
-  if( ! dictLoaded ) {
-    TClass* cl = TClass::GetClass( trackParticleType );
-    if( ( ! cl ) || ( ! cl->IsLoaded() ) ) {
-      ATH_MSG_ERROR( "Couldn't load the dictionary for \""
-                      << trackParticleType << "\"" );
-    } else {
-      dictLoaded = true;
-    }
-  }
+createPersistentWithKey( xAOD::BTagVertexAuxContainer* trans,
+                         const std::string& key)
+{
+  // ??? Still needed?
+  std::once_flag flag;
+  std::call_once (flag,
+                  [this] {
+                    LOAD_DICTIONARY( "std::vector<std::vector<ElementLink<DataVector<xAOD::TrackParticle_v1> > > >" );
+                  });
                                                 
   // Create a copy of the container:
-  return SG::copyThinned (*trans, IThinningSvc::instance());
+  return xAODBTagVertexAuxContainerCnvBase::createPersistentWithKey (trans, key);
 }
 
-xAOD::BTagVertexAuxContainer* xAODBTagVertexAuxContainerCnv::createTransient() {
-
-   // The known ID(s) for this container:
-  const pool::Guid v1_guid( "09CD44BA-0F40-4FDB-BB30-2F4226FF3E18" );
-
-   // Check which version of the container we're reading:
-   if( compareClassGuid( v1_guid ) ) {
-      // It's the latest version, read it directly:
-      return poolReadObject< xAOD::BTagVertexAuxContainer >();
-   }
-
-   // If we didn't recognise the ID:
-   throw std::runtime_error( "Unsupported version of "
-                             "xAOD::BTagVertexAuxContainer found" );
-   return 0;
-}
