@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: JetObjectCollectionMaker.h 809674 2017-08-23 14:10:24Z iconnell $
@@ -87,7 +87,7 @@ namespace top{
       
     protected:
       // specify Systematic
-      virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<ICPJetUncertaintiesTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , const std::string& modName , bool isLargeR = false, bool onlyJER=false);       
+      virtual void addSystematics( const std::set<std::string>& specifiedSystematics, const CP::SystematicSet& recommendedSysts, std::unordered_map<CP::SystematicSet, CP::SystematicSet>& map, const std::string& modName, bool isLargeR = false, bool onlyJER=false);
       
       StatusCode execute( const bool isLargeR, bool executeNominal );
       
@@ -135,6 +135,11 @@ namespace top{
 
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
       std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool>> m_tagSFuncertTool;
+
+      // do decorate the large-R jets with the boosted-tagging flags
+      // and decorate jets with TAccept object containing detailed tag result informaiton
+      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendation2017#TAcceptUsageSection
+      std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
      
       ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
       ToolHandle<IJetModifier> m_fjvtTool;
@@ -155,6 +160,8 @@ namespace top{
 
       StatusCode decorateBJets(xAOD::Jet& jet);
       StatusCode decorateHSJets();
+      StatusCode tagLargeRJet(const xAOD::Jet& jet);
+      StatusCode tagNominalLargeRJets();
       
       ///-- Large R jet truth labeling --///
       std::unique_ptr<SmoothedWZTagger> m_TaggerForJES;
