@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Same as slice_mu test from TrigUpgradeTest, but with athenaHLT, MP & MT
+# art-description: Same as slice_jet test from TrigUpgradeTest, but with athenaHLT, MP & MT
 # art-type: build
 # art-include: master/Athena
 
