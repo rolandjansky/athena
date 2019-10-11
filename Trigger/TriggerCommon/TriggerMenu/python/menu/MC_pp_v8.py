@@ -434,6 +434,11 @@ def setupMenu():
         # cellPufit
         ['xe0noL1_l2fsperf_cellpufit', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_cellpufit_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+        ['xe105_trktc_lcw_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe125_trkmht_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe130_trkmht_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe135_trkmht_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 ]
  
     if TriggerFlags.doFTK():
