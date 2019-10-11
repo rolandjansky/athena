@@ -36,6 +36,15 @@ const ExtendedEventContext& getExtendedEventContext (const EventContext& ctx)
 
 
 /**
+ * @brief Retrieve an extended context from a context object.
+ */
+ExtendedEventContext& getExtendedEventContext (EventContext& ctx)
+{
+  return ctx.getExtension<ExtendedEventContext>();
+}
+
+
+/**
  * @brief Move an extended context into a context object.
  */
 void setExtendedEventContext (EventContext& ctx,
