@@ -9,15 +9,9 @@
 
 #include "TrackSelectionAlg.h"
 
-//#include "GaudiKernel/MsgStream.h"
-
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
-#include "TrkTrackSummary/TrackSummary.h"
-
-
-#include "VxVertex/VxContainer.h"
 #include "AthContainers/ConstDataVector.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrackSummary/TrackSummary.h"
 
 //---------------------------------------------------------------------------------------
 
@@ -35,8 +29,6 @@ TrackSelectionAlg::TrackSelectionAlg(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MinBLayerHits", m_minBLayerHits = 0);
   declareProperty("MinTRTHits", m_minTRTHits = 0);
   declareProperty("MinTRTHitsHT", m_minTRTHitsHT = 0);
-  declareProperty("InputTrackColName", m_inputTrackCol = "ExtendedTracks");
-  declareProperty("OutputTrackColName", m_outputTrackCol = "MySelectedTracks");
 
 }
 
@@ -60,6 +52,10 @@ StatusCode TrackSelectionAlg::initialize()
 
   msg(MSG::INFO) << "TrackSelectionAlg initialized" << endmsg;
 
+  ATH_CHECK(m_inputTrackCol.initialize());
+  ATH_CHECK(m_outputTrackCol.initialize());
+  ATH_CHECK(m_vertices.initialize());
+
   return StatusCode::SUCCESS;
 
 }
@@ -82,24 +78,21 @@ StatusCode TrackSelectionAlg::execute()
   //if this method the decision on which trackcollection and whether to require TRT hits
   //is made from the configuration of the TrackSlectionTool (in jobOptions)
 
-  const TrackCollection* tracks = nullptr;
-
   //retrieving input track collection from Storegate
-  StatusCode sc = evtStore()->retrieve(tracks,m_inputTrackCol);
-  if (sc.isFailure()) {
+  SG::ReadHandle<TrackCollection> tracks{m_inputTrackCol};
+  if (not tracks.isValid()) {
     msg(MSG::ERROR) << "No TrackCollection with name "<<m_inputTrackCol<<" found in StoreGate" << endmsg;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_inputTrackCol<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_inputTrackCol.key()<<" found in StoreGate" << endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
 
   //getting primary vertex collection from Storegate
-  const VxContainer* vertices = nullptr;
-  StatusCode scv = evtStore()->retrieve(vertices,"VxPrimaryCandidate");
-  if (scv.isFailure()) {
+  SG::ReadHandle<VxContainer> vertices{m_vertices};
+  if (not vertices.isValid()) {
     msg(MSG::ERROR) << "No Collection with name " << "VxPrimaryCandidate" <<" found in StoreGate" << endmsg;
   } 
-  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name " << "VxPrimaryCandidate" << " with size " << vertices->size() <<" found in StoreGate" << endmsg;
+  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name " << m_vertices.key() << " with size " << vertices->size() <<" found in StoreGate" << endmsg;
   
   
   //choosing the primary vertex with the largest number of associated tracks
@@ -128,7 +121,7 @@ StatusCode TrackSelectionAlg::execute()
   
   
   //this is the track view that will be filled
-  auto selectedTracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS );
+  auto selectedTracks = std::make_unique<TrackCollection>( SG::VIEW_ELEMENTS );
 
   //looping over input track collection and implementing track selection cuts
   TrackCollection::const_iterator trksItr  = tracks->begin();
@@ -137,10 +130,11 @@ StatusCode TrackSelectionAlg::execute()
     
     const Trk::Track* track = *trksItr;
     bool trackPassed = makeTrackCuts(track, zVtx);
-    if(trackPassed) selectedTracks->push_back(track);    
+    if(trackPassed) selectedTracks->push_back(new Trk::Track(*track));    
   }
 
-  evtStore()->record(std::move(selectedTracks),m_outputTrackCol);
+  SG::WriteHandle<TrackCollection> outputTrackCol{m_outputTrackCol};
+  outputTrackCol.record(std::move(selectedTracks));
 
   return StatusCode::SUCCESS;
 }

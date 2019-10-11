@@ -13,10 +13,7 @@
 
 
 #include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "CommissionEvent/ComTime.h"
-#include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 #include "AthContainers/ConstDataVector.h"
 
@@ -35,9 +32,7 @@ InDetAlignMon::TrackSelectionTool::TrackSelectionTool( const std::string & type,
   declareProperty("DoEventPhaseCut", m_doEventPhaseCut=false);
   declareProperty("MinEventPhase", m_minEventPhase=5);
   declareProperty("MaxEventPhase", m_maxEventPhase=30);
-  declareProperty("CommTimeName", m_commTimeName="TRT_Phase");
   declareProperty("UsePrimaryVertex", m_usePrimVtx=false);
-  declareProperty("PrimVtxContainerName", m_VtxContainerName="VxPrimaryCandidate");
   declareProperty("MinTracksPerVtx", m_minTracksPerVtx=0);
   
 }
@@ -72,6 +67,10 @@ StatusCode InDetAlignMon::TrackSelectionTool::initialize()
     m_trackSelectorTool.disable();
   }
 
+  ATH_CHECK(m_commTimeName.initialize(m_doEventPhaseCut));
+  ATH_CHECK(m_trackColName.initialize(not m_trackColName.key().empty()));
+  ATH_CHECK(m_VtxContainerName.initialize(m_usePrimVtx));
+
   return StatusCode::SUCCESS;
 
 }
@@ -86,27 +85,25 @@ StatusCode InDetAlignMon::TrackSelectionTool::finalize()
 }
 
 
-const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const std::string &trackColName)
+const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(SG::ReadHandle<TrackCollection>& tracks)
 {
 
   //if this method is used the decision on which trackcollection
   //is made by the calling method
   //returns a view to a new track collection object which contains the selected tracks
 
-  const TrackCollection* tracks; //pointer to original track collection in StoreGate
   auto selected_tracks = std::make_unique<ConstDataVector<DataVector<Trk::Track> > >(SG::VIEW_ELEMENTS); //new track collection view
   
   const Trk::RecVertex* pVtx = NULL;
   if(m_usePrimVtx){
 
     //get primary vertex container
-    const VxContainer* vxContainer = 0;
-    StatusCode sc = evtStore()->retrieve (vxContainer,m_VtxContainerName);
-    if (sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endmsg;
+    SG::ReadHandle<VxContainer> vxContainer{m_VtxContainerName};
+    if (not vxContainer.isValid()) {
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName.key()<<" found in StoreGate" << endmsg;
       return selected_tracks.release()->asDataVector(); //return empty track collection (but not NULL)
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName.key()<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endmsg;
     }
 
     //loop over vertices and look for good primary vertex
@@ -125,14 +122,7 @@ const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(co
 
   //retrieve the track collection from StoreGate to which the selection will be applied
   //if track collection cannot be found an empty track collection is returned
-  StatusCode sc = evtStore()->retrieve(tracks,trackColName);
-  if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
-    return selected_tracks.release()->asDataVector(); //return empty track collection (but not NULL)
-  } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
-  }
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
     
   TrackCollection::const_iterator trksItr  = tracks->begin();
   TrackCollection::const_iterator trksItrE = tracks->end();
@@ -177,15 +167,14 @@ const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(co
 	// cut on the TRT_Phase (ie: the Event Phase)
 	float eventPhase=-99.0;
 	
-	ComTime* theComTime(0);
-	StatusCode sc = evtStore()->retrieve(theComTime, m_commTimeName);
-	if(sc.isFailure()){
+        SG::ReadHandle<ComTime> theComTime{m_commTimeName};
+	if(not theComTime.isValid()){
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
 	  trackPassed = false;
 	}
 	
 	// get the event phase (one for the entire event)
-	if(theComTime){
+	if(theComTime.get()){
 	  eventPhase = theComTime->getTime();
 	}
 	
@@ -218,15 +207,14 @@ const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks()
   //is made from the configuration of the TrackSlectionTool (in jobOptions)
   //returns a view to a new track collection object which contains the selected tracks
 
-  const TrackCollection* tracks;
+  SG::ReadHandle<TrackCollection> tracks{m_trackColName};
   auto selected_tracks = std::make_unique<ConstDataVector<DataVector<Trk::Track> > >(SG::VIEW_ELEMENTS);
 
-  StatusCode sc = evtStore()->retrieve(tracks,m_trackColName);
-  if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endmsg;
+  if (not tracks.isValid()) {
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_trackColName.key()<<" found in StoreGate" << endmsg;
     return selected_tracks.release()->asDataVector(); //return empty track collection (but not NULL)
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_trackColName.key()<<" found in StoreGate" << endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
   }
 
