@@ -32,5 +32,14 @@ atlas_add_component( EventBookkeeperTools
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/PrintCutFlow.py )
 
+# Tests
+atlas_add_test( CutflowSvcDummyAlg
+                SCRIPT athena EventBookkeeperTools/TestCutFlowSvcDummyAlg.py
+                PROPERTIES TIMEOUT 300 )
+atlas_add_test( CutflowSvcDumpBookkeepers
+                SCRIPT athena EventBookkeeperTools/TestCutFlowSvcDumpBookkeepers.py
+                PROPERTIES TIMEOUT 300 )
+atlas_add_test( CutflowSvcOutput
+                SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py
+                PROPERTIES TIMEOUT 300 )

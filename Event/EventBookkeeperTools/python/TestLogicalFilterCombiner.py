@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##==============================================================================
-## Name:        myTestLogicalFilterCombiner.py  (completely inspired from LogicalFilterCombiner.py)
+## Name:        TestLogicalFilterCombiner.py  (completely inspired from LogicalFilterCombiner.py)
 ##
 ## Author:      Joao Firmino da Costa (DESY) 
 ## Created:     July 2010
@@ -14,31 +14,25 @@ __doc__ = """This algorithm combines the results of one or more skim filters"""
 __version__ = "0.0.1"
 __author__  = "Joao Costa <joao.firmino.da.costa@desy.de>"
 
+import tokenize
 import AthenaPython.PyAthena as PyAthena
 
-from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
+from StringIO import StringIO
 
-
-import tokenize
-from cStringIO import StringIO
-
-class myTestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
+class TestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
     
-    def __init__ ( self, name = 'myTestLogicalFilterCombiner', **kw ):
+    def __init__ ( self, name = 'TestLogicalFilterCombiner', **kw ):
         ## initialize base class
         kw['name'] = name
-        super(myTestLogicalFilterCombiner, self).__init__(**kw)
+        super(TestLogicalFilterCombiner, self).__init__(**kw)
         
         self.cmdstring = kw.get('cmdstring', '')
         self.prefix    = kw.get('prefix', '')
 
         # Create the algorithm dictionary
         self.algdict = {}
-        #self.EB = PyAthena.EventBookkeeper()
-     
-
-        
+    
         return
 
 
@@ -61,15 +55,7 @@ class myTestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
             return False        
 
 
-
-        #self.cutFlow = PyAthena.py_svc('CutFlowSvc',iface='ICutFlowSvc')
-        #   return StatusCode.Success
-        self.msg.info("Should be registered automatically")
-        #self.EB = self.cutFlow.selfRegisterFilter(self.name(),"TopFilter")
-
-
         try:
-          
             tokenobj = tokenize.generate_tokens(StringIO(self.cmdstring).readline)
 
             self.algdict = {}
@@ -123,14 +109,11 @@ class myTestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
 
             self.msg.debug("String changed internally to:\n%s", self.cmd)
 
-            #execute command once to validate        
-            #self.execute()
         except Exception, e:
             self.msg.fatal("Not a valid Python string. Exception: %s" % e)
             return False
 
         self.msg.info("Filter string validated")
-
    
 
         return True
@@ -138,17 +121,13 @@ class myTestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
     def execute(self):
 
         for k,v in self.algdict.iteritems():
-#            self.msg.debug("Alg %s : %s" % (k, v.filterPassed()))
+            self.msg.debug("Alg %s : %s" % (k, v.filterPassed()))
             pass
 
-        
-
         response = bool(eval(self.cmd))
-        
+
         if response :
             self.msg.info("Accepted Event in child filters")
-
-
 
         self.setFilterPassed(response)
         return True
@@ -171,9 +150,3 @@ def py_alg(algname,iface='Algorithm'):
     if not algmgr.getAlgorithm(algname, alg).isSuccess():
         return
     return alg
-
-
-#def py_svc(svcname='CutFlowSvc',iface='CutFlowSvc'):
-
-#    svc = PyAthena.py_svc('CutFlowSvc',iface='ICutFlowSvc')
-#    return  svc

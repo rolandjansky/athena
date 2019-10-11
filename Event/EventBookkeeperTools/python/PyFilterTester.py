@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
-## Name:        FilterTester
+## Name:        PyFilterTester
 ##
 ## Author:      David Cote (DESY)
 ## Created:     August 2009
@@ -14,11 +14,11 @@ __doc__ = """This dummy filter provides a simple example.
 
 from AthenaPython.PyAthena import AthFilterAlgorithm, StatusCode
 
-class FilterTester( AthFilterAlgorithm ):
+class PyFilterTester( AthFilterAlgorithm ):
 
-    def __init__ ( self, name = "FilterTester", **kw ):
+    def __init__ ( self, name = "PyFilterTester", **kw ):
         kw['name'] = name
-        super(FilterTester, self).__init__(**kw)
+        super(PyFilterTester, self).__init__(**kw)
         return
 
     def initialize(self):
