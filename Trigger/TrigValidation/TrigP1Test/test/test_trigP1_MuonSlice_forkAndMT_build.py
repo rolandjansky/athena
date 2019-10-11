@@ -13,7 +13,7 @@ ex.input = 'data'
 ex.forks = 2
 ex.threads = 2
 ex.concurrent_events = 2
-ex.args = '-c "doEmptyMenu=True;doMuonSlice=True;doWriteESD=False"'
+ex.args = '--stdcmalloc -c "doEmptyMenu=True;doMuonSlice=True;doWriteESD=False"'
 ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
