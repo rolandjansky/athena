@@ -16,14 +16,9 @@ import TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 as physics_menu
 from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import PhysicsStream,SingleMuonGroup,SinglePhotonGroup,MinBiasGroup
 
 
-#def setupMenu():
 def addP1Signatures():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
-    from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py' )
-
-    physics_menu.setupMenu()
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
@@ -65,6 +60,16 @@ def addP1Signatures():
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
+
+
+def setupMenu():
+
+    from TriggerJobOpts.TriggerFlags          import TriggerFlags
+    from AthenaCommon.Logging                 import logging
+    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py' )
+
+    addP1Signatures()
+    physics_menu.setupMenu()
 
     signatureList=[]
     for prop in dir(TriggerFlags):
