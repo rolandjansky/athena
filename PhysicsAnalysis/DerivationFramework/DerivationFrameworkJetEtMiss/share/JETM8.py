@@ -277,14 +277,18 @@ emufoAlg = runUFOReconstruction(jetm8Seq, ToolSvc, PFOPrefix="CHS")
 emcsskufoAlg = runUFOReconstruction(jetm8Seq, ToolSvc, PFOPrefix="CSSK")
 
 from JetRec.JetRecConf import PseudoJetGetter
-ufopjgetter     = PseudoJetGetter("ufoPJGetter", InputContainer="CHSUFO", OutputContainer="CHSUFOPJ", Label="TrackCaloCluster", SkipNegativeEnergy=True)
-csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="TrackCaloCluster", SkipNegativeEnergy=True)
+ufopjgetter     = PseudoJetGetter("ufoPJGetter", InputContainer="CHSUFO", OutputContainer="CHSUFOPJ", Label="UFO", SkipNegativeEnergy=True)
+csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="UFO", SkipNegativeEnergy=True)
 
 jtm+=ufopjgetter
 jtm+=csskufopjgetter
 
-addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = [ufopjgetter], namesuffix = "CHS")
-addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = [csskufopjgetter], namesuffix = "CSSK")
+
+chsufogetters = [ufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
+csskufogetters = [csskufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
+addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = csskufogetters, constmods=["CSSK"])
+addStandardJets("AntiKt", 1.0, "UFOCHS", ptmin=40000, ptminFilter=50000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = chsufogetters, constmods=["CHS"])
+
 
 #====================================================================
 # Set up b-tagging

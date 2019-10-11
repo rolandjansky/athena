@@ -5,7 +5,6 @@
 #ifndef BTAG_JET_AUGMENTER_HH
 #define BTAG_JET_AUGMENTER_HH
 
-#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 
 // ATLAS things
@@ -15,10 +14,8 @@
 class BTagJetAugmenter
 {
 public:
-  typedef FlavorTagDiscriminants::EDMSchema EDMSchema;
   typedef FlavorTagDiscriminants::FlipTagConfig FlipTagConfig;
-  BTagJetAugmenter(EDMSchema schema = EDMSchema::WINTER_2018,
-                   FlipTagConfig flip = FlipTagConfig::STANDARD);
+  BTagJetAugmenter(FlipTagConfig flip = FlipTagConfig::STANDARD);
   ~BTagJetAugmenter();
   BTagJetAugmenter(BTagJetAugmenter&&);
   void augmentJfDr(const xAOD::BTagging &btag);
@@ -28,8 +25,6 @@ public:
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
   typedef SG::AuxElement AE;
-  bool m_use_floats;
-  bool m_write_unflippable;
 
   AE::Decorator<double> pt_uncalib;
   AE::Decorator<double> eta_uncalib;
@@ -71,36 +66,23 @@ private:
   AE::ConstAccessor<std::vector<ElementLink<xAOD::TrackParticleContainer> > > jet_track_links;
   AE::Decorator<char> secondaryVtx_isDefaults;
   AE::Decorator<int> secondaryVtx_nTrks;
-  AE::Decorator<double> secondaryVtx_m;
-  AE::Decorator<double> secondaryVtx_E;
-  AE::Decorator<double> secondaryVtx_EFrac;
+  AE::Decorator<float> secondaryVtx_m;
+  AE::Decorator<float> secondaryVtx_E;
+  AE::Decorator<float> secondaryVtx_EFrac;
   AE::Decorator<float> secondaryVtx_L3d;
   AE::Decorator<float> secondaryVtx_Lxy;
-  AE::Decorator<double> secondaryVtx_min_trk_flightDirRelEta;
-  AE::Decorator<double> secondaryVtx_max_trk_flightDirRelEta;
-  AE::Decorator<double> secondaryVtx_avg_trk_flightDirRelEta;
-  AE::Decorator<double> min_trk_flightDirRelEta;
-  AE::Decorator<double> max_trk_flightDirRelEta;
-  AE::Decorator<double> avg_trk_flightDirRelEta;
+  AE::Decorator<float> secondaryVtx_min_trk_flightDirRelEta;
+  AE::Decorator<float> secondaryVtx_max_trk_flightDirRelEta;
+  AE::Decorator<float> secondaryVtx_avg_trk_flightDirRelEta;
+  AE::Decorator<float> min_trk_flightDirRelEta;
+  AE::Decorator<float> max_trk_flightDirRelEta;
+  AE::Decorator<float> avg_trk_flightDirRelEta;
 
   AE::ConstAccessor<float> smt_mu_pt;
   AE::Decorator<char> smt_isDefaults;
 
   AE::ConstAccessor<char> rnnip_pbIsValid;
   AE::Decorator<char> rnnip_isDefaults;
-
-  // Replace a lot of the doubles with floats. This is configuralbe
-  // for now because a number of people are using the double versions,
-  // but there's no good reason to use doubles.
-  AE::Decorator<float> new_secondaryVtx_m;
-  AE::Decorator<float> new_secondaryVtx_E;
-  AE::Decorator<float> new_secondaryVtx_EFrac;
-  AE::Decorator<float> new_secondaryVtx_min_trk_flightDirRelEta;
-  AE::Decorator<float> new_secondaryVtx_max_trk_flightDirRelEta;
-  AE::Decorator<float> new_secondaryVtx_avg_trk_flightDirRelEta;
-  AE::Decorator<float> new_min_trk_flightDirRelEta;
-  AE::Decorator<float> new_max_trk_flightDirRelEta;
-  AE::Decorator<float> new_avg_trk_flightDirRelEta;
 
 };
 

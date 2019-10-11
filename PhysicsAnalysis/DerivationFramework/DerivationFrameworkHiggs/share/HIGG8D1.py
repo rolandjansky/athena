@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkHiggs.TruthCategories import *
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -46,9 +47,9 @@ augmentationTools = []
 
 from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauSelectionWrapper
 HIGG8D1TauWrapper = DerivationFramework__TauSelectionWrapper(name = "HIGG8D1TauSelectionWrapper",
-                                                             IsTauFlag			= 19,
+                                                             IsTauFlag			= 29,
                                                              CollectionName		= "TauJets",
-                                                             StoreGateEntryName	= "HIGG8D1JetBDTSigLoose")
+                                                             StoreGateEntryName	= "HIGG8D1JetRNNSigLoose")
 ToolSvc += HIGG8D1TauWrapper
 augmentationTools.append(HIGG8D1TauWrapper)
 
@@ -264,12 +265,23 @@ HIGG8D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
 ToolSvc += HIGG8D1ElectronTPThinningTool
 thinningTools.append(HIGG8D1ElectronTPThinningTool)
 
+StoreAdditionalAmbiguityContent = True
+if StoreAdditionalAmbiguityContent:
+    HIGG8D1ElectronAddTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "HIGG8D1ElectronAddTPThinningTool",
+                                                                                        ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                                        SGKey                   = "Electrons",
+                                                                                        SelectionString         = "Electrons.DFCommonAddAmbiguity >= 0",
+                                                                                        ConeSize                = 0.3)
+    ToolSvc += HIGG8D1ElectronAddTPThinningTool
+    thinningTools.append(HIGG8D1ElectronAddTPThinningTool)
+
 # Tracks associated with Taus
+#HIGG8D1TauPtSelectionString = "(TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG8D1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "HIGG8D1TauTPThinningTool",
                                                                           ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
                                                                           TauKey                  = "TauJets",
-                                                                          SelectionString         = "TauJets.pt > 15*GeV",
+                                                                          SelectionString         = "TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV",
                                                                           ConeSize                = 0.6,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG8D1TauTPThinningTool
@@ -378,7 +390,8 @@ eleRequirements = '(Electrons.pt > 5*GeV) && (abs(Electrons.eta) < 2.6) && (Elec
 leadElectron = eleRequirements + ' && (Electrons.pt > 15*GeV)'
 muRequirements = '(Muons.DFCommonGoodMuon) && (Muons.muonType == 0) && (Muons.pt > 5*GeV) && (abs(Muons.eta) < 2.6)'
 leadMuon = muRequirements + ' && (Muons.pt > 15*GeV)'
-tauRequirements = '(TauJets.pt > 15*GeV) && HIGG8D1JetBDTSigLoose && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3))'
+tauRequirements = '(TauJets.pt > 15*GeV || TauJets.ptFinalCalib > 15.0*GeV) && HIGG8D1JetRNNSigLoose && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3))'
+#tauRequirements = 'HIGG8D1TauPtSelectionString && HIGG8D1JetRNNSigLoose && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3))'
 
 #=======================================
 # DeltaR (tau skimming)
@@ -473,16 +486,18 @@ HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
                                           #"BTagging_AntiKt4LCTopo",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
-                                          "BTagging_AntiKt4EMTopo",
+                                          "BTagging_AntiKt4EMTopo_201810",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
+                                          "AntiKt4EMPFlowJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "AntiKt4EMTopoJets_BTagging201810",
                                           "InDetTrackParticles",
                                           "PrimaryVertices",
                                           "AntiKt4EMPFlowJets"]
 # Adding PFlow b-jets
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq) 
-
-HIGG8D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
-HIGG8D1SlimmingHelper.SmartCollections += ["BTagging_AntiKt4EMPFlow"] 
 
 # Adding PFlow MET
 HIGG8D1SlimmingHelper.SmartCollections += ["MET_Reference_AntiKt4EMPFlow"] 
@@ -501,7 +516,8 @@ HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.ext
 #Adding Egamma details
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG8D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
-
+if StoreAdditionalAmbiguityContent:
+		HIGG8D1SlimmingHelper.ExtraVariables += ElectronsAddAmbiguityContent
 
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
@@ -520,6 +536,8 @@ ExtraContentTaus=[
         "ele_match_lhscore." 
         "ele_olr_pass."
         "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
+				"jetLink.seedTrackWidthPt500.seedTrackWidthPt1000."
+				#"jetLink.TrackWidthPt1000.TrackWidthPt500"
         #,
         #"TauNeutralParticleFlowObjects."
         #"pt."

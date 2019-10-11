@@ -380,6 +380,7 @@ class TopConfig final {
   inline virtual const std::string& sgKeyMuons()      const {return m_sgKeyMuons;     }
   inline virtual const std::string& sgKeyTaus()       const {return m_sgKeyTaus;      }
   inline virtual const std::string& sgKeyJets()       const {return m_sgKeyJets;      }
+  inline virtual const std::string& sgKeyJetsType()   const {return m_sgKeyJetsType;      }
   inline virtual const std::string& sgKeyLargeRJets() const {return m_sgKeyLargeRJets;}
   inline virtual const std::string& sgKeyTrackJets()  const {return m_sgKeyTrackJets; }
   inline virtual const std::string& sgKeyMissingEt()  const {return m_sgKeyMissingEt; }
@@ -487,6 +488,7 @@ class TopConfig final {
   void electronIsolationSF(std::string const & iso) {if(!m_configFixed){m_electronIsolationSF = iso;}}
   void electronIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_electronIsolationSFLoose = iso;}}
   inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
+  inline virtual void useEgammaLeakageCorrection(const std::string& s){if(!m_configFixed){ m_useEgammaLeakageCorrection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
   inline virtual const std::string& electronEfficiencySystematicModel(){return m_electronEfficiencySystematicModel;}
@@ -504,6 +506,7 @@ class TopConfig final {
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
   inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
+  inline bool useEgammaLeakageCorrection() const {return m_useEgammaLeakageCorrection;}
   
   // Fwd electron
   inline virtual void fwdElectronID( const std::string& s    ){if(!m_configFixed){m_fwdElectronID    = s;}}
@@ -678,6 +681,14 @@ class TopConfig final {
     if(!m_configFixed)
       m_tau_configuration_loose.fileName = s;
   }
+  inline virtual void tauSubstructureSF(bool do_tau_substructure_sf) {
+    if(!m_configFixed)
+      m_tau_configuration.substructureSF = do_tau_substructure_sf;
+  }
+  inline virtual void tauSubstructureSFLoose(bool do_tau_substructure_sf) {
+    if(!m_configFixed)
+      m_tau_configuration_loose.substructureSF = do_tau_substructure_sf;
+  }
 
   // Tau configuration getters
   inline virtual float tauPtcut() const {
@@ -706,6 +717,12 @@ class TopConfig final {
   }
   inline const std::string& tauJetConfigFileLoose() {
     return m_tau_configuration_loose.fileName;
+  }
+  inline virtual bool tauSubstructureSF() {
+    return m_tau_configuration.substructureSF;
+  }
+  inline virtual bool tauSubstructureSFLoose() {
+    return m_tau_configuration_loose.substructureSF;
   }
   // Applying new tau energy calibration
   inline bool applyTauMVATES() {
@@ -1188,6 +1205,7 @@ class TopConfig final {
   std::string m_sgKeyMuons;
   std::string m_sgKeyTaus;
   std::string m_sgKeyJets;
+  std::string m_sgKeyJetsType;
   std::string m_sgKeyLargeRJets;
   std::string m_sgKeyTrackJets;
   std::string m_sgKeyMissingEt;
@@ -1238,6 +1256,7 @@ class TopConfig final {
   std::string m_electronIDDecoration;
   std::string m_electronIDLooseDecoration;
   bool m_useElectronChargeIDSelection;
+  bool m_useEgammaLeakageCorrection;
   
   //Fwd electron configuration
   float m_fwdElectronPtcut;
@@ -1325,6 +1344,7 @@ class TopConfig final {
     std::string jetIDWP = "Medium";
     // the electron BDTWP
     std::string eleBDTWP = "Medium";
+    bool substructureSF = false;
     // Whether to perform electron overlap removal
     bool eleOLR = false;
     // pT cut on taus

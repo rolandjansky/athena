@@ -6,7 +6,6 @@
 #ifndef BTAG_AUGMENTER_TOOL_H
 #define BTAG_AUGMENTER_TOOL_H
 
-#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/ISingleJetModifier.h"
@@ -28,7 +27,6 @@ namespace FlavorTagDiscriminants {
     // returns 0 for success
     int modifyJet(xAOD::Jet& jet) const;
   private:
-    std::string m_schema;
     std::string m_flipTagConfig;
     std::unique_ptr<BTagJetAugmenter> m_aug; //!
   };

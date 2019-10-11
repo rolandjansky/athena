@@ -40,19 +40,25 @@ atlas_install_data( data/*.conf )
 
 if( XAOD_STANDALONE )
    atlas_add_test( testJobData
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test )
+      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test )
+      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test )
+      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py
-      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type data )
+      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type data
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT athena.py
-      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type mc )
+      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT athena.py
-      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type afii )
+      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
+      PROPERTIES TIMEOUT 600 )
 endif()

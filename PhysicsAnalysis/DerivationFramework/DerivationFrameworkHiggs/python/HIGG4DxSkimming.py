@@ -101,7 +101,7 @@ def setup(HIGG4DxName, ToolSvc):
         #The final selection here: (At least two leptons (and triggers) +  at least 2 jets) OR (At least one lepton (and veto the other, trigger) + at least 3 jets)
         eReq = '( Electrons.pt > 28.0*GeV && abs(Electrons.eta) < 2.5 && '+eleTight+' )'
         muReq = '( Muons.pt > 28.0*GeV && abs(Muons.eta) < 2.5 && Muons.DFCommonGoodMuon)'
-        jetReq = '( AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5 )' 
+        jetReq = '( AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.5 )' 
         trigger_electron = '(HLT_e26_lhtight_nod0_ivarloose || HLT_e60_lhmedium_nod0 || HLT_e140_lhloose_nod0 || HLT_e300_etcut)' 
         trigger_muon     = '(HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu60_0eta105_msonly)' 
         onelep = '( ((count('+eReq+') >= 1) && ('+trigger_electron+') && (count('+muReq+') == 0)) || ((count('+muReq+') >= 1) && ('+trigger_muon+') && (count('+eReq+') == 0)) )' #Single Lepton+trigger and veto on other lep type
@@ -127,14 +127,21 @@ def setup(HIGG4DxName, ToolSvc):
 ## This kernel will already have access ro the fat jets collection, which is 
 ## The only skim criterium used if on fat jets. All the other cuts of the HIGG4D6 are applied before.
 def setupFatJetSkim(HIGG4DxName, ToolSvc):
-    
+    bfix77_DL1r_2019   ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.195))'
+    bfix77_DL1rmu_2019 ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1rmu_pb/(0.03*BTagging_AntiKt4EMPFlow_201903.DL1rmu_pc+(1-0.03)*BTagging_AntiKt4EMPFlow_201903.DL1rmu_pu))>2.195))'
+    bfix77_DL1_2019    ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1_pu))>2.015))'
+    bfix77_DL1r_2018   ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1r_pb/(0.08*BTagging_AntiKt4EMPFlow_201810.DL1r_pc+(1-0.08)*BTagging_AntiKt4EMPFlow_201810.DL1r_pu))>0.7550000000000002))'
+    bfix77_DL1rmu_2018 ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1rmu_pb/(0.03*BTagging_AntiKt4EMPFlow_201810.DL1rmu_pc+(1-0.03)*BTagging_AntiKt4EMPFlow_201810.DL1rmu_pu))>2.1650000000000005))'
+    bfix77_DL1_2018    ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1_pb/(0.08*BTagging_AntiKt4EMPFlow_201810.DL1_pc+(1-0.08)*BTagging_AntiKt4EMPFlow_201810.DL1_pu))>1.4150000000000003))'
+
+    b2tag77_EMPFlow = "(%s >= 1 || %s >= 1 || %s >= 1 || %s >= 1 || %s >= 1 || %s >= 1)" % (bfix77_DL1r_2019, bfix77_DL1rmu_2019, bfix77_DL1_2019, bfix77_DL1r_2018, bfix77_DL1rmu_2018, bfix77_DL1_2018)
     skimmingTools = []
     tauProngs13 = "( abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3) )"
     if HIGG4DxName == 'HDBS1':
         ditau = '(count( (DiTauJetsLowPt.pt > 50.0*GeV) && (DiTauJetsLowPt.nSubjets >=2 ) ) >= 1)'
         twotau = '(count( (TauJets.pt > 20.0*GeV || TauJets.ptFinalCalib > 20.0*GeV) && '+tauProngs13+' ) >= 2)'
         tauReq = '( '+ditau+' || '+twotau+' )'
-        Bjet = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5 && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1)'
+        Bjet = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.5 ) >= 1) && %s' % b2tag77_EMPFlow
         skim_expression = tauReq + "&&" + Bjet 
     elif HIGG4DxName == 'HIGG4D6':
         fatjet   = '(count((AntiKt10LCTopoJets.pt > 300.0*GeV)) >= 2)'

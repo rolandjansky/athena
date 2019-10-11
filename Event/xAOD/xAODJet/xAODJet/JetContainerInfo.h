@@ -67,6 +67,9 @@ namespace xAOD {
       LCTopoOrigin,
       EMTopoOrigin,
       TrackCaloCluster,
+      UFO,
+      UFOCHS,
+      UFOCSSK,
       TruthDressedWZ, // Truth jets without prompt e/mu (or dressed photons) or prompt gammas
       EMTopoOriginSK,
       EMTopoOriginCS,

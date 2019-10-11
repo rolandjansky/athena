@@ -14,7 +14,6 @@ namespace FlavorTagDiscriminants {
     declareProperty("MuonAssociationName", m_muonAssociationName="Muons");
     declareProperty("MuonMinDR", m_muonMinDR=defaults::MUON_MIN_DR);
     declareProperty("MuonMinpT", m_muonMinpT=defaults::MUON_MIN_PT);
-    declareProperty("schema", m_schema = "WINTER_2018");
     declareProperty("flipTagConfig", m_flipTagConfig = "STANDARD");
   }
   BTagMuonAugmenterTool::~BTagMuonAugmenterTool() {}
@@ -24,7 +23,6 @@ namespace FlavorTagDiscriminants {
                   m_muonAssociationName,
                   m_muonMinDR,
                   m_muonMinpT,
-                  enumFromString(m_schema),
                   flipTagConfigFromString(m_flipTagConfig)));
     return StatusCode::SUCCESS;
   }

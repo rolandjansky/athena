@@ -115,10 +115,8 @@ def BTaggingStandardContent(jetcol):
     if 'BTagging' in jetcol:
          stamp = jetcol.split('BTagging')[1]
          btaggingtmp += '_'+stamp
-
     # deal with name mismatch between PV0TrackJets and BTagging_Track
     btagging = btaggingtmp.replace("PV0Track", "Track")
-
 
     jetcontent = \
         [ jetcol ] \

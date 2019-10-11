@@ -12,6 +12,8 @@
  */
 #include "TrackTools.h"
 
+#include "CaloIdentifier/TileID.h"
+
 //=============================================
 TrackTools::TrackTools(const std::string&type, const std::string&name, const IInterface*parent) 
   : AthAlgTool(type, name, parent)
@@ -22,6 +24,7 @@ TrackTools::TrackTools(const std::string&type, const std::string&name, const IIn
     declareInterface<ITrackTools>(this);        
 
     declareProperty("ParticleCaloExtensionTool",m_caloExtensionTool ); 
+    declareProperty("IsCollision",m_isCollision); 
 } // TRACKTOOLS::TRACKTOOLS
 
 //========================
@@ -32,9 +35,16 @@ TrackTools::~TrackTools(){
 //==================================
 StatusCode TrackTools::initialize(){
 //=================================
-    
+
     ATH_MSG_INFO( "Initializing TrackTools" );
 
+    if (m_isCollision) {
+      ATH_MSG_INFO( "Beam type = Collision" );
+    }
+    else {
+      ATH_MSG_INFO( "Beam type = Cosmic" );
+    }
+  
     ATH_CHECK(m_caloExtensionTool.retrieve());
         
     return StatusCode::SUCCESS;
@@ -227,25 +237,64 @@ double TrackTools::getPathInsideCell(const TRACK *track, const CaloCell *cell){
 
   ATH_MSG_DEBUG("in TrackInCaloTools::getPathInsideCell" );
 
+  CHECK( detStore()->retrieve(m_tileID) );
+
   // GET CELL DESCRIPTOR AND SAMPLING
   const CaloDetDescrElement* dde = cell->caloDDE();
   if(!dde) return 0.;
   int sampling = dde->getSampling();
   int sampling_entrance = 0;
   int sampling_exit     = 0;
-  switch(sampling){
-      case 12: sampling_entrance = 12; sampling_exit = 14; break;
-      case 13: sampling_entrance = 12; sampling_exit = 14; break;
-      case 14: sampling_entrance = 12; sampling_exit = 14; break;
-      case 15: sampling_entrance = 13; sampling_exit = 14; break;
-      case 16: sampling_entrance = 12; sampling_exit = 13; break;
-      case 17: sampling_entrance = 17; sampling_exit = 19; break;
-      case 18: sampling_entrance = 18; sampling_exit = 20; break;
-      case 19: sampling_entrance = 18; sampling_exit = 20; break;
-      case 20: sampling_entrance = 18; sampling_exit = 20; break;
-      default: return 0.;
-  } // SWITCH
+  int cell_tower        = m_tileID->tower(cell->ID());
 
+  // The type of physics (collision or cosmic) determines the entrance and exit cell for the muons, therefore these different switches are defined accordingly.
+  if (m_isCollision) {
+    switch(sampling){
+    case 12: 
+      sampling_entrance = 12;
+      if      (cell_tower>=0 && cell_tower<=7) sampling_exit = 14; 
+      else if (cell_tower>=8 && cell_tower<=9) sampling_exit = 20; // for A9 and A10, the exit is D5 
+      break;
+    case 13: 
+      sampling_entrance = 12; 
+      if      (cell_tower>=0 && cell_tower<=7) sampling_exit = 14; 
+      else if (cell_tower==8)                  sampling_exit = 20; // for B9, the exit is D5 
+      break;
+    case 14: sampling_entrance = 12; sampling_exit = 14; break;
+    case 15: sampling_entrance = 12; sampling_exit = 20; break; // for C10, the entrance is A10, the exit is D5 
+    case 16: sampling_entrance = 12; sampling_exit = 13; break;
+    case 17: sampling_entrance = 17; sampling_exit = 19; break;
+    case 18: 
+      sampling_entrance = 18; 
+      if      (cell_tower>=11 && cell_tower<=14) sampling_exit = 20; 
+      else if (cell_tower==15)                   sampling_exit = 19; // for A16, the exit is B15 
+      break;
+    case 19:
+      if      (cell_tower==10)                   {sampling_entrance = 19; sampling_exit = 20;} // for B11, the entrance is B11, the exit is D5 
+      else if (cell_tower>=11 && cell_tower<=13) {sampling_entrance = 18; sampling_exit = 20;} // for B12-B14, the entrance is EBA cells, the exit is EBD cells 
+      else if (cell_tower==14)                   {sampling_entrance = 18; sampling_exit = 19;} // for B15, the entrance is A15, the exit is B15 
+      break;
+    case 20:
+      if      (cell_tower==10)                   {sampling_entrance = 19; sampling_exit = 20;} // for D5, the entrance is B11, the exit is D5 
+      else if (cell_tower==12)                   {sampling_entrance = 18; sampling_exit = 20;} // for D6, the entrance is A13 cells, the exit is D6 
+      break;
+    default: return 0.;
+    } // SWITCH
+  }
+  else {
+    switch(sampling){
+    case 12: sampling_entrance = 12; sampling_exit = 14; break;
+    case 13: sampling_entrance = 12; sampling_exit = 14; break;
+    case 14: sampling_entrance = 12; sampling_exit = 14; break;
+    case 15: sampling_entrance = 13; sampling_exit = 14; break;
+    case 16: sampling_entrance = 12; sampling_exit = 13; break;
+    case 17: sampling_entrance = 17; sampling_exit = 19; break;
+    case 18: sampling_entrance = 18; sampling_exit = 20; break;
+    case 19: sampling_entrance = 18; sampling_exit = 20; break;
+    case 20: sampling_entrance = 18; sampling_exit = 20; break;
+    default: return 0.;
+    } // SWITCH
+  }
   const Trk::TrackParameters *pars_entrance = getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_entrance);
   const Trk::TrackParameters *pars_exit     = getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_exit);
 

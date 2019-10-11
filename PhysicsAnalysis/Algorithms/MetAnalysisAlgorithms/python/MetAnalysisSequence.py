@@ -39,6 +39,11 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' )
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
+    # Remove b-tagging calibration from the MET suffix name
+    btIndex = metSuffix.find('_BTagging')
+    if btIndex != -1:
+        metSuffix = metSuffix[:btIndex]
+
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "MetAnalysisSequence" + postfix )
 

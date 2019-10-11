@@ -428,15 +428,17 @@ namespace CP {
         float area = TMath::Pi()*dR*dR-a_core;
         float oldpu_corr = densityOldCorrection*area;
         float newpu_corr = m_map_isotype_zetaPU[type]->Eval(abseta)*centralDensity*area;
+        float pu_mc_corr = 0.;
         if(m_apply_etaEDParPU_mc_corr && m_is_mc){
-          newpu_corr += m_map_isotype_zeta_mc_corr[type]->Eval(abseta)*centralDensity*area;
+          pu_mc_corr += m_map_isotype_zeta_mc_corr[type]->Eval(abseta)*centralDensity*area;
         }
-        iso = iso + oldpu_corr - newpu_corr;
+        iso = iso + oldpu_corr - newpu_corr + pu_mc_corr;
         ATH_MSG_VERBOSE("Applying parametrized pileup correction to " << eg.type() << " with |eta|="<< abseta);
         ATH_MSG_VERBOSE("Old parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<oldpu_corr);
         ATH_MSG_VERBOSE("New parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<newpu_corr);
+        ATH_MSG_VERBOSE("Parametrized mc correction for "<<xAOD::Iso::toString(type)<< ": "<<pu_mc_corr);
         ATH_MSG_VERBOSE("Isolation after new correction for "<<xAOD::Iso::toString(type)<< ": "<<iso);
-        ATH_MSG_VERBOSE("Isolation after old correction for "<<xAOD::Iso::toString(type)<< ": "<<iso+newpu_corr-oldpu_corr);
+        ATH_MSG_VERBOSE("Isolation after old correction for "<<xAOD::Iso::toString(type)<< ": "<<iso+newpu_corr-oldpu_corr-pu_mc_corr);
         eg.setIsolationCaloCorrection(newpu_corr, type, xAOD::Iso::pileupCorrection);
       }
 

@@ -260,8 +260,8 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   std::string electronIDLoose = m_config->electronIDLoose();
   if (electronIDLoose.find("LH") != std::string::npos)
     electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file
-  std::string electronIsolation = m_config->electronIsolationSF();
-  std::string electronIsolationLoose = m_config->electronIsolationSFLoose();
+  std::string electronIsolation = mapWorkingPoints(m_config->electronIsolationSF()); // temporary fix: we can hopefully remove the map soon!
+  std::string electronIsolationLoose = mapWorkingPoints(m_config->electronIsolationSFLoose());
 
   // Retrieve full path to maps for different types of tool
   m_electronEffSFRecoFile         = electronSFMapFilePath("reco");
@@ -557,6 +557,18 @@ std::string EgammaCPTools::mapWorkingPoints(const std::string& type) {
     working_point = "Tight";
   }
   if(type == "FwdLoose" || type == "FwdMedium" || type == "FwdTight") working_point=type;
+
+  // Temporary ISO map to handle the mess that is EGamma+IFF right now...
+  if(type.find("Pflow") != std::string::npos) {
+    ATH_MSG_WARNING("You selected a Pflow isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!!");
+    if(type == "PflowLoose") working_point = "FCLoose";
+    if(type == "PflowTight") working_point = "FCTight";
+  }
+  if(type == "Tight")          working_point = "FCTight";
+  if(type == "Loose")          working_point = "FCLoose";
+  if(type == "HighPtCaloOnly") working_point = "FCHighPtCaloOnly";
+  if(type == "TightTrackOnly") working_point = "Gradient";
+  if(type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient") working_point=type;
 
   return working_point;
 }

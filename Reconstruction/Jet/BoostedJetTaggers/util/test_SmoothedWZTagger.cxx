@@ -45,7 +45,6 @@ int main( int argc, char* argv[] ) {
 
   // arguments
   TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
-  int  m_DSID=361028;
   int  ievent=-1;
   int  nevents=-1;
   bool m_IsMC=true;
@@ -97,16 +96,6 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  if(options.find("-d")!=std::string::npos){
-    for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(std::string(argv[ipos]).compare("-d")==0){
-        m_DSID = atoi(argv[ipos+1]);
-        Info( APP_NAME, "Argument (-d) : DSID = %i", m_DSID );
-        break;
-      }
-    }
-  }
-  
   if(options.find("-m")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
       if(std::string(argv[ipos]).compare("-m")==0){
@@ -201,7 +190,6 @@ int main( int argc, char* argv[] ) {
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
   m_Tagger.setProperty( "CalibArea",    "/eos/atlas/user/t/tnobe/temp/BoostedJetTaggers/TakuyaTag/SmoothedWZTaggers/Rel21/");
   m_Tagger.setProperty( "ConfigFile",   "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190525.dat");
-  m_Tagger.setProperty( "DSID", m_DSID );
   m_Tagger.setProperty( "IsMC", m_IsMC );
   m_Tagger.retrieve();
 

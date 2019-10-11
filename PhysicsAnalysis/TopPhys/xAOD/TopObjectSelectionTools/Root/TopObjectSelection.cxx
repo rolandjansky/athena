@@ -18,6 +18,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "PATCore/TAccept.h"
 
 namespace top {
 
@@ -437,10 +438,13 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
           }
           
 	  //decorate with boosted-tagging flags
-	  for(const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()){
+	  for (const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()) {
 	    std::string fullName=name.first+"_"+name.second;
-	    char isTagged = m_boostedJetTaggers[fullName]->tag(*jetPtr);
-	    jetPtr->auxdecor<char>("isTagged_"+fullName) = isTagged;
+            const Root::TAccept &result = m_boostedJetTaggers[fullName]->tag(*jetPtr);
+            // TAccept has bool operator overloaded, but let's be more explicit in the output to char
+	    jetPtr->auxdecor<char>("isTagged_"+fullName) = (result ? 1 : 0);
+            // for users to extract more detailed tagging result information in custom event saver
+	    jetPtr->auxdecor<unsigned long>("TAccept_bitmap_"+fullName) = result.getCutResultBitSet().to_ulong();
 	  }
 	  
         }

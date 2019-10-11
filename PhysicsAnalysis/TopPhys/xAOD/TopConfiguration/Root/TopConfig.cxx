@@ -187,6 +187,7 @@ namespace top{
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
+    m_useEgammaLeakageCorrection(false),
     
     // Fwd electron configuration
     m_fwdElectronPtcut(25000.),
@@ -520,6 +521,33 @@ namespace top{
     this->jetSubstructureName( settings->value("LargeJetSubstructure") );
     this->decoKeyJetGhostTrack( settings->value("JetGhostTrackDecoName") );
 
+    // check that small-R jets use tagged collectio name for new derivations
+    // this is due to b-tagging since AthDerivation-21.2.72.0
+    if(m_aodMetaData->valid()) {
+      try {
+        std::string deriv_rel_name = m_aodMetaData->get("/TagInfo", "AtlasRelease_AODtoDAOD");
+        size_t pos = deriv_rel_name.find('-');
+        if (pos != std::string::npos) {
+          deriv_rel_name = deriv_rel_name.substr(pos+1);
+          if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
+            if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
+              throw std::runtime_error("TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4PFlow_BTagging201903\". This is necessary for b-tagging to work!");
+            }
+          } else { // release does NOT have tagged jet collection
+            if (this->sgKeyJets() != this->sgKeyJetsType()) { // jet collection is NOT tagged
+              throw std::runtime_error("TopConfig: You are using derivation with release older than 21.2.72.0 so you cannot use tagged jet containers as you specified: \""+this->sgKeyJets()+"\". Use \""+this->sgKeyJetsType()+"\" instead.");
+            }
+          }
+        } else {
+          std::cout << "WARNING: Could not parse derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own." << std::endl;
+        }
+        // try to parse the derivation release, we need the release number
+      } catch (std::logic_error& e) {
+        std::cout << e.what() << std::endl;
+        std::cout << "WARNING: Could not obtain derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own." << std::endl;
+      }
+    }
+
     // ROOTCORE/Analysis release series
     this->setReleaseSeries();
 
@@ -783,6 +811,7 @@ namespace top{
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
+    this->useEgammaLeakageCorrection(settings->value("UseEgammaLeakageCorrection"));
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 
 
@@ -1449,13 +1478,19 @@ namespace top{
 
   void TopConfig::sgKeyJets(const std::string& s)
   {
-      if (!m_configFixed){
+      if (!m_configFixed) {
           m_useJets = false;
           if (s != "None")
               m_useJets = true;
 
+          size_t delim_pos = s.find('_');
+          // for b-tagging shallow copies, e,g.
+          // AntiKt4EMPFlowJets_BTagging20181003
+          // we want to have quick access  to base collection name
+          m_sgKeyJetsType = s.substr(0, delim_pos);
+
 	  // If anti-kt4 pflow jets then...
-	  if (s == "AntiKt4EMPFlowJets" )
+	  if (m_sgKeyJetsType == "AntiKt4EMPFlowJets")
 	      m_useParticleFlowJets = true;
 
           m_sgKeyJets = s;
@@ -2760,6 +2795,7 @@ namespace top{
     out->m_electronIsolation = m_electronIsolation;
     out->m_electronIsolationLoose = m_electronIsolationLoose;
     out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
+    out->m_useEgammaLeakageCorrection = m_useEgammaLeakageCorrection;
     
     out->m_fwdElectronID = m_fwdElectronID;
 
@@ -2896,6 +2932,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_electronIsolation = settings->m_electronIsolation;
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
     m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
+    m_useEgammaLeakageCorrection = settings->m_useEgammaLeakageCorrection;
     
     m_fwdElectronID = settings->m_fwdElectronID;
 

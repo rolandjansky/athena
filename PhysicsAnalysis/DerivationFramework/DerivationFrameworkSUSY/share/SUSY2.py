@@ -183,7 +183,9 @@ if DerivationFrameworkIsMonteCarlo:
                                                        WriteFirstN                  = -1,
                                                        PreserveAncestors            = True,
                                                        PreserveGeneratorDescendants = False,
-                                                       SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
+                                                       SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset,
+                                                       LongLivedPDGIDs              = [1000011,2000011,1000013,2000013,1000015,2000015,15])
+
   ToolSvc += SUSY2TruthThinningTool
   thinningTools.append(SUSY2TruthThinningTool)
 

@@ -231,9 +231,10 @@ def getJetExternalAssocTool(jetalg, extjetalg, **options):
     if hasattr(ToolSvc,jetassoctoolname):
         jetassoctool = getattr(ToolSvc,jetassoctoolname)
     else:
+        extjetname = extjetalg + 'Jets' if 'BTagging' not in extjetalg else extjetalg.replace('_BTagging','Jets_BTagging')
         jetassoctool = CfgMgr.DerivationFramework__JetExternalAssocTool(jetassoctoolname,
                                                                         InputJets=jetalg+'Jets',
-                                                                        ExternalJetCollectionName = extjetalg+'Jets',
+                                                                        ExternalJetCollectionName = extjetname,
                                                                         **options)
         ToolSvc += jetassoctool
 

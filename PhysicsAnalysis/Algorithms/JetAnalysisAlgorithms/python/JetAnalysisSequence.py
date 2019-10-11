@@ -69,6 +69,11 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     if deepCopyOutput and shallowViewOutput:
         raise ValueError ("deepCopyOutput and shallowViewOutput can't both be true!")
 
+    # Remove b-tagging calibration from the container name
+    btIndex = jetCollection.find('_BTagging')
+    if btIndex != -1:
+        jetCollection = jetCollection[:btIndex]
+
     # interpret the jet collection
     collection_pattern = re.compile(
         r"AntiKt(\d+)(EMTopo|EMPFlow|LCTopo|TrackCaloCluster)(TrimmedPtFrac5SmallR20)?Jets")
@@ -83,6 +88,13 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
 
     # Create the analysis algorithm sequence object.
     seq = AnaAlgSequence( "JetAnalysisSequence"+postfix )
+    # Relink original jets in case of b-tagging calibration
+    if btIndex != -1:
+        alg = createAlgorithm( 'CP::AsgOriginalObjectLinkAlg', 
+            'JetOriginalObjectLinkAlg'+postfix )
+        alg.baseContainerName = jetCollection
+        seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut', stageName = 'calibration' )
+
     # Set up the jet ghost muon association algorithm:
     if runGhostMuonAssociation:
         alg = createAlgorithm( 'CP::JetGhostMuonAssociationAlg', 

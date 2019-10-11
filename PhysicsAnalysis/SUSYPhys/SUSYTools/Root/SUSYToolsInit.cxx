@@ -165,45 +165,17 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
     std::string JES_config_file, calibseq;
 
-    if (m_jetInputType == xAOD::JetInput::EMTopo) {
-      JES_config_file = m_jesConfig;
-      calibseq = m_jesCalibSeq;
-    } else if (m_jetInputType == xAOD::JetInput::EMPFlow) {
-      JES_config_file = m_jesConfigEMPFlow;
-      calibseq = m_jesCalibSeqEMPFlow;
-    } else if (m_jetInputType == xAOD::JetInput::LCTopo){
-      ATH_MSG_WARNING("LCTopo jets are not fully supported in R21 (no in-situ calibration). Please use either PFlow or EMTopo jets.");
-      JES_config_file = "JES_MC16Recommendation_28Nov2017.config"; // old config, thus hard-coded
-      calibseq = m_jesCalibSeq; // no in-situ calibration for data
-    } else {
+    if (m_jetInputType != xAOD::JetInput::EMTopo && m_jetInputType != xAOD::JetInput::EMPFlow) {
       ATH_MSG_ERROR("Unknown (unsupported) jet collection is used, (m_jetInputType = " << m_jetInputType << ")");
       return StatusCode::FAILURE;
     }
 
-    if (isAtlfast()) {
-      if (m_jetInputType == xAOD::JetInput::EMTopo) {
-        JES_config_file = m_jesConfigAFII;
-        calibseq = m_jesCalibSeqAFII;
-      } else if (m_jetInputType == xAOD::JetInput::EMPFlow) {
-        JES_config_file = m_jesConfigEMPFlowAFII;
-        calibseq = m_jesCalibSeqEMPFlowAFII;
-      } else {
-        ATH_MSG_ERROR("JES recommendations only exist for EMTopo and PFlow jets in AF-II samples (m_jetInputType = " << m_jetInputType << ")");
-        return StatusCode::FAILURE;
-      }
-    }
+    std::string JESconfig = isAtlfast() ? m_jesConfigAFII : m_jesConfig;
+    calibseq = m_jesCalibSeq;
 
-    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
-      JES_config_file = m_jesConfigJMS;
-      calibseq = m_jesCalibSeqJMS;
-      if (m_jetInputType == xAOD::JetInput::EMPFlow) {
-        ATH_MSG_ERROR("JMS calibration is not supported for EMPFlow jets. Please modify your settings.");
-        return StatusCode::FAILURE;
-      }
-      if (isAtlfast()) {
-        ATH_MSG_ERROR("JMS calibration is not supported for AF-II samples. Please modify your settings.");
-        return StatusCode::FAILURE;
-      }
+    JES_config_file = JESconfig;
+    if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+      JES_config_file = TString(JESconfig).ReplaceAll("_EMTopo_","_PFlow_").Data();
     }
 
     // remove Insitu if it's in the string if not data, and add _Smear
@@ -214,6 +186,24 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 	calibseq.erase(found, insitu.length());
 	calibseq.append("_Smear");
       }
+    }
+
+    // JMS calibration (if requested)
+    if (m_JMScalib){ 
+      if (isAtlfast()) {
+        ATH_MSG_ERROR("JMS calibration is not supported for AF-II samples. Please modify your settings.");
+        return StatusCode::FAILURE;
+      }
+
+      std::string JMSconfig = isData() ? m_jesConfigJMSData : m_jesConfigJMS;
+      JES_config_file = JMSconfig;
+      if (m_jetInputType == xAOD::JetInput::EMPFlow) {  
+        JES_config_file = TString(JMSconfig).ReplaceAll("_EMTopo_","_PFlow_").Data();
+      }
+
+      calibseq = m_jesCalibSeqJMS;
+      if (isData()) calibseq.append("_JMS_Insitu");
+      else calibseq.append("_Smear_JMS");
     }
 
     // now instantiate the tool
@@ -278,6 +268,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet uncertainty tool
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   ATH_MSG_INFO("Set up Jet Uncertainty tool...");
 
   if (!m_jetUncertaintiesTool.isUserConfigured()) {
@@ -289,17 +280,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     toolName = "JetUncertaintiesTool_" + jetdef;
 
-    if(!m_JMScalib.empty()){
-      if(m_jetUncertaintiesConfig.find("JMS")==std::string::npos){
-        ATH_MSG_ERROR("You turned on JMS calibration but your JetUncertainties config (Jet.UncertConfig=" << m_jetUncertaintiesConfig << ") isn't for JMS. Please modify your settings.");
-        return StatusCode::FAILURE;
-      }
-      // Make sure we got a sensible value for the configuration
-      if (m_JMScalib!="Frozen" && m_JMScalib!="Extrap"){
-        ATH_MSG_ERROR("JMS calibration uncertainty must be either Frozen or Extrap.  " << m_JMScalib << " is not a supported value. Please modify your settings.");
-        return StatusCode::FAILURE;
-      }
-    }
     m_jetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
     // Allowing for IsData = true (pseudo-data smearing) if AllJER or FullJER config is set in m_jetUncertaintiesConfig
@@ -309,7 +289,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", JERUncPDsmearing) );
-    //  https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) );
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
@@ -351,6 +330,28 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_fatjetUncertaintiesTool.retrieve() );
   }
+
+  // Initialise jet uncertainty tool for TCC jets
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019TCC
+  if (!m_TCCjetUncertaintiesTool.isUserConfigured() && !m_TCCJets.empty() && !m_TCCJetUncConfig.empty()) {
+    toolName = "JetUncertaintiesTool_" + m_TCCJets;
+    m_TCCjetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
+
+    std::string TCCjetcoll(m_TCCJets);
+    if (TCCjetcoll.size()>3) TCCjetcoll = TCCjetcoll.substr(0,TCCjetcoll.size()-4); //remove "Jets" suffix
+
+    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("JetDefinition", TCCjetcoll) );
+    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("MCType", "MC16") );
+    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("IsData", isData()) );
+    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("ConfigFile", m_TCCJetUncConfig) );
+    if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
+    ATH_CHECK( m_TCCjetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_TCCjetUncertaintiesTool.retrieve() );
+  }
+
+  // tagger SF and uncertainties
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendationFullRun2
+  // To be implemented here
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet cleaning tools

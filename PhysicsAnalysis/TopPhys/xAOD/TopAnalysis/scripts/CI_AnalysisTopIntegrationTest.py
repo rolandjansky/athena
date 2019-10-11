@@ -64,8 +64,9 @@ cutfilepath = ROOT.PathResolver.find_file(cutfilename,
 returnCode = CITest("TOPQ1 MC",
                     cutfilename,
                     cutfilepath,
-                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3731/"+
-                    "mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_s3126_r9364_p3731/DAOD_TOPQ1.16479625._003348.pool.root.1",
+                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3954/"+
+                    "mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_s3126_r9364_p3954/"+
+                    "mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_s3126_r9364_p3954.test.root",
                     [("#NEvents.*","NEvents 100")])
 
 if returnCode != 0:
@@ -75,8 +76,8 @@ if returnCode != 0:
 returnCode = CITest("TOPQ1 DATA",
                     cutfilename,
                     cutfilepath,
-                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/Data/p3730/"+
-                    "Data_16_p3730/DAOD_TOPQ1.16771725._000150.pool.root.1",
+                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/Data/p3955/"+
+                    "data16_13TeV.periodC.physics_Main.PhysCont.deriv.DAOD_TOPQ1.p3955/data16_13TeV.periodC.physics_Main.PhysCont.deriv.DAOD_TOPQ1.p3955.test.root",
                     [("#NEvents.*","NEvents 3000")])
 
 if returnCode != 0:

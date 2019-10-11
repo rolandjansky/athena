@@ -494,6 +494,9 @@ namespace top {
                 electron->makePrivateStore( * elPtr );
                 m_goodElectrons->push_back( electron );
             }
+
+            // sort electrons based on dressed pT -- otherwise they remain sorted according to bare pT
+            std::sort(m_goodElectrons->begin(), m_goodElectrons->end(), top::descendingPtSorter);
         }
 
         if ( m_config->useTruthMuons() ){
@@ -510,6 +513,9 @@ namespace top {
                 muon->makePrivateStore( * muPtr );
                 m_goodMuons->push_back( muon );
             }
+
+            // sort muons based on dressed pT -- otherwise they remain sorted according to bare pT
+            std::sort(m_goodMuons->begin(), m_goodMuons->end(), top::descendingPtSorter);
         }
 
         if ( m_config->useTruthPhotons() ){

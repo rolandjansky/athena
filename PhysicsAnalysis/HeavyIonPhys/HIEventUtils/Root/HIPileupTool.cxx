@@ -12,6 +12,7 @@
 
 #include <xAODHIEvent/HIEventShape.h>
 #include <xAODHIEvent/HIEventShapeContainer.h>
+#include <PathResolver/PathResolver.h>
 
 #include "TSystem.h"
 #include "TH1D.h"
@@ -30,6 +31,7 @@ HIPileupTool::HIPileupTool( const std::string& myname) : AsgTool(myname),
   declareProperty("Message", m_msg);
   declareProperty("EtCutAndPurity", m_etCutAndPurity);
   declareProperty("inpFilePath", m_fname);
+  declareProperty("Year", m_year);
 
   m_setup = 0;
 }
@@ -48,13 +50,15 @@ StatusCode HIPileupTool::initialize() {
   
    m_accept.addCut("pileupVeto","for pileup rejection");
 
-   const char* fullInpFilePath;
-   if (!m_fname.empty()) fullInpFilePath = gSystem->ExpandPathName (m_fname.c_str());
-   else fullInpFilePath = gSystem->ExpandPathName ("$ROOTCOREBIN/data/HIEventUtils/HIRun2PileUp_PbPb5p02_v2.root");
-   if (gSystem->AccessPathName(fullInpFilePath)) throw std::invalid_argument(("File not found at \"" + (std::string)fullInpFilePath + "\"").c_str());
-   
-   ATH_MSG_INFO(("Read pileup cuts from " + (std::string)fullInpFilePath).c_str());
-   TFile* fIn = new TFile(fullInpFilePath);
+// in-time pileup configuration 2015
+if(m_year=="2015"){
+   TFile* fIn = TFile::Open(PathResolverFindCalibFile(m_fname).c_str(), "READ");
+   if( !fIn ){
+      ANA_MSG_ERROR( "Could not find input Pileup calibration file "<< m_fname << ", exiting");
+    return StatusCode::FAILURE;
+   }
+
+   ATH_MSG_INFO( "Read pileup cuts from "<< m_fname );
 
    std::string hname;
    hname = "hEvents"; if (!(fIn->GetListOfKeys()->Contains(hname.c_str()))) {
@@ -124,7 +128,35 @@ StatusCode HIPileupTool::initialize() {
       if (all!=0) m_hEff->SetBinContent(ibx+1,eff);
       if (pu_all!=0) m_hPurity->SetBinContent(ibx+1,pty);
    }
+}// 2015 in-time pileup configuration
 
+ // Configuration in-time pileup 2018
+if(m_year=="2018"){
+   std::unique_ptr< TFile > f_itp_In(TFile::Open( PathResolverFindCalibFile(m_itp_fname).c_str(), "READ" ) );
+
+	if( !f_itp_In ){
+		ANA_MSG_ERROR( "Could not find input In-time Pileup calibration file "<< m_itp_fname << ", exiting");
+		 return StatusCode::FAILURE;
+	}
+
+   ATH_MSG_INFO( "Read In-time pileup cuts from "<< m_itp_fname );
+   
+   m_hCut = (TH1D*)((TH1D*)f_itp_In->Get("h_cuts"))->Clone("hCut_HIPileupTool"); m_hCut->SetDirectory(0);
+
+/// Configuration Out-of-time pileup 2018
+   TFile* f_oop_In = TFile::Open(PathResolverFindCalibFile(m_oop_fname).c_str(), "READ");
+   if( !f_oop_In ){
+   ANA_MSG_ERROR( "Could not find input Out-of-time Pileup calibration file "<< m_oop_fname << ", exiting");
+   	return StatusCode::FAILURE;
+   }
+
+   ATH_MSG_INFO( "Read Out-of-time pileup cuts from "<< m_oop_fname );
+
+   m_oop_hMean = (TH1D*)((TH1D*)f_oop_In->Get("hMeanTotal"))->Clone("hMeanTotal_HIPileTool"); m_oop_hMean->SetDirectory(0);
+   m_oop_hSigma = (TH1D*)((TH1D*)f_oop_In->Get("hSigmaTotal"))->Clone("hSigmaTotal_HIPileTool"); m_oop_hSigma->SetDirectory(0);
+   f_oop_In->Close();
+}
+////
    return StatusCode::SUCCESS;
 }
 
@@ -132,11 +164,55 @@ bool HIPileupTool::is_pileup(const xAOD::HIEventShapeContainer& evShCont, const 
 
    bool kPileup = false;
    double FCal_Et = get_et(evShCont);
-   double nNeutrons;
-   nNeutrons = get_nNeutrons(ZdcCont);
-   if (nNeutrons > m_hCut->GetBinContent(m_hCut->FindBin(FCal_Et))) kPileup = true;
+   if(m_year=="2015"){
+   	double nNeutrons;
+   	nNeutrons = get_nNeutrons(ZdcCont);
+   	if (nNeutrons > m_hCut->GetBinContent(m_hCut->FindBin(FCal_Et))) kPileup = true; // 2015 cut based in Number of neutrons
+   }
+   else if(m_year=="2018"){
+   	double ZDC_energy = get_ZDC_E(ZdcCont); 
+	if (ZDC_energy > m_hCut->GetBinContent(m_hCut->FindBin(FCal_Et))) kPileup = true; // 2018 cut based in ZDC (A+C) energy 
+   }
+
+   else{
+	ATH_MSG_INFO("Warning:In-time pileup rejection not calibrated for year: " << m_year);
+	kPileup = false;
+   }
 
    return kPileup;
+}
+
+bool HIPileupTool::is_Outpileup(const xAOD::HIEventShapeContainer& evShCont, const int nTrack) const {
+   if(m_year=="2018"){
+   	if (nTrack > 3000) // The selection is only for [0, 3000]
+        	return 0;
+
+   	float Fcal_Et = 0.0;
+   	float Tot_Et = 0.0;
+   	float oop_Et = 0.0;
+   	Fcal_Et = evShCont.at(5)->et()*1e-6;
+   	Tot_Et = evShCont.at(0)->et()*1e-6;
+   	oop_Et = Tot_Et - Fcal_Et;// Barrel + Endcap calo
+
+   	int nBin{m_oop_hMean->GetXaxis()->FindFixBin(nTrack)};
+   	double mean{m_oop_hMean->GetBinContent(nBin)};
+   	double sigma{m_oop_hSigma->GetBinContent(nBin)};
+
+   	switch (m_nside){
+
+   		case 1: if (oop_Et - mean > -4 * sigma) return 0;
+        		break;
+    		case 2: if (abs(oop_Et - mean) < 4 * sigma) return 0;
+        		break;
+    		default: if (oop_Et - mean > -4 * sigma) return 0;
+	}
+   }
+   else{
+        ATH_MSG_INFO("Warning:Out-of-time pileup rejection not calibrated for year: " << m_year);
+        return 0;
+   }  
+      
+   return 1;
 }
 
 /*bool HIPileupTool::is_pileup2(const xAOD::HIEventShapeContainer& evShCont, const xAOD::ZdcModuleContainer& ZdcCont) const {
@@ -184,7 +260,7 @@ double HIPileupTool::get_nNeutrons(const xAOD::ZdcModuleContainer& ZdcCont) cons
 
    bool isCalib=1;
     double ZdcE=0;
-   for (const auto *zdcModule : ZdcCont) {
+   for (const xAOD::ZdcModule* zdcModule : ZdcCont) {
       if (zdcModule->type()!=0) continue;
 
       if (!(zdcModule->isAvailable<float>("CalibEnergy"))) {isCalib = 0; continue;} 
@@ -194,6 +270,19 @@ double HIPileupTool::get_nNeutrons(const xAOD::ZdcModuleContainer& ZdcCont) cons
    if (!isCalib) throw std::invalid_argument("ZDC Module not Calibrated");
 
    return ZdcE/m_npeak;
+}
+
+double HIPileupTool::get_ZDC_E(const xAOD::ZdcModuleContainer& ZdcCont) const{
+
+    double ZdcE=0;
+    bool isCalib=1;
+   for (const xAOD::ZdcModule* zdcModule : ZdcCont) {
+      if (!(zdcModule->isAvailable<float>("CalibEnergy"))) {isCalib = 0; continue;}
+      float modE = zdcModule->auxdataConst<float>("CalibEnergy")*1e-3;
+      ZdcE += modE;
+   }
+   if (!isCalib) throw std::invalid_argument("ZDC Module not Calibrated");
+   return ZdcE;
 }
 
 /*double HIPileupTool::get_nNeutrons(double ZdcE) { 

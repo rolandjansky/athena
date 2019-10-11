@@ -52,8 +52,8 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         HIGG4DxJetTrackThinningTool3 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool3",
                                                                                       ThinningService        = HIGG4DxThinningSvc,
-                                                                                      JetKey                 = "AntiKt4EMTopoJets",
-                                                                                      SelectionString        = "AntiKt4EMTopoJets.pt > 20*GeV",
+                                                                                      JetKey                 = "AntiKt4EMPFlowJets",
+                                                                                      SelectionString        = "AntiKt4EMPFlowJets.pt > 20*GeV",
                                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
                                                                                       ApplyAnd               = False)
         ToolSvc += HIGG4DxJetTrackThinningTool3
@@ -98,9 +98,9 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
     thinningTools.append(HIGG4DxElectronTPThinningTool)
 
     # Tracks associated with taus
-    HIGG4DxTauSelectionString = "TauJets.pt > 18*GeV"
+    HIGG4DxTauSelectionString = "(TauJets.pt > 18*GeV || TauJets.ptFinalCalib > 18.0*GeV)"
     if HIGG4DxName in ['HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
-        HIGG4DxTauSelectionString = "TauJets.pt > 40*GeV"
+        HIGG4DxTauSelectionString = "(TauJets.pt > 40*GeV || TauJets.ptFinalCalib > 40.0*GeV)"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
     HIGG4DxTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = HIGG4DxName+"TauTPThinningTool",
                                                                              ThinningService         = HIGG4DxThinningSvc,

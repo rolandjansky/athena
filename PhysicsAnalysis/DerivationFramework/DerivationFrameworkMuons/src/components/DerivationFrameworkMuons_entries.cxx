@@ -6,6 +6,7 @@
 #include "DerivationFrameworkMuons/IDTrackCaloDepositsDecoratorTool.h"
 #include "DerivationFrameworkMuons/MuonIDCovMatrixDecorator.h"
 #include "DerivationFrameworkMuons/MuonTruthClassifierFallback.h"
+#include "DerivationFrameworkMuons/MuonTruthIsolationTool.h"
 #include "DerivationFrameworkMuons/MuonTPJpsiVertexFittingAlg.h"
 
 
@@ -20,6 +21,7 @@ DECLARE_TOOL_FACTORY (MuonTPExtrapolationTool)
 DECLARE_TOOL_FACTORY (IDTrackCaloDepositsDecoratorTool)
 DECLARE_TOOL_FACTORY (MuonIDCovMatrixDecorator)
 DECLARE_TOOL_FACTORY (MuonTruthClassifierFallback)
+DECLARE_TOOL_FACTORY (MuonTruthIsolationTool)
 DECLARE_ALGORITHM_FACTORY(VertexDecoratorAlg)
 DECLARE_ALGORITHM_FACTORY(MuonTPJpsiVertexFittingAlg)
 
@@ -32,6 +34,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMuons ) {
    DECLARE_TOOL(IDTrackCaloDepositsDecoratorTool)
    DECLARE_TOOL(MuonIDCovMatrixDecorator)
    DECLARE_TOOL(MuonTruthClassifierFallback)
+   DECLARE_TOOL(MuonTruthIsolationTool)
    
    DECLARE_ALGORITHM(MuonTPJpsiVertexFittingAlg)
    DECLARE_ALGORITHM(VertexDecoratorAlg)

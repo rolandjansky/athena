@@ -24,6 +24,7 @@
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
+#include "JetMomentTools/JetForwardPFlowJvtTool.h"
 #include "JetMomentTools/JetLArHVTool.h"
 #include "JetMomentTools/JetWidthTool.h"
 #include "JetMomentTools/JetMuonSegmentMomentsTool.h"

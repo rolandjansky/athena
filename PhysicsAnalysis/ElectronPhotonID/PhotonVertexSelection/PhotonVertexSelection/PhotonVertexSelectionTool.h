@@ -23,17 +23,36 @@ namespace CP {
 
   /// Implementation for the photon vertex selection tool
   ///
-  /// Takes a list of photons (for example, to two leading photons) and
-  /// the most likely primary vertex, based on an MVA.
+  /// Takes a list of photons (for example, to two leading photons), decorates them and
+  /// calculates the most likely primary vertex, based on an MVA.
   ///
   /// @author Christopher Meyer <chris.meyer@cern.ch>
   /// @author Bruno Lenzi <bruno.lenzi@cern.ch>
+  /// @author Davide Mungo <davide.pietro.mungo at cern.ch>
   ///
+  /// WARNING: THIS TOOL AND ALL ITS CLIENTS SHOULD BE REWRITTEN TO COPE WITH REL22 STANDARDS
+  ///         - Cannot cache anymore objects from the event store inside member variables
+  ///         - Cannot used mthod to retrieve the result of the last call, like getFail
+
   class PhotonVertexSelectionTool : public virtual IPhotonVertexSelectionTool,
                                     public asg::AsgTool {
 
-    /// Create a proper constructor for Athena
-    ASG_TOOL_CLASS(PhotonVertexSelectionTool, CP::IPhotonVertexSelectionTool)
+  /// Create a proper constructor for Athena
+  ASG_TOOL_CLASS(PhotonVertexSelectionTool, CP::IPhotonVertexSelectionTool)
+
+  private:
+    // enum indicating where the tool has failed
+    enum FailType {
+      Unkown        = -99,  // Init value
+      NoFail        =   0,  // Ok to run the MVA algorithm
+      NoVxCont      =   1,  // No vertex container
+      NoEventInfo   =   2,  // No EventInfo
+      FailPointing  =   3,  // Calo pointing failed
+      FailEgamVect  =   4,  // No diphoton event
+      NoGdCandidate =   5,  // Pointing succeded but too distant from any other vertex
+      MatchedTrack  =   6,  // Conversion photon has a track attached to a primary/pileup vertex
+    };
+
 
   private:
     /// Configuration variables
@@ -43,14 +62,22 @@ namespace CP {
     bool        m_updatePointing;
     std::string m_vertexContainerName;
     std::string m_derivationPrefix;
-    bool        m_saveNeuralNetVars;
 
     /// PhotonPointingTool
     asg::AnaToolHandle<CP::IPhotonPointingTool> m_pointingTool;
 
+    /// Vertex container
+    const xAOD::VertexContainer* m_vertices;
+
+    /// Accessors
+    std::unique_ptr<const SG::AuxElement::ConstAccessor<float> > m_acc_sumPt;
+    std::unique_ptr<const SG::AuxElement::ConstAccessor<float> > m_acc_sumPt2;
+    std::unique_ptr<const SG::AuxElement::ConstAccessor<float> > m_acc_deltaPhi;
+    std::unique_ptr<const SG::AuxElement::ConstAccessor<float> > m_acc_deltaZ;
+
     /// MVA readers
-    TMVA::Reader *m_mva1;
-    TMVA::Reader *m_mva2;
+    std::shared_ptr<TMVA::Reader> m_mva1;
+    std::shared_ptr<TMVA::Reader> m_mva2;
 
     /// MVA attached discriminating variables
     float m_sumPt2;
@@ -61,12 +88,18 @@ namespace CP {
     /// Last case treated (see below)
     int m_case;
 
+    /// If MVA variables has been decorated
+    bool m_varsDecorated;
+
+    /// Last fail encountered
+    FailType m_fail;
+
     /// Store results of MVA output
     std::vector<std::pair<const xAOD::Vertex*, float> > m_vertexMLP;
 
   private:
     /// Get combined 4-vector of photon container
-    TLorentzVector getEgammaVector(const xAOD::EgammaContainer *egammas) const;
+    TLorentzVector getEgammaVector(const xAOD::EgammaContainer *egammas);
 
     /// Sort MLP results
     static bool sortMLP(const std::pair<const xAOD::Vertex*, float> &a, const std::pair<const xAOD::Vertex*, float> &b);
@@ -86,6 +119,9 @@ namespace CP {
 
     /// @name Function(s) implementing the IPhotonVertexSelectionTool interface
     /// @{
+
+    /// Calculate and decorate vertex with MVA variables
+    StatusCode decorateInputs(const xAOD::EgammaContainer &egammas);
     
     /// Given a list of photons, return the most likely vertex based on MVA likelihood
     StatusCode getVertex(const xAOD::EgammaContainer &egammas, const xAOD::Vertex* &vertex, bool ignoreConv = false);
@@ -98,6 +134,9 @@ namespace CP {
     /// 1=at least one conv track with Si hits, 
     /// 2=no tracks with Si hits or conversions ignored
     int getCase() const { return m_case; }
+
+    /// Return the last fail encountered
+    int getFail() const { return m_fail; }
     
     /// Get possible vertex directly associated with photon conversions
     const xAOD::Vertex* getPrimaryVertexFromConv(const xAOD::PhotonContainer *photons) const;

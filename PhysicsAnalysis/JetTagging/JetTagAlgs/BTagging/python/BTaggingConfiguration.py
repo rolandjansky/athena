@@ -517,19 +517,19 @@ class Configuration:
 
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
-              aug = MuonTool(get_training_name('BTagMuonAugmenterTool'),schema='FEB_2019')
+              aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
               ToolSvc += aug
               options['preBtagToolModifiers'].append(aug)
               for nn_file in preTagDL2JetToTrainingMap[jetcol]:
                   rnn = DL2Tool(
                       name=get_training_name(nn_file),
-                      nnFile=nn_file, schema='FEB_2019')
+                      nnFile=nn_file)
                   ToolSvc += rnn
                   options['preBtagToolModifiers'].append(rnn)
                   if do_flip:
                       rnn = DL2Tool(
                           name=(get_training_name(nn_file)  + '_flip'),
-                          nnFile=nn_file, schema='FEB_2019',
+                          nnFile=nn_file,
                           flipTagConfig=flip_tag_config)
                       ToolSvc += rnn
                       options['preBtagToolModifiers'].append(rnn)
@@ -538,27 +538,25 @@ class Configuration:
           options.setdefault("postBtagToolModifiers", [])
           if jetcol in postTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
               modifiers = options['postBtagToolModifiers']
-              aug = AugTool(
-                  name=get_training_name('BTagAugmenterTool'),
-                  schema='FEB_2019')
+              aug = AugTool(name=get_training_name('BTagAugmenterTool'))
               ToolSvc += aug
               modifiers.append(aug)
               if do_flip:
                   aug = AugTool(
                       name=get_training_name('BTagAugmenterToolFlip'),
-                      schema='FEB_2019', flipTagConfig=flip_tag_config)
+                      flipTagConfig=flip_tag_config)
                   ToolSvc += aug
                   modifiers.append(aug)
               for nn_file in postTagDL2JetToTrainingMap[jetcol]:
                   dl1 = DL2Tool(
                       name=get_training_name(nn_file),
-                      nnFile=nn_file, schema='FEB_2019')
+                      nnFile=nn_file)
                   ToolSvc += dl1
                   modifiers.append(dl1)
                   if do_flip:
                       dl1 = DL2Tool(
                           name=(get_training_name(nn_file)  + '_flip'),
-                          nnFile=nn_file, schema='FEB_2019',
+                          nnFile=nn_file,
                           flipTagConfig=flip_tag_config)
                       ToolSvc += dl1
                       modifiers.append(dl1)

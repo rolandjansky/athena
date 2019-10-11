@@ -198,11 +198,12 @@ StatusCode DerivationFramework::UFOTrackParticleThinning::doThinning() const
   	  	if(!ufoO) continue;
   	  	if(ufoO->taste()!=1){
   	  	  index = ufoO->trackParticleLink().index();
-  	  	  maskTracks[index] = true;
+  	  	  if(index>=0) maskTracks[index] = true;
   	  	}
   	  	if(ufoO->taste()!=0){
           for (size_t c = 0; c < ufoO->iparticleLinks().size(); ++c) {
             index = ufoO->iparticleLinks().at(c).index();
+            if(index<0) continue;
             bool isCharged = std::abs((dynamic_cast<const xAOD::PFO*>( *ufoO->iparticleLinks().at(c)))->charge()) > FLT_MIN;
 
             // If it's charged, add it to the charged mask
@@ -219,17 +220,18 @@ StatusCode DerivationFramework::UFOTrackParticleThinning::doThinning() const
   	for (std::vector<const xAOD::Jet*>::iterator jetIt=jetToCheck.begin(); jetIt!=jetToCheck.end(); ++jetIt) {
       for( size_t j = 0; j < (*jetIt)->numConstituents(); ++j ) {
         auto ufo = (*jetIt)->constituentLinks().at(j);
-    		int index = ufo.index();
+    	  int index = ufo.index();
 	    	maskUFOs[index] = true;
     		const xAOD::TrackCaloCluster* ufoO = dynamic_cast<const xAOD::TrackCaloCluster*>(*ufo);
 	    	if(!ufoO) continue;
     		if(ufoO->taste()!=1){
 	    	  index = ufoO->trackParticleLink().index();
-		      maskTracks[index] = true;
+		      if(index>=0) maskTracks[index] = true;
     		}
 	    	if(ufoO->taste()!=0){
 		      for (size_t c = 0; c < ufoO->iparticleLinks().size(); ++c) {
 		        index = ufoO->iparticleLinks().at(c).index();
+            if(index<0) continue;
 
             bool isCharged = std::abs((dynamic_cast<const xAOD::PFO*>( *ufoO->iparticleLinks().at(c)))->charge()) > FLT_MIN;
             // If it's charged, add it to the charged mask

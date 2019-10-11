@@ -113,10 +113,12 @@ namespace CP {
       // Get calo pointing variables
       result = getCaloPointing(egamma);
 
+      if (egamma == nullptr) continue;
+
       // Set photon auxdata with new value
       zvertex(*egamma) = result.first;
       errz(*egamma)    = result.second;
-
+      
       // Get conv pointing variables
       if (egamma->type() == xAOD::Type::Photon) {
         const xAOD::Egamma *eg     = static_cast<const xAOD::Egamma*>(egamma);

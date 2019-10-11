@@ -20,6 +20,14 @@ if not 'TileDerivationPrefix' in dir():
 # TRACK TOOLS
 from DerivationFrameworkTileCal.DerivationFrameworkTileCalConf import TrackTools
 TCAL1TrackTools = TrackTools()
+
+## Set the beam type flag: collision or cosmic
+from AthenaCommon.JobProperties import jobproperties
+if jobproperties.Beam.beamType() == 'collisions':
+    TCAL1TrackTools.IsCollision = True
+else:
+    TCAL1TrackTools.IsCollision = False
+
 ToolSvc += TCAL1TrackTools
 
 
@@ -46,7 +54,6 @@ TCAL1TileCellsMuonDecorator = CfgMgr.DerivationFramework__TileCellsMuonDecorator
                                                                                  , MaxAbsMuonEta = 1.7
                                                                                  , IsoCone = 0.4)
 
-from AthenaCommon.JobProperties import jobproperties
 if jobproperties.Beam.beamType() == 'collisions':
     TCAL1TileCellsMuonDecorator.SelectMuons = True
 
@@ -143,7 +150,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TCAL1Ker
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 TCAL1SlimmingHelper = SlimmingHelper('TCAL1SlimmingHelper')
 
-TCAL1SlimmingHelper.SmartCollections = ['Muons', 'MET_Reference_AntiKt4LCTopo']
+TCAL1SlimmingHelper.SmartCollections = ['Muons', 'MET_Reference_AntiKt4LCTopo', 'PrimaryVertices']
 #TCAL1SlimmingHelper.AllVariables = ['Muons']
 
 TCAL1ExtarVariables = 'Muons.' + TCAL1Prefix + 'etrkcone40'

@@ -45,7 +45,7 @@ case $ArtProcess in
 	domains="BTag Electron IDPerformanceMon Jets MET Muons PFlow Photon Summary Tau TopoClusters"
 	for slice in ${domains}
       	do 
-		physval_make_web_display.py --ratio --reffile Ref:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkPhysicsValidation/PHYSVAL_all_reference.root --title Test PHYSVAL_all.root --outdir PHYSVAL_WEB/${slice} --startpath ${slice}
+		physval_make_web_display.py --ratio --reffile Ref:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkPhysicsValidation/PHYSVAL_all_reference.root --title Test PHYSVAL_all.root --outdir PHYSVAL_WEB/${slice} --startpath ${slice} --jsRoot
 	done
 	echo  "art-result: $? web"
 	;;
@@ -65,7 +65,7 @@ case $ArtProcess in
 	unset  ATHENA_PROC_NUMBER
 	echo "Unset ATHENA_NUM_PROC=${ATHENA_NUM_PROC} and ATHENA_PROC_NUMBER=${ATHENA_PROC_NUMBER}"
 	
-	DAOD_PE="rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-40\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )"
+	DAOD_PE="rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )"
 	
 	NTUP_PE="all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);"
 	

@@ -83,13 +83,13 @@ CP::CorrectionCode ElectronEfficiencyHelpers::isPromptEle( const xAOD::Electron&
   // first, check if the firstEgMotherType == 2 and return true if it is
   int firstEgType = -9999;
 
-  if ( !(ele.isAvailable<int>("firstEgMotherType")) ) {
-    msg.msg(MSG::ERROR) << "firstEgMotherType IS NOT AVAILABLE!!" << endmsg;
+  if ( !(ele.isAvailable<int>("firstEgMotherTruthType")) ) {
+    msg.msg(MSG::ERROR) << "firstEgMotherTruthType IS NOT AVAILABLE!!" << endmsg;
     return CP::CorrectionCode::OutOfValidityRange;
   }
   else {
 
-    firstEgType = ele.auxdata<int>("firstEgMotherType");
+    firstEgType = ele.auxdata<int>("firstEgMotherTruthType");
     
     if ( firstEgType == 2 ) {
       promptEle = true;
@@ -101,15 +101,15 @@ CP::CorrectionCode ElectronEfficiencyHelpers::isPromptEle( const xAOD::Electron&
   // second, check for the FSR case and return false if it's neither FSR nor type 2
   // ( firstEgMotherType == 5 && firstEgMotherOrigin == 40 )
 
-  if ( !(ele.isAvailable<int>("firstEgMotherOrigin")) ) {
-    msg.msg(MSG::ERROR) << "firstEgMotherOrigin IS NOT AVAILABLE!!" << endmsg;
+  if ( !(ele.isAvailable<int>("firstEgMotherTruthOrigin")) ) {
+    msg.msg(MSG::ERROR) << "firstEgMotherTruthOrigin IS NOT AVAILABLE!!" << endmsg;
     return CP::CorrectionCode::OutOfValidityRange;
   }
   else {
     
-    int firstEgOrigin = ele.auxdata<int>("firstEgMotherOrigin");
+    int firstEgOrigin = ele.auxdata<int>("firstEgMotherTruthOrigin");
     
-    if ( firstEgType != 2 && ( firstEgType != 5 || firstEgOrigin != 40 ) ) {
+    if ( firstEgType != 2 && ( firstEgType != 15 || firstEgOrigin != 40 ) ) {
       
       promptEle = false;
       return CP::CorrectionCode::Ok;

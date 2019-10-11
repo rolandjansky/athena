@@ -36,10 +36,11 @@ void JSSTaggerBase::showCuts() const{
   }
 }
 
-int JSSTaggerBase::getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, bool isSherpa, double dRmax,  double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const {
+int JSSTaggerBase::getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::TruthParticleContainer* truthPartsH, bool isSherpa, double dRmax,  double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const {
 
     bool isMatchW=false;
     bool isMatchZ=false;
+    bool isMatchH=false;
     bool isMatchTop=false;
 
     // find W/Z boson matched to the jet with dR<dRmax
@@ -50,7 +51,7 @@ int JSSTaggerBase::getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthP
     } else {
       for( const xAOD::TruthParticle* part : *truthPartsW ){
 	if ( fabs(part->pdgId()) != 24  ) continue; // W
-	if ( part->nChildren() < 2 ) continue; // skip self-decay
+	if ( part->nChildren() == 1 ) continue; // skip self-decay
 	
 	if( part->p4().DeltaR(jet.p4()) < dRmax ) {	
 	  isMatchW=true;
@@ -60,7 +61,7 @@ int JSSTaggerBase::getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthP
 
       for( const xAOD::TruthParticle* part : *truthPartsZ ){
 	if ( fabs(part->pdgId()) != 23  ) continue; // Z
-	if ( part->nChildren() < 2 ) continue; // skip self-decay
+	if ( part->nChildren() == 1 ) continue; // skip self-decay
 	
 	if( part->p4().DeltaR(jet.p4()) < dRmax ) {	
 	isMatchZ=true;
@@ -72,11 +73,21 @@ int JSSTaggerBase::getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthP
     // find top quark matched to the jet with dR<dRmax
     for( const xAOD::TruthParticle* part : *truthPartsTop ){
       if ( fabs(part->pdgId()) != 6 ) continue; // top
-      if ( part->nChildren() < 2 ) continue; // skip self-decay
+      if ( part->nChildren() == 1 ) continue; // skip self-decay
 
       if( part->p4().DeltaR(jet.p4()) < dRmax ) {
 	isMatchTop=true;
 	break;
+      }
+    }
+
+    for( const xAOD::TruthParticle* part : *truthPartsH ){
+      if ( fabs(part->pdgId()) != 25  ) continue; // H
+      if ( part->nChildren() == 1 ) continue; // skip self-decay
+
+      if( part->p4().DeltaR(jet.p4()) < dRmax ) {
+        isMatchH=true;
+        break;
       }
     }
 
@@ -91,11 +102,15 @@ int JSSTaggerBase::getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthP
       nMatchB=ghostB.size();
     }
 
-    if( !isMatchTop && !isMatchW && !isMatchZ ){
+    if( !isMatchTop && !isMatchW && !isMatchZ && !isMatchH){
       return FatjetTruthLabel::enumToInt(FatjetTruthLabel::qcd);
     }
 
-    if( isMatchTop && nMatchB>0 &&
+    if(isMatchH){
+      if(nMatchB > 1) return FatjetTruthLabel::enumToInt(FatjetTruthLabel::Hbb);
+      else return FatjetTruthLabel::enumToInt(FatjetTruthLabel::other_From_H);
+    }
+    else if( isMatchTop && nMatchB>0 &&
 	mLowTop < jet.m()*0.001 && (mHighTop<0 || jet.m()*0.001 < mHighTop) ) { // if mHighTop<0, we don't apply the upper cut on jet mass
       return FatjetTruthLabel::enumToInt(FatjetTruthLabel::tqqb); 
     }else if( isMatchW && nMatchB==0 &&
@@ -165,6 +180,23 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
 
 StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet) const {
   
+  int channelNumber = -999;
+
+  if(m_DSID == -1){
+
+    //Get the EventInfo to identify Sherpa samples if DSID is not specified by user
+
+    const xAOD::EventInfo * eventInfo = 0;
+    if ( evtStore()->retrieve(eventInfo,"EventInfo").isFailure() || !eventInfo ) {
+      ATH_MSG_ERROR("   BoostedJetTaggers::decorateTruthLabel : Failed to retrieve event information.");
+      return StatusCode::FAILURE;
+    }
+  
+    channelNumber = eventInfo->mcChannelNumber();
+  }
+  else
+    channelNumber = m_DSID;
+
   const xAOD::JetContainer* truthJet=nullptr;
   if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthWBosonContainerName ) ){
     // TRUTH3
@@ -175,21 +207,23 @@ StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet) const {
     ATH_CHECK(evtStore()->retrieve(truthPartsZ, m_truthZBosonContainerName));
     const xAOD::TruthParticleContainer* truthPartsTop=nullptr;
     ATH_CHECK(evtStore()->retrieve(truthPartsTop, m_truthTopQuarkContainerName));
-    return decorateTruthLabel(jet, truthPartsW, truthPartsZ, truthPartsTop, truthJet, m_truthLabelDecorationName,
-			      m_dR_truthJet, m_dR_truthPart, m_mLowTop, m_mHighTop, m_mLowW, m_mHighW, m_mLowZ, m_mHighZ);
+    const xAOD::TruthParticleContainer* truthPartsH=nullptr;
+    ATH_CHECK(evtStore()->retrieve(truthPartsH, m_truthHBosonContainerName));
+    return decorateTruthLabel(jet, truthPartsW, truthPartsZ, truthPartsTop, truthPartsH, truthJet, m_truthLabelDecorationName,
+			      m_dR_truthJet, m_dR_truthPart, m_mLowTop, m_mHighTop, m_mLowW, m_mHighW, m_mLowZ, m_mHighZ, channelNumber);
   }else if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthParticleContainerName ) ){    
     // TRUTH1
     ATH_CHECK( evtStore()->retrieve(truthJet, m_truthJetContainerName) );
     const xAOD::TruthParticleContainer* truthParts=nullptr;
     ATH_CHECK(evtStore()->retrieve(truthParts, m_truthParticleContainerName));
-    return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthJet, m_truthLabelDecorationName,
-			      m_dR_truthJet, m_dR_truthPart, m_mLowTop, m_mHighTop, m_mLowW, m_mHighW, m_mLowZ, m_mHighZ);
+    return decorateTruthLabel(jet, truthParts, truthParts, truthParts, truthParts, truthJet, m_truthLabelDecorationName,
+			      m_dR_truthJet, m_dR_truthPart, m_mLowTop, m_mHighTop, m_mLowW, m_mHighW, m_mLowZ, m_mHighZ, channelNumber);
   }
   
   return StatusCode::FAILURE;
 }
 
-StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dRmax_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ ) const {
+StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::TruthParticleContainer* truthPartsH, const xAOD::JetContainer* truthJets, std::string decorName, double dRmax_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ, int channelNumber ) const {
 
   double dRmin=9999;
   const xAOD::Jet* m_truthjet=0;
@@ -203,9 +237,9 @@ StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet, const xAOD::T
     }
   }
   int jetContainment=FatjetTruthLabel::enumToInt(FatjetTruthLabel::notruth);
-  bool isSherpa=getIsSherpa(m_DSID);
+  bool isSherpa=getIsSherpa(channelNumber);
   if ( m_truthjet ) {
-    jetContainment=getFatjetContainment(*m_truthjet, truthPartsW, truthPartsZ, truthPartsTop, isSherpa, /*dR for W/Z/top matching*/dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
+    jetContainment=getFatjetContainment(*m_truthjet, truthPartsW, truthPartsZ, truthPartsTop, truthPartsH, isSherpa, /*dR for W/Z/top matching*/dR_truthPart, mLowTop, mHighTop, mLowW, mHighW, mLowZ, mHighZ);
   }
   jet.auxdecor<int>(decorName) = jetContainment;
   

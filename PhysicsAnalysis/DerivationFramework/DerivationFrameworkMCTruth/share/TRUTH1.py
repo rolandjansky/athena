@@ -60,10 +60,14 @@ TRUTH1SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer
                                            'AntiKt10TruthJets':'xAOD::JetContainer','AntiKt10TruthJetsAux':'xAOD::JetAuxContainer',
                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                           }
-TRUTH1SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
+# Custom extra variables -- won't be overridden by the call below, just added to. Full lists for completeness.
 TRUTH1SlimmingHelper.ExtraVariables = ["AntiKt2TruthChargedJets.GhostHBosonsCount.GhostHBosonsPt.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.constituentLinks",
                                        "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.constituentLinks",
                                        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.constituentLinks.D2"]
+
+# Add standard content
+from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+addTruth3ContentToSlimmerTool(TRUTH1SlimmingHelper)
 
 TRUTH1SlimmingHelper.AppendContentToStream(TRUTH1Stream)
 # Add the event info, in its entirety

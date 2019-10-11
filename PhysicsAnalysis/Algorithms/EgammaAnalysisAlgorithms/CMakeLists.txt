@@ -41,19 +41,25 @@ atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
    atlas_add_test( testJobData
-      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test )
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
-      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test )
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
-      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test )
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py
-      EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type data )
+      EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type data
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT athena.py
-      EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type mc )
+      EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+      PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT athena.py
-      EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type afii )
+      EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
+      PROPERTIES TIMEOUT 600 )
 endif()

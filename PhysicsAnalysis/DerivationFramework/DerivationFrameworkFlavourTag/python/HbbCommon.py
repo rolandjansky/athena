@@ -201,7 +201,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
-def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, *pos_opts, **opts):
+def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, training='201810', *pos_opts, **opts):
     from AthenaCommon import Logging
 
     if logger is None:
@@ -214,14 +214,24 @@ def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, *pos_op
     if opts or pos_opts:
         logger.error('Options specified for VR jets, they will be ignored')
 
-    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger)
+    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger, training)
     linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
 
-def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
+def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False, training='201810'):
+
+    # Check allowed trainings
+    # Is there a better way to do this with a central DB?
+    if training not in ['201810', '201903']:
+      print "WARNING: Using an supported training tag! This is UNDEFINED, probably will default to 201810 training."
+
     from JetRec.JetRecStandard import jtm
 
-    VRJetName="AntiKtVR30Rmax4Rmin02Track"
-    VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
+    # If using the default training, we don't yet want the label (this will be added once validation is done)
+    # So only add the _201903 (etc.) for trainings that aren't 201810
+    trainingTag = '_BTagging%s' % (training) if training != '201810' else ''
+
+    VRJetName="AntiKtVR30Rmax4Rmin02Track%s" % (trainingTag)
+    VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet%s" % (trainingTag)
     VRJetAlg="AntiKt"
     VRJetRadius=0.4
     VRJetInputs='pv0track'
@@ -241,15 +251,19 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     # Build VR jets
     #==========================================================
 
-    VRJetAlgName = "jfind_%sJets" % (VRJetName)
-    VRJetRecToolName = "%sJets" % (VRJetName)
-    VRJetBTagName = "BTagging_%s" % (VRJetName)
+    VRJetRecToolName = "%sJets" % (VRJetName) if training == '201810' else VRJetName.replace('_BTagging','Jets_BTagging')
+    VRJetAlgName = "jfind_%s" % (VRJetRecToolName)
+    VRJetBTagName = "BTagging_%s" % (VRJetName.replace('BTagging',''))
+
+    print "VR Btag Name", VRJetBTagName
+    print "VR jet name ", VRJetRecToolName
 
     from AthenaCommon.AppMgr import ToolSvc
 
     #make the btagging tool for VR jets
     from BTagging.BTaggingFlags import BTaggingFlags
     BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+    BTaggingFlags.CalibrationChannelAliases += ["%s->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo" % (VRJetName)]
     btag_vrjets = ConfInst.setupJetBTaggerTool(
         ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
         options={"name"         : VRJetBTagName.lower(),
@@ -259,7 +273,7 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
         },
         SetupScheme = "",
         TaggerList = BTaggingFlags.ExpertTaggers if doFlipTagger else BTaggingFlags.StandardTaggers,
-        TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
+        TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks",
     )
 
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
@@ -320,10 +334,12 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False):
     else:
         print "Add", pjgettername, "to jtm in sequence", sequence
 
+        inputContainerName = jetFlags.containerNamePrefix() + VRJetName + "Jets" if "BTagging" not in VRJetName else jetFlags.containerNamePrefix() + VRJetName.replace("_BTagging", "Jets_BTagging")
+
         from JetRec.JetRecConf import PseudoJetGetter
         jtm += PseudoJetGetter(
           pjgettername,                                                          # give a unique name
-          InputContainer = jetFlags.containerNamePrefix() + VRJetName + "Jets",  # SG key
+          InputContainer = inputContainerName,                                   # SG key
           Label = VRGhostLabel,                                                  # this is the name you'll use to retrieve ghost associated VR track jets
           OutputContainer = "PseudoJet" + VRGhostLabel,
           SkipNegativeEnergy = True,
@@ -342,8 +358,11 @@ def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
     # AntiKt10LCTopo hard-coded for now
     #==========================================================
     LargeRJetAlg     = "jfind_%s_%s" %(baseLargeRJets.lower(), VRJetName.lower())
-    LargeRJets       = "%s_%sJets"   %(baseLargeRJets, VRJetName)
     LargeRJetPrefix  = "%s_%s"       %(baseLargeRJets, VRJetName)
+    if '_BTagging' in LargeRJetPrefix:
+      LargeRJets = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
+    else:
+      LargeRJets       = "%sJets" % (LargeRJetPrefix)
     newLCTopo        = "%s_%s"            %(baseGetterMap, VRJetName.lower())
     LinkTransferAlg  = "LinkTransfer_%s_%s"     %(baseLargeRJets, VRJetName)
 
@@ -370,7 +389,7 @@ def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
         jetalg_largefr10_lctopo = JetAlgorithm(LargeRJetAlg, Tools = [ jtm[LargeRJets] ])
         sequence += jetalg_largefr10_lctopo
         DFJetAlgs[LargeRJetAlg] = jetalg_largefr10_lctopo
-
+    
     #==========================================================
     # Transfer the link from re-clustered jet to original jet
     # AntiKt10LCTopo hard-coded for now
@@ -513,6 +532,121 @@ def addVRCaloJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="lctopo_groomed",
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+
+###################################################################
+## Utils: get jetRectoTool
+###################################################################
+def getJetRecTool(collection, getParent=True):
+  """Get the JetRecTool for a given collection from the jtm. If getParent is
+     set then if that tool has an InputContainer property set then try and 
+     retrieve the JetRecTool for that parent, continue going until there is no
+     InputContainer property. Will raise a KeyError if no JetRecTool can be
+     found at any stage.
+  """
+  from JetRec.JetRecStandardToolManager import jtm
+  try:
+    jetRecTool = jtm[collection]
+  except KeyError as e:
+     raise KeyError("JetRecTool {0} not present in jtm".format(collection) )
+  if getParent and hasattr(jetRecTool, "InputContainer") and jetRecTool.InputContainer:
+    jetRecTool = getJetRecTool(jetRecTool.InputContainer, True)
+  return jetRecTool
+
+###################################################################
+## Utils: link jets (copied over from Jon Burr in EXOT27Utils)
+###################################################################
+def linkPseudoJetGettersToExistingJetCollection(
+    sequence, collection, getters):
+  """Re-run jet finding for a jet collection using a new list of 
+    PseudoJetGetters. These PseudoJetGetters should already have been loaded
+    into jtm.
+    collection should be the name of the jet collection, which should already
+    have been sequenced, so it's jet rec tool will exist in jtm.
+    getters should be a map of PseudoJetGetters, each key being the name of the
+    (non ghost) collection, with the value being the name of the 
+    PseudoJetGetter in jtm.
+    Returns the name of the ungroomed collection that is the parent of
+    'collection' (this will be the same as 'collection' if this isn't groomed)
+    *and* the list of ghost labels (these are the element link names).
+    This code is largely based on the linkVRJetsToLargeRJets from HbbCommon
+  """
+  from JetRec.JetRecStandardToolManager import jtm
+  import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
+  logger = Logging.logging.getLogger('HbbTaggerLog')
+  # First, retrieve the original JetRecTool - this is the one that made the
+  # *ungroomed* jets, not the groomed ones. Ghost association is done to
+  # ungroomed objects
+  originalJetRecTool = getJetRecTool(collection, getParent = True)
+  originalUngroomedName = originalJetRecTool.name()
+  ungroomedJetAlg = originalUngroomedName
+  if ungroomedJetAlg.endswith("Jets"):
+    ungroomedJetAlg = ungroomedJetAlg[:-4]
+  originalFinder = jtm[originalJetRecTool.JetFinder.getName()]
+  originalGetters = [jtm[g.getName()] for g in originalJetRecTool.PseudoJetGetters]
+  newGetters = [jtm[g] for g in getters.values()]
+
+  # Next, prepare the names of the new objects we'll need from jtm
+
+  comb_name = "_".join(getters.keys() )
+  LargeRJetFindingAlg = "jfind_{0}_{1}".format(collection, comb_name).lower()
+  LargeRJetPrefix     = "{0}_{1}".format(collection, comb_name)
+  LargeRJets          = LargeRJetPrefix+"Jets"
+  LinkTransferAlg     = "LinkTransfer_{0}_{1}".format(collection, comb_name)
+
+  # Check to see if this large R jet collection is already known to JetCommon
+  if LargeRJetFindingAlg in JetCommon.DFJetAlgs:
+    logger.info("Found {0} in DFJetAlgs".format(LargeRJetFindingAlg) )
+    # Is it in our sequence?
+    if hasattr(sequence, LargeRJetFindingAlg):
+      logger.info("Algorithm already exists in the input sequence. Will not "
+          "add again")
+    else:
+      logger.info("Adding algorithm into the sequence {0}".format(sequence) )
+      sequence += JetCommon.DFJetAlgs[LargeRJetFindingAlg]
+  else:
+    # Check to see if the corresponding JetRecTool already exists
+    if hasattr(jtm, LargeRJets):
+      logger.info("JetRecTool {0} already exists in jtm".format(LargeRJets) )
+    else:
+      logger.info("Create a new JetRecTool {0}".format(LargeRJets) )
+      JetCommon.OutputJets.setdefault("CustomJets", []).append(LargeRJets)
+      originalModifiers = [jtm[m.getName()] for m in originalJetRecTool.JetModifiers]
+      jtm.addJetFinder(
+          output = LargeRJets,
+          alg = originalFinder.JetAlgorithm,
+          radius = originalFinder.JetRadius,
+          gettersin = originalGetters + newGetters,
+          modifiersin = originalModifiers,
+          ghostArea = 0,
+          ptmin = originalFinder.PtMin,
+          variableRMinRadius = originalFinder.VariableRMinRadius,
+          variableRMassScale = originalFinder.VariableRMassScale,
+          calibOpt = "none")
+      # Note that we don't need ptminFilter as this was included in the original
+      # list of JetModifiers
+    logger.info(
+        "Creating new jet algorithm {0} and adding it to sequence {1}".format(
+          LargeRJetFindingAlg, sequence) )
+    theJetAlg = JetAlgorithm(LargeRJetFindingAlg, Tools = [jtm[LargeRJets] ])
+    sequence += theJetAlg
+    JetCommon.DFJetAlgs[LargeRJetFindingAlg] = theJetAlg
+
+  # Everything so far has been to create the links on a copy of the ungroomed
+  # collection. Now we need to copy those links over to the original ungroomed
+  # collection.
+  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getJetExternalAssocTool, applyJetAugmentation
+  assocTool = getJetExternalAssocTool(
+      ungroomedJetAlg,
+      LargeRJetPrefix,
+      MomentPrefix = '',
+      ListOfOldLinkNames=[g.Label for g in newGetters]
+      )
+  applyJetAugmentation(
+      ungroomedJetAlg, LinkTransferAlg, sequence, assocTool)
+
+  return originalUngroomedName, [g.Label for g in newGetters]
+
+
 
 #===================================================================
 # Utils: Copy Jets

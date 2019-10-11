@@ -348,6 +348,8 @@ HIGG5D3SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
   }
 
+HIGG5D3SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollections()
+""" harmonise with HIGG5D1/2
 HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
@@ -371,7 +373,7 @@ if DerivationFrameworkIsMonteCarlo :
 #          ,"AntiKt4TruthWZJets"
 #          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
     ]
-
+"""
 
 
 HIGG5D3SlimmingHelper.ExtraVariables = ExtraContent

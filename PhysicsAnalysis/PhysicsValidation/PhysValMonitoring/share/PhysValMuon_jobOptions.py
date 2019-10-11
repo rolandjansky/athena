@@ -60,7 +60,7 @@ tool1.SelectMuonCategories = [ 0, 1 ] # lighter version, good for official valid
 from IsolationSelection.IsolationSelectionConf import CP__IsolationSelectionTool
 IsolationTool = CP__IsolationSelectionTool( "IsolationSelectionTool",
                                             CalibFileName = "IsolationSelection/v1/MC15_Z_Jpsi_cutMap.root",
-                                            MuonWP = "Gradient")
+                                            MuonWP = "FCLoose")
 ToolSvc += IsolationTool
 tool1.IsoTool = IsolationTool
 tool1.EnableLumi = False

@@ -5,15 +5,24 @@
 
 preTagDL2JetToTrainingMap={
     'AntiKt4EMPFlow': [
-        'BTagging/april2019/rnnip/antikt4empflow/network.json',
-        'BTagging/april2019/smt/antikt4empflow/network.json'
+        'BTagging/201903/rnnip/antikt4empflow/network.json',
+        'BTagging/201903/smt/antikt4empflow/network.json',
+    ],
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903': [
+        'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json',
+        'BTagging/201903/smt/antikt4empflow/network.json',
     ]
 }
 postTagDL2JetToTrainingMap={
     'AntiKt4EMPFlow': [
-        'BTagging/april2019/dl1r/antikt4empflow/network.json',
-        'BTagging/april2019/dl1/antikt4empflow/network.json',
-        'BTagging/april2019/dl1rmu/antikt4empflow/network.json'
+        'BTagging/201903/dl1r/antikt4empflow/network.json',
+        'BTagging/201903/dl1/antikt4empflow/network.json',
+        'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+    ],
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903': [
+        'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
+        'BTagging/201903/dl1/antiktvr30rmax4rmin02track/network.json',
+        'BTagging/201903/dl1rmu/antiktvr30rmax4rmin02track/network.json',
     ]
 }
 

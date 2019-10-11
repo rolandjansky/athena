@@ -12,7 +12,6 @@ namespace FlavorTagDiscriminants {
   BTagMuonAugmenter::BTagMuonAugmenter( std::string muonAssociationName,
                                         float muonMinDR,
                                         float muonMinpT,
-                                        EDMSchema schema,
                                         FlipTagConfig flipConfig ):
     dec_muon_isDefaults("softMuon_isDefaults"),
     dec_muon_pt("softMuon_pt"),
@@ -33,7 +32,7 @@ namespace FlavorTagDiscriminants {
   {
     // you probably have to initialize something here
     using namespace FlavorTagDiscriminants;
-    btag_track_aug = BTagTrackAugmenter(schema);
+    btag_track_aug = BTagTrackAugmenter();
     m_muonAssociationName = muonAssociationName;
     m_muonMinDR = muonMinDR;
     m_muonMinpT = muonMinpT;

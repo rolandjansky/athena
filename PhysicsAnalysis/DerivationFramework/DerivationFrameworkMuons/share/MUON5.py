@@ -38,6 +38,10 @@ if is_MC:
 streamName  = derivationFlags.WriteDAOD_MUON5Stream.StreamName
 fileName    = buildFileName(derivationFlags.WriteDAOD_MUON5Stream)
 MUON5Stream = MSMgr.NewPoolRootStream(streamName, fileName)
+MUON5Stream.AddItem("xAOD::VertexContainer#SecVtxContainer_Muons")
+MUON5Stream.AddItem("xAOD::VertexContainer#SecVtxContainer_Electrons")
+MUON5Stream.AddItem("xAOD::VertexContainer#SecVtx_ConvVtxContainer_Electrons")
+MUON5Stream.AddItem("xAOD::VertexContainer#RefittedPriVtx")
 MUON5Stream.AcceptAlgs(["MUON5Kernel"])
 
 #====================================================================
@@ -237,18 +241,29 @@ MUON5SlimmingHelper = SlimmingHelper("MUON5SlimmingHelper")
 
 # Smart slimming containers
 MUON5SlimmingHelper.SmartCollections = ["Electrons",
+                                        "Photons",
                                         "Muons",
                                         "TauJets",
                                         "TauMVATESJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         "PrimaryVertices"]
+                                        
 
 # Append new b-tagging container to dictionary for saving
-MUON5SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4Track'   : 'xAOD::BTaggingContainer',
-                                          'BTagging_AntiKt4TrackAux': 'xAOD::BTaggingAuxContainer'}
-
+MUON5SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4Track'               : 'xAOD::BTaggingContainer',
+                                          'BTagging_AntiKt4TrackAux'            : 'xAOD::BTaggingAuxContainer',
+                                          'SecVtxContainer_Electrons'           : 'xAOD::VertexContainer',
+                                          'SecVtxContainer_ElectronsAux'        : 'xAOD::VertexAuxContainer',
+                                          'SecVtx_ConvVtxContainer_Electrons'   : 'xAOD::VertexContainer',
+                                          'SecVtx_ConvVtxContainer_ElectronsAux': 'xAOD::VertexAuxContainer',
+                                          'SecVtxContainer_Muons'               : 'xAOD::VertexContainer',
+                                          'SecVtxContainer_MuonsAux'            : 'xAOD::VertexAuxContainer',
+                                          'RefittedPriVtx'                      : 'xAOD::VertexContainer',
+                                          'RefittedPriVtxAux'                   : 'xAOD::VertexAuxContainer',
+                                          }
 # Add extra variables to collections
 MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extrapolatedMuonSpectrometerTrackParticleLink."
                                       "scatteringCurvatureSignificance.scatteringNeighbourSignificance",
@@ -269,7 +284,7 @@ MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extra
 MUON5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 MUON5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
-MUON5SlimmingHelper.AllVariables = ["egammaClusters", "CaloCalTopoClusters", "AntiKt4PV0TrackJets", "BTagging_AntiKt4Track", "InDetTrackParticles"]
+MUON5SlimmingHelper.AllVariables = ["egammaClusters", "CaloCalTopoClusters", "MuonClusterCollection", "TopoClusterIsoCentralEventShape", "TopoClusterIsoForwardEventShape", "AntiKt4PV0TrackJets", "BTagging_AntiKt4Track", "InDetTrackParticles","GSFConversionVertices","GSFTrackParticles"]
 
 if is_MC:
     MUON5SlimmingHelper.AllVariables += ["TruthParticles", "TruthEvents", "TruthVertices", "AntiKt4TruthJets"]
@@ -293,5 +308,5 @@ if is_MC:
 MUON5SlimmingHelper.IncludeMuonTriggerContent  =True
 MUON5SlimmingHelper.IncludeEGammaTriggerContent=True
 MUON5SlimmingHelper.IncludeTauTriggerContent   =True
- 
+
 MUON5SlimmingHelper.AppendContentToStream(MUON5Stream)

@@ -37,6 +37,7 @@ DerivationFramework::DiphotonVertexDecorator::DiphotonVertexDecorator(const std:
   declareProperty("RemoveCrack",           m_removeCrack = true);
   declareProperty("MaxEta",                m_maxEta = 2.37);
   declareProperty("MinimumPhotonPt",       m_minPhotonPt = 20*CLHEP::GeV);
+  declareProperty("IgnoreConvPointing",    m_ignoreConv = false);
 
 }
   
@@ -73,8 +74,6 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   const xAOD::Photon *ph1 = nullptr, *ph2 = nullptr;
   ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
 
-  m_photonPointingTool->updatePointingAuxdata( *( photons) ).ignore();
-
   for (const xAOD::Photon* ph: *photons)
   {
     if (!PhotonPreselect(ph)) continue;
@@ -85,14 +84,18 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
     }
     else if (not ph2 or ph->pt() > ph2->pt()) ph2 = ph; // new subleading photon
   }
-  
+
+  const ConstDataVector< xAOD::PhotonContainer > vertexPhotons = {ph1, ph2};
+
+  // decorate MVA variables
+  ATH_CHECK( m_photonVertexSelectionTool->decorateInputs(*( vertexPhotons.asDataVector())) );
+
   // Get the photon vertex if possible
   std::vector<std::pair<const xAOD::Vertex*, float> > vxResult;
   bool fromDiphoton = false;
   if (ph1 and ph2)
   {
-    const ConstDataVector< xAOD::PhotonContainer > vertexPhotons = { ph1, ph2 };
-    vxResult = m_photonVertexSelectionTool->getVertex( *( vertexPhotons.asDataVector()) );
+    vxResult = m_photonVertexSelectionTool->getVertex( *( vertexPhotons.asDataVector()) , m_ignoreConv);
     if(vxResult.size()) fromDiphoton = true;
   }
 
@@ -110,6 +113,8 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   for (const auto vxR: vxResult)
   {
     vxR.first->auxdecor<float>("vertexScore") = vxR.second;
+    vxR.first->auxdecor<int>("vertexFailType") = m_photonVertexSelectionTool->getFail();
+    vxR.first->auxdecor<int>("vertexCase") = m_photonVertexSelectionTool->getCase();
     
     // Make a deep copy of the first vertex (the selected one) and add to the container
     if (not vxContainer->size())
