@@ -18,7 +18,6 @@
 #include "xAODCaloClusterAuxContainerCnv.h"
 #include "xAODCaloClusterAuxContainerCnv_v1.h"
 #include "AthContainers/tools/copyThinned.h"
-#include "AthenaKernel/IThinningSvc.h"
 
 xAODCaloClusterAuxContainerCnv::
 xAODCaloClusterAuxContainerCnv( ISvcLocator* svcLoc )

@@ -58,6 +58,8 @@ def arg_sor_time(s):
 
 def arg_detector_mask(s):
    """Convert detector mask to format expected by eformat"""
+   if s=='all':
+      return 'f'*32
    dmask = hex(int(s,16))                                    # Normalize input to hex-string
    dmask = dmask.lower().replace('0x', '').replace('l', '')  # remove markers
    return '0' * (32 - len(dmask)) + dmask                    # (pad with 0s)
@@ -114,12 +116,20 @@ def update_run_params(args):
       from eformat import EventStorage
       args.run_number = EventStorage.pickDataReader(args.file[0]).runNumber()
 
+   sor_params = None
+   if args.sor_time is None or args.detector_mask is None:
+      sor_params = AthHLT.get_sor_params(args.run_number)
+      log.debug('SOR parameters: %s', sor_params)
+      if sor_params is None:
+         log.error("Run %d does not exist. If you want to use this run-number specify "
+                   "remaining run parameters, e.g.: --sor-time=now --detector-mask=all", args.run_number)
+         sys.exit(1)
+
    if args.sor_time is None:
-      args.sor_time = arg_sor_time(str(AthHLT.get_sor_params(args.run_number)['SORTime']))
-      log.debug('SOR parameters: %s', AthHLT.get_sor_params(args.run_number))
+      args.sor_time = arg_sor_time(str(sor_params['SORTime']))
 
    if args.detector_mask is None:
-      dmask = AthHLT.get_sor_params(args.run_number)['DetectorMask']
+      dmask = sor_params['DetectorMask']
       if args.run_number < AthHLT.CondDB._run2:
          dmask = hex(dmask)
       args.detector_mask = arg_detector_mask(dmask)
@@ -316,7 +326,7 @@ def main():
                   '2) the number of nanoseconds since epoch (e.g. 1386355338658000000 or int(time.time() * 1e9)); '
                   '3) human-readable "20/11/18 17:40:42.3043". If not specified the sor-time is read from COOL')
    g.add_argument('--detector-mask', metavar='MASK', type=arg_detector_mask,
-                  help='detector mask (if None, read from COOL)')
+                  help='detector mask (if None, read from COOL), use string "all" to enable all detectors')
 
    ## Expert options
    g = parser.add_argument_group('Expert')

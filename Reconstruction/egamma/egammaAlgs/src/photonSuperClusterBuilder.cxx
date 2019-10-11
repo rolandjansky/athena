@@ -92,19 +92,11 @@ StatusCode photonSuperClusterBuilder::execute(){
     if(isUsed.at(i)){
       continue;      
     }
-    static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
     double emFrac(0.);
-    if (acc.isAvailable(*egClus)) {
-      emFrac = acc(*egClus);
-    }
-    else if (!egClus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
+    if (!egClus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
       ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
     }
 
-    //Require minimum EMFrac
-    if(emFrac<m_EMFracThresholdCut){
-      continue;
-    }
     //Require minimum energy for supercluster seeding.
     if (egClus->et()*emFrac < m_EtThresholdCut){
       continue;

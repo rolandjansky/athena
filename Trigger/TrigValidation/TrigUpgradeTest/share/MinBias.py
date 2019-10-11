@@ -15,7 +15,6 @@ for viewAlg in viewAlgs:
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence  = AlgSequence()
-topSequence.L1Decoder.ChainToCTPMapping={"HLT_mbsptrk":"L1_RD0_FILLED"}
 topSequence += viewAlgs
 
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT, SPCountHypoAlgMT, SPCountHypoTool

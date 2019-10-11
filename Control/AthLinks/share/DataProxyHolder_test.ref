@@ -4,5 +4,6 @@ test3
 test4
 test5
 test6
-DataProxyHolder...  ERROR FILE:LINE (bool SG::DataProxyHolder::thin(SG::DataProxyHolder::sgkey_t&, size_t&)): Couldn't get proxy for target object
+test6a
+DataProxyHolder...  ERROR FILE:LINE (bool SG::DataProxyHolder::thin(SG::DataProxyHolder::sgkey_t&, size_t&, const SG::ThinningCache*)): Couldn't get proxy for target object
 test7

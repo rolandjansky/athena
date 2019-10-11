@@ -5,24 +5,11 @@ from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, GetDetDescrInfo
-import six
-
-
-def _moduleExists (modName):
-    if six.PY34:
-        import importlib
-        return importlib.util.find_spec (modName) is not None
-    else:
-        import imp
-        try:
-           imp.find_module (modName)
-        except ImportError:
-            return False
-        return True
+from PyUtils.moduleExists import moduleExists
 
 
 def _addFlagsCategory (acf, name, generator, modName = None):
-    if _moduleExists (modName):
+    if moduleExists (modName):
         return acf.addFlagsCategory (name, generator)
     return None
 

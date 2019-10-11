@@ -36,7 +36,7 @@ def createDQConfigFlags():
     for flag in _steeringFlags + _lowLevelSteeringFlags:
         acf.addFlag('DQ.Steering.' + flag, True)
     # HLT steering ...
-    from TrigHLTMonitoring.TrigHLTMonitoringConfig import createHLTDQConfigFlags
+    from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
     acf.join(createHLTDQConfigFlags())
     return acf
 

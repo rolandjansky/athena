@@ -49,7 +49,7 @@ def _DQTDataFlowMonAlgConfigCore(helper, isMC):
                           ymax=2.5,
                           labels=(["Pixel", "SCT", "TRT", "LAr", "Tile",
                                    "Muon", "ForwardDet", "Core", 
-				   "Background", "Lumi", "All"]
+                                   "Background", "Lumi", "All"]
                                   + ["OK", "Warning", "Error"])
                           )
 

@@ -1,10 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/ElementLinkBase.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -199,9 +197,26 @@ bool ElementLinkBase::toPersistent()
 inline
 bool ElementLinkBase::thin()
 {
+  return thin (SG::getThinningCache());
+}
+
+
+/**
+ * @brief Adjust for thinning.
+ * @param thinningCache Thinning cache for the current stream
+ *                      (may be null).
+ *
+ * If this link points to a container that has been thinned,
+ * it will be adjusted accordingly.
+ *
+ * Returns @c true if the link was changed; @c false otherwise.
+ */
+inline
+bool ElementLinkBase::thin (const SG::ThinningCache* thinningCache)
+{
   bool ret1 = toPersistent();
   size_t index = m_persIndex;
-  bool ret = m_proxy.thin (m_persKey, index);
+  bool ret = m_proxy.thin (m_persKey, index, thinningCache);
   if (ret)
     m_persIndex = index;
   return ret1  || ret;

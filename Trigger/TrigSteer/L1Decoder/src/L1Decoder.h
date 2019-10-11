@@ -66,10 +66,6 @@ private:
   Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
     "Name of the chain which should enable HLT cost montoring."};
 
-  Gaudi::Property<std::map<std::string, std::string>> m_chainToCTPProperty{
-    this, "ChainToCTPMapping", {}, "Seeding in the form: HLT_chain : L1_item"};
-  ///@}
-
   ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
       "The trigger cost service" };
 

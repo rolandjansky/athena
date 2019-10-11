@@ -7,7 +7,6 @@ ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreG
 ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
 ApplicationMgr.ExtSvc += { "ToolSvc" };
 ApplicationMgr.ExtSvc += { "THistSvc/THistSvc" };
-
 AuditorSvc.Auditors  += { "AlgContextAuditor"};
 StoreGateSvc.OutputLevel = 5;
 StoreGateSvc.ActivateHistory = false;
@@ -21,5 +20,7 @@ ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , Phi, #phi of Clusters; #phi; 
 ToolSvc.MonTool.Histograms += { "EXPERT, TH2F, , , Eta,Phi, #eta vs #phi of Clusters; #eta; #phi; number of RoIs,  2, -2.500000, 2.500000, 2, -3.15, 3.15" };
 ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , TIME_t1, Timing of tool 1, 100, 0., 1000." };
 ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , TIME_t2, Timing of tool 2, 100, 0., 1000." };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , DetID, Test of text filling, 10, 0., 10." };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , DetCalo, Another test of text filling, 10, 0., 10." };
 
 

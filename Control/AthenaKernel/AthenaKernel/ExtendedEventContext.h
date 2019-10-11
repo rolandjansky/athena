@@ -89,6 +89,12 @@ namespace Atlas {
 
 
   /**
+   * @brief Retrieve an extended context from a context object.
+   */
+  ExtendedEventContext& getExtendedEventContext (EventContext& ctx);
+
+
+  /**
    * @brief Move an extended context into a context object.
    */
   void setExtendedEventContext (EventContext& ctx,
