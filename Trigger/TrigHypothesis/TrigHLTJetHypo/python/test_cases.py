@@ -44,6 +44,20 @@ test_strings = [
                                  combgen([] 
                                          dijet([(81djmass91)])
                                          simple([(84et)(84et)])))))""",
+
+        """partgen([]
+                 partgen([]
+                         simple([(neta)(peta)])
+                        )             
+                 combgen([]
+                         qjet([(qjmass)])
+                         partgen([]
+                                 combgen([] 
+                                         dijet([(80djmass90)])
+                                         simple([(84et)(84et)]))
+                                 combgen([] 
+                                         dijet([(81djmass91)])
+                                         simple([(84et)(84et)])))))""",
 ]
 
 

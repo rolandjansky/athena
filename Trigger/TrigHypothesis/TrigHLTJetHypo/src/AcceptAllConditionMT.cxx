@@ -17,9 +17,9 @@ m_capacity(capacity){
 
 
 bool 
-AcceptAllConditionMT::isSatisfied(const HypoJetVector& ips,
+AcceptAllConditionMT::isSatisfied(const HypoJetVector&,
                               const std::unique_ptr<ITrigJetHypoInfoCollector>&) const {
-  return m_capacity ==  ips.size();
+  return true;
 }
 
 

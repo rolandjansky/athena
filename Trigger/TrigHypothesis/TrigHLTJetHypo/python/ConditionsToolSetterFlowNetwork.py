@@ -212,6 +212,11 @@ class ConditionsToolSetterFlowNetwork(object):
 
 
     def _find_shared(self, node, shared):
+        """Determine which nodes are "shared" - shared nodes
+        are nodes that see the input jet collection. There
+        more than one set of shared nodes. These are generated
+        if an "And" not is present in the hypo tree"""
+
 
         if node.scenario == 'root':
             for cn in node.children:
@@ -220,6 +225,10 @@ class ConditionsToolSetterFlowNetwork(object):
         elif node.scenario == 'and':
             for cn in node.children:
                 shared.append([])
+                self._find_shared(cn, shared)
+
+        elif node.scenario == 'partgen':
+            for cn in node.children:
                 self._find_shared(cn, shared)
                 
         elif is_leaf(node):
@@ -235,8 +244,8 @@ class ConditionsToolSetterFlowNetwork(object):
 
         else:
             raise RuntimeError('%s illegal node. scenario: %s' %
-                               self.__class__.__name__,
-                               node.scenario)
+                               (self.__class__.__name__,
+                               node.scenario))
 
         return shared
 
@@ -324,10 +333,10 @@ class ConditionsToolSetterFlowNetwork(object):
         # single Condition
         self._split_leaves(root)
         
-        print ('%s: remove partgen' % self.__class__.__name__)
+        ## print ('%s: remove partgen' % self.__class__.__name__)
         # Alg step 4: remove partgen nodes
         # single Condition
-        self._remove_scenario(root, 'partgen')
+        ## self._remove_scenario(root, 'partgen')
 
         # Alg step 5: identify the leaf nodes that are to shared
         # ie that see the input jet collection. Then remove And nodes

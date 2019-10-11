@@ -52,6 +52,15 @@ const std::vector<std::size_t>& Tree::firstGeneration() const {
 }
 
 
+std::size_t Tree::depth(std::size_t n) const {
+  std::size_t depth{0u};
+  while (n != 0){
+    n = m_parents[n];
+    ++depth;
+  }
+  return depth;
+}
+
 std::ostream& operator<< (std::ostream& out, const Tree& t){
   out << "[";
   auto n = t.size();

@@ -4,7 +4,7 @@
 
 
 #include "./JetGroupProduct.h"
-
+#include <set>
 #include <iostream>
 
 HypoJetVector merge_groups(HypoJetGroupCIter& iter,
@@ -20,34 +20,60 @@ HypoJetVector merge_groups(HypoJetGroupCIter& iter,
   }
 
 
-JetGroupProduct::JetGroupProduct(const std::vector<HypoJetGroupVector>& inVecs):
-  m_inVecs(inVecs), m_nVec(inVecs.size()){
+JetGroupProduct::JetGroupProduct(const std::vector<std::vector<std::size_t>>&
+				 jetGroupIndVec,
+				 const std::map<std::size_t, HypoJetVector>&
+				 indJetGroups
+				 ):
+  m_jetGroupIndVec(jetGroupIndVec), m_indJetGroups(indJetGroups){
   std::vector<std::size_t> ends;
-  ends.reserve(m_inVecs.size());
-  for(const auto& v : m_inVecs){
+  ends.reserve(m_jetGroupIndVec.size());
+  for(const auto& v : m_jetGroupIndVec){
     ends.push_back(v.size());
   }
-  std::cout << "JetGroupProduct ends:\n";
-  for( const auto& i : ends){std::cout << i << " ";}
-  std::cout <<'\n';
-      
-      
   m_productGen = ProductGen(ends);
-  std::cout << "JetGroupProduct end of constructor\n";
+  std::cout
+    << "JetGroupProduct size jetGroupIndVec = "
+    <<jetGroupIndVec.size() << " content sizes: ";
+  for(const auto& e : jetGroupIndVec){std::cout <<  e.size() << " ";}
+  std::cout << '\n';
+  
 }
   
 std::optional<HypoJetVector> JetGroupProduct::next(){
-  auto indices = m_productGen.next();
-  if(!indices.has_value()){
-    return  std::optional<HypoJetVector>();
-  }
+
+  while(true){
+    auto opt_indices = m_productGen.next();
+    if(!opt_indices.has_value()){
+      std::cout<<"JGP returning with no result\n";
+      return  std::optional<HypoJetVector>();
+    }
+
+    auto indices = *opt_indices;
+
+    std::vector<std::size_t> j_indices;
+    for(std::size_t i = 0; i < indices.size(); ++i){
+      std::cout << "Prodgen " << i << " " << indices[i] << " " << m_jetGroupIndVec.size() << '\n';
+      j_indices.push_back(m_jetGroupIndVec.at(i).at(indices[i]));
+    }
     
-  HypoJetGroupVector groups;
-  for(std::size_t i = 0; i < indices->size(); ++i){
-    groups.push_back(m_inVecs[i][(*indices)[i]]);
+    HypoJetGroupVector groups;
+    std::set<std::size_t> unique_indices(indices.begin(), indices.end());
+    if(indices.size() == unique_indices.size()){
+      for(const auto& i : j_indices){
+	groups.push_back(m_indJetGroups.at(i));
+      }
+      
+      auto iter {groups.cbegin()};
+      auto end {groups.cend()};
+      
+      auto result =  merge_groups(iter, end);
+      std::cout<< "JGP returning group of size " << result.size() << '\n';
+      std:: copy(indices.begin(),
+		 indices.end(),
+		 std::ostream_iterator<std::size_t>(std::cout, " "));
+      std::cout << '\n';
+      return result;
+    }
   }
-  
-  auto iter {groups.cbegin()};
-  auto end {groups.cend()};
-  return merge_groups(iter, end);
 }

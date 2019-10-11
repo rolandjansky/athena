@@ -21,12 +21,13 @@ class JetGroupProduct{
    * merged groups.
    */
 public:
-  JetGroupProduct(const std::vector<HypoJetGroupVector>& inVecs);
+  JetGroupProduct(const std::vector<std::vector<std::size_t>>& inVecs,
+		  const std::map<std::size_t, HypoJetVector>& indJetGroups);
   std::optional<HypoJetVector> next();
 
 private:
-  const std::vector<HypoJetGroupVector> m_inVecs;
-  const std::size_t m_nVec;
+  const std::vector<std::vector<std::size_t>> m_jetGroupIndVec;
+  const std::map<std::size_t, HypoJetVector> m_indJetGroups;
   ProductGen m_productGen;
 };
 
