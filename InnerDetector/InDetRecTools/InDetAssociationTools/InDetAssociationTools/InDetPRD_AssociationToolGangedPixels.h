@@ -111,6 +111,7 @@ namespace InDet {
 
     /** add TRT outliers in the addTrack method to avoid splits due to rejected extensions */
     bool m_addTRToutliers;
+    bool m_setupCorrect;
 
 };
 

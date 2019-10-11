@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -24,14 +24,13 @@
 
 // Athena //
 // #include "GaudiKernel/MsgStream.h"
-// #include "StoreGate/StoreGateSvc.h"
 
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MdtCalibInterfaces/IMdtSegmentFitter.h"
 
@@ -92,7 +91,7 @@ namespace MuonCalib {
 // constructor
 
 MdtDqaGlobalTimeFit::MdtDqaGlobalTimeFit(int nbHitsMin, int nbHitsMax, float chi2cut, int BfieldON,  bool debug) :
-  m_mdtIdHelper(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), m_histoManager(NULL),
+  m_muonIdHelperTool(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), m_histoManager(NULL),
   //m_tfile(NULL),
   //m_tfile_debug(NULL), m_hit_ntuple(NULL), m_nb_hits(-1.), m_cal_region(NULL),
   m_rtRel(NULL),
@@ -112,14 +111,14 @@ MdtDqaGlobalTimeFit::MdtDqaGlobalTimeFit(int nbHitsMin, int nbHitsMax, float chi
 //:: METHOD init ::
 //:::::::::::::::::
   
-StatusCode MdtDqaGlobalTimeFit::initialize(const MdtIdHelper* mdtIdHelper, const MuonGM::MuonDetectorManager *detMgr, 
+StatusCode MdtDqaGlobalTimeFit::initialize(const Muon::MuonIdHelperTool* muonIdHelperTool, const MuonGM::MuonDetectorManager *detMgr, 
 					   const MuonCalib::IIdToFixedIdTool *id_tool, RegionSelectionSvc *reg_sel_svc,
 					   HistogramManager *histoManager) {
 
 
   // m_BfieldON = 0;   // THIS PARAMETER MUST BE SET VIA jobOptions 
   //  cout << " MdtDqaGlobalTimeFit::initialize ... " <<endl;
-  m_mdtIdHelper = mdtIdHelper;
+  m_muonIdHelperTool = muonIdHelperTool;
   m_detMgr = detMgr; 
   m_id_tool = id_tool;
   p_reg_sel_svc = reg_sel_svc;
@@ -173,16 +172,16 @@ StatusCode MdtDqaGlobalTimeFit::initialize(const MdtIdHelper* mdtIdHelper, const
     int eta_id = stationsInRegion.at(istation).GetEta();
 
     // string fullStationName = chamberType+"_"+ts(phi_id)+"_"+ts(eta_id);
-    Identifier station_id = m_mdtIdHelper->elementID(chamberType, eta_id, phi_id);
+    Identifier station_id = m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
     int stationIntId = (int) station_id;
-    int numberOfML = m_mdtIdHelper->numberOfMultilayers(station_id);
+    int numberOfML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
 
     for (int multilayer=1;multilayer<=numberOfML; multilayer++) {
-    Identifier MdtML = m_mdtIdHelper->multilayerID(station_id, multilayer);
-    int layerMin = m_mdtIdHelper->tubeLayerMin(MdtML);
-    int layerMax = m_mdtIdHelper->tubeLayerMax(MdtML);
-    int tubeMin = m_mdtIdHelper->tubeMin(MdtML);
-    int tubeMax = m_mdtIdHelper->tubeMax(MdtML);
+    Identifier MdtML = m_muonIdHelperTool->mdtIdHelper().multilayerID(station_id, multilayer);
+    int layerMin = m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(MdtML);
+    int layerMax = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(MdtML);
+    int tubeMin = m_muonIdHelperTool->mdtIdHelper().tubeMin(MdtML);
+    int tubeMax = m_muonIdHelperTool->mdtIdHelper().tubeMax(MdtML);
     m_nb_layers_tubes[istation][0] = stationIntId;
     m_nb_layers_tubes[istation][1] = layerMax-layerMin+1;
     m_nb_layers_tubes[istation][1+multilayer] = tubeMax-tubeMin+1;
@@ -271,7 +270,7 @@ StatusCode MdtDqaGlobalTimeFit::handleEvent( const MuonCalibEvent & /*event*/,
 
     //    if ( m_debug ) cout << " MdtDqaGlobalTimeFit:: stationNameStr: "<<stationNameStr <<endl;
 
-    //int stationIntId = (int) m_mdtIdHelper->elementID(stationNameStr,eta,phi);
+    //int stationIntId = (int) m_muonIdHelperTool->mdtIdHelper().elementID(stationNameStr,eta,phi);
 
     string region = "Barrel";
     if ( stationNameStr.substr(0,1) == "E" ) region = "Endcap";

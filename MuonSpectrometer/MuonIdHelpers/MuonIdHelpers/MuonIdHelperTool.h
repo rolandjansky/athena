@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONIDHELPERTOOL_H
@@ -160,6 +160,13 @@ namespace Muon {
     /** @brief return sector number 1-16, odd=large, even=small */
     int sector( const Identifier& id ) const;
 
+    bool hasRPC() const { return m_rpcIdHelper != nullptr; }
+    bool hasTGC() const { return m_tgcIdHelper != nullptr; }
+    bool hasMDT() const { return m_mdtIdHelper != nullptr; }
+    bool hasCSC() const { return m_hasCSC; }
+    bool hasSTgc() const { return m_hasSTgc; }
+    bool hasMM() const { return m_hasMM; }
+
   private:
     const RpcIdHelper*                  m_rpcIdHelper;
     const TgcIdHelper*                  m_tgcIdHelper;
@@ -167,7 +174,9 @@ namespace Muon {
     const MdtIdHelper*                  m_mdtIdHelper;
     const MmIdHelper*                   m_mmIdHelper;
     const sTgcIdHelper*                 m_stgcIdHelper;
-    bool                                m_useCSC;
+    bool                                m_hasCSC;
+    bool                                m_hasSTgc;
+    bool                                m_hasMM;
 
     struct StationNameData {
       std::string stationName;

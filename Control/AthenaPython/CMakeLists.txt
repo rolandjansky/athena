@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
+                          Control/RootUtils
                           Control/DataModelRoot )
 
 # External dependencies:

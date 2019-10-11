@@ -3,7 +3,6 @@
 */
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "StoreGate/ReadCondHandle.h"
 
 AthMonitorAlgorithm::AthMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthReentrantAlgorithm(name,pSvcLocator)
@@ -86,13 +85,20 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
 }
 
 
-SG::ReadHandle<xAOD::EventInfo> AthMonitorAlgorithm::GetEventInfo( const EventContext& ctx ) const {
-    return SG::ReadHandle<xAOD::EventInfo>(m_EventInfoKey, ctx);
+void AthMonitorAlgorithm::fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+                                MonVarVec_t variables ) const {
+    Monitored::Group(groupHandle,variables).fill();
 }
 
 
-AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::environment() const {
-    return m_environment;
+void AthMonitorAlgorithm::fill( const std::string& groupName,
+                                MonVarVec_t variables ) const {
+    fill(getGroup(groupName),variables);
+}
+
+
+SG::ReadHandle<xAOD::EventInfo> AthMonitorAlgorithm::GetEventInfo( const EventContext& ctx ) const {
+    return SG::ReadHandle<xAOD::EventInfo>(m_EventInfoKey, ctx);
 }
 
 
@@ -121,11 +127,6 @@ AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const s
             <<str<<", returning user."<<endmsg);
         return Environment_t::user;
     }
-}
-
-
-AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataType() const {
-    return m_dataType;
 }
 
 
@@ -173,7 +174,7 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
 }
 
 
-const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() const {
+const ToolHandle<Trig::TrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() const {
     return m_trigDecTool;
 }
 

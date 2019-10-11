@@ -601,7 +601,7 @@ namespace InDet{
   }
 
   StatusCode InDetVKalVxInJetTool::GetTrkFitWeights(std::vector<double> & wgt,
-                                                    Trk::IVKalState& istate) const
+                                                    const Trk::IVKalState& istate) const
   {
     return m_fitSvc->VKalGetTrkWeights(wgt, istate);
   }

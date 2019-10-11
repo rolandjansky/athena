@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -103,7 +102,7 @@ StatusCode FakeRoI::start() {
 
 StatusCode FakeRoI::execute() {
 	// create view (BEN: for now don't do it until we've got the scheduling going)
-	///*m_view = CxxUtils::make_unique< std::vector<SG::View*>>();
+	///*m_view = std::make_unique< std::vector<SG::View*>>();
 	//IProxyDict * view = new SG::View("L1CaloDecoderView");
 	//m_view->push_back(view);*/
 	IProxyDict * view = 0;
@@ -115,11 +114,11 @@ StatusCode FakeRoI::execute() {
 	CHECK(m_decisionsAux.setProxyDict(view));
 
 	// define output
-	m_trigRoIs = CxxUtils::make_unique< TrigRoiDescriptorCollection >();
-	m_recEMTauRoIs = CxxUtils::make_unique< DataVector<LVL1::RecEmTauRoI> >();
+	m_trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
+	m_recEMTauRoIs = std::make_unique< DataVector<LVL1::RecEmTauRoI> >();
 
-	m_decisions = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-	m_decisionsAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();
+	m_decisions = std::make_unique< xAOD::TrigCompositeContainer >();
+	m_decisionsAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
 	m_decisions->setStore(m_decisionsAux.ptr());
 
 

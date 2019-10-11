@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonFourMomentumCorrection/get_MaterialResolutionEffect.h"
 
 #include "PathResolver/PathResolver.h"
-#include "CxxUtils/make_unique.h"
 
 #include <stdlib.h>
 #include "TAxis.h"
@@ -19,7 +18,7 @@ get_MaterialResolutionEffect::get_MaterialResolutionEffect()
   const std::string filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/histos-systematics-material.root");
   
   
-  m_file0 = CxxUtils::make_unique<TFile>(filename.c_str());
+  m_file0 = std::make_unique<TFile>(filename.c_str());
 
   for (Int_t isys=0;isys<4;isys++) {
     for (Int_t ieta=0;ieta<8;ieta++) {

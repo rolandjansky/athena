@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTPATTERNFINDER_H
@@ -15,8 +15,8 @@
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/TrackData.h"
 
-class MdtIdHelper;
-class StoreGateSvc;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -71,7 +71,8 @@ class MuFastPatternFinder: public AthAlgTool
       ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
 
       // Id helper
-      const MdtIdHelper* m_mdtIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+         "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
 };
 

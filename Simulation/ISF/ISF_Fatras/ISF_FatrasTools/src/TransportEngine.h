@@ -24,10 +24,8 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
 
-class IIncidentSvc;
-
 namespace Trk {
-  class HitInfo;
+  struct HitInfo;
 }
 
 namespace ISF {

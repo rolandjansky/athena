@@ -27,23 +27,21 @@ using namespace TrigCompositeUtils;
 
 StatusCode EMRoIsUnpackingTool::initialize() {
 
-  CHECK( RoIsUnpackingToolBase::initialize() );
-  CHECK( m_configSvc.retrieve() );
-  CHECK( m_trigRoIsKey.initialize() );
-  CHECK( m_recRoIsKey.initialize() );
-
+  ATH_CHECK( RoIsUnpackingToolBase::initialize() );
+  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_trigRoIsKey.initialize() );
+  ATH_CHECK( m_recRoIsKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
-  using namespace TrigConf;
-  
-  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::EM; }, 
-			    m_configSvc->ctpConfig()->menu().itemVector(),
-			    seeding ) );
+StatusCode EMRoIsUnpackingTool::start() {
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("EM") == 0;  } ) );
+  return StatusCode::SUCCESS;
+}
 
+StatusCode EMRoIsUnpackingTool::updateConfiguration() {
   m_emThresholds.clear();
-
+  using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   auto filteredThresholds= thresholdConfig->getThresholdVector( L1DataDef::EM );
   ATH_MSG_DEBUG( "Number of filtered thresholds " << filteredThresholds.size() );
@@ -61,8 +59,6 @@ StatusCode EMRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::S
   } else {
     ATH_MSG_INFO( "Configured " << m_emThresholds.size() << " thresholds" );
   }
-
-  
 
   return StatusCode::SUCCESS;
 }

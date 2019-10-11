@@ -30,7 +30,7 @@
 #include "TrigParticle/TrigEFBphys.h"
 #include "TrigParticle/TrigEFBphysContainer.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 class TrigEFBMuMuHypo: public HLT::HypoAlgo  {
   

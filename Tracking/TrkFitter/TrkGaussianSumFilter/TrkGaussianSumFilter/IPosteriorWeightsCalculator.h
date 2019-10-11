@@ -17,7 +17,7 @@ decription           : Abstract interface for the posterior weights calculator
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "GaudiKernel/IAlgTool.h"
-
+#include <memory>
 namespace Trk {
 
 class MeasurementBase;
@@ -34,7 +34,7 @@ public:
   static const InterfaceID& interfaceID() { return IID_PosteriorWeightsCalculator; };
 
   /** Method to compute the state weights after measurement update */
-  virtual const MultiComponentState* weights(const MultiComponentState&, const MeasurementBase&) const = 0;
+  virtual std::unique_ptr<MultiComponentState> weights(const MultiComponentState&, const MeasurementBase&) const = 0;
 };
 
 } // end Trk namespace

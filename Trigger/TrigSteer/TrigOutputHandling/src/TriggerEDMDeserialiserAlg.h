@@ -44,7 +44,7 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-
+  friend StatusCode tester( TriggerEDMDeserialiserAlg* );
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_resultKey { this, "ResultKey", "HLTResultMT", "Key of object that is read"  };
   Gaudi::Property<std::string> m_prefix{ this, "Prefix", "", "Set for testing to avoid clash with the input collections" };

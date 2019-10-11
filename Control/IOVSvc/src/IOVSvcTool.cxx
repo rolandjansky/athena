@@ -18,7 +18,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Guards.h"
@@ -1083,7 +1082,7 @@ IOVSvcTool::triggerCallback(IOVSvcCallBackFcn* fcn, const std::string& key ) {
  
   ATH_MSG_VERBOSE("triggerCallback(BFCN*)");
 
-  int I;
+  int I {}; // initialize to something
   std::list<std::string> klist;
   klist.push_back(key);
   if ( (*fcn)(I,klist).isFailure() ) {

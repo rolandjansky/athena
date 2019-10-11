@@ -6,10 +6,12 @@
 #define MUON_MUONTRACKSELECTOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <atomic>
 #include <string>
@@ -23,7 +25,6 @@ class MsgStream;
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -78,7 +79,9 @@ namespace Muon {
 
   private:
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ToolHandle<Muon::MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
     ToolHandle<Trk::ITrackSummaryHelperTool>         m_trackSummaryTool; //<! muon id helper
 

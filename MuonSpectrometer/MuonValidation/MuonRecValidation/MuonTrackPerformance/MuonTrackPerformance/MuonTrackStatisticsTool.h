@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKSTATISTICSTOOL_MUONTRACKSTATISTICSTOOL_H
 #define MUONTRACKSTATISTICSTOOL_MUONTRACKSTATISTICSTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 
 #include "TrkTrack/TrackCollection.h"
@@ -17,7 +18,7 @@
 #include <string>
 
 /* namespace Muon { */
-/*   class MuonEDMHelperTool; */
+/*   class IMuonEDMHelperSvc; */
 /* }     */
 
 /* namespace Trk { */
@@ -108,7 +109,9 @@ public:
 private:
 	
 	// access to Id Helpers
-	ToolHandle<Muon::MuonEDMHelperTool>   m_helperTool;
+	ServiceHandle<Muon::IMuonEDMHelperSvc>   m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
 	ToolHandle<Trk::ITruthToTrack>        m_truthToTrack;
 	
 	

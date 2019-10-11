@@ -31,7 +31,7 @@
 //#include <TH2F.h>
 //#include <TProfile.h>
 
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "eformat/eformat.h"
 //#include "eformat/index.h"
 #include "eformat/DetectorMask.h"

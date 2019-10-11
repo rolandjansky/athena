@@ -17,9 +17,7 @@ def BTagFullLinearizedTrackFactoryCfg(flags, name = 'FullLinearizedTrackFactory'
     output: The actual tool, which can then be added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accExtrapolator = AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator')
-        atlasExtrapolator= accExtrapolator.popPrivateTools()
-        acc.merge(accExtrapolator)
+        atlasExtrapolator= acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator'))
         defaults = { 'Extrapolator'            : atlasExtrapolator}
         for option in defaults:
             options.setdefault(option, defaults[option])

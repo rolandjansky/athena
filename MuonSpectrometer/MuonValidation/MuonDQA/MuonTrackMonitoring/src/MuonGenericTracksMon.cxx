@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================================================
@@ -676,12 +676,12 @@ StatusCode MuonGenericTracksMon::setupTools()
   // }
   // ATH_MSG_DEBUG( " Found the " << m_pullCalculator );
 
-  // sc = m_helperTool.retrieve();
+  // sc = m_edmHelperSvc.retrieve();
   // if (!sc.isSuccess()){
-  //   ATH_MSG_FATAL( "Could not get " << m_helperTool );
+  //   ATH_MSG_FATAL( "Could not get " << m_edmHelperSvc );
   //   return sc;
   // }
-  // ATH_MSG_DEBUG( "Retrieved " << m_helperTool );
+  // ATH_MSG_DEBUG( "Retrieved " << m_edmHelperSvc );
  
   sc = m_ZmumuResonanceSelectionTool.retrieve();
   if (!sc.isSuccess()){

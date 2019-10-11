@@ -24,7 +24,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //trigger includes
 #include "TrigInterfaces/ComboAlgo.h"

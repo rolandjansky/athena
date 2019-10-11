@@ -43,6 +43,29 @@ def TileMuonReceiverDecisionCfg(flags, **kwargs):
     return acc
 
 
+def TileMuonReceiverDecisionOutputCfg(flags, **kwargs):
+    """Return component accumulator with configured Tile muon receiver decision algorithm and Output stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    """
+
+    acc = TileMuonReceiverDecisionCfg(flags, **kwargs)
+    muRcvDecisionAlg = acc.getPrimary()
+
+    if hasattr(muRcvDecisionAlg, 'TileMuonReceiverContainer'):
+        muRcvContainer = muRcvDecisionAlg.TileMuonReceiverContainer
+    else:
+        muRcvContainer = muRcvDecisionAlg.getDefaultProperty('TileMuonReceiverContainer')
+    muRcvContainer = muRcvContainer.split('+').pop()
+    outputItemList = ['TileMuonReceiverContainer#' + muRcvContainer]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
+
+    return acc
+
+
 
 if __name__ == "__main__":
 
@@ -58,15 +81,26 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.RDO
     ConfigFlags.Tile.RunType = 'PHY'
+    ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
+    ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
 
     ConfigFlags.fillFromArgs()
-
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    acc = ComponentAccumulator()
+    # Construct our accumulator to run
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    acc = MainServicesThreadedCfg(ConfigFlags)
 
-    print( acc.popToolsAndMerge( TileMuonReceiverDecisionCfg(ConfigFlags) ) )
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    acc.merge(PoolReadCfg(ConfigFlags))
+
+    acc.merge( TileMuonReceiverDecisionOutputCfg(ConfigFlags, TileMuonReceiverContainer = 'TileMuRcvCntNew') )
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileMuonReceiverDecision.pkl','w') )
+
+    sc = acc.run(maxEvents=3)
+    # Success should be 0
+    import sys
+    sys.exit(not sc.isSuccess())

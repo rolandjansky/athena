@@ -108,7 +108,7 @@ class AthConfigFlags(object):
     def needFlagsCategory(self, name):
         self._loadDynaFlags( name )
     
-    def _loadDynaFlags(self, name, quiet = False):
+    def _loadDynaFlags(self, name):
         flagBaseName = name.split('.')[0]
         if flagBaseName in self._dynaflags:
             self._msg.debug("dynamically loading the flag %s", flagBaseName)
@@ -117,13 +117,11 @@ class AthConfigFlags(object):
             self.join( self._dynaflags[flagBaseName]() )
             self._locked = isLocked
             del self._dynaflags[flagBaseName]
-            if not quiet:
-                self.dump()
 
-    def loadAllDynamicFlags(self, quiet = False):
+    def loadAllDynamicFlags(self):
         # Need to convert to a list since _loadDynaFlags may change the dict.
         for prefix in list(self._dynaflags.keys()):
-            self._loadDynaFlags( prefix, quiet = quiet )
+            self._loadDynaFlags( prefix )
 
     def hasFlag(self, name):        
         if name in self._flagdict: 

@@ -4,8 +4,8 @@
 
 // VKalVrtAtlas.h
 //
-#ifndef _TrkVKalVrtFitter_VKalVrtAtlas_H
-#define _TrkVKalVrtFitter_VKalVrtAtlas_H
+#ifndef TRKVKALVRTFITTER_VKALVRTATLAS_H
+#define TRKVKALVRTFITTER_VKALVRTATLAS_H
 
 // Mag field service
 #include  "MagFieldInterfaces/IMagFieldSvc.h"
@@ -41,9 +41,7 @@ class TrkVKalVrtFitter;
     
        MagField::IMagFieldSvc*  m_VKalAthenaField;
        double m_FIXED_ATLAS_FIELD=1.997;
-       const double m_mm=1.;
        double m_magFrameX, m_magFrameY, m_magFrameZ ;
-       Amg::Vector3D m_Point;
 
    };
 
@@ -57,27 +55,33 @@ class StraightLineSurface;
     public:
 
         VKalExtPropagator( TrkVKalVrtFitter* );
-       ~VKalExtPropagator();
+        virtual ~VKalExtPropagator();
 
 //
 // Propagator from RefStart point  to RefEnd point in local coordinate
 //   system. Global coordinates are incapsulated inside function
 //
+        virtual
         void Propagate(long int trkID, long int Charge, 
 	               double *ParOld, double *CovOld, double *RefStart, 
-                       double *RefEnd, double *ParNew, double *CovNew) const;
-        bool checkTarget( double *) const;
+                       double *RefEnd, double *ParNew, double *CovNew,
+                       const IVKalState& istate) const override;
+        virtual
+        bool checkTarget( double *,
+                          const IVKalState& istate) const override;
 
 
         void setPropagator(const IExtrapolator* );
 
         const TrackParameters* myExtrapWithMatUpdate(long int TrkID, 
                                                      const TrackParameters *inpPer,
-                                                     Amg::Vector3D *endPoint) const;
+                                                     Amg::Vector3D *endPoint,
+                                                     const IVKalState& istate) const;
         const TrackParameters* myExtrapToLine(long int TrkID, 
                                                      const TrackParameters *inpPer,
                                                      Amg::Vector3D * endPoint,
-                                                     StraightLineSurface  &lineTarget) const;
+                                                     StraightLineSurface  &lineTarget,
+                                                     const IVKalState& istate) const;
         const NeutralParameters* myExtrapNeutral( const NeutralParameters *inpPer,
                                                      Amg::Vector3D *endPoint) const;
 
@@ -88,7 +92,7 @@ class StraightLineSurface;
         const IExtrapolator     *m_extrapolator;       //!< Pointer to Extrapolator AlgTool
         TrkVKalVrtFitter            *m_vkalFitSvc;        //!< Pointer to TrkVKalVrtFitter
 
-        double Protection(double *) const;
+        double Protection(double *, const IVKalState& istate) const;
 
 
    };

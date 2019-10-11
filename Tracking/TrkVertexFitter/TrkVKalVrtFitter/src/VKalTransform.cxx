@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -23,7 +23,7 @@
 
 namespace Trk{
 
- bool TrkVKalVrtFitter::convertAmg5SymMtx(const AmgSymMatrix(5)* AmgMtx, double stdSymMtx[15])
+ bool TrkVKalVrtFitter::convertAmg5SymMtx(const AmgSymMatrix(5)* AmgMtx, double stdSymMtx[15]) const
  {     
        if(!AmgMtx) return false;
        //----- Check perigee covarince matrix for safety
@@ -58,7 +58,7 @@ namespace Trk{
  
  void TrkVKalVrtFitter::VKalTransform(double BMAG_FIXED,
      double A0V,double ZV,double PhiV,double ThetaV,double  PInv,double CovTrk[15],
-     long int & Charge, double VTrkPar[5], double VTrkCov[15])
+     long int & Charge, double VTrkPar[5], double VTrkCov[15]) const
  {
      int i,j,ii,jj;
      double CnvCst=m_CNVMAG*BMAG_FIXED;

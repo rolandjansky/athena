@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigDBKeysFillerTool.h 587765 2014-03-14 20:17:12Z ssnyder $
@@ -50,8 +50,6 @@ namespace D3PD {
    private:
       /// The trigger configuration service to get the information from
       ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc;
-      /// Handle used (sometimes) when reading MC files
-      ServiceHandle< TrigConf::IHLTConfigSvc > m_dsSvc;
 
       uint32_t* m_smk; ///< Super Master Key
       uint32_t* m_l1psk; ///< LVL1 Prescale Key

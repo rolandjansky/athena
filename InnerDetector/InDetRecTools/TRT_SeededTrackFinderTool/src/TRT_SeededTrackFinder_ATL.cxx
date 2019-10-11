@@ -15,7 +15,6 @@
 #include <iomanip>
 #include <utility>
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -215,14 +214,7 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   //
   setTrackQualityCuts();
 
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Could not get DetectorStore"<<endmsg;
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_trtId, "TRT_ID");
+  sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
     return StatusCode::FAILURE;
@@ -1348,13 +1340,9 @@ bool InDet::TRT_SeededTrackFinder_ATL::isCaloCompatible(const Trk::TrackParamete
 ///////////////////////////////////////////////////////////////////
 void  InDet::TRT_SeededTrackFinder_ATL::magneticFieldInit()
 {
-Trk::MagneticFieldProperties* pMF = 0; 
- if(m_fieldmode == "NoField") pMF = new Trk::MagneticFieldProperties(Trk::NoField  ); 
- else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField); 
- else pMF = new Trk::MagneticFieldProperties(Trk::FullField); 
- m_fieldprop = *pMF; 
-
- delete pMF; 
+ if(m_fieldmode == "NoField") m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField  ); 
+ else if(m_fieldmode == "MapSolenoid") m_fieldprop = Trk::MagneticFieldProperties(Trk::FastField); 
+ else m_fieldprop = Trk::MagneticFieldProperties(Trk::FullField); 
 }
 
 

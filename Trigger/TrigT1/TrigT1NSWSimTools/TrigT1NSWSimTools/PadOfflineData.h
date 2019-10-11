@@ -67,6 +67,10 @@ namespace NSWL1 {
     int channelId()            const;  //!< get the channel
     int padEtaId()             const;  //!< get the pad eta channel  
     int padPhiId()             const;  //!< get the pad phi channel
+
+    float stationPhiAngle() const;
+
+
     float m_cornerXyz[4][3];
   };  // end of PadOfflineData class
 

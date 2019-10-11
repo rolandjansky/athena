@@ -9,7 +9,7 @@
 
 #include "MuonRDO/MdtAmtHit.h"
 #include "MuonDigitContainer/MdtDigit.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -42,7 +42,8 @@ namespace Muon {
     
   private:
     
-    const MdtIdHelper * m_mdtIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
     
   };
@@ -79,7 +80,7 @@ inline MdtDigit* Muon::MdtRDO_Decoder::getDigit(const MdtAmtHit* amtHit, uint16_
     
   if (!cab) return NULL;
   
-  Identifier chanId = m_mdtIdHelper->channelID(stationName, stationEta, stationPhi, 
+  Identifier chanId = m_muonIdHelperTool->mdtIdHelper().channelID(stationName, stationEta, stationPhi, 
 					       multiLayer, tubeLayer, tube);
   
   int tdcCounts = coarse*32+fine;
@@ -122,7 +123,7 @@ inline Identifier Muon::MdtRDO_Decoder::getOfflineData(const MdtAmtHit* amtHit, 
     
   }
   
-  Identifier chanId = m_mdtIdHelper->channelID(stationName, stationEta, stationPhi, 
+  Identifier chanId = m_muonIdHelperTool->mdtIdHelper().channelID(stationName, stationEta, stationPhi, 
 					       multiLayer, tubeLayer, tube);
   
   tdcCounts = coarse*32+fine;

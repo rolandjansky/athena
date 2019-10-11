@@ -4,7 +4,6 @@
 
 #include "LArOFCTool.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
 
 #include "CLHEP/Matrix/Matrix.h"

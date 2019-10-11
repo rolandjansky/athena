@@ -21,10 +21,6 @@ def createLArConfigFlags():
     
     # Include MC shape folder
     lcf.addFlag("LAr.UseMCShape", True)
-    # Include Mphys pulse calibration folder
-    lcf.addFlag("LAr.HasMphys", True)
-    # Include HVCorr folder in MC
-    lcf.addFlag("LAr.HasHVCorr", True)
     # Name of sqlite file containing Electronic Calibration values
     lcf.addFlag("LAr.ElecCalibSqlite", "")
     # Load Electronic Calibration constants

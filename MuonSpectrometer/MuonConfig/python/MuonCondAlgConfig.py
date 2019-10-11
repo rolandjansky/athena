@@ -19,8 +19,14 @@ def MdtCondDbAlgCfg(flags, **kwargs):
             folders          = ["/MDT/DCS/DROPPEDCH", "/MDT/DCS/PSLVCHSTATE"]
         else:
             kwargs['isData'] = True
-            kwargs['isRun1'] = False
-            folders          = ["/MDT/DCS/HV", "/MDT/DCS/LV"]
+            kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
+            kwargs['useRun1SetPoints'] = False
+            if kwargs['isRun1'] and kwargs['useRun1SetPoints']:
+                folders = ["/MDT/DCS/PSV0SETPOINTS", "/MDT/DCS/PSV1SETPOINTS"]
+            if kwargs['isRun1']:
+                folders = ["/MDT/DCS/PSHVMLSTATE", "/MDT/DCS/PSLVCHSTATE", "/MDT/DCS/DROPPEDCH"]
+            else:
+                folders = ["/MDT/DCS/HV", "/MDT/DCS/LV"]
     alg = MdtCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
@@ -38,7 +44,7 @@ def RpcCondDbAlgCfg(flags, **kwargs):
             kwargs['isData'] = False
         else:
             kwargs['isData'] = True
-            kwargs['isRun1'] = False
+            kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
             folders          = ["/RPC/DCS/DeadRopanels", "/RPC/DCS/OffRopanels"]
     alg = RpcCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders                     , detDb="DCS_OFL", className='CondAttrListCollection') )
@@ -58,9 +64,9 @@ def CscCondDbAlgCfg(flags, **kwargs):
             kwargs['isData'] = False
         else:
             kwargs['isData'] = True
-            kwargs['isRun1'] = False
+            kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
     alg = CscCondDbAlg(**kwargs)
-    result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
+    result.merge( addFolders(flags, folders , detDb="CSC_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result
 
@@ -76,7 +82,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
 ###            kwargs['isData'] = False
 ###        else:
 ###            kwargs['isData'] = True
-###            kwargs['isRun1'] = False
+###            kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
 ###    alg = TgcCondDbAlg(**kwargs)
 ###    result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
 ###    result.addCondAlgo(alg)

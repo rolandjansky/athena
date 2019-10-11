@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTCONVERTERTOOL_H
@@ -16,7 +16,7 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
 
@@ -56,7 +56,9 @@ namespace Muon {
 
     ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool;
     ToolHandle<MuonIdHelperTool>  m_idHelper;
-    ToolHandle<MuonEDMHelperTool> m_edmHelper;
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelper {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<IMuonHitTimingTool> m_hitTimingTool;
 
   };

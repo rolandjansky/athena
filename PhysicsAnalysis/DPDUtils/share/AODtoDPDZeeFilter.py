@@ -100,4 +100,3 @@ StreamDPD.AddItem ('Rec::TrackParticleContainer#StacoTrackParticles')
 StreamDPD.AddItem ('TruthParticleContainer#SpclMC')
 StreamDPD.AddItem ('McEventCollection#GEN_AOD')
 
-StreamDPD.ForceRead=TRUE;  #force read of output data objs

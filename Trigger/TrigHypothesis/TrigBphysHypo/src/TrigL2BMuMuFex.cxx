@@ -15,14 +15,11 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 //#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigL2BMuMuFex.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -33,7 +30,7 @@
 
 #include "TrigParticle/TrigL2Bphys.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 #include "BtrigUtils.h"
 
 // additions of xAOD objects
@@ -908,7 +905,8 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         // set the eta and phi based on simple 4-mom
         // ignore the correction mass of tracks
         xAOD::IParticle::FourMom_t saMuon;
-        saMuon.SetPtEtaPhiM(pMuonFeature->pt() * 1000., pMuonFeature->p4().Eta(), pMuonFeature->p4().Phi(),pMuonFeature->p4().M()*1000.);
+        auto pMuonFeaturep4 = pMuonFeature->p4();
+        saMuon.SetPtEtaPhiM(pMuonFeature->pt() * 1000., pMuonFeaturep4.Eta(), pMuonFeaturep4.Phi(), pMuonFeaturep4.M()*1000.);
         xAOD::IParticle::FourMom_t dimuon = (*track1EL)->p4() + saMuon;
         
         trigPartBmumu->setEta(dimuon.Eta());

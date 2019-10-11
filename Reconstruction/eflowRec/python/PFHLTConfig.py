@@ -284,7 +284,6 @@ if __name__=="__main__":
         ]
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge(OutputStreamCfg(cfgFlags,"xAOD",ItemList=outputlist))
-    cfg.getEventAlgo("OutputStreamxAOD").ForceRead = True
     from pprint import pprint
     pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 

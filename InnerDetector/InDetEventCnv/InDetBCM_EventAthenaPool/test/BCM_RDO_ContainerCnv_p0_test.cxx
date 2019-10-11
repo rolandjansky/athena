@@ -15,10 +15,10 @@
 #include "../src/BCM_RDO_ContainerCnv_p0.cxx"
 #include "../src/BCM_RDO_CollectionCnv_p0.cxx"
 #include "../src/BCM_RawDataCnv_p0.cxx"
-#include "CxxUtils/make_unique.h"
+
 #include <cassert>
 #include <iostream>
-
+#include <memory>
 
 void compare (const BCM_RawData& p1,
               const BCM_RawData& p2)
@@ -67,7 +67,7 @@ void test1()
   BCM_RDO_Container trans1;
   for (int i=0; i < 10; i++) {
     int o1 = i*100;
-    auto coll = CxxUtils::make_unique<BCM_RDO_Collection> (543+o1);
+    auto coll = std::make_unique<BCM_RDO_Collection> (543+o1);
     for (int j=0; j<i; j++) {
       int o2 = o1 + j*20;
       coll->push_back (std::make_unique<BCM_RawData> (123+o2, 234+o2));

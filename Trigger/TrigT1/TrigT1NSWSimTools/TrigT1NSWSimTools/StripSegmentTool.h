@@ -71,6 +71,9 @@ namespace NSWL1 {
         TTree* m_tree;                                          //!< ntuple for analysis
         BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink                         
         StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink                          
+        IntegerProperty m_rIndexBits;
+        IntegerProperty m_dThetaBits;
+
         // analysis variable to be put into the ntuple
         std::vector<int> *m_seg_wedge1_size;                        //!< theta
         std::vector<int> *m_seg_wedge2_size;                        //!< theta
@@ -91,8 +94,6 @@ namespace NSWL1 {
         std::vector<float> *m_seg_dir_y;
         std::vector<float> *m_seg_dir_z; 
 
-        int m_rIndexBits;
-        int m_dThetaBits;
         StatusCode FetchDetectorEnvelope();
         std::pair<float,float> m_zbounds;
         std::pair<float,float> m_etabounds;

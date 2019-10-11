@@ -13,13 +13,17 @@ __author__ = "Sebastien Binet"
 import PyUtils.acmdlib as acmdlib
 
 ### globals -------------------------------------------------------------------
-g_ALLOWED_MODES = ('summary', 'detailed')
+g_ALLOWED_MODES = ('summary', 'semi-detailed', 'detailed')
 g_ALLOWED_ERROR_MODES = ('bailout', 'resilient')
 g_args = None
 
 ### classes -------------------------------------------------------------------
 
 ### functions -----------------------------------------------------------------
+def _is_detailed():
+    global g_args
+    return g_args.mode == 'detailed'
+
 def _is_summary():
     global g_args
     return g_args.mode == 'summary'
@@ -65,6 +69,7 @@ def _is_exit_early():
                   help="""\
 Enable a particular mode.
   'summary': only report the number of differences.
+  'semi-detailed': report the number of differences and the leaves that differ.
   'detailed': display everything.
 default='%(default)s'.
 allowed: %(choices)s
@@ -137,10 +142,14 @@ def main(args):
         nevts = tree.GetEntriesFast()
 
         for idx in range(0, nevts):
-            if idx % 100 == 0: msg.debug('Read {} events from the input so far'.format(idx))
+            if idx % 100 == 0:
+                msg.debug('Read {} events from the input so far'.format(idx))
             tree.GetEntry(idx)
             if hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
                 event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
+                event_number = event_info.eventNumber
+            elif hasattr(tree,'EventInfoAux.'):
+                event_info = getattr(tree,'EventInfoAux.')
                 event_number = event_info.eventNumber
             elif hasattr(tree,'EventInfo_p4_McEventInfo'):
                 event_info = getattr(tree,'EventInfo_p4_McEventInfo')
@@ -243,7 +252,7 @@ def main(args):
                         break
                 if not skip:
                     return entry
-                # print 'SKIP:', leafname_fromdump(entry)
+                # print('SKIP:', leafname_fromdump(entry))
             pass
 
         read_old = True
@@ -285,15 +294,17 @@ def main(args):
             else:
                 in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2]
             if not in_synch:
-                if not _is_summary():
+                if _is_detailed():
                     if d_old:
-                        print '::sync-old %s' %'.'.join(["%03i"%ientry]+map(str, d_old[2]))
+                        print('::sync-old %s' %'.'.join(["%03i"%ientry]+map(str,
+                                                                            d_old[2])))
                     else:
-                        print '::sync-old ABSENT'
+                        print('::sync-old ABSENT')
                     if d_new:
-                        print '::sync-new %s' %'.'.join(["%03i"%jentry]+map(str, d_new[2]))
+                        print('::sync-new %s' %'.'.join(["%03i"%jentry]+map(str,
+                                                                            d_new[2])))
                     else:
-                        print '::sync-new ABSENT'
+                        print('::sync-new ABSENT')
                     pass
                 # remember for later
                 if not d_old:
@@ -306,14 +317,14 @@ def main(args):
                     branch_old = '.'.join(["%03i"%ientry, d_old[2][0]])
                     branch_new = '.'.join(["%03i"%jentry, d_new[2][0]])
                     if branch_old < branch_new: 
-                        if not _is_summary():
-                            print '::sync-old skipping entry'
+                        if _is_detailed():
+                            print('::sync-old skipping entry')
                         summary[d_old[2][0]] += 1
                         fnew.allgood = False
                         read_new = False
                     elif branch_old > branch_new:
-                        if not _is_summary():
-                            print '::sync-new skipping entry'
+                        if _is_detailed():
+                            print('::sync-new skipping entry')
                         summary[d_new[2][0]] += 1
                         fold.allgood = False
                         read_old = False
@@ -332,25 +343,25 @@ def main(args):
                             elif leaf_old == prev_leaf_old:
                                 # old has bigger array, skip old entry
                                 read_new = False
-                                if not _is_summary():
-                                    print '::sync-old skipping entry'
+                                if _is_detailed():
+                                    print('::sync-old skipping entry')
                                 summary[leaf_old] += 1
                             elif leaf_new == prev_leaf_new:
                                 # new has bigger array, skip new entry
                                 read_old = False
-                                if not _is_summary():
-                                    print '::sync-new skipping entry'
+                                if _is_detailed():
+                                    print('::sync-new skipping entry')
                                 summary[leaf_new] += 1
                                                             
                         if read_old and read_new:
                             summary[d_new[2][0]] += 1
-                            if not _is_summary():
-                                print '::sync-old+new skipping both entries'
+                            if _is_detailed():
+                                print('::sync-old+new skipping both entries')
                         fold.allgood = False
                         fnew.allgood = False
  
                 if _is_exit_early():
-                    print "*** exit on first error ***"
+                    print('*** exit on first error ***')
                     break
                 continue
             
@@ -364,8 +375,8 @@ def main(args):
                 diff_value = '%.8f%%' % (diff_value,)
             except Exception:
                 pass
-            if not _is_summary():
-                print '%s %r -> %r => diff= [%s]' %(n, iold, inew, diff_value)
+            if _is_detailed():
+                print('%s %r -> %r => diff= [%s]' %(n, iold, inew, diff_value))
                 pass
             summary[leafname_fromdump(d_old)] += 1
 
@@ -388,8 +399,8 @@ def main(args):
         
         if (not fold.allgood) or (not fnew.allgood):
             msg.info('NOTE: there were errors during the dump')
-            msg.info('fold.allgood: %s' % fold.allgood)
-            msg.info('fnew.allgood: %s' % fnew.allgood)
+            msg.info('fold.allgood: %s' , fold.allgood)
+            msg.info('fnew.allgood: %s' , fnew.allgood)
             n_bad += 0.5
         return n_bad
     

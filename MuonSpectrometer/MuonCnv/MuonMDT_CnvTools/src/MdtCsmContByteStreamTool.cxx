@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCsmContByteStreamTool.h"
@@ -10,7 +10,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGate.h"
 //#include "StoreGate/tools/ClassID_traits.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "ByteStreamData/RawEvent.h" 
@@ -22,8 +21,7 @@ Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
     :  
     AthAlgTool(type,name,parent),
-    m_hid2re(0),
-    m_mdtIdHelper(0)
+    m_hid2re(0)
 {
   declareInterface< Muon::IMDT_RDOtoByteStreamTool  >( this );
 }
@@ -35,33 +33,14 @@ Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
 //}
   
 StatusCode Muon::MdtCsmContByteStreamTool::initialize() {
- 
-  StoreGateSvc * detStore;
-  StatusCode status = service("DetectorStore", detStore);
-  if (status.isFailure()) {
-    ATH_MSG_FATAL("DetectorStore service not found !");
-    return StatusCode::FAILURE;
-  } else {}
-  
-  // Get the MDT id helper from the detector store
-  const MdtIdHelper* mdt_id;
-  status = detStore->retrieve(mdt_id, "MDTIDHELPER");
-  if (status.isFailure()) {
-    ATH_MSG_FATAL("Could not get MdtIdHelper !");
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG(" Found the MdtIdHelper. ");
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   m_hid2re = new MDT_Hid2RESrcID ();
-  status = m_hid2re->set(mdt_id);
+  StatusCode status = m_hid2re->set(m_muonIdHelperTool.get());
   if ( status.isFailure() ){
     ATH_MSG_FATAL("Could not initialize MDT mapping !");
     return StatusCode::FAILURE;
   }
-
-  m_mdtIdHelper = mdt_id;
 
   return StatusCode::SUCCESS;
 }
@@ -77,7 +56,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
 						   MsgStream& log ) {
   
   m_fea.clear();
-  StatusCode status = m_fea.idMap().set(m_mdtIdHelper);
+  StatusCode status = m_fea.idMap().set(m_muonIdHelperTool.get());
   if ( status.isFailure() ){
     ATH_MSG_FATAL("Could not initialize MDT mapping !");
     return StatusCode::FAILURE;
@@ -107,7 +86,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
   
   for (; it!=it_end;++it) { 
     theROD  = m_fea.getRodData( (*it).first ); 
-    //((*it).second).set( m_hid2re, m_mdtIdHelper ) ; 
+    //((*it).second).set( m_hid2re, m_muonIdHelperTool.get() ) ; 
     ((*it).second).fillROD( *theROD ) ; 
   } 
   

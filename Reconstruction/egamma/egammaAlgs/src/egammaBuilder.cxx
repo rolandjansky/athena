@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
    */
 
 /********************************************************************
@@ -43,8 +43,6 @@ and eventually conversions.
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -186,6 +184,9 @@ StatusCode egammaBuilder::execute(){
 
     ATH_MSG_DEBUG("Executing egammaBuilder");
 
+    // This we can drop once the Alg becomes re-entrant
+    const EventContext ctx = Gaudi::Hive::currentContext();
+
     // Chrono name for each Tool
     std::string chronoName;
 
@@ -227,7 +228,7 @@ StatusCode egammaBuilder::execute(){
         std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
         if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
         //
-          ATH_CHECK(m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egammaRecs.ptr()));
+          ATH_CHECK(m_trackMatchBuilder->executeRec(ctx,egammaRecs.ptr()));
         //
         if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
     }
@@ -238,7 +239,7 @@ StatusCode egammaBuilder::execute(){
         chronoName = this->name()+"_"+m_conversionBuilder->name();         
         if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
         for (auto egRec : *egammaRecs) {
-            if (m_conversionBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
+            if (m_conversionBuilder->executeRec(ctx,egRec).isFailure()){
                 ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
                 return StatusCode::FAILURE;  
             }
@@ -314,13 +315,11 @@ StatusCode egammaBuilder::execute(){
     // Call tools
     // First the final cluster/calibration
     ATH_MSG_DEBUG("Executing : " << m_clusterTool);  
-    if ( m_clusterTool->contExecute(electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
+    if ( m_clusterTool->contExecute(ctx, electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
 
-    // This we can drop once the Alg becomes re-entrant
-    const EventContext ctx = Gaudi::Hive::currentContext();
 
     for (auto& tool : m_egammaTools)
     {

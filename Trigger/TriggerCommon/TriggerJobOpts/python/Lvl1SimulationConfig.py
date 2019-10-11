@@ -14,22 +14,20 @@ def Lvl1SimulationSequence( flags = None ):
     # L1ConfigSvc CA has to be imported and merged
     # at the end the sequence added to the CA
     #
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('TriggerJobOpts.Lvl1Simulation')
+
     from AthenaCommon.CFElements import seqAND
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AlgSequence import AthSequencer
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 
+    # this configuration of the LVL1ConfigSvc is only temporary
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
-    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
-    svcMgr += LVL1ConfigSvc()
-    svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
-
-    # L1 menu provider Run 3
-    from TrigConfIO.TrigConfCondSetup import setupMenuProvider
-    setupMenuProvider()
-
-
+    log.info("setting up LVL1ConfigSvc, including the menu generation")
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+    svcMgr += getL1ConfigSvc()
     
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
     caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
@@ -90,7 +88,14 @@ def Lvl1SimulationSequence( flags = None ):
     MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
                                                      DecodeRpcRDO = True,
                                                      DecodeTgcRDO = True,
-                                                     DecodeCscRDO = False ) 
+                                                     DecodeCscRDO = False,
+                                                     DecodeSTGC_RDO = False,
+                                                     DecodeMM_RDO = False,
+                                                     # for those subdetectors where the decoding is turned off, no need to create a RDO_Decoder ToolHandle
+                                                     mdtRdoDecoderTool="",
+                                                     cscRdoDecoderTool="",
+                                                     stgcRdoDecoderTool="",
+                                                     mmRdoDecoderTool="")
     
     MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
     from AthenaCommon.AppMgr import ToolSvc
@@ -148,7 +153,7 @@ def Lvl1SimulationSequence( flags = None ):
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = False
-    ctp.UseCondL1Menu = True
+    ctp.UseCondL1Menu = False
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
 

@@ -93,7 +93,6 @@ theApp.Dlls   += [ "LArCalibUtils" ]
 theApp.Dlls   += [ "LArByteStream" ]
 
 oStream.ItemList +=["2721#*"]
-oStream.ForceRead=True
 
 
 #--------------------------------------------------------------

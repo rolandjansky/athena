@@ -29,7 +29,6 @@
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/BoundarySurfaceFace.h"
 #include "TrkVolumes/Volume.h"
-#include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
@@ -38,7 +37,6 @@
 // #include "TrkParameters/CurvilinearParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/ExtrapolationCache.h"
-#include "CxxUtils/make_unique.h"
 // for the comparison with a pointer
 #include <stdint.h>
 // Amg
@@ -360,43 +358,6 @@ Trk::Extrapolator::extrapolate(const xAOD::TrackParticle &xtParticle,
   // !< @TODO: search for closest parameter in on new curvilinear x/y/z and surface distance ...
   // ... for the moment ... take the perigee
   return extrapolate(tPerigee, sf, dir, bcheck, particle, matupmode);
-}
-const Trk::TrackParameters *
-Trk::Extrapolator::extrapolate(const TrackParticleBase &particleBase,
-                               const Surface &sf,
-                               PropDirection dir,
-                               BoundaryCheck bcheck,
-                               ParticleHypothesis particle,
-                               MaterialUpdateMode matupmode) const {
- 
-  const Trk::TrackParameters *closestParameters = 0;
-  const Trk::CylinderSurface *ccsf = dynamic_cast<const Trk::CylinderSurface *>(&sf);
-  if (ccsf) {
-    Trk::ComparisonFunction<TrackParameters> tParFinderCylinder(ccsf->bounds().r());
-    closestParameters =
-      *(std::min_element(particleBase.trackParameters().begin(), particleBase.trackParameters().end(),
-                         tParFinderCylinder));
-  } else {
-    const Trk::StraightLineSurface *slsf = dynamic_cast<const Trk::StraightLineSurface *>(&sf);
-    const Trk::PerigeeSurface *persf = 0;
-    if (!slsf) {
-      persf = dynamic_cast<const Trk::PerigeeSurface *>(&sf);
-    }
-
-    if (slsf || persf) {
-      Trk::ComparisonFunction<TrackParameters> tParFinderLine(sf.center(), sf.transform().rotation().col(2));
-      closestParameters =
-        *(std::min_element(particleBase.trackParameters().begin(), particleBase.trackParameters().end(),
-                           tParFinderLine));
-    }
-  }
-  if (!closestParameters) {
-    Trk::ComparisonFunction<TrackParameters> tParFinderCenter(sf.center());
-    closestParameters =
-      *(std::min_element(particleBase.trackParameters().begin(), particleBase.trackParameters().end(),
-                         tParFinderCenter));
-  }
-  return closestParameters ? extrapolate(*closestParameters, sf, dir, bcheck, particle, matupmode) : 0;
 }
 
 const Trk::NeutralParameters *
@@ -4539,7 +4500,7 @@ Trk::Extrapolator::extrapolate(
   // reset the path
   cache.m_path = 0.;
   // initialize parameters vector
-  cache.m_identifiedParameters = CxxUtils::make_unique<identifiedParameters_t>();
+  cache.m_identifiedParameters = std::make_unique<identifiedParameters_t>();
   // initialize material collection
   cache.m_matstates = material;
   // dummy input

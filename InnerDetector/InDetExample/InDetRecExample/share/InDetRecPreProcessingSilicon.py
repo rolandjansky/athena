@@ -129,8 +129,7 @@ if InDetFlags.doPRDFormation():
                                                       MinimalSplitSize        = 0,
                                                       MaximalSplitSize        = 49,
                                                       MinimalSplitProbability = 0,
-                                                      DoIBLSplitting = True,
-                                                      SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
+                                                      DoIBLSplitting = True)
       # assign the tools if there are any                                                
       if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
       if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
@@ -156,7 +155,6 @@ if InDetFlags.doPRDFormation():
       InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                             clusteringTool          = InDetMergedPixelsTool,
                                                             gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                            DetectorManagerName     = InDetKeys.PixelManager(), 
                                                             DataObjectName          = InDetKeys.PixelRDOs(),
                                                             ClustersName            = InDetKeys.PixelClusters())
       topSequence += InDetPixelClusterization
@@ -167,7 +165,6 @@ if InDetFlags.doPRDFormation():
         InDetPixelClusterizationPU = InDet__PixelClusterization(name                    = "InDetPixelClusterizationPU",
                                                                 clusteringTool          = InDetMergedPixelsTool,
                                                                 gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                                DetectorManagerName     = InDetKeys.PixelManager(),
                                                                 DataObjectName          = InDetKeys.PixelPURDOs(),
                                                                 ClustersName            = InDetKeys.PixelPUClusters(),
                                                                 AmbiguitiesMap = "PixelClusterAmbiguitiesMapPU")

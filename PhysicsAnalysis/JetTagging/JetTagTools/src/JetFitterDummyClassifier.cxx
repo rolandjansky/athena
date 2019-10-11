@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,28 +22,13 @@
 namespace Analysis {
 
 
-  JetFitterDummyClassifier::JetFitterDummyClassifier(const std::string& name,
-                                                     const std::string& n,
-                                                     const IInterface* p):
-    AthAlgTool(name, n,p)
-  {
-    declareInterface<IJetFitterClassifierTool>(this);
-  }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// Destructor - check up memory allocation
-/// delete any memory allocation on the heap
-
-  JetFitterDummyClassifier::~JetFitterDummyClassifier() {
-  }
-
   StatusCode JetFitterDummyClassifier::initialize() {
-    ATH_MSG_INFO(" Initialization of JetFitterDummyClassifier succesfull");
+    ATH_MSG_DEBUG(" Initialization of JetFitterDummyClassifier succesfull");
     return StatusCode::SUCCESS;
   }
 
   StatusCode JetFitterDummyClassifier::finalize() {
-    ATH_MSG_INFO(" Finalization of JetFitterDummyClassifier succesfull");
+    ATH_MSG_DEBUG(" Finalization of JetFitterDummyClassifier succesfull");
     return StatusCode::SUCCESS;
   }
 
@@ -55,11 +40,10 @@ namespace Analysis {
                          const std::string& /*outputbasename*/,
                          double /* jetpT */,
                          double /* jeteta */,
-                         double /* IP3dlike=-5000 */) {
+                         double /* IP3dlike=-5000 */) const
+  {
     return StatusCode::SUCCESS;
-
   }
-
 
 
 }//end Analysis namespace

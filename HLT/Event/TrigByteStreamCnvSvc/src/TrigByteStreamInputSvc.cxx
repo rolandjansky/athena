@@ -14,13 +14,15 @@
 #include "hltinterface/DataCollector.h"
 #include "eformat/write/FullEventFragment.h"
 
+namespace {
+  constexpr float wordsToKiloBytes = 0.001*sizeof(uint32_t);
+}
+
 // =============================================================================
 // Standard constructor
 // =============================================================================
 TrigByteStreamInputSvc::TrigByteStreamInputSvc(const std::string& name, ISvcLocator* svcLoc)
-: ByteStreamInputSvc(name, svcLoc),
-  m_robDataProviderSvc("ROBDataProviderSvc", name),
-  m_evtStore("StoreGateSvc", name) {}
+: ByteStreamInputSvc(name, svcLoc) {}
 
 // =============================================================================
 // Standard destructor
@@ -49,8 +51,9 @@ StatusCode TrigByteStreamInputSvc::queryInterface(const InterfaceID& riid, void*
 StatusCode TrigByteStreamInputSvc::initialize() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  CHECK(m_robDataProviderSvc.retrieve());
-  CHECK(m_evtStore.retrieve());
+  ATH_CHECK(m_robDataProviderSvc.retrieve());
+  ATH_CHECK(m_evtStore.retrieve());
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -95,7 +98,9 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   DCStatus status = DCStatus::NO_EVENT;
   do {
     try {
+      auto t_getNext = Monitored::Timer("TIME_getNext");
       status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
+      auto mon = Monitored::Group(m_monTool, t_getNext);
       if (status == DCStatus::NO_EVENT)
         ATH_MSG_ERROR("Failed to read new event, DataCollector::getNext returned Status::NO_EVENT. Trying again.");
     }
@@ -124,6 +129,12 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   // Create a cached FullEventFragment object from the cached raw data
   cache->fullEventFragment.reset(new RawEvent(cache->rawData.get()));
 
+  auto numROBs = Monitored::Scalar<int>("L1Result_NumROBs",
+                                        cache->fullEventFragment->nchildren());
+  auto fragSize = Monitored::Scalar<float>("L1Result_FullEvFragSize",
+                                           cache->fullEventFragment->fragment_size_word()*wordsToKiloBytes);
+  auto mon = Monitored::Group(m_monTool, numROBs, fragSize);
+
   // Give the FullEventFragment pointer to ROBDataProviderSvc and also return it
   m_robDataProviderSvc->setNextEvent(*eventContext, cache->fullEventFragment.get());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
@@ -148,15 +159,6 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 
 // =============================================================================
 void TrigByteStreamInputSvc::EventCache::releaseEvent() {
-  if (this->rawData) {
-    delete[] this->rawData.release();
-  }
-  if (this->fullEventFragment) {
-    delete this->fullEventFragment.release();
-  }
-}
-
-// =============================================================================
-TrigByteStreamInputSvc::EventCache::~EventCache() {
-  releaseEvent();
+  this->rawData.reset();
+  this->fullEventFragment.reset();
 }

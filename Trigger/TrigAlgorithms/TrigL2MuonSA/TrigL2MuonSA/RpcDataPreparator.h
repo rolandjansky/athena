@@ -33,10 +33,10 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class StoreGateSvc;
+
 class ActiveStoreSvc;
-class RpcIdHelper;
 
 namespace HLT {
   class TriggerElement;
@@ -82,7 +82,8 @@ class RpcDataPreparator: public AthAlgTool
       
       const MuonGM::MuonDetectorManager* m_muonMgr;
       // Muon Id Helpers
-      const RpcIdHelper* m_rpcIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
       // handles to the RoI driven data access
       ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
@@ -90,8 +91,6 @@ class RpcDataPreparator: public AthAlgTool
 
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider{
        this, "RpcPrepDataProvider", "Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"};
-      
-      ToolHandle <Muon::MuonIdHelperTool> m_idHelperTool{"Muon::MuonIdHelperTool/MuonIdHelperTool"};
 
       SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepContainerKey{
        this, "RpcPrepDataContainer", "RPC_Measurements", "Name of the RPCContainer to read in"};
@@ -100,6 +99,9 @@ class RpcDataPreparator: public AthAlgTool
       // for writing.
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
+
+      // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
+      Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
 
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };

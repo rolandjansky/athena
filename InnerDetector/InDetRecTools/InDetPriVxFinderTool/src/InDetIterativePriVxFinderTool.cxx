@@ -426,13 +426,10 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
             counter += 1;
           }
         } else { //check first whether it is not too far away!
-          bool isOK = false;
           double distance = 0.;
           try
           {
-            Trk::PlaneSurface* mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter, &actualVertex, distance);
-            delete mySurface;
-            isOK = true;
+            std::unique_ptr<Trk::PlaneSurface> mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter, &actualVertex, distance);
           }
           catch (error::ImpactPoint3dEstimatorProblem err)
           {
@@ -441,10 +438,6 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
             endmsg;
           }
 
-
-          if (not isOK) {
-            distance = 0.;
-          }
 
           if (distance < 0) {
             msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;

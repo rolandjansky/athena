@@ -31,20 +31,18 @@ namespace Trk
   class PlaneSurface;
   class VxTrackAtVertex;
 
-  static const InterfaceID IID_ImpactPoint3dEstimator("IImpactPoint3dEstimator", 1, 0);
-  
   class IImpactPoint3dEstimator : virtual public IAlgTool
   {
   public:
-    // ~ImpactPoint3dEstimator();
-    
-    static const InterfaceID& interfaceID() { return IID_ImpactPoint3dEstimator; };
+    DeclareInterfaceID( IImpactPoint3dEstimator, 1, 0 );
     
    /**
     * method calculating the surface (returned), distance and point of closest approach
     */
-    virtual PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex, double& distance) const = 0;
-    virtual PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex, double& distance) const = 0;
+    virtual std::unique_ptr<PlaneSurface>
+    Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex, double& distance) const = 0;
+    virtual std::unique_ptr<PlaneSurface>
+    Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex, double& distance) const = 0;
 
     /**
       * Actual estimate method, changing the state of Trk::VxTrackAtVertex

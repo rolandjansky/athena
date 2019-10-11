@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
 #include <memory>
 #include <cstdlib>
-#include "boost/unordered_map.hpp"
+#include <unordered_map>
 
 // ROOT include(s):
 #include <TFile.h>
@@ -14,10 +14,9 @@
 #include <TTree.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
-#   include "xAODRootAccess/Init.h"
-#   include "xAODRootAccess/TEvent.h"
-#endif // ROOTCORE
+#include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/TStore.h"
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -79,7 +78,7 @@ int main( int argc, char* argv[] ) {
   const TString fileName = argv[ 1 ];
   Info( APP_NAME, "Opening file: %s", fileName.Data() );
   TFile* ifile( TFile::Open( fileName, "READ" ) );
-  if( !ifile ) Error( APP_NAME, "Cannot find file " + fileName );
+  if( !ifile ) Error( APP_NAME, "Cannot find file %s", fileName.Data() );
 
   //::: Create a TEvent object:
   xAOD::TEvent event( ifile, xAOD::TEvent::kAthenaAccess );
@@ -141,7 +140,7 @@ int main( int argc, char* argv[] ) {
   Float_t Eta( 0. ), Phi( 0. ), Charge( 0. );
   Float_t ExpResoCB( 0. ), ExpResoID( 0. ), ExpResoMS( 0. );
   TFile* outputFile = TFile::Open( "output.root", "recreate" );
-  boost::unordered_map< CP::SystematicSet, TTree* > sysTreeMap;
+  std::unordered_map< CP::SystematicSet, TTree* > sysTreeMap;
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
     std::string treeName = "test_tree_" + sysListItr->name();
     TTree* sysTree = new TTree( treeName.c_str(), "test tree for MCAST" );
@@ -191,8 +190,8 @@ int main( int argc, char* argv[] ) {
     std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
 
     // iterate over our shallow copy
-    xAOD::MuonContainer::iterator muonSC_itr = ( muons_shallowCopy.first)->begin();
-    xAOD::MuonContainer::iterator muonSC_end = ( muons_shallowCopy.first)->end();
+    //xAOD::MuonContainer::iterator muonSC_itr = ( muons_shallowCopy.first)->begin();
+    //xAOD::MuonContainer::iterator muonSC_end = ( muons_shallowCopy.first)->end();
 
     xAOD::MuonContainer* muonsCorr = muons_shallowCopy.first;
 
@@ -274,16 +273,17 @@ int main( int argc, char* argv[] ) {
         }
         else {
           //if( muon->type() == 0 ) continue;
-          if( !corrTool.applyCorrection( *muon ) ) {
+          std::unique_ptr<CP::MuonCalibrationAndSmearingTool::IVars> ivars;
+          if( !corrTool.applyCorrection( *muon, ivars ) ) {
             Error( APP_NAME, "Cannot really apply calibration nor smearing" );
             continue;
           }
           CorrPtCB = muon->pt();
           CorrPtID = muon->auxdata< float >( "InnerDetectorPt" );
           CorrPtMS = muon->auxdata< float >( "MuonSpectrometerPt" );
-          ExpResoCB = corrTool.ExpectedResolution( "CB", *muon );
-          ExpResoID = corrTool.ExpectedResolution( "ID", *muon );
-          ExpResoMS = corrTool.ExpectedResolution( "MS", *muon );
+          ExpResoCB = corrTool.ExpectedResolution( *ivars, "CB", *muon );
+          ExpResoID = corrTool.ExpectedResolution( *ivars, "ID", *muon );
+          ExpResoMS = corrTool.ExpectedResolution( *ivars, "MS", *muon );
 
           Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3, muon->auxdata< float >( "InnerDetectorPt" )/1e3, muon->auxdata< float >( "MuonSpectrometerPt" )/1e3 );
           sysTreeMap[ *sysListItr ]->Fill();

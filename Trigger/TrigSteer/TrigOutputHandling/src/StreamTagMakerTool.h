@@ -5,6 +5,7 @@
 #define TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H
 
 // Trigger includes
+#include "TrigConfData/HLTMenu.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h" // Defines PEBInfo and keys to retrieve it
@@ -33,27 +34,30 @@ public:
   virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
 
   virtual StatusCode initialize() override;
+
   virtual StatusCode finalize() override;
 
   /// Type describing StreamTag information needed by the tool: {name, type, obeysLumiBlock, forceFullEventBuilding}
   typedef std::tuple<std::string, std::string, bool, bool> StreamTagInfo;
 
 private:
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary",
-    "Container with final chain decisions"  };
 
-  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_pebDecisionKeys{ this, "PEBDecisionKeys", {},
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_hltMenuKey{"DetectorStore+HLTTriggerMenu"};
+
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions {this, "ChainDecisions", "HLTNav_Summary",
+    "Container with final chain decisions" };
+
+  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_pebDecisionKeys {this, "PEBDecisionKeys", {},
     "Decisions including PEBInfo" };
 
-  Gaudi::Property<bool> m_allowRerunChains { this, "AllowRerunChains", false,
+  Gaudi::Property<bool> m_allowRerunChains {this, "AllowRerunChains", false,
     "Normally false, but if set to true this will allow resurrected chains which ran in the second pass to also add stream tags"};
 
-  /// Gaudi does not support map<string,tuple<T>> as Property, so we use vector<string> to describe tuple<T>
-  Gaudi::Property<std::map<std::string, std::vector<std::string>>> m_chainToStreamProperty { this, "ChainToStream", {},
-    "Mapping from the chain name to StreamTagInfo"};
+  Gaudi::Property<std::string> m_menuJSON {this, "HLTmenuFile", "UNSET",
+    "Filename of just-generated HLT Menu JSON used to configure the TriggerBitsMakerTool"};
 
-  /// Chain ID to StreamTagInfo map filled from the ChainToStream property in initialize()
-  std::map<TrigCompositeUtils::DecisionID, StreamTagInfo> m_mapping;
+  /// Chain to streams map filled from the HLT Menu JSON
+  std::unordered_map<TrigCompositeUtils::DecisionID, std::vector<StreamTagInfo> > m_mapping;
 
   /// Helper method to fill the chainID->PEBInfo map
   StatusCode fillPEBInfoMap(std::unordered_map<TrigCompositeUtils::DecisionID, PEBInfoWriterToolBase::PEBInfo>& map) const;

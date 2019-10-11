@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,9 +11,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/PropertyMgr.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonIdHelper.h"
 #include "MuonReadoutGeometry/MuonStation.h"
@@ -38,8 +35,6 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_muonMgr(0),
-  m_mmIdHelper(0),
-  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_fullEventDone(false),
   m_mmPrepDataContainer(0),
   m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this)
@@ -66,24 +61,13 @@ StatusCode Muon::MmRdoToPrepDataTool::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
   
-  /// get the detector descriptor manager
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-  
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muonMgr );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR("DetectorStore not found ");
+  StatusCode sc = detStore()->retrieve( m_muonMgr );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
     return sc;
   }
   
-  m_mmIdHelper = m_muonMgr->mmIdHelper();
-  
-  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // check if the initialization of the data container is success
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
@@ -124,9 +108,9 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     idWithDataVect.push_back(hash);
     
     // set the offline identifier of the collection Id
-    IdContext context = m_mmIdHelper->module_context();
+    IdContext context = m_muonIdHelperTool->mmIdHelper().module_context();
     Identifier moduleId;
-    int getId = m_mmIdHelper->get_id(hash,moduleId,&context);
+    int getId = m_muonIdHelperTool->mmIdHelper().get_id(hash,moduleId,&context);
     if ( getId != 0 ) {
       ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
     } 
@@ -152,16 +136,16 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
     const MM_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
-//    const Identifier elementId = m_mmIdHelper->elementID(rdoId);
-    ATH_MSG_DEBUG(" dump rdo " << m_idHelperTool->toString(rdoId ));
+//    const Identifier elementId = m_muonIdHelperTool->mmIdHelper().elementID(rdoId);
+    ATH_MSG_DEBUG(" dump rdo " << m_muonIdHelperTool->toString(rdoId ));
     const int time = rdo->time();
     const int charge = rdo->charge();
     int channel = rdo->channel();
     std::vector<Identifier> rdoList;
-    Identifier parentID = m_mmIdHelper->parentID(rdoId);
-    Identifier layid = m_mmIdHelper->channelID(parentID, m_mmIdHelper->multilayer(rdoId), m_mmIdHelper->gasGap(rdoId),1);
-    Identifier prdId = m_mmIdHelper->channelID(parentID, m_mmIdHelper->multilayer(rdoId), m_mmIdHelper->gasGap(rdoId),channel);
-    ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_mmIdHelper->channel(rdoId));
+    Identifier parentID = m_muonIdHelperTool->mmIdHelper().parentID(rdoId);
+    Identifier layid = m_muonIdHelperTool->mmIdHelper().channelID(parentID, m_muonIdHelperTool->mmIdHelper().multilayer(rdoId), m_muonIdHelperTool->mmIdHelper().gasGap(rdoId),1);
+    Identifier prdId = m_muonIdHelperTool->mmIdHelper().channelID(parentID, m_muonIdHelperTool->mmIdHelper().multilayer(rdoId), m_muonIdHelperTool->mmIdHelper().gasGap(rdoId),channel);
+    ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_muonIdHelperTool->mmIdHelper().channel(rdoId));
     rdoList.push_back(prdId);
 
     // get the local and global positions
@@ -204,7 +188,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     double errX = 0;
     const MuonGM::MuonChannelDesign* design = detEl->getDesign(layid);
     if( !design ){
-      ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(layid) );
+      ATH_MSG_WARNING("Failed to get design for " << m_muonIdHelperTool->toString(layid) );
     }else{
       errX = fabs(design->inputPitch)/sqrt(12);
       ATH_MSG_DEBUG(" strips inputPitch " << design->inputPitch << " error " << errX);
@@ -250,7 +234,7 @@ Muon::MmRdoToPrepDataTool::SetupMM_PrepDataContainerStatus Muon::MmRdoToPrepData
     m_fullEventDone=false;
     
     SG::WriteHandle< Muon::MMPrepDataContainer > handle(m_mmPrepDataContainerKey);
-    StatusCode status = handle.record(std::make_unique<Muon::MMPrepDataContainer>(m_mmIdHelper->module_hash_max()));
+    StatusCode status = handle.record(std::make_unique<Muon::MMPrepDataContainer>(m_muonIdHelperTool->mmIdHelper().module_hash_max()));
     
     if (status.isFailure() || !handle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of MicroMega PrepData Container at " << m_mmPrepDataContainerKey.key()); 

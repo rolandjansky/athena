@@ -20,9 +20,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 TgcDigitToTgcRDO::TgcDigitToTgcRDO(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_tgc_cabling_server("TGCcablingServerSvc", name),m_cabling(0), 
-    m_tgcIdHelper(0)
+  : AthReentrantAlgorithm(name, pSvcLocator),
+    m_tgc_cabling_server("TGCcablingServerSvc", name)
 {
   declareProperty ( "isNewTgcDigit", m_isNewTgcDigit = true );
 }
@@ -32,7 +31,7 @@ TgcDigitToTgcRDO::TgcDigitToTgcRDO(const std::string& name, ISvcLocator* pSvcLoc
 StatusCode TgcDigitToTgcRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( detStore()->retrieve( m_tgcIdHelper, "TGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_tgc_cabling_server.retrieve() );
 
   ATH_MSG_DEBUG( "standard digitization job: "
@@ -53,13 +52,11 @@ StatusCode TgcDigitToTgcRDO::initialize()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 
-StatusCode TgcDigitToTgcRDO::execute()
+StatusCode TgcDigitToTgcRDO::execute(const EventContext& ctx) const
 {
-  if(!m_cabling && getCabling().isFailure()) return StatusCode::FAILURE;
-  
   ATH_MSG_DEBUG( "in execute()"  );
 
-  if(fill_TGCdata().isFailure()) {
+  if(fill_TGCdata(ctx).isFailure()) {
     ATH_MSG_WARNING( "Fail to create TGC RDO" );
   }
 
@@ -68,22 +65,21 @@ StatusCode TgcDigitToTgcRDO::execute()
 }
 
 
-StatusCode TgcDigitToTgcRDO::fill_TGCdata()
+StatusCode TgcDigitToTgcRDO::fill_TGCdata(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "fill_TGCdata"  );
 
-  SG::WriteHandle<TgcRdoContainer> rdoContainer (m_rdoContainerKey);
+  SG::WriteHandle<TgcRdoContainer> rdoContainer (m_rdoContainerKey, ctx);
   ATH_CHECK(rdoContainer.record((std::make_unique<TgcRdoContainer>())));
   ATH_MSG_DEBUG("Recorded TgcRdoContainer called " << rdoContainer.name() << " in store " << rdoContainer.store());
-  SG::ReadHandle<TgcDigitContainer> container (m_digitContainerKey);
+  SG::ReadHandle<TgcDigitContainer> container (m_digitContainerKey, ctx);
   if (!container.isValid()) {
     ATH_MSG_ERROR("Could not find TgcDigitContainer called " << container.name() << " in store " << container.store());
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Found TgcDigitContainer called " << container.name() << " in store " << container.store());
 
- // init
-  m_tgcRdoMap.clear();
+  std::map<uint16_t, TgcRdo *> tgcRdoMap;
 
   typedef TgcDigitContainer::const_iterator collection_iterator;
   typedef TgcDigitCollection::const_iterator digit_iterator;
@@ -110,7 +106,7 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
             bctag = 0;
           }
 
-	  if (m_tgcIdHelper->valid(channelId))
+	  if (m_muonIdHelperTool->tgcIdHelper().valid(channelId))
 	    {
 	      // Get the online Id of the channel
 	      int subDetectorID;
@@ -144,19 +140,19 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
 		    {
 		      ATH_MSG_DEBUG( "ITGCcablingSvc can't return an online ID for the channel : "
                                      << MSG::dec
-                                     << " N_" << m_tgcIdHelper->stationName(channelId)
-                                     << " E_" << m_tgcIdHelper->stationEta(channelId)
-                                     << " P_" << m_tgcIdHelper->stationPhi(channelId)
-                                     << " G_" << m_tgcIdHelper->gasGap(channelId)
-                                     << " C_" << m_tgcIdHelper->channel(channelId) );
+                                     << " N_" << m_muonIdHelperTool->tgcIdHelper().stationName(channelId)
+                                     << " E_" << m_muonIdHelperTool->tgcIdHelper().stationEta(channelId)
+                                     << " P_" << m_muonIdHelperTool->tgcIdHelper().stationPhi(channelId)
+                                     << " G_" << m_muonIdHelperTool->tgcIdHelper().gasGap(channelId)
+                                     << " C_" << m_muonIdHelperTool->tgcIdHelper().channel(channelId) );
 		      continue;
 		    }
 
 		  // Create the new Tgc RawData
 //           TgcRawData* rawData
 //             = new TgcRawData(bctag,subDetectorID,rodID,sswID,slbID,0,0,channelID);
-                  bool isStrip = m_tgcIdHelper->isStrip(channelId);
-                  std::string name = m_tgcIdHelper->stationNameString(m_tgcIdHelper->stationName(channelId));
+                  bool isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(channelId);
+                  std::string name = m_muonIdHelperTool->tgcIdHelper().stationNameString(m_muonIdHelperTool->tgcIdHelper().stationName(channelId));
                   TgcRawData::SlbType type = TgcRawData::SLB_TYPE_UNKNOWN;
                   if (name[1] == '4')
                     type = isStrip ? TgcRawData::SLB_TYPE_INNER_STRIP : TgcRawData::SLB_TYPE_INNER_WIRE;
@@ -175,7 +171,7 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
                                  << " Ch  : " << channelID );
 
 		  // Add the RawData to the RDO
-		  TgcRdo * tgcRdo = getTgcRdo(rawData);
+		  TgcRdo * tgcRdo = getTgcRdo(rawData, tgcRdoMap);
 		  tgcRdo->push_back(rawData);
 		}
 	    }
@@ -187,8 +183,8 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
 
   TgcRdoIdHash hashF;
 
-  std::map<uint16_t, TgcRdo *>::iterator itM  =m_tgcRdoMap.begin();
-  std::map<uint16_t, TgcRdo *>::iterator itM_e=m_tgcRdoMap.end();
+  std::map<uint16_t, TgcRdo *>::iterator itM  =tgcRdoMap.begin();
+  std::map<uint16_t, TgcRdo *>::iterator itM_e=tgcRdoMap.end();
   for (; itM != itM_e; ++itM)
     {
       unsigned int elementHash = hashF( (itM->second)->identify() );
@@ -203,7 +199,7 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
 }
 
 
-TgcRdo * TgcDigitToTgcRDO::getTgcRdo(const TgcRawData * rawData)
+TgcRdo * TgcDigitToTgcRDO::getTgcRdo(const TgcRawData * rawData,  std::map<uint16_t, TgcRdo *>& tgcRdoMap) const
 {
 
   TgcRdoIdHash hashF;
@@ -211,15 +207,15 @@ TgcRdo * TgcDigitToTgcRDO::getTgcRdo(const TgcRawData * rawData)
   // Get Online collection ID
   uint16_t onlineColId = TgcRdo::identifyRawData(*rawData);
 
-  std::map<uint16_t, TgcRdo *>::iterator it=m_tgcRdoMap.find(onlineColId);
-  if (it != m_tgcRdoMap.end())
+  std::map<uint16_t, TgcRdo *>::iterator it=tgcRdoMap.find(onlineColId);
+  if (it != tgcRdoMap.end())
     return (*it).second;
 
   // create new TgcRdo
   IdentifierHash hashId = hashF(onlineColId);
 
   TgcRdo *rdo = new TgcRdo (onlineColId, hashId);
-  m_tgcRdoMap[onlineColId] = rdo;
+  tgcRdoMap[onlineColId] = rdo;
 
   // set SubDetectorID and ROD ID
   rdo->setOnlineId (rawData->subDetectorId(), rawData->rodId());

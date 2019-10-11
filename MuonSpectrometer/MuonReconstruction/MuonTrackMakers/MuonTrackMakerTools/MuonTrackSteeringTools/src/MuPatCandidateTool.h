@@ -1,25 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATCANDIDATETOOL_H
 #define MUPATCANDIDATETOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
+#include "TrkParameters/TrackParameters.h"
+
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
-#include "TrkParameters/TrackParameters.h"
-#include <vector>
+#include <mutex>
 #include <set>
+#include <vector>
 
 #include "MuPatHitTool.h" // Needed to enfornce build order for reflex dict
 
 class MsgStream;
 
 class MdtIdHelper;
-class IIncidentSvc;
 
 namespace Trk {
   class Track;
@@ -40,7 +44,6 @@ namespace Muon {
   class IMuonSegmentSelectionTool;
   class IMuonSegmentInfoExtender;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonSegment;
   class MuPatTrack;
@@ -51,7 +54,7 @@ namespace Muon {
   static const InterfaceID IID_MuPatCandidateTool("Muon::MuPatCandidateTool",1,0);
   
   /** class to manipulate MuPatCandidateBase objects */
-  class MuPatCandidateTool : public AthAlgTool, virtual public IIncidentListener {
+  class MuPatCandidateTool : public AthAlgTool {
   public:
     typedef std::vector<const Trk::MeasurementBase*> MeasVec;
     typedef MeasVec::iterator                        MeasIt;
@@ -154,9 +157,6 @@ namespace Muon {
 
     std::string print( const std::vector<MuPatTrack*>& tracks, int level = 0 ) const;
 
-    /**  incident service handle for EndEvent */
-    void handle(const Incident& inc);// maybe in the future clear per event
-    
   private:
 
     /** @brief update hits for a MuPatCandidateBase */
@@ -167,18 +167,22 @@ namespace Muon {
     void addCluster( const Trk::MeasurementBase& meas, std::vector<const MuonClusterOnTrack*>& rots ) const;
 
     /** @brief create CompetingMuonClustersOnTracks from ROTs and add them to the MeasVec. NEVER pass mixed eta/phi hits!! */
-    void createAndAddCompetingROTs( const std::vector<const MuonClusterOnTrack*>& rots, MeasVec& hits, MeasVec& allHits ) const;
+    void createAndAddCompetingROTs( const std::vector<const MuonClusterOnTrack*>& rots,
+                                    MeasVec& hits,
+                                    MeasVec& allHits,
+                                    MeasVec& measurementsToBeDeleted ) const;
     
     ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator;      //<! tool to calibrate MDT hits
     ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator;      //<! tool to calibrate CSC hits
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator; //<! tool to create competing clusters on track
     ToolHandle<MuonIdHelperTool>                      m_idHelperTool;       //<! tool to assist with Identifiers
-    ToolHandle<MuonEDMHelperTool>                     m_helperTool;         //<! multipurpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>                    m_printer;            //<! tool to print EDM objects
     ToolHandle<MuPatHitTool>                          m_hitHandler;         //<! tool to manipulate hit lists
     ToolHandle<Muon::IMuonSegmentSelectionTool>       m_segmentSelector;    //<! tool to resolve track ambiguities
     ToolHandle<Muon::IMuonSegmentInfoExtender>        m_segmentExtender;    //<! tool to extend the segment information
-    ServiceHandle< IIncidentSvc >                     m_incidentSvc;
 
     //const MdtIdHelper* m_mdtIdHelper;
 
@@ -187,7 +191,20 @@ namespace Muon {
     bool m_doMdtRecreation;
     bool m_doCscRecreation;
 
-    mutable MeasVec m_measurementsToBeDelete;   //<! vector to store measurements owned by the track maker
+    // Mutex to protect the contents.
+    mutable std::mutex m_mutex{};
+    struct CacheEntry {
+      EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+      MeasVec m_measurementsToBeDeleted{}; //<! vector to store measurements owned by the track maker
+      void cleanUp() { // Delete measurements to be deleted now
+        std::for_each( m_measurementsToBeDeleted.begin(), m_measurementsToBeDeleted.end(), MuonDeleteObject<const Trk::MeasurementBase>() );
+        m_measurementsToBeDeleted.clear();
+      };      
+      ~CacheEntry() { // Destructor deletes measurements to be deleted during finalization
+        cleanUp();
+      }
+    };
+    mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
   };
 

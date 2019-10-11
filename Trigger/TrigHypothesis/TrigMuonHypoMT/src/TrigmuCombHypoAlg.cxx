@@ -2,15 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthLinks/ElementLink.h" 
-
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
-
 #include "TrigmuCombHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -104,12 +96,10 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
 
     // set objectLink
     newd->setObjectLink( featureString(), muCombEL );
+    newd->setObjectLink( viewString(), viewEL);
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
     // DEBUG
-    auto muFastInfo = (*muCombEL)->muSATrack(); 
-    ATH_MSG_DEBUG("REGTEST: muSATrack pt in " << m_muCombKey.key() << " = " << muFastInfo->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: muSATrack eta/phi in " << m_muCombKey.key() << " = " << muFastInfo->eta() << "/" << muFastInfo->phi());
     ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
     ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );

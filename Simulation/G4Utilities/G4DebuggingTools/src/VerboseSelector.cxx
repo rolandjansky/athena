@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VerboseSelector.h"
@@ -125,7 +125,7 @@ namespace G4UA
         bool p4 = false;
 
         for (auto& pdgID : m_config.targetPdgIDs) {
-          if (fabs(aTrack->GetParticleDefinition()->GetPDGEncoding()) == pdgID ) {
+          if (std::abs(aTrack->GetParticleDefinition()->GetPDGEncoding()) == pdgID ) {
             p4 = true;
             break;   
           }
@@ -148,7 +148,7 @@ namespace G4UA
       if(aTrack->GetTrackID()==m_config.targetTrack||m_config.targetTrack<0)
         G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(0);
       for (auto& pdgID : m_config.targetPdgIDs) {
-        if (fabs(aTrack->GetParticleDefinition()->GetPDGEncoding()) == pdgID ) {
+        if (std::abs(aTrack->GetParticleDefinition()->GetPDGEncoding()) == pdgID ) {
           G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(0);
           break;
         }

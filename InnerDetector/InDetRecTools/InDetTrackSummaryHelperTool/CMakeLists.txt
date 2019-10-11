@@ -22,13 +22,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack )
+                          Tracking/TrkEvent/TrkTrack
+                          Tracking/TrkEvent/TrkEventUtils )
 
 # Component(s) in the package:
 atlas_add_component( InDetTrackSummaryHelperTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TrkEventPrimitives TrkTrackSummary TrkToolInterfaces Identifier InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces TrkCompetingRIOsOnTrack TrkParameters TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TrkEventPrimitives TrkTrackSummary TrkToolInterfaces Identifier InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces TrkCompetingRIOsOnTrack TrkParameters TrkRIO_OnTrack TrkTrack TrkEventUtils)
 
 # Install files from the package:
 atlas_install_headers( InDetTrackSummaryHelperTool )

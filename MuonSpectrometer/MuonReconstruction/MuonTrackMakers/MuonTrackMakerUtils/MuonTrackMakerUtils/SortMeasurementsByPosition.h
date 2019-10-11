@@ -11,7 +11,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include <functional>
 #include <iostream>
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "CxxUtils/fpcompare.h"
 
 namespace Muon {
@@ -121,9 +121,9 @@ namespace Muon {
       return dist > 0.;
     }
 
-    SortTSOSs( const MuonEDMHelperTool* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
+    SortTSOSs( const IMuonEDMHelperSvc* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
   
-    const MuonEDMHelperTool* m_helperTool;
+    const IMuonEDMHelperSvc* m_helperTool;
     const MuonIdHelperTool*  m_idHelperTool;
   };
 

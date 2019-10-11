@@ -30,7 +30,7 @@
 
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name, 
         ISvcLocator* pSvcLocator): 
-    AthAlgorithm(name, pSvcLocator),
+    AthReentrantAlgorithm(name, pSvcLocator),
     m_timingProfile("ChronoStatSvc", name)
 {
 }
@@ -74,7 +74,7 @@ StatusCode topoEgammaBuilder::finalize(){
 }
 
 // ======================================================================
-StatusCode topoEgammaBuilder::execute(){
+StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     // athena execute method
 
     ATH_MSG_DEBUG("Executing topoEgammaBuilder");
@@ -83,16 +83,16 @@ StatusCode topoEgammaBuilder::execute(){
     std::string chronoName;
 
     // the output handles
-    SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey);
+    SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey, ctx);
     ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
                 std::make_unique<xAOD::ElectronAuxContainer>()));
 
-    SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey);
+    SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey, ctx);
     ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
                 std::make_unique<xAOD::PhotonAuxContainer>()));
 
     //get the final electron and photon SuperClusters
-    SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronSuperClusterRecContainerKey);
+    SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronSuperClusterRecContainerKey, ctx);
 
     // check is only used for serial running; remove when MT scheduler used
     if(!electronSuperRecs.isValid()) {
@@ -100,7 +100,7 @@ StatusCode topoEgammaBuilder::execute(){
         return StatusCode::FAILURE;
     }
 
-    SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonSuperClusterRecContainerKey);
+    SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonSuperClusterRecContainerKey, ctx);
 
     // check is only used for serial running; remove when MT scheduler used
     if(!photonSuperRecs.isValid()) {
@@ -195,13 +195,11 @@ StatusCode topoEgammaBuilder::execute(){
     // Call tools
     // First the final cluster/calibration
     ATH_MSG_DEBUG("Executing : " << m_clusterTool);  
-    if ( m_clusterTool->contExecute(electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
+    if ( m_clusterTool->contExecute(ctx, electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
 
-    const EventContext ctx = Gaudi::Hive::currentContext();
-    
     for (auto& tool : m_egammaTools){
         CHECK( CallTool(ctx, tool, electronContainer.ptr(), photonContainer.ptr()) );
     }
@@ -223,7 +221,7 @@ StatusCode topoEgammaBuilder::execute(){
 }
 
 StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
-        xAOD::PhotonContainer *photonContainer){
+        xAOD::PhotonContainer *photonContainer) const {
 
     ///Needs the same logic as the ambiguity after building the objects (make sure they are all valid)
     static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
@@ -281,9 +279,9 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
 
 // =====================================================
 StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx, 
-        ToolHandle<IegammaBaseTool>& tool, 
+        const ToolHandle<IegammaBaseTool>& tool, 
         xAOD::ElectronContainer *electronContainer /* = 0*/, 
-        xAOD::PhotonContainer *photonContainer /* = 0*/){
+        xAOD::PhotonContainer *photonContainer /* = 0*/) const{
 
 
     smallChrono timer(*m_timingProfile,this->name()+"_"+tool->name(), m_doChrono);  
@@ -312,7 +310,7 @@ StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx,
 bool topoEgammaBuilder::getElectron(const egammaRec* egRec, 
         xAOD::ElectronContainer *electronContainer,
         const unsigned int author,
-        const uint8_t type){  
+        const uint8_t type) const{  
 
     if (!egRec || !electronContainer) return false;
 
@@ -375,7 +373,7 @@ bool topoEgammaBuilder::getElectron(const egammaRec* egRec,
 bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
         xAOD::PhotonContainer *photonContainer,
         const unsigned int author,
-        const uint8_t type){
+        const uint8_t type) const{
     if (!egRec || !photonContainer) return false;
 
     xAOD::Photon *photon = new xAOD::Photon();

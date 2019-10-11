@@ -29,6 +29,5 @@ atlas_add_component( MuGirl
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCaloEvent MagFieldInterfaces MuonIdHelpersLib MuonHoughPatternToolsLib MuonSegment MuonLayerHough ICaloTrkMuIdTools MuGirlInterfaces MuonCombinedEvent RecoToolInterfaces TrkCaloExtension )
 
 # Install files from the package:
-atlas_install_headers( MuGirl )
 atlas_install_python_modules( python/*.py )
 

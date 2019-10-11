@@ -30,8 +30,6 @@
 #include "TMath.h" 
 #include "CLHEP/Geometry/Point3D.h"
 
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-
 #define AUXDATA(OBJ, TYP, NAME) \
   static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
 
@@ -91,7 +89,7 @@ StatusCode PixelPrepDataToxAOD::initialize()
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
 
-  ATH_CHECK(m_pixelBSErrorsSvc.retrieve());
+  ATH_CHECK(m_pixelSummary.retrieve());
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
 
@@ -267,7 +265,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       // Add information for each contributing hit
       if(m_writeRDOinformation) {
         IdentifierHash moduleHash = clusterCollection->identifyHash();
-        AUXDATA(xprd,int,isBSError) = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
+        AUXDATA(xprd,int,isBSError) = (int)m_pixelSummary->isBSError(moduleHash);
         AUXDATA(xprd,int,DCSState) = dcsState->getModuleStatus(moduleHash);
 
         float deplVoltage = 0.0;

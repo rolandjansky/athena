@@ -1,6 +1,6 @@
 // $Id$
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file StoreGate/WriteDecorHandleKey.icc
@@ -23,16 +23,6 @@ namespace detail {
 
 /**
  * @brief Optionally register read dependency of a @c WriteDecorHandleKey.
- *
- * A @c WriteDecorHandle logically has a read dependency on the container itself.
- * However, just declaring this as a usual @c ReadHandleKey will cause problems
- * if used in an algorithm that also creates the container: we'll get complaints
- * from the @c Algorithm base class about circular dependencies.
- *
- * To deal with this, we don't declare the container @c ReadHandleKey in
- * @c declareProperty.  Instead, we wait until @c initialize and declare
- * the dependency with @c addDependency only if it is not already
- * on a handle list.
  */
 void registerWriteDecorHandleKey (IDataHandleHolder* owner,
                                   const DataObjID& contHandleKey);
@@ -55,6 +45,33 @@ WriteDecorHandleKey<T>::WriteDecorHandleKey (const std::string& key /*= ""*/,
                                              const std::string& storeName /*= "StoreGateSvc"*/) :
   Base (key, storeName),
   m_contHandleKey (contKeyFromKey (key), storeName)
+{
+}
+
+
+/**
+ * @brief auto-declaring Property Constructor.
+ * @param owner Owning component.
+ * @param name name of the Property
+ * @param key  default StoreGate key for the object.
+ * @param doc Documentation string.
+ *
+ * will associate the named Property with this key via declareProperty
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+template <class OWNER, class K,
+          typename /*= typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type*/>
+inline
+WriteDecorHandleKey<T>::WriteDecorHandleKey( OWNER* owner,
+                                             const std::string& name,
+                                             const K& key /*={}*/,
+                                             const std::string& doc /*=""*/)
+  : Base (owner, name, key, doc),
+    m_contHandleKey (contKeyFromKey (key), StoreID::storeName(StoreID::EVENT_STORE) )
 {
 }
 

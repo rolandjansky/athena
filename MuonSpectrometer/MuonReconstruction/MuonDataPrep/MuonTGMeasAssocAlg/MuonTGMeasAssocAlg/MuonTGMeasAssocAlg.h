@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,8 +19,7 @@
 #include "TrkSegment/SegmentCollection.h"
 #include <fstream>
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
@@ -32,8 +31,6 @@
 
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-
-class StoreGateSvc;
 
 namespace Muon{
 
@@ -101,10 +98,9 @@ private:
   
   ToolHandle<Muon::IMuonTGMeasTool> m_muonTgTool;
   
-  const MdtIdHelper* m_mdtIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const CscIdHelper* m_cscIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
   const MuonGM::MuonDetectorManager* m_muonMgr;
 
   std::string  m_inputSegmentCollectionMoore;  
@@ -116,7 +112,6 @@ private:
   std::string  m_inputCscPrdCollection;  
   
   // -- algorithm members
-  StoreGateSvc                    *m_StoreGate;         //!< transient event store providing the tracks
   ActiveStoreSvc*                  m_activeStore;
   mutable std::vector<PairOfLayerPrd*>*       m_mdtHits;
   mutable std::vector<PairOfLayerPrd*>*       m_rpcHits;

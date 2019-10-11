@@ -33,7 +33,6 @@ atlas_add_poolcnv_library( TrkEventAthenaPoolPoolCnv
                            TrkEventTPCnv )
 
 # Install files from the package:
-atlas_install_headers( TrkEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 
@@ -46,7 +45,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRKEVENTATHENAPOOL_REFERENCE_TAG
-       TrkEventAthenaPoolReference-01-00-00 )
+       TrkEventAthenaPoolReference-03-00-00 )
   run_tpcnv_test( TrkEventTPCnv_14.5.0   AOD-14.5.0-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )

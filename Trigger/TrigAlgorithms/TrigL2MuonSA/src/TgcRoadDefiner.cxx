@@ -31,8 +31,7 @@ TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
      m_ptEndcapLUT(0),
      m_tgcFit("TrigL2MuonSA::TgcFit"),
      m_rWidth_TGC_Failed(0),
-     m_regionSelector( "RegSelSvc", name ),
-     m_mdtIdHelper(0)
+     m_regionSelector( "RegSelSvc", name )
 {
   declareInterface<TrigL2MuonSA::TgcRoadDefiner>(this);
 }
@@ -73,10 +72,10 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
-                                                   const MdtIdHelper* mdtIdHelper)
+                                                   const Muon::MuonIdHelperTool* muonIdHelperTool)
 {
   m_regionSelector = regionSelector;
-  m_mdtIdHelper = mdtIdHelper;
+  m_muonIdHelperTool = muonIdHelperTool;
 }
 
 // --------------------------------------------------------------------------------
@@ -378,7 +377,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   std::vector<IdentifierHash> mdtHashList;
   
   // get sector_trigger and sector_overlap by using the region selector
-  IdContext context = m_mdtIdHelper->module_context();
+  IdContext context = m_muonIdHelperTool->mdtIdHelper().module_context();
   
   double etaMin =  p_roi->eta()-.02;
   double etaMax =  p_roi->eta()+.02;
@@ -394,15 +393,15 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   
   for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
     Identifier id;
-    int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
+    int convert = m_muonIdHelperTool->mdtIdHelper().get_id(mdtHashList[i_hash], id, &context);
 
     if(convert!=0) ATH_MSG_ERROR("problem converting hash list to id");
 
     muonRoad.stationList.push_back(id);
-    std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+    std::string name = m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id));
     if ( name.substr(0, 1) == 'B' ) continue;
     if ( name.substr(1, 1) != 'M' ) continue;
-    int stationPhi = m_mdtIdHelper->stationPhi(id);
+    int stationPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
     float floatPhi = (stationPhi-1)*CLHEP::pi/4;
     if (name[2]=='S' || name[2]=='E') floatPhi = floatPhi + CLHEP::pi/8;
     tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle);

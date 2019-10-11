@@ -4,8 +4,6 @@
 
 #include "DecisionHandling/Combinators.h"
 #include "TrigMuonEFMSonlyHypoTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/Monitored.h"
 class ISvcLocator;
 TrigMuonEFMSonlyHypoTool::TrigMuonEFMSonlyHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
@@ -16,7 +14,7 @@ TrigMuonEFMSonlyHypoTool::~TrigMuonEFMSonlyHypoTool(){
 }
 StatusCode TrigMuonEFMSonlyHypoTool::initialize(){
   if(m_acceptAll) {
-    ATH_MSG_INFO("Accepting all the events with not cut!");
+    ATH_MSG_INFO("Accepting all the events!");
   } else {
     if(m_ptBins.size()<=0){ 
       ATH_MSG_ERROR("Trying to configure hypo with no pT bins. This is probably a configuration mistake.");
@@ -66,6 +64,18 @@ bool TrigMuonEFMSonlyHypoTool::decideOnSingleObject(TrigMuonEFMSonlyHypoTool::Mu
     ATH_MSG_DEBUG("Retrieval of xAOD::MuonContainer failed");
     return false;
   }
+  if(m_threeStationCut){
+    uint8_t nGoodPrcLayers=0;
+    if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
+      ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
+      return false;
+    }
+    if(fabs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
+      ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
+      return false;
+    }
+  }
+
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
     const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
     if (!tr) {

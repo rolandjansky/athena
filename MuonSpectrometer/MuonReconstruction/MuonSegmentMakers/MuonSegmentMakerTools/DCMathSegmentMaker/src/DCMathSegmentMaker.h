@@ -19,9 +19,12 @@
 #include "TrkDriftCircleMath/DriftCircle.h"
 
 #include "TrkSurfaces/Surface.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
+
+#include "MuonCondData/MdtCondDbData.h"
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -56,7 +59,6 @@ namespace Muon {
   class IMdtSegmentFinder;
   class IMuonTrackCleaner;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class IMuonSegmentFittingTool;
   class IMuonSegmentSelectionTool;
@@ -64,6 +66,7 @@ namespace Muon {
   class MdtPrepData;
 }
 
+class MdtCondDbData;
 class MdtIdHelper;
 class RpcIdHelper;
 class TgcIdHelper;
@@ -402,7 +405,9 @@ class MdtDriftCircleOnTrack;
     ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator;   //<! competing clusters rio ontrack creator
     ToolHandle<MuonIdHelperTool>              m_idHelperTool;    //<! Id helper tool
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
-    ToolHandle<MuonEDMHelperTool>             m_helper;          //<! printer helper tool
+    ServiceHandle<IMuonEDMHelperSvc>          m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };  //<! edm helper tool
     ToolHandle<IMdtSegmentFinder>             m_segmentFinder;   //<! segment finder tool
     ToolHandle<IMuonSegmentFittingTool>       m_segmentFitter;   //<! segment fitting tool
     ToolHandle<IMuonSegmentSelectionTool>     m_segmentSelectionTool; //<! segment selection tool
@@ -434,6 +439,7 @@ class MdtDriftCircleOnTrack;
     SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
     SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
     SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+    SG::ReadCondHandleKey <MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 
   };
   

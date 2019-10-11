@@ -5,30 +5,40 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
-from LArRecUtils.LArFebConfigCondAlgConfig import LArFebConfigCondAlgCfg
-from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg
 from LArRecUtils.LArRecUtilsConf import LArMCSymCondAlg
-from LArRecUtils.LArRecUtilsConf import LArAutoCorrNoiseCondAlg
+from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
+from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 
-def LArADC2MeVCondAlgCfg(flags, **kwargs):
-    """Return ComponentAccumulator with configured LArADC2MeVCondAlg"""
-    acc = LArOnOffIdMappingCfg(flags)
-    if flags.Input.isMC:
-        if flags.LAr.HasMphys:
-            LArMphysOverMcalKey = "LArMphysOverMcalSym"
-        else:
-            LArMphysOverMcalKey = ""
-        kwargs.setdefault("LArMphysOverMcalKey", LArMphysOverMcalKey)
-        if not flags.LAr.HasHVCorr:
-            kwargs.setdefault("LArHVScaleCorrKey", "")
-        kwargs.setdefault("LAruA2MeVKey", "LAruA2MeVSym")
-        kwargs.setdefault("LArDAC2uAKey", "LArDAC2uASym")
-        kwargs.setdefault("LArRampKey", "LArRampSym")
-        kwargs.setdefault("UseFEBGainTresholds", False)
-    else:
-        acc.merge(LArFebConfigCondAlgCfg(flags))
-    acc.addCondAlgo(LArADC2MeVCondAlg(**kwargs))
-    return acc
+def LArADC2MeVCondAlgCfg(flags):
+    from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
+    
+    result=ComponentAccumulator()
+    #This CondAlgo needs identifier helpers and the cable map
+    result.merge(LArOnOffIdMappingCfg(flags))
+    result.merge(DetDescrCnvSvcCfg(flags))
+    theADC2MeVCondAlg=LArADC2MeVCondAlg()
+
+    isMC=flags.Input.isMC
+    
+    if isMC:
+        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
+        theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
+        theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
+        theADC2MeVCondAlg.LArRampKey="LArRampSym"
+        theADC2MeVCondAlg.LArMphysOverMcalKey="LArMphysOverMcalSym"
+        theADC2MeVCondAlg.LArHVScaleCorrKey="LArHVScaleCorr"
+        theADC2MeVCondAlg.UseFEBGainTresholds=False
+    else: # not MC:
+        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
+        from LArRecUtils.LArFebConfigCondAlgConfig import LArFebConfigCondAlgCfg
+        if 'COMP200' in flags.IOVDb.DatabaseInstance: # Run1 case
+            theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
+            theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
+        result.merge(LArFebConfigCondAlgCfg(flags))
+
+    result.merge(LArElecCalibDbCfg(flags,requiredConditons))
+    result.addCondAlgo(theADC2MeVCondAlg,primary=True)
+    return result 
 
 def LArMCSymCondAlgCfg(flags, name="LArMCSymCondAlg", **kwargs):
     """Return ComponentAccumulator with configured LArMCSymCondAlg"""
@@ -39,8 +49,12 @@ def LArMCSymCondAlgCfg(flags, name="LArMCSymCondAlg", **kwargs):
 
 def LArAutoCorrNoiseCondAlgCfg(flags, name="LArAutoCorrNoiseCondAlg", **kwargs):
     """Return ComponentAccumulator with configured LArAutoCorrNoiseCondAlg"""
+
+    from LArRecUtils.LArRecUtilsConf import LArAutoCorrNoiseCondAlg
+    # The LArAutoCorrNoiseCondAlgCfg needs the cabling, the sym-object and the AutoCorr
     acc = LArOnOffIdMappingCfg(flags)
     acc.merge(LArMCSymCondAlgCfg(flags))
+    acc.merge(LArElecCalibDbCfg(flags,["AutoCorr",]))
     kwargs.setdefault("nSampl", flags.LAr.ROD.nSamples)
     acc.addCondAlgo(LArAutoCorrNoiseCondAlg(name, **kwargs))
     return acc
@@ -49,8 +63,6 @@ def LArAutoCorrNoiseCondAlgCfg(flags, name="LArAutoCorrNoiseCondAlg", **kwargs):
 def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
     from AthenaCommon.SystemOfUnits import ns
     deltaBunch = int(flags.Beam.BunchSpacing/( 25.*ns)+0.5)
-
-    acc = LArOnOffIdMappingCfg(flags)
 
     mlog = logging.getLogger ('LArOFCCondAlgCfg')
 
@@ -83,17 +95,24 @@ def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
         else:
             kwargs.setdefault ('UseDelta', 0)
 
-
+    #The LArPileUpTool needs: Calbling, Shape, Noise, Pedestal and the (total) AutoCorr
+    acc = LArOnOffIdMappingCfg(flags)
+    requiredConditons=["Shape","Noise","Pedestal"]
+    acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
+    acc.merge(LArAutoCorrTotalCondAlgCfg(flags))
     from LArRecUtils.LArRecUtilsConf import LArOFCCondAlg
     acc.addCondAlgo (LArOFCCondAlg (name, **kwargs))
     return acc
 
 
 def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwargs):
-    acc = LArOnOffIdMappingCfg(flags)
-
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
 
+    #The LArAutoCorrTotalAlg needs cabling and
+    #Shape, AutoCorr, Noise, Pedestal, fSampl and MinBias 
+    acc = LArOnOffIdMappingCfg(flags)
+    requiredConditons=["Shape","AutoCorr","Noise","Pedestal","fSampl","MinBias"]
+    acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
     from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalCondAlg
     acc.addCondAlgo (LArAutoCorrTotalCondAlg (name, **kwargs))
     return acc
@@ -104,18 +123,18 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags (quiet = True)
+    ConfigFlags.loadAllDynamicFlags()
 
     print ('--- LArOFCCondAlg 1')
     flags1 = ConfigFlags.clone()
-    flags1.Input.Files = defaultTestFiles.RAW
+    flags1.Input.Files = defaultTestFiles.RDO
     acc1 = LArOFCCondAlgCfg (flags1)
     acc1.printCondAlgs(summariseProps=True)
     acc1.wasMerged()
 
     print ('--- LArOFCCondAlg 2')
     flags2 = ConfigFlags.clone()
-    flags2.Input.Files = defaultTestFiles.RAW
+    flags2.Input.Files = defaultTestFiles.RDO
     flags2.LAr.ROD.UseDelta = 2
     acc2 = LArOFCCondAlgCfg (flags2)
     acc2.printCondAlgs(summariseProps=True)
@@ -123,7 +142,7 @@ if __name__ == "__main__":
 
     print ('--- LArOFCCondAlg 3')
     flags3 = ConfigFlags.clone()
-    flags3.Input.Files = defaultTestFiles.RAW
+    flags3.Input.Files = defaultTestFiles.RDO
     flags3.LAr.ROD.DoOFCMixedOptimization = True
     acc3 = LArOFCCondAlgCfg (flags3)
     acc3.printCondAlgs(summariseProps=True)
@@ -131,7 +150,7 @@ if __name__ == "__main__":
 
     print ('--- LArAutoCorrTotalCondAlg')
     flags4 = ConfigFlags.clone()
-    flags4.Input.Files = defaultTestFiles.RAW
+    flags4.Input.Files = defaultTestFiles.RDO
     flags4.LAr.ROD.nSamples = 32
     flags4.LAr.ROD.DoOFCMixedOptimization = True
     acc4 = LArAutoCorrTotalCondAlgCfg (flags4)

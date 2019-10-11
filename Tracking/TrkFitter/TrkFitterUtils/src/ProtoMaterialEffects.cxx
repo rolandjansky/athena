@@ -287,7 +287,7 @@ MaterialEffectsBase *ProtoMaterialEffects::makeMEOT() const {
     //std::cout << "deltae: " << neweloss->deltaE() << " sigde: " << neweloss->sigmaDeltaE() << " sigplus: " << neweloss->sigmaPlusDeltaE() << " sigminus: " << neweloss->sigmaMinusDeltaE() << std::endl;
   }
   MaterialEffectsOnTrack *meot=new MaterialEffectsOnTrack(m_x0,scatangles,neweloss,*m_surf,typePattern);
-  m_owneloss=false;
+  const_cast<bool&>(m_owneloss)=false; //Non MT safe function
   //m_eloss=0;
   return meot;  
 }

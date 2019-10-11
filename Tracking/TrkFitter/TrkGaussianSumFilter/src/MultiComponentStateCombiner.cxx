@@ -70,23 +70,18 @@ Trk::MultiComponentStateCombiner::finalize()
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MultiComponentStateCombiner::combine(const Trk::MultiComponentState& uncombinedState, bool useModeTemp) const
 {
-  const Trk::ComponentParameters* combinedComponent = compute(&uncombinedState, useModeTemp);
-  const Trk::TrackParameters* trackParameters = combinedComponent->first;
-  delete combinedComponent;
-  return trackParameters;
+  std::unique_ptr<Trk::SimpleComponentParameters> combinedComponent = compute(&uncombinedState, useModeTemp);
+  return std::move(combinedComponent->first);
 }
 
-const Trk::ComponentParameters*
+std::unique_ptr<Trk::SimpleComponentParameters>
 Trk::MultiComponentStateCombiner::combineWithWeight(const Trk::MultiComponentState& uncombinedState,
                                                     bool useModeTemp) const
 {
-
-  const Trk::ComponentParameters* combinedComponent = compute(&uncombinedState, useModeTemp);
-
-  return combinedComponent;
+  return compute(&uncombinedState, useModeTemp);
 }
 
 void
@@ -165,12 +160,12 @@ Trk::MultiComponentStateCombiner::combineWithWeight(
   }
 }
 
-const Trk::ComponentParameters*
+std::unique_ptr<Trk::SimpleComponentParameters>
 Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncombinedState, bool useModeTemp) const
 {
   if (uncombinedState->empty()) {
     ATH_MSG_WARNING("Trying to collapse state with zero components");
-    return 0;
+    return nullptr;
   }
 
   const Trk::TrackParameters* firstParameters = uncombinedState->front().first;
@@ -179,7 +174,8 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
   const AmgSymMatrix(5)* firstMeasuredCov = firstParameters->covariance();
 
   if (uncombinedState->size() == 1)
-    return new Trk::ComponentParameters(uncombinedState->front().first->clone(), uncombinedState->front().second);
+    return std::make_unique<Trk::SimpleComponentParameters>(uncombinedState->front().first->clone(), 
+                                                            uncombinedState->front().second);
 
   double sumW(0.);
   const int dimension = (uncombinedState->front()).first->parameters().rows();
@@ -364,7 +360,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
     }
   }
 
-  const Trk::TrackParameters* combinedTrackParameters = 0;
+  std::unique_ptr<Trk::TrackParameters> combinedTrackParameters = nullptr;
 
   double loc1 = mean[Trk::loc1];
   double loc2 = mean[Trk::loc2];
@@ -376,19 +372,17 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
     // combinedTrackParameters =
     // firstParameters->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],par[Trk::phi],par[Trk::theta],par[Trk::qOverP],
     // covariance );
-    combinedTrackParameters =
-      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, covariance);
+    combinedTrackParameters.reset(
+      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, covariance));
   else {
     // combinedTrackParameters =
     // firstParameters->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],par[Trk::phi],par[Trk::theta],par[Trk::qOverP],
     // 0 );
-    combinedTrackParameters =
-      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, 0);
+    combinedTrackParameters.reset(
+      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, nullptr));
     delete covariance;
   }
 
-  Trk::ComponentParameters* combinedComponentParameters =
-    new Trk::ComponentParameters(combinedTrackParameters, totalWeight);
+    return std::make_unique<Trk::SimpleComponentParameters>(std::move(combinedTrackParameters), totalWeight);
 
-  return combinedComponentParameters;
 }

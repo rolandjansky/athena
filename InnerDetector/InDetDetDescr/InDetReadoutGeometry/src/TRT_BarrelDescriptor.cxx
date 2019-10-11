@@ -21,6 +21,10 @@ TRT_BarrelDescriptor::TRT_BarrelDescriptor()
 {
 }
 
+TRT_BarrelDescriptor::~TRT_BarrelDescriptor()
+{
+}
+
 void TRT_BarrelDescriptor::addStraw(double xPos, double yPos) {
 
   m_x.push_back(xPos);

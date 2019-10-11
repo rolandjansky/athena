@@ -101,6 +101,7 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
   ATH_CHECK( m_inputCellsKey.initialize() );
   ATH_CHECK( m_inputTowersKey.initialize() );
   ATH_CHECK( m_outputClustersKey.initialize() );
+  ATH_CHECK( m_clusterCellLinkOutput.initialize() );
 
   ATH_MSG_DEBUG("Initialization of TrigCaloClusterMakerMT completed successfully");
 
@@ -291,7 +292,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
   // fill monitored variables
   for (xAOD::CaloCluster* cl : *pCaloClusterContainer) {
     
-    CaloClusterCellLink* num_cell_links = cl->getCellLinks();
+    const CaloClusterCellLink* num_cell_links = cl->getCellLinks();
     if(! num_cell_links) {
       sizeVec.push_back(0);
       mDecor_ncells(*cl) = 0;
@@ -305,6 +306,9 @@ StatusCode TrigCaloClusterMakerMT::execute()
     ENG_FRAC_MAX.push_back(cl->getMomentValue(xAOD::CaloCluster::ENG_FRAC_MAX));
   }
   
+  // Finalize the clusters so cells are available in later steps
+  SG::WriteHandle<CaloClusterCellLinkContainer> cellLinks (m_clusterCellLinkOutput, ctx);  
+  ATH_CHECK(CaloClusterStoreHelper::finalizeClusters (cellLinks, pCaloClusterContainer));
   
   ATH_MSG_DEBUG(" REGTEST: Produced a Cluster Container of Size= " << pCaloClusterContainer->size() );
   if(!pCaloClusterContainer->empty()) {

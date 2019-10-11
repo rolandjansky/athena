@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // P4ImplIPtCotThPhiMCnv_p1.h 
@@ -32,16 +32,15 @@ class MsgStream;
 // to get the same look'n feel (even if we are reusing the same _p1 class)
 typedef P4IPtCotThPhiM_p1 P4ImplIPtCotThPhiM_p1;
 
-class P4ImplIPtCotThPhiMCnv_p1 : public T_AthenaPoolTPCnvBase<
+class P4ImplIPtCotThPhiMCnv_p1 : public T_AthenaPoolTPCnvConstBase<
                                               P4ImplIPtCotThPhiM, 
                                               P4ImplIPtCotThPhiM_p1
                                             >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers; 
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -51,39 +50,22 @@ class P4ImplIPtCotThPhiMCnv_p1 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~P4ImplIPtCotThPhiMCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c P4ImplIPtCotThPhiM
    *  from its persistent representation @c P4ImplIPtCotThPhiM_p1
    */
   virtual void persToTrans( const P4ImplIPtCotThPhiM_p1* persObj, 
                             P4ImplIPtCotThPhiM* transObj, 
-                            MsgStream &msg );
+                            MsgStream &msg ) const override;
 
   /** Method creating the persistent representation @c P4ImplIPtCotThPhiM_p1
    *  from its transient representation @c P4ImplIPtCotThPhiM
    */
   virtual void transToPers( const P4ImplIPtCotThPhiM* transObj, 
                             P4ImplIPtCotThPhiM_p1* persObj, 
-                            MsgStream &msg );
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+                            MsgStream &msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline P4ImplIPtCotThPhiMCnv_p1::P4ImplIPtCotThPhiMCnv_p1() 
 {}

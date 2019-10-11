@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBUTILS_LARSHAPEPEAKRECOTOOL_H
 #define LARCALIBUTILS_LARSHAPEPEAKRECOTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
-//#include "StoreGate/StoreGateSvc.h"
 
 static const InterfaceID IID_LArShapePeakRecoTool("LArShapePeakRecoTool", 1 , 0); 
 

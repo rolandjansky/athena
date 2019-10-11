@@ -19,12 +19,10 @@
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "eformat/Issue.h"
 #include "eformat/SourceIdentifier.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -39,8 +37,6 @@
 //#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
 
 // #include "minibench.h"
-class StoreGateSvc;
-
 
 namespace Muon
 {
@@ -125,10 +121,8 @@ namespace Muon
                                                 const int nFooter) const;
     
     //====LBTAG==== Added 02112008 for buffer format check
-    mutable int m_previous;
     int m_printerror;
-    mutable bool m_RPCcheckform[13];
-    mutable std::atomic_int  m_RPCcheckfail[13];
+    mutable std::atomic_int m_RPCcheckfail[13];
     IntegerProperty m_maxprinterror;
     
     //====LBTAG==== Added 02112008 for buffer format check
@@ -138,9 +132,10 @@ namespace Muon
   private:
     
     //RpcPadIdHash*                      m_hashfunc;
-    //ServiceHandle<StoreGateSvc>        m_storeGate;
     const IRPCcablingSvc*              m_cabling;
-    const RpcIdHelper*                 m_pRpcIdHelper;
+
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     // re-define the ROB number
     IntegerProperty m_specialROBNumber;
@@ -162,9 +157,8 @@ namespace Muon
     int  decoded;
     MatrixReadOut matrix;
     StatusCode sc = StatusCode::SUCCESS;
-    
-    //initialize check vector 
-    for (int i=0; i<13; i++)m_RPCcheckform[i]=false;
+
+    int previous=0;
     
     //Loop on buffer 
     for (int i=ini; i < end; i++){          
@@ -172,13 +166,12 @@ namespace Muon
       
       //RX Header
       if(decoded==0x9){
-        if(m_previous == 0){
-          m_RPCcheckform[0]=true;
-          m_previous = 1;
+        if(previous == 0){
+          previous = 1;
         }
         else {
           ++m_RPCcheckfail[0]; 
-          m_previous=0;
+          previous=0;
 	  //m_bsErrCont->addError((*pdata)[i],Muon::RXHeaderErrors);
           sc = StatusCode::FAILURE;
           return sc;
@@ -187,26 +180,24 @@ namespace Muon
       
       // RX SubHeader
       else if(decoded==0xe){
-        if(m_previous == 1){
-          m_previous = 2;
-          m_RPCcheckform[1]=true;
+        if(previous == 1){
+          previous = 2;
         }
         else {
           ++m_RPCcheckfail[1]; 
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
       }
       //PAD Header
       else if(decoded==0x5){
-        if(m_previous == 2){
-          m_previous = 3;
-          m_RPCcheckform[2]=true;
+        if(previous == 2){
+          previous = 3;
         }
         else {
           ++m_RPCcheckfail[2];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -214,17 +205,15 @@ namespace Muon
       
       //PAD or SL Subheader
       else if(decoded==0x6){
-        if(m_previous == 3){
-          m_previous = 4;
-          m_RPCcheckform[3]=true;
+        if(previous == 3){
+          previous = 4;
         }
-        else if(m_previous == 8){
-          m_previous = 9;
-          m_RPCcheckform[10]=true;
+        else if(previous == 8){
+          previous = 9;
         }
         else {
           ++m_RPCcheckfail[3];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -232,13 +221,12 @@ namespace Muon
       
       //CM Header
       else if(decoded==0xc){
-        if(m_previous == 4){
-          m_previous = 5;
-          m_RPCcheckform[4]=true;
+        if(previous == 4){
+          previous = 5;
         }
         else {
           ++m_RPCcheckfail[4];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -246,13 +234,12 @@ namespace Muon
       
       //CM Subheader
       else if(decoded==0x8){
-        if(m_previous == 5){
-          m_previous=6;
-          m_RPCcheckform[5]=true;
+        if(previous == 5){
+          previous=6;
         }
         else {
           ++m_RPCcheckfail[5];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -260,11 +247,9 @@ namespace Muon
       
       //CM Footer
       else if(decoded==0x4){
-        if(m_previous == -1 || m_previous == 6){
-          m_previous=4;
-          m_RPCcheckform[6]=true;
+        if(previous == -1 || previous == 6){
+          previous=4;
           if(matrix.checkCRC8((ubit16)(*pdata)[i])){
-            m_RPCcheckform[12]=true;
           }
           else {
             ++m_RPCcheckfail[12];
@@ -273,7 +258,7 @@ namespace Muon
         }
         else {
           ++m_RPCcheckfail[6];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -281,13 +266,12 @@ namespace Muon
       
       //PAD Prefooter
       else if(decoded==0xa){
-        if(m_previous == 4){
-          m_previous=7;
-          m_RPCcheckform[7]=true;
+        if(previous == 4){
+          previous=7;
         }
         else {
           ++m_RPCcheckfail[7];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -295,13 +279,12 @@ namespace Muon
       
       //PAD Footer
       else if(decoded==0x7){
-        if(m_previous == 7){
-          m_previous=2;
-          m_RPCcheckform[8]=true;
+        if(previous == 7){
+          previous=2;
         }
         else {
           ++m_RPCcheckfail[8];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -309,13 +292,12 @@ namespace Muon
       
       //SL Header
       else if(decoded==0xd){
-        if(m_previous == 2){
-          m_previous=8;
-          m_RPCcheckform[9]=true;
+        if(previous == 2){
+          previous=8;
         }
         else {
           ++m_RPCcheckfail[9];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
@@ -323,32 +305,31 @@ namespace Muon
       
       //SL Footer
       else if(decoded==0xf){
-        if(m_previous == 9 || m_previous == -1){
-          m_previous=10;
-          m_RPCcheckform[10]=true;
+        if(previous == 9 || previous == -1){
+          previous=10;
         }
         else{
           ++m_RPCcheckfail[10];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
       }
       //RX Footer
       else if(decoded==0xb){
-        if(m_previous == 10){
-          m_previous=0;
+        if(previous == 10){
+          previous=0;
           // ===== end of fragment reached =====
           return sc;
         }
         else{
           ++m_RPCcheckfail[11];
-          m_previous=0;
+          previous=0;
           sc = StatusCode::FAILURE;
           return sc;
         }
       }
-      else { m_previous=-1;
+      else { previous=-1;
       }
     }
     sc = StatusCode::FAILURE;
@@ -710,7 +691,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE ) )
       msg(MSG::VERBOSE) << "The offline ID request for conversion is "
-      << m_pRpcIdHelper->show_to_string(thisPadOfflineId) << endmsg;
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) << endmsg;
     
     bool isSLHeader    =false;
     bool isSLSubHeader =false;
@@ -1096,7 +1077,7 @@ namespace Muon
             << sectorLogic << endmsg;
           } else {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << PadID << " at side " 
             << side << " and  sector " << sectorLogic << endmsg; 
           }
@@ -1106,7 +1087,7 @@ namespace Muon
             
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match found with ID " 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion; return this collection" 
             << endmsg; 
             
@@ -1123,7 +1104,7 @@ namespace Muon
           {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match NOT found with ID "  
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion" << endmsg;  
           }
           
@@ -1323,7 +1304,7 @@ namespace Muon
     bool foundPad=false;
     
     
-    ATH_MSG_VERBOSE( "The offline ID request for conversion is " << m_pRpcIdHelper->show_to_string(thisPadOfflineId) );
+    ATH_MSG_VERBOSE( "The offline ID request for conversion is " << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) );
     
     
     bool isSLHeader    =false;
@@ -1599,7 +1580,7 @@ namespace Muon
           else 
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
-              << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+              << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
               << " associated to PAD n. " << PadID << " at side " 
               << side << " and  sector " << sectorLogic << endmsg; 
           
@@ -1609,7 +1590,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion; return this collection" 
               << endmsg; 
             
@@ -1630,7 +1611,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match NOT found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion" << endmsg; 
           } 
         }
@@ -2096,7 +2077,7 @@ namespace Muon
           else 
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
-              << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+              << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
               << " associated to PAD n. " << PadID << " at side " 
               << side << " and  sector " << sectorLogic << endmsg;
           
@@ -2105,7 +2086,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion; return this collection" 
               << endmsg; 
             
@@ -2126,7 +2107,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match NOT found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion" << endmsg;
           } 
         }
@@ -2273,7 +2254,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
       << "The offline ID request for conversion is " 
-      << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
       << endmsg;
     
     // remove the rod header and footer then
@@ -2368,7 +2349,7 @@ namespace Muon
         else 
           if (msgLvl(MSG::VERBOSE) ) 
             msg(MSG::VERBOSE) 
-            << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << padId << " at side " 
             << side << " and  sector " << slogic << endmsg;
         
@@ -2380,15 +2361,15 @@ namespace Muon
         if (thisPadOfflineId == padOfflineId) {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << "Found the collection to return " 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
             << endmsg;
           v.setOnlineId(padId);
           v.setStatus(status);
           v.setSector(sectorID);
         } else {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
-            << "!=" << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
+            << "!=" << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << endmsg;
         } 
         char cmaHeader    = 'U';

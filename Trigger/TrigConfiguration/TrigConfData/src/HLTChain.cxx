@@ -3,37 +3,39 @@
 */
 
 #include "TrigConfData/HLTChain.h"
-TrigConf::HLTChain::HLTChain()
+
+TrigConf::Chain::Chain()
 {}
 
-TrigConf::HLTChain::HLTChain(const boost::property_tree::ptree & data) 
+TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {}
 
-TrigConf::HLTChain::~HLTChain()
+TrigConf::Chain::~Chain()
 {}
 
+
 const std::string &
-TrigConf::HLTChain::name() const
+TrigConf::Chain::name() const
 {
-   return data().get_child("name").data();
+   return m_data.get_child("name").data();
 }
 
 unsigned int
-TrigConf::HLTChain::counter() const
+TrigConf::Chain::counter() const
 {
-   return data().get_child("counter").get_value<unsigned int>();
+   return m_data.get_child("counter").get_value<unsigned int>();
 }
 
 const std::string &
-TrigConf::HLTChain::l1item() const
+TrigConf::Chain::l1item() const
 {
-   return data().get_child("l1item").data();
+   return m_data.get_child("l1item").data();
 }
 
 
 std::vector<std::string>
-TrigConf::HLTChain::l1thresholds() const
+TrigConf::Chain::l1thresholds() const
 {
 
    std::vector<std::string> thrV;
@@ -49,7 +51,7 @@ TrigConf::HLTChain::l1thresholds() const
 
 
 std::vector<TrigConf::DataStructure>
-TrigConf::HLTChain::streams() const
+TrigConf::Chain::streams() const
 {
    std::vector<DataStructure> strlist;
    const auto & streams = m_data.get_child("streams");
@@ -62,7 +64,7 @@ TrigConf::HLTChain::streams() const
 }
 
 std::vector<std::string>
-TrigConf::HLTChain::groups() const
+TrigConf::Chain::groups() const
 {
 
    std::vector<std::string> grouplist;

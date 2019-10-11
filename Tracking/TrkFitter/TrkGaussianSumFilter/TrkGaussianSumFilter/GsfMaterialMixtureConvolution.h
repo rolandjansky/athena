@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -37,37 +37,40 @@ public:
   GsfMaterialMixtureConvolution(const std::string&, const std::string&, const IInterface*);
 
   //!< Destructor
-  ~GsfMaterialMixtureConvolution();
+  virtual ~GsfMaterialMixtureConvolution();
 
   //!< AlgTool initialise method
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //!< AlgTool finalize method
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   //!< Convolution with full material properties
-  virtual const MultiComponentState* update(const MultiComponentState&,
-                                            const Layer&,
-                                            PropDirection direction = anyDirection,
-                                            ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<MultiComponentState> 
+    update(const MultiComponentState&,
+           const Layer&,
+           PropDirection direction = anyDirection,
+           ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual const MultiComponentState* preUpdate(const MultiComponentState&,
-                                               const Layer&,
-                                               PropDirection direction = anyDirection,
-                                               ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<MultiComponentState> 
+    preUpdate(const MultiComponentState&,
+              const Layer&,
+              PropDirection direction = anyDirection,
+              ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with post-measurement-update material properties
-  virtual const MultiComponentState* postUpdate(const MultiComponentState&,
-                                                const Layer&,
-                                                PropDirection direction = anyDirection,
-                                                ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<MultiComponentState> 
+    postUpdate(const MultiComponentState&,
+               const Layer&,
+               PropDirection direction = anyDirection,
+               ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Retain for now redundant simplified material effects
-  virtual const MultiComponentState* simpliedMaterialUpdate(
-    const MultiComponentState& multiComponentState,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<MultiComponentState> 
+    simpliedMaterialUpdate(const MultiComponentState& multiComponentState,
+                           PropDirection direction = anyDirection,
+                           ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
   ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ this,

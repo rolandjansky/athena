@@ -100,6 +100,7 @@ public:
     int getMaxChannels(void) const { return m_maxChannels; };
     int getMaxGains(void) const { return m_maxGains; };
 
+    bool isDisconnected(int ros, int drawer, int channel) const;
 
 protected:
     

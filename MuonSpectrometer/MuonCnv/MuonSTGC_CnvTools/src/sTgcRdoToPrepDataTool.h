@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,12 +15,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class AtlasDetectorID;
 class Identifier;
 
 class ITGCcablingSvc;
-class sTgcIdHelper;
 
 namespace MuonGM 
 {
@@ -55,9 +55,11 @@ namespace Muon
        *  A vector of IdentifierHash are passed in, and the data corresponding to this list (i.e. in a Region of Interest) are converted.  
        *  @param requestedIdHashVect          Vector of hashes to convert i.e. the hashes of ROD collections in a 'Region of Interest'  
        *  @return selectedIdHashVect This is the subset of requestedIdVect which were actually found to contain data   
-       *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */ 
-      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect);
-      StatusCode decode(const std::vector<uint32_t>& robIds);
+       *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */
+      virtual
+      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+      virtual
+      StatusCode decode(const std::vector<uint32_t>& robIds) override;
 
       
       StatusCode processCollection(const STGC_RawDataCollection *rdoColl, 
@@ -85,8 +87,8 @@ namespace Muon
       const MuonGM::MuonDetectorManager * m_muonMgr;
 
       /** TGC identifier helper */
-      const sTgcIdHelper* m_stgcIdHelper;
-      const MuonIdHelper* m_muonIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
       bool m_fullEventDone;
 

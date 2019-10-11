@@ -11,6 +11,7 @@
 #include <cmath>
 #include "GeoModelKernel/RCBase.h"
 #include <vector>
+#include <mutex>
 
 class EMBPresamplerHVModule;
 
@@ -185,13 +186,17 @@ class EMBCell : public RCBase
       friend class ImaginaryFriend;
 
       void initHV() const;
+
+      mutable std::mutex m_mut;
+
+      mutable bool m_initHVdone;
 };
 
 
 // Class EMBCell 
 
 inline EMBCell::EMBCell (unsigned int side, const EMBDetDescr *embDescriptor, unsigned int eta, unsigned int phi)
-  :m_embDetDescr(embDescriptor),m_clockwork(phi | (eta<<8) | (side <<17) )
+  :m_embDetDescr(embDescriptor),m_clockwork(phi | (eta<<8) | (side <<17) ), m_initHVdone(false)
 {
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PDFREWEIGHTTOOL_H
@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 
-class StoreGateSvc;
 class McEventCollection;
 
 //the lhapdf methods to initialize, evaluate and so on
@@ -102,7 +101,6 @@ private:
 
 	HepMC::GenEvent*	m_evt;
 	McEventCollection*	m_mceventTESout;
-	StoreGateSvc*		m_storeGate;
 
 
 	//propearties

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -39,6 +39,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class RegionSelectionSvc;
 class MdtCalibInputSvc;
 
@@ -50,7 +52,6 @@ class TNtuple;
 class TH1F;
 class TH1I;
 
-class StoreGateSvc; 
 class MdtIdHelper;
 
 namespace MuonGM{
@@ -99,7 +100,8 @@ class NtupleMdtDqaTool : public AthAlgTool, virtual public NtupleCalibrationTool
   }
 
  private:
-  const MdtIdHelper *m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager *m_detMgr;
   const MuonCalib::IIdToFixedIdTool *m_id_tool;
 

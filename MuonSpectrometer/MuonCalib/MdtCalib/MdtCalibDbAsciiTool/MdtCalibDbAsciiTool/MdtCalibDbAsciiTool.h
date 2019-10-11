@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBDB_MDTCALIBDBASCIITOOL_H
@@ -9,14 +9,13 @@
 #include "MdtCalibInterfaces/IMdtCalibDBTool.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtRtRelationCollection.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 class IAtRndmGenSvc;
 
 class MdtCalibrationRegionSvc;
 class Identifier; 
-class StoreGateSvc; 
-class MdtIdHelper;
 
 namespace MuonGM{
 class MuonDetectorManager;
@@ -71,8 +70,8 @@ private:
   /** interprets file names in the calibration directory */
   bool interpret_chamber_name(const std::string &nm, const char *prefix, std::string & station, int &eta, int & phi) const;
 
-  StoreGateSvc* m_detStore;
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager* m_detMgr;
   MdtCalibrationRegionSvc* m_regionSvc;
   mutable MdtTubeCalibContainerCollection * m_tubeData;

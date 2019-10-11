@@ -10,7 +10,7 @@
 
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 from TrigEDMConfig.TriggerEDMRun2 import TriggerResultsList,TriggerLvl1List,TriggerIDTruth,TriggerHLTList,EDMDetails,EDMLibraries,TriggerL2EvolutionList,TriggerEFEvolutionList
-from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, AllowedOutputFormats
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerEDM')
@@ -30,51 +30,95 @@ def getTriggerEDMList(key, runVersion):
     """
     if runVersion == 2:
         if 'SLIM' in key:
-            return getTriggerEDMSlimList(key, runVersion)
+            return getTriggerEDMSlimList(key)
         else:
             return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
 
     elif runVersion ==3:
-        #if 'SLIM' in key or 'SMALL' in key or 'LARGE' in key :
-        #    return getTriggerEDMSlimList(key, runVersion)
-        #else:
-        return getTriggerObjList(key,[TriggerHLTList])
+        if key in AllowedOutputFormats: # AllowedOutputFormats is the entire list of output formats including ESD
+        #if 'SLIM' in key or 'SMALL' in key or 'LARGE' in key : #keeping for refernece/potential revert
+            # this keeps only the dynamic variables that have been specificied in TriggerEDMRun3
+            return getRun3TrigEDMSlimList(key)
+        else:
+            log.warning('Output format: %s is not in list of allowed formats, please check!', key)
+            return getRun3TrigObjList(key, [TriggerHLTListRun3])
+
     else:
         return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
 
 
-
-def getTriggerEDMSlimList(key, runVersion):
+def getRun3TrigObjList(destination, trigEDMList):
     """
+    Run 3 version
+    Gives back the Python dictionary  with the content of ESD/AOD (dst) which can be inserted in OKS.
+    """
+    dset = set(destination.split())
+    
+    toadd = {}
+    import itertools
+
+    for item in itertools.chain(*trigEDMList):
+        if item[1] == '': # no output has been defined
+            continue
+
+        confset = set(item[1].split())
+
+        if dset & confset: # intersection of the sets
+            t,k = getTypeAndKey(item[0])
+            colltype = t
+
+            if colltype in toadd:
+                if k not in toadd[colltype]:
+                    toadd[colltype] += [k]
+            else:
+                toadd[colltype] = [k]
+
+    return toadd 
+
+
+def getRun3TrigEDMSlimList(key):
+    """
+    Run 3 version
     Modified EDM list to remove all dynamic variables
     Requires changing the list to have 'Aux.-'
     """
-    if runVersion == 2:
-        _trigHLTList = TriggerHLTList
-        _trigResultsList = TriggerResultsList
-    elif runVersion ==3:
-        _trigHLTList = TriggerHLTListRun3
-        _trigResultsList = []
-        
-    _edmList = getTriggerObjList(key,[_trigHLTList, _trigResultsList])
+    _edmList = getRun3TrigObjList(key,[TriggerHLTListRun3])
     output = {}
     for k,v in _edmList.items():
         newnames = []
         for el in v:
-            if 'Aux' in el: #and '.-' in el:
-                newnames+=[el.split('.')[0]+'.-']
+            if 'Aux.' in el: 
+                if el.split('.')[1] == '':
+                    newnames+=[el.split('.')[0]+'.-']
+                else:
+                    newnames+=[el]
             else:
                 newnames+=[el]
             output[k] = newnames
     return output
-
-
 
 #************************************************************
 #
 #  For Run 1 and Run 2 (not modified (so far))
 #
 #************************************************************
+def getTriggerEDMSlimList(key):
+    """
+    Run 2 version
+    Modified EDM list to remove all dynamic variables
+    Requires changing the list to have 'Aux.-'
+    """
+    _edmList = getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
+    output = {}
+    for k,v in _edmList.items():
+        newnames = []
+        for el in v:
+            if 'Aux' in el: 
+                newnames+=[el.split('.')[0]+'.-']
+            else:
+                newnames+=[el]
+            output[k] = newnames
+    return output
 
 def getCategory(s):
     """ From name of object in AOD/ESD found by checkFileTrigSize.py, return category """ 
@@ -87,33 +131,56 @@ def getCategory(s):
     # search in EDMDetails for the key corresponding to the persistent value
     # if a key is found, use this as the first part of the original string
     # put the string back together
-                 
-    if s.startswith('HLT_xAOD__') or s.startswith('HLT_Rec__') or s.startswith('HLT_Analysis__') :
-        s = s[s.index('__')+2:]
-        s = s[s.index('_')+1:]
-        if s.count('Dyn') : s = s[:s.index('Dyn')]
-        if s.count('.') : s = s[:s.index('.')]
-        s = "HLT_"+s
-    elif s.startswith('HLT_'):
-        if s.count('_'): s = s[s.index('_')+1:]
-        if s.count('_'): s = s[s.index('_')+1:]
-        s = "HLT_"+s
-        
+
     if s.count('.') : s = s[:s.index('.')]                         
     if s.count('::'): s = s[s.index(':')+2:]
     if s.count('<'):  s = s[s.index('<')+1:]
     if s.count('>'):  s = s[:s.index('>')]
+    if s.count('.') : s = s[:s.index('.')]
+    if s.count('Dyn') : s = s[:s.index('Dyn')]
 
-        # need to make unique list?
-    TriggerList = TriggerL2List + TriggerEFList + TriggerResultsList + TriggerResultsRun1List + TriggerLvl1List + TriggerIDTruth + TriggerHLTList
+    # containers from Run 1-2 and 3 require different preprocessing
+    # s12 is for Run 1-2, s is for Run 3
+    s12 = s
+
+    if s12.startswith('HLT_xAOD__') or s12.startswith('HLT_Rec__') or s12.startswith('HLT_Analysis__') :
+        s12 = s12[s12.index('__')+2:]
+        s12 = s12[s12.index('_')+1:]
+        #if s12.count('.') : s12 = s12[:s12.index('.')]
+        s12 = "HLT_"+s12
+    elif s12.startswith('HLT_'):
+        #if s.count('Dyn') : s = s[:s.index('Dyn')]
+        if s12.count('_'): s12 = s12[s12.index('_')+1:]
+        if s12.count('_'): s12 = s12[s12.index('_')+1:]
+        s12 = "HLT_"+s12
+
+    TriggerListRun1 = TriggerL2List + TriggerEFList + TriggerResultsRun1List
+    TriggerListRun2 = TriggerResultsList + TriggerLvl1List + TriggerIDTruth + TriggerHLTList
+    TriggerListRun3 = TriggerHLTListRun3
 
     category = '' 
     bestMatch = ''
- 
+
     """ Loop over all objects already defined in lists (and hopefully categorized!!) """
-    for item in TriggerList:
+    for item in TriggerListRun1+TriggerListRun2:
         t,k = getTypeAndKey(item[0])
-    
+
+        """ Clean up type name """
+        if t.count('::'): t = t[t.index(':')+2:]
+        if t.count('<'):  t = t[t.index('<')+1:]
+        if t.count('>'):  t = t[:t.index('>')]
+        if (s12.startswith(t) and s12.endswith(k)) and (len(t) > len(bestMatch)):
+            bestMatch = t
+            category = item[2]
+
+        if k.count('.'): k = k[:k.index('.')]
+        if (s12 == k):
+            bestMatch = k
+            category = item[2]
+
+    for item in TriggerListRun3:
+        t,k = getTypeAndKey(item[0])
+
         """ Clean up type name """
         if t.count('::'): t = t[t.index(':')+2:]
         if t.count('<'):  t = t[t.index('<')+1:]
@@ -123,11 +190,10 @@ def getCategory(s):
             bestMatch = t
             category = item[2]
 
-        if k.count('.'): k = k[:k.index('.')]  
+        if k.count('.'): k = k[:k.index('.')]
         if (s == k):
             bestMatch = k
             category = item[2]
-
     if category == '': return 'NOTFOUND'
     return category
 

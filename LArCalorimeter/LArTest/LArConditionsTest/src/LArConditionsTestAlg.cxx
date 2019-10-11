@@ -15,8 +15,6 @@
 
 #include "LArConditionsTest/LArConditionsTestAlg.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 // #include "LArTools/LArFebRodMap.h"
 // #include "LArTools/LArOnOffIdMap.h"
 #include "LArRawUtils/LArRoI_Map.h" 
@@ -31,7 +29,6 @@
 #include "GaudiKernel/ListItem.h"
 
 #include "LArRawConditions/LArRampMC.h" 
-// #include "LArRawConditions/LArShapeMC.h" 
 #include "LArRawConditions/LArConditionsChannelSet.h" 
 //#include "LArRawConditions/LArNoiseDB.h" 
 #include "LArElecCalib/ILArOFC.h" 
@@ -162,7 +159,7 @@ StatusCode LArConditionsTestAlg::execute()
 //    if(m_testCondObject){ 
 // 	std::string key = "LArRamp";
 // 	const ILArRamp* ramp = 0 ;
-// 	m_detStore->retrieve(ramp, key);
+// 	detStore()->retrieve(ramp, key);
 // 	if(!ramp) {
 // 	    log<< MSG::ERROR<<" Failed to get LArRamp in execute " << endmsg;
 // 	    return StatusCode::FAILURE ; 
@@ -180,7 +177,7 @@ StatusCode LArConditionsTestAlg::execute()
 /* 
    log << MSG::DEBUG << " retrieve DataHandle<ExampleData>  in execute " <<endmsg;
    const ExampleData* example = 0 ;
-   m_detStore->retrieve( example );
+   detStore()->retrieve( example );
    if(!example) {
    log<< MSG::ERROR<<" Failed to get ExampleData in execute " << endmsg;
    }
@@ -1367,7 +1364,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
     // Testing mapping objects. 
     // LArFebRodMap
 //      const LArFebRodMap * febRodMap;
-//      sc=m_detStore->retrieve(febRodMap); 
+//      sc=detStore()->retrieve(febRodMap); 
 //      if(sc!=StatusCode::SUCCESS){ 
 //  	log<< MSG::ERROR<<" Can not find LArFedRodMap"<<endmsg;
 //  	// return sc;
@@ -1375,7 +1372,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 
     // LArOnOffIdMap
 //      const LArOnOffIdMap * onOffIdMap;
-//      sc=m_detStore->retrieve(onOffIdMap); 
+//      sc=detStore()->retrieve(onOffIdMap); 
 //      if(sc!=StatusCode::SUCCESS){ 
 //  	log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endmsg;
 //  	// return sc;
@@ -1384,7 +1381,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 
 //     if(m_testCondObjectNoReg){ 
 // 	std::string key = "LArRamp";
-// 	sc = m_detStore->retrieve(m_ramp, key);
+// 	sc = detStore()->retrieve(m_ramp, key);
 // 	//if(m_ramp) {
 // 	if(!sc.isSuccess()){
 // 	    log<< MSG::ERROR<<" Failed to get LArRamp in handle " << endmsg;
@@ -1662,7 +1659,7 @@ StatusCode LArConditionsTestAlg::testDCS_Objects()
 
 //      const DataHandle<GenericDbTable> dh_b, dh_e;
 
-//      sc = m_detStore->retrieve(dh_b, dh_e);
+//      sc = detStore()->retrieve(dh_b, dh_e);
 //      if (sc.isFailure()) {
 //  	log << MSG::WARNING <<"Could not find GenericDbTable DetectorStore" <<endmsg;
 //  	return( StatusCode::SUCCESS);

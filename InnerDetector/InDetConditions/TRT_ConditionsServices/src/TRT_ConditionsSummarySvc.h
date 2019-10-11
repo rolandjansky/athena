@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,9 +28,6 @@ class StatusCode;
 class TRT_ID;
 namespace InDetDD {
   class TRT_DetectorManager;
-}
-namespace InDetConditions {
-  enum Hierarchy;
 }
 
 /**

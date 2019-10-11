@@ -75,7 +75,6 @@ StatusCode JetHypoExerciserAlg::execute() {
   ++m_ncall;
 
   // make a HypoJet, add to vector and send to helper tool
-
   
   HypoJetVector jv = m_generator->get();
   
@@ -94,7 +93,6 @@ StatusCode JetHypoExerciserAlg::execute() {
   ss <<  "========= ncall: "<<m_ncall << "==========\n";
   ss << debugInfoCollector->toString() + '\n';
   auto s = ss.str();
-  // std::cout << s;
   std::ofstream outfile;
   outfile.open(m_logname, std::ios_base::app);
   outfile << s;

@@ -11,10 +11,14 @@
 
 #include <numeric>
 
-#include "TH2F.h"
+#include "TH2D.h"
 #include "TMath.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
+#include "TLinearFitter.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
+#include "TMatrixDSym.h"
 
 class MmIdHelper;
 namespace MuonGM
@@ -22,7 +26,7 @@ namespace MuonGM
   class MuonDetectorManager;
 }
 
-//
+// 
 // Simple clusterization tool for MicroMegas
 //
 namespace Muon
@@ -40,6 +44,9 @@ namespace Muon
     /** standard initialize method */
     virtual StatusCode initialize() override;
     
+    /** standard finalize method */
+    //virtual StatusCode finalize();
+
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
 			   std::vector<Muon::MMPrepData*>& clustersVec);
 
@@ -50,34 +57,25 @@ namespace Muon
     const MmIdHelper* m_mmIdHelper;
 
 
-    // configurable parameters
-    Gaudi::Property<float> m_alphaMin{this,"HoughAlphaMin",0,"Min angle for Hough transform"};
-    Gaudi::Property<float> m_alphaMax{this,"HoughAlphaMax",90,"Max angle for Hough transform"};
-    Gaudi::Property<float> m_alphaResolution{this,"HoughAlphaResolution",.5,"Angle resolution for Hough transform"};
-    Gaudi::Property<float> m_dMin{this,"HoughDMin",0,"Hough transform DMin"};
-    Gaudi::Property<float> m_dMax{this,"HoughDMax",0,"Hough transform DMax"};
-    Gaudi::Property<float> m_dResolution{this,"HoughDResolution",1.0,"Hough transform DResolution"};
-    Gaudi::Property<int> m_houghMinCounts{this,"HoughMinCounts",3,"Hough transform min counts"};
-    Gaudi::Property<float> m_timeOffset{this,"uTPCTimeOffset",0,"Hough transform time offset"};
-    Gaudi::Property<float> m_dHalf{this,"uTPCDHalf",2.5,"DHalf"};
-    Gaudi::Property<float> m_vDrift{this,"vDrift",0.048,"Drift velocity"};
+    // params for the hough trafo
+    double m_alphaMin,m_alphaMax,m_alphaResolution,m_selectionCut;
+    double m_dMin,m_dMax,m_dResolution;
+    int m_houghMinCounts;
 
-    float m_toRad=TMath::Pi()/180.;
-    //float m_toRad;
+    double m_timeOffset,m_dHalf,m_vDrift;
+
+    double m_toRad=TMath::Pi()/180.;
 
 
-    StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time,std::vector<int>& idx_selected) const;
-    StatusCode fillHoughTrafo(std::unique_ptr<TH2F>& cummulator,std::vector<int>& flag, 
-			      std::vector<float>& xpos, std::vector<float>& time, float meanX) const;
-    StatusCode houghInitCummulator(std::unique_ptr<TH2F>& cummulator,std::unique_ptr<TH1F>& fineCummulator,
-				   float xmax,float xmin,float xmean) const;
-    StatusCode doFineScan(std::unique_ptr<TH1F>& fineCummulator,std::vector<int>& flag, std::vector<float>& xpos, 
-			  std::vector<float>& time,float amean,float meanX,float& dmean, float& dRMS) const;
-    StatusCode transformParameters(float alpha, float d, float dRMS, float& slope,float& intercept, float& interceptRMS) const;
-    StatusCode findMaxAlpha(std::unique_ptr<TH2F>& h_hough,float& amean) const;
-    StatusCode selectPoints(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time, 
-			    float& slope, float& intercept, float& interceptRMS,float& xmean, std::vector<int>& idxSelected ) const;
-    StatusCode finalFit(std::vector<float>& xpos, std::vector<float>& time, std::vector<int>& idxSelected,float& x0) const;
+    StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& idx_selected);
+    StatusCode fillHoughTrafo(std::unique_ptr<TH2D>& cummulator,std::vector<int>& flag, std::vector<double>& xpos, std::vector<double>& time);
+    StatusCode houghInitCummulator(std::unique_ptr<TH2D>& cummulator,double xmax,double xmin);
+
+    StatusCode findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos);
+    StatusCode selectTrack(std::vector<std::tuple<double,double>> &tracks,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& flag,std::vector<int>& idx_selected);
+
+    StatusCode transformParameters(double alpha, double d, double dRMS, double& slope,double& intercept, double& interceptRMS);
+    StatusCode finalFit(std::vector<double>& xpos, std::vector<double>& time, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb);
 };
 
 

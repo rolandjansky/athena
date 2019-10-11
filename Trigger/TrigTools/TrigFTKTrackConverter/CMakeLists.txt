@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetCondTools
                           InnerDetector/InDetConditions/PixelConditionsData
-                          InnerDetector/InDetConditions/PixelConditionsServices
+                          InnerDetector/InDetConditions/PixelConditionsTools
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkFitter/TrkFitterUtils
                           Trigger/TrigFTK/TrigFTKSim

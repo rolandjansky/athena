@@ -10,8 +10,11 @@
 //back out again to check.
 // author lampen@physics.arizona.edu
 
+#include "CscCoolStrSvc.h"
+
 #include <sstream>
 #include <vector>
+#include <TString.h> // for Form
 #include <algorithm>//for transform
 #include <cctype> //for toupper
 #include <inttypes.h> 
@@ -22,22 +25,11 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
-// temporary includes to access CLOBs
-//#include "CoolKernel/ExtendedAttributeListSpecification.h"
-//#include "CoolKernel/PredefinedStorageHints.h"
-
 //Calibration data containers
 #include "MuonCondData/CscCondDataCollection.h"
-//#include "MuonCondData/CscCondDataCollectionBaseReader.h"
 #include "MuonCondData/CscCondDataContainer.h"
 
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/TagInfo.h"
-
-// root class for string manipulation 
-//#include "TString.h"
-
-#include "CscCoolStrSvc.h"
 
 using namespace std;
 namespace MuonCalib {
@@ -45,7 +37,6 @@ namespace MuonCalib {
     AthService(name,svc),
     p_detstore(nullptr),
     m_log(msgSvc(),name), 
-    m_cscId(nullptr),
     m_maxChamberHash(32), //retrieved later from cscIdHelper
     m_maxChanHash(61440), //retrieved later from cscIdHelper
     m_dbCache(0),
@@ -86,8 +77,8 @@ namespace MuonCalib {
     declareProperty("DoMerge", m_doMerge = true);
     declareProperty("DoCaching", m_doCaching = true);
     declareProperty("OnlineOfflineConvertPhiFlip", m_onlineOfflinePhiFlip = true);
-    declareProperty("PhiSwapVersion1Strings", m_phiSwapVersion1Strings = true);
-
+    declareProperty("ReadPSlopeFromDatabase", m_pslopeFromDB = false);
+    declareProperty("PSlope", m_pslope = m_DEFAULT_PSLOPE);
   }
 
   //-------------------------------------------------------------------
@@ -135,10 +126,10 @@ namespace MuonCalib {
 
     if(sc.isSuccess())
     {
-      sc = detStore->retrieve(m_cscId,"CSCIDHELPER");
+      sc = m_muonIdHelperTool.retrieve();
       if(sc.isFailure())
       {
-        m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endmsg;
+        m_log << MSG::FATAL << "Cannot retrieve MuonIdHelperTool" << endmsg;
         return sc;
       }
     }
@@ -148,8 +139,8 @@ namespace MuonCalib {
       return StatusCode::FAILURE;
     } 
 
-    m_moduleContext = m_cscId->module_context();
-    m_channelContext = m_cscId->channel_context();
+    m_moduleContext = m_muonIdHelperTool->cscIdHelper().module_context();
+    m_channelContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
     m_rmsCondData = 0;
     m_slopeCondData = 0;
@@ -174,7 +165,7 @@ namespace MuonCalib {
           {
             for(int measuresPhi = 0; measuresPhi <2; measuresPhi++)
             {
-              Identifier id = m_cscId->channelID(
+              Identifier id = m_muonIdHelperTool->cscIdHelper().channelID(
                   stationName+1,
                   (stationEta? 1:-1),
                   stationPhi+1,
@@ -210,7 +201,7 @@ namespace MuonCalib {
       {
         for(int stationPhi = 0; stationPhi <8; stationPhi++)
         {
-              Identifier id = m_cscId->channelID(
+              Identifier id = m_muonIdHelperTool->cscIdHelper().channelID(
                   stationName+1,
                   (stationEta? 1:-1),
                   stationPhi+1,
@@ -231,8 +222,8 @@ namespace MuonCalib {
       }
     }
     *(const_cast<unsigned int*>(&m_maxChamberCoolChannel)) = hash - 1; //-1 because hash overshoots in loop
-    //*(const_cast<unsigned int*>(&m_maxChamberHash)) = m_cscId->module_hash_max() - 1;
-    *(const_cast<unsigned int*>(&m_maxChanHash)) = m_cscId->channel_hash_max() - 1;
+    //*(const_cast<unsigned int*>(&m_maxChamberHash)) = m_muonIdHelperTool->cscIdHelper().module_hash_max() - 1;
+    *(const_cast<unsigned int*>(&m_maxChanHash)) = m_muonIdHelperTool->cscIdHelper().channel_hash_max() - 1;
 
     if(m_debug) m_log << MSG::DEBUG << "Maximum Chamber hash is " << m_maxChamberHash 
       << endmsg;
@@ -246,49 +237,7 @@ namespace MuonCalib {
 
     ////////////
     // Loop over csc detector elements and add in the hash ids
-    std::vector<Identifier> modules = m_cscId->idVector();
-
-    //typedef std::vector<Identifier>::const_iterator csc_id;
-
-    /*
-       print out all strip hashes
-    csc_id firstId = modules.begin();
-    csc_id lastId  = modules.end();
-
-    IdentifierHash moduleHashId;
-    IdentifierHash channelHashId;
-
-    for(; firstId != lastId; ++firstId) {
-      Identifier id = *firstId;
-      if (m_cscId->validElement(id)) {
-        if(!m_cscId->get_hash(id, moduleHashId, &m_moduleContext)) {
-          std::cout << "The CSC Chamber hash id is " << moduleHashId
-            << " for " << m_cscId->show_to_string(id,&m_moduleContext) << std::endl;
-          std::cout << "*****The strips in this Chamber ********************" << std::endl;
-          std::vector<Identifier> vect;
-          m_cscId->idChannels(id, vect);
-          for (unsigned int i=0; i<vect.size(); ++i) {
-            if(!m_cscId->get_hash(vect[i], channelHashId, &m_channelContext)) {
-              std::cout << "The CSC strip hash id is " << channelHashId
-                << " for " << m_cscId->show_to_string(vect[i],&m_channelContext) << std::endl;
-            }
-          } 
-        }
-        else {
-          m_log << MSG::ERROR << "Unable to set csc hash id for det elem " 
-            << "context begin_index = " << m_moduleContext.begin_index()
-            << " context end_index  = " << m_moduleContext.end_index()
-            << " the idenitifier is "
-            << endmsg;
-          id.show();
-        }
-      } else {
-        m_log << MSG::ERROR << "Invalid CSC id " << endmsg;
-        id.show();
-      }
-    }  
-    */
-    /////////
+    std::vector<Identifier> modules = m_muonIdHelperTool->cscIdHelper().idVector();
 
     //Prepare local cache.
     m_dbCache = new CscCondDataContainer();
@@ -317,8 +266,20 @@ namespace MuonCalib {
       return StatusCode::FAILURE;
     }
 
-    //bool noneFailed = true;
-    //bool anySucceed = false;
+    if (m_pslopeFromDB) {
+      ATH_MSG_WARNING("You have activated the retrieval of the pslope per CSC channel from the COOL database. "
+            << "Please make sure that a correct PSLOPE database is in place which uses geometrical CSC hashes in hex format "
+            << "as keys and different values of the pslopes for the different CSC channels as values, otherwise please run "
+            << "with the ReadPSlopeFromDatabase property set to false");
+    } else {
+      if (!(m_pslope>0 && m_pslope<1)) {
+        ATH_MSG_FATAL("The Pslope cannot be set to a value <=0 or >=1");
+        return StatusCode::FAILURE;
+      } else if (m_pslope != m_DEFAULT_PSLOPE) {
+        ATH_MSG_WARNING("You have manually set the Pslope property (to " << m_pslope << "). Please check if this is really intended.");
+      }
+    }
+
     //Initialized each parameter
     for(unsigned int parItr = 0 ; parItr < numPars; parItr++)
     {
@@ -330,6 +291,10 @@ namespace MuonCalib {
       std::string category = m_parCatVec[parItr]; 
       std::string defaultVal = m_parDefaultVec[parItr] ;
 
+      if (!m_pslopeFromDB) {
+        // in this case, we do not need to read the pslopes from the database, thus, we do not need a CscCondDataCollection
+        if (sgKey=="CSC_PSLOPE") continue;
+      }
 
       if(m_debug) m_log << MSG::DEBUG << "Entering new parameter." 
         << "\nName:\t" << name
@@ -412,7 +377,7 @@ namespace MuonCalib {
       m_parSGKeyMap[sgKey] = coll;
       
       if( name == "rms" ) m_rmsCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
-      else if( name == "pslope" ) m_slopeCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
+      else if( m_pslopeFromDB && name == "pslope" ) m_slopeCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( name == "noise" ) m_noiseCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( name == "f001" ) m_f001CondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( name == "ped" ) m_pedestalCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
@@ -603,8 +568,11 @@ namespace MuonCalib {
     return getVal(val,*m_rmsCondData,index);
   }
   bool CscCoolStrSvc::getSlope( float& val, const unsigned int & index) const {
-    if( !m_slopeCondData ) {
-      m_log << MSG::WARNING << " No slope data available" << endmsg;
+    if (!m_pslopeFromDB) {
+      val = m_pslope;
+      return true;
+    } else if( !m_slopeCondData ) {
+      ATH_MSG_WARNING(" No slope data available");
       return false;
     }
     return getVal(val,*m_slopeCondData,index);
@@ -954,42 +922,18 @@ namespace MuonCalib {
         continue;
       }
 
-
       string version;
-
       ss >>  version;
+      if(version == "02-00") {
+        if(!cache(ss,coll).isSuccess()) {
+          ATH_MSG_FATAL( "Failed caching from COOL string.");
+          return StatusCode::FAILURE;
+        }
+      } else {
+        ATH_MSG_FATAL( "Did not recognize CSC COOL string version " << version << ". Currently, only version 02-00 is supported. The keys of the database have to be geometrical CSC hashes in hex format.");
+        return StatusCode::FAILURE;
+      }
 
-      if(version == "1" or atoi(version.c_str()) == 1)
-      {
-        if(!cacheVersion1(ss,coll).isSuccess()) {
-          m_log << MSG::FATAL <<  "Failed caching from COOL string." << endmsg;
-          return StatusCode::FAILURE;
-        }
-      }
-      else if(version == "02-00") {
-        if(!cacheVersion2(ss,coll).isSuccess()) {
-          m_log << MSG::FATAL <<  "Failed caching from COOL string." << endmsg;
-          return StatusCode::FAILURE;
-        }
-      }
-      else 
-      {
-        //Old version was treated as an actual number rather than string. It was always
-        //set to 1 or sometimes 1.00000, so we convert to integer here and check
-        m_log << MSG::WARNING << "Don't recognize CSC COOL string version " << version <<
-          " for parameter " << coll->getParName() << ". Will treat as default version " << m_defaultDatabaseReadVersion << endmsg;
-        if(m_defaultDatabaseReadVersion == "1"){
-          if(!cacheVersion1(ss,coll).isSuccess()) {
-            m_log << MSG::FATAL <<  "Failed caching from COOL." << endmsg;
-            return StatusCode::FAILURE;
-          }
-        }
-        else if(m_defaultDatabaseReadVersion == "02-00")
-          if(!cacheVersion1(ss,coll).isSuccess()) {
-            m_log << MSG::FATAL <<  "Failed caching from COOL." << endmsg;
-            return StatusCode::FAILURE;
-          }
-      }
     }//end cool channel loop
     if(!numCoolChannelsFound) {
       m_log << MSG::ERROR << "Found no COOL channels!" << endmsg;
@@ -1002,83 +946,8 @@ namespace MuonCalib {
     return StatusCode::SUCCESS;
   }//end cache parameter
 
-
   //-------------------------------------------------------------------
-  StatusCode CscCoolStrSvc::cacheVersion1(istringstream & ss, CscCondDataCollectionBase * const coll) {
-
-    if(m_debug) m_log << MSG::DEBUG << "Caching " << coll->getParName()
-      << " (category " << coll->getParCat() << "). Database string is version 1" 
-        << endmsg;
-    if(coll->getParCat() != "CHANNEL")
-    {
-      m_log << MSG::ERROR << coll->getParCat()
-        << " is not a valid parameter category for version 1!" << endmsg;
-      return StatusCode::RECOVERABLE;
-    }
-
-    unsigned int numUpdated = 0;
-    string indexStr,valueStr;
-
-    const int & numEntries = coll->getSize();
-    //Loop over strips in chamber. We don't usually expect i to reach maxIndex
-    //We just have this upper limit to prevent a bug causing an endless loop.
-    for(int cnt = 0; cnt < numEntries; cnt++)  
-    {	
-      ss >> indexStr;
-
-      //If we read END for the next value, we have reached end of database
-      //string. This is the expected way we'll exit this loop
-      if(indexStr == "END")
-        break; //reached end of database string
-
-      int index = atoi(indexStr.c_str());
-
-      if(m_phiSwapVersion1Strings){
-        Identifier chanId;
-        m_cscId->get_id((IdentifierHash)index, chanId, &m_channelContext);
-        int stationEta = m_cscId->stationEta(chanId);          // +1 Wheel A   -1 Wheel C
-        int measuresPhi = m_cscId->measuresPhi(chanId); // 0 eta 1 phi
-        if(stationEta > 0 && measuresPhi ==1){
-          int stationName = m_cscId->stationName(chanId);  // CSL or CSS
-          int stationPhi = m_cscId->stationPhi(chanId); // PhiSector from 1-8
-          int chamberLayer = m_cscId->chamberLayer(chanId); // Either 1 or 2 (but always 2)
-          //if( chamberLayer == 1 ) chamberLayer = 2 ;//m_log << MSG::WARNING << "Bad chamberLayer " << endmsg;
-          int wireLayer = m_cscId->wireLayer(chanId);  // layer in chamber 1-4
-          int strip = 49 - m_cscId->strip(chanId);
-
-          Identifier newId = m_cscId->channelID(stationName,stationEta,stationPhi,chamberLayer, wireLayer,measuresPhi,strip);
-          IdentifierHash hash ;
-          m_cscId->get_channel_hash(newId, hash);
-
-          if(m_verbose) 
-            m_log << MSG::VERBOSE <<  "Swapped phi strip "  
-            << m_cscId->show_to_string(chanId) << " (" << index 
-            << ") to " << m_cscId->show_to_string(newId) << " (" << hash << ")" << endmsg;
-
-          index = hash;
-        }
-        else if (m_verbose) m_log << MSG::VERBOSE << "Not swapping " << m_cscId->show_to_string(chanId) << endmsg;
-      }
-
-      if(m_verbose) m_log << MSG::VERBOSE << "[cache version 1] Recording index " << index << " for paramter " << coll->getParName() << endmsg;
-
-      //Put next word in string into collection as a data entry at [index]
-      if(!coll->recordFromSS(ss, index).isSuccess())
-      {
-        m_log << MSG::WARNING << "Failed caching to index " << index << " for parameter "  << coll->getParName() << " (data string version 1). Likely tried to recache to same index twice." << endmsg;
-      }
-
-      if(m_debug) numUpdated++;
-    }//end index loop
-
-    if(m_debug) m_log << MSG::DEBUG << "Number chans updated for this channel is " << numUpdated << endmsg;
-
-    return(StatusCode::SUCCESS);
-  }//end cache version 1
-
-
-  //-------------------------------------------------------------------
-  StatusCode CscCoolStrSvc::cacheVersion2(istringstream & ss, CscCondDataCollectionBase * const coll) {
+  StatusCode CscCoolStrSvc::cache(istringstream & ss, CscCondDataCollectionBase * const coll) {
 
     if(m_debug) m_log << MSG::DEBUG << "Caching " << coll->getParName()
                       << " (category " << coll->getParCat() << "). Database string is version 2" 
@@ -1094,14 +963,14 @@ namespace MuonCalib {
     }
 
     const string & cat = coll->getParCat();
-    const int & numEntries = coll->getSize();
+    const unsigned int & numEntries = coll->getSize();
     string str = "";
 
     if ( cat!="ASM" )
     {
       //Loop over strips in chamber. We don't usually expect cnt to reach numEntries
       //We just have this upper limit to prevent a bug causing an endless loop.
-      for(int cnt = 0; cnt < numEntries; cnt++) {
+      for(unsigned int cnt = 0; cnt < numEntries; cnt++) {
         ss >> str;  
 
         //See if at end of data string 
@@ -1114,7 +983,7 @@ namespace MuonCalib {
         unsigned int index = 0;
         if(cat != "CSC") {
           if(!stringIdToIndex(str, cat, index).isSuccess()) {
-            m_log << MSG::ERROR << "Failed converting string Id to index in cacheVersion2"
+            m_log << MSG::ERROR << "Failed converting string Id to index"
                   << endmsg;
             return StatusCode::RECOVERABLE;
           }
@@ -1124,12 +993,15 @@ namespace MuonCalib {
         if(m_verbose) m_log << MSG::VERBOSE << "[cache version 2 (CHANNEL) ] Recording " 
           << str << " at index " << index << endmsg;
 
+        if (index==UINT_MAX) continue;
+        if (index>=numEntries) continue;
+
         //Now str has a value in it. We pass it to the collection.
         istringstream valueSS(str);
         if(!coll->recordFromSS(valueSS, index).isSuccess()) {
           m_log << MSG::WARNING << "Failed caching to index " << index << " for parameter" 
             << coll->getParName()
-            << " (data string version 2). Likely tried to recache to same index twice."
+            << ". Likely tried to recache to same index twice."
             << " Likely a bug when the data was orginally put in COOL." << endmsg;
         }
         if(m_debug) numUpdated++;
@@ -1162,7 +1034,7 @@ namespace MuonCalib {
       unsigned int index = 0;
       IdentifierHash hashIdentifier;
 
-      for ( int cnt = 0; cnt < numEntries; cnt++ )  //  Only works for chamberLayer=2
+      for (unsigned int cnt = 0; cnt < numEntries; cnt++ )  //  Only works for chamberLayer=2
       {	ss >> asmIDstr;  /*  asm cool tag id string which is
           ASM[#:1-5]_[StationEtaString:AorC][stationPhi:1-8]_[stationName:50-51]
           xxx   3   x                  5                6   x             x9      */
@@ -1200,11 +1072,28 @@ namespace MuonCalib {
         //  Now for given asmID, loop over strip and layer
         for ( int iStrip = stripSince; iStrip < stripUntil; iStrip++ )
         { for ( int iLayer = layerSince; iLayer < layerUntil; iLayer++ )
-          { chanId = m_cscId->channelID(stationName, stationEta, stationPhi, chamberLayer,
-              iLayer, measuresPhi, iStrip);
-          m_cscId->get_channel_hash(chanId, hashIdentifier);
+          { 
+          // The following call of channelID with check=true ensures that the identifier is checked to be physically valid.
+          // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
+          // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
+          bool isValid = true;
+          chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
+          static bool conversionFailPrinted = false;
+          if (!isValid) {
+            if (!conversionFailPrinted) {
+              ATH_MSG_WARNING("Failed to retrieve offline identifier from ASM cool string " << asmIDstr
+                                    << ". This is likely due to the fact that the CSCCool database contains more entries than "
+                                    << "the detector layout.");
+              conversionFailPrinted = true;
+            }
+            continue;
+          }
+          if (m_muonIdHelperTool->cscIdHelper().get_channel_hash(chanId, hashIdentifier)) {
+            ATH_MSG_WARNING("Failed to retrieve channel hash for identifier " << chanId.get_compact());
+          }
+
           index = (int)hashIdentifier;
-          if ( m_verbose ) m_log << MSG::VERBOSE << "[cache version 2 (ASM)] Recording " 
+          if ( m_verbose ) m_log << MSG::VERBOSE << "(ASM) Recording " 
             << valueStr << " at index " << index 
               << "\nstationName " << stationName
               <<"\nstationEta " << stationEta
@@ -1214,7 +1103,11 @@ namespace MuonCalib {
               << "\nmeasuresPhi " << measuresPhi
               << "\niStrip " << iStrip 
               << endmsg;
-          //Now valueStr has a value in it. We pass it to the collection.
+
+          if (index==UINT_MAX) continue;
+          if (index>=numEntries) continue;
+
+                    //Now valueStr has a value in it. We pass it to the collection.
           istringstream valueSS(valueStr);
           if ( !coll->recordFromSS(valueSS, index).isSuccess() )
           { m_log << MSG::WARNING << "Failed caching to index " << index 
@@ -1238,66 +1131,21 @@ namespace MuonCalib {
   //-------------------------------------------------------------------
   int CscCoolStrSvc::swapChamberLayerReturnHash(const Identifier & id) const
   {
-    int stationName = m_cscId->stationName(id);
-    int stationEta = m_cscId->stationEta(id); 
-    int stationPhi = m_cscId->stationPhi(id); 
-    int chamberLayer = m_cscId->chamberLayer(id) == 1 ? 2 : 1; //Swap chamber layer
-    int measuresPhi = m_cscId->measuresPhi(id); 
-    int wireLayer = m_cscId->wireLayer(id);
-    int strip = m_cscId->strip(id);
-    Identifier newId = m_cscId->channelID(stationName, stationEta, stationPhi, 
+    int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id);
+    int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(id); 
+    int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(id); 
+    int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(id) == 1 ? 2 : 1; //Swap chamber layer
+    int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(id); 
+    int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
+    int strip = m_muonIdHelperTool->cscIdHelper().strip(id);
+    Identifier newId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
         chamberLayer, wireLayer, measuresPhi, strip);
     IdentifierHash hash;
-    m_cscId->get_channel_hash(newId, hash);
-    m_log << MSG::INFO << "swap chamber layer " << m_cscId->show_to_string(id) 
-          << " to " << m_cscId->show_to_string(newId) << " (" << hash << ")" << endmsg;
+    m_muonIdHelperTool->cscIdHelper().get_channel_hash(newId, hash);
+    m_log << MSG::INFO << "swap chamber layer " << m_muonIdHelperTool->cscIdHelper().show_to_string(id) 
+          << " to " << m_muonIdHelperTool->cscIdHelper().show_to_string(newId) << " (" << hash << ")" << endmsg;
     return (int)hash;
   }
-
-
-  //-------------------------------------------------------------------
-  bool CscCoolStrSvc::ignoreBadMultilayer() const
-  {
-    static bool haveChecked = false;
-    static bool ignoreIt = false;
-
-    StoreGateSvc* detStore= 0;
-    StatusCode sc = serviceLocator()->service("DetectorStore",detStore);
-    if(sc.isFailure())
-    {
-      m_log << MSG::WARNING << "Failed to retrieve detector store in ignoreBadMultilayer()" << endmsg;
-      return false;
-    }
-
-    if(!haveChecked)
-    {
-      if(m_debug) m_log << "First time running ignoreBadMultilayer(). Checking geo tag."
-        << endmsg;
-      haveChecked = true;
-      //All geometries before the "ATLAS-GEO-xx-xx-xx" series had a bug where the
-      //wrong multilayer was set. As long as we are in ATLAS-GEO range, we should print
-      //a warning message if someone tries to request info from the wrong multilayer
-      const DataHandle<TagInfo> tagInfo;
-      if(detStore->retrieve(tagInfo).isFailure()) {
-        m_log << MSG::WARNING << "Could not retrieve tag info from TDS in ignore bad multilayer..." 
-          << endmsg;
-        return false;
-      }
-
-      std::string detdescr = "";
-      tagInfo->findTag("GeoAtlas", detdescr);
-      if(m_debug) m_log << MSG::DEBUG << "DetDescr tag = " << detdescr << endmsg;
-      if ( detdescr.find ("ATLAS-") != std::string::npos )
-      {
-        //Will print warning messages when bad multilayer requested in getParameter()
-        ignoreIt = false;
-      } 
-      else
-        ignoreIt = true;
-    }
-    return ignoreIt;
-  }//end ignoreBadMultilayer
-
 
   //-------------------------------------------------------------------
   StatusCode CscCoolStrSvc::offlineToOnlineId(const Identifier & id, unsigned int &onlineId) const
@@ -1307,20 +1155,20 @@ namespace MuonCalib {
     //Phi,wireLayer,and strip all are offset by one between the two schemes.
     //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
     //the online id.
-    int stationName  	((m_cscId->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
-    int phi =   		(m_cscId->stationPhi(id) - 1)&0x7  ;		    // 0000 1110 0000 0000 0000
-    int eta = 		((m_cscId->stationEta(id) == 1) ? 1:0) &0x1;  // 0000 0001 0000 0000 0000
-    int chamLay = 		(m_cscId->chamberLayer(id)-1) &0x1;		    // 0000 0000 1000 0000 0000
-    int wireLay = 		(m_cscId->wireLayer(id)-1) &0x3;		      // 0000 0000 0110 0000 0000
-    int measuresPhi = 	(m_cscId->measuresPhi(id) &0x1);		    // 0000 0000 0001 0000 0000
+    int stationName  	((m_muonIdHelperTool->cscIdHelper().stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(m_muonIdHelperTool->cscIdHelper().stationPhi(id) - 1)&0x7  ;		    // 0000 1110 0000 0000 0000
+    int eta = 		((m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1) ? 1:0) &0x1;  // 0000 0001 0000 0000 0000
+    int chamLay = 		(m_muonIdHelperTool->cscIdHelper().chamberLayer(id)-1) &0x1;		    // 0000 0000 1000 0000 0000
+    int wireLay = 		(m_muonIdHelperTool->cscIdHelper().wireLayer(id)-1) &0x3;		      // 0000 0000 0110 0000 0000
+    int measuresPhi = 	(m_muonIdHelperTool->cscIdHelper().measuresPhi(id) &0x1);		    // 0000 0000 0001 0000 0000
     int strip;     		                                          // 0000 0000 0000 1111 1111
 
     //Online and offline phi ids are flipped on A wheel
     if(m_onlineOfflinePhiFlip && measuresPhi && eta == 1){
-      strip = (48 - (m_cscId->strip(id))) & 0xff;  
+      strip = (48 - (m_muonIdHelperTool->cscIdHelper().strip(id))) & 0xff;  
     }
     else {
-      strip = (m_cscId->strip(id)-1) & 0xff;     		     
+      strip = (m_muonIdHelperTool->cscIdHelper().strip(id)-1) & 0xff;     		     
     }
 
 
@@ -1339,13 +1187,13 @@ namespace MuonCalib {
   StatusCode CscCoolStrSvc::offlineToAsmId(const Identifier & id, std::string & AsmId,
       unsigned int & iChamber, unsigned int & iASM) const
   { 
-    int stationEta  = m_cscId->stationEta(id);
+    int stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(id);
     std::string stationEtaString  = (stationEta == 1 ? "A":"C");
-    int stationPhi  = m_cscId->stationPhi(id);
-    int stationName = m_cscId->stationName(id);
-    int wireLayer   = m_cscId->wireLayer(id);
-    int measuresPhi = m_cscId->measuresPhi(id);
-    int strip       = m_cscId->strip(id);
+    int stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(id);
+    int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id);
+    int wireLayer   = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
+    int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
+    int strip       = m_muonIdHelperTool->cscIdHelper().strip(id);
 
     iChamber = getChamberCoolChannel(id) - 1; //0-31
 
@@ -1360,13 +1208,6 @@ namespace MuonCalib {
       if (wireLayer<=2)  iASM=3;
       else  iASM=4;
     }
-    /* Never gonna reach this code
-    else
-    { 
-      m_log << MSG::ERROR << "Could not assign iASM in CscCoolStrSvc::offlineToAsmId" << endmsg;
-      return StatusCode::RECOVERABLE;
-    }
-    */
 
     std::stringstream ss;
     ss << "ASM" << iASM << "_" << stationEtaString << stationPhi << "_" << stationName;
@@ -1382,9 +1223,9 @@ namespace MuonCalib {
     //Phi,wireLayer,and strip all are offset by one between the two schemes.
     //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
     //the online id.
-    int stationName  	((m_cscId->stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
-    int phi =   		(m_cscId->stationPhi(id) - 1)&0x7  ;		// 0000 1110 0000 0000 0000
-    int eta = 		((m_cscId->stationEta(id) == 1) ? 1:0) &0x1;  	// 0000 0001 0000 0000 0000
+    int stationName  	((m_muonIdHelperTool->cscIdHelper().stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(m_muonIdHelperTool->cscIdHelper().stationPhi(id) - 1)&0x7  ;		// 0000 1110 0000 0000 0000
+    int eta = 		((m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1) ? 1:0) &0x1;  	// 0000 0001 0000 0000 0000
     int chamLay = 		1;		// 0000 0000 1000 0000 0000
     int wireLay = 		0;		// 0000 0000 0110 0000 0000
     int measuresPhi = 0;		// 0000 0000 0001 0000 0000
@@ -1420,8 +1261,22 @@ namespace MuonCalib {
       strip = ((onlineId)&0xff) +1;
     }
 
-    elementId = m_cscId->elementID(stationName,eta,phi);
-    channelId = m_cscId->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+    elementId = m_muonIdHelperTool->cscIdHelper().elementID(stationName,eta,phi);
+    // The following call of channelID with check=true ensures that the identifier is checked to be physically valid.
+    // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
+    // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
+    bool isValid = true;
+    channelId = m_muonIdHelperTool->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
+    static bool conversionFailPrinted = false;
+    if (!isValid) {
+      if (!conversionFailPrinted) {
+        ATH_MSG_WARNING("Failed to retrieve offline identifier from online identifier " << onlineId
+                              << ". This is likely due to the fact that the CSCCool database contains more entries than "
+                              << "the detector layout.");
+        conversionFailPrinted = true;
+      }
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -1434,7 +1289,7 @@ namespace MuonCalib {
     int phi =               ((onlineId >> 13)&0x7)+1;
     int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
 
-    elementId = m_cscId->elementID(stationName,eta,phi);
+    elementId = m_muonIdHelperTool->cscIdHelper().elementID(stationName,eta,phi);
 
     return StatusCode::SUCCESS;
   }
@@ -1459,7 +1314,7 @@ namespace MuonCalib {
       strip = ((onlineId)&0xff) +1;
     }
 
-    chanId = m_cscId->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+    chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
 
     return StatusCode::SUCCESS;
   }
@@ -1468,16 +1323,16 @@ namespace MuonCalib {
   //-----------------------------------------------------------------------------------
   unsigned int CscCoolStrSvc::getLayerHash( const Identifier & id) const 
   {
-    unsigned int stationName = m_cscId->stationName(id);
-    if(m_cscId->stationName(id) >= 50 ) stationName = stationName - 50;
+    unsigned int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id);
+    if(m_muonIdHelperTool->cscIdHelper().stationName(id) >= 50 ) stationName = stationName - 50;
     else {
-      m_log <<MSG::ERROR << "stationName: " << stationName << " is not CSC - emergency stop." << endmsg;
-      throw;
+      ATH_MSG_ERROR("stationName: " << stationName << " is not CSC - emergency stop.");
+      throw std::runtime_error(Form("File: %s, Line: %d\nCscCoolStrSvc::getLayerHash() - given identifier is no CSC identifier", __FILE__, __LINE__));
     }
-    unsigned int stationEta = (m_cscId->stationEta(id) == 1 ? 1 :0);
-    unsigned int stationPhi = m_cscId->stationPhi(id) -1; 
-    unsigned int wireLayer = m_cscId->wireLayer(id) -1;
-    unsigned int measuresPhi = m_cscId->measuresPhi(id);
+    unsigned int stationEta = (m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1 ? 1 :0);
+    unsigned int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(id) -1; 
+    unsigned int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(id) -1;
+    unsigned int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
 
     return m_layerHashes[stationName][stationEta][stationPhi][wireLayer][measuresPhi];
   }
@@ -1487,9 +1342,9 @@ namespace MuonCalib {
   unsigned int CscCoolStrSvc::getChamberCoolChannel( const Identifier & id) const
   {
 
-    unsigned int stationName = m_cscId->stationName(id) -50;
-    unsigned int eta = (m_cscId->stationEta(id) == 1 ? 1 : 0);
-    unsigned int phi = m_cscId->stationPhi(id) -1; 
+    unsigned int stationName = m_muonIdHelperTool->cscIdHelper().stationName(id) -50;
+    unsigned int eta = (m_muonIdHelperTool->cscIdHelper().stationEta(id) == 1 ? 1 : 0);
+    unsigned int phi = m_muonIdHelperTool->cscIdHelper().stationPhi(id) -1; 
 
     if(stationName > 1
         || phi > 7
@@ -1552,20 +1407,6 @@ namespace MuonCalib {
     unsigned int phi =              ((onlineId >> 13)&0x7);
     unsigned int eta =              (((onlineId >> 12)&0x1));
 
-    /* According to coverity 105392, this never becomes true
-    if(stationName > 1
-        || phi > 7
-        || eta > 1
-      ) {
-      m_log <<MSG::ERROR << "when creating chamber cool channel, inputs were:\nstationName: " 
-        << stationName 
-        << "\nPhi: " << phi
-        << "\neta: " << eta
-        << endmsg;
-      return StatusCode::RECOVERABLE;
-    }
-    */
-
     chamCoolChan = m_chamberCoolChannels[stationName][eta][phi];
     if(chamCoolChan < 1 || chamCoolChan > 32) {
       m_log << MSG::ERROR << "created chamber cool channel is " 
@@ -1586,13 +1427,6 @@ namespace MuonCalib {
     onlineId = m_onlineChannelIdsFromChamberCoolChannel[chamCoolChan-1];
     return StatusCode::SUCCESS;
   }
-  /*
-     indexToCoolChan(const unsigned int & index, std::string & cat,  unsigned int & coolChan) {
-
-
-     }
-   */
-
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::getParCat(const std::string & parName, std::string & val) const{
@@ -1671,13 +1505,14 @@ namespace MuonCalib {
     Identifier chamberId;
     Identifier channelId;
     if(!onlineToOfflineIds(chanAddress, chamberId, channelId).isSuccess()){
-      m_log << MSG::ERROR << "Cannon get offline Ids from online Id" << hex << chanAddress << dec << endmsg; 
+      index = UINT_MAX;
+      return StatusCode::SUCCESS;
     }
 
     if(cat == "CHAMBER")
     {
       IdentifierHash chamberHash;
-      m_cscId->get_module_hash(chamberId,chamberHash);
+      m_muonIdHelperTool->cscIdHelper().get_geo_module_hash(chamberId,chamberHash);
       index = (unsigned int)chamberHash; 
     } 
     else if(cat == "LAYER")
@@ -1687,7 +1522,7 @@ namespace MuonCalib {
     else if(cat == "CHANNEL")
     {
       IdentifierHash chanHash;
-      m_cscId->get_channel_hash(channelId, chanHash);
+      m_muonIdHelperTool->cscIdHelper().get_channel_hash(channelId, chanHash);
       index = (unsigned int)chanHash;
     }
 
@@ -1722,7 +1557,7 @@ namespace MuonCalib {
     {
 
       Identifier chamberId;
-      m_cscId->get_id(IdentifierHash(index), chamberId, &m_moduleContext);
+      m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(index), chamberId, &m_moduleContext);
       if(!offlineElementToOnlineId(chamberId, onlineId).isSuccess()) {
         m_log << MSG::ERROR 
           << "Failed converting chamber identifier to online id during stringId gen. " 
@@ -1742,7 +1577,7 @@ namespace MuonCalib {
     else if(cat == "CHANNEL")
     {
       Identifier channelId;
-      m_cscId->get_id(IdentifierHash(index), channelId, &m_channelContext);
+      m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(index), channelId, &m_channelContext);
       if(!offlineToOnlineId(channelId, onlineId).isSuccess()) {
         m_log << MSG::ERROR
           << "Failed converting chamber identifier to online id during stringId gen. "

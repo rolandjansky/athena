@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -17,7 +17,6 @@
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
-#include "CxxUtils/make_unique.h"
 
 template <class SURFACE>
 SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persObj,MsgStream& ){
@@ -31,7 +30,7 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
     surface= const_cast<SURFACE*>(detSurf); // Needed to fulfill interface...
   } else {
     // Not Det element surface, so need to create surface & fill transform
-    auto transform = CxxUtils::make_unique<Amg::Transform3D>();
+    auto transform = std::make_unique<Amg::Transform3D>();
     EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transform.get() );
     surface=new SURFACE(std::move(transform));
     // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient with vector=[";

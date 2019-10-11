@@ -6,11 +6,22 @@
 atlas_subdir( MuonConfig )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py test/MdtRdoToPrepDataTool_test.py test/MdtIntersectGeometry_test.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 
 if( NOT SIMULATIONBASE )
+   # Mdt tests
+   atlas_add_test( MdtRdoToPrepDataTool_test
+     SCRIPT python -m MuonConfig.MdtRdoToPrepDataTool_test
+     PROPERTIES TIMEOUT 600
+     EXTRA_PATTERNS "-s dead tube" )
+
+   atlas_add_test( MdtIntersectGeometry_test
+     SCRIPT python -m MuonConfig.MdtIntersectGeometry_test
+     PROPERTIES TIMEOUT 600
+     EXTRA_PATTERNS "-s dead tube" )
+
    # Configure unit tests
    # Cache alignment will change depending on whether FRONTIER_SERVER is defined.
    file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest )
@@ -41,6 +52,6 @@ if( NOT SIMULATIONBASE )
                    POST_EXEC_SCRIPT nopost.sh )
                    
    atlas_add_test( flake8
-                   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
-                  POST_EXEC_SCRIPT nopost.sh )
+                   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                   POST_EXEC_SCRIPT nopost.sh )
 endif()

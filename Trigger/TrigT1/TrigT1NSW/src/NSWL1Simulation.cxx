@@ -4,7 +4,6 @@
 
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
 //Event info includes

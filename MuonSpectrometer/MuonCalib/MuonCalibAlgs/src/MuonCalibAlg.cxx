@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibAlgs/MuonCalibAlg.h"
@@ -29,12 +29,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "CscClusterization/ICscStripFitter.h"
-
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 
 
 // calibration 
@@ -75,9 +70,6 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-// Storegate
-#include "StoreGate/StoreGateSvc.h"
-
 #include <algorithm>
 #include <iostream>
 #include "iomanip"
@@ -86,15 +78,11 @@
 namespace MuonCalib { 
 
   MuonCalibAlg::MuonCalibAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator), m_detMgr(NULL), p_StoreGateSvc(0), 
+    AthAlgorithm(name, pSvcLocator), m_detMgr(NULL),
     m_muonCalibTool("MuonCalib::MdtCalibTool/MdtCalibTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
     m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
     m_muonIdCutTool("MuonIdCutTool/MuonIdCutTool"),
-    m_mdtIdHelper(NULL),
-    m_cscIdHelper(NULL),
-    m_rpcIdHelper(NULL),
-    m_tgcIdHelper(NULL),
     m_tileTBID(NULL),
     m_ntupFileOpen(false)
   {
@@ -174,17 +162,7 @@ namespace MuonCalib {
 
     log << MSG::INFO << "================================" << endmsg;
 
-    // Set pointer on StoreGateSvc
-    StatusCode  sc = service("StoreGateSvc", p_StoreGateSvc);
-    if (!sc.isSuccess() || 0 == p_StoreGateSvc) {
-      log << MSG::ERROR
-	  << "MuonCalibAlg::initialize "
-	  << "Could not find StoreGateSvc" << endmsg;
-      return( StatusCode::FAILURE );
-    }
-
-
-    sc = m_stripFitter.retrieve();
+    StatusCode sc = m_stripFitter.retrieve();
     if ( sc.isFailure() ) {
       log << MSG::FATAL <<  "MuonCalibAlg: Unable to retrieve strip fitter" << endmsg;
       return sc;
@@ -211,41 +189,23 @@ namespace MuonCalib {
       log << MSG::INFO << "Retrieved tool " << m_muonIdCutTool << endmsg;
     }    
 
-    // retrieve detector store
-    StoreGateSvc* detStore = 0;
-    sc = service( "DetectorStore", detStore );
-    if (sc.isFailure()) {
-      log <<MSG::FATAL << "Could not get DetectorStore"<<endmsg;
-      return sc;
-    }
-
     // retrieve TileTBID helper 
     // (The MBTS was added to the Test Beam (TB) list.)
-    if(detStore->retrieve(m_tileTBID).isFailure()) {
+    if(detStore()->retrieve(m_tileTBID).isFailure()) {
       log << MSG::INFO
 	  << "Unable to retrieve TileTBID helper from DetectorStore" << endmsg;
     }
     
     // retrieve MuonDetectorManager
     std::string managerName="Muon";
-    sc=detStore->retrieve(m_detMgr);
+    sc=detStore()->retrieve(m_detMgr);
     if (sc.isFailure()) {
       log << MSG::INFO << "Could not find the MuonGeoModel Manager: "
 	  << managerName << " ! " << endmsg;
     } 
   
-    // initialize MuonIdHelpers
-    if (m_detMgr) {
-      m_mdtIdHelper = m_detMgr->mdtIdHelper();
-      m_cscIdHelper = m_detMgr->cscIdHelper();
-      m_rpcIdHelper = m_detMgr->rpcIdHelper();
-      m_tgcIdHelper = m_detMgr->tgcIdHelper();
-    } else {
-      m_mdtIdHelper = 0;
-      m_cscIdHelper = 0;
-      m_rpcIdHelper = 0;
-      m_tgcIdHelper = 0;
-    }
+    // initialize MuonIdHelperTool
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     
     log << MSG::INFO << "Initialization ended     " << endmsg;
@@ -278,14 +238,8 @@ namespace MuonCalib {
 	  }
 
 	log<<MSG::INFO<<"Write metadata"<<endmsg;
-	StoreGateSvc* detStore = 0;
-	StatusCode sc = service( "DetectorStore", detStore );
-	if (sc.isFailure()) {
-		log <<MSG::FATAL << "Could not get DetectorStore"<<endmsg;
-		return sc;
-	}
 	const TagInfo* tagInfo = 0;
-	sc = detStore->retrieve(tagInfo);
+	StatusCode sc = detStore()->retrieve(tagInfo);
 	if (sc.isFailure() || tagInfo==0) {
 		log << MSG::FATAL
 		<< "No TagInfo in DetectorStore"
@@ -340,13 +294,13 @@ namespace MuonCalib {
 
 
     //  retrieve MuonCalibPatternCollection
-    if (!p_StoreGateSvc->contains<MuonCalibPatternCollection>(m_globalPatternLocation)) {
+    if (!evtStore()->contains<MuonCalibPatternCollection>(m_globalPatternLocation)) {
       log << MSG::DEBUG << "MuonCalibPatternCollection not contained in StoreGate at:"  << m_globalPatternLocation << endmsg;
       //std::cout<<"MuonCalibPatternCollection not contained in StoreGate at: "<<m_globalPatternLocation <<std::endl;
       return patternVec;
     }
     const MuonCalibPatternCollection* pats = 0;
-    StatusCode sc = p_StoreGateSvc->retrieve(pats,m_globalPatternLocation);
+    StatusCode sc = evtStore()->retrieve(pats,m_globalPatternLocation);
     if (sc.isFailure()) {
       log << MSG::WARNING << "Could not find MuonCalibPatternCollection at " << m_globalPatternLocation <<endmsg;
     }else{
@@ -374,9 +328,9 @@ namespace MuonCalib {
     bool found = false, filled = false;
     StatusCode sc;
     if(!found){
-      if ( p_StoreGateSvc->contains<TrackRecordCollection>(location) ) found = true ;
+      if ( evtStore()->contains<TrackRecordCollection>(location) ) found = true ;
       if( found ) {
-	sc = p_StoreGateSvc->retrieve(truthCollection,location );
+	sc = evtStore()->retrieve(truthCollection,location );
 	if( truthCollection->size() == 0 ) filled = false ;
 	else filled = true ;
       } else {
@@ -387,9 +341,9 @@ namespace MuonCalib {
 
     if(!found){
       location ="MuonEntryRecord";
-      if ( p_StoreGateSvc->contains<TrackRecordCollection>(location) ) found = true ;
+      if ( evtStore()->contains<TrackRecordCollection>(location) ) found = true ;
       if( found ) {
-	sc = p_StoreGateSvc->retrieve(truthCollection,location );
+	sc = evtStore()->retrieve(truthCollection,location );
 	if( truthCollection->size() == 0 ) filled = false ;
 	else filled = true ;
       } else {
@@ -400,9 +354,9 @@ namespace MuonCalib {
     
     if(!found){
       //      location ="MuonExitLayer";
-      //      if ( p_StoreGateSvc->contains<TrackRecordCollection>(location) ) found = true ;
+      //      if ( evtStore()->contains<TrackRecordCollection>(location) ) found = true ;
       //      if( found ) {
-      //	sc = p_StoreGateSvc->retrieve(truthCollection,location );
+      //	sc = evtStore()->retrieve(truthCollection,location );
       //	if( truthCollection->size() == 0 ) filled = false ;
       //	else filled = true ;
       //     } else {
@@ -413,9 +367,9 @@ namespace MuonCalib {
     
     if(!found){
       //      location ="MuonExitRecord";
-      //      if ( p_StoreGateSvc->contains<TrackRecordCollection>(location) ) found = true ;
+      //      if ( evtStore()->contains<TrackRecordCollection>(location) ) found = true ;
       //      if( found ) {
-      //	sc = p_StoreGateSvc->retrieve(truthCollection,location );
+      //	sc = evtStore()->retrieve(truthCollection,location );
       //	if( truthCollection->size() == 0 ) filled = false ;
       //	else filled = true ;
       //     } else  log << MSG::DEBUG << "location " << location << " discarded" << endmsg;
@@ -423,9 +377,9 @@ namespace MuonCalib {
     
     if(!found){
       //      location ="CaloEntryLayer";
-      //      if ( p_StoreGateSvc->contains<TrackRecordCollection>(location) ) found = true ;
+      //      if ( evtStore()->contains<TrackRecordCollection>(location) ) found = true ;
       //      if( found ) {
-      //	sc = p_StoreGateSvc->retrieve(truthCollection,location );
+      //	sc = evtStore()->retrieve(truthCollection,location );
       //	if( truthCollection->size() == 0 ) filled = false ;
       //	else filled = true ;
       //     } else {
@@ -436,9 +390,9 @@ namespace MuonCalib {
 
     if(!found){
       //      location ="CaloEntryRecord";
-      //      if ( p_StoreGateSvc->contains<TrackRecordCollection>(location) ) found = true ;
+      //      if ( evtStore()->contains<TrackRecordCollection>(location) ) found = true ;
       //      if( found ) {
-      //	sc = p_StoreGateSvc->retrieve(truthCollection,location );
+      //	sc = evtStore()->retrieve(truthCollection,location );
       //	if( truthCollection->size() == 0 ) filled = false ;
       //	else filled = true;
       //     } else {
@@ -465,7 +419,7 @@ namespace MuonCalib {
     if (sc.isFailure() ) {
       //    log << MSG::ERROR << "Could not find TrackRecordCollection at " << location << " trying MuonEntryRecord" << endmsg;
       //       location = "MuonEntryRecord";
-      //       sc = p_StoreGateSvc->retrieve(truthCollection,location );
+      //       sc = evtStore()->retrieve(truthCollection,location );
       //       if (sc.isFailure() ) {
       // 	log << MSG::ERROR << "Could not find TrackRecordCollection at " << location <<endmsg;
       return 0;
@@ -477,8 +431,8 @@ namespace MuonCalib {
     if(!sc.isFailure() && found && filled ){
       const McEventCollection* mcEventCollection = 0;
       std::string MClocation = "TruthEvent";
-      if(p_StoreGateSvc->contains<McEventCollection>(MClocation)) {
-	StatusCode scmc = p_StoreGateSvc->retrieve(mcEventCollection, MClocation);
+      if(evtStore()->contains<McEventCollection>(MClocation)) {
+	StatusCode scmc = evtStore()->retrieve(mcEventCollection, MClocation);
 	if (StatusCode::SUCCESS == scmc ){
 	  log<<MSG::DEBUG << " McEventCollection collection retrieved " <<endmsg;
 	}
@@ -555,8 +509,8 @@ namespace MuonCalib {
       
       const McEventCollection* mcEventCollection = 0;
       std::string MClocation = "TruthEvent";
-      if(p_StoreGateSvc->contains<McEventCollection>(MClocation)) {
-	StatusCode sc = p_StoreGateSvc->retrieve(mcEventCollection, MClocation);
+      if(evtStore()->contains<McEventCollection>(MClocation)) {
+	StatusCode sc = evtStore()->retrieve(mcEventCollection, MClocation);
 
 	if (StatusCode::SUCCESS == sc ) {
 	  log<<MSG::DEBUG << " McEventCollection collection retrieved " <<endmsg;
@@ -607,10 +561,10 @@ namespace MuonCalib {
       // and feed MuonCalibMdtTruthHits into MuonCalibTruhtCollection
       sdoKey= "MDT_SDO";
       bool addDummy = false;
-      if(!p_StoreGateSvc->contains<MuonSimDataCollection>(sdoKey)) {
+      if(!evtStore()->contains<MuonSimDataCollection>(sdoKey)) {
 	addDummy = true;
       }else{
-	sc = p_StoreGateSvc->retrieve(sdoContainer,sdoKey);
+	sc = evtStore()->retrieve(sdoContainer,sdoKey);
 	if (!sc.isSuccess()) {
 	  log << MSG::DEBUG << "No MDT Sdo Container found" << endmsg;
 	  addDummy = true;
@@ -682,10 +636,10 @@ namespace MuonCalib {
       // and feed MuonCalibRpcTruthHits into MuonCalibTruthCollection
       sdoKey= "RPC_SDO";
       bool addDummy = false;
-      if(!p_StoreGateSvc->contains<MuonSimDataCollection>(sdoKey)) {
+      if(!evtStore()->contains<MuonSimDataCollection>(sdoKey)) {
 	addDummy = true;
       }else{
-	sc = p_StoreGateSvc->retrieve(sdoContainer,sdoKey);
+	sc = evtStore()->retrieve(sdoContainer,sdoKey);
 	if (!sc.isSuccess()) {
 	  addDummy = true;
 	}
@@ -737,10 +691,10 @@ namespace MuonCalib {
       // and feed MuonCalibTgcTruthHits into MuonCalibTruthCollection
       sdoKey= "TGC_SDO";
       bool addDummy = false;
-      if(!p_StoreGateSvc->contains<MuonSimDataCollection>(sdoKey)) {
+      if(!evtStore()->contains<MuonSimDataCollection>(sdoKey)) {
 	addDummy = true;
       }else{
-	sc = p_StoreGateSvc->retrieve(sdoContainer,sdoKey);
+	sc = evtStore()->retrieve(sdoContainer,sdoKey);
 	if (!sc.isSuccess()) {
 	  log << MSG::DEBUG << "No TGC Sdo Container found" << endmsg;
 	  addDummy = true;
@@ -790,9 +744,9 @@ namespace MuonCalib {
       //Retrieving CSC truth hits from CSC_SDO container and store them in MuonCalibCscTruthHits
       // and feed MuonCalibCscTruthHits into MuonCalibTruthCollection
       sdoKey= "CSC_SDO";
-      if (p_StoreGateSvc->contains<MuonSimDataCollection>(sdoKey))
+      if (evtStore()->contains<MuonSimDataCollection>(sdoKey))
 	{
-	  sc = p_StoreGateSvc->retrieve(sdoContainer,sdoKey);
+	  sc = evtStore()->retrieve(sdoContainer,sdoKey);
 	  if (sc.isSuccess()) {
 	    log << MSG::DEBUG << "CSC Sdo Container found" << endmsg;
 	    MuonSimDataCollection::const_iterator csc_it = sdoContainer->begin();
@@ -826,10 +780,10 @@ namespace MuonCalib {
 
 	  const CscSimDataCollection* cscSdoContainer;
 	  bool addDummy = false;
-	  if(!p_StoreGateSvc->contains<CscSimDataCollection>(sdoKey)) {
+	  if(!evtStore()->contains<CscSimDataCollection>(sdoKey)) {
 	    addDummy = true;
 	  }else{
-	    sc = p_StoreGateSvc->retrieve(cscSdoContainer,sdoKey);
+	    sc = evtStore()->retrieve(cscSdoContainer,sdoKey);
 	    if (!sc.isSuccess()) {
 	      addDummy = true;
 	    }
@@ -863,7 +817,7 @@ namespace MuonCalib {
 		  const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(id);
 		  if( !detEl ){
 		    log << MSG::WARNING << "Found CSC Identifier which seems to have no readout element " 
-			<< m_mdtIdHelper->print_to_string(id) << endmsg;
+			<< m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << endmsg;
 		    continue;
 		  }
 		  MuonFixedId mfi = m_idToFixedIdTool->idToFixedId(id);
@@ -899,7 +853,7 @@ namespace MuonCalib {
       log<<MSG::VERBOSE<<"retrieveEventInfo() called"<<endmsg;
 
       MuonCalibEventInfo MCeventInfo;
-      StatusCode sc = p_StoreGateSvc->retrieve(eventInfo);
+      StatusCode sc = evtStore()->retrieve(eventInfo);
       if ( sc.isFailure() ) {
 	log << MSG::ERROR << "Could not find eventInfo " << endmsg;
 	return MCeventInfo;
@@ -918,7 +872,7 @@ namespace MuonCalib {
       MCeventInfo.setTag( eventTag );
       if ( m_addTriggerTag ) {
 	const DataHandle< CTP_RDO > ctpRDO;
-	if ( ! p_StoreGateSvc->contains(ctpRDO, "CTP_RDO") )
+	if ( ! evtStore()->contains(ctpRDO, "CTP_RDO") )
                 {
 		if(!m_trigger_waning_printed)
 		{
@@ -932,7 +886,7 @@ namespace MuonCalib {
 		log << "No trigger info, not added to EventTag" << endmsg;
 		return MCeventInfo;
 		}
-	if ( p_StoreGateSvc->retrieve( ctpRDO, "CTP_RDO" ).isFailure() ) {
+	if ( evtStore()->retrieve( ctpRDO, "CTP_RDO" ).isFailure() ) {
 	if(!m_trigger_waning_printed)
 		{
 		log<< MSG::INFO;
@@ -982,9 +936,9 @@ namespace MuonCalib {
     int countA = 0;
     int countC = 0;
     
-    if(p_StoreGateSvc->contains(tileCellCnt, "MBTSContainer"))
+    if(evtStore()->contains(tileCellCnt, "MBTSContainer"))
       {
-      StatusCode sc=p_StoreGateSvc->retrieve(tileCellCnt, "MBTSContainer");
+      StatusCode sc=evtStore()->retrieve(tileCellCnt, "MBTSContainer");
       if (!sc.isFailure()) {
       
 	uint32_t ibit, bit_pos = 0;
@@ -1054,9 +1008,9 @@ namespace MuonCalib {
     float LArECtimeDiff=-999.;
 //    LArCollisionTime* tps;
     const DataHandle< LArCollisionTime > tps;
-    if ( p_StoreGateSvc->contains(tps, "LArCollisionTime") )
+    if ( evtStore()->contains(tps, "LArCollisionTime") )
     	{
-	StatusCode sc = p_StoreGateSvc->retrieve(tps,"LArCollisionTime");
+	StatusCode sc = evtStore()->retrieve(tps,"LArCollisionTime");
 	if (!sc.isFailure()) {
 	const       int nMin=2;
 	if (tps->ncellA() > nMin && tps->ncellC() > nMin)       LArECtimeDiff =   tps->timeA()-tps->timeC();
@@ -1156,9 +1110,9 @@ namespace MuonCalib {
       
       std::vector<const Muon::MdtPrepDataCollection*> mdtCols;
       const Muon::MdtPrepDataContainer* mdtPrds = 0;      
-      if( !p_StoreGateSvc->contains<Muon::MdtPrepDataContainer>("MDT_DriftCircles")){
+      if( !evtStore()->contains<Muon::MdtPrepDataContainer>("MDT_DriftCircles")){
 	log << MSG::DEBUG << "MdtPrepDataContainer MDT_DriftCircles not contained in SG" << endmsg;
-      }else if( p_StoreGateSvc->retrieve(mdtPrds,"MDT_DriftCircles").isFailure() ){
+      }else if( evtStore()->retrieve(mdtPrds,"MDT_DriftCircles").isFailure() ){
 	log << MSG::DEBUG << "Cannot retrieve MdtPrepDataContainer MDT_DriftCircles" << endmsg;
       }else{
 	
@@ -1233,9 +1187,9 @@ namespace MuonCalib {
       
       std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
       const Muon::RpcPrepDataContainer* rpcPrds = 0;      
-      if( !p_StoreGateSvc->contains<Muon::RpcPrepDataContainer>("RPC_Measurements") ){
+      if( !evtStore()->contains<Muon::RpcPrepDataContainer>("RPC_Measurements") ){
 	log << MSG::DEBUG << "RpcPrepDataContainer RPC_Measurements not contained in SG" << endmsg;
-      }else if(p_StoreGateSvc->retrieve(rpcPrds,"RPC_Measurements").isFailure()) {
+      }else if(evtStore()->retrieve(rpcPrds,"RPC_Measurements").isFailure()) {
 	log << MSG::DEBUG << "Cannot retrieve RpcPrepDataContainer RPC_Measurements" << endmsg;
       }else{
 	
@@ -1275,9 +1229,9 @@ namespace MuonCalib {
       
       std::vector<const Muon::CscStripPrepDataCollection*> cscCols;
       const Muon::CscStripPrepDataContainer* cscPrds = 0;      
-      if( !p_StoreGateSvc->contains<Muon::CscStripPrepDataContainer>("CSC_Measurements") ){
+      if( !evtStore()->contains<Muon::CscStripPrepDataContainer>("CSC_Measurements") ){
 	log << MSG::DEBUG << "CscPrepDataContainer CSC_Measurements not contained in SG" << endmsg;
-      }else if(p_StoreGateSvc->retrieve(cscPrds,"CSC_Measurements").isFailure()) {
+      }else if(evtStore()->retrieve(cscPrds,"CSC_Measurements").isFailure()) {
 	log << MSG::DEBUG << "Cannot retrieve CscPrepDataContainer CSC_Measurements" << endmsg;
       }else{
 	
@@ -1307,8 +1261,8 @@ namespace MuonCalib {
         // time of first sample is not very useful. we need fitted time
         // invoke fitter first and then set the time
 	    //rawCscHit->setT( (*csc_it)->timeOfFirstSample() );
-	    int measuresPhi    = m_cscIdHelper->measuresPhi((*csc_it)->identify());
-	    int chamberLayer   = m_cscIdHelper->chamberLayer((*csc_it)->identify());
+	    int measuresPhi    = m_muonIdHelperTool->cscIdHelper().measuresPhi((*csc_it)->identify());
+	    int chamberLayer   = m_muonIdHelperTool->cscIdHelper().chamberLayer((*csc_it)->identify());
 	    float stripWidth   = (*csc_it)->detectorElement()->cathodeReadoutPitch( chamberLayer, measuresPhi );
 	    rawCscHit->setWidth( stripWidth );
         // invoke the strip fitter to fit the time samples (which is a vector of 4 elements)
@@ -1343,9 +1297,9 @@ namespace MuonCalib {
 	location << "TGC_Measurements" << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
 		 << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");	
 	
-	if( !p_StoreGateSvc->contains<Muon::TgcPrepDataContainer>(location.str()) ){
+	if( !evtStore()->contains<Muon::TgcPrepDataContainer>(location.str()) ){
 	  log << MSG::DEBUG << "Cannot retrieve TgcPrepDataContainer " << location.str() << endmsg;
-	}else if(p_StoreGateSvc->retrieve(tgcPrds[ibc],location.str()).isFailure()) {
+	}else if(evtStore()->retrieve(tgcPrds[ibc],location.str()).isFailure()) {
 	  log << MSG::DEBUG << "Cannot retrieve TgcPrepDataContainer "  << location.str() << endmsg;
 	}else{
 	  
@@ -1369,9 +1323,9 @@ namespace MuonCalib {
 	    for( ; tgc_it!=tgc_it_end; ++ tgc_it){
 	      MuonCalibRawTgcHit* rawTgcHit = new MuonCalibRawTgcHit();      
 	      MuonFixedId fID = m_idToFixedIdTool->idToFixedId( (*tgc_it)->identify() ) ; 
-	      bool measuresPhi = (bool) m_tgcIdHelper->isStrip((*tgc_it)->identify());
-	      int gasGap = m_tgcIdHelper->gasGap((*tgc_it)->identify());
-	      int channel = m_tgcIdHelper->channel((*tgc_it)->identify());
+	      bool measuresPhi = (bool) m_muonIdHelperTool->tgcIdHelper().isStrip((*tgc_it)->identify());
+	      int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap((*tgc_it)->identify());
+	      int channel = m_muonIdHelperTool->tgcIdHelper().channel((*tgc_it)->identify());
 	      
 	      const MuonGM::TgcReadoutElement* detEl = (*tgc_it)->detectorElement();
 	      double width       = -999.;
@@ -1392,9 +1346,9 @@ namespace MuonCalib {
 	      
 	      rawTgcHit->setId( fID );
 	      rawTgcHit->setGlobalPosition( (*tgc_it)->globalPosition() );
-	      rawTgcHit->setStation( m_tgcIdHelper->stationName((*tgc_it)->identify()) );
-	      rawTgcHit->setEta( m_tgcIdHelper->stationEta((*tgc_it)->identify()) );
-	      rawTgcHit->setPhi( m_tgcIdHelper->stationPhi((*tgc_it)->identify()) );
+	      rawTgcHit->setStation( m_muonIdHelperTool->tgcIdHelper().stationName((*tgc_it)->identify()) );
+	      rawTgcHit->setEta( m_muonIdHelperTool->tgcIdHelper().stationEta((*tgc_it)->identify()) );
+	      rawTgcHit->setPhi( m_muonIdHelperTool->tgcIdHelper().stationPhi((*tgc_it)->identify()) );
 	      rawTgcHit->setGasGap( gasGap );
 	      rawTgcHit->setIsStrip( static_cast<int>(measuresPhi) ); 
 	      rawTgcHit->setChannel( channel );
@@ -1428,9 +1382,9 @@ namespace MuonCalib {
 	std::ostringstream location;
 	location << "TrigT1CoinDataCollection" << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
 		 << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");	
-	if( !p_StoreGateSvc->contains<Muon::TgcCoinDataContainer>(location.str()) ){
+	if( !evtStore()->contains<Muon::TgcCoinDataContainer>(location.str()) ){
 	  log << MSG::DEBUG << "TgcCoinDataContainer not contained in SG at" << location.str() << endmsg;
-	}else if(p_StoreGateSvc->retrieve(tgcCoinPrds[ibc],location.str()).isFailure()) {
+	}else if(evtStore()->retrieve(tgcCoinPrds[ibc],location.str()).isFailure()) {
 	  log << MSG::DEBUG << "Cannot retrieve TgcCoinDataContainer" << location.str() << endmsg;
 	}else{
 	  
@@ -1475,7 +1429,7 @@ namespace MuonCalib {
 		rawTgcCoin->setGlobalPositionIn((*tgcCoin_it)->globalposIn());
 		rawTgcCoin->setGlobalPositionOut((*tgcCoin_it)->globalposOut());
 		rawTgcCoin->setType(0);
-		rawTgcCoin->setEta(m_tgcIdHelper->stationEta((*tgcCoin_it)->identify()));
+		rawTgcCoin->setEta(m_muonIdHelperTool->tgcIdHelper().stationEta((*tgcCoin_it)->identify()));
 		rawTgcCoin->setPhi((*tgcCoin_it)->phi());
 		rawTgcCoin->setSector(sector);
 		rawTgcCoin->setIsForward(static_cast<int>((*tgcCoin_it)->isForward()));
@@ -1496,7 +1450,7 @@ namespace MuonCalib {
 		rawTgcCoin->setGlobalPositionIn((*tgcCoin_it)->globalposIn());
 		rawTgcCoin->setGlobalPositionOut((*tgcCoin_it)->globalposOut());
 		rawTgcCoin->setType(1);
-		rawTgcCoin->setEta(m_tgcIdHelper->stationEta((*tgcCoin_it)->identify()));
+		rawTgcCoin->setEta(m_muonIdHelperTool->tgcIdHelper().stationEta((*tgcCoin_it)->identify()));
 		rawTgcCoin->setPhi((*tgcCoin_it)->phi());
 		rawTgcCoin->setSector(sector);
 		rawTgcCoin->setIsForward(static_cast<int>((*tgcCoin_it)->isForward()));
@@ -1518,7 +1472,7 @@ namespace MuonCalib {
 		rawTgcCoin->setGlobalPositionIn(tmp);
 		rawTgcCoin->setGlobalPositionOut((*tgcCoin_it)->globalposOut());
 		rawTgcCoin->setType(2);
-		rawTgcCoin->setEta(m_tgcIdHelper->stationEta((*tgcCoin_it)->identify()));
+		rawTgcCoin->setEta(m_muonIdHelperTool->tgcIdHelper().stationEta((*tgcCoin_it)->identify()));
 		rawTgcCoin->setPhi((*tgcCoin_it)->phi());
 		rawTgcCoin->setSector(sector);
 		rawTgcCoin->setIsForward(static_cast<int>((*tgcCoin_it)->isForward()));
@@ -1547,9 +1501,9 @@ namespace MuonCalib {
     
     if( m_doRPCCoin ){
       const Muon::RpcCoinDataContainer* rpcCoinContainer = 0;
-      if( !p_StoreGateSvc->contains<Muon::RpcCoinDataContainer>("RPC_triggerHits") ){
+      if( !evtStore()->contains<Muon::RpcCoinDataContainer>("RPC_triggerHits") ){
 	log << MSG::DEBUG << "RpcCoinDataContainer not contained in SG" << endmsg;
-      }else if(p_StoreGateSvc->retrieve(rpcCoinContainer,"RPC_triggerHits").isFailure()) {
+      }else if(evtStore()->retrieve(rpcCoinContainer,"RPC_triggerHits").isFailure()) {
 	log << MSG::DEBUG << "Cannot retrieve RpcCoinDataContainer" << endmsg;
       }else{
 	
@@ -1601,9 +1555,9 @@ namespace MuonCalib {
     const RpcPadContainer* rpcRDO   = 0;  
     const RpcPad*          rdoColl  = 0; 
     MuonCalibRawTriggerHitCollection* rawTriggerHits = new MuonCalibRawTriggerHitCollection();
-    if( !p_StoreGateSvc->contains<RpcPadContainer>("RPCPAD") ){
+    if( !evtStore()->contains<RpcPadContainer>("RPCPAD") ){
       log << MSG::DEBUG << "RpcPadContainer not contained in SG" << endmsg;
-    }else if(p_StoreGateSvc->retrieve(rpcRDO,"RPCPAD").isFailure()) {
+    }else if(evtStore()->retrieve(rpcRDO,"RPCPAD").isFailure()) {
       log << MSG::DEBUG << "Cannot retrieve RpcPadContainer" << endmsg;
     }else{
       log << MSG::VERBOSE << "Retrieved RawRpcTriggerDataContainer " << rpcRDO->numberOfCollections() << endmsg;
@@ -1681,9 +1635,9 @@ namespace MuonCalib {
     
     if( m_doRpcSectorLogic ){
       const RpcSectorLogicContainer* slLogic = 0;
-      if( !p_StoreGateSvc->contains<RpcSectorLogicContainer>("") ){
+      if( !evtStore()->contains<RpcSectorLogicContainer>("") ){
 	log << MSG::DEBUG << " RpcSectorLogicContainer not contained in SG" << endmsg;
-      }else if(p_StoreGateSvc->retrieve(slLogic).isFailure()) {
+      }else if(evtStore()->retrieve(slLogic).isFailure()) {
 	log << MSG::DEBUG << "Cannot retrieve RpcSectorLogicContainer" << endmsg;
       }
       event->setRpcSectorLogicContainer(slLogic);
@@ -1730,8 +1684,8 @@ namespace MuonCalib {
     rawRpcHit->setT( prd.time() );
     // get detector element
     const MuonGM::RpcReadoutElement* detEl = prd.detectorElement();
-    rawRpcHit->setWidth( detEl->StripWidth( m_rpcIdHelper->measuresPhi(prd.identify()) ) );
-    rawRpcHit->setLength( detEl->StripLength(m_rpcIdHelper->measuresPhi(prd.identify())));
+    rawRpcHit->setWidth( detEl->StripWidth( m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd.identify()) ) );
+    rawRpcHit->setLength( detEl->StripLength(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd.identify())));
     return rawRpcHit;
   }
   

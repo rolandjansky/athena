@@ -23,7 +23,6 @@
 **/
 
 #include "AthenaBaseComps/AthAlgorithm.h" 
-#include "GaudiKernel/IIncidentListener.h" 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArCalibLineMapping.h"

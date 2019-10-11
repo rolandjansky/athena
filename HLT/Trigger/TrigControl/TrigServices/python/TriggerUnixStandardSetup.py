@@ -106,7 +106,8 @@ def setupCommonServices():
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
     # Online services for ByteStream input/output
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigByteStreamInputSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc
     svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
     svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
     svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
@@ -147,9 +148,11 @@ def setupCommonServices():
 def setupCommonServicesEnd():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr    
     from AthenaCommon.Logging import logging
+    from AthenaCommon.AlgSequence import AlgSequence
 
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServicesEnd:' )
-    
+    topSequence = AlgSequence()
+
     # --- create the ByteStreamCnvSvc after the Detector Description otherwise
     # --- the initialization of converters fails
     #from AthenaCommon.AppMgr import theApp
@@ -159,13 +162,17 @@ def setupCommonServicesEnd():
     if _Conf.useOnlineTHistSvc:
         svcMgr.THistSvc.Output = []
         if len(svcMgr.THistSvc.Input)>0:
-            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.' % svcMgr.THistSvc.Input)
+            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.', svcMgr.THistSvc.Input)
             svcMgr.THistSvc.Input = []
 
     # For offline running make sure at least the EXPERT stream is defined
     else:
         if 1 not in [ o.count('EXPERT') for o in svcMgr.THistSvc.Output ]:
             svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
+
+    # Basic operational monitoring
+    from TrigOnlineMonitor.TrigOnlineMonitorConfig import TrigOpMonitor
+    topSequence += TrigOpMonitor()
 
     # Set default properties for some important services after all user job options
     log.info('Configure core services for online runnig')

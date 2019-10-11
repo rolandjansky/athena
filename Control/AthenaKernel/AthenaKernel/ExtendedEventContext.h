@@ -7,9 +7,13 @@
 
 #include "AthenaKernel/IProxyDict.h"
 #include "GaudiKernel/EventIDBase.h"
+#include "GaudiKernel/EventContext.h"
 #include "CxxUtils/checker_macros.h"
 
 class TrigRoiDescriptor; //!< Forward declaration
+namespace SG {
+class ThinningCache;
+}
 
 namespace Atlas {
 
@@ -43,12 +47,53 @@ namespace Atlas {
      **/
     const TrigRoiDescriptor* roiDescriptor() const { return m_roi; }
 
+
+    /**
+     * @brief Thread-local thinning cache.
+     *        Set when we are doing output with thinning' the cache
+     *        provides information about what was thinned.
+     *        This is to allow converters to get thinning information.
+     *        Unfortuneately, we don't have a better way of doing this
+     *        without changing Gaudi interfaces.
+     */
+    void setThinningCache (const SG::ThinningCache* cache) { m_thinningCache = cache; }
+    const SG::ThinningCache* thinningCache() const { return m_thinningCache; }
+
   private:
     IProxyDict* m_proxy {nullptr};
     EventIDBase::number_type m_conditionsRun {EventIDBase::UNDEFNUM};
     const TrigRoiDescriptor* m_roi {nullptr};
+    const SG::ThinningCache* m_thinningCache {nullptr};
   };
-}
+
+
+  //**********************************************************************
+  // Out-of-line routines for setting and getting the event context.
+  // Under some circumstances, the dynamic loader can bind the same
+  // symbol to different addresses in different libraries.  Among
+  // other effects, this can cause std::any to malfunction; std::any
+  // is used inside EventContext to hold the extended context.
+  // To try to avoid this, we provide out-of-line functions
+  // to manipulate the extended context.
+
+  /**
+   * @brief Test whether a context object has an extended context installed.
+   */
+  bool hasExtendedEventContext (const EventContext& ctx);
+
+
+  /**
+   * @brief Retrieve an extended context from a context object.
+   */
+  const ExtendedEventContext& getExtendedEventContext (const EventContext& ctx);
+
+
+  /**
+   * @brief Move an extended context into a context object.
+   */
+  void setExtendedEventContext (EventContext& ctx,
+                                ExtendedEventContext&& ectx);
+} // namespace Atlas
 
 #endif
 

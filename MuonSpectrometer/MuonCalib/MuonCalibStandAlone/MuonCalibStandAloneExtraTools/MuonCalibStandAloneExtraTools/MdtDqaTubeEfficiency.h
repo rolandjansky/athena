@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -47,8 +47,9 @@ class TNtuple;
 class TH1F;
 class TH1I;
 
-class StoreGateSvc; 
-class MdtIdHelper;
+namespace Muon {
+  class MuonIdHelperTool;
+}
 
 namespace MuonGM{
   class MuonDetectorManager;
@@ -77,7 +78,7 @@ class MdtDqaTubeEfficiency {
   // Methods //
 	
   /** tool initialize */
-  StatusCode initialize(const MdtIdHelper*, const MuonGM::MuonDetectorManager*, const MuonCalib::IIdToFixedIdTool *,
+  StatusCode initialize(const Muon::MuonIdHelperTool*, const MuonGM::MuonDetectorManager*, const MuonCalib::IIdToFixedIdTool *,
 			RegionSelectionSvc *, MdtCalibInputSvc *,  HistogramManager *);
   
   /** tool finalize */
@@ -106,7 +107,7 @@ class MdtDqaTubeEfficiency {
   } ;
 
  private:
-  const MdtIdHelper *m_mdtIdHelper;
+  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
   const MuonGM::MuonDetectorManager *m_detMgr;
   const MuonCalib::IIdToFixedIdTool *m_id_tool;
   // pointer to region selection service

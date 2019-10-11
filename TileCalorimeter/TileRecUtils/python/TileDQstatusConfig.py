@@ -14,14 +14,15 @@ def TileDQstatusToolCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
-    simulateTrips = kwargs.get('SimulateTrips', False)
+    kwargs.setdefault('SimulateTrips', False)
 
-    from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
-    badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
+    if 'TileBadChanTool' not in kwargs:
+        from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
+        badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
+        kwargs['TileBadChanTool'] = badChanTool
 
     from TileRecUtils.TileRecUtilsConf import TileDQstatusTool
-    acc.setPrivateTools( TileDQstatusTool(SimulateTrips = simulateTrips, 
-                                          TileBadChanTool = badChanTool) )
+    acc.setPrivateTools( TileDQstatusTool(**kwargs) )
 
     return acc
 
@@ -42,9 +43,10 @@ def TileDQstatusAlgCfg(flags, **kwargs):
 
 
     acc = ComponentAccumulator()
+    kwargs.setdefault('TileDQstatus', 'TileDQstatus')
 
-    tileDQstatus = kwargs.get('TileDQstatus', 'TileDQstatus')
-    name = tileDQstatus + 'Alg'
+    name = kwargs['TileDQstatus'] + 'Alg'
+    kwargs.setdefault('name', name)
 
     if not (flags.Input.isMC or flags.Overlay.DataOverlay):
         if flags.Tile.RunType == 'PHY':
@@ -58,26 +60,22 @@ def TileDQstatusAlgCfg(flags, **kwargs):
             digitsContainer = ""
 
         rawChannelContainer = 'TileRawChannelCnt'
+
     else:
         beamElemContainer = ""
         digitsContainer = ""
         rawChannelContainer = ""
 
-    tileDigitsContainer = kwargs.get('TileDigitsContainer', digitsContainer)
-    tileRawChannelContainer = kwargs.get('TileRawChannelContainer', rawChannelContainer)
-    tileBeamElemContainer = kwargs.get('TileBeamElemContainer', beamElemContainer)
+    kwargs.setdefault('TileBeamElemContainer', beamElemContainer)
+    kwargs.setdefault('TileDigitsContainer', digitsContainer)
+    kwargs.setdefault('TileRawChannelContainer', rawChannelContainer)
 
-    tileDQstatusTool = acc.popToolsAndMerge( TileDQstatusToolCfg(flags) )
+    if 'TileDQstatusTool' not in kwargs:
+        tileDQstatusTool = acc.popToolsAndMerge( TileDQstatusToolCfg(flags) )
+        kwargs['TileDQstatusTool'] = tileDQstatusTool
 
     from TileRecUtils.TileRecUtilsConf import TileDQstatusAlg
-    dqStatusAlg = TileDQstatusAlg (name,
-                                   TileRawChannelContainer = tileRawChannelContainer,
-                                   TileDigitsContainer = tileDigitsContainer,
-                                   TileBeamElemContainer = tileBeamElemContainer,
-                                   TileDQstatus = tileDQstatus,
-                                   TileDQstatusTool = tileDQstatusTool)
-
-    acc.addEventAlgo(dqStatusAlg, primary = True)
+    acc.addEventAlgo(TileDQstatusAlg(**kwargs), primary = True)
 
     return acc
 

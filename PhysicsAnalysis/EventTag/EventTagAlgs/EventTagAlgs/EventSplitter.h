@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSPLITTERALGS_EVENTSPLITTER_H
@@ -11,7 +11,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 
-class StoreGateSvc;
 class TagAthenaAttributeList;
 
 class EventSplitter : public AthAlgorithm, public TagBuilderBase

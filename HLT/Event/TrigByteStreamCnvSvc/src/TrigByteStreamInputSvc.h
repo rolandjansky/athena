@@ -9,6 +9,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaKernel/SlotSpecificObj.h"
+#include "AthenaMonitoring/Monitored.h"
 #include <memory.h>
 
 // Forward declarations
@@ -40,12 +41,14 @@ public:
 
 private:
   // ------------------------- Service handles ---------------------------------
-  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
-  ServiceHandle<StoreGateSvc> m_evtStore;
+  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc {this, "ROBDataProvider", "ROBDataProviderSvc"};
+  ServiceHandle<StoreGateSvc> m_evtStore {this, "EventStore", "StoreGateSvc"};
+  ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "" , "Monitoring tool"};
+
 
   // ------------------------- Private data members ----------------------------
   struct EventCache {
-    ~EventCache();
+    ~EventCache() = default;
     void releaseEvent();
     std::unique_ptr<RawEvent> fullEventFragment {nullptr}; //!< Current event fragment
     std::unique_ptr<uint32_t[]> rawData {nullptr}; //!< Underlying data structure

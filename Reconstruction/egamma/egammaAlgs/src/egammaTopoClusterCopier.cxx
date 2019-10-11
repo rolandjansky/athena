@@ -6,7 +6,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "xAODCore/ShallowCopy.h"
-#include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include <stdexcept>
@@ -53,7 +52,6 @@ StatusCode egammaTopoClusterCopier::finalize() {
   return StatusCode::SUCCESS;
 }
 
-// =========================================================================
 StatusCode egammaTopoClusterCopier::execute(const EventContext& ctx) const {
 
   SG::ReadHandle<xAOD::CaloClusterContainer> inputTopoclusters(m_inputTopoCollection, ctx);
@@ -97,8 +95,6 @@ StatusCode egammaTopoClusterCopier::execute(const EventContext& ctx) const {
       continue;
     }
     ++buff_PassPreSelection;
-    //Calculate Kine for the cluster 
-    CaloClusterKineHelper::calculateKine(clus,true,true);
     float emfrac= (clus->energyBE(0) + clus->energyBE(1) +clus->energyBE(2) +clus->energyBE(3))/clusterE;
     acc(*clus)=emfrac; 
     if( emfrac > m_EMFracCut && 

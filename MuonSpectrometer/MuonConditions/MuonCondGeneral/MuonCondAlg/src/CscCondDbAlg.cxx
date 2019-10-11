@@ -3,10 +3,11 @@
 */
 
 #include "MuonCondAlg/CscCondDbAlg.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 CscCondDbAlg::CscCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-    AthAlgorithm(name, pSvcLocator),
+    AthReentrantAlgorithm(name, pSvcLocator),
     m_condSvc("CondSvc", name),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_defaultDatabaseReadVersion("02-00")
@@ -45,7 +46,7 @@ CscCondDbAlg::initialize(){
 
 // execute
 StatusCode 
-CscCondDbAlg::execute(){
+CscCondDbAlg::execute(const EventContext& ctx) const {
 
     ATH_MSG_DEBUG( "execute " << name() );   
 
@@ -55,7 +56,7 @@ CscCondDbAlg::execute(){
 	}
  
     // launching Write Cond Handle
-    SG::WriteCondHandle<CscCondDbData> writeHandle{m_writeKey};
+    SG::WriteCondHandle<CscCondDbData> writeHandle{m_writeKey, ctx};
     if (writeHandle.isValid()) {
         ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
         	  << " In theory this should not be called, but may happen"
@@ -63,22 +64,16 @@ CscCondDbAlg::execute(){
         return StatusCode::SUCCESS; 
     }
     std::unique_ptr<CscCondDbData> writeCdo{std::make_unique<CscCondDbData>()};
-    EventIDRange rangeW;
-    StatusCode sc  = StatusCode::SUCCESS;
 
-    // retrieving data
+    //Start with an infinite range and narrow it down as needed
+    EventIDRange rangeW=IOVInfiniteRange::infiniteMixed();
+    // data only
     if(m_isData) {
-        //if(loadDataHv  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; // keep for future development
-        if(loadDataStat(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+        //ATH_CHECK(loadDataHv(rangeW, writeCdo.get(), ctx)); // keep for future development
     }
-    else {
-        if(loadDataStat(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
-    }
+    // data and MC
+    ATH_CHECK(loadDataStat(rangeW, writeCdo.get(), ctx));
 
-    if(sc.isFailure()){
-        ATH_MSG_WARNING("Could not read data from the DB");
-        return StatusCode::FAILURE;
-    }
 
     if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
       ATH_MSG_FATAL("Could not record CscCondDbData " << writeHandle.key() 
@@ -94,22 +89,26 @@ CscCondDbAlg::execute(){
 
 // loadDataHv
 StatusCode
-CscCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::loadDataHv(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
   
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_hv};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_hv, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
   
-    if ( !readHandle.range(rangeW) ) {
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
+
+    // intersect validity range of thsi obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
 	std::map<Identifier, int> layerMap;
@@ -181,22 +180,26 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& 
 
 // loadDataStat
 StatusCode
-CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::loadDataStat(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
   
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_stat};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_stat, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
        return StatusCode::FAILURE; 
     } 
   
-    if ( !readHandle.range(rangeW) ) {
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
        ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
+
+    // intersect validity range of thsi obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
  
     CondAttrListCollection::const_iterator itr;
 
@@ -253,7 +256,7 @@ CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>
 
 // cacheVersion1
 StatusCode 
-CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::cacheVersion1(std::string data, CscCondDbData* writeCdo) const {
 
 	// ATTENTION: careful, this is untested yet!
 
@@ -315,7 +318,7 @@ CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& wr
 
 // cacheVersion2
 StatusCode 
-CscCondDbAlg::cacheVersion2(std::string data, std::unique_ptr<CscCondDbData>& writeCdo) {
+CscCondDbAlg::cacheVersion2(std::string data, CscCondDbData* writeCdo) const {
 
 	std::istringstream ss(data);
     std::string valueStr;

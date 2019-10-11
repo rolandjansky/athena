@@ -6,6 +6,7 @@
 #include "TrackScoringTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/TrackCollection.h"
+#include "AthContainers/ConstDataVector.h"
 #include "GaudiKernel/MsgStream.h"
 #include <map>
 #include <ext/functional>
@@ -80,17 +81,25 @@ StatusCode Trk::TrackSelectionProcessorTool::finalize()
 /** Do actual processing of event. Takes a track container, 
     and then returns the tracks which have been selected*/
 
-TrackCollection*  Trk::TrackSelectionProcessorTool::process(const TrackCollection* tracks)
+TrackCollection*  Trk::TrackSelectionProcessorTool::process(const TrackCollection* tracksCol )
 {
+  
+  //TODO: make sure the ownership; delete origin tracks from map?
+  std::vector<const Track*> tracks;
+  tracks.reserve(tracksCol->size());
+  for(auto e: *tracksCol){
+    tracks.push_back(e);
+  }
+
   using namespace std;
 
-  ATH_MSG_DEBUG ("Processing "<<tracks->size()<<" tracks");
+  ATH_MSG_DEBUG ("Processing "<<tracks.size()<<" tracks");
     
   // clear all caches etc.
   reset();
   
   //put tracks into maps etc
-  addNewTracks(tracks);
+  addNewTracks(&tracks);
  
   // going to do simple algorithm for now:
   // - take track with highest score
@@ -104,7 +113,7 @@ TrackCollection*  Trk::TrackSelectionProcessorTool::process(const TrackCollectio
 // memory defragmantation fix. Cleaning before returning the result 
   m_prdSigSet.clear(); 
   m_trackScoreTrackMap.clear(); 
-   
+  
   return m_finalTracks;
 }
 
@@ -120,19 +129,19 @@ void Trk::TrackSelectionProcessorTool::reset()
   m_selectionTool->reset();
 
   //final copy - ownership is passed out of algorithm
-  m_finalTracks = new TrackCollection(SG::VIEW_ELEMENTS);
+  m_finalTracks = new TrackCollection(SG::VIEW_ELEMENTS); //TODO, old or new
 
   return;
 }
 
 //==================================================================================================
-void Trk::TrackSelectionProcessorTool::addNewTracks(const TrackCollection* tracks)
+void Trk::TrackSelectionProcessorTool::addNewTracks(std::vector<const Track*>* tracks)
 {
   using namespace std;
   ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks->size());
  
-  TrackCollection::const_iterator trackIt    = tracks->begin();
-  TrackCollection::const_iterator trackItEnd = tracks->end();
+  std::vector<const Track*>::const_iterator trackIt    = tracks->begin();
+  std::vector<const Track*>::const_iterator trackItEnd = tracks->end();
  
   TrackScore itrack=0;
   for ( ; trackIt != trackItEnd ; ++trackIt)   {
@@ -252,5 +261,3 @@ void Trk::TrackSelectionProcessorTool::dumpTracks( const TrackCollection& tracks
   ATH_MSG_DEBUG ("Total event score : "<<totalScore);
   return;
 }
-
-

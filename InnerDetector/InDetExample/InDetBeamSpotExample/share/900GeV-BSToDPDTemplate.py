@@ -185,11 +185,9 @@ InDetFlags.doPrintConfigurables = jobConfig['doPrintIndetConfig']
 include("InDetRecExample/InDetRec_all.py")
 
 if doWriteESD:
-    StreamESD.ForceRead = True
     StreamESD.OutputFile = jobConfig['outputfile']
 
 if doWriteAOD:
-    StreamAOD.ForceRead = True
     StreamAOD.OutputFile = jobConfig['outputfile']
 
 

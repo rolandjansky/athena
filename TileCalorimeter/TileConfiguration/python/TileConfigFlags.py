@@ -17,15 +17,15 @@ def createTileConfigFlags():
      tcf.addFlag('Tile.doOptATLAS', _doOptATLAS)
      tcf.addFlag('Tile.NoiseFilter', lambda prevFlags : -1 if prevFlags.Input.isMC else 1)
      tcf.addFlag('Tile.RunType', _getRunType)
-     tcf.addFlag('Tile.correctTime', lambda prevFlags : (prevFlags.Beam.Type == 'collisions'))
+     tcf.addFlag('Tile.correctTime', lambda prevFlags : ('collisions' in prevFlags.Beam.Type))
      tcf.addFlag('Tile.correctTimeNI', True)
      tcf.addFlag('Tile.correctAmplitude', True)
      tcf.addFlag('Tile.AmpMinForAmpCorrection', 15.0)
      tcf.addFlag('Tile.TimeMinForAmpCorrection', lambda prevFlags : (prevFlags.Beam.BunchSpacing / -2.))
      tcf.addFlag('Tile.TimeMaxForAmpCorrection', lambda prevFlags : (prevFlags.Beam.BunchSpacing / 2.))
      tcf.addFlag('Tile.OfcFromCOOL', True)
-     tcf.addFlag('Tile.BestPhaseFromCOOL', lambda prevFlags : (prevFlags.Beam.Type == 'collisions'))
-     tcf.addFlag('Tile.readDigits', True)
+     tcf.addFlag('Tile.BestPhaseFromCOOL', lambda prevFlags : ('collisions' in prevFlags.Beam.Type))
+     tcf.addFlag('Tile.readDigits', lambda prevFlags : not prevFlags.Input.isMC)
      tcf.addFlag('Tile.doOverflowFit', True)
      tcf.addFlag('Tile.zeroAmplitudeWithoutDigits', _zeroAmplitudeWithouDigits)
      tcf.addFlag('Tile.correctPedestalDifference', _correctPedestalDifference)
@@ -44,7 +44,7 @@ def _doOpt2ByDefault(prevFlags):
           return True
      # Run Optimal Filter without iterations (OptATLAS)
      # for collisions (data in 2011 and later and MC)
-     elif prevFlags.Beam.Type == 'collisions':
+     elif 'collisions' in prevFlags.Beam.Type:
           return False  # Use OF without iterations for collisions
      else:
           return True

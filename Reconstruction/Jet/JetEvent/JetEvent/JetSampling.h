@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETSAMPLING_H
@@ -252,6 +252,9 @@ class JetSampling
   double get_erad_tracks( int i) { return m_erad_tracks.at(i); } //!> Return up to 10 radial profiles calculated from tracks  
 
  private:
+  friend class JetSamplingCnv_p1;
+  friend class JetSamplingCnv_p2;
+
   void init(); //>! Initializes to zero all private members
 
   /// Reconstructed Jet at EM scale  kinematics.

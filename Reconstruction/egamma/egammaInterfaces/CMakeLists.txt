@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkNeutralParameters
                           Tracking/TrkEvent/TrkParameters 
 			  Tracking/TrkEvent/TrkCaloExtension
-			  egamma/egammaRecEvent)
+			  Reconstruction/egamma/egammaRecEvent)
 
 atlas_add_dictionary( egammaInterfacesDict
                       egammaInterfaces/egammaInterfacesDict.h

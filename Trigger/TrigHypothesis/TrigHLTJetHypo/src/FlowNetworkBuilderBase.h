@@ -12,11 +12,12 @@
 class FlowNetworkBuilderBase: virtual public IFlowNetworkBuilder{
  public:
   FlowNetworkBuilderBase(ConditionsMT);
+  ~FlowNetworkBuilderBase(){}
   virtual std::optional<std::unique_ptr<FlowNetwork>>
     create(const HypoJetGroupCIter&,
            const HypoJetGroupCIter&,
            const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-	   std::map<int, pHypoJet>& nodeToJet) const;
+	   std::map<int, pHypoJet>& nodeToJet) const override;
 
   virtual std::string toString() const override;
  protected:

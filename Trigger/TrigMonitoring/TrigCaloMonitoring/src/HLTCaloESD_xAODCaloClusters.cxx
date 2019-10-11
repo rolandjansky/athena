@@ -88,7 +88,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("HLT_eta",     "HLT Cluster #eta;       #eta;         Entries",  50,  -5.0,   5.0));
   addHistogram(new TH1F     ("HLT_phi",     "HLT Cluster #phi;       #phi;         Entries",  64, -M_PI,  M_PI));
   addHistogram(new TH1F     ("HLT_type",    "HLT Cluster Type;       Size Enum;    Entries",  13,   0.5,  13.5));
-  addHistogram(new TH1F     ("HLT_size",    "HLT Cluster Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
+  addHistogram(new TH1F     ("HLT_size",    "HLT Cluster Size;       Num Cells;    Entries", 101,  -5.0, 1005.0));
   
   // OFF clusters
   addHistogram(new TH1F     ("OFF_num",     "Number of OFF Clusters; Num Clusters; Entries", 201,  -5.0, 2005.0));
@@ -97,7 +97,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("OFF_eta",     "OFF Cluster #eta;       #eta;         Entries",  50,  -5.0,   5.0));
   addHistogram(new TH1F     ("OFF_phi",     "OFF Cluster #phi;       #phi;         Entries",  64, -M_PI,  M_PI));
   addHistogram(new TH1F     ("OFF_type",    "OFF Cluster Type;       Size Enum;    Entries",  13,   0.5,  13.5));
-  addHistogram(new TH1F     ("OFF_size",    "OFF Cluster Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
+  //addHistogram(new TH1F     ("OFF_size",    "OFF Cluster Size;       Num Cells;    Entries", 101,  -5.0, 1005.0));
 
   // OFF clusters (no HLT matches)
   addHistogram(new TH1F     ("OFF_no_HLT_matches_num",     "Number of OFF Clusters (No HLT Matches); Num Clusters; Entries", 201,  -5.0, 2005.0));
@@ -106,7 +106,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("OFF_no_HLT_matches_eta",     "OFF Cluster (No HLT Matches) #eta;       #eta;         Entries",  50,  -5.0,   5.0));
   addHistogram(new TH1F     ("OFF_no_HLT_matches_phi",     "OFF Cluster (No HLT Matches) #phi;       #phi;         Entries",  64, -M_PI,  M_PI));
   addHistogram(new TH1F     ("OFF_no_HLT_matches_type",    "OFF Cluster (No HLT Matches) Type;       Size Enum;    Entries",  13,   0.5,  13.5));
-  addHistogram(new TH1F     ("OFF_no_HLT_matches_size",    "OFF Cluster (No HLT Matches) Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
+  //addHistogram(new TH1F     ("OFF_no_HLT_matches_size",    "OFF Cluster (No HLT Matches) Size;       Num Cells;    Entries", 101,  -5.0, 1005.0));
 
   // OFF clusters (with HLT match)
   addHistogram(new TH1F     ("OFF_with_HLT_match_num",     "Number of OFF Clusters (With HLT Match); Num Clusters; Entries", 201,  -5.0, 2005.0));
@@ -115,7 +115,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("OFF_with_HLT_match_eta",     "OFF Cluster (With HLT Match) #eta;       #eta;         Entries",  50,  -5.0,   5.0));
   addHistogram(new TH1F     ("OFF_with_HLT_match_phi",     "OFF Cluster (With HLT Match) #phi;       #phi;         Entries",  64, -M_PI,  M_PI));
   addHistogram(new TH1F     ("OFF_with_HLT_match_type",    "OFF Cluster (With HLT Match) Type;       Size Enum;    Entries",  13,   0.5,  13.5));  
-  addHistogram(new TH1F     ("OFF_with_HLT_match_size",    "OFF Cluster (With HLT Match) Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
+  //addHistogram(new TH1F     ("OFF_with_HLT_match_size",    "OFF Cluster (With HLT Match) Size;       Num Cells;    Entries", 101,  -5.0, 1005.0));
 
   // HLT clusters vs. OFF clusters
   addHistogram(new TH1F       ("HLT_vs_OFF_minimum_delta_r",   "HLT vs OFF Cluster #DeltaR;                 #DeltaR;                                             Entries",  50,   0.0,   0.1));
@@ -177,13 +177,9 @@ StatusCode HLTCaloESD_xAODCaloClusters::fill()
     hist ("HLT_eta")    ->Fill((*HLT_itr)->eta());
     hist ("HLT_phi")    ->Fill((*HLT_itr)->phi());    
     hist ("HLT_type")   ->Fill((*HLT_itr)->clusterSize());
-    
-    const CaloClusterCellLink* HLT_cell_links = (*HLT_itr)->getCellLinks();
-    
-    if(HLT_cell_links) {
-      hist("HLT_size")->Fill(HLT_cell_links->size());
+    if ((*HLT_itr)->isAvailable<int>("nCells")) {
+      hist ("HLT_size")   ->Fill((*HLT_itr)->auxdata<int>("nCells"));
     }
-    else  ATH_MSG_WARNING("no valid HLT cell links");
     
   } // end loop over HLT clusters
   
@@ -229,14 +225,10 @@ StatusCode HLTCaloESD_xAODCaloClusters::fill()
     hist ("OFF_eta")    ->Fill((*OFF_itr)->eta());
     hist ("OFF_phi")    ->Fill((*OFF_itr)->phi());
     hist ("OFF_type")   ->Fill((*OFF_itr)->clusterSize());
+    /*if ((*OFF_itr)->isAvailable<int>("nCells")) {
+      hist ("OFF_size")   ->Fill((*OFF_itr)->auxdata<int>("nCells"));
+    }*/
            
-    const CaloClusterCellLink* OFF_cell_links = (*OFF_itr)->getCellLinks();
-    
-    if(OFF_cell_links) {
-      hist("OFF_size")->Fill(OFF_cell_links->size());
-    }
-    else  ATH_MSG_WARNING("no valid OFF cell links");
-    
     // matching starts here....        
     HLT_itr = HLT_cont->begin(); // reset HLT itr to cont beginning   
     
@@ -277,9 +269,10 @@ StatusCode HLTCaloESD_xAODCaloClusters::fill()
       hist ("OFF_no_HLT_matches_eta")    ->Fill((*OFF_itr)->eta());
       hist ("OFF_no_HLT_matches_phi")    ->Fill((*OFF_itr)->phi());
       hist ("OFF_no_HLT_matches_type")   ->Fill((*OFF_itr)->clusterSize());
+      /*if ((*OFF_itr)->isAvailable<int>("nCells")) {
+        hist ("OFF_no_HLT_matches_size")   ->Fill((*OFF_itr)->auxdata<int>("nCells"));
+      }*/
       
-      if(OFF_cell_links) 
-      hist ("OFF_no_HLT_matches_size")   ->Fill(OFF_cell_links->size());
     }  
     else { // with HLT match...
       
@@ -290,9 +283,9 @@ StatusCode HLTCaloESD_xAODCaloClusters::fill()
       hist ("OFF_with_HLT_match_eta")    ->Fill((*OFF_itr)->eta());
       hist ("OFF_with_HLT_match_phi")    ->Fill((*OFF_itr)->phi());
       hist ("OFF_with_HLT_match_type")   ->Fill((*OFF_itr)->clusterSize());     
-      
-      if(OFF_cell_links)
-      hist ("OFF_with_HLT_match_size")   ->Fill(OFF_cell_links->size());
+      /*if ((*OFF_itr)->isAvailable<int>("nCells")) {
+        hist ("OFF_with_HLT_match_size")   ->Fill((*OFF_itr)->auxdata<int>("nCells"));
+      }*/
       
       // comment here....
       

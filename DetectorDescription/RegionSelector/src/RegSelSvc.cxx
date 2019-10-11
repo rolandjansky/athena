@@ -126,7 +126,7 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "DisablePixelFromConditions", m_disablePixelFromConditions=true, "disable Pixel modules based on the conditions summary svc");
   declareProperty( "DisableSCTFromConditions",   m_disableSCTFromConditions=true,   "disable SCT modules based on the conditions summary svc");
   declareProperty( "DisableTRTFromConditions",   m_disableTRTFromConditions=true,   "disable TRT modules based on the conditions summary svc");
-  declareProperty( "PixConditionsSvc",           m_PixConditionsSvc="PixelConditionsSummarySvc",  "name of conditions summary svc for the pixels");
+  declareProperty( "PixConditionsTool",          m_PixConditionsTool="PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool", "name of conditions summary tool for the pixels");
   declareProperty( "SCTConditionsTool",          m_SCTConditionsTool="SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool",  "name of conditions summary tool for the SCT");
   declareProperty( "TRTConditionsSvc",           m_TRTConditionsSvc="TRT_ConditionsSummarySvc",  "name of conditions summary svc for the TRT");
 }
@@ -380,7 +380,7 @@ void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string
     std::vector<IdentifierHash>::iterator mitr(IDList.begin());
     std::vector<IdentifierHash>::iterator mend(IDList.end());
     
-    if ( detector==m_newsct ) {
+    if ( detector==m_newpixel or detector==m_newsct ) {
       // get ConditionsSummaryTool
       ToolHandle<IInDetConditionsTool> condsummary(serviceName, this);
       if ( condsummary.retrieve().isFailure() ) {
@@ -2361,7 +2361,7 @@ bool RegSelSvc::reinitialiseInternal() {
 
     // first disable modules from the conditions summary services
     //    if ( m_disableFromConditions ) disableIDFromConditions(m_newpixel, "PixelConditionsSummarySvc");
-    if ( m_disableFromConditions && m_disablePixelFromConditions ) disableIDFromConditions(m_newpixel, m_PixConditionsSvc);
+    if ( m_disableFromConditions && m_disablePixelFromConditions ) disableIDFromConditions(m_newpixel, m_PixConditionsTool);
 
     // now *disable* the modules from robs the user has flagged
     if ( m_deleteRobList.size() ) m_newpixel->disableRobList(m_deleteRobList);

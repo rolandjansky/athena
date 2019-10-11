@@ -108,6 +108,10 @@ namespace Trk
     /** the curvilinear parameters identifier */
     unsigned int cIdentifier() const {return m_cIdentifier;}
 
+    void setcIdentifier (unsigned int cIdentifier)
+    { m_cIdentifier = cIdentifier; }
+
+
   protected:
     friend class MaterialEffectsEngine;
     virtual void updateParameters(const AmgVector(DIM)& updatedParameters,AmgSymMatrix(DIM)* updatedCovariance = 0) override; 

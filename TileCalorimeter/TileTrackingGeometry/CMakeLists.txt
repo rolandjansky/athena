@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           PRIVATE
                           Calorimeter/CaloDetDescr
-                          Control/CxxUtils
                           Control/StoreGate
                           TileCalorimeter/TileDetDescr
                           Tracking/TrkDetDescr/TrkDetDescrGeoModelCnv
@@ -32,7 +31,7 @@ atlas_add_component( TileTrackingGeometry
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrInterfaces CaloDetDescrLib CxxUtils StoreGateLib SGtests GeoPrimitives TileDetDescr TrkDetDescrGeoModelCnv TrkDetDescrUtils TrkGeometry TrkSurfaces TrkVolumes )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps GaudiKernel TrkDetDescrInterfaces CaloDetDescrLib StoreGateLib SGtests GeoPrimitives TileDetDescr TrkDetDescrGeoModelCnv TrkDetDescrUtils TrkGeometry TrkSurfaces TrkVolumes )
 
 # Install files from the package:
 atlas_install_headers( TileTrackingGeometry )

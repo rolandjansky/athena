@@ -14,6 +14,9 @@ topSequence = AlgSequence()
 # get ToolSvc
 ToolSvc = Service( "ToolSvc" )
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 #### RPC ####
 
 if DetFlags.detdescr.RPC_on():
@@ -40,7 +43,7 @@ else :
 
 #### CSC ####
 
-if DetFlags.detdescr.CSC_on():
+if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
     from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
     CSC_RegionSelectorTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
 
@@ -63,7 +66,7 @@ else :
 
 #### New small wheel ####
 
-if DetFlags.detdescr.Micromegas_on():
+if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) and DetFlags.detdescr.Micromegas_on():
     from MuonRegionSelector.MuonRegionSelectorConf import MM_RegionSelectorTable
     MM_RegionSelectorTable = MM_RegionSelectorTable(name = "MM_RegionSelectorTable")
 
@@ -73,7 +76,7 @@ else :
     MM_RegionSelectorTable = None
 
 
-if DetFlags.detdescr.sTGC_on():
+if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) and DetFlags.detdescr.sTGC_on():
     from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegionSelectorTable
     sTGC_RegionSelectorTable = sTGC_RegionSelectorTable(name = "sTGC_RegionSelectorTable")
 

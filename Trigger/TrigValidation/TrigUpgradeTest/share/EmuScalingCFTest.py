@@ -4,7 +4,8 @@ from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmul
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+from TrigUpgradeTest.TestUtils import writeEmulationFiles, makeChain
 
 log = logging.getLogger('EmuScalingCFTest')
 
@@ -60,8 +61,7 @@ def generateChains(chain_names):
 
             step = ChainStep(seq.name, [seq])
             chainSteps.append(step)
-       # el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
-        chainObj=Chain(name=chain ,L1Thresholds=[seed], ChainSteps=chainSteps )
+        chainObj=makeChain(name=chain ,L1Thresholds=[seed], ChainSteps=chainSteps )
         log.debug("adding chain %s",chainObj)
         chains.append(chainObj)
            # Chain(name='HLT_e5'   , L1Item="L1_EM7", ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
@@ -89,12 +89,9 @@ def process():
     HLTChains=generateChains(chain_names)
     
     
-    from TrigUpgradeTest.TestUtils import writeEmulationFiles
+
     writeEmulationFiles(data)
 
-    # this is a temporary hack to include new test chains
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getOverallL1item
-    EnabledChainNamesToCTP = dict([ (c.name,  getOverallL1item(c.name))  for c in HLTChains])
 
     ########################## L1 #################################################
 
@@ -102,18 +99,14 @@ def process():
 
     l1Decoder = L1Decoder( RoIBResult="" )
     l1Decoder.prescaler.EventInfo=""
-    l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM", ThresholdPrefix="EM" )
     from TrigUpgradeTest.EmuStepProcessingConfig import thresholdToChains
-    emUnpacker.ThresholdToChainMapping = thresholdToChains( HLTChains )
     emUnpacker.Decisions="L1EM"
-    log.debug("EMRoIsUnpackingTool enables chians:")
-    log.debug(emUnpacker.ThresholdToChainMapping)
 
   
     l1Decoder.roiUnpackers = [emUnpacker]
@@ -127,7 +120,8 @@ def process():
     topSequence = AlgSequence()
     topSequence += l1Decoder
     ##### Make all HLT #######
-    makeHLTTree(HLTChains)
+    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+    makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
    
     print "EmuScalingCF: dump top Sequence after CF/DF Tree build"
     from AthenaCommon.AlgSequence import dumpMasterSequence, dumpSequence
@@ -136,7 +130,12 @@ def process():
     
     theApp.EvtMax = nevents
 
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+    generateJSON()
 
+    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+    from AthenaCommon.AppMgr import ServiceMgr
+    ServiceMgr += getHLTConfigSvc()
 
 
 process()

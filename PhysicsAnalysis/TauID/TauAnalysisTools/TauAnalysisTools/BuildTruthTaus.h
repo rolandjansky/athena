@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TAUANALYSISTOOLS_BUILDTRUTHTAUS_H
@@ -30,6 +30,9 @@
 // Local include(s):
 #include "TauAnalysisTools/IBuildTruthTaus.h"
 
+#include "CxxUtils/CachedValue.h"
+#include <atomic>
+
 namespace TauAnalysisTools
 {
 
@@ -43,28 +46,66 @@ class BuildTruthTaus
 
 public:
 
+  struct TruthTausEvent
+    : public ITruthTausEvent
+  {
+    bool m_valid = false;
+    const xAOD::TruthParticleContainer* m_xTruthTauContainerConst = nullptr;
+    const xAOD::TruthParticleContainer* m_xTruthMuonContainerConst = nullptr;
+    const xAOD::TruthParticleContainer* m_xTruthElectronContainerConst = nullptr;
+    const xAOD::JetContainer* m_xTruthJetContainerConst = nullptr;
+    xAOD::TruthParticleContainer* m_xTruthTauContainer = nullptr;
+    xAOD::TruthParticleAuxContainer* m_xTruthTauAuxContainer = nullptr;
+    const xAOD::TruthParticleContainer* m_xTruthParticleContainer = nullptr;
+  };
+
   BuildTruthTaus( const std::string& name );
 
   virtual ~BuildTruthTaus();
 
   // initialize the tool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // get TruthTauContainer
-  virtual xAOD::TruthParticleContainer* getTruthTauContainer();
+  virtual xAOD::TruthParticleContainer* getTruthTauContainer() override;
 
   // get TruthTauAuxContainer
-  virtual xAOD::TruthParticleAuxContainer* getTruthTauAuxContainer();
+  virtual xAOD::TruthParticleAuxContainer* getTruthTauAuxContainer() override;
 
-  StatusCode retrieveTruthTaus();
+  virtual StatusCode retrieveTruthTaus() override;
+  virtual StatusCode retrieveTruthTaus(ITruthTausEvent& truthTausEvent) const override;
+
+
+protected:
+  StatusCode retrieveTruthTaus(TruthTausEvent& truthTausEvent) const;
+
 
 private:
-  // Execute at each event
-  virtual StatusCode beginEvent();
 
-  StatusCode buildTruthTausFromTruthParticles();
-  StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle);
-  StatusCode examineTruthTauDecay(const xAOD::TruthParticle& xTruthParticle);
+  struct TauTruthInfo
+  {
+    size_t m_iNChargedPions = 0;
+    size_t m_iNNeutralPions = 0;
+    size_t m_iNChargedOthers = 0;
+    size_t m_iNNeutralOthers = 0;
+    size_t m_iNChargedDaughters = 0;
+    std::vector<int> m_vDecayMode;
+    // default false, if there is a hadron in decay products, it is switched to true
+    bool m_bIsHadronicTau = false;
+
+    // truth visible kinematic variables
+    TLorentzVector m_vTruthVisTLV;
+    TLorentzVector m_vTruthVisTLVCharged;
+    TLorentzVector m_vTruthVisTLVNeutral;
+  };
+
+  // Execute at each event
+  virtual StatusCode beginEvent() override;
+
+  StatusCode buildTruthTausFromTruthParticles(TruthTausEvent& truthTausEvent) const;
+  StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
+  StatusCode examineTruthTauDecay(const xAOD::TruthParticle& xTruthParticle,
+                                  TauTruthInfo& truthInfo) const;
   void printDecay(const xAOD::TruthParticle& xTruthParticle, int depth = 0) const;
 
 protected:
@@ -73,22 +114,13 @@ protected:
 
   // steering variables
   bool m_bWriteTruthTaus;
-  bool m_bTruthTauAvailable;
+  mutable std::atomic<bool> m_bTruthTauAvailable;
 
-  const xAOD::TruthParticleContainer* m_xTruthTauContainerConst;
-  const xAOD::TruthParticleContainer* m_xTruthMuonContainerConst;
-  const xAOD::TruthParticleContainer* m_xTruthElectronContainerConst;
-  const xAOD::JetContainer* m_xTruthJetContainerConst;
-  xAOD::TruthParticleContainer* m_xTruthTauContainer;
+  TruthTausEvent m_truthTausEvent;
 
-  bool m_bIsTruthMatchedAvailable;
-  bool m_bIsTruthMatchedAvailableChecked;
-  bool m_bNewEvent;
+  CxxUtils::CachedValue<bool> m_bIsTruthMatchedAvailable;
 
 private:
-
-  const xAOD::TruthParticleContainer* m_xTruthParticleContainer;
-  xAOD::TruthParticleAuxContainer* m_xTruthTauAuxContainer;
 
   // steering variables
   std::string m_sNewTruthTauContainerName;
@@ -99,27 +131,15 @@ private:
   std::string m_sTruthJetContainerName;
   std::string m_sTruthParticlesContainerName;
 
-  bool m_bTruthMuonAvailable;
-  bool m_bTruthElectronAvailable;
-  bool m_bTruthJetAvailable;
+  mutable std::atomic<bool> m_bTruthMuonAvailable;
+  mutable std::atomic<bool> m_bTruthElectronAvailable;
+  mutable std::atomic<bool> m_bTruthJetAvailable;
 
   bool m_bWriteInvisibleFourMomentum;
   bool m_bWriteVisibleChargedFourMomentum;
   bool m_bWriteVisibleNeutralFourMomentum;
   bool m_bWriteDecayModeVector;
 
-  size_t m_iNChargedPions;
-  size_t m_iNNeutralPions;
-  size_t m_iNChargedOthers;
-  size_t m_iNNeutralOthers;
-  size_t m_iNChargedDaughters;
-  std::vector<int> m_vDecayMode;
-
-  TLorentzVector m_vTruthVisTLV;
-  TLorentzVector m_vTruthVisTLVCharged;
-  TLorentzVector m_vTruthVisTLVNeutral;
-
-  bool m_bIsHadronicTau;
 
 private:
 

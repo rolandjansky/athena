@@ -16,6 +16,7 @@ rec.doAOD=False
 rec.doWriteTAG=False 
 rec.doTrigger=True
 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def muonOnly():
     TriggerFlags.Slices_all_setOff()
@@ -43,7 +44,7 @@ from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
 cols   =  ["HLT_TrackCollection_forCB","HLT_TrackCollection_MuonEFCombTrkTracks"]
 colsTP =  ["HLT_xAOD__TrackParticleContainer_MuonEFInfo_ExtrapTrackParticles","HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles"]
 
-topSequence += MuonDetailedTrackTruthMaker(name="TrigMuEFDetailedTrackTruthMaker", TrackCollectionNames = cols,OutputLevel=INFO )
+topSequence += MuonDetailedTrackTruthMaker(name="TrigMuEFDetailedTrackTruthMaker", TrackCollectionNames=cols, OutputLevel=INFO, HasCSC=MuonGeometryFlags.hasCSC())
 
 for i in range(0, len(cols) ):
     topSequence += TrackTruthSelector(name= cols[i] + "Selector",

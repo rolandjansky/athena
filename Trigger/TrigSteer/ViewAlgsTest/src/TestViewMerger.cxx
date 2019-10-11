@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
-#include "CxxUtils/make_unique.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthContainers/ConstDataVector.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -51,7 +50,7 @@ StatusCode TestViewMerger::execute(){
   for ( auto view : *viewsHandle ) {
     ATH_MSG_DEBUG( "Reading fromt he view: " << view->impl()->name() );
     auto context = EventContext();
-    context.setExtension(  Atlas::ExtendedEventContext( view ) );
+    Atlas::setExtendedEventContext (context, view);
     auto clusterInViewHandle = SG::makeHandle( m_clustersViewInputKey, context );
     CHECK ( clusterInViewHandle.isValid() );
     ATH_MSG_DEBUG( "Found clusters"  );

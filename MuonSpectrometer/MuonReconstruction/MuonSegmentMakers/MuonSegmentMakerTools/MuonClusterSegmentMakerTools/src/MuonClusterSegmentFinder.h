@@ -25,17 +25,20 @@
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 // FrameWork includes
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "MuonLinearSegmentMakerUtilities/ClusterNtuple.h"
+
 
 // fwd declares
 class TTree;
@@ -91,7 +94,6 @@ namespace Muon {
   class IMuonSegmentMaker;
   class IMuonClusterOnTrackCreator;
   class IMuonTrackToSegmentTool;
-  class MuonEDMHelperTool;
   class IMuonTrackCleaner;
   class IMuonSegmentOverlapRemovalTool;
   class IMuonClusterizationTool;
@@ -132,7 +134,9 @@ namespace Muon {
     ToolHandle<IMuonTrackToSegmentTool>               m_trackToSegmentTool; //<! track to segment converter
     ToolHandle<Trk::ITrackFitter>                     m_slTrackFitter;  //<! fitter, always use straightline
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>     m_ambiguityProcessor; //!< Tool for ambiguity solving
-    ToolHandle<MuonEDMHelperTool>                     m_helper;   //<! Id helper tool
+    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };   //<! Id helper tool
     ToolHandle<IMuonTrackCleaner>                     m_trackCleaner;
     ToolHandle<IMuonSegmentOverlapRemovalTool>        m_segmentOverlapRemovalTool;
 

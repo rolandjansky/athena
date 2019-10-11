@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -63,7 +63,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
       ATH_MSG_INFO ( "roiMode but multiple rois found, will only use the first one");
 
     SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
-    auto cdv = CxxUtils::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+    auto cdv = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
@@ -121,14 +121,13 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
   } else {
     SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > cellContainerV( m_cellContainerVKey, context );
-    auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainerVector> >();
+    auto cdv = std::make_unique<ConstDataVector<CaloCellContainerVector> >();
     ATH_CHECK( cellContainerV.record( std::move(cdv) ) );
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
 	cellContainerV->push_back( c.release()->asDataVector() );
-		
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 

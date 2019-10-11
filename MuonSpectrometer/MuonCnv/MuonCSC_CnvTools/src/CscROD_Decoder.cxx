@@ -8,7 +8,7 @@
 
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataContainer.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "eformat/Issue.h"
 
@@ -53,17 +53,9 @@ StatusCode Muon::CscROD_Decoder::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Get the CSC id helper from the detector store
-  status = detStore()->retrieve(m_cscHelper, "CSCIDHELPER");
-  if (status.isFailure()) {
-    ATH_MSG_FATAL ( "Could not get CscIdHelper !" );
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG ( " Found the CscIdHelper. " );
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
  
-  m_hid2re.set( &(*m_cabling), m_cscHelper );
+  m_hid2re.set( &(*m_cabling), m_muonIdHelperTool.get() );
 
   if ( m_isCosmic ) {
      m_hid2re.set_isCosmic();
@@ -72,8 +64,6 @@ StatusCode Muon::CscROD_Decoder::initialize()
  
   return StatusCode::SUCCESS;
 }
-
-
 
 void Muon::CscROD_Decoder::fillCollection(const xAOD::EventInfo& eventInfo,
                                           const ROBFragment& robFrag,
@@ -129,7 +119,7 @@ void Muon::CscROD_Decoder::fillCollection(const xAOD::EventInfo& eventInfo,
 uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detdescr*/) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   rodReadOut.decodeAddress( word );
@@ -142,7 +132,7 @@ uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detd
 Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /*detdescr*/) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   rodReadOut.decodeAddress( word );
@@ -154,7 +144,7 @@ Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /
 void Muon::CscROD_Decoder::getSamples(const std::vector<uint32_t>& words, std::vector<uint16_t>& samples) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   for (unsigned int j=0; j<words.size(); ++j) {
@@ -178,7 +168,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   CscRODReadOut rodReadOut;
 
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   /** get some information */
@@ -202,7 +192,8 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
-    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
+    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " collection filling is skipped!");
+    return;
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
@@ -396,10 +387,10 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
 	rodReadOut.decodeAddress( address );
         Identifier moduleId  = rodReadOut.decodeAddress();
         Identifier channelId = rodReadOut.decodeAddress(moduleId);
-        int stationId        = m_cscHelper->stationName(channelId);
-        int currentLayer     = m_cscHelper->wireLayer(channelId);
-        int orientation      = m_cscHelper->measuresPhi(channelId);
-        int stripId          = m_cscHelper->strip(channelId);
+        int stationId        = m_muonIdHelperTool->cscIdHelper().stationName(channelId);
+        int currentLayer     = m_muonIdHelperTool->cscIdHelper().wireLayer(channelId);
+        int orientation      = m_muonIdHelperTool->cscIdHelper().measuresPhi(channelId);
+        int stripId          = m_muonIdHelperTool->cscIdHelper().strip(channelId);
 
 	counter += 1;
   
@@ -449,7 +440,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
                         << idColl << " " << hashId << "  " << spuID << "  " << stationId << " :: measphi"
                         << orientation << " L" << currentLayer << " strId " << stripId << " nStr " << width
                         << " T" << time << " nSampWords " << totalSampleWords << " "
-                        << m_cscHelper->show_to_string(channelId) );
+                        << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId) );
       }
       
       ATH_MSG_DEBUG ( "****Total Cluster count = " << clusterCount 
@@ -462,12 +453,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
                        << " has word Counter =" << counter << " must not exceed summed RPU sizes ="
                        << rpuSize << " Discarded!!");
 
-        rawCollection->erase(rawCollection->begin(), rawCollection->end()); // identical to the following lines (duplecate)
-        //        for ( CscRawDataCollection::const_iterator idig=rawCollection->begin(); idig!=rawCollection->end(); ++idig ) {
-        //          delete *idig;
-        //        }
-        // DONOT delete rawCollection because you added it..
-        // delete rawCollection;  
+        rawCollection->erase(rawCollection->begin(), rawCollection->end());
         return;
       } 
 
@@ -483,23 +469,11 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   if (isHeaderWordNull) {
     ATH_MSG_INFO ( " ROB Fragment with ID " << std::hex<<robFrag.rod_source_id()<<std::dec << " has null rpuID. Discarded!!" );
     rawCollection->erase(rawCollection->begin(), rawCollection->end());
-    //    for ( CscRawDataCollection::const_iterator idig=rawCollection->begin(); idig!=rawCollection->end(); ++idig ) {
-    //      delete *idig;
-    //    }
-    // DONOT delete rawCollection because you added it..
-    //    delete rawCollection;
-    //    return;
   }
   if (isClusterWordsUnrealistic) {
     ATH_MSG_INFO ( " ROB Fragment with ID 0x" << std::hex<<robFrag.rod_source_id() << std::dec
                    << " has too many cluster words. Discarded!!" );
     rawCollection->erase(rawCollection->begin(), rawCollection->end());
-    //    for ( CscRawDataCollection::const_iterator idig=rawCollection->begin(); idig!=rawCollection->end(); ++idig ) {
-    //      delete *idig;
-    //    }
-    // DONOT delete rawCollection because you added it..
-    //    delete rawCollection;
-    //    return;
   }
 
   if(rawCollection) {
@@ -538,6 +512,7 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
     ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
+    return;
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
@@ -685,6 +660,7 @@ void Muon::CscROD_Decoder::rodVersion0(const ROBFragment& robFrag,  CscRawDataCo
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
     ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
+    return;
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );

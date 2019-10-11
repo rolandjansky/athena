@@ -20,7 +20,8 @@
 #include "Acts/Utilities/Units.hpp"
 
 // PACKAGE
-#include "ActsGeometry/ActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 //#include "ActsGeometry/IActsMaterialTrackWriterSvc.h"
@@ -102,7 +103,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
 
   Acts::BoundVector pars;
   pars << d0, z0, phi, theta, qop, t;
-  std::unique_ptr<Acts::BoundSymMatrix> cov = nullptr;
+  std::optional<Acts::BoundSymMatrix> cov = std::nullopt;
 
   std::vector<Acts::detail::Step> steps;
 

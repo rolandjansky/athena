@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCnv_p1.cxx 
@@ -30,26 +30,13 @@ typedef NavigableCnv_p1<
            > NavigableCnv_t;
 
 // pre-allocate converters
-static P4ImplPxPyPzECnv_p1   momCnv;
-static NavigableCnv_t        navCnv;
+static const P4ImplPxPyPzECnv_p1   momCnv;
+static const NavigableCnv_t        navCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void JetCnv_p2::persToTrans( const Jet_p2* pers,
                              Jet* trans, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "Loading Jet from persistent state..."
       << endmsg;
@@ -113,7 +100,7 @@ void JetCnv_p2::persToTrans( const Jet_p2* pers,
   trans->setRawPy( trans->py() ) ;
   trans->setRawPz( trans->pz() ) ;
 
-  static Jet jtmp;
+  static const Jet jtmp;
   trans->particleBase() = jtmp.particleBase();
 
    msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]"
@@ -123,7 +110,7 @@ void JetCnv_p2::persToTrans( const Jet_p2* pers,
 
 void JetCnv_p2::transToPers( const Jet* /*trans*/, 
                              Jet_p2* /*pers*/, 
-                             MsgStream& msg ) 
+                             MsgStream& msg ) const
 {
   msg << MSG::ERROR << " Don't write Jet_p2 anymore"
       << endmsg;

@@ -7,8 +7,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 def McEventSelectorCfg(configFlags):
     cfg=ComponentAccumulator()
 
-    from AthenaCommon import AtlasUnixStandardJob  # noqa: F401
-
     from McEventSelector.McEventSelectorConf import McCnvSvc
     mcCnvSvc = McCnvSvc()
     cfg.addService(mcCnvSvc)
@@ -17,7 +15,10 @@ def McEventSelectorCfg(configFlags):
 
     from McEventSelector.McEventSelectorConf import McEventSelector
     evSel=McEventSelector("EventSelector")
-    evSel.RunNumber = configFlags.Input.RunNumber
+    rn = configFlags.Input.RunNumber
+    if isinstance(rn, type([])):
+        rn = rn[0]
+    evSel.RunNumber = rn
     evSel.InitialTimeStamp = configFlags.Input.InitialTimeStamp
     cfg.addService(evSel)
     cfg.setAppProperty("EvtSel",evSel.getFullJobOptName())

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "TrkG4UserActions/MaterialStepRecorderTool.h"
 
 namespace G4UA
@@ -19,7 +18,7 @@ namespace G4UA
   MaterialStepRecorderTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a MaterialStepRecorder action");
-    auto action = CxxUtils::make_unique<MaterialStepRecorder>();
+    auto action = std::make_unique<MaterialStepRecorder>();
     actionList.runActions.push_back( action.get() );
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );

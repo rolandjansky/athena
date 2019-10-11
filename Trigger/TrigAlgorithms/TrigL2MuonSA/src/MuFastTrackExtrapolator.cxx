@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastTrackExtrapolator.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -25,8 +23,7 @@ const InterfaceID& TrigL2MuonSA::MuFastTrackExtrapolator::interfaceID() { return
 TrigL2MuonSA::MuFastTrackExtrapolator::MuFastTrackExtrapolator(const std::string& type, 
                                                                const std::string& name,
                                                                const IInterface*  parent): 
-  AthAlgTool(type,name,parent),
-  m_storeGateSvc( "StoreGateSvc", name )
+  AthAlgTool(type,name,parent)
 {
   declareInterface<TrigL2MuonSA::MuFastTrackExtrapolator>(this);
 
@@ -59,13 +56,6 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
-
    // 
    return StatusCode::SUCCESS; 
 }

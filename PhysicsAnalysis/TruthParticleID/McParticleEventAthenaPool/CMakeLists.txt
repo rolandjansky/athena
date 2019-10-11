@@ -21,7 +21,3 @@ atlas_add_poolcnv_library( McParticleEventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES McParticleEvent/TruthParticleContainer.h McParticleEvent/TruthEtIsolationsContainer.h
                            LINK_LIBRARIES AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib McParticleEvent McParticleEventTPCnv McParticleKernel )
-
-# Install files from the package:
-atlas_install_headers( McParticleEventAthenaPool )
-

@@ -54,14 +54,14 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
     counter++;
     
     //get RoI
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI");
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString());
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // get View
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
-    ATH_CHECK( viewELInfo.isValid() );
-    auto tracksHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_fastTracksKey, context);
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    ATH_CHECK( viewEL.isValid() );
+    auto tracksHandle = ViewHelper::makeHandle( *viewEL, m_fastTracksKey, context);
     ATH_CHECK( tracksHandle.isValid() );
     ATH_MSG_DEBUG ( "tracks handle size: " << tracksHandle->size() << "..." );
 
@@ -74,14 +74,14 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
     auto d = newDecisionIn( decisions, name() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 
-    auto el = ViewHelper::makeLink( *(viewELInfo.link), tracksHandle, 0 );
+    auto el = ViewHelper::makeLink( *viewEL, tracksHandle, 0 );
     ATH_CHECK( el.isValid() );
-    d->setObjectLink( "feature",  el );
+    d->setObjectLink( featureString(),  el );
     
-    d->setObjectLink( "roi", roiELInfo.link );
+    d->setObjectLink( roiString(), roiELInfo.link );
     toolInput.emplace_back( d, roi, tracksHandle.cptr(), previousDecision );
 
-    ATH_MSG_DEBUG( "Added view, roi, tracks, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
+    ATH_MSG_DEBUG( "Added view, roi, tracks, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
   }
 
   ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");

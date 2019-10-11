@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/eflowOverlapRemoval.h"
@@ -13,8 +13,6 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaContainer.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include <string>
 #include <cstdlib>
 
@@ -26,7 +24,6 @@
 eflowOverlapRemoval::eflowOverlapRemoval(const std::string& name,ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
   m_PFOName("JetETMissNeutralParticleFlowObjects"),
-  m_storeGate(nullptr),  
   m_egammaContainerName("Photons"),
   m_eflowElectronContainerName("eflowRec_selectedElectrons_EM"),
   m_radialDist(0.2),
@@ -42,18 +39,6 @@ eflowOverlapRemoval::~eflowOverlapRemoval() {}
 
 StatusCode eflowOverlapRemoval::initialize(){
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())
-    {
-      msg(MSG::WARNING )
-	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endmsg;
-      return StatusCode::SUCCESS;
-    }
-
-
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -61,7 +46,7 @@ StatusCode eflowOverlapRemoval::execute(){
 
   const xAOD::PFOContainer* pfoContainer;
 
-  StatusCode sc = m_storeGate->retrieve(pfoContainer,m_PFOName);
+  StatusCode sc = evtStore()->retrieve(pfoContainer,m_PFOName);
   if(sc.isFailure() || !pfoContainer)
   {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
@@ -79,7 +64,7 @@ StatusCode eflowOverlapRemoval::execute(){
   }
 
   const xAOD::EgammaContainer* egammaColl = nullptr;
-  if ( (m_storeGate->retrieve(egammaColl,m_egammaContainerName)).isFailure() )
+  if ( (evtStore()->retrieve(egammaColl,m_egammaContainerName)).isFailure() )
     {
       msg(MSG::WARNING )<< "cannot allocate egamma Container with key "
 			<< m_egammaContainerName

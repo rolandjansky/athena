@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -12,7 +12,6 @@
 //#include <math.h>
 //#include "GaudiKernel/MsgStream.h"
 //#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-//#include "StoreGate/StoreGateSvc.h"
 
 static const InterfaceID IID_ITRT_FillCablingData_DC1
                             ("TRT_FillCablingData_DC1", 1, 0);

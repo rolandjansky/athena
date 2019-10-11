@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/PixelRDORetriever.h"
 
 //#include "StoreGate/DataHandle.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
 //#include "GaudiKernel/SystemOfUnits.h"
@@ -33,7 +32,7 @@ namespace JiveXML {
     //And properties
     declareProperty("PixelRDOContainer"  , m_PixelRDOContainerName = "PixelRDOs");
   }
-  
+
   /**
    * Implementation of DataRetriever interface
    * - for each pixel raw data object obtain the identifier
@@ -45,6 +44,13 @@ namespace JiveXML {
   
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
+
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+    if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
 
     //retrieve the PixelRDO container
     const DataHandle<PixelRDO_Container> rdoContainer;
@@ -70,9 +76,10 @@ namespace JiveXML {
         //Get the pixel identifier
         const PixelRDORawData *rdoData = *collectionItr;
         const Identifier id = rdoData->identify();
+        IdentifierHash wafer_hash = m_geo->PixelIDHelper()->wafer_hash(id);
 
         //Get the detector element
-        const InDetDD::SiDetectorElement *element = m_geo->PixelGeoManager()->getDetectorElement(id);
+        const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
 
         //Make sure we got the detector element
         if (element == NULL){
@@ -124,6 +131,7 @@ namespace JiveXML {
 
   StatusCode PixelRDORetriever::initialize() {
     ATH_CHECK( m_lorentzAngleTool.retrieve() );
+    ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
     return m_geo.retrieve();
   }

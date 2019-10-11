@@ -10,7 +10,6 @@
 
 #ifndef TRT_BarrelDescriptor_h
 #define TRT_BarrelDescriptor_h 1
-#include "GeoModelKernel/RCBase.h"
 #include "CxxUtils/CachedUniquePtr.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoXF.h"
@@ -37,13 +36,16 @@ namespace InDetDD {
                                                                
        */
   
-  class TRT_BarrelDescriptor : public RCBase  
+  class TRT_BarrelDescriptor
     {
       
     public:
       
       /** Constructor: */
       TRT_BarrelDescriptor();
+
+      /** Destructor: */
+      virtual ~TRT_BarrelDescriptor();
       
       /** Add a new straw at position x, y: */
       void addStraw(double xPos, double yPos);
@@ -91,10 +93,6 @@ namespace InDetDD {
       /** Get Bounds */
       const Trk::SurfaceBounds & strawBounds() const;
 
-    protected:
-      
-      virtual ~TRT_BarrelDescriptor() = default;
-      
     private:
       
       TRT_BarrelDescriptor(const TRT_BarrelDescriptor &right);

@@ -11,8 +11,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonTGC_CnvTools/ITgcPrepDataReplicationTool.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-
-class TgcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace MuonGM
 {
@@ -46,11 +45,9 @@ namespace Muon
     private:
       enum {BC_PREVIOUS=0, BC_CURRENT, BC_NEXT, BC_ALL, BC_NUM};
 
-      /** muon detector manager */
-      const MuonGM::MuonDetectorManager * m_muonMgr;
-
       /** TGC identifier helper */
-      const TgcIdHelper* m_tgcHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
       /** TgcPrepRawData (hit PRD) containers */
       TgcPrepDataContainer* m_tgcPrepDataContainer[BC_NUM];

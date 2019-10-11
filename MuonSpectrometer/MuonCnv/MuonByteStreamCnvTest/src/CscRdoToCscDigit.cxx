@@ -7,13 +7,13 @@
 
 CscRdoToCscDigit::CscRdoToCscDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 StatusCode CscRdoToCscDigit::initialize()
 {
-  ATH_CHECK(detStore()->retrieve(m_cscHelper, "CSCIDHELPER"));
+  ATH_CHECK(m_muonIdHelperTool.retrieve());
   /** CSC calibration tool for the Condtiions Data base access */
   ATH_CHECK(m_cscCalibTool.retrieve());
   ATH_CHECK(m_cscRdoKey.initialize());
@@ -22,11 +22,11 @@ StatusCode CscRdoToCscDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CscRdoToCscDigit::execute()
+StatusCode CscRdoToCscDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
   // retrieve the collection of RDO
-  SG::ReadHandle<CscRawDataContainer> rdoRH(m_cscRdoKey);
+  SG::ReadHandle<CscRawDataContainer> rdoRH(m_cscRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No CSC RDO container found!"  );
     return StatusCode::SUCCESS;
@@ -34,8 +34,8 @@ StatusCode CscRdoToCscDigit::execute()
   const CscRawDataContainer* rdoContainer=rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " CSC RDOs." );
 
-  SG::WriteHandle<CscDigitContainer> wh_cscDigit(m_cscDigitKey);
-  ATH_CHECK(wh_cscDigit.record(std::make_unique<CscDigitContainer> (m_cscHelper->module_hash_max())));
+  SG::WriteHandle<CscDigitContainer> wh_cscDigit(m_cscDigitKey, ctx);
+  ATH_CHECK(wh_cscDigit.record(std::make_unique<CscDigitContainer> (m_muonIdHelperTool->cscIdHelper().module_hash_max())));
   ATH_MSG_DEBUG( "Decoding CSC RDO into CSC Digit"  );
 
   Identifier oldId;
@@ -62,7 +62,7 @@ StatusCode CscRdoToCscDigit::decodeCsc(const CscRawDataCollection *rdoColl, CscD
 
   //      decoder.setParams(samplingTime);
 
-  const IdContext cscContext = m_cscHelper->module_context();
+  const IdContext cscContext = m_muonIdHelperTool->cscIdHelper().module_context();
 
   /** for each Rdo, loop over RawData, converter RawData to digit
       retrieve/create digit collection, and insert digit into collection */
@@ -98,17 +98,17 @@ StatusCode CscRdoToCscDigit::decodeCsc(const CscRawDataCollection *rdoColl, CscD
                          << " or charge finding failed " << " ... skipping "  );
         continue;
       }
-      ATH_MSG_DEBUG( "CSC RDO->CscDigit: " << m_cscHelper->show_to_string(channelId) );
+      ATH_MSG_DEBUG( "CSC RDO->CscDigit: " << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId) );
       const int theCharge = static_cast<int>(charge);
       CscDigit * newDigit = new CscDigit(channelId, theCharge, time);
-      ATH_MSG_DEBUG( "CSC RDO->Digit: " << m_cscHelper->show_to_string(newDigit->identify())
+      ATH_MSG_DEBUG( "CSC RDO->Digit: " << m_muonIdHelperTool->cscIdHelper().show_to_string(newDigit->identify())
                      << " " << newDigit->charge() << " " << charge << " time= " << time );
 
       for (uint16_t i=0; i< samples.size(); ++i) {
         ATH_MSG_DEBUG( "CSC RDO->Digit: " << samples[i] );
       }
       IdentifierHash coll_hash;
-      if (m_cscHelper->get_hash(stationId, coll_hash, &cscContext)) {
+      if (m_muonIdHelperTool->cscIdHelper().get_hash(stationId, coll_hash, &cscContext)) {
         ATH_MSG_WARNING( "Unable to get CSC digiti collection hash id "
                          << "context begin_index = " << cscContext.begin_index()
                          << " context end_index  = " << cscContext.end_index()
@@ -128,7 +128,7 @@ StatusCode CscRdoToCscDigit::decodeCsc(const CscRawDataCollection *rdoColl, CscD
           }
         }
         else {
-          CscDigitCollection *oldCollection = const_cast<CscDigitCollection*>( *it_coll );
+          CscDigitCollection *oldCollection ATLAS_THREAD_SAFE = const_cast<CscDigitCollection*>( *it_coll ); // FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

@@ -14,8 +14,8 @@ def isOverlay():
                     if DetFlags.overlay.LAr_on():
                         return True
                 else: #fallback for older releases
-                    from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-                    if OverlayFlags.doLAr():
+                    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+                    if overlayFlags.doLAr():
                         return True
     return False
 
@@ -69,6 +69,7 @@ def getLArRangeFCAL(name="LArRangeFCAL", **kwargs):
 
 
 def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOverlay()=False,outputKey='LArDigitContainer_MC'):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'LArPileUpToolDefault:' )
     mlog.info(" ---- in getLArPileUpTool " )
@@ -79,6 +80,10 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
         protectedInclude( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
         protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
         protectedInclude("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
+    else: 
+        if overlayFlags.isDataOverlay():
+            #Shape taken from real-data DB has a different SG key
+            kwargs.setdefault('ShapeKey',"LArShape")
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
@@ -123,8 +128,12 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     kwargs.setdefault('Nsamples', larRODFlags.nSamples() )
     kwargs.setdefault('firstSample', larRODFlags.firstSample() )
 
-    if  isOverlay() :
-         kwargs.setdefault('RandomDigitContainer', 'LArDigitContainer_MC' )
+    if isOverlay() :
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault('RandomDigitContainer',  overlayFlags.bkgPrefix() + 'LArDigitContainer_MC' )
+        else:
+            kwargs.setdefault('RandomDigitContainer', 'LArDigitContainer_MC' )
 
     # ADC2MeVCondAlgo
     from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault

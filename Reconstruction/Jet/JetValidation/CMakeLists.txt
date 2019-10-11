@@ -20,7 +20,6 @@ atlas_add_component( JetValidation
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( JetValidation )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/JetValidation_TestConfiguration.xml )

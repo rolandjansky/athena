@@ -38,22 +38,28 @@ public:
   virtual ~MultiComponentStateCombiner(){};
 
   /** AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /** Calculate combined state of many components */
-  virtual const TrackParameters* combine(const MultiComponentState&, bool useModeTemp = false) const;
+  virtual std::unique_ptr<Trk::TrackParameters>  combine(const MultiComponentState&, 
+                                                         bool useModeTemp = false) const override final;
 
-  virtual void combineWithWeight(std::pair<std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
-                                 const std::pair<std::unique_ptr<Trk::TrackParameters>, double>& addThis) const;
+  virtual void combineWithWeight(std::pair<std::unique_ptr<Trk::TrackParameters>, 
+                                 double>& mergeTo,
+                                 const std::pair<std::unique_ptr<Trk::TrackParameters>, 
+                                 double>& addThis) const override final;
 
   /** Calculate combined state and weight of many components */
-  virtual const ComponentParameters* combineWithWeight(const MultiComponentState&, bool useModeTemp = false) const;
+  virtual std::unique_ptr<Trk::SimpleComponentParameters> 
+    combineWithWeight(const MultiComponentState&, 
+                      bool useModeTemp = false) const override final;
 
 private:
-  const ComponentParameters* compute(const MultiComponentState*, bool useModeTemp = false) const;
+  std::unique_ptr<Trk::SimpleComponentParameters>compute(const MultiComponentState*, 
+                                                         bool useModeTemp = false) const; 
 
   bool m_useMode;
   bool m_useModeD0;

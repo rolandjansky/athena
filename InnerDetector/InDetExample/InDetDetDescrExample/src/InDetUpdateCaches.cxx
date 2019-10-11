@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/InDetUpdateCaches.h"
@@ -8,7 +8,6 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
-#include "StoreGate/StoreGateSvc.h"
 
 
 // for getmem
@@ -34,7 +33,7 @@ InDetUpdateCaches::initialize(){
   msg(MSG::INFO) << "initialize()" << endmsg;  
   StatusCode sc;
   // Retrieve GeoModel managers
-  const InDetDD::SiDetectorManager * sctManager = 0;
+  const InDetDD::SCT_DetectorManager * sctManager = 0;
   sc=detStore()->retrieve(sctManager, "SCT");
   if (sc.isFailure() || !sctManager) {
     msg(MSG::WARNING) << "Could not find the SCT_DetectorManager" << endmsg;
@@ -42,7 +41,7 @@ InDetUpdateCaches::initialize(){
     msg(MSG::DEBUG) << "SCT_DetectorManager found" << endmsg;
     m_detManagers.push_back(sctManager);
   }
-  const InDetDD::SiDetectorManager * pixelManager = 0;
+  const InDetDD::PixelDetectorManager * pixelManager = 0;
   sc=detStore()->retrieve(pixelManager, "Pixel");
   if (sc.isFailure() || !pixelManager) {
     msg(MSG::WARNING) << "Could not find the PixelDetectorManager" << endmsg;

@@ -31,10 +31,11 @@ class MURoIsUnpackingTool : public RoIsUnpackingToolBase
                        const IInterface* parent );
 
   virtual StatusCode initialize() override;
-  virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) override;
+  virtual StatusCode updateConfiguration() override;
   virtual StatusCode unpack(const EventContext& ctx,
                             const ROIB::RoIBResult& roib,
                             const HLT::IDSet& activeChains) const override;
+  virtual StatusCode start() override;
 private: 
 
   ///@{ @name Properties

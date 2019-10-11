@@ -26,7 +26,6 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
@@ -39,8 +38,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-#include "GaudiKernel/Incident.h"
-
 using CLHEP::micrometer;
 
 
@@ -51,7 +48,6 @@ namespace InDet {
         const std::string &name,
         const IInterface *parent) :
     PixelClusteringToolBase(type,name,parent),
-    m_incidentSvc("IncidentSvc", name),
     m_IBLParameterSvc("IBLParameterSvc",name)
     {
       declareInterface<IPixelClusteringTool>(this);
@@ -76,6 +72,8 @@ namespace InDet {
  		ATH_MSG_ERROR("Number of entries for ToT Cut is:" << m_minToT.size() << " . 7 Values are needed, so fix jO.");
  		return StatusCode::FAILURE;
  	}       
+
+        ATH_CHECK(m_pixelDetEleCollKey.initialize());
 	 
 	return PixelClusteringToolBase::initialize();
     }
@@ -102,7 +100,6 @@ namespace InDet {
 
   PixelClusterCollection* MergedPixelsTool::clusterize(
 						       const InDetRawDataCollection<PixelRDORawData> &collection,
-						       const InDetDD::SiDetectorManager& manager,
 						       const PixelID& pixelID) const
   {
     // Get the messaging service, print where you are
@@ -131,8 +128,14 @@ namespace InDet {
     
     // Get detector info.
     // Find detector element for these RDOs
-    
-    InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
+
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* pixelDetEle(*pixelDetEleHandle);
+    if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return 0;
+    }
+    const InDetDD::SiDetectorElement* element = pixelDetEle->getDetectorElement(idHash);
     
     const Trk::RectangleBounds *mybounds=dynamic_cast<const Trk::RectangleBounds *>(&element->surface().bounds());
     if (not mybounds){
@@ -841,7 +844,7 @@ void MergedPixelsTool::checkForMerge(const Identifier& id,
     MergedPixelsTool::RDO_GroupVector::iterator lastGroup,
     MergedPixelsTool::TOT_GroupVector::iterator totGroup,
     MergedPixelsTool::TOT_GroupVector::iterator lvl1Group,
-    InDetDD::SiDetectorElement* element,
+    const InDetDD::SiDetectorElement* element,
     const PixelID& pixelID) const
 {
     // Look at each of groups that haven't already been checked to see if
@@ -898,7 +901,7 @@ void MergedPixelsTool::checkForMerge(const Identifier& id,
 // ------------ New functions to merge broken clusters for ITk upgrade studies
 bool MergedPixelsTool::mergeTwoBrokenClusters(const std::vector<Identifier>& group1, 
 					      const std::vector<Identifier>& group2,
-					      InDetDD::SiDetectorElement* element,
+					      const InDetDD::SiDetectorElement* element,
 					      const PixelID& pixelID) const
 {
   bool mergeClusters=false;
@@ -1000,7 +1003,7 @@ bool MergedPixelsTool::mergeTwoBrokenClusters(const std::vector<Identifier>& gro
 
 bool MergedPixelsTool::mergeTwoClusters(const std::vector<Identifier>& group1, 
 					const std::vector<Identifier>& group2,
-					InDetDD::SiDetectorElement* element,
+					const InDetDD::SiDetectorElement* element,
 					const PixelID& pixelID) const
 {
   bool mergeClusters=true;
@@ -1061,7 +1064,7 @@ bool MergedPixelsTool::mergeTwoClusters(const std::vector<Identifier>& group1,
 // checkSizeZ()=0 if cluster sizeZ is within allowed range
 // checkSizeZ()=1 if cluster is too large
 // in the future, it may be changed to return deltaSizeZ 
-int MergedPixelsTool::checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const
+int MergedPixelsTool::checkSizeZ(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const
 {
   int pass_code=0;
   
@@ -1097,7 +1100,7 @@ int MergedPixelsTool::checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDet
 }
 
 // this function returns expected sizeZ
-int MergedPixelsTool::expectedSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const {
+int MergedPixelsTool::expectedSizeZ(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const {
   int exp_sizeZ=1;
   const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
   if (not design)
@@ -1123,7 +1126,7 @@ int MergedPixelsTool::expectedSizeZ(int colmin, int colmax, int row, InDetDD::Si
 }
 
 // this function returns size of the maximum gap between two cluster fragments
-int MergedPixelsTool::maxGap(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const {
+int MergedPixelsTool::maxGap(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const {
   int Nmis=1;
   int Nexp=expectedSizeZ(colmin,colmax,row,element);
   if(Nexp<=3) return 0; // there should not be any gap for very small clusters

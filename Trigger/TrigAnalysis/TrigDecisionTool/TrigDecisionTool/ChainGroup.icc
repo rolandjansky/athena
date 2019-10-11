@@ -50,10 +50,12 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   std::vector< ElementLinkVector<TrigCompositeUtils::DecisionContainer> > allLinearNavigationPaths;
 
   // Loop over HLT chains
+  TrigCompositeUtils::DecisionIDContainer chainIDs;
   std::set<const TrigConf::HLTChain*>::const_iterator chIt;
   for (chIt=conf_chain_begin(); chIt != conf_chain_end(); ++chIt) {
     const HLT::Chain* fchain = cgm()->chain(**chIt);
     if (fchain) {
+      chainIDs.insert( fchain->getChainHashId() );
 
       // Obtain navigation routes for passed chains
       // Final parameter TRUE as the chain passed (has its ID in terminusNode)
@@ -84,12 +86,12 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   }
 
   if (allLinearNavigationPaths.size() == 0) {
-    ATH_MSG_WARNING("No navigation paths found for this chain group of " << names().size() << " chains.");
+    ATH_MSG_DEBUG("No navigation paths found for this chain group of " << names().size() << " chains.");
   }
 
   const bool oneFeaturePerLeg = (featureCollectionMode == TrigDefs::oneFeaturePerLeg);
   std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
-    TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, oneFeaturePerLeg, featureName);
+    TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, oneFeaturePerLeg, featureName, chainIDs);
 
   // Perform name-filtering
   if (container != "") {

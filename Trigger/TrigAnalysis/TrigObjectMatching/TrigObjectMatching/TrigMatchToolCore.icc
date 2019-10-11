@@ -20,7 +20,7 @@
 template< typename trigType >
 std::vector< const trigType* >
 TrigMatchToolCore::getTriggerObjects( const std::string& chainName,
-                                      bool onlyPassedFeatures )
+                                      bool onlyPassedFeatures ) const
 {
   std::vector< const trigType* > trigObjects;
   this->getObjects( trigObjects, chainNameToIndex (chainName),
@@ -31,7 +31,7 @@ TrigMatchToolCore::getTriggerObjects( const std::string& chainName,
 template< typename trigType >
 std::vector< const trigType* >
 TrigMatchToolCore::getTriggerObjects( size_t chainIndex,
-                                      bool onlyPassedFeatures ) {
+                                      bool onlyPassedFeatures ) const {
 
    std::vector< const trigType* > trigObjects;
 
@@ -48,7 +48,7 @@ TrigMatchToolCore::matchToTriggerObjects( const baseType* baseObject,
                                           float maxDistance, 
                                           bool onlyPassedFeatures, 
                                           const DistanceFunctor< trigType,
-                                          baseType > *metric )
+                                          baseType > *metric ) const
 {
   return matchToTriggerObjects (baseObject,
                                 chainNameToIndex (chainName),
@@ -64,7 +64,7 @@ TrigMatchToolCore::matchToTriggerObjects( const baseType* baseObject,
                                           float maxDistance, 
                                           bool onlyPassedFeatures, 
                                           const DistanceFunctor< trigType,
-                                          baseType > *metric ) {
+                                          baseType > *metric ) const {
 
    if( ! baseObject ) {
       return std::vector<const trigType*>();
@@ -81,7 +81,7 @@ std::vector< const trigType* >
 TrigMatchToolCore::matchToTriggerObjects( const baseType* baseObject, 
                                           const std::string& chainName, 
                                           float maxDistance, 
-                                          bool onlyPassedFeatures ) {
+                                          bool onlyPassedFeatures ) const {
 
    //prepare the default metric and ship work to the main version of function
    return this->matchToTriggerObjects< trigType, baseType >( baseObject, chainName,
@@ -94,7 +94,7 @@ TrigMatchToolCore::matchToTriggerObject( const baseType* baseObject,
                                          const std::string& chainName,
                                          float maxDistance,
                                          bool onlyPassedFeatures,
-                                         const DistanceFunctor< trigType, baseType >* metric) {
+                                         const DistanceFunctor< trigType, baseType >* metric) const {
 
    // grab all the matches, and if you had 1 or more, return
    // the best one.  Note that the matches will be sorted by
@@ -117,7 +117,7 @@ const trigType*
 TrigMatchToolCore::matchToTriggerObject( const baseType* baseObject, 
                                          const std::string& chainName,
                                          float maxDistance,
-                                         bool onlyPassedFeatures ) {
+                                         bool onlyPassedFeatures ) const {
 
    //prepare the default metric and ship work to the main version of function
    return this->matchToTriggerObject( baseObject, chainName, maxDistance, 
@@ -131,7 +131,7 @@ TrigMatchToolCore::matchedTriggerObjects( const DataVector<baseType>& baseObject
                                           float maxDistance,
                                           bool onlyBestMatch,
                                           bool onlyPassedFeatures,
-                                          const DistanceFunctor< trigType, baseType >* metric ) {
+                                          const DistanceFunctor< trigType, baseType >* metric ) const {
 
    std::vector< const baseType* > obs;
    obs.insert( obs.begin(), baseObjects.begin(), baseObjects.end() );
@@ -146,7 +146,7 @@ TrigMatchToolCore::matchedTriggerObjects( const DataVector<baseType>& baseObject
                                           const std::string& chainName,
                                           float maxDistance,
                                           bool onlyBestMatch,
-                                          bool onlyPassedFeatures ) {
+                                          bool onlyPassedFeatures ) const {
 
    std::vector< const baseType* > obs;
    obs.insert( obs.begin(), baseObjects.begin(), baseObjects.end() );
@@ -162,7 +162,7 @@ TrigMatchToolCore::matchedTriggerObjects( const std::vector< const baseType* >& 
                                           float maxDistance,
                                           bool onlyBestMatch,
                                           bool onlyPassedFeatures,
-                                          const DistanceFunctor< trigType, baseType >* metric ) {
+                                          const DistanceFunctor< trigType, baseType >* metric ) const {
 
    std::set< const trigType* > matches;
 
@@ -200,7 +200,7 @@ TrigMatchToolCore::matchedTriggerObjects( const std::vector< const baseType* >& 
                                           const std::string& chainName,
                                           float maxDistance,
                                           bool onlyBestMatch,
-                                          bool onlyPassedFeatures ) {
+                                          bool onlyPassedFeatures ) const {
 
    //prepare the default metric and ship work to the main version of function
    return this->matchedTriggerObjects< trigType, baseType>( baseObjects, chainName,
@@ -215,7 +215,7 @@ TrigMatchToolCore::unmatchedTriggerObjects( const DataVector<baseType>& baseObje
                                             float maxDistance,
                                             bool onlyBestMatch,
                                             bool onlyPassedFeatures,
-                                            const DistanceFunctor< trigType, baseType >* metric) {
+                                            const DistanceFunctor< trigType, baseType >* metric) const {
 
    std::vector< const baseType* > objs;
    objs.insert( objs.begin(), baseObjects.begin(), baseObjects.end() );
@@ -230,7 +230,7 @@ TrigMatchToolCore::unmatchedTriggerObjects( const DataVector< baseType >& baseOb
                                             const std::string& chainName, 
                                             float maxDistance,
                                             bool onlyBestMatch,
-                                            bool onlyPassedFeatures ) {
+                                            bool onlyPassedFeatures ) const {
 
    std::vector< const baseType* > objs;
    objs.insert( objs.begin(), baseObjects.begin(), baseObjects.end() );
@@ -246,7 +246,7 @@ TrigMatchToolCore::unmatchedTriggerObjects( const std::vector< const baseType* >
                                             float maxDistance,
                                             bool onlyBestMatch,
                                             bool onlyPassedFeatures,
-                                            const DistanceFunctor< trigType, baseType >* metric ) {
+                                            const DistanceFunctor< trigType, baseType >* metric ) const {
 
    // grab all the features
    const std::vector< const trigType* > trigObjects =
@@ -282,7 +282,7 @@ TrigMatchToolCore::unmatchedTriggerObjects( const std::vector< const baseType* >
                                             const std::string& chainName,
                                             float maxDistance,
                                             bool onlyBestMatch,
-                                            bool onlyPassedFeatures ) {
+                                            bool onlyPassedFeatures ) const {
 
    //prepare the default metric and ship work to the main version of function
    return this->unmatchedTriggerObjects< trigType, baseType >( baseObjects, chainName,
@@ -294,7 +294,7 @@ template< typename trigType, typename baseType >
 bool TrigMatchToolCore::chainPassedByObject( const baseType* baseObject,
                                              const std::string& chainName,
                                              float maxDistance,
-                                             const DistanceFunctor< trigType, baseType >* metric )
+                                             const DistanceFunctor< trigType, baseType >* metric ) const
 {
   return chainPassedByObject (baseObject,
                               chainNameToIndex (chainName),
@@ -306,7 +306,7 @@ template< typename trigType, typename baseType >
 bool TrigMatchToolCore::chainPassedByObject( const baseType* baseObject,
                                              size_t chainIndex,
                                              float maxDistance,
-                                             const DistanceFunctor< trigType, baseType >* metric )
+                                             const DistanceFunctor< trigType, baseType >* metric ) const
 {
   if (!baseObject) return false;
 
@@ -318,7 +318,7 @@ bool TrigMatchToolCore::chainPassedByObject( const baseType* baseObject,
 template< typename trigType, typename baseType >
 bool TrigMatchToolCore::chainPassedByObject( const baseType* baseObject,
                                              const std::string& chainName,
-                                             float maxDistance ) {
+                                             float maxDistance ) const {
 
    // prepare the default metric, and offload it to the main version
    // of the function
@@ -330,7 +330,7 @@ template< typename trigType, typename baseType >
 std::vector< std::string >
 TrigMatchToolCore::chainsPassedByObject( const baseType* baseObject, 
                                          float maxDistance,
-                                         const DistanceFunctor< trigType, baseType >* metric) {
+                                         const DistanceFunctor< trigType, baseType >* metric) const {
 
    // loop through all chains and check if there are any features
    // matching the passed object
@@ -351,7 +351,7 @@ TrigMatchToolCore::chainsPassedByObject( const baseType* baseObject,
 template <typename trigType, typename baseType>
 std::vector< std::string >
 TrigMatchToolCore::chainsPassedByObject( const baseType* baseObject, 
-                                         float maxDistance ) {
+                                         float maxDistance ) const {
 
    // prepare the default metric and ship the work off to the main version
    // of the function
@@ -365,7 +365,7 @@ TrigMatchToolCore::objectsInChain( const std::vector< const baseType* >& baseObj
                                    const std::string& chainName,
                                    bool onlyPassedFeatures, 
                                    float maxDistance,
-                                   const DistanceFunctor< trigType, baseType >* metric ) {
+                                   const DistanceFunctor< trigType, baseType >* metric ) const {
 
    // loop through reco objects supplied to see if any match objects
    // in the specified chain
@@ -390,7 +390,7 @@ std::vector< const baseType* >
 TrigMatchToolCore::objectsInChain( const std::vector< const baseType* >& baseObjects,
                                    const std::string& chainName,
                                    bool onlyPassedFeatures, 
-                                   float maxDistance ) {
+                                   float maxDistance ) const {
 
    // prepare the default metric and ship the work off to the main
    // version of the function
@@ -403,7 +403,7 @@ std::map< const trigType*, std::vector< std::string > >
 TrigMatchToolCore::matchToAllTriggerObjects( const baseType* baseObject,
                                              float maxDistance,
                                              bool onlyPassedFeatures,
-                                             const DistanceFunctor< trigType, baseType >* metric ) {
+                                             const DistanceFunctor< trigType, baseType >* metric ) const {
 
    // build map for storing matching trigger objects
    std::map< const trigType*, std::vector< std::string > > matchMap;
@@ -429,7 +429,7 @@ template< typename trigType, typename baseType >
 std::map< const trigType*, std::vector< std::string > >
 TrigMatchToolCore::matchToAllTriggerObjects( const baseType* baseObject,
                                              float maxDistance,
-                                             bool onlyPassedFeatures ) {
+                                             bool onlyPassedFeatures ) const {
 
    // prepare the default metric and ship the work off to the main function
    return this->matchToAllTriggerObjects( baseObject, maxDistance, onlyPassedFeatures, 
@@ -442,7 +442,7 @@ TrigMatchToolCore::matchToAllTriggerObjects( const baseType* baseObject,
 template<typename trigType>
 void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
                                     const std::string& chainName,
-                                    bool onlyPassedFeatures )
+                                    bool onlyPassedFeatures) const
 {
   this->getObjects (objects, chainNameToIndex (chainName), onlyPassedFeatures);
 }
@@ -451,14 +451,19 @@ void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
 template<typename trigType>
 void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
                                     size_t chainIndex,
-                                    bool onlyPassedFeatures ) {
+                                    bool onlyPassedFeatures ) const {
 
+  SlotCache& slotCache = *m_slotCache;
+  SlotCache::lock_t lock (slotCache.m_mutex);
+      
    // check if we are able to use the cache
    if( this->changedDecisionAware() ) {
 
-      static int type_key = -1;
-      TrigFeatureCache< trigType >& cache = this->getCache<trigType> (type_key);
-      
+      static const int type_key = m_typeMap.key (&typeid(trigType));
+      TrigFeatureCache< trigType >& cache = this->getCache<trigType> (type_key,
+                                                                      slotCache,
+                                                                      lock);
+
       // check if its already in the cache - if not, add it
       if (cache.get (chainIndex, onlyPassedFeatures, objects)) {
         return;
@@ -469,8 +474,9 @@ void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
 
          // try it directly first
          const Trig::FeatureContainer& trigContainer =
-           this->getCachedFeatureContainer( chainIndex );
-         this->collectObjects( objects, trigContainer, onlyPassedFeatures, traits );
+           this->getCachedFeatureContainer( chainIndex, slotCache, lock );
+         this->collectObjects( slotCache.m_featureLabel,
+                               objects, trigContainer, onlyPassedFeatures, traits );
 
          // if the chain is propagatable, and nothing has been found, try that
          if( objects.size() == 0 ) {
@@ -479,8 +485,9 @@ void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
             if( propagatedName != chainName ) {
                size_t propagatedIndex = this->chainNameToIndex (propagatedName);
                const Trig::FeatureContainer& trigPropContainer =
-                  this->getCachedFeatureContainer( propagatedIndex );
-               this->collectObjects( objects, trigPropContainer, onlyPassedFeatures, traits );
+                  this->getCachedFeatureContainer( propagatedIndex, slotCache, lock );
+               this->collectObjects( slotCache.m_featureLabel,
+                                     objects, trigPropContainer, onlyPassedFeatures, traits );
             }
          }
          cache.add( chainIndex, onlyPassedFeatures, objects );
@@ -494,19 +501,21 @@ void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
    const typename TrigMatch::ClassTraits<trigType>::type* traits = 0;
    const Trig::FeatureContainer trigContainer =
       this->getFeatureContainer( chainName, TrigDefs::alsoDeactivateTEs );
-   this->collectObjects( objects, trigContainer, onlyPassedFeatures, traits );
+   this->collectObjects( slotCache.m_featureLabel,
+                         objects, trigContainer, onlyPassedFeatures, traits );
 
    return;
 }
 
 template< typename trigType >
-void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
+void TrigMatchToolCore::collectObjects( const std::string& featureLabel,
+                                        std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
                                         const TrigMatch::DirectAttached* ) const {
 
    const std::vector< Trig::Feature< trigType > > trigFeatures =
-      featureContainer.get< trigType >( m_featureLabel, 
+      featureContainer.get< trigType >( featureLabel, 
                                         onlyPassedFeatures ? TrigDefs::Physics :
                                         TrigDefs::alsoDeactivateTEs );
 
@@ -527,7 +536,8 @@ void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
 }
 
 template< typename trigType, typename contType >
-void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
+void TrigMatchToolCore::collectObjects( const std::string& featureLabel,
+                                        std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
                                         const contType* ) const {
@@ -535,7 +545,7 @@ void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
    // collect the container features from the navigation
    std::vector< const contType* > contObjects;
    const typename TrigMatch::DirectAttached* directAttached = 0;
-   this->collectObjects( contObjects, featureContainer, onlyPassedFeatures,
+   this->collectObjects( featureLabel, contObjects, featureContainer, onlyPassedFeatures,
                          directAttached );
 
    // flatten them out - we need to check that we don't get duplicates...
@@ -552,14 +562,15 @@ void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
 }
 
 template< typename trigType >
-void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
+void TrigMatchToolCore::collectObjects( const std::string& featureLabel,
+                                        std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
                                         const TrigMatch::AncestorAttached* ) const {
 
    // first, try to grab them straight from the TDT
    const typename TrigMatch::DirectAttached* directAttached = 0;
-   this->collectObjects( objects, featureContainer, onlyPassedFeatures, directAttached );
+   this->collectObjects( featureLabel, objects, featureContainer, onlyPassedFeatures, directAttached );
 
    if( objects.size() > 0 ) {
       return;
@@ -570,7 +581,7 @@ void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
 
    // grab the TrigRoiDescriptors from the trig decision tool
    std::vector< Trig::Feature<TrigRoiDescriptor > > trigFeatures = 
-      featureContainer.get< TrigRoiDescriptor >( m_featureLabel, 
+      featureContainer.get< TrigRoiDescriptor >( featureLabel, 
                                                  onlyPassedFeatures ? TrigDefs::Physics :
                                                  TrigDefs::alsoDeactivateTEs );
 
@@ -592,9 +603,12 @@ void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
 
 template <typename trigType>
 TrigMatchToolCore::TrigFeatureCache<trigType>&
-TrigMatchToolCore::getCache (int& type_key)
+TrigMatchToolCore::getCache (int type_key,
+                             SlotCache& slotCache,
+                             const SlotCache::lock_t& lock) const
 {
-  TrigFeatureCacheBase*& cache = this->getCache1 (&typeid(trigType), type_key);
+  TrigFeatureCacheBase*& cache = this->getCache1 (&typeid(trigType), type_key,
+                                                  slotCache, lock);
   if (!cache)
     cache = new TrigFeatureCache<trigType>;
   return *static_cast<TrigFeatureCache<trigType>*> (cache);

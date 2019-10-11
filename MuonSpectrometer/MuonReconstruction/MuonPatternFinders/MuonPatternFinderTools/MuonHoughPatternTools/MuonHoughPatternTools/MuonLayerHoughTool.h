@@ -88,8 +88,7 @@ namespace Muon {
     typedef HoughDataPerSec                       HoughDataPerSector;
 
     typedef Muon::HoughDataPerSectorVec HoughDataPerSectorVec;
-    typedef HoughDataPerSectorVec::const_iterator HoughDataPerSectorCit;
-
+    
     
     
     class Road {
@@ -163,18 +162,17 @@ namespace Muon {
   private:
 
     struct State {
-      MaximumVec seedMaxima;
+      MaximumVec seedMaxima; // Does not own the contained objects, they're just references to objects stored in houghDataPerSectorVec.
       std::unique_ptr<HoughDataPerSectorVec> houghDataPerSectorVec { std::make_unique<HoughDataPerSectorVec>() };
-      MuonHough::MuonDetectorHough& detectorHoughTransforms { houghDataPerSectorVec->detectorHoughTransforms };
       std::set<Identifier> truthHits;
       std::set<Identifier> foundTruthHits;
       std::set<Identifier> outputTruthHits;
-      std::vector<TgcHitClusteringObj*> tgcClusteringObjs;
     };
   
     std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(State& state) const;
 
-    void fillHitsPerSector(  State& state, 
+    void fillHitsPerSector( std::set<Identifier>& truthHits, 
+           std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
            const CollectionsPerSector& hashes,
 			     const MdtPrepDataContainer*  mdtCont,  
 			     const CscPrepDataContainer*  /*cscCont*/,  
@@ -184,17 +182,21 @@ namespace Muon {
 			     const MMPrepDataContainer*   mmCont,
 			     HoughDataPerSector& houghData ) const;
 
-    void fill( State& state, const MdtPrepDataCollection& mdts, HitVec& hits ) const;
-    void fill( State& state, const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
-    void fill( State& state, const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits ) const;
-    void fill( State& state, const MMPrepDataCollection& mdts, HitVec& hits ) const;
-    void fill( State& state, const sTgcPrepDataCollection& stgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
+    void fill( std::set<Identifier>& truthHits, const MdtPrepDataCollection& mdts, HitVec& hits ) const;
+    void fill( std::set<Identifier>& truthHits, std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
+      const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
+    void fill( std::set<Identifier>& truthHits, const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits ) const;
+    void fill( std::set<Identifier>& truthHits, const MMPrepDataCollection& mdts, HitVec& hits ) const;
+    void fill( std::set<Identifier>& truthHits, const sTgcPrepDataCollection& stgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
 
-    bool findMaxima( State& state, 
+    bool findMaxima( std::set<Identifier>& truthHits,
+         std::set<Identifier>& foundTruthHits,
+         MaximumVec& seedMaxima,
          MuonHough::MuonLayerHough& hough,
 		     HitVec& hits, 
 		     MaximumVec& maxima ) const ;
-    bool findMaxima( State& state,
+    bool findMaxima( std::set<Identifier>& truthHits,
+         std::set<Identifier>& foundTruthHits,
          MuonHough::MuonPhiLayerHough& hough,
 		     PhiHitVec& hits, 
 		     PhiMaximumVec& maxima,
@@ -207,7 +209,8 @@ namespace Muon {
 
     void associateMaximaInNeighbouringSectors( HoughDataPerSector& houghData, std::vector<HoughDataPerSector>& houghDataPerSectorVec ) const;
 
-    void extendSeed(State& state, Road& road, HoughDataPerSector& sectorData ) const; // const;
+    void extendSeed(MuonHough::MuonDetectorHough& detectorHoughTransforms, std::set<Identifier>& truthHits, 
+      std::set<Identifier>& foundTruthHits, Road& road, HoughDataPerSector& sectorData ) const; // const;
     void associatePhiMaxima( Road& road, PhiMaximumVec& phiMaxima ) const;
 
     double combinedPeakheight( double ph,  double ph1,  double ph2, double phn, double rot, int layer, int /*region*/ ) const;
@@ -216,7 +219,8 @@ namespace Muon {
     void createPatternCombinations( std::vector< MaximumVec >& maxima,
 				    MuonPatternCombinationCollection& patternCombis ) const;
 
-    void createPatternCombinations(State& state, std::map< MuonHough::MuonPhiLayerHough::Maximum*, MaximumVec >& phiEtaAssociations,
+    void createPatternCombinations(std::set<Identifier>& truthHits, std::set<Identifier>& outputTruthHits, 
+            std::map< MuonHough::MuonPhiLayerHough::Maximum*, MaximumVec >& phiEtaAssociations,
 				    MuonPatternCombinationCollection& patternCombis ) const;
 
     void fillNtuple( HoughDataPerSectorVec& houghDataPerSectorVec ) const;
@@ -224,17 +228,20 @@ namespace Muon {
     void insertHash( const IdentifierHash& hash, const Identifier& id );
     void insertHash( int sector, const IdentifierHash& hash, const Identifier& id );
 
-    void matchTruth( State& state, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
+    void matchTruth( std::set<Identifier>& truthHits, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
     void initializeSectorMapping();
     void getTruth() const;
     void printTruthSummary( std::set<Identifier>& truth, std::set<Identifier>& found ) const;
 
-    void buildRoads(State& state, std::vector<Road>& roads ) const;
+    void buildRoads(MaximumVec& seedMaxima, MuonHough::MuonDetectorHough& detectorHoughTransforms, 
+      std::set<Identifier>& truthHits, std::set<Identifier>& foundTruthHits,
+      std::unique_ptr<HoughDataPerSectorVec>& houghDataPerSectorVec, std::vector<Road>& roads ) const;
     void mergePhiMaxima( Road& road ) const;
 
     bool m_useSeeds;
 
-    ToolHandle<MuonIdHelperTool> m_idHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ToolHandle<MuonEDMPrinterTool> m_printer;
     mutable ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool;
     const MuonGM::MuonDetectorManager* m_detMgr;
@@ -281,7 +288,7 @@ namespace Muon {
   }
 
   inline double MuonLayerHoughTool::rCor( const Amg::Vector3D& pos, const Identifier& id ) const {
-    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),m_idHelper->sector(id));
+    return m_sectorMapping.transformRToSector(pos.perp(),pos.phi(),m_muonIdHelperTool->sector(id));
   }
   
   inline double MuonLayerHoughTool::rCor( const MuonCluster& mm ) const {
@@ -300,27 +307,27 @@ namespace Muon {
   inline int MuonLayerHoughTool::sublay( const Identifier& id, float /*z*/ ) const {
     
     int sublayer = 0;
-    if( m_idHelper->isMdt(id) ) {
-      sublayer = m_idHelper->mdtIdHelper().tubeLayer(id)-1;
-      if( m_idHelper->mdtIdHelper().multilayer(id) == 2 ) sublayer += 4;
-    }else if( m_idHelper->isMM(id) ) {
-      sublayer = m_idHelper->mmIdHelper().gasGap(id)-1;
-      if( m_idHelper->mmIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    if( m_muonIdHelperTool->isMdt(id) ) {
+      sublayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id)-1;
+      if( m_muonIdHelperTool->mdtIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    }else if( m_muonIdHelperTool->isMM(id) ) {
+      sublayer = m_muonIdHelperTool->mmIdHelper().gasGap(id)-1;
+      if( m_muonIdHelperTool->mmIdHelper().multilayer(id) == 2 ) sublayer += 4;
       sublayer += 600; // type info
-    }else if( m_idHelper->issTgc(id) ) {
-      sublayer = m_idHelper->stgcIdHelper().gasGap(id)-1;
-      if( m_idHelper->stgcIdHelper().multilayer(id) == 2 ) sublayer += 4;
+    }else if( m_muonIdHelperTool->issTgc(id) ) {
+      sublayer = m_muonIdHelperTool->stgcIdHelper().gasGap(id)-1;
+      if( m_muonIdHelperTool->stgcIdHelper().multilayer(id) == 2 ) sublayer += 4;
       sublayer += 500; // type info
-    }else if( m_idHelper->isRpc(id) ){
-      sublayer = m_idHelper->rpcIdHelper().gasGap(id)-1;
-      if( m_idHelper->rpcIdHelper().doubletR(id) == 2 ) sublayer += 2;
+    }else if( m_muonIdHelperTool->isRpc(id) ){
+      sublayer = m_muonIdHelperTool->rpcIdHelper().gasGap(id)-1;
+      if( m_muonIdHelperTool->rpcIdHelper().doubletR(id) == 2 ) sublayer += 2;
       sublayer += 100; // type info
-    }else if( m_idHelper->isTgc(id) ){
-      sublayer = m_idHelper->tgcIdHelper().gasGap(id)-1;
-      Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+    }else if( m_muonIdHelperTool->isTgc(id) ){
+      sublayer = m_muonIdHelperTool->tgcIdHelper().gasGap(id)-1;
+      Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(id);
       if( stIndex == Muon::MuonStationIndex::EM ) {
        //T1 gets +3; T2 gets +3+3; T3 gets +3+6; T4 gets0 (because it is also EI)
-	Muon::MuonStationIndex::PhiIndex phiIndex = m_idHelper->phiIndex(id);
+	Muon::MuonStationIndex::PhiIndex phiIndex = m_muonIdHelperTool->phiIndex(id);
        sublayer += 3;
 	if( phiIndex == Muon::MuonStationIndex::T2 )       sublayer += 3;
 	else if( phiIndex == Muon::MuonStationIndex::T3 )  sublayer += 6;

@@ -10,7 +10,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CxxUtils/phihelper.h"

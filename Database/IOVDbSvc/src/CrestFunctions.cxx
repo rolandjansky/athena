@@ -62,7 +62,7 @@ namespace IOVDbNamespace{
   
   std::string 
   getPayloadForTag(const std::string & tag, const bool testing){
-    return getPayloadForHash(getIovsForTag(tag, testing));
+    return getPayloadForHash(getIovsForTag(tag, testing), testing);
   }
   
   std::string 

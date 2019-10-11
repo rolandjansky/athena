@@ -52,6 +52,7 @@ class PixelConditionsSummaryToolSetup:
         self.toolName = toolName
 
     def setTool(self):
+        from AthenaCommon.GlobalFlags import globalflags
         from IOVDbSvc.CondDB import conddb
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")

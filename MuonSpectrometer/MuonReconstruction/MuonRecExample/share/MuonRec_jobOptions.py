@@ -14,6 +14,7 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.ConfiguredMuonRec import GetConfiguredMuonRec
 from MuonRecExample.MuonRecUtils import logMuon, logMuonResil
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
+from MuonRecExample.MuonRecTools import MuonIdHelperTool
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AppMgr import ServiceMgr
@@ -25,9 +26,22 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
 from AthenaCommon.AppMgr import ToolSvc
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
+
+# ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
+# Since it is not automatically created by the job configuration (as for RDOtoESD),
+# do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
+if rec.readESD() or rec.readAOD():
+    MuonIdHelperTool()
+
+if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
+if muonRecFlags.dosTGCs() and (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.dosTGCs = False
+if muonRecFlags.doMicromegas() and (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.doMicromegas = False
 
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
@@ -46,7 +60,7 @@ if (rec.readRDO() or rec.readESD()) and muonRecFlags.prdToxAOD():
     topSequence += CfgMgr.MDT_PrepDataToxAOD()
     topSequence += CfgMgr.RPC_PrepDataToxAOD()
     topSequence += CfgMgr.TGC_PrepDataToxAOD()
-    topSequence += CfgMgr.CSC_PrepDataToxAOD()
+    if MuonGeometryFlags.hasCSC(): topSequence += CfgMgr.CSC_PrepDataToxAOD()
     
     if muonRecFlags.doCreateClusters():
         topSequence += CfgMgr.RPC_PrepDataToxAOD("RPC_ClusterToxAOD",InputContainerName="RPC_Clusters")
@@ -67,14 +81,13 @@ if rec.readESD() and DetFlags.readRIOPool.TGC_on():
     include("MuonTGC_CnvTools/TgcPrepDataReplicationAlg_jopOptions.py")
 
 if muonRecFlags.doFastDigitization():
-
-   #if DetFlags.Micromegas_on() and DetFlags.digitize.Micromegas_on():    
-   from MuonFastDigitization.MuonFastDigitizationConf import MM_FastDigitizer
-   topSequence += MM_FastDigitizer("MM_FastDigitizer")
-
-   #if DetFlags.sTGC_on() and DetFlags.digitize.sTGC_on():    
-   from MuonFastDigitization.MuonFastDigitizationConf import sTgcFastDigitizer
-   topSequence += sTgcFastDigitizer("sTgcFastDigitizer")
+    if CommonGeometryFlags.Run() in ["RUN3", "RUN4"]:
+        #if DetFlags.Micromegas_on() and DetFlags.digitize.Micromegas_on():    
+        from MuonFastDigitization.MuonFastDigitizationConf import MM_FastDigitizer
+        topSequence += MM_FastDigitizer("MM_FastDigitizer")
+        #if DetFlags.sTGC_on() and DetFlags.digitize.sTGC_on():    
+        from MuonFastDigitization.MuonFastDigitizationConf import sTgcFastDigitizer
+        topSequence += sTgcFastDigitizer("sTgcFastDigitizer")
    
 
 # filter TrackRecordCollection (true particles in muon spectrometer)
@@ -102,8 +115,9 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
    from AthenaCommon import CfgGetter
    topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool(MCTruthClassifier(name="MCTruthClassifier",ParticleCaloExtensionTool=""))
-   if muonRecFlags.doNSWNewThirdChain():
-       topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","sTGC_SDO"]
+   topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO"]
+   if CommonGeometryFlags.Run() in ["RUN3", "RUN4"]:
+       topSequence.MuonTruthDecorationAlg.SDOs+=["MM_SDO","sTGC_SDO"]
 
    try:
        from PyUtils.MetaReaderPeeker import metadata
@@ -129,6 +143,7 @@ if muonRecFlags.doStandalone():
     #
     from MuonRecExample.MuonRec import muonRec
 
+    import MuonCondAlg.MdtCondDbAlgConfig # MT-safe conditions access
 
     if rec.doTruth():   
         from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
@@ -136,7 +151,7 @@ if muonRecFlags.doStandalone():
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col] )
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
         topSequence += TrackTruthSelector(name= col + "Selector", 
                                           DetailedTrackTruthName = col + "DetailedTruth",
                                           OutputName             = col + "Truth") 
@@ -144,11 +159,7 @@ if muonRecFlags.doStandalone():
                                              TrackTruthName=col+"Truth",
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
 
-        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
-
-        if muonRecFlags.doNSWNewThirdChain():
-            topSequence.MuonSegmentTruthAssociationAlg.doNSW=True
-            topSequence.MuonStandaloneDetailedTrackTruthMaker.doNSW=True
+        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
 
         try:
             from PyUtils.MetaReaderPeeker import metadata

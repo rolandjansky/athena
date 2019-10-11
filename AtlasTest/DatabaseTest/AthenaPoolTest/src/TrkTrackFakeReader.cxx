@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,9 +38,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 //#include "InDetDetDescr/InDet_DetDescrManager.h"
 
-// TES include
-#include "StoreGate/StoreGateSvc.h"
-
 // test includes
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
@@ -51,18 +48,19 @@
 #include <map>
 #include "TrkTrackFakeWriter.h"
 
+#include "StoreGate/ReadCondHandle.h"
+
 // Constructor with parameters:
 TrkTrackFakeReader::TrkTrackFakeReader(const std::string &name, 
 ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_pixMgr(nullptr)
+  AthAlgorithm(name,pSvcLocator)
   {}
 
 // Initialize method:
 StatusCode TrkTrackFakeReader::initialize()
 {
   ATH_MSG_INFO( "TrkTrackFakeReader::initialize()"  );
-  ATH_CHECK( detStore()->retrieve(m_pixMgr, m_pixMgrLocation) );
+  ATH_CHECK( m_pixelDetEleCollKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -78,10 +76,16 @@ StatusCode TrkTrackFakeReader::execute()
   const TrackCollection* tracks = nullptr;
   ATH_CHECK( evtStore()->retrieve(tracks,"Tracks") );
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements = *pixelDetEleHandle;
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_WARNING(m_pixelDetEleCollKey.fullKey() << " is not available.");
+  }
+
   for (TrackCollection::const_iterator it = tracks->begin(); it!=tracks->end(); ++it)
   {
       //compare tracks
-    Trk::Track* track = FakeTrackBuilder::buildTrack(m_pixMgr);
+    Trk::Track* track = FakeTrackBuilder::buildTrack(elements);
       // compareTracks(track,*it);
 
     delete track;

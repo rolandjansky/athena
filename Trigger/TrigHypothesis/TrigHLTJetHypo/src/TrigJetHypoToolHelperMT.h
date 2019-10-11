@@ -87,7 +87,7 @@ Gaudi::Property<bool>
                   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
                   const std::optional<bool>& pass) const;
 
- std::string toString() const;
+ virtual std::string toString() const override;
 };
 
 #endif

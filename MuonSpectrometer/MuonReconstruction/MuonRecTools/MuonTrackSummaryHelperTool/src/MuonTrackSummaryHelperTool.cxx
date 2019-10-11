@@ -35,7 +35,7 @@ Muon::MuonTrackSummaryHelperTool::MuonTrackSummaryHelperTool(
 							     const std::string& t,
 							     const std::string& n,
 							     const IInterface*  p )
-  : AthAlgTool(t,n,p)
+  : base_class(t,n,p)
 {
   declareInterface<ITrackSummaryHelperTool>(this);
 }
@@ -69,8 +69,8 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if( m_edmHelperTool.retrieve().isFailure() ){
-    ATH_MSG_ERROR("Could not get " << m_edmHelperTool);      
+  if( m_edmHelperSvc.retrieve().isFailure() ){
+    ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);      
     return StatusCode::FAILURE;
   }
 
@@ -131,7 +131,7 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
   if(m_idHelperTool->isRpc(id)){
     if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[numberOfRpcPhiHits]);
     else                           increment(information[numberOfRpcEtaHits]);
-  }else if(m_idHelperTool->isCsc(id) && (&(m_idHelperTool->cscIdHelper()))){
+  }else if(m_idHelperTool->isCsc(id)) {
     if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[numberOfCscPhiHits]);
     else  {                         
       increment(information[numberOfCscEtaHits]);
@@ -241,7 +241,7 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
 	  if(m_idHelperTool->isRpc(id)){
 	    if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfRpcPhiHoles]);
 	    else                           increment(information[Trk::numberOfRpcEtaHoles]);
-	  }else if(m_idHelperTool->isCsc(id) && (&(m_idHelperTool->cscIdHelper()))){
+	  }else if(m_idHelperTool->isCsc(id)){
 	    if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfCscPhiHoles]);
 	    else                           increment(information[Trk::numberOfCscEtaHoles]);
 	  }else if(m_idHelperTool->isTgc(id)){
@@ -491,15 +491,14 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 
     if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
 
-      if( isMdt ){
-	if( pars ){
-	  double rDrift = fabs(meas->localParameters()[Trk::locR]);
-	  double rTrack = fabs(pars->parameters()[Trk::locR]);
-	  // flag delta electrons: check whether track prediction larger than drift radius, require that the track passes  the tube
-	  if( rTrack > rDrift && rTrack < 14.6 ){
-	    ++proj.ndeltas;
-	    continue;
-	  }
+      // MDTs: count outlier as delta electron if rDrift < rTrack < innerTubeRadius
+      if( isMdt && pars ) {
+	double rDrift = fabs(meas->localParameters()[Trk::locR]);
+	double rTrack = fabs(pars->parameters()[Trk::locR]);
+	double innerRadius = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+	if( rTrack > rDrift && rTrack < innerRadius ) {
+	  ++proj.ndeltas;
+	  continue;
 	}
       }
       ++proj.noutliers;

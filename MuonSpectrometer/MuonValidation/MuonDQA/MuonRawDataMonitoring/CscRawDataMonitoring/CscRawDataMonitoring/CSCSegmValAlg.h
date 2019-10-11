@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **********************************************************************
@@ -21,6 +21,7 @@
 
 // Gaudi Tools
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -43,6 +44,8 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+
 // STL
 #include <vector>
 #include <string>
@@ -56,7 +59,6 @@ class CscIdHelper;
 class TgcIdHelper;
 
 namespace Muon {
-  class MuonEDMHelperTool;
   class MuonIdHelperTool;
 }
 
@@ -187,8 +189,11 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC;
 
   // Tool handles
-  ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" };
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 };
 
 #endif

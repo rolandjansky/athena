@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_CONDCABLING_MDTCABLINGDBTOOL_H
@@ -12,10 +12,10 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "StoreGate/StoreGateSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ToolHandle.h"
+
 class Identifier; 
-class StoreGateSvc; 
-class MdtIdHelper;
 class IIOVSvc;
 class IIOVDbSvc;
 class StatusCode;
@@ -57,7 +57,8 @@ public:
 
   IIOVSvc* m_IOVSvc;
   IIOVDbSvc* m_IOVDbSvc;
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   MuonMDT_CablingMap* m_cablingData; 
   std::string      m_DataLocation;

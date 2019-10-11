@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTBH6BeamInfo.h"
@@ -10,7 +10,6 @@
 // Gaudi Includes
 #include "GaudiKernel/SystemOfUnits.h"
 #include "StoreGate/DataHandle.h"
-#include "CxxUtils/make_unique.h" // For make unique
 
 using namespace Gaudi::Units;
 
@@ -102,7 +101,7 @@ StatusCode LArTBH6BeamInfo::execute()
 
    if(v_x.size() < 2 || v_y.size() < 2) { // Could not fit
       ATH_MSG_DEBUG ( "Could not fit, setting zero. "<<v_x.size()<<"/"<<v_y.size() );
-      m_track = CxxUtils::make_unique<TBTrack>(0,0);
+      m_track = std::make_unique<TBTrack>(0,0);
       m_track->setUintercept(0.);
       m_track->setVintercept(0.);
       m_track->setUslope(0.);
@@ -144,7 +143,7 @@ StatusCode LArTBH6BeamInfo::execute()
     ATH_MSG_DEBUG ( "Intercepts: "<<a1_x<<" "<<a1_y );
     ATH_MSG_DEBUG ( "Slopes: "<<a2_x<<" "<<a2_y );
 
-    m_track = CxxUtils::make_unique<TBTrack>(v_x.size(), v_y.size());
+    m_track = std::make_unique<TBTrack>(v_x.size(), v_y.size());
 
     m_track->setUintercept(a1_x);
     m_track->setVintercept(a1_y);

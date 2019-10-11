@@ -775,7 +775,7 @@ class readHLTconfigFromXML(JobProperty):
                             slice_prop.set_Off()
                         else:
                             slice_prop.set_On()
-        ## in addition set inputLVL1configFile to be the same as outputLVL1configFile
+        ## in addition set inputHLTconfigFile to be the same as outputHLTconfigFile
         if self.get_Value() is False:
             TriggerFlags.inputHLTconfigFile = TriggerFlags.outputHLTconfigFile()
         else:
@@ -851,7 +851,7 @@ class outputL1TopoConfigFile(JobProperty):
             # removed.
             import re
             menuSetup = TriggerFlags.triggerMenuSetup()
-            m = re.match(r'(.*v\d).*', menuSetup)
+            m = re.match(r'(.*v\d(?:_primaries)?).*', menuSetup)
             if m:
                 menuSetup = m.groups()[0]
             return "L1Topoconfig_" + menuSetup + "_" + TriggerFlags.menuVersion() + ".xml"
@@ -887,7 +887,18 @@ class outputHLTconfigFile(JobProperty):
 
 _flags.append(outputHLTconfigFile)
 
+class outputHLTmenuJsonFile(JobProperty):
+    """ File name for output HLT configuration XML file """
+    statusOn=True
+    StoredValue=""
 
+    def __call__(self):
+        if self.get_Value() == "":
+            return "HLTMenu_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".json"
+        else:
+            return self.get_Value()
+
+_flags.append(outputHLTmenuJsonFile)
 
 class inputL1TopoConfigFile(JobProperty):
     """Used to define an external L1Topo configuration file. To be
@@ -1055,6 +1066,7 @@ class triggerMenuSetup(JobProperty):
         # Run 3 (and preparation for Run-3)
         'LS2_v1', # for development of AthenaMT
         'LS2_emu_v1', # emulation test menu for AthenaMT
+        'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         ]
 
     _default_menu='Physics_pp_v7_primaries'

@@ -40,27 +40,6 @@ if jobproperties.TileRecFlags.doTileOpt2():
 
     print ToolSvc.TileRawChannelBuilderOpt2Filter
 
-if jobproperties.TileRecFlags.doTileOpt():
-    ToolSvc.TileRawChannelBuilderOptFilter.PedestalMode=1
-
-    if TileRunType==2:
-        if TileFrameLength==9:
-            ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Laser_9Samples"
-
-        if TileFrameLength==7:
-            ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Laser_7Samples"
-    else:
-        if TileFrameLength==9:
-            ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Phys_9Samples"
-
-        if TileFrameLength==7:
-            ServiceMgr.TileInfoLoader.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
-
-    ServiceMgr.TileInfoLoader.OFPhysicsNSamples = TileFrameLength
-    ServiceMgr.TileInfoLoader.LoadOptFilterWeights=True
-
-    print ToolSvc.TileRawChannelBuilderOptFilter
-
 if jobproperties.TileRecFlags.doTileFlat():
     ToolSvc.TileRawChannelBuilderFlatFilter.FrameLength = TileFrameLength
     ToolSvc.TileRawChannelBuilderFlatFilter.SignalLength = TileFrameLength - 1

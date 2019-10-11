@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTPRDValAlg_H
@@ -15,6 +15,8 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <sstream>   
 #include <string>
 #include <vector>
@@ -26,10 +28,8 @@ class MuonSimData;
 class Identifier;
 class TTree;
 class TFile;
-class MdtIdHelper;
 class ITHistSvc;
 class MsgStream;
-class StoreGateSvc;
 
 // pre-declarations
 namespace MuonGM {
@@ -136,13 +136,12 @@ class MDTPRDValAlg: public AthAlgorithm {
   const MuonGM::MdtReadoutElement* m_descriptor;
   const MuonGM::MuonDetectorManager* m_pMuonMgr;
 
-  /**Pointers On Helpers */
-  const MdtIdHelper*  m_mdtIdHelper;
-  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
   MsgStream*          m_log;
   bool                m_debug;
   bool                m_verbose;
-  StoreGateSvc*       m_sgSvc;
   bool isVerbose() {return (msgLevel() <= MSG::VERBOSE);}
 
   void addMcEventCollection( TruthMap& truthMap ) const;

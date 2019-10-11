@@ -27,8 +27,9 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class StoreGateSvc;
-class TgcIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -84,7 +85,8 @@ class TgcDataPreparator: public AthAlgTool
 
       const MuonGM::MuonDetectorManager* m_muonMgr;
       const MuonGM::TgcReadoutElement* m_tgcReadout;
-      const TgcIdHelper* m_tgcIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
       //ActiveStoreSvc* m_activeStore;
       ServiceHandle<ActiveStoreSvc> m_activeStore;

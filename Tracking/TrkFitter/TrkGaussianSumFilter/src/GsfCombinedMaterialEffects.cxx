@@ -15,7 +15,7 @@ decription           : Implementation code for GsfCombinedMaterialEffects class
 
 #include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
 
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
@@ -145,7 +145,6 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
     cache_energyLoss.weights.push_back(1.);
     cache_energyLoss.deltaPs.push_back(0.);
     std::unique_ptr<AmgSymMatrix(5)> newCov = std::make_unique<AmgSymMatrix(5)>();
-    newCov->setZero();
     newCov->setZero();
     cache_energyLoss.deltaCovariances.push_back(std::move(newCov));
   }

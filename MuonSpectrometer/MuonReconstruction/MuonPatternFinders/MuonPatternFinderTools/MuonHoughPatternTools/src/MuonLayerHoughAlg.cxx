@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHoughAlg.h"
@@ -10,8 +10,6 @@
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 MuonLayerHoughAlg::MuonLayerHoughAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 

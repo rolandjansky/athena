@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _MDTVALIDATIONALG_H
@@ -27,16 +27,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" 
 
-// AtlasCore //
-#include "StoreGate/StoreGateSvc.h"
-
-
 //MdtCalibData
 #include "MdtCalibData/MdtTubeFitContainer.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class RegionSelectionSvc;
 
-class MdtIdHelper;
 namespace MuonGM {
   class MuonDetectorManager;
 }
@@ -112,11 +109,10 @@ namespace MuonCalib {
     MdtTubeFitContainer *  m_tube_chamber;
     
     // helpers //
-    std::string m_detector_store; // name of the detector store
     std::string m_MDT_ID_helper; // name of the MDT ID helper
     
-    StoreGateSvc *m_detStore; // pointer to the detector store
-    const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
     // detector manager

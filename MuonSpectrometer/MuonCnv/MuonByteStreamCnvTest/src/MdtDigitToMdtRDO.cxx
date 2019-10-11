@@ -23,9 +23,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_mdtIdHelper(0),
-  m_BMEpresent(false)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -38,7 +36,7 @@ StatusCode MdtDigitToMdtRDO::initialize()
   ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_csmContainerKey );
   ATH_CHECK( m_digitContainerKey.initialize() );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_digitContainerKey );
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_readKey.initialize() );
 
   if ( fillTagInfo().isFailure() ) {
@@ -46,7 +44,7 @@ StatusCode MdtDigitToMdtRDO::initialize()
   }
 
   // check if the layout includes elevator chambers
-  m_BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
+  m_BMEpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1;
   if ( m_BMEpresent )
     ATH_MSG_INFO( "Processing configuration for layouts with BME chambers."  );
   
@@ -59,27 +57,27 @@ StatusCode MdtDigitToMdtRDO::initialize()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 
-StatusCode MdtDigitToMdtRDO::execute() {
+StatusCode MdtDigitToMdtRDO::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "in execute()"  );
 
-  ATH_CHECK(fill_MDTdata());
+  ATH_CHECK(fill_MDTdata(ctx));
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
+StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "in execute() : fill_MDTdata"  );
   // create an empty pad container and record it
-  SG::WriteHandle<MdtCsmContainer> csmContainer(m_csmContainerKey);
+  SG::WriteHandle<MdtCsmContainer> csmContainer(m_csmContainerKey, ctx);
   ATH_CHECK(csmContainer.record(std::make_unique<MdtCsmContainer>()));
   ATH_MSG_DEBUG("Recorded MdtCsmContainer called " << csmContainer.name() << " in store " << csmContainer.store());
 
-  IdContext mdtContext = m_mdtIdHelper->module_context();
+  IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
 
-  SG::ReadHandle<MdtDigitContainer> container (m_digitContainerKey);
+  SG::ReadHandle<MdtDigitContainer> container (m_digitContainerKey, ctx);
   if (!container.isValid()) {
     ATH_MSG_ERROR("Could not find MdtDigitContainer called " << container.name() << " in store " << container.store());
     return StatusCode::SUCCESS;
@@ -91,7 +89,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 
   MdtCsmIdHash hashF;
 
-  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey, ctx};
   const MuonMDT_CablingMap* readCdo{*readHandle};
   if(readCdo==0){
     ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -105,10 +103,10 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
       const MdtDigitCollection* mdtCollection = *it_coll;
       IdentifierHash moduleHash = mdtCollection->identifierHash();
       Identifier moduleId;
-      m_mdtIdHelper->get_id(moduleHash, moduleId, &mdtContext); 
-      int name    = m_mdtIdHelper->stationName(moduleId);
-      int eta     = m_mdtIdHelper->stationEta(moduleId);
-      int phi     = m_mdtIdHelper->stationPhi(moduleId);
+      m_muonIdHelperTool->mdtIdHelper().get_id(moduleHash, moduleId, &mdtContext); 
+      int name    = m_muonIdHelperTool->mdtIdHelper().stationName(moduleId);
+      int eta     = m_muonIdHelperTool->mdtIdHelper().stationEta(moduleId);
+      int phi     = m_muonIdHelperTool->mdtIdHelper().stationPhi(moduleId);
  
       // Get the online ID of the MDT module
       uint8_t subsystem;
@@ -133,15 +131,15 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
       Identifier chid1, chid2;
       if ( m_BMEpresent ){
 	// 1st ML channel get_id
-	chid1 = m_mdtIdHelper->channelID(m_mdtIdHelper->stationName(moduleId),
-					 m_mdtIdHelper->stationEta(moduleId),
-					 m_mdtIdHelper->stationPhi(moduleId),
+	chid1 = m_muonIdHelperTool->mdtIdHelper().channelID(m_muonIdHelperTool->mdtIdHelper().stationName(moduleId),
+					 m_muonIdHelperTool->mdtIdHelper().stationEta(moduleId),
+					 m_muonIdHelperTool->mdtIdHelper().stationPhi(moduleId),
 					 1, 1, 1 );
 	// 2nd ML channel id
 	if ( name == 53 ) {
-	  chid2 = m_mdtIdHelper->channelID(m_mdtIdHelper->stationName(moduleId),
-					   m_mdtIdHelper->stationEta(moduleId),
-					   m_mdtIdHelper->stationPhi(moduleId),
+	  chid2 = m_muonIdHelperTool->mdtIdHelper().channelID(m_muonIdHelperTool->mdtIdHelper().stationName(moduleId),
+					   m_muonIdHelperTool->mdtIdHelper().stationEta(moduleId),
+					   m_muonIdHelperTool->mdtIdHelper().stationPhi(moduleId),
 					   2, 1, 1 );
         
         }
@@ -192,11 +190,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	  const MdtDigit* mdtDigit = *it_dig;
 	  Identifier channelId = mdtDigit->identify();
 	    
-	  if (m_mdtIdHelper->valid(channelId)) 
+	  if (m_muonIdHelperTool->mdtIdHelper().valid(channelId)) 
 	    {
-	      int multilayer = m_mdtIdHelper->multilayer(channelId);
-	      int layer      = m_mdtIdHelper->tubeLayer(channelId);
-	      int tube       = m_mdtIdHelper->tube(channelId);
+	      int multilayer = m_muonIdHelperTool->mdtIdHelper().multilayer(channelId);
+	      int layer      = m_muonIdHelperTool->mdtIdHelper().tubeLayer(channelId);
+	      int tube       = m_muonIdHelperTool->mdtIdHelper().tube(channelId);
 	            
 	      // Get the online Id of the channel
 	      cabling = readCdo->getOnlineId(name, eta, phi, 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,15 +11,12 @@
 
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class StoreGateSvc;
 class MdtIdHelper;
 
-class CscIdHelper;
 class ICscStripFitter;
 
-class RpcIdHelper;
-class TgcIdHelper;
 class TileTBID;
 
 namespace MuonGM {
@@ -61,9 +58,8 @@ namespace MuonCalib {
 
     /**
        Algorithm initialize:
-       - retrieves StoreGateSvc
        - retrieves MuonCalibTool
-       - retrieves auxillairy classes to construct Calib EDM classes (IdHelpers, IdToFixedIdTool, DetectorStore)
+       - retrieves auxillairy classes to construct Calib EDM classes (IdHelpers, IdToFixedIdTool)
        
      */
     StatusCode initialize();     
@@ -105,7 +101,6 @@ namespace MuonCalib {
     const MuonCalibTriggerTimeInfo* retrieveTriggerTimeInfo() const;
 
     const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to MuonDetectorManager 
-    StoreGateSvc* p_StoreGateSvc;                   //!< Pointer to StoreGateSvc 
     std::string m_globalPatternLocation;            //!< Location of the MuonCalibPattern in StoreGate
 
     /* RtCalibration initialization */
@@ -125,11 +120,9 @@ namespace MuonCalib {
     // Tool to cut on identifiers
     ToolHandle<IMuonIdCutTool> m_muonIdCutTool;
    
-    /* Pointers to the Identifier Helpers */
-    const MdtIdHelper*  m_mdtIdHelper;              //!< MDT specific ID helper
-    const CscIdHelper*  m_cscIdHelper;              //!< CSC specific ID helper
-    const RpcIdHelper*  m_rpcIdHelper;              //!< RPC specific ID helper
-    const TgcIdHelper*  m_tgcIdHelper;              //!< TGC specific ID helper
+    /* Tool for Identifier Helpers */
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     std::vector <const MuonCalibEvent*> m_events;         //!< vector holding pointers to events, for deletion at finalize
 

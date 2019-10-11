@@ -44,9 +44,9 @@ atlas_add_test( TestSCTEncodeSerial
                 SCRIPT athena.py SCT_RawDataByteStreamCnv/testSCTEncode.py
                 PROPERTIES TIMEOUT 300 )
 atlas_add_test( TestSCTEncode
-                SCRIPT athena.py --threads=5 SCT_RawDataByteStreamCnv/testSCTEncode.py
+                SCRIPT athena.py --threads=1 SCT_RawDataByteStreamCnv/testSCTEncode.py
                 PROPERTIES TIMEOUT 300
-                ENVIRONMENT THREADS=5 )
+                ENVIRONMENT THREADS=1 )
 
 # Install files from the package:
 atlas_install_headers( SCT_RawDataByteStreamCnv )

@@ -11,7 +11,6 @@
 #include "TrigT1RPClogic/RPCbytestream.h"
 #include "TrigT1RPChardware/MatrixReadOutStructure.h"
 #include "TrigT1RPChardware/PadReadOutStructure.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
 
 // Builds a RPCbytestream object from the bare RPC RDO's

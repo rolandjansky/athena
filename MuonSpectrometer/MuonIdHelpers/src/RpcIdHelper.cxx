@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,14 +21,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-inline void RpcIdHelper::create_mlog() const
-	{
-	if(!m_Log) m_Log=new MsgStream(m_msgSvc, "RpcIdHelper");
-	}
 
 // Constructor
 
-RpcIdHelper::RpcIdHelper() : MuonIdHelper(), m_DOUBLETR_INDEX(0), 
+RpcIdHelper::RpcIdHelper() : MuonIdHelper("RpcIdHelper"), m_DOUBLETR_INDEX(0), 
   m_DOUBLETZ_INDEX(0), m_DOUBLETPHI_INDEX(0), m_GASGAP_INDEX(0),
   m_MEASURESPHI_INDEX(0) {}
 
@@ -43,8 +39,6 @@ RpcIdHelper::~RpcIdHelper()
 
 int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
-  create_mlog();
-
   int status = 0;
 
   // Check whether this helper should be reinitialized
@@ -306,6 +300,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   (*m_Log) << MSG::INFO << "Initializing RPC hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
 
+  m_init = true;
   return (status);
 }
 
@@ -711,8 +706,6 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
 
  bool RpcIdHelper::valid(const Identifier& id) const {
 
-    create_mlog();
-
     if (! validElement(id)) return false;
  
     int dbz = doubletZ(id);
@@ -780,8 +773,6 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
 
  bool RpcIdHelper::validElement(const Identifier& id) const {
 
-    create_mlog();
-
     int station = stationName(id);
     std::string name = stationNameString(station);
 
@@ -836,8 +827,6 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
 
  bool RpcIdHelper::validPad(const Identifier& id) const {
 
-    create_mlog();
-
     if (! validElement(id)) return false; 
 
     int dbz = doubletZ(id);
@@ -872,8 +861,6 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
 bool RpcIdHelper::validElement(const Identifier& id, int stationName, int stationEta, 
 				      int stationPhi, int doubletR) const
 {
-    create_mlog();
-
     std::string name = stationNameString(stationName);
 
     if ('B' != name[0])
@@ -926,8 +913,6 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
 				      int doubletPhi, int gasGap, int measuresPhi, 
 				      int strip) const
 {
-    create_mlog();
-
     if (! validElement(id, stationName, stationEta, stationPhi, doubletR)) return false;
 
     if ((doubletZ < doubletZMin(id)) ||
@@ -989,8 +974,6 @@ bool RpcIdHelper::validPad(const Identifier& id, int stationName,
 				  int stationEta, int stationPhi, 
 				  int doubletR, int doubletZ, int doubletPhi) const
 {
-    create_mlog();
-
     if (! validElement(id, stationName, stationEta, stationPhi, doubletR)) return false;
 
     if ((doubletZ < doubletZMin(id)) ||
@@ -1017,8 +1000,6 @@ bool RpcIdHelper::validPad(const Identifier& id, int stationName,
 }
 
 int RpcIdHelper::init_detectorElement_hashes(void) {
-
-    create_mlog();
 
     //
     // create a vector(s) to retrieve the hashes for compact ids. For

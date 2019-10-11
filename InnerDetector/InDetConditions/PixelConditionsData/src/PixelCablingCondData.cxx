@@ -19,10 +19,7 @@ PixelCablingCondData::PixelCablingCondData():
   m_rodReadoutMap(),
   m_allRods(),
   m_allRobs()
-{
-  m_allRods = new std::vector<uint32_t>;
-  m_allRobs = new std::vector<uint32_t>;
-}
+{ }
 
 PixelCablingCondData::~PixelCablingCondData() { }
 
@@ -39,11 +36,15 @@ void PixelCablingCondData::add_entry_offrob(const Identifier offlineId, const ui
 }
 
 void PixelCablingCondData::add_entry_rodrob(int rodid, int robid) {
-  m_idMap_rodrob.insert(std::make_pair(rodid, robid)); // add RODId identifier -> offline ROBId pair in m_idMap_rodrob
+  auto [iter, newElementAdded] = m_idMap_rodrob.insert(std::make_pair(rodid, robid)); // add RODId identifier -> offline ROBId pair in m_idMap_rodrob
+  if ( newElementAdded )
+    m_allRods.push_back(rodid);
 }
 
 void PixelCablingCondData::add_entry_robrod(int robid, int rodid) {
-  m_idMap_robrod.insert(std::make_pair(robid, rodid));
+  auto [iter, newElementAdded] = m_idMap_robrod.insert(std::make_pair(robid, rodid));
+  if ( newElementAdded )
+    m_allRobs.push_back(robid);
 }
 
 void PixelCablingCondData::add_entry_offlineList(const uint32_t robid, const Identifier offlineId) {
@@ -142,8 +143,7 @@ std::deque<Identifier> PixelCablingCondData::find_entry_offlineList(uint32_t rob
 Identifier PixelCablingCondData::find_entry_DCSoffline(std::string DCSname) const {
   std::unordered_map<std::string, Identifier>::const_iterator iter(m_idMapDCSoff.find(DCSname));
   if (iter == m_idMapDCSoff.end()) {
-    Identifier offlineId(0);
-    return offlineId;
+    return Identifier(0);
   }
   return iter->second;
 }
@@ -157,21 +157,12 @@ std::string PixelCablingCondData::find_entry_offlineDCS(const Identifier offline
   return ""; // not found
 }
 
-std::vector<uint32_t>& PixelCablingCondData::get_allRods() const {
-  if (m_allRods->empty()) { // fill vector from map only once
-    for (std::unordered_map<int, int>::const_iterator rodrobmap_iterator = m_idMap_rodrob.begin(); rodrobmap_iterator != m_idMap_rodrob.end(); rodrobmap_iterator++)
-      m_allRods->push_back(rodrobmap_iterator->first);
-  }
-  return *m_allRods;
+const std::vector<uint32_t>& PixelCablingCondData::get_allRods() const {
+  return m_allRods;
 }
 
-std::vector<uint32_t>& PixelCablingCondData::get_allRobs() const {
-  if (m_allRobs->empty()) {
-    for (std::unordered_map<int,int>::const_iterator robrod_iter = m_idMap_robrod.begin(); robrod_iter != m_idMap_robrod.end(); robrod_iter++) {
-      m_allRobs->push_back(robrod_iter->first);
-    }
-  }
-  return *m_allRobs;
+const std::vector<uint32_t>& PixelCablingCondData::get_allRobs() const {
+  return m_allRobs;
 }
 
 ////////////////////////
@@ -203,27 +194,27 @@ uint64_t PixelCablingCondData::getOnlineIdFromRobId(uint32_t robid, uint32_t lin
   return 0;
 }
 
-std::unordered_map<uint64_t, Identifier> PixelCablingCondData::get_idMap_onoff() const {
+const std::unordered_map<uint64_t, Identifier>& PixelCablingCondData::get_idMap_onoff() const {
   return m_idMap_onoff;
 }
 
-std::unordered_map<Identifier, uint64_t, idHasher> PixelCablingCondData::get_idMap_offon() const {
+const std::unordered_map<Identifier, uint64_t, idHasher>& PixelCablingCondData::get_idMap_offon() const {
   return m_idMap_offon;
 }
 
-std::unordered_map<Identifier, uint32_t, idHasher> PixelCablingCondData::get_idMap_offrob() const {
+const std::unordered_map<Identifier, uint32_t, idHasher>& PixelCablingCondData::get_idMap_offrob() const {
   return m_idMap_offrob;
 }
 
-std::unordered_map<int,int> PixelCablingCondData::get_idMap_rodrob() const {
+const std::unordered_map<int,int>& PixelCablingCondData::get_idMap_rodrob() const {
   return m_idMap_rodrob;
 }
 
-std::unordered_map<int,int> PixelCablingCondData::get_idMap_robrod() const {
+const std::unordered_map<int,int>& PixelCablingCondData::get_idMap_robrod() const {
   return m_idMap_robrod;
 }
 
-std::unordered_map<std::string, Identifier> PixelCablingCondData::get_idMapDCSoff() const {
+const std::unordered_map<std::string, Identifier>& PixelCablingCondData::get_idMapDCSoff() const {
   return m_idMapDCSoff;
 }
 
@@ -236,7 +227,7 @@ void PixelCablingCondData::clear() {
   m_offlineListVect.clear();
   m_idMapDCSoff.clear();
   m_rodReadoutMap.clear();
-  m_allRods->clear();
-  m_allRobs->clear();
+  m_allRods.clear();
+  m_allRobs.clear();
 }
 

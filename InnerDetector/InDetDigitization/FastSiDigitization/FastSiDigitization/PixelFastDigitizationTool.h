@@ -21,6 +21,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h" //typedef, cannot fwd declare
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h" //typedef, cannot fwd declare
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PixelCabling/IPixelCablingSvc.h"
@@ -48,7 +49,6 @@ class IAtRndmGenSvc;
 
 namespace InDetDD{
   class SiDetectorElement;
-  class PixelDetectorManager;
 }
 namespace CLHEP {class HepRandomEngine;}
 
@@ -94,7 +94,6 @@ private:
   CLHEP::HepRandomEngine*           m_randomEngine;
   std::string                m_randomEngineName;         //!< Name of the random number stream
 
-  const InDetDD::PixelDetectorManager* m_manager;
   const PixelID* m_pixel_ID;                             //!< Handle to the ID helper
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;   //!< ToolHandle to ClusterMaker
@@ -113,8 +112,6 @@ private:
 
   std::string                           m_prdTruthNamePixel;
   PRD_MultiTruthCollection*             m_pixPrdTruth;              //!< the PRD truth map for Pixel measurements
-
-  //  ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;   //!< Handle to pixel conditions service
 
   ToolHandle< InDet::PixelGangedAmbiguitiesFinder > m_gangedAmbiguitiesFinder;
 
@@ -152,7 +149,9 @@ private:
   SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
   {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
-  //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
+  {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, const InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;
 
   PixelFastDigitizationTool();

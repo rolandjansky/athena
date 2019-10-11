@@ -32,14 +32,18 @@ class EventViewCreatorAlgorithmWithMuons : public EventViewCreatorAlgorithm {
 
     EventViewCreatorAlgorithmWithMuons();
 
-    SG::WriteHandleKey< ConstDataVector<xAOD::MuonContainer> > m_inViewMuons {this,"InViewMuons","Unspecified","Name with which the Muons should be inserted into the views"};
-    SG::WriteHandleKey< ConstDataVector<MuonCandidateCollection> > m_inViewMuonCandidates {this,"InViewMuonCandidates","Unspecified","Name with which the Muon Candidates should be inserted into the views"};
+    SG::WriteHandleKey< ConstDataVector<xAOD::MuonContainer> > m_inViewMuons {this,"InViewMuons","Unspecified",
+      "Name with which the Muons should be inserted into the views"};
+    SG::WriteHandleKey< ConstDataVector<MuonCandidateCollection> > m_inViewMuonCandidates {this,"InViewMuonCandidates","Unspecified",
+      "Name with which the Muon Candidates should be inserted into the views"};
+    SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roisWriteHandleKey {this,"RoisWriteHandleKey","Unspecified",
+      "Name of the global-scope collection used to persistify the new ROIDescriptor(s) created around the muon candidate(s)"};
+
 
     Gaudi::Property< std::string > m_muonsLink {this,"MuonsLink","Unspecified","Name of EL to Muon object linked to the decision"};
+    Gaudi::Property<bool> m_doFSRoI {this, "CreateFSRoI", false, "Make Full Scan RoI"};
     double m_roiEtaWidth;
     double m_roiPhiWidth;
-    bool m_linkToParent;
-    bool m_doFSRoI;
 };
 
 #endif

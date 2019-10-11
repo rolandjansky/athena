@@ -14,7 +14,6 @@
 
 #include "TRT_DriftFunctionTool/TRT_DriftFunctionTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"

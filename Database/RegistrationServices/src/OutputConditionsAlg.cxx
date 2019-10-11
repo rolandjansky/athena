@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // OutputConditionsAlg.cxx
@@ -7,7 +7,6 @@
 // and optional registration in IOV database
 // Richard Hawkings, started 1/9/05, from skeleton by Walter Lampl
 
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"

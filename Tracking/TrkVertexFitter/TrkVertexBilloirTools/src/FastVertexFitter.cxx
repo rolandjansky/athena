@@ -88,7 +88,7 @@ namespace Trk
 		return StatusCode::SUCCESS;
 	}
 
-	FastVertexFitter::FastVertexFitter ( const std::string& t, const std::string& n, const IInterface*  p ) : AthAlgTool ( t,n,p ),
+	FastVertexFitter::FastVertexFitter ( const std::string& t, const std::string& n, const IInterface*  p ) : base_class ( t,n,p ),
 														  m_maxIterations ( 3 ),
 														  m_maxDchi2PerNdf ( 0.000001 ),
 														  m_extrapolator ( "Trk::Extrapolator" ),
@@ -108,7 +108,7 @@ namespace Trk
 
 	/** Interface for Track with starting point */
 	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::Track*> & vectorTrk,
-	                                       const Amg::Vector3D& firstStartingPoint )
+	                                       const Amg::Vector3D& firstStartingPoint ) const
 	{
                 xAOD::Vertex constraint;
                 constraint.makePrivateStore();
@@ -121,7 +121,7 @@ namespace Trk
 	/** Interface for Track with vertex constraint */
 	/** the position of the constraint is ALWAYS the starting point */
 	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk,
-	                                       const xAOD::Vertex& firstStartingPoint )
+	                                       const xAOD::Vertex& firstStartingPoint ) const
 	{
 		// push_back measured perigees of track into vector<const Trk::ParametersBase*>
 		std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -157,7 +157,7 @@ namespace Trk
 
 	/** Interface for TrackParticleBase with starting point */
 	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-	                                       const Amg::Vector3D& firstStartingPoint )
+	                                       const Amg::Vector3D& firstStartingPoint ) const
 	{
                 xAOD::Vertex constraint;
                 constraint.makePrivateStore();
@@ -170,7 +170,7 @@ namespace Trk
 	/** Interface for TrackParticleBase with vertex constraint */
 	/** the position of the constraint is ALWAYS the starting point */
 	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-	                                       const xAOD::Vertex& firstStartingPoint )
+	                                       const xAOD::Vertex& firstStartingPoint ) const
 	{
 		// push_back measured perigees of track into vector<const Trk::ParametersBase*>
 		std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -205,7 +205,7 @@ namespace Trk
 
 	/** Interface for MeasuredPerigee with starting point */
 	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::TrackParameters*> & originalPerigees,
-	                                       const Amg::Vector3D& firstStartingPoint )
+	                                       const Amg::Vector3D& firstStartingPoint ) const
 	{
                 xAOD::Vertex constraint;
                 constraint.makePrivateStore();
@@ -218,7 +218,7 @@ namespace Trk
 	/** Interface for MeasuredPerigee with vertex constraint */
 	/** the position of the constraint is ALWAYS the starting point */
 	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::TrackParameters*> & originalPerigees,
-	                                       const xAOD::Vertex& firstStartingPoint )
+	                                       const xAOD::Vertex& firstStartingPoint ) const
 	{
 		if ( originalPerigees.empty() )
 		{
@@ -436,13 +436,13 @@ namespace Trk
 		return fittedVertex.release();
 	}
 
-	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::TrackParameters*>& perigeeList )
+	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::TrackParameters*>& perigeeList ) const
 	{
 		Amg::Vector3D tmpVtx(0.,0.,0.);
 		return fit ( perigeeList, tmpVtx );
 	}
 
-	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk )
+	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk ) const
 	{
 		Amg::Vector3D tmpVtx(0.,0.,0.);
 		return fit ( vectorTrk, tmpVtx );
@@ -450,7 +450,7 @@ namespace Trk
 
   		//xAOD interfaced methods. Required to un-block the current situation  
  		// with the xAOD tracking design. 
- 		 xAOD::Vertex * FastVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const Amg::Vector3D& startingPoint) 
+ 		 xAOD::Vertex * FastVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const Amg::Vector3D& startingPoint)  const
  		 {
                   xAOD::Vertex constraint;
                   constraint.makePrivateStore();
@@ -461,7 +461,7 @@ namespace Trk
  		 }//end of the xAOD starting point fit method 
  		 
  		     
- 		 xAOD::Vertex * FastVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const xAOD::Vertex& constraint) 
+ 		 xAOD::Vertex * FastVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const xAOD::Vertex& constraint) const
  		 { 
  		   if(vectorTrk.size() == 0) 
  		   { 

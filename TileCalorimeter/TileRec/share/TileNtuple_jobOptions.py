@@ -72,9 +72,6 @@ else:
     if doTileFitCool:
         TileNtuple.TileRawChannelContainerFitCool  = "TileRawChannelFitCool"
     
-    if doTileOpt:
-        TileNtuple.TileRawChannelContainerOpt  = "TileRawChannelOpt"
-
     if doTileOpt2:
         TileNtuple.TileRawChannelContainerOpt = "TileRawChannelOpt2"
         

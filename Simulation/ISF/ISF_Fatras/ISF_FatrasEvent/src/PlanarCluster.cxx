@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace iFatras {
 				const Amg::MatrixX* locErrMat ) :
     PrepRawData(RDOId, locpos, rdoList, locErrMat), //call base class constructor
     m_width(width),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_detEl(detEl) {}
   
   PlanarCluster::PlanarCluster( const Identifier& RDOId,
@@ -36,20 +36,19 @@ namespace iFatras {
 				std::unique_ptr<const Amg::MatrixX> locErrMat ) :
     PrepRawData(RDOId, locpos, std::move(rdoList), std::move(locErrMat)), //call base class constructor
     m_width(width),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_detEl(detEl) {}
   
   // Destructor:
   PlanarCluster::~PlanarCluster()
   {
-    delete m_globalPosition;
     // do not delete m_detEl since owned by DetectorStore
   }
 
   // Default constructor:
   PlanarCluster::PlanarCluster():
     PrepRawData(),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_detEl(0)
   {}
 
@@ -57,20 +56,20 @@ namespace iFatras {
   PlanarCluster::PlanarCluster( const PlanarCluster & RIO):
     PrepRawData( RIO ),
     m_width( RIO.m_width ),
-    m_globalPosition( 0 ),
+    m_globalPosition(),
     m_detEl( RIO.m_detEl )
   {
     // copy only if it exists
-    m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+    if (RIO.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
   }
 
   //assignment operator
   PlanarCluster& PlanarCluster::operator=(const PlanarCluster& RIO){
     if (&RIO !=this) {
       static_cast<Trk::PrepRawData&>(*this) = RIO;
-      delete m_globalPosition;
       m_width = RIO.m_width;
-      m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+      if (RIO.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
+      else if (m_globalPosition) m_globalPosition.release().reset();
       m_detEl =  RIO.m_detEl ;
       }
     return *this;
@@ -80,9 +79,7 @@ namespace iFatras {
   PlanarCluster& PlanarCluster::operator=(PlanarCluster&& RIO){
     if (&RIO !=this) {
       static_cast<Trk::PrepRawData&>(*this) = std::move(RIO);
-      delete m_globalPosition;
-      m_globalPosition = RIO.m_globalPosition;
-      RIO.m_globalPosition = nullptr;
+      m_globalPosition = std::move(RIO.m_globalPosition);
       m_width = RIO.m_width;
       m_detEl =  RIO.m_detEl ;
       }

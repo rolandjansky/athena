@@ -45,8 +45,14 @@ class CFNaming(object):
         return "ComboHypo_" + HypoName
 
     @staticmethod
-    def comboSequenceCopyName(SequenceName, ncopy, StepName):
-        return "%s%d_for_%s"%(SequenceName, ncopy, StepName)
+    def comboSequenceCopyName(SequenceName, ncopy, StepName):    
+        if type(SequenceName) is list:
+           sequence = []
+           for sq in SequenceName:
+              sequence.append("%s%d_for_%s"%(sq, ncopy, StepName))
+           return sequence
+        else:
+           return "%s%d_for_%s"%(SequenceName, ncopy, StepName)
 
     @staticmethod
     def comboHypoCopyName(HypoName,ncopy,StepName):

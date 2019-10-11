@@ -92,17 +92,17 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     
     StatusCode vertexFit(xAOD::TrigBphys * result,
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                         const std::vector<double>& inputMasses);
+                         const std::vector<double>& inputMasses) const;
 
     StatusCode vertexFit(xAOD::TrigBphys * result,
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
                          const std::vector<double>& inputMasses,
-                         Trk::IVKalState& istate);
+                         Trk::IVKalState& istate) const;
 
 
     StatusCode vertexFit(xAOD::TrigBphys * result,
 		       const std::vector<const xAOD::TrackParticle*> &trks,
-		       const std::vector<double>& inputMasses);
+		       const std::vector<double>& inputMasses) const;
 
     // simplify this using templates perhaps? 
     double invariantMass(const xAOD::IParticle *p1, const xAOD::IParticle* p2, double m1, double m2) const;
@@ -112,9 +112,13 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     /// Fill an xAOD object with pt, rap,phi
     void fillTrigObjectKinematics(xAOD::TrigBphys* bphys, const std::vector<const xAOD::TrackParticle*> &ptls);
     
+    Amg::Vector3D getBeamSpot(const EventContext& ctx) const;
+
     /// Use the fitted position and the beamline to determine lxy, tau, etc.
     /// call after setting the kinematic values, to do ok.
-    void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls);
+    /// Try to factor getBeamSpot outside of loop.
+    void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls,
+                       const Amg::Vector3D& beamSpot);
 
     std::unique_ptr<Trk::IVKalState> makeVKalState() const;
 
@@ -133,7 +137,7 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     ToolHandle < Trk::IVertexFitter  >       m_fitterSvc;
     Trk::TrkVKalVrtFitter*              m_VKVFitter;
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-    const double m_massMuon;
+    static constexpr double s_massMuon = 105.6583715;
 };
 
 // I/O operators

@@ -52,6 +52,8 @@ echo "art-result: ${PIPESTATUS[0]} ${TRIGHLTMON_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${TRIGHLTMON_LOG} 2>&1 | tee checklog.TrigHLTMon.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigHLTMon"
+timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats log.HLTMon 2>&1 | tee checklog.HLTMon.log
+echo "art-result: ${PIPESTATUS[0]} CheckLog.HLTMon"
 
 echo "################################"
 echo $(date "+%FT%H:%M %Z")"     Test AthenaTrigESD_HLTMonitoring"

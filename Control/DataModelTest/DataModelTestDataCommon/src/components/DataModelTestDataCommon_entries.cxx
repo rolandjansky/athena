@@ -15,7 +15,9 @@
 #include "../xAODTestReadDecor.h"
 #include "../xAODTestDecor.h"
 #include "../xAODTestAlg.h"
+#include "../xAODTestWriteCVec.h"
 #include "../xAODTestWriteCInfo.h"
+#include "../xAODTestReadCVec.h"
 #include "../CondWriterAlg.h"
 #include "../CondWriterExtAlg.h"
 #include "../CondReaderAlg.h"
@@ -30,7 +32,9 @@ DECLARE_COMPONENT( DMTest::xAODTestReadSymlink )
 DECLARE_COMPONENT( DMTest::xAODTestReadDecor )
 DECLARE_COMPONENT( DMTest::xAODTestDecor )
 DECLARE_COMPONENT( DMTest::xAODTestAlg )
+DECLARE_COMPONENT( DMTest::xAODTestWriteCVec )
 DECLARE_COMPONENT( DMTest::xAODTestWriteCInfo )
+DECLARE_COMPONENT( DMTest::xAODTestReadCVec )
 DECLARE_COMPONENT( DMTest::CondWriterAlg )
 DECLARE_COMPONENT( DMTest::CondWriterExtAlg )
 DECLARE_COMPONENT( DMTest::CondReaderAlg )

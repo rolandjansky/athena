@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetSamplingCollectionCnv_p2.cxx 
@@ -15,12 +15,8 @@
 #include "AthAllocators/DataPool.h"
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/JetSampling.h"
 #include "JetEvent/JetSamplingCollection.h"
-#undef private
-#undef protected
 
 
 // JetEventTPCnv includes
@@ -29,26 +25,13 @@
 #include "JetEventTPCnv/JetSamplingCollectionCnv_p2.h"
 
 // preallocate converters
-static JetSamplingCnv_p2 jetSamplingCnv;
+static const JetSamplingCnv_p2 jetSamplingCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 JetSamplingCollectionCnv_p2::persToTrans( const JetSamplingCollection_p2* pers, 
 					  JetSamplingCollection* trans, 
-					  MsgStream& msg ) 
+					  MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading JetSamplingCollection from persistent state..."
 //       << endmsg;
@@ -81,7 +64,7 @@ JetSamplingCollectionCnv_p2::persToTrans( const JetSamplingCollection_p2* pers,
 void 
 JetSamplingCollectionCnv_p2::transToPers( const JetSamplingCollection* trans, 
 					  JetSamplingCollection_p2* pers, 
-					  MsgStream& msg ) 
+					  MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetSamplingCollection..."
 //       << endmsg;
@@ -101,19 +84,3 @@ JetSamplingCollectionCnv_p2::transToPers( const JetSamplingCollection* trans,
 //       << endmsg;
   return;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 

@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
-#include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "ViewAlgs/TrigCompositeTraversal.h"
@@ -39,12 +38,12 @@ StatusCode TestFEXAlgView::execute() {
   }
   ATH_MSG_DEBUG("Running on " << m_inputContainer->size() << " RoIs");
   
-  m_outputClusterContainer = CxxUtils::make_unique< TestClusterContainer >();
-  m_outputClusterContainerAux = CxxUtils::make_unique< TestClusterAuxContainer>();  
+  m_outputClusterContainer = std::make_unique< TestClusterContainer >();
+  m_outputClusterContainerAux = std::make_unique< TestClusterAuxContainer>();  
   m_outputClusterContainer->setStore(m_outputClusterContainerAux.ptr());
   
-  m_outputProxyContainer = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  m_outputProxyContainerAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
+  m_outputProxyContainer = std::make_unique< xAOD::TrigCompositeContainer >();
+  m_outputProxyContainerAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_outputProxyContainer->setStore(m_outputProxyContainerAux.ptr());
 
   const EventContext& ctx = getContext();
@@ -71,7 +70,7 @@ StatusCode TestFEXAlgView::execute() {
       m_outputProxyContainer->push_back(proxy);
 
       // This retrieval and cast could use some protection, but do we actually need this alg?
-      SG::View * myView = dynamic_cast< SG::View * >( ctx.getExtension<Atlas::ExtendedEventContext>().proxy() );
+      SG::View * myView = dynamic_cast< SG::View * >( Atlas::getExtendedEventContext(ctx).proxy() );
       proxy->setObjectLink("cluster", ElementLink<TestClusterContainer>(m_outputClusterContainer.name(), nRoI, myView ) );
       proxy->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputContainer.name(), nRoI, myView ) );
     } else {

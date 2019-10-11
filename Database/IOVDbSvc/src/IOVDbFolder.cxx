@@ -53,7 +53,6 @@
 #include "IOVDbStringFunctions.h"
 #include "IOVDbCoolFunctions.h"
 #include "TagFunctions.h"
-#include "CxxUtils/make_unique.h"
 
 #include "Cool2Json.h"
 #include "Json2Cool.h"
@@ -913,7 +912,7 @@ IOVDbFolder::createTransientAddress(const std::vector<std::string> & symlinks){
       }
     }
   }
-  return std::move(tad);
+  return tad;
 }
 
 std::unique_ptr<SG::TransientAddress>
@@ -1076,39 +1075,8 @@ IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
 }
 
 bool 
-IOVDbFolder::magicTag(std::string& tag) {
-  // tag an inputag of form TagInfo{Major|Minor}/<tag> or 
-  // TagInfo(Major|Minor}/<prefix>/<tag>
-  // and resolve to value of TagInfo object tag <tag>
-  // with optional prefix
-  // <prefix>DEFAULT tags are no longer returned
-  // return true for successful resolution
-  const std::string inputtag=tag;
-  tag="";
-  enum ResultIndices{WHOLETAG, MAJMIN, PATH1, PATH2, SIZEWITHPREFIX};
-  auto results=IOVDbNamespace::parseMagicTag(inputtag);
-  if (results.empty())   return false;
-  const auto & [prefix, target] = IOVDbNamespace::tag2PrefixTarget(results);
-  ATH_MSG_DEBUG("In magicTag for tag name: " << target << " prefix " << prefix );
-  // try to get TagInfo object
-  tag=IOVDbNamespace::getTagInfo(inputtag, p_detStore);
-  // if nothing found, try to get GeoAtlas directly from GeoModelSvc
-  if (tag.empty() and target=="GeoAtlas") {
-    ATH_MSG_DEBUG( "Attempt to get GeoAtlas tag directly from GeoModelSvc" );
-    tag=prefix+IOVDbNamespace::getGeoAtlasVersion();
-    ATH_MSG_DEBUG( "Resolved tag " << target << " to " << tag << " directly from GeoModel" );
-  }
-  if (not tag.empty()) {
-    std::string::size_type rstrip{};
-    //number of characters to strip from tag end
-    if (results[MAJMIN] == "Major") rstrip=6;
-    if (results[MAJMIN] == "Minor") rstrip=3;
-    // check if characters need to be stripped from end of tag
-    if (rstrip>0 && tag.size()>rstrip) tag=tag.substr(0,tag.size()-rstrip);
-    ATH_MSG_DEBUG( "Resolved TagInfo tag " << target  << " to value " << tag );
-  } else {
-    ATH_MSG_ERROR( "Could not resolve TagInfo tag " << target );
-  }
+IOVDbFolder::magicTag(std::string& tag) { //alters the argument
+  tag = IOVDbNamespace::resolveUsingTagInfo(tag, p_detStore);
   return (not tag.empty());
 }
 

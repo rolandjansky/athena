@@ -96,22 +96,22 @@ StatusCode photonSuperClusterBuilder::execute(){
     if (!egClus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
       ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
     }
+
+    //Require minimum energy for supercluster seeding.
     if (egClus->et()*emFrac < m_EtThresholdCut){
       continue;
     }
-
+ 
     //Passed preliminary custs
-    ATH_MSG_DEBUG("=========================================================");
-    ATH_MSG_DEBUG("Creating supercluster egammaRec photon object");
-    ATH_MSG_DEBUG("Using cluster Et = " << egClus->et()  << " EMFraction " << emFrac << " EM Et " << egClus->et()*emFrac);
-    //
+    ATH_MSG_DEBUG("Creating supercluster egammaRec photon object "<< 'n' 
+                  << "Using cluster Et = " << egClus->et()  << " EMFraction " 
+                  << emFrac << " EM Et " << egClus->et()*emFrac);
     //So it is used
     isUsed.at(i)=1;     
     //Start accumulating
     std::vector<const xAOD::CaloCluster*>  accumulatedClusters;
     accumulatedClusters.push_back(egClus);
 
-    //////////////////////////////
     //Core Logic goes here
     ATH_MSG_DEBUG("Find secondary clusters");
 
@@ -127,10 +127,8 @@ StatusCode photonSuperClusterBuilder::execute(){
       accumulatedClusters.push_back(secRec->caloCluster());
       // no need to add vertices
     }
-    //
     //End of core Logic 
 
-    ///////////////////////////////////////////////////////////////////////////////
     //Create the new cluster 
 
     ATH_MSG_DEBUG("Set up new Cluster");
@@ -225,7 +223,7 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
       convType == xAOD::EgammaParameters::doubleSi;
     if (addTracks) {
       for (unsigned int tp=0; tp < vertex->nTrackParticles(); ++tp){
-	seedVertexTracks.push_back(vertex->trackParticle(tp));
+        seedVertexTracks.push_back(vertex->trackParticle(tp));
       }
     }
   }
@@ -247,22 +245,21 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
     // Now perform a number of tests to see if the cluster should be added
     bool addCluster = false;
     if (m_addClustersInWindow && 
-	matchesInWindow(seedCaloClus, caloClus)) {
+        matchesInWindow(seedCaloClus, caloClus)) {
       ATH_MSG_DEBUG("Cluster  with Et : " << caloClus->et()<< " matched in window");
       nWindowClusters++;
       addCluster = true;
     } else if (m_addClustersMatchingVtx && 
-	matchesVtx(seedVertices, seedVertexType, egRec)) {
+               matchesVtx(seedVertices, seedVertexType, egRec)) {
       ATH_MSG_DEBUG("conversion vertices match");
       addCluster = true;
       nExtraClusters++;
     } else if (m_addClustersMatchingVtxTracks &&
-	       matchesVtxTrack(seedVertexTracks, egRec)) {
+               matchesVtxTrack(seedVertexTracks, egRec)) {
       ATH_MSG_DEBUG("conversion track match");
       addCluster = true;
       nExtraClusters++;
     }
-
     if (addCluster) {
       secondaryClusters.push_back(i);
       isUsed[i] = true;
@@ -271,7 +268,6 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
   ATH_MSG_DEBUG("Found: " << secondaryClusters.size()<< " secondaries");
   return secondaryClusters;
 }
-
 
 bool photonSuperClusterBuilder::matchesVtx(const std::vector<const xAOD::Vertex*>& seedVertices,
 					   const std::vector<xAOD::EgammaParameters::ConversionType>& seedVertexType,
@@ -282,16 +278,15 @@ bool photonSuperClusterBuilder::matchesVtx(const std::vector<const xAOD::Vertex*
   if (m_useOnlyLeadingVertex && numTestVertices > 0) {
     numTestVertices = 1;
   }
-  
   for (size_t seedVx = 0; seedVx < seedVertices.size(); ++seedVx) {
     if (!m_useOnlySi || 
-	seedVertexType[seedVx] == xAOD::EgammaParameters::singleSi ||
-	seedVertexType[seedVx] == xAOD::EgammaParameters::doubleSi) {
+        seedVertexType[seedVx] == xAOD::EgammaParameters::singleSi ||
+        seedVertexType[seedVx] == xAOD::EgammaParameters::doubleSi) {
       
       for (size_t testVx = 0; testVx < numTestVertices; ++testVx) {
-	if (seedVertices[seedVx] == egRec->vertex(testVx)) {
-	  return true;
-	}
+        if (seedVertices[seedVx] == egRec->vertex(testVx)) {
+          return true;
+        }
       }
     }
   }
@@ -309,7 +304,7 @@ bool photonSuperClusterBuilder::matchesVtxTrack(const std::vector<const xAOD::Tr
     // selected tracks alread are just Si if we are only looking at Si tracks
     for (size_t testTk = 0; testTk < numTestTracks; ++testTk) {
       if (seedVertexTracks[seedTk] == egRec->trackParticle(testTk)) {
-	return true;
+        return true;
       }
     }
   }

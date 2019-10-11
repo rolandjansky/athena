@@ -4,10 +4,7 @@
 
 #include <math.h>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthLinks/ElementLink.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMufastHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -101,6 +98,7 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     toolInput.emplace_back( newd, roi, muon, previousDecision );
     
     newd->setObjectLink( featureString(), muonEL );
+    newd->setObjectLink( viewString(),    viewEL);
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
     
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");

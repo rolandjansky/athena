@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -27,11 +27,9 @@
 
 namespace InDetDD {
   class TRT_DetectorManager; 
-  class PixelDetectorManager; 
 }
 
 class TRT_ID;
-class PixelID;
 class Identifier;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +55,7 @@ class GetDetectorLocalFrames:public AthAlgorithm {
     std::ofstream m_outputFile;
     
     /** Pixel Data */
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     
     /** SCT Data */
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
@@ -69,9 +68,6 @@ class GetDetectorLocalFrames:public AthAlgorithm {
     int m_trt_straw;
     
     /** Tools */
-    const PixelID *m_PixelHelper;
-    const InDetDD::PixelDetectorManager *m_pixelDetectorManager;
-    
     const TRT_ID *m_TRTHelper;
     const InDetDD::TRT_DetectorManager *m_TRTDetectorManager;
     

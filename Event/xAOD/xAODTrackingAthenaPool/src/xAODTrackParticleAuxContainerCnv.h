@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrackParticleAuxContainerCnv.h 789663 2016-12-14 14:48:57Z krasznaa $
@@ -9,17 +9,24 @@
 #define XAODTRACKINGATHENAPOOL_XAODTRACKPARTICLEAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // EDM include(s):
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTrackingCnv/ITrackParticleCompressorTool.h"
+#include "xAODTrackParticleAuxContainerCnv_v1.h"
+#include "xAODTrackParticleAuxContainerCnv_v2.h"
+#include "xAODTrackParticleAuxContainerCnv_v3.h"
+
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::TrackParticleAuxContainer,
-                               xAOD::TrackParticleAuxContainer >
+typedef T_AthenaPoolAuxContainerCnv<xAOD::TrackParticleAuxContainer,
+                                    xAODTrackParticleAuxContainerCnv_v3,
+                                    xAODTrackParticleAuxContainerCnv_v2,
+                                    xAODTrackParticleAuxContainerCnv_v1>
    xAODTrackParticleAuxContainerCnvBase;
+
 
 /**
  *  @short POOL converter for the xAOD::TrackParticleAuxContainer class
@@ -33,7 +40,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrackParticleAuxContainer,
  * @author Edward Moyse <Edward.Moyse@cern.ch>
  */
 class xAODTrackParticleAuxContainerCnv :
-   public xAODTrackParticleAuxContainerCnvBase {
+   public xAODTrackParticleAuxContainerCnvBase
+{
 
 public:
    /// Converter constructor
@@ -50,9 +58,8 @@ private:
 protected:
    /// Function preparing the container to be written out
    virtual xAOD::TrackParticleAuxContainer*
-   createPersistent( xAOD::TrackParticleAuxContainer* trans ) override;
-   /// Function reading in the object from the input file
-   virtual xAOD::TrackParticleAuxContainer* createTransient() override;
+   createPersistentWithKey( xAOD::TrackParticleAuxContainer* trans,
+                            const std::string& key ) override;
 
 private:
    /// Compressor tool for the track particles

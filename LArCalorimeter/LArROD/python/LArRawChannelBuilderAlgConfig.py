@@ -1,6 +1,6 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 from LArROD.LArRODConf import LArRawChannelBuilderAlg
-from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArRecUtilsConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 
 def LArRawChannelBuilderAlgCfg(configFlags):
@@ -12,9 +12,7 @@ def LArRawChannelBuilderAlgCfg(configFlags):
         #defaults are fine .. 
         acc.addEventAlgo(LArRawChannelBuilderAlg())
     else:
-        acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_fromDigits"))
-        from  ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        acc.merge(ByteStreamReadCfg(configFlags,typeNames=["LArDigitContainer/FREE",]))
+        acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_FromDigits"))
     return acc
 
 
@@ -31,11 +29,15 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    acc=LArRawChannelBuilderAlgCfg(ConfigFlags)
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg    
+
+    acc=MainServicesSerialCfg()
+    acc.merge(LArRawDataReadingCfg(ConfigFlags))
+    acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
     from LArEventTest.LArEventTestConf import DumpLArRawChannels
-    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",))
+    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_FromDigits",),sequenceName="AthAlgSeq")
 
-    f=open("LArRawChannelBuilderAlg.pkl","w")
-    acc.store(f)
-    f.close()
+    acc.run(3)

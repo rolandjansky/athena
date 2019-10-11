@@ -6,15 +6,14 @@
 #define MUONBYTESTREAMCNVTEST_TGCRDOTOTGCDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonTGC_CnvTools/ITGC_RDO_Decoder.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class TgcIdHelper;
-
-class TgcRdoToTgcDigit : public AthAlgorithm {
+class TgcRdoToTgcDigit : public AthReentrantAlgorithm {
 
  public:
 
@@ -22,13 +21,14 @@ class TgcRdoToTgcDigit : public AthAlgorithm {
   virtual ~TgcRdoToTgcDigit() = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
   StatusCode decodeTgc( const TgcRdo *, TgcDigitContainer *, Identifier&) const;
 
   ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool{this, "tgcRdoDecoderTool", "Muon::TgcRDO_Decoder", ""};
-  const TgcIdHelper *   m_tgcHelper{};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   /** Switch for warning message disabling on one invalid channel in
       TGC sector A09 seen in 2008 data, at least run 79772 - 91800.
       bug #48828: TgcRdoToTgcDigit WARNING ElementID not found for

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,14 +19,12 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenParticle.h"
 
 #include "StoreGate/ReadCondHandle.h"
-#include "StoreGate/StoreGateSvc.h" 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "TrigFTKTrackConverter/TrigFTKTrackConverter.h"
@@ -79,43 +77,25 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
   if(m_usePixelCalibSvc) {
     ATH_CHECK(m_clusterErrorKey.initialize());
   }
-  if(m_doTruth) {
-    sc = service( "StoreGateSvc", m_evtStore ); 
-    if (sc.isFailure()) { 
-      ATH_MSG_FATAL("Unable to retrieve StoreGate service"); 
-      return sc; 
-    } 
-  }
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    ATH_MSG_FATAL("DetStore service not found"); 
-    return StatusCode::FAILURE; 
-  }
 
   // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
      ATH_MSG_FATAL("Could not get Pixel ID helper");
      return StatusCode::FAILURE;  
   }
 
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
      ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }
 
-  sc = detStore->retrieve(m_pixelManager);  
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore."); 
-    return sc;
-  } 
-
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
 	//Get ID helper
-	if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
+	if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
 		ATH_MSG_FATAL("Could not get AtlasDetectorID helper AtlasID");
 		return StatusCode::FAILURE;
 	}
@@ -231,7 +211,7 @@ InDet::PixelCluster* TrigFTKClusterConverterTool::createPixelCluster(IdentifierH
   Identifier wafer_id = m_pixelId->wafer_id(hash);
 
 
-  const InDetDD::SiDetectorElement* pDE = m_pixelManager->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = getPixelDetectorElement(hash);
   const InDetDD::PixelModuleDesign* design 
     (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pDE->design()));
  
@@ -451,6 +431,12 @@ StatusCode TrigFTKClusterConverterTool::getMcTruthCollections(StoreGateSvc* evtS
 		<< " is found in StoreGate"); 
   }
   return sc;
+}
+
+const InDetDD::SiDetectorElement* TrigFTKClusterConverterTool::getPixelDetectorElement(const IdentifierHash hash) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_pixelDetEleCollKey};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(hash);
 }
 
 const InDetDD::SiDetectorElement* TrigFTKClusterConverterTool::getSCTDetectorElement(const IdentifierHash hash) const {

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODCaloClusterAuxContainerCnv.h 757270 2016-06-23 13:52:41Z krasznaa $
@@ -9,16 +9,19 @@
 #define XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODCaloClusterAuxContainerCnv_v1.h"
+#ifndef XAOD_ANALYSIS
 #include "CaloInterface/IxAODClusterCompressor.h"
+#endif
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterAuxContainer,
-                               xAOD::CaloClusterAuxContainer >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::CaloClusterAuxContainer,
+                                     xAODCaloClusterAuxContainerCnv_v1 >
    xAODCaloClusterAuxContainerCnvBase;
 
 /**
@@ -46,17 +49,16 @@ protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::CaloClusterAuxContainer*
-   createPersistent( xAOD::CaloClusterAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::CaloClusterAuxContainer* createTransient();
+   createPersistentWithKey( xAOD::CaloClusterAuxContainer* trans,
+                            const std::string& key );
 
 private:
 #ifndef XAOD_ANALYSIS
-  /// AlgTool compressing the cluster for storage on disk
-  ToolHandle<IxAODClusterCompressor> m_compressor;
+  /// Service compressing the cluster for storage on disk
+  ServiceHandle<IxAODClusterCompressor> m_compressor;
 #endif
 
-  /// Flag set to false if the retrieval of the compression tool failed
+  /// Flag set to false if the retrieval of the compression service failed
   bool m_doCompression;
 
 }; // class xAODCaloClusterAuxContainerCnv

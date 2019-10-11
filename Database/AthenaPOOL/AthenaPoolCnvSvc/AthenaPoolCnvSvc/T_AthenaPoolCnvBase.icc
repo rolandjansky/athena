@@ -81,7 +81,10 @@ StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std:
 }
 //__________________________________________________________________________
 template <class T>
-StatusCode T_AthenaPoolCnvBase<T>::PoolToDataObject(DataObject*& pObj, const Token* token) {
+StatusCode T_AthenaPoolCnvBase<T>::PoolToDataObject(DataObject*& pObj,
+                                                    const Token* token,
+                                                    const std::string& /*key*/)
+{
    const std::string className = ClassName<T>::name();
    void* voidPtr = nullptr;
    try {

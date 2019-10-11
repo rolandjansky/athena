@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTTOOL_H
@@ -16,14 +16,9 @@
 #include <set>
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
-
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class MsgStream;
-class StoreGateSvc;
 class MuonStationIntersectSvc;
 
 namespace MuonGM {
@@ -98,12 +93,9 @@ class MuonIdCutTool :  virtual public IMuonIdCutTool, public AthAlgTool   {
 
 
     ToolHandle<MuonCalib::IIdToFixedIdTool>        m_idToFixedIdTool;     //<! tool to assist with Identifiers
-    const MuonGM::MuonDetectorManager *  m_detMgr;
 
-    const RpcIdHelper*                  m_rpcIdHelper;
-    const TgcIdHelper*                  m_tgcIdHelper;
-    const CscIdHelper*                  m_cscIdHelper;
-    const MdtIdHelper*                  m_mdtIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     std::vector<int> m_EELeta;
     std::vector<int> m_EELsector;

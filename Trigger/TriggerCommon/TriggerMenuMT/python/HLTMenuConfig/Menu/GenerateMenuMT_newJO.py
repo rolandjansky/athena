@@ -31,8 +31,7 @@ def generateMenu( flags ):
     """
 
     # convert to chainDefs
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-    toChainDictTranslator = DictFromChainName()
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
     counter = 0
     signatureToGenerator = {}
@@ -63,10 +62,11 @@ def generateMenu( flags ):
 
         for chain in cfgFlag.get():
 
-            chainDict = toChainDictTranslator.getChainDict( chain )
+            chainDict = dictFromChainName( chain )
 
             counter += 1
             chainDict['chainCounter'] = counter
+
             allChainDicts.append(chainDict)
             # TODO topo threshold
 
@@ -82,8 +82,10 @@ def generateMenu( flags ):
     useReworked = True
 
     if useReworked:
+        menuAcc.wasMerged()
         menuAcc = generateDecisionTree(menuChains)
     else:
+        menuAcc.wasMerged()
         menuAcc = ComponentAccumulator()
         mainSequenceName = 'HLTAllSteps'
         menuAcc.addSequence( seqAND(mainSequenceName) )
@@ -97,7 +99,7 @@ def generateMenu( flags ):
 
     # # generate JOSON representation of the config
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
-    generateJSON_newJO( None )
+    generateJSON_newJO( allChainDicts, menuChains )
 
     return menuAcc
 

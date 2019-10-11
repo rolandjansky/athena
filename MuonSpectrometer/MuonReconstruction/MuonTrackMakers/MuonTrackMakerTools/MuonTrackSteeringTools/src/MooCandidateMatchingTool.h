@@ -7,7 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+//#include "MuonIdHelpers/MuonStationIndex.h"
+//#include "GeoPrimitives/GeoPrimitives.h"
 #include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -15,10 +19,10 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
+#include "MuonTrackSegmentMatchResult.h"
 
+#include <array>
 #include <atomic>
-#include <mutex>
 #include <string>
 #include <set>
 
@@ -33,7 +37,6 @@ namespace Trk {
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuPatCandidateTool;
   class MuonSegment;
@@ -169,7 +172,9 @@ namespace Muon {
     double m_matchChiSquaredCutTight;
     
     ToolHandle<MuonIdHelperTool>          m_idHelperTool;       //<! tool to assist with Identifiers
-    ToolHandle<MuonEDMHelperTool>         m_helperTool;         //<! multipurpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer;            //<! tool to print EDM objects
     ToolHandle<Trk::IExtrapolator>        m_slExtrapolator;     //<! straight line extrapolator
     ToolHandle<Trk::IExtrapolator>        m_atlasExtrapolator;  //<! curved extrapolator
@@ -193,9 +198,8 @@ namespace Muon {
     mutable std::atomic_uint m_otherSideOfPerigeeTrk;
     mutable std::atomic_uint m_segmentTrackMatches;
     mutable std::atomic_uint m_segmentTrackMatchesTight;
-    mutable std::vector<unsigned int> m_reasonsForMatchOk ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable std::vector<unsigned int> m_reasonsForMatchNotOk ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable std::mutex m_mutex;
+    mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchOk ATLAS_THREAD_SAFE; // Guarded by atomicity
+    mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchNotOk ATLAS_THREAD_SAFE; // Guarded by atomicity
 
     double m_caloMatchZ; //!< Z position of calo end-cap disks. Used to determine if segments are on same side of Calo
 

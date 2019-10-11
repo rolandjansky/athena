@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H62004HECSDTool.h"
 #include "LArG4H62004SD.h"
-
-#include "CxxUtils/make_unique.h"
 
 LArG4H62004HECSDTool::LArG4H62004HECSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
@@ -39,7 +37,7 @@ StatusCode LArG4H62004HECSDTool::initializeSD()
 StatusCode LArG4H62004HECSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<LArHitContainer>(m_HitColl.name());
   // Hand this collection name off to the SDs.  They will be writing to the
   // collection, but only one at a time!
   m_wheelSD->EndOfAthenaEvent( &*m_HitColl );

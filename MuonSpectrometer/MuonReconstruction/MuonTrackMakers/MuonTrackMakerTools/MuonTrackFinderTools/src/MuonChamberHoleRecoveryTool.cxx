@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonChamberHoleRecoveryTool.h"
@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -71,7 +71,6 @@ namespace Muon {
       m_clusRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonHoleRecoveryTool>(this);
@@ -86,7 +85,6 @@ namespace Muon {
     declareProperty("ClusterRotCreator",          m_clusRotCreator);
     declareProperty("PullCalculator",          m_pullCalculator);
     declareProperty("IdHelper",                m_idHelperTool);
-    declareProperty("EDMHelper",               m_helperTool);
     declareProperty("EDMPrinter",              m_printer);
 
     declareProperty("AddMeasurements",       m_addMeasurements = true);
@@ -104,7 +102,7 @@ namespace Muon {
   {
 
     ATH_CHECK( detStore()->retrieve( m_detMgr ) );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
@@ -121,12 +119,12 @@ namespace Muon {
     ATH_CHECK( m_intersectSvc.retrieve() );
     
     ATH_CHECK(m_key_mdt.initialize());
-    ATH_CHECK(m_key_csc.initialize());
+    if (!m_key_csc.empty()) ATH_CHECK(m_key_csc.initialize());
     ATH_CHECK(m_key_tgc.initialize());
     ATH_CHECK(m_key_rpc.initialize());
-    if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
-    if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
-    
+    if(!m_key_stgc.empty()) ATH_CHECK(m_key_stgc.initialize());
+    if(!m_key_mm.empty()) ATH_CHECK(m_key_mm.initialize());
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());    
     
     return StatusCode::SUCCESS;
   }
@@ -136,22 +134,17 @@ namespace Muon {
   }
   
   Trk::Track* MuonChamberHoleRecoveryTool::recover( const Trk::Track& track ) const {
-    
-    m_chamberLayersOnTrack.clear();
-    m_checkForBadSort = true;
-    
+        
     // call actual recovery routine
     Trk::Track* newTrack = recoverTrack(track);
-    
-    m_chamberLayersOnTrack.clear();
-    m_checkForBadSort = false;
-    
+        
     // return result
     return newTrack;
   }
 
   Trk::Track* MuonChamberHoleRecoveryTool::recoverTrack( const Trk::Track& track ) const {
-    
+    std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack;
+
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* trkstates = track.trackStateOnSurfaces();
     if ( !trkstates ) {
@@ -209,7 +202,7 @@ namespace Muon {
 	continue;
       }
       
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if ( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) {
@@ -228,7 +221,7 @@ namespace Muon {
 	stations.insert(stIndex);
 	
 	// MDT case: Run hole search in chamber.
-	tsit = insertMdtsWithHoleSearch( tsit, tsit_end, newStates );
+	tsit = insertMdtsWithHoleSearch( tsit, tsit_end, newStates, chamberLayersOnTrack );
 	continue;
       } else if ( m_idHelperTool->isTrigger(id) || m_idHelperTool->isCsc(id) || m_idHelperTool->isMM(id) || m_idHelperTool->issTgc(id) ) {
 	// Non-MDT case: Look for missing layers in chamber, add them to track
@@ -302,7 +295,7 @@ namespace Muon {
       }
       
       // get identifier, keep state if it has no identifier.
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if ( !id.is_valid() ) {
 	newStates.push_back( std::make_pair(false, *tsit) );
 	continue;
@@ -368,8 +361,8 @@ namespace Muon {
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator
   MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
 							 std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
-							 std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states
-							 ) const {
+							 std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states,
+							 std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack) const {
     // iterator should point to a valid element
     if ( tsit == tsit_end ) {
       ATH_MSG_WARNING(" iterator pointing to end of vector, this should no happen " );
@@ -387,7 +380,7 @@ namespace Muon {
     // this should be a MDT
     const MdtDriftCircleOnTrack* mdtFirst = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
     if ( !mdtFirst ) {
-      ATH_MSG_WARNING("Bad hit: not a MDT " << m_idHelperTool->toString(m_helperTool->getIdentifier(*meas)) );
+      ATH_MSG_WARNING("Bad hit: not a MDT " << m_idHelperTool->toString(m_edmHelperSvc->getIdentifier(*meas)) );
       if ( tsit + 1 == tsit_end ) --tsit;
       return tsit;
     }
@@ -442,16 +435,14 @@ namespace Muon {
     
     // check if chamber index is already processed
     bool doHoleSearch = true;
-    if ( m_checkForBadSort ) {
-      if ( m_chamberLayersOnTrack.count(currentChIndex) ) {
+      if ( chamberLayersOnTrack.count(currentChIndex) ) {
 	if ( m_detectBadSort ) ATH_MSG_WARNING("Detected badly sorted track, not adding holes in current chamber");
 	else                  ATH_MSG_DEBUG("Detected badly sorted track, not adding holes in current chamber");
 	doHoleSearch = false;
       } else {
-	m_chamberLayersOnTrack.insert(currentChIndex);
+	chamberLayersOnTrack.insert(currentChIndex);
       }
-    }
-    
+        
     if ( doHoleSearch ) {
       
       // ensure that we are not passing in the same parameters
@@ -1171,8 +1162,8 @@ namespace Muon {
 	if ( surf.globalToLocal(exPars->position(), exPars->momentum(), locPos) ) {
 	  // perform bound check do not count holes with 100. mm of bound edge
 	  inBounds = surf.bounds().insideLoc2(locPos, -100.);
-	  if ( inBounds ) {
-	    if ( fabs( locPos[Trk::locR] ) > 14.4 ) inBounds = false;
+	  if( inBounds && fabs(locPos[Trk::locR]) > detEl->innerTubeRadius() ) {
+	    inBounds = false;
 	  }
 	}
 	if ( !inBounds ) {
@@ -1246,7 +1237,13 @@ namespace Muon {
 								       const std::set<Identifier>& tubeIds ) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction, dbData, m_detMgr );
 
     // clear hole vector
     std::set<Identifier> holes;
@@ -1310,7 +1307,7 @@ namespace Muon {
       return 0;
     }
     IdentifierHash hash_id;
-    m_idHelperTool->cscIdHelper().get_module_hash(detElId,hash_id );
+    m_idHelperTool->cscIdHelper().get_geo_module_hash(detElId,hash_id );
     
     CscPrepDataContainer::const_iterator colIt = cscPrdContainer->indexFind(hash_id);
     if( colIt == cscPrdContainer->end() ){

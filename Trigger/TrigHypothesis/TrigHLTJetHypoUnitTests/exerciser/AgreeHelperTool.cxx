@@ -50,8 +50,12 @@ AgreeHelperTool::pass(HypoJetVector& jets,
                                              timer.readAndReset()));
   }
   if(not pass){
-    ATH_MSG_ERROR("Right - left pass disagree. rhs pass: " << rpass
-		  << " lhs pass: " <<lpass);
+    auto lstr =  lpass ? " true " : " false ";
+    auto rstr =  rpass ? " true " : " false ";
+    ATH_MSG_ERROR("Left - right pass disagree."
+		  << " lhs pass: " << lstr 
+		  << " rhs pass: " << rstr);
+
   }
 
   if(collector){

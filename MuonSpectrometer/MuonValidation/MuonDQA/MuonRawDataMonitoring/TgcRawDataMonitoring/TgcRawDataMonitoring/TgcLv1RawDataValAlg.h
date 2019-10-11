@@ -40,6 +40,8 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataCollection.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include "xAODMuon/MuonContainer.h"
 
 #include "xAODTrigger/MuonRoIContainer.h"
@@ -59,7 +61,6 @@
 #include "TGraphAsymmErrors.h"
 
 class TFile;
-class TgcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
 /////////////////////////////////////////////////////////////////////////////
 
@@ -79,10 +80,9 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
 
   private:
 
-    // Muon Detector Manager
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    // TGC Id Helper
-    const TgcIdHelper* m_tgcIdHelper;
+    // Tool for TGC Id Helper
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     // Event Properties
     int m_event;

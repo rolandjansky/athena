@@ -60,7 +60,6 @@ job += CfgMgr.AthenaOutputStream(
     WritingTool = "AthenaOutputStreamTool"
     )
 job.OutStream.TakeItemsFromInput = False
-job.OutStream.ForceRead          = True
 job.OutStream.OutputFile         = OUTPUT
 job.OutStream.ItemList = [ 'EventInfo#*',
                            'McEventCollection#GEN_DPD',

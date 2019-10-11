@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class CutFlowSvc
@@ -12,8 +12,6 @@
 
 // STL include
 #include <algorithm>
-
-// #include "FillEBCFromFlat.h"
 
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/FileIncident.h"
@@ -34,44 +32,21 @@
 
 CutFlowSvc::CutFlowSvc(const std::string& name,
                        ISvcLocator* pSvcLocator ) :
-  AthService(name, pSvcLocator),
-  m_outMetaDataStore("StoreGateSvc/MetaDataStore", name),
-  m_inMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
-  m_eventStore("StoreGateSvc", name),
-  m_completeCollName(""),
-  m_incompleteCollName(""),
-  m_skimmingCycle(0),
-  m_fileCollName("CutBookkeepersFile"),
-  m_inputStream("")
+  AthService(name, pSvcLocator)
 {
-  declareProperty("OutputCollName",           m_completeCollName="CutBookkeepers",
-    "DEFUNCT - handled by tool now");
-  declareProperty("OutputIncompleteCollName", m_incompleteCollName = "IncompleteCutBookkeepers",
-    "DEFUNCT - handled by tool now");
-  declareProperty("SkimmingCycle",            m_skimmingCycle = 0, "DEFUNCT - handled automatically");
-  declareProperty("InputStream",              m_inputStream = "N/A", "The name of the input file stream");
   assert( pSvcLocator );
 }
-
-
-
-CutFlowSvc::~CutFlowSvc()
-{
-}
-
 
 
 StatusCode
 CutFlowSvc::initialize()
 {
-  ATH_MSG_DEBUG( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_DEBUG( "Initializing " << name() );
 
   //Get output MetaData StoreGate
   ATH_CHECK( m_outMetaDataStore.retrieve() );
   //Get input MetaData StoreGate
   ATH_CHECK( m_inMetaDataStore.retrieve() );
-  //Get Event StoreGate
-  ATH_CHECK( m_eventStore.retrieve() );
 
   // Align File name with complete name
   m_fileCollName = m_completeCollName + "File";
@@ -95,37 +70,6 @@ CutFlowSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode
-CutFlowSvc::stop()
-{
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-CutFlowSvc::finalize()
-{
-  ATH_MSG_DEBUG( "Finalizing " << name() << " - package version " << PACKAGE_VERSION );
-  return StatusCode::SUCCESS;
-}
-/*
-
-
-StatusCode
-CutFlowSvc::queryInterface( const InterfaceID& riid, void** ppvi )
-{
-  // valid placeholder?
-  if ( 0 == ppvi ) { return StatusCode::FAILURE ; }  // RETURN
-  if ( ICutFlowSvc::interfaceID() == riid ) {
-    *ppvi = static_cast<ICutFlowSvc*>(this);
-    addRef(); // NB! : inrement the reference count!
-    return StatusCode::SUCCESS;                     // RETURN
-  }
-  // Interface is not directly availible: try out a base class
-  return AthService::queryInterface( riid, ppvi );
-}
-*/
 
 
 CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
@@ -308,22 +252,6 @@ CutFlowSvc::setFilterDescription( CutIdentifier cutID,
 
   xAOD::CutBookkeeper* ebk = this->getCutBookkeeper(cutID);
   ebk->setDescription(descr);
-  return;
-}
-
-
-
-
-void
-CutFlowSvc::addEvent( CutIdentifier cutID )
-{
-  ATH_MSG_INFO("calling addEvent(" << cutID << ")" );
-  ATH_MSG_WARNING("DEPRECATED method, please call addEvent(ID,weight)");
-
-  double evtWeight=1.0;
-
-  addEvent(cutID,evtWeight);
-
   return;
 }
 

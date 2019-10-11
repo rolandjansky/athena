@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/**
+ * @file  HiveAlgG.h
+ * @brief Simple Algorithm that reads a HiveDataObjs created by HiveAlgD
+ * and writes another one
+ */
 
 #ifndef ATHEXHIVE_ALGG_H
 #define ATHEXHIVE_ALGG_H 1
@@ -9,7 +15,6 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
-#include "rGen.h"
 
 #include <string>
 
@@ -29,11 +34,11 @@ public:
   StatusCode finalize();
   
 private:
-  
-  SG::ReadHandleKey<HiveDataObj>  m_rdh1 {this, "Key_R1", "d1", "Read key 1"};
-  SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "g1", "Write key 1"};
 
-   
+  // By default this DataHandle is created by HiveAlgD
+  SG::ReadHandleKey<HiveDataObj>  m_rdh1 {this, "Key_R1", "d1", "Read key 1"};
+  
+  SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "g1", "Write key 1"};
   
 };
 #endif

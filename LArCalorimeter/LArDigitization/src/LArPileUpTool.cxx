@@ -256,8 +256,8 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
   m_hitmap=SG::makeHandle(m_hitMapKey);
   auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
-  ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
   ATH_CHECK(m_hitmap.record(std::move(hitMapPtr)));
+  ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
 
   if (!m_useMBTime) m_energySum.assign(m_hitmap->GetNbCells(),0.);
 
@@ -575,6 +575,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
            digitContList).isSuccess()) || digitContList.size()==0)
       {
          ATH_MSG_ERROR("Cannot retrieve LArDigitContainer for random event overlay or empty Container");
+	 ATH_MSG_ERROR("Random Digit Key= " << m_RandomDigitContainer << ",size=" << digitContList.size());
          return StatusCode::FAILURE ;
       }
       TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin()) ;
@@ -1695,9 +1696,9 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
  if(m_RndmEvtOverlay && rndmEvtDigit ) // no overlay if missing random digit
  {
   rndmGain= rndmEvtDigit->gain();
-  const std::vector<float>* polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,rndmEvtDigit->gain()) );
-  if (polynom_adc2mev->size() > 1) {
-     float adc2energy = SF * ((*polynom_adc2mev)[1]);
+  auto polynom_adc2mev =adc2MeVs->ADC2MEV(cellId,rndmEvtDigit->gain());
+  if (polynom_adc2mev.size() > 1) {
+     float adc2energy = SF * polynom_adc2mev[1];
      const std::vector<short> & rndm_digit_samples = rndmEvtDigit->samples() ;
      float Pedestal = pedestal->pedestal(ch_id,rndmEvtDigit->gain());
      if (Pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
@@ -1715,7 +1716,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
         if (ofc_a.size()>0) {
           for (unsigned int j=0;j<ofc_a.size();j++) sumOfc += ofc_a.at(j);
         }
-        if (sumOfc>0) adc0 =  (*polynom_adc2mev)[0] * SF /sumOfc;
+        if (sumOfc>0) adc0 =  polynom_adc2mev[0] * SF /sumOfc;
      }
 
      int nmax=m_NSamples;
@@ -1764,12 +1765,12 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
    ATH_MSG_DEBUG(" Pedestal not found for medium gain ,cellID " << cellId <<  " assume 1000 ");
    Pedestal=1000.;
   }
-  const std::vector<float>* polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,CaloGain::LARMEDIUMGAIN));
-  if ( polynom_adc2mev->size() < 2) {
+  auto polynom_adc2mev = adc2MeVs->ADC2MEV(cellId,CaloGain::LARMEDIUMGAIN);
+  if ( polynom_adc2mev.size() < 2) {
     ATH_MSG_WARNING(" No medium gain ramp found for cell " << m_larem_id->show_to_string(cellId) << " no digit produced...");
     return StatusCode::SUCCESS;
   }
-  pseudoADC3 = m_Samples[m_sampleGainChoice-ihecshift]/((*polynom_adc2mev)[1])/SF + Pedestal ;
+  pseudoADC3 = m_Samples[m_sampleGainChoice-ihecshift]/(polynom_adc2mev[1])/SF + Pedestal ;
 
   //
   // ......... try a gain
@@ -1853,13 +1854,13 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
      ATH_MSG_WARNING(" pedestal not found for cellId " << cellId << " assume 1000" );
      Pedestal=1000.;
   }
-  polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,igain));
-  if (polynom_adc2mev->size() < 2) {
+  polynom_adc2mev = adc2MeVs->ADC2MEV(cellId,igain);
+  if (polynom_adc2mev.size() < 2) {
     ATH_MSG_WARNING(" No ramp found for requested gain " << igain << " for cell " << m_larem_id->show_to_string(cellId) << " no digit made...");
     return StatusCode::SUCCESS;
   }
 
-  energy2adc=1./((*polynom_adc2mev)[1])/SF;
+  energy2adc=1./(polynom_adc2mev[1])/SF;
 
 // in case Medium or low gain, take into account ramp intercept in energy->ADC computation
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
@@ -1870,7 +1871,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
     if (ofc_a.size()>0) {
       for (unsigned int j=0;j<ofc_a.size();j++) sumOfc+= ofc_a.at(j);
     }
-    if (((*polynom_adc2mev)[1])>0 && sumOfc>0) Pedestal = Pedestal - ((*polynom_adc2mev)[0])/((*polynom_adc2mev)[1])/sumOfc;
+    if ((polynom_adc2mev[1])>0 && sumOfc>0) Pedestal = Pedestal - (polynom_adc2mev[0])/(polynom_adc2mev[1])/sumOfc;
     ATH_MSG_DEBUG("  Params for final LAr Digitization  gain: " << igain << "    pedestal: " << Pedestal <<  "   energy2adc: " << energy2adc);
   }
   for(i=0;i<m_NSamples;i++)

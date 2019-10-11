@@ -1,21 +1,18 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//Dear emacs, this is -*-c++-*-
 
 #ifndef CALOCELLENERGYRESCALER_H
 #define CALOCELLENERGYRESCALER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "StoreGate/DataHandle.h"  
-#include "AthenaKernel/IOVSvcDefs.h"
-#include <string>
+#include "AthenaPoolUtilities/AthenaAttributeList.h"  
+#include "StoreGate/ReadHandle.h"
 
 class CaloCellContainer;
-class CaloCondBlobFlt;
 
 /** @class CaloCellEnergyRescaler
     @brief CaloCellMakerTool to re-scale cell energies.
@@ -35,14 +32,9 @@ public:
   virtual StatusCode process (CaloCellContainer* theCellContainer,
                               const EventContext& ctx) const override;
 
- private: 
-  /// IOV callback method
-  StatusCode load(IOVSVC_CALLBACK_ARGS); 
-
-  const DataHandle<AthenaAttributeList> m_attrList;
-  const CaloCondBlobFlt* m_corrValues;
-
-  std::string m_key;
+private: 
+  SG::ReadCondHandleKey<AthenaAttributeList> m_eneShiftFldr{this,"Folder","/CALO/Ofl/CellEnergyCorr","Key (=foldername) of AttrListCollection"};
+  
 };
 
 #endif     

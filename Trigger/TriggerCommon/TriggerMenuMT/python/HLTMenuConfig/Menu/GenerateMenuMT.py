@@ -9,7 +9,7 @@ from TriggerJobOpts.TriggerFlags              import TriggerFlags
 
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
@@ -36,7 +36,6 @@ class GenerateMenuMT(object):
             
     
     def __init__(self):
-        self.triggerConfigHLT = None
         self.chains = []
         self.chainDefs = []
         self.listOfErrorChainDefs = []
@@ -49,27 +48,27 @@ class GenerateMenuMT(object):
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau', 
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias', 
                               'Monitor', 'Calib', 'Streaming', 'Combined'] #, AFP
-        self.calibCosmicMonSigs = ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+        self.calibCosmicMonSigs = ['Streaming','Monitor'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
-        self.doEgammaChains         = True 
-        self.doJetChains            = True 
-        self.doBjetChains           = True 
-        self.doMuonChains           = True 
-        self.doBphysicsChains       = True 
-        self.doMETChains            = True 
-        self.doTauChains            = True 
-        self.doAFPChains            = True 
-        self.doMinBiasChains        = True 
-        self.doHeavyIonChains       = True 
-        self.doCosmicChains         = True 
-        self.doCalibrationChains    = True 
-        self.doStreamingChains      = True 
-        self.doMonitorChains        = True 
-        self.doBeamspotChains       = True 
-        self.doEnhancedBiasChains   = True 
-        self.doTestChains           = True         
-        self.doCombinedChains       = True 
+        self.doEgammaChains         = True
+        self.doJetChains            = True
+        self.doBjetChains           = True
+        self.doMuonChains           = True
+        self.doBphysicsChains       = True
+        self.doMETChains            = True
+        self.doTauChains            = True
+        self.doAFPChains            = True
+        self.doMinBiasChains        = True
+        self.doHeavyIonChains       = True
+        self.doCosmicChains         = True
+        self.doCalibrationChains    = True
+        self.doStreamingChains      = True
+        self.doMonitorChains        = True
+        self.doBeamspotChains       = True
+        self.doEnhancedBiasChains   = True
+        self.doTestChains           = True
+        self.doCombinedChains       = True
 
         
     def setTriggerConfigHLT(self):
@@ -77,9 +76,6 @@ class GenerateMenuMT(object):
         == Setup of TriggerConfigHLT, menu and prescale names
         """
         (HLTPrescales) = self.setupMenu()
-        self.triggerConfigHLT = TriggerConfigHLT(TriggerFlags.outputHLTconfigFile(), self.signaturesOverwritten)
-        self.triggerConfigHLT.menuName = TriggerFlags.triggerMenuSetup()
-        log.debug("Working with menu: %s", self.triggerConfigHLT.menuName)
         log.debug("   and prescales : %s", HLTPrescales)
         
 
@@ -90,7 +86,7 @@ class GenerateMenuMT(object):
         # go over the slices and put together big list of signatures requested
         #(L1Prescales, HLTPrescales, streamConfig) = MenuPrescaleConfig(self.triggerPythonConfig)
         # that does not seem to work
-        (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(self.triggerConfigHLT)
+        (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(TriggerConfigHLT)
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
             log.info('setupMenu:  Modifying trigger signatures in TriggerFlags with %s',
@@ -151,13 +147,11 @@ class GenerateMenuMT(object):
         chainsInMenu = self.getChainsFromMenu()
         
         # decoding of the chain name
-        decodeChainName = DictFromChainName.DictFromChainName()
         chainCounter = 0
 
         for chain in chainsInMenu:
             log.debug("Currently processing chain: %s ", chain) 
-            chainDict = decodeChainName.getChainDict(chain)
-            self.triggerConfigHLT.allChainDicts.append(chainDict)
+            chainDict = dictFromChainName(chain)
 
             chainCounter += 1
             chainDict['chainCounter'] = chainCounter
@@ -166,9 +160,10 @@ class GenerateMenuMT(object):
             chainConfig= self.generateChainConfig(chainDict)
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
-            self.triggerConfigHLT.allChainConfigs.append(chainConfig)
-        return self.triggerConfigHLT.allChainConfigs
+            TriggerConfigHLT.registerChain( chainDict, chainConfig )
 
+
+        return TriggerConfigHLT.configsList()
 
     def getChainsFromMenu(self):
         """
@@ -222,7 +217,6 @@ class GenerateMenuMT(object):
                     else:
                         sigFolder = sig
                         subSigs = [sig]
-
                     for ss in subSigs: 
                         if sigFolder == 'Combined':
                             continue
@@ -302,7 +296,14 @@ class GenerateMenuMT(object):
 
         else:
             theChainConfig = listOfChainConfigs[0]
-            
+        
+        # Configure event building strategy
+        eventBuildType = mainChainDict['eventBuildType']
+        if eventBuildType:
+            log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
+            from TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup import addEventBuildingSequence
+            addEventBuildingSequence(theChainConfig, eventBuildType)
+
         return theChainConfig
 
 
@@ -334,11 +335,11 @@ class GenerateMenuMT(object):
             for step in cc.steps:
                 log.debug(step)
 
-        makeHLTTree(HLTChains=finalListOfChainConfigs, newJO=False, triggerConfigHLT = self.triggerConfigHLT)
+        makeHLTTree(newJO=False, triggerConfigHLT = TriggerConfigHLT)
         # the return values used for debugging, might be removed later
 
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
-        generateJSON( None )
+        generateJSON()
 
         return finalListOfChainConfigs
             

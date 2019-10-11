@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -282,6 +282,16 @@ namespace InDet{
     std::ostream& operator << (std::ostream& stream, const PixelCluster& prd)
     {
         return prd.dump(stream);
+    }
+
+
+    void PixelCluster::setToTList (std::vector<int>&& totList)
+    {
+      m_totList = std::move (totList);
+      m_totalToT = 0;
+      for (int f : m_totList) {
+        m_totalToT += f;
+      }
     }
 
 

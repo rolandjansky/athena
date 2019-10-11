@@ -33,7 +33,9 @@
 //using namespace std;
 //using namespace MuonCalib;
 
-class MdtIdHelper;
+namespace Muon {
+  class MuonIdHelperTool;
+}
 
 class MdtChamber {
 public:
@@ -80,7 +82,7 @@ struct sortMdtChambersByName {
 class HistogramManager {
 public:
   HistogramManager();
-  HistogramManager(const MdtIdHelper *mdtIdHelper);
+  HistogramManager(const Muon::MuonIdHelperTool *muonIdHelperTool);
   ~HistogramManager();
   void buildGlobalHistos();
   void buildTrackHistos(); 
@@ -142,7 +144,7 @@ public:
 
  private:
   TObjArray m_hList;
-  const MdtIdHelper * m_MdtIdHelper;
+  const Muon::MuonIdHelperTool * m_muonIdHelperTool;
 
   bool m_doTracks;
 

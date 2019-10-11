@@ -177,7 +177,10 @@ else:
 # ############################################
 # A list of stream tag names
 # ############################################
-ByteStreamEmonInputSvc.StreamNames = streamName.split(':')
+if (streamName == ""):
+    ByteStreamEmonInputSvc.StreamNames = list()
+else:
+    ByteStreamEmonInputSvc.StreamNames = streamName.split(':')
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?

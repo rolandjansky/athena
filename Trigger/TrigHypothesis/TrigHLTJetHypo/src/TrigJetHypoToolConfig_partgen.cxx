@@ -34,16 +34,21 @@ StatusCode TrigJetHypoToolConfig_partgen::initialize() {
 
 
 
-
 std::optional<ConditionsMT>
 TrigJetHypoToolConfig_partgen::getConditions() const {
 
-  auto conditions = conditionsFactoryEtaEtMT(m_etaMins,
-                                             m_etaMaxs,
-                                             m_EtThresholds,
-                                             m_asymmetricEtas);
+  ConditionsMT compoundConditions;
+	  
+
+  // collect the Conditions objects from the various sources
+  // return an invalid optional if any src signals a problem
   
-  return std::make_optional<ConditionsMT>(std::move(conditions));
+  // m_condition makers is a list of compound condition makers
+  for(const auto& cm : m_conditionMakers) {
+    compoundConditions.push_back(cm->getCondition());
+  }
+  
+  return std::make_optional<ConditionsMT>(std::move(compoundConditions));
 }
 
  
@@ -58,27 +63,7 @@ TrigJetHypoToolConfig_partgen::getJetGrouper() const {
   return std::make_unique<PartitionsGrouper>(mults);
 }
 
-StatusCode TrigJetHypoToolConfig_partgen::checkVals() const {
-  if (m_EtThresholds.size() != m_etaMins.size() or
-      m_EtThresholds.size() != m_etaMaxs.size() or
-      m_asymmetricEtas.size() != m_etaMaxs.size()){
-    
-    ATH_MSG_ERROR(name()<< ": mismatch between number of thresholds "
-                  << "and eta min, max boundaries or asymmetric eta flags: "
-                  << m_EtThresholds.size() << " "
-                  << m_etaMins.size() << " "
-                  << m_etaMaxs.size() << " "
-                  << m_asymmetricEtas.size() << " "
-                  );
-    
-    return StatusCode::FAILURE;
-  }
-
-  if(m_children.empty()){
-    ATH_MSG_ERROR(name()<< ": No children ");
-    return StatusCode::FAILURE;
-  }
-    
+StatusCode TrigJetHypoToolConfig_partgen::checkVals() const {    
   return StatusCode::SUCCESS;
 }
 

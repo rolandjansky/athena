@@ -1,20 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_RPCCABLINGDBTOOL_H
 #define MUONCONDTOOL_RPCCABLINGDBTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "MuonCondInterface/IRPCCablingDbTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class Identifier; 
-class StoreGateSvc; 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class RpcIdHelper;
+class Identifier; 
+
 class IIOVSvc;
 class StatusCode;
 
@@ -51,12 +52,10 @@ public:
 
 
     
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
-
-  const RpcIdHelper* m_rpcIdHelper;
-  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   std::string      m_DataLocation;
   

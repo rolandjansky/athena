@@ -33,8 +33,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
 
 CaloIdManager::CaloIdManager(void)
     :

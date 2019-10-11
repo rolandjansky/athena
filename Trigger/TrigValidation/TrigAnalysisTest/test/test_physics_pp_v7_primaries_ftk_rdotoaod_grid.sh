@@ -16,6 +16,8 @@
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
 
+unset ATHENA_NPROC_NUM
+
 export NAME="physics_pp_v7_primaries_ftk_rdotoaod_grid"
 export INPUT="ftk"
 export COST_MONITORING="False"

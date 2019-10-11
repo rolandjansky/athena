@@ -48,7 +48,6 @@
 namespace CaloClusterCorr {
 class SamplingHelper;
 }
-//class StoreGateSvc;
 //class CaloCluster;
 class CaloCell;
 class CaloCellContainer;

@@ -4,14 +4,15 @@ from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from PyUtils import AthFile
+from PyUtils.MetaReader import read_metadata
 
-
-af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0]) #opens the first file from the InputCollections list
-af.fileinfos #this is a dict of dicts, take a look at what's available! Below are some examples:
-isMC = 'IS_SIMULATION' in af.fileinfos['evt_type']
-beam_energy = af.fileinfos['beam_energy']
-conditions_tag = af.fileinfos['conditions_tag'] #useful for figuring out which mc production this is
+input_file = svcMgr.EventSelector.InputCollections[0]
+metadata = read_metadata(input_file) # opens the first file from the InputCollections list
+metadata = metadata[input_file]  # promote keys stored under input_file key one level up to access them directly
+# this is a dict of dicts, take a look at what's available! Below are some examples:
+isMC = 'IS_SIMULATION' in metadata['eventTypes']
+beam_energy = metadata['beam_energy']
+conditions_tag = metadata['IOVDbGlobalTag'] #useful for figuring out which mc production this is
 print "PhysicsValidationHistos: isMC=",isMC, " beam=",beam_energy," conditions_tag=",conditions_tag
 
 def commonPhysValTool(container, refcontainer="", onlyKinematics = False, globalSelection= ""):
@@ -183,29 +184,31 @@ globalSelection = ""
 ###
 
 athenaMonTool = JetMonitoringTool(HistoTools = [
-   commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
-   commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-#   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
-   #commonPhysValTool( "AntiKt10LCTopoJets" ),
+    commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
+    commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
+    #   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
+    #commonPhysValTool( "AntiKt10LCTopoJets" ),
     commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-   #commonPhysValTool( "AntiKt10PV0TracksJets" ),
-   #commonPhysValTool( "AntiKt10TruthJets" ),
+    #commonPhysValTool( "AntiKt10PV0TracksJets" ),
+    #commonPhysValTool( "AntiKt10TruthJets" ),
     commonPhysValTool( "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" ),
-   #commonPhysValTool( "AntiKt10TruthWZJets" ),
-    ], IntervalType=8) # 8 == HistoGroupBase::all
+    commonPhysValTool( "AntiKt4EMPFlowJets" ),    
+    commonPhysValTool( "AntiKt4TruthJets" ),    
+    #commonPhysValTool( "AntiKt10TruthWZJets" ),
+], IntervalType=8) # 8 == HistoGroupBase::all
 
 
 if (isMC==False):
-  athenaMonTool = JetMonitoringTool(HistoTools = [
-    commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
-    commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-#   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
-    commonPhysValTool( "AntiKt10LCTopoJets" ),
-    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-#    commonPhysValTool( "AntiKt2PV0TrackJets" ),
-#    commonPhysValTool( "AntiKt4EMPFlowJets" ),
+    athenaMonTool = JetMonitoringTool(HistoTools = [
+        commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
+        commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
+        #   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
+        commonPhysValTool( "AntiKt10LCTopoJets" ),
+        commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+        #    commonPhysValTool( "AntiKt2PV0TrackJets" ),
+        commonPhysValTool( "AntiKt4EMPFlowJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
-
+    
 #ToolSvc += athenaMonTool
 
 def athenaPhysValTool():

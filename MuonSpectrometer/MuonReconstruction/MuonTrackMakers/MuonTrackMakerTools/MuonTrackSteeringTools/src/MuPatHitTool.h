@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATHITTOOL_H
@@ -8,9 +8,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatHit.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <vector>
 
@@ -30,7 +31,6 @@ namespace Muon {
   class IMuonClusterOnTrackCreator;
   class IMuonCompetingClustersOnTrackCreator;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 
   class MuonSegment;
@@ -173,7 +173,9 @@ namespace Muon {
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator; //<! tool to create competing clusters on track
     ToolHandle<Trk::IResidualPullCalculator>          m_pullCalculator;     //<! tool to calculate residuals and pulls
     ToolHandle<MuonIdHelperTool>                      m_idHelperTool;       //<! tool to assist with Identifiers
-    ToolHandle<MuonEDMHelperTool>                     m_helperTool;         //<! multipurpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>                    m_printer;            //<! tool to print EDM objects
     ServiceHandle< IIncidentSvc >                     m_incidentSvc;
     Trk::MagneticFieldProperties                      m_magFieldProperties; //!< magnetic field properties

@@ -88,12 +88,12 @@ find_package( GTest )
 atlas_add_library( SUSYToolsLib
    SUSYTools/*.h Root/*.cxx
    PUBLIC_HEADERS SUSYTools
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODCore xAODEgamma xAODEventInfo
    xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTruth
    AssociationUtilsLib PATInterfaces TrigDecisionToolLib PMGToolsLib
    MCTruthClassifierLib JetJvtEfficiencyLib JetSubStructureUtils
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
    ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib

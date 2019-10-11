@@ -114,23 +114,19 @@ Bad.CheckNumberOfWrites = False
 
 # bit 2
 Stream2.TakeItemsFromInput = True
-Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
 Stream2.WritingTool.SaveDecisions = True
 # bit 1
 Stream1.TakeItemsFromInput = True
-Stream1.ForceRead=TRUE
 Stream1.AcceptAlgs = ["Splitter1"]
 # bit 3
 Stream3.TakeItemsFromInput = True
-Stream3.ForceRead=TRUE
 Stream3.AcceptAlgs = ["Splitter3"]
 Stream3.VetoAlgs   = ["Splitter1"]
 Stream3.VetoAlgs  += ["Splitter2"]
 # missed
 Others.TakeItemsFromInput = True
-Others.ForceRead=TRUE
 Others.ExcludeList = ['FauxTriggerMap#ExcludeTestTrigMap']
 Others.AcceptAlgs = ["Triggered"]
 Others.VetoAlgs   = ["Splitter1"]

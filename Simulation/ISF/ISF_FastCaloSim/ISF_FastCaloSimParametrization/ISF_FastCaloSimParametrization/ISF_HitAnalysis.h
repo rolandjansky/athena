@@ -9,7 +9,6 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadCondHandle.h"
 
@@ -85,10 +84,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const static int MAX_LAYER = 25;
 
  private:
-
-   /** a handle on Store Gate for access to the Event Store */
-   //StoreGateSvc* m_storeGate;
-   //StoreGateSvc* m_detStore;
 
    const IGeoModelSvc *m_geoModel;
    const TileInfo *m_tileInfo;

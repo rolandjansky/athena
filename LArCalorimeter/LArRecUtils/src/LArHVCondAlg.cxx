@@ -4,7 +4,6 @@
 
 #include "./LArHVCondAlg.h" 
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "LArElecCalib/ILArHVPathologyDbTool.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -44,6 +43,8 @@
 #include <cmath> 
 #include <cstdlib>
 #include "AthenaKernel/errorcheck.h"
+
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #define VDIFF_MAX 0.01 // maximum voltage difference allowed to be treated as equal
 #define WDIFF_MAX 0.0001 // maximum weight difference allowed to be treated as equal
@@ -146,10 +147,9 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Executing with doHV " << doHVData << " doAffected " << doAffected );
 
-  // Define validity of the output cond object 
-  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  const EventIDBase stop{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  EventIDRange rangeW{start, stop};
+  //The HV-Cabling is run/lumi, the DCS data is time-stamped. Need mixed range. 
+  EventIDRange rangeW=IOVInfiniteRange::infiniteMixed(); 
+  EventIDRange rangeIn;
 
   std::vector<const CondAttrListCollection*> attrvec;
   const LArHVIdMapping* hvCabling{nullptr};
@@ -161,21 +161,26 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_ERROR("Unable to access LArHVIdMapping Cond Object");
       return StatusCode::FAILURE;
     }
-    
+    if (!cHdl.range(rangeIn)){ 
+      ATH_MSG_ERROR("Failed to retrieve validity range of LArCabling CDO with key " << m_hvMappingKey.key());
+      return StatusCode::FAILURE;
+    } 
+    rangeW=EventIDRange::intersect(rangeW,rangeIn);
+    ATH_MSG_DEBUG("Range of HV-Cabling " << rangeIn << ", intersection: " << rangeW);
     // get handles to DCS Database folders
-    for (auto fldkey: m_DCSFolderKeys ) {
+    for (const auto& fldkey: m_DCSFolderKeys ) {
       SG::ReadCondHandle<CondAttrListCollection> cHdl(fldkey, ctx);
       const CondAttrListCollection* cattr = *cHdl;
       if(cattr) {
         ATH_MSG_DEBUG("Folder: "<<cHdl.key()<<" has size: "<<std::distance(cattr->begin(),cattr->end()));
         attrvec.push_back(cattr);
-        EventIDRange rangeW_tmp;
-        if(!cHdl.range(rangeW_tmp)) {
+        if(!cHdl.range(rangeIn)) {
           ATH_MSG_ERROR("Failed to retrieve validity range for " << cHdl.key());
           return StatusCode::FAILURE;
         }
-        ATH_MSG_DEBUG("and validity range: "<<rangeW_tmp);
-        rangeW.intersect(rangeW,rangeW_tmp);
+	rangeW=EventIDRange::intersect(rangeW,rangeIn);
+	ATH_MSG_DEBUG("Range of " << cHdl.key() << " " << rangeIn << ", intersection: " << rangeW);
+       
       } else {
          ATH_MSG_WARNING("Why do not have DCS folder " << fldkey.fullKey());
       }
@@ -206,6 +211,12 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
        ATH_MSG_WARNING("Why do not have HV pathology object " << m_pathologiesKey.fullKey() << " ? Work without pathologies !!!");
        doPathology=false;
     }
+    if(!pHdl.range(rangeIn)) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << pHdl.key());
+      return StatusCode::FAILURE;
+    }
+    rangeW=EventIDRange::intersect(rangeW,rangeIn);
+    ATH_MSG_DEBUG("Range of HV-Pathology " << rangeIn << ", intersection: " << rangeW);
  
     if(doPathology) {
        const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &pathCont = pathologyContainer->getPathology();
@@ -276,15 +287,14 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   
     ATH_CHECK(fillPayload(p_hvdata, hvdataOld, hvCabling, voltage, current, hvlineidx, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL));
   
-  
-    const EventIDRange crangeW(rangeW);
-    if(writeHandle.record(crangeW,hvdata.release()).isFailure()) {
+ 
+    if(writeHandle.record(rangeW,hvdata.release()).isFailure()) {
         ATH_MSG_ERROR("Could not record LArHVData object with " << writeHandle.key()
-                      << " with EventRange " << crangeW << " into Conditions Store");
+                      << " with EventRange " << rangeW << " into Conditions Store");
         return StatusCode::FAILURE;
     }
   
-    ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << crangeW << " into Conditions Store");
+    ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
   } // doHVData
 
   if(doAffected) {
@@ -293,6 +303,12 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
        if(!bfCont){
          ATH_MSG_WARNING(" Do not have Bad FEBs info, will be not filled " << m_BFKey.key() );
        }
+       if(!readBFHandle.range(rangeIn)) {
+	 ATH_MSG_ERROR("Failed to retrieve validity range for " << readBFHandle.key());
+	 return StatusCode::FAILURE;
+       }
+       rangeW=EventIDRange::intersect(rangeW,rangeIn);
+       ATH_MSG_DEBUG("Range of BadFeb " << rangeIn << ", intersection: " << rangeW);
 
        SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
        const LArOnOffIdMapping* cabling{*cablingHdl};
@@ -300,22 +316,13 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
          ATH_MSG_ERROR("Do not have cabling mapping from key " << m_cablingKey.key() );
          return StatusCode::FAILURE;
        }
-
-       // Define validity of the output cond object
-       EventIDRange rangeW_tmp;
-       if(!readBFHandle.range(rangeW_tmp)) {
-          ATH_MSG_ERROR("Failed to retrieve validity range for " << readBFHandle.key());
-          return StatusCode::FAILURE;
+       if(!cablingHdl.range(rangeIn)) {
+	 ATH_MSG_ERROR("Failed to retrieve validity range for " << cablingHdl.key());
+	 return StatusCode::FAILURE;
        }
-       ATH_MSG_DEBUG("and validity range: "<<rangeW_tmp);
-       rangeW.intersect(rangeW,rangeW_tmp);
+       rangeW=EventIDRange::intersect(rangeW,rangeIn);
+       ATH_MSG_DEBUG("Range of LArCabling " << rangeIn << ", intersection: " << rangeW);
 
-       if(!cablingHdl.range(rangeW_tmp)) {
-          ATH_MSG_ERROR("Failed to retrieve validity range for " << cablingHdl.key());
-          return StatusCode::FAILURE;
-       }
-       ATH_MSG_DEBUG("and validity range: "<<rangeW_tmp);
-       rangeW.intersect(rangeW,rangeW_tmp);
    
        CaloAffectedRegionInfoVec *vAffected = new CaloAffectedRegionInfoVec();
    
@@ -332,14 +339,13 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
    
        std::unique_ptr<CaloAffectedRegionInfoVec> affectedVec = std::make_unique<CaloAffectedRegionInfoVec>(std::move(*vAffected));
    
-       const EventIDRange crangeW(rangeW);
-       if(writeAffectedHandle.record(crangeW,affectedVec.release()).isFailure()) {
-                ATH_MSG_ERROR("Could not record CaloAffectedRegionInfoVec object with " << writeHandle.key()
-                              << " with EventRange " << crangeW << " into Conditions Store");
+       if(writeAffectedHandle.record(rangeW,affectedVec.release()).isFailure()) {
+	 ATH_MSG_ERROR("Could not record CaloAffectedRegionInfoVec object with " << writeHandle.key()
+		       << " with EventRange " << rangeW << " into Conditions Store");
                 return StatusCode::FAILURE;
        }
-   
-       ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << crangeW << " into Conditions Store");
+       
+       ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
   } //doAffected
 
   return StatusCode::SUCCESS;
@@ -421,15 +427,15 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                  double hv=voltage[idx];
                  double curr=current[idx];
                  if (hasPathology) {
-                    ATH_MSG_DEBUG( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]);
-                    msg(MSG::DEBUG) << "Original hv: "<<hv<<" ";
+                    ATH_MSG_VERBOSE( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]);
+                    msg(MSG::VERBOSE) << "Original hv: "<<hv<<" ";
                     for (unsigned int ii=0;ii<listElec.size();ii++) {
                        if (listElec[ii]==(2*i+igap) && listElec[ii]<hasPathologyEM[index].size() && hasPathologyEM[index][listElec[ii]]) {
                           if(hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
                           curr=0.;
                        }
                     }
-                    msg(MSG::DEBUG) << "set hv: "<<hv<<endmsg;
+                    msg(MSG::VERBOSE) << "set hv: "<<hv<<endmsg;
                  }
                  //std::cout << "     hv value " << hv << std::endl;
                  //if (igap==1 && hv>1.) std::cout << " --- non zero value found for gap1 in barrel " << std::endl;
@@ -504,7 +510,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                    double hv=voltage[idx];
                    double curr=current[idx];
                    if (hasPathology) {
-                      msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]<<endmsg;
+                      msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]<<endmsg;
                       for (unsigned int ii=0;ii<listElec.size();ii++) {
                          if (listElec[ii]==(2*i+igap) && listElec[ii]<hasPathologyEM[index].size() && hasPathologyEM[index][listElec[ii]]) {
                             if(hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
@@ -611,7 +617,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
            double curr=current[idx];
            //std::cout << "     hv value " << hv << std::endl;
            if (hasPathology) {
-              msg(MSG::DEBUG) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<hasPathologyHEC[index]<<endmsg;
+              msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<hasPathologyHEC[index]<<endmsg;
               for (unsigned int ii=0;ii<listElec.size();ii++) {
                  if (listElec[ii]==i && listElec[ii]<hasPathologyHEC[index].size() && hasPathologyHEC[index][listElec[ii]]) {
                       if(hasPathologyHEC[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyHEC[index][listElec[ii]]&0xFFF0)>>4);
@@ -692,7 +698,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
            double curr=current[idx];
            //std::cout << " line " << line;
            if (hasPathology) {
-              msg(MSG::DEBUG) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<hasPathologyFCAL[index]<<endmsg;
+              msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<hasPathologyFCAL[index]<<endmsg;
               for (unsigned int ii=0;ii<listElec.size();ii++) {
                  if (listElec[ii]==i && listElec[ii]<hasPathologyFCAL[index].size() && hasPathologyFCAL[index][listElec[ii]]) {
                       if(hasPathologyFCAL[index][listElec[ii]]&0xF) hv=0.; else hv=((hasPathologyFCAL[index][listElec[ii]]&0xFFF0)>>4);
@@ -802,7 +808,7 @@ StatusCode LArHVCondAlg::fillUpdatedHVChannelsVec(std::vector<float> &voltageCac
     ATH_MSG_DEBUG("Length: "<<std::distance(citr,citr_e));
     for(;citr!=citr_e;++citr) {
       const unsigned chan=citr->first;
-      ATH_MSG_DEBUG("Got HV cool chan: "<< chan);
+      ATH_MSG_VERBOSE("Got HV cool chan: "<< chan);
       const coral::Attribute& attr=((citr)->second)["R_VMEAS"];
       float voltage=-999;
       if (!attr.isNull()) voltage=attr.data<float>(); //Ignore NULL values
@@ -810,7 +816,7 @@ StatusCode LArHVCondAlg::fillUpdatedHVChannelsVec(std::vector<float> &voltageCac
       const coral::Attribute& attrc=((citr)->second)["R_IMEAS"];
       float current=0.;
       if (!attrc.isNull()) current=attrc.data<float>(); //Ignore NULL values
-      ATH_MSG_DEBUG("read voltage: "<<voltage<<" and current: "<<current );
+      ATH_MSG_VERBOSE("read voltage: "<<voltage<<" and current: "<<current );
       currentCache.push_back(current);
       hvlineidx.push_back(chan);
     }//end loop over attributeListCollection
@@ -843,7 +849,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
             float eta_min=hvMod.getEtaMin();
             float eta_max=hvMod.getEtaMax();
 
-            ATH_MSG_DEBUG("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " << iEta);
+            ATH_MSG_VERBOSE("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " << iEta);
 	    float phi_min=+30.,phi_max=-30.;
 	    
 	    bool are_previous_HV_affected=false;
@@ -863,19 +869,19 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 		hv[iGap]=voltage[itrLine - hvlineidx.begin()];
 	      } //end for iGap
 
-              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode.getPhi() << " "<< hv[0] << " " << hv[1] );
+              ATH_MSG_VERBOSE(" electrode HV " << ielec << " " << electrode.getPhi() << " "<< hv[0] << " " << hv[1] );
 
 	      //take decisions according to all the gaps HV :
               bool isDead=false;
               if (fabs(hv[0])<DEAD_HV_THRESHOLD && fabs(hv[1])<DEAD_HV_THRESHOLD) isDead=true;
               bool isAffected=false;
               if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE))) isAffected=true;
-              ATH_MSG_DEBUG(" dead/affected " << isDead << " " << isAffected);
+              ATH_MSG_VERBOSE(" dead/affected " << isDead << " " << isAffected);
           
               // end previous dead region
               if (are_previous_HV_dead && !isDead) {
                  are_previous_HV_dead=false;
-                 ATH_MSG_DEBUG(" -- end dead region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
+                 ATH_MSG_VERBOSE(" -- end dead region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
                  CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,1,3,CaloAffectedRegionInfo::HVdead);
                  vAffected->push_back(current_CaloAffectedRegionInfo);
               }
@@ -883,7 +889,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
               // end previous affected region
               if (are_previous_HV_affected && !isAffected) {
                  are_previous_HV_affected=false;
-                 ATH_MSG_DEBUG(" -- end affected region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
+                 ATH_MSG_VERBOSE(" -- end affected region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
                  CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,1,3,CaloAffectedRegionInfo::HVaffected);
                  vAffected->push_back(current_CaloAffectedRegionInfo);
               }
@@ -892,12 +898,12 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
                  if (!are_previous_HV_dead) {
                   phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
                   phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
-                  ATH_MSG_DEBUG(" -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
+                  ATH_MSG_VERBOSE(" -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                   are_previous_HV_dead = true;
                  }
                  else {
                   extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
-                  ATH_MSG_DEBUG(" extend dead region " << phi_min << " " << phi_max);
+                  ATH_MSG_VERBOSE(" extend dead region " << phi_min << " " << phi_max);
                  }
               }
 
@@ -905,24 +911,24 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
                  if (!are_previous_HV_affected) {
                   phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
                   phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
-                  ATH_MSG_DEBUG(" -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
+                  ATH_MSG_VERBOSE(" -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                   are_previous_HV_affected = true;
                  }
                  else {
                   extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
-                  ATH_MSG_DEBUG(" extend affected region " << phi_min << " " << phi_max);
+                  ATH_MSG_VERBOSE(" extend affected region " << phi_min << " " << phi_max);
                  }
               }
 
 	    } // end for ielec
 	    
 	    if (are_previous_HV_affected) { //in case a non nominal exists, stores it if we finish the 32 electrodes (because else the are_previous_HV_affected will be reinitialized for the next 32 electrodes serie )
-              ATH_MSG_DEBUG("  -- finish affected region after electrode loop " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
+              ATH_MSG_VERBOSE("  -- finish affected region after electrode loop " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
 	      CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,1,3,CaloAffectedRegionInfo::HVaffected);
 	      vAffected->push_back(current_CaloAffectedRegionInfo);	      
 	    }
             if (are_previous_HV_dead) {
-              ATH_MSG_DEBUG("  -- finish dead region after electrode loop " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
+              ATH_MSG_VERBOSE("  -- finish dead region after electrode loop " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
               CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,1,3,CaloAffectedRegionInfo::HVdead);
               vAffected->push_back(current_CaloAffectedRegionInfo);
             }
@@ -938,7 +944,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
       for (unsigned int iPhi=hvManager_EMBPS.beginPhiIndex();iPhi<hvManager_EMBPS.endPhiIndex();iPhi++) {
           for (unsigned int iEta=hvManager_EMBPS.beginEtaIndex();iEta<hvManager_EMBPS.endEtaIndex();iEta++) { //0 to 7
             const EMBPresamplerHVModule& hvMod = hvManager_EMBPS.getHVModule(iSide,iEta,iPhi);
-            ATH_MSG_DEBUG("iSide,iPhi,iEta " << iSide << " " << iPhi << " " << iEta);
+            ATH_MSG_VERBOSE("iSide,iPhi,iEta " << iSide << " " << iPhi << " " << iEta);
             double hv[2];
             for (int iGap=0;iGap<2;iGap++) {
 	      const std::vector<unsigned int>::const_iterator itrLine=std::find(hvlineidx.begin(), hvlineidx.end(), hvMod.hvLineNo(iGap,hvCabling));
@@ -953,14 +959,14 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
             float eta_max=hvMod.getEtaMax();
             float phi_min=CaloPhiRange::fix(hvMod.getPhiMin());
             float phi_max=CaloPhiRange::fix(hvMod.getPhiMax());
-            ATH_MSG_DEBUG("  HV " <<  hv[0] << " " << hv[1] << " " << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max);
+            ATH_MSG_VERBOSE("  HV " <<  hv[0] << " " << hv[1] << " " << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " << phi_min << " " << phi_max);
 
             //take decisions according to all the gaps HV :
             bool isDead=false;
             if (fabs(hv[0])<DEAD_HV_THRESHOLD && fabs(hv[1])<DEAD_HV_THRESHOLD) isDead=true;
             bool isAffected=false;
             if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE))) isAffected=true;
-            ATH_MSG_DEBUG(" dead/affected " << isDead << " " << isAffected );
+            ATH_MSG_VERBOSE(" dead/affected " << isDead << " " << isAffected );
 
             if (isDead) {
               CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,0,0,CaloAffectedRegionInfo::HVdead);
@@ -1005,7 +1011,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
             float eta_min=hvMod.getEtaMin();
             float eta_max=hvMod.getEtaMax();
 
-            ATH_MSG_DEBUG("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " 
+            ATH_MSG_VERBOSE("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " 
                           << iEta << " eta_min , eta_max " << eta_min << " " << eta_max );
 
 
@@ -1033,13 +1039,13 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
               if (fabs(hv[0])<DEAD_HV_THRESHOLD && fabs(hv[1])<DEAD_HV_THRESHOLD) isDead=true;
               bool isAffected=false;
               if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE))) isAffected=true;
-              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode.getPhi() << " " << hv[0] 
+              ATH_MSG_VERBOSE(" electrode HV " << ielec << " " << electrode.getPhi() << " " << hv[0] 
                             << " " << hv[1] << " " << " isDead/isAffected " << isDead << " " << isAffected );
           
               // end previous dead region
               if (are_previous_HV_dead && !isDead) {
                  are_previous_HV_dead=false;
-                 ATH_MSG_DEBUG(" -- end dead region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
+                 ATH_MSG_VERBOSE(" -- end dead region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
                  CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVdead);
                  vAffected->push_back(current_CaloAffectedRegionInfo);
               }
@@ -1047,7 +1053,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
               // end previous affected region
               if (are_previous_HV_affected && !isAffected) {
                  are_previous_HV_affected=false;
-                 ATH_MSG_DEBUG(" -- end affected region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
+                 ATH_MSG_VERBOSE(" -- end affected region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
                  CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVaffected);
                  vAffected->push_back(current_CaloAffectedRegionInfo);
               }
@@ -1057,11 +1063,11 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
                   phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
                   phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   are_previous_HV_dead = true;
-                  ATH_MSG_DEBUG(" -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
+                  ATH_MSG_VERBOSE(" -- start dead region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                  }
                  else {
                   extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
-                  ATH_MSG_DEBUG("  extend affected region " << phi_min << " " << phi_max);
+                  ATH_MSG_VERBOSE("  extend affected region " << phi_min << " " << phi_max);
                  }
               }
 
@@ -1070,11 +1076,11 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
                   phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
                   phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   are_previous_HV_affected = true;
-                  ATH_MSG_DEBUG(" -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
+                  ATH_MSG_VERBOSE(" -- start affected region " << eta_min << " " << eta_max << " " << phi_min << " " <<phi_max);
                  }
                  else {
                   extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
-                  ATH_MSG_DEBUG(" extend affected region " << phi_min << " " << phi_max);
+                  ATH_MSG_VERBOSE(" extend affected region " << phi_min << " " << phi_max);
                  }
               }
 
@@ -1084,13 +1090,13 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
               //in case a non nominal exists, stores it if we finish the 32 electrodes 
               //(because else the are_previous_HV_affected will be reinitialized 
               //for the next 32 electrodes serie )
-              ATH_MSG_DEBUG("   - finih affected region after electrode loop " << eta_min << " " << eta_max 
+              ATH_MSG_VERBOSE("   - finih affected region after electrode loop " << eta_min << " " << eta_max 
                             << " " << phi_max << " " <<phi_max);
 	      CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVaffected);
 	      vAffected->push_back(current_CaloAffectedRegionInfo);	      
 	    }
             if (are_previous_HV_dead) {
-              ATH_MSG_DEBUG(" -- finish dead region after electrode loop " << eta_min << " " << eta_max << " " << phi_max << " " <<phi_max);
+              ATH_MSG_VERBOSE(" -- finish dead region after electrode loop " << eta_min << " " << eta_max << " " << phi_max << " " <<phi_max);
               CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVdead);
               vAffected->push_back(current_CaloAffectedRegionInfo);
             }
@@ -1119,7 +1125,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
             float eta_max=hvMod.getEtaMax();
             float phi_min=CaloPhiRange::fix(hvMod.getPhiMin());
             float phi_max=CaloPhiRange::fix(hvMod.getPhiMax());
-            ATH_MSG_DEBUG("iSide,iPhi" << iSide << " " << iPhi << "  HV " <<  hv[0] << " " << hv[1] << " "
+            ATH_MSG_VERBOSE("iSide,iPhi" << iSide << " " << iPhi << "  HV " <<  hv[0] << " " << hv[1] << " "
                           << "  etamin,etamax,phimin,phimax " << eta_min << " " << eta_max << " " 
                           << phi_min << " " << phi_max);
 
@@ -1128,7 +1134,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
             if (fabs(hv[0])<DEAD_HV_THRESHOLD && fabs(hv[1])<DEAD_HV_THRESHOLD) isDead=true;
             bool isAffected=false;
             if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE))) isAffected=true;
-            ATH_MSG_DEBUG(" dead/affected " << isDead << " " << isAffected);
+            ATH_MSG_VERBOSE(" dead/affected " << isDead << " " << isAffected);
 
             if (isDead) {
               CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,4,4,CaloAffectedRegionInfo::HVdead);
@@ -1153,7 +1159,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
 						       , const std::vector<unsigned int> &hvlineidx) const { // deals with LAr HV, EM EndCap INNER
   const LArHVManager *manager = nullptr;
 
-  ATH_MSG_DEBUG(" start loop over EMEC_INNER ");
+  ATH_MSG_VERBOSE(" start loop over EMEC_INNER ");
   if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
 
     const EMECHVManager& hvManager_EMEC_IN=manager->getEMECHVManager(EMECHVModule::INNER);
@@ -1170,7 +1176,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
             float eta_min = hvMod.getEtaMin();
             float eta_max = hvMod.getEtaMax();
 
-            ATH_MSG_DEBUG("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " 
+            ATH_MSG_VERBOSE("iSide,iPhi,iSector,iEta " << iSide << " " << iPhi << " " << iSector << " " 
                           << iEta << " eta_min , eta_max " << eta_min << " " << eta_max);
 
 	    float phi_min=+30.,phi_max=-30.;
@@ -1197,14 +1203,14 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
               if (fabs(hv[0])<DEAD_HV_THRESHOLD && fabs(hv[1])<DEAD_HV_THRESHOLD) isDead=true;
               bool isAffected=false;
               if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE))) isAffected=true;
-              ATH_MSG_DEBUG(" electrode HV " << ielec << " " << electrode.getPhi() << " "
+              ATH_MSG_VERBOSE(" electrode HV " << ielec << " " << electrode.getPhi() << " "
                             << hv[0] << " " << hv[1] << " " << " isDead, isAffected " 
                             << isDead << " " << isAffected);
           
               // end previous dead region
               if (are_previous_HV_dead && !isDead) {
                  are_previous_HV_dead=false;
-                 ATH_MSG_DEBUG(" -- end dead region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
+                 ATH_MSG_VERBOSE(" -- end dead region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
                  CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVdead);
                  vAffected->push_back(current_CaloAffectedRegionInfo);
               }
@@ -1212,7 +1218,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
               // end previous affected region
               if (are_previous_HV_affected && !isAffected) {
                  are_previous_HV_affected=false;
-                 ATH_MSG_DEBUG(" -- end affected region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
+                 ATH_MSG_VERBOSE(" -- end affected region " << eta_min << " " << eta_max << " " <<phi_min << " " << phi_max);
                  CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVaffected);
                  vAffected->push_back(current_CaloAffectedRegionInfo);
               }
@@ -1221,12 +1227,12 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
                  if (!are_previous_HV_dead) {
                   phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
                   phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
-                  ATH_MSG_DEBUG(" -- start dead region " << phi_min << " " << phi_max);
+                  ATH_MSG_VERBOSE(" -- start dead region " << phi_min << " " << phi_max);
                   are_previous_HV_dead = true;
                  }
                  else {
                   extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
-                  ATH_MSG_DEBUG("  extend dead region " << phi_min << " " << phi_max);
+                  ATH_MSG_VERBOSE("  extend dead region " << phi_min << " " << phi_max);
                  }
               }
 
@@ -1235,11 +1241,11 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
                   phi_min=CaloPhiRange::fix(electrode.getPhi()-1e-4);
                   phi_max=CaloPhiRange::fix(electrode.getPhi()+1e-4);
                   are_previous_HV_affected = true;
-                  ATH_MSG_DEBUG(" -- start affected region " << phi_min << " " << phi_max);
+                  ATH_MSG_VERBOSE(" -- start affected region " << phi_min << " " << phi_max);
                  }
                  else {
                    extendPhiRegion(electrode.getPhi(),phi_min,phi_max);
-                   ATH_MSG_DEBUG("  extend affected region " << phi_min << " " << phi_max);
+                   ATH_MSG_VERBOSE("  extend affected region " << phi_min << " " << phi_max);
                  }
               }
 
@@ -1249,13 +1255,13 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
               //in case a non nominal exists, stores it if we finish the 32 electrodes 
               //(because else the are_previous_HV_affected will be reinitialized 
               //for the next 32 electrodes serie )
-              ATH_MSG_DEBUG("   - finish affected region after electrode loop " << eta_min << " " 
+              ATH_MSG_VERBOSE("   - finish affected region after electrode loop " << eta_min << " " 
                             << eta_max << " " << phi_max << " " <<phi_max);
 	      CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVaffected);
 	      vAffected->push_back(current_CaloAffectedRegionInfo);	      
 	    }
             if (are_previous_HV_dead) {
-              ATH_MSG_DEBUG("    - end dead region after electrode loop " << eta_min << " " << eta_max << " " << phi_max << " " <<phi_max);
+              ATH_MSG_VERBOSE("    - end dead region after electrode loop " << eta_min << " " << eta_max << " " << phi_max << " " <<phi_max);
               CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,5,7,CaloAffectedRegionInfo::HVdead);
               vAffected->push_back(current_CaloAffectedRegionInfo);
             }
@@ -1300,7 +1306,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffe
          }
 
 	  const HECHVModule& hvMod = hvManager_HEC.getHVModule(iSide,iPhi,iSampling);
-          ATH_MSG_DEBUG(" iSide,iPhi,iSampling " << iSide << " " << iPhi << " " << iSampling);
+          ATH_MSG_VERBOSE(" iSide,iPhi,iSampling " << iSide << " " << iPhi << " " << iSampling);
 
 	  double hv[4] = {0}; // 4 subgaps in HEC
 	  for (unsigned int iGap=0;iGap<hvMod.getNumSubgaps();iGap++) {
@@ -1321,7 +1327,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffe
           bool isAffected=false;
           if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || 
                            (fabs(hv[2]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[3]-HVnominal)>HV_NON_NOMINAL_TOLERANCE)) ) isAffected=true;
-          ATH_MSG_DEBUG(" HV values " << hv[0] << " " << hv[1] << " " << hv[2] << " " << hv[3] << " " 
+          ATH_MSG_VERBOSE(" HV values " << hv[0] << " " << hv[1] << " " << hv[2] << " " << hv[3] << " " 
                         << " isDead/isAffected " << isDead << " " << isAffected);
 
           float phiMin = CaloPhiRange::fix(hvMod.getPhiMin());
@@ -1329,12 +1335,12 @@ StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffe
 
 
 	  if (isDead) { //stores it, DEAD means all hvs < threshold
-            ATH_MSG_DEBUG(" new dead region " << eta_min << " " << eta_max << " " << phiMin << " " << phiMax << " layer " << 8+iSampling);
+            ATH_MSG_VERBOSE(" new dead region " << eta_min << " " << eta_max << " " << phiMin << " " << phiMax << " layer " << 8+iSampling);
 	    CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phiMin,phiMax,8+iSampling,8+iSampling,CaloAffectedRegionInfo::HVdead);
 	    vAffected->push_back(current_CaloAffectedRegionInfo);
 	  }
           if (isAffected) {
-            ATH_MSG_DEBUG(" new affected region " << eta_min << " " << eta_max << " " << phiMin << " " << phiMax << " layer " << 8+iSampling);
+            ATH_MSG_VERBOSE(" new affected region " << eta_min << " " << eta_max << " " << phiMin << " " << phiMax << " layer " << 8+iSampling);
             CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phiMin,phiMax,8+iSampling,8+iSampling,CaloAffectedRegionInfo::HVaffected);
             vAffected->push_back(current_CaloAffectedRegionInfo);
           }
@@ -1371,7 +1377,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
 	for (unsigned int iSector=hvManager_FCAL.beginSectorIndex(iSampling);iSector<hvManager_FCAL.endSectorIndex(iSampling);iSector++) {
 
 	  const FCALHVModule& hvMod = hvManager_FCAL.getHVModule(iSide,iSector,iSampling);
-          ATH_MSG_DEBUG(" FCAL HVModule side,sampling,sector " << iSide << " " << iSampling << " " 
+          ATH_MSG_VERBOSE(" FCAL HVModule side,sampling,sector " << iSide << " " << iSampling << " " 
                         << iSector << "   HV nominal " << HVnominal);
  
           float dphi=CaloPhiRange::twopi()/16;
@@ -1381,7 +1387,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
           phi_min =   CaloPhiRange::fix(phi_min);
           float phi_max = CaloPhiRange::fix(dphi+phi_min);
         
-          ATH_MSG_DEBUG(" eta_min,eta_max,phi_min,phi_max " << eta_min << " " << eta_max << " " << phi_min 
+          ATH_MSG_VERBOSE(" eta_min,eta_max,phi_min,phi_max " << eta_min << " " << eta_max << " " << phi_min 
                         << " " << phi_max << "   number of lines " << hvMod.getNumHVLines());
           float hv[4] = {0};
 	  for (unsigned int iLine=0;iLine<hvMod.getNumHVLines();iLine++) {
@@ -1401,17 +1407,17 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
           bool isAffected=false;
           if ( !isDead && ((fabs(hv[0]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[1]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) ||
                            (fabs(hv[2]-HVnominal)>HV_NON_NOMINAL_TOLERANCE) || (fabs(hv[3]-HVnominal)>HV_NON_NOMINAL_TOLERANCE)) ) isAffected=true;
-          ATH_MSG_DEBUG(" HV values " << hv[0] << " " << hv[1] << " " << hv[2] << " " << hv[3] <<  " " 
+          ATH_MSG_VERBOSE(" HV values " << hv[0] << " " << hv[1] << " " << hv[2] << " " << hv[3] <<  " " 
                         << " isDead/isAffected " << isDead << " " << isAffected);
 
 	    
 	  if (isAffected) { 
-            ATH_MSG_DEBUG(" -- store affected region ");
+            ATH_MSG_VERBOSE(" -- store affected region ");
 	    CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,21+iSampling,21+iSampling,CaloAffectedRegionInfo::HVaffected);
 	    vAffected->push_back(current_CaloAffectedRegionInfo);	      
 	  }
           if (isDead) { 
-            ATH_MSG_DEBUG(" -- store dead region ");
+            ATH_MSG_VERBOSE(" -- store dead region ");
             CaloAffectedRegionInfo current_CaloAffectedRegionInfo(eta_min,eta_max,phi_min,phi_max,21+iSampling,21+iSampling,CaloAffectedRegionInfo::HVdead);
             vAffected->push_back(current_CaloAffectedRegionInfo);
           }

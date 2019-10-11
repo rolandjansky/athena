@@ -494,6 +494,7 @@ class TestSequencesMerging( unittest.TestCase ):
         ca1 = ComponentAccumulator()
         ca1.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
         ca1.printConfig()
+        ca1.addSequence(seqAND("someSequence"))
 
         print("ca2")
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg	
@@ -514,9 +515,6 @@ class TestSequencesMerging( unittest.TestCase ):
         topca = MainServicesThreadedCfg( ConfigFlags )
         topca.printConfig()
 
-        
-
-        
         print("Merging to the top level CA")        
         topca.merge( ca1 )
         topca.printConfig()

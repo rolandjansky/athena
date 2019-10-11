@@ -11,7 +11,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -26,6 +25,16 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
+#include <cmath>
+#include <limits>
+
+namespace{
+bool
+inRange(const double val, const double lo, const double hi){
+  return (val>lo) and (val<hi);
+}
+
+}
 
 // constructor
 TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p)
@@ -97,20 +106,14 @@ StatusCode TRT_ToT_dEdx::initialize()
   MsgStream log(msgSvc(), name());
   
   // retrieve TRT-ID helper
-  StoreGateSvc* detStore = 0;
-  StatusCode sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()){
-    ATH_MSG_ERROR ( "Could not get DetectorStore" );
-    return sc;
-  }
   
-  sc = detStore->retrieve(m_trtId, "TRT_ID");
+  StatusCode sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     ATH_MSG_ERROR ( "Could not get TRT_ID helper !" );
     return StatusCode::FAILURE;
   }
 
-  sc = detStore->retrieve(m_trtman, "TRT");
+  sc = detStore()->retrieve(m_trtman, "TRT");
   if (sc.isFailure()){
     ATH_MSG_ERROR ( "Could not get TRT detector manager !" );
     return StatusCode::FAILURE;
@@ -896,8 +899,9 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool
     else // End-cap
       valToT = fitFuncEndcap_corrRZ(gasType, HitRtrack,HitRpos,Layer, HitZ>0?1:(HitZ<0?-1:0));
   } 
-
-  return ToTmip*ToT/valToT;
+  if (std::isinf(valToT)) return 0.;
+  if (valToT!=0) return ToTmip*ToT/valToT;
+  return 0.;
 }
 
 
@@ -974,7 +978,8 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
     valToT = fitFuncBarrel_corrRZL(gasType, HitRtrack,HitZ, Layer, StrawLayer);
   else // End-cap
     valToT = fitFuncEndcap_corrRZL(gasType, HitRtrack ,HitR,Layer, HitZ>0?1:(HitZ<0?-1:0));
-  return ToTmip*ToT/valToT;
+  if (std::isinf(valToT)) return 0.;
+  return (valToT!=0.) ? (ToTmip*ToT/valToT) : 0.;
 }
 
 
@@ -1090,7 +1095,12 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   double T0 =  fitFuncPol_corrRZ(gasType, 0,driftRadius,Layer,StrawLayer,sign,0);
   double  v =  fitFuncPol_corrRZ(gasType, 1,driftRadius,Layer,StrawLayer,sign,0);
   double  s =  fitFuncPol_corrRZ(gasType, 2,driftRadius,Layer,StrawLayer,sign,0);
-  return T0+z/v*exp((z-l)/s);
+  //For IEEE-compatible type double, argument causes exp to overflow if outside [-708.4, 709.8]
+  const double expArg=(z-l)/s;
+  if (not inRange(expArg, -708.4,709.8)){
+    return expArg>0 ? std::numeric_limits<double>::infinity():0.;
+  }
+  return T0+z/v*exp(expArg);
 }
 
 

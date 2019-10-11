@@ -16,13 +16,14 @@
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
 
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "CSCcabling/CSCcablingSvc.h"
 
 #include "AthenaKernel/IAthRNGSvc.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "CscCalibTools/ICscCalibTool.h"
+
 
 class ActiveStoreSvc;
 
@@ -57,9 +58,10 @@ class CscDigitToCscRDOTool final : public extends<AthAlgTool, IMuonDigitizationT
 
   SG::WriteHandleKey<CscRawDataContainer> m_rdoContainerKey{this,"OutputObjectName","CSCRDO","WriteHandleKey for Output CswRawDataContainer"};
   SG::ReadHandleKey<CscDigitContainer> m_digitContainerKey{this,"InputObjectName","CSC_DIGITS","ReadHandleKey for Input CscDigitContainer"};
-  const CscIdHelper   * m_cscHelper{};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ServiceHandle<CSCcablingSvc> m_cscCablingSvc{this, "CSCcablingSvc", "CSCcablingSvc", ""};
-  PublicToolHandle<ICscCalibTool>  m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", ""};
+  ToolHandle<ICscCalibTool> m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", ""};
 
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
 };

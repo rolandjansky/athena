@@ -209,7 +209,7 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
       log << MSG::DEBUG << "wrote new DHForm with " << dhForm->sizeObj() << " SG object data" << endmsg;
    }
    
-   m_persObjList.push_back(persObj);
+   keepPoolObj(persObj);
 
    const coral::AttributeList* list = obj->getAttributeList();
    if (list != nullptr) {

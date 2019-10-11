@@ -33,6 +33,7 @@
 #include <cmath>
 
 
+
 /*
  * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
  * Initialize, Event Loop and Finalize
@@ -69,6 +70,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     virtual void stopAud ( const std::string& stepName,
                            const std::string& compName ) override;
 
+    /// Count the number of processed events
+    virtual void incrementEventCounter() override { m_eventCounter++; };
     
     /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
     void startSnapshotAud ( const std::string& stepName,
@@ -94,19 +97,19 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // Report the results
     void report();
 
-    void report2Stdout();
+    void report2Log();
   
-    void report2Stdout_Description() const;
+    void report2Log_Description() const;
 
-    void report2Stdout_Time_Serial();
-    void report2Stdout_Time_Parallel();
+    void report2Log_Time_Serial();
+    void report2Log_Time_Parallel();
 
-    void report2Stdout_Mem_Serial();
-    void report2Stdout_Mem_Parallel();
+    void report2Log_Mem_Serial();
+    void report2Log_Mem_Parallel();
 
-    void report2Stdout_Parallel();
-    void report2Stdout_Summary();  // make it const
-    void report2Stdout_CpuInfo() const;
+    void report2Log_Parallel();
+    void report2Log_Summary();  // make it const
+    void report2Log_CpuInfo() const;
 
     void report2JsonFile();
 
@@ -118,10 +121,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
     void report2JsonFile_Mem_Parallel(nlohmann::json& j);
 
-
-
     int getEventID() const;
-    int eventCounter(int eventID);
     
     bool isPower(int input, int base); // check if input is power of base or not
     bool isLoop(); // Returns true if the execution is at the event loop, false o/w.
@@ -131,7 +131,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::string scaleTime(double timeMeas);
     std::string scaleMem(long memMeas);
 
-    bool isCheckPoint(int eventID, int eventCount);
+    bool isCheckPoint(int eventCounter);
  
     std::string get_cpu_model_info() const;
     int get_cpu_core_info() const;
@@ -148,15 +148,18 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
 
-    // Properties
-    BooleanProperty m_isEventLoopMonitoring; 
+    /// Do event loop monitoring
+    BooleanProperty m_doEventLoopMonitoring;
+
+    /// Print detailed tables
+    BooleanProperty m_printDetailedTables;
+
+
     Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
 
     Gaudi::Property< std::string > m_checkPointType { this, "checkPointType", "Arithmetic", "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)" };
     Gaudi::Property<int> m_checkPointFactor {this, "checkPointFactor", 10, "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric"};
 
-    // Event ID's are stored to count the number of events. There should be a better way!
-    std::unordered_set<int> m_eventIDsSeenSoFar;
 
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
@@ -171,6 +174,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // Lock for capturing event loop measurements
     std::mutex m_mutex_capture; 
 
+    // Count the number of events processed 
+    std::atomic<unsigned long long> m_eventCounter;
 
     /* Data structure  to store component level measurements
      * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!

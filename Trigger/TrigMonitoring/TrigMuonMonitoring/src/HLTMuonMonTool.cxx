@@ -817,8 +817,9 @@ StatusCode HLTMuonMonTool::fill()
       ATH_MSG_VERBOSE("fillL2MuonSADQA failed");
     }
   }
-  catch(...) {
+  catch(std::exception& e) {
     ATH_MSG_ERROR("Exception thrown by fillL2MuonSADQA");
+    ATH_MSG_WARNING(e.what());
     scL2MuonSA=StatusCode::RECOVERABLE;
   }
 
@@ -830,8 +831,9 @@ StatusCode HLTMuonMonTool::fill()
       ATH_MSG_VERBOSE("fillMuCombDQA failed");
     }
   }
-  catch(...) {
+  catch(std::exception& e) {
     ATH_MSG_ERROR("Exception thrown by fillMuCombDQA");
+    ATH_MSG_WARNING(e.what());
     scMuComb=StatusCode::RECOVERABLE;
   }
 

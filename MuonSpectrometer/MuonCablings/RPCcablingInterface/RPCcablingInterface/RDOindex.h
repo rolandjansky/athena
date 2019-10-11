@@ -91,7 +91,7 @@
 
 #ifndef LVL1_STANDALONE
 
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 //#include "RPCgeometry/RPCgeometrySvc.h"
 
 #endif
@@ -167,10 +167,11 @@ class RDOindex
     void pad_identifier(Identifier& id ) const;
 
     static void setRpcIdHelper(const RpcIdHelper*);
+    static void setMuonIdHelperTool(const Muon::MuonIdHelperTool*);
     
     private:
     //static const RPCGeometry* s_rpcgeo;
-    static const RpcIdHelper* s_rpcHelper;
+    static const RpcIdHelper* s_rpcIdHelper;
 
 #endif
 

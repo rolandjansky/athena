@@ -10,13 +10,12 @@ from egammaRec import egammaKeys
 from InDetRecExample.InDetKeys import InDetKeys
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-from egammaCaloTools.egammaCaloToolsFactories import egammaCheckEnergyDepositTool
 from egammaCaloTools import egammaCaloToolsConf
 
 egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
                                             name = 'caloClusterGSFSelector',
                                             EMEtRanges = [2500.],
-                                            EMFCuts = [0.8]
+                                            EMFCuts = [0.7]
                                           )  
 
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,

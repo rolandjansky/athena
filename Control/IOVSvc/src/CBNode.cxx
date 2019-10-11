@@ -22,10 +22,10 @@ unsigned int CBNode::s_serial = 0;
 CBNode::CBNode(std::string name, CBNode* parent): 
   m_name(name), m_proxy(0), m_fcn(0), m_trig(false), m_flag(false) {
   m_serial = ++s_serial;
-  addParent( parent );
   if (parent != 0) {
-    parent->addChild( this );
     m_level = parent->level() + 1;
+    addParent( parent );
+    parent->addChild( this );
   } else {
     m_level = 0;
   }
@@ -35,10 +35,10 @@ CBNode::CBNode(const SG::DataProxy* proxy, const std::string& name,
                CBNode* parent): 
   m_name(name), m_proxy(proxy), m_fcn(0), m_trig(false), m_flag(false) {
   m_serial = ++s_serial;
-  addParent( parent );
   if (parent != 0) {
-    parent->addChild( this );
     m_level = parent->level() + 1;
+    addParent( parent );
+    parent->addChild( this );
   } else {
     m_level = 0;
   }
@@ -50,10 +50,10 @@ CBNode::CBNode(BFCN* fcn, const CallBackID& cb, CBNode* parent):
   
   m_name = cb.name();
 
-  addParent( parent );
   if (parent != 0) {
-    parent->addChild( this );
     m_level = parent->level() + 1;
+    addParent( parent );
+    parent->addChild( this );
   } else {
     m_level = 0;
   }
@@ -64,10 +64,12 @@ CBNode::~CBNode() {
 }
 
 void CBNode::addParent( CBNode* parent ) {
+  assert( parent);
   m_parents.insert( parent );
 }
 
 void CBNode::addChild( CBNode* child ) {
+  assert(child);
   m_children.insert( child );
 }
 

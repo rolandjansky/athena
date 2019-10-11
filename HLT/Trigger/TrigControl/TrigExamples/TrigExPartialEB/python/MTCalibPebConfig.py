@@ -89,15 +89,16 @@ def make_l1_seq():
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
     all_algs.append(RoIBResultByteStreamDecoderAlg())
 
+    # Set menu for L1ConfigSvc
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.triggerMenuSetup = "LS2_v1"
+
     # Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
     # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
-    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, getL1ConfigSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr += LVL1ConfigSvc()
-
-    # Set the LVL1 menu (needed for initialising LVL1ConfigSvc)
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+    l1JsonFile = generateL1Menu()
+    svcMgr += getL1ConfigSvc()
 
     # Initialise L1 decoding tools
     from L1Decoder.L1DecoderConf import CTPUnpackingTool
@@ -114,7 +115,6 @@ def make_l1_seq():
     from L1Decoder.L1DecoderConf import L1Decoder
     l1decoder = L1Decoder()
     l1decoder.ctpUnpacker = ctpUnpacker
-    l1decoder.ChainToCTPMapping = chainCTPMap
     all_algs.append(l1decoder)
 
     from AthenaCommon.CFElements import seqOR
@@ -178,6 +178,7 @@ def make_all_hypo_algs(concurrent=False):
 def configure_hlt_result(hypo_algs):
     from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool, TriggerBitsMakerTool
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
+    from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
@@ -188,7 +189,7 @@ def configure_hlt_result(hypo_algs):
         ])
 
     # Data scouting example
-    resultList = [serialiser.fullResultID(), 1]
+    resultList = [getFullHLTResultID(), 1]
     serialiser.addCollectionListToResults([
         'xAOD::TrigCompositeContainer_v1#ExampleCollection1',
         'xAOD::TrigCompositeAuxContainer_v2#ExampleCollection1Aux.floatVec_1.floatVec_2.floatVec_3.floatVec_4.floatVec_5',
@@ -197,18 +198,42 @@ def configure_hlt_result(hypo_algs):
     ], resultList)
 
     # StreamTag definitions
-    streamPhysicsMain = ['Main', 'physics', 'True', 'True']
-    streamExamplePEB = ['ExamplePEB', 'calibration', 'True', 'False']
-    streamExampleDataScoutingPEB = ['ExampleDataScoutingPEB', 'physics', 'True', 'False']
+    streamPhysicsMain = {
+        'name': 'Main',
+        'type': 'physics',
+        'obeyLB': True,
+        'forceFullEventBuilding': True
+    }
+    streamExamplePEB = {
+        'name': 'ExamplePEB',
+        'type': 'calibration',
+        'obeyLB': True,
+        'forceFullEventBuilding': False
+    }
+    streamExampleDataScoutingPEB = {
+        'name': 'ExampleDataScoutingPEB',
+        'type': 'physics',
+        'obeyLB': True,
+        'forceFullEventBuilding': False
+    }
+    chain_to_streams = {}
+    chain_to_streams['HLT_MTCalibPeb1'] = [streamPhysicsMain]
+    chain_to_streams['HLT_MTCalibPeb2'] = [streamExamplePEB]
+    chain_to_streams['HLT_MTCalibPeb3'] = [streamExampleDataScoutingPEB]
+    menu_json = write_dummy_menu_json(chain_to_streams.keys(), chain_to_streams)
+
+    # Give the menu json name to HLTConfigSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'HLTConfigSvc'):
+        from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc
+        svcMgr += HLTConfigSvc()
+    svcMgr.HLTConfigSvc.JsonFileName = menu_json
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerTool()
     stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
-    stmaker.ChainToStream = {}
-    stmaker.ChainToStream['HLT_MTCalibPeb1'] = streamPhysicsMain
-    stmaker.ChainToStream['HLT_MTCalibPeb2'] = streamExamplePEB
-    stmaker.ChainToStream['HLT_MTCalibPeb3'] = streamExampleDataScoutingPEB
+    stmaker.HLTmenuFile = menu_json  # TODO: remove after !26849
 
     # Tool adding HLT bits to HLT result
     bitsmaker = TriggerBitsMakerTool()
@@ -256,3 +281,36 @@ def make_hlt_seq(concurrent=False):
 
     all_algs.extend(summary_algs)
     return seqOR('hltTop', all_algs)
+
+
+def write_dummy_menu_json(chains, chain_to_streams):
+    import json
+    menu_name = 'MTCalibPeb'
+    menu_dict = {
+        'name': menu_name,
+        'chains': []
+    }
+    counter = 0
+    for chain in chains:
+        chain_dict = {}
+
+        # Relevant attributes
+        chain_dict['counter'] = counter
+        chain_dict['name'] = chain
+        chain_dict['streams'] = chain_to_streams[chain]
+
+        # Other attributes not used in MTCalibPeb
+        chain_dict['groups'] = []
+        chain_dict['l1item'] = ''
+        chain_dict['l1thresholds'] = []
+
+        menu_dict['chains'].append(chain_dict)
+        counter += 1
+
+    file_name = 'HLTmenu_{:s}.json'.format(menu_name)
+
+    log.info('Writing trigger menu to %s', file_name)
+    with open(file_name, 'w') as json_file:
+        json.dump(menu_dict, json_file, indent=4, sort_keys=True)
+
+    return file_name

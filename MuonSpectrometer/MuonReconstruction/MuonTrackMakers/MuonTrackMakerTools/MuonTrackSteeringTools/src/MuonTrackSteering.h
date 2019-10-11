@@ -1,22 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKSTEERING_H
 #define MUONTRACKSTEERING_H
 
-#include "MuonRecToolInterfaces/IMuonTrackFinder.h"
+#include "MuonRecToolInterfaces/IMuonTrackFinder.h" 
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatEntity.h"
 
 #include "Identifier/Identifier.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackCollection.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <vector>
 #include <set>
@@ -35,7 +37,6 @@ namespace Trk {
 
 namespace Muon {
   class MuPatSegment;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonTrackSteeringStrategy;
   class MuPatCandidateTool;
@@ -55,7 +56,7 @@ namespace Muon {
   typedef std::vector<const Muon::MuonSegment*> MuonSegmentCollection;
 
   /** 
-      Implementation of an IMuonTrackSteering. 
+      Implementation of an IMuonTrackFinder. 
 
       For more details look at the mainpage of this package.
   */
@@ -94,25 +95,11 @@ namespace Muon {
     @param coll a reference to a MuonSegmentCollection
     @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
     */
-    TrackCollection* find( const MuonSegmentCollection& coll ) const;
-
-    /** @brief find tracks starting from a MuonSegmentCombination
-    @param combi a reference to a MuonSegmentCombination
-    @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
-    */
-    TrackCollection* find( const MuonSegmentCombination& combi ) const;
-
-    /** @brief find tracks starting from a MuonSegmentCombinationCollection
-    @param combiCol a reference to a MuonSegmentCombinationCollection
-    @return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
-    */
-    //std::vector<Trk::Track*>* find( const MuonSegmentCombinationCollection& combiCol ) const;
-
-    //  std::vector<const Trk::Track*>* find( const std::vector<const MuonSegment*>& segments ) const {};
-
-    TrackCollection *selectTracks(std::vector<MuPatTrack*> & candidates, bool takeOwnership = true ) const;
+    TrackCollection* find( const MuonSegmentCollection& coll ) const override;
 
   private:
+    TrackCollection *selectTracks(std::vector<MuPatTrack*> & candidates, bool takeOwnership = true ) const;
+
     /** actual find method */
     TrackCollection* findTracks( ) const;
     bool extractSegments( const MuonSegmentCollection& coll ) const;
@@ -145,7 +132,9 @@ namespace Muon {
 
   private:
 
-    ToolHandle<MuonEDMHelperTool>  m_helper;    //!< Tool for general EDM manipulation
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };    //!< Tool for general EDM manipulation
     ToolHandle<MuonEDMPrinterTool>  m_printer;    //!< Tool to print EDM objects
     ToolHandle<MuPatCandidateTool> m_candidateTool; //!< Tool for manipulation of candidates
     ToolHandle<IMuonTrackBuilder>    m_trackBTool;    //<! Tool for helping in track building

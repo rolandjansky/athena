@@ -2,12 +2,13 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonTrackCleaner.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkToolInterfaces/IUpdator.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
@@ -65,7 +66,6 @@ namespace Muon {
       m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
       m_compRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_magFieldSvc("AtlasFieldSvc",na),
@@ -74,7 +74,6 @@ namespace Muon {
     declareInterface<IMuonTrackCleaner>(this);
 
     declareProperty("IdHelper",m_idHelper);
-    declareProperty("Helper",m_helper);
     declareProperty("Printer",m_printer);
     declareProperty("MdtRotCreator",  m_mdtRotCreator );
     declareProperty("CompRotCreator", m_compRotCreator );
@@ -110,7 +109,7 @@ namespace Muon {
     ATH_CHECK( m_trackFitter.retrieve() );
     ATH_CHECK( m_slTrackFitter.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
@@ -264,7 +263,7 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MuonTrackCleaner::cleanCompROTs( std::unique_ptr<Trk::Track> track, CleaningState& state ) const {
     
-    if( !m_cleanCompROTs || state.numberOfCleanedCompROTs == 0 ) return std::move(track);
+    if( !m_cleanCompROTs || state.numberOfCleanedCompROTs == 0 ) return track;
 
     const Trk::Perigee* perigee = track->perigeeParameters();
     if( !perigee ){
@@ -334,7 +333,7 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MuonTrackCleaner::recoverFlippedMdt( std::unique_ptr<Trk::Track> track, CleaningState& state ) const {
     
-    if( !m_flipMdtDriftRadii || state.numberOfFlippedMdts == 0 ) return std::move(track);
+    if( !m_flipMdtDriftRadii || state.numberOfFlippedMdts == 0 ) return track;
 
     const Trk::Perigee* perigee = track->perigeeParameters();
     if( !perigee ){
@@ -403,7 +402,7 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MuonTrackCleaner::hitCleaning( std::unique_ptr<Trk::Track> track, CleaningState& state ) const {
 
-    if( state.largePullMeasurements.empty() ) return std::move(track);
+    if( state.largePullMeasurements.empty() ) return track;
     ATH_MSG_DEBUG(" trying outlier removal " );
 
     const Trk::Perigee* perigee = track->perigeeParameters();
@@ -576,7 +575,7 @@ namespace Muon {
 
     ATH_MSG_DEBUG("run chamber cleaning on track "<<m_printer->print(*track));
 
-    if( state.chambersToBeRemoved.empty() && state.chambersToBeRemovedPhi.empty() ) return std::move(track);
+    if( state.chambersToBeRemoved.empty() && state.chambersToBeRemovedPhi.empty() ) return track;
 
     if( state.pullSumPerChamber.size() == 2 ) {
       
@@ -944,7 +943,7 @@ namespace Muon {
     state.nIdHits = 0;
     state.nPseudoMeasurements = 0;
     state.nPhiConstraints = 0;
-    state.slFit =  !m_magFieldSvc->toroidOn() || m_helper->isSLTrack( track );
+    state.slFit =  !m_magFieldSvc->toroidOn() || m_edmHelperSvc->isSLTrack( track );
 
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -998,7 +997,7 @@ namespace Muon {
 	continue;
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       bool pseudo = !id.is_valid();
       if( pseudo ) ++state.nPseudoMeasurements;
 
@@ -1072,13 +1071,19 @@ namespace Muon {
       bool isOutlier = isOutsideOnTrackCut(id,residual,pull, 1 );
       bool isRecoverable = m_recoverOutliers && !isOutlier && !isOutsideOnTrackCut(id,residual,pull, m_associationScaleFactor );
       bool flippedIsRecoverable = isMDT && flippedPull < pull - 0.1 && !isOutsideOnTrackCut(id,flippedResidual,flippedPull,m_associationScaleFactor);
-      bool isDelta = isOutlier && isMDT && rTrackAbs < 14.6 && rTrackAbs > fabs(rDrift);
+      double innerRadius = 14.6;
+      if( isMDT ) {
+	const MdtDriftCircleOnTrack* mdtdc = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
+	if(mdtdc) innerRadius = mdtdc->detectorElement()->innerTubeRadius();
+      }
+
+      bool isDelta = isOutlier && isMDT && rTrackAbs < innerRadius && rTrackAbs > fabs(rDrift);
 
       // remove all outliers that are too far from the track
       if( isOutlier ){
 	if( isMDT ){
-	  if( rTrackAbs > 14.6 ) inBounds = false;
-	}else if( pull > 10 ) {
+	  if( rTrackAbs > innerRadius ) inBounds = false;
+	}else if( pull > 10. ) {
 	  inBounds = false;
 	}
       }
@@ -1102,7 +1107,7 @@ namespace Muon {
 	}
 	if( !isNoise && flipSign ){
 	  if( mdtRot ){
-	    mdtRotFlipped = std::make_unique<MdtDriftCircleOnTrack>(*(mdtRot->clone()));
+	    mdtRotFlipped = std::make_unique<MdtDriftCircleOnTrack>(*mdtRot);
 	    Trk::DriftCircleSide side = rDrift < 0. ? Trk::RIGHT : Trk::LEFT;
 	    m_mdtRotCreator->updateSign(*mdtRotFlipped,side);
 	    double rDriftFlip = mdtRotFlipped->localParameters()[Trk::locR];
@@ -1215,7 +1220,9 @@ namespace Muon {
 	      if( prdList.empty() ){
 		ATH_MSG_WARNING("No clusters selected during comprot cleaning, keeping old cluster" );
 	      }else{
-		updatedCompRot = std::make_unique<CompetingMuonClustersOnTrack>(*m_compRotCreator->createBroadCluster(prdList,0.));
+		//TODO: createBroadCluster returns a const object so a workaround is needed to get a unique pointer, this should be fixed in some fashion 
+		CompetingMuonClustersOnTrack tempCompRot=*m_compRotCreator->createBroadCluster(prdList,0.);
+		updatedCompRot = std::make_unique<CompetingMuonClustersOnTrack>(tempCompRot);
 		++state.numberOfCleanedCompROTs;
 	      }
 	    }
@@ -1671,7 +1678,7 @@ namespace Muon {
       return nullptr;
     }
     else{
-      return std::make_unique<Trk::Track>(*newTrack);
+      return std::unique_ptr<Trk::Track>(newTrack);
     }
   }
 }

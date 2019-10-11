@@ -10,8 +10,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrkSurfaces/Surface.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -24,8 +22,6 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
@@ -144,11 +140,9 @@ StatusCode FTKTrackMakerMT::execute() {
   
   const PixelID* pixidHelper;
   const SCT_ID* sctidHelper;
-  const InDetDD::PixelDetectorManager* pixelManager;
 
   ATH_CHECK(detStore()->retrieve(pixidHelper,"PixelID"));
   ATH_CHECK(detStore()->retrieve(sctidHelper,"SCT_ID"));
-  ATH_CHECK(detStore()->retrieve(pixelManager,"Pixel"));
 
   SG::WriteHandle<PixelClusterContainer> pixelClusterContainer(m_pixelClusterContainerKey);
   ATH_CHECK( pixelClusterContainer.record (std::make_unique<PixelClusterContainer>(pixidHelper->wafer_hash_max())) );
@@ -171,8 +165,18 @@ StatusCode FTKTrackMakerMT::execute() {
   ATH_CHECK(trackCollection.isValid());
   ATH_MSG_DEBUG( "Container '" << trackCollection.name() << "' initialised" );
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctCondData{m_SCTDetEleCollKey};
-  ATH_CHECK(sctCondData.isValid());
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(pixelDetEle.retrieve());
+  if (pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
+  if (sctElements==nullptr) {
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
 
   SG::ReadHandle<FTK_RawTrackContainer> rawTracks(m_rdoContainerKey);
   
@@ -279,7 +283,7 @@ StatusCode FTKTrackMakerMT::execute() {
 	ATH_MSG_DEBUG( "hashId is " << raw_pixel_cluster.getModuleID() << " Layer " << cluster_number << " getWordA() "
 		       << raw_pixel_cluster.getWordA() << " getWordB() " << raw_pixel_cluster.getWordB() );
       }
-      const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(raw_pixel_cluster,*trkPerigee, pixelClusterContainer.ptr(), pixidHelper,  pixelManager);
+      const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(raw_pixel_cluster,*trkPerigee, pixelClusterContainer.ptr(), pixelElements, pixidHelper);
       if (pixel_cluster_on_track==nullptr){
 	ATH_MSG_WARNING("PixelClusterOnTrack failed to create cluster " << cluster_number);
       } else {
@@ -311,7 +315,7 @@ StatusCode FTKTrackMakerMT::execute() {
 	ATH_MSG_VERBOSE( "  No SCT Hit for layer "  << cluster_number);
 	continue;
       }
-      const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee, sctClusterContainer.ptr(), sctCondData, sctidHelper);
+      const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee, sctClusterContainer.ptr(), sctElements, sctidHelper);
       
       
       if (sct_cluster_on_track==nullptr){
@@ -371,7 +375,7 @@ StatusCode FTKTrackMakerMT::execute() {
 const Trk::RIO_OnTrack* FTKTrackMakerMT::createSCT_Cluster(const FTK_RawSCT_Cluster& raw_cluster, 
 							   const Trk::TrackParameters& trkPerigee, 
 							   InDet::SCT_ClusterContainer* sctClusterContainer,
-							   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctCondData, const SCT_ID* sctidHelper) const {
+							   const InDetDD::SiDetectorElementCollection* sctElements, const SCT_ID* sctidHelper) const {
 
   const IdentifierHash hash=raw_cluster.getModuleID();
   const int rawStripCoord= raw_cluster.getHitCoord();
@@ -390,7 +394,7 @@ const Trk::RIO_OnTrack* FTKTrackMakerMT::createSCT_Cluster(const FTK_RawSCT_Clus
 
   int strip = static_cast<int>(stripCoord);
 
-  const InDetDD::SiDetectorElement* pDE = sctCondData ->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = sctElements ->getDetectorElement(hash);
 
 
   ATH_MSG_VERBOSE( " SCT FTKHit HitCoord rawStripCoord" << rawStripCoord << " hashID 0x" << std::hex << hash << std::dec << " " <<  sctidHelper->print_to_string(pDE->identify()));
@@ -511,16 +515,15 @@ const Trk::RIO_OnTrack* FTKTrackMakerMT::createSCT_Cluster(const FTK_RawSCT_Clus
 
 
 
-const Trk::RIO_OnTrack*  FTKTrackMakerMT::createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee, InDet::PixelClusterContainer* pixelClusterContainer, const PixelID* pixidHelper, const InDetDD::PixelDetectorManager* pixelManager) const {
+const Trk::RIO_OnTrack*  FTKTrackMakerMT::createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee, InDet::PixelClusterContainer* pixelClusterContainer, const InDetDD::SiDetectorElementCollection* pixelElements, const PixelID* pixidHelper) const {
   IdentifierHash hash = raw_pixel_cluster.getModuleID();
   Identifier wafer_id = pixidHelper->wafer_id(hash); 
-  const InDetDD::SiDetectorElement* pDE = pixelManager->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = pixelElements->getDetectorElement(hash);
 
   ATH_MSG_VERBOSE( " Pixel FTKHit hashID 0x" << std::hex << hash << std::dec << " " << pixidHelper->print_to_string(pDE->identify()));
 
-  const InDetDD::SiDetectorElement* pixelDetectorElement = pixelManager->getDetectorElement(hash);
   const InDetDD::PixelModuleDesign* design
-    (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pixelDetectorElement->design()));
+    (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pDE->design()));
 
   ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createPixelCluster: raw FTK cluster position: " <<
       " Row(phi): " <<  raw_pixel_cluster.getRowCoord() << " Col(eta): " << raw_pixel_cluster.getColCoord() <<
@@ -638,7 +641,7 @@ const Trk::RIO_OnTrack*  FTKTrackMakerMT::createPixelCluster(const FTK_RawPixelC
   ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos << ", " << etaPos);
   ATH_MSG_VERBOSE(" FTK cluster phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
 
-  // bool blayer = pixelDetectorElement->isBlayer();
+  // bool blayer = pDE->isBlayer();
 
   const std::vector<Identifier> rdoList{pixel_id};
 
@@ -665,7 +668,7 @@ const Trk::RIO_OnTrack*  FTKTrackMakerMT::createPixelCluster(const FTK_RawPixelC
 
   if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){
     SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
-    if(pixelDetectorElement->isBarrel()){
+    if(pDE->isBarrel()){
       // Barrel corrections //
       int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
       (*cov)(0,0) = square(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin));
@@ -685,7 +688,7 @@ const Trk::RIO_OnTrack*  FTKTrackMakerMT::createPixelCluster(const FTK_RawPixelC
   }
 
   InDet::PixelCluster* pixel_cluster = new InDet::PixelCluster(pixel_id, position, rdoList, siWidth,
-      pixelDetectorElement, cov);
+      pDE, cov);
   ATH_MSG_VERBOSE("covariance " << (*cov)(0,0) << ", " << (*cov)(0,1));
   ATH_MSG_VERBOSE("           " << (*cov)(1,0) << ", " <<   (*cov)(1,1)) ;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECODER_AFP_DECODER_H
@@ -16,7 +16,6 @@
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -80,7 +79,6 @@ public:
 private:
   const eformat::FullEventFragment<const uint32_t *> *m_event;
   const eformat::ROBFragment<const uint32_t *> *m_robFrag;
-  StoreGateSvc *m_EvtStore;
   unsigned int m_fragment_number;
   unsigned int m_count_hits;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -36,7 +36,7 @@
 namespace MuonCalib {
 
 MdtValidationAlg::MdtValidationAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), 
-p_reg_sel_svc(NULL), m_tube_chamber(NULL),  m_detStore(NULL), m_MdtIdHelper(NULL),m_detMgr(NULL),  m_db(NULL), m_t0_op(NULL), m_rt_op(NULL), m_head_ops(NULL),
+p_reg_sel_svc(NULL), m_tube_chamber(NULL),m_detMgr(NULL),  m_db(NULL), m_t0_op(NULL), m_rt_op(NULL), m_head_ops(NULL),
 m_fitter(1), m_writeToDbEnable(true), m_limitslevel(0), m_makeHistos(0), m_lastdate(0), 
 m_validationTask(""), m_db_ConnectionString(""),m_db_WorkingSchema(""),m_defaultRtFile("./RT_default_comm.dat"),
 m_minSegs(-1), m_minDAngle(-999.), m_Histos(NULL), m_HistosList(NULL),
@@ -97,7 +97,7 @@ StatusCode MdtValidationAlg::initialize() {
   MsgStream log(msgSvc(), name());
   log<< MSG::INFO << "Thank you for using MdtValidationAlg!" <<endmsg;
 
-  ATH_CHECK ( detStore()->retrieve(m_MdtIdHelper, "MDTIDHELPER" ) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK ( detStore()->retrieve( m_detMgr ) );
   ATH_CHECK( serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc) );
   m_region_ids=p_reg_sel_svc->GetStationsInRegions();
@@ -689,7 +689,7 @@ double  MdtValidationAlg::getRightLimit(TH1F * histo) {
 
 // Check if tube is a real or dummy tube (inserted as placeholder in COOL text blob)
 inline bool MdtValidationAlg::exists(NtupleStationId &id, int ml, int ly, int tb) {
-  if(!id.InitializeGeometry(m_MdtIdHelper, m_detMgr)) {
+  if(!id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr)) {
     return false;
   }
   if(ml+1>id.NMultilayers()) {

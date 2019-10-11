@@ -22,14 +22,16 @@
 #include "MuonCondData/CscCondDataContainer.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "CscCalibTools/ICscCalibTool.h"
+#include "CxxUtils/checker_macros.h"
 
-#include <atomic>
-#include <inttypes.h>
-#include <vector>
 #include "TMath.h"
 #include "TF1.h"
 #include "TH1.h"
 
+#include <atomic>
+#include <inttypes.h>
+#include <mutex>
+#include <vector>
 
 class CscCalibTool : public extends<AthAlgTool, ICscCalibTool> {
 
@@ -38,6 +40,7 @@ public:
   virtual ~CscCalibTool () = default;
 
   virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
 
   /** given a charge on the CSC strip, convert that to ADC counts
       this is needed in the digitization for example where it is the charges
@@ -120,7 +123,6 @@ public:
   // this function is defined. Return value is pair and the first one is driftTime.
   virtual std::pair<double,double> addBipfunc(const double driftTime0, const double stripCharge0,
                                               const double driftTime1, const double stripCharge1) const override final;
-  virtual std::string getDetDescr() const override final;
 
   // 09/2010
   virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) const override final;
@@ -167,8 +169,9 @@ protected:
   float m_latencyInDigitization; // new in 12/2010 for New Digitization package...
 
   unsigned int m_nSamples;
-  mutable TF1* m_addedfunc;
-  mutable TF1* m_bipolarFunc;
+  mutable TF1* m_addedfunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable TF1* m_bipolarFunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::mutex m_mutex;
 
   bool m_onlineHLT;
   bool m_use2Samples; // for the use of only 2 samples for strip charge

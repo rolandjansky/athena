@@ -22,7 +22,5 @@ atlas_add_component( TrigEgammaMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaMonitoringLib )
 
 # Install files from the package:
-atlas_install_headers( TrigEgammaMonitoring )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

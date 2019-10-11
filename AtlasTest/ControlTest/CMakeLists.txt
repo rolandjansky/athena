@@ -133,6 +133,9 @@ atlas_add_test( test_cfgItemList
 atlas_add_test( test_keyStore
                 SCRIPT test/test_keyStore.sh )
 
+atlas_add_test( test_handleTest
+                SCRIPT test/test_handleTest.sh )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGateTestCommon.txt share/*.py )

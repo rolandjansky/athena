@@ -7,8 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/Timeout.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 #include "MuonSegment/MuonSegmentQuality.h"
@@ -40,7 +38,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -86,7 +84,6 @@ namespace Muon {
     m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_segmentFinder("Muon::MdtMathSegmentFinder/MdtMathSegmentFinder", this),
     m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool", this),
     m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", this),
@@ -105,7 +102,7 @@ namespace Muon {
     declareProperty("MuonCompetingClustersCreator",     m_compClusterCreator);
     declareProperty("IdHelper", m_idHelperTool);
     declareProperty("EDMPrinter", m_printer);
-    declareProperty("EDMHelper", m_helper);    
+    declareProperty("EDMHelper", m_edmHelperSvc);    
     declareProperty("MdtSegmentFinder",     m_segmentFinder);
     declareProperty("SegmentFitter", m_segmentFitter);
     declareProperty("SegmentSelector", m_segmentSelectionTool);
@@ -156,7 +153,7 @@ namespace Muon {
     ATH_CHECK( m_compClusterCreator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_segmentFinder.retrieve() );
     ATH_CHECK( m_segmentSelectionTool.retrieve() );
     
@@ -183,6 +180,8 @@ namespace Muon {
       ATH_MSG_ERROR("Couldn't initalize MDT ReadHandleKey");
       return StatusCode::FAILURE;
     }
+
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -2290,7 +2289,13 @@ namespace Muon {
 							      std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir, dbData, m_detMgr );
 
 
     // set to identify the hit on the segment
@@ -2336,8 +2341,9 @@ namespace Muon {
       int layer = (m_idHelperTool->mdtIdHelper().tubeLayer(id)-1) + 4*(m_idHelperTool->mdtIdHelper().multilayer(id)-1);
 
       bool notBetweenHits = layer < firstLayer || layer > lastLayer;
-      double distanceCut = hasMeasuredCoordinate ? -20 : -200.;
-      if( notBetweenHits && (fabs( tint.rIntersect ) > 14.4 || (!m_allMdtHoles && tint.xIntersect > distanceCut ) ) ){
+      double distanceCut  = hasMeasuredCoordinate ? -20 : -200.;
+      double innerRadius  = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+      if( notBetweenHits && ( fabs(tint.rIntersect) > innerRadius || (!m_allMdtHoles && tint.xIntersect > distanceCut) ) ) {
 	if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << " not counting tube:  distance to wire " << tint.rIntersect << " dist to tube end " << tint.xIntersect 
 						      << " " << m_idHelperTool->toString(tint.tubeId) << std::endl;
       }else{
@@ -2573,7 +2579,7 @@ namespace Muon {
 
     for( std::vector<const Trk::MeasurementBase*>::const_iterator it = rots.begin();it!=rots.end();++it ){
 
-      Identifier id = m_helper->getIdentifier(**it);
+      Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( !id.is_valid() ) continue;
       Amg::Vector3D lpos;
       double lxmin(0),lxmax(0),phimin(0.),phimax(0.);
@@ -2646,8 +2652,6 @@ namespace Muon {
 	    }
 	    Amg::Vector3D lpos_shift(lposTGC.x(),locy_shift,z_shift);
 	    
-	    // 	    std::cout << " local phi pos " << lposTGC << " shifted pos " << lpos_shift << std::endl;
-
 	    // transform the two points to global coordinates
 	    const Amg::Transform3D tgcTrans = detEl->absTransform();
 	    Amg::Vector3D gposL    = tgcTrans*lposTGC;

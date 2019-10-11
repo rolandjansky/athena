@@ -22,13 +22,14 @@
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <vector>
 
 class EventInfo;
-//class StoreGateSvc;
 class ILArBadChannelMasker;
 class ILArBadFebMasker;
+class CaloBCIDAverage;
 static std::vector<float> corrBCIDref_example;
 
 /** Class which contains statically allocated LArCellCollections */
@@ -80,6 +81,10 @@ class LArCellCont : public std::vector<LArCellCollection*>
   const std::vector<uint32_t>& MissingROBs( void ) {
 	return m_MissingROBs;
   }
+
+  bool lumiBCIDCheck( const EventContext& context );
+  /** update BCID dependent correction table for MT case */
+  void updateBCID( const CaloBCIDAverage& );
 
 private:    
 

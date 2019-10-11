@@ -30,7 +30,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkAmbiguityProcessor
                           PRIVATE
                           Event/EventPrimitives
-                          InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetDetDescr/InDetIdentifier

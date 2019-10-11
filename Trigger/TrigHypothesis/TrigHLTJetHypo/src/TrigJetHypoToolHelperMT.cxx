@@ -21,8 +21,8 @@ TrigJetHypoToolHelperMT::TrigJetHypoToolHelperMT(const std::string& type,
 
 StatusCode TrigJetHypoToolHelperMT::initialize() {
 
-  m_grouper  = std::move(m_config->getJetGrouper());
-  m_matcher = std::move(m_config->getMatcher());
+  m_grouper  = m_config->getJetGrouper();
+  m_matcher = m_config->getMatcher();
   if(!m_matcher){
     ATH_MSG_ERROR("Error setting matcher");
     return StatusCode::FAILURE;
@@ -51,7 +51,6 @@ bool
 TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 			      xAODJetCollector& jetCollector,
 			      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
-
 
   JetTrigTimer timer;
   timer.start();

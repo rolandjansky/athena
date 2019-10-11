@@ -44,13 +44,13 @@ def generateL1DecoderAndChains():
 
 
     data['l1emroi'] = [ ';',
-                        '1,1,0,EM3,EM7,EM15,EM20,EM50,EM100,2EM3; 1,-1.2,0,EM3,EM7,2EM3',
+                        '1,1,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.2,0,EM3,EM7',
                         '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
                         '-0.6,1.5,0,EM3,EM7,EM7']
 
     data['l1muroi'] = [';',
                        '0,0,0,MU0;',
-                       '-1,0.5,0,MU6,MU8,2MU6; 1,0.5,0,MU6,MU8,MU10,2MU6',
+                       '-1,0.5,0,MU6,MU8; 1,0.5,0,MU6,MU8,MU10',
                        '-1.5,-0.1,0,MU6,MU8,MU10']
 
     data['tracks'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
@@ -74,10 +74,10 @@ def generateL1DecoderAndChains():
 
 
 
-    from TrigUpgradeTest.TestUtils import writeEmulationFiles
+    from TrigUpgradeTest.TestUtils import writeEmulationFiles, makeChain
     writeEmulationFiles(data)
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 
     doMuon=True
@@ -115,11 +115,11 @@ def generateL1DecoderAndChains():
 
 
         MuChains  = [
-            Chain(name='HLT_mu8_1step_L1MU6',  L1Thresholds=["MU6"],  ChainSteps=[step_mu11]),
-            Chain(name='HLT_mu20_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31] ),
-            Chain(name='HLT_mu10_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ),
-            Chain(name='HLT_mu8_L1MU10',    L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu32, step_mu41] ),
-            Chain(name='HLT_mu6_L1MU6',     L1Thresholds=["MU6"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ),
+            makeChain(name='HLT_mu8_1step_L1MU6',  L1Thresholds=["MU6"],  ChainSteps=[step_mu11]),
+            makeChain(name='HLT_mu20_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31] ),
+            makeChain(name='HLT_mu10_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ),
+            makeChain(name='HLT_mu8_L1MU10',    L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu32, step_mu41] ),
+            makeChain(name='HLT_mu6_L1MU6',     L1Thresholds=["MU6"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ),
  #           Chain(name='HLT_mu6_1step_L1MU6',  L1Item="L1_MU6",  ChainSteps=[step_mu11 , step_empy , step_mu31]),
 #            Chain(name='HLT_2mu6_L12MU6',  L1Item="L1_2MU6",      ChainSteps=[ChainStep("Step_2muSA", [muSA,muSA])  ] )
             ]
@@ -142,11 +142,11 @@ def generateL1DecoderAndChains():
 
     
         ElChains  = [
-            Chain(name='HLT_e5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
-            Chain(name='HLT_e5_v2_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em22",  [el22]) ] ),
-            Chain(name='HLT_e5_v3_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em23",  [el23]) ] ),
-            Chain(name='HLT_e8_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]), ChainStep("Step_em31",  [el31]) ] ),
-            Chain(name='HLT_g5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_gam11", [gamm11]) ] )
+            makeChain(name='HLT_e5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]) ] ),
+            makeChain(name='HLT_e5_v2_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em22",  [el22]) ] ),
+            makeChain(name='HLT_e5_v3_L1EM7', L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em23",  [el23]) ] ),
+            makeChain(name='HLT_e8_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_em11", [el11]), ChainStep("Step_em21",  [el21]), ChainStep("Step_em31",  [el31]) ] ),
+            makeChain(name='HLT_g5_L1EM7'   , L1Thresholds=["EM7"], ChainSteps=[ ChainStep("Step_gam11", [gamm11]) ] )
         ]
 
         HLTChains += ElChains
@@ -184,15 +184,15 @@ def generateL1DecoderAndChains():
         # in symmetric chains, multiplicity=2 but only one sequence is used
         
         CombChains =[
-            Chain(name='HLT_mu8_e8_L1MU6_EM7',  L1Thresholds=["MU6","EM7"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=2),
+            makeChain(name='HLT_mu8_e8_L1MU6_EM7',  L1Thresholds=["MU6","EM7"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=2),
                                                              ChainStep("Step2_mu_em", [mu21, el21], multiplicity=2)] ),
-            Chain(name='HLT_e5_e8_L1EM3_EM5',   L1Thresholds=["EM3","EM5"], ChainSteps=[ ChainStep("Step1_2em",   [el11, el11], multiplicity=2),
+            makeChain(name='HLT_e5_e8_L1EM3_EM5',   L1Thresholds=["EM3","EM5"], ChainSteps=[ ChainStep("Step1_2em",   [el11, el11], multiplicity=2),
                                                              ChainStep("Step2_2em",   [el21, el21], multiplicity=2) ]),
-            Chain(name='HLT_2mu6_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=2),
+            makeChain(name='HLT_2mu6_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=2),
                                                              ChainStep("Step2_2mu",   [mu21], multiplicity=2) ]),
-            Chain(name='HLT_2mu6Comb_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu_empty",     multiplicity=2),
+            makeChain(name='HLT_2mu6Comb_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu_empty",     multiplicity=2),
                                                              ChainStep("Step2_2mu",   [mu21], multiplicity=2) ]),
-            Chain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU4"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=2),
+            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU4"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=2),
                                                                                   step_mu22,
                                                                                   ChainStep("Step3_2mu",   [mu31], multiplicity=2)] )
             ]
@@ -201,9 +201,7 @@ def generateL1DecoderAndChains():
         HLTChains += CombChains
 
 
-    # this is a temporary hack to include new test chains
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getOverallL1item
-    EnabledChainNamesToCTP = dict([ (c.name,  getOverallL1item(c.name))  for c in HLTChains])
+
 
     ########################## L1 #################################################
 
@@ -211,23 +209,18 @@ def generateL1DecoderAndChains():
 
     l1Decoder = L1Decoder( RoIBResult="" )
     l1Decoder.prescaler.EventInfo=""
-    l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
-    emUnpacker.ThresholdToChainMapping =  thresholdToChains( ElChains ) + [ m for m in thresholdToChains( CombChains ) if "EM" in m] #EnabledElChains + EnabledElComboChains
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM", ThresholdPrefix="EM" )
     emUnpacker.Decisions="L1EM"
-    log.debug("EMRoIsUnpackingTool enables chians:")
-    log.debug(emUnpacker.ThresholdToChainMapping)
 
-    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
-    muUnpacker.ThresholdToChainMapping = thresholdToChains( MuChains ) +   [ m for m in thresholdToChains( CombChains ) if "MU" in m] #EnabledMuChains + EnabledMuComboChains
+
+    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU", ThresholdPrefix="MU" )
     muUnpacker.Decisions="L1MU"
-    log.debug("MURoIsUnpackingTool enables chians:")
-    log.debug(muUnpacker.ThresholdToChainMapping)
+
 
     l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 

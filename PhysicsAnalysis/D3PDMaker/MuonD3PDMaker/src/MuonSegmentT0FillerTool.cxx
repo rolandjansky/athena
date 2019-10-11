@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////
@@ -20,8 +20,7 @@ namespace D3PD {
 MuonSegmentT0FillerTool::MuonSegmentT0FillerTool (const std::string& type,
                                             const std::string& name,
                                             const IInterface* parent)
-  : BlockFillerTool<Trk::Segment> (type, name, parent),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
+  : BlockFillerTool<Trk::Segment> (type, name, parent)
     //    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     //    m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
@@ -33,7 +32,7 @@ MuonSegmentT0FillerTool::MuonSegmentT0FillerTool (const std::string& type,
 StatusCode MuonSegmentT0FillerTool::initialize()
 {
   CHECK( BlockFillerTool<Trk::Segment>::initialize() );
-  CHECK( m_helperTool.retrieve() );
+  CHECK( m_edmHelperSvc.retrieve() );
   //  CHECK( m_idHelperTool.retrieve() );
   //  CHECK( m_idToFixedIdTool.retrieve() );
 

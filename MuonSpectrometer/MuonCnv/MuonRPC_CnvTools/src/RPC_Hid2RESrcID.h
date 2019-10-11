@@ -11,7 +11,7 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "RPCcablingInterface/IRPCcablingSvc.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <stdint.h> 
 #include <map>
@@ -25,7 +25,7 @@ public:
 
   RPC_Hid2RESrcID (int specialROBNumber); 
 
-  void set(const IRPCcablingSvc* p_cabling, const RpcIdHelper* rpcHelper); 
+  void set(const IRPCcablingSvc* p_cabling, const Muon::MuonIdHelperTool* muonIdHelperTool); 
 
   std::vector<uint32_t> getRodIDFromCollID(const Identifier& offlineId);
 
@@ -45,7 +45,7 @@ public:
 
   Identifier findPadOfflineId(uint16_t side, uint16_t slogic, uint16_t padId);
 
-  const RpcIdHelper * getIdHelper () { return m_rpcHelper; }  
+  const RpcIdHelper& getIdHelper () { return m_muonIdHelperTool->rpcIdHelper(); }  
    
   MsgStream & msg(MSG::Level lvl) const { return m_msg << lvl;};
 
@@ -54,7 +54,7 @@ public:
 private: 
 
   const IRPCcablingSvc* m_cabling;
-  const RpcIdHelper*    m_rpcHelper;
+  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
 
   int m_specialROBNumber;
 

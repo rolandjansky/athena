@@ -41,11 +41,12 @@ def getHITSStreamItemList():
     if DetFlags.Muon_on():
         hitsItemList += ["RPCSimHitCollection#*",
                          "TGCSimHitCollection#*",
-                         "CSCSimHitCollection#*",
                          "MDTSimHitCollection#*",
                          "TrackRecordCollection#MuonExitLayer"]
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if MuonGeometryFlags.hasCSC(): hitsItemList += ["CSCSimHitCollection#*"]
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+        if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
             hitsItemList += ["sTGCSimHitCollection#*"]
             hitsItemList += ["MMSimHitCollection#*"]
             hitsItemList += ["GenericMuonSimHitCollection#*"]
@@ -154,7 +155,6 @@ class ISF_HITSStream:
         if athenaCommonFlags.PoolHitsOutput.statusOn:
             output_file = athenaCommonFlags.PoolHitsOutput()
             stream1 = AthenaPoolOutputStream("StreamHITS", output_file)
-            stream1.ForceRead = True
             stream1.ItemList = getHITSStreamItemList()
             ## Make stream aware of aborted events
             stream1.AcceptAlgs = [ISF_Flags.Simulator.KernelName()]
@@ -166,7 +166,6 @@ class ISF_HITSStream:
         if simFlags.SimulationFlavour == "ParametricSimulation":
             output_file = athenaCommonFlags.PoolAODOutput()
             xAODStream = AthenaPoolOutputStream("StreamAOD", output_file)
-            xAODStream.ForceRead = True
             xAODStream.ItemList = getAODStreamItemList()
             ## Make stream aware of aborted events
             xAODStream.AcceptAlgs = [ISF_Flags.Simulator.KernelName()]

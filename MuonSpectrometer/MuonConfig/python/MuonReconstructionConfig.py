@@ -5,6 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Local
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
+from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 
 
 def MuonReconstructionCfg(flags):
@@ -12,6 +13,7 @@ def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
     result.merge( MuonSegmentFindingCfg(flags) )
+    result.merge( MuonTrackBuildingCfg(flags) )
     return result
     
 if __name__=="__main__":
@@ -40,9 +42,9 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     # This is a temporary fix! Should be private!
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperTool
-    muon_edm_helper_tool = Muon__MuonEDMHelperTool("MuonEDMHelperTool", MuonExtrapolator=None) # Don't bring in this dependency yet!
-    cfg.addPublicTool( muon_edm_helper_tool )
+    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
+    cfg.addService( muon_edm_helper_svc )
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))

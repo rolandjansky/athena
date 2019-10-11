@@ -1,7 +1,6 @@
 #include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderFitFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderFitFilterCool.h"
-#include "TileRecUtils/TileRawChannelBuilderOptFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderOpt2Filter.h"
 #include "TileRecUtils/TileRawChannelBuilderQIEFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderManyAmps.h"
@@ -32,7 +31,6 @@
 DECLARE_COMPONENT( TileRawChannelBuilderFlatFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderFitFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderFitFilterCool )
-DECLARE_COMPONENT( TileRawChannelBuilderOptFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderOpt2Filter )
 DECLARE_COMPONENT( TileRawChannelBuilderQIEFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderManyAmps )

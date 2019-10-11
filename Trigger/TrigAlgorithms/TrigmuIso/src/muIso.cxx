@@ -23,7 +23,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "TrigTimeAlgs/TrigTimer.h"
@@ -51,7 +50,6 @@ class ISvcLocator;
 
 muIso::muIso(const std::string & name, ISvcLocator* pSvcLocator):
    HLT::FexAlgo(name, pSvcLocator),
-   //m_pStoreGate("StoreGateSvc", name),
    m_pTimerService("TrigTimerSvc", name)
 {
    //Monitored quantities
@@ -77,12 +75,6 @@ HLT::ErrorCode muIso::hltInitialize()
    ATH_MSG_DEBUG( "on initialize()"  );
 
    ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION  );
-
-   //if ( m_pStoreGate.retrieve().isFailure() ) {
-   //   ATH_MSG_ERROR("Cannot retrieve service StoreGateSvc");
-   //   return HLT::BAD_JOB_SETUP; 
-   //}
-   m_pStoreGate = store();
 
    // Timer Service
    if ( m_pTimerService.retrieve().isFailure() ) {
@@ -179,11 +171,8 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    m_IDiso       = -9999.;
    m_isIsolated  = -1.0;
 
-   // Retrieve store
-   m_pStoreGate = store();
-
    const xAOD::EventInfo* pEvent;
-   StatusCode sc = m_pStoreGate->retrieve(pEvent);
+   StatusCode sc = evtStore()->retrieve(pEvent);
    if (sc.isFailure()) {
       m_ErrorFlagMI = 1;
       ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );
@@ -402,11 +391,8 @@ StatusCode muIso::findIsolation( const xAOD::L2CombinedMuonContainer& muonColl,
    muonISColl.push_back(muonIS);
    muonIS->setPt(0.0);
 
-   // Retrieve store
-   m_pStoreGate = store();
-
    const xAOD::EventInfo* pEvent;
-   StatusCode sc = m_pStoreGate->retrieve(pEvent);
+   StatusCode sc = evtStore()->retrieve(pEvent);
    if (sc.isFailure()) {
       m_ErrorFlagMI = 1;
       ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );

@@ -616,21 +616,15 @@ namespace InDet
     ATH_MSG_VERBOSE("run distanceAndError( " << params << " , " << vertex << ", &error), " << m_ImpactPoint3dEstimator);
 
     //find distance safely
-    bool isOK = false;
     double distance = 0.;
     try {
-      Trk::PlaneSurface* mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(params, vertex, distance);
-      delete mySurface;
-      isOK = true;
+      std::unique_ptr<Trk::PlaneSurface> mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(params, vertex, distance);
     }
     catch (error::ImpactPoint3dEstimatorProblem err) {
       msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " <<
       err.p << endmsg;
     }
 
-    if (not isOK) {
-      distance = 0.;
-    }
     if (distance < 0) {
       msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;
     }

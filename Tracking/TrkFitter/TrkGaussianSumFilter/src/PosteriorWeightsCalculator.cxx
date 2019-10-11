@@ -46,7 +46,7 @@ Trk::PosteriorWeightsCalculator::finalize()
   return StatusCode::SUCCESS;
 }
 
-const Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedState,
                                          const MeasurementBase& measurement) const
 {
@@ -55,12 +55,12 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
 
   if (predictedState.empty()) {
     ATH_MSG_WARNING("Predicted state is empty... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_VERBOSE("State for update is valid!");
 
-  Trk::MultiComponentState* returnMultiComponentState = new Trk::MultiComponentState();
+  std::unique_ptr<Trk::MultiComponentState> returnMultiComponentState = std::make_unique<Trk::MultiComponentState>();
 
   std::vector<double> componentDeterminantR;
   std::vector<double> componentChi2;
@@ -152,8 +152,8 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
 
   if (componentDeterminantR.size() != predictedState.size() || componentChi2.size() != predictedState.size()) {
     ATH_MSG_WARNING("Inconsistent number of components in chi2 and detR vectors... Exiting!");
-    delete returnMultiComponentState;
-    return 0;
+    returnMultiComponentState.reset();
+    return nullptr;
   }
 
   // Calculate posterior weights.
@@ -186,8 +186,8 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
 
   if (returnMultiComponentState->size() != predictedState.size()) {
     ATH_MSG_WARNING("Inconsistent number of components between initial and final states... Exiting!");
-    delete returnMultiComponentState;
-    return 0;
+    returnMultiComponentState.reset();
+    return nullptr;
   }
 
   // Renormalise the state to total weight = 1

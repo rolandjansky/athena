@@ -8,8 +8,8 @@
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class MmIdHelper;
 namespace MuonGM
 {
   class MuonDetectorManager;
@@ -42,8 +42,8 @@ namespace Muon
   private: 
 
     /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    const MmIdHelper* m_mmIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
 };
 

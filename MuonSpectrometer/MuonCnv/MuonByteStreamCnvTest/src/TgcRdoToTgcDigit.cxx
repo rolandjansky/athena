@@ -3,17 +3,17 @@
 */
 
 #include "TgcRdoToTgcDigit.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 TgcRdoToTgcDigit::TgcRdoToTgcDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 StatusCode TgcRdoToTgcDigit::initialize()
 {
-  ATH_CHECK( detStore()->retrieve(m_tgcHelper, "TGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
   ATH_CHECK(m_tgcRdoKey.initialize());
   ATH_CHECK(m_tgcDigitKey.initialize());
@@ -24,11 +24,11 @@ StatusCode TgcRdoToTgcDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcRdoToTgcDigit::execute()
+StatusCode TgcRdoToTgcDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
   // retrieve the collection of RDO
-  SG::ReadHandle<TgcRdoContainer> rdoRH(m_tgcRdoKey);
+  SG::ReadHandle<TgcRdoContainer> rdoRH(m_tgcRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No TGC RDO container found!"  );
     return StatusCode::SUCCESS;
@@ -36,8 +36,8 @@ StatusCode TgcRdoToTgcDigit::execute()
   const TgcRdoContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " TGC RDOs." );
 
-  SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey);
-  ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_tgcHelper->module_hash_max())));
+  SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey, ctx);
+  ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_muonIdHelperTool->tgcIdHelper().module_hash_max())));
   ATH_MSG_DEBUG( "Decoding TGC RDO into TGC Digit"  );
 
   Identifier oldElementId;
@@ -59,7 +59,7 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 {
   TgcDigitCollection* collection = nullptr;
 
-  const IdContext tgcContext = m_tgcHelper->module_context();
+  const IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
 
   ATH_MSG_DEBUG( "Number of RawData in this rdo "
                  << rdoColl->size()  );
@@ -217,7 +217,7 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 
           // check new element or not
           IdentifierHash coll_hash;
-          if (m_tgcHelper->get_hash(elementId, coll_hash, &tgcContext)) {
+          if (m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, coll_hash, &tgcContext)) {
             ATH_MSG_WARNING( "Unable to get TGC digit collection hash "
                              << "context begin_index = " << tgcContext.begin_index()
                              << " context end_index  = " << tgcContext.end_index()
@@ -229,7 +229,8 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
             // get collection
             TgcDigitContainer::const_iterator it_coll = tgcContainer->indexFind(coll_hash);
             if (tgcContainer->end() !=  it_coll) {
-              collection = const_cast<TgcDigitCollection*>( *it_coll );
+              TgcDigitCollection* aCollection ATLAS_THREAD_SAFE = const_cast<TgcDigitCollection*>( *it_coll ); // FIXME
+              collection = aCollection;
             }
             else
               {

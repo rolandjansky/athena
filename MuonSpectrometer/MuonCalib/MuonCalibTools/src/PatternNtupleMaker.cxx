@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibTools/PatternNtupleMaker.h"
-
-// gaudi
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonCalibNtuple/RootFileManager.h"
 #include "MuonCalibNtuple/MuonCalibBranchNtuple.h"
@@ -50,14 +47,6 @@ namespace MuonCalib {
     ATH_MSG_DEBUG("Done building the MuonCalibBranchNtuple");
     m_ntMaker->setPrintLevel(m_printLevel);
 
-    //Get StoreGateService
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure())
-    {
-      ATH_MSG_FATAL("StoreGate service not found");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_DEBUG("retrieved Storegate");
-    
     return StatusCode::SUCCESS;
   }
 

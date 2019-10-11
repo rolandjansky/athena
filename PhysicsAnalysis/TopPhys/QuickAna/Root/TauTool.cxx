@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //        
@@ -28,8 +28,6 @@
 #include <TauAnalysisTools/TauSmearingTool.h>
 #include <TauAnalysisTools/TauTruthMatchingTool.h>
 #include <TauAnalysisTools/TauTruthTrackMatchingTool.h>
-
-#include <CxxUtils/make_unique.h>
 
 namespace
 {
@@ -285,7 +283,7 @@ namespace ana
   StatusCode makeTauTool(DefinitionArgs& args, const std::string& configFile)
   {
     using namespace msgObjectDefinition;
-    using CxxUtils::make_unique;
+    using std::make_unique;
 
     // Input tau container name
     const std::string inputContainer = "TauJets";

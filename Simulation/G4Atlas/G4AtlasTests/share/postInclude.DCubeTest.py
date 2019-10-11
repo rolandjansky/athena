@@ -50,10 +50,11 @@ if DetFlags.Muon_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MDTHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("RPCHitsTestTool", checkType=True)]
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3"  :
+    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MMHitsTestTool",  checkType=True)]
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("sTGCHitsTestTool",  checkType=True)]
-    else:
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if MuonGeometryFlags.hasCSC():
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TGCHitsTestTool", checkType=True)]
     if DetFlags.Truth_on():

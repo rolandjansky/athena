@@ -22,7 +22,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "eformat/DetectorMask.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "TH1.h"
 #include "TH2.h"

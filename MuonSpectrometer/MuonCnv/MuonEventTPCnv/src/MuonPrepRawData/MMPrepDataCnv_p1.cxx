@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
 //
-// file:   MMPrepDataCnv_p3.cxx
+// file:   MMPrepDataCnv_p1.cxx
 //
 //-----------------------------------------------------------------------------
 
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataCnv_p1.h"
-#include "CxxUtils/make_unique.h"
 
+/// function used to create an MMPrepDataObject when converting Pers to trans
 Muon::MMPrepData
 MMPrepDataCnv_p1::
 createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
@@ -25,10 +25,16 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
   localPos[Trk::locX] = persObj->m_locX; 
   localPos[Trk::locY] = 0.0; 
     
-  std::vector<Identifier> rdoList(1);
-  rdoList[0]=Identifier(clusId);
+  // copy the list of identifiers of the cluster
+  std::vector<Identifier> rdoList;
+  unsigned int clusIdCompact = clusId.get_identifier32().get_compact();
+  std::vector<signed char> rdoListPers = persObj->m_rdoList;
+  for ( auto& diff : rdoListPers ) {
+    Identifier rdoId (clusIdCompact + diff);
+    rdoList.push_back(rdoId);
+  }
 
-  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
   (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
 
   Muon::MMPrepData data (clusId, 
@@ -55,6 +61,22 @@ transToPers( const Muon::MMPrepData *transObj, Muon::MMPrepData_p1 *persObj, Msg
     //log << MSG::DEBUG << "MMPrepDataCnv_p3::transToPers" << endmsg;
     persObj->m_locX     = transObj->localPosition()[Trk::locX];
     persObj->m_errorMat = (transObj->localCovariance())(0,0);
+
+    std::vector<signed char> rdoListPers;
+    /// store the rdoList in a vector with the different
+    /// with respect to the cluster identifier
+    const std::vector<Identifier>& rdoListTrans = transObj->rdoList();
+    unsigned int clusIdCompact = transObj->identify().get_identifier32().get_compact();
+
+    for ( const auto& rdo_id : rdoListTrans ) {
+      // get the difference with the cluster identifier
+      // no need to move by 1 bit as the difference will be small
+      signed char rdo_diff = (signed char) rdo_id.get_identifier32().get_compact()-clusIdCompact;
+      rdoListPers.push_back(rdo_diff);
+    } 
+   
+    persObj->m_rdoList = rdoListPers; 
+
 }
 
 

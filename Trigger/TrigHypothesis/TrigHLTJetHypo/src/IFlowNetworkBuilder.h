@@ -26,7 +26,7 @@ class IFlowNetworkBuilder{
 
 public:
   IFlowNetworkBuilder(){};
-  virtual ~IFlowNetworkBuilder() = default;
+  virtual ~IFlowNetworkBuilder(){}
   virtual std::optional<std::unique_ptr<FlowNetwork>>
     create(const HypoJetGroupCIter&,
            const HypoJetGroupCIter&,

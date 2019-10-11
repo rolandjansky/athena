@@ -14,7 +14,6 @@
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 #include <vector>
 
 #include "GeoModelUtilities/StoredPhysVol.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/PixelDiodeMatrix.h"
@@ -10,43 +10,64 @@
 
 namespace InDetDD {
 
-PixelDiodeMatrix::PixelDiodeMatrix(double phiWidth, double etaWidth)
-  : m_phiWidth(phiWidth),
-    m_etaWidth(etaWidth),
-    m_phiCells(1),
-    m_etaCells(1),
-    m_direction(phiDir), // Irrelevant
-    m_numCells(0),
-    m_lowerCell(0),
-    m_middleCells(0),
-    m_upperCell(0),
-    m_singleCell(true)
-{}
-
-PixelDiodeMatrix::PixelDiodeMatrix(Direction direction,  // phi or eta
-				   const PixelDiodeMatrix * lowerCell,
-				   const PixelDiodeMatrix * middleCells,
-				   int numCells,
-				   const PixelDiodeMatrix * upperCell)
-  : m_phiWidth(0),
-    m_etaWidth(0),
-    m_phiCells(0),
-    m_etaCells(0),
-    m_direction(direction),
-    m_numCells(numCells),
-    m_lowerCell(lowerCell),
-    m_middleCells(middleCells),
-    m_upperCell(upperCell),
-    m_singleCell(false)
+std::shared_ptr<const PixelDiodeMatrix> PixelDiodeMatrix::construct(double phiWidth, double etaWidth)
 {
+  class Helper : public PixelDiodeMatrix{};
+  std::shared_ptr<PixelDiodeMatrix> ptr = std::make_shared<Helper>();
+  ptr->initialize(phiWidth, etaWidth);
+  return ptr;
+}
+
+void PixelDiodeMatrix::initialize(double phiWidth, double etaWidth)
+{
+  m_phiWidth = phiWidth;
+  m_etaWidth = etaWidth;
+  m_phiCells = 1;
+  m_etaCells = 1;
+  m_direction = phiDir; // Irrelevant
+  m_numCells = 0;
+  m_lowerCell = nullptr;
+  m_middleCells = nullptr;
+  m_upperCell = nullptr;
+  m_singleCell = true;
+}
+
+std::shared_ptr<const PixelDiodeMatrix> PixelDiodeMatrix::construct(Direction direction,  // phi or eta
+                                                                    std::shared_ptr<const PixelDiodeMatrix> lowerCell,
+                                                                    std::shared_ptr<const PixelDiodeMatrix> middleCells,
+                                                                    int numCells,
+                                                                    std::shared_ptr<const PixelDiodeMatrix> upperCell)
+{
+  class Helper : public PixelDiodeMatrix{};
+  std::shared_ptr<PixelDiodeMatrix> ptr = std::make_shared<Helper>();
+  ptr->initialize(direction,
+                  lowerCell,
+                  middleCells,
+                  numCells,
+                  upperCell);
+  return ptr;
+}
+
+void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
+                                  std::shared_ptr<const PixelDiodeMatrix> lowerCell,
+                                  std::shared_ptr<const PixelDiodeMatrix> middleCells,
+                                  int numCells,
+                                  std::shared_ptr<const PixelDiodeMatrix> upperCell)
+{
+  m_phiWidth = 0;
+  m_etaWidth = 0;
+  m_phiCells = 0;
+  m_etaCells = 0;
+  m_direction = direction;
+  m_numCells = numCells;
+  m_lowerCell = lowerCell;
+  m_middleCells = middleCells;
+  m_upperCell = upperCell;
+  m_singleCell = false;
+
   // middleCells must be non zero.
   assert(m_middleCells);
 
-  // Increment ref counts
-  if (m_lowerCell) m_lowerCell->ref();
-  if (m_middleCells) m_middleCells->ref();
-  if (m_upperCell) m_upperCell->ref();
- 
   if (m_direction == phiDir) {
     
     // In eta direction widths must be all the same.
@@ -101,15 +122,7 @@ PixelDiodeMatrix::PixelDiodeMatrix(Direction direction,  // phi or eta
 
 }
 
-PixelDiodeMatrix:: ~PixelDiodeMatrix()
-{
-  // unref the point the pointers.
-  if (m_lowerCell) m_lowerCell->unref();
-  if (m_middleCells) m_middleCells->unref();
-  if (m_upperCell) m_upperCell->unref();
-}
-
-const PixelDiodeMatrix * 
+std::shared_ptr<const PixelDiodeMatrix>
 PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId & cellId) const
 
   /// Description.  
@@ -136,7 +149,7 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
   using Trk::distEta;
 
   if (m_singleCell) {
-    return this;
+    return shared_from_this();
   }
 
   double relPosDir = 0; // Relative position along m_direction
@@ -178,7 +191,7 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
   int index = static_cast<int>((relPosDir) / pitch);
 
   if (index < 0) index = 0; // Make sure its in range (in case of rounding errors)
-  const PixelDiodeMatrix * nextCell = 0;
+  std::shared_ptr<const PixelDiodeMatrix> nextCell = nullptr;
 
   if (m_upperCell && (index >= m_numCells)) { 
     // We are in the upper cell. 
@@ -197,7 +210,7 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
 
   int newPhiIndex = cellId.phiIndex();
   int newEtaIndex = cellId.etaIndex();
-  const PixelDiodeMatrix * cell = 0;
+  std::shared_ptr<const PixelDiodeMatrix> cell = nullptr;
 
   if (m_direction == phiDir) {
     if (nextCell->singleCell()) {
@@ -229,7 +242,7 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
 
 	
 	   
-const PixelDiodeMatrix * 
+std::shared_ptr<const PixelDiodeMatrix>
 PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const
 
   /// Description.  
@@ -254,7 +267,7 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
   if (m_singleCell) {
     position[distPhi] += 0.5*m_phiWidth;
     position[distEta] += 0.5*m_etaWidth;
-    return this;
+    return shared_from_this();
   }
 
   int relIndex = 0; // Relative index along m_direction
@@ -298,7 +311,7 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
   relIndex -= index * middleCells;
   startPos += index * pitch;
 
-  const PixelDiodeMatrix * nextCell = 0;
+  std::shared_ptr<const PixelDiodeMatrix> nextCell = nullptr;
 
   if (m_upperCell && (index == m_numCells)) { 
     // We are in the upper cell. 
@@ -308,7 +321,7 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
     nextCell = m_middleCells;
   }
 
-  const PixelDiodeMatrix * cell = 0;
+  std::shared_ptr<const PixelDiodeMatrix> cell = nullptr;
   if (m_direction == phiDir) {
     SiCellId relId(relIndex,cellId.etaIndex());
     position[distPhi] += startPos;

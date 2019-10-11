@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
@@ -40,6 +39,8 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandleKey.h"
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 
 #include <TError.h>
@@ -129,7 +130,8 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   std::map<std::string,int> m_hitsperchamber_map;
   
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  const RpcIdHelper* m_rpcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   const IRPCcablingSvc* m_cabling;
    

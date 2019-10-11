@@ -17,8 +17,6 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     const IInterface*  p )
     :
     AthAlgTool(t,n,p),
-    m_idCnvTool("InDet::InDetEventCnvTool/InDetEventCnvTool"),
-    m_muonCnvTool("Muon::MuonEventCnvTool/MuonEventCnvTool"),
     m_detID(0),
     m_haveIdCnvTool(false),   // Will be set to true on retrieval
     m_haveMuonCnvTool(false), // Will be set to true on retrieval
@@ -39,16 +37,10 @@ Trk::EventCnvSuperTool::~EventCnvSuperTool(){
 
 StatusCode
 Trk::EventCnvSuperTool::initialize(){   
-    // Try to get det store and then AtlasID
-    StoreGateSvc *detStore = 0;
-    StatusCode sc = service( "DetectorStore", detStore );
+    // Try to get AtlasID
+    StatusCode sc = detStore()->retrieve( m_detID, "AtlasID" );
     if( sc.isFailure() ) {
-        msg(MSG::WARNING) << "Could not get DetectorStore, nor Id Helper, and so will be unable to do anything useful." << endmsg;
-    } else {    
-        sc = detStore->retrieve( m_detID, "AtlasID" );
-        if( sc.isFailure() ) {
-            msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endmsg;
-        }
+        msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endmsg;
     }
         
     //Now try to get the tools

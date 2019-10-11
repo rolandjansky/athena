@@ -73,7 +73,6 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.strategy", []) # CutSeedsOnTracks, CombineSegInStation, DynamicSeeding, PreferOutsideIn, AllowOneSharedHit, DoRefinement, DoAmbiSolving
     mcf.addFlag("Muon.trackBuilder", "Moore") # Allowed: 'Moore','TruthTracking','None'
     mcf.addFlag("Muon.refinementTool", "Moore") # Allowed: Moore TODO surely we can drop this if there is only one option?
-    mcf.addFlag("Muon.optimiseMomentumResolutionUsingChi2", False)
     mcf.addFlag("Muon.patternsOnly", False) # TODO probably can be dropped? Just disable later steps.
     mcf.addFlag("Muon.createTrackParticles", True ) # TODO do we ever turn this off?
     mcf.addFlag("Muon.straightLineFitMomentum", 2000.0 ) 

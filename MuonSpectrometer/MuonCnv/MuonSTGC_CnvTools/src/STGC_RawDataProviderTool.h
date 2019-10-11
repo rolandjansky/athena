@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_STGC_RAWDATAPROVIDERTOOL_H
@@ -36,9 +36,9 @@ namespace Muon
       virtual ~STGC_RawDataProviderTool();
       
       /** Standard AlgTool method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** Standard AlgTool method */
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool */
       virtual StatusCode convert(const ROBFragmentList& vecRobs) override;

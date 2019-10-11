@@ -195,7 +195,7 @@ StatusCode RpcDigitizationTool::initialize() {
       //m_Efficiency_fromCOOL   = false # use common average values in python conf.
       //m_ClusterSize_fromCOOL  = false # use common average values in python conf.
       m_BOG_BOF_DoubletR2_OFF = false;
-      if (configVal=="RUN2") {// MC15c setup
+      if (configVal=="RUN2" || configVal=="RUN3") {// MC15c setup
         m_Efficiency_fromCOOL   = true;
         m_ClusterSize_fromCOOL  = true;
         m_RPCInfoFromDb         = true;
@@ -2084,9 +2084,6 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
   // float FracClusterSize1norm  = 1  ; // not used
   float FracClusterSize2norm  = 0  ;
 
-  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
-  const RpcCondDbData* readCdo{*readHandle};
-
   //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
   int stationName  = m_idHelper->stationName(*IdRpcStrip);
   int stationEta   = m_idHelper->stationEta (*IdRpcStrip);
@@ -2126,6 +2123,9 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
     }
   }
   else{
+    SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+    const RpcCondDbData* readCdo{*readHandle};
+
     Identifier Id  = m_idHelper->panelID(*IdRpcStrip);
 
     int    RPC_ProjectedTracks = 0;

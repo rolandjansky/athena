@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -509,6 +509,7 @@ Signal::wait (int sig, siginfo_t *info /* = 0 */, long msecs /* = -1 */)
     sigset_t s;
     sigemptyset (&s);
     sigaddset (&s, sig);
+    // cppcheck-suppress uninitvar
     return wait (&s, info, msecs) == sig;
 }
 
@@ -1368,7 +1369,7 @@ Signal::dumpContext (IOFD fd, char *buf, const void *context)
 
     write (fd, buf, sprintf (buf,
 			     "\n\n"
-			     "  trap: %lld/%lld"
+			     "  trap: %llu/%llu"
 			     "  oldmask: %16llx   cr2: %016llx",
 			     (unsigned long long)mc->gregs [REG_TRAPNO],
                              (unsigned long long)mc->gregs [REG_ERR],

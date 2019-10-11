@@ -21,7 +21,6 @@ atlas_add_poolcnv_library( TileSimEventAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities GaudiKernel TileSimEvent TileSimEventTPCnv )
 
 # Install files from the package:
-atlas_install_headers( TileSimEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

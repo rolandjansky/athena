@@ -21,6 +21,5 @@ atlas_add_component( ISF_Geant4CommonTools
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps ISF_Event ISF_Interfaces )
 
 # Install files from the package:
-atlas_install_headers( ISF_Geant4CommonTools )
 atlas_install_python_modules( python/*.py )
 

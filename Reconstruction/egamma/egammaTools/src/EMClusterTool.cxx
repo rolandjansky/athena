@@ -3,7 +3,7 @@
 */
 
 #include "EMClusterTool.h"
-
+#include "GaudiKernel/EventContext.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -78,14 +78,15 @@ StatusCode EMClusterTool::finalize() {
 }
 
 // =========================================================================
-StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer, 
-				      xAOD::PhotonContainer *photonContainer) 
+StatusCode EMClusterTool::contExecute(const EventContext& ctx,
+                                      xAOD::ElectronContainer *electronContainer, 
+				      xAOD::PhotonContainer *photonContainer) const
 {
   // Create output cluster container and register in StoreGate
-  SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputClusterContainerKey);
+  SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputClusterContainerKey, ctx);
   ATH_CHECK(outputClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
-  SG::WriteHandle<CaloClusterCellLinkContainer> outputClusterContainerCellLink(m_outputClusterContainerCellLinkKey);
+  SG::WriteHandle<CaloClusterCellLinkContainer> outputClusterContainerCellLink(m_outputClusterContainerCellLinkKey, ctx);
   ATH_CHECK(outputClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
 
   // Create output cluster container for topo-seeded clusters and register in StoreGate
@@ -94,10 +95,10 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
   SG::WriteHandle<xAOD::CaloClusterContainer> outputTopoSeededClusterContainer;
   SG::WriteHandle<CaloClusterCellLinkContainer> outputTopoSeededClusterContainerCellLink;
   if (m_doTopoSeededContainer) {
-    outputTopoSeededClusterContainer = SG::WriteHandle<xAOD::CaloClusterContainer>(m_outputTopoSeededClusterContainerKey);
+    outputTopoSeededClusterContainer = SG::WriteHandle<xAOD::CaloClusterContainer>(m_outputTopoSeededClusterContainerKey, ctx);
     ATH_CHECK(outputTopoSeededClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 						      std::make_unique<xAOD::CaloClusterAuxContainer>()));
-    outputTopoSeededClusterContainerCellLink = SG::WriteHandle<CaloClusterCellLinkContainer>(m_outputTopoSeededClusterContainerCellLinkKey);
+    outputTopoSeededClusterContainerCellLink = SG::WriteHandle<CaloClusterCellLinkContainer>(m_outputTopoSeededClusterContainerCellLinkKey, ctx);
     ATH_CHECK(outputTopoSeededClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
   }
   
@@ -105,7 +106,7 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
   xAOD::EgammaParameters::EgammaType egType = xAOD::EgammaParameters::electron;
   //Only do this for non-supercluster (i.e. default SW) electrons.
   for (auto electron : *electronContainer){
-    setNewCluster(electron, outputClusterContainer.ptr(), egType);
+    setNewCluster(ctx, electron, outputClusterContainer.ptr(), egType);
   }
   // Loop over photons and create new clusters
   for (auto photon : *photonContainer){
@@ -114,10 +115,10 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
 	      xAOD::EgammaParameters::unconvertedPhoton);
     
     if (!m_doTopoSeededContainer || !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) ){
-      setNewCluster(photon, outputClusterContainer.ptr(), egType);
+      setNewCluster(ctx, photon, outputClusterContainer.ptr(), egType);
     }
     else{
-      setNewCluster(photon, outputTopoSeededClusterContainer.ptr(), egType);
+      setNewCluster(ctx, photon, outputTopoSeededClusterContainer.ptr(), egType);
     }
   }
 
@@ -140,9 +141,10 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
 }
 
 // ==========================================================================
-void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
+void EMClusterTool::setNewCluster(const EventContext& ctx,
+                                  xAOD::Egamma *eg,
                                   xAOD::CaloClusterContainer *outputClusterContainer,
-                                  xAOD::EgammaParameters::EgammaType egType)
+                                  xAOD::EgammaParameters::EgammaType egType) const
 {
   if (!eg) {return;}
 
@@ -163,7 +165,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
     cluster = makeNewSuperCluster(*(eg->caloCluster()),eg);
   }
   else {
-    cluster = makeNewCluster(*(eg->caloCluster()), eg, egType);
+    cluster = makeNewCluster(ctx, *(eg->caloCluster()), eg, egType);
   }
   outputClusterContainer->push_back(cluster);
 
@@ -175,8 +177,9 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
 }
 
 // ==========================================================================
-xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg, 
-						 xAOD::EgammaParameters::EgammaType egType) {
+xAOD::CaloCluster* EMClusterTool::makeNewCluster(const EventContext& ctx,
+                                                 const xAOD::CaloCluster& cluster, xAOD::Egamma *eg, 
+						 xAOD::EgammaParameters::EgammaType egType) const {
   //
   // Create new cluster based on an existing one
   // const CaloCluster* cluster : input cluster
@@ -203,7 +206,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
   else  {//(egType == xAOD::EgammaParameters::unconvertedPhoton)
     cluSize = (isBarrel ? xAOD::CaloCluster::SW_37gam : xAOD::CaloCluster::SW_55gam);
   }
-  xAOD::CaloCluster *newCluster = makeNewCluster(cluster, cluSize);
+  xAOD::CaloCluster *newCluster = makeNewCluster(ctx, cluster, cluSize);
  
   if (newCluster && m_MVACalibSvc->execute(*newCluster,*eg).isFailure()){
     ATH_MSG_ERROR("Problem executing MVA cluster tool");
@@ -212,14 +215,15 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 }
 
 // ==========================================================================
-xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluster, 
-						 const xAOD::CaloCluster::ClusterSize& cluSize) {
+xAOD::CaloCluster* EMClusterTool::makeNewCluster(const EventContext& ctx,
+						 const xAOD::CaloCluster& cluster, 
+						 const xAOD::CaloCluster::ClusterSize& cluSize) const {
 
   xAOD::CaloCluster* newClus = CaloClusterStoreHelper::makeCluster(cluster.getCellLinks()->getCellContainer(),
 								   cluster.eta0(),cluster.phi0(),
 								   cluSize);
   if(newClus){  
-    if (m_clusterCorrectionTool->execute(Gaudi::Hive::currentContext(),newClus).isFailure()){
+    if (m_clusterCorrectionTool->execute(ctx,newClus).isFailure()){
       ATH_MSG_ERROR("Problem executing cluster correction tool");
     }
     fillPositionsInCalo(newClus);
@@ -238,7 +242,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 
   return newClus;
 }
-xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,xAOD::Egamma *eg) {
+xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,xAOD::Egamma *eg) const {
   //
   xAOD::CaloCluster* newClus = new xAOD::CaloCluster(cluster);
   if(m_applySuperClusters){ 

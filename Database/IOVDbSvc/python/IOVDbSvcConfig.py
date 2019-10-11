@@ -122,7 +122,7 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
         if detDb is not None and fs.find("<db>")==-1:
             dbname=configFlags.IOVDb.DatabaseInstance
             if detDb not in _dblist.keys():
-                raise ConfigurationError("Error, db shorthand %s not known")
+                raise ConfigurationError("Error, db shorthand %s not known" % detDb)
             #Append database string to folder-name
             fs+="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
     
@@ -143,10 +143,12 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
 
     return result
     
-def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL"):
+def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL", splitMC=False):
     "Add access to given folder, using either online_folder  or offline_folder. For MC, add addMCString as a postfix (default is _OFL)"
     
     if configFlags.Common.isOnline and not configFlags.Input.isMC:
+        folders = online_folders
+    elif splitMC and not configFlags.Input.isMC:
         folders = online_folders
     else:
         # MC, so add addMCString

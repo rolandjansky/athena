@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**@class MuonSegmentRegionRecoveryTool
@@ -13,6 +13,7 @@
 #ifndef MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 #define MUON_MUONSEGMENTREGIONRECOVERYTOOL_H
 
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
 #include "MuonChamberHoleRecoveryTool.h"
@@ -26,6 +27,7 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
+#include "MuonCondData/MdtCondDbData.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
@@ -60,13 +62,13 @@ class IRegSelSvc;
 class IRoiDescriptor;
 class ITrackingGeometrySvc;
 class MuonStationIntersectSvc;
+class MdtCondDbData;
 
 namespace Muon {
   class IMdtDriftCircleOnTrackCreator;
   class IMuonClusterOnTrackCreator;
   class IMuonSeededSegmentFinder;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonChamberHoleRecoveryTool;
   class IMuonHitSummaryTool;
@@ -171,18 +173,19 @@ namespace Muon {
     ToolHandle<Trk::ITrackFitter>              m_fitter;               //!< ITrackFitter
     ServiceHandle<MuonStationIntersectSvc>     m_intersectSvc;
     ToolHandle<MuonIdHelperTool>               m_idHelperTool;         //!< IdHelper tool
-    ToolHandle<MuonEDMHelperTool>              m_helperTool;           //!< EDM Helper tool
+    ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
     ToolHandle<MuonEDMPrinterTool>             m_printer;              //!< EDM printer tool
     ToolHandle<IMuonHitSummaryTool>            m_hitSummaryTool;       //!< hit summary tool
     ServiceHandle<IRegSelSvc>                  m_regionSelector;       //!< The region selector
-
+    SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
     double m_deta;
     double m_dphi;
     bool m_excludeEES;
     bool m_onlyEO;
     bool m_useFitterOutlierLogic;
-    bool m_doNSW;
 
   };
 }

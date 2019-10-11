@@ -261,7 +261,7 @@ StatusCode TgcDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::digitizeCore() {
+StatusCode TgcDigitizationTool::digitizeCore() const {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
@@ -311,7 +311,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	uint16_t newBcTag    = (*it_digiHits)->bcTag();
 	Identifier elemId    = m_idHelper->elementID(newDigiId);
 	
-	TgcDigitCollection* digitCollection = 0;
+	TgcDigitCollection* digitCollection ATLAS_THREAD_SAFE = nullptr;
 	
 	IdentifierHash coll_hash;
 	if(m_idHelper->get_hash(elemId, coll_hash, &tgcContext)) {

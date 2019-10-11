@@ -30,7 +30,8 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "xAODTracking/TrackParticle.h"
@@ -64,7 +65,6 @@
 #include "TROOT.h"
  
 class TFile;
-class RpcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -148,9 +148,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   std::vector<Identifier>* m_padsId;
   
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  const RpcIdHelper* m_rpcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
-  const IRPCcablingSvc* m_cabling;
   
   //Declare Properties  
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};

@@ -49,7 +49,7 @@ public:
   StatusCode finalize();
 
   /** Method to compute the state weights after measurement update */
-  virtual const MultiComponentState* weights(const MultiComponentState&, const MeasurementBase&) const;
+  virtual std::unique_ptr<MultiComponentState> weights(const MultiComponentState&, const MeasurementBase&) const;
 
 private:
   const ProjectionMatricesSet m_reMatrices; //!< expansion and reduction matrices set

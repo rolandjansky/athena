@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGGING_BTAGSECVERTEXING_H
@@ -62,8 +62,8 @@ namespace Analysis
 
       private:
         
-    StatusCode fillVkalVariables(xAOD::Jet&, xAOD::BTagging*, xAOD::VertexContainer*, const Trk::VxSecVKalVertexInfo*, const xAOD::TrackParticleContainer*,const xAOD::Vertex&,  std::string) const;
-    StatusCode fillJFVariables(xAOD::Jet&, xAOD::BTagging*, xAOD::BTagVertexContainer*, const Trk::VxJetFitterVertexInfo*, const xAOD::TrackParticleContainer*, std::string) const;
+    StatusCode fillVkalVariables(const xAOD::Jet&, xAOD::BTagging*, xAOD::VertexContainer*, const Trk::VxSecVKalVertexInfo*, const xAOD::TrackParticleContainer*,const xAOD::Vertex&,  std::string) const;
+    StatusCode fillJFVariables(const xAOD::Jet&, xAOD::BTagging*, xAOD::BTagVertexContainer*, const Trk::VxJetFitterVertexInfo*, const xAOD::TrackParticleContainer*, std::string) const;
 
          ToolHandleArray< InDet::ISecVertexInJetFinder > m_secVertexFinderToolsHandleArray;
          ToolHandle<IJetFitterVariablesFactory> m_JFvarFactory;

@@ -6,6 +6,7 @@
 #define MUONTRACKPERFORMANCEALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
@@ -26,6 +27,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <fstream>
 #include <iostream>
@@ -50,7 +52,6 @@ namespace Trk {
 namespace Muon {
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
   class MuonSegmentCombination;
   class MuonSegment;
 }
@@ -296,12 +297,13 @@ private:
   bool m_isCombined;
   bool m_doSegments;
   bool m_writeToFile;
-  bool m_doNSW;
   bool m_doStau;
 
   ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
-  ToolHandle<Muon::MuonEDMHelperTool> m_helper;
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" };
   ToolHandle<Muon::IMuonTrackTruthTool> m_truthTool;
   ToolHandle<Trk::ITrackSummaryHelperTool>    m_summaryHelperTool;
   MsgStream* m_log;

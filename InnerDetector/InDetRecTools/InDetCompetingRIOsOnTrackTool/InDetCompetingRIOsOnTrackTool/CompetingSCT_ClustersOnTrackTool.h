@@ -23,7 +23,6 @@
 //#include "InDetCompetingRIOsOnTrack/CompetingSCT_ClustersOnTrack.h"
 // #include "SiClusterOnTrackTool/SCT_ClusterOnTrackTool.h"
 
-//#include "StoreGate/StoreGateSvc.h"
 // Trk
 //#include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "TrkParameters/TrackParameters.h"

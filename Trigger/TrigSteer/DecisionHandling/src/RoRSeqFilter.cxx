@@ -4,8 +4,7 @@
 
 // DecisionHandling includes
 #include "RoRSeqFilter.h"
-#include "AthenaMonitoring/MonitoredScalar.h"
-#include "AthenaMonitoring/MonitoredGroup.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/Property.h"
 
 using TrigCompositeUtils::DecisionContainer;

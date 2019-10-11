@@ -22,7 +22,6 @@
 //#include "LArCabling/LArHVCablingTool.h" 
 #include "Identifier/HWIdentifier.h"
 
-class StoreGateSvc; 
 class LArCablingLegacyService;
 class LArOnlineID;
 

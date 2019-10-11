@@ -7,11 +7,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <vector>
 #include <set>
 
-class sTgcIdHelper;
 namespace MuonGM
 {
   class MuonDetectorManager;
@@ -50,9 +50,8 @@ namespace Muon
     double m_chargeCut;
     bool m_allowHoles;
 
-    /// Muon detector manager and helper
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    const sTgcIdHelper* m_stgcIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     std::vector<std::set<unsigned int>> m_clustersStripNum[3][5];
     std::vector<std::vector<Muon::sTgcPrepData>> m_clusters[3][5];

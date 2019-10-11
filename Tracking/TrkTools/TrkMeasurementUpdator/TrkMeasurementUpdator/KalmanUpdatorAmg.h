@@ -57,57 +57,57 @@ class KalmanUpdatorAmg : virtual public IUpdator, public AthAlgTool {
 			
     //!< measurement updator for the KalmanFitter getting the meas't coord' from Amg::Vector2D (use eg with PRD)
     // fails: @copydoc Trk::IUpdator::addToState(const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const Amg::Vector2D&, 
-                                               const Amg::MatrixX&) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const Amg::Vector2D&, 
+                                         const Amg::MatrixX&) const override final;
     //!< measurement updator for the KalmanFitter getting the coord' from 
     //LocalParameters (use for example with MeasurementBase, ROT)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const LocalParameters&, 
-                                               const Amg::MatrixX&) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const LocalParameters&, 
+                                         const Amg::MatrixX&) const override final;
     //!< measurement updator interface for the KalmanFitter returning the fit quality of the state at the same time (Amg::Vector2D-version)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const Amg::Vector2D&, 
-                                               const Amg::MatrixX&, 
-                                               FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const Amg::Vector2D&, 
+                                         const Amg::MatrixX&, 
+                                         FitQualityOnSurface*& ) const override final;
     //!< measurement updator interface for the KalmanFitter returning the fit quality of the state at the same time (LocalParameters-version)
-    virtual const TrackParameters* addToState (const TrackParameters&, 
-                                               const LocalParameters&, 
-                                               const Amg::MatrixX&, FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const LocalParameters&, 
+                                         const Amg::MatrixX&, FitQualityOnSurface*& ) const override final;
 
     //!< reverse update eg for track property analysis (unbiased residuals) getting the measurement coordinates from the Amg::Vector2D class.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const Amg::Vector2D&, 
-                                                    const Amg::MatrixX&) const override final;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const Amg::Vector2D&, 
+                                              const Amg::MatrixX&) const override final;
     //!< reverse update eg for track property analysis (unbiased residuals) getting the 
     //measurement coordinates from the LocalParameters class.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const LocalParameters&, 
-                                                    const Amg::MatrixX&) const override final;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const LocalParameters&, 
+                                              const Amg::MatrixX&) const override final;
     //!< reverse update for Kalman filters and other applications using the interface with Amg::Vector2D and FitQualityOnSurface.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const Amg::Vector2D&, 
-                                                    const Amg::MatrixX&, 
-                                                    FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const Amg::Vector2D&, 
+                                              const Amg::MatrixX&, 
+                                              FitQualityOnSurface*& ) const override final;
     //!< reverse update for Kalman filters and other applications using the interface with LocalParameters and FitQualityOnSurface.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, 
-                                                    const LocalParameters&, 
-                                                    const Amg::MatrixX&, 
-                                                    FitQualityOnSurface*& ) const override final;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const LocalParameters&, 
+                                              const Amg::MatrixX&, 
+                                              FitQualityOnSurface*& ) const override final;
 		
     /** @brief trajectory state updator which combines two parts of a trajectory on a common surface.
 
         Make sure that the TPs' surfaces are identical and
         that the local hit is not duplicated in both trajectories!
     */
-    virtual const TrackParameters* combineStates   (const TrackParameters&, 
-                                                    const TrackParameters&) const override final;
+    virtual  TrackParameters* combineStates   (const TrackParameters&, 
+                                              const TrackParameters&) const override final;
     /** @brief trajectory state updator which combines two parts of a trajectory on a common surface and provides the FitQuality.
 
         Make sure that the TPs' surfaces are identical and that the local hit is not duplicated!*/
-    virtual const TrackParameters* combineStates   (const TrackParameters&, 
-                                                    const TrackParameters&, 
-                                                    FitQualityOnSurface*&) const override final;
+    virtual  TrackParameters* combineStates   (const TrackParameters&, 
+                                               const TrackParameters&, 
+                                               FitQualityOnSurface*&) const override final;
 
     //!< estimator for FitQuality on Surface from a full track state, that is a state which contains the current hit (expressed as Amg::Vector2D).
     virtual const FitQualityOnSurface* fullStateFitQuality (const TrackParameters&, 
@@ -141,12 +141,12 @@ class KalmanUpdatorAmg : virtual public IUpdator, public AthAlgTool {
 		
 private:
     //!< common code analysing the measurement's rank and calling the appropriate implementation for this rank.
-    const TrackParameters* prepareFilterStep(const TrackParameters&,
-                                             const LocalParameters&,
-                                             const Amg::MatrixX&,
-                                             const int, 
-                                             FitQualityOnSurface*&,
-                                             bool) const;     
+    TrackParameters* prepareFilterStep(const TrackParameters&,
+                                       const LocalParameters&,
+                                       const Amg::MatrixX&,
+                                       const int, 
+                                       FitQualityOnSurface*&,
+                                       bool) const;     
                                              
 
     //!< estimator for FitQuality on Surface from a full/predicted track state, that is a state which contains the current hit (expressed as Amg::Vector2D).
@@ -155,11 +155,11 @@ private:
     const FitQualityOnSurface* stateFitQuality (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&, int predFull ) const;
                                                                                      
     //!< common maths calculation code for all addToState and removeFromState versions which happen to be called with 1-dim measurements.
-    const TrackParameters* calculateFilterStep_1D(const TrackParameters& TP, const AmgSymMatrix(5)& trkCov,
-                                                  double measPar, double measCov, int paramKey, 
-                                                  int updateDirection,
-                                                  FitQualityOnSurface*& fQ,
-                                                  bool) const;
+    TrackParameters* calculateFilterStep_1D(const TrackParameters& TP, const AmgSymMatrix(5)& trkCov,
+                                            double measPar, double measCov, int paramKey, 
+                                            int updateDirection,
+                                            FitQualityOnSurface*& fQ,
+                                            bool) const;
     //!< updator maths for pure AMG matrix as needed by reference-track based KF
     std::pair<AmgVector(5), AmgSymMatrix(5)>* 
       calculateFilterStep_1D(const AmgVector(5)&, const AmgSymMatrix(5)&, 
@@ -169,11 +169,11 @@ private:
 
     //!< common maths calculation code for all addToState and removeFromState versions which happen to be called with (2-4)-dim measurements.
     template <int DIM> 
-    const TrackParameters* calculateFilterStep_T(const TrackParameters& TP, const AmgSymMatrix(5)& trkCov,
-                                                 const AmgVector(DIM)& measPar, const AmgSymMatrix(DIM)& measCov, int paramKey,
-                                                 int updateDirection,
-                                                 FitQualityOnSurface*& fQ,
-                                                 bool) const;    
+    TrackParameters* calculateFilterStep_T(const TrackParameters& TP, const AmgSymMatrix(5)& trkCov,
+                                           const AmgVector(DIM)& measPar, const AmgSymMatrix(DIM)& measCov, int paramKey,
+                                           int updateDirection,
+                                           FitQualityOnSurface*& fQ,
+                                           bool) const;    
     //!< updator maths for pure AMG matrix as needed by reference-track based KF, 2-4 dim case
     template <int DIM>
     std::pair<AmgVector(5), AmgSymMatrix(5)>* 
@@ -182,11 +182,11 @@ private:
                             FitQualityOnSurface*& , bool) const;
                                                  
     //!< common maths calculation code for all addToState and removeFromState versions which happen to be called with (2-4)-dim measurements.
-    const TrackParameters* calculateFilterStep_5D(const TrackParameters& TP, const AmgSymMatrix(5)& trkCov,
-                                                 const AmgVector(5)& measPar, const AmgSymMatrix(5)& measCov,
-                                                 int updateDirection,
-                                                 FitQualityOnSurface*& fQ,
-                                                 bool) const;
+    TrackParameters* calculateFilterStep_5D(const TrackParameters& TP, const AmgSymMatrix(5)& trkCov,
+                                            const AmgVector(5)& measPar, const AmgSymMatrix(5)& measCov,
+                                            int updateDirection,
+                                            FitQualityOnSurface*& fQ,
+                                            bool) const;
                                                                                                   
     //!< updator maths for pure AMG matrix as needed by reference-track based KF, 5-dim case
     std::pair<AmgVector(5), AmgSymMatrix(5)>* 
@@ -215,10 +215,10 @@ private:
     const AmgSymMatrix(5)* getStartCov(const TrackParameters&, const int) const;
     
     //!< Helper method to convert internal results from SMatrix to Eigen. */
-    const TrackParameters* convertToClonedTrackPars(const TrackParameters&,
-                                                    const AmgVector(5)&,
-                                                    const AmgSymMatrix(5)&,
-                                                    int, bool, const std::string&) const;
+    TrackParameters* convertToClonedTrackPars(const TrackParameters&,
+                                              const AmgVector(5)&,
+                                              const AmgSymMatrix(5)&,
+                                              int, bool, const std::string&) const;
                                                     
 
     // === note: any of the following log... method is only called if
@@ -268,7 +268,7 @@ private:
     static  const ParamDefsAccessor   s_enumAccessor;
 };
 
- template <int DIM> const TrackParameters* 
+ template <int DIM> TrackParameters* 
     KalmanUpdatorAmg::calculateFilterStep_T(const TrackParameters& TP, const AmgSymMatrix(5)& trkCov,
                                             const AmgVector(DIM)& measPar, const AmgSymMatrix(DIM)& measCov, int paramKey,
                                             int sign,
@@ -297,7 +297,7 @@ private:
     K = trkCov * H.transpose() * R;
     // screen output
     M = m_unitMatrix - K*H;
-    if (msgLvl(MSG::VERBOSE)) logGainForm (r, R, K);
+    if (msgLvl(MSG::VERBOSE)) {logGainForm (r, R, K);}
     // --- compute local filtered state
     AmgVector(5) newPar = trkPar + K * r;
     // --- compute filtered covariance matrix
@@ -345,7 +345,7 @@ private:
     K = trkCov * H.transpose() * R;
     // screen output
     M = m_unitMatrix - K*H;
-    if (msgLvl(MSG::VERBOSE)) logGainForm (r, R, K);
+    if (msgLvl(MSG::VERBOSE)) {logGainForm (r, R, K);}
     // --- compute local filtered state
     AmgVector(5) newPar = trkPar + K * r;
     // --- compute filtered covariance matrix
@@ -408,20 +408,13 @@ private:
    // calcualte the chi2 value
    double chiSquared = 0.0;
    if (R.determinant()==0.0) { 
-     msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endmsg;
+     ATH_MSG_DEBUG("matrix inversion not possible, set chi2 to zero");
    } else {
-     R = R.inverse();
-     chiSquared = r.transpose()*R*r;
-     //if (msgLvl(MSG::VERBOSE)) {
-     //  msg( MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?"predicted":"updated")
-     //        <<" state, chi2 :" << chiSquared << " / ndof= 2" << endmsg;
-     //}
+     chiSquared = r.transpose()*R.inverse()*r;
    }
    return new FitQualityOnSurface(chiSquared, DIM);
  }
- 
- 
- 
+  
  inline bool KalmanUpdatorAmg::thetaPhiWithinRange_5D (const AmgVector(5)& V, const KalmanUpdatorAmg::RangeCheckDef rcd) const {
    static const AmgVector(2) thetaMin(0.0,-M_PI);
    return ( (fabs(V(Trk::phi)) <= M_PI) && 

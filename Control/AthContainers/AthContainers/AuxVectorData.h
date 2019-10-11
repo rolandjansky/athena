@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxVectorData.h 793052 2017-01-19 15:05:28Z ssnyder $
@@ -579,7 +579,6 @@ public:
   void* getDecorationArray (SG::auxid_t auxid) const;
 
 
-protected:
   /**
    * @brief Return a pointer to the start of an aux data vector.
    * @param auxid The desired aux data item.
@@ -591,6 +590,7 @@ protected:
   void* getDataArray (SG::auxid_t auxid);
 
 
+protected:
   /// Minimum length to use for the cache vector.
   /// Only changed by unit tests.
   static size_t s_minCacheLen ATLAS_THREAD_SAFE;

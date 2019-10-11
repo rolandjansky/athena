@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
 */
 
 #include <sstream>
-#include "CxxUtils/make_unique.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthContainers/ConstDataVector.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -39,13 +38,14 @@ StatusCode TestViewDriver::execute( ) {
   auto contexts = std::vector<EventContext>( );
   auto viewVector = std::make_unique< ViewContainer >( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+  unsigned int conditionsRun = Atlas::getExtendedEventContext(getContext()).conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {
 
     contexts.push_back( getContext( ) );
     viewVector->push_back( ViewHelper::makeView( name( )+"_view", viewCounter++ ) );
-    contexts.back( ).setExtension( Atlas::ExtendedEventContext( viewVector->back( ),
-                                                                conditionsRun));
+    Atlas::setExtendedEventContext (contexts.back(),
+                                    Atlas::ExtendedEventContext( viewVector->back( ),
+                                                                 conditionsRun));
 
 
     auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );

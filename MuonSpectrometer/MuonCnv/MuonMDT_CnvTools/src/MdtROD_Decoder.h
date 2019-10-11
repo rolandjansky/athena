@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_MDTROD_DECODER_H
@@ -13,7 +13,7 @@
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtAmtHit.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "MDT_Hid2RESrcID.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
@@ -23,8 +23,6 @@
 #include <map>
 #include <vector>
 #include <cassert>
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -80,11 +78,11 @@ public:
 
 private:
 
-        StoreGateSvc *m_EvtStore;
         MDT_Hid2RESrcID* m_hid2re;
 	SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
-        const MdtIdHelper* m_mdtIdHelper;
+        ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+                "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
         /** TMP special ROB number for sector13 runs*/
         int m_specialROBNumber;
@@ -102,7 +100,10 @@ private:
         
 	//        bool    m_debug; //!< If true, output debugging information
         //MsgStream       m_log;
-	
+
+        // variables to count how often the caching kicks in
+        unsigned int m_nCache = 0;
+        unsigned int m_nNotCache = 0;
 }; 
 
 /*

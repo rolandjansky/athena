@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -24,7 +24,6 @@
 //---------------
 // C++ Headers --
 //---------------
-#include "StoreGate/StoreGateSvc.h" 
 #include "PathResolver/PathResolver.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -114,8 +113,6 @@ GetLCDeadMaterialTree::~GetLCDeadMaterialTree()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterialTree::initialize()
 {
-  //---- initialize the StoreGateSvc ptr ----------------
-
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance(); 
   m_calo_id = m_calo_dd_man->getCaloCell_ID();

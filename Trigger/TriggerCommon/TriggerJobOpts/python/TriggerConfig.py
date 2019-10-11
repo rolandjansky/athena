@@ -180,8 +180,6 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
     #mon.FinalChainStep = allChains
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
-    allChains.update( l1Decoder.ChainToCTPMapping.keys() )
-    mon.ChainsList = list( allChains )
     
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
@@ -332,11 +330,6 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
     return alg
 
 
-def setupL1DecoderFromMenu( flags, l1Decoder ):
-    """ Post setup of the L1Decoder, once approved, it should be moved to L1DecoderCfg function """
-
-    from TriggerJobOpts.MenuConfigFlags import MenuUtils
-    l1Decoder.ChainToCTPMapping = MenuUtils.toCTPSeedingDict( flags )
 
 
 def triggerRunCfg( flags, menu=None ):
@@ -344,11 +337,12 @@ def triggerRunCfg( flags, menu=None ):
     top of the trigger config (for real triggering online or on MC)
     Returns: ca only
     """
-    if flags.Trigger.doLVL1:
-        # conigure L1 simulation
-        pass
-
     acc = ComponentAccumulator()
+
+    if flags.Trigger.doLVL1:
+        from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, L1ConfigSvcCfg
+        generateL1Menu( flags )
+        acc.merge( L1ConfigSvcCfg(flags) )
 
     acc.merge( triggerIDCCacheCreatorsCfg( flags ) )
 
@@ -358,7 +352,6 @@ def triggerRunCfg( flags, menu=None ):
     # necessary ingreedient is list of mappings from L1 item to chain
     # and item to threshold (the later can be maybe extracted from L1 config file)
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
-    setupL1DecoderFromMenu( flags, l1DecoderAlg )
     acc.merge( l1DecoderAcc )
 
 

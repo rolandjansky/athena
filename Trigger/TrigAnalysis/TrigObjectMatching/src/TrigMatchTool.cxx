@@ -7,7 +7,6 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Local include(s):

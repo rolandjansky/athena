@@ -704,7 +704,7 @@ namespace Trk {
         delete i;
       }
       
-      tmp_matvec = *matvec;
+      tmp_matvec = std::move(*matvec);
       delete matvec;
       delete tmp_matvec.back();
       tmp_matvec.pop_back();
@@ -1851,7 +1851,8 @@ namespace Trk {
     cache.m_matfilled = true;
     bool tmpacc = cache.m_acceleration;
     cache.m_acceleration = false;
-    myfit(cache, trajectory, *startpar2, false, muon);
+    // @TODO eventually track created but not used why ?
+    std::unique_ptr<Trk::Track> tmp_track ( myfit(cache, trajectory, *startpar2, false, muon) );
     cache.m_acceleration = tmpacc;
 
     cache.m_matfilled = false;
@@ -3746,7 +3747,10 @@ namespace Trk {
       nullptr, *lastidhit = nullptr, *firsthit = nullptr, *lasthit = nullptr;
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
     std::vector < GXFTrackState * >matstates, newstates;
-    const std::vector < const TrackStateOnSurface *>*matvec = nullptr;
+    std::unique_ptr< const std::vector < const TrackStateOnSurface *>,
+                     void (*)(const std::vector<const TrackStateOnSurface *> *) >
+      matvec(nullptr,&Trk::GlobalChi2Fitter::Cache::objVectorDeleter<TrackStateOnSurface>);
+    bool matvec_used=false;
     const TrackParameters *startmatpar1 = nullptr;
     const TrackParameters *startmatpar2 = nullptr;
     const TrackParameters *firstidpar = nullptr;
@@ -3953,13 +3957,14 @@ namespace Trk {
           }
         }
 
-        matvec = m_extrapolator->extrapolateM(*startmatpar1, *destsurf, oppositeMomentum, false, matEffects);
-        
+        if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
+        matvec.reset( m_extrapolator->extrapolateM(*startmatpar1, *destsurf, oppositeMomentum, false, matEffects) );
+        matvec_used=false;
         if (tmppar != nullptr) {
           delete tmppar;
         }
-        
-        if ((matvec != nullptr) && !matvec->empty()) {
+
+        if (matvec && !matvec->empty()) {
           for (int i = (int)matvec->size() - 1; i > -1; i--) {
             const MaterialEffectsBase *meb = (*matvec)[i]->materialEffectsOnTrack();
             if (meb != nullptr) {
@@ -3968,6 +3973,7 @@ namespace Trk {
                 GXFMaterialEffects *meff = new GXFMaterialEffects(meot);
                 meff->setSigmaDeltaE(0);
                 matstates.push_back(new GXFTrackState(meff, (*matvec)[i]->trackParameters()));
+                matvec_used=true;
               }
             }
           }
@@ -4052,8 +4058,10 @@ namespace Trk {
           }
         }
 
-        matvec = m_extrapolator->extrapolateM(*startmatpar2, *destsurf, alongMomentum, false, matEffects);
-        
+        if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
+        matvec.reset( m_extrapolator->extrapolateM(*startmatpar2, *destsurf, alongMomentum, false, matEffects) );
+        matvec_used=false;
+
         if (tmppar != nullptr) {
           delete tmppar;
         }
@@ -4062,7 +4070,7 @@ namespace Trk {
           delete calosurf;
         }
         
-        if ((matvec != nullptr) && !matvec->empty()) {
+        if (matvec && !matvec->empty()) {
           for (auto & i : *matvec) {
             const Trk::MaterialEffectsBase * meb = i->materialEffectsOnTrack();
             
@@ -4086,6 +4094,7 @@ namespace Trk {
                 }
 
                 matstates.push_back(new GXFTrackState(meff, i->trackParameters()));
+                matvec_used=true;
               }
             }
           }
@@ -4358,15 +4367,16 @@ namespace Trk {
 
         const TrackParameters *prevtp = muonpar1;
         ATH_MSG_DEBUG("Obtaining downstream layers from Extrapolator");
+        if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
+        matvec.reset( m_extrapolator->extrapolateM(*prevtp, *states.back()->surface(), alongMomentum, false, Trk::nonInteractingMuon));
+        matvec_used=false;
 
-        matvec = m_extrapolator->extrapolateM(*prevtp, *states.back()->surface(), alongMomentum, false, Trk::nonInteractingMuon);
-        
-        if (matvec->size() > 1000 && m_rejectLargeNScat) {
+        if (matvec && matvec->size() > 1000 && m_rejectLargeNScat) {
           ATH_MSG_DEBUG("too many scatterers: " << matvec->size());
           return;
         }
         
-        if ((matvec != nullptr) && !matvec->empty()) {
+        if (matvec && !matvec->empty()) {
           for (int j = 0; j < (int) matvec->size(); j++) {
             const MaterialEffectsBase *meb = (*matvec)[j]->materialEffectsOnTrack();
             
@@ -4385,7 +4395,8 @@ namespace Trk {
                   meff->setSigmaDeltaE(meot->energyLoss()->sigmaDeltaE());
                 }
 
-                matstates.push_back(new GXFTrackState(meff, (*matvec)[j]->trackParameters()));
+                matstates.push_back(new GXFTrackState(meff, (*matvec)[j]->trackParameters()) );
+                matvec_used=true;
               }
             }
           }
@@ -4468,10 +4479,11 @@ namespace Trk {
       if (distance < 0 && distsol.numberOfSolutions() > 0) {
         const TrackParameters *prevtp = muonpar1;
         ATH_MSG_DEBUG("Collecting upstream muon material from extrapolator");
+        if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
+        matvec.reset( m_extrapolator->extrapolateM(*prevtp, *states[0]->surface(), oppositeMomentum, false, Trk::nonInteractingMuon) );
+        matvec_used=false;
 
-        matvec = m_extrapolator->extrapolateM(*prevtp, *states[0]->surface(), oppositeMomentum, false, Trk::nonInteractingMuon);
-        
-        if ((matvec != nullptr) && !matvec->empty()) {
+        if (matvec && !matvec->empty()) {
           ATH_MSG_DEBUG("Retrieved " << matvec->size() << " material states");
           
           for (int j = 0; j < (int) matvec->size(); j++) {
@@ -4493,6 +4505,7 @@ namespace Trk {
                 }
                 
                 matstates.insert(matstates.begin(), new GXFTrackState(meff, (*matvec)[j]->trackParameters()));
+                matvec_used=true;
               }
             }
           }
@@ -4600,7 +4613,7 @@ namespace Trk {
     }
 
     delete refpar;
-
+    if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
     return;
   }
 

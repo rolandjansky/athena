@@ -54,6 +54,9 @@ StatusCode egammaSelectedTrackCopy::initialize() {
   ATH_CHECK(m_trackParticleContainerKey.initialize());
   ATH_CHECK(m_OutputTrkPartContainerKey.initialize());
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   /* the extrapolation tool*/
   if(m_extrapolationTool.retrieve().isFailure()){
     ATH_MSG_ERROR("initialize: Cannot retrieve extrapolationTool " << m_extrapolationTool);

@@ -20,3 +20,10 @@ Trk::Track*
 DummyTrackSlimmingTool::slim(const Trk::Track& track) const {
   return new Trk::Track(track);
 }
+
+std::unique_ptr<Trk::Track> 
+DummyTrackSlimmingTool::slimCopy(const Trk::Track& track) const{
+  return std::make_unique<Trk::Track>(track);
+}
+
+

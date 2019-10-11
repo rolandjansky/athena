@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TrigUpgradeTest/testHLT_MT.py
 #
@@ -15,7 +16,7 @@
 #   -c "myModifier=True/False"
 # Existing modifiers can be found in "TriggerRelease/python/Modifiers.py"
 #
-class opt :
+class opt:
     setupForMC       = None           # force MC setup
     setLVL1XML       = 'TriggerMenuMT/LVL1config_LS2_v1.xml' # 'TriggerMenu/LVL1config_Physics_pp_v7.xml' # default for legacy
     setDetDescr      = None           # force geometry tag
@@ -35,8 +36,7 @@ class opt :
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
 #Individual slice flags
-    doElectronSlice   = True
-    doPhotonSlice     = True
+    doEgammaSlice     = True
     doMuonSlice       = True
     doJetSlice        = True
     doMETSlice        = True
@@ -44,6 +44,9 @@ class opt :
     doTauSlice        = True
     doCombinedSlice   = True
     doBphysicsSlice   = True
+    doStreamingSlice  = True
+    doMonitorSlice    = True
+    reverseViews      = False
     enabledSignatures = []
     disabledSignatures = []
 #
@@ -69,7 +72,7 @@ for option in defaultOptions:
 import re
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
-if opt.doEmptyMenu == True:
+if opt.doEmptyMenu is True:
     log.info("Disabling all slices")
     for s in slices:
         if s in globals():
@@ -86,10 +89,8 @@ else:
 # This is temporary and will be re-worked for after M3.5
 for s in slices:
     signature = s[2:].replace('Slice', '')
-    if 'Electron' in s or 'Photon' in s:
-        signature = 'Egamma'
 
-    if eval('opt.'+s) == True:
+    if eval('opt.'+s) is True:
         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
         opt.enabledSignatures.append( enabledSig )
     else:
@@ -120,7 +121,7 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
-    if not '_run_number' in dir():
+    if '_run_number' not in dir():
         import PyUtils.AthFile as athFile
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
@@ -283,7 +284,7 @@ for mod in modifierList:
 from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
 conddb.setGlobalTag(globalflags.ConditionsTag())
 
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 #--------------------------------------------------------------
@@ -328,8 +329,8 @@ if TriggerFlags.doCalo():
     svcMgr.ToolSvc += TrigDataAccess()
 
 if TriggerFlags.doMuon():
-    import MuonCnvExample.MuonCablingConfig
-    import MuonRecExample.MuonReadCalib
+    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    import MuonRecExample.MuonReadCalib      # noqa: F401
     if globalflags.InputFormat.is_pool():
         include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
 
@@ -366,24 +367,33 @@ elif globalflags.InputFormat.is_bytestream():
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-TriggerFlags.inputLVL1configFile = opt.setLVL1XML
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
-from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
-svcMgr += LVL1ConfigSvc()
-svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+l1JsonFile = generateL1Menu()
+
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+svcMgr += getL1ConfigSvc()
+svcMgr += getHLTConfigSvc()
+
+# ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence()
 
+
+# ---------------------------------------------------------------
+# HLT prep: RoIBResult and L1Decoder
+# ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
         from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
         topSequence += L1Decoder("L1Decoder")
-        #topSequence.L1Decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
     elif opt.doL1Sim:
         from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += L1Decoder("L1Decoder")
@@ -411,16 +421,6 @@ if hasattr(svcMgr.THistSvc, "Output"):
     from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
-# -------------------------------------------------------------
-# Message formatting and OutputLevel
-# -------------------------------------------------------------
-if TriggerFlags.Online.doValidation():
-    TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['Log']
-else:
-    svcMgr.MessageSvc.Format = "%t  " + svcMgr.MessageSvc.Format   # add time stamp
-    if hasattr(svcMgr.MessageSvc,'useErsError'):   # ERS forwarding with TrigMessageSvc
-        svcMgr.MessageSvc.useErsError = ['*']
-
 #-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------
@@ -432,13 +432,13 @@ for mod in modifierList:
 #-------------------------------------------------------------    
 if len(opt.condOverride)>0:
     for folder,tag in opt.condOverride.iteritems():
-        log.warn('Overriding folder %s with tag %s' % (folder,tag))
+        log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
 
 if svcMgr.MessageSvc.OutputLevel<INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
-    print svcMgr
+    print(svcMgr)
 
 
 from AthenaCommon.Configurable import Configurable
@@ -454,7 +454,6 @@ Configurable.configurableRun3Behavior=False
 #-------------------------------------------------------------
 
 from AthenaCommon.AppMgr import ServiceMgr
-from GaudiSvc.GaudiSvcConf import AuditorSvc
 from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
 
 # This should be temporary, it is doing the same job as TrigCostMonitorMTConfig but without using a ComponentAccumulator
