@@ -22,10 +22,9 @@ TrigMuonEFQualityHypo::TrigMuonEFQualityHypo(const std::string &name, ISvcLocato
 
     declareProperty("AcceptAll", m_acceptAll = true);
 
-    declareProperty("RequireCombinedMuon", m_requireCombined=true); // true unless doing ms-only iso
-
     declareProperty("MuonSelectionTool", m_muonSelTool);    
 
+    // kept in case monitor is needed
     declareMonitoredVariable("isBadMuon",  m_isBadMuon);
     declareMonitoredVariable("reducedChi2",   m_reducedChi2);
 
@@ -46,26 +45,15 @@ TrigMuonEFQualityHypo::~TrigMuonEFQualityHypo() {
  */
 HLT::ErrorCode TrigMuonEFQualityHypo::hltInitialize() {
 
-    // Retrieve muon selection tool
-    //ATH_CHECK(m_muonSelTool.retrieve());
-    //m_muonSelTool=ToolHandle<IMuonSelector>(m_SelectorToolName);
     if(m_muonSelTool.retrieve().isFailure()) ATH_MSG_INFO("Unable to retrieve " << m_muonSelTool);
 
     if (m_acceptAll) {
         ATH_MSG_INFO("Accepting all the events with no cut!");
     } else {
         ATH_MSG_INFO("Muon quality criteria required");
-        if(m_looseCut) ATH_MSG_INFO(" loose selection requirement ");
-/*         ATH_MSG_INFO( (m_abscut ? "Absolute" : "Relative") << " isolation cut for calo selected");
-        ATH_MSG_INFO("Calorimetric cone size selected: " << m_CaloConeSize);
-	ATH_MSG_INFO("MaxCaloIso_1/2/3 = "<<m_MaxCaloIso_1<<"/"<<m_MaxCaloIso_2<<"/"<<m_MaxCaloIso_3);
-        if (m_MaxCaloIso_1 < 0.0 && m_MaxCaloIso_2 < 0.0 && m_MaxCaloIso_3 < 0.0) {
-            ATH_MSG_FATAL("Configured to apply cuts, but not cut was specified");
-            return HLT::BAD_JOB_SETUP;
-        } */
+        if(m_looseCut) ATH_MSG_INFO(" Applied chi2 requirement ");
+        else ATH_MSG_INFO("chi2 + additional flags required "); 
     }
-
-
 
     ATH_MSG_INFO("Initialization completed successfully");
 
@@ -81,16 +69,16 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltFinalize() {
 
 /**
  * Execute the algorithm.
- * Here we apply the cuts to the muon(s) and their isolation properties.
- * The hypo passes if at least one muon passes the cuts.
+ * Here we apply the quality cuts to the muon(s).
  */
+
 HLT::ErrorCode TrigMuonEFQualityHypo::hltExecute(const HLT::TriggerElement *outputTE, bool &pass) {
 
     ATH_MSG_DEBUG("in execute()");
 
     //reset monitored variables
     m_reducedChi2 = -10.0;
-    //m_cutCounter = -1;
+    m_isBadMuon = 0;
     
     if (m_acceptAll) {
         pass = true;
@@ -120,7 +108,7 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltExecute(const HLT::TriggerElement *outp
 
         const double mupt = muon->pt();
         const double mueta = muon->eta();
-        ATH_MSG_INFO("Muon with pT " << mupt << " and eta " << muon->eta());
+        ATH_MSG_DEBUG("Muon with pT " << mupt << " and eta " << muon->eta());
 
         m_isBadMuon = m_muonSelTool->isBadMuon(*muon);
    
@@ -128,35 +116,31 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltExecute(const HLT::TriggerElement *outp
         const xAOD::TrackParticle* metrack = muon->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
         float mePt = -999999., idPt = -999999.;
 
-        float reducedChi2, qOverPsignif = -10;
-        int isBadMuon = 0; 
-//        reducedChi2 = muon->primaryTrackParticle()->chiSquared()/muon->primaryTrackParticle()->numberDoF();
+        float reducedChi2 = -10, qOverPsignif = -10;
+
         if(idtrack && metrack) {
             mePt = metrack->pt();
             idPt = idtrack->pt();
 
             float meP  = 1.0 / ( sin(metrack->theta()) / mePt); 
             float idP  = 1.0 / ( sin(idtrack->theta()) / idPt); 
-            qOverPsignif  = fabs( (metrack->charge() / meP) - (idtrack->charge() / idP) ) / sqrt( idtrack->definingParametersCovMatrix()(4,4) + metrack->definingParametersCovMatrix()(4,4) ); //std::cout <<qOverPsignif<<std::endl;
+            qOverPsignif  = fabs( (metrack->charge() / meP) - (idtrack->charge() / idP) ) / sqrt( idtrack->definingParametersCovMatrix()(4,4) + metrack->definingParametersCovMatrix()(4,4) ); 
             reducedChi2 = muon->primaryTrackParticle()->chiSquared()/muon->primaryTrackParticle()->numberDoF(); 
         }
         m_reducedChi2 = reducedChi2;
-        isBadMuon = !m_muonSelTool->isBadMuon(*muon);
+        m_isBadMuon = !m_muonSelTool->isBadMuon(*muon);
 
         if(m_looseCut) {
             if(fabs(reducedChi2) < 8.0) passCut = true;
-// Rejects more than expeced            if(!m_muonSelTool->passedIDCuts(*muon)) passCut = true;            
-// other flags work fine            if(muon->author()==xAOD::Muon::MuidCo) passCut = true; 
         } else {
-            if(fabs(reducedChi2) < -8.0 && !m_muonSelTool->isBadMuon(*muon) && fabs(qOverPsignif)<7.0 && muon->author()==xAOD::Muon::MuidCo) passCut = true;
-//            if(!m_muonSelTool->isBadMuon(*muon)) passCut = true;               
+            if(fabs(reducedChi2) < 8.0 && !m_muonSelTool->isBadMuon(*muon) && fabs(qOverPsignif)<7.0 && muon->author()==xAOD::Muon::MuidCo) passCut = true;
         }
 
-        ATH_MSG_INFO(" REGTEST usealgo / pt / eta / reducedChi2 / Quality flags : "
+        ATH_MSG_DEBUG(" REGTEST usealgo / pt / eta / reducedChi2 / Quality flags : "
                       << " / " << mupt / 1000.0
                       << " / " << mueta
                       << " / " << m_reducedChi2
-                      << " / " << isBadMuon  
+                      << " / " << m_isBadMuon  
                       << " / Muon Quality Hypothesis is " << (passCut ? "true" : "false"));
 
 

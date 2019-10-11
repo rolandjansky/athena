@@ -22,8 +22,7 @@ class TriggerElement;
  * \brief Hypothesis class for EF muon quality criteria.
  * \author 
  * \details This class applies cuts on quality criteria
- *          to the EF muons based on the offline muon WP algo.
- *          
+ *          to the EF muons based on the criteria of the offline muon WP algo.
  *          
  */
 class TrigMuonEFQualityHypo: public HLT::HypoAlgo {
@@ -50,10 +49,6 @@ private:
 
     BooleanProperty m_acceptAll; // Accept all events if true
 
-    BooleanProperty m_requireCombined;
-
-    /** Cut counter. */
-    int   m_cutCounter;
     /** Quality criteria */
     float m_reducedChi2;
     
