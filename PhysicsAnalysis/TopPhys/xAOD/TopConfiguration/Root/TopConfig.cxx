@@ -531,7 +531,7 @@ namespace top{
           deriv_rel_name = deriv_rel_name.substr(pos+1);
           if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
             if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
-              throw std::runtime_error("TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4PFlow_BTagging201903\". This is necessary for b-tagging to work!");
+              throw std::runtime_error("TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4PFlowJets_BTagging201903\". This is necessary for b-tagging to work!");
             }
           } else { // release does NOT have tagged jet collection
             if (this->sgKeyJets() != this->sgKeyJetsType()) { // jet collection is NOT tagged
