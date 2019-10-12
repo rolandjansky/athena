@@ -60,8 +60,12 @@ namespace HLT { namespace MET {
       ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
       /// The JVT file name
       std::string m_jvtFile;
-      /// THe JVT histogram name
+      /// The JVT histogram name
       std::string m_jvtHistoName;
+      /// The maximum pT for tracks in the TST
+      float m_tstPtCeil;
+      /// Whether or not to use the muon OR
+      bool m_doMuonOR;
 
       /************************************************************************
        * Internals

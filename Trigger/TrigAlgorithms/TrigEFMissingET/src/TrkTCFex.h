@@ -49,6 +49,10 @@ namespace HLT { namespace MET {
       ToolHandle<ICVFTool> m_cvfTool;
       /// CVF threshold
       float m_cvfThreshold;
+      /// The maximum pT for tracks in the TST
+      float m_tstPtCeil;
+      /// Whether or not to use the muon OR
+      bool m_doMuonOR;
 
       /************************************************************************
        * Internals
