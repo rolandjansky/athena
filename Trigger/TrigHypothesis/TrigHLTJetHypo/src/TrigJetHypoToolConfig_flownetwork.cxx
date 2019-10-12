@@ -76,6 +76,8 @@ StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
 		    move index to parent node.
 		    attempt ot set its capacity with child's capacity.
 		    if ok: break 
+		    obtain the capacity of the current node
+		    set current node to checked
 		   }
               }
   */
@@ -105,11 +107,15 @@ StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
     while(true){
       cap = m_conditionMakers[ind]->capacity();
       ind = m_treeVec[ind];
+      // path upwards already traversed from this point if checked = true
+      if (checked[ind]){break;}
       if((m_conditionMakers[ind]->addToCapacity(cap))){
-	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise  succeded in setting cap, ind = " << ind << '\n';
+	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise  succeded in adding cap, ind = " << ind << " " << cap << '\n';
 	break;
       } else {
-	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise   cap not set, ind = " << ind << '\n';
+	cap = m_conditionMakers[ind]->capacity();
+	checked[ind] = true;
+	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise   cap not set, ind = " << ind << " " << cap << '\n';
       }
     }
   }
