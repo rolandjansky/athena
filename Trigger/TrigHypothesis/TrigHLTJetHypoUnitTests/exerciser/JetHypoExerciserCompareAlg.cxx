@@ -129,7 +129,7 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   std::string spass1 = (pass1 ? "True": "False");
   if (pass0 != pass1){
     ATH_MSG_INFO ("hypo helper tools DISAGREE: "
-		  << spass0 << " " << spass1);
+		  << "pass 0 "<< spass0 << " pass 1 " << spass1);
   } else {
     ATH_MSG_INFO ("hypo helper tools agree: " << spass0);
   }
