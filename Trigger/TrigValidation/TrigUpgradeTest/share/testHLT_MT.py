@@ -409,7 +409,6 @@ if opt.doL1Unpacking:
         topSequence += L1EmulationTest()
 
 
-<<<<<<< HEAD
 # ---------------------------------------------------------------
 # HLT generation
 # ---------------------------------------------------------------
@@ -435,7 +434,6 @@ if not opt.createHLTMenuExternally:
         import sys
         sys.exit(0)
 
-
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += getHLTConfigSvc()
 
@@ -444,41 +442,6 @@ svcMgr += getHLTConfigSvc()
 # ID conditions
 # ---------------------------------------------------------------
 
-||||||| merged common ancestors
-=======
-# ---------------------------------------------------------------
-# HLT generation
-# ---------------------------------------------------------------
-
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-menu = GenerateMenuMT()
-
-# define the function that enable the signatures
-def signaturesToGenerate():
-    TriggerFlags.Slices_all_setOff()
-    for sig in opt.enabledSignatures:
-        eval(sig)
-
-menu.overwriteSignaturesWith(signaturesToGenerate)
-
-# generating the HLT structure requires 
-# the L1Decoder to be defined in the topSequence
-menu.generateMT()
-
-if opt.endJobAfterGenerate:
-    import sys
-    sys.exit(0)
-
-
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-svcMgr += getHLTConfigSvc()
-
-
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-
->>>>>>> b0bc4067112fd24826f1c42ba51647c6566f6c90
 if TriggerFlags.doID:
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     InDetTrigFlags.doPixelClusterSplitting = False
