@@ -35,6 +35,7 @@ class opt:
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
+    createHLTMenuExternally = False   # Set to True if the menu is build manually outside testHLT_MT.py
     endJobAfterGenerate = False       # Finish job after menu generation
 #Individual slice flags
     doEgammaSlice     = True
@@ -76,6 +77,7 @@ for option in defaultOptions:
 import re
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
+print "JOERG slices", slices
 if opt.doEmptyMenu is True:
     log.info("Disabling all slices")
     for s in slices:
@@ -411,24 +413,26 @@ if opt.doL1Unpacking:
 # HLT generation
 # ---------------------------------------------------------------
 
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-menu = GenerateMenuMT()
+if not opt.createHLTMenuExternally:
 
-# define the function that enable the signatures
-def signaturesToGenerate():
-    TriggerFlags.Slices_all_setOff()
-    for sig in opt.enabledSignatures:
-        eval(sig)
+    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()
 
-menu.overwriteSignaturesWith(signaturesToGenerate)
+    # define the function that enable the signatures
+    def signaturesToGenerate():
+        TriggerFlags.Slices_all_setOff()
+        for sig in opt.enabledSignatures:
+            eval(sig)
 
-# generating the HLT structure requires 
-# the L1Decoder to be defined in the topSequence
-menu.generateMT()
+    menu.overwriteSignaturesWith(signaturesToGenerate)
 
-if opt.endJobAfterGenerate:
-    import sys
-    sys.exit(0)
+    # generating the HLT structure requires 
+    # the L1Decoder to be defined in the topSequence
+    menu.generateMT()
+
+    if opt.endJobAfterGenerate:
+        import sys
+        sys.exit(0)
 
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
