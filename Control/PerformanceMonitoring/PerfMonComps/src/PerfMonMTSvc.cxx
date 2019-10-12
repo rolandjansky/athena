@@ -107,8 +107,6 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
 
     if( !isLoop() ) 
       startCompAud_serial(stepName, compName);
-    else if( m_doEventLoopMonitoring == true )
-      startCompAud_MT(stepName, compName);
      
   }
 }
@@ -196,15 +194,16 @@ void PerfMonMTSvc::stopCompAud_serial( const std::string& stepName,
   m_compLevelDataMap[currentState]->addPointStop(m_measurement);
 }
 
-void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
-                                   const std::string& compName) {
 
-
+void PerfMonMTSvc::eventLevelMon() {
   std::lock_guard<std::mutex> lock( m_mutex_capture );
 
-  if(isCheckPoint()){
-    m_measurement.capture_MT( m_eventCounter ); 
-    m_eventLevelData.record_MT(m_measurement, m_eventCounter);
+  // If enabled, do event level monitoring
+  if( m_doEventLoopMonitoring ){
+    if(isCheckPoint()){
+      m_measurement.capture_MT( m_eventCounter ); 
+      m_eventLevelData.record_MT(m_measurement, m_eventCounter);
+  }
   }
 }
 

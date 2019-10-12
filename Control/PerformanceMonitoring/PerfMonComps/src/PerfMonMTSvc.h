@@ -72,6 +72,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     /// Count the number of processed events
     virtual void incrementEventCounter() override { m_eventCounter++; };
+
+    // Do event level monitoring
+    virtual void eventLevelMon() override; 
     
     /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
     void startSnapshotAud ( const std::string& stepName,
@@ -87,12 +90,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void stopCompAud_serial ( const std::string& stepName,
                               const std::string& compName );
 
-    /// Component Level Auditing in Parallel Steps(Event loop)
-    void startCompAud_MT ( const std::string& stepName,
-                           const std::string& compName );
-
-    void stopCompAud_MT ( const std::string& stepName,
-                          const std::string& compName );
 
     // Report the results
     void report();

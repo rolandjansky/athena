@@ -31,6 +31,9 @@ class IPerfMonMTSvc : virtual public IService
     /// Count the number of processed events
     virtual void incrementEventCounter() = 0;
 
+    // Do event level monitoring
+    virtual void eventLevelMon() = 0;
+
 }; // class IPerfMonMTSvc
 
 ///////////////////////////////////////////////////////////////////
