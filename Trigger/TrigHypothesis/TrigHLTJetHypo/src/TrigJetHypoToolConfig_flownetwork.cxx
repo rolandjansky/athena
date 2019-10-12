@@ -35,7 +35,15 @@ TrigJetHypoToolConfig_flownetwork::~TrigJetHypoToolConfig_flownetwork(){
 
 StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
 
-  // gymanastics as cannot pass vecor<vecotr<int>> as a Gaudi::Property
+  if(m_conditionMakers.size() != m_treeVec.size()){
+    return StatusCode::FAILURE;
+  }
+  
+  if(m_conditionMakers.size() < 2){ // first  node is root, need more
+    return StatusCode::FAILURE;
+  }
+  
+  // gymnastics as cannot pass vecor<vecotr<int>> as a Gaudi::Property
   if(m_sharedNodesVec.empty()){return StatusCode::FAILURE;}
 
   std::vector<int> shared;
@@ -48,9 +56,70 @@ StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
     }
   }
   if(!shared.empty()){
-     m_sharedNodes.push_back(shared);
+    m_sharedNodes.push_back(shared);
   }
 
+  
+  /* set the capacity of the acceptAll nodes (or nay
+     nodes with modifiable capciity.
+
+     Algorithm:
+     initialise: create an bool array checked
+     with length the number of nodes in the tree
+     find the index of the last node whicih is not checked.
+
+    execute: while there are uncheckled nodes{
+		 do{
+                    find last unchecked node
+		    obtain its capacity.
+                    set node as checked.
+		    move index to parent node.
+		    attempt ot set its capacity with child's capacity.
+		    if ok: break 
+		   }
+              }
+  */
+
+  
+
+  std::vector<bool> checked(m_treeVec.size(), false);
+  
+  const std::size_t start = checked.size() - 1;
+  while(true){
+
+    auto it = std::find(checked.rbegin(),
+			checked.rend(),
+			false);
+    
+    if (it == checked.rend()){
+      std::cout<<"TrigJetHypoToolConfig_flownetwork::initialise no unchecked nodes found\n";
+      std::cout<<"TrigJetHypoToolConfig_flownetwork::initialise checked size " << checked.size() << '\n';
+      break;
+    }
+    (*it) = true;
+    
+    std::size_t ind = start - (it - checked.rbegin());
+    std::cout<<"TrigJetHypoToolConfig_flownetwork::initialise intial ind = " << ind<< '\n';
+    
+    std::size_t cap{0};
+    while(true){
+      cap = m_conditionMakers[ind]->capacity();
+      ind = m_treeVec[ind];
+      if((m_conditionMakers[ind]->addToCapacity(cap))){
+	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise  succeded in setting cap, ind = " << ind << '\n';
+	break;
+      } else {
+	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise   cap not set, ind = " << ind << '\n';
+      }
+    }
+  }
+
+  std::cout << "TrigJetHypoToolConfig_flownetwork::initialise - capacities\n";
+  for(const auto& cp : m_conditionMakers){
+    std::cout << cp->capacity() << " ";
+  }
+  std::cout << '\n';
+  
   return StatusCode::SUCCESS;
 }
 

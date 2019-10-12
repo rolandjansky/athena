@@ -38,3 +38,12 @@ StatusCode TrigJetConditionConfig_smc::checkVals() const {
 }
 
 
+bool TrigJetConditionConfig_smc::addToCapacity(std::size_t) {
+  return false;
+}
+
+std::size_t TrigJetConditionConfig_smc::capacity() const {
+  return getCondition()->capacity();
+}
+
+

@@ -341,10 +341,11 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
 	std::cout<< "UFNB adding edge: " << *(edges.back())<<'\n';
 	for(const auto& sib : siblings){
 	  auto capacity = m_conditions[sib]->capacity();
-	  if(capacity == 0){ // "accept all conditions have capacity 0
-	    // find the size of a job group passed to the condition
-	    capacity = indJetGroups[satisfiedBy[sib][0]].size();
-	  }
+	  // acceptALL nodes are being given capacities, so the following code is OBSOLETE, REMOVE
+	  // if(capacity == 0){ // "accept all conditions have capacity 0
+	  //   // find the size of a job group passed to the condition
+	  //   capacity = indJetGroups[satisfiedBy[sib][0]].size();
+	  // }
 	  edges.push_back(std::make_shared<FlowEdge>(sib,
 						     cur_jg,
 						     capacity));
