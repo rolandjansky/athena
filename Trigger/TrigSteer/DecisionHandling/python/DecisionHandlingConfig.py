@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # 
 
@@ -14,3 +14,14 @@ def setupFilterMonitoring( filterAlg ):
                              xbins=nbins, xmin=0, xmax=nbins,
                              labels=['n_execs', 'n_valid'] + inputKeys )
     filterAlg.MonTool = monTool
+
+def TriggerSummaryAlg( name ):
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg as Alg
+    alg = Alg( name )
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+    monTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
+    monTool.defineHistogram('TIME_SinceEventStart', path='EXPERT', type='TH1F',
+                                   title='Time since beginning of event processing;time [ms]',
+                                   xbins=100, xmin=0, xmax=3.5e3   )
+    alg.MonTool = monTool
+    return alg
