@@ -437,9 +437,11 @@ class Chain(object):
     def setSeedsToSequences(self):
         """ Set the L1 seeds to the menu sequences """
         
-        # check if the number of seeds is enought for all the seuqences:
-        max_seq= max(len(step.sequences) for step in self.steps)
-        tot_seed=len(self.vseeds)
+        # check if the number of seeds is enought for all the seuqences, no action of no steps are configured
+        if len(self.steps) == 0:
+            return
+        max_seq  = max(len(step.sequences) for step in self.steps)
+        tot_seed = len(self.vseeds)
         if max_seq==tot_seed:
             for step in self.steps:
                 if len(step.sequences) == 0:
