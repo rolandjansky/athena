@@ -8,7 +8,6 @@ from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
 
 def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()

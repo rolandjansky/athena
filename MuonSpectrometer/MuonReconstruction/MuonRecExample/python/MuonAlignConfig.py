@@ -7,7 +7,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AlgSequence import AthSequencer
-from MuonCondSvc.MuonCondSvcConf import MuonAlignmentErrorDbAlg
+from MuonCondAlg.MuonCondAlgConf import MuonAlignmentErrorDbAlg
 
 from MuonRecExample.MuonRecUtils import logMuon
 from IOVDbSvc.CondDB import conddb
