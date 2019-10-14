@@ -30,7 +30,7 @@ TrigConf::Chain::counter() const
 unsigned int
 TrigConf::Chain::namehash() const
 {
-   return data().get_child("nameHash").get_value<unsigned int>();
+   return m_data.get_child("nameHash").get_value<unsigned int>();
 }
 
 const std::string &
