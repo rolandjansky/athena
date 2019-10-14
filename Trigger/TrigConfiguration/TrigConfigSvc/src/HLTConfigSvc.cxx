@@ -268,6 +268,8 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j260_320eta490_L1J20"] = "L1_J20";
       dummyChains["HLT_j420_L1J20"] = "L1_J20";
       dummyChains["HLT_j45_L1J15"] = "L1_J15";
+      dummyChains["HLT_j80_j60_L1J15"] = "L1_J15";
+      dummyChains["HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20"] = "L1_J20";
       dummyChains["HLT_j460_a10_lcw_subjes_L1J20"] = "L1_J20";
       dummyChains["HLT_j460_a10r_L1J20"] = "L1_J20";
       dummyChains["HLT_mu20_ivar_L1MU6"] = "L1_MU6";

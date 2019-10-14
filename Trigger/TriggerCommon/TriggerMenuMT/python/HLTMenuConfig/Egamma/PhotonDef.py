@@ -81,26 +81,26 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         stepName = "Step1_PhotonFastCalo"
         log.debug("Configuring step " + stepName)
         fastCalo = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None ) # the None will be used for flags in future
-        return ChainStep(stepName, [fastCalo], self.mult)
+        return ChainStep(stepName, [fastCalo], [self.mult])
         
     def getFastPhoton(self):
         stepName = "Step2_L2Photon"
         log.debug("Configuring step " + stepName)
         photonReco = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
-        return ChainStep(stepName, [photonReco], self.mult)
+        return ChainStep(stepName, [photonReco], [self.mult])
 
     def getPrecisionCaloPhoton(self):
         stepName = "Step3_PhotonPrecisionCalo"
         log.debug("Configuring step " + stepName)
         precisionCaloPhoton = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None )
-        return ChainStep(stepName, [precisionCaloPhoton], self.mult)
+        return ChainStep(stepName, [precisionCaloPhoton], [self.mult])
 
             
     def getPrecisionPhoton(self):
         stepName = "Step4_PhotonPrecision"
         log.debug("Configuring step " + stepName)
         precisionPhoton = RecoFragmentsPool.retrieve( precisionPhotonSequenceCfg, None )
-        return ChainStep(stepName, [precisionPhoton], self.mult)
+        return ChainStep(stepName, [precisionPhoton], [self.mult])
 
             
 
