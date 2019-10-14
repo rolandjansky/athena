@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // base class for Calorimeter Cells
@@ -30,6 +30,7 @@ CaloCell::CaloCell(const CaloDetDescrElement* caloDDE,
     m_caloDDE(caloDDE)
 {}
 
+// cppcheck-suppress uninitMemberVar  ; m_quality
 CaloCell::CaloCell(const CaloDetDescrElement* caloDDE,
 			  float      energy, 
 			  float      time, 
@@ -44,6 +45,7 @@ CaloCell::CaloCell(const CaloDetDescrElement* caloDDE,
     m_caloDDE(caloDDE)
 {
   m_qualProv[0]=quality;
+  // cppcheck-suppress objectIndex
   m_qualProv[1]=provenance;
 }
 
@@ -63,6 +65,7 @@ CaloCell::CaloCell(const CaloDetDescrElement* caloDDE,
     m_caloDDE(caloDDE)
 {}
 
+// cppcheck-suppress uninitMemberVar  ; m_quality
 CaloCell::CaloCell(const CaloDetDescrElement* caloDDE,
                           const Identifier & ID,
 			  float   energy, 
@@ -78,6 +81,7 @@ CaloCell::CaloCell(const CaloDetDescrElement* caloDDE,
     m_caloDDE(caloDDE)
 {
   m_qualProv[0]=quality;
+  // cppcheck-suppress objectIndex
   m_qualProv[1]=provenance;
 }
 
@@ -102,6 +106,7 @@ void CaloCell::set (float energy,
   m_time = time;
   m_gain = gain;
   m_qualProv[0]=quality;
+  // cppcheck-suppress objectIndex
   m_qualProv[1]=provenance;
 }
 
@@ -161,6 +166,7 @@ void CaloCell::setCaloDDE (const CaloDetDescrElement* caloDDE)
 
   void CaloCell::setProvenance (uint16_t prov)
 {
+  // cppcheck-suppress objectIndex
   m_qualProv[1] = prov;
 }
 

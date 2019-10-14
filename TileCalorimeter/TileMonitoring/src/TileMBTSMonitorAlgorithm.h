@@ -48,7 +48,7 @@ class TileMBTSMonitorAlgorithm : public AthMonitorAlgorithm {
     int getMBTSCounter(Identifier mbtsID) const;
 
     Gaudi::Property<bool> m_fillHistogramsPerMBTS{this,
-        "FillHistogramsPerMBTS", true, "Switch for using per MBTS histograms"};
+        "FillHistogramsPerMBTS", false, "Switch for using per MBTS histograms"};
 
     Gaudi::Property<std::vector<float>> m_energyCut{this,
         "EnergyCuts",
@@ -97,6 +97,7 @@ class TileMBTSMonitorAlgorithm : public AthMonitorAlgorithm {
     int m_MBTScounters[Tile::MAX_ROS - 3][Tile::MAX_DRAWER];
 
     static const unsigned int MAX_MBTS_COUNTER{32};
+    static const unsigned int MBTS_DMU{0};
 };
 
 #endif // TILEMONITORING_TILEMBTSMONITORALGORITHM_H

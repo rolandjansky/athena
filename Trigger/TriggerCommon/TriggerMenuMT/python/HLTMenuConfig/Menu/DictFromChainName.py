@@ -77,8 +77,8 @@ def getEBPartFromParts( chainName, chainParts ):
     Checks if there is only one identifier
     """
     # ---- event building identifier ----
-    from EventBuildingInfo import AllowedEventBuildingIdentifiers
-    eventBuildTypes = set( AllowedEventBuildingIdentifiers ).intersection( chainParts )
+    from EventBuildingInfo import getAllEventBuildingIdentifiers
+    eventBuildTypes = set( getAllEventBuildingIdentifiers() ).intersection( chainParts )
     assert len(eventBuildTypes) <= 1, 'Chain {} has more than one Event Building identifier: {}, that is not supported'.format( chainName, eventBuildTypes)
     if eventBuildTypes:
         return eventBuildTypes.pop()

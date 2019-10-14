@@ -112,12 +112,12 @@ namespace Monitored {
       return {};
     }
 
-    template< typename U, typename = typename std::enable_if< !std::is_convertible<double, U>::value >::type >
+    template< typename U, std::enable_if_t< !std::is_convertible<typename detail::get_value_type<U>::value_type, double>::value, int> = 0>
     std::vector<double> convertToDouble( const U&  ) const {
       return {};
     }
 
-    template< typename U, typename = typename std::enable_if< std::is_convertible<double, U>::value >::type, typename = void >
+    template< typename U, std::enable_if_t< std::is_convertible<typename detail::get_value_type<U>::value_type, double>::value, int> = 0>
     std::vector<double> convertToDouble(const U& collection ) const {
       return std::vector<double>(std::begin(collection), std::end(collection));
     }

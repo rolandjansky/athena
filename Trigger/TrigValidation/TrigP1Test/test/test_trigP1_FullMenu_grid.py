@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 
 # art-description: Same as full_menu test from TrigUpgradeTest, but with athenaHLT
-# art-type: build                                                                  
+# art-type: grid
 # art-include: master/Athena
-
-################################################################################
-# This test is identical to test_trigP1_FullMenu_build.py and should be removed
-# once the CI configuration is switched to use test_trigP1_FullMenu_build.py
-################################################################################
+# art-output: *.txt
+# art-output: *.log
+# art-output: log.*
+# art-output: *.new
+# art-output: *.json
+# art-output: *.root
+# art-output: *.pmon.gz
+# art-output: *perfmon*
+# art-output: *.check*
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
@@ -19,7 +23,7 @@ ex.args = '-c "doWriteESD=False"'
 ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
-test.art_type = 'build'
+test.art_type = 'grid'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 

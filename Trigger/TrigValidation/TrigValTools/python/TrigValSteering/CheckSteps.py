@@ -10,6 +10,7 @@ import sys
 import os
 import re
 import subprocess
+import json
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
@@ -514,6 +515,85 @@ class ZeroCountsStep(Step):
         return self.result, cmd
 
 
+class MessageCountStep(Step):
+    '''Count messages printed inside event loop'''
+
+    def __init__(self, name='MessageCount'):
+        super(MessageCountStep, self).__init__(name)
+        self.executable = 'messageCounter.py'
+        self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
+        self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
+        self.info_threshold = None
+        self.debug_threshold = None
+        self.verbose_threshold = None
+        self.other_threshold = None
+        self.auto_report_result = True
+
+    def configure(self, test):
+        self.args += ' -s "{:s}"'.format(self.start_pattern)
+        self.args += ' -e "{:s}"'.format(self.end_pattern)
+        if self.info_threshold is None:
+            self.info_threshold = test.exec_steps[0].max_events
+        if self.debug_threshold is None:
+            self.debug_threshold = 0
+        if self.verbose_threshold is None:
+            self.verbose_threshold = 0
+        if self.other_threshold is None:
+            self.other_threshold = test.exec_steps[0].max_events
+        super(MessageCountStep, self).configure(test)
+
+    def run(self, dry_run=False):
+        files = os.listdir('.')
+        r = re.compile(self.log_regex)
+        log_files = filter(r.match, files)
+        self.args += ' ' + ' '.join(log_files)
+        auto_report = self.auto_report_result
+        self.auto_report_result = False
+        ret, cmd = super(MessageCountStep, self).run(dry_run)
+        self.auto_report_result = auto_report
+        if ret != 0:
+            self.log.error('%s failed')
+            self.result = 1
+            if self.auto_report_result:
+                self.report_result()
+            return self.result, cmd
+        (num_info, num_debug, num_verbose, num_other) = (0, 0, 0, 0)
+        for log_file in log_files:
+            json_file = 'MessageCount.{:s}.json'.format(log_file)
+            if not os.path.isfile(json_file):
+                self.log.warning('%s cannot open file %s', self.name, json_file)
+            with open(json_file) as f:
+                summary = json.load(f)
+                num_info += summary['INFO']
+                num_debug += summary['DEBUG']
+                num_verbose += summary['VERBOSE']
+                num_other += summary['other']
+        if num_info > self.info_threshold:
+            self.log.info(
+                '%s Number of INFO messages %s is higher than threshold %s',
+                self.name, num_info, self.info_threshold)
+            self.result += 1
+        if num_debug > self.debug_threshold:
+            self.log.info(
+                '%s Number of DEBUG messages %s is higher than threshold %s',
+                self.name, num_debug, self.debug_threshold)
+            self.result += 1
+        if num_verbose > self.verbose_threshold:
+            self.log.info(
+                '%s Number of VERBOSE messages %s is higher than threshold %s',
+                self.name, num_verbose, self.verbose_threshold)
+            self.result += 1
+        if num_other > self.other_threshold:
+            self.log.info(
+                '%s Number of "other" messages %s is higher than threshold %s',
+                self.name, num_other, self.other_threshold)
+            self.result += 1
+        if self.auto_report_result:
+            self.report_result()
+        return self.result, cmd
+
+
 def default_check_steps(test):
     '''
     Create the default list of check steps for a test. The configuration
@@ -563,6 +643,7 @@ def default_check_steps(test):
         if log_to_check is not None:
             reco_tf_logmerge.log_files.append(log_to_check)
             log_to_check = reco_tf_logmerge.merged_name
+        log_to_check = reco_tf_logmerge.merged_name
         check_steps.append(reco_tf_logmerge)
 
     # Histogram merging for athenaHLT forks
@@ -587,6 +668,10 @@ def default_check_steps(test):
     if log_to_check is not None:
         checkwarn.log_file = log_to_check
     check_steps.append(checkwarn)
+
+    # MessageCount
+    msgcount = MessageCountStep('MessageCount')
+    check_steps.append(msgcount)
 
     # RegTest
     regtest = RegTestStep()

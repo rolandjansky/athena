@@ -125,6 +125,8 @@ private:
     // others:
     ServiceHandle<IChronoStatSvc> m_timingProfile;
     Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"};
+    Gaudi::Property<bool> m_doPhotons {this, "doPhotons", true, "Run the Photon reconstruction"};
+    Gaudi::Property<bool> m_doElectrons {this, "doElectrons", true, "Run the Electron reconstruction"};
 };
 
 #endif

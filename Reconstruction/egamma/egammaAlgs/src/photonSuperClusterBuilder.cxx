@@ -87,30 +87,35 @@ StatusCode photonSuperClusterBuilder::execute(){
     //in case we fail to make a supercluser.
     std::vector<bool> isUsedRevert(isUsed);
     const auto egRec=egammaRecs->at(i);
-    const auto egClus = egRec->caloCluster();
+    const auto clus = egRec->caloCluster();
     //First some basic seed cuts
     if(isUsed.at(i)){
       continue;      
     }
-    double emFrac(0.);
-    if (!egClus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-      ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
-    }
-
-    //Require minimum energy for supercluster seeding.
-    if (egClus->et()*emFrac < m_EtThresholdCut){
+    //The seed should have 2nd sampling   
+    if (!clus->hasSampling(CaloSampling::EMB2) && !clus->hasSampling(CaloSampling::EME2)){
       continue;
     }
- 
+    const double eta2 = fabs(clus->etaBE(2));
+    if(eta2>10){
+      continue;
+    }  
+    //Accordeon Energy samplings 1 to 3
+    const double EMAccEnergy= clus->energyBE(1)+clus->energyBE(2)+clus->energyBE(3);
+    const double EMAccEt = EMAccEnergy/cosh(eta2);
+    //Require minimum energy for supercluster seeding.
+    if (EMAccEt < m_EtThresholdCut){
+      continue;
+    }
     //Passed preliminary custs
     ATH_MSG_DEBUG("Creating supercluster egammaRec photon object "<< 'n' 
-                  << "Using cluster Et = " << egClus->et()  << " EMFraction " 
-                  << emFrac << " EM Et " << egClus->et()*emFrac);
+                  << "Using cluster Et = " << clus->et()  
+                  << " EM Accordeon Et " << EMAccEt);
     //So it is used
     isUsed.at(i)=1;     
     //Start accumulating
     std::vector<const xAOD::CaloCluster*>  accumulatedClusters;
-    accumulatedClusters.push_back(egClus);
+    accumulatedClusters.push_back(clus);
 
     //Core Logic goes here
     ATH_MSG_DEBUG("Find secondary clusters");

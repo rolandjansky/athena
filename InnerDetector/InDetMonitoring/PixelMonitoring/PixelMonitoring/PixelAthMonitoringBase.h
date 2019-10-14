@@ -42,7 +42,7 @@ class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
 
  public:
 
-  StatusCode fill2DProfLayer( std::string prof2Dname, Identifier& id, const PixelID* pid, float weight=1.0, bool copy2DFEval=false ) const;
+  StatusCode fill2DProfLayer( const std::string& prof2Dname, const std::string& layer, Identifier& id, const PixelID* pid, float weight=1.0, bool copy2DFEval=false ) const;
   StatusCode fill1DProfLumiLayers( std::string prof1Dname, int lb, float* weights ) const;
   StatusCode fill1DProfLayers( std::string name, float* values ) const;
   StatusCode fillPP0Histos( std::string name, int(&D_A)[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk], int(&D_C)[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk], int(&B0)[PixMon::kNumStavesL0][PixMon::kNumModulesBarrel], int(&B1)[PixMon::kNumStavesL1][PixMon::kNumModulesBarrel], int(&B2)[PixMon::kNumStavesL2][PixMon::kNumModulesBarrel], int(&IBL)[PixMon::kNumStavesIBL][PixMon::kNumFEsIBL] ) const;
@@ -55,6 +55,23 @@ class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const &ClusterIDs) const;
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const &ClusterIDs, double& cosalpha) const;
 
+  /// helper class to accumulate points to fill a 2D plot with
+  struct VecAccumulator2DMap {
+    std::unordered_map<int, std::vector<int>> m_pm;
+    std::unordered_map<int, std::vector<int>> m_em;
+    std::unordered_map<int, std::vector<float>> m_val;
+    bool m_copy2DFEval;
+    std::string m_prof2Dname;
+
+    VecAccumulator2DMap( const std::string& prof2Dname, bool copy2DFEval = false ) 
+      : m_copy2DFEval(copy2DFEval)
+      , m_prof2Dname(prof2Dname) {}
+    
+    void add( const int layer, const Identifier& id,
+	      const PixelID* pid, float value=1.0 );
+  };
+  void fill2DProfLayerAccum( const VecAccumulator2DMap& accumulator ) const;
+  
 };
 
 #endif

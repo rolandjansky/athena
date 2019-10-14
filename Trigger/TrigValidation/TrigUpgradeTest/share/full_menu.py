@@ -8,7 +8,85 @@ __log = logging.getLogger('full_menu')
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.triggerMenuSetup = "LS2_v1"
 
+##################################################################
+# Functions creating EDM list for output writing
+# TODO: Move to TriggerJobOpts
+##################################################################
+def getEDMListForPOOL(key, decObj):
+    # Get the list from TriggerEDM
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    from TrigEDMConfig.TriggerEDMRun3 import persistent
+    TriggerFlags.EDMDecodingVersion = 3
+    TriggerFlags.ESDEDMSet = key
+    edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), TriggerFlags.EDMDecodingVersion())
+
+    # Build the output ItemList
+    ItemList = []
+    for edmType, edmKeys in edmList.iteritems():
+        ItemList.extend([edmType+'#'+collKey for collKey in edmKeys])
+
+    # Add decision containers (navigation)
+    for item in decObj:
+        ItemList.append( 'xAOD::TrigCompositeContainer#{:s}'.format(item) )
+        ItemList.append( 'xAOD::TrigCompositeAuxContainer#{:s}Aux.-'.format(item) )
+
+    return list(set(ItemList))
+
+
+def getEDMDictForBS(decObj):
+    from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    from TrigEDMConfig.TriggerEDMRun3 import persistent
+    TriggerFlags.EDMDecodingVersion = 3
+    TriggerFlags.ESDEDMSet = 'BS'
+
+    ItemListDict = {}
+    ItemModuleDict = {}
+    for key in ['BS'] + EventBuildingInfo.getAllDataScoutingIdentifiers():
+        edmList = getTriggerEDMList(key, TriggerFlags.EDMDecodingVersion())
+        moduleId = EventBuildingInfo.getFullHLTResultID() if key=='BS' else EventBuildingInfo.getDataScoutingResultID(key)
+        for edmType, edmKeys in edmList.iteritems():
+            for collKey in edmKeys:
+                item = persistent(edmType)+'#'+collKey
+                if item not in ItemModuleDict.keys():
+                    ItemModuleDict[item] = [moduleId]
+                else:
+                    ItemModuleDict[item].append(moduleId)
+
+    # Add decision containers (navigation)
+    for item in decObj:
+        typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
+        typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux.-'.format(item)
+        if typeName not in ItemModuleDict.keys():
+            ItemModuleDict[typeName] = [EventBuildingInfo.getFullHLTResultID()]
+        if typeNameAux not in ItemModuleDict.keys():
+            ItemModuleDict[typeNameAux] = [EventBuildingInfo.getFullHLTResultID()]
+
+    return ItemModuleDict
+
+
+##################################################################
+# Include the common configuration
+##################################################################
 include("TrigUpgradeTest/testHLT_MT.py")
+
+##################################################################
+# Generate the menu
+##################################################################
+
+
+from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+menu = GenerateMenuMT()
+
+
+def signaturesToGenerate():
+    TriggerFlags.Slices_all_setOff()
+    for sig in opt.enabledSignatures:
+        eval(sig)    
+        
+menu.overwriteSignaturesWith(signaturesToGenerate)
+allChainConfigs = menu.generateMT()
+
 
 ##########################################
 # Some debug
@@ -62,42 +140,12 @@ else:
     __log.warning("Failed to find L1Decoder, cannot determine Decision names for output configuration")
     decObj = []
 
-# Get the EDM list
-from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-from TrigEDMConfig.TriggerEDMRun3 import persistent
-TriggerFlags.EDMDecodingVersion = 3
-TriggerFlags.ESDEDMSet = 'BS' if configureBSResult else 'ESD'
-edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), TriggerFlags.EDMDecodingVersion())
-
-# Build the output ItemList
-ItemList = []
-for edmType, edmKeys in edmList.iteritems():
-    edmType = persistent(edmType) if configureBSResult else edmType
-    for key in edmKeys:
-        ItemList.append(edmType+'#'+key)
-
-if not configureBSResult:
-    # Do not serialise EventInfo into BS, as it is already represented by the BS event header
-    ItemList.append("xAOD::EventInfo#EventInfo")
-    ItemList.append("xAOD::EventAuxInfo#EventInfoAux.")
-
-for item in decObj:
-    typeName = 'xAOD::TrigCompositeContainer#{}'.format(item)
-    typeNameAux = 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(item)
-    ItemList.append(typeName)
-    # Temporary workaround for the case when item from decObj is explicitly in TriggerEDM list
-    # to avoid adding it twice - with and without dynamic variables
-    if typeNameAux+'-' not in ItemList:
-        ItemList.append(typeNameAux)
-
-ItemList = list(set(ItemList))
-
 # Configure ESD writing
 if opt.doWriteESD:
     import AthenaPoolCnvSvc.WriteAthenaPool
     from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
     StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-    StreamESD.ItemList = ItemList
+    StreamESD.ItemList = getEDMListForPOOL('ESD', decObj)
 
 ##########################################
 # HLT result configuration
@@ -110,9 +158,10 @@ if configureBSResult:
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
-    for item in ItemList:
-        __log.debug('adding to serialiser list: %s' % item)
-        serialiser.addCollectionToMainResult(item)
+    ItemDict = getEDMDictForBS(decObj)
+    for item, modules in ItemDict.iteritems():
+        __log.debug('adding to serialiser list: %s, modules: %s', item, modules)
+        serialiser.addCollection(item, modules)
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerTool()

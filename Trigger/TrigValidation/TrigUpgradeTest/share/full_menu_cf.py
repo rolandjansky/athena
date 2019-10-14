@@ -98,20 +98,20 @@ if opt.doMuonSlice == True:
 
     # multi muon trigger
     # 2muons symmetric
-    step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ muFastSequence()], multiplicity=2)
-    step2_2muComb_sym= ChainStep("Step1_2muComb_sym", [ muCombSequence()], multiplicity=2)
+    step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ muFastSequence()], multiplicity=[2])
+    step2_2muComb_sym= ChainStep("Step1_2muComb_sym", [ muCombSequence()], multiplicity=[2])
     
-    step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=2)
-    step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=2)
+    step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=[2])
+    step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=[2])
  
     MuonChains += [ makeChain(name='HLT_2mu6Comb_L12MU6',  L1Thresholds=["MU6"], ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
 
     # 2muons asymmetric (this will change): 2 sequences, 2 seeds
-    step1_2mufast_asym= ChainStep("Step1_2muFast_asym", [ muFastSequence(), muFastSequence()], multiplicity=2)
-    step2_2muComb_asym= ChainStep("Step1_2muComb_asym", [ muCombSequence(), muCombSequence()], multiplicity=2)
+    step1_2mufast_asym= ChainStep("Step1_2muFast_asym", [ muFastSequence(), muFastSequence()], multiplicity=[2])
+    step2_2muComb_asym= ChainStep("Step1_2muComb_asym", [ muCombSequence(), muCombSequence()], multiplicity=[2])
     
-    step3_2muEFSA_asym= ChainStep("Step3_2muEFSA_asym", [ muEFSASequence(), muEFSASequence()], multiplicity=2)
-    step4_2muEFCB_asym= ChainStep("Step4_2muEFCB_asym", [ muEFCBSequence(), muEFCBSequence()], multiplicity=2)
+    step3_2muEFSA_asym= ChainStep("Step3_2muEFSA_asym", [ muEFSASequence(), muEFSASequence()], multiplicity=[2])
+    step4_2muEFCB_asym= ChainStep("Step4_2muEFCB_asym", [ muEFCBSequence(), muEFCBSequence()], multiplicity=[2])
     
     
     MuonChains += [ makeChain(name='HLT_mu6_mu4_L12MU4',
@@ -217,7 +217,7 @@ if opt.doMETSlice == True:
 
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
     metClusterPufitStep          = ChainStep("Step1_met_clusterpufit", [metClusterPufitSeq])
-    comboStep_cell_clusterpufit  = ChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=2)
+    comboStep_cell_clusterpufit  = ChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=[2])
 
     metChains = [
         makeChain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
@@ -270,8 +270,8 @@ if opt.doCombinedSlice == True:
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence
 
-    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=2)
-    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=2)
+    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[2])
+    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=[2])
 
 
     comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM8I_MU10', L1Thresholds=["EM8I", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
