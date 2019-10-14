@@ -643,6 +643,7 @@ def default_check_steps(test):
         if log_to_check is not None:
             reco_tf_logmerge.log_files.append(log_to_check)
             log_to_check = reco_tf_logmerge.merged_name
+        log_to_check = reco_tf_logmerge.merged_name
         check_steps.append(reco_tf_logmerge)
 
     # Histogram merging for athenaHLT forks

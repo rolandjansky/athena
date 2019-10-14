@@ -12,15 +12,20 @@ rdo2aod = ExecStep.ExecStep('RDOtoAOD')
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
 rdo2aod.threads = 1
-rdo2aod.args = '--AMI=q221 --outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
+rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --valid=True'
+rdo2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
 rdo2aod.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 physval = ExecStep.ExecStep('PhysVal')
 physval.type = 'Reco_tf'
 physval.input = ''
 physval.explicit_input = True
-physval.args = '--AMI=q221 --inputAODFile=AOD.pool.root --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root'
+physval.args = '--inputAODFile=AOD.pool.root --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root --valid=True'
 physval.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
+
+validationFlags = 'doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet'
+preExec = 'TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(3); from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames();'
+physval.args += ' --validationFlags="{:s}" --preExec="{:s}"'.format(validationFlags, preExec)
 
 test = Test.Test()
 test.art_type = 'build'
