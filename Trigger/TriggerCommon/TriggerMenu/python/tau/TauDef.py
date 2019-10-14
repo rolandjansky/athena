@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Tau slice signatures """
 
@@ -249,13 +249,19 @@ class L2EFChain_tau(L2EFChainDef):
         tauRejectEmpty = HLTTrackTauHypo_rejectNoTracks("TauRejectEmpty")
 
         # Here we load our new tau-specific RoI Updater
-        tauRoiUpdater = HLTTauTrackRoiUpdater()
+        if preselection == 'tracktwoMVABDT':
+            tauRoiUpdater = HLTTauTrackRoiUpdater("HLTTauTrackRoiUpdaterBDT")
+            tauRoiUpdater.useBDT = True
+            tauRoiUpdater.BDTweights = "TrigTauRec/00-11-02/FTF_tauCore_BDT_v0.root"
+        else:
+            tauRoiUpdater = HLTTauTrackRoiUpdater("HLTTauTrackRoiUpdater")
+
         # This will add up to a tolerance of 5 mm due to the extra 3mm tolerance from the FTF
         # tauRoiUpdater.z0HalfWidth = 2.0 # Temporarily widened to 10 mm
         tauRoiUpdater.z0HalfWidth = 7.0
 
         #ftracks = trkcore+[tauRoiUpdater]+trkiso
-        if not idperf and preselection != 'tracktwoMVA' and preselection != 't2MVA':
+        if not idperf and preselection != 'tracktwoMVA' and preselection != 't2MVA' and preselection != 'tracktwoMVABDT':
             ftracks = trkcore + [tauRoiUpdater, tauRejectEmpty] + trkiso
         else :
             ftracks = trkcore+[tauRoiUpdater]+trkiso
@@ -314,13 +320,13 @@ class L2EFChain_tau(L2EFChainDef):
         needsCaloPre  = ['calo', 'ptonly', 'mvonly', 'caloonly',
                          'track', 'trackonly', 'tracktwo', 'tracktwoEF',
                          'trackcalo', 'tracktwocalo','tracktwo2015']
-        needsCaloMVAPre = ['tracktwoEFmvaTES','tracktwoMVA', 't2MVA']
+        needsCaloMVAPre = ['tracktwoEFmvaTES','tracktwoMVA', 't2MVA', 'tracktwoMVABDT']
         # Strategies which need fast-track finding
         needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015']
-        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES','tracktwoMVA','t2MVA']
+        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES','tracktwoMVA','t2MVA', 'tracktwoMVABDT']
         needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
-        needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly', 'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwoMVA', 't2MVA', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
+        needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly', 'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwoMVA', 't2MVA', 'tracktwoMVABDT', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre + needsTrackTwoNoPre
 
 
