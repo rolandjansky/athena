@@ -157,6 +157,7 @@ vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
 
+
 # schedule pflow tagging
 FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=EXOT27Seq)
 
@@ -173,6 +174,13 @@ ExtendedJetCommon.replaceAODReducedJets(
 
 # Includes the 5% pT trimmed R=1.0 jets
 ExtendedJetCommon.addDefaultTrimmedJets(EXOT27Seq, "EXOT27Jets")
+
+# add in the retrained vr jets
+HbbCommon.addVRJets(
+    sequence=EXOT27Seq, do_ghost=False, logger=logger, training='201903')
+JetCommon.OutputJets["EXOT27Jets"].append(
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903")
+
 
 # add akt2
 JetCommon.addStandardJets("AntiKt",0.2,"LCTopo", mods="lctopo_ungroomed", calibOpt="none", ghostArea=0.01, ptmin=2000, ptminFilter=7000, algseq=EXOT27Seq, outputGroup="EXOT27Jets")
@@ -217,6 +225,7 @@ for collection in toBeAssociatedTo:
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 # Schedule for output
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201903")
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
 outputContainer("BTagging_AntiKt4EMPFlow_201810")
 outputContainer("BTagging_AntiKt4EMPFlow_201903")
@@ -558,6 +567,7 @@ JetCommon.addJetOutputs(
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
       "AntiKt2LCTopoJets",
       "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",
