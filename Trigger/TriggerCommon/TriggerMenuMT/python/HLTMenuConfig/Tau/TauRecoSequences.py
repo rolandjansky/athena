@@ -115,7 +115,7 @@ def tauCoreTrackSequence( RoIs, name ):
     tauCoreTrackSequence = parOR(name)
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
 
     for viewAlg in viewAlgs:
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
@@ -128,9 +128,6 @@ def tauCoreTrackSequence( RoIs, name ):
     tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
 
     viewAlgs.append(tauTrackRoiUpdaterAlg)
-
-    global TrackParticlesName
-    global theFTF_name
 
     for viewAlg in viewAlgs:
        tauCoreTrackSequence += viewAlg
@@ -154,13 +151,11 @@ def tauIsoTrackSequence( RoIs , name):
     tauIsoTrackSequence = parOR(name)
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso",rois = RoIs)
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierIsoFTF")
     ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
     viewAlgs.append(ViewVerify)
-
-    global theFTFIso_name
 
     for viewAlg in viewAlgs:
        tauIsoTrackSequence += viewAlg
