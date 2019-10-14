@@ -238,7 +238,6 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 def muFastRecoSequence( RoIs ):
 
   from AthenaCommon.AppMgr import ToolSvc
-  from AthenaCommon.DetFlags import DetFlags
   from AthenaCommon.CFElements import parOR
 
   muFastRecoSequence = parOR("l2MuViewNode")
