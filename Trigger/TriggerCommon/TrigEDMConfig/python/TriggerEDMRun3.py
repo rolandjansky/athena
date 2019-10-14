@@ -14,6 +14,7 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
 
+from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 
 def recordable( name ):
     """
@@ -51,6 +52,7 @@ def recordable( name ):
 # be stored in the specified format as well as the category
 # ------------------------------------------------------------
 AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODVERYSLIM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
+AllowedOutputFormats.extend(EventBuildingInfo.getAllDataScoutingIdentifiers())
 
 JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'ActiveArea4vec_phi', 'ActiveArea4vec_pt', 'AlgorithmType', 
                  'DetectorEta', 'DetectorPhi', 'EMFrac', 'EnergyPerSampling', 'GhostTrack', 'HECFrac', 'InputType', 
@@ -84,8 +86,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeContainer#L1J',                     'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#L1JAux.',              'BS ESD AODFULL AODSLIM', 'Steer'),
 
-    ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'BS ESD', 'Steer'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.slot.roi.start.stop.', 'BS ESD', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'CostMonDS ESD', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.slot.roi.start.stop.', 'CostMonDS ESD', 'Steer'),
 
     # Run-2 L1 (temporary)
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
@@ -290,7 +292,6 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_xAODTracks',                        'BS ESD AODFULL', 'ID'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksAux.',                 'BS ESD AODFULL', 'ID'),
 
-    ('EventInfo#ByteStreamEventInfo',              'ESD', 'Misc'),
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'), 
 
     ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
