@@ -21,6 +21,7 @@
 
 export NAME="slice_l1_grid"
 export JOBOPTION="TriggerTest/testLVL1CTPAthenaTrigRDO.py"
+export SKIP_CHAIN_DUMP=1
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
