@@ -1106,6 +1106,8 @@ namespace top{
       m_chosen_boostedJetTaggers.push_back(std::make_pair(helpvec[0],helpvec[1]));
       
     }
+    
+    m_btagging_cdi_path = settings->value("BTagCDIPath");
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
@@ -1126,15 +1128,15 @@ namespace top{
       std::string tag = "";
       // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
       if(btagAlg_btagWP.size() == 2){
-	alg = btagAlg_btagWP.at(0);
-	tag = btagAlg_btagWP.at(1);
+        alg = btagAlg_btagWP.at(0);
+        tag = btagAlg_btagWP.at(1);
       }
       else if(btagAlg_btagWP.size() == 1){
-	tag = btagAlg_btagWP.at(0);
+        tag = btagAlg_btagWP.at(0);
       }
       else{
-	std::cerr << "Error with btag ALGORITHM_NAME:WP. Incorrect format." << std::endl;
-	continue;
+        std::cerr << "Error with btag ALGORITHM_NAME:WP. Incorrect format." << std::endl;
+        continue;
       }
 
       std::cout << "TopConfig ==========================================================> " << alg << ", " << tag << std::endl;
@@ -1143,7 +1145,7 @@ namespace top{
       // take care that no WP is taken twice
       if ( std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end() ) {
         m_chosen_btaggingWP.push_back(alg_tag);
-	std::cout << "chosen btag alg, WP  ===============================================> " << alg_tag.first << ", " << alg_tag.second << std::endl;
+        std::cout << "chosen btag alg, WP  ===============================================> " << alg_tag.first << ", " << alg_tag.second << std::endl;
       } else {
         std::cout << "alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen" << std::endl;
       }

@@ -41,8 +41,17 @@ StatusCode FlavorTaggingCPTools::initialize() {
     return StatusCode::SUCCESS;
   }
 
+  static const std::string cdi_file_default = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root";
+
   m_tagger          = ""; // Extract in the loop
-  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root";
+  if (m_config->bTaggingCDIPath() != "Default") {
+    if (m_config->bTaggingCDIPath() != cdi_file_default) {
+      m_config->setPrintCDIpathWarning(true);
+    }
+    m_cdi_file = m_config->bTaggingCDIPath();
+  } else {
+    m_cdi_file = cdi_file_default;
+  }
   // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as its the same as the eff used in the calibration
   // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1)
   // Default changed from 410501 to 410470 in the CDI release of October 2018 
@@ -101,7 +110,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
     BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
     top::check(btagsel->setProperty("TaggerName", alg),
 	       "Failed to set b-tagging selecton tool TaggerName");
-    top::check(btagsel->setProperty("JetAuthor", caloJets_type),
+    top::check(btagsel->setProperty("JetAuthor", caloJets_collection),
 	       "Failed to set b-tagging selection JetAuthor");
     top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
 				    m_cdi_file),
@@ -151,7 +160,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
       BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
       top::check(btagsel->setProperty("TaggerName", m_tagger),
                 "Failed to set b-tagging selecton tool TaggerName");
-      top::check(btagsel->setProperty("JetAuthor", caloJets_type),
+      top::check(btagsel->setProperty("JetAuthor", caloJets_collection),
                 "Failed to set b-tagging selection JetAuthor");
       top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                       m_cdi_file),
@@ -184,7 +193,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
                   "Failed to set b-tagging TaggerName");
         top::check(btageff->setProperty("OperatingPoint", btagWP),
                   "Failed to set b-tagging OperatingPoint");
-        top::check(btageff->setProperty("JetAuthor", caloJets_type),
+        top::check(btageff->setProperty("JetAuthor", caloJets_collection),
                   "Failed to set b-tagging JetAuthor");
         top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                   "Failed to set path to b-tagging CDI file");

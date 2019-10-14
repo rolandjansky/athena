@@ -579,6 +579,13 @@ int main(int argc, char** argv) {
           }
         }
 
+        if (topConfig->printCDIpathWarning()) {
+          std::cout << "\n*************************************************************************\n";
+          std::cout << "YOU ARE USING A CUSTOM PATH TO THE CDI FILE WHICH IS NOT THE DEFAULT PATH\n";
+          std::cout << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n";
+          std::cout << "*************************************************************************\n\n";
+        }
+
         const unsigned int entries = xaodEvent.getEntries();
 	totalEventsInFiles += entries;
 	unsigned int firstEvent = 0;

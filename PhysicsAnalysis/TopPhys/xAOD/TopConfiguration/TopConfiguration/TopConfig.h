@@ -852,6 +852,12 @@ class TopConfig final {
 
   std::string FormatedWP(std::string raw_WP);
 
+  bool printCDIpathWarning() const
+  {return m_cdi_path_warning;}
+  void setPrintCDIpathWarning(bool flag)
+  {m_cdi_path_warning = flag;}
+  const std::string bTaggingCDIPath() const
+  {return m_btagging_cdi_path;}
   const std::string& bTaggingCalibration_B() const
   {return m_btagging_calibration_B;};
   const std::string& bTaggingCalibration_C() const
@@ -1444,6 +1450,8 @@ class TopConfig final {
   std::vector<std::string> m_calibrated_btaggingWP_trkJet;
 
   // B-tagging calibration to be used
+  bool m_cdi_path_warning = false;
+  std::string m_btagging_cdi_path = "Default";
   std::string m_btagging_calibration_B = "default";
   std::string m_btagging_calibration_C = "default";
   std::string m_btagging_calibration_Light = "default";

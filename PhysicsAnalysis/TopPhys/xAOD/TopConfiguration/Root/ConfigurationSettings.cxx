@@ -288,6 +288,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("LHAPDFSets", "List of PDF sets to calculate weights for, seperated by spaces, use LHAPDF names e.g CT10nlo NNPDF30_nlo_as_0118 MMHT2014nlo68cl", " " );
     registerParameter("LHAPDFEventWeights", "Save per event weights for all PDF sets/members: True (lots of info in truth tree!), Nominal (save to the nominal tree if passes selection) or False (nothing, default).", "False" );
     registerParameter("LHAPDFBaseSet", "Base PDF set used to recalculate XF1,XF2 values if they are zero. Will be added to LHAPDFSets.", " " );
+    registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default" );
 
     registerParameter("BTaggingWP",
                       "b-tagging WPs to use in the analysis, separated by commas."
