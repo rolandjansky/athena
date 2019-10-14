@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -133,9 +133,9 @@ CaloSum::CaloRegion CaloSum::getRegion(double theEta) const
 	  double lowEdge  = (*fRange).first;
 	  double highEdge = (*fRange).second;
 	  isFound = ( lowEdge <= theEta && theEta < highEdge );
-	  fRange++;
+	  ++fRange;
 	}
-      fRegion++;
+      ++fRegion;
     }
   return isFound ? (*(--fRegion)).first : UnknownRegion ;
 }
@@ -394,7 +394,7 @@ bool CaloSum::contains(const CaloRegion& theRegion) const
   while ( firstEntry != lastEntry && ! found )
     {
       found = ((*firstEntry).first).first == theRegion;
-      firstEntry++;
+      ++firstEntry;
     } 
   return found;
 }
@@ -407,7 +407,7 @@ bool CaloSum::contains(const CaloSampling::CaloSample& theSampling) const
   while ( firstEntry != lastEntry && ! found )
     {
       found = ((*firstEntry).first).second == theSampling;
-      firstEntry++;
+      ++firstEntry;
     } 
   return found;
 }
