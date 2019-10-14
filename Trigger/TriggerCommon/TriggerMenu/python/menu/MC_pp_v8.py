@@ -507,6 +507,11 @@ def setupMenu():
        
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
+        # performance chains with BDT to select best tauCore FTF track (MR 27181)
+        ['tau25_idperf_tracktwoMVABDT',       'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_perf_tracktwoMVABDT',         'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau25_mediumRNN_tracktwoMVABDT',    'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+
         # ATR-19359
         ['tau20_mediumRNN_tracktwoMVA_L1TAU5',                   'L1_TAU5', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau20_mediumRNN_tracktwoMVA_L1TAU8',                   'L1_TAU8', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
