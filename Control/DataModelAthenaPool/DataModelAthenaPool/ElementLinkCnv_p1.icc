@@ -11,6 +11,8 @@
 
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/IThinningSvc.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/getThinningCache.h"
 //#define ELLINK_DEBUG
 
@@ -18,7 +20,7 @@
 template <typename LINK_TYPE>
 void ElementLinkCnv_p1<LINK_TYPE>::
 transToPers(const Link_t& trans, PersLink_t& pers,
-            const SG::ThinningCache* /*cache*/,
+            const SG::ThinningCache* cache,
             [[maybe_unused]] MsgStream& msg) const
 {
 #ifdef  ELLINK_DEBUG
@@ -80,6 +82,51 @@ transToPers(const Link_t& trans, PersLink_t& pers,
     msg << MSG::INFO << "ElementLinkCnv_p1::transToPer(): SG Container="
         <<  pers->m_contName << ", Key Hash=" << pers->m_SGKeyHash
         << ", IDX=" << pers->m_elementIndex << endmsg;
+#endif
+    return;
+  }
+
+  // Check for new thinning.
+  if (cache) {
+    const SG::ThinningDecisionBase* dec = cache->thinning (trans.key());
+    if (dec) {
+      // here is the problem: in case the ElementLink was directly created w/
+      // only a pointer to the element, _and_ if the the pointed at element 
+      // has been thinned away, EL::index() will throw b/c
+      // IndexingPolicy::setIndex will fail.
+      std::size_t idx = IThinningSvc::RemovedIdx;
+      try {
+        idx = trans.index();
+      } catch ( const SG::maybe_thinning_error& err ) {
+        // ok. that's the corner case we talked about above.
+#ifdef  ELLINK_DEBUG
+      msg << MSG::DEBUG << "caught a maybe_thinning_error: ["
+          << err.what() << "]"
+          << endmsg
+          << "(this is an expected case of the EL-state-phase-space "
+          << "when thinning is active)"
+          << endmsg;
+#endif
+      }
+      // Get the updated index:
+      const std::size_t persIdx = dec->index( idx );
+      if (SG::ThinningDecisionBase::RemovedIdx == persIdx) {
+        // this element has been thinned away. So the persistent equivalent
+        // of a null pointer is a default persistent pointer.
+        pers = PersLink_t();
+        pers.m_elementIndex = 0; // value not used, but 0 compresses better
+      }
+      else {
+        Link_t tmp = trans;
+        tmp.toPersistent();
+        pers.m_SGKeyHash       = tmp.key(); 
+        pers.m_elementIndex    = persIdx;
+      }
+    }
+#ifdef  ELLINK_DEBUG
+    msg << MSG::INFO << "ElementLinkCnv_p3::transToPer(): SG Container="
+        << ", Key Hash=" << pers.m_SGKeyHash
+        << ", IDX=" << pers.m_elementIndex << endmsg;
 #endif
     return;
   }
