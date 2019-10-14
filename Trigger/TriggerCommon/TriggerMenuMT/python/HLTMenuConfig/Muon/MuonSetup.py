@@ -54,13 +54,12 @@ muNamesFS = muonNames().getNames('FS')
 
 
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
-def makeMuonPrepDataAlgs(forFullScan=False):
+def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   postFix = ""
   if forFullScan:
     postFix = "FS"
 
-  eventAlgs_MuonPRD = [] # These algs should be prepared for configuring RoIs same as muon RoIs used in viewAlg.
   viewAlgs_MuonPRD = []  # These algs should be executed to prepare muon PRDs for muFast and muEF steps.
 
   from AthenaCommon.AppMgr import ToolSvc
@@ -88,14 +87,14 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                             CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
                                             PrintPrepData           = False,
                                             DoSeededDecoding        = not forFullScan,
-                                            RoIs                    = "MURoIs" )
+                                            RoIs                    = RoIs )
 
 
   from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
   CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider" + postFix,
                                                 ProviderTool = MuonCscRawDataProviderTool,
                                                 DoSeededDecoding        = not forFullScan,
-                                                RoIs                    = "MURoIs")
+                                                RoIs                    = RoIs)
 
   from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
   CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThresholdClusterBuilderTool" )
@@ -106,7 +105,6 @@ def makeMuonPrepDataAlgs(forFullScan=False):
   CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
                                                  cluster_builder = CscClusterBuilderTool)
 
-  eventAlgs_MuonPRD.append( CscRdoToCscPrepData )
   if globalflags.InputFormat.is_bytestream():
     viewAlgs_MuonPRD.append( CscRawDataProvider )
   viewAlgs_MuonPRD.append( CscRdoToCscPrepData )
@@ -134,17 +132,16 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                             DecodingTool     = MdtRdoToMdtPrepDataTool,
                                             PrintPrepData    = False,
                                             DoSeededDecoding = not forFullScan,
-                                            RoIs             = "MURoIs")
+                                            RoIs             = RoIs)
 
 
   from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
   MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider" + postFix,
                                                 ProviderTool = MuonMdtRawDataProviderTool,
                                                 DoSeededDecoding = not forFullScan,
-                                                RoIs = "MURoIs"
+                                                RoIs = RoIs
                                                 )
 
-  eventAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
   if globalflags.InputFormat.is_bytestream():
     viewAlgs_MuonPRD.append( MdtRawDataProvider )
   viewAlgs_MuonPRD.append( MdtRdoToMdtPrepData )
@@ -174,18 +171,16 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                             DecodingTool     = RpcRdoToRpcPrepDataTool,
                                             PrintPrepData    = False,
                                             DoSeededDecoding = not forFullScan,
-                                            RoIs             = "MURoIs")
+                                            RoIs             = RoIs)
 
   from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
   RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider" + postFix,
                                                 ProviderTool = MuonRpcRawDataProviderTool,
                                                 DoSeededDecoding = not forFullScan,
-                                                RoIs = "MURoIs")
+                                                RoIs = RoIs)
 
   if globalflags.InputFormat.is_bytestream():
-    eventAlgs_MuonPRD.append( RpcRawDataProvider )
     viewAlgs_MuonPRD.append( RpcRawDataProvider )
-  eventAlgs_MuonPRD.append( RpcRdoToRpcPrepData )
   viewAlgs_MuonPRD.append( RpcRdoToRpcPrepData )
 
 
@@ -209,18 +204,16 @@ def makeMuonPrepDataAlgs(forFullScan=False):
                                             DecodingTool     = TgcRdoToTgcPrepDataTool,
                                             PrintPrepData    = False,
                                             DoSeededDecoding = not forFullScan,
-                                            RoIs             = "MURoIs")
+                                            RoIs             = RoIs)
 
   from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
   TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider" + postFix,                                                
                                                 ProviderTool = MuonTgcRawDataProviderTool,
                                                 DoSeededDecoding = not forFullScan,
-                                                RoIs             = "MURoIs" )
+                                                RoIs             = RoIs )
 
   if globalflags.InputFormat.is_bytestream():
-    eventAlgs_MuonPRD.append( TgcRawDataProvider )
     viewAlgs_MuonPRD.append( TgcRawDataProvider )
-  eventAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
   viewAlgs_MuonPRD.append( TgcRdoToTgcPrepData )
 
   from MuonRecExample.MuonRecFlags import muonRecFlags
@@ -239,11 +232,9 @@ def makeMuonPrepDataAlgs(forFullScan=False):
     viewAlgs_MuonPRD.append( MuonClusterAlg )
 
 
-  return ( eventAlgs_MuonPRD, viewAlgs_MuonPRD )
+  return ( viewAlgs_MuonPRD )
 
 
-# This def should be removed in the future.
-# We have not yet integrated muon decoding tool, so this def is used now.
 def muFastRecoSequence( RoIs ):
 
   from AthenaCommon.AppMgr import ToolSvc
@@ -252,47 +243,6 @@ def muFastRecoSequence( RoIs ):
 
   muFastRecoSequence = parOR("l2MuViewNode")
 
-  # Get the common data preparation algorithms
-  (eventDPalgs, viewDPalgs) =  makeMuonPrepDataAlgs()
-
-  for alg in viewDPalgs:
-    # This is an ugly way to get hold of the algorithms we want to schedule
-    # It will be improved once we migrate to the new job options
-    if 'RpcRawData' in alg.name():
-      RpcRawDataProviderAlg = alg
-    if 'RpcRdoToRpc' in alg.name():
-      RpcRdoToPrdAlg = alg
-    if 'MdtRawData' in alg.name():
-      MdtRawDataProviderAlg = alg
-    if 'MdtRdoToMdt' in alg.name():
-      MdtRdoToPrdAlg = alg
-    if 'TgcRawData' in alg.name():
-      TgcRawDataProviderAlg = alg
-    if 'TgcRdoToTgc' in alg.name():
-      TgcRdoToPrdAlg = alg
-    if 'CscRawData' in alg.name():
-      CscRawDataProviderAlg = alg
-    if 'CscRdoToCsc' in alg.name():
-      CscRdoToPrdAlg = alg
-    if 'CscThresholdClusterBuilder' in alg.name():
-      CscClusterAlg = alg
-
-  # Schedule BS->RDO only if needed (not needed on MC RDO files)
-  if DetFlags.readRDOBS.RPC_on():
-    muFastRecoSequence += RpcRawDataProviderAlg
-  if DetFlags.readRDOBS.MDT_on():
-    muFastRecoSequence += MdtRawDataProviderAlg
-  if DetFlags.readRDOBS.TGC_on():
-    muFastRecoSequence += TgcRawDataProviderAlg
-  if DetFlags.readRDOBS.CSC_on():
-    muFastRecoSequence += CscRawDataProviderAlg
-  # Always need RDO->PRD
-  muFastRecoSequence += RpcRdoToPrdAlg
-  muFastRecoSequence += MdtRdoToPrdAlg
-  muFastRecoSequence += TgcRdoToPrdAlg
-  muFastRecoSequence += CscRdoToPrdAlg
-  # and Csc clustering alg
-  muFastRecoSequence += CscClusterAlg
 
   # Configure the L2 CSC data preparator - we can turn off the data decoding here
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
@@ -450,11 +400,6 @@ def muEFSARecoSequence( RoIs, name ):
 
   efAlgs = []
 
-  ### Provide Muon_PrepDataAlgorithms ###
-  from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import makeMuonPrepDataAlgs
-  ( eventAlgs_MuonPRD, viewAlgs_MuonPRD ) = makeMuonPrepDataAlgs( name == 'FS')
-
-  # setup RDO preparator algorithms 
   if name != 'FS':
     # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT, TGC, CSC and RPC PRDs to be available
     efAlgs.append( CfgMgr.AthViews__ViewDataVerifier(name = "EFMuonViewDataVerifier",
@@ -465,11 +410,6 @@ def muEFSARecoSequence( RoIs, name ):
                                                                     ( 'Muon::CscPrepDataContainer'      , 'StoreGateSvc+CSC_Clusters') ] )
 
                  )
-  for viewAlg_MuonPRD in viewAlgs_MuonPRD:
-    # we now try to share the MDT, CSC and TGC data preparation algorithms with L2, so only add those if we are running full-scan
-    # this is slightly ugly, should be improved in new JO setup
-    if name == 'FS':
-      efAlgs.append( viewAlg_MuonPRD )
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
   ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc")
