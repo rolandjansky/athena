@@ -31,7 +31,7 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import (
-    buildVRJets, linkPseudoJetGettersToExistingJetCollection,
+    buildVRJets, linkPseudoJetGettersToExistingJetCollection, addVRJets,
     addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkMCTruth.MCTruthCommon import (
@@ -143,6 +143,7 @@ FTAG5BTaggedJets = [
     "AntiKt2PV0TrackJets",
     "AntiKtVR30Rmax4Rmin02TrackJets",
     "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASubJets",
@@ -209,15 +210,21 @@ vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = buildVRJets(sequence = FTAG5Seq
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo",
                                             "AntiKtVR30Rmax4Rmin02TrackGhostTag->AntiKtVR30Rmax4Rmin02TrackGhostTag,AntiKt4EMTopo",]
 
+addVRJets(
+    sequence=FTAG5Seq,
+    do_ghost=False,
+    training='201903',
+    logger=ftag5_log)
+
 
 #===================================================================
 # Link VR jets to large-R jets 
 #===================================================================
 toAssociate = {
-  vrTrackJetGhosts : vrTrackJetGhosts.lower(),
-  vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower()
+    vrTrackJetGhosts : vrTrackJetGhosts.lower(),
+    vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower(),
 }
-for collection in fatJetCollections: 
+for collection in fatJetCollections:
   ungroomed, labels = linkPseudoJetGettersToExistingJetCollection(
       FTAG5Seq, collection, toAssociate)
     
@@ -273,6 +280,7 @@ FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
@@ -325,7 +333,9 @@ ghost_particles = [
 ]
 ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
-ghost_subjets = ['GhostVR30Rmax4Rmin02TrackJetGhostTag']
+ghost_subjets = [
+    'GhostVR30Rmax4Rmin02TrackJetGhostTag',
+    'GhostVR30Rmax4Rmin02TrackJet_BTagging201903']
 for jc in ['AntiKt10LCTopoJets', 'AntiKt10TrackCaloClusterJets']:
     FTAG5SlimmingHelper.ExtraVariables.append(
         '.'.join([jc] + ghost_counts + ghost_pts + ghost_subjets))
