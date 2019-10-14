@@ -10,9 +10,10 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addPVCollection
   addStandardTruthContents()
   addMiniTruthCollectionLinks()
+  addPVCollection()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
@@ -222,9 +223,10 @@ if DerivationFrameworkIsMonteCarlo:
 
   SUSY11SlimmingHelper.AppendToDictionary = { 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                               'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                              'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer' }
 
-  SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+  SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson", "TruthPrimaryVertices"]
 
 #SUSY11Stream.RemoveItem("xAOD::TrigNavigation#*")
 #SUSY11Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")
