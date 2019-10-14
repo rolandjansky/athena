@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CondWriterExtAlg.h"
@@ -49,12 +49,12 @@ StatusCode CondWriterExtAlg::execute()
     // Set IOV in the past to trigger reload in IOVSvc
     IOVRange iov_range(IOVTime(0, 0), IOVTime(0, 0));
     ATH_CHECK( m_iovSvc->setRange(detStore()->clid(m_attrListKey), m_attrListKey, iov_range, "StoreGateSvc") );
-  }
 
     // Drop folder payload
     ATH_CHECK( m_iovDbSvc->dropObject(m_attrListKey, /*resetCache=*/true), StatusCode::FAILURE );
+  }
 
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 } // namespace DMTest
