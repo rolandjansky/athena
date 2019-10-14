@@ -77,7 +77,6 @@ for option in defaultOptions:
 import re
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
-print "JOERG slices", slices
 if opt.doEmptyMenu is True:
     log.info("Disabling all slices")
     for s in slices:
