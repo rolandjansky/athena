@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -81,6 +81,8 @@ StatusCode CondAlg2::execute (const EventContext& ctx) const
   SG::WriteCondHandle<DMTest::S3> out (m_outKey, ctx);
   auto s3 = std::make_unique<DMTest::S3> (xint_rl + xint_ts);
   ATH_CHECK( out.record (range, std::move(s3)) );
+
+  ATH_MSG_DEBUG("Recorded '" << out.key() << "' with range " << range);
 
   return StatusCode::SUCCESS;
 }
