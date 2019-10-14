@@ -34,7 +34,7 @@ StatusCode TileMBTSMonitorAlgorithm::initialize() {
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   ATH_CHECK( m_DQstatusKey.initialize() );
-  ATH_CHECK( m_digitsContainerKey.initialize() );
+  ATH_CHECK( m_digitsContainerKey.initialize(m_fillHistogramsPerMBTS) );
   ATH_CHECK( m_mbtsCellContainerKey.initialize() );
 
   memset(m_MBTSchannels, -1, sizeof(m_MBTSchannels));
@@ -56,16 +56,17 @@ StatusCode TileMBTSMonitorAlgorithm::initialize() {
     }
   }
 
+  if (m_fillHistogramsPerMBTS) {
+    m_energyGroups = Monitored::buildToolMap<int>(m_tools, "TileEnergyMBTS", MAX_MBTS_COUNTER);
+    m_energyLBGroups = Monitored::buildToolMap<int>(m_tools, "TileEnergyLBMBTS", MAX_MBTS_COUNTER);
 
-  m_energyGroups = Monitored::buildToolMap<int>(m_tools, "TileEnergyMBTS", MAX_MBTS_COUNTER);
-  m_energyLBGroups = Monitored::buildToolMap<int>(m_tools, "TileEnergyLBMBTS", MAX_MBTS_COUNTER);
+    m_timeGroups = Monitored::buildToolMap<int>(m_tools, "TileTimeMBTS", MAX_MBTS_COUNTER);
 
-  m_timeGroups = Monitored::buildToolMap<int>(m_tools, "TileTimeMBTS", MAX_MBTS_COUNTER);
+    m_hfnGroups = Monitored::buildToolMap<int>(m_tools, "TileHFNoiseMBTS", MAX_MBTS_COUNTER);
+    m_pedestalGroups = Monitored::buildToolMap<int>(m_tools, "TilePedestalMBTS", MAX_MBTS_COUNTER);
 
-  m_hfnGroups = Monitored::buildToolMap<int>(m_tools, "TileHFNoiseMBTS", MAX_MBTS_COUNTER);
-  m_pedestalGroups = Monitored::buildToolMap<int>(m_tools, "TilePedestalMBTS", MAX_MBTS_COUNTER);
-
-  m_pulseGroups = Monitored::buildToolMap<int>(m_tools, "TileAveragePulseMBTS", MAX_MBTS_COUNTER);
+    m_pulseGroups = Monitored::buildToolMap<int>(m_tools, "TileAveragePulseMBTS", MAX_MBTS_COUNTER);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -75,7 +76,20 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   // In case you want to measure the execution time
   auto timer = Monitored::Timer("TIME_execute");
-  auto lumiBlock = Monitored::Scalar<int>("lumiBlock", GetEventInfo(ctx)->lumiBlock());
+  auto timeerGroup = Monitored::Group(getGroup("TileMBTSMonExecuteTime"), timer);
+
+  const xAOD::EventInfo* eventInfo = GetEventInfo(ctx).get();
+
+  const int Trig_b7(7);
+  uint32_t l1TriggerType(eventInfo->level1TriggerType());
+  bool physicRun = (l1TriggerType == 0) || (((l1TriggerType >> Trig_b7) & 1) == 1);
+
+  if (!physicRun) {
+    ATH_MSG_DEBUG("Calibration Event found => skip filling histograms.");
+    return StatusCode::SUCCESS;
+  }
+
+  auto lumiBlock = Monitored::Scalar<int>("lumiBlock", eventInfo->lumiBlock());
 
   int nHitsA(0);
   int nHitsC(0);
@@ -86,9 +100,11 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   auto monTime = Monitored::Scalar<float>("Time", 0.0F);
 
   std::vector<float> energyCounters;
+  energyCounters.reserve(MAX_MBTS_COUNTER);
   auto monEnergyCounter = Monitored::Collection("EnergyCounter", energyCounters);
 
   std::vector<float> energies;
+  energies.reserve(MAX_MBTS_COUNTER);
   auto monSummaryEnergy = Monitored::Collection("SummaryEnergy", energies);
 
   std::vector<float> timeCounters;
@@ -207,66 +223,76 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   std::vector<int> counters;
   auto monErrorCounters = Monitored::Collection("ErrorCounter", counters);
 
-  auto monPedestal = Monitored::Scalar<float>("Pedestal", 0.0F);
-  auto monHFN = Monitored::Scalar<float>("HFN", 0.0F);
-
   // Create instance of TileDQstatus used to check for readout errors in Tile
-  const TileDQstatus * dqStatus = SG::makeHandle (m_DQstatusKey, ctx).get();
+  const TileDQstatus* dqStatus = SG::makeHandle (m_DQstatusKey, ctx).get();
 
-  SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey, ctx);
-  ATH_CHECK( digitsContainer.isValid() );
+ // Check only low gain (in physics runs low and high gain status should identical)
+  const int gain{0};
+  for (unsigned int ros = 3; ros < Tile::MAX_ROS; ++ros) {
+    for (unsigned int drawer = 0; drawer < Tile::MAX_DRAWER; ++drawer) {
+      int channel = m_MBTSchannels[ros - 3][drawer];
+      int counter = m_MBTScounters[ros - 3][drawer];
 
-  for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
-    HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
-    int ros = m_tileHWID->ros(adc_id);
-    if (ros > 2) { // Extended barrel
-      int drawer = m_tileHWID->drawer(adc_id);
-      int MBTSchannel = m_MBTSchannels[ros - 3][drawer];
+      if (channel > 0) {
+        // Fill Readout Error histogram
+        if (!(dqStatus->isChanDQgood(ros, drawer, channel))) {
+          setDigiError(counters, errors, counter, GENERAL);
+        }
+        if (dqStatus->checkGlobalCRCErr(ros, drawer, gain)) {
+          setDigiError(counters, errors, counter, GLOBAL_CRC);
+        }
+        if (dqStatus->checkROD_CRCErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, ROD_CRC);
+        }
+        if (dqStatus->checkFE_CRCErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, FRONTEND_CRC);
+        }
+        if (dqStatus->checkBCIDErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, BCID);
+        }
+        if (dqStatus->checkHeaderFormatErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, HEADER_FORMAT);
+        }
+        if (dqStatus->checkHeaderParityErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, HEADER_PARITY);
+        }
+        if (dqStatus->checkSampleFormatErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, SAMPLE_FORMAT);
+        }
+        if (dqStatus->checkSampleParityErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, SAMPLE_PARITY);
+        }
+        if (dqStatus->checkMemoryParityErr(ros, drawer, MBTS_DMU, gain)) {
+          setDigiError(counters, errors, counter, MEMORY_PARITY);
+        }
+      }
+    }
+  }
 
-      if (MBTSchannel >= 0) {
-        for (const TileDigits* tile_digits: *digitsCollection) {
-
-          adc_id = tile_digits->adc_HWID();
-          int channel = m_tileHWID->channel(adc_id);
-          if (channel == MBTSchannel) {  // MBTS channel found
-            int gain = m_tileHWID->adc(adc_id);
-            int counter = m_MBTScounters[ros - 3][drawer];
-
-            // Fill Readout Error histogram
-            const int dmu = 0;
-            if (!(dqStatus->isChanDQgood(ros, drawer, channel))) {
-              setDigiError(counters, errors, counter, GENERAL);
-            }
-            if (dqStatus->checkGlobalCRCErr(ros, drawer, gain)) {
-              setDigiError(counters, errors, counter, GLOBAL_CRC);
-            }
-            if (dqStatus->checkROD_CRCErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, ROD_CRC);
-            }
-            if (dqStatus->checkFE_CRCErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, FRONTEND_CRC);
-            }
-            if (dqStatus->checkBCIDErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, BCID);
-            }
-            if (dqStatus->checkHeaderFormatErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, HEADER_FORMAT);
-            }
-            if (dqStatus->checkHeaderParityErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, HEADER_PARITY);
-            }
-            if (dqStatus->checkSampleFormatErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, SAMPLE_FORMAT);
-            }
-            if (dqStatus->checkSampleParityErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, SAMPLE_PARITY);
-            }
-            if (dqStatus->checkMemoryParityErr(ros, drawer, dmu, gain)) {
-              setDigiError(counters, errors, counter, MEMORY_PARITY);
-            }
+  fill("TileErrorsMBTS", monErrorCounters, monErrors);
 
 
-            if (m_fillHistogramsPerMBTS) {
+  if (m_fillHistogramsPerMBTS) {
+    SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey, ctx);
+    ATH_CHECK( digitsContainer.isValid() );
+
+    auto monPedestal = Monitored::Scalar<float>("Pedestal", 0.0F);
+    auto monHFN = Monitored::Scalar<float>("HFN", 0.0F);
+
+    for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
+      HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
+      int ros = m_tileHWID->ros(adc_id);
+      if (ros > 2) { // Extended barrel
+        int drawer = m_tileHWID->drawer(adc_id);
+        int MBTSchannel = m_MBTSchannels[ros - 3][drawer];
+
+        if (MBTSchannel >= 0) {
+          for (const TileDigits* tile_digits: *digitsCollection) {
+
+            adc_id = tile_digits->adc_HWID();
+            int channel = m_tileHWID->channel(adc_id);
+            if (channel == MBTSchannel) {  // MBTS channel found
+              int counter = m_MBTScounters[ros - 3][drawer];
 
               double sampleMean = 0;
               double sampleRMS = 0;
@@ -289,6 +315,7 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
                   auto monSamples = Monitored::Collection("Samples", samples);
 
                   std::vector<int> sampleNumbers;
+                  sampleNumbers.reserve(nSamples);
                   for (unsigned int i = 0; i < nSamples; ++i) sampleNumbers.push_back(i);
                   auto monSampleNumbers = Monitored::Collection("SampleNumbers", sampleNumbers);
 
@@ -312,10 +339,6 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       }
     }
   }
-
-  fill("TileErrorsMBTS", monErrorCounters, monErrors);
-
-  fill("TileMBTSMonExecuteTime", timer);
 
   return StatusCode::SUCCESS;
 }
