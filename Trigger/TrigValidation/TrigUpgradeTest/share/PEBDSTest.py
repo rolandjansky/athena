@@ -25,9 +25,6 @@ EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBThree')
 EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBFour')
 EventBuildingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
 EventBuildingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
-EventBuildingInfo.AllowedEventBuildingIdentifiers = []
-EventBuildingInfo.AllowedEventBuildingIdentifiers.extend(EventBuildingInfo.PartialEventBuildingIdentifiers)
-EventBuildingInfo.AllowedEventBuildingIdentifiers.extend(EventBuildingInfo.DataScoutingIdentifiers.keys())
 
 # Override the setupMenu function from LS2_v1
 def myMenu():

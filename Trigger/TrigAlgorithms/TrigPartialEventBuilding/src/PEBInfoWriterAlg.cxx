@@ -6,9 +6,6 @@
 #include "PEBInfoWriterAlg.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-// Athena includes
-#include "AthViews/View.h"
-
 // TrigCompositeUtils types used here
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
@@ -21,9 +18,9 @@ using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
-using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::initialRoIString;
 using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::roiString;
 using TrigCompositeUtils::findLink;
 
 // =============================================================================
@@ -82,11 +79,6 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     ATH_CHECK(roiEL.isValid());
     const TrigRoiDescriptor* roi = *roiEL;
 
-    // Get View
-    auto viewELInfo = TrigCompositeUtils::findLink<ViewContainer>(previousDecision, viewString(), /*suppressMultipleLinksWarning*/ true );
-    ATH_CHECK(viewELInfo.isValid());
-    auto viewEL = viewELInfo.link;
-    
     // Create new decision
     Decision* newd = newDecisionIn(decisions);
 
@@ -99,11 +91,10 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     // Link to feature. Dummy link here
     ElementLink<DecisionContainer> dummyLink(*decisions, decisions->size()-1, eventContext);
     newd->setObjectLink(featureString(), dummyLink);
-    
-    ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
-    ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, previous decision to new decision " << counter
-                  << " for view " << (*viewEL)->name());
+    newd->setObjectLink(roiString(), roiEL);
+
+    ATH_MSG_DEBUG("RoI eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
+    ATH_MSG_DEBUG("Added RoI, previous decision and dummy feature to new decision " << counter);
     ++counter;
   }
 

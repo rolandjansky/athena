@@ -309,6 +309,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_tau25_idperf_tracktwo_L1TAU12IM"] = "L1_TAU12IM";
       dummyChains["HLT_tau25_idperf_tracktwoEF_L1TAU12IM"] = "L1_TAU12IM";
       dummyChains["HLT_tau25_idperf_tracktwoMVA_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_costmonitor_CostMonDS_L1TE5"] = "L1_TE5";
 
       m_HLTFrame.setMergedHLT( m_setMergedHLT );
       for (const auto& mapPair : dummyChains) {
