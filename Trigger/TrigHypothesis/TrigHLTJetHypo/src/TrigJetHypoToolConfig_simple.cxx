@@ -22,6 +22,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "./groupsMatcherFactoryMT.h"
+#include "./svec2dvec.h"
 
 #include "DecisionHandling/TrigCompositeUtils.h"
 
@@ -51,10 +52,13 @@ StatusCode TrigJetHypoToolConfig_simple::initialize() {
 std::optional<ConditionsMT>
 TrigJetHypoToolConfig_simple::getConditions() const {
 
+  auto etaMins = svec2dvec(m_etaMins);
+  auto etaMaxs = svec2dvec(m_etaMaxs);
+  auto EtThresholds = svec2dvec(m_EtThresholds);
   return
-    std::make_optional<ConditionsMT>(conditionsFactoryEtaEtMT(m_etaMins,
-							      m_etaMaxs,
-							      m_EtThresholds,
+    std::make_optional<ConditionsMT>(conditionsFactoryEtaEtMT(etaMins,
+							      etaMaxs,
+							      EtThresholds,
 							      m_asymmetricEtas));
 }
 

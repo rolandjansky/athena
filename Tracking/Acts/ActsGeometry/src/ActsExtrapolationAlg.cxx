@@ -103,7 +103,7 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext& ctx) const
 
   Acts::BoundVector pars;
   pars << d0, z0, phi, theta, qop, t;
-  std::unique_ptr<Acts::BoundSymMatrix> cov = nullptr;
+  std::optional<Acts::BoundSymMatrix> cov = std::nullopt;
 
   std::vector<Acts::detail::Step> steps;
 

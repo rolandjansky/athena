@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
         Event/xAOD/xAODEventInfo
         Event/EventInfo
         Tools/LWHists
+        Trigger/TrigAnalysis/TrigDecisionTool
         Trigger/TrigAnalysis/TrigAnalysisInterfaces
 )
 
@@ -48,6 +49,7 @@ atlas_add_library(
         GaudiKernel
         LumiBlockCompsLib
         LumiBlockData
+        TrigDecisionToolLib
     PRIVATE_LINK_LIBRARIES
         ${CORAL_LIBRARIES}
         AthenaKernel
@@ -67,6 +69,7 @@ atlas_add_component(
         LumiBlockData
         LWHists
         SGAudCore
+        TrigDecisionToolLib
 )
 
 # Install files from the package:

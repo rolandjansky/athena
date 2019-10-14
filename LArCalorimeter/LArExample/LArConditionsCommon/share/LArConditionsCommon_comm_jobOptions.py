@@ -281,3 +281,13 @@ if larCondFlags.LoadElecCalib():
    else:
       print "In SuperCell case... so far will not initialise folders."   
   pass
+
+
+#special case for overlay jobs: We need LArfSampl 
+if DetFlags.overlay.LAr_on() and larCondFlags.LArfSamplTag()!="":
+   print "Tag=%s" % larCondFlags.LArfSamplTag()
+   conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl",larCondFlags.LArfSamplTag(),force=True,forceMC=True,className="LArfSamplMC")
+   from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg
+   from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
+   LArMCSymCondAlgDefault()
+   condSeq+= LArfSamplSymAlg(ReadKey="LArfSampl",WriteKey="LArfSamplSym")

@@ -5,9 +5,11 @@
 #ifndef AthenaMonitoringKernel_MonitoredScalar_h
 #define AthenaMonitoringKernel_MonitoredScalar_h
 
+
 #include <vector>
 
 #include "AthenaMonitoringKernel/IMonitoredVariable.h"
+
 
 namespace Monitored {
 
@@ -28,7 +30,7 @@ namespace Monitored {
    */
   template <class T> class Scalar : public IMonitoredVariable {
   public:
-    static_assert(std::is_convertible<T, double>::value, "Value must be convertable to double");
+    static_assert(std::is_convertible<T, double>::value or std::is_constructible<std::string, T>::value, "Conversion of scalar template type to double or string is impossible");
 
     Scalar(std::string name, const T& defaultValue = {}) :
         IMonitoredVariable(std::move(name)),
@@ -59,14 +61,48 @@ namespace Monitored {
     T operator--() { return --m_value; }
     T operator--(int) { return m_value--; }
 
-    const std::vector<double> getVectorRepresentation() const override { 
-      return { m_valueTransform ? m_valueTransform(m_value) : static_cast<double>(m_value) };
+    const std::vector<double> getVectorRepresentation() const override {
+      return { convertToDouble( m_value, m_valueTransform ) };
+    }
+
+    std::vector<std::string> getStringVectorRepresentation() const override{
+      return { convertToString( m_value ) };
+    }
+
+    virtual bool hasStringRepresentation() const override {
+      return std::is_constructible<std::string, T>::value;
     }
 
   private:
     T m_value;
     std::function<double(const T&)> m_valueTransform;
+
+    template< typename U, typename = typename std::enable_if< std::is_constructible<std::string, U>::value >::type >
+    std::string convertToString( const U& value ) const {
+      return  std::string{value};
+    }
+
+    template< typename U, typename = typename std::enable_if< ! std::is_constructible<std::string, U>::value >::type, typename = void >
+    std::string convertToString( const U& ) const {
+      return "";
+    }
+
+    template< typename U, typename F,  typename = typename std::enable_if< !std::is_convertible<double, U>::value >::type >
+    double convertToDouble( const U&, F  ) const {
+      return 0;
+    }
+
+    template< typename U, typename F, typename = typename std::enable_if< std::is_convertible<double, U>::value >::type, typename = void >
+    double convertToDouble(const U& value, F f ) const {
+      return f ? f(value) : static_cast<double>(value);
+    }
+
+
   };
+
+
+
+
 
 } // namespace Monitored
 

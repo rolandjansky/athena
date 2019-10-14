@@ -53,15 +53,6 @@ TNamed* HistogramFactory::create(const HistogramDef& def) {
                              "TEfficiency.");
   }
 
-  TH1* histo = dynamic_cast<TH1*>(rootObj);
-
-  if (histo) {
-    histo->GetYaxis()->SetTitleOffset(1.25); // magic shift to make histograms readable even if no post-procesing is done
-
-    setLabels(histo, def.labels);
-    setOpts(histo, def.opt);
-  }
-
   return rootObj;
 }
 
@@ -164,7 +155,11 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
 
   }
-  
+  h->GetYaxis()->SetTitleOffset(1.25); // magic shift to make histograms readable even if no post-procesing is done
+
+  setLabels(h, def.labels);
+  setOpts(h, def.opt);
+
   return h;
 }
 

@@ -33,6 +33,10 @@
 #include "AthLinks/ElementLink.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+
 
 // Google Test and Google Mock
 #if __GNUC__ >= 9

@@ -189,8 +189,12 @@ def setupMenu():
         #ChainProp(name='HLT_e8_etcut1step_j85_L1EM3_J20', l1SeedThresholds=['EM3', 'J20'], stream=[PhysicsStream], groups=MultiElectronGroup),  
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
-    TriggerFlags.BeamspotSlice.signatures  = []   
-    TriggerFlags.MinBiasSlice.signatures   = []    
+    TriggerFlags.BeamspotSlice.signatures  = [
+        ChainProp(name='HLT_beamspot_allTE_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
+        #ChainProp(name='HLT_beamspot_activeTE_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
+        #ChainProp(name='HLT_beamspot_trkFS_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
+    ]
+    TriggerFlags.MinBiasSlice.signatures   = []
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
@@ -198,7 +202,9 @@ def setupMenu():
         ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
-    TriggerFlags.MonitorSlice.signatures   = []
+    TriggerFlags.MonitorSlice.signatures   = [
+        ChainProp(name='HLT_costmonitor_CostMonDS_L1TE5',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
+    ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]

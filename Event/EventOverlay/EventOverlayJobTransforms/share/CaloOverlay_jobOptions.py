@@ -29,28 +29,42 @@ if DetFlags.overlay.LAr_on():
     if overlayFlags.isDataOverlay():
        from LArROD.LArRODFlags import larRODFlags
        larRODFlags.keepDSPRaw = False
-
-       theApp.Dlls += [ "LArByteStream"]
-       LArDigitKey = "FREE"
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/"+LArDigitKey]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames+=["LArDigitContainer/LArDigitContainer_MC"]
+       from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
+       try:
+          #inhibit the reading of LArawChanels, they are created offline from the overlaid LArDigits:
+          job.LArRawDataReadingAlg.LArRawChannelKey="" 
+          #Configure the reading of the background digits from ByteStream
+          job.LArRawDataReadingAlg.LArDigitKey=overlayFlags.dataStore()+"+FREE"
+       except AttributeError:
+          #in case the LArRawDataReadingAlg was not set up by someone:
+          job+=LArRawDataReadingAlg(LArRawChannelKey="",
+                                    LArDigitKey=overlayFlags.dataStore()+"+FREE")
+          pass
 
     from LArDigitization.LArDigitGetter import LArDigitGetter
     theLArDigitGetter = LArDigitGetter()
 
+
     if overlayFlags.isDataOverlay():
-        from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
-        LArRawChannelBuilderDefault()
+       from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
+       LArRawChannelBuilderDefault()
     else:
         job += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
 
     from LArROD.LArDigits import DefaultLArDigitThinner
     LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
 
+    #Adjust StoreGate keys in case of data-overlay:
     if overlayFlags.isDataOverlay():
-        job.LArDigitThinner.InputContainerName = overlayFlags.dataStore()+"+FREE"
-        job.LArRawChannelBuilderAlg.LArDigitKey = "LArDigitContainer_MC"
+       #Digits read from ByteStream:
+       job.digitmaker1.LArPileUpTool.RandomDigitContainer="FREE"
+
+       #Output of the LArPileUpTool (set up by LArDigitGetter) is "LArDigitContainer_MC"
+       #That's the input to the digit thinner and the LArRawChannelBuilder
+       job.LArDigitThinner.InputContainerName = "LArDigitContainer_MC"
+       job.LArRawChannelBuilderAlg.LArDigitKey = "LArDigitContainer_MC"
+
+
 
 #----------------------------------------------------------------
 if DetFlags.overlay.Tile_on():

@@ -18,6 +18,7 @@ class TTree;
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 #include <boost/regex.hpp>
 
@@ -112,7 +113,7 @@ private:
   std::unordered_map<std::string, THistID> m_hists;
 
   /// Does the histogram follow the naming rules ?
-  bool isObjectAllowed(const std::string& path, const TObject *o);
+  bool isObjectAllowed(const std::string& path, const TObject *o) const;
 
   /// Get TList of registered histograms
   StatusCode getTHists_i(const std::string& name, TList &) const;
@@ -143,6 +144,9 @@ private:
   boost::regex m_includeTypeRegex;
   boost::regex m_excludeNameRegex;
   boost::regex m_includeNameRegex;
+
+  // Mutexes
+  mutable std::recursive_mutex m_svcMut;  ///< Protect access to histogram list
 };
 
 #endif // TRIGMONTHISTSVC_THISTSVC_H

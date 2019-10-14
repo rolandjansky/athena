@@ -14,13 +14,14 @@ from AthenaCommon.AlgSequence import AthSequencer
 viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
 topSequence += viewSeq
 
-  
+roiCollectionName =  "EMRoIs"  
+
 # View maker alg
 from AthenaCommon import CfgMgr
 viewNodeName = "allViewAlgorithms"
 viewMaker = CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
 viewMaker.ViewBaseName = "testView"
-viewMaker.InputRoICollection = "EMRoIs"
+viewMaker.InputRoICollection = roiCollectionName
 viewMaker.ViewNodeName = viewNodeName
 viewMaker.OutputRoICollection = "EMViewRoIs"
 viewMaker.ViewFallThrough = True
@@ -42,9 +43,30 @@ if TriggerFlags.doID:
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg
 
+
+
+  for viewAlg in viewAlgs:
+        if "RoIs" in viewAlg.properties():
+            viewAlg.RoIs = roiCollectionName
+        if "roiCollectionName" in viewAlg.properties():
+            viewAlg.roiCollectionName = roiCollectionName
+
+
+   #Adding vertexing
+  #from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices 
+  from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+  #from TrigInDetConfig.TrigInDetPriVtxConfig
+  #from TrigUpgradeTest.TrigInDetPriVtxConfig import makeVertices
+#TrigInDetConfig/TrigInDetPriVtxConfig
+
+  #TODO need to change the name of the output vertex collection to something recordable
+  vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", "HLT_xPrimVx"  )
+  allViewAlgorithms += vtxAlgs
+
+
    #Adding precision tracking
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks" )
+  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
 
   allViewAlgorithms += PTAlgs
 
@@ -64,7 +86,7 @@ if TriggerFlags.doID:
 
   from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpotTool
   InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool( name = "TestBeamSpotTool",
-                                                        OutputLevel = DEBUG,
+                                                        OutputLevel = INFO,
                                                         MonTool = toolMon,
                                                         nSplitVertices      = 1,        # Turn on (>1) or off vertex splitting
                                                         ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
@@ -105,9 +127,10 @@ if TriggerFlags.doID:
 #Testing base default class
   from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
   InDetTrigMTBeamSpotAlg = PESA__T2VertexBeamSpot( name = "TestBeamSpotAlg",
-                                                   OutputLevel =DEBUG,
+                                                   OutputLevel =INFO,
                                                    MonTool = alg,
                                                    vertexCollName      = "TrigBeamSpotVertex", # Output vertex collection Name
+                                                   TrackCollections  = [ PTTracks[-1] ],   #For now using PT tracks as a test but FTF should be enough
                                                    BeamSpotTool = InDetTrigMTBeamSpotTool )   
 
 

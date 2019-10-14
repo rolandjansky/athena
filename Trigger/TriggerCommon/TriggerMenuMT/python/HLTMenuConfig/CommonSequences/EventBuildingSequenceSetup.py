@@ -52,16 +52,16 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'RPCPEBSecondaryReadout' in eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.ROBList = [0x610080, 0x620080]
+    elif eventBuildType in EventBuildingInfo.getAllDataScoutingIdentifiers():
+        # Pure DataScouting configuration
+        tool = StaticPEBInfoWriterToolCfg(name)
+        moduleId = EventBuildingInfo.getDataScoutingResultID(eventBuildType)
+        tool.addHLTResultToROBList(moduleId)
 
     # Name not matched
     if not tool:
         log.error('PEBInfoWriterTool configuration is missing for event building identifier \'%s\'', eventBuildType)
         return None
-
-    # Add Data Scouting HLT result ROB
-    if eventBuildType in EventBuildingInfo.getAllDataScoutingResultIDs():
-        moduleId = EventBuildingInfo.getAllDataScoutingResultIDs()[eventBuildType]
-        tool.addHLTResultToROBList(moduleId)
 
     return tool
 

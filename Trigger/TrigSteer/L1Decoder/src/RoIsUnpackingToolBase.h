@@ -36,7 +36,7 @@ public:
   virtual StatusCode initialize() override;
 
   
-  virtual StatusCode updateConfiguration( const IRoIsUnpackingTool::SeedingMap& /*seeding*/ ) override { return StatusCode::SUCCESS; }
+  virtual StatusCode updateConfiguration( ) override { return StatusCode::SUCCESS; }
   
   virtual StatusCode unpack(const EventContext& /*ctx*/,
                             const ROIB::RoIBResult& /*roib*/,
@@ -49,10 +49,6 @@ protected:
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
     this, "Decisions", "RoIDecisions", "Decisions for each RoI"};
 
-  Gaudi::Property<std::vector<std::string>> m_thresholdToChainProperty{
-    this, "ThresholdToChainMapping", {}, "Mapping from the threshold name to chain in the form: "
-                                         "'EM3 : HLT_e5', 'EM3 : HLT_e5tight', ..., ( note spaces ), if absent, the L1 item -> HLT chain seeding relation is used to find the threshold"};
-
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
       "HLT Menu"};
 
@@ -61,10 +57,9 @@ protected:
 
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
   /**
-   * decodes mapping from L1 item -> to HLT chain  to find out which threshold seeds which chain
-   * Threshold have to pass the selection of the filter (i.e. the filter should return true for the threshold to seed a chain)
+   * Fills mapping from L1 threshold -> to HLT chain
+   * @arg filter is a function that, using the threshold name defines if this decoder instance should take care of this threshold
    **/
-  StatusCode decodeMapping( std::function< bool(const TrigConf::TriggerThreshold*)> filter, const TrigConf::ItemContainer& l1Items, const IRoIsUnpackingTool::SeedingMap& seeding );
 
   StatusCode decodeMapping( std::function< bool(const std::string&)> filter ) ;
 

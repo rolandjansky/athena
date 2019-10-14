@@ -92,9 +92,6 @@ def process():
 
     writeEmulationFiles(data)
 
-    # this is a temporary hack to include new test chains
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getOverallL1item
-    EnabledChainNamesToCTP = dict([ (c.name,  getOverallL1item(c.name))  for c in HLTChains])
 
     ########################## L1 #################################################
 
@@ -102,18 +99,14 @@ def process():
 
     l1Decoder = L1Decoder( RoIBResult="" )
     l1Decoder.prescaler.EventInfo=""
-    l1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM", ThresholdPrefix="EM" )
     from TrigUpgradeTest.EmuStepProcessingConfig import thresholdToChains
-    emUnpacker.ThresholdToChainMapping = thresholdToChains( HLTChains )
     emUnpacker.Decisions="L1EM"
-    log.debug("EMRoIsUnpackingTool enables chians:")
-    log.debug(emUnpacker.ThresholdToChainMapping)
 
   
     l1Decoder.roiUnpackers = [emUnpacker]
@@ -137,19 +130,12 @@ def process():
     
     theApp.EvtMax = nevents
 
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.outputHLTconfigFile = TriggerFlags.outputHLTconfigFile().replace('config', 'menu')
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
     generateJSON()
 
-    # once MR unifying this setup in replce by an import from config svc
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, HLTConfigSvc, findFileInXMLPATH
-    svcMgr += HLTConfigSvc()
-    hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
-    hltJsonFile = findFileInXMLPATH(hltJsonFile)
-    svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile
-    log.info("Configured HLTConfigSvc with InputType='file' and JsonFileName=%s" % hltJsonFile)
+    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+    from AthenaCommon.AppMgr import ServiceMgr
+    ServiceMgr += getHLTConfigSvc()
 
 
 process()

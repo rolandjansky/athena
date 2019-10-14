@@ -1,67 +1,68 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """Utility to test whether a string is a legal jet chain label"""
+from __future__ import print_function
 
 
 from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
+from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
 
-def compile(label, expand=False, dump=False):
+def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
+    print ('compile:',  label)
+
     parser = ChainLabelParser(label, debug=False)
     tree = parser.parse()
 
+    tree.set_ids(node_id=0, parent_id=0)
+    
+    
     if expand:
         visitor = TreeParameterExpander()
         tree.accept(visitor)
-        print visitor.report()
-        
-    if dump:
-        print tree.dump()
 
-def compile_(label, expand=True, dump=True):
-    compile(label, expand, dump)
+    print ('compile: tree.scenario', tree.scenario)
+    if setter is not None:
+        tree.accept(setter)
+        
+    if do_print:
+        print ('\nnode dumping top node only:\n')
+        print (tree)
+
+    if do_dump:
+        print ('\nnode dump tree:\n')
+        print (tree.dump())
+        
+    return tree
+
+def compile_(label, setter=None, expand=True, do_dump=False, do_print=False):
+    compile(label, setter, expand, do_dump)
+
             
 if __name__ == '__main__':
 
-    label = 'simple([(80et)(81et)(82et)(83et)(maxshare)])'
-        
-    label = """
-    agree([]
-    simple([(80et)(81et)(82et)(83et)])
 
-    partgen(
-    []
-    simple([(80et)(81et)])
-    simple([(80et)(81et)]))
-    )"""
+    import sys
     
-    label = """
-    combgen(
-    [(2)(20et, 0eta320)]
+    from TrigHLTJetHypo.test_cases import test_strings
+    c = sys.argv[1]
+    index = -1
+    try:
+        index = int(c)
+    except Exception:
+        print('expected int in [1,%d] ]on comand line, got %s' % (
+            len(test_strings), c))
+        sys.exit()
+
+    if(index < 0 or index > len(test_strings) - 1):
+        print('index %d not in range [0, %d]' % (index, len(test_strings) -1))
+        sys.exit()
+                                                 
+            
+    print('index', index)
+    label = test_strings[index]
+
+    setter = ConditionsToolSetterTree('toolSetter')
     
-    simple([(40et, 0eta320) (50et, 0eta320)])
-    simple([(35et, 0eta240) (55et, 0et240)])
-    )"""
+    tree = compile(label, setter=setter,  expand=True, do_dump=True)
 
-
-    label = """
-        and
-    (
-      []
-      simple
-      (
-        [(30et)(30et)]
-      )
-      combgen
-      (
-        [(2)(10et)]
-        dijet
-        (
-          [(34mass, 26dphi)]
-        ) 
-        simple
-        (
-          [(10et)(20et)]
-        )
-      )
-    )"""
-    compile_(label)
+ 

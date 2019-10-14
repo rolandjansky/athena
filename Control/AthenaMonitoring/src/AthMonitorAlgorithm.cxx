@@ -3,7 +3,6 @@
 */
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "StoreGate/ReadCondHandle.h"
 
 AthMonitorAlgorithm::AthMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthReentrantAlgorithm(name,pSvcLocator)
@@ -103,7 +102,6 @@ SG::ReadHandle<xAOD::EventInfo> AthMonitorAlgorithm::GetEventInfo( const EventCo
 }
 
 
-
 AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const std::string& str ) const {
     // convert the string to all lowercase
     std::string lowerCaseStr = str;
@@ -130,7 +128,6 @@ AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const s
         return Environment_t::user;
     }
 }
-
 
 
 AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const std::string& str ) const {
@@ -174,6 +171,11 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
     }
     // return the tool handle
     return toolHandle;
+}
+
+
+const ToolHandle<Trig::TrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() const {
+    return m_trigDecTool;
 }
 
 

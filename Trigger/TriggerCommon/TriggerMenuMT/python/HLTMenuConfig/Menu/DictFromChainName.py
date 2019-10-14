@@ -77,8 +77,8 @@ def getEBPartFromParts( chainName, chainParts ):
     Checks if there is only one identifier
     """
     # ---- event building identifier ----
-    from EventBuildingInfo import AllowedEventBuildingIdentifiers
-    eventBuildTypes = set( AllowedEventBuildingIdentifiers ).intersection( chainParts )
+    from EventBuildingInfo import getAllEventBuildingIdentifiers
+    eventBuildTypes = set( getAllEventBuildingIdentifiers() ).intersection( chainParts )
     assert len(eventBuildTypes) <= 1, 'Chain {} has more than one Event Building identifier: {}, that is not supported'.format( chainName, eventBuildTypes)
     if eventBuildTypes:
         return eventBuildTypes.pop()
@@ -235,7 +235,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                                   (['hi'], 'HeavyIon', 'mb'),
                                   (AllowedCosmicChainIdentifiers, 'Cosmic', 'cosmic'),
                                   (AllowedCalibChainIdentifiers, 'Calibration', 'calib'),
-                                  (AllowedMonitorChainIdentifiers, 'Monitoring', 'calib'),
+                                  (AllowedMonitorChainIdentifiers, 'Monitor', 'calib'),
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb') ]:
                 if cpart in chainCatrgory[0]:
@@ -323,7 +323,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 & (chainProperties['signature'] != 'Calibration')\
                 & (chainProperties['signature'] != 'Streaming') \
                 & (chainProperties['signature'] != 'Beamspot') \
-                & (chainProperties['signature'] != 'Monitoring') :
+                & (chainProperties['signature'] != 'Monitor') :
             parts.pop(0)
 
 

@@ -12,6 +12,9 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.DetFlags import DetFlags
 from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 theFTF_name = "FTFTracks_Muons"
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
@@ -364,7 +367,7 @@ def muonIDFastTrackingSequence( RoIs, name ):
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs("Muon")
+  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="Muon", rois = RoIs)
 
   global TrackParticlesName
   global theFTF_name
@@ -372,10 +375,6 @@ def muonIDFastTrackingSequence( RoIs, name ):
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
-      if "RoIs" in viewAlg.properties():
-          viewAlg.RoIs = RoIs
-      if "roiCollectionName" in viewAlg.properties():
-          viewAlg.roiCollectionName = RoIs
       if "InDetTrigTrackParticleCreatorAlg" in  viewAlg.name():
           TrackParticlesName = viewAlg.TrackParticlesName
       if "TrigFastTrackFinder" in  viewAlg.name():
@@ -618,15 +617,11 @@ def muEFCBRecoSequence( RoIs, name ):
   if "FS" in name:
     #Need to run tracking for full scan chains
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS") 
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
 
      #TrackParticlesName = ""
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
-      if "RoIs" in viewAlg.properties():
-        viewAlg.RoIs = RoIs
-      if "roiCollectionName" in viewAlg.properties():
-        viewAlg.roiCollectionName = RoIs
       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName
@@ -899,7 +894,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
   insideOutRecoTool = getPublicToolClone("TrigMuonInsideOutRecoTool", "MuonInsideOutRecoTool",MuonTrackBuilder=theTrackBuilderTool,MuonCandidateTrackBuilderTool=theMuonCandidateTrackBuilderTool)
   if 'Late' in name:
     insideOutRecoTool = getPublicToolClone("TrigMuonStauRecoTool", "MuonStauRecoTool",MuonInsideOutRecoTool="TMEF_MuonStauInsideOutRecoTool")
-  theInsideOutRecoAlg = CfgMgr.MuonCombinedInDetExtensionAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name,MuonCombinedInDetExtensionTools=[insideOutRecoTool],usePRDs=True)
+  theInsideOutRecoAlg = CfgMgr.MuonCombinedInDetExtensionAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name,MuonCombinedInDetExtensionTools=[insideOutRecoTool],usePRDs=True,HasCSC=MuonGeometryFlags.hasCSC(),HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
   if 'Late' in name:
     theInsideOutRecoAlg.TagMap = "stauTagMap"
 
@@ -948,15 +943,11 @@ def efmuisoRecoSequence( RoIs, Muons ):
   efmuisoRecoSequence = parOR("efmuIsoViewNode")
 
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs("MuonIso")
+  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
 
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
     efmuisoRecoSequence += viewAlg
-    if "RoIs" in viewAlg.properties():
-      viewAlg.RoIs = RoIs
-    if "roiCollectionName" in viewAlg.properties():
-      viewAlg.roiCollectionName = RoIs
     if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName

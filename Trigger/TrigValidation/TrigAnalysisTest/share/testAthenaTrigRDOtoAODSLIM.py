@@ -66,3 +66,8 @@ include("RecExCommon/RecExCommon_topOptions.py")
 StatusCodeSvc.AbortOnError=False
 
 include("TriggerTest/TriggerTestCommon.py")
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

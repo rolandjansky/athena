@@ -45,6 +45,8 @@ class opt:
     doCombinedSlice   = True
     doBphysicsSlice   = True
     doStreamingSlice  = True
+    doMonitorSlice    = True
+    doBeamspotSlice   = True
     reverseViews      = False
     enabledSignatures = []
     disabledSignatures = []
@@ -393,7 +395,6 @@ if opt.doL1Unpacking:
         from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
         topSequence += L1Decoder("L1Decoder")
-        #topSequence.L1Decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
     elif opt.doL1Sim:
         from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += L1Decoder("L1Decoder")
@@ -465,3 +466,8 @@ if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
     #
     ServiceMgr.AuditorSvc += TrigCostMTAuditor()
     theApp.AuditAlgorithms=True
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

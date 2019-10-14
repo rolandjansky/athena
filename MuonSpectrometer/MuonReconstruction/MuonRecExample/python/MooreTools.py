@@ -419,7 +419,7 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
     # add in missing C++ dependency. TODO: fix in C++
     getPublicTool("ResidualPullCalculator")
 
-    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+    if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
         kwargs.setdefault("sTgcPrepDataContainer","")
         kwargs.setdefault("MMPrepDataContainer","")
 

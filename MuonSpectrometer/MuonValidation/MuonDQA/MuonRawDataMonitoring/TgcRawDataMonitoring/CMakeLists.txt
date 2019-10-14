@@ -24,19 +24,22 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Reconstruction/MuonIdentification/muonEvent
-                          Trigger/TrigEvent/TrigSteeringEvent )
+                          Trigger/TrigEvent/TrigSteeringEvent
+			  Trigger/TrigAnalysis/TrigDecisionTool )
+
 
 # External dependencies:
-find_package( ROOT COMPONENTS Graf Hist Core Tree MathCore RIO pthread Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
-# Component(s) in the package:
 atlas_add_component( TgcRawDataMonitoring
-                     src/*.cxx
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonDigitContainer MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaMonitoringLib
+                     StoreGateLib SGtests MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonDigitContainer MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent TrigDecisionToolLib )
+
 
 # Install files from the package:
 atlas_install_headers( TgcRawDataMonitoring )
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

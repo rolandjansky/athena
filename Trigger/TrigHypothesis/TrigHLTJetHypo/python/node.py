@@ -1,6 +1,51 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+"""
+Node - represents a tree structure. scenario and parameters which are strings 
+filled in while parsing a jet hyp[o label. A visitor is used to convert 
+parameters to entites used to initialise jet hypo config alg tools. 
+These processed quatnities are stored in the conf_attr dictionary.
+The tree will be retraversed by a setter visitor which willuse the condig_Attrs
+to instantiate a condiguration AlgTool, which, by convention, will have a
+name TrigJetHypoToolConfig_XXX.
+"""
+
+from __future__ import print_function
 
 from constants import logicals
+import copy
+
+def rotate_(node):
+    """define rotable nodes. replace each rotatable node in a tree
+    by a vertical (by generation) linear sequence of nodes.
+    """
+    
+    to_rotate = ('and', 'combgen')
+
+    while node.scenario in to_rotate:
+        newnodes = copy.deepcopy(node.children)
+        newnode0 = newnodes[0]
+        curnode = newnodes[0]
+        for n in newnodes[1:]:
+            curnode.children.append(n)
+            curnode = n
+        node = newnode0
+
+
+    node.children = [rotate_(cn) for cn in node.children]
+
+    return node
+
+def rotate(node):
+
+    
+    node_id = node.node_id
+    parent_id = node.parent_id
+
+    node = rotate_(node)
+    node.set_ids(node_id, parent_id)
+
+    return node
+
     
 class Node(object):
     
@@ -12,7 +57,7 @@ class Node(object):
         self.scenario = scenario
         self.parameters = ''
         self.children = []
-        self.conf_attrs = {}
+        self.conf_attrs = []  # list of dictionaries
         self.tool = None
 
         # self.tree_top kludge carensure top level tools get chain name
@@ -34,7 +79,7 @@ class Node(object):
         self.children.append(c)
         
     def accept(self, modifier):
-        "call self before children"
+        "call children before self"
 
         for c in self.children:
             c.accept(modifier)
@@ -61,20 +106,37 @@ class Node(object):
 
         else:
             treeVisitor.add(self.tool.name() + ' ')
-        
-    def dump(self, n_in=0):
-        indent = ' '*n_in
-        s = '\n'
-        s +=  indent + 'Node. scenario: %s \n' % self.scenario
-        s +=  indent + 'node id: %s \n' % self.node_id
-        s +=  indent + 'parent node id: %s \n' % self.parent_id
-        s +=  indent + 'is tree top? %s \n' % self.tree_top
-        s += indent + 'parameters: %s\n' % str(self.parameters)
-        s += indent + 'conf_attrs: %s\n' % str(self.conf_attrs)
-        s += indent + 'AlgTool: %s\n' % str(self.tool)
-        s += indent + 'No of children: %d\n\n' % len(self.children)
-        for c in self.children:
-            s += c.dump(n_in+5)
+
+    def str_list(self, indent):
+        s = [indent + 'Node. scenario: %s' % self.scenario,
+             indent + 'node id: %s' % self.node_id,
+             indent + 'parent node id: %s' % self.parent_id,
+             indent + 'is tree top? %s' % self.tree_top,
+             indent + 'parameters: %s' % str(self.parameters),
+             indent + 'conf_attrs [%d]:' % len(self.conf_attrs)]
+        for ca in self.conf_attrs:
+            s.append(indent + str(ca))
+        s.append(indent + 'AlgTool: %s' % str(self.tool))
+        s.append(indent + 'No of children: %d\n' % len(self.children))
 
         return s
         
+    def dump_(self, n_in):
+
+        indent = n_in * ' '
+        s = self.str_list(indent)
+
+        for c in self.children:
+            s.extend(c.dump_(n_in+5))
+            
+        return s
+
+    def dump(self):
+
+        return '\n'.join(self.dump_(0))
+
+
+    def __str__(self):
+
+        return '\n'.join(self.str_list(''))
+

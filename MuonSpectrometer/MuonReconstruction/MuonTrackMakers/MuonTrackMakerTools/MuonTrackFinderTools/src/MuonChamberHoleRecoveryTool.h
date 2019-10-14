@@ -132,7 +132,7 @@ namespace Muon {
     std::vector<const Trk::TrackStateOnSurface*>::const_iterator 
       insertMdtsWithHoleSearch( std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
 				std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
-				std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& newStates ) const;
+				std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& newStates, std::set<MuonStationIndex::ChIndex> chamberLayersOnTrack ) const;
 
 
     // ----- create holes functions per technology ------ //
@@ -210,8 +210,6 @@ namespace Muon {
     double m_associationPullCutEta;
     double m_associationPullCutPhi;
     bool m_detectBadSort;
-    mutable std::set<MuonStationIndex::ChIndex> m_chamberLayersOnTrack;
-    mutable bool m_checkForBadSort;
 
     double m_adcCut;
   };

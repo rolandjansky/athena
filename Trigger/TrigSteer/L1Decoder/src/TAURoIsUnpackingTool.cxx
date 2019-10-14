@@ -49,7 +49,7 @@ StatusCode TAURoIsUnpackingTool::start() {
 }
 
 
-StatusCode TAURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
+StatusCode TAURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
 
   m_tauThresholds.clear();

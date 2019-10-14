@@ -72,8 +72,7 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
   m_trackToVertexTool("Reco::TrackToVertex"),
   m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool"), // added by SARA
   m_histogramsCreated(false),
-  m_switch_off(false),
-  m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
+  m_switch_off(false)
 {
 
   declareProperty("JetContainer",           m_jetName           = "AntiKt4EMTopoJets");
