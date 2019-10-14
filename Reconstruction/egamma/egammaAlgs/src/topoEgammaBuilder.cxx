@@ -43,14 +43,10 @@ StatusCode topoEgammaBuilder::initialize()
     ATH_MSG_DEBUG("Initializing topoEgammaBuilder");
 
     // the data handle keys
-    //if ( m_doElectrons ){
-	ATH_CHECK(m_electronOutputKey.initialize());
-	ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize());
-    //}
-    //if ( m_doPhotons ){
-	ATH_CHECK(m_photonOutputKey.initialize());
-	ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize());
-    //}
+    ATH_CHECK(m_electronOutputKey.initialize());
+    ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize());
+    ATH_CHECK(m_photonOutputKey.initialize());
+    ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize());
 
     //
     //////////////////////////////////////////////////
@@ -94,16 +90,12 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
 
     // the output handles
     SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey, ctx);
-    //if (m_doElectrons){
-	ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
-		    std::make_unique<xAOD::ElectronAuxContainer>()));
-    //}
-    
+    ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
+                std::make_unique<xAOD::ElectronAuxContainer>()));
+
     SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey, ctx);
-    //if (m_doPhotons){
-	ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
-		    std::make_unique<xAOD::PhotonAuxContainer>()));
-    //}
+    ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
+                std::make_unique<xAOD::PhotonAuxContainer>()));
 
     //get the final electron and photon SuperClusters
     SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronSuperClusterRecContainerKey, ctx);
@@ -138,24 +130,18 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     //Build xAOD::Electron objects
     if (m_doElectrons){
 	for (const auto& electronRec : *electronSuperRecs) {
-
 	    unsigned int author = xAOD::EgammaParameters::AuthorElectron;
 	    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
-
 	    // get the hottest cell
 	    const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
 	    const auto elEta0 = elClus->eta0();
 	    const auto elPhi0 = elClus->phi0();
-
 	    if (m_doPhotons){
-
 		for (const auto& photonRec : *photonSuperRecs) {
-
 		    const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
 		    //See if they have the same hottest cell
 		    if (elEta0 == phClus->eta0() && elPhi0 == phClus->phi0()) {
 			ATH_MSG_DEBUG("Running AmbiguityTool for electron");
-
 			author = m_ambiguityTool->ambiguityResolve(elClus,
 				photonRec->vertex(),
 				electronRec->trackParticle(),
@@ -181,21 +167,17 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
 	for (const auto& photonRec : *photonSuperRecs) {
 	    unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
 	    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
-
 	    // get the hottest cell
 	    const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
 	    const auto phEta0 = phClus->eta0();
 	    const auto phPhi0 = phClus->phi0();
-
 	    //See if the same seed (0 element in the constituents) seed also an electron
 	    if (m_doElectrons){
 		for (const auto& electronRec : *electronSuperRecs) {
-
 		    const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
 		    //See if they have the same hottest cell
 		    if (phEta0 == elClus->eta0() && phPhi0 == elClus->phi0()) {
 			ATH_MSG_DEBUG("Running AmbiguityTool for photon");
-
 			author = m_ambiguityTool->ambiguityResolve(elClus,
 				photonRec->vertex(),
 				electronRec->trackParticle(),
@@ -222,7 +204,6 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
-    
     ATH_MSG_DEBUG("Calling egammaTools: " );
     for (auto& tool : m_egammaTools){
 	ATH_MSG_DEBUG("Calling tool " << tool );
