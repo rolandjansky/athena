@@ -53,6 +53,7 @@ atlas_add_library( BoostedJetTaggersLib
   BoostedJetTaggers/*.h
   Root/BoostedXbbTagger.cxx
   Root/HbbTaggerDNN.cxx
+  Root/MassDecoXbbTagger.cxx
   Root/HEPTopTagger.cxx
   Root/JetQGTagger.cxx
   Root/JSSTaggerBase.cxx
@@ -119,6 +120,13 @@ if( XAOD_STANDALONE )
    )
    atlas_add_executable( test_HbbTaggerDNN
       util/test_HbbTaggerDNN.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
+   atlas_add_executable( test_MassDecoXbbTagger
+      util/test_MassDecoXbbTagger.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
