@@ -71,9 +71,10 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   
   int nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
   int nBinsY() const;
+  int nRateBinsY() const;
   void callback() const;
   void updatePublished(unsigned int duration) const;
-  StatusCode initHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>& );
+  StatusCode initHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
   StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;
