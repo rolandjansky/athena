@@ -40,6 +40,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
    Event/xAOD/xAODMetaData
+   PhysicsAnalysis/D3PDTools/RootCoreUtils
    Tools/PathResolver
    ${extra_private_deps} )
 
@@ -52,7 +53,7 @@ atlas_add_library( PMGToolsLib
    PUBLIC_HEADERS PMGTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODTruth
-   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
+   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver RootCoreUtils xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PMGTools

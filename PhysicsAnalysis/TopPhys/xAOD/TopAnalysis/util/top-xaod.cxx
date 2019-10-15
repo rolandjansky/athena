@@ -251,6 +251,10 @@ int main(int argc, char** argv) {
     // In rel 20.7, need to go back to class access
     xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
 
+    // Read metadata
+    std::unique_ptr<TFile> metadataInitFile(TFile::Open(filenames[0].c_str()));
+    top::check(xaodEvent.readFrom(metadataInitFile.get()), "xAOD::TEvent readFrom failed");
+
     // Setup all asg::AsgTools
     top::TopToolStore topTools("top::TopToolStore");
     top::check(topTools.setProperty("config", topConfig),
@@ -456,6 +460,10 @@ int main(int argc, char** argv) {
     unsigned int totalYieldSoFar = 0;
     unsigned int skippedEventsSoFar = 0;
     unsigned int eventSavedReco(0),eventSavedRecoLoose(0),eventSavedTruth(0),eventSavedParticle(0),eventSavedUpgrade(0);
+
+    // Close the file that we opened only for metadata
+    metadataInitFile->Close();
+
     for (const auto& filename : filenames) {
         if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun() ) break;
         std::cout << "Opening " << filename << std::endl;
@@ -577,6 +585,13 @@ int main(int argc, char** argv) {
             std::cout << "It will only work on un-skimmed derivations, and it will be impossible to know the name of these weights."<<std::endl;
             recalc_LHE3 = true;
           }
+        }
+
+        if (topConfig->printCDIpathWarning()) {
+          std::cout << "\n*************************************************************************\n";
+          std::cout << "YOU ARE USING A CUSTOM PATH TO THE CDI FILE WHICH IS NOT THE DEFAULT PATH\n";
+          std::cout << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n";
+          std::cout << "*************************************************************************\n\n";
         }
 
         const unsigned int entries = xaodEvent.getEntries();

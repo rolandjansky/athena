@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PMGTOOLS_PMGTRUTHWEIGHTTOOL_H
@@ -17,11 +17,14 @@
 
 namespace PMGTools
 {
+  /// \brief the systematics prefix for generator weights
+  constexpr char generatorSystematicsPrefix[] {"GEN_"};
+
   /// Implementation for the xAOD truth meta data weight tool
   ///
   /// @author James Robinson <james.robinson@cern.ch>
   ///
-  class PMGTruthWeightTool: public virtual IPMGTruthWeightTool, public asg::AsgMetadataTool
+  class PMGTruthWeightTool : public virtual IPMGTruthWeightTool, public asg::AsgMetadataTool
   {
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS(PMGTruthWeightTool, PMGTools::IPMGTruthWeightTool)
@@ -34,7 +37,7 @@ namespace PMGTools
     /// @{
 
     /// Function initialising the tool
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /// @}
 
@@ -42,13 +45,36 @@ namespace PMGTools
     /// @{
 
     /// Implements interface from IPMGTruthWeightTool
-    const std::vector<std::string>& getWeightNames() const;
+    virtual const std::vector<std::string>& getWeightNames() const override;
 
     /// Implements interface from IPMGTruthWeightTool
-    float getWeight(const std::string& weightName) const;
+    virtual float getWeight(const std::string& weightName) const override;
 
     /// Implements interface from IPMGTruthWeightTool
-    bool hasWeight(const std::string& weightName) const;
+    virtual bool hasWeight(const std::string& weightName) const override;
+
+    /// Implements interface from IPMGTruthWeightTool
+    virtual float getSysWeight() const override;
+
+    /// Implements interface from IPMGTruthWeightTool
+    virtual size_t getSysWeightIndex() const override;
+
+    /// @}
+
+    /// @name Function(s) implementing the ISystematicsTool interface
+    /// @{
+
+    /// Implements interface from ISystematicsTool
+    virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const override;
+
+    /// Implements interface from ISystematicsTool
+    virtual CP::SystematicSet affectingSystematics() const override;
+
+    /// Implements interface from ISystematicsTool
+    virtual CP::SystematicSet recommendedSystematics() const override;
+
+    /// Implements interface from ISystematicsTool
+    virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
 
     /// @}
 
@@ -57,46 +83,67 @@ namespace PMGTools
     /// @{
 
     /// Function called when a new input file is opened
-    virtual StatusCode beginInputFile();
+    virtual StatusCode beginInputFile() override;
 
     /// Function called when a new event is loaded
-    virtual StatusCode beginEvent();
+    virtual StatusCode beginEvent() override;
 
     /// @}
 
     /// Loads weight information from xAOD::TruthMetaDataContainer
-    virtual StatusCode loadMetaData();
+    StatusCode loadMetaData();
 
     /// Loads weight information from POOL using HepMCWeightNames
-    virtual StatusCode loadPOOLMetaData();
+    StatusCode loadPOOLMetaData();
 
     /// Validate weight caches
-    virtual StatusCode validateWeightLocationCaches() const;
+    StatusCode validateWeightLocationCaches() const;
 
     /// Clear caches
-    virtual void clearWeightLocationCaches();
+    void clearWeightLocationCaches();
+
+    /// Process the weight name to be used for systematics
+    std::string weightNameToSys(const std::string &name) const;
 
     /// Stores the meta data record name
     std::string m_metaName;
 
     /// Current MC channel number
-    uint32_t m_mcChannelNumber;
+    uint32_t m_mcChannelNumber{};
+
+    /// Systematics set of the weight systematics
+    CP::SystematicSet m_systematicsSet;
 
     /// Ptr to the meta data container for this file
-    const xAOD::TruthMetaDataContainer* m_metaDataContainer;
+    const xAOD::TruthMetaDataContainer* m_metaDataContainer{nullptr};
 
     /// Flag to indicate whether the xAOD::TruthMetaData objects have incorrect McChannelNumber
-    mutable bool m_useChannelZeroInMetaData;
+    mutable bool m_useChannelZeroInMetaData{false};
 
     /// Available weight names for this file
     std::vector<std::string> m_weightNames;
 
     /// Indices of available weights in this file
-    std::unordered_map<std::string, int> m_weightIndices;
+    std::unordered_map<std::string, size_t> m_weightIndices;
+
+    /// Indices of available weights in this file
+    std::unordered_map<std::string, size_t> m_weightIndicesSys;
 
     /// Values of weights in this event
     std::vector<float> m_weights;
 
+    /// Weight data cache helper struct
+    struct WeightData
+    {
+      float weight;
+      std::size_t index;
+    };
+
+    /// Systematics cache of available weights in this file
+    std::unordered_map<CP::SystematicSet, WeightData> m_weightData;
+
+    /// Current systematics weight
+    WeightData *m_currentWeightData {nullptr};
   };
 } // namespace PMGTools
 
