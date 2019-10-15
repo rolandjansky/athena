@@ -197,6 +197,10 @@ namespace InDet {
       
       void checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const;
 
+      /** Private helper method for merging of rings with z-overlap */
+      std::vector<const Trk::Layer*> checkZoverlap(std::vector<const Trk::Layer*>& lays) const; 
+      const Trk::Layer* mergeDiscLayers(std::vector<const Trk::Layer*>& dlays) const;
+
       // helper tools for the geometry building
       ToolHandleArray<Trk::ILayerProvider>           m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
       ToolHandle<Trk::ITrackingVolumeCreator>        m_trackingVolumeCreator;   //!< Helper Tool to create TrackingVolumes
