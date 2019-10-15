@@ -138,8 +138,6 @@ def tauCoreTrackSequence( RoIs, name ):
          viewAlg.roiCollectionName = RoIs
        if "TrackRoiUpdater" in viewAlg.name():
          viewAlg.RoIInputKey = RoIs
-       if "TrigFastTrackFinder" in  viewAlg.name():
-         theFTF_name = viewAlg.getName()
 
     sequenceOut = TrackCollection
 
