@@ -189,22 +189,22 @@ class  ConfiguredNewTrackingSiPattern:
                                                                TracksMaxEta              = 2.5,
                                                                TracksMaxD0               = 9999.,
                                                                MaxDeltaZTracksPair       = 1.0,
-                                                               TrackZ0Window             = 2.0 )
+                                                               TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
             elif InDetFlags.LowPtRoIStrategy() == 2:
                from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__TruthHSRoISeedTool
                ZWindowRoISeedTool = InDet__TruthHSRoISeedTool (name = "InDetZWindowRoISeedTool",
                                                                InputTruthEventsCollection = "TruthEvents",
-                                                               TrackZ0Window             = 2.0 )
+                                                               TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
             elif InDetFlags.LowPtRoIStrategy() == 3:
                from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__FileRoISeedTool
                ZWindowRoISeedTool = InDet__FileRoISeedTool (name = "InDetZWindowRoISeedTool",
                                                                InputFileName = InDetFlags.LowPtRoIFile(),
-                                                               TrackZ0Window             = 2.0 )
+                                                               TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
             ToolSvc += ZWindowRoISeedTool
 
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__RandomRoISeedTool
             RandomRoISeedTool = InDet__RandomRoISeedTool(name = "RandomRoISeedTool",
-                                                         TrackZ0Window             = 2.0 )
+                                                         TrackZ0Window             = InDetFlags.LowPtRoIWindow() )
             ToolSvc += RandomRoISeedTool
 
             #ZWindowRoISeedTool.OutputLevel = VERBOSE
