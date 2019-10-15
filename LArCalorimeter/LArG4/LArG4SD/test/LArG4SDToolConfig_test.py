@@ -44,19 +44,25 @@ if __name__ == '__main__':
   from LArG4SD.LArG4SDToolConfig import LArInactiveSensitiveDetectorToolCfg
   
   acc1 = LArEMBSensitiveDetectorCfg(ConfigFlags)
-  cfg.popToolsAndMerge(acc1)
+  tool1 = cfg.popToolsAndMerge(acc1)
+  cfg.addPublicTool(tool1)
   
   acc2 = LArEMECSensitiveDetectorCfg(ConfigFlags)
-  cfg.popToolsAndMerge(acc2)
+  tool2 = cfg.popToolsAndMerge(acc2)
+  cfg.addPublicTool(tool2)
+
 
   acc3 = LArFCALSensitiveDetectorCfg(ConfigFlags)
-  cfg.popToolsAndMerge(acc3)
+  tool3 = cfg.popToolsAndMerge(acc3)
+  cfg.addPublicTool(tool3)
   
   acc4 = LArHECSensitiveDetectorCfg(ConfigFlags)
-  cfg.popToolsAndMerge(acc4)
+  tool4 = cfg.popToolsAndMerge(acc4)
+  cfg.addPublicTool(tool4)
 
   acc5 = LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)
-  cfg.popToolsAndMerge(acc5)
+  tool5 = cfg.popToolsAndMerge(acc5)
+  cfg.addPublicTool(tool5)
 
   toolDeadSensitiveDetector = LArDeadSensitiveDetectorToolCfg(ConfigFlags)
   cfg.addPublicTool(toolDeadSensitiveDetector)
