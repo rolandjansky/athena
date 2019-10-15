@@ -129,18 +129,18 @@ def generateCaloSensitiveDetectorList(ConfigFlags):
     SensitiveDetectorList=[]
 
     if ConfigFlags.Detector.SimulateLAr:
-        accLArEMB, toolLArEMB = LArEMBSensitiveDetectorCfg(ConfigFlags)
-        accLArEMEC, toolLArEMEC = LArEMECSensitiveDetectorCfg(ConfigFlags)
-        accLArFCAL, toolLArFCAL = LArFCALSensitiveDetectorCfg(ConfigFlags)
-        accHEC, toolHEC = LArHECSensitiveDetectorCfg(ConfigFlags)
-        toolMiniFCAL = LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)
-        SensitiveDetectorList += [ toolLArEMB,toolLArEMEC,toolLArFCAL,\
-                                   toolHEC,toolMiniFCAL]
-        result.merge(accLArEMB)
-        result.merge(accLArEMEC)
-        result.merge(accLArFCAL)
-        result.merge(accHEC)
-        
+        accLArEMB = LArEMBSensitiveDetectorCfg(ConfigFlags)
+        accLArEMEC = LArEMECSensitiveDetectorCfg(ConfigFlags)
+        accLArFCAL = LArFCALSensitiveDetectorCfg(ConfigFlags)
+        accLArHEC = LArHECSensitiveDetectorCfg(ConfigFlags)
+        accLArMiniFCAL = LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)
+        SensitiveDetectorList += [  result.popToolsAndMerge(accLArEMB),
+                                    result.popToolsAndMerge(accLArEMEC),
+                                    result.popToolsAndMerge(accLArFCAL),
+                                    result.popToolsAndMerge(accLArHEC),
+                                    result.popToolsAndMerge(accLArMiniFCAL)
+                                   ]
+
         #todo migrate below>>>
         #if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
         #if ConfigFlags.Detector.SimulateHGTD:
@@ -164,10 +164,13 @@ def generateCaloSensitiveDetectorList(ConfigFlags):
             SensitiveDetectorList += [ 'TileGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
         else:
             SensitiveDetectorList += [ 'TileGeoG4SD' ]      # mode 0 : No CaloCalibrationHits
-    
+
+
     if ConfigFlags.Sim.RecordStepInfo:
         SensitiveDetectorList += [ 'FCS_StepInfoSensitiveDetector' ]
-    return result, SensitiveDetectorList
+
+    result.setPrivateTools(SensitiveDetectorList)
+    return result
 
 def generateMuonSensitiveDetectorList(ConfigFlags):
     SensitiveDetectorList=[]
@@ -207,17 +210,20 @@ def generateSensitiveDetectorList(ConfigFlags):
     SensitiveDetectorList += generateEnvelopeSensitiveDetectorList(ConfigFlags) # to update
 
     acc_InDetSensitiveDetector, InDetSensitiveDetectorList = generateInDetSensitiveDetectorList(ConfigFlags)
-    acc_CaloSensitiveDetector, CaloSensitiveDetectorList = generateCaloSensitiveDetectorList(ConfigFlags)
+    acc_CaloSensitiveDetector = generateCaloSensitiveDetectorList(ConfigFlags)
+
+    SensitiveDetectorList+=result.popToolsAndMerge(acc_CaloSensitiveDetector)
 
     SensitiveDetectorList += InDetSensitiveDetectorList
-    SensitiveDetectorList += CaloSensitiveDetectorList
     SensitiveDetectorList += generateMuonSensitiveDetectorList(ConfigFlags)
     SensitiveDetectorList += generateTrackFastSimSensitiveDetectorList(ConfigFlags)
     SensitiveDetectorList += generateFwdSensitiveDetectorList(ConfigFlags)
 
     result.merge(acc_InDetSensitiveDetector)
     result.merge(acc_CaloSensitiveDetector)
-    return result, SensitiveDetectorList
+
+    result.setPrivateTools(SensitiveDetectorList)
+    return result
 
 def generateTestBeamSensitiveDetectorList(ConfigFlags):
     result = ComponentAccumulator()
@@ -256,28 +262,25 @@ def generateTestBeamSensitiveDetectorList(ConfigFlags):
     if ConfigFlags.Detector.SimulateMuon:
         SensitiveDetectorList += [ 'MuonEntryRecord' ]
     SensitiveDetectorList += generateMuonSensitiveDetectorList(ConfigFlags)
-    return result, SensitiveDetectorList
+
+    result.setPrivateTools(SensitiveDetectorList)
+    return result
 
 def SensitiveDetectorMasterToolCfg(ConfigFlags, name="SensitiveDetectorMasterTool", **kwargs):
     result = ComponentAccumulator()
     if "ATLAS" in ConfigFlags.GeoModel.AtlasVersion:
-        accSensitiveDetector, SensitiveDetectorList = generateSensitiveDetectorList(ConfigFlags)
-        result.merge(accSensitiveDetector)
-        kwargs.setdefault("SensitiveDetectors", SensitiveDetectorList) #list of tools here!
+        accSensitiveDetector = generateSensitiveDetectorList(ConfigFlags)
+        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(accSensitiveDetector)) #list of tools
     elif "tb_Tile2000_2003" in ConfigFlags.GeoModel.AtlasVersion:
 
-        accSensitiveDetector, SensitiveDetectorList = generateTestBeamSensitiveDetectorList(ConfigFlags)
-        result.merge(accSensitiveDetector)
-        kwargs.setdefault("SensitiveDetectors", SensitiveDetectorList) #list of tools here!
-        #kwargs.setdefault("SensitiveDetectors", generateTestBeamSensitiveDetectorList(ConfigFlags))
+        accSensitiveDetector = generateTestBeamSensitiveDetectorList(ConfigFlags)
+        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(accSensitiveDetector) ) #list of tools here!
     elif "tb_LArH6" in ConfigFlags.GeoModel.AtlasVersion:
         pass
     elif "ctbh8" in ConfigFlags.GeoModel.AtlasVersion:
 
-        accSensitiveDetector, SensitiveDetectorList = generateTestBeamSensitiveDetectorList(ConfigFlags)
-        result.merge(accSensitiveDetector)
-        kwargs.setdefault("SensitiveDetectors", SensitiveDetectorList) #list of tools here!
-        #kwargs.setdefault("SensitiveDetectors", generateTestBeamSensitiveDetectorList(ConfigFlags))
+        accSensitiveDetector = generateTestBeamSensitiveDetectorList(ConfigFlags)
+        kwargs.setdefault("SensitiveDetectors", result.popToolsAndMerge(accSensitiveDetector) ) #list of tools here!
 
     result.setPrivateTools(SensitiveDetectorMasterTool(name, **kwargs))
     return result

@@ -157,8 +157,8 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
     result.merge(EMBCalculatorCfg(ConfigFlags))
     kwargs.setdefault("EMBCalculator", result.getService("EMBCalculator"))
     
-
-    return result, LArG4__EMBSDTool(name, **kwargs)
+    result.setPrivateTools( LArG4__EMBSDTool(name, **kwargs) )
+    return result
 
 def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -209,7 +209,8 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     result.merge(EMECNegBackOuterBarretteCalculatorCfg(ConfigFlags))
     kwargs.setdefault("EMECNegBOBCalculator",result.getService("EMECNegBackOuterBarretteCalculator") )
 
-    return result, LArG4__EMECSDTool(name, **kwargs)
+    result.setPrivateTools( LArG4__EMECSDTool(name, **kwargs) )
+    return result
 
 def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -244,7 +245,8 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     result.merge(FCAL3CalculatorCfg(ConfigFlags))
     kwargs.setdefault("FCAL3Calculator", result.getService("FCAL3Calculator") )
 
-    return result, LArG4__FCALSDTool(name, **kwargs)
+    result.setPrivateTools( LArG4__FCALSDTool(name, **kwargs) )
+    return result
 
 def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -266,7 +268,9 @@ def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kw
     from LArG4HEC.LArG4HECConfigNew import HECWheelCalculatorCfg
     result.merge(HECWheelCalculatorCfg(ConfigFlags))
     kwargs.setdefault("HECWheelCalculator", result.getService("HECWheelCalculator"))
-    return result, LArG4__HECSDTool(name, **kwargs)
+
+    result.setPrivateTools( LArG4__HECSDTool(name, **kwargs) )
+    return result
 
 def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveDetector", **kwargs):
     ## Main configuration
@@ -360,8 +364,10 @@ def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveD
     return LArG4__InactiveSDTool(name, **kwargs)
 
 def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveDetector", **kwargs):
+    result = ComponentAccumulator()
     kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL::Wafer"])
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArHitMiniFCAL"])
 
-    return LArG4__MiniFCALSDTool(name, **kwargs)
+    result.setPrivateTools(LArG4__MiniFCALSDTool(name, **kwargs))
+    return result
