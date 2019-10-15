@@ -22,7 +22,7 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     log.info( 'Menu name: '+ menu_name)
 
-    if menu_name.startswith('LS2_v1'):
+    if menu_name.startswith('LS2_v1') or menu_name.startswith('Dev_pp_run3_v1'):
         log.info('LS2_v1 menu setup')
         from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu, Prescales
         setupMenu()
