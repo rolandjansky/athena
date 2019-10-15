@@ -35,7 +35,7 @@ atlas_depends_on_subdirs(
   ${extra_dep} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist Tree )
+find_package( ROOT COMPONENTS Core Hist Tree TMVA )
 
 set(extra_libs)
 if ( NOT XAOD_ANALYSIS )
@@ -62,6 +62,8 @@ atlas_add_dictionary( IsolationSelectionDict
    IsolationSelection/IsolationSelectionDict.h
    IsolationSelection/selection.xml
    LINK_LIBRARIES IsolationSelectionLib )
+
+atlas_install_data( data/* )
 
 # Executable(s) in the package:
 if( XAOD_ANALYSIS )
