@@ -1,3 +1,7 @@
+#
+#Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration                                                                                           
+#
+
 
 from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
 #from MdtRawDataMonitoring.MdtRawMonLabels import *

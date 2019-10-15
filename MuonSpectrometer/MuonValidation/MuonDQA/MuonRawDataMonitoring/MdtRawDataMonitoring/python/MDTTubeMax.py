@@ -1,3 +1,7 @@
+#                                                                                                                                                    
+#Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration                                                                                           
+# 
+
 #from GetTubeMax function
 tubeMax ={
     "BIL6C01":288,

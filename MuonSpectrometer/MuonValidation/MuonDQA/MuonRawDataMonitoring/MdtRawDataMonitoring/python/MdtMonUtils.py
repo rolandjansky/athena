@@ -1,3 +1,7 @@
+#                                                                
+#Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration                                                                                           
+# 
+
 import MdtRawDataMonitoring.MdtRawMonLabels as labels
 from MdtRawDataMonitoring.MdtRawMonLabels import *
 
