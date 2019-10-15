@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ namespace InDet {
         float f22 = float(v(1,1) );
         float wid = float(c->width().z());
         float cov = wid*wid*.08333; if(cov < f22) cov = f22;
-        cov*=16.;
+        cov*=6.;
         m_covz = cov*(r[3]*r[3]+r[4]*r[4]); 
         m_covr = cov*(r[5]*r[5]);
       }  else  {
@@ -205,7 +205,7 @@ namespace InDet {
         float f22 = float(v(1,1));
         float wid = float(c->width().z());
         float cov = wid*wid*.08333; if(cov < f22) cov = f22;
-        cov*=16.;
+        cov*=6.;
         m_covz = cov*(r[3]*r[3]+r[4]*r[4]); 
         m_covr = cov*(r[5]*r[5]);
       } else {
