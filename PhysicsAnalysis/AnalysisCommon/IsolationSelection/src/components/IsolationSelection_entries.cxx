@@ -8,7 +8,7 @@
 #include "IsolationSelection/IsolationCloseByCorrectionTool.h"
 #include "../TestIsolationCloseByCorrAthenaAlg.h"
 
-#include "IsolationSelection/IsolationCloseByCorrectionTool.h"
+#include "IsolationSelection/IsolationLowPtPLVTool.h"
 using namespace xAOD;
 
 DECLARE_NAMESPACE_TOOL_FACTORY(CP, IsolationSelectionTool)
