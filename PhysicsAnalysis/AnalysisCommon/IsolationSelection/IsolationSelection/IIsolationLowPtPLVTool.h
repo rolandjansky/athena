@@ -5,7 +5,7 @@
 #ifndef ISOLATIONSELECTION_IISOLATIONLOWPTPLVTOOL_H
 #define ISOLATIONSELECTION_IISOLATIONLOWPTPLVTOOL_H
 
-#include <xAODBase/IParticleContainer.h>
+#include <xAODBase/IParticle.h>
 #include <AsgTools/IAsgTool.h>
 
 namespace CP {

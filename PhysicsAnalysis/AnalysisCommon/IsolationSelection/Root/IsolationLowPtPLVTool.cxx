@@ -15,20 +15,24 @@
 
 namespace CP {
   // Accessors for input variables
-  static const IntAccessor m_acc_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
-  static const FloatAccessor m_acc_DRlj("PromptLeptonInput_DRlj");
-  static const FloatAccessor m_acc_PtRel("PromptLeptonInput_PtRel");
-  static const FloatAccessor m_acc_PtFrac("PromptLeptonInput_PtFrac");
-  static const FloatAccessor m_acc_topoetcone20("topoetcone20");
-  static const FloatAccessor m_acc_ptvarcone20("ptvarcone20");
-  static const FloatAccessor m_acc_ptvarcone30("ptvarcone30");
-  static const FloatDecorator m_dec_iso_PLT("LowPtPLV");    
+  static const IntAccessor s_acc_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
+  static const FloatAccessor s_acc_DRlj("PromptLeptonInput_DRlj");
+  static const FloatAccessor s_acc_PtRel("PromptLeptonInput_PtRel");
+  static const FloatAccessor s_acc_PtFrac("PromptLeptonInput_PtFrac");
+  static const FloatAccessor s_acc_topoetcone20("topoetcone20");
+  static const FloatAccessor s_acc_ptvarcone20("ptvarcone20");
+  static const FloatAccessor s_acc_ptvarcone30("ptvarcone30");
+  static const FloatDecorator s_dec_iso_PLT("LowPtPLV");    
   
   IsolationLowPtPLVTool::IsolationLowPtPLVTool(const std::string& toolName) :
     asg::AsgTool(toolName){
     // Decorator for scores
-    declareProperty( "MuonCalibFile", m_muonCalibFile, "XML file holding the TMVA configuration for muons" );
-    declareProperty( "ElecCalibFile", m_elecCalibFile, "XML file holding the TMVA configuration for electrons");
+    declareProperty( "MuonCalibFile", m_muonCalibFile = "IsolationCorrections/v4/TMVAClassification_BDT_Muon_LowPtPromptLeptonTagger_20181001.weights.xml", 
+		     "XML file holding the TMVA configuration for muons" );
+    declareProperty( "ElecCalibFile", m_elecCalibFile = "IsolationCorrections/v4/TMVAClassification_BDT_Electron_LowPtPromptLeptonTagger_20181001.weights.xml", 
+		     "XML file holding the TMVA configuration for electrons");
+    declareProperty( "MuonMethodName", m_muonMethodName = "LowPtPLT_Muon", "Method name for electron LowPtPLV" );
+    declareProperty( "ElecMethodName", m_elecMethodName = "LowPtPLT_Elec", "Method name for muon LowPtPLV" );
   }
   
   StatusCode IsolationLowPtPLVTool::initialize() {
@@ -38,9 +42,6 @@ namespace CP {
 
     std::string fullPathToFile_Muon = PathResolverFindCalibFile(m_muonCalibFile);
     std::string fullPathToFile_Elec = PathResolverFindCalibFile(m_elecCalibFile);
-    
-    m_muonMethodName = "LowPtPLT_Muon";
-    m_elecMethodName = "LowPtPLT_Elec";
 
     static const std::array< std::string, N_VARIABLES > BDT_vars_Muon {
       "CorrPtvarcone30/Pt/1000",
@@ -94,70 +95,85 @@ namespace CP {
   }
     
   StatusCode IsolationLowPtPLVTool::augmentPLV( const xAOD::IParticle& Particle) {
-    if (!m_acc_TrackJetNTrack.isAvailable(Particle)){
+    // Check if input variables exist
+    bool inputvar_missing = false;
+    if (!s_acc_TrackJetNTrack.isAvailable(Particle)){
       ATH_MSG_ERROR( "TrackJetNTrack not available" );
-      return StatusCode::FAILURE;
+      inputvar_missing = true;
     }
 
-    if (!m_acc_DRlj.isAvailable(Particle)){
+    if (!s_acc_DRlj.isAvailable(Particle)){
       ATH_MSG_ERROR( "DRlj not available" );
-      return StatusCode::FAILURE;
+      inputvar_missing = true;
     }
 
-    if (!m_acc_PtRel.isAvailable(Particle)){
+    if (!s_acc_PtRel.isAvailable(Particle)){
       ATH_MSG_ERROR( "PtRel not available" );
-      return StatusCode::FAILURE;
+      inputvar_missing = true;
     }
 
-    if (!m_acc_PtFrac.isAvailable(Particle)){
+    if (!s_acc_PtFrac.isAvailable(Particle)){
       ATH_MSG_ERROR( "PtFrac not available" );
-      return StatusCode::FAILURE;
+      inputvar_missing = true;
     }
 
-    if (!m_acc_topoetcone20.isAvailable(Particle)){
+    if (!s_acc_topoetcone20.isAvailable(Particle)){
       ATH_MSG_ERROR( "topoetcone20 not available" );
-      return StatusCode::FAILURE;
+      inputvar_missing = true;
     }
 
-    if (!m_acc_ptvarcone20.isAvailable(Particle)){
+    if (Particle.type() == xAOD::Type::ObjectType::Electron && !s_acc_ptvarcone20.isAvailable(Particle)){
       ATH_MSG_ERROR( "ptvarcone20 not available" );
-      return StatusCode::FAILURE;
+      inputvar_missing = true;
     }
 
-    if (!m_acc_ptvarcone30.isAvailable(Particle)){
+    if (Particle.type() == xAOD::Type::ObjectType::Muon && !s_acc_ptvarcone30.isAvailable(Particle)){
       ATH_MSG_ERROR( "ptvarcone30 not available" );
+      inputvar_missing = true;
+    }
+
+    if (inputvar_missing){
+      ATH_MSG_ERROR( "input variable(s) missing, augmenting fixed value 1.1" );
+      s_dec_iso_PLT(Particle) = 1.1;
       return StatusCode::FAILURE;
     }
 
-    
-    int TrackJetNTrack = m_acc_TrackJetNTrack(Particle);
-    float DRlj         = m_acc_DRlj(Particle);
-    float PtRel        = m_acc_PtRel(Particle);
-    float PtFrac       = m_acc_PtFrac(Particle);
-    float topoetcone20 = m_acc_topoetcone20(Particle);
-    float ptvarcone20  = m_acc_ptvarcone20(Particle);
-    float ptvarcone30  = m_acc_ptvarcone30(Particle);
+    int TrackJetNTrack = s_acc_TrackJetNTrack(Particle);
+    float DRlj         = s_acc_DRlj(Particle);
+    float PtRel        = s_acc_PtRel(Particle);
+    float PtFrac       = s_acc_PtFrac(Particle);
+    float topoetcone20 = s_acc_topoetcone20(Particle);
+    float ptvarcone30  = 0;
+    float ptvarcone20  = 0;
+
     float pt = Particle.pt();
-
-    m_varTMVA_Muon[0] = topoetcone20/pt;
-    m_varTMVA_Muon[1] = ptvarcone30/pt;
-    m_varTMVA_Muon[2] = PtRel;
-    m_varTMVA_Muon[3] = PtFrac;
-    m_varTMVA_Muon[4] = DRlj;
-    m_varTMVA_Muon[5] = TrackJetNTrack;
-
-    m_varTMVA_Elec[0] = topoetcone20/pt;
-    m_varTMVA_Elec[1] = ptvarcone20/pt;
-    m_varTMVA_Elec[2] = PtRel;
-    m_varTMVA_Elec[3] = PtFrac;
-    m_varTMVA_Elec[4] = DRlj;
-    m_varTMVA_Elec[5] = TrackJetNTrack;
-
     float score = 1.1;
-    if (Particle.type() == xAOD::Type::ObjectType::Muon) score =  m_TMVAReader_Muon->EvaluateMVA(m_muonMethodName);
-    else if (Particle.type() == xAOD::Type::ObjectType::Electron) score =  m_TMVAReader_Elec->EvaluateMVA(m_elecMethodName);
-    else return StatusCode::FAILURE;
-    m_dec_iso_PLT(Particle) = score;
+
+    if (Particle.type() == xAOD::Type::ObjectType::Muon){
+      ptvarcone30  = s_acc_ptvarcone30(Particle);
+      m_varTMVA_Muon[0] = topoetcone20/pt;
+      m_varTMVA_Muon[1] = ptvarcone30/pt;
+      m_varTMVA_Muon[2] = PtRel;
+      m_varTMVA_Muon[3] = PtFrac;
+      m_varTMVA_Muon[4] = DRlj;
+      m_varTMVA_Muon[5] = TrackJetNTrack;
+      score = m_TMVAReader_Muon->EvaluateMVA(m_muonMethodName);
+    }
+    else if (Particle.type() == xAOD::Type::ObjectType::Electron){
+      ptvarcone20  = s_acc_ptvarcone20(Particle);
+      m_varTMVA_Elec[0] = topoetcone20/pt;
+      m_varTMVA_Elec[1] = ptvarcone20/pt;
+      m_varTMVA_Elec[2] = PtRel;
+      m_varTMVA_Elec[3] = PtFrac;
+      m_varTMVA_Elec[4] = DRlj;
+      m_varTMVA_Elec[5] = TrackJetNTrack;
+      score =  m_TMVAReader_Elec->EvaluateMVA(m_elecMethodName);
+    }
+    else {
+      ATH_MSG_ERROR( "The function needs either a muon or an electron!" );
+      return StatusCode::FAILURE;
+    }
+    s_dec_iso_PLT(Particle) = score;
 
     return StatusCode::SUCCESS;
   }

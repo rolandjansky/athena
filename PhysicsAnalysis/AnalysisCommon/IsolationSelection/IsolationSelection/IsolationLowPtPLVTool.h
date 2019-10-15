@@ -13,6 +13,8 @@
 // TMVA
 #include "TMVA/Reader.h"
 
+#include <memory>
+
 namespace CP {
     class IsolationLowPtPLVTool: public asg::AsgTool, public virtual IIsolationLowPtPLVTool {
 
