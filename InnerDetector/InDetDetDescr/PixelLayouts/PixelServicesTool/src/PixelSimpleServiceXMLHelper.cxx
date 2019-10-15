@@ -30,6 +30,7 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
       msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      setSchemaVersion(dbUtils.getSchemaVersion(fileName));
       InitializeXML();
       bParsed = ParseBuffer(XMLtext,std::string(""));
     }
@@ -70,6 +71,7 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envN
     {
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      setSchemaVersion(dbUtils.getSchemaVersion(fileName));
       InitializeXML();
       bParsed = ParseBuffer(XMLtext,std::string(""));
     }
@@ -107,12 +109,22 @@ double PixelSimpleServiceXMLHelper::rmax(int index) const
 
 double PixelSimpleServiceXMLHelper::rmin2(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.rmin2().c_str());
+  if(getSchemaVersion() > 4){
+    return getDouble("SimpleService", index, m_schema.rmin2().c_str());
+  }
+  else msg(MSG::DEBUG)<<"XML: SimpleService rmin2 not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for CONE shapes..."<<endreq;
+  if (shapeType(index)=="CONE") return getDouble("SimpleService", index, m_schema.rmin2().c_str());
+  return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::rmax2(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.rmax2().c_str());
+  if(getSchemaVersion() > 4){
+    return getDouble("SimpleService", index, m_schema.rmax2().c_str());
+  }
+  else msg(MSG::DEBUG)<<"XML: SimpleService rmax2 not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for CONE shapes..."<<endreq;
+  if (shapeType(index)=="CONE") return getDouble("SimpleService", index, m_schema.rmax2().c_str());
+  return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::zmin(int index) const
@@ -127,20 +139,32 @@ double PixelSimpleServiceXMLHelper::zmax(int index) const
 
 double PixelSimpleServiceXMLHelper::phiDelta(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.phiDelta().c_str());
+  if(getSchemaVersion() > 4){
+    return getDouble("SimpleService", index, m_schema.phiDelta().c_str());
+  }
+  else msg(MSG::DEBUG)<<"XML: SimpleService phiDelta not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
+  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.phiDelta().c_str());
+  return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::width(int index) const
 {
-  if (m_schema.has_width()) {
+  if(getSchemaVersion() > 4){
     return getDouble("SimpleService", index, m_schema.width().c_str());
   }
-  return 0;
+  else msg(MSG::DEBUG)<<"XML: SimpleService width not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
+  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.width().c_str());
+  return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::phiStart(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.phiStart().c_str());
+   if(getSchemaVersion() > 4){
+     return getDouble("SimpleService", index, m_schema.phiStart().c_str());
+  }
+   else msg(MSG::DEBUG)<<"XML: SimpleService phiStart not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
+   if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.phiStart().c_str());
+   return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::phiStep(int index) const
@@ -159,7 +183,12 @@ bool PixelSimpleServiceXMLHelper::zsymm(int index) const
 
 int PixelSimpleServiceXMLHelper::repeat(int index) const
 {
-  return getInt("SimpleService", index, m_schema.repeat().c_str());
+  if(getSchemaVersion() > 4){
+    return getInt("SimpleService", index, m_schema.repeat().c_str());
+  }
+  else msg(MSG::DEBUG)<<"XML: SimpleService repeat not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
+  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.repeat().c_str());
+  return 0;
 }
 
 int PixelSimpleServiceXMLHelper::radialDiv(int index) const
@@ -197,11 +226,13 @@ std::string PixelSimpleServiceXMLHelper::materialName(int index) const
 }
 
 int PixelSimpleServiceXMLHelper::volId(int index) const
-{
-  int volNumber= getInt("SimpleService", index, m_schema.volId().c_str(),0);
+{  
+  if(getSchemaVersion() > 4){
+    return getInt("SimpleService", index, m_schema.volId().c_str(),0);
+  }
+  else msg(MSG::DEBUG)<<"XML: SimpleService volId not defined in old schema ("<<getSchemaVersion()<<") returning -1..."<<endreq;
 
-  if(volNumber<0)return index;
-  return volNumber;
+  return -1;
 }
 
 unsigned int PixelSimpleServiceXMLHelper::numElements() const
