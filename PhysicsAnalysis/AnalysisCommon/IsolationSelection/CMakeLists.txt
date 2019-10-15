@@ -63,8 +63,6 @@ atlas_add_dictionary( IsolationSelectionDict
    IsolationSelection/selection.xml
    LINK_LIBRARIES IsolationSelectionLib )
 
-atlas_install_data( data/* )
-
 # Executable(s) in the package:
 if( XAOD_ANALYSIS )
    atlas_add_executable( testIsolationCloseByCorrectionTool

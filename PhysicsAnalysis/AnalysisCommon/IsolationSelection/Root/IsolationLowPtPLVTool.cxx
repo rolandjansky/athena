@@ -72,7 +72,7 @@ namespace CP {
     return StatusCode::SUCCESS;
   }
     
-  StatusCode IsolationLowPtPLVTool::AugmentPLV(xAOD::IParticle* Particle) const {
+  StatusCode IsolationLowPtPLVTool::AugmentPLV(xAOD::IParticle* Particle) {
     int TrackJetNTrack = m_acc_TrackJetNTrack(*Particle);
     float DRlj         = m_acc_DRlj(*Particle);
     float PtRel        = m_acc_PtRel(*Particle);

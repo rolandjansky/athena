@@ -7,6 +7,7 @@
 
 #include <AsgTools/AsgTool.h>
 #include <AsgTools/AnaToolHandle.h>
+#include <IsolationSelection/IIsolationLowPtPLVTool.h>
 
 #include <IsolationSelection/Defs.h>
 #include <xAODEgamma/ElectronContainer.h>
@@ -20,12 +21,13 @@
 #include "TMVA/Reader.h"
 
 namespace CP {
-    class IsolationLowPtPLVTool: public asg::AsgTool{
+    class IsolationLowPtPLVTool: public asg::AsgTool, public virtual IIsolationLowPtPLVTool {
 
         public:
             IsolationLowPtPLVTool(const std::string& name);
-            virtual StatusCode initialize();
-            StatusCode AugmentPLV(xAOD::IParticle* Particles) const;
+	    ASG_TOOL_CLASS(IsolationLowPtPLVTool, IIsolationLowPtPLVTool)
+            virtual StatusCode initialize() override;
+            StatusCode AugmentPLV(xAOD::IParticle* Particles) override;
 	    
         private:
 	    IntAccessor m_acc_TrackJetNTrack;
