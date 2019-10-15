@@ -220,7 +220,7 @@ def triggerBSOutputCfg( flags, decObj ):
     acc = ComponentAccumulator()
 
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, persistent
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg, TriggerBitsMakerTool, StreamTagMakerTool
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg#, TriggerBitsMakerTool, StreamTagMakerTool
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
     
     serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
@@ -236,12 +236,11 @@ def triggerBSOutputCfg( flags, decObj ):
         __log.info( "Serialising {}".format( serialisedTypeColl ) ) 
         serialiser.addCollectionListToMainResult( [ serialisedTypeColl ] )
 
-    stmaker = StreamTagMakerTool()
 
-    bitsmaker = TriggerBitsMakerTool()
-    
     hltResultMakerTool            = HLTResultMTMakerCfg("MakerTool") # want short nme to see in the log
-    hltResultMakerTool.MakerTools = [ serialiser, stmaker, bitsmaker ] 
+    hltResultMakerTool.MakerTools = [ serialiser ] 
+    # This should be the following (inc imports, above), pending 
+    #hltResultMakerTool.MakerTools = [ serialiser, StreamTagMakerTool(), TriggerBitsMakerTool() ] 
     hltResultMakerAlg             = HLTResultMTMakerAlg()
     hltResultMakerAlg.ResultMaker = hltResultMakerTool
     acc.addEventAlgo( hltResultMakerAlg )
