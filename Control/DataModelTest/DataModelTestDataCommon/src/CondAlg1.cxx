@@ -59,6 +59,8 @@ StatusCode CondAlg1::execute (const EventContext& ctx) const
   auto s2 = std::make_unique<DMTest::S2> (xint*100);
   ATH_CHECK( scond.record (range, std::move(s2) ) );
 
+  ATH_MSG_DEBUG("Recorded '" << scond.key() << "' with range " << range);
+
   return StatusCode::SUCCESS;
 }
 
