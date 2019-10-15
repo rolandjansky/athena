@@ -56,7 +56,9 @@ def setupMenu():
 
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
-        #ATR-19452 
+        #ATR-19452 (muon)
+        ['mu4_muonqualL',          'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu4_muonqualM',          'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu6_muonqualL',          'L1_MU6',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu6_muonqualM',          'L1_MU6',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['2mu12_muonqualL',                  'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
@@ -631,22 +633,10 @@ def setupMenu():
         #ATR-19452 
         ['2mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualL', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
         ['2mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualM', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-MU6MU4_muonqualL','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4_muonqualL','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-MU6MU4_muonqualM','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['Legacy:End-of-fill',RATE_BphysTag,BW_BphysTag], -1, False],
-#        ['mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4_muonqualM','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream, 'express'], ['Legacy:End-of-fill',RATE_BphysTag,BW_BphysTag], -1, False],
-#        ['mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-MU6MU4_muonqualM','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4_muonqualM','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
         ['2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualL',    'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
         ['2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualM',    'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4_muonqualL','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4_muonqualM','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
         ['2mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-2MU4_muonqualL', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
         ['2mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-2MU4_muonqualM', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-MU6MU4_muonqualL','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-MU6MU4_muonqualM','L1_BPH-2M9-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bUpsimumu_L1BPH-8M15-0DR22-MU6MU4-BO_muonqualL', 'L1_BPH-8M15-0DR22-MU6MU4-BO',     ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
-#        ['mu6_mu4_bUpsimumu_L1BPH-8M15-0DR22-MU6MU4-BO_muonqualM', 'L1_BPH-8M15-0DR22-MU6MU4-BO',     ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
 
         #ATR-19510
         ['mu4_ivarloose_mu4_7invm9_noos_L1DY-BOX-2MU4',     'L1_DY-BOX-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
