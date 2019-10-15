@@ -5,16 +5,8 @@
 #ifndef ISOLATIONSELECTION_IISOLATIONLOWPTPLVTOOL_H
 #define ISOLATIONSELECTION_IISOLATIONLOWPTPLVTOOL_H
 
-#include <PATInterfaces/CorrectionCode.h>
-#include <IsolationSelection/Defs.h>
-#include <PATCore/TAccept.h>
-
-#include <xAODEgamma/ElectronContainer.h>
-#include <xAODEgamma/PhotonContainer.h>
-#include <xAODMuon/MuonContainer.h>
 #include <xAODBase/IParticleContainer.h>
 #include <AsgTools/IAsgTool.h>
-#include <AsgTools/Deprecated.h>
 
 namespace CP {
   class IIsolationLowPtPLVTool: public virtual asg::IAsgTool {
@@ -26,7 +18,7 @@ namespace CP {
     ///   the call of the IsolationTool if you're running on 
     ///   derivations with a cache older than <blah> and using the
     ///   new refined PLV working points provided by the IFF
-    virtual StatusCode AugmentPLV(xAOD::IParticle* Particle) = 0; 
+    virtual StatusCode augmentPLV(const xAOD::IParticle& Particle) = 0; 
   };
 }
 #endif
