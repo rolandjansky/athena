@@ -52,11 +52,11 @@ conddb.blockFolder("/MUONALIGN/MDT/ENDCAP/SIDEC")
 conddb.blockFolder("/MUONALIGN/TGC/SIDEA")
 conddb.blockFolder("/MUONALIGN/TGC/SIDEC")
 
-conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/MDT/BARREL","MuonAlignMDTBarrelAlign-BA_ROLLING_2010_02-ES1-UPD1-00",force=True,forceData=True)
-conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/MDT/ENDCAP/SIDEA","MuonAlignMDTEndCapAAlign-COSMICS-200909-01-ES1-UPD1-00",force=True,forceData=True)
-conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/MDT/ENDCAP/SIDEC","MuonAlignMDTEndCapCAlign-COSMICS-200909-01-ES1-UPD1-00",force=True,forceData=True)
-conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEA","MuonAlignTGCEndCapAAlign-0001-DEFAULT",force=True,forceData=True)
-conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEC","MuonAlignTGCEndCapCAlign-0001-DEFAULT",force=True,forceData=True)
+conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/MDT/BARREL","MuonAlignMDTBarrelAlign-BA_ROLLING_2010_02-ES1-UPD1-00",force=True,forceData=True,className='CondAttrListCollection')
+conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/MDT/ENDCAP/SIDEA","MuonAlignMDTEndCapAAlign-COSMICS-200909-01-ES1-UPD1-00",force=True,forceData=True,className='CondAttrListCollection')
+conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/MDT/ENDCAP/SIDEC","MuonAlignMDTEndCapCAlign-COSMICS-200909-01-ES1-UPD1-00",force=True,forceData=True,className='CondAttrListCollection')
+conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEA","MuonAlignTGCEndCapAAlign-0001-DEFAULT",force=True,forceData=True,className='CondAttrListCollection')
+conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEC","MuonAlignTGCEndCapCAlign-0001-DEFAULT",force=True,forceData=True,className='CondAttrListCollection')
 
 
 #conddb.blockFolder("/LAR/ElecCalib/fSampl/Symmetry")
