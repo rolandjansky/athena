@@ -5,15 +5,14 @@
 #==============================================================
 
 
-from AthenaCommon.GlobalFlags import GlobalFlags
-from AthenaCommon.DetFlags import DetFlags
+#from AthenaCommon.GlobalFlags import globalflags
 
 
 #GlobalFlags.DetGeo.set_ctbh8()
-GlobalFlags.DetGeo.set_atlas()
+#GlobalFlags.DetGeo.set_atlas()
 #GlobalFlags.DetGeo.set_commis()
 
-GlobalFlags.DataSource.set_geant4()
+#GlobalFlags.DataSource.set_geant4()
 #GlobalFlags.DataSource.set_data()
 
 ############################################################################################
@@ -23,7 +22,8 @@ GlobalFlags.DataSource.set_geant4()
 from IOVDbSvc.CondDB import conddb
 conddb.addFolder('INDET','/Indet/PixelDist')
 #conddb.setGlobalTag('OFLCOND-CSC-01-00-00') # No distortions
-conddb.setGlobalTag('OFLCOND-CSC-01-01-00')  # Survey distortions
+#conddb.setGlobalTag('OFLCOND-CSC-01-01-00')  # Survey distortions
+conddb.setGlobalTag('OFLCOND-RUN12-SDR-28')  # Survey distortions
 
 #conddb.addOverride('/Indet/PixelDist','newfoldertag')
 #conddb.addOverride('/Indet/PixelDist','InDetPixelDist-000-00')   # Survey distortions
@@ -37,16 +37,18 @@ conddb.setGlobalTag('OFLCOND-CSC-01-01-00')  # Survey distortions
 ###########################################################################################
 
 # Just the pixel and SCT
-DetFlags.detdescr.pixel_setOn()
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.detdescr.ID_setOn()
+DetFlags.detdescr.Calo_setOff()
+DetFlags.detdescr.Muon_setOff()
 
 # Select the geometry version.
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion='ATLAS-GEO-10-00-00'
+globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-R2-2016-01-00-01')
 
 # Initialize geometry
 from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
-
 
 
 # Load algorithms Any algorithm that uses the tool will do
@@ -68,6 +70,8 @@ ToolSvc.PixelDistortionsTool.OutputLevel = DEBUG
 #ToolSvc.PixelDistortionsTool.InputSource = 3  # Random
 #ToolSvc.PixelDistortionsTool.InputSource = 4  # Read from DB (Default)
 #ToolSvc.PixelDistortionsTool.TextFileName = "PixelSurveyDistortions.txt"
+#ToolSvc.PixelDistortionsTool.OverrideVersion = -1
+#ToolSvc.PixelDistortionsTool.UseBB = False
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
