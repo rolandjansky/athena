@@ -41,6 +41,10 @@ from AthenaCommon.AppMgr import theApp
 # load POOL support
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+# setup some configuration
+from RecExConfig.RecFlags import rec
+rec.mergingStreamName = 'Stream1'
+
 # setup the CutFlowSvc and corresponding tools
 from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
 CreateCutFlowSvc(seq=topSequence)
@@ -53,12 +57,11 @@ alg.cut2 = 12
 topSequence += alg
 
 # output options
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-Stream1 = MSMgr.NewPoolStream('Stream1', 'OutputAOD.root', asAlg=True)
-MSMgr.AddMetaDataItemToAllStreams('xAOD::CutBookkeeperContainer#CutBookkeepers')
-MSMgr.AddMetaDataItemToAllStreams('xAOD::CutBookkeeperAuxContainer#CutBookkeepersAux.')
-MSMgr.AddMetaDataItemToAllStreams('xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers')
-MSMgr.AddMetaDataItemToAllStreams('xAOD::CutBookkeeperAuxContainer#IncompleteCutBookkeepersAux.')
+from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputStream
+Stream1 = AthenaPoolOutputStream('Stream1', 'OutputAOD.root', asAlg=True)
+Stream1.ItemList = ['xAOD::EventInfo#*', 'xAOD::EventAuxInfo#*']
+Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#CutBookkeepers', 'xAOD::CutBookkeeperAuxContainer#CutBookkeepersAux.']
+Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers', 'xAOD::CutBookkeeperAuxContainer#IncompleteCutBookkeepersAux.']
 
 # set debug logging
 ServiceMgr.MessageSvc.defaultLimit = 9999999

@@ -1,3 +1,4 @@
+#include "../BookkeeperDumperTool.h"
 #include "../BookkeeperTool.h"
 #include "../CppFilterTester.h"
 #include "../CutFlowSvc.h"
@@ -5,6 +6,7 @@
 #include "../SkimDecisionMultiFilter.h"
 #include "../StreamSelectorTool.h"
 
+DECLARE_COMPONENT( BookkeeperDumperTool )
 DECLARE_COMPONENT( BookkeeperTool )
 DECLARE_COMPONENT( CppFilterTester )
 DECLARE_COMPONENT( CutFlowSvc )

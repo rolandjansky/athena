@@ -38,13 +38,11 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 # setup the CutFlowSvc and corresponding tools
-from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc, CreateBookkeeperDumperTool
 CreateCutFlowSvc()
 
-# setup the bookkeeper dumper
-# TODO: this should be a tool
-from AthenaPoolTools.AthenaPoolToolsConf import BookkeeperDumper
-topSequence += BookkeeperDumper(OutputLevel = DEBUG)
+# setup the bookkeeper dumper tool
+CreateBookkeeperDumperTool()
 
 # set debug logging
 ServiceMgr.MessageSvc.defaultLimit = 9999999
@@ -53,4 +51,4 @@ ToolSvc.CutBookkeepersTool.OutputLevel = VERBOSE
 ToolSvc.PDFSumOfWeights.OutputLevel = DEBUG
 
 # run on 10 events
-theApp.EvtMax = 10
+theApp.EvtMax = 1
