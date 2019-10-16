@@ -34,7 +34,7 @@ alg.DefaultRelease="cFeb_2019"
 alg.ValidationRelease="cAugust_2019"
 alg.SGKey = "CalibratedMuons"
 ## Select 30 GeV muons for the high-pt WP only
-alg.MinPt = 15000
+alg.MinPt = 100.e3
 alg.MaxEta = 2.5
 #alg.MinQualit = 1 #Medium
 WPs = [

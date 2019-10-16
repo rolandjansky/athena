@@ -116,8 +116,8 @@ namespace CP {
         /// Apply the systematic variations
         syst_loader(m_sf,"SF");
         syst_loader(m_eff,"Eff");
-        syst_loader(m_mc_eff,"MC_Eff");
-        
+        syst_loader(m_mc_eff,"MC_Eff");        
+       
         /// Thus far there're no kinematic dependent systematics for low-pt
         if (m_is_lowpt || (file == ref_tool.filename_HighEta() && ref_tool.filename_HighEta() != ref_tool.filename_Central()) ||
         (file == ref_tool.filename_Calo() && ref_tool.filename_Calo() != ref_tool.filename_Central())) m_respond_to_kineDepSyst =false;
@@ -126,7 +126,7 @@ namespace CP {
         /// Load the pt_dependent systematics if needed
         if (!m_respond_to_kineDepSyst){
              return;
-        }
+        }      
         // Load the systematic of the bad veto
         if (m_measurement == CP::MuonEfficiencyType::BadMuonVeto) {
             TDirectory* SystDir = nullptr;
@@ -140,12 +140,12 @@ namespace CP {
                 TDirectory* SystDir_2Stat = nullptr;
                 f->GetObject("BadMuonVetoSyst_2Stations", SystDir_2Stat);
                 m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir, SystDir_2Stat);
-            }
+            }           
             m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
             if (!m_sf_KineDepsys->initialize()){
                 Error("EfficiencyScaleFactor()", "Pt dependent systematic could not be loaded");
                 m_sf_KineDepsys.reset();
-            }
+            }           
             return;
         } else if (m_measurement == CP::MuonEfficiencyType::TTVA){
             m_sf_KineDepsys = std::make_unique<TTVAClosureSysHandler>(ReadHistFromFile("SF_NonClosure_sys",f.get(),time_unit));
@@ -285,7 +285,7 @@ namespace CP {
             if (bin != m_SystematicBin) {
                 return m_NominalFallBack->ScaleFactor(mu, SF);
             }
-        }
+        }       
         CorrectionCode cc = GetContentFromHist(m_sf.get(), mu, SF, true);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the scale factor");
         return cc;
@@ -339,11 +339,12 @@ namespace CP {
             Eff = m_default_eff_ttva;
             return CorrectionCode::Ok;
         }
-        int bin = -1;
+        int bin = -1;       
         CorrectionCode cc = Hist->FindBin(mu, bin);
         if (cc != CorrectionCode::Ok) return cc;
         else Eff = Hist->GetBinContent(bin);
-        if (add_kine_syst && m_respond_to_kineDepSyst) {
+       
+        if (add_kine_syst && m_respond_to_kineDepSyst) {           
             return m_sf_KineDepsys->GetKineDependent(mu, Eff);
         }
         return CorrectionCode::Ok;

@@ -158,6 +158,7 @@ namespace TestMuonSF {
             unsigned int m_type;
             bool m_passLowPt;
             bool m_passHighPt;
+            uint8_t m_precLayers;
     };
 
     class MuonSFTestHelper {

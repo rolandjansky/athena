@@ -168,25 +168,24 @@ namespace CP {
 
     }
     CorrectionCode BadMuonVetoSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
-        TF1* Poly = nullptr;
-        if (m_SystWeight == 0) {
+        if (m_SystWeight == 0.) {           
             return CorrectionCode::Ok;
         }
+        TF1* Poly = nullptr;
         // we know that Eff=(1+relative sys error), since SF==1
         float RelHighPtSys = 0.;
         if (mu.pt() >= 100.e3) {
             CorrectionCode cc = findAppropiatePolynomial(mu, Poly);
             if (cc != CorrectionCode::Ok) {
                 return cc;
-            }
-            RelHighPtSys = Poly->Eval((this->*m_uncertVar)(mu));
+            }            
+            RelHighPtSys = Poly->Eval((this->*m_uncertVar)(mu));           
 
         } else {
             //Apply flat 0.5% systematic
             RelHighPtSys = 0.005;
         }
-
-        Eff = 1 + m_SystWeight * sqrt((Eff - 1) * (Eff - 1) + RelHighPtSys * RelHighPtSys);
+        Eff = 1 + m_SystWeight * sqrt(std::pow(Eff - 1,2) + RelHighPtSys * RelHighPtSys);
 
         return CorrectionCode::Ok;
     }
@@ -230,7 +229,7 @@ namespace CP {
                     return CorrectionCode::Ok;
                 }
             }
-        }
+        }       
         return CP::CorrectionCode::OutOfValidityRange;
     }
     std::string BadMuonVetoSystHandler::getNextProperty(std::string &sstr) const {

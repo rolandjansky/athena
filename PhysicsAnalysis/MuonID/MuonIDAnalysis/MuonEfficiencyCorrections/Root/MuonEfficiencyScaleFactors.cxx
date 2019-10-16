@@ -109,7 +109,8 @@ namespace CP {
 
         } else if (m_wp.find("BadMuon") != std::string::npos) {
             m_Type = CP::MuonEfficiencyType::BadMuonVeto;
-
+            ///Overwrite the property in case of the bad muon veto
+            m_applyKineDepSys = true;
         } else if (m_wp.find("TTVA") != std::string::npos) {
             m_Type = CP::MuonEfficiencyType::TTVA;
         } else {
