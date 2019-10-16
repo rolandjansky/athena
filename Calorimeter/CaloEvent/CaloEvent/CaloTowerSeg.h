@@ -645,6 +645,7 @@ CaloTowerSeg::SubSegIterator<TOWER_ITERATOR>::make
  *               of the store.
  */
 template <class TOWER_ITERATOR>
+// cppcheck-suppress uninitMemberVar  ; get bogus cppcheck warnings here.
 CaloTowerSeg::SubSegIterator<TOWER_ITERATOR>::SubSegIterator
   (const TOWER_ITERATOR& it,
    size_t nphi,

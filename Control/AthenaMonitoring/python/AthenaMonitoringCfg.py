@@ -17,6 +17,11 @@ def AthenaMonitoringCfg(flags):
         from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
         result.merge(TileJetMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doLArMon:
+        local_logger.info('Set up LAr monitoring')
+        from LArConfiguration.LArMonitoringConfig import LArMonitoringConfig
+        result.merge(LArMonitoringConfig(flags))
+
     if flags.DQ.Steering.doHLTMon:
         local_logger.info('Set up HLT monitoring')
         from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import TrigHLTMonTopConfig

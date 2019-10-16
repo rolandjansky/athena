@@ -4,19 +4,75 @@
 
 #include "PixelMonitoring/PixelAthMonitoringBase.h"
 
+
+//////////////////////////////////////////////
+///
+/// helper class to accumulate points to fill a 2D plot with
+///
+void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Identifier& id,
+						  const PixelID* pid, float value ) {
+  m_pm[layer].push_back(pid->phi_module(id));
+  int ld = pid->layer_disk(id);
+  int em = ld;
+  m_val[layer].push_back(value);
+
+  bool copy = false;
+  if (pid->barrel_ec(id) == 0) {
+    em = pid->eta_module(id);
+    if (ld == 0) {
+      int feid = 0;
+      int emf = 0;
+      if (em < -6) {
+	emf = em - 6;
+      } else if (em > -7 && em < 6) {
+	if (pid->eta_index(id) >= 80) feid = 1;
+	emf = 2 * em + feid;
+	copy = true;
+      } else {
+	emf = em + 6;
+      }
+      em = emf;
+    }
+  }
+  m_em[layer].push_back(em);
+  
+  if (m_copy2DFEval && copy) {
+    ++em;
+    m_pm[layer].push_back(pid->phi_module(id));
+    m_em[layer].push_back(em);
+    m_val[layer].push_back(value);
+  }   
+}
+
+//////////////////////////////////////////////
+///
+/// take VecAccumulator2DMap and fill the corresponding group
+///
+void PixelAthMonitoringBase::fill2DProfLayerAccum( const VecAccumulator2DMap& accumulator ) const {
+  // iterate over all actually filled layers
+  for ( const auto& itr : accumulator.m_pm ) {
+    // Define the monitored variables
+    int layer = itr.first;
+    auto pm  = Monitored::Collection(accumulator.m_prof2Dname + "_pm", accumulator.m_pm.at(layer));
+    auto val = Monitored::Collection(accumulator.m_prof2Dname + "_val", accumulator.m_val.at(layer));
+    auto em  = Monitored::Collection(accumulator.m_prof2Dname + "_em", accumulator.m_em.at(layer));
+    fill(pixLayersLabel[layer], pm, em, val);
+  }
+}
+  
 //////////////////////////////////////////////
 ///
 /// filling 2D(Prof) per-layer histogram, one of ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
 ///
-StatusCode PixelAthMonitoringBase::fill2DProfLayer( std::string prof2Dname, Identifier& id, const PixelID* pid, float value, bool copy2DFEval) const {
+StatusCode PixelAthMonitoringBase::fill2DProfLayer( const std::string& prof2Dname, const std::string& layer, Identifier& id, const PixelID* pid, float value, bool copy2DFEval) const {
   ATH_MSG_VERBOSE( "in fill2DProfLayer()" );
 
   // Define the monitored variables
-  auto pm  = Monitored::Scalar<int>(   Form("%s_%s", prof2Dname.c_str(), "pm"), pid->phi_module(id));
-  auto val = Monitored::Scalar<float>( Form("%s_%s", prof2Dname.c_str(), "val"), value);
+  auto pm  = Monitored::Scalar<int>(   prof2Dname + "_pm", pid->phi_module(id));
+  auto val = Monitored::Scalar<float>( prof2Dname + "_val", value);
 
   int ld  = pid->layer_disk(id);
-  auto em  = Monitored::Scalar<int>(   Form("%s_%s", prof2Dname.c_str(), "em"), ld);
+  auto em  = Monitored::Scalar<int>(   prof2Dname + "_em", ld);
   bool copy = false;
   if (pid->barrel_ec(id) == 0) {
     em = pid->eta_module(id);
@@ -35,12 +91,12 @@ StatusCode PixelAthMonitoringBase::fill2DProfLayer( std::string prof2Dname, Iden
       em = emf;
     }
   }
-  fill(prof2Dname, em, pm, val);
+  fill(layer, em, pm, val);
   // next line is only for IBL: fill the (per-FE) histogram again to avoid holes in the histogram in case 
   // the filled information is available per module (and not per FE)
   if ( copy2DFEval && copy ) {
     em++;
-    fill(prof2Dname, em, pm, val);
+    fill(layer, em, pm, val);
   }
   return StatusCode::SUCCESS;
 }
@@ -58,7 +114,7 @@ StatusCode PixelAthMonitoringBase::fill1DProfLumiLayers( std::string prof1Dname,
 
   for (int i = 0; i < PixLayers::COUNT; i++) {
     val = values[i];
-    fill( prof1Dname + "_" + pixLayersLabel[i], lb, val);
+    fill( pixLayersLabel[i], lb, val);
   }
 
   return StatusCode::SUCCESS;
@@ -75,7 +131,7 @@ StatusCode PixelAthMonitoringBase::fill1DProfLayers( std::string name, float* va
   auto val = Monitored::Scalar<float>( Form("%s_%s", name.c_str(), "val"), -999. );
   for (int i = 0; i < PixLayers::COUNT; i++) {
     val = values[i];
-    fill(name + "_" + pixLayersLabel[i], val);
+    fill(pixLayersLabel[i], val);
   }
   return StatusCode::SUCCESS;
 }

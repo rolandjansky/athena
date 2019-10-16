@@ -16,7 +16,7 @@
 
 class Identifier;
 
-class MdtHelper;
+class MdtIdHelper;
 class IIOVSvc;
 class StatusCode;
 class IMDT_MapConversion;

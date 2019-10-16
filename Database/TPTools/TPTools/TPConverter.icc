@@ -46,6 +46,7 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
    }
    // make a new space in the storage vector
    size_t	size = m_pStorage->size();
+   // cppcheck-suppress uninitvar
    m_pStorage->resize( size+1 );
 
    if( m_recursive ) {
@@ -217,7 +218,7 @@ void TPCnvStdVector<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
    typename TRANS::iterator it = transVect->begin();
    while(i) {
       element_cnv.persToTrans( &(*pit), &(*it), log );
-      it++; pit++; i--;
+      ++it; ++pit; --i;
    }
 }
 
@@ -250,7 +251,7 @@ void TPCnvStdVectorConst<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
    typename TRANS::iterator it = transVect->begin();
    while(i) {
       element_cnv.persToTrans( &(*pit), &(*it), log );
-      it++; pit++; i--;
+      ++it; ++pit; --i;
    }
 }
 
@@ -384,7 +385,7 @@ void TPCnvIDCont<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
    typename TRANS::const_iterator it_Coll = transCont->begin();
    typename TRANS::const_iterator it_CollEnd  = transCont->end();
    int entries;
-   for (entries = 0; it_Coll != it_CollEnd; ++entries, it_Coll++)  {
+   for (entries = 0; it_Coll != it_CollEnd; ++entries, ++it_Coll)  {
       persCont->resize(entries + 1);
       element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }
@@ -426,7 +427,7 @@ void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::transToPers(const TRANS* tran
    typename TRANS::const_iterator it_Coll = transCont->begin();
    typename TRANS::const_iterator it_CollEnd  = transCont->end();
    int entries;
-   for (entries = 0; it_Coll != it_CollEnd; ++entries, it_Coll++)  {
+   for (entries = 0; it_Coll != it_CollEnd; ++entries, ++it_Coll)  {
       persCont->resize(entries + 1);
       element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }

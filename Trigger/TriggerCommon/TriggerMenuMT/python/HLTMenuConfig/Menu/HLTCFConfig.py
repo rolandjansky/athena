@@ -40,7 +40,7 @@ log = logging.getLogger('HLTCFConfig')
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+    from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name )
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
@@ -195,8 +195,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
     testHLTTree( topSequence )
 
-
-def matrixDisplay( allCFSeq ):
+def matrixDisplayOld( allCFSeq ):
     from collections import defaultdict
     longestName = 5
     mx = defaultdict(lambda: dict())
@@ -207,13 +206,18 @@ def matrixDisplay( allCFSeq ):
             longestName = max(longestName, len(seq.step.name) )
 
     longestName = longestName + 1
+
     def __getHyposOfStep( s ):
         if len(s.step.sequences):
-           if type(s.step.sequences[0].hypo) is list:
-              return s.step.sequences[0].hypo[0].tools
-           else:
-              return s.step.sequences[0].hypo.tools
+            if len(s.step.sequences)==1:
+                if type(s.step.sequences[0].hypo) is list:
+                    return s.step.sequences[0].hypo[0].tools
+                else:
+                    return s.step.sequences[0].hypo.tools
+            else:
+                return s.step.combo.getChains().keys()
         return []
+   
 
 
 
@@ -237,6 +241,50 @@ def matrixDisplay( allCFSeq ):
     log.debug( "" )
 
 
+    
+def matrixDisplay( allCFSeq ):
+ 
+    def __getHyposOfStep( step ):
+        if len(step.sequences):
+            if len(step.sequences)==1:
+                if type(step.sequences[0].hypo) is list:
+                    return step.sequences[0].hypo[0].tools
+                else:
+                    return step.sequences[0].hypo.tools
+            else:
+                return step.combo.getChains().keys()
+        return []
+ 
+   
+    # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
+    from collections import defaultdict
+    mx = defaultdict(list)
+
+    for stepNumber,cfseq_list in enumerate(allCFSeq, 1):
+        for cfseq in cfseq_list:
+            chains = __getHyposOfStep(cfseq.step)
+            for seq in cfseq.step.sequences:
+                mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
+
+
+    # sort dictionary by fist key=step
+    from collections import  OrderedDict
+    sorted_mx = OrderedDict(sorted( mx.items(), key= lambda k: k[0]))
+
+    log.info( "" )
+    log.info( "="*90 )
+    log.info( "Cumulative Summary of steps")
+    log.info( "="*90 )
+    for (step, seq), chains in sorted_mx.items():
+        log.info( "(step, sequence)  ==> (%d, %s) is in chains: ",  step, seq)
+        for chain in chains:
+            log.info( "              %s",chain)
+
+    log.info( "="*90 )
+
+
+
+   
 
 def decisionTree_From_Chains(HLTNode, chains, allDicts, newJO):
     """ creates the decision tree, given the starting node and the chains containing the sequences  """

@@ -52,7 +52,7 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
     executeTimeGroup = helper.addGroup(tileMBTSMonAlg, 'TileMBTSMonExecuteTime', 'Tile/')
     executeTimeGroup.defineHistogram('TIME_execute', path = 'MBTS', type='TH1F',
                                      title = 'Time for execute TileMBTSMonAlg algorithm;time [#mus]',
-                                     xbins = 100, xmin = 0, xmax = 100000)
+                                     xbins = 100, xmin = 0, xmax = 1000)
 
 
     run = str(flags.Input.RunNumber[0])
@@ -216,6 +216,8 @@ if __name__=='__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Output.HISTFileName = 'TileMBTSMonitorOutput.root'
+    ConfigFlags.DQ.useTrigger = False
+    ConfigFlags.DQ.enableLumiAccess = False
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -224,7 +226,9 @@ if __name__=='__main__':
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    cfg.merge( TileMBTSMonitoringConfig(ConfigFlags, TileDigitsContainer = 'TileDigitsFlt') )
+    cfg.merge( TileMBTSMonitoringConfig(ConfigFlags,
+                                        FillHistogramsPerMBTS = True,
+                                        TileDigitsContainer = 'TileDigitsFlt') )
 
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
