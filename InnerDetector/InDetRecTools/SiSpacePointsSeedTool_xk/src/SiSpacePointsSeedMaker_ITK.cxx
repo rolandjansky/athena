@@ -1767,7 +1767,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
     sort(&m_Tn[ 0],Nt   );
     sort(&m_Tn[Nt],Nb-Nt);
 
-    covr0      *= .5;
+    covr0      *= 2.;
     covz0      *= 2.;
 
     m_nOneSeeds  = 0; m_mapOneSeeds .clear();
@@ -1785,42 +1785,40 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
       float  Tzb  = m_Tn[ib].Fl ;
       int    b    = m_Tn[ib].In ;
 
-      float  Rb2r = m_R [b]*covr0;
-      float  Rb2z = m_R [b]*covz0;
-      float  Erb  = m_Er[b]      ;
-      float  Vb   = m_V [b]      ;
-      float  Ub   = m_U [b]      ;
-      float  Tzb2 = (1.+Tzb*Tzb) ;
-      float  CSA  = Tzb2*m_COFK  ;
-      float ICSA  = Tzb2*m_ipt2C ;
+      float  Rb2r = m_R [b]*covr0*Tzb;
+      float  Rb2z = m_R [b]*covz0    ;
+      float  Erb  = m_Er[b]          ;
+      float  Vb   = m_V [b]          ;
+      float  Ub   = m_U [b]          ;
+      float  Tzb2 = (1.+Tzb*Tzb)     ;
+      float  CSA  = Tzb2*m_COFK      ;
+      float ICSA  = Tzb2*m_ipt2C     ;
 
       int Nc = 1; if(m_SP[b]->radius() > 140.) Nc = 0;
       if(m_nOneSeedsQ) ++Nc;
 
       for(int it(it0);  it!=Nt; ++it) {
 
-	int  t    = m_Tn[it].In;
-
-	float DT  = Tzb-m_Tn[it].Fl;
-	float ST  = Tzb+m_Tn[it].Fl;
-	float dT  = (DT*DT-m_R[t]*Rb2z-(Erb+m_Er[t]))-(m_R[t]*Rb2r)*(ST*ST);
-
-	if( dT > ICSA) {if(DT < 0.) break; it0 = it+1; continue;}
-
-	float dU  = m_U[t]-Ub; if(dU == 0.) continue ; 
-	float A   = (m_V[t]-Vb)/dU                   ;
-	float S2  = 1.+A*A                           ;
-	float B   = Vb-A*Ub                          ;
-	float B2  = B*B                              ;
-	if(B2  > m_ipt2K*S2) continue;
-	if(dT*S2 > B2*CSA) {if(DT < 0.) break; it0 = it; continue;}
-
-	float Im  = fabs((A-B*R)*R)                  ; 
-
-	if(Im <= m_diver) {
-	  m_Im[t] = Im; 
-	  m_CmSp[m_nCmSp].Fl = B/sqrt(S2); m_CmSp[m_nCmSp].In = t; if(++m_nCmSp==500) break;
-	}
+        int  t    = m_Tn[it].In;        
+        float DT  = Tzb-m_Tn[it].Fl;
+        float dT  = (DT*DT-(Erb+m_Er[t]))-((Rb2z+Rb2r*m_Tn[it].Fl)*m_R[t]);
+        
+        if( dT > ICSA) {if(DT < 0.) break; it0 = it+1; continue;}
+        
+        float dU  = m_U[t]-Ub; if(dU == 0.) continue ; 
+        float A   = (m_V[t]-Vb)/dU                   ;
+        float S2  = 1.+A*A                           ;
+        float B   = Vb-A*Ub                          ;
+        float B2  = B*B                              ;
+        if(B2  > m_ipt2K*S2) continue;
+        if(dT*S2 > B2*CSA) {if(DT < 0.) break; it0 = it; continue;}
+        
+        float Im  = fabs((A-B*R)*R)                  ; 
+        
+        if(Im <= m_diver) {
+          m_Im[t] = Im; 
+          m_CmSp[m_nCmSp].Fl = B/sqrt(S2); m_CmSp[m_nCmSp].In = t; if(++m_nCmSp==500) break;
+        }
       }
       if(m_nCmSp > Nc) newOneSeedWithCurvaturesComparisonPPP(m_SP[b],(*r0),Z-R*Tzb); 
     }
