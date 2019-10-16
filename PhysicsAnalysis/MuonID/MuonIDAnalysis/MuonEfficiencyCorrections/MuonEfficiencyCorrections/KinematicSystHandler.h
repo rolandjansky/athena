@@ -7,15 +7,6 @@
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
-// Infrastructure include(s):
-#ifdef ROOTCORE
-#   include "xAODRootAccess/Init.h"
-#   include "xAODRootAccess/TEvent.h"
-#endif // ROOTCORE
-
-// EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODMuon/MuonContainer.h"
 
 #include <PATInterfaces/CorrectionCode.h>
 #include <MuonEfficiencyCorrections/HistHandler.h>
@@ -31,7 +22,7 @@
 // STL includes
 #include <string>
 #include <iostream>
-#include <exception>
+#include <memory>
 #include <map>
 #include <cmath>
 
@@ -102,8 +93,8 @@ namespace CP {
             std::unique_ptr<HistHandler> m_Handler;
             float m_SystWeight;
     };
-    ///     Extra systematic assigned for the TTVA non-closure
     ///
+    ///     Extra systematic assigned for the TTVA non-closure
     ///
     class TTVAClosureSysHandler: public IKinematicSystHandler {
         public:
@@ -117,29 +108,31 @@ namespace CP {
             float m_SystWeight;
     };
 
-
     class BadMuonVetoSystHandler: public IKinematicSystHandler {
         public:
              CorrectionCode GetKineDependent(const xAOD::Muon &mu, float& Eff) const override;
              void SetSystematicWeight(float SystWeight)override;
 
             bool initialize() override;
-            BadMuonVetoSystHandler(TDirectory* InDir);
+            BadMuonVetoSystHandler(TDirectory* InDir_3Stations, TDirectory* InDir_2Stations = nullptr);
             virtual ~BadMuonVetoSystHandler();
 
         private:
-            CP::CorrectionCode FindAppropiatePolynomial(const xAOD::Muon& mu, TF1* &Poly) const;
-            std::string GetNextProperty(std::string &sstr);
-
             typedef std::pair<float, float> Ranges;
-            std::map<Ranges, std::unique_ptr<TF1>> m_SystPolynomials;
-
-            KinVariable m_FirstVar;
-            KinVariable m_SecondVar;
+            
+            CP::CorrectionCode findAppropiatePolynomial(const xAOD::Muon& mu, TF1* &Poly) const;
+            
+            std::string getNextProperty(std::string &sstr) const;
+            void fillMap(TDirectory* InDir, std::map<Ranges, std::unique_ptr<TF1>>& systPolynomials); 
+            
+            std::map<Ranges, std::unique_ptr<TF1>> m_syst3Stations;
+            std::map<Ranges, std::unique_ptr<TF1>> m_syst2Stations;
+            
+            KinVariable m_uncertVar;
+            KinVariable m_polySelVar;
             float m_SystWeight;
-
     };
-
+    
 } /* namespace CP */
 
 #endif /* EFFICIENCYSCALEFACTOR_H_ */

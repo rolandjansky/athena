@@ -122,24 +122,19 @@ namespace CP {
     //###############################################################
     //                  BadMuonVetoSystHandler
     //###############################################################
-    std::string BadMuonVetoSystHandler::GetNextProperty(std::string &sstr) {
-        //Elimnate the beginning underscores
-        if (sstr.find("_") == 0) {
-            sstr.substr(1, sstr.size());
-        }
-        size_t pos = sstr.find("_");
-        std::string Property = pos != std::string::npos ? sstr.substr(0, pos) : sstr;
-        if (pos != std::string::npos) {
-            sstr = sstr.substr(Property.size() + 1, sstr.size());
-        }
-        return Property;
-    }
-
-    BadMuonVetoSystHandler::BadMuonVetoSystHandler(TDirectory* InDir) :
-                    m_SystPolynomials(),
-                    m_FirstVar(nullptr),
-                    m_SecondVar(nullptr),
+    BadMuonVetoSystHandler::BadMuonVetoSystHandler(TDirectory* InDir_3Stations, TDirectory* InDir_2Stations) :
+                    m_syst3Stations(),
+                    m_syst2Stations(),
+                    m_uncertVar(nullptr),
+                    m_polySelVar(nullptr),
                     m_SystWeight(0.) {
+        fillMap(InDir_3Stations, m_syst3Stations);
+        if (InDir_2Stations && InDir_2Stations!= InDir_3Stations) {
+            fillMap(InDir_2Stations,m_syst2Stations);            
+        }
+                        
+    }
+    void BadMuonVetoSystHandler::fillMap(TDirectory* InDir, std::map<Ranges, std::unique_ptr<TF1>>& systPolynomials){
         if (!InDir) {
             Error("BadMuonSysVetoHandler()", "No TDirectory is given");
             return;
@@ -157,18 +152,18 @@ namespace CP {
                 continue;
             }
             //Elimnate the TF1_
-            GetNextProperty(ObjName);
-            m_FirstVar = GetMuonVariableToUse(GetNextProperty(ObjName));
-            m_SecondVar = GetMuonVariableToUse(GetNextProperty(ObjName));
-            std::string LowRange_str = GetNextProperty(ObjName);
-            std::string HighRange_str = GetNextProperty(ObjName);
+            getNextProperty(ObjName);
+            if (!m_uncertVar) m_uncertVar = GetMuonVariableToUse(getNextProperty(ObjName));
+            if (!m_polySelVar) m_polySelVar = GetMuonVariableToUse(getNextProperty(ObjName));
+            std::string LowRange_str = getNextProperty(ObjName);
+            std::string HighRange_str = getNextProperty(ObjName);
             if (!LowRange_str.empty()) {
                 lowRange = atof(LowRange_str.c_str()) / pow(10, LowRange_str.size() -1);
             }
             if (!HighRange_str.empty()) {
                 highRange = atof(HighRange_str.c_str()) / pow(10, LowRange_str.size() -1);
             }
-            m_SystPolynomials.insert(std::pair<Ranges, std::unique_ptr<TF1>>(Ranges(lowRange, highRange), std::unique_ptr<TF1>(TF)));
+            systPolynomials.insert(std::pair<Ranges, std::unique_ptr<TF1>>(Ranges(lowRange, highRange), std::unique_ptr<TF1>(TF)));
         }
 
     }
@@ -180,12 +175,11 @@ namespace CP {
         // we know that Eff=(1+relative sys error), since SF==1
         float RelHighPtSys = 0.;
         if (mu.pt() >= 100.e3) {
-            CorrectionCode cc = FindAppropiatePolynomial(mu, Poly);
+            CorrectionCode cc = findAppropiatePolynomial(mu, Poly);
             if (cc != CorrectionCode::Ok) {
                 return cc;
             }
-//            RelHighPtSys = fabs(1 - Poly->Eval((this->*m_FirstVar)(mu)));
-            RelHighPtSys = Poly->Eval((this->*m_FirstVar)(mu));
+            RelHighPtSys = Poly->Eval((this->*m_uncertVar)(mu));
 
         } else {
             //Apply flat 0.5% systematic
@@ -201,11 +195,11 @@ namespace CP {
     }
 
     bool BadMuonVetoSystHandler::initialize() {
-        if (m_SystPolynomials.empty()) {
+        if (m_syst3Stations.empty()) {
             Error("BadMuonVetoSystHandler::initialize()", "No polynomials");
             return false;
         }
-        if (!m_FirstVar || !m_SecondVar) {
+        if (!m_uncertVar || !m_polySelVar) {
             return false;
         }
         return true;
@@ -213,18 +207,43 @@ namespace CP {
     BadMuonVetoSystHandler::~BadMuonVetoSystHandler() {
     }
 
-    CP::CorrectionCode BadMuonVetoSystHandler::FindAppropiatePolynomial(const xAOD::Muon& mu, TF1* &Poly) const {
-        if (!m_SecondVar) {
+    CP::CorrectionCode BadMuonVetoSystHandler::findAppropiatePolynomial(const xAOD::Muon& mu, TF1* &Poly) const {
+        if (!m_polySelVar) {
             Error("BadMuonVetoSystHandler()", "Something went wrong with the initialization");
             return CorrectionCode::Error;
         }
-        for (const auto& BinnedPoly : m_SystPolynomials) {
-            if (BinnedPoly.first.first <= (this->*m_SecondVar)(mu) && (this->*m_SecondVar)(mu) < BinnedPoly.first.second) {
-                Poly = BinnedPoly.second.get();
-                return CorrectionCode::Ok;
+        uint8_t nprecisionLayers=0;      
+        if (!mu.summaryValue(nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers)){
+            Error("BadMuonSysVetoHandler()", "Precisionlayers unkown");
+            return CorrectionCode::Error;
+        } else if (nprecisionLayers >= 3) {
+            for (const auto& BinnedPoly : m_syst3Stations) {
+                if (BinnedPoly.first.first <= (this->*m_polySelVar)(mu) && (this->*m_polySelVar)(mu) < BinnedPoly.first.second) {
+                    Poly = BinnedPoly.second.get();
+                    return CorrectionCode::Ok;
+                }
+            }
+        } else if (nprecisionLayers == 2) {
+            for (const auto& BinnedPoly : m_syst2Stations) {
+                if (BinnedPoly.first.first <= (this->*m_polySelVar)(mu) && (this->*m_polySelVar)(mu) < BinnedPoly.first.second) {
+                    Poly = BinnedPoly.second.get();
+                    return CorrectionCode::Ok;
+                }
             }
         }
         return CP::CorrectionCode::OutOfValidityRange;
+    }
+    std::string BadMuonVetoSystHandler::getNextProperty(std::string &sstr) const {
+        //Elimnate the beginning underscores
+        while (sstr.find("_") == 0) {
+            sstr.substr(1, sstr.size());
+        }
+        size_t pos = sstr.find("_");
+        std::string Property = pos != std::string::npos ? sstr.substr(0, pos) : sstr;
+        if (pos != std::string::npos) {
+            sstr = sstr.substr(Property.size() + 1, sstr.size());
+        }
+        return Property;
     }
 
 } /* namespace CP */

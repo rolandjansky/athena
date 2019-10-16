@@ -131,7 +131,11 @@ namespace CP {
         if (m_measurement == CP::MuonEfficiencyType::BadMuonVeto) {
             TDirectory* SystDir = nullptr;
             f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
-            m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
+            if (SystDir) {
+                m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
+            } else {
+            
+            }
             m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
             if (!m_sf_KineDepsys->initialize()){
                 Error("EfficiencyScaleFactor()", "Pt dependent systematic could not be loaded");
@@ -184,7 +188,7 @@ namespace CP {
     bool EfficiencyScaleFactor::CheckConsistency()  {
         //Check whether  the SFs could be successfully loaded
         if (!m_sf) {
-            Error("EfficiencyScaleFactor()", "Could not load the SF for and systematic %s", sysname().c_str());
+            Error("EfficiencyScaleFactor()", "Could not load the SF for  measurement %s and systematic %s",EfficiencyTypeName(m_measurement).c_str(), sysname().c_str());
             return false;
         }
         if (m_respond_to_kineDepSyst && !m_sf_KineDepsys->initialize()) {
@@ -223,7 +227,7 @@ namespace CP {
             return false;
         }
         if (!consistent_histo(m_eff)){
-            Error("EfficiencyScaleFactor()", "Data-efficiency in %s", sysname().c_str());
+            Error("EfficiencyScaleFactor()", "Invalid data-efficiency in %s", sysname().c_str());
             return false;
         }
         if (!consistent_histo(m_mc_eff)){
