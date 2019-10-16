@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "JetMonitoring/IJetHistoFiller.h"
-#include "JetMonitoring/JetVarTool.h"
+#include "JetMonitoring/JetHistoVarTool.h"
 #include "JetInterface/IJetSelector.h"
 
 ////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ private:
   Gaudi::Property<std::string> m_probeTrigChain {this, "ProbeTrigChain", "_undefined_"};
   Gaudi::Property<size_t> m_jetIndex {this, "Index",0};
   ToolHandle<IJetSelector> m_selectTool;
-  ToolHandle<IJetVarTool> m_jetVar;
+  ToolHandle<IJetHistoVarTool> m_jetVar;
 
   
   

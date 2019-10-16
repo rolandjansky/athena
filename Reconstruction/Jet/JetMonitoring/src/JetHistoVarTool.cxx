@@ -2,19 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "JetMonitoring/JetVarTool.h"
+#include "JetMonitoring/JetHistoVarTool.h"
 
 
-JetVarTool::JetVarTool( const std::string& type,  const std::string & name ,const IInterface* parent):
+JetHistoVarTool::JetHistoVarTool( const std::string& type,  const std::string & name ,const IInterface* parent):
   AthAlgTool( type, name, parent )
 
 {
-  declareInterface<IJetVarTool>(this);
+  declareInterface<IJetHistoVarTool>(this);
 
   
 }
 
-StatusCode JetVarTool::initialize() {
+StatusCode JetHistoVarTool::initialize() {
 
   if(m_name=="") m_name = name();
   m_v.reset( JetVar::Variable::create( m_name, m_type, m_index) ); 
@@ -29,6 +29,6 @@ StatusCode JetVarTool::initialize() {
 }
 
 
-float JetVarTool::value(const xAOD::Jet &j) const {
+float JetHistoVarTool::value(const xAOD::Jet &j) const {
   return m_v->value(j) ;
 }
