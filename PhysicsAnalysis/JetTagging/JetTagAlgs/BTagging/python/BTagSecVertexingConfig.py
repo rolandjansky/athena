@@ -9,7 +9,7 @@ from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
 from BTagging.BTaggingConf import Analysis__BTagSecVertexing
 
-def BTagSecVtxToolCfg(flags, name, JetCollection, outputObjs = None, **options):
+def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -26,6 +26,8 @@ def BTagSecVtxToolCfg(flags, name, JetCollection, outputObjs = None, **options):
     secVtxFinderList = []
     secVtxFinderTrackNameList = []
     secVtxFinderxAODBaseNameList = []
+    if TimeStamp:
+        TimeStamp = '_' + TimeStamp
 
     newJetFitterVxFinder = acc.popToolsAndMerge(NewJetFitterVxFinderCfg(flags, 'JFVxFinder'))
     secVtxFinderList.append(newJetFitterVxFinder)
@@ -46,10 +48,7 @@ def BTagSecVtxToolCfg(flags, name, JetCollection, outputObjs = None, **options):
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
-    btagname = flags.BTagging.OutputFiles.Prefix + jetcol
-    timestamp = options.get('TimeStamp', None)
-    if timestamp:
-        btagname += timestamp
+    btagname = flags.BTagging.OutputFiles.Prefix + jetcol + TimeStamp
 
     options = {}
     options.setdefault('SecVtxFinderList', secVtxFinderList)
@@ -57,14 +56,12 @@ def BTagSecVtxToolCfg(flags, name, JetCollection, outputObjs = None, **options):
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
     options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('BTagJFVtxCollectionName', btagname + OutputFilesJFVxname)
-    options.setdefault('BTagSVCollectionName', btagname + OutputFilesSVname)
+    options['BTagJFVtxCollectionName'] = btagname + OutputFilesJFVxname
+    options['BTagSVCollectionName'] = btagname + OutputFilesSVname
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options.setdefault('MSVVariableFactory', varFactory)
-    options['name'] = name
-    if outputObjs:
-        outputObjs['xAOD::VertexContainer'] = options['BTagSVCollectionName']
-        outputObjs['xAOD::BTagVertexContainer'] = options['BTagJFVtxCollectionName']
+    options['name'] = Name+TimeStamp
+
     tool = Analysis__BTagSecVertexing(**options)
 
     acc.setPrivateTools(tool)

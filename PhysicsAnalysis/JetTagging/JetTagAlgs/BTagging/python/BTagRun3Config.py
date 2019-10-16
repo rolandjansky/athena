@@ -52,15 +52,21 @@ def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
 
       input: JetCollection:       The name of the jet collection."""
       ItemList = []
+      # btaggingLink
+      ItemList.append('xAOD::JetContainer#'+JetCollection+'Jets.btaggingLink' + suffix)
+      ItemList.append('xAOD::JetAuxContainer#'+JetCollection+'JetsAux.btaggingLink'+ suffix)
+
       OutputFilesSVname = "SecVtx"
       OutputFilesJFVxname = "JFVtx"
-
       OutputFilesBaseName = "xAOD::BTaggingContainer#"
       OutputFilesBaseAuxName = "xAOD::BTaggingAuxContainer#"
       OutputFilesBaseNameSecVtx = "xAOD::VertexContainer#"
       OutputFilesBaseAuxNameSecVtx = "xAOD::VertexAuxContainer#"
       OutputFilesBaseNameJFSecVtx = "xAOD::BTagVertexContainer#"
       OutputFilesBaseAuxNameJFSecVtx= "xAOD::BTagVertexAuxContainer#"
+
+      if suffix:
+          suffix = '_' + suffix
 
       author = flags.BTagging.OutputFiles.Prefix + JetCollection + suffix
       ItemList.append(OutputFilesBaseName + author)
@@ -94,14 +100,6 @@ def BTagRedoESDCfg(flags, jet):
 
 def BTagESDtoESDCfg(flags, jet, new):
     acc=ComponentAccumulator()
-
-    #Rename the element link of the BTagging container from the Jet container
-    from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
-    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
-    # The new btaggingLink will point to the time-stamped BTagging container
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.btaggingLink_old']
-    acc.addService(AddressRemappingSvc)
-    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
 
     #Register input ESD container in output
     ESDItemList = registerOutputContainersForJetCollection(flags, jet)
@@ -162,8 +160,9 @@ def BTagCfg(inputFlags,**kwargs):
     for jet in JetCollection:
         if timestamp:
             #Time-stamped BTagging container (21.2)
-            result.merge(BTagESDtoESDCfg(inputFlags, jet, timestamp))
-            kwargs.setdefault('TimeStamp', timestamp)
+            for ts in timestamp:
+              result.merge(BTagESDtoESDCfg(inputFlags, jet, ts))
+            kwargs['TimeStamp'] = timestamp
         else:
             result.merge(BTagRedoESDCfg(inputFlags, jet))
 
@@ -218,7 +217,7 @@ if __name__=="__main__":
 
     kwargs = {}
     if args.release == "21.2":
-        kwargs["TimeStamp"] = "_201810"
+        kwargs["TimeStamp"] = ['201810','201903']
     acc.merge(BTagCfg(cfgFlags, **kwargs))
 
     acc.setAppProperty("EvtMax",-1)
