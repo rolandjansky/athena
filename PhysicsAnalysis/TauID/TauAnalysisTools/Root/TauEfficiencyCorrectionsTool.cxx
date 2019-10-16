@@ -569,10 +569,23 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
       // only set vars if they differ from "", which means they have been configured by the user
       if (m_sInputFilePathJetIDHadTau.empty())
       {
-        if (m_bUseTauSubstructure)
-          m_sInputFilePathJetIDHadTau = sDirectory+"JetIDSubstructure_TrueHadTau_2019-summer.root";
-        else
-          m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2018-summer.root";
+        if (m_iIDLevel == JETIDBDTLOOSE || m_iIDLevel == JETIDBDTMEDIUM || m_iIDLevel == JETIDBDTTIGHT)
+        {
+          if (m_bUseTauSubstructure)
+            m_sInputFilePathJetIDHadTau = sDirectory+"JetIDSubstructure_TrueHadTau_2019-summer.root";
+          else
+            m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer.root";
+        }
+        else if (m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT)
+        {
+          m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer.root";
+        }
+        else 
+        {
+          ATH_MSG_WARNING("Unsupported ID working point with enum "<<m_iIDLevel);
+          continue;
+        }
+
       }
 
       if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "TauScaleFactorJetIDHadTau";
@@ -608,6 +621,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
     {
       // only set vars if they differ from "", which means they have been configured by the user
       if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2019-summer.root";
+      if (m_sInputFilePathEleBDTElectron.empty()) m_sInputFilePathEleBDTElectron = sDirectory+"EleBDT_TrueElectron_2019-summer.root";
       if (m_sVarNameEleOLRElectron.length() == 0) m_sVarNameEleOLRElectron = "TauScaleFactorEleOLRElectron";
 
       asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("TauAnalysisTools::CommonEfficiencyTool/EleOLRElectronTool", this);
@@ -615,7 +629,16 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
       ATH_CHECK(tTool->setProperty("VarName", m_sVarNameEleOLRElectron));
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
       ATH_CHECK(tTool->setProperty("WP", ConvertEleOLRToString(m_iOLRLevel)));
-      ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRElectron));
+
+      if (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM )
+      {
+        ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleBDTElectron));
+        ATH_CHECK(tTool->setProperty("UseTauSubstructure", true));
+      }
+      else
+      {
+        ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRElectron));
+      }
 
     }
     else if (iEfficiencyCorrectionType == SFRecoHadTau)
@@ -1848,17 +1871,17 @@ std::string TauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLevel
     return "jetbdtsig";
     break;
   case JETIDRNNVERYLOOSE: 
-    ATH_MSG_WARNING("Very loose RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
+    ATH_MSG_WARNING("Very loose RNN working point passed. Efficiency corrections for this working point are not supported.");
     return "";
   case JETIDRNNLOOSE: 
-    ATH_MSG_WARNING("Loose RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
-    return "";
+    return "jetrnnsigloose";
+    break;
   case JETIDRNNMEDIUM: 
-    ATH_MSG_WARNING("Medium RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
-    return "";
+    return "jetrnnsigmedium";
+    break;
   case JETIDRNNTIGHT: 
-    ATH_MSG_WARNING("Tight RNN working point passed. Efficiency corrections for RNN ID are not available yet.");
-    return "";
+    return "jetrnnsigtight";
+    break;
   default:
     assert(false && "No valid ID level passed. Breaking up ...");
     break;
