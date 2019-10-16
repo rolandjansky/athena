@@ -8,6 +8,12 @@ def LArAffectedRegionsConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArAffectedRegionsCfg')
 
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    acc = LArGMCfg(inputFlags)
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    acc.merge(TileGMCfg(inputFlags))
+    from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+    acc.merge(LArHVScaleCfg(inputFlags))
 
     from LArMonitoring.LArMonitoringConf import LArAffectedRegionsAlg
     larAffectedRegAlg = helper.addAlgorithm(LArAffectedRegionsAlg,'larAffectedRegAlg')
@@ -322,7 +328,8 @@ def LArAffectedRegionsConfig(inputFlags):
 
 
     
-    return helper.result()
+    acc.merge(helper.result())
+    return acc
     
 
 if __name__=='__main__':
