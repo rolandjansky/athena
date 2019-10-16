@@ -32,4 +32,9 @@ def AthenaMonitoringCfg(flags):
         from DataQualityTools.DataQualityToolsConfig import DataQualityToolsConfig
         result.merge(DataQualityToolsConfig(flags))
 
+    if flags.DQ.Steering.doTauMon:
+        local_logger.info('Set up Tau monitoring')
+        from tauMonitoring.TauMonitoringConfig import TauMonitoringConfig
+        result.merge(TauMonitoringConfig(flags))
+
     return result
