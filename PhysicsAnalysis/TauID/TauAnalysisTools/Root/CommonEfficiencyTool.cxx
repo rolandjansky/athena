@@ -69,8 +69,8 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   : asg::AsgTool( sName )
   , m_mSF(nullptr)
   , m_sSystematicSet(0)
-  , m_fX(&caloTauPt)
-  , m_fY(&caloTauEta)
+  , m_fX(&finalTauPt)
+  , m_fY(&finalTauEta)
   , m_sSFHistName("sf")
   , m_bNoMultiprong(false)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
@@ -496,8 +496,8 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
   m_mSF->clear();
 
   // initialize function pointer
-  m_fX = &caloTauPt;
-  m_fY = &caloTauEta;
+  m_fX = &finalTauPt;
+  m_fY = &finalTauEta;
 
   TKey *kKey;
   TIter itNext(fFile.GetListOfKeys());
@@ -511,9 +511,9 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
       TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
-      if (sTitle == "P")
+      if (sTitle == "P" || sTitle == "PFinalCalib")
       {
-        m_fX = &caloTauP;
+        m_fX = &finalTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
       if (sTitle == "TruthDecayMode")
@@ -536,7 +536,7 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &caloTauAbsEta;
+        m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
       continue;
