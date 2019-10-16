@@ -336,12 +336,12 @@ namespace MuonGM {
   bool CscReadoutElement::measuresPhi(const Identifier& id) const { return manager()->cscIdHelper()->measuresPhi(id); } 
 
   double CscReadoutElement::distanceToReadout( const Amg::Vector2D& , const Identifier& ) const {
-    reLog() << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
+    (*m_Log)  << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
     return 0.;
   }
 
   int CscReadoutElement::stripNumber( const Amg::Vector2D& , const Identifier&  ) const { 
-    reLog() << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
+    (*m_Log)  << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
     return 1;
   }
 
@@ -349,7 +349,7 @@ namespace MuonGM {
     /** please don't copy the inefficient code below!! Look at the RpcReadoutElement for a proper implementation */
     Amg::Vector3D gpos = stripPos(id);  
     if( !surface(id).globalToLocal(gpos,gpos,pos) ){
-      reLog() << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(id).transform().inverse()*gpos << std::endl;
+      (*m_Log)  << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(id).transform().inverse()*gpos << std::endl;
       return false;
     }
     return true;
