@@ -14,7 +14,7 @@ __doc__="Decoding of chain name into a dictionary"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
+logDict = logging.getLogger('TriggerMenuMT.menu.DictFromChainName')
 import re
 
 def getOverallL1item(chainName):
