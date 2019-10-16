@@ -133,6 +133,47 @@ double TauAnalysisTools::tauAbsEta(const xAOD::TauJet& xTau)
 }
 
 //______________________________________________________________________________
+double TauAnalysisTools::finalTauPt(const xAOD::TauJet& xTau)
+{
+  // return MVA based tau pt in GeV
+  static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
+  return accPtFinalCalib(xTau)/1000.;
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauEta(const xAOD::TauJet& xTau)
+{
+  // return MVA based tau eta
+  static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
+  return accEtaFinalCalib(xTau);
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauAbsEta(const xAOD::TauJet& xTau)
+{
+  // return MVA based absolute tau eta
+  static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
+  return std::abs(accEtaFinalCalib(xTau));
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauP(const xAOD::TauJet& xTau)
+{
+  static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
+  static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
+  static SG::AuxElement::ConstAccessor<float> accPhiFinalCalib("phiFinalCalib");
+  static SG::AuxElement::ConstAccessor<float> accMFinalCalib("mFinalCalib");
+
+  TLorentzVector tlv;
+  tlv.SetPtEtaPhiM( accPtFinalCalib(xTau),
+                    accEtaFinalCalib(xTau),
+                    accPhiFinalCalib(xTau),
+                    accMFinalCalib(xTau) );
+  // return tau P in GeV
+  return tlv.P()/1000.;
+}
+
+//______________________________________________________________________________
 double TauAnalysisTools::tauLeadTrackEta(const xAOD::TauJet& xTau)
 {
   // return lead tau track eta
