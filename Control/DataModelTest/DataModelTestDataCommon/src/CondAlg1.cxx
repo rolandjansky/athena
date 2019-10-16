@@ -25,6 +25,7 @@ namespace DMTest {
  */
 CondAlg1::CondAlg1 (const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm (name, pSvcLocator),
+    m_condSvc("CondSvc", name),
     m_attrListKey ("/DMTest/TestAttrList"),
     m_scondKey ("scond", "DMTest")
 {
@@ -40,6 +41,7 @@ StatusCode CondAlg1::initialize()
 {
   ATH_CHECK( m_attrListKey.initialize() );
   ATH_CHECK( m_scondKey.initialize() );
+  ATH_CHECK( m_condSvc->regHandle(this, m_scondKey) );
   return StatusCode::SUCCESS;
 }
 
