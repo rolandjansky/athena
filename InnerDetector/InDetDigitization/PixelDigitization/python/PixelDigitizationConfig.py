@@ -180,8 +180,9 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     # Setup charge calibration #
     ############################
     conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-    condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+       condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     #################
     # Setup deadmap #
