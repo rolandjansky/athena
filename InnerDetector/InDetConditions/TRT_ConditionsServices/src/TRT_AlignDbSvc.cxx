@@ -1,11 +1,10 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+// /*
+//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+// */
 
-/** @file TRT_AlignDbSvc.cxx
- *  @brief Service to manage TRT alignment conditions
- *  @author AUTHOR John Alison <johnda@hep.upenn.edu>, Peter Hansen <phansen@nbi.dk>, Wouter Hulsbergen
- **/
+// /** @file TRT_AlignDbSvc.cxx
+//  *  @brief Service to manage TRT alignment conditions
+//  *  @author AUTHOR John Alison <johnda@hep.upenn.edu>, Peter Hansen <phansen@nbi.dk>, Wouter Hulsbergen **/
 
 #include "TRT_AlignDbSvc.h"
 
@@ -796,14 +795,14 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL1(Identifier ident, Amg::Transform3
   */
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setAlignTransformL1" << endmsg;
   if(msgLvl(MSG::DEBUG)){
-    printTransform("Transform in setAlignTransformL1",trans);
+    printTransform(" == TRT Transform in setAlignTransformL1 == ",trans);
   }
 
   // New additions for new global folder structure
   // No ATs exist for levels 1 & 2 --> need alternative
   if (m_dynamicDB){
     if(!tweakGlobalFolder(ident, trans)) {
-      ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
+      ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed -- setAlignTransformL1 -- identifier " << ident);
       return StatusCode::FAILURE;
     }
   }
@@ -1018,18 +1017,30 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransform(Identifier ident, Amg::Transform3
   return StatusCode::SUCCESS;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
 /** tweak Level 1 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, Amg::Transform3D trans) {
   /** multiply level 1 AlignableTransform for the module containing ident
       by an additional transform.
   */
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL1" << endmsg;
+  ATH_MSG_INFO( " -- tweakAlignTransformL1 -- START -- identifier " << ident << "  using dynamic DB " << m_dynamicDB);
 
+  // make sure identifier is TRT
+  if( !(m_trtid->is_trt(ident)) ){
+    msg(MSG::WARNING) << "-- tweakAlignTransformL1 -- The identifier " << ident << " is not from the TRT --> FAILURE " << endmsg;
+    return StatusCode::FAILURE;
+  }
+  
   // New additions for new global folder structure                                                                                                                    
   // No ATs exist for levels 1 & 2 --> need alternative                                                                                                               
   if (m_dynamicDB){
-    if(!tweakGlobalFolder(ident, trans)) {
-      ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
+
+    if(tweakGlobalFolder(ident, trans)) {
+      ATH_MSG_ERROR( "-- tweakAlignTransformL1 -- return SUCCESS from tweakGlobalDBfolder(ident,trans) for identifier " << ident << " --> SUCCESS " );
+      return StatusCode::SUCCESS;
+    }
+    else {
+      ATH_MSG_ERROR( "-- tweakAlignTransformL1 -- return FAILURE from tweakGlobalDBfolder(ident,trans) for identifier " << ident << " --> FAILURE ");
       return StatusCode::FAILURE;
     }
   }
@@ -1063,13 +1074,15 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, Amg::Transfor
     }
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL1" << endmsg;
+  ATH_MSG_INFO( " -- tweakAlignTransformL1 -- Completed -- identifier " << ident << "  using dynamic DB " << m_dynamicDB << " --> SUCCESS ");
   return StatusCode::SUCCESS;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
 /** tweak Level 2 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transform3D trans) {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL2" << endmsg;
+  ATH_MSG_INFO( " -- SALVA -- tweakAlignTransformL2 -- START for identifier " << ident);
+
   // multiply level 2 AlignableTransform for the module containing ident
   // by an additional transform.
 
@@ -1102,10 +1115,11 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transfor
     return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL2" << endmsg;
+  ATH_MSG_INFO( " -- tweakAlignTransformL2 -- completed for identifier " << ident);
   return StatusCode::SUCCESS;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
 /** tweak Level 3 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::tweakAlignTransformL3 (Identifier ident, Amg::Transform3D trans) {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL3"  << endmsg;
@@ -1617,7 +1631,7 @@ StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
 
 
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
 StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ) {
 
   // find transform key, then set appropriate transform
@@ -1625,21 +1639,43 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
   CondAttrListCollection* atrlistcol2=0;
   bool result = false;
   std::string key="/TRT/AlignL1/TRT";
-  int bec=m_trtid->barrel_ec(ident);
+  int bec = m_trtid->barrel_ec(ident);
   const unsigned int DBident=bec*1000;
   // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
 
-  if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol1,key)) {
+  ATH_MSG_INFO( " -- tweakGlobalFolder -- START ==> identifier " << ident << " identifier32 << " << ident.get_identifier32() << "  string: " << ident.getString() 
+		<< "\n                                      key: " << key 
+		<< "\n                                      going to retrieve atrlistcol1. Target DBident= "<< DBident);
+
+  if (m_detStore->retrieve(atrlistcol1, key).isSuccess()) {
+    ATH_MSG_INFO( "tweakGlobalFolder ==> retrieved CondAttrListCollection (atrlistcol1) for key: " << key << " SUCCESS" );
+
     // loop over objects in collection
     atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
-    if (atrlistcol1!=0){
-      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
 
+    if (atrlistcol1!=0){
+      ATH_MSG_INFO( "tweakGlobalFolder ==> atrlistcol1->size()=  " << atrlistcol1->size());
+      int structcount = 0;
+      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
+	structcount++;
+	ATH_MSG_INFO( "tweakGlobalFolder ==> inside  for loop  ==> count " << structcount 
+		      << "\n                                   citr->first: " << citr->first 
+		      << "\n                                   citr->second: " << citr->second);
         const coral::AttributeList& atrlist=citr->second;
 	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
 
-        if(citr->first!=DBident) continue;
-        else {
+	if(citr->first != DBident) {
+	  ATH_MSG_INFO( " structcount= " << structcount << "     *** *** citr->first (" << citr->first << ") != DBident (" << DBident << ") --> lets continue");
+	  continue;
+	}
+        // else { // commented by SALVA
+	bool goodmatch = false;
+	if (citr->first == DBident) goodmatch = true;
+	if (citr->first == 1200 && ident.getString().find("0x1200000000000000")>0) goodmatch =true;
+	if (citr->first ==  900 && ident.getString().find("0x1000000000000000")>0) goodmatch =true;
+	if (citr->first ==  800 && ident.getString().find("0x1600000000000000")>0) goodmatch =true;
+	if (goodmatch) {
+	  ATH_MSG_INFO( " -- SALVA -- goodmatch is TRUE -- structcount= " << structcount << "     *** *** citr->first (" << citr->first << ") == DBident (" << DBident );
           msg(MSG::DEBUG) << "Tweak Old global DB -- channel: " << citr->first
 			  << " ,bec: "    << atrlist2["bec"].data<int>()
                           << " ,layer: "  << atrlist2["layer"].data<int>()
@@ -1694,7 +1730,7 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
     }
   }
   else {
-    ATH_MSG_ERROR("tweakGlobalFolder: cannot retrieve CondAttrListCollection for key " << key );
+    ATH_MSG_INFO( "tweakGlobalFolder ==> cannot retrieve CondAttrListCollection (atrlistcol1) for key: " << key << " FAILURE" );
     return StatusCode::FAILURE;
   }
 
