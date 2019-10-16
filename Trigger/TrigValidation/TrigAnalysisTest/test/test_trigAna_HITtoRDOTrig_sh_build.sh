@@ -1,27 +1,17 @@
 #!/bin/bash
 
-# art-description: Test of transform HITS->RDO with serial athena followed by RDO->RDO_TRIG with threads=1
-# art-type: grid
+# art-description: Test of transform HITS->RDO->RDO_TRIG with serial athena
+# art-type: build
 # art-include: master/Athena
-# art-output: *.txt
-# art-output: *.log
-# art-output: log.*
-# art-output: *.new
-# art-output: *.json
-# art-output: *.root
-# art-output: *.pmon.gz
-# art-output: *perfmon*
-# art-output: *.check*
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
-unset ATHENA_NPROC_NUM
-
-export NAME="trigAna_HITtoRDOTrig_mt1_grid"
+export NAME="trigAna_HITtoRDOTrig_sh_build"
 export TEST="TrigAnalysisTest"
 export INPUT="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091_tid10504490_00/HITS.10504490._000001.pool.root.1"
 export INPUT_MB_LOW="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.simul.HITS.e4981_s3087_s3111_tid10701323_00/HITS.10701323._000001.pool.root.1"
 export INPUT_MB_HIGH="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.simul.HITS.e4981_s3087_s3111_tid10701335_00/HITS.10701335._000011.pool.root.1"
-export EVENTS=100
-export THREADS=1
+export EVENTS=20
 export JOB_LOG="athena.HITtoRDO.log"
 export AODTOCHECK="RDO_TRIG.pool.root" # to run checkFile and checkxAOD on this
 
@@ -60,7 +50,6 @@ echo "Running RDO->RDO_TRIG with Reco_tf command:"
 Reco_tf.py \
 --AMI=q221 \
 --imf=True \
---athenaopts="--threads=${THREADS}" \
 --maxEvents=${EVENTS} \
 --inputRDOFile=RDO.pool.root \
 --outputRDO_TRIGFile=RDO_TRIG.pool.root \
