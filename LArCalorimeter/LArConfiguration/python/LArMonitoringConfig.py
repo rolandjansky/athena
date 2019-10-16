@@ -8,16 +8,14 @@ def LArMonitoringConfig(inputFlags):
     from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfig
     from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfig
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfig
-    from LArMonitoring.LArRODMonAlg import  LArRODMonConfig
+    from LArMonitoring.LArRODMonAlg import LArRODMonConfig
 
     # algos which could run anytime:
     acc = LArAffectedRegionsConfig(inputFlags)
     acc.merge(LArCollisionTimeMonConfig(inputFlags))
 
     # and others on RAW data only
-    from LArConfiguration.LArConfigFlags import  _getLArRunInfo
-    lri=_getLArRunInfo(inputFlags)
-    if lri is not None and lri.runType is not None:
+    if inputFlags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
        acc.merge(LArDigitMonConfig(inputFlags))
        acc.merge(LArRODMonConfig(inputFlags))
 

@@ -69,7 +69,7 @@ def getEnvironment(flags):
         return 'online'
     else:
         # this could use being rethought to properly encode input and output types perhaps ...
-        return 'tier0'
+        return 'tier0ESD'
 
 def allSteeringFlagsOff():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
