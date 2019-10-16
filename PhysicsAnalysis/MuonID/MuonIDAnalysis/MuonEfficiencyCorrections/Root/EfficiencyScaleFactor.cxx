@@ -131,10 +131,15 @@ namespace CP {
         if (m_measurement == CP::MuonEfficiencyType::BadMuonVeto) {
             TDirectory* SystDir = nullptr;
             f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
+            /// Old format of the pt-dependent systematic loaded
             if (SystDir) {
                 m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
             } else {
-            
+                /// Now it comes to the new format
+                f->GetObject("BadMuonVetoSyst_3Stations", SystDir);
+                TDirectory* SystDir_2Stat = nullptr;
+                f->GetObject("BadMuonVetoSyst_2Stations", SystDir_2Stat);
+                m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir, SystDir_2Stat);
             }
             m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
             if (!m_sf_KineDepsys->initialize()){

@@ -8,7 +8,7 @@ from MuonEfficiencyCorrections.CommonToolSetup import *
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #
 # Usage: athena --filesInput <InputFile> MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
-#  E.g.:  athena --filesInput /ptmp/mpp/junggjo9/ClusterTP/Datasets/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON1.e3601_s3126_r9364_r9315_p3374/DAOD_MUON1.13055759._000989.pool.root.1 MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
+#  E.g.:  athena --filesInput /ptmp/mpp/junggjo9/Datasets/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON1.e3601_s3126_r10724_p3629/DAOD_MUON1.15437076._000069.pool.root.1 MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
 # Access the algorithm sequence:
 AssembleIO("MUONEFFTESTER")
 from AthenaCommon.AlgSequence import AlgSequence
@@ -39,16 +39,16 @@ alg.MaxEta = 2.5
 #alg.MinQualit = 1 #Medium
 WPs = [
          # reconstruction WPs
-        "LowPt",
-        "Loose", 
-        "Medium", 
-        "Tight", 
-        "HighPt", 
-        "CaloTag",      
+        #"LowPt",
+        #"Loose", 
+        #"Medium", 
+        #"Tight", 
+        #"HighPt", 
+        #"CaloTag",      
          # track-to-vertex-association WPs
-         "TTVA",
+        # "TTVA",
          # BadMuon veto SFs
-     #   "BadMuonVeto_HighPt",
+        "BadMuonVeto_HighPt",
         #"GradientIso",
          # isolation WPs
 #        "FCLooseIso",                    
@@ -61,13 +61,12 @@ WPs = [
 #        "FixedCutPflowTightIso",
 #        "FCTightTrackOnly_FixedRadIso",
         ]
-
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190530_r21", 
                                                #   CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Autumn_2019/"
                                                   )]
     alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
-                                                CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Autumn_2019/"
+                                                CustomInput = "/afs/ipp-garching.mpg.de/home/j/junggjo9/Athena/Rel21/MCP/source/MuonTPPostProcessing/python/SFFileCreation/SFFiles/"
                                                 #Release = "190530_r21"
                                               )]
   

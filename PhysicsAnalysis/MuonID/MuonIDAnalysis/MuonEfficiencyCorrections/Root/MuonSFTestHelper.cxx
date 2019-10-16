@@ -1,8 +1,10 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
+#include "MuonEfficiencyCorrections/UtilFunctions.h"
+
 #include "PATInterfaces/SystematicsUtil.h"
 #include <TH1D.h>
 #define CHECK_CPCorr(Arg) \
@@ -110,12 +112,12 @@ namespace TestMuonSF {
                 continue;
             }
             cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
-            if (cc != CP::CorrectionCode::Ok) {
+            if (cc == CP::CorrectionCode::Error) {
                  Error("MuonSFBranches()", "Failed to retrieve %s data efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
                 return CP::CorrectionCode::Error;
             }
             cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
-            if (cc != CP::CorrectionCode::Ok) {
+            if (cc == CP::CorrectionCode::Error) {
                 Error("MuonSFBranches()", "Failed to retrieve %s mc efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
                 return CP::CorrectionCode::Error;
             }
@@ -123,7 +125,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     std::string MuonSFBranches::name() const {
-        return m_release + (m_release.empty() ? "" : "_") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+        return m_release + (m_release.empty() ? "" : "_") + CP::getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
     bool MuonSFBranches::init() {
         for (auto set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {
@@ -163,7 +165,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     std::string MuonReplicaBranches::name() const {
-        return m_release + (m_release.empty() ? "" : "_") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+        return m_release + (m_release.empty() ? "" : "_") + CP::getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
     bool MuonReplicaBranches::init() {
         for (auto set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {

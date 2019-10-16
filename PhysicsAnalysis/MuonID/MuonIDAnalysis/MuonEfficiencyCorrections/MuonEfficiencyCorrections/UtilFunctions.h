@@ -10,6 +10,7 @@
 #include <functional>
 #include <memory>
 #include <TH1.h>
+#include <AsgTools/AsgTool.h>
 
 namespace CP {
     /// Removes beginning and trailing white spaces from a string
@@ -26,5 +27,13 @@ namespace CP {
     bool isOverflowBin(const TH1 *Histo, int bin);
      
     
+    template<typename T> T getProperty(const asg::IAsgTool* interface_tool, const std::string& prop_name) {
+        const asg::AsgTool* asg_tool = dynamic_cast<const asg::AsgTool*>(interface_tool);
+        T prop;
+        const T* HandlePtr = asg_tool->getProperty < T > (prop_name);
+        if (!HandlePtr) Error("getProperty()", "Failed to retrieve property %s ", prop_name.c_str());
+        else prop = (*HandlePtr);
+        return prop;
+    }
 }
 #endif // MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H

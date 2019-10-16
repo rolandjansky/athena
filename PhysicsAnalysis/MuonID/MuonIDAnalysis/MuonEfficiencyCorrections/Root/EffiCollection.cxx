@@ -5,6 +5,7 @@
 #include <MuonEfficiencyCorrections/EffiCollection.h>
 #include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
 #include <MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h>
+#include <MuonEfficiencyCorrections/UtilFunctions.h>
 #include <TTree.h>
 namespace CP {
     const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };

@@ -417,8 +417,11 @@ namespace CP {
                 syst_map.clear();
                 break;
             }
-            insert_bit("STAT", get_bit(look_up));
-          
+            /// The bad muon veto measurement only provides a combined systematic
+            /// uncertainty of the bad-muon veto. No stat error needed in this case
+            if (measurement() !=  MuonEfficiencyType::BadMuonVeto){
+                insert_bit("STAT", get_bit(look_up));
+            }
             /// If the systematics shall be split into bins
             if (m_seperateSystBins) insert_bit("STAT", EffiCollection::UnCorrelated);
                           
