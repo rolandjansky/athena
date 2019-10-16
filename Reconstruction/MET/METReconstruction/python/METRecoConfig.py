@@ -102,8 +102,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         tool.InputComposition = 'PFlow'
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
         from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc,pfotool.name()):
-            ToolSvc += pfotool
         tool.PFOTool = pfotool
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
@@ -136,7 +134,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
             config.outputKey = tool.MissingETKey
         else:
             tool.MissingETKey = config.outputKey
-    from AthenaCommon.AppMgr import ToolSvc
     return tool
 
 #################################################################################
@@ -150,7 +147,6 @@ class RefConfig:
 def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,caloisotool=None):
     tool = None
 
-    from AthenaCommon.AppMgr import ToolSvc
     if config.type == 'TrackFilter':
         tool = CfgMgr.met__METTrackFilterTool('MET_TrackFilterTool_'+suffix)
         tool.InputPVKey = defaultInputKey['PrimaryVx']
@@ -182,7 +178,6 @@ def getRegions(config,suffix):
     tool.InputMETMap = 'METMap_'+suffix
     tool.InputMETKey = config.outputKey
     tool.RegionValues = [ 1.5, 3.2, 10 ]
-    from AthenaCommon.AppMgr import ToolSvc
     return tool
 
 #################################################################################
@@ -260,7 +255,6 @@ class METConfig:
         if doRegions:
             self.setupRegions(buildconfigs)
         #
-        from AthenaCommon.AppMgr import ToolSvc
         self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
                                                               CutLevel="TightPrimary",
                                                               maxZ0SinTheta=3,
@@ -338,7 +332,6 @@ def getMETRecoAlg(algName='METReconstruction',configs={},tools=[]):
             regiontool = getRegionRecoTool(conf)
             recoTools.append(regiontool)
 
-    from AthenaCommon.AppMgr import ToolSvc
     for tool in recoTools:
         print prefix, 'Added METRecoTool \''+tool.name()+'\' to alg '+algName
 
