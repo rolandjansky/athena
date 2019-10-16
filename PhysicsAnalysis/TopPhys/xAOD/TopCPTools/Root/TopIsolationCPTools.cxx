@@ -24,7 +24,6 @@ IsolationCPTools::IsolationCPTools(const std::string& name) :
     asg::AsgTool(name),
     m_isolationCalibFile("IsolationSelection/v1/MC15_Z_Jpsi_cutMap.root"){
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 
   declareProperty( "IsolationCorrectionTool" , m_isolationCorr);
 }

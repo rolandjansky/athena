@@ -21,7 +21,6 @@ namespace top {
 GhostTrackCPTools::GhostTrackCPTools(const std::string& name) :
     asg::AsgTool(name) {
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 }
 
 StatusCode GhostTrackCPTools::initialize() {

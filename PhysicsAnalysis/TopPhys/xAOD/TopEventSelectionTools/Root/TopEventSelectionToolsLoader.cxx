@@ -14,7 +14,6 @@
 #include "TopEventSelectionTools/GRLSelector.h"
 #include "TopEventSelectionTools/GoodCaloSelector.h"
 #include "TopEventSelectionTools/HTSelector.h"
-#include "TopEventSelectionTools/IP3DSV1Selector.h"
 #include "TopEventSelectionTools/InitialSelector.h"
 #include "TopEventSelectionTools/JetCleaningSelector.h"
 #include "TopEventSelectionTools/TrackJetCleaningSelector.h"
@@ -24,8 +23,6 @@
 #include "TopEventSelectionTools/METSelector.h"
 #include "TopEventSelectionTools/MLLSelector.h"
 #include "TopEventSelectionTools/MLLWindowSelector.h"
-#include "TopEventSelectionTools/MV1Selector.h"
-#include "TopEventSelectionTools/MV2c20Selector.h"
 #include "TopEventSelectionTools/MV2c10Selector.h"
 #include "TopEventSelectionTools/MWTSelector.h"
 #include "TopEventSelectionTools/NElectronNMuonSelector.h"
@@ -95,14 +92,8 @@ namespace top {
 	getline(is,name,' ' );
         return new top::NVarRCJetSelector(name,param.substr(name.size()+1));
     }
-    else if (toolname == "MV1_N")
-        return new top::MV1Selector(param);
-    else if (toolname == "MV2C20_N")
-        return new top::MV2c20Selector(param);
     else if (toolname == "MV2C10_N")
         return new top::MV2c10Selector(param);
-    else if (toolname == "IP3DSV1_N")
-        return new top::IP3DSV1Selector(param);
     else if (toolname == "EL_N_OR_MU_N")
         return new top::NElectronNMuonSelector(param);
     else if (toolname == "EL_N_OR_MU_N_TIGHT")

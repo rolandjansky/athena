@@ -24,7 +24,6 @@ namespace top {
 BoostedTaggingCPTools::BoostedTaggingCPTools(const std::string& name) :
     asg::AsgTool(name) {
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 }
 
 StatusCode BoostedTaggingCPTools::initialize() {

@@ -35,27 +35,6 @@ namespace top{
   {
     ATH_MSG_INFO(" top::BTagScaleFactorCalculator initialize" );
 
-    std::string release_series = "";
-    const char* rel_temp = std::getenv("ROOTCORE_RELEASE_SERIES");
-    if (rel_temp) {
-      release_series = std::string(rel_temp);
-    } else {
-      ATH_MSG_WARNING("Can not access ROOTCORE_RELEASE_SERIES");
-    }
-
-    if (release_series == "23") {
-      ATH_MSG_INFO("Setting release series to 2.3");
-      m_release_series = 23;
-    } else if (release_series == "24") {
-      m_release_series = 24;
-      ATH_MSG_INFO("Setting release series to 2.4");      
-    } else if (release_series == "25") {
-      m_release_series = 25;
-      ATH_MSG_INFO("Setting release series to 2.6");     
-    } else {
-      ATH_MSG_WARNING("Unknown release series, assuming 2.4");
-    }
-    
     // for calo jets
     std::vector<std::string> availableWPs = m_config->bTagWP_available();
     for (auto& WP : availableWPs) {

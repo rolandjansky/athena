@@ -36,7 +36,6 @@ namespace top {
 TriggerCPTools::TriggerCPTools(const std::string& name) :
   asg::AsgTool(name){
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 
   declareProperty( "TrigConfigTool", m_trigConfTool );
   declareProperty( "TrigDecisionTool", m_trigDecisionTool );
