@@ -38,4 +38,6 @@ else
   echo "art-result: 1 xAODContainers"
 fi
 
+export SKIP_CHAIN_DUMP=1
+
 source exec_art_triggertest_post.sh
