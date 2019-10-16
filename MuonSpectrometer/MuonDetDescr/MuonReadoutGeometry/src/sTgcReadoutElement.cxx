@@ -41,7 +41,6 @@ namespace MuonGM {
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
     m_ml = mL;
-    m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:sTgcReadoutElement");
 
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
@@ -66,10 +65,10 @@ namespace MuonGM {
 
     std::string sTGCname = std::string("sTG1-")+sName;
     
-    reLog() << MSG::DEBUG << "sTGCname: " << sTGCname << endmsg;
+    (*m_Log)  << MSG::DEBUG << "sTGCname: " << sTGCname << endmsg;
     sTGCDetectorDescription *sTGC = sTGC_helper.Get_sTGCDetectorType(sTGCname);
     if(sTGC)
-      reLog() << MSG::DEBUG << "Found sTGC detector: " << sTGCname << " " << sTGC << endmsg;
+      (*m_Log)  << MSG::DEBUG << "Found sTGC detector: " << sTGCname << " " << sTGC << endmsg;
 
     static const int nLayers = 4;
 
@@ -79,7 +78,7 @@ namespace MuonGM {
       double ysFrame = sTGC->ysFrame(); //Frame thickness on short parallel edge
       double ylFrame = sTGC->ylFrame(); //Frame thickness on long parallel edge
 
-      reLog() << MSG::DEBUG << "length: " << length << " ysFrame: " << ysFrame << " ylFrame: " << ylFrame << endmsg; 
+      (*m_Log)  << MSG::DEBUG << "length: " << length << " ysFrame: " << ysFrame << " ylFrame: " << ylFrame << endmsg; 
 
     }
 
@@ -92,52 +91,19 @@ namespace MuonGM {
 	for (unsigned ich=0; ich<nchildvol; ++ich) {
 	  PVConstLink pc = pvc->getChildVol(ich);
 	  std::string childname = (pc->getLogVol())->getName();
-	  reLog() << MSG::DEBUG << "Volume Type: " << pc->getLogVol()->getShape()->type() << endmsg;
+	  (*m_Log)  << MSG::DEBUG << "Volume Type: " << pc->getLogVol()->getShape()->type() << endmsg;
 	  if ((npos = childname.find("Sensitive")) != std::string::npos ) {
 	    llay ++;
             if (llay > 4) {
-	      reLog() << MSG::WARNING << "number of sTGC layers > 4: increase transform array size"<< endmsg;
+	      (*m_Log)  << MSG::WARNING << "number of sTGC layers > 4: increase transform array size"<< endmsg;
               continue;
 	    }
 	    m_Xlg[llay-1] = pvc->getXToChildVol(ich);
-	    /*if (llay==1 || abs(zi)<3 ) {
-	      if (pc->getLogVol()->getShape()->type()=="Shift") {
-		const GeoShapeShift* myshift = dynamic_cast<const GeoShapeShift*> (pc->getLogVol()->getShape());
-		if(!myshift) {
-		  reLog() << MSG::ERROR << "sTgcReadoutElement : even though the shape is of type shift it's not a shift - better crashing ..." << endmsg;
-		  throw;
-		}
-		const GeoSimplePolygonBrep* poly=dynamic_cast<const GeoSimplePolygonBrep*>(myshift->getOp());
-		if(!poly) {
-		  reLog() << MSG::ERROR << "sTgcReadoutElement : the sTGC is no polygon even though it should - better crashing ..." << endmsg;
-		  throw;
-		}
-		if (poly->getNVertices()==4)
-		  {
-		    m_halfX[llay-1] = poly->getYVertex(0);
-                    m_minHalfY[llay-1] = poly->getXVertex(3);
-                    m_maxHalfY[llay-1] = poly->getXVertex(0);
-		  }
-		else if (poly->getNVertices()==6)
-		  {
-		    m_halfX[llay-1] = poly->getYVertex(0);
-                    m_minHalfY[llay-1] = poly->getXVertex(4);
-		    double d1 = poly->getXVertex(5)-poly->getXVertex(4);
-		    double d2 = poly->getYVertex(5)-poly->getYVertex(4);
-		    double x = 2*poly->getYVertex(0)*d1/d2;
-                    m_maxHalfY[llay-1] = m_minHalfY[llay-1]+x;
-		  }
-		
-	      }
-	      else {
-	        reLog() << MSG::WARNING << "sTGC layer shape not recognized:" << pc->getLogVol()->getShape()->type() << endmsg;
-	      }
-	      }*/
 	  }
 	}
         m_nlayers=llay;
       } else {
-	reLog() << MSG::WARNING << "Cannot read the GeoModel tree" << endmsg;
+	(*m_Log)  << MSG::WARNING << "Cannot read the GeoModel tree" << endmsg;
       }
     }
 
@@ -161,14 +127,14 @@ namespace MuonGM {
     // set parent data collection hash id
     int gethash_code = idh->get_module_hash(id, collIdhash);
     if (gethash_code != 0) 
-      reLog()<<MSG::WARNING
+      (*m_Log) <<MSG::WARNING
      	     <<"sTgcReadoutElement --  collection hash Id NOT computed for id = "
      	     <<idh->show_to_string(id)<<endmsg;
     m_idhash = collIdhash;
     // // set RE hash id 
     gethash_code = idh->get_detectorElement_hash(id, detIdhash);
     if (gethash_code != 0) 
-      reLog()<<MSG::WARNING
+      (*m_Log) <<MSG::WARNING
      	     <<"sTgcReadoutElement --  detectorElement hash Id NOT computed for id = "
      	     <<idh->show_to_string(id)<<endmsg;
     m_detectorElIdhash = detIdhash;
@@ -190,15 +156,15 @@ namespace MuonGM {
     else side="C"; //This needs to be checked 
 
     sTGCDetectorHelper aHelper;
-    reLog() << MSG::DEBUG<< "station name" << getStationName()<<endmsg;
+    (*m_Log)  << MSG::DEBUG<< "station name" << getStationName()<<endmsg;
 
     sTGCDetectorDescription* stgc = aHelper.Get_sTGCDetector(sector_l,stEta,getStationPhi(),m_ml,side.back());
     if (stgc) 
-      reLog() << MSG::DEBUG
+      (*m_Log)  << MSG::DEBUG
 	      << "Found sTGC Detector " << stgc->GetName() << endmsg;
     else {
-      reLog() << MSG::DEBUG << "No sTGC Detector" << endmsg;
-      reLog() << MSG::DEBUG << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<m_ml << " "<<sector_l <<endmsg;
+      (*m_Log)  << MSG::DEBUG << "No sTGC Detector" << endmsg;
+      (*m_Log)  << MSG::DEBUG << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<m_ml << " "<<sector_l <<endmsg;
     }
 
     auto tech=stgc->GetTechnology();
@@ -276,7 +242,7 @@ namespace MuonGM {
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
       m_etaDesign[il].inputWidth = stgc->stripWidth();
       if (!tech){
-	reLog()<<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
+	(*m_Log) <<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
 	m_etaDesign[il].thickness = 0;
       }
       else{
@@ -287,7 +253,7 @@ namespace MuonGM {
       if (m_sTGC_type == 3) m_etaDesign[il].firstPos = -(m_etaDesign[il].xSize -yCutout) + m_etaDesign[il].firstPitch;
       else m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
 
-      reLog() << MSG::DEBUG
+      (*m_Log)  << MSG::DEBUG
 	      << "firstPos: " << m_etaDesign[il].firstPos << endmsg;
       m_etaDesign[il].sAngle = 0.;
       m_etaDesign[il].signY  = 1 ;
@@ -296,7 +262,7 @@ namespace MuonGM {
            
       m_nStrips.push_back(m_etaDesign[il].nch);
       
-      reLog()<<MSG::DEBUG
+      (*m_Log) <<MSG::DEBUG
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endmsg;
       
     }
@@ -331,7 +297,7 @@ namespace MuonGM {
 
       m_nWires.push_back(m_phiDesign[il].nGroups); // number of nWireGroups
 
-      reLog()<<MSG::DEBUG
+      (*m_Log) <<MSG::DEBUG
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", wireGang pitch " << m_phiDesign[il].inputPitch << ", nWireGangs "<< m_phiDesign[il].nch << endmsg;
 
     }
@@ -388,19 +354,6 @@ namespace MuonGM {
       	  m_padDesign[il].sectorOpeningAngle = m_padDesign[il].smallSectorOpeningAngle;
       }
 
-
-/*   Sum Height Check
- *
-	double ActiveAreaHeight = m_padDesign[il].Length-m_padDesign[il].ysFrame-m_padDesign[il].ylFrame;
-	double sumheightpads =  m_padDesign[il].firstRowPos + (m_padDesign[il].inputRowPitch*(m_padDesign[il].nPadH-1));
-	double diff = ActiveAreaHeight-sumheightpads;
-	int good=0;
-	if (m_padDesign[il].inputRowPitch-abs(diff)>0){
-		 good =1;
-	}
-
-reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc->Length(): "<<stgc->Length()<<"ActiveArea Height "<<ActiveAreaHeight<<" sumheightpads: "<<sumheightpads<<" diff: "<< diff<<" padH: "<< m_padDesign[il].inputRowPitch <<" good : "<<good<<endmsg;
-*/
       m_padDesign[il].thickness = thickness;
 
       m_padDesign[il].sAngle = 0.;            // handled by surface rotation
@@ -408,7 +361,7 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
 
 
 	
-	reLog() << MSG::DEBUG<<"initDesign stationname "<<getStationName()<<" layer " << il << ",pad phi angular width " << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch <<"  Length: "<< m_padDesign[il].Length<<" sWidth: "<< m_padDesign[il].sWidth<<" lWidth: "<<m_padDesign[il].lWidth<<" firstPhiPos:"<<m_padDesign[il].firstPhiPos<<" padEtaMin:"<<m_padDesign[il].padEtaMin<<" padEtaMax:"<<m_padDesign[il].padEtaMax<<" firstRowPos:"<<m_padDesign[il].firstRowPos<<" inputRowPitch:"<<m_padDesign[il].inputRowPitch<<" thickness:"<<m_padDesign[il].thickness<<" sPadWidth: " <<m_padDesign[il].sPadWidth<<" lPadWidth: "<< m_padDesign[il].lPadWidth<<" xFrame: "<< m_padDesign[il].xFrame <<" ysFrame: "<< m_padDesign[il].ysFrame<<" ylFrame: "<< m_padDesign[il].ylFrame << " yCutout: "<< m_padDesign[il].yCutout<<endmsg;
+	(*m_Log)  << MSG::DEBUG<<"initDesign stationname "<<getStationName()<<" layer " << il << ",pad phi angular width " << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch <<"  Length: "<< m_padDesign[il].Length<<" sWidth: "<< m_padDesign[il].sWidth<<" lWidth: "<<m_padDesign[il].lWidth<<" firstPhiPos:"<<m_padDesign[il].firstPhiPos<<" padEtaMin:"<<m_padDesign[il].padEtaMin<<" padEtaMax:"<<m_padDesign[il].padEtaMax<<" firstRowPos:"<<m_padDesign[il].firstRowPos<<" inputRowPitch:"<<m_padDesign[il].inputRowPitch<<" thickness:"<<m_padDesign[il].thickness<<" sPadWidth: " <<m_padDesign[il].sPadWidth<<" lPadWidth: "<< m_padDesign[il].lPadWidth<<" xFrame: "<< m_padDesign[il].xFrame <<" ysFrame: "<< m_padDesign[il].ysFrame<<" ylFrame: "<< m_padDesign[il].ylFrame << " yCutout: "<< m_padDesign[il].yCutout<<endmsg;
 
 
 
@@ -420,7 +373,7 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+      (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
       return;
     }
 
@@ -456,7 +409,7 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
 					Amg::Translation3D(0,0.,-offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
-      else reLog()<<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Wire Geometry not Created!" << endmsg;
+      else (*m_Log) <<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Wire Geometry not Created!" << endmsg;
 
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
@@ -486,7 +439,7 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 					Amg::Translation3D(shift,0.,-offset + m_halfX[layer] - m_etaDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
-      else reLog()<<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Strip Geometry not Created!" << endmsg;
+      else (*m_Log) <<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Strip Geometry not Created!" << endmsg;
 
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
@@ -507,7 +460,7 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
 					Amg::Translation3D(-shift,0.,-offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
-      else reLog()<<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Pad Geometry not Created!" << endmsg;
+      else (*m_Log) <<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Pad Geometry not Created!" << endmsg;
 
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
@@ -545,8 +498,8 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
     int gg = manager()->stgcIdHelper()->gasGap(id);
     
     Amg::Vector3D  locP = m_Xlg[gg-1]*locPos;
-    reLog() << MSG::DEBUG << "locPos in the gg      r.f. "<<locPos<<endmsg;
-    reLog() << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
+    (*m_Log)  << MSG::DEBUG << "locPos in the gg      r.f. "<<locPos<<endmsg;
+    (*m_Log)  << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
     
     return absTransform()*locP;
   }
