@@ -9,7 +9,7 @@
 #include "AsgTools/AsgTool.h"
 
 #include "JetInterface/IJetSelector.h"
-#include "JetMonitoring/JetVarTool.h"
+#include "JetMonitoring/JetHistoVarTool.h"
 
 
 namespace JetVar {
@@ -33,7 +33,7 @@ class JetSelectorAttribute : public asg::AsgTool , virtual public IJetSelector
    float m_min;
    float m_max;
 
-   ToolHandle<IJetVarTool> m_var;
+   ToolHandle<IJetHistoVarTool> m_var;
 
 };
 

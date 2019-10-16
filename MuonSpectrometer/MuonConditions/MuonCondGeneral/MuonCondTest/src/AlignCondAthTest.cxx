@@ -5,20 +5,15 @@
 
 /////////////////////////////////////////////////////////
 #include "MuonCondTest/AlignCondAthTest.h"
-#include "MuonCondSvc/MuonAlignmentDbSvc.h"
-
 
 AlignCondAthTest::AlignCondAthTest(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator){
-   p_MuonAlignmentDbSvc              = 0; 
-
 }
  
 StatusCode AlignCondAthTest::initialize(){
 //
 
   ATH_MSG_INFO( "in initialize()"  );
-  ATH_CHECK( service("MuonCalib::MuonAlignmentDbSvc",p_MuonAlignmentDbSvc ) );
   return StatusCode::SUCCESS;
 //
 }

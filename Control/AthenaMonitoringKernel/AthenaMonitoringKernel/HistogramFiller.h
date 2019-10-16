@@ -76,7 +76,7 @@ namespace Monitored {
       return m_histDef->name;
     }
 
-    const std::string& histogramWeightName() {
+    const std::string& histogramWeightName() const {
       return m_histDef->weight;
     }
     

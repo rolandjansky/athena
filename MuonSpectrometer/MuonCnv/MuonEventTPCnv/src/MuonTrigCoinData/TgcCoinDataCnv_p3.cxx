@@ -123,8 +123,9 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
   if (transObj->hasErrMat() )
   {
     if (! transObj->errMat().cols() || !transObj->errMat().rows()) {
-      if (m_numErrsPrinted<10) {
-        m_numErrsPrinted++;
+      static unsigned int numErrsPrinted=0;
+      if (numErrsPrinted<10) {
+        numErrsPrinted++;
         log << MSG::WARNING << "Have been given a TgcCoinData error matrix with size = ["
             <<transObj->errMat().rows()<<","<<transObj->errMat().cols()<<"]. Skipping writing of the matrix."<<endmsg;
       }

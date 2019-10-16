@@ -185,7 +185,7 @@ class ToolSpec(ConfigDict):
 class VarSpec(ToolSpec):
     """A dictionary specialized to contain a jet variable specification"""
     def __init__(self, Name , Type='float', Index=-1, Scale=1):
-        # by default we allow only the properties of a JetVarTool
+        # by default we allow only the properties of a JetHistoVarTool
         if Name.endswith(':GeV'):
             Scale=0.001
             Name = Name[:-4]
@@ -202,8 +202,8 @@ class VarSpec(ToolSpec):
 
 
     def toTool(self):
-        from JetMonitoring.JetMonitoringConf import JetVarTool
-        return JetVarTool(self.Name, **self)
+        from JetMonitoring.JetMonitoringConf import JetHistoVarTool
+        return JetHistoVarTool(self.Name, **self)
 
     def vname(self):
         if self.Index ==-1: return self.Name

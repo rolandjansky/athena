@@ -26,7 +26,7 @@ class TgcCoinDataCnv_p3
 {
 public:
   //    TgcCoinDataCnv_p3() : m_coindataCnv(0) {}
- TgcCoinDataCnv_p3() : m_localPosCnv(0), m_errorMxCnv(0), m_numErrsPrinted(0) {}
+    TgcCoinDataCnv_p3() : m_localPosCnv(0), m_errorMxCnv(0) {}
 
     void persToTrans( const Muon::TgcCoinData_p3 *persObj,
         Muon::TgcCoinData    *transObj,
@@ -38,7 +38,7 @@ public:
  protected:        
     LocalPositionCnv_p1   *m_localPosCnv;
     ErrorMatrixCnv_p1     *m_errorMxCnv;
-    unsigned int          m_numErrsPrinted;
+
 };
 
 #endif 

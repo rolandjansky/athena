@@ -40,7 +40,7 @@ log = logging.getLogger('HLTCFConfig')
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+    from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name )
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions

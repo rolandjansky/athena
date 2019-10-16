@@ -13,10 +13,10 @@
 #include "JetMonitoring/JetVariable.h"
 
 
-static const InterfaceID IID_IJetVarTool("IJetVarTool", 1 , 0); 
+static const InterfaceID IID_IJetHistoVarTool("IJetHistoVarTool", 1 , 0); 
 
 ///////////////////////////////////////////////////////////
-/// \class JetVarTool
+/// \class JetHistoVarTool
 ///
 /// This class is a wrapper around JetVar::Variable inheriting AthAlgTool.
 /// Its purpose is to allow to define a jet variable in the configuration
@@ -24,14 +24,14 @@ static const InterfaceID IID_IJetVarTool("IJetVarTool", 1 , 0);
 /// Client tools include JetHistoAttributeFiller and JetHistoSelectSort
 ///
 
-class IJetVarTool : virtual public IAlgTool                         
+class IJetHistoVarTool : virtual public IAlgTool                         
 {
 public:
   
   // Retrieve interface ID
-  static const InterfaceID& interfaceID() { return IID_IJetVarTool; }
+  static const InterfaceID& interfaceID() { return IID_IJetHistoVarTool; }
 
-  virtual ~IJetVarTool(){}
+  virtual ~IJetHistoVarTool(){}
   
   /// the value of the variable for a given Jet
   virtual float value(const xAOD::Jet &) const = 0;
@@ -42,10 +42,10 @@ public:
 };
 
 
-class JetVarTool : public AthAlgTool, virtual public IJetVarTool {
+class JetHistoVarTool : public AthAlgTool, virtual public IJetHistoVarTool {
 public:
-  JetVarTool( const std::string& type,  const std::string & name ,const IInterface* parent);
-  virtual ~JetVarTool(){}
+  JetHistoVarTool( const std::string& type,  const std::string & name ,const IInterface* parent);
+  virtual ~JetHistoVarTool(){}
 
   virtual StatusCode initialize() ;  
 

@@ -7,7 +7,6 @@
 
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "MuonCondInterface/IMuonAlignmentDbTool.h"
 
 namespace MuonGM
 {
@@ -22,20 +21,11 @@ public:
   // Standard Constructor
   MuonDetectorTool( const std::string& type, const std::string& name, const IInterface* parent );
 
-  //    StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-    
   // Standard Destructor
   virtual ~MuonDetectorTool() override final;
 
   //initialize - needed to retrieve the alignment Tool 
   virtual StatusCode initialize() override;
-
-    
-  //register call back to condition data 
-  virtual StatusCode registerCallback() override final;
-
-  //align 
-  virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override final;
 
   // build the geometry 
   virtual StatusCode create() override final;
@@ -91,8 +81,6 @@ private:
   int m_switchOnOff_BUILDFORWARDSHIELD;
   
   
-  ToolHandle<IMuonAlignmentDbTool> m_condDataTool;
-
   const MuonGM::MuonDetectorManager*  m_manager;
 };
 

@@ -9,6 +9,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaKernel/IAddressProvider.h"
+#include "Identifier/Identifier.h"
 
 //**********************************************************
 //* Author Monica Verducci monica.verducci@cern.ch
