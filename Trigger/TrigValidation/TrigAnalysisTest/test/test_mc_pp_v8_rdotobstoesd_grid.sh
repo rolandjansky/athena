@@ -4,8 +4,18 @@
 # art-type: grid
 # art-include: 21.3/Athena
 # art-include: master/Athena
-# Skipping art-output which has no effect for build tests.
-# If you create a grid version, check art-output in existing grid tests.
+# art-output: *.txt
+# art-output: *.log
+# art-output: log.*
+# art-output: *.new
+# art-output: *.json
+# art-output: *.root
+# art-output: *.pmon.gz
+# art-output: *perfmon*
+# art-output: *.check*
+# art-output: HLTconfig*.xml
+# art-output: L1Topoconfig*.xml
+# art-output: LVL1config*.xml
 
 export NAME="mc_pp_v8_rdotobstoesd_grid"
 export COST_MONITORING="False"
