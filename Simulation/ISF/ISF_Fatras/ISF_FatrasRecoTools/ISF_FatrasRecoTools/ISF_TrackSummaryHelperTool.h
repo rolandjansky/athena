@@ -37,8 +37,8 @@ namespace iFatras {
     virtual ~ISF_TrackSummaryHelperTool();
       
     /** standard AlgTool methods: initialise retrieves Tools, finalize does nothing */
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     /** Input : rot, tsos
         Output: Changes in information and hitPattern
@@ -66,7 +66,8 @@ namespace iFatras {
 			 const Trk::RIO_OnTrack* rot,
 			 const Trk::TrackStateOnSurface* tsos,
 			 std::vector<int>& information,
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const  {
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override
+    {
       analyse(track,nullptr,rot,tsos,information,hitPattern);
     }
 
@@ -76,15 +77,17 @@ namespace iFatras {
 			 const Trk::CompetingRIOsOnTrack* crot,
 			 const Trk::TrackStateOnSurface* tsos,
 			 std::vector<int>& information,
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const {
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override
+    {
       analyse(track,nullptr, crot,tsos,information,hitPattern);
     }
 
     /** Not used --> HoleSearchTool not used
     */
+    virtual
     void searchForHoles(const Trk::Track& track,
 			std::vector<int>& information ,
-			const Trk::ParticleHypothesis partHyp = Trk::pion) const ;
+			const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
 
       /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
     virtual void updateSharedHitCount(const Trk::Track& track,
@@ -92,18 +95,23 @@ namespace iFatras {
                                       Trk::TrackSummary& summary) const override;
 
   /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    void updateSharedHitCount(const Trk::Track& track, Trk::TrackSummary& summary) const {
-      updateSharedHitCount(track,summary);
+    virtual
+    void updateSharedHitCount(const Trk::Track& /*track*/,
+                              Trk::TrackSummary& /*summary*/) const override
+    {
+      ATH_MSG_DEBUG("updateSharedHitCount not implemented !!");
     }
 
     /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
-    void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const;
+    virtual
+    void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const override;
     /** This method updates the expect... hit info*/
-    void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const;
+    virtual
+    void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const override;
     
     /** @copydoc Trk::ITrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&)*/
     
-    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const;
+    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const override;
     
     
   private:
