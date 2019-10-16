@@ -26,7 +26,8 @@ persToTrans( const OLDTYPE* oldObj,
 
    // Copy the payload of the v1 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+   SG::copyAuxStoreThinned( *oldObj, *newObj,
+                            static_cast<SG::ThinningDecisionBase*>(nullptr) );
    
    // Print what happened:
    if( log.level() <= MSG::DEBUG ) {
