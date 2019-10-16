@@ -30,16 +30,13 @@ def getOption(runArgs,name, substep, first, output):
     tfToAthenaHLT['runNumber'] = 'run-number'
     tfToAthenaHLT['precommand'] = 'precommand'
     tfToAthenaHLT['postcommand'] = 'postcommand'
-    tfToAthenaHLT['eventmodifier'] = 'event-modifier'
-    tfToAthenaHLT['jobOptionSvcType'] = 'joboptionsvc-type'
     tfToAthenaHLT['useDB'] = 'use-database'
-    tfToAthenaHLT['DBtype'] = 'db-type'
     tfToAthenaHLT['DBserver'] = 'db-server'
-    tfToAthenaHLT['DBsmkey'] = 'db-smkey'
-    tfToAthenaHLT['DBhltpskey'] = 'db-hltpskey'
+    tfToAthenaHLT['DBsmkey'] = 'smk'
+    tfToAthenaHLT['DBhltpskey'] = 'hltpsk'
+    tfToAthenaHLT['DBlvl1pskey'] = 'l1psk'
     ## Some arguments need specific code so aren't included here
     # save-output = outputBSFile (or filled by default in multi step tf)
-    # db-extra = DBextra
     
     # Output needs the string not a list 
     # (as in PyJobTransforms/python/trfJobOptions.py)
@@ -51,16 +48,18 @@ def getOption(runArgs,name, substep, first, output):
     else:
         msg.warning('No BS filename defined, athenaHLT will not save the output')
     
-    #DBextra needs to be a dictionary not a string
-    if 'DBextra' in runArgs:
-        option['db-extra'] = ast.literal_eval(runArgs['DBextra'].value)
-        if 'DBlvl1pskey' in runArgs:
-            if 'lvl1key' in option['db-extra']:
-                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Multiple definition of lvl1key as both --DBlvl1pskey %s and --DBextra %s' % (runArgs['DBlvl1pskey'],runArgs['DBextra'] ))
-            else:
-                option['db-extra']['lvl1key'] = runArgs['DBlvl1pskey']
-    if 'DBlvl1pskey' in runArgs and 'db-extra' not in option:
-        option['db-extra'] = {'lvl1key': runArgs['DBlvl1pskey']}
+    #TODO (ATR-11854) l1psk, hltpsk, smk should be compared to triggerConfig
+    #example below based on old comparison but needs work to retrieve keys and do comparisons of all three keys
+    #if 'triggerConfig' in runArgs:
+        #retrieve keys from triggerConfig string
+        #if 'lvl1key' in triggerConfig:
+            #if 'DBlvl1pskey' in runArgs:
+            #add check to compare DBlvl1pskey to lvl1key from triggerConfig
+            #    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Multiple definition of lvl1key as both --DBlvl1pskey %s and --triggerConfig %s' % (runArgs['DBlvl1pskey'],runArgs['triggerConfig'] ))
+            #else:
+            #    set lvl1key in triggerConfig
+    #if 'DBlvl1pskey' in runArgs and 'triggerConfig' not in option:
+        #    set lvl1key in triggerConfig
     
     # below based on PyJobTransforms/python/trfJobOptions.py
     for k in set(tfToAthenaHLT) & set(runArgs):
@@ -73,7 +72,8 @@ def getOption(runArgs,name, substep, first, output):
             if myValue is not None:
                 option[tfToAthenaHLT[k]]=myValue
         else:
-            option[tfToAthenaHLT[k]]=v
+            #return just the value to avoid returning all the properties (e.g. isRunArg=True)
+            option[tfToAthenaHLT[k]]=v.value
     
     # Now make sure that if we did not add maxEvents then we set this to -1, which
     # avoids some strange defaults that only allow 5 events to be processed
@@ -81,24 +81,22 @@ def getOption(runArgs,name, substep, first, output):
         option[tfToAthenaHLT['maxEvents']] = -1
         msg.info('maxEvents not defined, explicitly set to -1')
     
-    # TODO - currently skips all the extra, literal, etc options
-    # as these are not saved in options no point in being saved to file
+    # Skips all the other runArgs (extra, literal, etc) 
+    # as these are for running with athena not athenaHLT
     
     return option
-    
-#write option dict to runTranslate file
-def writeTranslate(runTranslate,runArgs,name,substep,first,output):
-    msg.info('Writing options to file \"%s\"' % runTranslate)
-        
-    option = getOption(runArgs, name, substep, first, output)  
-        
+
+#return option list to be used as command line for athenaHLT jobs
+#In Run2 this was handled by producing runTranslate file which is no longer needed
+def getTranslated(runArgs,name,substep,first,output):
+    option = getOption(runArgs, name, substep, first, output)
     msg.info('Options set to: \"%s\":' % option)
-    
-    with open(runTranslate, 'w') as runTranslateFile:
-        try:
-            print >>runTranslateFile, os.linesep, "option = ", option
-        except (IOError, OSError) as e:
-            errMsg = 'Got an error when writing JO template {0}: {1}'.format(runTranslateFile, e)
-            msg.error(errMsg)
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_RUNARGS_ERROR'), errMsg)
+    optionList = list()
+    for k,v in option.items():
+        item = "--{0}={1}"
+        if(type(v)==list):
+            v=''.join(v) 
+    optionList.append(item.format(k,v))
+
+    return optionList
 

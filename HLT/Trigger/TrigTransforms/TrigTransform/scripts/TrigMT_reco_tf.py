@@ -188,10 +188,6 @@ def addTriggerArgs(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True, separator='='),
                         help='Trigger Configuration String. '
 			'N.B. This argument uses EQUALS (=) to separate the substep name from the value.', group='Trigger')
-    parser.add_argument('--dumpOptions', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='Only for testing: '
-                        'dump to stdout the options athenaHLT has received. '
-                        'N.B. option consistency is not checked.', group='Trigger')
     parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help='precommand for athenaHLT aka -c', group='Trigger')
     parser.add_argument('--postcommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
