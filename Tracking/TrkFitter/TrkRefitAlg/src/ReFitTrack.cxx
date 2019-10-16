@@ -281,7 +281,7 @@ StatusCode Trk::ReFitTrack::execute()
   }
 
   ATH_MSG_VERBOSE ("Save tracks");
-  ATH_CHECK(SG::WriteHandle<TrackCollection>().record(std::move(new_track_collection)));
+  ATH_CHECK(SG::WriteHandle<TrackCollection>(m_newTrackName).record(std::move(new_track_collection)));
 
   return StatusCode::SUCCESS;
 }
