@@ -25,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
                           TopPartons
                           TopObjectSelectionTools
                           TopSystematicObjectMaker
-                          TopFakes
                           TopDataPreparation
                           TopHLUpgrade
                           Tools/PathResolver
@@ -67,7 +66,6 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   TopPartons
                                   TopObjectSelectionTools
                                   TopSystematicObjectMaker
-                                  TopFakes
                                   TopDataPreparation
                                   TopHLUpgrade
                                   PathResolver
@@ -104,7 +102,6 @@ atlas_add_executable( top-xaod
                                      TopPartons
                                      TopObjectSelectionTools
                                      TopSystematicObjectMaker
-                                     TopFakes
                                      TopDataPreparation
                                      TopHLUpgrade
                                      PathResolver
@@ -134,7 +131,6 @@ atlas_add_executable( top-tool-ftag
                                      TopPartons
                                      TopObjectSelectionTools
                                      TopSystematicObjectMaker
-                                     TopFakes
                                      TopDataPreparation
                                      TopHLUpgrade
                                      PathResolver
@@ -162,7 +158,6 @@ atlas_add_executable( top-xaod-v2
                                      TopPartons
                                      TopObjectSelectionTools
                                      TopSystematicObjectMaker
-                                     TopFakes
                                      TopDataPreparation
                                      TopHLUpgrade
                                      PathResolver

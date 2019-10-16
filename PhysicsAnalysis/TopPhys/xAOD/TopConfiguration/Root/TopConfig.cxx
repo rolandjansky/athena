@@ -72,12 +72,6 @@ namespace top{
     m_isTruthDxAOD(false),
     // Derivation name
     m_derivationStream("SetMe"),
-    // Do fakes MM weights calculation
-    m_doFakesMMWeights(false),
-    // Directory of efficiency files for MM fake estimate
-    m_FakesMMDir("$ROOTCOREBIN/data/TopFakes"),
-    // Directory of efficiency files for MM fake estimate
-    m_doFakesMMDebug(false),
     // Do fakes MM weights calculation using FakeBkgTools from IFF
     m_doFakesMMWeightsIFF(false),
     // Configurations for MM fake estimate using FakeBkgTools from IFF
@@ -689,14 +683,6 @@ namespace top{
     else {
       m_doLooseEvents = (settings->value("DoLoose") == "Data" || settings->value("DoLoose") == "Both");
       if (m_doLooseEvents) {
-        if (settings->value("FakesMMWeights") == "True") {
-          this->setFakesMMWeightsCalculation();
-          std::string dir = settings->value("FakesMMDir");
-          if (dir != "")
-            this->setFakesMMDir(dir);
-          if (settings->value("FakesMMDebug") == "True")
-            this->setFakesMMDebug();
-        }
 	if (settings->value("FakesMMWeightsIFF") == "True") {
           this->setFakesMMWeightsCalculationIFF();
           std::string configIFF = settings->value("FakesMMConfigIFF");

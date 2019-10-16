@@ -26,8 +26,6 @@
 #include "TopCorrections/ScaleFactorCalculator.h"
 #include "TopCorrections/PDFScaleFactorCalculator.h"
 
-#include "TopFakes/TopFakesMMWeightCalculator.h"
-
 #include "TopSystematicObjectMaker/ObjectCollectionMaker.h"
 
 #include "TopConfiguration/AodMetaDataAccess.h"
@@ -92,7 +90,6 @@ std::shared_ptr<top::CalcTopPartonHistory>       CreateTopPartonHistory(std::sha
 std::shared_ptr<top::PDFScaleFactorCalculator>   CreatePDFScaleFactorCalculator(std::shared_ptr<top::TopConfig>);
 std::shared_ptr<top::TopEventMaker>              CreateTopEventMaker(std::shared_ptr<top::TopConfig>);
 std::shared_ptr<top::ScaleFactorCalculator>      CreateScaleFactorCalculator(std::shared_ptr<top::TopConfig>);
-std::shared_ptr<top::TopFakesMMWeightCalculator> CreateTopFakesMMWeightCalculator(std::shared_ptr<top::EventSelectionManager>, std::shared_ptr<top::TopConfig>);
 std::shared_ptr<MetadataTree>                    CreateMetadataTree(std::shared_ptr<TFile>, std::shared_ptr<top::TopConfig>);
 std::shared_ptr<top::TopToolStore>               CreateTopToolStore(std::shared_ptr<top::TopConfig>);
 std::shared_ptr<top::ParticleLevelLoader>        CreateParticleLevelLoader(std::shared_ptr<top::TopConfig>);
@@ -111,7 +108,6 @@ struct AnalysisTopTools{
   std::shared_ptr<top::PDFScaleFactorCalculator> topPDFScaleFactorCalculator;
   std::shared_ptr<top::TopEventMaker> topEventMaker;
   std::shared_ptr<top::ScaleFactorCalculator> topScaleFactorCalculator;
-  std::shared_ptr<top::TopFakesMMWeightCalculator> topFakesMMWeightCalculator;
   std::shared_ptr<MetadataTree> metadataTree;
   std::shared_ptr<top::TopToolStore> topToolStore;
   std::shared_ptr<top::ParticleLevelLoader> topParticleLevelLoader;
@@ -225,9 +221,6 @@ int main(int argc, char** argv) {
   // Create top pdf scale factor calculator
   std::shared_ptr<top::PDFScaleFactorCalculator> topPDFScaleFactorCalculator = CreatePDFScaleFactorCalculator(topConfig);
 
-  // Create top fakes MM weight calculator
-  std::shared_ptr<top::TopFakesMMWeightCalculator> topFakesMMWeightCalculator = CreateTopFakesMMWeightCalculator(topEventSelectionManager, topConfig);
-
   // Create the event saver
   std::shared_ptr<top::EventSaverBase> topEventSaver = CreateEventSaver(outputFile, topEventSelectionManager, topConfig);
 
@@ -255,7 +248,6 @@ int main(int argc, char** argv) {
   analysisTopTools.topPDFScaleFactorCalculator = topPDFScaleFactorCalculator;
   analysisTopTools.topEventMaker               = topEventMaker;
   analysisTopTools.topScaleFactorCalculator    = topScaleFactorCalculator;
-  analysisTopTools.topFakesMMWeightCalculator  = topFakesMMWeightCalculator;
   analysisTopTools.metadataTree                = metadataTree;
   analysisTopTools.topToolStore                = topToolStore;
   analysisTopTools.topParticleLevelLoader      = topParticleLevelLoader;
@@ -579,25 +571,6 @@ std::shared_ptr<top::ScaleFactorCalculator> CreateScaleFactorCalculator(std::sha
   top::check(topScaleFactors->setProperty( "config" , topConfig ) , "Failed to setProperty of top::ScaleFactorCalculator");
   top::check(topScaleFactors->initialize(),"Failed to initialize  top::ScaleFactorCalculator");
   return topScaleFactors;
-}
-
-std::shared_ptr<top::TopFakesMMWeightCalculator> CreateTopFakesMMWeightCalculator(std::shared_ptr<top::EventSelectionManager> eventSelectionManager, std::shared_ptr<top::TopConfig> topConfig){
-
-  // Retrieve the configuration settings
-  auto* const settings = top::ConfigurationSettings::get();
-
-  ///-- weights for matrix-method fakes estimate --///
-  std::shared_ptr<top::TopFakesMMWeightCalculator> topfakesMMWeights(nullptr);
-  if (!topConfig->isMC() && topConfig->doLooseEvents() && topConfig->doFakesMMWeights()) {
-    topfakesMMWeights = std::shared_ptr<top::TopFakesMMWeightCalculator>( new top::TopFakesMMWeightCalculator() );
-    top::check(topfakesMMWeights->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopFakesMMWeightCalculator");
-    top::check(topfakesMMWeights->initialize(),"Failed to initialize  top::TopFakesMMWeightCalculator");
-    for (auto sel : settings->selections()) {
-      top::check(topfakesMMWeights->setSelectionConfigs(sel.m_name, eventSelectionManager->GetFakesMMConfigs(sel.m_name)),"Failed to set the selection FakesMMConfigs for selection"+sel.m_name);
-    }
-  }
-
-  return topfakesMMWeights;
 }
 
 std::shared_ptr<top::TopToolStore> CreateTopToolStore(std::shared_ptr<top::TopConfig> topConfig){
@@ -1178,10 +1151,6 @@ void ProcessRecoEventLoose(AnalysisTopTools analysisTopTools, unsigned int &even
     const bool passAnyEventSelection = analysisTopTools.topEventSelectionManager->apply(topEvent,*currentSystematic );
     currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
     topEvent.m_saveEvent = passAnyEventSelection;
-    ///-- weights for matrix-method fakes estimate, only for nominal --///
-    if (!topConfig->isMC() && topConfig->doFakesMMWeights() && currentSystematic->hashValue() == topConfig->nominalHashValue()) {
-      top::check( analysisTopTools.topFakesMMWeightCalculator->execute(&topEvent) , "Failed to execute fakes mmweight calculation");
-    }
     ///-- Save event - we defer to eventSaver the decision to write or not --///
     analysisTopTools.topEventSaver->saveEvent(topEvent);
 

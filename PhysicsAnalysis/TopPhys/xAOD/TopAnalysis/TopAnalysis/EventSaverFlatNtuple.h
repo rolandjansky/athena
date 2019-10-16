@@ -460,8 +460,6 @@ private:
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> m_perjet_weight_trackjet_bTagSF_named_down;
 
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
-    /// m_fakesMM_weights[selection][configuration]
-    std::unordered_map<std::string,std::unordered_map<std::string, float>> m_fakesMM_weights;
     int m_ASMsize;
     std::vector<float> m_ASMweights;
     std::vector<std::vector<float> > m_ASMweights_Syst;
@@ -1126,10 +1124,6 @@ protected:
   const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_bTagSF_named_down() const { return m_perjet_weight_bTagSF_named_down;}
   const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_up() const { return m_perjet_weight_trackjet_bTagSF_named_up;}
   const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_down() const { return m_perjet_weight_trackjet_bTagSF_named_down;}
-
-  ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
-  /// m_fakesMM_weights[selection][configuration]
-  const std::unordered_map<std::string,std::unordered_map<std::string, float>>& fakesMM_weights() const { return m_fakesMM_weights;}
 
   /// Weights for bootstrapping
   const std::vector<int>& weight_poisson() const { return m_weight_poisson;}

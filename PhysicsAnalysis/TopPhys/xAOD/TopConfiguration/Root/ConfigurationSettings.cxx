@@ -224,10 +224,6 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
     registerParameter("FilterBranches", "Comma separated list of names of the branches that will be removed from the output", " ");
 
-    registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
-    registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
-    registerParameter("FakesMMDebug","Enables debug mode for matrix-method weight calculation: True, False (default)", "False");
-
     registerParameter("FakesMMWeightsIFF","Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMConfigIFF",
 		      "Configurations for fake leptons estimate using FakeBkgTools from IFF: - default is $ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]. Use as \n <ROOT/XML FILE>:<DEFNINITION>:<PROCESS>;<ROOT/XML FILE 2>:<DEFNINITION 2>:<PROCESS 2>; ...", 
