@@ -30,7 +30,6 @@ class BoostedTaggingCPTools final : public asg::AsgTool {
 
  private:
   std::shared_ptr<top::TopConfig> m_config;
-  int m_release_series = 24;  // Default to 2.4
   
   std::unordered_map<std::string,asg::AnaToolHandle<IJetSelectorTool> > m_taggers;
 };

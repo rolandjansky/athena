@@ -61,8 +61,6 @@ namespace top{
     private:
       std::shared_ptr<top::TopConfig> m_config;
 
-      int m_release_series = 24;  // Default to 2.4
-
       std::unique_ptr<OverlapRemovalCPTools>   m_OR_CP_tools;
       std::unique_ptr<OtherCPTools>            m_other_CP_tools;
       std::unique_ptr<FlavorTaggingCPTools>    m_flavor_tagging_CP_tools;

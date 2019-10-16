@@ -39,8 +39,6 @@ class OtherCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
 
-  int m_release_series = 24;  // Default to 2.4
-
   ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
   ToolHandle<CP::IPileupReweightingTool> m_pileupReweightingTool;
   ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool> m_pmg_sherpa22_vjets_tool;

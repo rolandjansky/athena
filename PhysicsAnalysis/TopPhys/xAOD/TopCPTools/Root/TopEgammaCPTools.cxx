@@ -44,7 +44,6 @@ EgammaCPTools::EgammaCPTools(const std::string& name) :
     m_fwdElectronEffSFIDFile("SetMe"),
     m_fwdElectronEffSFIDLooseFile("SetMe") {
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 
   declareProperty( "EgammaCalibrationAndSmearingTool" , m_egammaCalibrationAndSmearingTool );
   declareProperty( "ElectronEffTrigger" , m_electronEffTrigger );

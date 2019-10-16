@@ -55,7 +55,6 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
   {  
 
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 
   declareProperty( "JetCalibrationTool" , m_jetCalibrationTool );
   declareProperty( "JetCalibrationToolLargeR" , m_jetCalibrationToolLargeR );

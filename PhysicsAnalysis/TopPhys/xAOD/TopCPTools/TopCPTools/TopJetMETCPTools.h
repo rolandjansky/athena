@@ -43,8 +43,6 @@ class JetMETCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
 
-  int m_release_series = 24;  // Default to 2.4
-
   std::string m_jetJVT_ConfigFile;
 
   std::string m_jetAntiKt4_Data_ConfigFile;
