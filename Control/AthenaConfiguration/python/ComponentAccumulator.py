@@ -21,7 +21,7 @@ from AthenaConfiguration.UnifyProperties import unifySet
 class ConfigurationError(RuntimeError):
     pass
 
-_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc'))
+_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc'))
 
 def printProperties(msg, c, nestLevel = 0):
     # Iterate in sorted order.
