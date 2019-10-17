@@ -19,6 +19,10 @@ from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import PhysicsStream,SingleMuonGrou
 def addP1Signatures():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
+    from AthenaCommon.Logging                 import logging
+    
+    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py addP1Signatures()' )
+    log.info('addP1Signatures ...')
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
@@ -67,6 +71,7 @@ def setupMenu():
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py' )
+    log.info('setupMenu ...')
 
     physics_menu.setupMenu()
     addP1Signatures()

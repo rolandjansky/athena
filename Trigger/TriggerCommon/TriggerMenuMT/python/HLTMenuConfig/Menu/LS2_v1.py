@@ -17,7 +17,7 @@ MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
 SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
 MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
 SingleMETGroup = ['RATE:MET', 'BW:MET']
-#MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
+MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
 SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
 MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
 SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
@@ -33,6 +33,7 @@ def setupMenu():
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1.py' )
+    log.info('setupMenu ...')
 
 
     TriggerFlags.Slices_all_setOff()

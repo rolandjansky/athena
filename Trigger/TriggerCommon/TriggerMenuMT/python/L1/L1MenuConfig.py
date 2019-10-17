@@ -236,7 +236,7 @@ class L1MenuConfig(object):
 
     def _checkMenuExistence(self):
         menuToLoad = self.menuName
-        if menuToLoad == "LS2_v1":
+        if menuToLoad == "LS2_v1" or "pp_run3_v1" in menuToLoad:
             menuToLoad = "MC_pp_v8"
         try:
             __import__('Menu.Menu_%s' % menuToLoad, globals(), locals(), ['defineMenu'], -1)

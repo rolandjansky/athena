@@ -17,6 +17,7 @@ def setupMenu():
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1.py' )
+    log.info('setupMenu ...')
 
     physics_menu.setupMenu()
 
