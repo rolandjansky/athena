@@ -1081,7 +1081,7 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, Amg::Transfor
 ////////////////////////////////////////////////////////////////////////////////////////////
 /** tweak Level 2 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transform3D trans) {
-  ATH_MSG_INFO( " -- SALVA -- tweakAlignTransformL2 -- START for identifier " << ident);
+  ATH_MSG_INFO( " -- tweakAlignTransformL2 -- START for identifier " << ident);
 
   // multiply level 2 AlignableTransform for the module containing ident
   // by an additional transform.
@@ -1643,9 +1643,10 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
   const unsigned int DBident=bec*1000;
   // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
 
-  ATH_MSG_INFO( " -- tweakGlobalFolder -- START ==> identifier " << ident << " identifier32 << " << ident.get_identifier32() << "  string: " << ident.getString() 
-		<< "\n                                      key: " << key 
-		<< "\n                                      going to retrieve atrlistcol1. Target DBident= "<< DBident);
+  ATH_MSG_INFO( " -- tweakGlobalFolder -- START ==> identifier " << ident 
+		<< "\n                                          >> bec: " << bec
+		<< "\n                                          >> key: " << key 
+		<< "\n                                          >> going to retrieve atrlistcol1. Target DBident= "<< DBident << "\n");
 
   if (m_detStore->retrieve(atrlistcol1, key).isSuccess()) {
     ATH_MSG_INFO( "tweakGlobalFolder ==> retrieved CondAttrListCollection (atrlistcol1) for key: " << key << " SUCCESS" );
@@ -1664,19 +1665,26 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
         const coral::AttributeList& atrlist=citr->second;
 	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
 
-	if(citr->first != DBident) {
+	if(citr->first != DBident && false) {
 	  ATH_MSG_INFO( " structcount= " << structcount << "     *** *** citr->first (" << citr->first << ") != DBident (" << DBident << ") --> lets continue");
 	  continue;
 	}
         // else { // commented by SALVA
 	bool goodmatch = false;
-	if (citr->first == DBident) goodmatch = true;
-	if (citr->first == 1200 && ident.getString().find("0x1200000000000000")>0) goodmatch =true;
-	if (citr->first ==  900 && ident.getString().find("0x1000000000000000")>0) goodmatch =true;
-	if (citr->first ==  800 && ident.getString().find("0x1600000000000000")>0) goodmatch =true;
+	//if (citr->first == DBident) goodmatch = true;
+	//if (citr->first ==  900 && ident.getString().find("0x1200000000000000")>0 && !goodmatch) goodmatch =true; // TRT barrel
+	//if (citr->first ==  800 && ident.getString().find("0x1000000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECA
+	//if (citr->first == 1200 && ident.getString().find("0x1600000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECC
+	if (bec == -1 && ident.getString().find("0x1200000000000000")>0 && !goodmatch) goodmatch =true; // TRT barrel
+	if (bec == -2 && ident.getString().find("0x1000000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECA
+	if (bec ==  2 && ident.getString().find("0x1600000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECC
 	if (goodmatch) {
-	  ATH_MSG_INFO( " -- SALVA -- goodmatch is TRUE -- structcount= " << structcount << "     *** *** citr->first (" << citr->first << ") == DBident (" << DBident );
-          msg(MSG::DEBUG) << "Tweak Old global DB -- channel: " << citr->first
+	  ATH_MSG_INFO( " -- SALVA -- goodmatch is TRUE -- structcount= " << structcount 
+			<< "\n                                 citr->first= " << citr->first
+			<< "\n                                 DBident    = " << DBident
+			<< "\n                                 bec        = " << bec 
+			<< "\n                                 ident      = " << ident );
+          msg(MSG::INFO) << " -- SALVA -- set back to DEBUG -- Tweak Old global DB -- channel: " << citr->first
 			  << " ,bec: "    << atrlist2["bec"].data<int>()
                           << " ,layer: "  << atrlist2["layer"].data<int>()
 			  << " ,sector: " << atrlist2["sector"].data<int>()
