@@ -69,7 +69,8 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltFinalize() {
 
 /**
  * Execute the algorithm.
- * Here we apply the quality cuts to the muon(s).
+ * Here we apply the quality cuts to the muon(s),
+ * optimised to reduce rate at low pt.
  */
 
 HLT::ErrorCode TrigMuonEFQualityHypo::hltExecute(const HLT::TriggerElement *outputTE, bool &pass) {
@@ -129,7 +130,8 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltExecute(const HLT::TriggerElement *outp
         }
         m_reducedChi2 = reducedChi2;
         m_isBadMuon = !m_muonSelTool->isBadMuon(*muon);
-
+        
+        // Selection criteria based on the requirements that are part of the muon quality working points (offline) 
         if(m_looseCut) {
             if(fabs(reducedChi2) < 8.0) passCut = true;
         } else {
