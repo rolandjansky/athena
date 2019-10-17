@@ -425,7 +425,7 @@ StatusCode TrigTauRecMergedMT::execute()
   const xAOD::TrackParticleContainer *RoITrackParticleContainer = nullptr;
 
   if ( !TPContainerHandle.isValid() ) {
-    ATH_MSG_INFO("REGTEST: No Track container found.");
+    ATH_MSG_DEBUG("REGTEST: No Track container found.");
     track_errors.push_back(NoTrkCont);
   }
   else {
@@ -440,7 +440,7 @@ StatusCode TrigTauRecMergedMT::execute()
   const xAOD::VertexContainer* RoIVxContainer = nullptr;
 
   if( !VertexContainerHandle.isValid() ) {
-    ATH_MSG_INFO(" No VxContainers retrieved for the trigger element");
+    ATH_MSG_DEBUG(" No VxContainers retrieved for the trigger element");
     track_errors.push_back(NoVtxCont);
   }
   else {
