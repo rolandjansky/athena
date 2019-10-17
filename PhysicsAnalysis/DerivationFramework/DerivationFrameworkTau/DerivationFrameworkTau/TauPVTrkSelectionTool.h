@@ -41,8 +41,8 @@ namespace DerivationFramework {
       std::string m_tauContainerName;
 
       bool m_useTruth;
-      bool m_maxDeltaR;
-      bool m_minPt;
+      double m_maxDeltaR;
+      double m_minPt;
 
       ToolHandle < TauAnalysisTools::ITauTruthTrackMatchingTool > m_T3MT;
 
