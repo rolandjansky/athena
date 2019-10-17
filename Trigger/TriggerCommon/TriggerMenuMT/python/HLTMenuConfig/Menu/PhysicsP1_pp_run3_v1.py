@@ -68,8 +68,8 @@ def setupMenu():
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py' )
 
-    addP1Signatures()
     physics_menu.setupMenu()
+    addP1Signatures()
 
     signatureList=[]
     for prop in dir(TriggerFlags):
