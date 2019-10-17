@@ -61,39 +61,26 @@ def LArAutoCorrNoiseCondAlgCfg(flags, name="LArAutoCorrNoiseCondAlg", **kwargs):
 
 
 def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
-    from AthenaCommon.SystemOfUnits import ns
-    deltaBunch = int(flags.Beam.BunchSpacing/( 25.*ns)+0.5)
 
     mlog = logging.getLogger ('LArOFCCondAlgCfg')
+    mlog.info(" entering LArOFCCondAlgCfg")
 
     kwargs.setdefault ('isMC', True)
     kwargs.setdefault ('firstSample', flags.LAr.ROD.FirstSample)
     kwargs.setdefault ('useHighestGainAutoCorr', flags.LAr.ROD.UseHighestGainAutoCorr)
-      
-    if flags.LAr.ROD.DoOFCMixedOptimization: # kept for backward compatibility
-        kwargs.setdefault ('UseDelta', 1) # only EMECIW/HEC/FCAL
-        kwargs.setdefault ('DeltaBunch', deltaBunch)
-        mlog.info("  OFC *MIXED* optimization")
-    else:
-        kwargs.setdefault ('UseDelta', flags.LAr.ROD.UseDelta)
-        
-        if flags.LAr.ROD.UseDelta == 0:
-            mlog.info("  Standard OFC optimization computation")
 
-        elif flags.LAr.ROD.UseDelta == 1:
-            mlog.info("  OFC optimization asking for no average shift as extra constraint only in EMECIW/HEC/FCAL")
-            kwargs.setdefault ('DeltaBunch', deltaBunch)
-
-        elif flags.LAr.ROD.UseDelta == 2:
-            mlog.info("  OFC optimization asking for no average shift as extra constraint everywhere")
-            kwargs.setdefault ('DeltaBunch', deltaBunch)
-
-        elif flags.LAr.ROD.UseDelta == 3:
-            mlog.info("  OFC optimization asking for no average shift as extra constraint only in EMECIW/HEC/FCAL1+high eta FCAL2-3")
-            kwargs.setdefault ('DeltaBunch', deltaBunch)
-            
+    if flags.LAr.ROD.doOFCPileupOptimization:
+        if flags.LAr.ROD.NumberOfCollisions():
+            kwargs.setdefault('Nminbias',flags.LAr.ROD.NumberOfCollisions)
+            mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.LAr.ROD.NumberOfCollisions)
         else:
-            kwargs.setdefault ('UseDelta', 0)
+            kwargs.setdefault('Nminbias',flags.Beam.numberOfCollisions)
+            mlog.info("Setup LArOFCCOndAlg Nminbias %f " ,flags.Beam.numberOfCollisions)
+    else:
+         kwargs.setdefault('Nminbias',0)
+         mlog.info(" no pileup optimization")
+
+      
 
     #The LArPileUpTool needs: Calbling, Shape, Noise, Pedestal and the (total) AutoCorr
     acc = LArOnOffIdMappingCfg(flags)
@@ -106,7 +93,25 @@ def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
 
 
 def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwargs):
+    mlog = logging.getLogger ('LArAutoCorrTotalCondAlgCfg')
+    mlog.info(" entering LArAutoCorrTotalCondAlgCfg")
+    from AthenaCommon.SystemOfUnits import ns
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
+    kwargs.setdefault("fistSample",flags.LAr.ROD.firstSample)
+    deltaBunch = int(flags.Beam.BunchSpacing/( 25.*ns)+0.5)
+    mlog.info("DeltaBundh %f " , deltaBunch)
+    kwargs.setdefault("deltaBunch",deltaBunch)
+    
+    if flags.LAr.ROD.doOFCPileupOptimization:
+        if flags.LAr.ROD.NumberOfCollision:
+            kwargs.setdefault("Nminbias",flags.LAr.ROD.NumberOfCollision)
+            mlog.info(" NMminBias %f" , flags.LAr.ROD.NumberOfCollision) 
+        else: 
+            kwargs.setdefault("Nminbias",flags.Beam.numberOfCollisions)
+            mlog.info(" NMminBias %f" , flags.Beam.numberOfCollisions)
+    else:
+        kwargs.setdefault("Nminbias",0)
+        mlog.info(" no pileup noise in LArAutoCorrTotal ")
 
     #The LArAutoCorrTotalAlg needs cabling and
     #Shape, AutoCorr, Noise, Pedestal, fSampl and MinBias 
