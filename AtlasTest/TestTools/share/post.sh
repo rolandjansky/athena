@@ -157,8 +157,8 @@ PP="$PP"'|^TimelineSvc +INFO'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service IncidentSvc'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc'
 # Pathnames / versions / times / hosts
-PP="$PP"'|^IOVDb(Svc|Folder) +INFO (Folder|Connection|Total payload|.*bytes in)'
-PP="$PP"'|^DBReplicaSvc +INFO Read replica configuration'
+PP="$PP"'|^IOVDb(Svc|Folder).*INFO (Folder|Connection|Total payload|.*bytes in)'
+PP="$PP"'|^DBReplicaSvc.*INFO Read replica configuration'
 PP="$PP"'|^EventInfoMgtInit: Got release version'
 PP="$PP"'|^Py:Athena +INFO using release'
 PP="$PP"'|servers found for host'
@@ -167,11 +167,14 @@ PP="$PP"'|INFO Database being retired|^Domain.*INFO'
 PP="$PP"'|SZ='
 PP="$PP"'|using job opts'
 
+# Hive ordering.
+PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread|Disconnecting from sqlite|Opening COOL connection|Initializing CondInputLoader|preLoadAddresses: Removing|IOVRanges will be checked|User session with|ConnectionService I[nN][fF][oO]|Disconnect from the database|RalSessionMgr I[nN][fF][oO]|Connect to the database'
+
 # Outputs dependent on whether or not a file catalog already exists.
 PP="$PP"'|XMLFileCatalog|File is not in Catalog|Failed to open container to check POOL collection|Open     DbSession|Access   DbDomain|Access   DbDatabase|^RootDatabase.open|Deaccess DbDatabase'
 
 PP="$PP"'|^Py:ConfigurableDb'
-PP="$PP"'|^DBReplicaSvc +INFO'
+PP="$PP"'|^DBReplicaSvc.*INFO'
 PP="$PP"'|INFO ... COOL  exception caught: The database does not exist|Create a new conditions database'
 PP="$PP"'|SetGeometryVersion.py obtained'
 PP="$PP"'|^ConditionStore +INFO Start ConditionStore'
@@ -237,7 +240,8 @@ PP="$PP"'|Found HelperTools'
 # Ignore ID helper verbosity.
 PP="$PP"'|filling address for'
 
-
+# MetaInputLoader addresses and SIDs
+PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
