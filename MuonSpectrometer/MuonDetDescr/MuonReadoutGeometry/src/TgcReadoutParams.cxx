@@ -60,7 +60,7 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
   StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
   if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
   m_Log = std::make_unique<MsgStream>(m_msgSvc, "TgcReadoutParams");
-  if (msgSvc) (*m_Log) << MSG::WARNING<<"TgcReadoutParams::TgcReadoutParams() - passed IMessageSvc which is not needed anymore." << endmsg;
+  if (msgSvc) (*m_Log) << MSG::DEBUG<<"TgcReadoutParams::TgcReadoutParams() - passed IMessageSvc which is not needed anymore." << endmsg;
 }
 
 
@@ -111,7 +111,7 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
     StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
     if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
     m_Log = std::make_unique<MsgStream>(m_msgSvc, "TgcReadoutParams");
-    if (msgSvc) (*m_Log) << MSG::WARNING<<"TgcReadoutParams::TgcReadoutParams() - passed IMessageSvc which is not needed anymore." << endmsg;
+    if (msgSvc) (*m_Log) << MSG::DEBUG<<"TgcReadoutParams::TgcReadoutParams() - passed IMessageSvc which is not needed anymore." << endmsg;
 }
 
 
