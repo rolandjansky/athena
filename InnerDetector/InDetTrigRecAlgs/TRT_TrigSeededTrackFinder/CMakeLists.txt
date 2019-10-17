@@ -21,8 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkEvent/TrkTrack
+                          Tracking/TrkEvent/TrkEventUtils
                           Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrkEventUtils
                           Trigger/TrigEvent/TrigSteeringEvent )
 
 # Component(s) in the package:
