@@ -167,6 +167,11 @@ def _createCfgFlags():
         return createPFConfigFlags()
     _addFlagsCategory(acf,"PF",__pflow, 'eflowRec')
 
+    def __met():
+        from METReconstruction.METConfigFlags import createMETConfigFlags
+        return createMETConfigFlags()
+    _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
+
     def __btagging():
         from BTagging.BTaggingConfigFlags import createBTaggingConfigFlags
         return createBTaggingConfigFlags()
