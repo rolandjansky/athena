@@ -14,7 +14,7 @@ using std::memset;
 TileWienerFilterWeights::TileWienerFilterWeights()
   : m_Luminosity(40)
   , m_loaded(false)
-  , m_weights(NULL)
+  , m_weights(nullptr)
 {
 }
 
@@ -46,7 +46,7 @@ void TileWienerFilterWeights::loadWeights(MsgStream &log)
 
     int partition, channel;
 
-    while(std::getline(file_gn, line_gn)) {
+    while (std::getline(file_gn, line_gn)) {
       // skip empty or comment lines
       if (line_gn.size() == 0 || line_gn[0] == '#') continue;
 
@@ -54,8 +54,10 @@ void TileWienerFilterWeights::loadWeights(MsgStream &log)
       std::istringstream iss(line_gn);
       iss>>partition;
       iss>>channel;
-      for(int i=0; i<8; i++) {
-        iss>>m_weights->generalWeights[partition][channel][i];
+      if (partition > -1 && partition < 4 && channel > -1 && channel < 48) {
+        for (int i=0; i<8; i++) {
+          iss>>m_weights->generalWeights[partition][channel][i];
+        }
       }
     }
 
@@ -78,13 +80,13 @@ void TileWienerFilterWeights::loadWeights(MsgStream &log)
 
     int bcidIndex = 0;
 
-    while(std::getline(file_op, line_op)) {
+    while (std::getline(file_op, line_op)) {
       // skip empty or comment lines
       if (line_op.size() == 0 || line_op[0] == '#') continue;
 
       // read values
       std::istringstream iss(line_op);
-      for(int i=0; i<8; i++) {
+      for (int i=0; i<8; i++) {
         iss>>m_weights->optimalWeights[bcidIndex][i];
       }
       bcidIndex++;
