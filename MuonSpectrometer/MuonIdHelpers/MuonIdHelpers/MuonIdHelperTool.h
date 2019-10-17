@@ -118,20 +118,38 @@ namespace Muon {
     /** @brief access to MdtIdHelper */
     const MdtIdHelper& mdtIdHelper() const { return *m_mdtIdHelper; }
 
+    /** @brief Test presence of MdtIdHelper */
+    bool hasMdtIdHelper() const { return m_mdtIdHelper != nullptr; }
+
     /** @brief access to RpcIdHelper */
     const RpcIdHelper& rpcIdHelper() const { return *m_rpcIdHelper; }
+
+    /** @brief Test presence of RpcIdHelper */
+    bool hasRpcIdHelper() const { return m_rpcIdHelper != nullptr; }
 
     /** @brief access to TgcIdHelper */
     const TgcIdHelper& tgcIdHelper() const { return *m_tgcIdHelper; }
 
+    /** @brief Test presence of TgcIdHelper */
+    bool hasTgcIdHelper() const { return m_tgcIdHelper != nullptr; }
+
     /** @brief access to CscIdHelper */
     const CscIdHelper& cscIdHelper() const { return *m_cscIdHelper; }
+
+    /** @brief Test presence of CscIdHelper */
+    bool hasCscIdHelper() const { return m_cscIdHelper != nullptr; }
 
     /** @brief access to TgcIdHelper */
     const sTgcIdHelper& stgcIdHelper() const { return *m_stgcIdHelper; }
 
+    /** @brief Test presence of sTgcIdHelper */
+    bool hassTgcIdHelper() const { return m_stgcIdHelper != nullptr; }
+
     /** @brief access to CscIdHelper */
     const MmIdHelper& mmIdHelper() const { return *m_mmIdHelper; }
+
+    /** @brief Test presence of sTgcIdHelper */
+    bool hasMmIdHelper() const { return m_mmIdHelper != nullptr; }
 
     /** @brief calculate chamber index from Identifier */
     MuonStationIndex::ChIndex chamberIndex( const Identifier& id ) const;
