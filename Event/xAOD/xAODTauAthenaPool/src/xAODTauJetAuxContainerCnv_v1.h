@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTauJetAuxContainerCnv_v1.h 632169 2014-11-29 15:13:34Z krasznaa $
@@ -28,25 +28,21 @@
 /// $Date: 2014-11-29 16:13:34 +0100 (Sat, 29 Nov 2014) $
 ///
 class xAODTauJetAuxContainerCnv_v1 :
-   public T_AthenaPoolTPCnvConstBase< xAOD::TauJetAuxContainer,
-                                      xAOD::TauJetAuxContainer_v1 > {
+   public T_AthenaPoolTPCnvBase< xAOD::TauJetAuxContainer,
+                                 xAOD::TauJetAuxContainer_v1 > {
 
 public:
-   using base_class::transToPers;
-   using base_class::persToTrans;
-
-
    /// Default constructor
    xAODTauJetAuxContainerCnv_v1();
 
    /// Function converting from the old type to the current one
    virtual void persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
                              xAOD::TauJetAuxContainer* newObj,
-                             MsgStream& log ) const override;
+                             MsgStream& log );
    /// Dummy function inherited from the base class
    virtual void transToPers( const xAOD::TauJetAuxContainer*,
                              xAOD::TauJetAuxContainer_v1*,
-                             MsgStream& log ) const override;
+                             MsgStream& log );
 
 }; // class xAODTauJetAuxContainer_v1
 
