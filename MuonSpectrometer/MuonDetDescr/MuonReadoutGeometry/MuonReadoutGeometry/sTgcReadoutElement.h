@@ -245,7 +245,7 @@ namespace MuonGM {
     if (manager()->stgcIdHelper()->channelType(id)==0){
     const MuonPadDesign* design = getPadDesign(id);
     if( !design ) {
-      *m_MsgStream << MSG::WARNING << "no pad Design" << endmsg;
+      (*m_Log)  << MSG::WARNING << "no pad Design" << endmsg;
       return -1;
     }
       return design->channelWidth( Amg::Vector2D (0,0),0);
@@ -266,11 +266,11 @@ namespace MuonGM {
 
     const MuonPadDesign* design = getPadDesign(id);
     if( !design ) {
-      *m_MsgStream << MSG::WARNING << "no pad Design" << endmsg;
+      (*m_Log)  << MSG::WARNING << "no pad Design" << endmsg;
       return -1;
     }
     std::pair<int,int> pad(design->channelNumber(pos));
-    *m_MsgStream << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endmsg;
+    (*m_Log)  << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endmsg;
 
     if (pad.first>0 && pad.second>0) {
 
@@ -284,12 +284,12 @@ namespace MuonGM {
       int padEta = manager()->stgcIdHelper()->padEta(padID);
       int padPhi = manager()->stgcIdHelper()->padPhi(padID);
       if( padEta != pad.first || padPhi != pad.second ){
-	*m_MsgStream << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
+	(*m_Log)  << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
 	return -1;
       }
       return channel;
     } 
-    *m_MsgStream << MSG::WARNING << "bad channelNumber" << endmsg;
+    (*m_Log)  << MSG::WARNING << "bad channelNumber" << endmsg;
 
     return -1; 
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -72,8 +72,11 @@ TileCell::TileCell(const CaloDetDescrElement* const & caloDDE,
   , m_timeDiff((time1-time2)/2.)
 { 
   m_tileQual[0] = std::min(255,abs(qual1));
+  // cppcheck-suppress objectIndex
   m_tileQual[1] = std::min(255,abs(qual2));
+  // cppcheck-suppress objectIndex
   m_tileQual[2] = (qbit1 & 0xFF);
+  // cppcheck-suppress objectIndex
   m_tileQual[3] = (qbit2 & 0xFF);
 }
 

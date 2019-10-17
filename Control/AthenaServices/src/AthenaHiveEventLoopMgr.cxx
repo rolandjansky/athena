@@ -627,7 +627,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent( EventContext &&ctx )
       conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
     }
   }
-  ctx.template getExtension<Atlas::ExtendedEventContext>().setConditionsRun (conditionsRun);
+  Atlas::getExtendedEventContext(ctx).setConditionsRun (conditionsRun);
   Gaudi::Hive::setCurrentContext ( ctx );
 
   // Record EventContext in current whiteboard
@@ -1218,7 +1218,8 @@ EventContext AthenaHiveEventLoopMgr::createEventContext() {
             << " could not be selected for the WhiteBoard" << endmsg;
     return EventContext{};       // invalid EventContext
   } else {
-    ctx.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
+    Atlas::setExtendedEventContext(ctx,
+                                   Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
 
     debug() << "created EventContext, num: " << ctx.evt()  << "  in slot: " 
 	    << ctx.slot() << endmsg;

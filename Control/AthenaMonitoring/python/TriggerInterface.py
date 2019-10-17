@@ -21,7 +21,7 @@ def getTrigConfigSvc(flags):
         from TrigConfigSvc.TrigConfigSvcConfig import (HLTConfigSvc, LVL1ConfigSvc, L1TopoConfigSvc, 
                                                        findFileInXMLPATH, TrigConfigSvc)
         hltcs = HLTConfigSvc("HLTConfigSvc")
-        hltcs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.HLTConfigFile)
+        hltcs.XMLMenuFile = findFileInXMLPATH(flags.Trigger.HLTMenuFile)
         rv.addService(hltcs)
         lvl1cs = LVL1ConfigSvc("LVL1ConfigSvc")
         # Configures here via "newJO" but XMLs not generated for this menu name

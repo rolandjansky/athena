@@ -48,8 +48,9 @@ def TRTMonitoringRun3_ToolConfig(inputFlags):
     # AlgTRTMonitoringRun3.RandomHist = True
     # to enable a trigger filter, for example:
     algTRTMonitoringRun3.TriggerChain = ''
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
-    result.merge(InDetGeometryCfg(inputFlags))
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    result.merge(AtlasGeometryCfg(inputFlags))
+    
 
     # === STEP 4 === #
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the

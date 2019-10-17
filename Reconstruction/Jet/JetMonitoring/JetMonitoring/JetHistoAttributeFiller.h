@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "JetMonitoring/IJetHistoFiller.h"
-#include "JetMonitoring/JetVarTool.h"
+#include "JetMonitoring/JetHistoVarTool.h"
 
 ////////////////////////////////////////////////////
 /// \class JetHistoAttributeFiller
@@ -22,9 +22,9 @@
 /// The tool does not directly fill histograms but uses Monitored::Scalar and Monitored::Group
 /// as is requested by the monitoring framewok.
 ///
-/// The variables are specified by means of IJetVarTool which are just configurable version
+/// The variables are specified by means of IJetHistoVarTool which are just configurable version
 /// of the JetVariable class.
-/// The IJetVarTool are set via the properterties VarX, VarY and VarZ 
+/// The IJetHistoVarTool are set via the properterties VarX, VarY and VarZ 
 /// The Monitoring Group is specified by the Group property
 ///
 /// The tool support plotting variables of type float,int ,vector<float> and vector<int>.
@@ -42,10 +42,10 @@ private:
 
 
   Gaudi::Property<std::string> m_group {this,"Group", "undefined"};
-  ToolHandle<IJetVarTool> m_varX;
-  ToolHandle<IJetVarTool> m_varY;
+  ToolHandle<IJetHistoVarTool> m_varX;
+  ToolHandle<IJetHistoVarTool> m_varY;
 
-  ToolHandle<IJetVarTool> m_varZ;
+  ToolHandle<IJetHistoVarTool> m_varZ;
   
   int m_nVar=1;
   

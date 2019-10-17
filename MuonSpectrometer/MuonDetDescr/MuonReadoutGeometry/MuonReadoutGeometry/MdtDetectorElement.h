@@ -45,15 +45,10 @@ class MuonStation;
 class MdtDetectorElement: public MuonDetectorElement 
 {
 
-public:    
+public:
 
    MdtDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idHash);
    virtual ~MdtDetectorElement(){};
-    
-    //Declaring the Message method for further use
-    MsgStream& msg( MSG::Level lvl ) const ;
-    //Declaring the Method providing Verbosity Level
-    bool msgLevel( MSG::Level lvl ) ;
 
    virtual int getStationEta() const {return 0;}; //!< returns stationEta 
    virtual int getStationPhi() const {return 0;}; //!< returns stationPhi

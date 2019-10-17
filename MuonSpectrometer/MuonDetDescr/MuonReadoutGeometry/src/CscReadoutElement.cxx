@@ -44,8 +44,6 @@ CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
     m_wirepitch(-9999.), m_first_strip_localcoo(-9999.), m_first_wire_localcoo(-9999.)
 {
   // Set a few parameters here.  The rest are set in MuonChamber::setCscReadoutGeometry
-
-  m_MsgStream = new MsgStream(mgr->msgSvc(), "MuGM:CscReadoutElement");
   // get the setting of the caching flag from the manager
   setCachingFlag(mgr->cachingFlag());
 
@@ -307,17 +305,6 @@ const Amg::Vector3D CscReadoutElement::stripPos(int eta, int chamberLayer, int w
   const Amg::Vector3D localP = localStripPos(eta, chamberLayer, wireLayer,
 					  measPhi, channel);
   const Amg::Transform3D cscTrans = absTransform();
-    // Amg::Transform3D transfPtr_internalgeo(HepGeom::TranslateY3D(m_cscIntTransl[wireLayer-1][0])* 
-    //                                      HepGeom::TranslateZ3D(m_cscIntTransl[wireLayer-1][1])* 
-    //                                      HepGeom::TranslateX3D(m_cscIntTransl[wireLayer-1][2])* 
-    //                                      HepGeom::RotateY3D(m_cscIntRot[wireLayer-1][0])* 
-    //                                      HepGeom::RotateZ3D(m_cscIntRot[wireLayer-1][1])* 
-    //                                      HepGeom::RotateX3D(m_cscIntRot[wireLayer-1][2])); 
-    // reLog()<<MSG::INFO<<"in STRIP POS This is for the igap: "<<wireLayer<<"\tmeasPhi: "<<measPhi<<endmsg; 
-    // reLog()<<MSG::INFO<<transfPtr_internalgeo[0][0]<<" "<<transfPtr_internalgeo[0][1]<<" "<<transfPtr_internalgeo[0][2]<<" "<<transfPtr_internalgeo[0][3]<<endmsg; 
-    // reLog()<<MSG::INFO<<transfPtr_internalgeo[1][0]<<" "<<transfPtr_internalgeo[1][1]<<" "<<transfPtr_internalgeo[1][2]<<" "<<transfPtr_internalgeo[1][3]<<endmsg; 
-    // reLog()<<MSG::INFO<<transfPtr_internalgeo[2][0]<<" "<<transfPtr_internalgeo[2][1]<<" "<<transfPtr_internalgeo[2][2]<<" "<<transfPtr_internalgeo[2][3]<<endmsg;   
-    //return cscTrans * transfPtr_internalgeo * localP;
     return cscTrans * localP;
 }
 
@@ -473,10 +460,6 @@ const Amg::Vector3D CscReadoutElement::localStripPos(int eta, int chamberLayer,
 					 Amg::AngleAxis3D(m_cscIntRot[wireLayer-1][0],Amg::Vector3D(0.,1.,0.))*
 					 Amg::AngleAxis3D(m_cscIntRot[wireLayer-1][1],Amg::Vector3D(0.,0.,1.))*
 					 Amg::AngleAxis3D(m_cscIntRot[wireLayer-1][2],Amg::Vector3D(1.,0.,0.)));
-  //    reLog()<<MSG::INFO<<"in local STRIP POS This is for the igap: "<<wireLayer<<"\tmeasPhi: "<<measPhi<<endmsg; 
-  //    reLog()<<MSG::INFO<<transfPtr_internalgeo[0][0]<<" "<<transfPtr_internalgeo[0][1]<<" "<<transfPtr_internalgeo[0][2]<<" "<<transfPtr_internalgeo[0][3]<<endmsg; 
-  //    reLog()<<MSG::INFO<<transfPtr_internalgeo[1][0]<<" "<<transfPtr_internalgeo[1][1]<<" "<<transfPtr_internalgeo[1][2]<<" "<<transfPtr_internalgeo[1][3]<<endmsg; 
-  //    reLog()<<MSG::INFO<<transfPtr_internalgeo[2][0]<<" "<<transfPtr_internalgeo[2][1]<<" "<<transfPtr_internalgeo[2][2]<<" "<<transfPtr_internalgeo[2][3]<<endmsg; 
     return transfPtr_internalgeo * nominalLP;
   
 }
@@ -566,10 +549,6 @@ const Amg::Vector3D CscReadoutElement::localClusterPos(int eta, int wireLayer,
   transfPtr_internalgeo *= Amg::AngleAxis3D(m_cscIntRot[wireLayer-1][1],Amg::Vector3D(0.,0.,1.));
   transfPtr_internalgeo *= Amg::AngleAxis3D(m_cscIntRot[wireLayer-1][2],Amg::Vector3D(1.,0.,0.));
  
-  //    reLog()<<MSG::INFO<<"in local STRIP POS This is for the igap: "<<wireLayer<<"\tmeasPhi: "<<measPhi<<endmsg; 
-  //    reLog()<<MSG::INFO<<transfPtr_internalgeo[0][0]<<" "<<transfPtr_internalgeo[0][1]<<" "<<transfPtr_internalgeo[0][2]<<" "<<transfPtr_internalgeo[0][3]<<endmsg; 
-  //    reLog()<<MSG::INFO<<transfPtr_internalgeo[1][0]<<" "<<transfPtr_internalgeo[1][1]<<" "<<transfPtr_internalgeo[1][2]<<" "<<transfPtr_internalgeo[1][3]<<endmsg; 
-  //    reLog()<<MSG::INFO<<transfPtr_internalgeo[2][0]<<" "<<transfPtr_internalgeo[2][1]<<" "<<transfPtr_internalgeo[2][2]<<" "<<transfPtr_internalgeo[2][3]<<endmsg; 
     return transfPtr_internalgeo * nominalLCP;
 }
 
@@ -691,14 +670,14 @@ void  CscReadoutElement::setIdentifier(Identifier id)
     // set parent data collection hash id 
     int gethash_code = idh->get_module_hash(id, collIdhash);
     if (gethash_code != 0) 
-	reLog()<<MSG::WARNING
+	(*m_Log) <<MSG::WARNING
 	       <<"CscReadoutElement --  collection hash Id NOT computed for id = "
 	       <<idh->show_to_string(id)<<std::endl;
     m_idhash = collIdhash;
     // set readout element hash id 
     gethash_code = idh->get_detectorElement_hash(id, detIdhash);
     if (gethash_code != 0) 
-	reLog()<<MSG::WARNING
+	(*m_Log) <<MSG::WARNING
 	       <<"CscReadoutElement --  detectorElement hash Id NOT computed for id = "
 	       <<idh->show_to_string(id)<<endmsg;
     m_detectorElIdhash = detIdhash;
@@ -737,8 +716,7 @@ void CscReadoutElement::setCscInternalAlignmentParams()
 
   if (manager()->CscInternalAlignmentContainer() == NULL)
   {
-    if (reLog().level() <= MSG::DEBUG) 
-      reLog()<<MSG::DEBUG<<"No CscInternalAlignmenContainer has been built - nothing to do in CscReadouElement::setCscInternalAlignmentParams"<<endmsg;
+      (*m_Log) <<MSG::DEBUG<<"No CscInternalAlignmenContainer has been built - nothing to do in CscReadouElement::setCscInternalAlignmentParams"<<endmsg;
 
     return;
   }
@@ -755,8 +733,7 @@ void CscReadoutElement::setCscInternalAlignmentParams()
       //                                getAmdbZi(), 
       //                                getAmdbFi(), 
       //                                2, wlay, 0, 1); 
-      if (reLog().level() <= MSG::DEBUG) 
-	reLog()<<MSG::DEBUG <<"in setCscInternalAlignmentParams for wlay="<<wlay<<" : w-lay identifier = "
+	(*m_Log) <<MSG::DEBUG <<"in setCscInternalAlignmentParams for wlay="<<wlay<<" : w-lay identifier = "
 	       <<idh->show_to_string(id)<<" this cscRE "
 	       <<idh->show_to_string(identify())<<" it's parent "
 	       <<idh->show_to_string(idp)<<endmsg;
@@ -793,10 +770,10 @@ void CscReadoutElement::setCscInternalAlignmentPar(CscInternalAlignmentPar* x)
 
   if (stName != getStationName().substr(0,3) || jff != getStationPhi() || jzz != getStationEta() || notAllowedWLayer ) 
     {
-      reLog()<<MSG::WARNING<<"Trying to set the following CSC internal A-line "<<stName
+      (*m_Log) <<MSG::WARNING<<"Trying to set the following CSC internal A-line "<<stName
 	     <<" fi/zi/job/wLayer "<<jff<<"/"<<jzz<<"/"<<job<<"/"<<wlayer
 	     <<" for Csc readout Element "<<idh->show_to_string(identify())<<endmsg;
-      reLog()<<MSG::WARNING<<"Inconsistent CSC int. Aline assignment - Internal alignment will not be applied "<<endmsg;
+      (*m_Log) <<MSG::WARNING<<"Inconsistent CSC int. Aline assignment - Internal alignment will not be applied "<<endmsg;
       return;
     }
       m_cscIntTransl[wlayer-1][0]=s_trans; 
@@ -805,12 +782,10 @@ void CscReadoutElement::setCscInternalAlignmentPar(CscInternalAlignmentPar* x)
       m_cscIntRot[wlayer-1][0]=s_rot; 
       m_cscIntRot[wlayer-1][1]=z_rot; 
       m_cscIntRot[wlayer-1][2]=t_rot; 
-      if (reLog().level() <= MSG::DEBUG){
 	for (unsigned int j=0; j<3; ++j){  
-	  reLog()<<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntTransl["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntTransl[(wlayer-1)][j]<<endmsg;
-	  reLog()<<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntRot["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntRot[(wlayer-1)][j]<<endmsg;
+	  (*m_Log) <<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntTransl["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntTransl[(wlayer-1)][j]<<endmsg;
+	  (*m_Log) <<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntRot["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntRot[(wlayer-1)][j]<<endmsg;
 	}  
-      } 
 
   return;
 }
@@ -883,13 +858,11 @@ CscReadoutElement::nominalTransform(int gasGap, int measPhi) const
     //transfPtr = new Amg::Transform3D( surfaceTRotation, localToGlobalTransf(gasGap).translation() );
     Amg::Transform3D transfPtr_orig(surfaceTRotation);
     transfPtr_orig *= Amg::Translation3D(localToGlobalTransf(gasGap).translation()); 
-    if (reLog().level() <= MSG::DEBUG){  
-       reLog()<<MSG::DEBUG<<"nominalTransform+++++++++++Original Tranformation ++++++++++++++++++++++"<<endmsg; 
-       reLog()<<MSG::DEBUG<<(transfPtr_orig)(0,0)<<" "<<(transfPtr_orig)(0,1)<<" "<<(transfPtr_orig)(0,2)<<" "<<(transfPtr_orig)(0,3)<<endmsg; 
-       reLog()<<MSG::DEBUG<<(transfPtr_orig)(1,0)<<" "<<(transfPtr_orig)(1,1)<<" "<<(transfPtr_orig)(1,2)<<" "<<(transfPtr_orig)(1,3)<<endmsg; 
-       reLog()<<MSG::DEBUG<<(transfPtr_orig)(2,0)<<" "<<(transfPtr_orig)(2,1)<<" "<<(transfPtr_orig)(2,2)<<" "<<(transfPtr_orig)(2,3)<<endmsg; 
-       reLog()<<MSG::DEBUG<<"+++++ transf ends "<<endmsg; 
-    }
+       (*m_Log) <<MSG::DEBUG<<"nominalTransform+++++++++++Original Tranformation ++++++++++++++++++++++"<<endmsg; 
+       (*m_Log) <<MSG::DEBUG<<(transfPtr_orig)(0,0)<<" "<<(transfPtr_orig)(0,1)<<" "<<(transfPtr_orig)(0,2)<<" "<<(transfPtr_orig)(0,3)<<endmsg; 
+       (*m_Log) <<MSG::DEBUG<<(transfPtr_orig)(1,0)<<" "<<(transfPtr_orig)(1,1)<<" "<<(transfPtr_orig)(1,2)<<" "<<(transfPtr_orig)(1,3)<<endmsg; 
+       (*m_Log) <<MSG::DEBUG<<(transfPtr_orig)(2,0)<<" "<<(transfPtr_orig)(2,1)<<" "<<(transfPtr_orig)(2,2)<<" "<<(transfPtr_orig)(2,3)<<endmsg; 
+       (*m_Log) <<MSG::DEBUG<<"+++++ transf ends "<<endmsg; 
     return transfPtr_orig;
 }
 const Amg::Vector3D CscReadoutElement::stripPosOnTrackingSurface(Identifier id) const
@@ -923,7 +896,7 @@ void CscReadoutElement::fillCache() const
 
   if( !m_surfaceData ) m_surfaceData = new SurfaceData();
   else{
-    reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+    (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
     return;
   }
   const CscIdHelper* idh = manager()->cscIdHelper();
