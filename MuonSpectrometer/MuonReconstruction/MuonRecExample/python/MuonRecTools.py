@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
@@ -267,9 +267,6 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
 
 
 def MuonTrackSummaryHelperTool(name="MuonTrackSummaryHelperTool",**kwargs):
-    AtlasTrackingGeometrySvc = getService("AtlasTrackingGeometrySvc")
-    kwargs.setdefault("TrackingGeometryName", AtlasTrackingGeometrySvc.TrackingGeometryName)
-    kwargs.setdefault("DoHolesOnTrack", False)
     kwargs.setdefault("CalculateCloseHits", True)
 
     from MuonTrackSummaryHelperTool.MuonTrackSummaryHelperToolConf import Muon__MuonTrackSummaryHelperTool
