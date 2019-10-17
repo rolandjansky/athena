@@ -4,72 +4,6 @@
 # Common file used by TOPQCommonSlimming.py
 # Access variables with:
 #   from DerivationFrameworkTop.TOPQCommonExtraContent import *
-# Available variables (arrays):
-#   TOPQSmartSlimmingCollections
-#   TOPQExtraVariables_Photons
-#   TOPQExtraVariables_Electrons
-#   TOPQExtraVariables_ForwardElectrons
-#   TOPQExtraVariables_Muons
-#   TOPQExtraVariables_Taus
-#   TOPQExtraVariables_TauJets
-#   TOPQExtraVariables_CaloCalTopoClusters
-#   TOPQExtraVariables_egammaClusters
-#   TOPQExtraVariables_AntiKt4EMTopoJets
-#   TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
-#   TOPQExtraVariables_AntiKt4EMPFlowJets
-#   TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-#   TOPQExtraVariables_AntiKt2PV0TrackJets
-#   TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201810
-#   TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201903
-#   TOPQExtraVariables_BTagging_AntiKt4EMTopo_201810
-#   TOPQExtraVariables_CombinedMuonTrackParticles
-#   TOPQExtraVariables_ExtrapolatedMuonTrackParticles
-#   TOPQExtraVariables_InDetTrackParticles
-#   TOPQExtraVariables_PrimaryVertices
-#   TOPQExtraVariables_InDetForwardTrackParticles
-#   TOPQExtraVariables_MET_Track
-#
-#   TOPQExtraVariables_BTag_HLT
-#   TOPQExtraVariables_HLT_EFJet
-#   TOPQExtraVariables_HLT_GSCJet
-#   TOPQExtraVariables_HLT_SplitJet
-#   TOPQExtraVariables_HLT_TrigEFMissingET
-#   TOPQExtraVariables_HLT_TrigEFMissingET_mht
-#   TOPQExtraVariables_HLT_TrigEFMissingET_topocl_PUC
-#   TOPQExtraVariables_HLT_a10r_tcemsubjesFS
-#   TOPQExtraVariables_HLT_a10r_tcemsubjesISFS
-#   TOPQExtraVariables_HLT_a10tclcwsubjesFS
-#   TOPQExtraVariables_HLT_a10ttclcwjesFS
-#   TOPQExtraVariables_HLT_a4tcemsubjesFS
-#   TOPQExtraVariables_HLT_a4tcemsubjesISFS
-#   TOPQExtraVariables_LVL1EnergySumRoI
-#
-#   TOPQExtraVariables_Photons_Truth
-#   TOPQExtraVariables_Electrons_Truth
-#   TOPQExtraVariables_ForwardElectrons_Truth
-#   TOPQExtraVariables_Muons_Truth
-#   TOPQExtraVariables_CombinedMuonTrackParticles_Truth
-#   TOPQExtraVariables_MuonSpectrometerTrackParticles_Truth
-#   TOPQExtraVariables_ExtrapolatedMuonTrackParticles_Truth
-#   TOPQExtraVariables_InDetForwardTrackParticles_Truth
-#   TOPQExtraVariables_Taus_Truth
-#   TOPQExtraVariables_AntiKt4EMTopoJets_Truth
-#   TOPQExtraVariables_AntiKt4EMPFlowJets_Truth
-#   TOPQExtraVariables_AntiKt2PV0TrackJets_Truth
-#   TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth
-#
-#   TOPQExtraVariables_AntiKt4TruthJets
-#   TOPQExtraVariables_AntiKt4TruthWZJets
-#   TOPQExtraVariables_AntiKt10TruthJets
-#   TOPQExtraVariables_TruthEvents
-#   TOPQExtraVariables_TruthParticles
-#   TOPQExtraVariables_TruthVertices
-#   TOPQExtraVariables_MET_Truth
-#   TOPQExtraVariables_MET_TruthRegions
-#
-#   TOPQStaticContent
-#   TOPQStaticContentV0
-#   TOPQStaticContentTruth
 #====================================================================
 
 #================================
@@ -105,11 +39,11 @@ TOPQSmartSlimmingCollections = ["HLT_xAOD__TrigMissingETContainer_TrigEFMissingE
 #================================
 # EXTRA VARIABLES - Data & MC
 #================================
-# default list for Photons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/PhotonsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/PhotonsCPContent.py
 TOPQExtraVariables_Photons    = ["Photons."
-                                 ]
+                                ]
 
-# default list for Electrons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py
 TOPQExtraVariables_Electrons  = ["Electrons."
                                  + "etcone30."
                                  + "etcone40"]
@@ -161,7 +95,7 @@ TOPQExtraVariables_ForwardElectrons  = ["ForwardElectrons."
                                         + "weta2."
                                         + "wtots1"]
 
-# default list for Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
 TOPQExtraVariables_Muons      = ["Muons."
                                  + "DFCommonMuonsLoose."
                                  + "DFCommonMuonsMedium."
@@ -241,13 +175,12 @@ TOPQExtraVariables_TauTracks   = ["TauTracks."
                                   + "pt."
                                   + "trackLinks"]
 
-
-# additional variables for clusters
-# default list for CaloCalTopoClusters : #https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/ExtendedJetCommon.py#L412
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/ExtendedJetCommon.py#L412
 TOPQExtraVariables_CaloCalTopoClusters = ["CaloCalTopoClusters."
                                           + "CENTER_MAG"]
 
-# default list for egammaclusters through Electrons and Photons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py, https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/PhotonsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/PhotonsCPContent.py
 TOPQExtraVariables_egammaClusters = ["egammaClusters."
                                      + "BadChannelList."
                                      + "CellLink."
@@ -273,8 +206,7 @@ TOPQExtraVariables_egammaClusters = ["egammaClusters."
                                      + "time"]
 
 
-# additional variables for jets
-# list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "DFCommonJets_Calib_pt."
                                          + "DFCommonJets_Calib_eta."
@@ -350,65 +282,63 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "isBJet."
                                          + "selected"]
 
-# for TOPQDERIV-62
 TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1 =  ["AntiKt4EMPFlowJets."
-                                                  + "DoubleTagBDTOutput."
-                                                  + "LargeJetLabel."
-                                                  + "ExKtbb_MaxMV2c10."
-                                                  + "ExKtbb_MaxMV2r."
-                                                  + "ExKtbb_MaxDL1_pb."
-                                                  + "ExKtbb_MaxDL1_pc."
-                                                  + "ExKtbb_MaxDL1_pu."
-                                                  + "ExKtbb_MaxDL1r_pb."
-                                                  + "ExKtbb_MaxDL1r_pc."
-                                                  + "ExKtbb_MaxDL1r_pu."
-                                                  + "ExKtbb_MinMV2c10."
-                                                  + "ExKtbb_MinMV2r."
-                                                  + "ExKtbb_MinDL1_pb."
-                                                  + "ExKtbb_MinDL1_pc."
-                                                  + "ExKtbb_MinDL1_pu."
-                                                  + "ExKtbb_MinDL1r_pb."
-                                                  + "ExKtbb_MinDL1r_pc."
-                                                  + "ExKtbb_MinDL1r_pu."
-                                                  + "ExKtbb_SubjetDR."
-                                                  + "ExKtbb_SubjetPtAsym."
-                                                  + "ExKt3bb_MaxMV2c10."
-                                                  + "ExKt3bb_MinMV2c10."
-                                                  + "ExKt3bb_j1_MV2r."
-                                                  + "ExKt3bb_j1_DL1_pb."
-                                                  + "ExKt3bb_j1_DL1_pc."
-                                                  + "ExKt3bb_j1_DL1_pu."
-                                                  + "ExKt3bb_j1_DL1r_pb."
-                                                  + "ExKt3bb_j1_DL1r_pc."
-                                                  + "ExKt3bb_j1_DL1r_pu."
-                                                  + "ExKt3bb_j2_MV2r."
-                                                  + "ExKt3bb_j2_DL1_pb."
-                                                  + "ExKt3bb_j2_DL1_pc."
-                                                  + "ExKt3bb_j2_DL1_pu."
-                                                  + "ExKt3bb_j2_DL1r_pb."
-                                                  + "ExKt3bb_j2_DL1r_pc."
-                                                  + "ExKt3bb_j2_DL1r_pu."
-                                                  + "ExKt3bb_j3_MV2r."
-                                                  + "ExKt3bb_j3_DL1_pb."
-                                                  + "ExKt3bb_j3_DL1_pc."
-                                                  + "ExKt3bb_j3_DL1_pu."
-                                                  + "ExKt3bb_j3_DL1r_pb."
-                                                  + "ExKt3bb_j3_DL1r_pc."
-                                                  + "ExKt3bb_j3_DL1r_pu."
-                                                  + "ExKt3bb_SubjetDR."
-                                                  + "ExKt3bb_SubjetPtAsym."
-                                                  + "ExKtbb_leadingPtNBHadrons."
-                                                  + "ExKtbb_leadingPtNCHadrons."
-                                                  + "ExKtbb_subleadingPtNBHadrons."
-                                                  + "ExKtbb_subleadingPtNCHadrons."
-                                                  + "ExKt3bb_leadingMV2c10NBHadrons."
-                                                  + "ExKt3bb_leadingMV2c10NCHadrons."
-                                                  + "ExKt3bb_subleadingMV2c10NBHadrons."
-                                                  + "ExKt3bb_subleadingMV2c10NCHadrons"
-                                                  ]
+                                                   + "DoubleTagBDTOutput."
+                                                   + "LargeJetLabel."
+                                                   + "ExKtbb_MaxMV2c10."
+                                                   + "ExKtbb_MaxMV2r."
+                                                   + "ExKtbb_MaxDL1_pb."
+                                                   + "ExKtbb_MaxDL1_pc."
+                                                   + "ExKtbb_MaxDL1_pu."
+                                                   + "ExKtbb_MaxDL1r_pb."
+                                                   + "ExKtbb_MaxDL1r_pc."
+                                                   + "ExKtbb_MaxDL1r_pu."
+                                                   + "ExKtbb_MinMV2c10."
+                                                   + "ExKtbb_MinMV2r."
+                                                   + "ExKtbb_MinDL1_pb."
+                                                   + "ExKtbb_MinDL1_pc."
+                                                   + "ExKtbb_MinDL1_pu."
+                                                   + "ExKtbb_MinDL1r_pb."
+                                                   + "ExKtbb_MinDL1r_pc."
+                                                   + "ExKtbb_MinDL1r_pu."
+                                                   + "ExKtbb_SubjetDR."
+                                                   + "ExKtbb_SubjetPtAsym."
+                                                   + "ExKt3bb_MaxMV2c10."
+                                                   + "ExKt3bb_MinMV2c10."
+                                                   + "ExKt3bb_j1_MV2r."
+                                                   + "ExKt3bb_j1_DL1_pb."
+                                                   + "ExKt3bb_j1_DL1_pc."
+                                                   + "ExKt3bb_j1_DL1_pu."
+                                                   + "ExKt3bb_j1_DL1r_pb."
+                                                   + "ExKt3bb_j1_DL1r_pc."
+                                                   + "ExKt3bb_j1_DL1r_pu."
+                                                   + "ExKt3bb_j2_MV2r."
+                                                   + "ExKt3bb_j2_DL1_pb."
+                                                   + "ExKt3bb_j2_DL1_pc."
+                                                   + "ExKt3bb_j2_DL1_pu."
+                                                   + "ExKt3bb_j2_DL1r_pb."
+                                                   + "ExKt3bb_j2_DL1r_pc."
+                                                   + "ExKt3bb_j2_DL1r_pu."
+                                                   + "ExKt3bb_j3_MV2r."
+                                                   + "ExKt3bb_j3_DL1_pb."
+                                                   + "ExKt3bb_j3_DL1_pc."
+                                                   + "ExKt3bb_j3_DL1_pu."
+                                                   + "ExKt3bb_j3_DL1r_pb."
+                                                   + "ExKt3bb_j3_DL1r_pc."
+                                                   + "ExKt3bb_j3_DL1r_pu."
+                                                   + "ExKt3bb_SubjetDR."
+                                                   + "ExKt3bb_SubjetPtAsym."
+                                                   + "ExKtbb_leadingPtNBHadrons."
+                                                   + "ExKtbb_leadingPtNCHadrons."
+                                                   + "ExKtbb_subleadingPtNBHadrons."
+                                                   + "ExKtbb_subleadingPtNCHadrons."
+                                                   + "ExKt3bb_leadingMV2c10NBHadrons."
+                                                   + "ExKt3bb_leadingMV2c10NCHadrons."
+                                                   + "ExKt3bb_subleadingMV2c10NBHadrons."
+                                                   + "ExKt3bb_subleadingMV2c10NCHadrons"
+]
 
-
-# list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          + "AntiKt2TrackJet."
                                          + "AverageLArQF."
@@ -493,9 +423,7 @@ TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          + "WidthPhi."
                                          + "btaggingLink"]
 
-
-# additional variables for jets (TOPQDERIV70)
-# list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
 TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02TrackJets."
                                                       + "AlgorithmType."
                                                       + "ConeExclBHadronsFinal."
@@ -579,78 +507,72 @@ TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30R
                                                            + "IP3D_pb."
                                                            + "IP3D_pu."
                                                            + "MV2c10_discriminant."
-                                                           + "MV2c100_discriminant"]
-                                                           #+ "SV1_badTracksIP."
-                                                           #+ "SV1_vertices"]
-                                                           #+ "BTagTrackToJetAssociator.MSV_vertices",
-                                                           #+ "BTagTrackToJetAssociatorBB.JetFitter_JFvertices."
-                                                           #+ "JetFitter_tracksAtPVlinks.MSV_badTracksIP"
-                                                           #]
+                                                           + "MV2c100_discriminant"
+                                                           ]
 
-# heavy flavour tagging
-# default variables are in : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkFlavourTag/python/BTaggingContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkFlavourTag/python/BTaggingContent.py
 TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201810 = ["BTagging_AntiKt4EMPFlow_201810."
-                                              + "BTagTrackToJetAssociator."
-                                              + "BTagTrackToJetAssociatorBB."
-                                              + "IP3D_pb."
-                                              + "IP3D_pu."
-                                              + "JetFitter_JFvertices."
-                                              + "JetFitter_tracksAtPVlinks."
-                                              + "MSV_badTracksIP."
-                                              + "MSV_vertices."
-                                              + "SV1_badTracksIP."
-                                              + "SV1_pb."
-                                              + "SV1_pu."
-                                              + "SV1_vertices"]
+                                                     + "BTagTrackToJetAssociator."
+                                                     + "BTagTrackToJetAssociatorBB."
+                                                     + "IP3D_pb."
+                                                     + "IP3D_pu."
+                                                     + "JetFitter_JFvertices."
+                                                     + "JetFitter_tracksAtPVlinks."
+                                                     + "MSV_badTracksIP."
+                                                     + "MSV_vertices."
+                                                     + "SV1_badTracksIP."
+                                                     + "SV1_pb."
+                                                     + "SV1_pu."
+                                                     + "SV1_vertices"]
 
 TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201903 = ["BTagging_AntiKt4EMPFlow_201903."
-                                              + "BTagTrackToJetAssociator."
-                                              + "BTagTrackToJetAssociatorBB."
-                                              + "IP3D_pb."
-                                              + "IP3D_pu."
-                                              + "JetFitter_JFvertices."
-                                              + "JetFitter_tracksAtPVlinks."
-                                              + "MSV_badTracksIP."
-                                              + "MSV_vertices."
-                                              + "SV1_badTracksIP."
-                                              + "SV1_pb."
-                                              + "SV1_pu."
-                                              + "SV1_vertices"]
+                                                     + "BTagTrackToJetAssociator."
+                                                     + "BTagTrackToJetAssociatorBB."
+                                                     + "IP3D_pb."
+                                                     + "IP3D_pu."
+                                                     + "JetFitter_JFvertices."
+                                                     + "JetFitter_tracksAtPVlinks."
+                                                     + "MSV_badTracksIP."
+                                                     + "MSV_vertices."
+                                                     + "SV1_badTracksIP."
+                                                     + "SV1_pb."
+                                                     + "SV1_pu."
+                                                     + "SV1_vertices"]
 
 TOPQExtraVariables_BTagging_AntiKt4EMTopo_201810 = ["BTagging_AntiKt4EMTopo_201810."
-                                             + "DFCommonJets_FixedCutBEff_60_MV2c10."
-                                             + "DFCommonJets_FixedCutBEff_60_DL1."
-                                             + "DFCommonJets_FixedCutBEff_70_MV2c10."
-                                             + "DFCommonJets_FixedCutBEff_70_DL1."
-                                             + "DFCommonJets_FixedCutBEff_77_MV2c10."
-                                             + "DFCommonJets_FixedCutBEff_77_DL1."
-                                             + "DFCommonJets_FixedCutBEff_85_MV2c10."
-                                             + "DFCommonJets_FixedCutBEff_85_DL1."
-                                             + "DFCommonJets_HybBEff_60_MV2c10."
-                                             + "DFCommonJets_HybBEff_60_DL1."
-                                             + "DFCommonJets_HybBEff_70_MV2c10."
-                                             + "DFCommonJets_HybBEff_70_DL1."
-                                             + "DFCommonJets_HybBEff_77_MV2c10."
-                                             + "DFCommonJets_HybBEff_77_DL1."
-                                             + "DFCommonJets_HybBEff_85_MV2c10."
-                                             + "DFCommonJets_HybBEff_85_DL1."
-                                             + "JetVertexCharge_discriminant."
-                                             + "MSV_N2Tpair."
-                                             + "MSV_energyTrkInJet."
-                                             + "MSV_nvsec."
-                                             + "MSV_vtxmass."
-                                             + "MSV_vtxpt."
-                                             + "MSV_vtxeta."
-                                             + "MSV_vtxphi."
-                                             + "MSV_vtxefrac."
-                                             + "MSV_vtxx."
-                                             + "MSV_vtxy."
-                                             + "MSV_vtxz."
-                                             + "MSV_vtxdls."
-                                             + "MSV_vtxntrk."
-                                             + "MultiSVbb1_discriminant."
-                                             + "MultiSVbb2_discriminant."
-                                             + "SV1_TrackParticleLinks"]
+                                                    + "DFCommonJets_FixedCutBEff_60_MV2c10."
+                                                    + "DFCommonJets_FixedCutBEff_60_DL1."
+                                                    + "DFCommonJets_FixedCutBEff_70_MV2c10."
+                                                    + "DFCommonJets_FixedCutBEff_70_DL1."
+                                                    + "DFCommonJets_FixedCutBEff_77_MV2c10."
+                                                    + "DFCommonJets_FixedCutBEff_77_DL1."
+                                                    + "DFCommonJets_FixedCutBEff_85_MV2c10."
+                                                    + "DFCommonJets_FixedCutBEff_85_DL1."
+                                                    + "DFCommonJets_HybBEff_60_MV2c10."
+                                                    + "DFCommonJets_HybBEff_60_DL1."
+                                                    + "DFCommonJets_HybBEff_70_MV2c10."
+                                                    + "DFCommonJets_HybBEff_70_DL1."
+                                                    + "DFCommonJets_HybBEff_77_MV2c10."
+                                                    + "DFCommonJets_HybBEff_77_DL1."
+                                                    + "DFCommonJets_HybBEff_85_MV2c10."
+                                                    + "DFCommonJets_HybBEff_85_DL1."
+                                                    + "JetVertexCharge_discriminant."
+                                                    + "MSV_N2Tpair."
+                                                    + "MSV_energyTrkInJet."
+                                                    + "MSV_nvsec."
+                                                    + "MSV_vtxmass."
+                                                    + "MSV_vtxpt."
+                                                    + "MSV_vtxeta."
+                                                    + "MSV_vtxphi."
+                                                    + "MSV_vtxefrac."
+                                                    + "MSV_vtxx."
+                                                    + "MSV_vtxy."
+                                                    + "MSV_vtxz."
+                                                    + "MSV_vtxdls."
+                                                    + "MSV_vtxntrk."
+                                                    + "MultiSVbb1_discriminant."
+                                                    + "MultiSVbb2_discriminant."
+                                                    + "SV1_TrackParticleLinks"]
 
 # https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent.py
 TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets."
@@ -731,37 +653,7 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
 TOPQExtraVariables_AntiKt10TrackCaloClusterJets = ["AntiKt10TrackCaloClusterJets."
                                                    + "NumTrkPt500"]
 
-#TOPQExtraVariables_AntiKt2PV0TrackJets = ["AntiKt2PV0TrackJets."
-#                                          + "pt."
-#                                          + "eta."
-#                                          + "phi."
-#                                          + "m.constituentLinks."
-#                                          + "btaggingLink."
-#                                          + "OriginVertex."
-#                                          + "GhostAntiKt3TrackJet."
-#                                          + "GhostAntiKt4TrackJet."
-#                                          + "GhostTrack."
-#+ additional variables (which seem to be filled by default)
-#                                          + "ActiveArea."
-#                                          + "ActiveArea4vec_eta."
-#                                          + "ActiveArea4vec_m."
-#                                          + "ActiveArea4vec_phi."
-#                                          + "ActiveArea4vec_pt."
-#                                          + "AlgorithmType."
-#                                          + "ConstituentScale."
-#                                          + "InputType."
-#                                          + "JetConstitScaleMomentum_eta."
-#                                          + "JetConstitScaleMomentum_m."
-#                                          + "JetConstitScaleMomentum_phi."
-#                                          + "JetConstitScaleMomentum_pt."
-#                                          + "JetGhostArea."
-#                                          + "OriginVertex."
-#                                          + "SizeParameter."
-#                                          + "Width."
-#                                          + "WidthPhi."
-#                                          + "btaggingLink"]
-
-# default list for CombinedMuonTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
 TOPQExtraVariables_CombinedMuonTrackParticles = ["CombinedMuonTrackParticles."
                                                  + "pt."
                                                  + "eta."
@@ -838,7 +730,7 @@ TOPQExtraVariables_CombinedMuonTrackParticles = ["CombinedMuonTrackParticles."
                                                  + "vx."
                                                  + "vy"]
 
-# default list for ExtrapolatedMuonTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
 TOPQExtraVariables_ExtrapolatedMuonTrackParticles = ["ExtrapolatedMuonTrackParticles."
                                                      + "pt."
                                                      + "eta."
@@ -925,7 +817,7 @@ TOPQExtraVariables_ExtrapolatedMuonTrackParticles = ["ExtrapolatedMuonTrackParti
                                                      + "vx."
                                                      + "vy"]
 
-# default list for MuonSpectrometerTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
 TOPQExtraVariables_MuonSpectrometerTrackParticles = ["MuonSpectrometerTrackParticles."
                                                      + "pt."
                                                      + "eta."
@@ -1021,7 +913,7 @@ TOPQExtraVariables_MuonSpectrometerTrackParticles = ["MuonSpectrometerTrackParti
                                                      + "vx."
                                                      + "vy"]
 
-# default list for InDetTrackParticles : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/InDetTrackParticlesCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/InDetTrackParticlesCPContent.py
 TOPQExtraVariables_InDetTrackParticles = ["InDetTrackParticles."
                                           + "vx."
                                           + "vy."
@@ -1033,12 +925,12 @@ TOPQExtraVariables_InDetTrackParticles = ["InDetTrackParticles."
                                           + "radiusOfFirstHit"]
 
 
-# default list for PrimaryVertices : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/PrimaryVerticesCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/PrimaryVerticesCPContent.py
 TOPQExtraVariables_PrimaryVertices = ["PrimaryVertices"
                                       + "x."
                                       + "y"]
 
-# default list for InDetForwardTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
+# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
 TOPQExtraVariables_InDetForwardTrackParticles = ["InDetForwardTrackParticles."
                                                  + "pt."
                                                  + "eta."
@@ -1128,11 +1020,6 @@ TOPQExtraVariables_InDetForwardTrackParticles = ["InDetForwardTrackParticles."
                                                  + "vy"]
 
 
-# default list for GSFTrackParticles and GSFConversionVertices through Electrons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py and Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
-
-# TOPQExtraVariables_GSFTrackParticles = ["GSFTrackParticles."]
-# TOPQExtraVariables_GSFConversionVertices = ["GSFConversionVertices."]
-
 TOPQExtraVariables_MET_Track = ["MET_Track."
                                 + "source."
                                 + "sumet"]
@@ -1164,7 +1051,6 @@ TOPQExtraVariables_HLT_SplitJet = ["HLT_xAOD__JetContainer_SplitJet."
                                    + "pt."
                                    + "phi"]
 
-# following ones could certainly be automatized ?
 TOPQExtraVariables_HLT_a10r_tcemsubjesFS = ["HLT_xAOD__JetContainer_a10r_tcemsubjesFS."
                                             + "eta."
                                             + "m."
@@ -1196,28 +1082,28 @@ TOPQExtraVariables_HLT_a4tcemsubjesISFS = ["HLT_xAOD__JetContainer_a4tcemsubjesI
                                            + "phi"]
 
 TOPQExtraVariables_LVL1EnergySumRoI = ["LVL1EnergySumRoI."
-                                       ]
+                                      ]
 #================================
 # MC Only
 #================================
 TOPQExtraVariables_Photons_Truth   = ["Photons."
-                                     + "truthOrigin."
-                                     + "truthParticleLink."
-                                     + "truthType"]
+                                      + "truthOrigin."
+                                      + "truthParticleLink."
+                                      + "truthType"]
 
 TOPQExtraVariables_Electrons_Truth = ["Electrons."
-                                     + "bkgTruthType."
-                                     + "bkgTruthOrigin."
-                                     + "bkgTruthParticleLink."
-                                     + "bkgMotherPdgId"
-                                     + "truthOrigin."
-                                     + "truthType."
-                                     + "truthParticleLink"]
+                                      + "bkgTruthType."
+                                      + "bkgTruthOrigin."
+                                      + "bkgTruthParticleLink."
+                                      + "bkgMotherPdgId"
+                                      + "truthOrigin."
+                                      + "truthType."
+                                      + "truthParticleLink"]
 
 TOPQExtraVariables_ForwardElectrons_Truth = ["ForwardElectrons."
-                                            + "truthOrigin."
-                                            + "truthType."
-                                            + "truthParticleLink"]
+                                             + "truthOrigin."
+                                             + "truthType."
+                                             + "truthParticleLink"]
 
 TOPQExtraVariables_Muons_Truth = ["MuonTruthParticles."
                                   + "truthOrigin."
@@ -1447,15 +1333,6 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LC
 #===========================================
 # COLLECTIONS AT TRUTH LEVEL
 #===========================================
-#TOPQExtraContainersTruth = ["AntiKt10TruthJets",
-#                            "AntiKt4TruthJets",
-#                            "AntiKt4TruthWZJets",
-#                            "MET_Truth",
-#                            "MET_TruthRegions","
-#                            "TruthEvents",
-#                            "TruthParticles",
-#                            "TruthVertices"]
-
 TOPQExtraVariables_AntiKt4TruthJets = ["AntiKt4TruthJets."
                                        + "ActiveArea."
                                        + "ActiveArea4vec_eta."
@@ -1770,20 +1647,6 @@ TOPQExtraVariables_MET_TruthRegions = ["MET_TruthRegions."
                                        + "source."
                                        + "sumet"]
 
-#===========================================
-# COLLECTIONS WITH All VARIABLES
-#===========================================
-#TOPQExtraContainersStandard = ["CombinedMuonTrackParticles",
-#                               "egammaClusters",
-#                               "ExtrapolatedMuonTrackParticles",
-#                               "ForwardElectrons",
-#                               # "GSFTrackParticles",
-#                               "InDetForwardTrackParticles",
-#                               "MuonSpectrometerTrackParticles",
-#                               "MET_Track"]
-
-#TOPQExtraContainersTrigger = []
-
 #================================
 # CREATED ON-THE-FLY COLLECTIONS
 #================================
@@ -1796,7 +1659,7 @@ TOPQStaticContent      = ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR
 
 # For TOPQDERIV-69
 TOPQStaticContentV0	 = ['xAOD::VertexContainer#TOPQ1RecoV0Candidates',
-                            'xAOD::VertexAuxContainer#TOPQ1RecoV0CandidatesAux.-vxTrackAtVertex.-vertexType.-neutralParticleLinks.-neutralWeights.-KshortLink.-LambdaLink.-LambdabarLink.-gamma_fit.-gamma_mass.-gamma_massError.-gamma_probability']
+                        'xAOD::VertexAuxContainer#TOPQ1RecoV0CandidatesAux.-vxTrackAtVertex.-vertexType.-neutralParticleLinks.-neutralWeights.-KshortLink.-LambdaLink.-LambdabarLink.-gamma_fit.-gamma_mass.-gamma_massError.-gamma_probability']
 
 
 TOPQStaticContentTruth = ['xAOD::TruthParticleContainer#TruthElectrons',
