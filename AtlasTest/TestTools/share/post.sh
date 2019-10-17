@@ -103,6 +103,10 @@ PP="$PP"'|CLID: .* - type name:'
 PP="$PP"'|ClassIDSvc .* setTypeNameForID: .* already set for'
 # ignore ClassIDSvc finalize output
 PP="$PP"'|ClassIDSvc .* finalize: wrote .*'
+# PoolSvc
+PP="$PP"'|^PoolSvc.*INFO'
+# ignore any finalize output
+PP="$PP"'|^.*INFO [Ff]inali[sz]'
 # ignore rcs version comments
 PP="$PP"'|Id: .+ Exp \$'
 # ignore plugin count
