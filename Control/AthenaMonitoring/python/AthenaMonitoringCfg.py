@@ -8,10 +8,15 @@ def AthenaMonitoringCfg(flags):
     info = local_logger.info
     result = ComponentAccumulator()
 
+    if flags.DQ.Steering.doPixelMon:
+        info('Set up Pixel monitoring')
+        from PixelMonitoring.PixelMonitoringConfig import PixelMonitoringConfig
+        result.merge(PixelMonitoringConfig(flags))
+    
     if flags.DQ.Steering.doSCTMon:
         info('Set up SCT monitoring')
-        from SCT_Monitoring.SCTLorentzMonAlg import SCTLorentzMonAlgConfig
-        result.merge(SCTLorentzMonAlgConfig(flags))
+        from SCT_Monitoring.SCTMonitoringConfig import SCTMonitoringConfig
+        result.merge(SCTMonitoringConfig(flags))
 
     if flags.DQ.Steering.doTRTMon:
         info('Set up TRT monitoring')
