@@ -828,7 +828,7 @@ class ComponentAccumulator(object):
 
         #Add services
         for svc in self._services:
-            if svc.getFullName()=="MessageSvc/MessageSvc":
+            if svc.getName()=="MessageSvc":
                 #Message svc exists already! Needs special treatment
                 for k, v in svc.getValuedProperties().items():
                     bsh.setProperty(msp,k,str(v).encode())
