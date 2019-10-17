@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -22,7 +22,7 @@
 #include "TrigCaloEventTPCnv/RingerRingsContainer_p2.h"
 #include "TrigCaloEventTPCnv/RingerRingsCnv_p2.h"
  
-typedef T_AthenaPoolTPCnvVector<RingerRingsContainer, RingerRingsContainer_p2, RingerRingsCnv_p2> RingerRingsContainerCnv_p2;
+typedef T_AthenaPoolTPCnvVectorConst<RingerRingsContainer, RingerRingsContainer_p2, RingerRingsCnv_p2> RingerRingsContainerCnv_p2;
  
 #endif
 

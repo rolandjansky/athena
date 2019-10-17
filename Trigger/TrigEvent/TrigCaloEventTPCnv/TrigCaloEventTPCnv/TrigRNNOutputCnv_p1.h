@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -32,13 +32,19 @@
 class MsgStream;
 
 template <>
-class TrigRNNOutputConverterBase<TrigRNNOutput_p1>  : public T_AthenaPoolTPCnvBase<TrigRNNOutput, TrigRNNOutput_p1>  {
+class TrigRNNOutputConverterBase<TrigRNNOutput_p1>  : public T_AthenaPoolTPCnvConstBase<TrigRNNOutput, TrigRNNOutput_p1>  {
 
  public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
   TrigRNNOutputConverterBase() { }
 
-  void persToTrans(const TrigRNNOutput_p1 *persObj,  TrigRNNOutput *transObj, MsgStream &log);
-  void transToPers(const TrigRNNOutput *transObj, TrigRNNOutput_p1 *persObj, MsgStream &log);
+  virtual
+  void persToTrans(const TrigRNNOutput_p1 *persObj,  TrigRNNOutput *transObj, MsgStream &log) const override;
+  virtual
+  void transToPers(const TrigRNNOutput *transObj, TrigRNNOutput_p1 *persObj, MsgStream &log) const override;
 
  protected:
   ElementLinkCnv_p1< ElementLink<TrigEMClusterContainer> > m_ELinkTrigEMClusterCnv;
