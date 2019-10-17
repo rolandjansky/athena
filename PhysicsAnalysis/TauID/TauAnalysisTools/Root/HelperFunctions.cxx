@@ -15,6 +15,16 @@ xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::P
 xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode;
 #endif
 
+
+#ifdef ASGTOOL_ATHENA
+#include "CLHEP/Units/SystemOfUnits.h"
+using CLHEP::GeV;
+#else
+#define GeV 1000
+#endif
+
+
+
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
@@ -136,41 +146,28 @@ double TauAnalysisTools::tauAbsEta(const xAOD::TauJet& xTau)
 double TauAnalysisTools::finalTauPt(const xAOD::TauJet& xTau)
 {
   // return MVA based tau pt in GeV
-  static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
-  return accPtFinalCalib(xTau)/1000.;
+  return xTau.ptFinalCalib()/GeV;
 }
 
 //______________________________________________________________________________
 double TauAnalysisTools::finalTauEta(const xAOD::TauJet& xTau)
 {
   // return MVA based tau eta
-  static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
-  return accEtaFinalCalib(xTau);
+  return xTau.etaFinalCalib();
 }
 
 //______________________________________________________________________________
 double TauAnalysisTools::finalTauAbsEta(const xAOD::TauJet& xTau)
 {
   // return MVA based absolute tau eta
-  static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
-  return std::abs(accEtaFinalCalib(xTau));
+  return std::abs(xTau.etaFinalCalib());
 }
 
 //______________________________________________________________________________
 double TauAnalysisTools::finalTauP(const xAOD::TauJet& xTau)
 {
-  static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
-  static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
-  static SG::AuxElement::ConstAccessor<float> accPhiFinalCalib("phiFinalCalib");
-  static SG::AuxElement::ConstAccessor<float> accMFinalCalib("mFinalCalib");
-
-  TLorentzVector tlv;
-  tlv.SetPtEtaPhiM( accPtFinalCalib(xTau),
-                    accEtaFinalCalib(xTau),
-                    accPhiFinalCalib(xTau),
-                    accMFinalCalib(xTau) );
   // return tau P in GeV
-  return tlv.P()/1000.;
+  return xTau.p4(xAOD::TauJetParameters::FinalCalib).P()/GeV;
 }
 
 //______________________________________________________________________________
