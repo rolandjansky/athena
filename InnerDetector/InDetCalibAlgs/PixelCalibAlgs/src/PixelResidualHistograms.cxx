@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelResidualHistograms_C
@@ -22,8 +22,8 @@
 
 namespace PixelCalib{
 
-PixelResidualHistograms::PixelResidualHistograms(std::string name,
-				       std::string title,
+PixelResidualHistograms::PixelResidualHistograms(const std::string& name,
+				       const std::string& title,
 				       double limits,
 				       int nbins,
 				       const std::vector< std::vector < float > > &binnage,
@@ -65,13 +65,13 @@ PixelResidualHistograms::~PixelResidualHistograms(){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelResidualHistograms::Fill(float residual, std::vector< float > parameters){
+void PixelResidualHistograms::Fill(float residual, const std::vector< float >& parameters){
 	m_HistogramsVector->Fill(residual,1,parameters);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelResidualHistograms::SetAxisTitle(std::string title){
+void PixelResidualHistograms::SetAxisTitle(const std::string& title){
 
 	m_axisName = title;
 	for(unsigned int i = 0 ; i < m_HistogramsVector->GetNhistos() ; i++)
@@ -134,7 +134,7 @@ TH1D* PixelResidualHistograms::GetHisto(int i) const{
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-TProfile* PixelResidualHistograms::GetMeanProfile(const std::string binname){
+TProfile* PixelResidualHistograms::GetMeanProfile(const std::string& binname){
 
 	for(unsigned int i = 0; i < m_binnames.size(); i++)
 		if(m_binnames[i] == binname) return GetProfile(i,false);
@@ -144,7 +144,7 @@ TProfile* PixelResidualHistograms::GetMeanProfile(const std::string binname){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-TProfile* PixelResidualHistograms::GetRMSProfile(const std::string binname){
+TProfile* PixelResidualHistograms::GetRMSProfile(const std::string& binname){
 
 	for(unsigned int i = 0; i < m_binnames.size(); i++)
 		if(m_binnames[i] == binname) return GetProfile(i,true);
@@ -282,7 +282,7 @@ TProfile* PixelResidualHistograms::GetProfile(const int binnumber, bool RMS, boo
 //////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector <TCanvas*> *PixelResidualHistograms::DrawProfiles(int color, int marker, float labely,
-		std::vector <TCanvas*> *canvasvector, std::string name ){
+		std::vector <TCanvas*> *canvasvector, const std::string& name ){
 
 	SetAtlasStyle();	
 	std::string drawoptions = "Psame";

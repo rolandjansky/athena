@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<vector>
@@ -26,7 +26,7 @@
 
 std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-std::vector<int> getPositionFromDCSID (std::string module_name);
+std::vector<int> getPositionFromDCSID (const std::string& module_name);
 
 double ComputeMuChip(TH2D* modhisto, int chip)
 {
@@ -999,7 +999,7 @@ std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int 
   return std::string("Error!");
 }
 
-std::vector<int> getPositionFromDCSID (std::string module_name){
+std::vector<int> getPositionFromDCSID (const std::string& module_name){
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
     if (pixelMapping[ii].first == module_name)
     return pixelMapping[ii].second;

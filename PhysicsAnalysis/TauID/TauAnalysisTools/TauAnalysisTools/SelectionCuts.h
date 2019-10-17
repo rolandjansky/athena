@@ -37,7 +37,7 @@ class SelectionCut
 {
 
 public:
-  SelectionCut(std::string sName, TauAnalysisTools::TauSelectionTool* tTST);
+  SelectionCut(const std::string& sName, TauAnalysisTools::TauSelectionTool* tTST);
   virtual ~SelectionCut();
 
   void writeControlHistograms();

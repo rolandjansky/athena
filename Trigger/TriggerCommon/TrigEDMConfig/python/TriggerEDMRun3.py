@@ -76,6 +76,9 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#METRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#JETRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_RoiForTau',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUCaloViews'),
+    ('TrigRoiDescriptorCollection#HLT_RoiForID2',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUIDViews'),
+    ('TrigRoiDescriptorCollection#HLT_RoiForID1',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUID2Views'),
 
     ('xAOD::TrigCompositeContainer#L1EM',                    'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#L1EMAux.',             'BS ESD AODFULL AODSLIM', 'Steer'),
@@ -127,14 +130,14 @@ TriggerHLTListRun3 = [
 
     # These are for precision photon and precision Electron Keeping same names as in Run2
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
-    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux',      'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux.',     'BS ESD AODFULL', 'Egamma'),
     ('xAOD::ElectronContainer#HLT_egamma_Iso_Electrons',            'BS ESD AODFULL', 'Egamma', 'inViews:precisionIsoElectronViews'),
-    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_Iso_ElectronsAux',  'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_Iso_ElectronsAux.', 'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',         'BS ESD AODFULL', 'Egamma'),
     ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionIsoPhotonViews'),
-    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux',      'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux.',     'BS ESD AODFULL', 'Egamma'),
 
     # Muon
 

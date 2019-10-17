@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////
@@ -140,13 +140,15 @@ public :
    TString  m_pathWeightsWithoutTracks;
 
    writeNtuple(TTree *tree=0);
+   writeNtuple (const writeNtuple&) = delete;
+   writeNtuple& operator= (const writeNtuple&) = delete;
    virtual ~writeNtuple();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
-   virtual void     Init(TTree *tree);
+           void     Init(TTree *tree);
    virtual void     Loop(int nParticlesTraining, bool useTrackEstimate, TString outFileName);
-   virtual Bool_t   Notify();
+           Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    virtual void     FillClusterInfo(int clus);
    virtual void     InitializeVectors();
@@ -208,6 +210,10 @@ writeNtuple::writeNtuple(TTree *tree)
 */
 
 writeNtuple::writeNtuple(TTree *tree)
+  : m_PixChargeList(nullptr),
+    m_nPixelHits(0),
+    m_nTRTHits(0),
+    m_nSCTHits(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.

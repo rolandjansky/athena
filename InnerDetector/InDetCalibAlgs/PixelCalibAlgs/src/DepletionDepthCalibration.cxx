@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DepletionDepthCalibration_C
@@ -20,7 +20,7 @@
 
 namespace PixelCalib{
 
-DepletionDepthCalibration::DepletionDepthCalibration(int layer,std::string cosmicORbeam):
+DepletionDepthCalibration::DepletionDepthCalibration(int layer,const std::string& cosmicORbeam):
 	m_curLayer(layer),m_curType(cosmicORbeam){
 	
   m_EtaModule = 0;
@@ -213,7 +213,7 @@ int DepletionDepthCalibration::Analyze(std::ofstream &logfile){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void DepletionDepthCalibration::PlotValidation(TCanvas *c1, std::string outname){
+void DepletionDepthCalibration::PlotValidation(TCanvas *c1, const std::string& outname){
 
 	int nmodules = m_DepletionDepth0->GetNrows();
 	TH1D *graph0 = new TH1D( (m_layername + "DepletionDepth0Histo").c_str(),

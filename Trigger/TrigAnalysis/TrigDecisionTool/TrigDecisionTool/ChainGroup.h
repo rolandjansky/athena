@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CHAIN_GROUP_H
@@ -128,9 +128,9 @@ namespace Trig {
       template<class CONTAINER>
       std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
                 unsigned int condition = TrigDefs::Physics,
-                const std::string container = "",
+                const std::string& container = "",
                 const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
-                const std::string featureName = "feature") const;
+                const std::string& featureName = "feature") const;
 
       // 
       const std::vector< std::string >& patterns() const {return m_patterns;}
