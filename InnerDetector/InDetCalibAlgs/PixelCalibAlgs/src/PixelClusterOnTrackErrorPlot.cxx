@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelClusterOnTrackErrorPlot_cxx
@@ -76,7 +76,7 @@ PixelClusterOnTrackErrorPlot::~PixelClusterOnTrackErrorPlot(){
 
 void PixelClusterOnTrackErrorPlot::AddReference(
 		PixelClusterOnTrackErrorData &parameters,
-		std::string title, int color, std::string drawopt){
+		const std::string& title, int color, const std::string& drawopt){
 
 	std::vector < TH1F* > *histoX = HistogramsFromConstants(parameters,"phi",color,title);
 	std::vector < TH1F* > *histoY = HistogramsFromConstants(parameters,"eta",color,title);
@@ -91,7 +91,7 @@ void PixelClusterOnTrackErrorPlot::AddReference(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 	
-void PixelClusterOnTrackErrorPlot::Plot(const std::string output){
+void PixelClusterOnTrackErrorPlot::Plot(const std::string& output){
 
 
 	PlotDirection(output, "phi");
@@ -103,7 +103,7 @@ void PixelClusterOnTrackErrorPlot::Plot(const std::string output){
 
 std::vector < TH1F* > *PixelClusterOnTrackErrorPlot::HistogramsFromConstants(
 			PixelClusterOnTrackErrorData &parameters,
-			std::string direction, int color, std::string title){
+			const std::string& direction, int color, const std::string& title){
 
 	std::vector <TH1F*> *histo = new std::vector <TH1F*>();
 	std::vector<float> anglebins;
@@ -209,7 +209,8 @@ std::vector < TH1F* > *PixelClusterOnTrackErrorPlot::HistogramsFromConstants(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelClusterOnTrackErrorPlot::PlotDirection( std::string filename, std::string direction){
+void PixelClusterOnTrackErrorPlot::PlotDirection( const std::string& filename,
+                                                  const std::string& direction){
 
 	std::vector < std::vector < TH1F* > > *RefHistos = 0;
 	std::vector < TH1F* > *histograms = 0;
@@ -281,7 +282,7 @@ void PixelClusterOnTrackErrorPlot::PlotDirection( std::string filename, std::str
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelClusterOnTrackErrorPlot::DrawOneHisto(TH1F* histo, std::string direction, float maximum){
+void PixelClusterOnTrackErrorPlot::DrawOneHisto(TH1F* histo, const std::string& direction, float maximum){
 
 
 	// play with the histo
@@ -328,7 +329,7 @@ void PixelClusterOnTrackErrorPlot::DrawOneHisto(TH1F* histo, std::string directi
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelClusterOnTrackErrorPlot::DrawHistoMarkers(TH1F* histo, int divider, std::string options, int goodj){
+void PixelClusterOnTrackErrorPlot::DrawHistoMarkers(TH1F* histo, int divider, const std::string& options, int goodj){
 
 	int startmarker = 21;
 	TH1F *markers = (TH1F *)histo->Clone();
@@ -369,7 +370,7 @@ void PixelClusterOnTrackErrorPlot::DrawLayerLegend(float xlegend,float ylegend){
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
-void PixelClusterOnTrackErrorPlot::DrawAxis(float y1, float y2, float x1, float x2, std::string direction){
+void PixelClusterOnTrackErrorPlot::DrawAxis(float y1, float y2, float x1, float x2, const std::string& direction){
 	
 	std::string axtitle = "";
 	double* axbins = 0;
