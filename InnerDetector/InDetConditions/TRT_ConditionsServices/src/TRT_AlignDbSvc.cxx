@@ -1644,12 +1644,12 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
   // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
 
   ATH_MSG_INFO( " -- tweakGlobalFolder -- START ==> identifier " << ident 
-		<< "\n                                          >> bec: " << bec
-		<< "\n                                          >> key: " << key 
-		<< "\n                                          >> going to retrieve atrlistcol1. Target DBident= "<< DBident << "\n");
+		<< "\n                                              >> bec: " << bec
+		<< "\n                                              >> key: " << key 
+		<< "\n                                              >> Target DBident= "<< DBident << "\n");
 
   if (m_detStore->retrieve(atrlistcol1, key).isSuccess()) {
-    ATH_MSG_INFO( "tweakGlobalFolder ==> retrieved CondAttrListCollection (atrlistcol1) for key: " << key << " SUCCESS" );
+    ATH_MSG_INFO( "tweakGlobalFolder ==> retrieved CondAttrListCollection (atrlistcol1) for key: " << key << " --> SUCCESS" );
 
     // loop over objects in collection
     atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
@@ -1660,8 +1660,10 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
       for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
 	structcount++;
 	ATH_MSG_INFO( "tweakGlobalFolder ==> inside  for loop  ==> count " << structcount 
-		      << "\n                                   citr->first: " << citr->first 
-		      << "\n                                   citr->second: " << citr->second);
+		      << "\n                                    citr->first: " << citr->first
+		      << "\n                                            bec: " << bec
+		      << "\n                                   citr->second: " << citr->second
+		      << "\n");
         const coral::AttributeList& atrlist=citr->second;
 	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
 
@@ -1675,6 +1677,12 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
 	//if (citr->first ==  900 && ident.getString().find("0x1200000000000000")>0 && !goodmatch) goodmatch =true; // TRT barrel
 	//if (citr->first ==  800 && ident.getString().find("0x1000000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECA
 	//if (citr->first == 1200 && ident.getString().find("0x1600000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECC
+	ATH_MSG_INFO( " -- SALVA -- has ident: 0x1200...?" << ident.getString().find("0x1200000000000000"));
+	ATH_MSG_INFO( " -- SALVA -- has ident: 0x1000...?" << ident.getString().find("0x1000000000000000"));
+	ATH_MSG_INFO( " -- SALVA -- has ident: 0x1600...?" << ident.getString().find("0x1600000000000000"));
+	if (ident.getString().find("0x1200000000000000")>0) ATH_MSG_INFO( " -- SALVA -- ident has: 0x1200..." << ident.getString().find("0x1200000000000000"));
+	if (ident.getString().find("0x1000000000000000")>0) ATH_MSG_INFO( " -- SALVA -- ident has: 0x1000..." << ident.getString().find("0x1000000000000000"));
+	if (ident.getString().find("0x1600000000000000")>0) ATH_MSG_INFO( " -- SALVA -- ident has: 0x1600..." << ident.getString().find("0x1600000000000000"));
 	if (bec == -1 && ident.getString().find("0x1200000000000000")>0 && !goodmatch) goodmatch =true; // TRT barrel
 	if (bec == -2 && ident.getString().find("0x1000000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECA
 	if (bec ==  2 && ident.getString().find("0x1600000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECC
@@ -1683,7 +1691,8 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
 			<< "\n                                 citr->first= " << citr->first
 			<< "\n                                 DBident    = " << DBident
 			<< "\n                                 bec        = " << bec 
-			<< "\n                                 ident      = " << ident );
+			<< "\n                                 ident      = " << ident 
+			<< "\n");
           msg(MSG::INFO) << " -- SALVA -- set back to DEBUG -- Tweak Old global DB -- channel: " << citr->first
 			  << " ,bec: "    << atrlist2["bec"].data<int>()
                           << " ,layer: "  << atrlist2["layer"].data<int>()
@@ -1738,7 +1747,7 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
     }
   }
   else {
-    ATH_MSG_INFO( "tweakGlobalFolder ==> cannot retrieve CondAttrListCollection (atrlistcol1) for key: " << key << " FAILURE" );
+    ATH_MSG_INFO( "tweakGlobalFolder ==> cannot retrieve CondAttrListCollection (atrlistcol1) for key: " << key << " --> FAILURE" );
     return StatusCode::FAILURE;
   }
 
