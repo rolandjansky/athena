@@ -4,6 +4,8 @@
 
 #include "GaudiKernel/Property.h"
 #include "TriggerSummaryAlg.h"
+#include "AthenaMonitoringKernel/MonitoredScalar.h"
+#include "AthenaMonitoringKernel/MonitoredGroup.h"
 
 TriggerSummaryAlg::TriggerSummaryAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
@@ -15,19 +17,21 @@ TriggerSummaryAlg::~TriggerSummaryAlg()
 StatusCode TriggerSummaryAlg::initialize()
 {
 
-  CHECK(  m_inputDecisionKey.initialize() );
+  ATH_CHECK(  m_inputDecisionKey.initialize() );
 
   renounceArray( m_finalDecisionKeys );
-  CHECK( m_finalDecisionKeys.initialize() );
+  ATH_CHECK( m_finalDecisionKeys.initialize() );
 
   ATH_MSG_DEBUG("Will consume implicit decisions:" );
   for (auto& input: m_finalDecisionKeys){  
     ATH_MSG_DEBUG( " "<<input.key() );
   }
 
-  CHECK( m_startStampKey.initialize() );
+  ATH_CHECK( m_startStampKey.initialize() );
 
-  CHECK( m_outputTools.retrieve() );
+  ATH_CHECK( m_outputTools.retrieve() );
+
+  if ( !m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -56,11 +60,12 @@ StatusCode TriggerSummaryAlg::execute(const EventContext& context) const
   }  
   
   for ( auto& tool: m_outputTools ) {
-    CHECK( tool->createOutput( context ) );
+    ATH_CHECK( tool->createOutput( context ) );
   }
 
   auto timeStampHandle = SG::makeHandle( m_startStampKey, context );
   ATH_MSG_DEBUG( "Time since the start of L1 decoding " << timeStampHandle.cptr()->millisecondsSince()  << " ms" );
+  Monitored::Group ( m_monTool,  Monitored::Scalar("TIME_SinceEventStart", timeStampHandle.cptr()->millisecondsSince() ) );
 
   return StatusCode::SUCCESS;
 }

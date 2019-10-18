@@ -11,14 +11,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
+			  DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier
                           GaudiKernel
+                          MuonSpectrometer/MuonAlignment/MuonAlignmentData
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
                           PRIVATE
                           Event/EventInfo
-                          MuonSpectrometer/MuonIdHelpers )
+                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
+                          MuonSpectrometer/MuonIdHelpers 
+			  Tools/PathResolver )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -30,7 +34,7 @@ atlas_add_library( MuonCondAlgLib
                    PUBLIC_HEADERS MuonCondAlg
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvcLib StoreGateLib MuonIdHelpersLib
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvcLib StoreGateLib MuonIdHelpersLib MuonReadoutGeometry
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
 
 atlas_add_component( MuonCondAlg
@@ -40,4 +44,3 @@ atlas_add_component( MuonCondAlg
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

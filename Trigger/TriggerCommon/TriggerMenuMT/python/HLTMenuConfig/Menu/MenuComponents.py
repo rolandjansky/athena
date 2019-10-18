@@ -213,19 +213,18 @@ class InputMakerNode(AlgNode):
 
 from DecisionHandling.DecisionHandlingConf import ComboHypo
 class ComboMaker(AlgNode):
-    def __init__(self, name):
+    def __init__(self, name, multiplicity):
         Alg = ComboHypo(name)
         log.debug("Making combo Alg %s", name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.prop="MultiplicitiesMap"
+        self.mult=multiplicity
 
 
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
         log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chainName)
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
-        allMultis = [int(x) for x in getChainMultFromDict( chainDict )]
-
+        allMultis = self.mult
         newdict = {chainName : allMultis}
 
         cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
@@ -271,6 +270,8 @@ def isFilterAlg(alg):
 
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
+    """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
+    
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
         self.sequence     = Node( Alg=Sequence)
@@ -282,6 +283,7 @@ class MenuSequence(object):
         self.ca = CA
 
         if type(Hypo) is list:
+           log.warning("Sequence %s has more than one Hypo; correct your sequence for next develpments")
            self.name=[]
            self.hypoToolConf=[]
            self._hypo=[]
@@ -437,9 +439,11 @@ class Chain(object):
     def setSeedsToSequences(self):
         """ Set the L1 seeds to the menu sequences """
         
-        # check if the number of seeds is enought for all the seuqences:
-        max_seq= max(len(step.sequences) for step in self.steps)
-        tot_seed=len(self.vseeds)
+        # check if the number of seeds is enought for all the seuqences, no action of no steps are configured
+        if len(self.steps) == 0:
+            return
+        max_seq  = max(len(step.sequences) for step in self.steps)
+        tot_seed = len(self.vseeds)
         if max_seq==tot_seed:
             for step in self.steps:
                 if len(step.sequences) == 0:
@@ -570,15 +574,16 @@ class CFSequence(object):
 
 
 class ChainStep(object):
-    """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined"""
-    def __init__(self, name,  Sequences=[], multiplicity=1):
+    """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
+    def __init__(self, name,  Sequences=[], multiplicity=[1]):
+       
         self.name = name
         self.sequences=[]
         self.multiplicity = multiplicity
-        self.isCombo=multiplicity>1
+        self.isCombo=sum(multiplicity)>1
         self.combo=None
         if self.isCombo:
-            self.makeCombo(Sequences)
+            self.makeCombo(Sequences )
         else:
             self.sequences = Sequences
 
@@ -588,7 +593,7 @@ class ChainStep(object):
             return
 
         # For combo sequences, duplicate the sequence, the Hypo with differnt names and create the ComboHypoAlg
-        self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
+        self.combo = ComboMaker(CFNaming.comboHypoName(self.name), self.multiplicity)
         duplicatedHypos = []
         for sequence in Sequences:
             if type(sequence.hypo) is list:
@@ -622,7 +627,7 @@ class ChainStep(object):
                self.sequences.append(new_sequence)
 
     def __repr__(self):
-        return "--- ChainStep %s ---\n + isCombo: %d, multiplicity= %d \n +  %s \n "%(self.name, self.isCombo,self.multiplicity, ' '.join(map(str, self.sequences) ))
+        return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d \n + MenuSequences = %s \n "%(self.name, self.isCombo,sum(self.multiplicity), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
 
 
 

@@ -461,7 +461,10 @@ StatusCode MdtCalibDbAlg::loadRt(){
       IdentifierHash hash;  //chamber hash
       IdContext idCont = m_muonIdHelperTool->mdtIdHelper().module_context();
       idCont = m_muonIdHelperTool->mdtIdHelper().module_context();
-      m_muonIdHelperTool->mdtIdHelper().get_hash( athenaId, hash, &idCont );
+      if (m_muonIdHelperTool->mdtIdHelper().get_hash( athenaId, hash, &idCont )) {
+        ATH_MSG_ERROR("Could not retrieve module hash for identifier " << athenaId.get_compact());
+        return StatusCode::FAILURE;
+      }
       ATH_MSG_VERBOSE( "Fixed region Id "<<regionId<<" converted into athena Id "<<athenaId <<" and then into hash "<<hash);
       regionId = hash;      //reset regionId to chamber hash
     }
@@ -717,7 +720,10 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
     ATH_MSG_VERBOSE( " set t0's done " );
     IdentifierHash hash;
     IdContext idCont = m_muonIdHelperTool->mdtIdHelper().module_context();
-    m_muonIdHelperTool->mdtIdHelper().get_hash( *it, hash, &idCont );
+    if (m_muonIdHelperTool->mdtIdHelper().get_hash( *it, hash, &idCont )) {
+      ATH_MSG_ERROR("Could not retrieve module hash for identifier " << (*it).get_compact());
+      return StatusCode::FAILURE;
+    }
 
     if( hash < writeCdoTube->size() ){
       (*writeCdoTube)[hash] = tubes;
@@ -837,15 +843,32 @@ StatusCode MdtCalibDbAlg::loadTube(){
     }
     delete [] parameters;
 
-    // find chamber ID
-    Identifier chId = m_muonIdHelperTool->mdtIdHelper().elementID(name,ieta,iphi);
+    // need to check validity of Identifier since database contains all Run 2 MDT chambers, e.g. also EI chambers which are
+    // potentially replaced by NSW
+    bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
+    Identifier chId = m_muonIdHelperTool->mdtIdHelper().elementID(name,ieta,iphi,true,&isValid);
+    if (!isValid) {
+      ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping...");
+      continue;
+    }
  
     MuonCalib::MdtTubeCalibContainer *tubes = NULL;
 
     // get chamber hash
     IdentifierHash hash;
     IdContext idCont = m_muonIdHelperTool->mdtIdHelper().module_context();
-    m_muonIdHelperTool->mdtIdHelper().get_hash( chId , hash, &idCont );
+    if (m_muonIdHelperTool->mdtIdHelper().get_hash( chId , hash, &idCont )) ATH_MSG_WARNING("Retrieving module hash for Identifier " << chId.get_compact() << " failed");
+
+    // we have to check whether the retrieved Identifier is valid. The problem is that the is_valid() function of the Identifier class does only check
+    // for the size of the number, not for the physical validity. The get_detectorElement_hash function of the MuonIdHelper however returns 
+    // an error in case the Identifier is not part of the vector of physically valid Identifiers (the check could also be done using the module hash)
+    // It is important that the methods from MuonIdHelper are called which are not overwritten by the MdtIdHelper
+    IdentifierHash detElHash;
+    if (m_muonIdHelperTool->mdtIdHelper().MuonIdHelper::get_detectorElement_hash(chId, detElHash )) {
+      ATH_MSG_WARNING("Retrieving detector element hash for Identifier " << chId.get_compact() << " failed, thus Identifier (original information was name=" 
+                      << name << ", eta=" << ieta << ", phi=" << iphi << ") is not valid, skipping...");
+      continue;
+    }
 
     if( msgLvl(MSG::VERBOSE) ) {
       ATH_MSG_VERBOSE( "name of chamber is " << pch << " station name is " << name );

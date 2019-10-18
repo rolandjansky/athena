@@ -21,6 +21,8 @@
 #include <inttypes.h>
 #include <vector>
 #include <string>
+#include <mutex>
+
 #include "CscRODReadOut.h"
 
 class Identifier;
@@ -62,8 +64,8 @@ namespace Muon {
     double   m_samplingTime ;
     double   m_signalWidth  ;
     // the read out structure
-    mutable CscRODReadOut m_rodReadOut;
-
+    mutable CscRODReadOut m_rodReadOut ATLAS_THREAD_SAFE; // guarded by m_mutex
+    mutable std::mutex m_mutex;
   };
 }
 

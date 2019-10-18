@@ -1,6 +1,3 @@
-#include "MuonCondSvc/MuonAlignmentDbSvc.h"
-//#include "MuonCondSvc/MuonDetectorStatusDbSvc.h"
-
 #include "../CscCoolStrSvc.h"
 #include "MuonCondSvc/MdtCoolStrSvc.h"
 #include "MuonCondSvc/RpcCoolStrSvc.h"
@@ -23,7 +20,6 @@
 
 using namespace MuonCalib;
 
-DECLARE_COMPONENT( MuonAlignmentDbSvc )
 DECLARE_COMPONENT( TGCTriggerDbAlg )
 DECLARE_COMPONENT( RpcStatusDbSvc )
 DECLARE_COMPONENT( CscCoolStrSvc )

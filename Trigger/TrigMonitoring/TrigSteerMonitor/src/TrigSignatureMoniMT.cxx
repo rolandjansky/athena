@@ -42,18 +42,19 @@ StatusCode TrigSignatureMoniMT::start() {
 
   const int x = nBinsX(hltMenuHandle);
   const int y = nBinsY();
+  const int yr = nRateBinsY();
   ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
 
   std::string outputName ("Rate" + std::to_string(m_duration) + "s");
   std::unique_ptr<TH2> h1 = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);
   std::unique_ptr<TH2> h2 = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
-  std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCountBuffer", "Rate of positive decisions buffer", x, 1, x + 1, y, 1, y + 1);
-  std::unique_ptr<TH2> ho = std::make_unique<TH2F>(outputName.c_str(), "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
+  std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCountBuffer", "Rate of positive decisions buffer", x, 1, x + 1, yr, 1, yr + 1);
+  std::unique_ptr<TH2> ho = std::make_unique<TH2F>(outputName.c_str(), "Rate of positive decisions", x, 1, x + 1, yr, 1, yr + 1);
 
   ATH_CHECK( initHist( h1, hltMenuHandle ) );
   ATH_CHECK( initHist( h2, hltMenuHandle ) );
-  ATH_CHECK( initHist( h3, hltMenuHandle ) );
-  ATH_CHECK( initHist( ho, hltMenuHandle ) );
+  ATH_CHECK( initHist( h3, hltMenuHandle, false ) );
+  ATH_CHECK( initHist( ho, hltMenuHandle, false ) );
 
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/SignatureAcceptance", std::move(h1), m_passHistogram));
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/DecisionCount", std::move(h2), m_countHistogram));
@@ -170,13 +171,14 @@ StatusCode TrigSignatureMoniMT::fillRate(const TrigCompositeUtils::DecisionIDCon
 }
 
 StatusCode TrigSignatureMoniMT::fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& map, const TrigCompositeUtils::DecisionIDContainer& dc) const {
-  const double row = m_passHistogram->GetYaxis()->GetNbins();
+  const double row = nBinsY();
+  const double rateRow = nRateBinsY();
   for ( auto m : map ) {
     for ( auto id : dc ) {
       if ( m.second.find(id) != m.second.end() ){
         double bin = m_nameToBinMap.at(m.first);
         m_countHistogram->Fill( bin, row );
-        m_rateBufferHistogram->Fill( bin, row );
+        m_rateBufferHistogram->Fill( bin, rateRow );
         m_passHistogram->Fill( bin, row );
         break;
       }
@@ -250,12 +252,11 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
     TrigCompositeUtils::DecisionIDContainer stepUniqueSum( stepSum.begin(), stepSum.end() );
     ATH_CHECK( fillPassEvents( stepUniqueSum, 3+step, m_passHistogram ) );
     ATH_CHECK( fillDecisionCount( stepSum, 3+step ) );
-    ATH_CHECK( fillRate( stepUniqueSum, 3+step ) );    
-
     ++step;
   }
 
-  const int row = m_passHistogram->GetYaxis()->GetNbins();
+  const int row = nBinsY();
+  const int rateRow = nRateBinsY();
   auto finalDecisionsHandle = SG::makeHandle( m_finalDecisionKey, context );
   ATH_CHECK( finalDecisionsHandle.isValid() );
   TrigCompositeUtils::DecisionIDContainer finalIDs;
@@ -265,27 +266,33 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
       break;
     }
   }
+  
   ATH_CHECK( fillStreamsAndGroups( m_streamToChainMap, finalIDs ) );
   ATH_CHECK( fillStreamsAndGroups( m_groupToChainMap, finalIDs ) );
   ATH_CHECK( fillPassEvents( finalIDs, row, m_passHistogram ) );
-  ATH_CHECK( fillRate( finalIDs, row ) );
+  ATH_CHECK( fillRate( finalIDs, rateRow ) );
 
   if ( not finalIDs.empty() ) {
     m_passHistogram->Fill( 1, double( row ) );
-    m_rateBufferHistogram->Fill( 1, double( row ) );
+    m_rateBufferHistogram->Fill( 1, double( rateRow ) );
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
 int TrigSignatureMoniMT::nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) const {
   return hltMenuHandle->size() + m_groupToChainMap.size() + m_streamToChainMap.size() + 1;
 }
-int TrigSignatureMoniMT::nBinsY() const {     
+
+int TrigSignatureMoniMT::nBinsY() const {
   return m_collectorTools.size() + 3; // in, after ps, out
 }
 
-StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle) {
+int TrigSignatureMoniMT::nRateBinsY() const {
+  return 3; // in, after ps, out
+}
+
+StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, bool steps) {
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
   int bin = 2; // 1 is for total count, (remember bins numbering in ROOT start from 1)
@@ -316,17 +323,12 @@ StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist, SG::ReadHan
 
 
   TAxis* y = hist->GetYaxis();
-  y->SetBinLabel( 1, "L1" );
+  y->SetBinLabel( 1, steps ? "L1" : "Input" );
   y->SetBinLabel( 2, "AfterPS" );
-  for ( size_t i = 0; i < m_collectorTools.size(); ++i ) {
+  for ( size_t i = 0; steps && i < m_collectorTools.size(); ++i ) {
     y->SetBinLabel( 3+i, ("Step "+std::to_string(i)).c_str() );
   }
   y->SetBinLabel( y->GetNbins(), "Output" ); // last bin
 
-  // loop until the last bin and assign labels Step #
-  for ( int bin = 3; std::string( y->GetBinLabel( bin ) ) != "Output" ; ++bin ) {
-    y->SetBinLabel(bin, ( "Step " + std::to_string( bin - 2 ) ).c_str() );
-  }
- 
   return StatusCode::SUCCESS;
 }

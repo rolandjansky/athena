@@ -6,7 +6,7 @@
 @file PixelAthErrorMonToolCfg.py
 @brief Configuration of Pixel Error Monitoring Histograms for Run 3
 '''
-from PixelMonitoring.PixelAthMonitoringBase import define2DProfLayers
+from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx

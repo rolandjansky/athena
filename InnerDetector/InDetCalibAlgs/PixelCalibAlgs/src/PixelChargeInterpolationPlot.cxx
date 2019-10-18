@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationPlot_cxx
@@ -79,7 +79,7 @@ PixelChargeInterpolationPlot::~PixelChargeInterpolationPlot(){
 
 void PixelChargeInterpolationPlot::AddReference(
 		const PixelChargeInterpolationParameters &parameters,
-		std::string title, int color, std::string drawopt){
+		const std::string& title, int color, const std::string& drawopt){
 
 	std::vector < TH1F* > *histoX = HistogramsFromConstants(parameters,"phi",color,title);
 	std::vector < TH1F* > *histoY = HistogramsFromConstants(parameters,"eta",color,title);
@@ -95,7 +95,7 @@ void PixelChargeInterpolationPlot::AddReference(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 	
-void PixelChargeInterpolationPlot::Plot(const std::string output){
+void PixelChargeInterpolationPlot::Plot(const std::string& output){
 
 
 	PlotDirection(output, "phi");
@@ -107,7 +107,7 @@ void PixelChargeInterpolationPlot::Plot(const std::string output){
 
 std::vector < TH1F* > *PixelChargeInterpolationPlot::HistogramsFromConstants(
 			const PixelChargeInterpolationParameters &parameters,
-			std::string direction, int color, std::string title){
+			const std::string& direction, int color, const std::string& title){
 
 	std::vector <TH1F*> *histo = new std::vector <TH1F*>();
 	std::vector<float> anglebins;
@@ -207,7 +207,8 @@ std::vector < TH1F* > *PixelChargeInterpolationPlot::HistogramsFromConstants(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelChargeInterpolationPlot::PlotDirection( std::string filename, std::string direction){
+void PixelChargeInterpolationPlot::PlotDirection( const std::string& filename,
+                                                  const std::string& direction){
 
 	std::vector < std::vector < TH1F* > > *RefHistos = 0;
 	std::vector < TH1F* > *histograms = 0;
@@ -289,7 +290,7 @@ void PixelChargeInterpolationPlot::PlotDirection( std::string filename, std::str
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelChargeInterpolationPlot::DrawOneHisto(TH1F* histo, std::string direction, float maximum){
+void PixelChargeInterpolationPlot::DrawOneHisto(TH1F* histo, const std::string& direction, float maximum){
 
 
 	// play with the histo
@@ -335,7 +336,7 @@ void PixelChargeInterpolationPlot::DrawOneHisto(TH1F* histo, std::string directi
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void PixelChargeInterpolationPlot::DrawHistoMarkers(TH1F* histo, std::string options, int goodj){
+void PixelChargeInterpolationPlot::DrawHistoMarkers(TH1F* histo, const std::string& options, int goodj){
 
 	int startmarker = 21;
 	TH1F *markers = (TH1F *)histo->Clone();
@@ -390,7 +391,7 @@ void PixelChargeInterpolationPlot::DrawLayerLegend(float xlegend,float ylegend){
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
-void PixelChargeInterpolationPlot::DrawAxis(float y1, float y2, float x1, float x2, std::string direction){
+void PixelChargeInterpolationPlot::DrawAxis(float y1, float y2, float x1, float x2, const std::string& direction){
 	
 	float stdtextsize = 0.05;
 	int stdfont = 42;

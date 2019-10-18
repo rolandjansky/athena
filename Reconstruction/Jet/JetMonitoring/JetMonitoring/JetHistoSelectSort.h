@@ -12,7 +12,7 @@
 #include "JetInterface/IJetSelector.h"
 
 #include "JetMonitoring/IJetHistoFiller.h"
-#include "JetMonitoring/JetVarTool.h"
+#include "JetMonitoring/JetHistoVarTool.h"
 
 
 
@@ -33,7 +33,7 @@ private:
   ToolHandle<IJetSelector> m_selectTool;
   Gaudi::Property<int> m_selIndex {this,"SelectedIndex", -1};
 
-  ToolHandle<IJetVarTool> m_sortVar;
+  ToolHandle<IJetHistoVarTool> m_sortVar;
 
   
 };

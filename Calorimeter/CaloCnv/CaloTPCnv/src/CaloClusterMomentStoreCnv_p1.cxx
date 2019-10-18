@@ -22,7 +22,7 @@ CaloClusterMomentStoreCnv_p1::CaloClusterMomentStoreCnv_p1()
 void CaloClusterMomentStoreCnv_p1::persToTrans(const CaloClusterMomentStore_p1* pers, CaloClusterMomentStore* trans /*,MsgStream&*/)  {
   std::vector<CaloClusterMomentStore_p1::ClusterMoment>::const_iterator it=pers->m_store.begin();
   std::vector<CaloClusterMomentStore_p1::ClusterMoment>::const_iterator it_e=pers->m_store.end();
-  for (;it!=it_e;it++) 
+  for (;it!=it_e;++it) 
     trans->insert((CaloClusterMoment::MomentType)it->key,CaloClusterMoment(it->value));
 }
 

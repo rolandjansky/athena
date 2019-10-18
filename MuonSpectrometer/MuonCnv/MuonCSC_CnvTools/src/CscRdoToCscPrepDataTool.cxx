@@ -280,7 +280,6 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
 
 //Hack for transition to athenaMT classes
 	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
-
 	collection = oldCollection;
 	cscHashId = collection->identifyHash();
       }

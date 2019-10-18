@@ -129,10 +129,16 @@ PP0sEC = [
 
 PP0LabelX = [PP0sEC, PP0sEC, StavesL0, StavesL1, StavesL2, StavesIBL, StavesIBL]
 
+layergroups = {}
+def getLayerGroup(helper, alg, layer):
+    if alg not in layergroups:
+        layergroups[alg] = {}
+    if layer not in layergroups[alg]:
+        layergroups[alg][layer] = helper.addGroup(alg, layer)
+    return layergroups[alg][layer]
 
 
-
-def define2DProfLayers(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', subDir=False):
+def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', subDir=False, histname=None):
     '''
     This function configures 2D (Profile) histograms (or maps) for Pixel layers.
 
@@ -148,13 +154,11 @@ def define2DProfLayers(helper, alg, name, title, path, type='TProfile2D', doWeig
          opt     -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
          subDir  -- Put the configured histograms into sub directory named like partion (True, False)
     '''
+    if histname is None:
+        histname = name
     for i, layer in enumerate(layers):
-        groupname   = name  + '_{0}'.format(layer)
         fulltitle   = title + ' {0}'.format(layer) + runtext + etatxt[i] + phitext
-        if lifecycle != 'run':
-            layerGroup = helper.addGroup(alg, groupname, defaultDuration=str(lifecycle) )
-        else :
-            layerGroup = helper.addGroup(alg, groupname)
+        layerGroup = getLayerGroup(helper, alg, layer)
 
         # sequential list of x- and y-axis bin labels (see defineHistogram)
         labels = []
@@ -162,18 +166,19 @@ def define2DProfLayers(helper, alg, name, title, path, type='TProfile2D', doWeig
             labels.append(label)
         for label in LabelY[i]:
             labels.append(label)
-        fullvarstring = '{0}_{1},{0}_{2}'.format(groupname, 'em', 'pm')
-        if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(groupname, 'val')
+        fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'em', 'pm')
+        if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
         if doWeight:
-            weightvar = '{0}_{1}'.format(groupname, 'wgt')
+            weightvar = '{0}_{1}'.format(name, 'wgt')
         else :
             weightvar = ''
-        fullvarstring += ';' + groupname
+        fullvarstring += ';' + histname + '_{0}'.format(layer)
         layerGroup.defineHistogram(fullvarstring, 
                                     type=type, path=path, title=fulltitle, weight=weightvar,
                                     xbins=xbinsl[i], xmin=xminsl[i], xmax=xminsl[i]+xbinsl[i], 
                                     ybins=ybinsl[i], ymin=-0.5, ymax=-0.5+ybinsl[i],
-                                    zmin=zmin, zmax=zmax, 
+                                    zmin=zmin, zmax=zmax,
+                                    duration=lifecycle,
                                     opt=opt, labels=labels)
 
 def definePP0Histos(helper, alg, name, title, path, opt=''):
@@ -215,7 +220,8 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
 
 
 
-def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile'):
+def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile',
+                           histname=None):
     '''
     This function configures 1D (Profile) vs lumi histograms for Pixel layers.
 
@@ -229,13 +235,14 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
          zmin(zmax) -- fix the displayed range
     '''
 
+    if histname is None:
+        histname = name
     for layer in layers:
-        groupname   = name  + '_{0}'.format(layer)
         fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
-        layerGroup = helper.addGroup(alg, groupname)
+        layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
-        fullvarstring += ';' + groupname
+        fullvarstring += ';' + histname + '_{0}'.format(layer)
         layerGroup.defineHistogram(fullvarstring, 
                                     type=type, path=path, title=fulltitle,
                                     xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
@@ -268,7 +275,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, ybins, ymin, ymax, yax
 
 
 
-def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F'):
+def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None):
     '''
     This function configures 1D (Profile) histograms for Pixel layers.
 
@@ -284,12 +291,13 @@ def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, 
          *name*     -- name of the variable to fill (_common_ to all layers)  
     '''
 
+    if histname is None:
+        histname = name
     for idx,layer in enumerate(layers):
-        groupname   = name  + '_{0}'.format(layer)
         fulltitle   = title + ' {0}'.format(layer) + runtext + xaxistext + yaxistext
-        layerGroup = helper.addGroup(alg, groupname)
+        layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'val')
-        fullvarstring += ';' + groupname
+        fullvarstring += ';' + histname  + '_{0}'.format(layer)
         if ( len(xbins)==1 and len(xmins)==1 and len(binsizes)==1):
             layerGroup.defineHistogram(fullvarstring, 
                                         type=type, path=path, title=fulltitle,

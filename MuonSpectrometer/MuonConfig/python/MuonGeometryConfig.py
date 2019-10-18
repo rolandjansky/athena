@@ -29,19 +29,32 @@ def MuonGeoModelCfg(flags):
         # This is all migrated from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders
-        from MuonCondTool.MuonCondToolConf import MuonAlignmentDbTool
-        MuonAlignmentDbTool = MuonAlignmentDbTool("MGM_AlignmentDbTool")
-        MuonAlignmentDbTool.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
-                                              "/MUONALIGN/MDT/ENDCAP/SIDEA",
-                                              "/MUONALIGN/MDT/ENDCAP/SIDEC",
-                                              "/MUONALIGN/TGC/SIDEA",
-                                              "/MUONALIGN/TGC/SIDEC"]
-        acc.addPublicTool(MuonAlignmentDbTool)
+        from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
+        if (flags.Common.isOnline and not flags.Input.isMC):                
+            acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/BARREL'], 'MUONALIGN', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/ENDCAP/SIDEA'], 'MUONALIGN', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/ENDCAP/SIDEC'], 'MUONALIGN', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/Onl/TGC/SIDEA'], 'MUONALIGN', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/Onl/TGC/SIDEC'], 'MUONALIGN', className='CondAttrListCollection'))
+        else:
+            acc.merge(addFolders( flags, ['/MUONALIGN/MDT/BARREL'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/MDT/ENDCAP/SIDEA'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/MDT/ENDCAP/SIDEC'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/TGC/SIDEA'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, ['/MUONALIGN/TGC/SIDEC'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
 
+        MuonAlign = MuonAlignmentCondAlg()
+        MuonAlign.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
+                                    "/MUONALIGN/MDT/ENDCAP/SIDEA",
+                                    "/MUONALIGN/MDT/ENDCAP/SIDEC",
+                                    "/MUONALIGN/TGC/SIDEA",
+                                    "/MUONALIGN/TGC/SIDEC"]
+
+        acc.addCondAlgo(MuonAlign)
+ 
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):
             detTool.UseConditionDb = 1
-            detTool.TheMuonAlignmentTool = MuonAlignmentDbTool
         # here define to what extent B-lines are enabled
         if flags.Muon.Align.UseBLines=='none':
             detTool.EnableMdtDeformations = 0
@@ -56,20 +69,20 @@ def MuonGeoModelCfg(flags):
         # here define if I-lines (CSC internal alignment) are enabled
         if flags.Muon.Align.UseILines: 
             detTool.EnableCscInternalAlignment = True
-        if flags.IOVDb.DatabaseInstance == 'COMP200' and 'HLT' in flags.IOVDb.GlobalTag:
-            #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
-            detTool.UseIlinesFromGM = True
-            MuonAlignmentDbTool.ILinesFromCondDB = False
-        else :
-            #logMuon.info("Reading CSC I-Lines from conditions database.")
-            if (flags.Common.isOnline and not flags.Input.isMC):                
-                acc.merge(addFolders( flags, ['/MUONALIGN/Onl/CSC/ILINES'], 'MUONALIGN'))
-            else:
-                acc.merge(addFolders( flags, ['/MUONALIGN/CSC/ILINES'], 'MUONALIGN_OFL'))                
-
-            MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
-            detTool.UseIlinesFromGM = False
-            MuonAlignmentDbTool.ILinesFromCondDB = True
+            if flags.IOVDb.DatabaseInstance == 'COMP200' and 'HLT' in flags.IOVDb.GlobalTag:
+                #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
+                MuonAlign.ILinesFromCondDB = False
+                detTool.UseIlinesFromGM = True
+            else :
+                #logMuon.info("Reading CSC I-Lines from conditions database.")
+                if (flags.Common.isOnline and not flags.Input.isMC):                
+                    acc.merge(addFolders( flags, ['/MUONALIGN/Onl/CSC/ILINES'], 'MUONALIGN', className='CondAttrListCollection'))
+                else:
+                    acc.merge(addFolders( flags, ['/MUONALIGN/CSC/ILINES'], 'MUONALIGN_OFL', className='CondAttrListCollection'))                
+                    
+                    MuonAlign.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
+                    MuonAlign.ILinesFromCondDB = True
+                    detTool.UseIlinesFromGM = False
 
         # here define if As-Built (MDT chamber alignment) are enabled
         if flags.Muon.Align.UseAsBuilt:
@@ -80,11 +93,12 @@ def MuonGeoModelCfg(flags):
             else :
                 #logMuon.info("Reading As-Built parameters from conditions database")
                 detTool.EnableMdtAsBuiltParameters = 1
-                acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS', 'MUONALIGN_OFL'))
-                MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
+                acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
+                MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
                 pass
+    #####
+
     else:
-        detTool.TheMuonAlignmentTool = ""
         detTool.UseConditionDb = 0
         detTool.UseAsciiConditionData = 0
         if flags.Detector.SimulateMuon:

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigRNNOutputAuxContainerCnv.h 707590 2015-11-12 19:09:03Z krasznaa $
@@ -9,38 +9,16 @@
 #define XAODTRIGRINGERATHENAPOOL_XAODRNNOUTPUTAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODTrigRinger/TrigRNNOutputAuxContainer.h"
+#include "xAODTrigRNNOutputAuxContainerCnv_v1.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::TrigRNNOutputAuxContainer,
-                               xAOD::TrigRNNOutputAuxContainer >
-   xAODTrigRNNOutputAuxContainerCnvBase;
+typedef T_AthenaPoolAuxContainerCnv< xAOD::TrigRNNOutputAuxContainer,
+                                     xAODTrigRNNOutputAuxContainerCnv_v1 >
+   xAODTrigRNNOutputAuxContainerCnv;
 
-/**
- *  @short POOL converter for the xAOD::TrigRNNOutputAuxContainer class
- *
- * @author joao victor da fonseca pinto <joao.victor.da.fonseca.pinto@cern.ch>
- *
- * $Revision: 707590 $
- * $Date: 2015-11-12 20:09:03 +0100 (Thu, 12 Nov 2015) $
- */
-class xAODTrigRNNOutputAuxContainerCnv :
-   public xAODTrigRNNOutputAuxContainerCnvBase {
-
-public:
-   /// Converter constructor
-   xAODTrigRNNOutputAuxContainerCnv( ISvcLocator* svcLoc );
-
-protected:
-   /// Function preparing the container to be written out
-   virtual xAOD::TrigRNNOutputAuxContainer*
-   createPersistent( xAOD::TrigRNNOutputAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::TrigRNNOutputAuxContainer* createTransient();
-
-}; // class xAODRingerRNNOutputAuxContainerCnv
 
 #endif // XAODTRIGRINGERATHENAPOOL_XAODRNNOUTPUTAUXCONTAINERCNV_H

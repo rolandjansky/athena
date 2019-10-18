@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonTruthComparison_H
@@ -15,6 +15,9 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTruthData/TrackTruthCollection.h"
 
 class TH1F;
 class TH2F;
@@ -146,11 +149,9 @@ protected:
 
  private:
 
-	float m_Pi;
-
 	std::string m_stream;
-	std::string m_tracksName;
-	std::string m_tracksTruthName;
+	SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "ExtendedTracks"};
+	SG::ReadHandleKey<TrackTruthCollection> m_tracksTruthName{this, "tracksTruthName", "ExtendedTracksTruthCollection"};
 	
 	ToolHandle<Trk::ITruthToTrack>         m_truthToTrack; //!< tool to create track parameters from a gen particle
 	ToolHandle<InDetAlignMon::TrackSelectionTool>         m_trackSelection; //!< tool to get tracks from StoreGate and apply selection

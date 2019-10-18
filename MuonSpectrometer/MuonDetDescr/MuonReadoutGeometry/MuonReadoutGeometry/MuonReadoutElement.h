@@ -19,12 +19,14 @@
 #include "Identifier/IdentifierHash.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 //<<<<<< PUBLIC VARIABLES >>>>>>
 #define maxfieldindex 10
 
-class MsgStream;
 class GeoPhysVol;
+class IMessageSvc;
+class MsgStream;
 
 namespace MuonGM {
 
@@ -171,11 +173,11 @@ public:
 
    const Amg::Transform3D& defTransform(const Identifier&) const
    {return defTransform();};
-
-   inline MsgStream& reLog() const;
  
 protected:
-
+   // Gaudi message service
+   IMessageSvc* m_msgSvc;
+   mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, m_LongRsize, m_LongZsize;
    //!< size in the specified direction
    bool m_descratzneg;
@@ -195,9 +197,7 @@ protected:
    unsigned int m_nCSCinStation;
    unsigned int m_nRPCinStation;
    unsigned int m_nTGCinStation;
-    
-   MsgStream* m_MsgStream;
-    
+        
 private:
 
    double m_stationS;
@@ -213,8 +213,6 @@ private:
    mutable const HepGeom::Transform3D* m_absTransform;
    mutable const HepGeom::Transform3D* m_defTransform;
 };
-
-MsgStream& MuonReadoutElement::reLog() const {return *m_MsgStream;} 
 
 const Identifier MuonReadoutElement::identifyATLAS() const    {return m_id;}
 Identifier MuonReadoutElement::identify() const    {return m_id;}

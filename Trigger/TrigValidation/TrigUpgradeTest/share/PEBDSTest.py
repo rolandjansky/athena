@@ -25,9 +25,6 @@ EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBThree')
 EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBFour')
 EventBuildingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
 EventBuildingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
-EventBuildingInfo.AllowedEventBuildingIdentifiers = []
-EventBuildingInfo.AllowedEventBuildingIdentifiers.extend(EventBuildingInfo.PartialEventBuildingIdentifiers)
-EventBuildingInfo.AllowedEventBuildingIdentifiers.extend(EventBuildingInfo.DataScoutingIdentifiers.keys())
 
 # Override the setupMenu function from LS2_v1
 def myMenu():
@@ -35,30 +32,30 @@ def myMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
         # DS+PEB chain (special HLT result and subset of detector data saved)
-        ChainProp(name='HLT_e3_etcut_ElectronDSPEBTest_L1EM3', stream=['ElectronDSPEBTest']),
+        ChainProp(name='HLT_e3_etcut_ElectronDSPEBTest_L1EM3', stream=['ElectronDSPEBTest'], groups=['RATE:Test','BW:Other']),
 
         # Pure DS chain (only special HLT result saved and no detector data saved)
-        ChainProp(name='HLT_e5_etcut_ElectronDSTest_L1EM3', stream=['ElectronDSTest']),
+        ChainProp(name='HLT_e5_etcut_ElectronDSTest_L1EM3', stream=['ElectronDSTest'], groups=['RATE:Test','BW:Other']),
 
         # PEB chain (full HLT result and fixed subset of detector data saved)
-        ChainProp(name='HLT_e7_etcut_TestPEBOne_L1EM3', stream=['TestPEBOne']),
+        ChainProp(name='HLT_e7_etcut_TestPEBOne_L1EM3', stream=['TestPEBOne'], groups=['RATE:Test','BW:Other']),
 
         # PEB chain (full HLT result and RoI-based subset of detector data saved)
-        ChainProp(name='HLT_e10_etcut_TestPEBThree_L1EM3', stream=['TestPEBThree']),
+        ChainProp(name='HLT_e10_etcut_TestPEBThree_L1EM3', stream=['TestPEBThree'], groups=['RATE:Test','BW:Other']),
 
         # Standard chain (full HLT result and full detector data saved)
-        ChainProp(name='HLT_e12_etcut_L1EM3', stream=['Main']),
+        ChainProp(name='HLT_e12_etcut_L1EM3', stream=['Main'], groups=['RATE:SingleElectron', 'BW:Electron']),
     ]
 
     TriggerFlags.MuonSlice.signatures = [
         # PEB chain (fixed subset of detector data saved and no HLT result)
-        ChainProp(name='HLT_mu6_TestPEBTwo_L1MU6', stream=['TestPEBTwo']),
+        ChainProp(name='HLT_mu6_TestPEBTwo_L1MU6', stream=['TestPEBTwo'], groups=['RATE:Test','BW:Other']),
 
         # PEB chain (RoI-based subset of detector data saved and no HLT result)
-        ChainProp(name='HLT_mu6_TestPEBFour_L1MU6', stream=['TestPEBFour']),
+        ChainProp(name='HLT_mu6_TestPEBFour_L1MU6', stream=['TestPEBFour'], groups=['RATE:Test','BW:Other']),
 
         # Standard chain (full HLT result and full detector data saved)
-        ChainProp(name='HLT_2mu6_L12MU6', stream=['Main']),
+        ChainProp(name='HLT_2mu6_L12MU6', stream=['Main'], groups=['RATE:SingleMuon', 'BW:Muon']),
     ]
 
 LS2_v1.setupMenu = myMenu

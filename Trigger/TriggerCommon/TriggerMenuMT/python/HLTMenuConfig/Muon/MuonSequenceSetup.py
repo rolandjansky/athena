@@ -38,12 +38,13 @@ def muFastAlgSequence(ConfigFlags):
     l2MuViewsMaker.Views = "MUViewRoIs"
 
     ### get muFast reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence, makeMuonPrepDataAlgs
+    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=l2MuViewsMaker.InViewRoIs)
     muFastRecoSequence, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs )
-
-    l2MuViewsMaker.ViewNodeName = muFastRecoSequence.name() 
+    muFastSequence = parOR("muFastRecoSequence", [viewAlgs_MuonPRD, muFastRecoSequence])
+    l2MuViewsMaker.ViewNodeName = muFastSequence.name() 
     
-    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastRecoSequence ])
+    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastSequence ])
     return (l2muFastSequence, l2MuViewsMaker, sequenceOut)
 
 def muFastSequence():
@@ -335,12 +336,14 @@ def muEFSAFSAlgSequence(ConfigFlags):
     efsafsInputMaker.RoisWriteHandleKey="MuonFS_RoIs"
 
     ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence, makeMuonPrepDataAlgs
+    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=efsafsInputMaker.InViewRoIs, forFullScan=True)
     muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.InViewRoIs,'FS' )
  
-    efsafsInputMaker.ViewNodeName = muEFSAFSRecoSequence.name()
+    muEFFSRecoSequence = parOR("muEFSAFSRecoSequence",[viewAlgs_MuonPRD, muEFSAFSRecoSequence])
+    efsafsInputMaker.ViewNodeName = muEFFSRecoSequence.name()
 
-    muonEFSAFSSequence = seqAND( "muonEFSAFSSequence", [efsafsInputMaker, muEFSAFSRecoSequence ] )
+    muonEFSAFSSequence = seqAND( "muonEFSAFSSequence", [efsafsInputMaker, muEFFSRecoSequence ] )
 
     return (muonEFSAFSSequence, efsafsInputMaker, sequenceOut)
 

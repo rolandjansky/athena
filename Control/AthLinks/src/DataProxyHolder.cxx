@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -16,9 +16,13 @@
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/CurrentEventStore.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 namespace {
@@ -476,23 +480,24 @@ bool DataProxyHolder::tryRemap (sgkey_t& sgkey, size_t& index)
  * @brief Adjust for thinning.
  * @param sgkey Reference to the hashed SG key.
  * @param index Index of this link.
+ * @param thinningCache Thinning cache for the current stream
+ *                      (may be null).
  *
  * If this link points to a container that has been thinned,
  * @c sgkey and @c index will be adjusted accordingly.
  *
  * Returns @c true if the index was changed; @c false otherwise.
  */
-bool DataProxyHolder::thin (sgkey_t& sgkey, size_t& index)
+bool DataProxyHolder::thin (sgkey_t& sgkey, size_t& index,
+                            const SG::ThinningCache* thinningCache)
 {
-  bool result = false;
-  if (sgkey) {
-    // Check if thinning is needed for this link:
-    IThinningSvc* thinSvc = IThinningSvc::instance();
-    if( ! thinSvc ) {
-       // If the service is not available, return now. Since this just means
-       // that there is no thinning defined for this stream.
-       return false;
-    }
+  if (!sgkey) {
+    return false;
+  }
+
+  // Check if thinning is needed for this link: old-style
+  IThinningSvc* thinSvc = IThinningSvc::instance();
+  if( thinSvc ) {
     // Try to get a DataProxy for our link:
     SG::DataProxy* dp = proxy( true );
     if( ! dp ) {
@@ -509,16 +514,40 @@ bool DataProxyHolder::thin (sgkey_t& sgkey, size_t& index)
     if( persIdx == IThinningSvc::RemovedIdx ) {
        sgkey = 0;
        index = 0;
-       result = true;
+       return true;
     }
     else {
-      if (index != persIdx)
-        result = true;
-      index = persIdx;
+      if (index != persIdx) {
+        index = persIdx;
+        return true;
+      }
     }
   }
 
-  return result;
+  // Check for new thinning.
+  if (thinningCache) {
+    const SG::ThinningDecisionBase* dec = thinningCache->thinning (sgkey);
+    if (dec) {
+      // Get the updated index:
+      const std::size_t persIdx = dec->index( index );
+
+      // If the object was thinned away, set the persistent variables to an
+      // invalid state. Otherwise update just the index variable.
+      if( persIdx == ThinningDecisionBase::RemovedIdx ) {
+        sgkey = 0;
+        index = 0;
+        return true;
+      }
+      else {
+        if (index != persIdx) {
+          index = persIdx;
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 

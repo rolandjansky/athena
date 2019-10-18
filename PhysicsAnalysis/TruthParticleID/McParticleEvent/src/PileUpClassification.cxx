@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "McParticleEvent/PileUpClassification.h"
@@ -78,13 +78,13 @@ PileUpClassification::PileuType_t PileUpClassification::pileUpType(const McEvent
   McEventCollection::const_iterator fEvt = evts->begin();
   McEventCollection::const_iterator lEvt = evts->end();
   McEventCollection::const_iterator itEvt = fEvt;
-  itEvt++;
+  ++itEvt;
   PileuType_t type = INTIME;
   while( itEvt != lEvt){
     if( size_t(itEvt - fEvt) == evtIndex ){ return type ;}
-    itEvt++;
+    ++itEvt;
     if( (*itEvt)->signal_process_id() == 0 ) {  // a SEPARATOR
-      itEvt++; type = (PileuType_t) (type+1); 
+      ++itEvt; type = (PileuType_t) (type+1); 
     }
   }
   return  UNKONW;
@@ -95,11 +95,11 @@ void  PileUpClassification::fillPileUpType(const McEventCollection* evts, std::v
   McEventCollection::const_iterator fEvt = evts->begin();
   McEventCollection::const_iterator lEvt = evts->end();
   // 1st GenEvent is always SIGNAL
-  evtToPUType[0] = SIGNAL; fEvt++;
+  evtToPUType[0] = SIGNAL; ++fEvt;
   // increment automatically following GenEvents
   PileuType_t type = INTIME;
   int c=1;
-  for(; fEvt != lEvt; fEvt++){
+  for(; fEvt != lEvt; ++fEvt){
     if( (*fEvt)->signal_process_id() == 0 ) type= (PileuType_t)(type+1);
     evtToPUType[c] = type;
     c++;

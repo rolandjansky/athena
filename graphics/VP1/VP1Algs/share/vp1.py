@@ -98,13 +98,14 @@ if (vp1InputFiles == []):
             #DetDescrVersion = "ATLAS-GEO-20-00-01" # old
             DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
             globalflags.DetDescrVersion = DetDescrVersion
+
+    globalflags.DetDescrVersion = DetDescrVersion
     
     # Set conditions tag
     if not 'vp1GlobCond' in dir():
         vp1GlobCond="OFLCOND-SDR-BS7T-05-14"
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(vp1GlobCond)
-
 
     ### NEW FOR REL. >= 22
 
@@ -545,3 +546,4 @@ if (vp1Multinp):
     VP1Alg.MFAvailableLocalInputDirectories = vp1MultiAvailableSrcDirs
 
 topSequence.TimeOut=0
+

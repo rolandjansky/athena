@@ -89,3 +89,8 @@ preExec='rec.doFloatingPointException=True'
 
 print AlgSequence()
 print ServiceMgr
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

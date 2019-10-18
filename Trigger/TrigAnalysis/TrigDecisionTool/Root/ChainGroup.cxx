@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -222,7 +222,7 @@ bool Trig::ChainGroup::isPassed(unsigned int condition) const
 	std::vector<std::string> triggers = getListOfTriggers();
         const std::vector<std::string>& express_names = expressStream->linkColNames();
 	std::vector<std::string>::const_iterator p1, p2;
-        for (p1=triggers.begin(); p1!=triggers.end(); p1++) {
+        for (p1=triggers.begin(); p1!=triggers.end(); ++p1) {
           for (p2=express_names.begin(); p2!=express_names.end(); ++p2) {
             if ( (*p1) == (*p2) ) {
 	      //essentially implements a OR across all triggers in the CG (as is done upstream)
@@ -642,7 +642,7 @@ Trig::ChainGroup::update(const TrigConf::HLTChainList* confChains,
    if (!(confChains && confItems) ) return;
 
    for(std::vector< std::string >::const_iterator it = m_patterns.begin();
-       it != m_patterns.end(); it++) {
+       it != m_patterns.end(); ++it) {
       // find chains matching pattern     
       boost::regex compiled(*it);
       boost::cmatch what;

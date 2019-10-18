@@ -248,6 +248,8 @@ if __name__=='__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Output.HISTFileName = 'TileJetMonitorOutput.root'
+    ConfigFlags.DQ.useTrigger = False
+    ConfigFlags.DQ.enableLumiAccess = False
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

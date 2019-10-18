@@ -3,6 +3,7 @@
 */
 
 #include "MuonReadoutGeometry/MuonPadDesign.h"
+#include <TString.h> // for Form
 
 using MuonGM::MuonPadDesign;
 
@@ -63,7 +64,6 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
     double fuzziedX = pos.x() - (-1.0*PadPhiShift /cos(locPhi*M_PI/180));
     double fuzziedlocPhi = 180*atan(-1.0*fuzziedX/(radialDistance + pos.y()))/M_PI;
 
-    //std::cout << "\tMuonPadDesign::channelPosition locPhi " << locPhi  << " maxlocPhi " << maxlocPhi << " fuzziedlocPhi " << fuzziedlocPhi << std::endl; 
 
     bool below_half_length = (y1<0);
     bool outside_phi_range = (std::abs(locPhi)>maxlocPhi) or (std::abs(fuzziedlocPhi)>maxlocPhi);
@@ -85,7 +85,6 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
 		padPhidouble = (fuzziedlocPhi-firstPhiPos)/inputPhiPitch;
         int padPhi = padPhidouble+2; //(+1 because remainder means next column e.g. 1.1=2, +1 so rightmostcolumn=1)
 
-        //std::cout << "\tMuonPadDesign::channelPosition fuzziedlocPhi " << fuzziedlocPhi << " firstPhiPos " << firstPhiPos << " inputPhiPitch " << inputPhiPitch << std::endl;  
 
         // adjust indices if necessary
         if(padEta==nPadH+1){  padEta-=1; } //the top row can be bigger, therefore it is really in the nPadH row.
@@ -97,16 +96,14 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
         bool iphi_out_of_range = (padPhi < 0 || padPhi > nPadColumns+1);
         bool index_out_of_range =  ieta_out_of_range or iphi_out_of_range;
         if(index_out_of_range) {
-            ATH_MSG_ERROR((ieta_out_of_range ? "eta" : "phi")
-                          <<" out of range "
-                          <<" (x,y)=("<<pos.x()<<", "<<pos.y()<<")"
-                          <<" (ieta, iphi)=("<<padEta<<", "<<padPhi<<")");
+            if (ieta_out_of_range)
+                throw std::runtime_error(Form("File: %s, Line: %d\nMuonPadDesign::channelNumber() - eta out of range (x,y)=(%.2f, %.2f) (ieta, iphi)=(%d, %d)", __FILE__, __LINE__, pos.x(), pos.y(), padEta, padPhi));
+            else
+                throw std::runtime_error(Form("File: %s, Line: %d\nMuonPadDesign::channelNumber() - phi out of range (x,y)=(%.2f, %.2f) (ieta, iphi)=(%d, %d)", __FILE__, __LINE__, pos.x(), pos.y(), padEta, padPhi));
         } else {
-            ATH_MSG_DEBUG("padEta,padPhi: " <<padEta<<" , "<<padPhi );
             result = std::make_pair(padEta, padPhi);
         }
     }
-    //std::cout << "MuonPadDesign::channelPosition padEta " << result.first << " padPhi " << result.second << " x " << pos.x() << " y " << pos.y() << std::endl;
     return result;
 }
 
@@ -148,12 +145,10 @@ bool MuonPadDesign::channelCorners(std::pair<int,int> pad, std::vector<Amg::Vect
     }
     ////// ASM-2015-12-07 : New Implementation
 
-    //std::cout <<"\tMuonPadDesign::channelPosition iEta " << iEta << " inputRowPitch "  <<  inputRowPitch << " yBot " << yBot << " yTop " << yTop<<std::endl;
 
     // restrict y to the module sensitive area
     double minY = minSensitiveY();
     double maxY = maxSensitiveY();
-    //std::cout <<"\tMuonPadDesign::channelPosition minSensitiveY " << minY << " maxSensitiveY " << maxY<<std::endl;
     if(yBot<minY) yBot = minY;
     if(yTop>maxY) yTop = maxY;
 
@@ -198,7 +193,6 @@ bool MuonPadDesign::channelCorners(std::pair<int,int> pad, std::vector<Amg::Vect
     corners.push_back(Amg::Vector2D(xBotRight,yBot));
     corners.push_back(Amg::Vector2D(xTopLeft,yTop));
     corners.push_back(Amg::Vector2D(xTopRight,yTop));
-    //std::cout << "MuonPadDesign::channelPosition padEta " << pad.first << " padPhi " << pad.second << " x " << xCenter << " y " << yCenter << std::endl;
     return true;
     // return false; // DG-2015-12-01 \todo run validation and determine when this function fails
 

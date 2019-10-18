@@ -38,8 +38,9 @@
 // ******************************************************************************
 
 #include <string>
+#include <memory>
+#include "AthenaKernel/CLASS_DEF.h"
 
-class MsgStream;
 class IMessageSvc;
 
 namespace MuonGM {
@@ -69,7 +70,7 @@ public:
    // Access to wire gang parameters
 
    float wirePitch() const;
-   float gangThickness() const;
+   inline float gangThickness() const;
    int nGangs(int gasGap) const;
    int totalWires(int gasGap) const;
    int nWires(int gasGap, int gang) const;
@@ -77,12 +78,16 @@ public:
 
    // Access to strip parameters
 
-   float stripThickness() const;
+   inline float stripThickness() const;
    int nStrips(int gasGap) const;
    float stripOffset(int gasGap) const;
    float physicalDistanceFromBase() const;
    float stripPositionOnLargeBase(int strip) const;
    float stripPositionOnShortBase(int strip) const;
+protected:
+  // Gaudi message service
+  IMessageSvc* m_msgSvc;
+  mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
 
 private:
 
@@ -121,20 +126,23 @@ private:
    float m_stripPositionOnShortBase[MaxNStrips];
 
    // Hard-coded data
-   static float s_gangThickness;
-   static float s_stripThickness;
-
-   // message stream pointer and method to access it 
-   MsgStream* m_MsgStream;
-   inline MsgStream& reLog() const;
+   const float m_gangThickness = 0.05;
+   const float m_stripThickness = 0.03;
 
 };
-
-MsgStream& TgcReadoutParams::reLog() const {return *m_MsgStream;} 
+float TgcReadoutParams::stripThickness() const
+{
+  return m_stripThickness;
+}
+float TgcReadoutParams::gangThickness() const
+{
+  return m_gangThickness;
+}
 
 const std::string TgcReadoutParams::GetName() const
-{return m_chamberName;}
-
+{
+  return m_chamberName;
+}
 } // namespace MuonGM
 
 #endif // MUONGEOMODEL_TGCREADOUTPARAMS_H

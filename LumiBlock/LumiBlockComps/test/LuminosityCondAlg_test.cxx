@@ -58,6 +58,17 @@ EventIDBase timestamp (int t)
 }
 
 
+EventIDBase runlbn (int run,
+                    int lbn)
+{
+  return EventIDBase (run,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      EventIDBase::UNDEFNUM,  // timestamp
+                      0,                      // ns offset
+                      lbn);
+}
+
+
 void push_float (float x, std::vector<uint8_t>& data)
 {
   union {
@@ -98,7 +109,7 @@ coral::Blob makeBlob (float offs)
 }
 
 
-std::unique_ptr<CondAttrListCollection> make_run2_attrlist()
+std::unique_ptr<CondAttrListCollection> make_run2_attrlist (float instLumi = 1.5)
 {
   auto attrs = std::make_unique<CondAttrListCollection> (false);
   coral::AttributeList al;
@@ -108,7 +119,7 @@ std::unique_ptr<CondAttrListCollection> make_run2_attrlist()
   al.extend ("Valid", "unsigned int");
   al.extend ("AlgorithmID", "unsigned int");
   al.extend ("BunchInstLumi", "blob");
-  al["LBAvInstLumi"].setValue (1.5f);
+  al["LBAvInstLumi"].setValue (instLumi);
   al["LBAvEvtsPerBX"].setValue (10.5f);
   al["Valid"].setValue (0u);
   al["AlgorithmID"].setValue (42u);
@@ -217,7 +228,7 @@ void test1 (ISvcLocator* svcloc)
 
   EventContext ctx;
   ctx.setExtension (Atlas::ExtendedEventContext());
-  EventIDBase eid (0, 0, 0, 0);
+  EventIDBase eid (1, 0, 0, 0, 20);
   ctx.setEventID (eid);
 
   LuminosityCondAlg alg ("LuminosityCondAlg", svcloc);
@@ -228,7 +239,7 @@ void test1 (ISvcLocator* svcloc)
   
   DataObjID id1 ("testLumi");
   auto cc1 = std::make_unique<CondCont<CondAttrListCollection> > (rcu, id1);
-  const EventIDRange range1 (timestamp (0), timestamp (100));
+  const EventIDRange range1 (runlbn (1, 10), runlbn (1, 100));
   assert( cc1->insert (range1, make_run2_attrlist(), ctx).isSuccess() );
 
   DataObjID id2 ("testCalib");
@@ -247,8 +258,12 @@ void test1 (ISvcLocator* svcloc)
   const LuminosityCondData* data = 0;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
-  assert (rangeout->start().time_stamp() == timestamp(0).time_stamp());
-  assert (rangeout->stop().time_stamp() == timestamp(90).time_stamp());
+  assert (rangeout->start().time_stamp() == 0);
+  assert (rangeout->start().run_number() == 1);
+  assert (rangeout->start().lumi_block() == 10);
+  assert (rangeout->stop().time_stamp() == 90);
+  assert (rangeout->stop().run_number() == 1);
+  assert (rangeout->stop().lumi_block() == 100);
 
   assert( data->lbAverageLuminosity() == 1.5 );
   assert( data->lbAverageInteractionsPerCrossing() == 10.5 );
@@ -275,7 +290,7 @@ void test2 (ISvcLocator* svcloc)
 
   EventContext ctx;
   ctx.setExtension (Atlas::ExtendedEventContext());
-  EventIDBase eid (0, 0, 0, 0);
+  EventIDBase eid (1, 0, 0, 0, 20);
   ctx.setEventID (eid);
 
   LuminosityCondAlg alg ("LuminosityCondAlgRun1", svcloc);
@@ -286,7 +301,7 @@ void test2 (ISvcLocator* svcloc)
   
   DataObjID id1 ("testLumiRun1");
   auto cc1 = std::make_unique<CondCont<CondAttrListCollection> > (rcu, id1);
-  const EventIDRange range1 (timestamp (0), timestamp (100));
+  const EventIDRange range1 (runlbn (1, 10), runlbn (1, 100));
   assert( cc1->insert (range1, make_run1_attrlist(), ctx).isSuccess() );
 
   DataObjID id2 ("testCalibRun1");
@@ -323,8 +338,12 @@ void test2 (ISvcLocator* svcloc)
   const LuminosityCondData* data = 0;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
-  assert (rangeout->start().time_stamp() == timestamp(0).time_stamp());
-  assert (rangeout->stop().time_stamp() == timestamp(80).time_stamp());
+  assert (rangeout->start().time_stamp() == 0);
+  assert (rangeout->start().run_number() == 1);
+  assert (rangeout->start().lumi_block() == 10);
+  assert (rangeout->stop().time_stamp() == 80);
+  assert (rangeout->stop().run_number() == 1);
+  assert (rangeout->stop().lumi_block() == 100);
 
   assert( data->lbAverageLuminosity() == 1.5 );
   assert( data->lbAverageInteractionsPerCrossing() == 10.5 );
@@ -352,7 +371,7 @@ void test3 (ISvcLocator* svcloc)
 
   EventContext ctx;
   ctx.setExtension (Atlas::ExtendedEventContext());
-  EventIDBase eid (0, 0, 0, 0, 0, 0);
+  EventIDBase eid (1, 0, 0, 0, 20, 0);
   ctx.setEventID (eid);
 
   LuminosityCondAlg alg ("LuminosityCondAlgMC", svcloc);
@@ -382,6 +401,67 @@ void test3 (ISvcLocator* svcloc)
 }
 
 
+// Missing lumi
+void test4 (ISvcLocator* svcloc)
+{
+  std::cout << "test4\n";
+
+  EventContext ctx;
+  ctx.setExtension (Atlas::ExtendedEventContext());
+  EventIDBase eid (1, 0, 0, 0, 20);
+  ctx.setEventID (eid);
+
+  LuminosityCondAlg alg ("LuminosityCondAlgMiss", svcloc);
+  alg.addRef();
+  assert( alg.sysInitialize().isSuccess() );
+
+  Athena_test::DummyRCUSvc rcu;
+  
+  DataObjID id1 ("testLumiMiss");
+  auto cc1 = std::make_unique<CondCont<CondAttrListCollection> > (rcu, id1);
+  const EventIDRange range1 (runlbn (1, 10), runlbn (1, 100));
+  assert( cc1->insert (range1, make_run2_attrlist(0), ctx).isSuccess() );
+
+  DataObjID id2 ("testCalibMiss");
+  auto cc2 = std::make_unique<CondCont<OnlineLumiCalibrationCondData> > (rcu, id2);
+  const EventIDRange range2 (timestamp (0), timestamp (90));
+  assert( cc2->insert (range2, make_onlineLumiCalib(), ctx).isSuccess() );
+
+  ServiceHandle<StoreGateSvc> conditionStore ("ConditionStore", "test");
+  assert( conditionStore->record (std::move (cc1), "testLumiMiss") );
+  assert( conditionStore->record (std::move (cc2), "testCalibMiss") );
+
+  assert( alg.execute (ctx).isSuccess() );
+
+  CondCont<LuminosityCondData>* ccout = nullptr;
+  assert( conditionStore->retrieve (ccout, "LuminosityCondDataMiss").isSuccess() );
+  const LuminosityCondData* data = 0;
+  const EventIDRange* rangeout = nullptr;
+  assert (ccout->find (eid, data, &rangeout));
+  assert (rangeout->start().time_stamp() == 0);
+  assert (rangeout->start().run_number() == 1);
+  assert (rangeout->start().lumi_block() == 10);
+  assert (rangeout->stop().time_stamp() == EventIDBase::UNDEFNUM-1);
+  assert (rangeout->stop().run_number() == 1);
+  assert (rangeout->stop().lumi_block() == 100);
+ 
+  assert( data->lbAverageLuminosity() == 0 );
+  assert( data->lbAverageInteractionsPerCrossing() == 10.5 );
+  assert( data->lbAverageValid() == 0 );
+  assert( data->muToLumi() == 0 );
+
+  std::vector<float> vec = data->lbLuminosityPerBCIDVector();
+  assert (vec.size() == LuminosityCondData::TOTAL_LHC_BCIDS);
+  for (const auto& p : lumiData) {
+    assert (vec[p.first] == 0);
+  }
+
+  for (float f : vec) {
+    assert (f == 0);
+  }
+}
+
+
 int main()
 {
   std::cout << "LumiBlockComps/LuminosityCondAlg_test\n";
@@ -394,5 +474,6 @@ int main()
   test1 (svcloc);
   test2 (svcloc);
   test3 (svcloc);
+  test4 (svcloc);
   return 0;
 }

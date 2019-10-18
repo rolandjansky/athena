@@ -10,7 +10,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -25,6 +25,10 @@ def getTauSequence( step ):
         return tauCoreTrackSequence()
     if step == "precision":
         return tauPrecisionSequence()
+    if step == "track_twostep_core":
+        return tauTwoStepTrackSeqCore()
+    if step == "track_twostep_iso":
+        return tauTwoStepTrackSeqIso()
     return None
 
 # ===============================================================================================
@@ -85,7 +89,7 @@ def tauCoreTrackSequence():
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    TrackRoiUpdater.RoIOutputKey = "RoiForID2"
+    TrackRoiUpdater.RoIOutputKey = recordable("HLT_RoiForID")
 
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
@@ -144,13 +148,13 @@ def tauPrecisionSequence():
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     precisionTRU = TrigTauTrackRoiUpdaterMT("precisionTRU")
     #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    precisionTRU.RoIOutputKey = "RoiForID2"
+    precisionTRU.RoIOutputKey = recordable("HLT_RoiForID1")
     precisionTRU.fastTracksKey = TrackCollection
     #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
-    trigTauMVA.RoIInputKey = "RoiForID2"
+    trigTauMVA.RoIInputKey = precisionTRU.RoIOutputKey
     trigTauMVA.L1RoIKey    = "TAUCaloRoIs"
     trigTauMVA.TrigTauRecOutputKey = recordable("HLT_TrigTauRecMerged_MVA")
     trigTauMVA.TrigTauJet = "HLT_TrigTauRecMerged"
@@ -162,7 +166,7 @@ def tauPrecisionSequence():
 
     precisionViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTau")
     precisionViewsMaker.RoIsLink = "roi" # -||-
-    precisionViewsMaker.InViewRoIs = RoIs # contract with the fastCalo
+    precisionViewsMaker.InViewRoIs = "TPrecViewRoIs" # contract with the fastCalo
     precisionViewsMaker.Views = "TAUID2Views"
     precisionViewsMaker.ViewFallThrough = True
     precisionViewsMaker.RequireParentView = True
@@ -178,7 +182,7 @@ def tauPrecisionSequence():
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
     precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlg")
-    precisionHypo.taujetcontainer = "HLT_TrigTauRecMerged_MVA"
+    precisionHypo.taujetcontainer = trigTauMVA.TrigTauRecOutputKey
 
     from TrigTauHypo.TrigEFTauMVHypoTool import TrigEFTauMVHypoToolFromDict
 
@@ -186,3 +190,41 @@ def tauPrecisionSequence():
                           Maker       = precisionViewsMaker,
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
+
+# ===============================================================================================
+#      Fast, precision tracking and ID step (altogether) / Precision tracking not included yet
+# ===============================================================================================
+
+def tauTwoStepTrackSeqCore():
+
+    (sequence, ftfCoreViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreSequence,ConfigFlags)    
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
+    fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_RejectEmpty")
+    fastTrkHypo.trackcollection = sequenceOut
+
+    from TrigTauHypo.TrigTrackPreSelHypoTool import TrigTauTrackHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfCoreViewsMaker,
+                          Hypo        = fastTrkHypo,
+                          HypoToolGen = TrigTauTrackHypoToolFromDict )
+
+
+def tauTwoStepTrackSeqIso():
+
+    (sequence, ftfIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFIsoSequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
+    precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlgFinal")
+    precisionHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigEFTauMVHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfIsoViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
+

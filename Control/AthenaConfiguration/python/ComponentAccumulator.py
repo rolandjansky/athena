@@ -828,7 +828,12 @@ class ComponentAccumulator(object):
 
         #Add services
         for svc in self._services:
-            addCompToJos(svc)
+            if svc.getFullName()=="MessageSvc/MessageSvc":
+                #Message svc exists already! Needs special treatment
+                for k, v in svc.getValuedProperties().items():
+                    bsh.setProperty(msp,k,str(v).encode())
+            else:
+                addCompToJos(svc)
             pass
 
         #Add tree of algorithm sequences:

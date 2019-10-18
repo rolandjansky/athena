@@ -11,6 +11,8 @@
 
 #include "AthLinks/ElementLinkVector.h"
 #include "AthenaKernel/IThinningSvc.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/getThinningCache.h"
 
 //#include <iostream>
@@ -23,7 +25,7 @@ template <typename LINK_TYPE>
 void
 ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
                                                 PersLinkVect_t& pers,
-                                                const SG::ThinningCache* /*cache*/,
+                                                const SG::ThinningCache* cache,
                                                 MsgStream& msg) const
 {
   pers.m_elementRefs.clear();
@@ -36,7 +38,7 @@ ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
   const bool thinningOccurred= thinningSvc && thinningSvc->thinningOccurred();
 
   // easy case first
-  if ( !thinningOccurred ) {
+  if ( !thinningOccurred && !cache ) {
     std::vector<typename LinkVect_t::DataLinkVector::size_type> shortrefs;
     tmpTrans.toPersistent(shortrefs);
     // copy the container keys
@@ -100,6 +102,13 @@ ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t& trans,
       idx = dp ? 
         thinningSvc->index(dp, orig_idx) :
         thinningSvc->index(el.getStorableObjectPointer(), orig_idx);
+    }
+
+    if (idx == orig_idx && cache) {
+      const SG::ThinningDecisionBase* dec = cache->thinning (el.key());
+      if (dec) {
+        idx = dec->index (idx);
+      }
     }
 
     typename LinkVect_t::size_type shortref = 0;

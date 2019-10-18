@@ -44,21 +44,27 @@ StatusCode topoEgammaBuilder::initialize()
 
     // the data handle keys
     ATH_CHECK(m_electronOutputKey.initialize());
-    ATH_CHECK(m_photonOutputKey.initialize());
     ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize());
+    ATH_CHECK(m_photonOutputKey.initialize());
     ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize());
 
     //
     //////////////////////////////////////////////////
     // retrieve tools
     ATH_CHECK( m_clusterTool.retrieve() );
-    ATH_CHECK( m_ambiguityTool.retrieve() );
+    if ( m_doElectrons && m_doPhotons ){
+	ATH_CHECK( m_ambiguityTool.retrieve() );
+    }
     ATH_MSG_DEBUG("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
     ATH_CHECK( m_egammaTools.retrieve() );
-    ATH_MSG_DEBUG("Retrieving " << m_electronTools.size() << " tools for electrons");
-    ATH_CHECK( m_electronTools.retrieve() );
-    ATH_MSG_DEBUG("Retrieving " << m_photonTools.size() << " tools for photons");
-    ATH_CHECK( m_photonTools.retrieve() );
+    if ( m_doElectrons ){
+	ATH_MSG_DEBUG("Retrieving " << m_electronTools.size() << " tools for electrons");
+	ATH_CHECK( m_electronTools.retrieve() );
+    }
+    if ( m_doPhotons ){
+	ATH_MSG_DEBUG("Retrieving " << m_photonTools.size() << " tools for photons");
+	ATH_CHECK( m_photonTools.retrieve() );
+    }
 
     // retrieve timing profile
     if (m_doChrono) CHECK( m_timingProfile.retrieve() );
@@ -95,7 +101,7 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronSuperClusterRecContainerKey, ctx);
 
     // check is only used for serial running; remove when MT scheduler used
-    if(!electronSuperRecs.isValid()) {
+    if(m_doElectrons && !electronSuperRecs.isValid()) {
         ATH_MSG_FATAL("Failed to retrieve "<< m_electronSuperClusterRecContainerKey.key());
         return StatusCode::FAILURE;
     }
@@ -103,7 +109,7 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonSuperClusterRecContainerKey, ctx);
 
     // check is only used for serial running; remove when MT scheduler used
-    if(!photonSuperRecs.isValid()) {
+    if(m_doPhotons && !photonSuperRecs.isValid()) {
         ATH_MSG_FATAL("Failed to retrieve "<< m_photonSuperClusterRecContainerKey.key());
         return StatusCode::FAILURE;
     }
@@ -115,81 +121,80 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     static const SG::AuxElement::Accessor < std::vector< 
         ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
 
-    ATH_MSG_DEBUG("Read in  "<< electronSuperRecs->size() << " electron Super Clusters"); 
-    ATH_MSG_DEBUG("Read in  "<< photonSuperRecs->size() << " photon Super Clusters"); 
+    if ( m_doElectrons ) ATH_MSG_DEBUG("Read in  "<< electronSuperRecs->size() << " electron Super Clusters"); 
+    if ( m_doPhotons )   ATH_MSG_DEBUG("Read in  "<< photonSuperRecs->size() << " photon Super Clusters"); 
     //Look at the constituents , for ambiguity resolution, for now based on the seed only
     //We could add secondaries cluster in this logic.
     //Also probably we could factor some common code.
     //-----------------------------------------------------------------
     //Build xAOD::Electron objects
-    for (const auto& electronRec : *electronSuperRecs) {
-
-        unsigned int author = xAOD::EgammaParameters::AuthorElectron;
-        xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
-
-	// get the hottest cell
-	const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
-	const auto elEta0 = elClus->eta0();
-	const auto elPhi0 = elClus->phi0();
-
-        for (const auto& photonRec : *photonSuperRecs) {
-
-	  const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
-	  //See if they have the same hottest cell
-	  if (elEta0 == phClus->eta0() && elPhi0 == phClus->phi0()) {
-	    ATH_MSG_DEBUG("Running AmbiguityTool for electron");
-
-	    author = m_ambiguityTool->ambiguityResolve(elClus,
-						       photonRec->vertex(),
-						       electronRec->trackParticle(),
-						       type);
-	    break;
-	  }
-        }
-        //Fill each electron
-        if (author == xAOD::EgammaParameters::AuthorElectron || 
-	    author == xAOD::EgammaParameters::AuthorAmbiguous){
-            ATH_MSG_DEBUG("getElectron");
-            if ( !getElectron(electronRec, electronContainer.ptr(), author,type) ){
-                return StatusCode::FAILURE;
-            }
-        }
+    if (m_doElectrons){
+	for (const auto& electronRec : *electronSuperRecs) {
+	    unsigned int author = xAOD::EgammaParameters::AuthorElectron;
+	    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
+	    // get the hottest cell
+	    const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
+	    const auto elEta0 = elClus->eta0();
+	    const auto elPhi0 = elClus->phi0();
+	    if (m_doPhotons){
+		for (const auto& photonRec : *photonSuperRecs) {
+		    const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
+		    //See if they have the same hottest cell
+		    if (elEta0 == phClus->eta0() && elPhi0 == phClus->phi0()) {
+			ATH_MSG_DEBUG("Running AmbiguityTool for electron");
+			author = m_ambiguityTool->ambiguityResolve(elClus,
+				photonRec->vertex(),
+				electronRec->trackParticle(),
+				type);
+			break;
+		    }
+		}
+	    }
+	    //Fill each electron
+	    if (author == xAOD::EgammaParameters::AuthorElectron || 
+		    author == xAOD::EgammaParameters::AuthorAmbiguous){
+		ATH_MSG_DEBUG("getElectron");
+		if ( !getElectron(electronRec, electronContainer.ptr(), author,type) ){
+		    return StatusCode::FAILURE;
+		}
+	    }
+	}
     }
 
     //-----------------------------------------------------------------
     //Build xAOD::Photon objects.
-    for (const auto& photonRec : *photonSuperRecs) {
-        unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
-        xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
-
-	// get the hottest cell
-	const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
-	const auto phEta0 = phClus->eta0();
-	const auto phPhi0 = phClus->phi0();
-
-        //See if the same seed (0 element in the constituents) seed also an electron
-        for (const auto& electronRec : *electronSuperRecs) {
-
-	  const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
-	  //See if they have the same hottest cell
-	  if (phEta0 == elClus->eta0() && phPhi0 == elClus->phi0()) {
-	    ATH_MSG_DEBUG("Running AmbiguityTool for photon");
-
-	    author = m_ambiguityTool->ambiguityResolve(elClus,
-						       photonRec->vertex(),
-						       electronRec->trackParticle(),
-						       type);
-	    break;
-	  }
-        }
-        //Fill each photon
-        if (author == xAOD::EgammaParameters::AuthorPhoton || 
-	    author == xAOD::EgammaParameters::AuthorAmbiguous){
-            ATH_MSG_DEBUG("getPhoton");
-            if ( !getPhoton(photonRec, photonContainer.ptr(), author,type) ){
-                return StatusCode::FAILURE;
-            }
-        }
+    if (m_doPhotons){
+	for (const auto& photonRec : *photonSuperRecs) {
+	    unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
+	    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
+	    // get the hottest cell
+	    const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
+	    const auto phEta0 = phClus->eta0();
+	    const auto phPhi0 = phClus->phi0();
+	    //See if the same seed (0 element in the constituents) seed also an electron
+	    if (m_doElectrons){
+		for (const auto& electronRec : *electronSuperRecs) {
+		    const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
+		    //See if they have the same hottest cell
+		    if (phEta0 == elClus->eta0() && phPhi0 == elClus->phi0()) {
+			ATH_MSG_DEBUG("Running AmbiguityTool for photon");
+			author = m_ambiguityTool->ambiguityResolve(elClus,
+				photonRec->vertex(),
+				electronRec->trackParticle(),
+				type);
+			break;
+		    }
+		}
+	    }
+	    //Fill each photon
+	    if (author == xAOD::EgammaParameters::AuthorPhoton || 
+		    author == xAOD::EgammaParameters::AuthorAmbiguous){
+		ATH_MSG_DEBUG("getPhoton");
+		if ( !getPhoton(photonRec, photonContainer.ptr(), author,type) ){
+		    return StatusCode::FAILURE;
+		}
+	    }
+	}
     }
 
     // Call tools
@@ -199,22 +204,35 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
-
+    ATH_MSG_DEBUG("Calling egammaTools: " );
     for (auto& tool : m_egammaTools){
-        CHECK( CallTool(ctx, tool, electronContainer.ptr(), photonContainer.ptr()) );
+	ATH_MSG_DEBUG("Calling tool " << tool );
+	CHECK( CallTool(ctx, tool, electronContainer.ptr(), photonContainer.ptr()) );
     }
-    for (auto& tool : m_electronTools){
-        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
+
+    if ( m_doElectrons ){
+	ATH_MSG_DEBUG("Calling Electron tools: ");
+	for (auto& tool : m_electronTools){
+	    ATH_MSG_DEBUG("Calling tool " << tool );
+	    CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
+	}
     }
-    for (auto& tool : m_photonTools){
-        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
+
+    if ( m_doPhotons ) {
+	ATH_MSG_DEBUG("Calling Photon tools: ");
+	for (auto& tool : m_photonTools){
+	    ATH_MSG_DEBUG("Calling tool " << tool );
+	    CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
+	}
     }
 
     //Do the ambiguity Links
-    CHECK(doAmbiguityLinks (electronContainer.ptr(),photonContainer.ptr()));
+    if ( m_doElectrons && m_doPhotons ){
+	CHECK(doAmbiguityLinks (electronContainer.ptr(),photonContainer.ptr()));
+    }
 
-    ATH_MSG_DEBUG("Build  "<< electronContainer->size() << " electrons "); 
-    ATH_MSG_DEBUG("Build  "<< photonContainer->size() << " photons"); 
+    if ( m_doElectrons ) ATH_MSG_DEBUG("Build  "<< electronContainer->size() << " electrons "); 
+    if ( m_doPhotons )   ATH_MSG_DEBUG("Build  "<< photonContainer->size() << " photons"); 
     ATH_MSG_DEBUG("execute completed successfully");
 
     return StatusCode::SUCCESS;
@@ -286,7 +304,7 @@ StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx,
 
     smallChrono timer(*m_timingProfile,this->name()+"_"+tool->name(), m_doChrono);  
 
-    if (electronContainer){    
+    if (m_doElectrons && electronContainer){    
         ATH_MSG_DEBUG("Executing tool on electrons: " << tool );
         for (const auto& electron : *electronContainer){
             if (tool->execute(ctx, electron).isFailure() ){
@@ -295,7 +313,7 @@ StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx,
             }
         }
     }
-    if (photonContainer){
+    if (m_doPhotons &&  photonContainer){
         ATH_MSG_DEBUG("Executing tool on photons: " << tool );
         for (const auto& photon : *photonContainer){
             if (tool->execute(ctx, photon).isFailure() ){

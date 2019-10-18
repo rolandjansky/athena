@@ -48,6 +48,7 @@ class  JetBTaggerAlg:
     SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName {this, "BTaggingCollectionName", "", "Output BTagging container"};
 
     std::string m_JetName;
+    std::string m_BTagLink;
 
     ToolHandle< IBTagTool > m_bTagTool;
     ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
