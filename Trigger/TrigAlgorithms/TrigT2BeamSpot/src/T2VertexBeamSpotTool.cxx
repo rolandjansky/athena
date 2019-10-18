@@ -358,11 +358,11 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
       // Extract beam spot parameters
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
-      auto beamSpot = std::make_unique<T2BeamSpot>(*beamSpotHandle);
+      T2BeamSpot beamSpot(*beamSpotHandle);
 
-      ATH_MSG_DEBUG( "Beamspot from BeamCondSvc: " << *beamSpot); 
+      ATH_MSG_DEBUG( "Beamspot from BeamCondSvc: " << beamSpot);
 
-      const T2Vertex myVertex( *primaryVertex, vertexTracks.get(), *beamSpot, m_trackClusterer->seedZ0() );
+      const T2Vertex myVertex( *primaryVertex, vertexTracks.get(), beamSpot, m_trackClusterer->seedZ0() );
 
       // Monitor all vertices parameters
       monitor_vertex( "Vertex", "", myVertex ); 
