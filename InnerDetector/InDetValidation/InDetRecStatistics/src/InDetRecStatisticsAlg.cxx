@@ -366,7 +366,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute() {
       // clean up association tool
       std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
       if (m_doSharedHits) {
-        prd_to_track_map = std::move( m_assoTool->createPRDtoTrackMap() );
+        prd_to_track_map = m_assoTool->createPRDtoTrackMap();
 	// clear prdAssociationTool (this may be altered)
 	// loop over tracks and add PRD 
 	TrackCollection::const_iterator trackIt    = RecCollection->begin();
