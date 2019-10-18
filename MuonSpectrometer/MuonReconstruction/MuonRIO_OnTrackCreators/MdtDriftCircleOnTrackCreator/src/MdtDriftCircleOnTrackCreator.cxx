@@ -506,12 +506,6 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
     return 0;
   }
   
-  static bool firstTime = true;
-  if (firstTime){
-   ATH_MSG_DEBUG( "Called correct using the base class implementation.  Will use the default error strategy" );
-    firstTime = false;
-  }
-  
   return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum());
 }
 
