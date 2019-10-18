@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # TOPQ4
 # ALL HADRONIC SELECTION
@@ -21,8 +23,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -37,7 +39,7 @@ TOPQ4Stream.AcceptAlgs(["TOPQ4Kernel"])
 # PDF Weight Metadata
 #====================================================================
 if DFisMC:
-  from DerivationFrameworkCore.WeightMetadata import *
+    from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
 # TRIGGER NAVIGATION THINNING
@@ -135,15 +137,15 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ4Sequenc
 # Quark-gluon tagging
 truthjetalg='AntiKt4TruthJets'
 if not DFisMC:
-  truthjetalg=None
+    truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ4Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ4Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  TOPQ4Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    TOPQ4Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
 from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables

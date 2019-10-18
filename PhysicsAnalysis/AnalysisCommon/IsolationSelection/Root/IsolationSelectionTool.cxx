@@ -218,15 +218,15 @@ namespace CP {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_plv", "PromptLeptonVeto", "-0.5"));
         } else if (muWPname == "PLVLoose") {
-            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.15*x"));
-            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
+	    wp->addCut(new IsolationConditionFormula("MuonPLV_PreIso", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "max(1800.,0.15*x)"));
             wp->addCut(new IsolationConditionFormula("MuonPLVLooseDefault", "PromptLeptonVeto", "-1.05",true));
-            wp->addCut(new IsolationConditionFormula("MuonPLVLooseBinned", "PromptLeptonVeto", "0.91*(x<6e3)+0.78*(x>=6e3 && x<8e3)+0.66*(x>=8e3 && x<10e3)+0.80*(x>=10e3 && x<15e3)+0.50*(x>=15e3 && x<20e3)+0.50*(x>=20e3 && x<25e3)+0.46*(x>=25e3 && x<30e3)+0.20*(x>=30e3 && x<40e3)-0.20*(x>=40e3 && x<50e3)-0.5*(x>=50e3)"));
+            wp->addCut(new IsolationConditionFormula("MuonPLVLooseSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<18.457e3)*(1.05942  -0.0788936*(x/1000) +0.0058481  *pow((x/1000),2) -0.000186*pow((x/1000),3)) + (x>18.457e3)*(max(-0.88, -0.958651 +3.54785*exp(-(x/1000)/19.6155)))"));
+            wp->addCut(new IsolationConditionFormula("MuonLowPtPLVLooseSmooth", "LowPtPLV", "(x<12e3)*(-0.730525 + 0.215737*(x/1000) -0.014904*pow((x/1000),2) + 0.000335*pow((x/1000),3)) + (x>12e3)*(-2)",true));
         } else if (muWPname == "PLVTight") {
-            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.15*x"));
-            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
+	    wp->addCut(new IsolationConditionFormula("MuonPLV_PreIso", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "max(1800.,0.15*x)"));
             wp->addCut(new IsolationConditionFormula("MuonPLVLooseDefault", "PromptLeptonVeto", "-1.05",true));
-            wp->addCut(new IsolationConditionFormula("MuonPLVTightBinned", "PromptLeptonVeto", "0.63*(x<6e3)+0.41*(x>=6e3 && x<8e3)+0.24*(x>=8e3 && x<10e3)+0.20*(x>=10e3 && x<15e3)-0.16*(x>=15e3 && x<20e3)-0.34*(x>=20e3 && x<25e3)-0.40*(x>=25e3 && x<30e3)-0.42*(x>=30e3 && x<40e3)-0.5*(x>=40e3 && x<50e3)-0.5*(x>=50e3)"));
+            wp->addCut(new IsolationConditionFormula("MuonPLVTightSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<18.603e3)*(0.998203 -0.0597252*(x/1000) -0.000992265*pow((x/1000),2)) + (x>18.603e3)*(max(-0.88, -0.929774 +2.9159 *exp(-(x/1000)/10.2339)))"));
+            wp->addCut(new IsolationConditionFormula("MuonLowPtPLVTightSmooth", "LowPtPLV", "(x<12e3)*(0.207732 + 0.056019*(x/1000) -0.004141*pow((x/1000),2) + 0.000099*pow((x/1000),3)) + (x>12e3)*(-2)",true));
         } else {
             ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
             delete wp;
@@ -362,15 +362,25 @@ namespace CP {
             wp->addCut(new IsolationConditionFormula("ElecFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
             wp->addCut(new IsolationConditionFormula("ElecFixedCutLoose_plv", "PromptLeptonVeto", "-0.5"));
         } else if (elWPname == "PLVLoose") {
-            wp->addCut(new IsolationConditionFormula("ElecFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "0.15*x"));
-            wp->addCut(new IsolationConditionFormula("ElecFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
+	    wp->addCut(new IsolationConditionFormula("ElecPLV_PreIso", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "max(1800.,0.15*x)"));
             wp->addCut(new IsolationConditionFormula("ElecPLVLooseDefault", "PromptLeptonVeto", "-1.05", true));
-            wp->addCut(new IsolationConditionFormula("ElecPLVLooseBinned", "PromptLeptonVeto", "0.95*(x<6e3)+0.90*(x>=6e3 && x<8e3)+0.91*(x>=8e3 && x<10e3)+0.83*(x>=10e3 && x<15e3)+0.70*(x>=15e3 && x<20e3)+0.69*(x>=20e3 && x<25e3)+0.57*(x>=25e3 && x<30e3)+0.60*(x>=30e3 && x<40e3)-0.16*(x>=40e3 && x<50e3)-0.5*(x>=50e3)"));
+            wp->addCut(new IsolationConditionFormula("ElecPLVLooseSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<18.457e3)*(0.960105 -0.0160896*(x/1000) -0.000106967*pow((x/1000),2)) + (x>18.457e3)*(max(-0.88, -0.94386  +3.03257*exp(-(x/1000)/28.0508)))"));
+            wp->addCut(new IsolationConditionFormula("ElecLowPtPLVLooseSmooth", "LowPtPLV", "(x<12e3)*(-1.133747 + 0.243588*(x/1000) -0.016259*pow((x/1000),2) + 0.000345*pow((x/1000),3)) + (x>12e3)*(-2)",true));
+        } else if (elWPname == "PLVLoose_noLooseCone") {
+	    wp->addCut(new IsolationConditionFormula("ElecPLV_PreIso_noLooseCone", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "max(1800.,0.15*x)"));
+            wp->addCut(new IsolationConditionFormula("ElecPLVLooseDefault", "PromptLeptonVeto", "-1.05", true));
+            wp->addCut(new IsolationConditionFormula("ElecPLVLooseSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<18.457e3)*(0.960105 -0.0160896*(x/1000) -0.000106967*pow((x/1000),2)) + (x>18.457e3)*(max(-0.88, -0.94386  +3.03257*exp(-(x/1000)/28.0508)))"));
+            wp->addCut(new IsolationConditionFormula("ElecLowPtPLVLooseSmooth", "LowPtPLV", "(x<12e3)*(-1.133747 + 0.243588*(x/1000) -0.016259*pow((x/1000),2) + 0.000345*pow((x/1000),3)) + (x>12e3)*(-2)",true));
         } else if (elWPname == "PLVTight") {
-            wp->addCut(new IsolationConditionFormula("ElecFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "0.15*x"));
-            wp->addCut(new IsolationConditionFormula("ElecFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
+	    wp->addCut(new IsolationConditionFormula("ElecPLV_PreIso", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "max(1800.,0.15*x)"));
             wp->addCut(new IsolationConditionFormula("ElecPLVLooseDefault", "PromptLeptonVeto", "-1.05", true));
-            wp->addCut(new IsolationConditionFormula("ElecPLVTightBinned", "PromptLeptonVeto", "0.71*(x<6e3)+0.70*(x>=6e3 && x<8e3)+0.69*(x>=8e3 && x<10e3)+0.48*(x>=10e3 && x<15e3)+0.41*(x>=15e3 && x<20e3)+0.23*(x>=20e3 && x<25e3)+0.29*(x>=25e3 && x<30e3)+0.60*(x>=30e3 && x<40e3)-0.16*(x>=40e3 && x<50e3)-0.5*(x>=50e3)"));
+            wp->addCut(new IsolationConditionFormula("ElecPLVTightSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<16.697e3)*(1.13016  -0.0750674*(x/1000) -0.000722487*pow((x/1000),2)) + (x>16.697e3)*(max(-0.88, -0.881497 +2.29469*exp(-(x/1000)/11.5776)))"));
+            wp->addCut(new IsolationConditionFormula("ElecLowPtPLVTightSmooth", "LowPtPLV", "(x<12e3)*(0.152846 + 0.041502*(x/1000) -0.002542*pow((x/1000),2) + 0.000041*pow((x/1000),3)) + (x>12e3)*(-2)",true));
+        } else if (elWPname == "PLVTight_noLooseCone") {
+	    wp->addCut(new IsolationConditionFormula("ElecPLV_PreIso_noLooseCone", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "max(1800.,0.15*x)"));
+            wp->addCut(new IsolationConditionFormula("ElecPLVLooseDefault", "PromptLeptonVeto", "-1.05", true));
+            wp->addCut(new IsolationConditionFormula("ElecPLVTightSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<16.697e3)*(1.13016  -0.0750674*(x/1000) -0.000722487*pow((x/1000),2)) + (x>16.697e3)*(max(-0.88, -0.881497 +2.29469*exp(-(x/1000)/11.5776)))"));
+            wp->addCut(new IsolationConditionFormula("ElecLowPtPLVTightSmooth", "LowPtPLV", "(x<12e3)*(0.152846 + 0.041502*(x/1000) -0.002542*pow((x/1000),2) + 0.000041*pow((x/1000),3)) + (x>12e3)*(-2)",true));
 	} else {
 	  ATH_MSG_ERROR("Unknown electron isolation WP: " << elWPname);
             delete wp;
