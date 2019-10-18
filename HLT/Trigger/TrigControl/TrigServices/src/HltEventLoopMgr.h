@@ -82,8 +82,6 @@ public:
   virtual StatusCode start() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode reinitialize() override;
-  virtual StatusCode restart() override;
   ///@}
 
   /// @name State transitions of ITrigEventLoopMgr interface
@@ -210,9 +208,6 @@ private:
   Gaudi::Property<std::string> m_whiteboardName{
     this, "WhiteboardSvc", "EventDataSvc", "Name of the Whiteboard"};
 
-  Gaudi::Property<std::vector<std::string> > m_topAlgNames{
-    this, "TopAlg", {}, "List of top level algorithms names"};
-
   Gaudi::Property<float> m_hardTimeout{
     this, "HardTimeout", 10*60*1000/*=10min*/, "Hard event processing timeout in milliseconds"};
 
@@ -273,8 +268,6 @@ private:
   size_t m_localEventNumber{0};
   /// Event selector context
   IEvtSelector::Context* m_evtSelContext{nullptr};
-  /// Vector of top level algorithms
-  std::vector<SmartIF<IAlgorithm> > m_topAlgList;
   /// Vector of event start-processing time stamps in each slot
   std::vector<std::chrono::steady_clock::time_point> m_eventTimerStartPoint;
   /// Vector of flags to tell if a slot is idle or processing
