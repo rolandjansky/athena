@@ -132,4 +132,10 @@ def TRT_OverlayDigitizationTool(name="TRT_OverlayDigitizationTool",**kwargs):
 
 def TRT_OverlayDigitization(name="TRT_OverlayDigitization",**kwargs):
     kwargs.setdefault("DigitizationTool", "TRT_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     return CfgMgr.TRTDigitization(name,**kwargs)
