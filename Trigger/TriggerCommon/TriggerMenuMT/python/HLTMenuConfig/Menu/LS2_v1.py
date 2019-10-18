@@ -205,7 +205,7 @@ def setupMenu():
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
     TriggerFlags.MonitorSlice.signatures   = [
-        ChainProp(name='HLT_costmonitor_CostMonDS_L1TE5',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
+        ChainProp(name='HLT_costmonitor_CostMonDS_L1All',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
