@@ -34,30 +34,19 @@ TCS::ExclusiveJets::ExclusiveJets(const string & name) : DecisionAlg(name)
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 6);
-   defineParameter("MinXi",  0, 0);
-   defineParameter("MaxXi", 999, 0);
-   defineParameter("MinXi",  0, 1);
-   defineParameter("MaxXi",  999, 1);
-   defineParameter("MinXi", 0, 2);
-   defineParameter("MaxXi", 999, 2);
-   defineParameter("MinXi", 0, 3);
-   defineParameter("MaxXi", 999, 3);
-   defineParameter("MinXi", 0, 4);
-   defineParameter("MaxXi", 999, 4);
-   defineParameter("MinXi", 0, 5);
-   defineParameter("MaxXi", 999, 5);
-   defineParameter("MinET1",0,0);
-   defineParameter("MinET1",0,1);
-   defineParameter("MinET1",0,2);
-   defineParameter("MinET1",0,3);
-   defineParameter("MinET1",0,4);
-   defineParameter("MinET1",0,5);
-   defineParameter("ApplyEtaCut", 0);
-   defineParameter("MinEta1",  0);
-   defineParameter("MaxEta1", 31);
-   defineParameter("MinEta2",  0);
-   defineParameter("MaxEta2", 31);
    setNumberOutputBits(6);
+
+   for (unsigned int i=0;i<numberOutputBits();i++){
+     defineParameter("MinXi",  0, i);
+     defineParameter("MaxXi", 999, i);
+     defineParameter("MinET1",0,i);
+     defineParameter("ApplyEtaCut",0,i);
+     defineParameter("MinEta1",0,i);
+     defineParameter("MaxEta1",999,i);
+     defineParameter("MinEta2",0,i);
+     defineParameter("MaxEta2",999,i);
+   }
+
 }
 TCS::ExclusiveJets::~ExclusiveJets(){}
 TCS::StatusCode
@@ -68,43 +57,51 @@ TCS::ExclusiveJets::initialize() {
       p_NumberLeading1 = parameter("InputWidth").value();
    }
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-      p_XiMin[i] = parameter("MinXi", i).value();
-      p_XiMax[i] = parameter("MaxXi", i).value();
-   
-      p_MinET1[i] = parameter("MinET1",i).value();
+     p_XiMin[i] = parameter("MinXi", i).value();
+     p_XiMax[i] = parameter("MaxXi", i).value();
+     
+     p_MinET1[i] = parameter("MinET1",i).value();
+     
+     p_ApplyEtaCut[i] = parameter("ApplyEtaCut",i).value();
+     p_MinEta1[i]     = parameter("MinEta1"    ,i).value();
+     p_MaxEta1[i]     = parameter("MaxEta1"    ,i).value();
+     p_MinEta2[i]     = parameter("MinEta2"    ,i).value();
+     p_MaxEta2[i]     = parameter("MaxEta2"    ,i).value();
    }
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-      TRG_MSG_INFO("XiMin   : " << p_XiMin[i]);
-      TRG_MSG_INFO("XiMax   : " << p_XiMax[i]);
+     TRG_MSG_INFO("XiMin   : " << p_XiMin[i]);
+     TRG_MSG_INFO("XiMax   : " << p_XiMax[i]);
    
-      TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
-   }
+     TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
+     
+     TRG_MSG_INFO("ApplyEtaCut : "<<p_ApplyEtaCut[i] );
+     
+     TRG_MSG_INFO("MinEta1     : "<<p_MinEta1[i]     );
+     TRG_MSG_INFO("MaxEta1     : "<<p_MaxEta1[i]     );
+     TRG_MSG_INFO("MinEta2     : "<<p_MinEta2[i]     );
+     TRG_MSG_INFO("MaxEta2     : "<<p_MaxEta2[i]     );
+  }
    
-   p_ApplyEtaCut = parameter("ApplyEtaCut").value();
-   p_MinEta1     = parameter("MinEta1"    ).value();
-   p_MaxEta1     = parameter("MaxEta1"    ).value();
-   p_MinEta2     = parameter("MinEta2"    ).value();
-   p_MaxEta2     = parameter("MaxEta2"    ).value();
-   TRG_MSG_INFO("ApplyEtaCut : "<<p_ApplyEtaCut );
-   TRG_MSG_INFO("MinEta1     : "<<p_MinEta1     );
-   TRG_MSG_INFO("MaxEta1     : "<<p_MaxEta1     );
-   TRG_MSG_INFO("MinEta2     : "<<p_MinEta2     );
-   TRG_MSG_INFO("MaxEta2     : "<<p_MaxEta2     );
    TRG_MSG_INFO("number output : " << numberOutputBits());
    for (unsigned int i=0; i<numberOutputBits();i++) {
        const int buf_len = 512;
        char hname_accept[buf_len], hname_reject[buf_len];
+       int eta1_min = p_MinEta1[i];
+       int eta1_max = p_MaxEta1[i];
+       int eta2_min = p_MinEta1[i];
+       int eta2_max = p_MaxEta1[i];
+       int et_min = p_MinET1[i];
        int xi_min = p_XiMin[i];
        int xi_max = p_XiMax[i];
        // mass histograms
-       snprintf(hname_accept, buf_len, "Accept_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, xi_min, xi_max);
-       snprintf(hname_reject, buf_len, "Reject_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, xi_min, xi_max);
+       snprintf(hname_accept, buf_len, "Accept_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
+       snprintf(hname_reject, buf_len, "Reject_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
        registerHist(m_histAcceptExclusiveJets[i] = new TH2F(hname_accept, hname_accept, 100, 0.0, 2*xi_max, 100, 0.0, 2*xi_max));
        registerHist(m_histRejectExclusiveJets[i] = new TH2F(hname_reject, hname_reject, 100, 0.0, 2*xi_max, 100, 0.0, 2*xi_max));
        // eta2 vs. eta1
-       snprintf(hname_accept, buf_len, "Accept_%s_%s_bit%d_%dM%d_Eta1Eta2", name().c_str(), className().c_str(), i, xi_min, xi_max);
-       snprintf(hname_reject, buf_len, "Reject_%s_%s_bit%d_%dM%d_Eta1Eta2", name().c_str(), className().c_str(), i, xi_min, xi_max);
+       snprintf(hname_accept, buf_len, "Accept_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d_Eta1Eta2", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
+       snprintf(hname_reject, buf_len, "Reject_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d_Eta1Eta2", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
        registerHist(m_histAcceptEta1Eta2[i] = new TH2F(hname_accept, hname_accept, 100, -50.0, +50.0, 100, -50.0, +50.0));
        registerHist(m_histRejectEta1Eta2[i] = new TH2F(hname_reject, hname_reject, 100, -50.0, +50.0, 100, -50.0, +50.0));
    }
@@ -127,21 +124,23 @@ TCS::ExclusiveJets::processBitCorrect( const vector<TCS::TOBArray const *> & inp
             for( ;
                  tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading1;
                  ++tob2) {
-               
-	      double xi_1 = (1.4*parType_t((*tob1)->Et())+20.)*exp(0.1*(*tob1)->eta())+(1.4*parType_t((*tob2)->Et())+20.)*exp(0.1*(*tob2)->eta());
-	      double xi_2 = (1.4*parType_t((*tob1)->Et())+20.)*exp(-.1*(*tob1)->eta())+(1.4*parType_t((*tob2)->Et())+20.)*exp(-.1*(*tob2)->eta());
+	      
+	      //In the ticket ATR-17320, pT_offline were defined as A*pT_L1+B, where A=1.4 and B=20 for run2
+	      //A and B definition might change according to run3 configuration.               
+	      double xi_1 = (1.4*parType_t((*tob1)->Et())+20.)*exp((*tob1)->etaDouble())+(1.4*parType_t((*tob2)->Et())+20.)*exp((*tob2)->etaDouble());
+	      double xi_2 = (1.4*parType_t((*tob1)->Et())+20.)*exp(-1.*(*tob1)->etaDouble())+(1.4*parType_t((*tob2)->Et())+20.)*exp(-1.*(*tob2)->etaDouble());
+	      
 	      const int eta1 = (*tob1)->eta();
 	      const int eta2 = (*tob2)->eta();
 	      const unsigned int aeta1 = std::abs(eta1);
 	      const unsigned int aeta2 = std::abs(eta2);
-	      
 	      for(unsigned int i=0; i<numberOutputBits(); ++i) {
 		bool accept = false;
 		if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 		if( parType_t((*tob2)->Et()) <= p_MinET1[i]) continue; // ET cut
-		if(p_ApplyEtaCut &&
-		   ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
-		    (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) ))  continue;
+		if(p_ApplyEtaCut[i] &&
+		   ((aeta1 < p_MinEta1[i] || aeta1 > p_MaxEta1[i] ) ||
+		    (aeta2 < p_MinEta2[i] || aeta2 > p_MaxEta2[i] ) ))  continue;
 		
 		accept = (xi_1 >p_XiMin[i]) && (xi_1 < p_XiMax[i]) && (xi_2 > p_XiMin[i]) && (xi_2 < p_XiMax[i]); //
 		const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
@@ -184,9 +183,11 @@ TCS::ExclusiveJets::process( const vector<TCS::TOBArray const *> & input,
             for( ;
                  tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading1;
                  ++tob2) {
-               
-	      double xi_1 = (1.4*parType_t((*tob1)->Et())+20.)*exp(0.1*(*tob1)->eta())+(1.4*parType_t((*tob2)->Et())+20.)*exp(0.1*(*tob2)->eta());
-	      double xi_2 = (1.4*parType_t((*tob1)->Et())+20.)*exp(-.1*(*tob1)->eta())+(1.4*parType_t((*tob2)->Et())+20.)*exp(-.1*(*tob2)->eta());
+
+	      //In the ticket ATR-17320, pT_offline were defined as A*pT_L1+B, where A=1.4 and B=20 for run2
+	      //A and B definition might change according to run3 configuration.
+	      double xi_1 = (1.4*parType_t((*tob1)->Et())+20.)*exp((*tob1)->etaDouble())+(1.4*parType_t((*tob2)->Et())+20.)*exp((*tob2)->etaDouble());
+	      double xi_2 = (1.4*parType_t((*tob1)->Et())+20.)*exp(-1.*(*tob1)->etaDouble())+(1.4*parType_t((*tob2)->Et())+20.)*exp(-1.*(*tob2)->etaDouble());
 	      
 	      const int eta1 = (*tob1)->eta();
 	      const int eta2 = (*tob2)->eta();
@@ -196,11 +197,11 @@ TCS::ExclusiveJets::process( const vector<TCS::TOBArray const *> & input,
 		bool accept = false;
 		if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 		if( parType_t((*tob2)->Et()) <= p_MinET1[i]) continue; // ET cut
-		if(p_ApplyEtaCut &&
-		   ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
-		    (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) )) continue;
+		if(p_ApplyEtaCut[i] &&
+		   ((aeta1 < p_MinEta1[i] || aeta1 > p_MaxEta1[i] ) ||
+		    (aeta2 < p_MinEta2[i] || aeta2 > p_MaxEta2[i] ) )) continue;
 		
-		accept = (xi_1 > p_XiMin[i]) && (xi_1 < p_XiMax[i]) && (xi_2 > p_XiMin[i]) && (xi_2 < p_XiMax[i]); //
+		accept = (xi_1 >p_XiMin[i]) && (xi_1 < p_XiMax[i]) && (xi_2 > p_XiMin[i]) && (xi_2 < p_XiMax[i]); //
 		const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
 		const bool fillReject = fillHistos() and not fillAccept;
 		const bool alreadyFilled = decision.bit(i);

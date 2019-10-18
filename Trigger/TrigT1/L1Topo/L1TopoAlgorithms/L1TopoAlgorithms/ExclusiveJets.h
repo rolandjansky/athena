@@ -28,15 +28,15 @@ namespace TCS {
       parType_t      p_MinET1[6] = { 0 ,0,0,0,0,0};
       parType_t      p_XiMin[6] = { 0,0,0,0,0,0 };
       parType_t      p_XiMax[6] = { 0,0,0,0,0,0 };
-      parType_t      p_ApplyEtaCut = { 0 };
-      parType_t      p_MinEta1 = { 0 };
-      parType_t      p_MaxEta1 = { 0 };
-      parType_t      p_MinEta2 = { 0 };
-      parType_t      p_MaxEta2 = { 0 };
-      TH1 * m_histAcceptExclusiveJets[6] = {};
-      TH1 * m_histRejectExclusiveJets[6] = {};
-      TH2 * m_histAcceptEta1Eta2[6] = {};
-      TH2 * m_histRejectEta1Eta2[6] = {};
+      parType_t      p_ApplyEtaCut[6] = { 0,0,0,0,0,0 };
+      parType_t      p_MinEta1[6] = { 0,0,0,0,0,0 };
+      parType_t      p_MaxEta1[6] = { 0,0,0,0,0,0 };
+      parType_t      p_MinEta2[6] = { 0,0,0,0,0,0 };
+      parType_t      p_MaxEta2[6] = { 0,0,0,0,0,0 };
+      TH2F * m_histAcceptExclusiveJets[6] = {};
+      TH2F * m_histRejectExclusiveJets[6] = {};
+      TH2F * m_histAcceptEta1Eta2[6] = {};
+      TH2F * m_histRejectEta1Eta2[6] = {};
    };
    
 }
