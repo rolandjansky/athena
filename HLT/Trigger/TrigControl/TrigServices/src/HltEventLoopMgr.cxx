@@ -7,6 +7,7 @@
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
 #include "TrigSORFromPtreeHelper.h"
+#include "TrigRDBManager.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
@@ -415,6 +416,9 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
     // close any open files (e.g. THistSvc)
     ATH_CHECK(m_ioCompMgr->io_finalize());
+
+    // close open DB connections
+    ATH_CHECK(TrigRDBManager::closeDBConnections(m_dbIdleWait, msg()));
 
     // Assert that scheduler has not been initialised before forking
     SmartIF<IService> svc = serviceLocator()->service(m_schedulerName, /*createIf=*/ false);
