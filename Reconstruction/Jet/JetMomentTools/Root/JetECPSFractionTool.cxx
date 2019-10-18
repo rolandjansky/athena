@@ -47,10 +47,6 @@ StatusCode JetECPSFractionTool::initialize(){
 StatusCode JetECPSFractionTool::decorate(const xAOD::JetContainer& jets) const {
 
   SG::WriteDecorHandle<xAOD::JetContainer, float> fracHandle(m_fracKey);
-  if(fracHandle.ptr() != &jets){
-    ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
-    return StatusCode::FAILURE;
-  }
 
   for(const xAOD::Jet* jet : jets) fracHandle(*jet) = energyFraction(*jet);
   return StatusCode::SUCCESS;

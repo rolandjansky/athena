@@ -42,10 +42,6 @@ StatusCode JetVoronoiMomentsTool::initialize() {
 StatusCode JetVoronoiMomentsTool::decorate(const xAOD::JetContainer& jets) const {
 
     SG::WriteDecorHandle<xAOD::JetContainer, float> outputHandle(m_voronoiAreaKey);
-    if(outputHandle.ptr() != &jets){
-      ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
-      return StatusCode::FAILURE;
-    }
 
     // setup diagram class
     Diagram voro ("VoronoiDiagram");

@@ -37,10 +37,6 @@ StatusCode JetLArHVTool::decorate(const xAOD::JetContainer& jets) const
 
   SG::WriteDecorHandle<xAOD::JetContainer, float> fracHandle(m_fracKey);
   SG::WriteDecorHandle<xAOD::JetContainer, int> nCellHandle(m_nCellKey);
-  if(fracHandle.ptr() != &jets){
-    ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
-    return StatusCode::FAILURE;
-  }
 
   for(const xAOD::Jet* jet : jets){
 

@@ -139,6 +139,7 @@ class JetToolManager:
   def configureContainerName(self, modifiers, containerName):
     for mod in modifiers:
       if "JetContainer" in mod.properties():
+        print "configuring " + mod.name() + " to have container name " + containerName
         mod.JetContainer = containerName
 
   # Return the list of modifiers associated with a name.

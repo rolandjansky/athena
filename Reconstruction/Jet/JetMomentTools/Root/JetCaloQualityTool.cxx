@@ -28,7 +28,7 @@ StatusCode JetCaloQualityTool::decorate(const xAOD::JetContainer& jets) const
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Inside decorate() method" << endmsg;
 
-  bool checkedContainer = false;
+  //bool checkedContainer = false;
   const size_t nDecorations = m_writeDecorKeys.size();
 
   if(m_doFracSamplingMax==true){
@@ -39,14 +39,6 @@ StatusCode JetCaloQualityTool::decorate(const xAOD::JetContainer& jets) const
     // We specifically put these in last earlier
     SG::WriteDecorHandle<xAOD::JetContainer, float> maxHandle(m_writeDecorKeys.at(nDecorations-2));
     SG::WriteDecorHandle<xAOD::JetContainer, int> samplingHandle(m_writeDecorKeys.at(nDecorations-1));
-
-    // Make sure the user passed in the right jet container
-    if(maxHandle.ptr() != &jets){
-      ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
-      return StatusCode::FAILURE;
-    }
-    else
-      checkedContainer = true;
 
     for(const xAOD::Jet* jet : jets){
       int sampling=-1;
@@ -66,16 +58,6 @@ StatusCode JetCaloQualityTool::decorate(const xAOD::JetContainer& jets) const
     for(size_t i=0;i < m_calcProcessor->numCalculators();i++) {
       // We inserted WriteDecorKeys in the same order as calculators
       SG::WriteDecorHandle<xAOD::JetContainer, float> decHandle(m_writeDecorKeys.at(i));
-
-      // Make sure the user passed in the right jet container (only need to do once)
-      if(!checkedContainer){
-        if(decHandle.ptr() != &jets){
-          ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
-          return StatusCode::FAILURE;
-        }
-        else
-          checkedContainer = true;
-      }
 
       const JetCaloCalculator* calc = m_calcProcessor->at(i);
       ATH_MSG_DEBUG( calc->name() << "   -> "<<results[i] );

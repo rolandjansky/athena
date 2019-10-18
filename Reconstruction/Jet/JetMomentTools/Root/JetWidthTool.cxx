@@ -43,11 +43,6 @@ StatusCode JetWidthTool::decorate(const xAOD::JetContainer& jets) const {
   SG::WriteDecorHandle<xAOD::JetContainer, float> widthHandle(m_widthKey);
   SG::WriteDecorHandle<xAOD::JetContainer, float> widthPhiHandle(m_widthPhiKey);
 
-  if(widthHandle.ptr() != &jets){
-    ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
-    return StatusCode::FAILURE;
-  }
-
   for(const xAOD::Jet* jet : jets){
     float widthEta = 0, widthPhi = 0;
     widthHandle(*jet) = width(*jet,widthEta,widthPhi);
