@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeHijingPars.h"
@@ -7,29 +7,18 @@
 #include "PileUpTools/IPileUpTool.h"
 
 MergeHijingPars::MergeHijingPars(const std::string& name, ISvcLocator* svcLoc)
-  : AthAlgorithm(name, svcLoc),
-    m_mergeTool("MergeHijingParsTool", this)
+  : AthAlgorithm(name, svcLoc)
 {
-  declareProperty("MergeHijingParsTool", m_mergeTool);
 }
 
 StatusCode MergeHijingPars::initialize() {
-  ATH_MSG_DEBUG ( "Initializing " << name() << " - package version " << PACKAGE_VERSION ); 
-  if(m_mergeTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve MergeHijingParsTool!");
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG ( "Initializing " << name() );
+  ATH_CHECK(m_mergeTool.retrieve());
   ATH_MSG_DEBUG("Retrieved MergeHijingParsTool (" << m_mergeTool->name() << ").");
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode MergeHijingPars::execute() {
-  ATH_MSG_DEBUG("execute()");  
+  ATH_MSG_DEBUG("execute()");
   return m_mergeTool->processAllSubEvents();
-}
-
-StatusCode MergeHijingPars::finalize() {
-  ATH_MSG_DEBUG("finalize.");
-  return StatusCode::SUCCESS;
 }
