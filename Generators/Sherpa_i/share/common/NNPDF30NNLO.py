@@ -1,6 +1,3 @@
-## Sherpa config with NNPDF3.0 NNLO PDF
-include("Sherpa_i/2.2.7_Base_Fragment.py")
-
 evgenConfig.tune = "NNPDF3.0 NNLO"
 
 genSeq.Sherpa_i.Parameters += [

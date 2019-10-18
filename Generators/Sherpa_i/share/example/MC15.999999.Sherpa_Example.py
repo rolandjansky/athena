@@ -1,4 +1,5 @@
-include("Sherpa_i/2.2.7_NNPDF30NNLO.py")
+include("Sherpa_i/Base_Fragment.py")
+include("Sherpa_i/NNPDF30NNLO.py")
 
 evgenConfig.description = "Sherpa 2.2.x example JO, Z+0,1-jet production."
 evgenConfig.keywords = [ "2lepton" ]
