@@ -154,7 +154,7 @@ if opt.doWriteESD:
 
 if configureBSResult:
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
-    from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool # TODO: TriggerBitsMakerTool
+    from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool, TriggerBitsMakerTool
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
@@ -165,8 +165,6 @@ if configureBSResult:
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerTool()
-    stmaker.ChainDecisions = 'HLTNav_Summary'
-    stmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
     import AthenaCommon.AlgSequence as acas
@@ -178,10 +176,12 @@ if configureBSResult:
             __log.debug('Chain %s produces decision %s with PEBInfo', chain, decisionKey)
             stmaker.PEBDecisionKeys.append(decisionKey)
 
+    bitsmaker = TriggerBitsMakerTool()
+
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
-    hltResultMaker.MakerTools = [stmaker, serialiser] # TODO: add bits maker
+    hltResultMaker.MakerTools = [stmaker, serialiser, bitsmaker]
 
 # Debugging for view cross-dependencies
 if opt.reverseViews:

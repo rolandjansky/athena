@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: xAODMenuWriter.cxx 717661 2016-01-14 08:16:47Z tbold $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -21,45 +19,46 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 
 // EDM include(s):
-#include "xAODTrigger/TrigConfKeys.h"
 #include "xAODTrigger/TriggerMenu.h"
 #include "xAODTrigger/TriggerMenuAuxContainer.h"
 
 // Local include(s):
-#include "xAODMenuWriter.h"
+#include "xAODMenuWriterMT.h"
 #include "PrintVectorHelper.h"
+
 
 namespace TrigConf {
 
-   xAODMenuWriter::xAODMenuWriter( const std::string& name,
-                                   ISvcLocator* svcLoc )
-      : AthAlgorithm( name, svcLoc ),
+   xAODMenuWriterMT::xAODMenuWriterMT( const std::string& name,
+                                       ISvcLocator* svcLoc )
+      : AthReentrantAlgorithm( name, svcLoc ),
         m_trigConf( "TrigConfigSvc", name ),
         m_metaStore( "MetaDataStore", name ),
-        m_tmc( 0 ) {
-
-      declareProperty( "EventObjectName", m_eventName = "TrigConfKeys" );
-      declareProperty( "MetaObjectName", m_metaName = "TriggerMenu" );
-      declareProperty( "OverwriteEventObj", m_overwriteEventObj = false );
-
-      declareProperty( "TrigConfigSvc", m_trigConf );
-      declareProperty( "MetaDataStore", m_metaStore );
+        m_tmc( nullptr ) {
    }
 
-   StatusCode xAODMenuWriter::initialize() {
+   xAODMenuWriterMT::~xAODMenuWriterMT() {
+   }
+
+   StatusCode xAODMenuWriterMT::initialize() {
 
       // Greet the user:
       ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
       ATH_MSG_DEBUG( "EventObjectName   = " << m_eventName );
       ATH_MSG_DEBUG( "MetaObjectName    = " << m_metaName );
-      ATH_MSG_DEBUG( "OverwriteEventObj = "
-                     << ( m_overwriteEventObj ? "Yes" : "No" ) );
       ATH_MSG_VERBOSE( "TrigConfigSvc = " << m_trigConf );
       ATH_MSG_VERBOSE( "MetaDataStore = " << m_metaStore );
 
       // Retrieve the necessary service(s):
       CHECK( m_trigConf.retrieve() );
       CHECK( m_metaStore.retrieve() );
+
+      CHECK( m_eventName.initialize() ); // WriteHandleKey
+
+      if (m_isJSONConfig) {
+         CHECK( m_HLTMenuKey.initialize() ); // ReadHandleKey
+         CHECK( m_L1MenuKey.initialize() ); // ReadHandleKey
+      }
 
       // Clear the internal cache variable:
       m_convertedKeys.clear();
@@ -77,31 +76,24 @@ namespace TrigConf {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode xAODMenuWriter::execute() {
+   StatusCode xAODMenuWriterMT::execute(const EventContext& ctx) const {
 
-      // Check if the event-level object exists already:
-      if( ( ! evtStore()->contains< xAOD::TrigConfKeys >( m_eventName ) ) ||
-          m_overwriteEventObj ) {
+      std::unique_ptr<xAOD::TrigConfKeys> keys = std::make_unique<xAOD::TrigConfKeys>(
+         m_trigConf->masterKey(),
+         m_trigConf->lvl1PrescaleKey(),
+         m_trigConf->hltPrescaleKey() );
 
-         // Create the trigger configuration keys for the event data:
-         xAOD::TrigConfKeys* keys =
-            new xAOD::TrigConfKeys( m_trigConf->masterKey(),
-                                    m_trigConf->lvl1PrescaleKey(),
-                                    m_trigConf->hltPrescaleKey() );
-
-         // Now record it:
-         if( m_overwriteEventObj ) {
-            CHECK( evtStore()->overwrite( keys, m_eventName, false ) );
-         } else {
-            CHECK( evtStore()->record( keys, m_eventName ) );
-         }
-      }
+      SG::WriteHandle<xAOD::TrigConfKeys> trigConfKeysWrite(m_eventName, ctx);
+      ATH_CHECK( trigConfKeysWrite.record( std::move(keys) ) );
 
       // Create the keys in the "internal format":
-      TrigKey_t ckeys =
+      const TrigKey_t ckeys =
          std::make_pair( m_trigConf->masterKey(),
                          std::make_pair( m_trigConf->lvl1PrescaleKey(),
                                          m_trigConf->hltPrescaleKey() ) );
+
+      // The followign code must only run on one event at a time
+      std::lock_guard<std::mutex> lock(m_mutex);
 
       // Check if we converted this configuration already:
       if( ! m_convertedKeys.insert( ckeys ).second ) {
@@ -119,7 +111,7 @@ namespace TrigConf {
 
       // Apparently not, so let's make a new object:
       xAOD::TriggerMenu* menu = new xAOD::TriggerMenu();
-      m_tmc->push_back( menu );
+      m_tmc->push_back( menu ); // Now owned by MetaDataStore
 
       //
       // Set its keys:
@@ -128,6 +120,136 @@ namespace TrigConf {
       menu->setL1psk( m_trigConf->lvl1PrescaleKey() );
       menu->setHLTpsk( m_trigConf->hltPrescaleKey() );
 
+      if (m_isJSONConfig) {
+         CHECK( populateFromJSON(menu, ctx) );
+      } else {
+         CHECK( populateFromTrigConf(menu) );
+      }
+
+      CHECK( populateBunchGroup(menu) ); 
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode xAODMenuWriterMT::populateFromJSON(xAOD::TriggerMenu* menu, const EventContext& ctx) const {
+      //
+      // Set its LVL1 information:
+      //
+      ATH_MSG_DEBUG( "Filling LVL1 information" );
+      SG::ReadHandle<TrigConf::L1Menu> l1MenuHandle = SG::makeHandle( m_L1MenuKey, ctx );
+      ATH_CHECK( l1MenuHandle.isValid() );
+      const size_t nL1Items = l1MenuHandle->size();
+      ATH_MSG_DEBUG("Configuring from " << m_L1MenuKey << " with " << nL1Items << " L1 items");
+
+      std::vector< uint16_t > ctpIds;
+      std::vector< std::string > itemNames;
+      std::vector< float > itemPrescales;
+
+      ctpIds.reserve(nL1Items);
+      itemNames.reserve(nL1Items);
+      itemPrescales.reserve(nL1Items);
+
+      for (const TrigConf::L1Item& l1 : *l1MenuHandle) {
+         // Extract the information:
+         ctpIds.push_back( l1.ctpId() );
+         itemNames.push_back( l1.name() );
+         itemPrescales.push_back( 1.0 ); // TODO
+
+         // Some verbose information:
+         ATH_MSG_VERBOSE( "  \"" << itemNames.back() << "\" CTP Id = "
+                          << ctpIds.back() << ", prescale = "
+                          << itemPrescales.back() );
+      }
+
+      menu->setItemCtpIds( ctpIds );
+      menu->setItemNames( itemNames );
+      menu->setItemPrescales( itemPrescales );
+
+      //
+      // Set its HLT information:
+      //
+      ATH_MSG_DEBUG( "Filling HLT information" );
+      SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle( m_HLTMenuKey, ctx );
+      ATH_CHECK( hltMenuHandle.isValid() );
+      const size_t nChains = hltMenuHandle->size();
+      ATH_MSG_DEBUG("Configuring from " << m_HLTMenuKey << " with " << nChains << " chains");
+
+      std::vector< uint16_t > chainIds;
+      std::vector< std::string > chainNames, chainParentNames;
+      std::vector< float > chainPrescales, chainRerunPrescales,
+         chainPassthroughPrescales;
+
+      std::vector< std::vector< uint32_t > > chainSignatureCounters;
+      std::vector< std::vector< int > > chainSignatureLogics;
+      std::vector< std::vector< std::vector< std::string > > > chainSignatureOutputTEs;
+      std::vector< std::vector< std::string > > chainSignatureLabels;
+
+      chainIds.reserve(nChains);
+      chainNames.reserve(nChains);
+      chainParentNames.reserve(nChains);
+      chainPrescales.reserve(nChains);
+      chainRerunPrescales.reserve(nChains);
+      chainPassthroughPrescales.reserve(nChains);
+
+      chainSignatureCounters.reserve(nChains);
+      chainSignatureLogics.reserve(nChains);
+      chainSignatureOutputTEs.reserve(nChains);
+      chainSignatureLabels.reserve(nChains);
+
+      for (const TrigConf::Chain& ch : *hltMenuHandle) {
+         // Extract the information:
+         chainIds.push_back( ch.counter() );
+         chainNames.push_back( ch.name() );
+         chainParentNames.push_back( ch.l1item() );
+         chainPrescales.push_back( 1.0 ); // TODO
+         chainRerunPrescales.push_back( -1.0 ); // TODO
+         chainPassthroughPrescales.push_back( 0.0 ); // Unused in Run3
+
+         std::vector<uint32_t> counters;
+         std::vector<int> logics;
+         std::vector<std::vector<std::string> > outputTEs;
+         std::vector<std::string> labels;
+
+         // Per-step algorithms is TODO, these are blank for now.
+
+         chainSignatureCounters.push_back(counters);
+         chainSignatureLogics.push_back(logics);
+         chainSignatureOutputTEs.push_back(outputTEs);
+         chainSignatureLabels.push_back(labels);
+
+         // Some verbose information:
+         ATH_MSG_VERBOSE( "  \"" << chainNames.back() << "\" Chain Id = "
+                          << chainIds.back() << ", parent name = \""
+                          << chainParentNames.back() << "\", prescale = "
+                          << chainPrescales.back() << ", re-run prescale = "
+                          << chainRerunPrescales.back()
+                          << ", pass-through presclale = "
+                          << chainPassthroughPrescales.back() );
+      }
+
+      menu->setChainIds( chainIds );
+      menu->setChainNames( chainNames );
+      menu->setChainParentNames( chainParentNames );
+      menu->setChainPrescales( chainPrescales );
+      menu->setChainRerunPrescales( chainRerunPrescales );
+      menu->setChainPassthroughPrescales( chainPassthroughPrescales );
+
+      menu->setChainSignatureCounters(chainSignatureCounters);
+      menu->setChainSignatureLogics(chainSignatureLogics);
+      menu->setChainSignatureOutputTEs(chainSignatureOutputTEs);
+      menu->setChainSignatureLabels(chainSignatureLabels);
+
+      //
+      // Set its sequence information:
+      //
+      // TODO
+
+      return StatusCode::SUCCESS;
+   }
+
+
+   StatusCode xAODMenuWriterMT::populateFromTrigConf(xAOD::TriggerMenu* menu) const {
       //
       // Set its LVL1 information:
       //
@@ -224,7 +346,6 @@ namespace TrigConf {
       menu->setChainPrescales( chainPrescales );
       menu->setChainRerunPrescales( chainRerunPrescales );
       menu->setChainPassthroughPrescales( chainPassthroughPrescales );
-      menu->setChainSignatureCounters(chainSignatureCounters);
 
       menu->setChainSignatureCounters(chainSignatureCounters);
       menu->setChainSignatureLogics(chainSignatureLogics);
@@ -248,7 +369,7 @@ namespace TrigConf {
          sequenceOutputTE.push_back(seq->outputTE()->name());
 
          ATH_MSG_VERBOSE("original sequence: \n" << *seq);
-	
+
          ATH_MSG_VERBOSE("added sequence with: ");
          ATH_MSG_VERBOSE("  inputTEs: " << sequenceInputTEs.back());
          ATH_MSG_VERBOSE("     algos: " << sequenceAlgorithms.back());
@@ -259,6 +380,10 @@ namespace TrigConf {
       menu->setSequenceOutputTEs(sequenceOutputTE);
       menu->setSequenceAlgorithms(sequenceAlgorithms);
 
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode xAODMenuWriterMT::populateBunchGroup(xAOD::TriggerMenu* menu) const {
       //
       // Set its bunch-group information:
       //
@@ -282,7 +407,6 @@ namespace TrigConf {
       }
       menu->setBunchGroupBunches( bgs );
 
-      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 

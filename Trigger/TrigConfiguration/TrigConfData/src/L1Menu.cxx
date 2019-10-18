@@ -38,23 +38,19 @@ TrigConf::L1Menu::ctpVersion() const
 std::size_t 
 TrigConf::L1Menu::size() const
 {
-   try {
-      return m_data.get_child("menu.items").size();
-   } catch(boost::property_tree::ptree_bad_path &) {
-      return m_data.get_child("items").size();
-   }
+   return m_data.get_child("items").size();
 }
 
 TrigConf::L1Menu::const_iterator
 TrigConf::L1Menu::begin() const
 {
-   return {m_data.get_child("menu.items"), 0,  [](auto x){return L1Item(x.second);}};
+   return {m_data.get_child("items"), 0,  [](auto x){return L1Item(x.second);}};
 }
 
 TrigConf::L1Menu::const_iterator
 TrigConf::L1Menu::end() const
 {
-   const auto & items = m_data.get_child("menu.items");
+   const auto & items = m_data.get_child("items");
    return {items, items.size(), [](auto x){return L1Item(x.second);}};
 }
 

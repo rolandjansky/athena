@@ -34,6 +34,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfIO
                           Control/AthContainersRoot)
 
+
 find_package( tdaq-common COMPONENTS eformat )
 find_package( Boost )
 

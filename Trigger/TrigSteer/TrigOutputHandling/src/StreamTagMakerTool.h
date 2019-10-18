@@ -31,7 +31,7 @@ public:
   StreamTagMakerTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~StreamTagMakerTool() override;
 
-  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
+  virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
 
   virtual StatusCode initialize() override;
 
@@ -53,14 +53,11 @@ private:
   Gaudi::Property<bool> m_allowRerunChains {this, "AllowRerunChains", false,
     "Normally false, but if set to true this will allow resurrected chains which ran in the second pass to also add stream tags"};
 
-  Gaudi::Property<std::string> m_menuJSON {this, "HLTmenuFile", "UNSET",
-    "Filename of just-generated HLT Menu JSON used to configure the TriggerBitsMakerTool"};
-
   /// Chain to streams map filled from the HLT Menu JSON
   std::unordered_map<TrigCompositeUtils::DecisionID, std::vector<StreamTagInfo> > m_mapping;
 
   /// Helper method to fill the chainID->PEBInfo map
-  StatusCode fillPEBInfoMap(std::unordered_map<TrigCompositeUtils::DecisionID, PEBInfoWriterToolBase::PEBInfo>& map) const;
+  StatusCode fillPEBInfoMap(std::unordered_map<TrigCompositeUtils::DecisionID, PEBInfoWriterToolBase::PEBInfo>& map, const EventContext& ctx) const;
 };
 
 /// operator<< for StreamTagInfo

@@ -73,10 +73,10 @@ StatusCode StreamTagMakerTool::finalize() {
 
 // =============================================================================
 
-StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
+StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const {
   // obtain chain decisions,
   using namespace TrigCompositeUtils;
-  auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
+  auto chainsHandle = SG::makeHandle( m_finalChainDecisions, ctx );
   if (!chainsHandle.isValid()) {
     ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
@@ -106,7 +106,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   decisionIDs(rerunChains, rerunIDs);
 
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
-  ATH_CHECK(fillPEBInfoMap(chainToPEBInfo));
+  ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
 
   // for each accepted chain lookup the map of chainID -> ST
   for ( DecisionID chain: passRawIDs ) {
@@ -151,10 +151,10 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
 
 // =============================================================================
 
-StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEBInfoWriterToolBase::PEBInfo>& map) const {
+StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEBInfoWriterToolBase::PEBInfo>& map, const EventContext& ctx) const {
   for (const auto& key: m_pebDecisionKeys) {
     // Retrieve the decision container
-    auto handle = SG::makeHandle(key); //TODO: pass EventContext& explicitly here
+    auto handle = SG::makeHandle(key, ctx); //TODO: pass EventContext& explicitly here
     if (not handle.isValid())  {
       ATH_MSG_DEBUG("Missing input " <<  key.key() << " likely rejected");
       continue;
