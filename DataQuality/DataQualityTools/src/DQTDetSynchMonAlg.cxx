@@ -122,9 +122,8 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      for ( InDetTimeCollection::const_iterator itrt_bcid 
 	     = TRT_BCIDColl->begin();
 	   itrt_bcid != TRT_BCIDColl->end(); ++itrt_bcid ) {
-       if (!(*itrt_bcid)) continue;
        //Current bcid
-       trtbcidset.insert((uint16_t)(*itrt_bcid)->second);       
+       trtbcidset.insert((uint16_t)(*itrt_bcid).second);
      } // End for loop
    }
    else {
@@ -137,9 +136,8 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      for ( InDetTimeCollection::const_iterator isct_bcid 
 	     = SCT_BCIDColl->begin();
 	   isct_bcid != SCT_BCIDColl->end(); ++isct_bcid ) {
-       if (!(*isct_bcid)) continue;
        //Current bcid
-       sctbcidset.insert((uint16_t)(*isct_bcid)->second);
+       sctbcidset.insert((uint16_t)(*isct_bcid).second);
      } // End for loop
    }
    else {
@@ -152,9 +150,8 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      for ( InDetTimeCollection::const_iterator ipixel_bcid 
 	     = Pixel_BCIDColl->begin();
 	   ipixel_bcid != Pixel_BCIDColl->end(); ++ipixel_bcid ) {
-       if (!(*ipixel_bcid)) continue;
        //Current bcid
-       pixelbcidset.insert((uint16_t)(*ipixel_bcid)->second);
+       pixelbcidset.insert((uint16_t)(*ipixel_bcid).second);
      } // End for loop
    }
    else {
@@ -167,9 +164,8 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      for ( InDetTimeCollection::const_iterator itrt_lvl1id 
 	     = TRT_LVL1IDColl->begin();
 	   itrt_lvl1id != TRT_LVL1IDColl->end(); ++itrt_lvl1id ) {
-       if (!(*itrt_lvl1id)) continue;
        //Current lvl1id
-       trtl1idset.insert((uint16_t)(*itrt_lvl1id)->second);
+       trtl1idset.insert((uint16_t)(*itrt_lvl1id).second);
      } // End for loop
    }
    else {
@@ -182,9 +178,8 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      for ( InDetTimeCollection::const_iterator isct_lvl1id 
 	     = SCT_LVL1IDColl->begin();
 	   isct_lvl1id != SCT_LVL1IDColl->end(); ++isct_lvl1id ) {
-       if (!(*isct_lvl1id)) continue;
        //Current lvl1id
-       sctl1idset.insert((uint16_t)(*isct_lvl1id)->second);
+       sctl1idset.insert((uint16_t)(*isct_lvl1id).second);
      } // End for loop
    }
    else {
@@ -197,9 +192,8 @@ StatusCode DQTDetSynchMonAlg::fillHistograms( const EventContext& ctx ) const
      for ( InDetTimeCollection::const_iterator ipixel_lvl1id 
 	     = Pixel_LVL1IDColl->begin();
 	   ipixel_lvl1id != Pixel_LVL1IDColl->end(); ++ipixel_lvl1id ) {
-       if (!(*ipixel_lvl1id)) continue;
        //Current lvl1id
-       pixell1idset.insert((uint16_t)(*ipixel_lvl1id)->second);
+       pixell1idset.insert((uint16_t)(*ipixel_lvl1id).second);
      } // End for loop
    }
    else {

@@ -30,14 +30,13 @@ TRTRawDataProviderTool::TRTRawDataProviderTool
      m_decoder   ("TRT_RodDecoder",this),
      m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
      m_LastLvl1ID(),
-     m_LVL1Collection(nullptr),
-     m_BCCollection(nullptr),
-     m_storeInDetTimeColls(true)
+     m_storeInDetTimeColls(true),
+     m_doEventCheck(true)
 {
   declareProperty ("Decoder", m_decoder);
   declareProperty ("BSCondSvc", m_bsErrSvc);
   declareProperty ("StoreInDetTimeCollections", m_storeInDetTimeColls);
-
+  declareProperty ("checkLVL1ID", m_doEventCheck);
 
   declareInterface< ITRTRawDataProviderTool >( this );   
 }
@@ -112,11 +111,12 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
      return StatusCode::SUCCESS;
 
 
-
+  std::unique_ptr<InDetTimeCollection> LVL1Collection;
+  std::unique_ptr<InDetTimeCollection> BCCollection;
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
   
   // are we working on a new event ?
-  bool isNewEvent = ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID);
+  bool isNewEvent = m_doEventCheck ? ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID) : true;
 
   if ( isNewEvent )
   {
@@ -131,11 +131,11 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
     if ( m_storeInDetTimeColls )
     {
       // Create Collections for per ROD vectors on L1ID and BCID  
-      m_LVL1Collection = new InDetTimeCollection();
-      m_LVL1Collection->reserve(vecRobs.size());
+      LVL1Collection = std::make_unique<InDetTimeCollection>();
+      LVL1Collection->reserve(vecRobs.size());
   
-      m_BCCollection = new InDetTimeCollection();
-      m_BCCollection->reserve(vecRobs.size());  
+      BCCollection = std::make_unique<InDetTimeCollection>();
+      BCCollection->reserve(vecRobs.size());
     }
   }
 
@@ -153,14 +153,10 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
 	  */
 
 	 unsigned int lvl1id = (*rob_it)->rod_lvl1_id();
-	 std::pair<uint32_t, unsigned int>* lvl1Pair = 
-	    new std::pair<uint32_t, unsigned int>(std::make_pair( robid, lvl1id ));
-	 m_LVL1Collection->push_back( lvl1Pair ) ;
+	 LVL1Collection->emplace_back( robid, lvl1id ) ;
 	
 	 unsigned int bcid = (*rob_it)->rod_bc_id();  
-	 std::pair<uint32_t, unsigned int>* bcidPair = 
-	    new std::pair<uint32_t, unsigned int>(std::make_pair( robid, bcid ));
-	 m_BCCollection->push_back( bcidPair );
+	 BCCollection->emplace_back( robid, bcid );
       
 #ifdef TRT_BSC_DEBUG
 	 ATH_MSG_DEBUG( "Stored LVL1ID " << lvl1id << " and BCID " << bcid << " in InDetTimeCollections" );
@@ -196,8 +192,7 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
     {
 
       SG::WriteHandle<InDetTimeCollection> lvl1id(m_lvl1idkey);
-      auto mylvl1 = std::make_unique<InDetTimeCollection>(*m_LVL1Collection);
-      sc = lvl1id.record(std::move(mylvl1));
+      sc = lvl1id.record(std::move(LVL1Collection));
       if ( sc.isFailure() ) 
       {   
 	ATH_MSG_WARNING( "failed to record LVL1ID TimeCollection" );
@@ -205,8 +200,7 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
       }
 
       SG::WriteHandle<InDetTimeCollection> bcid(m_bcidkey);
-      auto mybc = std::make_unique<InDetTimeCollection>(*m_BCCollection);
-      sc = bcid.record(std::move(mybc));
+      sc = bcid.record(std::move(BCCollection));
       if ( sc.isFailure() ) 
       {   
 	ATH_MSG_WARNING( "failed to record BCID TimeCollection" );
