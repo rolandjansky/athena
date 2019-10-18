@@ -36,7 +36,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 //#include "AthenaMonitoring/AthenaMonManager.h"
 #include "IDAlignMonPVBiases.h"

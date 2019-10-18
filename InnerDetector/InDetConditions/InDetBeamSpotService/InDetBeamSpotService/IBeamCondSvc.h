@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#warning "Obsolete service : Retrieve InDet::BeamSpotData instead of using IBeamCondSvc.h" 
+
 #ifndef InDetBeamSpotService_IBEAMCOND_H
 #define InDetBeamSpotService_IBEAMCOND_H
 // IBeamCondSvc.h - abstract interface to service giving beamspot data
