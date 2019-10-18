@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 {
@@ -42,7 +42,7 @@
   
   //that one crashes:
   TFile *input=TFile::Open("PCA2_bin8_pions_calo_10bins.root");
-  TH1D* hist=(TH1D*)input->Get("h_cumulative_PCA_3")); hist->SetName("hist");
+  TH1D* hist=(TH1D*)input->Get("h_cumulative_PCA_3"); hist->SetName("hist");
   
   TFCS1DFunction* fct=TFCSFunction::Create(hist,0);
   cout<<fct<<endl;

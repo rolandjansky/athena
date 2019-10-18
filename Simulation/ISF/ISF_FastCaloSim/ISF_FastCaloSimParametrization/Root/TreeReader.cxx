@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TTreeFormula.h"
 #include "TTreeFormulaManager.h"
@@ -114,7 +114,17 @@ int TreeReader::GetEntry(int entry)
     Long64_t localEntry = m_tree->LoadTree(entryNumber);   
     if (localEntry < 0) return 0;    
     m_currentEntry = entry;
-      if(m_isChain) // check file change in chain
+    if(m_isChain) // check file change in chain
+    {
+      int I = static_cast<TChain*>(m_tree)->GetTreeNumber();
+      if(I!=m_currentTree)
+      {
+        m_currentTree = I;
+        //fManager->Clear();
+        std::map<std::string, TTreeFormula*>::iterator itr = m_formulae.begin();
+        std::map<std::string, TTreeFormula*>::iterator itrE= m_formulae.end();
+        TTreeFormula* dummy = m_formulae["__DUMMY__"];
+        for(;itr!=itrE;++itr)
         {
         int I = static_cast<TChain*>(m_tree)->GetTreeNumber();   
         if(I!=m_currentTree) 
