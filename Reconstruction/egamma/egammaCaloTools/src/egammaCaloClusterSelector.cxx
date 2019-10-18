@@ -107,10 +107,9 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
     return false;
   }
 
-  double emFrac(0);
-  if (!cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-    throw std::runtime_error("No EM fraction momement stored");
-  }
+  //use the egamma definition of EMFrac (includes presampler , helps with eff in the crack)
+  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
+  const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;
   /* EM fraction cut*/
   if ( m_EMFCuts.size() != 0 && emFrac < m_EMFCuts[bin] ){
     ATH_MSG_DEBUG("Cluster failed EM Fraction cut: don't make ROI");
