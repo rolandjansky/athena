@@ -63,7 +63,8 @@ addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraigh
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
-addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
 
