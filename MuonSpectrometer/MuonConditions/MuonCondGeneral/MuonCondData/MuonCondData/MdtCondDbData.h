@@ -67,13 +67,13 @@ public:
     const std::vector<Identifier>& getNoisyChambersId   () const;
   
     bool isGood          (const Identifier & Id) const;
-    bool isGoodChannel   (const Identifier & Id) const;
     bool isGoodTube      (const Identifier & Id) const;
     bool isGoodLayer     (const Identifier & Id) const;
     bool isGoodMultilayer(const Identifier & Id) const;
     bool isGoodStation   (const Identifier & Id) const;
     bool isGoodChamber   (const Identifier & Id) const;
 
+    bool isGoodChannel   (const MdtIdHelper *, const Identifier & Id) const;
 
  
 private:
@@ -104,8 +104,6 @@ private:
 
     std::vector<std::string> m_emptyNames;
     std::vector<Identifier> m_emptyIds; 
-
-    const MdtIdHelper * m_idHelper;
 
 };
 

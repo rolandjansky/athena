@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoTool
-from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
 from AthenaCommon.Logging import logging
@@ -45,8 +43,8 @@ def TrigL2PhotonHypoToolFromName( name, conf ):
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
-    decoder = DictFromChainName()
-    decodedDict = decoder.getChainDict(conf)
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    decodedDict = dictFromChainName(conf)
         
     return TrigL2PhotonHypoToolFromDict( decodedDict )
 

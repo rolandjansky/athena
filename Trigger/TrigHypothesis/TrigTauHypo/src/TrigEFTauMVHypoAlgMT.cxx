@@ -53,14 +53,14 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
   for ( auto previousDecision: *previousDecisionsHandle ) {
     counter++;
     //get RoI
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI");
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString());
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // get View
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
-    ATH_CHECK( viewELInfo.isValid() );
-    auto tauJetHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_tauJetKey, context);
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    ATH_CHECK( viewEL.isValid() );
+    auto tauJetHandle = ViewHelper::makeHandle( *viewEL, m_tauJetKey, context);
     
     if( not tauJetHandle.isValid() ) {
       ATH_MSG_WARNING("Something is wrong, missing tau jets, continuing anyways skipping view");
@@ -76,15 +76,15 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
     // create new decision
     auto d = newDecisionIn( decisions, name() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-    d->setObjectLink( "roi", roiELInfo.link );
+    d->setObjectLink( roiString(), roiELInfo.link );
 
-    auto el = ViewHelper::makeLink( *(viewELInfo.link), tauJetHandle, 0 );
+    auto el = ViewHelper::makeLink( *viewEL, tauJetHandle, 0 );
     ATH_CHECK( el.isValid() );
-    d->setObjectLink( "feature",  el );
+    d->setObjectLink( featureString(),  el );
 
     toolInput.emplace_back( d, roi, tauJetHandle.cptr(), previousDecision );
 
-    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
 
   }
 

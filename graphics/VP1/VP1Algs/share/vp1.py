@@ -36,6 +36,7 @@ if not 'vp1Cavern' in dir(): vp1Cavern=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
 if not 'vp1NSW' in dir(): vp1NSW=False
+if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
 
 def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
 
@@ -90,20 +91,21 @@ if (vp1InputFiles == []):
     # Set geometry version
     if (not "DetDescrVersion" in dir()):
         if (vp1NSW): 
-            print("You set the '-nsw' flag, so the Geometry Tag 'ATLAS-R3-2021-00-00-00' will be used...")
-            DetDescrVersion="ATLAS-R3-2021-00-00-00"
+            print("You set the '-nsw' flag, so the Geometry Tag 'ATLAS-R3S-2021-01-00-00' will be used...")
+            DetDescrVersion="ATLAS-R3S-2021-01-00-00"
             globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
         else:
             #DetDescrVersion = "ATLAS-GEO-20-00-01" # old
             DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
             globalflags.DetDescrVersion = DetDescrVersion
+
+    globalflags.DetDescrVersion = DetDescrVersion
     
     # Set conditions tag
     if not 'vp1GlobCond' in dir():
         vp1GlobCond="OFLCOND-SDR-BS7T-05-14"
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(vp1GlobCond)
-
 
     ### NEW FOR REL. >= 22
 
@@ -272,6 +274,19 @@ DetFlags.Print()
 # --- GeoModel
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
+from AthenaCommon.AppMgr import ToolSvc
+
+if vp1Muon and len(vp1NSWAGDDFiles)>0:
+    print "*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) instead from built-in geometry"
+    from AthenaCommon.AppMgr import theApp
+    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+    AGDD2Geo = AGDDtoGeoSvc()
+    theApp.CreateSvc += ["AGDDtoGeoSvc"]
+    svcMgr += AGDD2Geo
+    from AthenaCommon import CfgMgr
+    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+    NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
+    AGDD2Geo.Builders += [ NSWAGDDTool ]
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -531,3 +546,4 @@ if (vp1Multinp):
     VP1Alg.MFAvailableLocalInputDirectories = vp1MultiAvailableSrcDirs
 
 topSequence.TimeOut=0
+

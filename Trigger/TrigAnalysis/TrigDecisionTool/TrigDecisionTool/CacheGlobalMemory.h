@@ -248,7 +248,7 @@ namespace Trig {
     
     mutable AnyTypeDeleter m_deleteAtEndOfEvent;
 
-    mutable std::mutex m_cgmMutex; //!< Temporary R3 MT protection only against --threads > 1, not against events in flight > 1
+    mutable std::recursive_mutex m_cgmMutex; //!< Temporary R3 MT protection only against --threads > 1, not against events in flight > 1
 
 
 

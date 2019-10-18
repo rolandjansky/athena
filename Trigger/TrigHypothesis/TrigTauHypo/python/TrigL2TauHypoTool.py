@@ -1,4 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigL2TauHypoTool')
 
 def TrigL2TauHypoToolFromDict( chainDict ):
 
@@ -17,6 +19,9 @@ def TrigL2TauHypoToolFromDict( chainDict ):
        from TrigTauHypo.TrigTauHypoConf import TrigTauGenericHypoMT
        currentHypo = TrigTauGenericHypoMT(name)
        currentHypo.MonTool = ""
+       currentHypo.AcceptAll = False
+       if 'idperf' in name:
+          currentHypo.AcceptAll = True
 
        # pT cut always defined: ugly string-to-int-to-string conversion, sorry :)
        myThreshold = str(int(threshold)*1000.0)

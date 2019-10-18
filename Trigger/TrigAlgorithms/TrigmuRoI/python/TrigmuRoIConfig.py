@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigmuRoI.TrigmuRoIConf import *
 from TrigmuRoI.TrigmuRoIMonitoring import *
@@ -8,9 +8,6 @@ class TrigmuRoIConfig (TrigmuRoI):
 
     __slots__ = []
     
-    #def __new__( cls, *args, **kwargs ):
-    #    newargs = ['%s_%s' % (cls.getType(),args[0]) ] + list(args)
-    #    return super( TrigmuFastConfig, cls ).__new__( cls, *newargs, **kwargs )
 
     def __init__( self, name="TrigmuRoI" ):
         super( TrigmuRoIConfig, self ).__init__( name )
@@ -24,3 +21,12 @@ class TrigmuRoIConfig (TrigmuRoI):
 	#time.NumberOfHistBins = 50
 	
         self.AthenaMonTools = [ validation, online, cosmic, time ]
+
+class TrigmuRoIMTConfig (TrigmuRoIMT):
+
+    __slots__ = []
+    
+    def __init__( self, name="TrigmuRoIMT" ):
+        super( TrigmuRoIMTConfig, self ).__init__( name )
+	
+        self.MonTool = TrigmuRoIMTMonitoring()

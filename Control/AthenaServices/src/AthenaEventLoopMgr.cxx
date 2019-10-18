@@ -1226,8 +1226,9 @@ StatusCode AthenaEventLoopMgr::installEventContext (EventContext& ctx,
   ctx.setEventID(pEvent);
   ctx.set(m_nev,0);
 
-  ctx.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
-                                                 conditionsRun) );
+  Atlas::setExtendedEventContext(ctx,
+                                 Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
+                                                              conditionsRun) );
   Gaudi::Hive::setCurrentContext( ctx );
 
   m_aess->reset( ctx );

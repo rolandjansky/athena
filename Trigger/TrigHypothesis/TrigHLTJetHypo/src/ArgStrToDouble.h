@@ -21,15 +21,16 @@ class ArgStrToDouble {
     else if (std::find(m_neginf.begin(), m_neginf.end(), s) != m_neginf.end()){
       val = std::numeric_limits<double>::min();}
     else {
-      val = std::stod(s);}
+      val = std::stod(s);
+    }
     
     return val;
   }
 
   
  private:
-  std::vector<std::string> m_posinf{"inf", "+inf", "pinf"};
-  std::vector<std::string> m_neginf{"-inf", "ninf"};
+  std::vector<std::string> m_posinf{"inf", "+inf", "pinf", "INF"};
+  std::vector<std::string> m_neginf{"-inf", "ninf", "-INF"};
 };
 
 #endif

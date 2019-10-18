@@ -32,12 +32,7 @@ CaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
 
 egammaIso = ToolFactory(egammaCaloToolsConf.egammaIso)
 
-egammaCheckEnergyDepositTool = ToolFactory(egammaCaloToolsConf.egammaCheckEnergyDepositTool,
-                                           ThrF0max=0.9,
-                                           ThrF1max=0.8,
-                                           ThrF2max=0.98,
-                                           ThrF3max=0.8)
-
+egammaCheckEnergyDepositTool = ToolFactory(egammaCaloToolsConf.egammaCheckEnergyDepositTool)
 
 
 #---------------------------------------

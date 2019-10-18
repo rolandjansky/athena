@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DSConfigSvc.cxx 742408 2016-04-23 18:55:57Z stelzer $
@@ -41,7 +41,7 @@
 #include "TrigConfStorage/DBLoader.h"
 
 // Local include(s):
-#include "TrigConfigSvc/DSConfigSvc.h"
+#include "./DSConfigSvc.h"
 
 #include "boost/lexical_cast.hpp"
 

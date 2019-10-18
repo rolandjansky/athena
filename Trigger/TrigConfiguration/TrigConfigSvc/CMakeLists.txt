@@ -7,14 +7,16 @@ atlas_subdir( TrigConfigSvc )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
                           GaudiKernel
+                          Trigger/TrigConfiguration/TrigConfIO
+                          Trigger/TrigConfiguration/TrigConfData
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
                           Control/AthenaKernel
                           Control/AthAnalysisBaseComps
                           Control/AthenaMonitoring
@@ -29,23 +31,17 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/L1Topo/L1TopoConfig )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 find_package( COOL COMPONENTS CoolKernel )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread PyROOT )
+find_package( ROOT COMPONENTS Hist )
 find_package( cx_Oracle )
-
-# Component(s) in the package:
-atlas_add_library( TrigConfigSvcLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigConfigSvc
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent StoreGateLib SGtests TrigMonitorBaseLib EventContainers AthAnalysisBaseCompsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} AthenaKernel AthenaPoolUtilities IOVDbDataModel EventInfo PathResolver TrigConfBase TrigConfJobOptData TrigConfStorage L1TopoConfig )
+find_package( nlohmann_json )
 
 atlas_add_component( TrigConfigSvc
+                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent AthenaKernel AthenaPoolUtilities IOVDbDataModel EventInfo PathResolver TrigConfBase TrigConfJobOptData TrigConfStorage TrigMonitorBaseLib L1TopoConfig TrigConfigSvcLib )
+                     INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
+                     LINK_LIBRARIES AthAnalysisBaseCompsLib AthenaBaseComps TrigConfIOLib TrigConfData TrigConfStorage TrigConfL1Data L1TopoConfig EventInfo AthenaMonitoringLib nlohmann_json::nlohmann_json )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

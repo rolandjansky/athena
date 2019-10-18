@@ -6,7 +6,7 @@
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-
+from AthenaCommon import Logging
 from AtlasGeoDBInterface import AtlasGeoDBInterface
 
 class CommonGMFlags:
@@ -62,11 +62,11 @@ class CommonGMFlags:
 
     def dump(self):
 
-        print "Geometry tag CommonGMFlags : ",self.__dict__["geomTag"]," ------------------------------------"
+        Logging.log.info("Geometry tag CommonGMFlags : "+self.__dict__["geomTag"]+" ------------------------------------")
 
-        print "RUN flag      : ",self.__dict__["Run"]
-        print "GeoType flag  : ",self.__dict__["GeoType"]
-        print "Strip GeoType flag  : ",self.__dict__["StripGeoType"]
+        Logging.log.info("RUN flag      : "+self.__dict__["Run"])
+        Logging.log.info("GeoType flag  : "+self.__dict__["GeoType"])
+        Logging.log.info("Strip GeoType flag  : "+self.__dict__["StripGeoType"])
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -118,9 +118,9 @@ class CommonGeometryFlags_JobProperties(JobPropertyContainer):
 
     def dump(self):
 
-        print "RUN flag      :", self.Run()
-        print "GeoType flag  : ", self.GeoType()
-        print "Strip geoType flag  : ", self.StripGeoType()
+        Logging.log.info("RUN flag      :"+self.Run())
+        Logging.log.info("GeoType flag  : "+self.GeoType())
+        Logging.log.info("Strip geoType flag  : "+self.StripGeoType())
 
 
 jobproperties.add_Container(CommonGeometryFlags_JobProperties)

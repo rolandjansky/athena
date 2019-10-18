@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -64,7 +64,7 @@ using namespace TauAnalysisTools;
 */
 
 //______________________________________________________________________________
-CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
+CommonEfficiencyTool::CommonEfficiencyTool(const std::string& sName)
   : asg::AsgTool( sName )
   , m_mSF(0)
   , m_sSystematicSet(0)
@@ -78,8 +78,6 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   , m_bPtTauEtaCalibIsAvailable(false)
   , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
-  m_mSystematics = {};
-
   declareProperty( "InputFilePath",       m_sInputFilePath       = "" );
   declareProperty( "VarName",             m_sVarName             = "" );
   declareProperty( "WP",                  m_sWP                  = "" );

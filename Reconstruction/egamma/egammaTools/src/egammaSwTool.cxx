@@ -79,7 +79,7 @@ StatusCode egammaSwTool::finalize(){
 
 // ==============================================================
 // ATHENA EXECUTE METHOD:
-StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster *cluster){ 
+StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster *cluster) const { 
   ATH_MSG_DEBUG("Executing egammaSwTool");
   
   // protection against bad clusters
@@ -124,7 +124,7 @@ StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster *clu
 // ==============================================================
 // ATHENA EXECUTE METHOD for superClusters
 
-StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) {
+StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) const {
   ATH_MSG_DEBUG("Executing egammaSwTool");
   
   // protection against bad clusters
@@ -173,7 +173,7 @@ StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster* clu
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaSwTool::processTools(const EventContext& ctx, ToolHandleArray<CaloClusterProcessor>& tools,
+StatusCode egammaSwTool::processTools(const EventContext& ctx, const ToolHandleArray<CaloClusterProcessor>& tools,
 				      xAOD::CaloCluster* cluster) const
 {
   

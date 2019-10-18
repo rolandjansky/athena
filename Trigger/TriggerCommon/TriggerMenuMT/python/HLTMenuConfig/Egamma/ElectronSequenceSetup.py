@@ -15,7 +15,8 @@ def fastElectronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron")
+    RoIs = "EMIDRoIs" # contract with the fastCalo
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
 
 
     # A simple algorithm to confirm that data has been inherited from parent view
@@ -38,18 +39,11 @@ def fastElectronSequence(ConfigFlags):
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
-    l2ElectronViewsMaker.RoIsLink = "roi" # -||-
-    l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
+    l2ElectronViewsMaker.RoIsLink = "initialRoI" # -||-
+    l2ElectronViewsMaker.InViewRoIs = RoIs
     l2ElectronViewsMaker.Views = "EMElectronViews"
     l2ElectronViewsMaker.ViewFallThrough = True
     l2ElectronViewsMaker.RequireParentView = True
-
-
-    for viewAlg in viewAlgs:
-        if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = l2ElectronViewsMaker.InViewRoIs
-        if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
 
     theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs    
     electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])

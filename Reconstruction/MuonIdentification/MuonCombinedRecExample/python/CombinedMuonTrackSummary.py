@@ -18,7 +18,7 @@ from AthenaCommon.GlobalFlags import globalflags
 beamFlags                      = jobproperties.Beam
 
 atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
-muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelper')
+muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
 
 # load InDetHoleSearchTool

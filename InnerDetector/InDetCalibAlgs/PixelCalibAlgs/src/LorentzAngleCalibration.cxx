@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LorentzAngleCalibration_C
@@ -21,7 +21,7 @@
 
 namespace PixelCalib{
 
-LorentzAngleCalibration::LorentzAngleCalibration(int layer,std::string cosmicORbeam):
+LorentzAngleCalibration::LorentzAngleCalibration(int layer,const std::string& cosmicORbeam):
 	m_curLayer(layer),m_curType(cosmicORbeam){
 
 	if(m_curType != "cosmic") m_curType = "beam";
@@ -193,7 +193,7 @@ int LorentzAngleCalibration::Analyze(std::ofstream &logfile){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void LorentzAngleCalibration::PlotValidation(TCanvas *c1, std::string outname){
+void LorentzAngleCalibration::PlotValidation(TCanvas *c1, const std::string& outname){
 
 	int nmodules = m_LorentzAngle0->GetNrows();
 	TH1D *graph0 = new TH1D( (m_layername + "LorentzAngle0Histo").c_str(),

@@ -121,7 +121,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	  Identifier myPadOfflineId = (*it).second->identify();
 	  IdentifierHash myPadHashOfflineId =  (*it).second->identifyHash();	    
 	  msg(MSG::VERBOSE) << "The offline ID requested for conversion are "
-			    << m_pRpcIdHelper->show_to_string(myPadOfflineId)<<" hash version "<< (int)myPadHashOfflineId << endmsg;
+			    << m_muonIdHelperTool->rpcIdHelper().show_to_string(myPadOfflineId)<<" hash version "<< (int)myPadHashOfflineId << endmsg;
 	}
     }  
   else if (msgLvl(MSG::DEBUG ))
@@ -609,7 +609,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 					  << sectorLogic << endmsg;
 	    } else {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-					<< "PadOfflineId " << m_pRpcIdHelper->show_to_string(padOfflineId)
+					<< "PadOfflineId " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
 					<< " associated to PAD n. " << PadID << " at side " 
 					<< side << " and  sectorLogic " << sectorLogic << endmsg; 
           }
@@ -623,7 +623,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	    thisv = (*myPadInList).second; // pointer to RpcPad collection to be filled (if in the list requested)
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					<< " match found with ID " 
-					<< m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+					<< m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
 					<< " requested for the conversion; return this collection with hash " << thisPadHashOfflineId
 					<< endmsg; 
             
@@ -640,7 +640,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	    {
 	      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					  << " match NOT found with ID "  
-					  << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+					  << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
 					  << " requested for the conversion" << endmsg;  
 	    }
           

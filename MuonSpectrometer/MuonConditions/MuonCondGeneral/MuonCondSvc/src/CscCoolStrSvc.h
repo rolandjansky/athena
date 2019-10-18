@@ -12,6 +12,7 @@
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "AthenaBaseComps/AthService.h"
 
@@ -23,7 +24,7 @@
 
 //Added to use CscIdHelper
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //Calib conditions data classes
 #include "MuonCondData/CscCondDataContainer.h"
@@ -166,11 +167,7 @@ namespace MuonCalib {
     /**cacheParameter caches a parameter from the COOL database into the local mirror*/
     StatusCode cacheParameter(const std::string & parKey);
 
-    /**cacheParameterVersion1 caches a parameter from the COOL database of the old 
-      format.
-     */
-    StatusCode cacheVersion1(std::istringstream &, CscCondDataCollectionBase * const);
-    StatusCode cacheVersion2(std::istringstream &, CscCondDataCollectionBase * const);
+    StatusCode cache(std::istringstream &, CscCondDataCollectionBase * const);
 
     int swapChamberLayerReturnHash(const Identifier & id) const;
 
@@ -188,7 +185,8 @@ namespace MuonCalib {
 
     /**CscIdHelper is used to convert from identifiers to hash ids. MuonDetector manager is a
       requirement on CscIdHelper*/
-    const CscIdHelper* m_cscId;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     //      const MuonGM::MuonDetectorManager * m_muonMgr;
 
     /// Conditions Attribute List collections used for getting datahandles for callback functions*/
@@ -249,8 +247,21 @@ namespace MuonCalib {
     bool m_doMerge;
     bool m_doCaching;
     bool m_onlineOfflinePhiFlip;
-    bool m_phiSwapVersion1Strings;
-  };
+
+    /**
+     * The pslope is the gain of each CSC channel. It was intended to be retrieved by calibration with the pulser runs, 
+     * but the pulses caused overload in the amplifiers because every channel fires at once. This leads to errors that are 
+     * larger than the variation between channels. Consequently, the pslope is the same for all channels. 
+     * In the future, one could try to calibrate from data. The support for the pslope in the database is maintained by having
+     * a boolean property ReadPSlopeFromDatabase. If it is set to false, the value of the property PSlope is used for all channels.
+     */
+    bool m_pslopeFromDB;
+    float m_pslope;
+    /**
+     * The CSC gain was originally 5.304 ADC counts per fC, but later increased to
+     * 5.7 ADC counts per fC, so the pslope equals 1/5.7 = 0.175438
+     */
+    const float m_DEFAULT_PSLOPE = 0.175;  };
 }
 
 #include "CscCoolStrSvc.icc"

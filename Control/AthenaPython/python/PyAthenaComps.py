@@ -380,7 +380,8 @@ class AthFilterAlgorithm(Alg):
         """Set the filter passed flag to the specified state"""
         o = super(AthFilterAlgorithm, self).setFilterPassed(state)
         if state:
-            self.cutFlowSvc().addEvent(self.cutID)
+            # TODO: we should read a proper weight
+            self.cutFlowSvc().addEvent(self.cutID, 1)
         return o
     
     pass # PyAthena.AthFilterAlgorithm

@@ -25,8 +25,7 @@ namespace xAOD {
    CaloCluster_v1::CaloCluster_v1()
      : IParticle(), 
        m_samplingPattern(0), 
-       m_cellLinks(0),
-       m_ownCellLinks(false)
+       m_cellLinks(nullptr)
    {
      setSignalState(CALIBRATED);
    }
@@ -35,15 +34,14 @@ namespace xAOD {
   CaloCluster_v1::CaloCluster_v1(const CaloCluster_v1& other)
     : IParticle(), //IParticel does not have a copy constructor. AuxElement has one with same behavior as default ctor
       m_samplingPattern(other.samplingPattern()), 
-      m_cellLinks(0), 
-      m_ownCellLinks(false),
+      m_cellLinks(nullptr), 
       m_recoStatus(other.m_recoStatus) {
     setSignalState(other.signalState());
     this->makePrivateStore(other);
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
     const CaloClusterCellLink* links=other.getCellLinks();
     if (links) {
-      this->addCellLink(new CaloClusterCellLink(*links));
+      this->addCellLink(std::make_unique<CaloClusterCellLink>(*links));
     }
     static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by makePrivateStore, invalidate it
@@ -60,12 +58,11 @@ namespace xAOD {
     m_recoStatus=other.m_recoStatus;
     setSignalState(other.signalState());
     m_samplingPattern=other.m_samplingPattern;
-    m_ownCellLinks=false;
 
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
      const CaloClusterCellLink* links=other.getCellLinks();
      if (links) {
-       this->addCellLink(new CaloClusterCellLink(*links));
+       this->addCellLink(std::make_unique<CaloClusterCellLink>(*links));
      }
      static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
      if (accCellLinks.isAvailable(*this)) { //In case an element link was copied by  SG::AuxElement::operator=, invalidate it
@@ -77,8 +74,6 @@ namespace xAOD {
 
 
    CaloCluster_v1::~CaloCluster_v1() {
-
-      if( m_ownCellLinks ) delete m_cellLinks;
    }
 
   void CaloCluster_v1::setSamplingPattern( const unsigned sp, const bool clearSamplingVars) {
@@ -873,24 +868,11 @@ namespace xAOD {
   
 
 #if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
-  /*
-  bool CaloCluster_v1::createCellElemLink(const std::string& CCCL_key, const size_t idx) {
-    static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
-    ElementLink<CaloClusterCellLinkContainer> el(CCCL_key,idx);
-    accCellLinks(*this)=el;
-    if (m_cellLinks!=0 && m_cellLinks!=(*el)) {
-      std::cerr << "ERROR Pointer mismatch! Internal m_cellLinks ptr doesn't match element link" << std::endl;
-      return false;
-    }	
-    return true;
-  }
-  */
-  bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
+ bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
                                IProxyDict* sg /*= nullptr*/)
   {
     if (!m_cellLinks || !cccl) return false;
-    cccl->push_back(m_cellLinks);
-    m_ownCellLinks=false; //Cell Links now owned by CaloClusterCellLinkContainer
+    cccl->push_back(m_cellLinks.release());//The links are now owned by the container
     const size_t idx=cccl->size()-1; //Use index for speed
     static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     const CaloClusterCellLinkContainer& ref=*cccl;
@@ -900,7 +882,7 @@ namespace xAOD {
   }
 
   const CaloClusterCellLink* CaloCluster_v1::getCellLinks() const {
-    if (m_cellLinks) return m_cellLinks;
+    if (m_cellLinks) return m_cellLinks.get();
     static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     if (!accCellLinks.isAvailable(*this)) return 0;
 
@@ -913,7 +895,7 @@ namespace xAOD {
 
   bool CaloCluster_v1::removeCell(const CaloCell* ptrToDelete) {
     //1. Get a ptr to the CaloClusterCellLink
-    CaloClusterCellLink* cccl=getCellLinks();
+    CaloClusterCellLink* cccl=getOwnCellLinks();
     if (!cccl) return false; //No link found (expected for TopoClusters in xAOD files)
     //2. Remove cell
     return cccl->removeCell(ptrToDelete);

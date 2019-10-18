@@ -17,7 +17,7 @@ public:
   SCTOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
   // SCT collection merging needs an ID helper.  Instead of retrieving
   // it thousands of times per event in the collection merging code,

@@ -7,6 +7,7 @@
 
 #include "AthenaKernel/IProxyDict.h"
 #include "GaudiKernel/EventIDBase.h"
+#include "GaudiKernel/EventContext.h"
 #include "CxxUtils/checker_macros.h"
 
 class TrigRoiDescriptor; //!< Forward declaration
@@ -64,7 +65,41 @@ namespace Atlas {
     const TrigRoiDescriptor* m_roi {nullptr};
     const SG::ThinningCache* m_thinningCache {nullptr};
   };
-}
+
+
+  //**********************************************************************
+  // Out-of-line routines for setting and getting the event context.
+  // Under some circumstances, the dynamic loader can bind the same
+  // symbol to different addresses in different libraries.  Among
+  // other effects, this can cause std::any to malfunction; std::any
+  // is used inside EventContext to hold the extended context.
+  // To try to avoid this, we provide out-of-line functions
+  // to manipulate the extended context.
+
+  /**
+   * @brief Test whether a context object has an extended context installed.
+   */
+  bool hasExtendedEventContext (const EventContext& ctx);
+
+
+  /**
+   * @brief Retrieve an extended context from a context object.
+   */
+  const ExtendedEventContext& getExtendedEventContext (const EventContext& ctx);
+
+
+  /**
+   * @brief Retrieve an extended context from a context object.
+   */
+  ExtendedEventContext& getExtendedEventContext (EventContext& ctx);
+
+
+  /**
+   * @brief Move an extended context into a context object.
+   */
+  void setExtendedEventContext (EventContext& ctx,
+                                ExtendedEventContext&& ectx);
+} // namespace Atlas
 
 #endif
 

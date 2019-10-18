@@ -41,6 +41,7 @@
 // STL
 #include <atomic>
 #include <mutex>
+#include <vector>
 
 class ISCT_Amp;
 class SCT_ID;
@@ -59,6 +60,15 @@ namespace CLHEP {
  * collected charges, also does cross-talk, offset
  * variation and gain variation, in a correlated way
  */
+
+struct SCT_FrontEndData {
+  std::vector<float> m_Offset; //!< generate offset per channel
+  std::vector<float> m_GainFactor; //!< generate gain per channel  (added to the gain per chip from calib data)
+  std::vector<float> m_NoiseFactor; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)
+  std::vector<double> m_Analogue[3];  //!< To hold the noise and amplifier response
+  std::vector<int> m_StripHitsOnWafer; //!< Info about which strips are above threshold
+};
+
 class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
 
  public:
@@ -80,18 +90,18 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
    * process the collection of pre digits: needed to go through all single-strip pre-digits to calculate
    * the amplifier response add noise (this could be moved elsewhere later) apply threshold do clustering
    */
-  virtual void process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine * rndmEngine) const override;
-  StatusCode doSignalChargeForHits(SiChargedDiodeCollection& collectione) const;
-  StatusCode doThresholdCheckForRealHits(SiChargedDiodeCollection& collectione) const;
-  StatusCode doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection& collection) const;
-  StatusCode doClustering(SiChargedDiodeCollection& collection) const;
-  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const;
-  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const;
-  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine * rndmEngine) const;
-  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine * rndmEngine) const;
+  virtual void process(SiChargedDiodeCollection& collection, CLHEP::HepRandomEngine* rndmEngine) const override;
+  StatusCode doSignalChargeForHits(SiChargedDiodeCollection& collectione, SCT_FrontEndData& data) const;
+  StatusCode doThresholdCheckForRealHits(SiChargedDiodeCollection& collectione, SCT_FrontEndData& data) const;
+  StatusCode doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const;
+  StatusCode doClustering(SiChargedDiodeCollection& collection, SCT_FrontEndData& data) const;
+  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
+  StatusCode prepareGainAndOffset(SiChargedDiodeCollection& collection, int side, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
+  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
+  StatusCode randomNoise(SiChargedDiodeCollection& collection, const Identifier& moduleId, int side, CLHEP::HepRandomEngine* rndmEngine, SCT_FrontEndData& data) const;
   StatusCode addNoiseDiode(SiChargedDiodeCollection& collection, int strip, int tbin) const;
   float meanValue(std::vector<float>& calibDataVect) const;
-  StatusCode initVectors(int strips) const;
+  StatusCode initVectors(int strips, SCT_FrontEndData& data) const;
 
  private:
 
@@ -125,14 +135,6 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
   const SCT_ID* m_sct_id{nullptr}; //!< Handle to SCT ID helper
 
   mutable std::atomic_int m_strip_max{768}; //!< For SLHC studies
-
-  mutable std::recursive_mutex m_mutex{};
-  mutable std::vector<float> m_Offset ATLAS_THREAD_SAFE; //!< generate offset per channel
-  mutable std::vector<float> m_GainFactor ATLAS_THREAD_SAFE; //!< generate gain per channel  (added to the gain per chip from calib data)
-  mutable std::vector<float> m_NoiseFactor ATLAS_THREAD_SAFE; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)
-  mutable std::vector<double> m_Analogue[3] ATLAS_THREAD_SAFE;  //!< To hold the noise and amplifier response
-  mutable std::vector<int> m_StripHitsOnWafer ATLAS_THREAD_SAFE; //!< Info about which strips are above threshold
-
 };
 
 #endif //SCT_FRONTEND_H

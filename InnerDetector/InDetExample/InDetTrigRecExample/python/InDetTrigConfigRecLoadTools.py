@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # ------------------------------------------------------------
@@ -918,7 +918,6 @@ if InDetTrigFlags.doNewTracking():
                                                                  PropagatorTool	= InDetTrigPatternPropagator,
                                                                  UpdatorTool	= InDetTrigPatternUpdator,
                                                                  RIOonTrackTool   = InDetTrigRotCreator,
-                                                                 AssosiationTool  = InDetTrigPrdAssociationTool,
                                                                  usePixel         = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT           = DetFlags.haveRIO.SCT_on(),   
                                                                  PixelClusterContainer = 'PixelTrigClusters',

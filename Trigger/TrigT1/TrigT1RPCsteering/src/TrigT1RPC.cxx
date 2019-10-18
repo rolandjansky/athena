@@ -352,7 +352,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
                 const RpcDigit* rpcDigit = *it1_digit;
 		//Identifier channelId = rpcDigit->identify();
 		
-                if (rpcDigit->is_valid(m_rpcId)) 
+                if (rpcDigit->is_valid(*m_rpcId)) 
                 {
 		    Identifier channelId = rpcDigit->identify();
 		    const int stationType   = m_rpcId->stationName(channelId);

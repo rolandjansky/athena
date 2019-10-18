@@ -38,11 +38,11 @@ if nThreads >= 1:
 
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteCInfo, \
      DMTest__xAODTestDecor, \
      DMTest__xAODTestReadDecor
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
-     DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWrite
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
 topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")

@@ -87,6 +87,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 
   std::unique_ptr<LArNoisyROSummary> noisyRO(new LArNoisyROSummary);
 
+  if(!cellContainer) return noisyRO;
+
   SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
   const LArOnOffIdMapping* cabling=*larCablingHdl;
 

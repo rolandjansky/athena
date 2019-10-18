@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -10,9 +10,7 @@
 #define MATERIALSTEPCOLLECTION_CNV_H
 
 // ATLAS persistency way:
-#define protected public
 #include "GaudiKernel/MsgStream.h"
-#undef protected
 
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
@@ -24,7 +22,7 @@
 
 // useful typedefs to not change the code only once in case of schema evolution
 typedef Trk::MaterialStepCollection_p1    MaterialStepCollection_PERS;
-typedef T_AthenaPoolCustomCnv<Trk::MaterialStepCollection, MaterialStepCollection_PERS> MaterialStepCollectionCnvBase;
+typedef T_AthenaPoolCustomCnvWithKey<Trk::MaterialStepCollection, MaterialStepCollection_PERS> MaterialStepCollectionCnvBase;
 
 
 class MaterialStepCollectionCnv : public MaterialStepCollectionCnvBase {
@@ -35,17 +33,19 @@ class MaterialStepCollectionCnv : public MaterialStepCollectionCnvBase {
  
 public:
   MaterialStepCollectionCnv( ISvcLocator *svcloc );
-protected:
-  virtual StatusCode initialize();
- 
-  virtual MaterialStepCollection_PERS* createPersistent( Trk::MaterialStepCollection *transCont);
-  virtual Trk::MaterialStepCollection* createTransient();
- 
- private:
-  void                  updateLog();    //!< This method modifies m_log to indicate the current key being converted
-  IMessageSvc*          m_msgSvc;      //!< MsgStream svc
-  MsgStream             m_log;         //!< MsgStream
 
+
+protected:
+  virtual MaterialStepCollection_PERS*
+  createPersistentWithKey ( Trk::MaterialStepCollection *transCont,
+                            const std::string& key) override;
+
+  virtual Trk::MaterialStepCollection*
+  createTransientWithKey (const std::string& key) override;
+
+  
+ private:
+  IMessageSvc*          m_msgSvc;      //!< MsgStream svc
   MaterialStepCollectionCnv_p1        m_TPConverter;
 
 };//end of class definitions

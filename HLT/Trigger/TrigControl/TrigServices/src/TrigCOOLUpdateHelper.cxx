@@ -163,8 +163,8 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
   }
        
   // Invalidate IOV range
-  ATH_MSG_DEBUG("Setting IOV range of " << folder << " to " << iov_range);
-    
+  ATH_MSG_DEBUG("Invalidating IOV range of " << folder << " by setting it to " << iov_range);
+
   if ((m_iovSvc->setRange(clid, key, iov_range, "StoreGateSvc")).isFailure()) {
     ATH_MSG_WARNING("Could not set IOV range for " << folder << " to " << iov_range);
     return StatusCode::FAILURE;        

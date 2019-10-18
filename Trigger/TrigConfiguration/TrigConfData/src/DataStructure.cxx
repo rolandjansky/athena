@@ -37,15 +37,7 @@ TrigConf::DataStructure::clear()
 
 bool
 TrigConf::DataStructure::isValue() const {
-   return m_data.empty();  // no children, so just a key->value pair
-   // const string value = data.get_value<std::string>();
-   
-   // if( data.empty() ) { // no children, so just a key->value pair
-   //    uint n(4*level); while(n--) os << " ";
-   //    os << del << key << del << ": " << del << value << del;
-   //    return;
-   // }
-
+   return m_data.empty();  // just a key->value pair, no children
 }
 
 
@@ -59,6 +51,15 @@ TrigConf::DataStructure::getValue() const {
 bool
 TrigConf::DataStructure::hasAttribute(const std::string & key) const {
    const auto & child = m_data.get_child_optional( key );
+   if( ! bool(child) ) // key does not exist
+      return false; 
+   return child.get().empty(); // if empty then it is an attribute, otherwise a child note
+}
+
+
+bool
+TrigConf::DataStructure::hasChild(const std::string & path) const {
+   const auto & child = m_data.get_child_optional( path );
    return bool(child);
 }
 
@@ -144,6 +145,24 @@ TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreI
    }
    return { obj.get() };
 }
+
+
+std::vector<std::string>
+TrigConf::DataStructure::getKeys() const 
+{
+   std::vector<std::string> keys;
+   if ( ! m_data.empty() &&
+        ! m_data.front().first.empty() ) 
+      {
+         for( auto & entry : m_data ) {
+            keys.push_back(entry.first);
+         }
+      }
+   return keys;
+}
+
+
+
 
 
 void

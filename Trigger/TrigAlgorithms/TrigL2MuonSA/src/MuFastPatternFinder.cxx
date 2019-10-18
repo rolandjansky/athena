@@ -54,11 +54,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
       return sc;
    }
    
-   // retrieve the mdtidhelper  
-   const MuonGM::MuonDetectorManager* muonMgr;                                                                 
-   ATH_CHECK( detStore()->retrieve( muonMgr,"Muon" ) ); 
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore."); 
-   m_mdtIdHelper = muonMgr->mdtIdHelper();                                                   
+   ATH_CHECK( m_muonIdHelperTool.retrieve() );                                 
 
    return StatusCode::SUCCESS; 
 }
@@ -79,7 +75,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 		 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
 		 << Layer << "/" << Tube);
 
-   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_mdtIdHelper->channelID(StationName,StationEta,
+   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_muonIdHelperTool->mdtIdHelper().channelID(StationName,StationEta,
        StationPhi,Multilayer,Layer,Tube);
 
    int tdcCounts    = (int)mdtHit.DriftTime;

@@ -110,12 +110,12 @@ StatusCode MooSegmentFinderAlg::execute()
   m_segmentFinder->findSegments( mdtCols, cscCols, tgcCols, rpcCols, output );
 
   if(output.patternCombinations){
-    if( patHandle.record(std::make_unique<MuonPatternCombinationCollection>(std::move(*(output.patternCombinations)))).isSuccess() ){
+    if( patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(output.patternCombinations)).isSuccess() ){
       ATH_MSG_VERBOSE("stored MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
     }else{
       ATH_MSG_ERROR("Failed to store MuonPatternCombinationCollection at " << m_patternCombiLocation.key());
     }
-    delete output.patternCombinations;
+    output.patternCombinations = nullptr;
   }
   else{
     if( patHandle.record(std::make_unique<MuonPatternCombinationCollection>()).isSuccess() ){

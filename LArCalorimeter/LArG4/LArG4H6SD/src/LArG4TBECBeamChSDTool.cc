@@ -11,7 +11,7 @@ LArG4TBECBeamChSDTool::LArG4TBECBeamChSDTool(const std::string& type, const std:
 {
 }
 
-G4VSensitiveDetector* LArG4TBECBeamChSDTool::makeSD()
+G4VSensitiveDetector* LArG4TBECBeamChSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   return new LArG4TBECBeamChSensitiveDetector(name());

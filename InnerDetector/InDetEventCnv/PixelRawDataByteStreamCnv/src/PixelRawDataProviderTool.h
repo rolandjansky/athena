@@ -9,17 +9,10 @@
 #include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/WriteHandle.h"
-
 #include "InDetRawData/InDetTimeCollection.h"
 
-#include <set>
-#include <string>
 
-class IPixelRodDecoder;
 
 // the tool to decode a ROB frament
 class PixelRawDataProviderTool : virtual public IPixelRawDataProviderTool, public AthAlgTool
@@ -50,8 +43,6 @@ private:
   ToolHandle<IPixelRodDecoder>  m_decoder
   {this, "Decoder", "PixelRodDecoder", "Tool for PixelRodDecoder"};
 
-  // bookkeeping if we have decoded a ROB already
-  std::set<uint32_t> m_robIdSet;
 
   SG::WriteHandleKey<InDetTimeCollection> m_LVL1CollectionKey;
   SG::WriteHandle<InDetTimeCollection>    m_LVL1Collection;

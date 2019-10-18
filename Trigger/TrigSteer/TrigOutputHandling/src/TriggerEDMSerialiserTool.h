@@ -18,6 +18,16 @@
 
 /**
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
+ *
+ * Its configuration is a list of EDM classes + keys + designation of dynamic varaibles.
+ * Accordfing to this list objects are looked up in the main store and if found the
+ * serialisation service is used to convert the collections into arrays of bytes.
+ * Serialised data is wrapped info a vector of 32 bit integers and prefixed wiht header containing description of the payload (details may change).
+ * Such fragments for subsequent collections are concatentated together to form EDM payload in the HLTResult.
+ * The HLTResultMT has option to maintain several modules (designated to end up in separate ROBS) that can be filled.
+ * That is also specified in the configuration as documented below.
+ *
+ * For unpacking, the @see TriggerEDMDeserialiserAlg is used
  **/
 
 class DataObject; //!< Forward declaration
@@ -32,11 +42,11 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 	     const IInterface* parent );
 
   virtual ~TriggerEDMSerialiserTool();
-  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
+  virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
 
   virtual StatusCode  initialize() override;
 
- private: 
+ private:
   friend StatusCode tester( TriggerEDMSerialiserTool* );
   Gaudi::Property< std::vector< std::string > > m_collectionsToSerialize {
     this, "CollectionsToSerialize", {},
@@ -82,12 +92,12 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 
   std::vector< Address > m_toSerialise; // postprocessed configuration info
 
-  ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", 
+  ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc",
       "Service to translate class name to CLID" };
-  ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc", 
+  ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc",
       "Service that translates transient to persistent respresenation" };
 
-  ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool", 
+  ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool",
       "Tool to do Transient/Persistent conversion (Old EDM)"};
 
 
@@ -114,7 +124,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * Place inside the buffer serialised the xOAD Aux container
    * invloves selection and recording of dynamic variables
    */
-  StatusCode serialisexAODAuxContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const;
+  StatusCode serialisexAODAuxContainer( void* data, const Address& address, std::vector<uint32_t>& buffer, SGImplSvc* evtStore ) const;
 
   /**
    * Place inside the buffer the serialised old type of container
@@ -128,6 +138,13 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * Adds dynamic variables to the payload
    */
   StatusCode serialiseDynAux( DataObject* dObject, const Address& address, std::vector<uint32_t>& buffer, size_t& nDynWritten ) const;
+
+
+  /**
+   * Obtain version from the actaul type name
+   */
+  std::string version( const std::string& name ) const;
+
 };
 
 

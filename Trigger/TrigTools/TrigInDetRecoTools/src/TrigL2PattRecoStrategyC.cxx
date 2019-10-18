@@ -136,6 +136,10 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
     return sc;
   }
 
+  // @TODO how to properly initialize and use read handles here ?
+  // optional PRD to track association map
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
+
   // Get SCT & pixel Identifier helpers
 
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
@@ -249,6 +253,47 @@ TrigL2PattRecoStrategyC::~TrigL2PattRecoStrategyC() {
 
 }
 
+namespace InDet {
+  class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
+  {
+  public:
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+      if (!key.key().empty()) {
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        if (!m_prdToTrackMap.isValid()) {
+          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key.key());
+        }
+        setPRDtoTrackMap(m_prdToTrackMap.cptr());
+      }
+    }
+  private:
+    void dummy() {}
+    SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
+  };
+
+  // Alternative veriosn with direct access if read handles do not work here:
+  // InDet::AltExtendedSiCombinatorialTrackFinderData_xk combinatorialData(evtStore(),m_prdToTrackMap.key());
+  class AltExtendedSiTrackMakerEventData_xk : public SiTrackMakerEventData_xk
+  {
+  public:
+    AltExtendedSiTrackMakerEventData_xk(ServiceHandle<StoreGateSvc> &event_store,
+                                        const std::string &key) {
+      if (!key.empty()) {
+        const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+        if (event_store->retrieve(prd_to_track_map_cptr, key).isFailure()) {
+          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key);
+        }
+        setPRDtoTrackMap(prd_to_track_map_cptr);
+      }
+    }
+
+  protected:
+    void dummy() override {}
+  };
+
+}
+
+
 HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigSiSpacePoint*>& /*vsp*/,
 						   const IRoiDescriptor& roi,
 						   TrigInDetTrackCollection*  trackColl) {
@@ -305,7 +350,8 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
   bool PIX = true;
   bool SCT = true;
-  InDet::SiTrackMakerEventData_xk trackEventData;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
+  InDet::AltExtendedSiTrackMakerEventData_xk trackEventData_alt(evtStore(),m_prdToTrackMap.key());
   if(m_timers) m_timer[4]->start();
   m_trackmaker->newTrigEvent(trackEventData, PIX, SCT);
   if(m_timers) m_timer[4]->stop();
@@ -460,7 +506,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   if(m_timers) m_timer[2]->stop();
 
   if(m_timers) m_timer[4]->start();
-  InDet::SiTrackMakerEventData_xk trackEventData;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
   m_trackmaker->newTrigEvent(trackEventData, PIX, SCT);
   if(m_timers) m_timer[4]->stop();
 

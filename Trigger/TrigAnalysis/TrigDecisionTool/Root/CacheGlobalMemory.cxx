@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -81,14 +81,16 @@ Trig::CacheGlobalMemory::~CacheGlobalMemory() {
 
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
                                                                   const std::string& alias) {
-  // no mutex - called by update()
+  // mutex in case this is called directly
+  std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
   // create a proper key
   std::vector< std::string > key=Trig::keyWrap(triggerNames);
 
-  if (m_chainGroups.find(key)==m_chainGroups.end()) {
-    m_chainGroups[key]=new ChainGroup( key, *this );
-    updateChainGroup(m_chainGroups[key]);
-    m_chainGroupsRef[key]=m_chainGroups[key];
+  auto res = m_chainGroups.try_emplace (key, nullptr);
+  if (res.second) {
+    res.first->second = new ChainGroup( key, *this );
+    updateChainGroup(res.first->second);
+    m_chainGroupsRef[key] = res.first->second;
   }
   // this overwrites the pointer in the map each time in case the alias needs defining
   if (alias!="") {
@@ -112,7 +114,7 @@ void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup* chainGroup) {
 
 void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
                                      const TrigConf::CTPConfig* ctp) {
-  std::lock_guard<std::mutex> lock(m_cgmMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
   ATH_MSG_DEBUG( "Updating configuration" );
   // store a global reference to the initial answer
   m_confChains = confChains;
@@ -204,7 +206,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
     }
     //
     std::map<std::string, std::vector<std::string> >::iterator mstIt;
-    for (mstIt=m_streams.begin(); mstIt != m_streams.end(); mstIt++) {      
+    for (mstIt=m_streams.begin(); mstIt != m_streams.end(); ++mstIt) {
       const std::string alias("STREAM_"+mstIt->first);
       std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
       ChGrIt preIt = m_chainGroupsRef.find(key_alias);
@@ -219,7 +221,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
       }
       
     }
-    for (mstIt=m_groups.begin(); mstIt != m_groups.end(); mstIt++) {
+    for (mstIt=m_groups.begin(); mstIt != m_groups.end(); ++mstIt) {
       const std::string alias("GROUP_"+mstIt->first);
       std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
       ChGrIt preIt = m_chainGroupsRef.find(key_alias);
@@ -250,7 +252,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
 
 const HLT::Chain* Trig::CacheGlobalMemory::chain(const std::string& name) const {
-  std::lock_guard<std::mutex> lock(m_cgmMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
   auto i = m_efchainsByName.find(name);
   if (i != m_efchainsByName.end()) {
     return i->second;
@@ -325,7 +327,7 @@ const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContai
 }
 
 bool Trig::CacheGlobalMemory::assert_decision() {
-  std::lock_guard<std::mutex> lock(m_cgmMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
   ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker);
 
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
@@ -401,7 +403,7 @@ StatusCode Trig::CacheGlobalMemory::unpackDecision() {
 
 
 StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
-  std::lock_guard<std::mutex> lock(m_cgmMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
   // Navigation
   // protect from unpacking in case HLT was not run
   // (i.e. configuration chains are 0)

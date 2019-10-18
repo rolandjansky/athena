@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Athena runs topoclustering from an ESD file
+# art-description: Athena runs topoclustering, particle flow and particle flow jet reconstruction from an ESD file
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8

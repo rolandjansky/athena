@@ -69,6 +69,9 @@ else:
 
    del logLevel
 
+   from AthenaCommon.Logging import logging
+   log = logging.getLogger('TrigPSCPythonSetup')
+
    ## file inclusion and tracing
    from AthenaCommon.Include import IncludeError, include
 
@@ -177,6 +180,22 @@ else:
       theApp.StatusCodeCheck = True
 
    del TriggerFlags
+
+   ### Dump properties and convert to JSON if requested -------------------------
+   if PscConfig.dumpJobProperties:
+      from AthenaCommon import ConfigurationShelve
+      from TrigConfIO.JsonUtils import create_joboptions_json
+      ConfigurationShelve.storeJobOptionsCatalogue('HLTJobOptions.pkl')
+      fname = 'HLTJobOptions'
+      with open(fname+'.pkl') as f:
+         import cPickle
+         jocat = cPickle.load(f)   # basic job properties
+         jocfg = cPickle.load(f)   # some specialized services
+         jocat.update(jocfg)       # merge the two dictionaries
+         log.info('Dumping joboptions to "%s.json"', fname)
+         create_joboptions_json(jocat, fname+".json")
+
+   del log
 
    ### setup everything ---------------------------------------------------------
    theApp.setup()

@@ -146,34 +146,34 @@ StatusCode TrigTauRecMergedMT::execute()
   auto nTracks            = Monitored::Scalar<int>("nRoI_EFTauTracks", -10);
   auto dEta               = Monitored::Scalar<float>("dEtaEFTau_RoI",    -10.);
   auto dPhi               = Monitored::Scalar<float>("dPhiEFTau_RoI",    -10.);
-  auto emRadius           = Monitored::Scalar<float>("EF_EMRadius", -0.099);
-  auto hadRadius          = Monitored::Scalar<float>("EF_EMRadius", -0.099);
-  auto EtFinal            = Monitored::Scalar<float>("EF_EtFinal", 0.);
-  auto Et                 = Monitored::Scalar<float>("EF_Et", 0.);
-  auto EtHad              = Monitored::Scalar<float>("EF_EtHad",-10.);
-  auto EtEm               = Monitored::Scalar<float>("EF_EtEm",-10.);
-  auto EMFrac             = Monitored::Scalar<float>("EF_EMFrac",-10.);
-  auto IsoFrac            = Monitored::Scalar<float>("EF_IsoFrac",-1.);
-  auto centFrac           = Monitored::Scalar<float>("EF_centFrac",-10.);
+  auto emRadius           = Monitored::Scalar<float>("EMRadius", -0.099);
+  auto hadRadius          = Monitored::Scalar<float>("EMRadius", -0.099);
+  auto EtFinal            = Monitored::Scalar<float>("EtFinal", 0.);
+  auto Et                 = Monitored::Scalar<float>("Et", 0.);
+  auto EtHad              = Monitored::Scalar<float>("EtHad",-10.);
+  auto EtEm               = Monitored::Scalar<float>("EtEm",-10.);
+  auto EMFrac             = Monitored::Scalar<float>("EMFrac",-10.);
+  auto IsoFrac            = Monitored::Scalar<float>("IsoFrac",-1.);
+  auto centFrac           = Monitored::Scalar<float>("centFrac",-10.);
   auto nWideTrk           = Monitored::Scalar<int>("EF_nWideTrk",0);
-  auto ipSigLeadTrk       = Monitored::Scalar<float>("EF_ipSigLeadTrk",-1000.);
-  auto trFlightPathSig    = Monitored::Scalar<float>("EF_trFlightPathSig",-10.);
-  auto massTrkSys         = Monitored::Scalar<float>("EF_massTrkSys",-10.);
-  auto dRmax              = Monitored::Scalar<float>("EF_dRmax",-10.);
+  auto ipSigLeadTrk       = Monitored::Scalar<float>("ipSigLeadTrk",-1000.);
+  auto trFlightPathSig    = Monitored::Scalar<float>("trFlightPathSig",-10.);
+  auto massTrkSys         = Monitored::Scalar<float>("massTrkSys",-10.);
+  auto dRmax              = Monitored::Scalar<float>("dRmax",-10.);
   auto numTrack           = Monitored::Scalar<int>("EF_NTrk", -10);
-  auto trkAvgDist         = Monitored::Scalar<float>("EF_TrkAvgDist",-1.0);
-  auto etovPtLead         = Monitored::Scalar<float>("EF_EtovPtLead",-10.);
-  auto PSSFraction        = Monitored::Scalar<float>("EF_PSSFraction",-999.9);
-  auto EMPOverTrkSysP     = Monitored::Scalar<float>("EF_EMPOverTrkSysP",-999.9);
-  auto ChPiEMEOverCaloEME = Monitored::Scalar<float>("EF_ChPiEMEOverCaloEME",-999.9);
-  auto SumPtTrkFrac       = Monitored::Scalar<float>("EF_SumPtTrkFrac",-999.9);
-  auto innerTrkAvgDist    = Monitored::Scalar<float>("EF_innerTrkAvgDist",-1.0);
-  auto Ncand              = Monitored::Scalar<int>("EF_nCand",0);
-  auto ActualInteractions = Monitored::Scalar<float>("EF_ActualInteractions",-999.9);
-  auto AvgInteractions    = Monitored::Scalar<float>("EF_AvgInteractions",-999.9);
-  auto beamspot_x         = Monitored::Scalar<float>("EF_beamspot_x",-999.9);
-  auto beamspot_y         = Monitored::Scalar<float>("EF_beamspot_y",-999.9);
-  auto beamspot_z         = Monitored::Scalar<float>("EF_beamspot_z",-999.9);
+  auto trkAvgDist         = Monitored::Scalar<float>("TrkAvgDist",-1.0);
+  auto etovPtLead         = Monitored::Scalar<float>("EtovPtLead",-10.);
+  auto PSSFraction        = Monitored::Scalar<float>("PSSFraction",-999.9);
+  auto EMPOverTrkSysP     = Monitored::Scalar<float>("EMPOverTrkSysP",-999.9);
+  auto ChPiEMEOverCaloEME = Monitored::Scalar<float>("ChPiEMEOverCaloEME",-999.9);
+  auto SumPtTrkFrac       = Monitored::Scalar<float>("SumPtTrkFrac",-999.9);
+  auto innerTrkAvgDist    = Monitored::Scalar<float>("innerTrkAvgDist",-1.0);
+  auto Ncand              = Monitored::Scalar<int>("nCand",0);
+  auto ActualInteractions = Monitored::Scalar<float>("ActualInteractions",-999.9);
+  auto AvgInteractions    = Monitored::Scalar<float>("AvgInteractions",-999.9);
+  auto beamspot_x         = Monitored::Scalar<float>("beamspot_x",-999.9);
+  auto beamspot_y         = Monitored::Scalar<float>("beamspot_y",-999.9);
+  auto beamspot_z         = Monitored::Scalar<float>("beamspot_z",-999.9);
   auto EtaL1              = Monitored::Scalar<float>("EtaL1",-99.9);
   auto PhiL1              = Monitored::Scalar<float>("PhiL1",-99.9);
   auto EtaEF              = Monitored::Scalar<float>("EtaEF",-99.9);
@@ -183,10 +183,10 @@ StatusCode TrigTauRecMergedMT::execute()
   auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
-				     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
-				     dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
-				     innerTrkAvgDist, Ncand, ActualInteractions, AvgInteractions, beamspot_x, beamspot_y, beamspot_z, EtaL1,
-				     PhiL1, EtaEF, PhiEF );
+                                     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
+                                     dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
+                                     innerTrkAvgDist, Ncand, ActualInteractions, AvgInteractions, beamspot_x, beamspot_y, beamspot_z, EtaL1,
+                                     PhiL1, EtaEF, PhiEF );
 
   // Retrieve store.
   ATH_MSG_DEBUG("Executing TrigTauRecMergedMT");
@@ -425,7 +425,7 @@ StatusCode TrigTauRecMergedMT::execute()
   const xAOD::TrackParticleContainer *RoITrackParticleContainer = nullptr;
 
   if ( !TPContainerHandle.isValid() ) {
-    ATH_MSG_INFO("REGTEST: No Track container found.");
+    ATH_MSG_DEBUG("REGTEST: No Track container found.");
     track_errors.push_back(NoTrkCont);
   }
   else {
@@ -440,7 +440,7 @@ StatusCode TrigTauRecMergedMT::execute()
   const xAOD::VertexContainer* RoIVxContainer = nullptr;
 
   if( !VertexContainerHandle.isValid() ) {
-    ATH_MSG_INFO(" No VxContainers retrieved for the trigger element");
+    ATH_MSG_DEBUG(" No VxContainers retrieved for the trigger element");
     track_errors.push_back(NoVtxCont);
   }
   else {
@@ -570,8 +570,10 @@ StatusCode TrigTauRecMergedMT::execute()
     }
 
     // get tau detail variables for Monitoring
-    numTrack      = p_tau->nTracks();
+    numTrack = p_tau->nTracks();
     nWideTrk = p_tau->nTracksIsolation();
+    p_tau->detail(xAOD::TauJetParameters::numCells, nCells);
+    p_tau->detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
     p_tau->detail(xAOD::TauJetParameters::trkAvgDist, trkAvgDist);
     p_tau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, etovPtLead);
     p_tau->detail(xAOD::TauJetParameters::EMRadius, emRadius);

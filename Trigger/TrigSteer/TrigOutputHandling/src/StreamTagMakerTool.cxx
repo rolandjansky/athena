@@ -3,8 +3,6 @@
 */
 
 #include "StreamTagMakerTool.h"
-#include "TrigConfIO/JsonFileLoader.h"
-#include "TrigConfData/DataStructure.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/HLTChain.h"
 #include "eformat/StreamTag.h"
@@ -14,7 +12,8 @@ using namespace TrigCompositeUtils;
 // =============================================================================
 
 StreamTagMakerTool::StreamTagMakerTool( const std::string& type, const std::string& name, const IInterface* parent ):
-  base_class( type, name, parent ) {}
+   base_class( type, name, parent )
+{}
 
 // =============================================================================
 
@@ -27,13 +26,16 @@ StatusCode StreamTagMakerTool::initialize() {
   ATH_CHECK( m_pebDecisionKeys.initialize() );
   ATH_CHECK( m_finalChainDecisions.initialize() );
 
-  TrigConf::JsonFileLoader fileLoader;
-  TrigConf::HLTMenu hltMenu;
-  ATH_CHECK( fileLoader.loadFile(m_menuJSON, hltMenu) );
+  ATH_CHECK( m_hltMenuKey.initialize() );
 
-  ATH_MSG_INFO("Configuring from " << m_menuJSON << " with " << hltMenu.size() << " chains");
+  auto hltMenu = SG::makeHandle( m_hltMenuKey );
+  if( ! hltMenu.isValid() ) {
+    ATH_MSG_FATAL("Failed to get the HLT menu from the DetectorStore");
+    return StatusCode::FAILURE;
+  }
 
-  for (const TrigConf::Chain & chain : hltMenu) {
+  ATH_MSG_INFO("Configuring from HLTMenu from DetStore with " << hltMenu->size() << " chains");
+  for (const TrigConf::Chain & chain : *hltMenu) {
     std::vector<TrigConf::DataStructure> streams = chain.streams();
     if (streams.empty()) {
       ATH_MSG_ERROR("Chain " << chain.name() << " has no streams assigned");
@@ -62,7 +64,6 @@ StatusCode StreamTagMakerTool::initialize() {
       }
     }
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -72,10 +73,10 @@ StatusCode StreamTagMakerTool::finalize() {
 
 // =============================================================================
 
-StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
+StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const {
   // obtain chain decisions,
   using namespace TrigCompositeUtils;
-  auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
+  auto chainsHandle = SG::makeHandle( m_finalChainDecisions, ctx );
   if (!chainsHandle.isValid()) {
     ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
@@ -105,7 +106,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   decisionIDs(rerunChains, rerunIDs);
 
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
-  ATH_CHECK(fillPEBInfoMap(chainToPEBInfo));
+  ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
 
   // for each accepted chain lookup the map of chainID -> ST
   for ( DecisionID chain: passRawIDs ) {
@@ -122,6 +123,8 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
     const std::vector<StreamTagInfo>& streams = mappingIter->second;
     for (const StreamTagInfo& streamTagInfo : streams) {
       auto [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
+      ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " accepted event into stream " << st_type << "_" << st_name
+                    << " (obeysLB=" << obeysLB << ", forceFullEvent=" << forceFullEvent << ")");
       std::set<uint32_t> robs;
       std::set<eformat::SubDetector> subdets;
       if (!forceFullEvent) {
@@ -148,10 +151,10 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
 
 // =============================================================================
 
-StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEBInfoWriterToolBase::PEBInfo>& map) const {
+StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEBInfoWriterToolBase::PEBInfo>& map, const EventContext& ctx) const {
   for (const auto& key: m_pebDecisionKeys) {
     // Retrieve the decision container
-    auto handle = SG::makeHandle(key); //TODO: pass EventContext& explicitly here
+    auto handle = SG::makeHandle(key, ctx); //TODO: pass EventContext& explicitly here
     if (not handle.isValid())  {
       ATH_MSG_DEBUG("Missing input " <<  key.key() << " likely rejected");
       continue;

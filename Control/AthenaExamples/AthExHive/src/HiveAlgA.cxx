@@ -5,18 +5,15 @@
 #include "HiveAlgA.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
-#include <thread>
-#include <chrono>
-#include <ctime>
-#include <memory>
-
 HiveAlgA::HiveAlgA( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
-  ::HiveAlgBase( name, pSvcLocator ), m_i(1)
+  ::HiveAlgBase( name, pSvcLocator )
 {
 }
 
 HiveAlgA::~HiveAlgA() {}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode HiveAlgA::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
@@ -25,13 +22,18 @@ StatusCode HiveAlgA::initialize() {
   ATH_CHECK( m_wrh1.initialize() );
   ATH_CHECK( m_wrh2.initialize() );
 
+  // make sure we initialize the base class
   return HiveAlgBase::initialize();
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode HiveAlgA::finalize() {
   ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode HiveAlgA::execute() {
 

@@ -47,8 +47,7 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
 #include "TrkParameters/TrackParameters.h"       //vv
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
@@ -88,7 +87,6 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   m_idDictMgr                  (nullptr),
   m_truthToTrack               ("Trk::TruthToTrack"),
   m_trkSummaryTool             ("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
-  m_assoTool                   ("Trk::PRD_AssociationTool"),
   m_updatorHandle              ("Trk::KalmanUpdator/TrkKalmanUpdator"),
   m_updator                    (nullptr),
   m_residualPullCalculator     ("Trk::ResidualPullCalculator/ResidualPullCalculator"),
@@ -365,16 +363,17 @@ StatusCode InDet::InDetRecStatisticsAlg::execute() {
 
       //start process of getting correct track summary
 
+      // clean up association tool
+      std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
       if (m_doSharedHits) {
+        prd_to_track_map = std::move( m_assoTool->createPRDtoTrackMap() );
 	// clear prdAssociationTool (this may be altered)
-	m_assoTool->reset();
 	// loop over tracks and add PRD 
 	TrackCollection::const_iterator trackIt    = RecCollection->begin();
 	TrackCollection::const_iterator trackItEnd = RecCollection->end();
 	for ( ; trackIt != trackItEnd ; ++trackIt) {
-	  if ( (m_assoTool->addPRDs(**trackIt)).isFailure() ) {
-	    ATH_MSG_ERROR("could not add PRDs to association tool" 
-		);
+	  if ( (m_assoTool->addPRDs(*prd_to_track_map, **trackIt)).isFailure() ) {
+	    ATH_MSG_ERROR("could not add PRDs to association tool" );
 	  }
 	}
       }
@@ -389,6 +388,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute() {
       ATH_MSG_DEBUG("Accumulating Statistics...");
       (*statHelper)->addEvent    (RecCollection, 
 				  RecTracks, 
+                                  prd_to_track_map.get(),
 				  GenSignal, 
 				  TruthMap, 
 				  m_idHelper, 

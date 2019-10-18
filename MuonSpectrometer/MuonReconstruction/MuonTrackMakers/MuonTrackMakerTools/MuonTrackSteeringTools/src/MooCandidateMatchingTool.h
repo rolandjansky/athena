@@ -19,7 +19,7 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
+#include "MuonTrackSegmentMatchResult.h"
 
 #include <array>
 #include <atomic>

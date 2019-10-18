@@ -29,16 +29,14 @@ TRTRawDataProviderTool::TRTRawDataProviderTool
   :  AthAlgTool( type, name, parent ),
      m_decoder   ("TRT_RodDecoder",this),
      m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
-     m_robIdSet(),
      m_LastLvl1ID(),
-     m_LVL1Collection(nullptr),
-     m_BCCollection(nullptr),
-     m_storeInDetTimeColls(true)
+     m_storeInDetTimeColls(true),
+     m_doEventCheck(true)
 {
   declareProperty ("Decoder", m_decoder);
   declareProperty ("BSCondSvc", m_bsErrSvc);
   declareProperty ("StoreInDetTimeCollections", m_storeInDetTimeColls);
-
+  declareProperty ("checkLVL1ID", m_doEventCheck);
 
   declareInterface< ITRTRawDataProviderTool >( this );   
 }
@@ -103,21 +101,22 @@ StatusCode TRTRawDataProviderTool::finalize()
 // -------------------------------------------------------
 // convert method
 
-StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs,
+StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>& vecRobs,
 					    TRT_RDO_Container*               rdoIdc )
 {
 
-  static int DecodeErrCount = 0;
+  static std::atomic_int DecodeErrCount = 0;
 
   if(vecRobs.size() == 0) 
      return StatusCode::SUCCESS;
 
 
-
+  std::unique_ptr<InDetTimeCollection> LVL1Collection;
+  std::unique_ptr<InDetTimeCollection> BCCollection;
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
   
   // are we working on a new event ?
-  bool isNewEvent = ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID);
+  bool isNewEvent = m_doEventCheck ? ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID) : true;
 
   if ( isNewEvent )
   {
@@ -126,19 +125,17 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 #endif
     // remember last Lvl1ID
     m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
-    // reset list of known robIds
-    m_robIdSet.clear();
     // and clean up the identifable container !
-    rdoIdc->cleanup();    
+    rdoIdc->cleanup(); //TODO REMOVE AFTER TRIGGER LEGACY CODE RETIRED
 
     if ( m_storeInDetTimeColls )
     {
       // Create Collections for per ROD vectors on L1ID and BCID  
-      m_LVL1Collection = new InDetTimeCollection();
-      m_LVL1Collection->reserve(vecRobs.size());
+      LVL1Collection = std::make_unique<InDetTimeCollection>();
+      LVL1Collection->reserve(vecRobs.size());
   
-      m_BCCollection = new InDetTimeCollection();
-      m_BCCollection->reserve(vecRobs.size());  
+      BCCollection = std::make_unique<InDetTimeCollection>();
+      BCCollection->reserve(vecRobs.size());
     }
   }
 
@@ -148,16 +145,7 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 
     uint32_t robid = (*rob_it)->rod_source_id();
 
-    // check if this ROBFragment was already decoded (EF case in ROIs
-    if (!m_robIdSet.insert(robid).second)
-    {
 
-#ifdef TRT_BSC_DEBUG
-       ATH_MSG_DEBUG( " ROB Fragment with ID  " << std::hex<<robid<<std::dec<< " already decoded, skip" );
-#endif
-
-    } else {
-    
       if ( isNewEvent && m_storeInDetTimeColls )
       {
 	 /*
@@ -165,14 +153,10 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 	  */
 
 	 unsigned int lvl1id = (*rob_it)->rod_lvl1_id();
-	 std::pair<uint32_t, unsigned int>* lvl1Pair = 
-	    new std::pair<uint32_t, unsigned int>(std::make_pair( robid, lvl1id ));
-	 m_LVL1Collection->push_back( lvl1Pair ) ;
+	 LVL1Collection->emplace_back( robid, lvl1id ) ;
 	
 	 unsigned int bcid = (*rob_it)->rod_bc_id();  
-	 std::pair<uint32_t, unsigned int>* bcidPair = 
-	    new std::pair<uint32_t, unsigned int>(std::make_pair( robid, bcid ));
-	 m_BCCollection->push_back( bcidPair );
+	 BCCollection->emplace_back( robid, bcid );
       
 #ifdef TRT_BSC_DEBUG
 	 ATH_MSG_DEBUG( "Stored LVL1ID " << lvl1id << " and BCID " << bcid << " in InDetTimeCollections" );
@@ -195,7 +179,6 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 
 	// return sc;  Don't return on single ROD failure
       }
-    }
   }
 
   /*
@@ -209,8 +192,7 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     {
 
       SG::WriteHandle<InDetTimeCollection> lvl1id(m_lvl1idkey);
-      auto mylvl1 = std::make_unique<InDetTimeCollection>(*m_LVL1Collection);
-      sc = lvl1id.record(std::move(mylvl1));
+      sc = lvl1id.record(std::move(LVL1Collection));
       if ( sc.isFailure() ) 
       {   
 	ATH_MSG_WARNING( "failed to record LVL1ID TimeCollection" );
@@ -218,8 +200,7 @@ StatusCode TRTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
       }
 
       SG::WriteHandle<InDetTimeCollection> bcid(m_bcidkey);
-      auto mybc = std::make_unique<InDetTimeCollection>(*m_BCCollection);
-      sc = bcid.record(std::move(mybc));
+      sc = bcid.record(std::move(BCCollection));
       if ( sc.isFailure() ) 
       {   
 	ATH_MSG_WARNING( "failed to record BCID TimeCollection" );

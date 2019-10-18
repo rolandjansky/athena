@@ -45,16 +45,19 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     return result
 
 
-def registerOutputContainersForJetCollection(flags, JetCollection, prefix):
+def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
       """Registers the jet collection to various containers in BTaggingFlags which govern which
       containers will be parsed to the output xAOD and ESD files. This used to happen in
       ./share/BTagging_jobOptions.py.
 
       input: JetCollection:       The name of the jet collection."""
       ItemList = []
+      # btaggingLink
+      ItemList.append('xAOD::JetContainer#'+JetCollection+'Jets.btaggingLink' + suffix)
+      ItemList.append('xAOD::JetAuxContainer#'+JetCollection+'JetsAux.btaggingLink'+ suffix)
+
       OutputFilesSVname = "SecVtx"
       OutputFilesJFVxname = "JFVtx"
-
       OutputFilesBaseName = "xAOD::BTaggingContainer#"
       OutputFilesBaseAuxName = "xAOD::BTaggingAuxContainer#"
       OutputFilesBaseNameSecVtx = "xAOD::VertexContainer#"
@@ -62,7 +65,10 @@ def registerOutputContainersForJetCollection(flags, JetCollection, prefix):
       OutputFilesBaseNameJFSecVtx = "xAOD::BTagVertexContainer#"
       OutputFilesBaseAuxNameJFSecVtx= "xAOD::BTagVertexAuxContainer#"
 
-      author = prefix + JetCollection
+      if suffix:
+          suffix = '_' + suffix
+
+      author = flags.BTagging.OutputFiles.Prefix + JetCollection + suffix
       ItemList.append(OutputFilesBaseName + author)
       ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
       # SeCVert
@@ -74,12 +80,29 @@ def registerOutputContainersForJetCollection(flags, JetCollection, prefix):
 
       return ItemList
 
+def BTagRedoESDCfg(flags, jet):
+    acc=ComponentAccumulator()
+
+    #Delete BTagging container read from input ESD
+    from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.btaggingLink_old']
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo->BTagging_AntiKt4EMTopo_old']
+    acc.addService(AddressRemappingSvc)
+    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
+
+    #Register input ESD container in output
+    ESDItemList = registerOutputContainersForJetCollection(flags, jet)
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList))
+
+    return acc
 
 def BTagESDtoESDCfg(flags, jet, new):
     acc=ComponentAccumulator()
 
     #Register input ESD container in output
-    ESDItemList = registerOutputContainersForJetCollection(flags, jet, flags.BTagging.OutputFiles.Prefix)
+    ESDItemList = registerOutputContainersForJetCollection(flags, jet)
 
     #Register new ouput ESD container
     ESDnewItemList = registerOutputContainersForJetCollection(flags, jet, new)
@@ -95,6 +118,8 @@ def BTagCfg(inputFlags,**kwargs):
     #Once a first complete example runs, this will be split into small modular chunks.
     #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
     result=ComponentAccumulator()
+    timestamp = kwargs.get('TimeStamp', None)
+    if timestamp: del kwargs['TimeStamp']
 
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)
@@ -128,23 +153,20 @@ def BTagCfg(inputFlags,**kwargs):
     result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
     #Should be parameters
-    jet = 'AntiKt4EMTopo'
-    #jet = 'AntiKt4LCTopo'
+    JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow']
     taggerList = inputFlags.BTagging.run2TaggersList
     taggerList += ['MultiSVbb1','MultiSVbb2']
 
-    result.merge(BTagESDtoESDCfg(inputFlags, jet, "NewBTagging_"))
+    for jet in JetCollection:
+        if timestamp:
+            #Time-stamped BTagging container (21.2)
+            for ts in timestamp:
+              result.merge(BTagESDtoESDCfg(inputFlags, jet, ts))
+            kwargs['TimeStamp'] = timestamp
+        else:
+            result.merge(BTagRedoESDCfg(inputFlags, jet))
 
-    #If those lines are moved in BTagESDtoESDCfg, it fails
-    #Rename the element link of the BTagging container from the Jet container
-    from SGComps.SGCompsConf import AddressRemappingSvc
-    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.oldbtaggingLink']
-    result.addService(AddressRemappingSvc)    
-    result.getService('ProxyProviderSvc').ProviderNames += [ "AddressRemappingSvc" ]
-
-    kwargs['new_prefix'] = 'NewBTagging_'
-    result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
+        result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
 
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList))
 
@@ -158,6 +180,7 @@ if __name__=="__main__":
                             usage="Call with an input file, pass -n=0 to skip execution, -t 0 for serial or 1 for threaded execution.")
     parser.add_argument("-f", "--filesIn", default = inputESD, type=str, help="Comma-separated list of input files")
     parser.add_argument("-t", "--nThreads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
+    parser.add_argument("-r", "--release", default="22", type=str, help="Release number to test different scenarii.")
 
     args = parser.parse_args()
 
@@ -192,7 +215,10 @@ if __name__=="__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(cfgFlags))
 
-    acc.merge(BTagCfg(cfgFlags))
+    kwargs = {}
+    if args.release == "21.2":
+        kwargs["TimeStamp"] = ['201810','201903']
+    acc.merge(BTagCfg(cfgFlags, **kwargs))
 
     acc.setAppProperty("EvtMax",-1)
 

@@ -5,7 +5,6 @@
 #include "TrigMuonCoinHierarchy/TgcCoinHierarchyClassifyTool.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
@@ -21,7 +20,6 @@ namespace Trigger {
   TgcCoinHierarchyClassifyTool::TgcCoinHierarchyClassifyTool(const std::string& t, const std::string& n, 
                                                              const IInterface* p)
     : AthAlgTool(t, n, p)
-    , m_tgcHelper(0)
   {
     declareProperty("tgcCoinDataContainerNamePrior", m_tgcCoinDataContainerName[0]="TrigT1CoinDataCollectionPriorBC");
     declareProperty("tgcPrepDataContainerNamePrior", m_tgcPrepDataContainerName[0]="TGC_MeasurementsPriorBC");
@@ -46,22 +44,7 @@ namespace Trigger {
 
   StatusCode TgcCoinHierarchyClassifyTool::initialize() {
     ATH_MSG_DEBUG("initialize()");
-
-    // Retrieve MuonDetectorManager
-    const MuonGM::MuonDetectorManager *p_muonMgr;
-    StatusCode sc = detStore()->retrieve(p_muonMgr);
-    if(sc.isFailure()) {
-      ATH_MSG_FATAL("Could not retrieve MuonDetectorManager");
-      return sc;
-    }
-
-    // Retrieve TgcIdHelper
-    m_tgcHelper = p_muonMgr->tgcIdHelper();
-    if(!m_tgcHelper) {
-      ATH_MSG_FATAL("Could not retrieve TgcIdHelper");
-      return StatusCode::FAILURE;
-    }
-
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
     return StatusCode::SUCCESS;
   }
   
@@ -220,7 +203,7 @@ namespace Trigger {
           }
 
           // Add this hit to the corresponding TgcCoinHierarchyTriggerSector
-          TgcCoinHierarchy::TYPE p_type = m_TCH.isStripToTYPE(m_tgcHelper->isStrip(p_identify));
+          TgcCoinHierarchy::TYPE p_type = m_TCH.isStripToTYPE(m_muonIdHelperTool->tgcIdHelper().isStrip(p_identify));
           p_TrigSectorComb->setTiming(bc);
           p_TrigSectorComb->addHit(*ihh, p_type, p_station);
           sizeTgcPrepData++;
@@ -236,9 +219,9 @@ namespace Trigger {
   }
 
   TgcCoinHierarchy::STATION TgcCoinHierarchyClassifyTool::getSTATION(Identifier identify) const {
-    if(!m_tgcHelper->is_tgc(identify)) return TgcCoinHierarchy::NOTSTATION;
+    if(!m_muonIdHelperTool->tgcIdHelper().is_tgc(identify)) return TgcCoinHierarchy::NOTSTATION;
 
-    int stationName = m_tgcHelper->stationName(identify);
+    int stationName = m_muonIdHelperTool->tgcIdHelper().stationName(identify);
     return m_TCH.stationNameToSTATION(stationName);
   }
 
@@ -247,24 +230,24 @@ namespace Trigger {
                                                       unsigned int& isForward, 
                                                       unsigned int& phi) const {
     // Check that Identifier is one of TGC
-    if(!m_tgcHelper->is_tgc(identify)) return false;
+    if(!m_muonIdHelperTool->tgcIdHelper().is_tgc(identify)) return false;
 
     // Check that Identifier is in TGC Big Wheel
     TgcCoinHierarchy::STATION station = getSTATION(identify);
     if(station==TgcCoinHierarchy::NOTSTATION) return false;
 
-    int stationName = m_tgcHelper->stationName(identify);
+    int stationName = m_muonIdHelperTool->tgcIdHelper().stationName(identify);
     isForward = static_cast<unsigned int>(m_TCH.stationNameToIsForward(stationName));
-    isAside = static_cast<unsigned int>(m_tgcHelper->stationEta(identify)>0);
+    isAside = static_cast<unsigned int>(m_muonIdHelperTool->tgcIdHelper().stationEta(identify)>0);
 
-    phi = static_cast<unsigned int>(m_tgcHelper->stationPhi(identify));
+    phi = static_cast<unsigned int>(m_muonIdHelperTool->tgcIdHelper().stationPhi(identify));
     if(phi==0 || phi>=TgcCoinHierarchy::NPHIS) return false;
 
     return true;
   }
 
   bool TgcCoinHierarchyClassifyTool::isStrip(Identifier identify) const {
-    return m_tgcHelper->isStrip(identify);
+    return m_muonIdHelperTool->tgcIdHelper().isStrip(identify);
   } 
 
 } // end of namespace Trigger

@@ -4,7 +4,6 @@
 
 #include "LArHVScaleCorrCondAlg.h"
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
@@ -125,6 +124,15 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
   // get DCS HVData
   SG::ReadCondHandle<LArHVData> hvDataHdl(m_hvKey, ctx);
   const LArHVData *hvdata = *hvDataHdl;
+  
+  // Define validity of the output cond object
+  EventIDRange rangeW;
+  if(!hvDataHdl.range(rangeW)) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << hvDataHdl.key());
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_DEBUG("Range LArHVData " << rangeW);
 
   // Online HVScaleCorr (if needed to subtract)
   const ILArHVScaleCorr *onlHVCorr = nullptr;
@@ -136,6 +144,13 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
          ATH_MSG_ERROR("Do not have online HV corr. conditions object, but asked to undo !!!!");
          return StatusCode::FAILURE;
      }
+     EventIDRange rangeIn;
+     if (!onlHVCorrHdl.range(rangeIn)) {
+       ATH_MSG_ERROR("Failed to retrieve validity range for " << onlHVCorrHdl.key());
+	 return StatusCode::FAILURE;
+       }
+     rangeW=EventIDRange::intersect(rangeW,rangeIn);
+     ATH_MSG_DEBUG("Range of online HV Scale " << rangeIn << ", intersection: " << rangeW);
 
   } 
 
@@ -146,13 +161,6 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
      return StatusCode::FAILURE;
   }
 
-
-  // Define validity of the output cond object
-  EventIDRange rangeW;
-  if(!hvDataHdl.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << hvDataHdl.key());
-    return StatusCode::FAILURE;
-  }
 
   std::vector<float> vScale;
   vScale.resize(182468,(float)1.0);

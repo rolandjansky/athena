@@ -113,7 +113,7 @@ StatusCode DFlowAlg3::execute()
 
   // create a temporary r-handle
   SG::ReadHandle< std::vector<int> > ints( inputVectorHandle.name() );
-  StatusCode sc = ints.setProxyDict( ctx.getExtension<Atlas::ExtendedEventContext>().proxy() );
+  StatusCode sc = ints.setProxyDict( Atlas::getExtendedEventContext(ctx).proxy() );
   if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " );
   ATH_MSG_INFO( "temporary r-handle[ints] - size: " << ints->size() );
 

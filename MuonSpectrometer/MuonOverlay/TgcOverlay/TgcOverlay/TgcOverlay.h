@@ -24,7 +24,7 @@ public:
   TgcOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   SG::ReadHandleKey<TgcDigitContainer> m_bkgInputKey{ this, "BkgInputKey", "Bkg_TGC_DIGITS", "ReadHandleKey for Background Input TgcDigitContainer" };

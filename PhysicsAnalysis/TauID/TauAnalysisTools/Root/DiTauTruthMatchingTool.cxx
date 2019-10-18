@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -85,23 +85,17 @@ void DiTauTruthMatchingTool::applyTruthMatch(const std::vector<const xAOD::DiTau
 StatusCode DiTauTruthMatchingTool::findTruthTau(const xAOD::DiTauJet& xDiTau)
 {
   // check if decorations were already added to the first passed tau
-  if (!m_bIsTruthMatchedAvailableChecked)
-  {
-    m_bIsTruthMatchedAvailable = xDiTau.isAvailable<char>("IsTruthMatched");
-    m_bIsTruthMatchedAvailableChecked = true;
-    if (m_bIsTruthMatchedAvailable)
-    {
-      ATH_MSG_DEBUG("IsTruthMatched decoration is available on first tau processed, switched of rerun for further taus.");
-      ATH_MSG_DEBUG("If a truth matching needs to be redone, please pass a shallow copy of the original tau.");
-    }
+  if (!m_bIsTruthMatchedAvailable.isValid()) {
+    bool avail = xDiTau.isAvailable<char>("IsTruthMatched");
+    m_bIsTruthMatchedAvailable.set (avail);
   }
-  if (m_bIsTruthMatchedAvailable)
+  if (*m_bIsTruthMatchedAvailable.ptr())
     return StatusCode::SUCCESS;
 
   if (m_bTruthTauAvailable)
-    return checkTruthMatch(xDiTau, *m_xTruthTauContainerConst);
+    return checkTruthMatch(xDiTau, *m_truthTausEvent.m_xTruthTauContainerConst);
   else
-    return checkTruthMatch(xDiTau, *m_xTruthTauContainer);
+    return checkTruthMatch(xDiTau, *m_truthTausEvent.m_xTruthTauContainer);
 }
 
 //______________________________________________________________________________
@@ -174,12 +168,12 @@ StatusCode DiTauTruthMatchingTool::checkTruthMatch (const xAOD::DiTauJet& xDiTau
       }
       else if (eTruthMatchedParticleType == TruthMuon)
       {
-        ElementLink <xAOD::TruthParticleContainer> lTruthParticleLink(xTruthMatch, *m_xTruthMuonContainerConst);
+        ElementLink <xAOD::TruthParticleContainer> lTruthParticleLink(xTruthMatch, *m_truthTausEvent.m_xTruthMuonContainerConst);
         vTruthLinks.push_back(lTruthParticleLink);
       }
       else if (eTruthMatchedParticleType  == TruthElectron)
       {
-        ElementLink <xAOD::TruthParticleContainer> lTruthParticleLink(xTruthMatch, *m_xTruthElectronContainerConst);
+        ElementLink <xAOD::TruthParticleContainer> lTruthParticleLink(xTruthMatch, *m_truthTausEvent.m_xTruthElectronContainerConst);
         vTruthLinks.push_back(lTruthParticleLink);
       }
     }
@@ -243,10 +237,10 @@ StatusCode DiTauTruthMatchingTool::truthMatch(const TLorentzVector& vSubjetTLV,
     }
   }
 
-  if (!xTruthMatch and m_xTruthMuonContainerConst)
+  if (!xTruthMatch and m_truthTausEvent.m_xTruthMuonContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthMuonIt : *m_xTruthMuonContainerConst)
+    for (auto xTruthMuonIt : *m_truthTausEvent.m_xTruthMuonContainerConst)
     {
       if (vSubjetTLV.DeltaR(xTruthMuonIt->p4()) <= m_dMaxDeltaR)
       {
@@ -260,10 +254,10 @@ StatusCode DiTauTruthMatchingTool::truthMatch(const TLorentzVector& vSubjetTLV,
     }
   }
 
-  if (!xTruthMatch and m_xTruthElectronContainerConst)
+  if (!xTruthMatch and m_truthTausEvent.m_xTruthElectronContainerConst)
   {
     double dPtMax = 0;
-    for (auto xTruthElectronIt : *m_xTruthElectronContainerConst)
+    for (auto xTruthElectronIt : *m_truthTausEvent.m_xTruthElectronContainerConst)
     {
       if (vSubjetTLV.DeltaR(xTruthElectronIt->p4()) <= m_dMaxDeltaR)
       {

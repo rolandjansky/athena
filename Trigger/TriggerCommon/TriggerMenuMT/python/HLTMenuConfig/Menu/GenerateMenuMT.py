@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from PyUtils.Decorators import memoize
+from six import add_metaclass
+
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
@@ -9,7 +12,7 @@ from TriggerJobOpts.TriggerFlags              import TriggerFlags
 
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT  import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
+from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
@@ -20,8 +23,20 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
 
 _func_to_modify_signatures = None
 
+
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+# for now we make this a singleton because calling menu generation twice leads to problems
+@add_metaclass(Singleton)
 class GenerateMenuMT(object):
 
+    @staticmethod
     def overwriteSignaturesWith(f):
         """
         == Function to generate menu for certain signatures only
@@ -32,7 +47,6 @@ class GenerateMenuMT(object):
             log.warning('Updating the function to modify signatures from %s to %s',
                         _func_to_modify_signatures.__name__, f.__name__)
         _func_to_modify_signatures = f
-    overwriteSignaturesWith = staticmethod(overwriteSignaturesWith)
             
     
     def __init__(self):
@@ -48,27 +62,27 @@ class GenerateMenuMT(object):
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau', 
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias', 
                               'Monitor', 'Calib', 'Streaming', 'Combined'] #, AFP
-        self.calibCosmicMonSigs = ['Streaming'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
-        self.doEgammaChains         = True 
-        self.doJetChains            = True 
-        self.doBjetChains           = True 
-        self.doMuonChains           = True 
-        self.doBphysicsChains       = True 
-        self.doMETChains            = True 
-        self.doTauChains            = True 
-        self.doAFPChains            = True 
-        self.doMinBiasChains        = True 
-        self.doHeavyIonChains       = True 
-        self.doCosmicChains         = True 
-        self.doCalibrationChains    = True 
-        self.doStreamingChains      = True 
-        self.doMonitorChains        = True 
-        self.doBeamspotChains       = True 
-        self.doEnhancedBiasChains   = True 
-        self.doTestChains           = True         
-        self.doCombinedChains       = True 
+        self.doEgammaChains         = True
+        self.doJetChains            = True
+        self.doBjetChains           = True
+        self.doMuonChains           = True
+        self.doBphysicsChains       = True
+        self.doMETChains            = True
+        self.doTauChains            = True
+        self.doAFPChains            = True
+        self.doMinBiasChains        = True
+        self.doHeavyIonChains       = True
+        self.doCosmicChains         = True
+        self.doCalibrationChains    = True
+        self.doStreamingChains      = True
+        self.doMonitorChains        = True
+        self.doBeamspotChains       = True
+        self.doEnhancedBiasChains   = True
+        self.doTestChains           = True
+        self.doCombinedChains       = True
 
         
     def setTriggerConfigHLT(self):
@@ -136,7 +150,7 @@ class GenerateMenuMT(object):
         else:
             log.info("Doing nothing with L1 menu configuration...")
                        
-
+    @memoize
     def generateAllChainConfigs(self):
         """
         == Obtains chain configs for all chains in menu
@@ -147,18 +161,17 @@ class GenerateMenuMT(object):
         chainsInMenu = self.getChainsFromMenu()
         
         # decoding of the chain name
-        decodeChainName = DictFromChainName.DictFromChainName()
         chainCounter = 0
 
         for chain in chainsInMenu:
             log.debug("Currently processing chain: %s ", chain) 
-            chainDict = decodeChainName.getChainDict(chain)
+            chainDict = dictFromChainName(chain)
 
             chainCounter += 1
             chainDict['chainCounter'] = chainCounter
 
             log.debug("Next: getting chain configuration for chain %s ", chain) 
-            chainConfig= self.generateChainConfig(chainDict)
+            chainConfig= self.__generateChainConfig(chainDict)
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
             TriggerConfigHLT.registerChain( chainDict, chainConfig )
@@ -166,6 +179,7 @@ class GenerateMenuMT(object):
 
         return TriggerConfigHLT.configsList()
 
+    @memoize
     def getChainsFromMenu(self):
         """
         == Returns the list of chain names that are in the menu 
@@ -200,7 +214,7 @@ class GenerateMenuMT(object):
         return chains 
                                 
 
-    def generateChainConfig(self, mainChainDict):
+    def __generateChainConfig(self, mainChainDict):
         """
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
@@ -218,7 +232,6 @@ class GenerateMenuMT(object):
                     else:
                         sigFolder = sig
                         subSigs = [sig]
-
                     for ss in subSigs: 
                         if sigFolder == 'Combined':
                             continue
@@ -298,10 +311,17 @@ class GenerateMenuMT(object):
 
         else:
             theChainConfig = listOfChainConfigs[0]
-            
+        
+        # Configure event building strategy
+        eventBuildType = mainChainDict['eventBuildType']
+        if eventBuildType:
+            log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
+            from TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup import addEventBuildingSequence
+            addEventBuildingSequence(theChainConfig, eventBuildType)
+
         return theChainConfig
 
-
+    @memoize
     def generateMT(self):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu

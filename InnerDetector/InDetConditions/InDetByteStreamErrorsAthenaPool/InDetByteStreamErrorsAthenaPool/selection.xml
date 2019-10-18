@@ -3,5 +3,4 @@
   <class name="InDetBSErrContainer_p2" id="ECBBC13B-0A44-4694-AD24-574A7598C627" />
   <class name="TRT_BSErrContainer_p1" id="D461AC01-02CA-4A9E-886B-24EC14309121" />
   <class name="TRT_BSIdErrContainer_p1" id="26F44F1E-D1F5-43B3-93E9-09376AB37491" />
-  <class name="SCT_ByteStreamFractionContainer_p1" id="EB75984C-F651-4F40-BA1C-9C2A0A558A55" />
 </lcgdict>

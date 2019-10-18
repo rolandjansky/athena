@@ -54,6 +54,7 @@ protected:
       "EtThresholdCut", 1.5*Gaudi::Units::GeV,
       "The minimum EM Et required of SEED clusters (not applied to secondaries)"};
 
+
   // these are calculated search window values
   float m_searchWindowEtaBarrel; //!< half of search window size, converted to units of eta
   float m_searchWindowPhiBarrel; //!< half of search window size, converted to units of phi
@@ -124,8 +125,7 @@ private:
   float m_addCellsWindowPhiBarrel; //!< half of addCells window size, converted to units of phi
   float m_addCellsWindowEtaEndcap; //!< half of addCells window size, converted to units of eta
   float m_addCellsWindowPhiEndcap; //!< half of addCells window size, converted to units of phi
-  float m_extraL0L1PhiSizeBarrel; //!< calculated value of cells to add in units of phi
-  float m_extraL0L1PhiSizeEndcap; //!< calculated value of cells to add in units of phi
+  float m_extraL0L1PhiSize; //!< calculated value of cells to add in units of phi
 
   /** @brief Size of search window in eta for the barrel */
   Gaudi::Property<int> m_searchWindowEtaCellsBarrel {this,
@@ -167,28 +167,12 @@ private:
       "AddCellsWindowPhiCellsEndcap", 999 /*5 for SW*/,
       "Number of cells in phi of window around topocluster center to add cells"};
 
-  /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the acceptance (barrel)? */
-  Gaudi::Property<int> m_extraL0L1PhiSizeCellsBarrel {this,
-      "ExtraL0L1PhiSizeBarrel", 1,
-      "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance (barrel)? Make large to remove limit"};
-
-  /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the acceptance (endcap)?*/
-  Gaudi::Property<int> m_extraL0L1PhiSizeCellsEndcap {this,
-      "ExtraL0L1PhiSizeEndcap", 1,
-      "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance (endcap)? Make large to remove limit"};
-
-  /** @brief Whether to refine the eta1 calculation */
-  Gaudi::Property<bool> m_refineEta1 {this, "RefineEta1", true, 
-      "Whether to Refine Eta1 calculation"};
-   
-  /** @brief Whether to run cluster correction */
-  Gaudi::Property<bool> m_correctClusters {this, "CorrectClusters", true, 
-      "Whether to run cluster corrections"};
-
-  /** @brief Whether to run cluster calibration */
-  Gaudi::Property<bool> m_calibrateClusters {this, "CalibrateClusters", true, 
-      "Whether to run cluster calibrations"};
-
+  /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the acceptance */
+  Gaudi::Property<int> m_extraL0L1PhiSizeCells {this,
+      "ExtraL0L1PhiSize", 1,
+      "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells) is the acceptance. Make large to remove limit"};
+ 
+ 
   /** @brief Handle to the MVA calibration service **/
   ServiceHandle<IegammaMVASvc>  m_MVACalibSvc {this,
       "MVACalibSvc", "egammaMVASvc", "calibration service"};
@@ -200,8 +184,8 @@ private:
 
   /** @brief Pointer to the egammaCheckEnergyDepositTool*/
   ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this,
-      "egammaCheckEnergyDepositTool", "",
-      "Optional tool that performs basic checks of viability of cluster"};
+    "egammaCheckEnergyDepositTool", "",
+    "Optional tool that performs basic checks of viability of cluster"};
 
   /** @brief Position in Calo frame**/  
   CaloCellDetPos m_caloCellDetPos;

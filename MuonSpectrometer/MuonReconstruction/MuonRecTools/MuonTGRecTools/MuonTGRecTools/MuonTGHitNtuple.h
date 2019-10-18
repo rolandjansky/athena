@@ -17,6 +17,7 @@
 #include "MuonTGRecTools/IMuonTGMeasTool.h"
 #include "MuonHolesOnTrackTool.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
@@ -78,12 +79,6 @@ class MuonTGHitNtuple : public AthAlgorithm
   Identifier getCscId(const CSCSimHit*) const;
   Identifier getTgcId(const TGCSimHit*) const;
   
-  // reconstruction id helper
-  const MdtIdHelper* m_mdtIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
-  const CscIdHelper* m_cscIdHelper;
-
   // simulation id helper
   MdtHitIdHelper* m_mdtHelper;
   RpcHitIdHelper* m_rpcHelper;
@@ -93,6 +88,8 @@ class MuonTGHitNtuple : public AthAlgorithm
 
   const MuonGM::MuonDetectorManager* m_muonMgr;
 
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<Trk::ITrackHoleSearchTool>    m_holesTool;
   ToolHandle<Muon::IMuonTGMeasTool>   m_measTool;
   mutable const Trk::TrackingGeometry* m_trackingGeometry;

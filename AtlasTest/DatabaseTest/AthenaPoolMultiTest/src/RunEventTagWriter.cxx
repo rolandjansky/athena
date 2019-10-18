@@ -14,8 +14,6 @@
 
 #include "CoralBase/AttributeListSpecification.h"
 
-#include "CxxUtils/make_unique.h"
-
 #include <cassert>
 #include <stdlib.h>
 #include <exception>

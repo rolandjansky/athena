@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file NavigableCnv_p1.icc
@@ -10,34 +10,40 @@
 #include <stdexcept>
 
 #include "Navigation/Navigable.h"
+#include "AthenaKernel/getThinningCache.h"
+
 
 //#include <iostream>
 
 //#define NAV_P1_DEBUG
 
+
 template <typename NAV, typename RPAR>
 void
-NavigableCnv_p1<NAV, RPAR>::transToPers(const Navigable_t* trans,
-					PersNavigable_t* pers,
-					MsgStream& msg) 
+NavigableCnv_p1<NAV, RPAR>::transToPers(const Navigable_t& trans,
+                                        PersNavigable_t& pers,
+                                        const SG::ThinningCache* cache,
+                                        MsgStream& msg) const
 {
+  pers.m_parameters.clear();
+
   // collect all element links into a temporary vector
   ElementLinkVect_t			   elv;
-  elv.reserve(trans->size());
+  elv.reserve(trans.size());
   /// FIXME: should we also reserve some space for pers->m_parameters ?!?
-  //pers->m_parameters.reserve( pers->m_parameters.size() + link_coll.size() );
+  //pers.m_parameters.reserve( pers.m_parameters.size() + link_coll.size() );
 
-  typename NAV::object_iter iter = trans->begin();
-  typename NAV::object_iter end  = trans->end();
+  typename NAV::object_iter iter = trans.begin();
+  typename NAV::object_iter end  = trans.end();
 
   while( iter != end ) {
     #ifdef NAV_P1_DEBUG
     msg << MSG::DEBUG << "NavigableCnv_p1::transToPers(): Weight["
-	<< pers->m_parameters.size()-1 <<"]="
-	<< pers->m_parameters[pers->m_parameters.size()-1] << endmsg;
+	<< pers.m_parameters.size()-1 <<"]="
+	<< pers.m_parameters[pers.m_parameters.size()-1] << endmsg;
     #endif
     elv.push_back( iter.getElement() );
-    pers->m_parameters.push_back( iter.getParameter() );
+    pers.m_parameters.push_back( iter.getParameter() );
     ++iter;
   }
   // this is not needed (and might actually crash if thinning occurred!)
@@ -45,26 +51,40 @@ NavigableCnv_p1<NAV, RPAR>::transToPers(const Navigable_t* trans,
   //elv.toPersistent();
   
   // convert the link vector to persistent
-  m_linkCnv.transToPers(elv, pers->m_links, msg);
+  m_linkCnv.transToPers(elv, pers.m_links, cache, msg);
 }
 
    
+template <typename NAV, typename RPAR>
+void
+NavigableCnv_p1<NAV, RPAR>::transToPers(const Navigable_t& trans,
+                                        PersNavigable_t& pers,
+                                        MsgStream& msg) const
+{
+  transToPers (trans, pers,
+               SG::getThinningCache(),
+               msg);
+}
+
+
 template <typename NAV, typename RPAR >
-void NavigableCnv_p1<NAV, RPAR >::persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& msg) 
+void NavigableCnv_p1<NAV, RPAR >::persToTrans(const PersNavigable_t& pers,
+                                              Navigable_t& trans,
+                                              MsgStream& msg) const
 {
   // create a temporary link vector from persistent
    ElementLinkVect_t	elv;   
-   m_linkCnv.persToTrans(pers->m_links, elv, msg);
+   m_linkCnv.persToTrans(pers.m_links, elv, msg);
    elv.toTransient();
 
    // copy from link vector into navigable
    size_t	size = elv.size();
-   trans->removeAll();
+   trans.removeAll();
    for( size_t i = 0; i < size; ++i ) {
-     trans->insertElement (elv[i], pers->m_parameters[i], size);
+     trans.insertElement (elv[i], pers.m_parameters[i], size);
       #ifdef NAV_P1_DEBUG
       msg << MSG::DEBUG << "NavigableCnv_p1::PersToTrans(): Weight[" <<i <<"]="
-	  <<  pers->m_parameters[i] << endmsg;
+	  <<  pers.m_parameters[i] << endmsg;
       #endif
    }
 }
@@ -74,9 +94,9 @@ template <typename NAV, typename RPAR>
 inline
 void
 NavigableCnv_p1<NAV, RPAR>
-::transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& msg) 
+::transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& msg) const
 {
-   this->transToPers(&trans, &pers, msg);
+   this->transToPers(*trans, *pers, msg);
 }
 
 
@@ -84,28 +104,32 @@ template <typename NAV, typename RPAR >
 inline
 void
 NavigableCnv_p1<NAV, RPAR >
-::persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& msg) 
+::persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& msg) const
 {
-   this->persToTrans(&pers, &trans, msg);
+   this->persToTrans(*pers, *trans, msg);
 }
 
 
 //-----------------------------------------------------
 // Specialized version of the converter for Navigables without weight parameters
 
+
 template <typename NAV >
 void
 NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
-::transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& msg) 
+::transToPers(const Navigable_t& trans,
+              PersNavigable_t& pers,
+              const SG::ThinningCache* cache,
+              MsgStream& msg) const
 {
   // collect all element links into a temporary vector
   ElementLinkVect_t			 elv;
-  elv.reserve(trans->size());
+  elv.reserve(trans.size());
   /// FIXME: should we also reserve some space for pers->m_parameters ?!?
-  //pers->m_parameters.reserve( pers->m_parameters.size() + link_coll.size() );
+  //pers.m_parameters.reserve( pers.m_parameters.size() + link_coll.size() );
 
-  typename NAV::object_iter iter = trans->begin();
-  typename NAV::object_iter end  = trans->end();
+  typename NAV::object_iter iter = trans.begin();
+  typename NAV::object_iter end  = trans.end();
 
   while( iter != end ) {
     elv.push_back( iter.getElement() );
@@ -116,7 +140,20 @@ NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
   //elv.toPersistent();
 
   // convert the link vector to persistent
-  m_linkCnv.transToPers(elv, pers->m_links, msg);
+  m_linkCnv.transToPers(elv, pers.m_links, cache, msg);
+}
+
+
+template <typename NAV >
+void
+NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
+::transToPers(const Navigable_t& trans,
+              PersNavigable_t& pers,
+              MsgStream& msg) const
+{
+  transToPers (trans, pers,
+               SG::getThinningCache(),
+               msg);
 }
 
 
@@ -124,9 +161,9 @@ template <typename NAV >
 inline
 void
 NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
-::transToPers(const Navigable_t& trans, PersNavigable_t& pers, MsgStream& msg) 
+::transToPers(const Navigable_t* trans, PersNavigable_t* pers, MsgStream& msg) const
 {
-   this->transToPers(&trans, &pers, msg);
+   this->transToPers(*trans, *pers, msg);
 }
 
 
@@ -135,18 +172,20 @@ NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
 template <typename NAV >
 void
 NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
-::persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& msg) 
+::persToTrans(const PersNavigable_t& pers,
+              Navigable_t& trans,
+              MsgStream& msg) const
 {
   // create a temporary link vector from persistent
    ElementLinkVect_t	elv;   
-   m_linkCnv.persToTrans(pers->m_links, elv, msg);
+   m_linkCnv.persToTrans(pers.m_links, elv, msg);
    elv.toTransient();
 
    // copy from link vector into navigable
    size_t	size = elv.size();
-   trans->removeAll();
+   trans.removeAll();
    for( size_t i = 0; i < size; ++i ) {
-     trans->insertElement (elv[i], NavigationDefaults::DefaultWeight(), size);
+     trans.insertElement (elv[i], NavigationDefaults::DefaultWeight(), size);
    }
 }
 
@@ -155,7 +194,7 @@ template <typename NAV >
 inline
 void
 NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
-::persToTrans(const PersNavigable_t& pers, Navigable_t& trans, MsgStream& msg) 
+::persToTrans(const PersNavigable_t* pers, Navigable_t* trans, MsgStream& msg) const
 {
-   this->persToTrans(&pers, &trans, msg);
+   this->persToTrans(*pers, *trans, msg);
 }

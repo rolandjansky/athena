@@ -26,21 +26,22 @@ class EtaEtConditionMT: public IConditionMT{
  public:
   EtaEtConditionMT(double etaMin,
                  double etaMax,
-                 double threshold);
+		   double threshold0);
+
   ~EtaEtConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   virtual unsigned int capacity() const override{return s_capacity;}
-
   std::string toString() const noexcept override;
+  
  private:
 
   double m_etaMin;
   double m_etaMax;
   double m_threshold;
-  
+
   bool isSatisfied(const pHypoJet&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
   

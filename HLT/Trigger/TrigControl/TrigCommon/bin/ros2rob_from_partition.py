@@ -2,6 +2,7 @@
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import eformat
 from pm.project import Project
 from argparse import ArgumentParser
@@ -30,7 +31,7 @@ def make_parser_print_help_on_error(parser):
   error in the command line
   """
   def error(self, msg):
-    print >> stderr, 'error: %s\n' % msg
+    print('error: %s\n' % msg, file=stderr)
     self.print_help()
     exit(2)
   parser.error = MethodType(error, parser)
@@ -48,8 +49,8 @@ def get_ros2rob(roses):
   ros2rob = {}
   for ros in roses:
     if ros.id in ros2rob:
-      print >> stderr, ("WARNING: %s is repeated in the partition: ignoring "
-                        "second occurrence")
+      print("WARNING: %s is repeated in the partition: ignoring "
+            "second occurrence", file=stderr)
     else:
       ros2rob[ros.id] = get_robs(ros)
   return ros2rob
@@ -66,25 +67,25 @@ def print_ros2rob(ros2rob, out):
   """
   Print the ros2rob map as an easily readable/editable python dictionary
   """
-  print >> out, "ros2rob = {"
+  print("ros2rob = {", file=out)
   count = 0
   for k, v in ros2rob.iteritems():
     count += 1
-    print >> out, "\t'%s': \n\t[" % k
+    print("\t'%s': \n\t[" % k, file=out)
     for i in range(len(v)):
-      print >> out, "\t\t%s" % hex(v[i]), 
+      print("\t\t%s" % hex(v[i]), end=' ', file=out) 
       if i+1 != len(v):
-        print >> out, ","
+        print(",", file=out)
       else:
-        print >> out, "\n\t]",
+        print("\n\t]", end=' ', file=out)
     if count != len(ros2rob):
-      print >> out, ","
-  print >> out, "\n}"
+      print(",", file=out)
+  print("\n}", file=out)
 
 # main
 if __name__ == '__main__':
   args = argparser().parse_args()
   out = open(args.output_file, 'w') if args.output_file else stdout
-  print >> stderr, "# Extracting ROS2ROB map"
-  print >> out, "# ROS2ROB map extracted from %s:" % args.database_file
+  print("# Extracting ROS2ROB map", file=stderr)
+  print("# ROS2ROB map extracted from %s:" % args.database_file, file=out)
   print_ros2rob(get_ros2rob(get_roses(args.database_file, args.partition)), out)

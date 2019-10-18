@@ -131,7 +131,7 @@ MdtVsTgcRawDataValAlg::prepareTREarray(){
         
         // Get identifier of TRE at this set of indexes
         bool *isValid = new bool(true);
-        Identifier tgc_testId = m_tgcIdHelper->elementID(stationName, stationEta, stationPhi, true, isValid);
+        Identifier tgc_testId = m_muonIdHelperTool->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true, isValid);
         if(!*isValid){delete isValid; continue;}
         delete isValid;
         

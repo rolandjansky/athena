@@ -9,7 +9,6 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "MuonCondSvc/MuonAlignmentDbSvc.h"
 /////////////////////////////////////////////////////////////////////////////
 
 class AlignCondAthTest:public AthAlgorithm {
@@ -26,7 +25,6 @@ public:
 private:
 ///////////////////////////////////
 
-   MuonCalib::MuonAlignmentDbSvc* p_MuonAlignmentDbSvc; 
 };
 
 #endif

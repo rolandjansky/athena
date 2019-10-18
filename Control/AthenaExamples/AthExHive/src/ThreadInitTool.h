@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHIVE_THREADINITTOOL_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IThreadInitTool.h"
-//#include "GaudiKernel/ToolHandle.h"
 
 #include <string>
 #include <atomic>
@@ -37,9 +36,7 @@ public:
   virtual void initThread();
   virtual void terminateThread();
 
-
   virtual unsigned int nInit() const { return m_nInitThreads; }
-
 
 private:
   // Number of threads that have been initialized

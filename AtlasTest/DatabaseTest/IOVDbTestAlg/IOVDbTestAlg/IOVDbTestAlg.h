@@ -20,7 +20,6 @@
 
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "StoreGate/DataHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"

@@ -21,10 +21,12 @@ TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISv
   ,m_muonContainerKey("Muons")
   ,m_vertexContainerKey("PrimaryVertices")
   ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
+  ,m_doRun2(false)
 {
   declareProperty ("AllChains", m_allChains);
   declareProperty("MuonContainerName",m_muonContainerKey);
   declareProperty("VertexContainerName",m_vertexContainerKey);
+  declareProperty("doRun2",m_doRun2);
 }
 
 
@@ -95,7 +97,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     
     // Access to TrigFeature
     //    bool Run2_Access = true;
-    bool Run2_Access = false;
+    //    bool Run2_Access = false;
 
     
     if ( m_trigDecTool->isPassed(trigName) ) {
@@ -146,8 +148,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
       // Read the TrigFeature contener
 
-      // if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 trigger
-      if (Run2_Access) { // Run 2 trigger
+      if (m_doRun2) { // Run 2 trigger
 
 	ATH_MSG_INFO("  ===> Run 2 access to Trigger feature: " );
 	Trig::FeatureContainer fc = m_trigDec->features(trigName);
@@ -277,20 +278,30 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       } else { // Run 3 trigger
 	ATH_MSG_INFO("  ===> Run 3 access to Trigger feature: " );
 
-	// bjet chains 
+	// bjet chains
 	if (bjetChain) {
-
-	  // online PV  ==> to be done later
-
+	  // online PV 
+	  SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey, ctx);
+	  for (const xAOD::Vertex* vtx : *vtxContainer) {
+	    if (vtx->vertexType() == xAOD::VxType::PriVtx) {
+	      std::string NameH = "PVz_tr_"+trigName;
+	      ATH_MSG_INFO( " NameH: " << NameH  );
+	      auto PVz_tr = Monitored::Scalar<float>(NameH,0.0);
+	      PVz_tr = vtx->z();
+	      ATH_MSG_INFO("        PVz_tr: " << PVz_tr);
+	      fill("TrigBjetMonitor",PVz_tr);
+	    } // if vtx type
+	  } // loop on vtxContainer
 	} // if bjetChain
 
 	//bjet or mujet chains 
 	if (bjetChain || mujetChain) {
 
-	  // Jets
+	  // Jets and PV through jet link
 	  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics, jetKey);
+	  int ijet = 0;
 	  for(const auto jetLinkInfo : onlinejets) {
-	    // jetPt 
+	    // jetPt
 	    const xAOD::Jet* jet = *(jetLinkInfo.link);
 	    std::string NameH = "jetPt_"+trigName;
 	    ATH_MSG_INFO( " NameH: " << NameH  );
@@ -298,6 +309,18 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    jetPt = (jet->pt())*1.e-3;
 	    ATH_MSG_INFO("        jetPt: " << jetPt);
 	    fill("TrigBjetMonitor",jetPt);
+	    // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
+	    if (ijet == 0) {
+	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
+	      const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
+	      NameH = "PVz_jet_"+trigName;
+	      ATH_MSG_INFO( " NameH: " << NameH  );
+	      auto PVz_jet = Monitored::Scalar<float>(NameH,0.0);
+	      PVz_jet = vtx->z();
+	      ATH_MSG_INFO("        PVz_jet: " << PVz_jet);
+	      fill("TrigBjetMonitor",PVz_jet);
+	    }
+	    ijet++;
 	  } // onlinejets
 
 	} //bjet or mujet

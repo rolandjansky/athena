@@ -443,7 +443,7 @@ TopAlgorithm.Tool2                 INFO Retrieved TheToolTool = PrivateToolHandl
 TopAlgorithm.Tool2.CxxDefault...  DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm.Tool2                 INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
 TopAlgorithm.Tool2                DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
-TopAlgorithm.Tool2                DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2.CxxDefaultTool (ConcreteTool) from ToolHandleArray TheToolToolArray
+TopAlgorithm.Tool2                DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2.CxxDefaultTool (ConcreteTool)
 TopAlgorithm.Tool2                DEBUG Adding public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
 TopAlgorithm.Tool2                DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2.ConcreteTool (ConcreteTool)
 TopAlgorithm.Tool3                DEBUG Property update for OutputLevel : new value = 2
@@ -460,13 +460,13 @@ TopAlgorithm                       INFO Empty public tool is empty (OK)
 TopAlgorithm                      DEBUG input handles: 0
 TopAlgorithm                      DEBUG output handles: 0
 TopAlgorithm                      DEBUG Registering all Tools in ToolHandleArray PrivateToolList
-TopAlgorithm                      DEBUG Adding private ToolHandle tool TopAlgorithm.Tool1 (ConcreteTool) from ToolHandleArray PrivateToolList
-TopAlgorithm                      DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2 (ToolUsingTool) from ToolHandleArray PrivateToolList
-TopAlgorithm                      DEBUG Adding private ToolHandle tool TopAlgorithm.Tool3 (ToolSpace::TemplatedTool<double>) from ToolHandleArray PrivateToolList
+TopAlgorithm                      DEBUG Adding private ToolHandle tool TopAlgorithm.Tool1 (ConcreteTool)
+TopAlgorithm                      DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2 (ToolUsingTool)
+TopAlgorithm                      DEBUG Adding private ToolHandle tool TopAlgorithm.Tool3 (ToolSpace::TemplatedTool<double>)
 TopAlgorithm                      DEBUG Registering all Tools in ToolHandleArray PublicToolList
-TopAlgorithm                      DEBUG Adding public ToolHandle tool ToolSvc.Tool4 (ConcreteTool) from ToolHandleArray PublicToolList
-TopAlgorithm                      DEBUG Adding public ToolHandle tool ToolSvc.Tool5 (ToolUsingTool) from ToolHandleArray PublicToolList
-TopAlgorithm                      DEBUG Adding public ToolHandle tool ToolSvc.Tool6 (ToolSpace::TemplatedTool<double>) from ToolHandleArray PublicToolList
+TopAlgorithm                      DEBUG Adding public ToolHandle tool ToolSvc.Tool4 (ConcreteTool)
+TopAlgorithm                      DEBUG Adding public ToolHandle tool ToolSvc.Tool5 (ToolUsingTool)
+TopAlgorithm                      DEBUG Adding public ToolHandle tool ToolSvc.Tool6 (ToolSpace::TemplatedTool<double>)
 TopAlgorithm                      DEBUG Adding private ToolHandle tool TopAlgorithm.TSTT (ToolSpace::TemplatedTool<double>)
 TopAlgorithm                      DEBUG Adding public ToolHandle tool ToolSvc.ConcreteTool (ConcreteTool)
 TopAlgorithm                      DEBUG Data Deps for TopAlgorithm
@@ -478,7 +478,7 @@ MyAlg.ToolUsingTool                INFO Retrieved TheToolTool = PrivateToolHandl
 MyAlg.ToolUsingTool.CxxDefaul...  DEBUG Property update for OutputLevel : new value = 2
 MyAlg.ToolUsingTool                INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
 MyAlg.ToolUsingTool               DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
-MyAlg.ToolUsingTool               DEBUG Adding private ToolHandle tool MyAlg.ToolUsingTool.CxxDefaultTool (ConcreteTool) from ToolHandleArray TheToolToolArray
+MyAlg.ToolUsingTool               DEBUG Adding private ToolHandle tool MyAlg.ToolUsingTool.CxxDefaultTool (ConcreteTool)
 MyAlg.ToolUsingTool               DEBUG Adding public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
 MyAlg.ToolUsingTool               DEBUG Adding private ToolHandle tool MyAlg.ToolUsingTool.ConcreteTool (ConcreteTool)
 MyAlg                              INFO Retrieved TheTool = PrivateToolHandle('ToolUsingTool/ToolUsingTool')
@@ -493,7 +493,7 @@ MyAlg.Special                      INFO Retrieved TheToolTool = PrivateToolHandl
 MyAlg.Special.PySpSubTool         DEBUG Property update for OutputLevel : new value = 2
 MyAlg.Special                      INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/PySpSubTool'])
 MyAlg.Special                     DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
-MyAlg.Special                     DEBUG Adding private ToolHandle tool MyAlg.Special.PySpSubTool (ConcreteTool) from ToolHandleArray TheToolToolArray
+MyAlg.Special                     DEBUG Adding private ToolHandle tool MyAlg.Special.PySpSubTool (ConcreteTool)
 MyAlg.Special                     DEBUG Adding public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
 MyAlg.Special                     DEBUG Adding private ToolHandle tool MyAlg.Special.PyTSTTSp1 (ToolSpace::TemplatedTool<double>)
 MyAlg                              INFO Retrieved PrivateToolList = PrivateToolHandleArray(['ConcreteTool/PyCT1','ConcreteTool/PyCT2','ToolSpace::TemplatedTool<double>/PyTSTT3','ToolSpace::TemplatedTool<double>/PyTSTT4','ToolUsingTool/Special'])
@@ -506,17 +506,17 @@ MyAlg                              INFO Empty public tool is empty (OK)
 MyAlg                             DEBUG input handles: 0
 MyAlg                             DEBUG output handles: 0
 MyAlg                             DEBUG Registering all Tools in ToolHandleArray PrivateToolList
-MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyCT1 (ConcreteTool) from ToolHandleArray PrivateToolList
-MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyCT2 (ConcreteTool) from ToolHandleArray PrivateToolList
-MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyTSTT3 (ToolSpace::TemplatedTool<double>) from ToolHandleArray PrivateToolList
-MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyTSTT4 (ToolSpace::TemplatedTool<double>) from ToolHandleArray PrivateToolList
-MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.Special (ToolUsingTool) from ToolHandleArray PrivateToolList
+MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyCT1 (ConcreteTool)
+MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyCT2 (ConcreteTool)
+MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyTSTT3 (ToolSpace::TemplatedTool<double>)
+MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.PyTSTT4 (ToolSpace::TemplatedTool<double>)
+MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.Special (ToolUsingTool)
 MyAlg                             DEBUG Registering all Tools in ToolHandleArray PublicToolList
-MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.Tool4 (ConcreteTool) from ToolHandleArray PublicToolList
-MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.Tool5 (ToolUsingTool) from ToolHandleArray PublicToolList
-MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.Tool6 (ToolSpace::TemplatedTool<double>) from ToolHandleArray PublicToolList
-MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.PyCT5 (ConcreteTool) from ToolHandleArray PublicToolList
-MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.PyTSTT7 (ToolSpace::TemplatedTool<double>) from ToolHandleArray PublicToolList
+MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.Tool4 (ConcreteTool)
+MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.Tool5 (ToolUsingTool)
+MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.Tool6 (ToolSpace::TemplatedTool<double>)
+MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.PyCT5 (ConcreteTool)
+MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.PyTSTT7 (ToolSpace::TemplatedTool<double>)
 MyAlg                             DEBUG Adding private ToolHandle tool MyAlg.ToolUsingTool (ToolUsingTool)
 MyAlg                             DEBUG Adding public ToolHandle tool ToolSvc.ConcreteTool (ConcreteTool)
 MyAlg                             DEBUG Data Deps for MyAlg

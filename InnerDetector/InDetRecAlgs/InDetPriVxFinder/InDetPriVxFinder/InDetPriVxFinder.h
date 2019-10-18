@@ -27,6 +27,9 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+
+
 /** Primary Vertex Finder.
   InDetPriVxFinder uses the InDetPrimaryVertexFinderTool in the package
   InnerDetector/InDetRecTools/InDetPriVxFinderTool. It only gives the trackcollection from storegate to it
@@ -53,6 +56,11 @@ namespace InDet
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
+
+   //Monitoring of the vertex variables
+   void monitor_vertex( const std::string &prefix, xAOD::Vertex vertex );
+   
+
   private:
     SG::ReadHandleKey<TrackCollection> m_trkTracksName{this,"TrkTracksName","Tracks","Trk::Track Collection used in Vertexing"};
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksName{this,"TracksName","InDetTrackParticles","xAOD::TrackParticle Collection used in Vertexing"};
@@ -69,6 +77,8 @@ namespace InDet
     // for summary output at the end
     unsigned int m_numEventsProcessed;
     unsigned int m_totalNumVerticesWithoutDummy;
+
+    ToolHandle<GenericMonitoringTool> m_monTool{this, "PriVxMonTool", "", "Monitoring tool"};
   };
 }
 #endif

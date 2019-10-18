@@ -20,7 +20,7 @@ BCMSensorSDTool::BCMSensorSDTool(const std::string& type, const std::string& nam
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* BCMSensorSDTool::makeSD()
+G4VSensitiveDetector* BCMSensorSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
 

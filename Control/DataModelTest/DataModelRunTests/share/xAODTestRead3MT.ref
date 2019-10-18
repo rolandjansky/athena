@@ -1,6 +1,7 @@
-Sun Sep  1 23:00:17 EDT 2019
+Fri Sep 13 19:42:17 CEST 2019
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [atlas-work3/85aadd0a07c] -- built on [2019-09-13T1706]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
@@ -8,25 +9,30 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead3MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead3_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5002 configurables from 2 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ConfigurableDb    INFO Read module info for 5537 configurables from 45 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 45 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -DMTest__xAODTestWriteCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataWrite.DataModelTestDataWriteConf']
+Py:ConfigurableDb WARNING   -DMTest__xAODTestReadCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataRead.DataModelTestDataReadConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sun Sep  1 23:00:21 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r1)
+                                          running on lxplus737.cern.ch on Fri Sep 13 19:42:31 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 4252 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 3920 CLIDRegistry entries for module ALL
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
@@ -34,9 +40,9 @@ MetaDataSvc                                        INFO Initializing MetaDataSvc
 AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                            INFO Frontier compression level set to 5
-DBReplicaSvc                                       INFO Read replica configuration from /home/sss/atlas/rootaccess/build/share/dbreplica.config
-DBReplicaSvc                                       INFO No specific match for domain found - use default fallback
-DBReplicaSvc                                       INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-12T2129/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus737.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                            INFO Successfully setup replica sorting algorithm
 PoolSvc                                            INFO Setting up APR FileCatalog and Streams
 PoolSvc                                            INFO POOL WriteCatalog is file:xAODTestRead3MT_catalog.xml
@@ -75,16 +81,17 @@ Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase 
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
+Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 4EC35BD1-81C2-3740-9065-E07420B5AC48
 Domain[ROOT_All]                                   INFO                           xaoddata3.root
 RootDatabase.open                                  INFO xaoddata3.root File version:61800
-ClassIDSvc                                         INFO  getRegistryEntries: read 1816 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 2112 CLIDRegistry entries for module ALL
 EventPersistencySvc                                INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 274 CLIDRegistry entries for module ALL
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 9548 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 320 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 1006 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 6410 CLIDRegistry entries for module ALL
 PyComponentMgr                              0      INFO Initializing PyComponentMgr...
 LoadReadDicts                               0      INFO Initializing LoadReadDicts...
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 136 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 754 CLIDRegistry entries for module ALL
 ThreadPoolSvc                               0      INFO no thread init tools attached
 AvalancheSchedulerSvc                       0      INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                       0      INFO Found 17 algorithms
@@ -185,11 +192,11 @@ AthenaHiveEventLoopMgr                      0      INFO Setup EventSelector serv
 ApplicationMgr                              0      INFO Application Manager Initialized successfully
 PoolSvc                                     0      INFO Enabled implicit multithreading in ROOT via PersistencySvc to: 1
 xaoddata3.root                              0      INFO Database being retired...
-Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
+Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 4EC35BD1-81C2-3740-9065-E07420B5AC48
 Domain[ROOT_All]                            0      INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession                                   0      INFO     Open     DbSession    
 Domain[ROOT_All]                            0      INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
+Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] 4EC35BD1-81C2-3740-9065-E07420B5AC48
 Domain[ROOT_All]                            0      INFO                           xaoddata3.root
 RootDatabase.open                           0      INFO xaoddata3.root File version:61800
 ApplicationMgr                              0      INFO Application Manager Started successfully
@@ -197,7 +204,7 @@ AthenaHiveEventLoopMgr                      0      INFO Starting loop on events
 AthenaPoolConverter                     0   0      INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
 xAODTestReadCVec                        0   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        0   0      INFO Type of aux store: DMTest::CAuxContainer_v1
 RootAuxDynReader                        0   0      INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=225 typename=f) has different type than the branch vector<int>
@@ -254,7 +261,7 @@ xAODTestReadCVec                        0   0      INFO  anInt1 110 aFloat: 200.
 xAODTestReadCInfo                       0   0      INFO cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 xAODTestReadCInfo                       0   0      INFO cinfo  anInt1 1000 aFloat: 0.1 anInt2: 2000 dInt1: 3000 cEL: cvec[1]
 xAODTestRead                            0   0      INFO 1
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 58 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
 xAODTestRead                            0   0      INFO ctrig aux items: aFloat anInt anInt2 dInt1 
 xAODTestRead                            0   0      INFO  anInt1 501 aFloat: 600 anInt2: 701 dInt1: 481
 xAODTestRead                            0   0      INFO  anInt1 502 aFloat: 600.1 anInt2: 702 dInt1: 482
@@ -264,7 +271,7 @@ xAODTestRead                            0   0      INFO  anInt1 505 aFloat: 600.
 xAODTestRead                            0   0      INFO  anInt1 506 aFloat: 600.5 anInt2: 706 dInt1: 486
 xAODTestRead                            0   0      INFO  anInt1 507 aFloat: 600.6 anInt2: 707 dInt1: 487
 xAODTestRead                            0   0      INFO  anInt1 508 aFloat: 600.7 anInt2: 708 dInt1: 488
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 32 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 34 CLIDRegistry entries for module ALL
 xAODTestRead                            0   0      INFO cvecWD 1001: 201 202 203 204 205 206 207 208 209 210
 xAODTestReadCView                       0   0      INFO cview: 110 109 108 107 106 105 104 103 102 101
 xAODTestReadHVec                        0   0      INFO hvec: 401.5 402.5 403.5 404.5 405.5 406.5 407.5 408.5 409.5 410.5 411.5 412.5 413.5 414.5 415.5 416.5 417.5 418.5 419.5 420.5
@@ -338,7 +345,7 @@ xAODTestRead_copy                       0   0      INFO copy_cvecWD 1001: 201 20
 xAODTestReadCView_copy                  0   0      INFO copy_cview: 110 109 108 107 106 105 104 103 102 101
 xAODTestReadHVec_copy                   0   0      INFO copy_hvec: 401.5 402.5 403.5 404.5 405.5 406.5 407.5 408.5 409.5 410.5 411.5 412.5 413.5 414.5 415.5 416.5 417.5 418.5 419.5 420.5
 xAODTestReadHVec_copy                   0   0      INFO copy_hview: 420.5 419.5 418.5 417.5 416.5 415.5 414.5 413.5 412.5 411.5 410.5 409.5 408.5 407.5 406.5 405.5 404.5 403.5 402.5 401.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  start processing event #1, run #0 on slot 0,  1 events processed so far  <<<===
 xAODTestReadCVec                        1   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        1   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -476,7 +483,7 @@ xAODTestRead_copy                       1   0      INFO copy_cvecWD 1002: 401 40
 xAODTestReadCView_copy                  1   0      INFO copy_cview: 210 209 208 207 206 205 204 203 202 201
 xAODTestReadHVec_copy                   1   0      INFO copy_hvec: 801.5 802.5 803.5 804.5 805.5 806.5 807.5 808.5 809.5 810.5 811.5 812.5 813.5 814.5 815.5 816.5 817.5 818.5 819.5 820.5
 xAODTestReadHVec_copy                   1   0      INFO copy_hview: 820.5 819.5 818.5 817.5 816.5 815.5 814.5 813.5 812.5 811.5 810.5 809.5 808.5 807.5 806.5 805.5 804.5 803.5 802.5 801.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  start processing event #2, run #0 on slot 0,  2 events processed so far  <<<===
 xAODTestReadCVec                        2   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        2   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -614,7 +621,7 @@ xAODTestRead_copy                       2   0      INFO copy_cvecWD 1003: 601 60
 xAODTestReadCView_copy                  2   0      INFO copy_cview: 310 309 308 307 306 305 304 303 302 301
 xAODTestReadHVec_copy                   2   0      INFO copy_hvec: 1201.5 1202.5 1203.5 1204.5 1205.5 1206.5 1207.5 1208.5 1209.5 1210.5 1211.5 1212.5 1213.5 1214.5 1215.5 1216.5 1217.5 1218.5 1219.5 1220.5
 xAODTestReadHVec_copy                   2   0      INFO copy_hview: 1220.5 1219.5 1218.5 1217.5 1216.5 1215.5 1214.5 1213.5 1212.5 1211.5 1210.5 1209.5 1208.5 1207.5 1206.5 1205.5 1204.5 1203.5 1202.5 1201.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  start processing event #3, run #0 on slot 0,  3 events processed so far  <<<===
 xAODTestReadCVec                        3   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        3   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -752,7 +759,7 @@ xAODTestRead_copy                       3   0      INFO copy_cvecWD 1004: 801 80
 xAODTestReadCView_copy                  3   0      INFO copy_cview: 410 409 408 407 406 405 404 403 402 401
 xAODTestReadHVec_copy                   3   0      INFO copy_hvec: 1601.5 1602.5 1603.5 1604.5 1605.5 1606.5 1607.5 1608.5 1609.5 1610.5 1611.5 1612.5 1613.5 1614.5 1615.5 1616.5 1617.5 1618.5 1619.5 1620.5
 xAODTestReadHVec_copy                   3   0      INFO copy_hview: 1620.5 1619.5 1618.5 1617.5 1616.5 1615.5 1614.5 1613.5 1612.5 1611.5 1610.5 1609.5 1608.5 1607.5 1606.5 1605.5 1604.5 1603.5 1602.5 1601.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  start processing event #4, run #0 on slot 0,  4 events processed so far  <<<===
 xAODTestReadCVec                        4   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        4   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -790,7 +797,7 @@ xAODTestRead_copy                       4   0      INFO copy_cvecWD 1005: 1001 1
 xAODTestReadCView_copy                  4   0      INFO copy_cview:
 xAODTestReadHVec_copy                   4   0      INFO copy_hvec: 2001.5 2002.5 2003.5 2004.5 2005.5 2006.5 2007.5 2008.5 2009.5 2010.5 2011.5 2012.5 2013.5 2014.5 2015.5 2016.5 2017.5 2018.5 2019.5 2020.5
 xAODTestReadHVec_copy                   4   0      INFO copy_hview: 2020.5 2019.5 2018.5 2017.5 2016.5 2015.5 2014.5 2013.5 2012.5 2011.5 2010.5 2009.5 2008.5 2007.5 2006.5 2005.5 2004.5 2003.5 2002.5 2001.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  start processing event #5, run #0 on slot 0,  5 events processed so far  <<<===
 xAODTestReadCVec                        5   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        5   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -928,7 +935,7 @@ xAODTestRead_copy                       5   0      INFO copy_cvecWD 1006: 1201 1
 xAODTestReadCView_copy                  5   0      INFO copy_cview: 610 609 608 607 606 605 604 603 602 601
 xAODTestReadHVec_copy                   5   0      INFO copy_hvec: 2401.5 2402.5 2403.5 2404.5 2405.5 2406.5 2407.5 2408.5 2409.5 2410.5 2411.5 2412.5 2413.5 2414.5 2415.5 2416.5 2417.5 2418.5 2419.5 2420.5
 xAODTestReadHVec_copy                   5   0      INFO copy_hview: 2420.5 2419.5 2418.5 2417.5 2416.5 2415.5 2414.5 2413.5 2412.5 2411.5 2410.5 2409.5 2408.5 2407.5 2406.5 2405.5 2404.5 2403.5 2402.5 2401.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  start processing event #6, run #0 on slot 0,  6 events processed so far  <<<===
 xAODTestReadCVec                        6   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        6   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -1066,7 +1073,7 @@ xAODTestRead_copy                       6   0      INFO copy_cvecWD 1007: 1401 1
 xAODTestReadCView_copy                  6   0      INFO copy_cview: 710 709 708 707 706 705 704 703 702 701
 xAODTestReadHVec_copy                   6   0      INFO copy_hvec: 2801.5 2802.5 2803.5 2804.5 2805.5 2806.5 2807.5 2808.5 2809.5 2810.5 2811.5 2812.5 2813.5 2814.5 2815.5 2816.5 2817.5 2818.5 2819.5 2820.5
 xAODTestReadHVec_copy                   6   0      INFO copy_hview: 2820.5 2819.5 2818.5 2817.5 2816.5 2815.5 2814.5 2813.5 2812.5 2811.5 2810.5 2809.5 2808.5 2807.5 2806.5 2805.5 2804.5 2803.5 2802.5 2801.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  start processing event #7, run #0 on slot 0,  7 events processed so far  <<<===
 xAODTestReadCVec                        7   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        7   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -1204,7 +1211,7 @@ xAODTestRead_copy                       7   0      INFO copy_cvecWD 1008: 1601 1
 xAODTestReadCView_copy                  7   0      INFO copy_cview: 810 809 808 807 806 805 804 803 802 801
 xAODTestReadHVec_copy                   7   0      INFO copy_hvec: 3201.5 3202.5 3203.5 3204.5 3205.5 3206.5 3207.5 3208.5 3209.5 3210.5 3211.5 3212.5 3213.5 3214.5 3215.5 3216.5 3217.5 3218.5 3219.5 3220.5
 xAODTestReadHVec_copy                   7   0      INFO copy_hview: 3220.5 3219.5 3218.5 3217.5 3216.5 3215.5 3214.5 3213.5 3212.5 3211.5 3210.5 3209.5 3208.5 3207.5 3206.5 3205.5 3204.5 3203.5 3202.5 3201.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  start processing event #8, run #0 on slot 0,  8 events processed so far  <<<===
 xAODTestReadCVec                        8   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        8   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -1342,7 +1349,7 @@ xAODTestRead_copy                       8   0      INFO copy_cvecWD 1009: 1801 1
 xAODTestReadCView_copy                  8   0      INFO copy_cview: 910 909 908 907 906 905 904 903 902 901
 xAODTestReadHVec_copy                   8   0      INFO copy_hvec: 3601.5 3602.5 3603.5 3604.5 3605.5 3606.5 3607.5 3608.5 3609.5 3610.5 3611.5 3612.5 3613.5 3614.5 3615.5 3616.5 3617.5 3618.5 3619.5 3620.5
 xAODTestReadHVec_copy                   8   0      INFO copy_hview: 3620.5 3619.5 3618.5 3617.5 3616.5 3615.5 3614.5 3613.5 3612.5 3611.5 3610.5 3609.5 3608.5 3607.5 3606.5 3605.5 3604.5 3603.5 3602.5 3601.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  start processing event #9, run #0 on slot 0,  9 events processed so far  <<<===
 xAODTestReadCVec                        9   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        9   0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -1480,7 +1487,7 @@ xAODTestRead_copy                       9   0      INFO copy_cvecWD 1010: 2001 2
 xAODTestReadCView_copy                  9   0      INFO copy_cview: 1010 1009 1008 1007 1006 1005 1004 1003 1002 1001
 xAODTestReadHVec_copy                   9   0      INFO copy_hvec: 4001.5 4002.5 4003.5 4004.5 4005.5 4006.5 4007.5 4008.5 4009.5 4010.5 4011.5 4012.5 4013.5 4014.5 4015.5 4016.5 4017.5 4018.5 4019.5 4020.5
 xAODTestReadHVec_copy                   9   0      INFO copy_hview: 4020.5 4019.5 4018.5 4017.5 4016.5 4015.5 4014.5 4013.5 4012.5 4011.5 4010.5 4009.5 4008.5 4007.5 4006.5 4005.5 4004.5 4003.5 4002.5 4001.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  start processing event #10, run #0 on slot 0,  10 events processed so far  <<<===
 xAODTestReadCVec                        10  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        10  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -1618,7 +1625,7 @@ xAODTestRead_copy                       10  0      INFO copy_cvecWD 1011: 2201 2
 xAODTestReadCView_copy                  10  0      INFO copy_cview: 1110 1109 1108 1107 1106 1105 1104 1103 1102 1101
 xAODTestReadHVec_copy                   10  0      INFO copy_hvec: 4401.5 4402.5 4403.5 4404.5 4405.5 4406.5 4407.5 4408.5 4409.5 4410.5 4411.5 4412.5 4413.5 4414.5 4415.5 4416.5 4417.5 4418.5 4419.5 4420.5
 xAODTestReadHVec_copy                   10  0      INFO copy_hview: 4420.5 4419.5 4418.5 4417.5 4416.5 4415.5 4414.5 4413.5 4412.5 4411.5 4410.5 4409.5 4408.5 4407.5 4406.5 4405.5 4404.5 4403.5 4402.5 4401.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  start processing event #11, run #0 on slot 0,  11 events processed so far  <<<===
 xAODTestReadCVec                        11  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        11  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -1756,7 +1763,7 @@ xAODTestRead_copy                       11  0      INFO copy_cvecWD 1012: 2401 2
 xAODTestReadCView_copy                  11  0      INFO copy_cview: 1210 1209 1208 1207 1206 1205 1204 1203 1202 1201
 xAODTestReadHVec_copy                   11  0      INFO copy_hvec: 4801.5 4802.5 4803.5 4804.5 4805.5 4806.5 4807.5 4808.5 4809.5 4810.5 4811.5 4812.5 4813.5 4814.5 4815.5 4816.5 4817.5 4818.5 4819.5 4820.5
 xAODTestReadHVec_copy                   11  0      INFO copy_hview: 4820.5 4819.5 4818.5 4817.5 4816.5 4815.5 4814.5 4813.5 4812.5 4811.5 4810.5 4809.5 4808.5 4807.5 4806.5 4805.5 4804.5 4803.5 4802.5 4801.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  start processing event #12, run #0 on slot 0,  12 events processed so far  <<<===
 xAODTestReadCVec                        12  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        12  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -1894,7 +1901,7 @@ xAODTestRead_copy                       12  0      INFO copy_cvecWD 1013: 2601 2
 xAODTestReadCView_copy                  12  0      INFO copy_cview: 1310 1309 1308 1307 1306 1305 1304 1303 1302 1301
 xAODTestReadHVec_copy                   12  0      INFO copy_hvec: 5201.5 5202.5 5203.5 5204.5 5205.5 5206.5 5207.5 5208.5 5209.5 5210.5 5211.5 5212.5 5213.5 5214.5 5215.5 5216.5 5217.5 5218.5 5219.5 5220.5
 xAODTestReadHVec_copy                   12  0      INFO copy_hview: 5220.5 5219.5 5218.5 5217.5 5216.5 5215.5 5214.5 5213.5 5212.5 5211.5 5210.5 5209.5 5208.5 5207.5 5206.5 5205.5 5204.5 5203.5 5202.5 5201.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  start processing event #13, run #0 on slot 0,  13 events processed so far  <<<===
 xAODTestReadCVec                        13  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        13  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -2032,7 +2039,7 @@ xAODTestRead_copy                       13  0      INFO copy_cvecWD 1014: 2801 2
 xAODTestReadCView_copy                  13  0      INFO copy_cview: 1410 1409 1408 1407 1406 1405 1404 1403 1402 1401
 xAODTestReadHVec_copy                   13  0      INFO copy_hvec: 5601.5 5602.5 5603.5 5604.5 5605.5 5606.5 5607.5 5608.5 5609.5 5610.5 5611.5 5612.5 5613.5 5614.5 5615.5 5616.5 5617.5 5618.5 5619.5 5620.5
 xAODTestReadHVec_copy                   13  0      INFO copy_hview: 5620.5 5619.5 5618.5 5617.5 5616.5 5615.5 5614.5 5613.5 5612.5 5611.5 5610.5 5609.5 5608.5 5607.5 5606.5 5605.5 5604.5 5603.5 5602.5 5601.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  start processing event #14, run #0 on slot 0,  14 events processed so far  <<<===
 xAODTestReadCVec                        14  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        14  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -2170,7 +2177,7 @@ xAODTestRead_copy                       14  0      INFO copy_cvecWD 1015: 3001 3
 xAODTestReadCView_copy                  14  0      INFO copy_cview: 1510 1509 1508 1507 1506 1505 1504 1503 1502 1501
 xAODTestReadHVec_copy                   14  0      INFO copy_hvec: 6001.5 6002.5 6003.5 6004.5 6005.5 6006.5 6007.5 6008.5 6009.5 6010.5 6011.5 6012.5 6013.5 6014.5 6015.5 6016.5 6017.5 6018.5 6019.5 6020.5
 xAODTestReadHVec_copy                   14  0      INFO copy_hview: 6020.5 6019.5 6018.5 6017.5 6016.5 6015.5 6014.5 6013.5 6012.5 6011.5 6010.5 6009.5 6008.5 6007.5 6006.5 6005.5 6004.5 6003.5 6002.5 6001.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  start processing event #15, run #0 on slot 0,  15 events processed so far  <<<===
 xAODTestReadCVec                        15  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        15  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -2308,7 +2315,7 @@ xAODTestRead_copy                       15  0      INFO copy_cvecWD 1016: 3201 3
 xAODTestReadCView_copy                  15  0      INFO copy_cview: 1610 1609 1608 1607 1606 1605 1604 1603 1602 1601
 xAODTestReadHVec_copy                   15  0      INFO copy_hvec: 6401.5 6402.5 6403.5 6404.5 6405.5 6406.5 6407.5 6408.5 6409.5 6410.5 6411.5 6412.5 6413.5 6414.5 6415.5 6416.5 6417.5 6418.5 6419.5 6420.5
 xAODTestReadHVec_copy                   15  0      INFO copy_hview: 6420.5 6419.5 6418.5 6417.5 6416.5 6415.5 6414.5 6413.5 6412.5 6411.5 6410.5 6409.5 6408.5 6407.5 6406.5 6405.5 6404.5 6403.5 6402.5 6401.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  start processing event #16, run #0 on slot 0,  16 events processed so far  <<<===
 xAODTestReadCVec                        16  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        16  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -2446,7 +2453,7 @@ xAODTestRead_copy                       16  0      INFO copy_cvecWD 1017: 3401 3
 xAODTestReadCView_copy                  16  0      INFO copy_cview: 1710 1709 1708 1707 1706 1705 1704 1703 1702 1701
 xAODTestReadHVec_copy                   16  0      INFO copy_hvec: 6801.5 6802.5 6803.5 6804.5 6805.5 6806.5 6807.5 6808.5 6809.5 6810.5 6811.5 6812.5 6813.5 6814.5 6815.5 6816.5 6817.5 6818.5 6819.5 6820.5
 xAODTestReadHVec_copy                   16  0      INFO copy_hview: 6820.5 6819.5 6818.5 6817.5 6816.5 6815.5 6814.5 6813.5 6812.5 6811.5 6810.5 6809.5 6808.5 6807.5 6806.5 6805.5 6804.5 6803.5 6802.5 6801.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  start processing event #17, run #0 on slot 0,  17 events processed so far  <<<===
 xAODTestReadCVec                        17  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        17  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -2584,7 +2591,7 @@ xAODTestRead_copy                       17  0      INFO copy_cvecWD 1018: 3601 3
 xAODTestReadCView_copy                  17  0      INFO copy_cview: 1810 1809 1808 1807 1806 1805 1804 1803 1802 1801
 xAODTestReadHVec_copy                   17  0      INFO copy_hvec: 7201.5 7202.5 7203.5 7204.5 7205.5 7206.5 7207.5 7208.5 7209.5 7210.5 7211.5 7212.5 7213.5 7214.5 7215.5 7216.5 7217.5 7218.5 7219.5 7220.5
 xAODTestReadHVec_copy                   17  0      INFO copy_hview: 7220.5 7219.5 7218.5 7217.5 7216.5 7215.5 7214.5 7213.5 7212.5 7211.5 7210.5 7209.5 7208.5 7207.5 7206.5 7205.5 7204.5 7203.5 7202.5 7201.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  start processing event #18, run #0 on slot 0,  18 events processed so far  <<<===
 xAODTestReadCVec                        18  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        18  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -2722,7 +2729,7 @@ xAODTestRead_copy                       18  0      INFO copy_cvecWD 1019: 3801 3
 xAODTestReadCView_copy                  18  0      INFO copy_cview: 1910 1909 1908 1907 1906 1905 1904 1903 1902 1901
 xAODTestReadHVec_copy                   18  0      INFO copy_hvec: 7601.5 7602.5 7603.5 7604.5 7605.5 7606.5 7607.5 7608.5 7609.5 7610.5 7611.5 7612.5 7613.5 7614.5 7615.5 7616.5 7617.5 7618.5 7619.5 7620.5
 xAODTestReadHVec_copy                   18  0      INFO copy_hview: 7620.5 7619.5 7618.5 7617.5 7616.5 7615.5 7614.5 7613.5 7612.5 7611.5 7610.5 7609.5 7608.5 7607.5 7606.5 7605.5 7604.5 7603.5 7602.5 7601.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processing event #19, run #0 on slot 0,  19 events processed so far  <<<===
 xAODTestReadCVec                        19  0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        19  0      INFO Type of aux store: DMTest::CAuxContainer_v1
@@ -2860,10 +2867,10 @@ xAODTestRead_copy                       19  0      INFO copy_cvecWD 1020: 4001 4
 xAODTestReadCView_copy                  19  0      INFO copy_cview: 2010 2009 2008 2007 2006 2005 2004 2003 2002 2001
 xAODTestReadHVec_copy                   19  0      INFO copy_hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
 xAODTestReadHVec_copy                   19  0      INFO copy_hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.14858
+AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  19  0      INFO ---> Loop Finished (seconds): 0.246408
 xaoddata3.root                                     INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
+Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 4EC35BD1-81C2-3740-9065-E07420B5AC48
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...

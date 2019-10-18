@@ -8,6 +8,7 @@ atlas_subdir( InDetPriVxFinder )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/AthenaMonitoring
                           GaudiKernel
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
@@ -24,11 +25,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces)
 
 # Component(s) in the package:
+
 atlas_add_component( InDetPriVxFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel CxxUtils EventPrimitives xAODCore xAODTracking InDetRecToolInterfaces ITrackToVertex TrkSurfaces TrkParticleBase TrkTrack VxVertex TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel CxxUtils EventPrimitives xAODCore xAODTracking InDetRecToolInterfaces ITrackToVertex TrkSurfaces TrkParticleBase TrkTrack VxVertex TrkVertexFitterInterfaces AthenaMonitoringLib)
 
 # Install files from the package:
 atlas_install_headers( InDetPriVxFinder )
-
+atlas_install_python_modules( python/*.py )

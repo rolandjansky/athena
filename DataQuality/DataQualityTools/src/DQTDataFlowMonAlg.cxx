@@ -18,15 +18,9 @@
 using xAOD::EventInfo;
 
 DQTDataFlowMonAlg::DQTDataFlowMonAlg( const std::string& name,
-				      ISvcLocator* pSvcLocator )
+                                      ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name, pSvcLocator)
 {
-}
-
-
-StatusCode DQTDataFlowMonAlg::initialize()
-{
-  return AthMonitorAlgorithm::initialize();
 }
 
 
@@ -48,22 +42,22 @@ DQTDataFlowMonAlg::fillHistograms( const EventContext& ctx ) const
       return StatusCode::FAILURE;
     } else {
       if (evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-	auto weight = Scalar<double>("mcweight", evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION) ? evtinfo->mcEventWeight() : 1);
-	auto lb = Scalar("LB", evtinfo->lumiBlock());
-	fill(group, weight, lb);
+        auto weight = Scalar<double>("mcweight", evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION) ? evtinfo->mcEventWeight() : 1);
+        auto lb = Scalar("LB", evtinfo->lumiBlock());
+        fill(group, weight, lb);
       }
 
       std::vector<int> detstatevec(EventInfo::nDets+1);
       std::vector<int> detstatevec_idx(EventInfo::nDets+1);
       std::iota(detstatevec_idx.begin(), detstatevec_idx.end(), 0);
-	
+
       auto detstates = Collection("detstates", detstatevec);
       auto detstates_idx = Collection("detstates_idx", detstatevec_idx);
       EventInfo::EventFlagErrorState worststate = EventInfo::NotSet;
       for (int i = 0; i < EventInfo::nDets; i++) {
-	EventInfo::EventFlagErrorState detstate = evtinfo->errorState((EventInfo::EventFlagSubDet) i);
-	detstatevec[i] = detstate;
-	if (detstate > worststate) worststate = detstate;
+        EventInfo::EventFlagErrorState detstate = evtinfo->errorState((EventInfo::EventFlagSubDet) i);
+        detstatevec[i] = detstate;
+        if (detstate > worststate) worststate = detstate;
       }
       detstatevec[EventInfo::nDets] = worststate;
       fill(group, detstates, detstates_idx);
@@ -72,5 +66,3 @@ DQTDataFlowMonAlg::fillHistograms( const EventContext& ctx ) const
 
   return StatusCode::SUCCESS;
 }
-
-

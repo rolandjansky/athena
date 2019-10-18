@@ -22,6 +22,7 @@
 
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODTruth/TruthParticleContainer.h" 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODPFlow/PFOContainer.h"
@@ -58,6 +59,9 @@ protected:
   // note: not all keys will be used for a particular instantiation
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inClusterKey{this, "InClusterKey", "", "ReadHandleKey for unmodified CaloClusters"};
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterKey{this, "OutClusterKey", "", "WriteHandleKey for modified CaloClusters"};
+
+  SG::ReadHandleKey<xAOD::TrackCaloClusterContainer> m_inTCCKey{this, "InTCCKey", "", "ReadHandleKey for unmodified TrackCaloClusters"};
+  SG::WriteHandleKey<xAOD::TrackCaloClusterContainer> m_outTCCKey{this, "OutTCCKey", "", "WriteHandleKey for modified TrackCaloClusters"};
 
   SG::ReadHandleKey<xAOD::PFOContainer> m_inChargedPFOKey{this, "InChargedPFOKey", "", "ReadHandleKey for modified Charged PFlow Objects"};
   SG::WriteHandleKey<xAOD::PFOContainer> m_outChargedPFOKey{this, "OutChargedPFOKey", "", "WriteHandleKey for modified Charged PFlow Objects"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -19,7 +19,8 @@
 #include "TrkTrack/TrackCollection.h"
 #include "HepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 
 #include <vector>
@@ -31,7 +32,6 @@ class PixelID;
 class SCT_ID;
 class AtlasDetectorID;
 class Track;
-
 
 namespace InDet {
 
@@ -143,12 +143,13 @@ namespace InDet {
     /** Adds hit, track and matching information for each event.  Called at each event*/
     void     addEvent   (const TrackCollection *, 
 			       std::vector<const Trk::Track *> &, 
+                               Trk::PRDtoTrackMap *prd_to_track_map,
 			       std::vector <std::pair<HepMC::GenParticle *,int> > &,   
 			       const TrackTruthCollection *, 
 			       const AtlasDetectorID * const, 
 			       const PixelID *, 
 			       const SCT_ID *,
-			       Trk::ITrackSummaryTool *,
+			       Trk::IExtendedTrackSummaryTool *,
 			       bool,
 			       unsigned int *,
 		       	       unsigned int *);

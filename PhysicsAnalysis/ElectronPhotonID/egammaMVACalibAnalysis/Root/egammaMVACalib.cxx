@@ -1539,7 +1539,7 @@ double egammaMVACalib::get_shower_depth(double eta,
 TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
 {
   float dummyFloat;
-  TMVA::Reader *reader = new TMVA::Reader("Silent");
+  auto reader = std::make_unique<TMVA::Reader>("Silent");
 
   std::vector<egammaMVACalib::XmlVariableInfo> variable_infos = parseXml(xmlFileName);
   for (std::vector<egammaMVACalib::XmlVariableInfo>::const_iterator itvar = variable_infos.begin();
@@ -1570,7 +1570,7 @@ TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
   }
 
   reader->BookMVA("BDTG", xmlFileName);
-  return reader;
+  return reader.release();
 }
 
 //  LocalWords:  TObjArray

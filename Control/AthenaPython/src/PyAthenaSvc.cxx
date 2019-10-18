@@ -19,7 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaSvc.h"
-#include "AthenaPython/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -121,7 +121,7 @@ Svc::typeName() const
 void
 Svc::handle (const Incident& inc)
 {
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   if (0 == PyObject_HasAttrString (m_self, (char*)"handle")) {
     // python side does not implement 'handle'. Fair enough.
     // XXX FIXME: could say something though: we have been registered as 
@@ -154,7 +154,7 @@ bool
 Svc::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {

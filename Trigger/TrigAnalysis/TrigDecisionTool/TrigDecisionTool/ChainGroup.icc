@@ -1,7 +1,7 @@
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
-        unsigned int condition, const std::string container,
-        const unsigned int featureCollectionMode, const std::string featureName) const {
+        unsigned int condition, const std::string& container,
+        const unsigned int featureCollectionMode, const std::string& featureName) const {
 
 
   bool errState = false;
@@ -86,7 +86,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   }
 
   if (allLinearNavigationPaths.size() == 0) {
-    ATH_MSG_WARNING("No navigation paths found for this chain group of " << names().size() << " chains.");
+    ATH_MSG_DEBUG("No navigation paths found for this chain group of " << names().size() << " chains.");
   }
 
   const bool oneFeaturePerLeg = (featureCollectionMode == TrigDefs::oneFeaturePerLeg);

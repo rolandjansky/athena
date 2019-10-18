@@ -43,14 +43,110 @@ def SCTLorentzMonAlgConfig(inputFlags):
     myMonAlg.TriggerChain = ''
     # myMonAlg.RandomHist = True
 
+    ############################## WORKAROUND (START) ##########################
+    ############################## TO RUN TRACKSUMMARYTOOL #####################
+
+    # Taken from InnerDetector/InDetDigitization/PixelDigitization/python/PixelDigitizationConfigNew.py
+    from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+    InDetPixelConditionsSummaryTool = result.popToolsAndMerge(PixelConditionsSummaryCfg(inputFlags))
+
+    # Taken from Tracking/TrkExtrapolation/TrkExTools/python/AtlasExtrapolatorConfig.py
+    # AtlasExtrapolatorConfig can give only private extrapolator. We need public extrapolator.
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    trackGeomCfg = TrackingGeometrySvcCfg(inputFlags)
+    geom_svc = trackGeomCfg.getPrimary() 
+    geom_svc.GeometryBuilder.Compactify = False ######## To avoid crash ########
+    result.merge(trackGeomCfg)
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result.merge(MagneticFieldSvcCfg(inputFlags))
+    from TrkExTools.TrkExToolsConf import Trk__Navigator
+    AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
+    AtlasNavigator.TrackingGeometrySvc = geom_svc
+    result.addPublicTool(AtlasNavigator) 
+
+    # Taken from InnerDetector/InDetExample/InDetRecExample/share/InDetRecLoadTools.py
+    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
+    InDetPropagator = Propagator(name = 'InDetPropagator')
+    InDetPropagator.AccuracyParameter = 0.0001
+    InDetPropagator.MaxStraightLineStep = .004
+    result.addPublicTool(InDetPropagator)
+    from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator
+    InDetMaterialUpdator = Trk__MaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator")
+    result.addPublicTool(InDetMaterialUpdator)
+    InDetSubPropagators = []
+    InDetSubUpdators    = []
+    # -------------------- set it depending on the geometry ----------------------------------------------------
+    # default for ID is (Rk,Mat)
+    InDetSubPropagators += [ InDetPropagator.name() ]
+    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
+    # default for Calo is (Rk,MatLandau)
+    InDetSubPropagators += [ InDetPropagator.name() ]
+    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
+    # default for MS is (STEP,Mat)
+    #InDetSubPropagators += [ InDetStepPropagator.name() ]
+    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
+    from TrkExTools.TrkExToolsConf import Trk__Extrapolator
+    InDetExtrapolator = Trk__Extrapolator(name                    = 'InDetExtrapolator',
+                                          Propagators             = [ InDetPropagator ],
+                                          MaterialEffectsUpdators = [ InDetMaterialUpdator ],
+                                          Navigator               = AtlasNavigator,
+                                          SubPropagators          = InDetSubPropagators,
+                                          SubMEUpdators           = InDetSubUpdators)
+    result.addPublicTool(InDetExtrapolator)
+    from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
+    InDetTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
+                                                             PixelSummaryTool = InDetPixelConditionsSummaryTool,
+                                                             CheckActiveAreas=True,
+                                                             CheckDeadRegions=True,
+                                                             CheckDisabledFEs=True)
+    result.addPublicTool(InDetTestPixelLayerTool)
+    from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
+    InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
+                                                          Extrapolator = InDetExtrapolator,
+                                                          PixelSummaryTool = InDetPixelConditionsSummaryTool,
+                                                          usePixel      = inputFlags.Detector.GeometryPixel,
+                                                          useSCT        = inputFlags.Detector.GeometrySCT,
+                                                          CountDeadModulesAfterLastHit = True,
+                                                          PixelLayerTool = InDetTestPixelLayerTool)
+    result.addPublicTool(InDetHoleSearchTool)
+    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
+    InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
+                                                                          PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap",
+                                                                          SetupCorrect                   = True,
+                                                                          addTRToutliers                 = True)
+    result.addPublicTool(InDetPrdAssociationTool)
+    from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
+    InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
+                                                                     AssoTool        = InDetPrdAssociationTool,
+                                                                     PixelToTPIDTool = None,
+                                                                     TestBLayerTool  = None,
+                                                                     RunningTIDE_Ambi = True,
+                                                                     DoSharedHits    = False,
+                                                                     HoleSearch      = InDetHoleSearchTool,
+                                                                     usePixel        = inputFlags.Detector.GeometryPixel,
+                                                                     useSCT          = inputFlags.Detector.GeometrySCT,
+                                                                     useTRT          = inputFlags.Detector.GeometryTRT)
+    from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
+    InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
+                                                  InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
+                                                  doSharedHits           = False,
+                                                  doHolesInDet           = True,
+                                                  TRT_ElectronPidTool    = None,
+                                                  TRT_ToT_dEdxTool       = None,
+                                                  PixelToTPIDTool        = None)
+    ############################## WORKAROUND (END) ############################
+
+    # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
+    myMonAlg.TrackSummaryTool = InDetTrackSummaryTool
+
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
 
     # set up geometry / conditions
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
-    result.merge(InDetGeometryCfg(inputFlags))
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    result.merge(AtlasGeometryCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
@@ -103,3 +199,40 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # # Otherwise, merge with result object and return
     result.merge(helper.result())
     return result
+
+if __name__ == "__main__":
+    # Setup the Run III behavior
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+
+    # Setup logs
+    from AthenaCommon.Logging import log
+    from AthenaCommon.Constants import INFO
+    log.setLevel(INFO)
+
+    # Set the Athena configuration flags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
+    ConfigFlags.Input.isMC = True
+    ConfigFlags.Output.HISTFileName = 'SCTLorentzMonOutput.root'
+    ConfigFlags.GeoModel.Align.Dynamic = False
+    ConfigFlags.Detector.GeometryID = True
+    ConfigFlags.Detector.GeometryPixel = True
+    ConfigFlags.Detector.GeometrySCT = True
+    ConfigFlags.Detector.GeometryTRT = True
+    ConfigFlags.lock()
+
+    # Initialize configuration object, add accumulator, merge, and run.
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    cfg = MainServicesSerialCfg()
+    cfg.merge(PoolReadCfg(ConfigFlags))
+
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    geoCfg=AtlasGeometryCfg(ConfigFlags)
+    cfg.merge(geoCfg)
+
+    sctLorentzMonAcc = SCTLorentzMonAlgConfig(ConfigFlags)
+    cfg.merge(sctLorentzMonAcc)
+
+    cfg.run()

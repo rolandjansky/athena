@@ -17,7 +17,7 @@ monitoring_bjet      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S
 
 
 #if TriggerFlags.doFTK():
-monitoring_bjet += monitoring_bjet_FTK
+#monitoring_bjet += monitoring_bjet_FTK
 
 monitoring_mujet     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",
                         "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
@@ -29,7 +29,7 @@ monitoring_bjet_pp      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split"
 
 
 #if TriggerFlags.doFTK():
-monitoring_bjet_pp += monitoring_bjet_FTK
+#monitoring_bjet_pp += monitoring_bjet_FTK
 
 monitoring_mujet_pp  = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",
                         "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
@@ -46,7 +46,7 @@ monitoring_bjet_cosmic = ["S_HLT_j0_perf_boffperf_L1RD0_EMPTY", "S_HLT_j0_perf_b
 monitoring_bjet_hi    = ["E_HLT_j40_boffperf_split", "S_HLT_j60_boffperf_split", "S_HLT_j100_boffperf_split"]
 
 #if TriggerFlags.doFTK():
-monitoring_bjet_hi += monitoring_bjet_FTK
+#monitoring_bjet_hi += monitoring_bjet_FTK
 
 
 monitoring_mujet_hi    = ["E_HLT_mu4_j20_ion_dr05", "S_HLT_mu4_j60_ion_dr05", "S_HLT_mu6_j30_ion_dr05"]
@@ -58,7 +58,7 @@ monitoring_bjet_validation = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_spl
 
 
 #if TriggerFlags.doFTK():
-monitoring_bjet_validation += monitoring_bjet_FTK
+#monitoring_bjet_validation += monitoring_bjet_FTK
 
 
 monitoring_mujet_validation = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",

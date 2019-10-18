@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************************
@@ -23,6 +23,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 class TH1F;
 class TH2F;
@@ -93,9 +96,9 @@ private:
 
 	std::string m_stream;
         bool m_useBeamspot;
-	std::string m_vxContainerName;
+        SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this, "vxContainerName", "PrimaryVertices"};
         bool m_vxContainerWithBeamConstraint;
-        std::string m_trackContainerName;
+        SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackContainerName{this, "trackContainerName", "InDetTrackParticles"};
         std::string m_histFolder;
 	std::string m_triggerChainName;
         unsigned int m_minTracksPerVtx;

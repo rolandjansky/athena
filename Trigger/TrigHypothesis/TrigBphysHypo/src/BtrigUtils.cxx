@@ -7,12 +7,11 @@
 #include <math.h>
 #include <vector>
 
-#include "Particle/TrackParticle.h"
+
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/Enums.h"
-#include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "xAODMuon/Muon.h"

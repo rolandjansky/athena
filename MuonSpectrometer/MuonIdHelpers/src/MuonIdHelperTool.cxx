@@ -7,6 +7,7 @@
 
 
 #include <iostream>
+#include <mutex>
 
 namespace Muon {
 
@@ -35,7 +36,6 @@ namespace Muon {
             ATH_MSG_WARNING(" Cannot retrieve CscIdHelper, please consider setting HasCSC property to false in the future when running a layout without CSC chambers");
             m_hasCSC = false;
             m_cscIdHelper = nullptr;
-
         }
     } else m_cscIdHelper = nullptr;
     if ( detStore()->retrieve( m_rpcIdHelper ).isFailure() ) {
@@ -677,17 +677,18 @@ namespace Muon {
   int MuonIdHelperTool::sector( const Identifier& id ) const {
     // TGC has different segmentation, return 0 for the moment
     if( isTgc(id) ) {
-      static std::vector<int> tgcSectorMapping;
-      if( tgcSectorMapping.empty() ){
-        std::vector<int>* mapping = 0;
+      auto initTgcSectorMapping = [&]() -> std::vector<int>* {
+        std::vector<int>* mapping = nullptr;
         StatusCode sc = detStore()->retrieve(mapping,"TGC_SectorMapping");
         if( sc.isFailure() || !mapping ){
           ATH_MSG_WARNING("sector: failed to retrieve TGC sector mapping");
-          return 0;
+          return nullptr;
         }
         ATH_MSG_DEBUG("sector: retrieve TGC sector mapping " << mapping->size() );
-        tgcSectorMapping = *mapping;
-      }
+        return mapping;
+      };
+      static const std::vector<int> tgcSectorMapping = *initTgcSectorMapping();
+      
       IdentifierHash hash;
       m_tgcIdHelper->get_module_hash(id,hash);
       if( hash >= tgcSectorMapping.size() ){
@@ -699,15 +700,5 @@ namespace Muon {
     int sect = 2 * stationPhi( id );
     if( !isSmallChamber( id ) ) --sect;
     return sect;
-  }
-
-  bool MuonIdHelperTool::hasCSC() const {
-    return m_hasCSC;
-  }
-  bool MuonIdHelperTool::hasSTgc() const {
-    return m_hasSTgc;
-  }
-  bool MuonIdHelperTool::hasMM() const {
-    return m_hasMM;
   }
 }

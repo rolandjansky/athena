@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialProvider/TrkMaterialProviderTool.h"
@@ -33,26 +33,9 @@
 // for line-by-line debugging
 #define MYDEBUG() std::cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<std::endl
 
-void myLocal_resetTrack(Trk::Track& track ){
-
-  /* C.A this is kind of weird piece of code
-   * Actually the issue starts from the 
-   * define private public in the header
-   * then somehow this helpers can access the 
-   * guts of a Trk::Track
-   * Needs understanding of client and usage
-   */
-  if( track.m_cachedParameterVector.isValid() ){
-    track.m_cachedParameterVector.reset();
-  }
-
-  if( track.m_cachedMeasurementVector.isValid() ){
-    track.m_cachedMeasurementVector.reset();
-    
-  }
-  if( track.m_cachedOutlierVector.isValid() ){
-    track.m_cachedOutlierVector.reset();
-  }
+void myLocal_resetTrack(Trk::Track& track )
+{
+  track.reset();
 }
 
 // constructor
@@ -169,7 +152,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
   // back extrapolate to perigee, get pAtCaloEntry from list of TSOSs 
   // and update/add calo+ID material to mstrack to be refitted.
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(track.trackStateOnSurfaces());
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS = track.trackStateOnSurfaces();
 
   // Iterators
   DataVector<const Trk::TrackStateOnSurface>::iterator lastIDwP  = inputTSOS->end();
@@ -292,8 +275,8 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
 {
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack)");    
   
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(idTrack.trackStateOnSurfaces());
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = const_cast<DataVector<const Trk::TrackStateOnSurface>*>(extrapolatedTrack.trackStateOnSurfaces());
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = idTrack.trackStateOnSurfaces();
+  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = extrapolatedTrack.trackStateOnSurfaces();
   
 
   // find last ID TSOS

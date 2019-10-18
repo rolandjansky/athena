@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODConfigSvc.h 631651 2014-11-27 18:33:16Z lheinric $
@@ -133,6 +133,10 @@ namespace TrigConf {
 
       /// Function handling the incoming incidents
       virtual void handle( const Incident& inc );
+
+      std::string configurationSource() const override {
+         return "";
+      }
 
    private:
       /// Function reading in a new metadata object from the input

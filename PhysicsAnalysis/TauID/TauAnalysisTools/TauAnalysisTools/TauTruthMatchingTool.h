@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TAUANALYSISTOOLS_TAUTRUTHMATCHINGTOOL_H
@@ -42,8 +42,12 @@ public:                         // Interface functions
   // initialize the tool
   virtual StatusCode initialize() override final;
 
+  virtual std::unique_ptr<ITruthTausEvent> getEvent() const override final;
+
   // get pointer to the truth matched particle, if no truth particle was found a null pointer is returned
   virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau) override final;
+  virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau,
+                                              ITruthTausEvent& truthTausEVent) const override final;
 
   // apply match to a single tau
   virtual const xAOD::TruthParticle* applyTruthMatch(const xAOD::TauJet& xTau) override final;
@@ -78,7 +82,8 @@ public:                         // Wrapper functions
 
 private:                        // private helper functions
 
-  StatusCode findTruthTau(const xAOD::TauJet& xTau);
+  StatusCode findTruthTau(const xAOD::TauJet& xTau,
+                          TruthTausEvent& truthTausEvent) const;
   StatusCode checkTruthMatch (const xAOD::TauJet& xTau, const xAOD::TruthParticleContainer& xTauContainer) const;
 
 private:                        // steering variables

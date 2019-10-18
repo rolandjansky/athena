@@ -58,8 +58,8 @@ StatusCode AlgorithmIdentifier::isValid() const {
 AlgorithmIdentifier AlgorithmIdentifierMaker::make(const EventContext& context, const std::string& caller, MsgStream& msg, const int16_t slotOverride) {
   const SG::View* view = nullptr;
   const IProxyDict* proxy = nullptr;
-  if (context.hasExtension<Atlas::ExtendedEventContext>()) {
-    proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
+  if (Atlas::hasExtendedEventContext(context)) {
+    proxy = Atlas::getExtendedEventContext(context).proxy();
     if (proxy) view = dynamic_cast<const SG::View*>(proxy);
   }
   if (!proxy) {

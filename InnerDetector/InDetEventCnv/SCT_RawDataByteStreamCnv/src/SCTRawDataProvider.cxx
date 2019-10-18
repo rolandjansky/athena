@@ -7,7 +7,6 @@
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 #include "EventContainers/IdentifiableContTemp.h"
 
 #include <memory>
@@ -47,7 +46,6 @@ StatusCode SCTRawDataProvider::initialize()
   ATH_CHECK(m_lvl1CollectionKey.initialize());
   ATH_CHECK(m_bcIDCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
-  ATH_CHECK(m_bsFracContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
 
   ATH_CHECK( m_rawDataTool.retrieve() );
@@ -77,9 +75,6 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey, ctx);
   ATH_CHECK(bsErrContainer.record(std::make_unique<InDetBSErrContainer>()));
 
-  SG::WriteHandle<SCT_ByteStreamFractionContainer> bsFracContainer(m_bsFracContainerKey, ctx);
-  ATH_CHECK(bsFracContainer.record(std::make_unique<SCT_ByteStreamFractionContainer>()));
-
   // Ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs
   std::vector<const ROBFragment*> vecROBFrags;
   if (not m_roiSeeded.value()) {
@@ -105,12 +100,14 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG("Number of ROB fragments " << vecROBFrags.size());
 
   SG::WriteHandle<InDetTimeCollection> lvl1Collection{m_lvl1CollectionKey, ctx};
-  lvl1Collection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
+  lvl1Collection = std::make_unique<InDetTimeCollection>();
   ATH_CHECK(lvl1Collection.isValid());
 
   SG::WriteHandle<InDetTimeCollection> bcIDCollection{m_bcIDCollectionKey, ctx};
-  bcIDCollection = std::make_unique<InDetTimeCollection>(vecROBFrags.size()); 
+  bcIDCollection = std::make_unique<InDetTimeCollection>();
   ATH_CHECK(bcIDCollection.isValid());
+  lvl1Collection->reserve(vecROBFrags.size());
+  bcIDCollection->reserve(vecROBFrags.size());
 
   for (const ROBFragment* robFrag : vecROBFrags) {
     // Store LVL1ID and BCID information in InDetTimeCollection 
@@ -119,12 +116,10 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     uint32_t robID{(robFrag)->rod_source_id()};
     
     unsigned int lvl1ID{(robFrag)->rod_lvl1_id()};
-    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robID, lvl1ID)};
-    lvl1Collection->push_back(std::move(lvl1Pair));
+    lvl1Collection->emplace_back(robID, lvl1ID);
     
     unsigned int bcID{(robFrag)->rod_bc_id()};
-    auto bcIDPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robID, bcID)};
-    bcIDCollection->push_back(std::move(bcIDPair));
+    bcIDCollection->emplace_back(robID, bcID);
     
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1ID << " and BCID " << bcID << " in InDetTimeCollections");
   }
@@ -142,9 +137,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags, 
                              *rdoInterface, 
-                             bsErrContainer.ptr(), 
-                             bsFracContainer.ptr(),
-                             ctx).isFailure()) {
+                             bsErrContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 

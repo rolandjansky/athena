@@ -11,7 +11,6 @@
 #include "SCT_RODVetoTool.h"
 
 //Athena includes
-#include "CxxUtils/make_unique.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/DataHandle.h"

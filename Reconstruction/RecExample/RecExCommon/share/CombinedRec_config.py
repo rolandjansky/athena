@@ -60,7 +60,7 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
 # functionality : energy flow
 #                                                                                                 
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and  DetFlags.haveRIO.Muon_allOn()) )  :
+if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuon())):
     try:
         include( "eflowRec/eflowRec_jobOptions.py" )
     except Exception:

@@ -25,4 +25,6 @@
 
    <class name="DataBucketBase" />
 
+   <class name="SG::ThinningDecisionBase"/>
+
 </lcgdict>

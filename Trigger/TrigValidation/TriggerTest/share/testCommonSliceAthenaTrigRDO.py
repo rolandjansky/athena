@@ -93,6 +93,10 @@ def minbiasOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll() 
 
+def beamspotOnly():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.BeamspotSlice.setAll() 
+
 def mubphysics():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MuonSlice.setAll()
@@ -144,6 +148,8 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(jetOnly)    
     elif sliceName == 'bjet':
         GenerateMenu.overwriteSignaturesWith(bjetOnly)
+    elif sliceName == 'beamspot':
+        GenerateMenu.overwriteSignaturesWith(beamspotOnly)
     elif sliceName == 'bphysics':
         GenerateMenu.overwriteSignaturesWith(bphysicsOnly)    
     elif sliceName == 'met':
@@ -195,3 +201,8 @@ if 'sliceName' in dir() and 'minbias' in sliceName and hasattr(topSequence, "LVL
 #import AthenaCommon.Configurable as Configurable
 #Configurable.log.setLevel( INFO )
 #print topSequence.getChildren()
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

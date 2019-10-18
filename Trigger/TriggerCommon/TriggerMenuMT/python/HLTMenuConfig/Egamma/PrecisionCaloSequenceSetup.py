@@ -22,16 +22,17 @@ def precisionCaloSequence(ConfigFlags):
     precisionCaloViewsMaker.RoIsLink = "initialRoI"
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
     precisionCaloViewsMaker.Views = "precisionCaloViews"
-    
+    precisionCaloViewsMaker.RequireParentView = True
+
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec import precisionCaloRecoSequence
-    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(InViewRoIs)
+    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None,InViewRoIs)
 
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
     
     # connect EVC and reco
-    precisionCaloSequence = seqAND("precisionCaloSequence", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
-    return (precisionCaloSequence, precisionCaloViewsMaker, sequenceOut)
+    theSequence = seqAND("precisionCaloSequence", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
+    return (theSequence, precisionCaloViewsMaker, sequenceOut)
 
 def precisionCaloMenuSequence(name):
     """ Creates precisionCalo MENU sequence """

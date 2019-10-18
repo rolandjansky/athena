@@ -160,14 +160,10 @@ StatusCode NtupleMdtDqaTool::initialize() {
 	
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "Initializing NtupleMdtDqaTool" << endmsg;
+
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
-  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-  if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endmsg;
-    return sc;
-  }
-  
-  sc = detStore()->retrieve( m_detMgr );
+  StatusCode sc = detStore()->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
     log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endmsg;
     return sc;
@@ -266,7 +262,7 @@ StatusCode NtupleMdtDqaTool::initialize() {
   // m_histoManager = new HistogramManager();
 
   // use HistogramManager constructor with MdtIdHelper to retrieve the chamber geometry
-  m_histoManager = new HistogramManager(m_mdtIdHelper);
+  m_histoManager = new HistogramManager(m_muonIdHelperTool.get());
   m_histoManager->SetDoTracks(m_doTracks);
 
   string mdtDqaRootFileName = m_MdtDqa_file_name+".root";
@@ -335,14 +331,14 @@ StatusCode NtupleMdtDqaTool::initialize() {
     m_tubeEffi = new MdtDqaTubeEfficiency(m_EffiNSigma, m_EffiChi2Cut, 
 					  m_EffiUseDefaultResolution, m_EffiHitADCCut, m_EffiGTFitON,
 					  m_EffiUseNewCalibConstants, m_EffiUseTimeCorrections);
-    if(!m_tubeEffi->initialize(m_mdtIdHelper, m_detMgr, m_id_tool, p_reg_sel_svc, p_calib_input_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
+    if(!m_tubeEffi->initialize(m_muonIdHelperTool.get(), m_detMgr, m_id_tool, p_reg_sel_svc, p_calib_input_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
   }
 
   if (m_doGlobalTimeFit) {
     // m_globalTimeFit = new MdtDqaGlobalTimeFit(4,10,50.,false);
     m_globalTimeFit = new MdtDqaGlobalTimeFit(m_GTFitSeg_minNumHits,m_GTFitSeg_maxNumHits,m_GTFitSeg_chi2Cut,
 					      m_rtDefaultBfieldON, m_GTFitDebug);
-    if(!m_globalTimeFit->initialize(m_mdtIdHelper, m_detMgr, m_id_tool, p_reg_sel_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
+    if(!m_globalTimeFit->initialize(m_muonIdHelperTool.get(), m_detMgr, m_id_tool, p_reg_sel_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
   }
   //FOR THE TRACK ANALYSIS
   if (m_doTracks) {

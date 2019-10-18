@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1DECODER_CTPUNPACKINGTOOLBASE_H
@@ -21,26 +21,23 @@ namespace ROIB {
  *
  * Provides common features needed by all CPT unpacker.
  */
-class CTPUnpackingToolBase : public extends<AthAlgTool, ICTPUnpackingTool> { 
+class CTPUnpackingToolBase : public extends<AthAlgTool, ICTPUnpackingTool> {
 public:
-  
+
   CTPUnpackingToolBase(const std::string& type,
-                       const std::string& name, 
+                       const std::string& name,
                        const IInterface* parent);
 
-  virtual StatusCode decode(const ROIB::RoIBResult& /*roib*/, 
+  virtual StatusCode decode(const ROIB::RoIBResult& /*roib*/,
                             HLT::IDVec& /*enabledChains*/) const override
   { return StatusCode::SUCCESS; }
-  
-  virtual StatusCode initialize() override;
-  
-  virtual StatusCode updateConfiguration( const std::map<std::string, std::string>& ) override { return StatusCode::SUCCESS; }
 
-   
+  virtual StatusCode initialize() override;
+
 protected:
 
-
-  typedef std::map<size_t, HLT::IDVec> IndexToIdentifiers;
+  static constexpr int s_CTPIDForUndeededChains = -1;
+  typedef std::unordered_map<int, HLT::IDVec> IndexToIdentifiers;
   IndexToIdentifiers       m_ctpToChain;
 
   ///@{ @name Properties

@@ -30,12 +30,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
     
-    StatusCode sc=detStore()->retrieve(m_cscIdHelper);
-    if (sc.isFailure())
-      {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve CscIdHelper!" << endmsg;
-        return StatusCode::FAILURE;
-      }
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }        
@@ -93,7 +88,7 @@ namespace JiveXML {
         z.push_back(DataType(globalPos.z()/CLHEP::cm));
         lengthVec.push_back(DataType(length/CLHEP::cm));
         chargeVec.push_back(DataType(charge));
-        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_cscIdHelper)));
+        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->cscIdHelper())));
         idVec.push_back(DataType( id.get_compact() ));
         barcode.push_back(DataType(0));
       }

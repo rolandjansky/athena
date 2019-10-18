@@ -80,7 +80,7 @@ StatusCode TrigMuonEFInvMassHypoAlg::execute( const EventContext& context ) cons
     ATH_MSG_DEBUG( "Muinfo handle size: " << muonHandle->size() << " ..." );
 
     // It is posisble that no muons are found, in this case we go to the next decision
-    if(muonHandle->size()<2) continue;
+    if(muonHandle->size()<1) continue;
     muonDec.first = muonHandle.ptr();
     muonDec.second = previousDecision;
     vecMuDec.push_back(muonDec);
@@ -109,7 +109,7 @@ StatusCode TrigMuonEFInvMassHypoAlg::execute( const EventContext& context ) cons
 	  const ElementLink<xAOD::MuonContainer> muonEL1 = ElementLink<xAOD::MuonContainer>( *muonCont1, mu1->index() );
 	  const ElementLink<xAOD::MuonContainer> muonEL2 = ElementLink<xAOD::MuonContainer>( *muonCont2, mu2->index() );
 	  newd -> setObjectLink( featureString(), muonEL1 );
-	  newd -> setObjectLink( featureString(), muonEL2 );
+	  newd -> setObjectLink( "secondFeature", muonEL2 );
 	  TrigCompositeUtils::linkToPrevious( newd, dec1, context );
 	  TrigCompositeUtils::linkToPrevious( newd, dec2, context );
 

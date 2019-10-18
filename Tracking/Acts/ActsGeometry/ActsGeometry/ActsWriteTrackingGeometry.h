@@ -6,7 +6,7 @@
 #define ACTSGEOMETRY_ACTSWRITETRACKINGGEOMETRY_H
 
 // ATHENA
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
@@ -28,12 +28,12 @@ namespace Acts {
 
 class IActsTrackingGeometrySvc;
 
-class ActsWriteTrackingGeometry : public AthAlgorithm {
+class ActsWriteTrackingGeometry : public AthReentrantAlgorithm {
 public:
   ActsWriteTrackingGeometry (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize() override;
-  StatusCode execute() override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
 
 private:
 

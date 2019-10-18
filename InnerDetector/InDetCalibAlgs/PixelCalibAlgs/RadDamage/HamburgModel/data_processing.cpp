@@ -262,6 +262,12 @@ Sensor::Sensor( double a, double b, int c, double d, double e)	//Constructordefi
   Temperature=c;
   Nacceptor_reversible=d;
   Nneutral_reversible=e;
+
+  volume= 0.135;
+  Ndonor_stable_donorremoval=donorremovalfraction*fabs(Nacceptor-Ndonor);
+  Ndonor_const=Ndonor-Ndonor_stable_donorremoval;
+  Nacceptor_stable_reverseannealing=0;
+  Nacceptor_stable_constdamage=0;
 }
 
 Sensor::Sensor()	//Constructordefinition
@@ -337,7 +343,7 @@ vector<double> Sensor::get_powerconsumption() const
   return powerconsumption;
 }
 
-void Sensor::irradiate(leakage_current_consts leconsts, Annealing_constants constants,long int phi, float t, long double totalDose)
+void Sensor::irradiate(leakage_current_consts leconsts, const Annealing_constants& constants,long int phi, float t, long double totalDose)
 {
   //t=t*3600;                                                                     //conversion from hours to seconds
   double a=1e-30;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -27,6 +27,15 @@ createPersistent(const TRANS* transObj, MsgStream &log)  {
 
 
 template< class TRANS_BASE, class TRANS, class PERS >
+PERS* TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>::
+createPersistentWithKey(const TRANS* transObj, const std::string& key, MsgStream &log)  {
+   std::unique_ptr<PERS> pers(new PERS());
+   transToPersWithKey(transObj, pers.get(), key, log);
+   return(pers.release());
+}
+
+
+template< class TRANS_BASE, class TRANS, class PERS >
 TPObjRef
 TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>::
 toPersistent_impl( const TRANS *trans, MsgStream &log )
@@ -37,6 +46,7 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
    }
    // make a new space in the storage vector
    size_t	size = m_pStorage->size();
+   // cppcheck-suppress uninitvar
    m_pStorage->resize( size+1 );
 
    if( m_recursive ) {
@@ -62,7 +72,7 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
 class IdentifiableContainerBase;
 template< class TRANS_BASE, class TRANS, class PERS >
 TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
-createTransient(const PERS* persObj [[maybe_unused]], MsgStream &log)
+createTransient ([[maybe_unused]] const PERS* persObj, MsgStream &log)
 {
     if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
       log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
@@ -77,7 +87,54 @@ createTransient(const PERS* persObj [[maybe_unused]], MsgStream &log)
     }
 }
 
+class IdentifiableContainerBase;
+template< class TRANS_BASE, class TRANS, class PERS >
+TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
+createTransientWithKey ([[maybe_unused]] const PERS* persObj,
+                        const std::string& key,
+                        MsgStream& log)
+{
+    if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
+      log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+    }
+    else{
+      // this is by default equivalent to 'new TRANS()'
+      std::unique_ptr<TRANS> trans = std::make_unique<TRANS>();
    
+      this->persToTransWithKey(persObj, trans.get(), key, log);
+      return( trans.release() );
+    }
+}
+
+
+template< class TRANS, class PERS >
+TRANS* TPConverterConstBase<TRANS, PERS>::createTransientConst
+  (const PERS* persObj, MsgStream& log) const
+{
+  if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
+      log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+    }
+  else{
+    // this is by default equivalent to 'new TRANS()'
+    std::unique_ptr<TRANS> trans = std::make_unique<TRANS>();
+   
+    this->persToTrans(persObj, trans.get(), log);
+    return( trans.release() );
+  }
+}
+
+
+template< class TRANS, class PERS >
+PERS* TPConverterConstBase<TRANS, PERS>::createPersistentConst
+  (const TRANS* transObj, MsgStream& log) const
+{
+  std::unique_ptr<PERS> pers(new PERS());
+  transToPers(transObj, pers.get(), log);
+  return(pers.release());
+}
+
 
 //--------------------------------------------------------------------
 /*
@@ -114,6 +171,36 @@ void TPCnvVector<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
 }
 
 
+template<class TRANS, class PERS, class CONV>
+void TPCnvVectorConst<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
+                                                      TRANS* transVect,
+                                                      MsgStream &log) const {
+   CONV	element_cnv;
+   typename PERS::const_iterator it;
+   transVect->clear();
+   transVect->reserve(persVect->size());
+   for (it = persVect->begin(); it != persVect->end(); ++it) {
+      transVect->push_back(element_cnv.createTransient(&(*it), log));
+   }
+}
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvVectorConst<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
+                                                      PERS* persVect,
+                                                      MsgStream &log)  const {
+   size_t size = transVect->size();	
+   persVect->resize(size);
+   // convert vector entries one by one
+   CONV element_cnv;
+   typename TRANS::const_iterator it = transVect->begin();
+   typename PERS::iterator pit = persVect->begin();
+   while(size) {
+     element_cnv.transToPers( *it, &(*pit), log );
+     ++pit; ++it; --size;
+   }
+}
+
+
 
 /*
   persToTrans() and transToPers() implementation for a converter between
@@ -131,7 +218,7 @@ void TPCnvStdVector<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
    typename TRANS::iterator it = transVect->begin();
    while(i) {
       element_cnv.persToTrans( &(*pit), &(*it), log );
-      it++; pit++; i--;
+      ++it; ++pit; --i;
    }
 }
 
@@ -147,6 +234,39 @@ void TPCnvStdVector<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
    typename PERS::iterator pit = persVect->begin();
    while(i) {
        element_cnv.transToPers( &(*it), &(*pit), log );
+       ++pit; ++it; --i;
+   }
+}
+
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvStdVectorConst<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
+		TRANS* transVect,
+		MsgStream &log)  const
+{
+   CONV	element_cnv;
+   size_t i = persVect->size(); 
+   transVect->resize( i );
+   typename PERS::const_iterator pit = persVect->begin();
+   typename TRANS::iterator it = transVect->begin();
+   while(i) {
+      element_cnv.persToTrans( &(*pit), &(*it), log );
+      ++it; ++pit; --i;
+   }
+}
+
+template<class TRANS, class PERS, class CONV>
+void TPCnvStdVectorConst<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
+		PERS* persVect,
+		MsgStream &log) const
+{
+   CONV element_cnv;
+   size_t i = transVect->size();
+   persVect->resize( i );
+   typename TRANS::const_iterator it = transVect->begin();
+   typename PERS::iterator pit = persVect->begin();
+   while(i) {
+      element_cnv.transToPers( &(*it), &(*pit), log );
        ++pit; ++it; --i;
    }
 }
@@ -265,7 +385,7 @@ void TPCnvIDCont<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
    typename TRANS::const_iterator it_Coll = transCont->begin();
    typename TRANS::const_iterator it_CollEnd  = transCont->end();
    int entries;
-   for (entries = 0; it_Coll != it_CollEnd; ++entries, it_Coll++)  {
+   for (entries = 0; it_Coll != it_CollEnd; ++entries, ++it_Coll)  {
       persCont->resize(entries + 1);
       element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }
@@ -307,7 +427,7 @@ void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::transToPers(const TRANS* tran
    typename TRANS::const_iterator it_Coll = transCont->begin();
    typename TRANS::const_iterator it_CollEnd  = transCont->end();
    int entries;
-   for (entries = 0; it_Coll != it_CollEnd; ++entries, it_Coll++)  {
+   for (entries = 0; it_Coll != it_CollEnd; ++entries, ++it_Coll)  {
       persCont->resize(entries + 1);
       element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }

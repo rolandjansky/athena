@@ -7,16 +7,16 @@
 #ifndef MUONTRUTHOVERLAY_MUONSIMDATAOVERLAY_H
 #define MUONTRUTHOVERLAY_MUONSIMDATAOVERLAY_H
 
-#include <AthenaBaseComps/AthAlgorithm.h>
+#include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <MuonSimData/MuonSimDataCollection.h>
 
-class MuonSimDataOverlay : public AthAlgorithm
+class MuonSimDataOverlay : public AthReentrantAlgorithm
 {
 public:
   MuonSimDataOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ----------- Draft version of TRT Segment finding
 #
@@ -16,15 +16,15 @@ class InDetTrigTrackPRD_Association_EF( InDet__InDetTrigTrackPRD_Association ):
    def __init__(self, name="InDetTrigTrackPRD_Association_Photon_EF", type="photon"):
       super( InDet__InDetTrigTrackPRD_Association, self ).__init__( name )
       
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
       import os
-      
-      self.AssociationTool = InDetTrigPrdAssociationTool
       
       if name.rfind('TRTStandalone') != -1:
          self.TracksName = []
       else:
          self.TracksName = ['AmbigSolv','ExtProcTracks','TRTSeededAmbigSolv']
+      import InDetRecExample.TrackingCommon as TrackingCommon
+      self.AssociationTool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels() # @TODO correct tool ?
+      self.AssociationMapName  = "InDetTrigPRDtoTrackMap_Photon_EF"
 
 from TRT_TrigTrackSegmentsFinder.TRT_TrigTrackSegmentsFinderConf import InDet__TRT_TrigTrackSegmentsFinder
 class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
@@ -85,17 +85,15 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
                                                                             MagneticFieldMode       = 'MapSolenoid',
                                                                             #OutputLevel            = 1,
                                                                             PropagatorTool          = InDetTrigPatternPropagator,
-                                                                            AssosiationTool         = None,
+                                                                            PRDtoTrackMap           = "",
                                                                             TrackExtensionTool      = InDetTrigTRTExtensionTool,
-                                                                            UseAssosiationTool      = False,
                                                                             MinNumberDriftCircles   = MinNumberDCs,
 									    RemoveNoiseDriftCircles = InDetTrigFlags.removeTRTNoise())
       
       InDetTrigTRT_TrackSegmentsMaker.pTmin = InDetTrigSliceSettings[('pTmin',type)]
 
       if type is 'photon':
-         InDetTrigTRT_TrackSegmentsMaker.AssosiationTool       = InDetTrigPrdAssociationTool
-         InDetTrigTRT_TrackSegmentsMaker.UseAssosiationTool    = True
+         InDetTrigTRT_TrackSegmentsMaker.PRDtoTrackMap = 'InDetTrigPRDtoTrackMap_Photon_EF'
       elif type is 'cosmicsN':
          from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMaker_BarrelCosmics
 
@@ -165,15 +163,13 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
          InDetTrigTRT_SeededSpacePointFinder =  InDet__TRT_SeededSpacePointFinder_ATL(name                   = 'InDetTrigTRT_SeededSpFinder_'+type  ,
                                                                                       SpacePointsSCTName     = "SCT_TrigSpacePoints" ,
                                                                                       #SpacePointsOverlapName = None ,
-                                                                                      AssociationTool        = None    ,
-                                                                                      UseAssociationTool     = False ,
+                                                                                      PRDtoTrackMap          = "",
                                                                                       NeighborSearch         = True ,
                                                                                       LoadFull               = False,
                                                                                       #DoCosmics
                                                                                       )
          if type is 'photon':
-           InDetTrigTRT_SeededSpacePointFinder.UseAssociationTool     = True
-           InDetTrigTRT_SeededSpacePointFinder.AssociationTool        = InDetTrigPrdAssociationTool
+           InDetTrigTRT_SeededSpacePointFinder.PRDtoTrackMap = 'InDetTrigPRDtoTrackMap_Photon_EF'
 
       elif InDetTrigFlags.loadSimpleTRTSeededSPFinder():
          from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
@@ -193,10 +189,10 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
                                                                                             DirectionPhiCut        = .3,
                                                                                             DirectionEtaCut        = 1.,
                                                                                             MaxHoles               = 2,
-                                                                                            AssociationTool        = None,
+                                                                                            PRDtoTrackMap          = "",
                                                                                             RestrictROI            = True)
          if type is 'photon':
-           InDetTrigTRT_SeededSpacePointFinder.AssociationTool        = InDetTrigPrdAssociationTool
+           InDetTrigTRT_SeededSpacePointFinder.PRDtoTrackMap        = 'InDetTrigPRDtoTrackMap_Photon_EF' # @TODO correct ?
 
       ToolSvc += InDetTrigTRT_SeededSpacePointFinder
       if (InDetTrigFlags.doPrintConfigurables()):
@@ -246,12 +242,9 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
 	                                                               Xi2max                   = InDetTrigCutValues.SecondaryXi2max(),
 	                                                               Xi2maxNoAdd              = InDetTrigCutValues.SecondaryXi2maxNoAdd(),
 						                       ConsistentSeeds          = True,
-                                                                       BremCorrection           = False,
-								       UseAssociationTool       = False )
+                                                                       BremCorrection           = False )
       
       InDetTrigTRT_SeededTrackTool.pTmin = InDetTrigSliceSettings[('pTmin',type)]
-      if type is 'photon':
-           InDetTrigTRT_SeededTrackTool.UseAssociationTool     = True
 
       ToolSvc   += InDetTrigTRT_SeededTrackTool
       if (InDetTrigFlags.doPrintConfigurables()):
@@ -387,18 +380,23 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool, InDetTrigTrackFitterTRT, InDetTrigExtrapolator, InDetTrigPrdAssociationTool, InDetTrigTRTDriftCircleCut
+
+      import InDetRecExample.TrackingCommon   as TrackingCommon
+
       from AthenaCommon.SystemOfUnits import GeV
       if seqType is "TRTOnly":
          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsTRT
          InDetTrigCutValues = EFIDTrackingCutsTRT
          suffixTRT="_TRTOnly"
-         resetPRD=True
+         prd_to_track_map=""  # no external PRD to track association, the PRD to track associations 
+                              # are only computed from TRT standalone tracks
       else:
          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
          InDetTrigCutValues = EFIDTrackingCuts
          suffixTRT=""
-         resetPRD=True
-         
+         prd_to_track_map="" # no external PRD to track association, the PRD to track associations 
+                             # are only computed from TRT standalone tracks
+
       #
       # set up special Scoring Tool for standalone TRT tracks
       #
@@ -416,32 +414,31 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       if (InDetTrigFlags.doPrintConfigurables()):
          print      InDetTrigTRT_StandaloneScoringTool
 
+      # asso_tool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels()
+      prefix = 'InDet'
+      suffix = ''
       #
       # set up TRT_SegmentToTrackTool
       #
       from TRT_SegmentToTrackTool.TRT_SegmentToTrackToolConf import InDet__TRT_SegmentToTrackTool
       InDetTrigTRT_SegmentToTrackTool = InDet__TRT_SegmentToTrackTool(name = 'InDetTrigTRT_SegmentToTrackTool_'+type+suffixTRT,
-                                                                      RefitterTool         = InDetTrigTrackFitterTRT,
-                                                                      Extrapolator         = InDetTrigExtrapolator,
-                                                                      AssociationTool      = InDetTrigPrdAssociationTool,
-                                                                      ScoringTool          = InDetTrigTRT_StandaloneScoringTool,
-                                                                      FinalRefit           = True,
-                                                                      UseAssociationTool   = True,
-                                                                      SuppressHoleSearch   = True,
+                                                                      RefitterTool          = InDetTrigTrackFitterTRT,
+                                                                      Extrapolator          = InDetTrigExtrapolator,
+                                                                      PRDtoTrackMap         = prefix+'PRDtoTrackMap'+suffix \
+                                                                         if seqType is not "InsideOutAndTRTOnly" else "",
+                                                                      ScoringTool           = InDetTrigTRT_StandaloneScoringTool,
+                                                                      FinalRefit            = True,
+                                                                      SuppressHoleSearch    = True,
                                                                       MaxSharedHitsFraction = InDetTrigCutValues.maxTRTonlyShared()
                                                                       )
-      
-      if seqType is "InsideOutAndTRTOnly":
-         InDetTrigTRT_SegmentToTrackTool.AssociationTool       = None
-         InDetTrigTRT_SegmentToTrackTool.UseAssociationTool    = False
-      
+
       ToolSvc += InDetTrigTRT_SegmentToTrackTool
       if (InDetTrigFlags.doPrintConfigurables()):
          print      InDetTrigTRT_SegmentToTrackTool
       
       self.TRT_SegToTrackTool    = InDetTrigTRT_SegmentToTrackTool
       self.MinNumDriftCircles    = InDetTrigCutValues.minTRTonly()
-      self.ResetPRD              = resetPRD
+      self.PRDtoTrackMap         = prd_to_track_map
       self.MaterialEffects       = 0
       
       #monitoring

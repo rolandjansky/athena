@@ -23,7 +23,7 @@ SliceIDDict = {
     'Cosmic'  : 'cosmic',
     'Calibration'   : 'calib',
     'Streaming'     : 'streamer',
-    'Monitoring'    : 'mon',
+    'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
     'EnhancedBias'  : 'eb',
     'Test'          : 'TestChain',
@@ -55,17 +55,6 @@ ChainDictTemplate = {
     'chainParts'   : [],
     'topoStartFrom' : False,
 }
-
-#==========================================================
-# Common EventBuilding identifiers 
-# used in calib chains, but also foreseen for physics chains
-#==========================================================
-AllowedEventBuildingIdentifiers = ['pebtestone', 'pebtesttwo',                                 
-                                   'lumipeb',
-                                   'lhcfpeb',
-                                   'alfaidpeb',
-                                   'larpebj', 'larpeb',
-                                   ]
 
 #==========================================================
 # Test chains
@@ -190,14 +179,13 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
+    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','3layersEC'],
+    'addInfo'        : ['1step','idperf','3layersEC'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
-    'eventBuildType' : AllowedEventBuildingIdentifiers,
     }
 # ---- MuonDictinary of default Values ----
 MuonChainParts_Default = {
@@ -214,7 +202,6 @@ MuonChainParts_Default = {
     'invMassInfo'    : '',
     'topo'           : [],
     'flavour'        : '',
-    'eventBuildType' : '',
     }
 
 #==========================================================
@@ -247,7 +234,7 @@ TauChainParts = {
     'selection'    : ['medium1', 'mediumRNN', 'perf', ],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
-    'trkInfo'      : [],
+    'trkInfo'      : ['idperf'],
     'extra'        : '',
     'recoAlg'      : '',
     'calib'        : '',
@@ -347,14 +334,13 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : [],
+    'IDinfo'         : ['lhtight'],
     'isoInfo'        : [],
-    'trkInfo'        : [],
+    'trkInfo'        : ['idperf'],
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : [],
     'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
-    'eventBuildType'  : AllowedEventBuildingIdentifiers,
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {
@@ -377,7 +363,6 @@ ElectronChainParts_Default = {
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
-    'eventBuildType' : '',
     }
 
 #==========================================================
@@ -392,7 +377,7 @@ PhotonChainParts = {
     'trigType'       : ['g'],
     'threshold'      : '',
     'extra'          : [],
-    'IDinfo'         : [],
+    'IDinfo'         : ['etcut','loose','medium','tight'],
     'isoInfo'        : [],
     'reccalibInfo'   : [],
     'trkInfo'        : [],
@@ -401,7 +386,6 @@ PhotonChainParts = {
     'recoAlg'        : [],
     'FSinfo'         : [],
     'addInfo'        : ['etcut',],
-    'eventBuildType' : AllowedEventBuildingIdentifiers,
     }
 
 # ---- Photon Dictinary of default Values ----
@@ -421,7 +405,6 @@ PhotonChainParts_Default = {
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
-    'eventBuildType' : '',
     }
 
 #==========================================================
@@ -611,8 +594,7 @@ CalibChainParts = {
     'signature'      : ['Calibration'],
     'chainPartName'  : '',
     'L1threshold'    : '',
-    'purpose'        : AllowedCalibChainIdentifiers+AllowedEventBuildingIdentifiers,
-#    'eventBuildType'  : AllowedEventBuildingIdentifiers, 
+    'purpose'        : AllowedCalibChainIdentifiers,
     'location'       : ['central', 'fwd'],
     'addInfo'        : ['loose','noise','beam'],
     'hypo'           : ['trk9', 'trk16', 'trk29', 'conej40', 'conej165', 'conej75_320eta490', 'conej140_320eta490','satu20em'],
@@ -652,7 +634,7 @@ AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',  'costmonitor',
 
 # ---- Monitor Chain Dictinary of all allowed Values ----
 MonitorChainParts = {
-    'signature'      : ['Monitoring'],
+    'signature'      : ['Monitor'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'monType'        : AllowedMonitorChainIdentifiers,
@@ -665,7 +647,7 @@ MonitorChainParts = {
 
 # ---- Monitor Chain Default Dictinary of all allowed Values ----
 MonitorChainParts_Default = {
-    'signature'      : ['Monitoring'],
+    'signature'      : ['Monitor'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'monType'        : [],
@@ -723,7 +705,6 @@ BeamspotChainParts = {
     'multiplicity'   : '',
     'trigType'       : 'beamspot',
     'extra'          : '',
-    'eventBuildType' : ['peb','pebTRT'],
     }
 
 # ---- Beamspot Chain Default Dictinary of all allowed Values ----
@@ -740,7 +721,6 @@ BeamspotChainParts_Default = {
     'location'       : 'vtx',
     'trigType'       : 'beamspot', 
     'extra'          : '',
-    'eventBuildType' : '',
     }
 
 #==========================================================
@@ -822,7 +802,7 @@ def getSignatureInformation(signature):
         return [CalibChainParts_Default, CalibChainParts]
     if signature == "Streaming":
         return [StreamingChainParts_Default, StreamingChainParts]
-    if signature == "Monitoring":
+    if signature == "Monitor":
         return [MonitorChainParts_Default, MonitorChainParts]
     if signature == "Beamspot":
         return [BeamspotChainParts_Default, BeamspotChainParts]

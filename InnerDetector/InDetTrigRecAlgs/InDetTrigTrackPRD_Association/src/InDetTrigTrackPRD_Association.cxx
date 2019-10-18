@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigTrackPRD_Association/InDetTrigTrackPRD_Association.h"
@@ -7,19 +7,17 @@
 #include "TrkTrack/Track.h"
 #include <ostream>
 
+#include "TrigNavigation/NavigationCore.icc"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
 InDet::InDetTrigTrackPRD_Association::InDetTrigTrackPRD_Association(const std::string& name,ISvcLocator* pSvcLocator) : 
-  HLT::FexAlgo(name, pSvcLocator),
-  m_assoTool  ("InDet::InDetPRD_AssociationToolGangedPixels")
-
+  HLT::FexAlgo(name, pSvcLocator)
 {
   // InDetTrigTrackPRD_Association steering parameters
   //
-  declareProperty("AssociationTool", m_assoTool  );
   declareProperty("TracksName"     , m_tracksName);
 }
 
@@ -40,6 +38,10 @@ HLT::ErrorCode InDet::InDetTrigTrackPRD_Association::hltInitialize(){
     msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endmsg;
   }
 
+  if (m_assoMapName.empty()) {
+    msg() << MSG::FATAL<< "Association map name must not be empty." << endmsg;
+    return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+  }
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
@@ -60,8 +62,8 @@ HLT::ErrorCode InDet::InDetTrigTrackPRD_Association::hltExecute(const HLT::Trigg
 
   // Assosiate tracks with PRDs
   //
-  m_assoTool->reset();
-  
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map(m_assoTool->createPRDtoTrackMap());
+
   std::vector<std::string>::const_iterator col=m_tracksName.begin(),cole=m_tracksName.end();
   
   int n = 0;
@@ -100,11 +102,13 @@ HLT::ErrorCode InDet::InDetTrigTrackPRD_Association::hltExecute(const HLT::Trigg
     TrackCollection::const_iterator te = tracks->end  ();
     
     for ( ; t!=te; ++t) {
-      if((m_assoTool->addPRDs(**t)).isFailure()) ++m_tracksPRDn[n]; else ++m_tracksPRD[n];
+      if((m_assoTool->addPRDs(*prd_to_track_map, **t)).isFailure()) ++m_tracksPRDn[n]; else ++m_tracksPRD[n];
     }
     if(n<9) ++n;
   }
-
+  if (attachFeature(outputTE, prd_to_track_map.release(), m_assoMapName.value() ) != HLT::OK) {
+    msg() << MSG::ERROR << " Failed to store PRD-to-track map: " << m_assoMapName << endmsg;
+  }
 // Print common event information
 //
 if(m_outputlevel<=0) {
