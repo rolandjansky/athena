@@ -160,7 +160,7 @@ StatusCode JetObjectCollectionMaker::initialize() {
     if (m_config->contains(syst, "AllSmallRJets")) {
       syst.clear();
     }
-    if (m_config->contains(syst, "AllLargeRJets")) {
+    if (m_config->contains(systLargeR, "AllLargeRJets")) {
       systLargeR.clear();
     }
   }
@@ -529,7 +529,8 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<ICPJetUncertaint
         // due to design of boosted tagging SF uncertainties, we have to tag the jets **now**
         // the SF must be decorrated before applying the SF syst variation
         // afterwards we use JetUncertaintiesTool to syst-alter the decorrated SF
-        top::check(tagLargeRJet(*jet), "Failed to tag large-R jet");
+        if (isLargeR)
+          top::check(tagLargeRJet(*jet), "Failed to tag large-R jet");
 
         ///-- Apply large-R jet tagging SF uncertainties --///
         if (isLargeR && m_config->isMC()) {
