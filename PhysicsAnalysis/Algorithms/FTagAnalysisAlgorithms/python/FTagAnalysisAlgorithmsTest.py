@@ -21,7 +21,7 @@ def makeSequence (dataType) :
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
     jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
     from FTagAnalysisAlgorithms.FTagAnalysisSequence import makeFTagAnalysisSequence
-    makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True )
+    makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True, legacyRecommendations = True )
     jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 
     # Add the sequence to the job:
