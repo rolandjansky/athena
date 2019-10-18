@@ -61,10 +61,10 @@ protected:
         TH2F* m_hTrDPhiCorr;
 
         TH1F* m_hBsX;
-	      TH1F* m_hBsY;
-	      TH1F* m_hBsZ;
-	      TH1F* m_hBsTiltX;
-	      TH1F* m_hBsTiltY;
+        TH1F* m_hBsY;
+        TH1F* m_hBsZ;
+        TH1F* m_hBsTiltX;
+        TH1F* m_hBsTiltY;
 
         TH1F* m_hPvN;
         TH1F* m_hPvNPriVtx;
