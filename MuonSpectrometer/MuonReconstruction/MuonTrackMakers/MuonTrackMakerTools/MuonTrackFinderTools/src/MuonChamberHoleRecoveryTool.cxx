@@ -1283,6 +1283,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key() );
       return 0;
     }
+    if(mdtPrdContainer->size()==0) return 0;
     IdentifierHash hash_id;
     m_idHelperTool->mdtIdHelper().get_module_hash(chId,hash_id );
     
@@ -1306,6 +1307,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc.key() );
       return 0;
     }
+    if(cscPrdContainer->size()==0) return 0;
     IdentifierHash hash_id;
     m_idHelperTool->cscIdHelper().get_geo_module_hash(detElId,hash_id );
     
@@ -1329,6 +1331,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc.key() );
       return 0;
     }
+    if(tgcPrdContainer->size()==0) return 0;
     IdentifierHash hash_id;
     m_idHelperTool->tgcIdHelper().get_module_hash(detElId,hash_id );
 
@@ -1352,6 +1355,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc.key() );
       return 0;
     }
+    if(rpcPrdContainer->size()==0) return 0;
     IdentifierHash hash_id;
     m_idHelperTool->rpcIdHelper().get_module_hash(detElId,hash_id );
     RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
@@ -1373,6 +1377,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve stgcPrepDataContainer " << m_key_stgc.key() );
       return 0;
     }
+    if(stgcPrdContainer->size()==0) return 0;
     IdentifierHash hash_id;
     m_idHelperTool->stgcIdHelper().get_module_hash(detElId, hash_id );
     
@@ -1396,6 +1401,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve stgcPrepDataContainer " << m_key_mm.key() );
       return 0;
     }
+    if(mmPrdContainer->size()==0) return 0;
     
     IdentifierHash hash_id;
     m_idHelperTool->mmIdHelper().get_module_hash(detElId, hash_id );
