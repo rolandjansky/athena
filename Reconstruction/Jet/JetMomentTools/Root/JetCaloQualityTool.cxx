@@ -120,12 +120,13 @@ StatusCode JetCaloQualityTool::initialize() {
     } else if (calcN == "FracSamplingMax") {
       m_doFracSamplingMax = true; // no calculator, as this is a special case.
     }
-
-    if (calcN != "FracSamplingMax") m_writeDecorKeys.emplace_back(m_jetContainerName + "." + calcN);
-
   }// end loop over m_calculationNames
 
-  
+  // Set the DecorHandleKeys with the correct strings
+  for(const JetCaloCalculator* calc : m_jetCalculations){
+    m_writeDecorKeys.emplace_back(m_jetContainerName + "." + calc->name());
+  }
+
   // Define OOT calculators.
   for( double & timeCut : m_timingTimeCuts){
     
