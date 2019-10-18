@@ -59,17 +59,6 @@ verlte() {
     return 0
 }
 
-# First off, check that we are using a new enough version of Git. We need
-# at least version 1.8.1.
-git_min_version=1.8.1
-git_version=`git --version | awk '{print $3}'`
-verlte "${git_min_version}" "${git_version}"
-if [ $? = 0 ]; then
-    echo "Detected git version (${git_version}) not new enough."
-    echo "Need at least: ${git_min_version}"
-    exit 1
-fi
-
 # Stop on errors from here on out:
 set -e
 
