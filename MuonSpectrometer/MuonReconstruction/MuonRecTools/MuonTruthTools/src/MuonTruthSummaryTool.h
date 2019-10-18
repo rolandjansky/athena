@@ -18,6 +18,8 @@
 #include <string>
 #include <set>
 #include <map>
+#include <mutex>
+#include <atomic>
 
 namespace Trk {
   class Track;
@@ -54,13 +56,13 @@ namespace Muon {
     int getPdgId( int barcode ) const;
 
     /** add identifier */
-    void add( const Identifier& id, int level );
+    void add( const Identifier& id, int level ) const ;
 
     /** add segment */
-    void add( const MuonSegment& seg, int level );
+    void add( const MuonSegment& seg, int level ) const ;
 
     /** add track */
-    void add( const Trk::Track& track, int level );
+    void add( const Trk::Track& track, int level ) const ;
     
 
     /** print summary */
@@ -71,8 +73,7 @@ namespace Muon {
   private:
 
     /** add measurements */
-    void add( const std::vector<const Trk::MeasurementBase*>& measurements, int level );
-    void getTruth() const;
+    void add( const std::vector<const Trk::MeasurementBase*>& measurements, int level ) const ;
     std::string printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found );
 
     ToolHandle<MuonIdHelperTool>                m_idHelper;
@@ -81,16 +82,18 @@ namespace Muon {
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool>              m_printer;
     ServiceHandle< IIncidentSvc >               m_incidentSvc;
-    mutable bool m_wasInit;
+    mutable std::atomic<bool> m_wasInit;
     bool m_useNSW;
 
     SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_TruthNames{this,"TruthNames",{"RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"},"truth names"};
 
-    mutable std::map<int,int>                           m_pdgIdLookupFromBarcode;
-    mutable std::map<Identifier,int>                    m_truthHits; // map containing truth hits associated with muons, stores barcode as second element
-    mutable std::map<int,std::set<Identifier> >         m_truthDataPerLevel;
-    mutable std::map<int,unsigned int >         m_lossesPerLevel; // We can get rid of the mutable, once printSummary() isn't const.
-    mutable unsigned int                        m_truthHitsTotal;
+    mutable std::map<int,int>                           m_pdgIdLookupFromBarcode ATLAS_THREAD_SAFE; // protected by mutex
+    mutable std::map<Identifier,int>                    m_truthHits ATLAS_THREAD_SAFE; // protected by mutex. map containing truth hits associated with muons, stores barcode as second element
+    mutable std::map<int,std::set<Identifier> >         m_truthDataPerLevel ATLAS_THREAD_SAFE; // protected by mutex
+    std::map<int,unsigned int >                         m_lossesPerLevel;
+    mutable unsigned int                                m_truthHitsTotal ATLAS_THREAD_SAFE; // protected by mutex
+
+    mutable std::recursive_mutex                m_mutex;
     
     TTree *                                     m_tree;
     ITHistSvc *                                 m_thistSvc;
