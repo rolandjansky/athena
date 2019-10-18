@@ -268,13 +268,14 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 {
   msg(MSG::DEBUG) << " in writeAlignTextFile " << endmsg;
   std::ofstream* outfile=0;
-  msg(MSG::INFO) << " Write AlignableTransforms to text file: "<< file << endmsg;
+  msg(MSG::INFO) << " --SALVA -- Write AlignableTransforms to text file: "<< file << endmsg;
   outfile=new std::ofstream(file.c_str());
 
   int ntrans=0;
   int nobj=0;
 
   /** Loop over created AlignableTransforms */
+  msg(MSG::INFO) << " --SALVA to DEBUG-- Starting loop on AlignableTransforms " << endmsg;
   std::vector<std::string>::const_iterator iobj=m_alignobjs.begin();
   std::vector<std::string>::const_iterator iobjE=m_alignobjs.end();
   for (;iobj!=iobjE; ++iobj) {
@@ -282,8 +283,10 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
     std::string key=*iobj;
     
     /** Only write out new keys unless explicitly ask for old keys */
-    if(isOldKey(key) && m_alignString != "ALold")
+    if(isOldKey(key) && m_alignString != "ALold") {
+      msg(MSG::INFO) << " -- key: " << key.c_str() << " isOldKey !!! --> continue " << endmsg;
       continue;
+    }
 
     /**  The object must exist in detector store */
     if (!pat){
@@ -294,7 +297,7 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
     }
     
     // first record is the name
-    msg(MSG::INFO) << " Write folder: " << key << endmsg;
+    msg(MSG::INFO) << " Writing folder name to outfile: " << key << endmsg;
     *outfile << key << std::endl;
     ++nobj;
     
@@ -1662,30 +1665,26 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
 	ATH_MSG_INFO( "tweakGlobalFolder ==> inside  for loop  ==> count " << structcount 
 		      << "\n                                    citr->first: " << citr->first
 		      << "\n                                            bec: " << bec
+		      << "\n                                          ident: " << ident
 		      << "\n                                   citr->second: " << citr->second
 		      << "\n");
         const coral::AttributeList& atrlist=citr->second;
 	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
 
-	if(citr->first != DBident && false) {
+	if(citr->first != DBident && false) { // false --> to be removed?
 	  ATH_MSG_INFO( " structcount= " << structcount << "     *** *** citr->first (" << citr->first << ") != DBident (" << DBident << ") --> lets continue");
 	  continue;
 	}
         // else { // commented by SALVA
 	bool goodmatch = false;
-	//if (citr->first == DBident) goodmatch = true;
-	//if (citr->first ==  900 && ident.getString().find("0x1200000000000000")>0 && !goodmatch) goodmatch =true; // TRT barrel
-	//if (citr->first ==  800 && ident.getString().find("0x1000000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECA
-	//if (citr->first == 1200 && ident.getString().find("0x1600000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECC
-	ATH_MSG_INFO( " -- SALVA -- has ident: 0x1200...?" << ident.getString().find("0x1200000000000000"));
-	ATH_MSG_INFO( " -- SALVA -- has ident: 0x1000...?" << ident.getString().find("0x1000000000000000"));
-	ATH_MSG_INFO( " -- SALVA -- has ident: 0x1600...?" << ident.getString().find("0x1600000000000000"));
-	if (ident.getString().find("0x1200000000000000")>0) ATH_MSG_INFO( " -- SALVA -- ident has: 0x1200..." << ident.getString().find("0x1200000000000000"));
-	if (ident.getString().find("0x1000000000000000")>0) ATH_MSG_INFO( " -- SALVA -- ident has: 0x1000..." << ident.getString().find("0x1000000000000000"));
-	if (ident.getString().find("0x1600000000000000")>0) ATH_MSG_INFO( " -- SALVA -- ident has: 0x1600..." << ident.getString().find("0x1600000000000000"));
-	if (bec == -1 && ident.getString().find("0x1200000000000000")>0 && !goodmatch) goodmatch =true; // TRT barrel
-	if (bec == -2 && ident.getString().find("0x1000000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECA
-	if (bec ==  2 && ident.getString().find("0x1600000000000000")>0 && !goodmatch) goodmatch =true; // TRT ECC
+	ATH_MSG_INFO( " goodmatch ? " << goodmatch << "       ident: " << ident << "      citr->second.bec=" << citr->second["bec"]); 
+
+	if (ident.getString().find("0x1200000000000000") == 0) ATH_MSG_INFO( " -- SALVA -- ident is: 0x1200...");
+	if (ident.getString().find("0x1000000000000000") == 0) ATH_MSG_INFO( " -- SALVA -- ident is: 0x1000...");
+	if (ident.getString().find("0x1600000000000000") == 0) ATH_MSG_INFO( " -- SALVA -- ident is: 0x1600...");
+	if (bec == -1 && ident.getString().find("0x1200000000000000") == 0 && citr->second["bec"].data<int>() ==-1 && !goodmatch) goodmatch = true; // TRT barrel
+	if (bec == -2 && ident.getString().find("0x1000000000000000") == 0 && citr->second["bec"].data<int>() ==-2 && !goodmatch) goodmatch = true; // TRT ECA
+	if (bec ==  2 && ident.getString().find("0x1600000000000000") == 0 && citr->second["bec"].data<int>() == 2 && !goodmatch) goodmatch = true; // TRT ECC
 	if (goodmatch) {
 	  ATH_MSG_INFO( " -- SALVA -- goodmatch is TRUE -- structcount= " << structcount 
 			<< "\n                                 citr->first= " << citr->first
@@ -1693,6 +1692,7 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
 			<< "\n                                 bec        = " << bec 
 			<< "\n                                 ident      = " << ident 
 			<< "\n");
+	  
           msg(MSG::INFO) << " -- SALVA -- set back to DEBUG -- Tweak Old global DB -- channel: " << citr->first
 			  << " ,bec: "    << atrlist2["bec"].data<int>()
                           << " ,layer: "  << atrlist2["layer"].data<int>()
