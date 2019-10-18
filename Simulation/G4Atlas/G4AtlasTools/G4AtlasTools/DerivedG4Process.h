@@ -13,7 +13,7 @@ class G4MyProcess : public G4VProcess {
   
   G4MyProcess( G4String& aName, G4ProcessType aType ) : G4VProcess( aName, aType )
   { 
-
+    
   }
 
   ~G4MyProcess() {}
@@ -23,6 +23,8 @@ class G4MyProcess : public G4VProcess {
 			     const G4Step&  stepData
 			    ) final
   {
+    (void)track; //just for silence UNUSED warning! The same below
+    (void)stepData;
     return nullptr;
   }
 
@@ -31,6 +33,8 @@ class G4MyProcess : public G4VProcess {
 			     const G4Step& stepData
 			    ) final
   {
+    (void)track;
+    (void)stepData;
     return nullptr;
   }
 
@@ -39,6 +43,8 @@ class G4MyProcess : public G4VProcess {
 			     const G4Step& stepData
 			    ) final
   {
+    (void)track;
+    (void)stepData;
     return nullptr;
   }
 
@@ -49,6 +55,11 @@ class G4MyProcess : public G4VProcess {
 			     G4double& proposedSafety,
                              G4GPILSelection* selection) final
   {
+    (void)track;
+    (void)previousStepSize;
+    (void)currentMinimumStep;
+    (void)proposedSafety;
+    (void)selection;
     return 0.0;
   }
 
@@ -57,6 +68,8 @@ class G4MyProcess : public G4VProcess {
 			     G4ForceCondition* condition
 			    ) final
   {
+    (void)track;
+    (void)condition;
     return 0.0;
   }
 
@@ -66,6 +79,9 @@ class G4MyProcess : public G4VProcess {
 			     G4ForceCondition* condition
 			    ) final
   {
+    (void)track;
+    (void)previousStepSize;
+    (void)condition;
     return 0.0;
   }
 };
