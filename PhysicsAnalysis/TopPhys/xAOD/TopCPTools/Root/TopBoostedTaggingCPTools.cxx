@@ -111,6 +111,11 @@ StatusCode BoostedTaggingCPTools::initialize() {
     m_taggers[fullName].setName(fullName);
     top::check(m_taggers[fullName].setProperty( "ConfigFile", taggersConfigs[origName]),"Failed to set ConfigFile for "+origName);
     top::check(m_taggers[fullName].setProperty( "CalibArea", taggersCalibAreas[taggerType]),"Failed to set CalibArea for " + origName);
+    // not all BJT taggers implement IsMC property -- only those that have calibration SFs
+    // so we have to check here that we try to set this property only where applicable
+    if (taggerType=="JSSWTopTaggerDNN" || taggerType=="SmoothedWZTagger") {
+      top::check(m_taggers[fullName].setProperty( "IsMC", m_config->isMC()),"Failed to set IsMC for " + origName);
+    }
     top::check(m_taggers[fullName].initialize(),"Failed to initialize " + origName);
 
     // initialize SF uncertainty tools for supported WPs
