@@ -162,18 +162,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   int colsPerChip = getInt( "FrontEndChip",  readoutIndex,"columns");
   int readoutSide = 1;
   
-  // Add the gap between adjacent chips for RD53 chips
-  chipName.erase(std::remove(chipName.begin(),chipName.end(),' '),chipName.end());
-  if(chipName=="RD53"){
-    if(circuitsPhi>0){
-      rowsPerChip+=2*(circuitsPhi-1);
-      rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows;
-    }
-    if(circuitsEta>0){
-      colsPerChip+=2*(circuitsEta-1);
-    }
-  }
-
+  
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
   msg(MSG::DEBUG)<<"readout geo : "<<chipName<<endmsg;
   msg(MSG::DEBUG)<<"readout geo : "<<moduleName<<" phi : "<<circuitsPhi<<" "<<rowsPerChip<<" empty "<<emptyRows<<endmsg;
@@ -184,7 +173,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerSensor<<" "<< colsPerChip<<" *"<<circuitsEta<<endmsg;
   
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
-
+  
   double cellRowPerCirc = circuitsPhi*rowsPerChip;
 
 
