@@ -32,17 +32,22 @@ def AthenaMonitoringCfg(flags):
         info('Set up Muon monitoring')
         from MuonDQAMonitoring.MuonDQAMonitoringConfig import MuonDQAMonitoringConfig
         result.merge(MuonDQAMonitoringConfig(flags))
-        
+
     if flags.DQ.Steering.doHLTMon:
         info('Set up HLT monitoring')
         from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import TrigHLTMonTopConfig
         result.merge(TrigHLTMonTopConfig(flags))
 
+    if flags.DQ.Steering.doJetTagMon:
+        info('Set up JetTagging monitoring')
+        from JetTagMonitoring.JetTagMonitorAlgorithm import JetTagMonitorConfig
+        result.merge(JetTagMonitorConfig(flags))
+
     if flags.DQ.Steering.doJetMon:
         info('Set up Jet monitoring')
         from JetMonitoring.JetMonitoringExample import jetMonitoringExampleConfig
         result.merge(jetMonitoringExampleConfig(flags))
-        
+
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
         from DataQualityTools.DataQualityToolsConfig import DataQualityToolsConfig
