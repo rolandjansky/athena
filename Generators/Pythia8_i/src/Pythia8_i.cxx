@@ -26,6 +26,23 @@ std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
 
 using boost::assign::operator+=;
 
+// fix Pythia8 shower weights change in conventions
+#define PYTHIA8_NWEIGHTS nWeights
+#define PYTHIA8_WEIGHT weight
+#define PYTHIA8_WLABEL weightLabel
+
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8230
+  #undef PYTHIA8_NWEIGHTS
+  #undef PYTHIA8_WEIGHT
+  #undef PYTHIA8_WLABEL
+  #define PYTHIA8_NWEIGHTS nVariationGroups
+  #define PYTHIA8_WEIGHT getGroupWeight
+  #define PYTHIA8_WLABEL getGroupName
+  #endif
+#endif
+
+
 /**
  * author: James Monk (jmonk@cern.ch)
  */
@@ -420,14 +437,14 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
   evt->weights().clear();
 
-// For Giancalo's fix   std::vector<string>::const_iterator id = m_weightIDs.begin();
+// For Giancarlo's fix   std::vector<string>::const_iterator id = m_weightIDs.begin();
 // save as Default the usual pythia8 weight/LHEF event one
   if (m_lheFile!="") evt->weights()["Default"]=m_pythia.info.eventWeightLHEF * mergingWeight;
   else evt->weights()["Default"]=eventWeight;;
   if(m_internal_event_number == 1)  m_weightIDs.push_back("Default");
 
   std::vector<string>::const_iterator id = m_weightIDs.begin()+1;
-// end of Giancalo's fix
+// end of Giancarlo's fix
 
   if(m_pythia.info.getWeightsDetailedSize() != 0){
     for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();
@@ -456,13 +473,13 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   size_t firstWeight = (m_doLHE3Weights)? 1: 0;
 
-  for(int iw = firstWeight; iw != m_pythia.info.nWeights(); ++iw){
+  for(int iw = firstWeight; iw != m_pythia.info.PYTHIA8_NWEIGHTS(); ++iw){
 
-    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.nWeights())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
+    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
 
-    if(m_pythia.info.nWeights() != 1){
+    if(m_pythia.info.PYTHIA8_NWEIGHTS() != 1){
       if(m_internal_event_number == 1) m_weightIDs.push_back(wtName);
-      evt->weights()[wtName] = mergingWeight*m_pythia.info.weight(iw);
+      evt->weights()[wtName] = mergingWeight*m_pythia.info.PYTHIA8_WEIGHT(iw);
     }else{
       evt->weights().push_back(eventWeight);
     }
@@ -635,3 +652,9 @@ string Pythia8_i::xmlpath(){
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// fix Pythia8 shower weights change in conventions
+#ifdef PYTHIA8_NWEIGHTS
+  #undef PYTHIA8_NWEIGHTS
+  #undef PYTHIA8_WEIGHT
+  #undef PYTHIA8_WLABEL
+#endif
