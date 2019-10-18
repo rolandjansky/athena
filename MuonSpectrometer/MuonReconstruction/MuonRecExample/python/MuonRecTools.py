@@ -35,6 +35,7 @@ from AthenaCommon.CfgGetter import addTool,addToolClone,addService
 
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 #--------------------------------------------------------------------------------
 # Hit-on-track creation tools
@@ -177,6 +178,7 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
     getPublicTool("MuonHoughPatternTool") 
     if muonStandaloneFlags.reconstructionMode() == 'collisions':  
         kwargs.setdefault("MDT_TDC_cut", False)
+    if muonStandaloneFlags.reconstructionMode() == 'collisions' or TriggerFlags.MuonSlice.doTrigMuonConfig:  
         kwargs.setdefault("RecordAll",False)
     return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs) 
 

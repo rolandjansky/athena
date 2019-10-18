@@ -22,6 +22,8 @@ CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
 ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
 ExtrpTPnameFS = recordable("HLT_MSExtrapolatedMuons_FSTrackParticles")
 MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.MuonSlice.doTrigMuonConfig=True
 
 class muonNames(object):
   def __init__(self):
@@ -437,7 +439,6 @@ def l2muisoRecoSequence( RoIs ):
 
 def muEFSARecoSequence( RoIs, name ):
 
-  from MuonRecExample.MuonRecFlags import muonRecFlags
   from AthenaCommon.AppMgr import ServiceMgr
   import AthenaCommon.CfgGetter as CfgGetter
 
@@ -445,6 +446,7 @@ def muEFSARecoSequence( RoIs, name ):
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
   from AthenaCommon.AppMgr import ToolSvc
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
 
   muEFSARecoSequence = parOR("efmsViewNode_"+name)
 
@@ -482,46 +484,10 @@ def muEFSARecoSequence( RoIs, name ):
     if not hasattr(condSequence,"MdtCondDbAlg"):
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
 
-  theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
-  CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
-  theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_"+name,
-                                                  SegmentFinder=theSegmentFinder,
-                                                  MuonSegmentOutputLocation = "MooreSegments",
-                                                  UseCSC = muonRecFlags.doCSCs(),
-                                                  UseMDT = muonRecFlags.doMDTs(),
-                                                  UseRPC = muonRecFlags.doRPCs(),
-                                                  UseTGC = muonRecFlags.doTGCs(),
-                                                  doClusterTruth=False,
-                                                  UseTGCPriorBC = False,
-                                                  UseTGCNextBC  = False,
-                                                  doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
-                                                  doRPCClust = muonRecFlags.doRPCClusterSegmentFinding())
+  theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
 
 
-
-  #theNCBSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB_"+name,
-  #                                                   SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
-  #                                                                                      DoSummary=False,
-  #                                                                                      Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
-  #                                                                                                                             segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
-  #                                                                                                                                                              "CscSegmentUtilTool",
-  #                                                                                                                                                              TightenChi2 = False,
-  #                                                                                                                                                              IPconstraint=False)),
-  #                                                                                      Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
-  #                                                                                                                             segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
-  #                                                                                      DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
-  #                                                   MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations",
-  #                                                   MuonSegmentOutputLocation = "NCB_MuonSegments",
-  #                                                   UseCSC = muonRecFlags.doCSCs(),
-  #                                                   UseMDT = False,
-  #                                                   UseRPC = False,
-  #                                                   UseTGC = False,
-  #                                                   UseTGCPriorBC = False,
-  #                                                   UseTGCNextBC  = False,
-  #                                                   doTGCClust = False,
-  #                                                   doRPCClust = False)
-
-  TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
+  TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" ,MuonSegmentCollection="MuonSegments")
   TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
 
   from AthenaCommon.Include import include
@@ -575,7 +541,6 @@ def muEFSARecoSequence( RoIs, name ):
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
-  #efAlgs.append( theNCBSegmentFinderAlg ) #The configuration still needs some sorting out for this so disabled for now.
   efAlgs.append( TrackBuilder )
   efAlgs.append( xAODTrackParticleCnvAlg )
   efAlgs.append( theMuonCandidateAlg )
@@ -757,7 +722,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
   from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
   import AthenaCommon.CfgGetter as CfgGetter
-  from MuonRecExample.MuonRecFlags import muonRecFlags
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
 
   efAlgs = []
 
@@ -790,21 +755,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
       if not hasattr(condSequence,"MdtCondDbAlg"):
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
 
-
-    theSegmentFinder = CfgGetter.getPublicToolClone("LateMuonSegmentFinder","MooSegmentFinder")
-    CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
-    theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_"+name,
-                                                    SegmentFinder=theSegmentFinder,
-                                                    MuonSegmentOutputLocation = "MooreSegments",
-                                                    UseCSC = muonRecFlags.doCSCs(),
-                                                    UseMDT = muonRecFlags.doMDTs(),
-                                                    UseRPC = muonRecFlags.doRPCs(),
-                                                    UseTGC = muonRecFlags.doTGCs(),
-                                                    doClusterTruth=False,
-                                                    UseTGCPriorBC = False,
-                                                    UseTGCNextBC  = False,
-                                                    doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
-                                                    doRPCClust = muonRecFlags.doRPCClusterSegmentFinding())
+    theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
     efAlgs.append(theSegmentFinderAlg)
 
     # need to run precisions tracking for late muons, since we don't run it anywhere else
