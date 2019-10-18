@@ -18,7 +18,7 @@ atlas_install_joboptions( share/*.py )
 atlas_add_poolcnv_library( xAODTrigMissingETAthenaPoolPoolCnv
                            src/*.cxx
                            FILES xAODTrigMissingET/TrigMissingETContainer.h xAODTrigMissingET/TrigMissingETAuxContainer.h
-                           TYPES_WITH_NAMESPACE xAOD::TrigMissingET xAOD::TrigMissingETComponent
+                           TYPES_WITH_NAMESPACE xAOD::TrigMissingET xAOD::TrigMissingETComponent xAOD::TrigMissingETContainer xAOD::TrigMissingETAuxContainer
                            CNV_PFX xAOD
                            LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTrigMissingET GaudiKernel )
 
