@@ -112,22 +112,11 @@ private:
     /* used to work out layer ids etc*/
     ToolHandle<MuonIdHelperTool> m_idHelperTool{"Muon::MuonIdHelperTool/MuonIdHelperTool"};
 
-    /* used to work out if track has momentum */
-    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };
-
     /* used to do hits-in-road search for straight tracks */
     ToolHandle<Trk::IExtrapolator> m_slExtrapolator{"Trk::Extrapolator/MuonStraightLineExtrapolator"};
 
-    /** tool used to do hole search */
-    ToolHandle<Trk::ITrackHoleSearchTool> m_muonTgTool{this, "HoleOnTrackTool", "MuonHolesOnTrack"};
-
     /* used to do hits-in-road search */
     ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
-        
-    /**Allows us to block the hole search whilst the Muon tracking geometry etc is being debugged*/
-    Gaudi::Property<bool> m_doHoles{this, "DoHolesOnTrack", false};
         
     /** allow us to block the calculation of close hits */
     Gaudi::Property<bool> m_calculateCloseHits{this, "CalculateCloseHits", false};
@@ -138,10 +127,6 @@ private:
     /** storegate key of MdtPrepDataContainer */
     SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtKey{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
 
-    /** name of the tracking geometry */
-    Gaudi::Property<std::string> m_trackingGeometryName{this, "TrackingGeometryName", "MuonStandaloneTrackingGeometry"};
-
-    mutable const Trk::TrackingGeometry* m_trackingGeometry{nullptr};
     const MuonGM::MuonDetectorManager*  m_detMgr{nullptr};
   };
 }
