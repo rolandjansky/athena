@@ -1,46 +1,42 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTPCNV_CALOCELLLINKCONTAINERCNV_P1_H
 #define CALOTPCNV_CALOCELLLINKCONTAINERCNV_P1_H
 
-#include "AthenaKernel/ITPCnvBase.h"
-//#include "CaloEvent/CaloCellLinkContainer.h"
-//#include "CaloTPCnv/CaloCellLinkContainer_p1.h"
+#include "CaloEvent/CaloCellLinkContainer.h"
+#include "CaloTPCnv/CaloCellLinkContainer_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "Navigation/Navigable.h"
 
-class CaloCellLinkContainer_p1;
-class CaloCellLinkContainer;
 
 class CaloCellLinkContainerCnv_p1
-  : public ITPCnvBase
+  : public T_AthenaPoolTPCnvWithKeyBase<CaloCellLinkContainer, CaloCellLinkContainer_p1>
 {
 public:
-  void persToTrans(const CaloCellLinkContainer_p1*, CaloCellLinkContainer*, MsgStream &log) ;
-  void transToPers(const CaloCellLinkContainer*, CaloCellLinkContainer_p1*, MsgStream &log) ;
+  using base_class::transToPersWithKey;
+  using base_class::persToTransWithKey;
 
-  virtual void persToTransUntyped(const void* pers,
-                                  void* trans,
-                                  MsgStream& log);
-  virtual void transToPersUntyped(const void* trans,
-                                  void* pers,
-                                  MsgStream& log);
-  virtual const std::type_info& transientTInfo() const;
+  virtual
+  void persToTransWithKey (const CaloCellLinkContainer_p1*,
+                           CaloCellLinkContainer*,
+                           const std::string& key,
+                           MsgStream &log) const override;
 
-  /** return C++ type id of the persistent class this converter is for
-      @return std::type_info&
-  */
-  virtual const std::type_info& persistentTInfo() const;
+  virtual
+  void transToPersWithKey (const CaloCellLinkContainer*,
+                           CaloCellLinkContainer_p1*,
+                           const std::string& key,
+                           MsgStream &log) const override;
+
 
 private:
   NavigableCnv_p1< Navigable<CaloCellContainer,double>,float > m_converter;
-
 };
 
 
