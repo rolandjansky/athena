@@ -25,13 +25,22 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
     result.merge( TileDQstatusAlgCfg(flags) )
 
-    if flags.Tile.useDCS:
-        from TileConditions.TileDCSConfig import TileDCSCondAlgCfg
-        result.merge( TileDCSCondAlgCfg(flags) )
-
     from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
     badChanTool = result.popToolsAndMerge( TileBadChanToolCfg(flags) )
 
+    kwargs.setdefault('CheckDCS', flags.Tile.useDCS)
+    if kwargs['CheckDCS']:
+        from TileConditions.TileDCSConfig import TileDCSCondAlgCfg
+        result.merge( TileDCSCondAlgCfg(flags) )
+
+    if flags.Input.Format == 'POOL':
+        kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
+
+        rawChannelContainer = flags.Tile.RawChannelContainer
+        if rawChannelContainer not in flags.Input.Collections:
+            rawChannelContainer = ''
+
+        kwargs.setdefault('TileRawChannelContainer', rawChannelContainer)
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -43,7 +52,9 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
     tileDQFragMonAlg = helper.addAlgorithm(TileDQFragMonitorAlgorithm, 'TileDQFragMonAlg')
 
     tileDQFragMonAlg.TileBadChanTool = badChanTool
-    tileDQFragMonAlg.CheckDCS = flags.Tile.useDCS
+
+    for k, v in kwargs.items():
+        setattr(tileDQFragMonAlg, k, v)
 
     # 1) Configure histogram with TileDQFragMonAlg algorithm execution time
     executeTimeGroup = helper.addGroup(tileDQFragMonAlg, 'TileDQFragMonExecuteTime', 'Tile/')
@@ -154,8 +165,6 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
                               name = 'TileBadChannelsJumpNotMaskMap', title = '# Not masked Jump errors',
                               run = run)
 
-
-    tileDQFragMonAlg.TileRawChannelContainer = flags.Tile.RawChannelContainer
 
     # 11) Configure histograms with Tile bad pulse shape
     addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
