@@ -7,7 +7,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-//#include "CaloUtils/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 
 #include "CaloEvent/CaloCell.h"
