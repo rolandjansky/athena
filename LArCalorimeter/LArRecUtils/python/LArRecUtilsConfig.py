@@ -69,7 +69,7 @@ def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
     kwargs.setdefault ('firstSample', flags.LAr.ROD.FirstSample)
     kwargs.setdefault ('useHighestGainAutoCorr', flags.LAr.ROD.UseHighestGainAutoCorr)
 
-    if flags.LAr.ROD.doOFCPileupOptimization:
+    if flags.LAr.ROD.DoOFCPileupOptimization:
         if flags.LAr.ROD.NumberOfCollisions():
             kwargs.setdefault('Nminbias',flags.LAr.ROD.NumberOfCollisions)
             mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.LAr.ROD.NumberOfCollisions)
@@ -102,7 +102,7 @@ def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwarg
     mlog.info("DeltaBundh %f " , deltaBunch)
     kwargs.setdefault("deltaBunch",deltaBunch)
     
-    if flags.LAr.ROD.doOFCPileupOptimization:
+    if flags.LAr.ROD.DoOFCPileupOptimization:
         if flags.LAr.ROD.NumberOfCollision:
             kwargs.setdefault("Nminbias",flags.LAr.ROD.NumberOfCollision)
             mlog.info(" NMminBias %f" , flags.LAr.ROD.NumberOfCollision) 
