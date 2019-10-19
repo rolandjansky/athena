@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigTauClusterDetails.h"
@@ -7,7 +7,7 @@
 
 void TrigTauClusterDetailsCnv_p1 :: persToTrans( const TrigTauClusterDetails_p1 *persObj,
                                             TrigTauClusterDetails    *transObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterDetailsCnv_p1::persToTrans" << endmsg;
@@ -32,7 +32,7 @@ void TrigTauClusterDetailsCnv_p1 :: persToTrans( const TrigTauClusterDetails_p1 
 
 void TrigTauClusterDetailsCnv_p1 :: transToPers( const TrigTauClusterDetails    *transObj,
                                             TrigTauClusterDetails_p1 *persObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterDetailsCnv_p1::transToPers" << endmsg;
