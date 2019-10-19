@@ -413,9 +413,10 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
              //   " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
              //   " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
-	       const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap,hvCabling));
-	       if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-		 ATH_MSG_WARNING("Do not have hvline: "<<electrode.hvLineNo(igap,hvCabling)<<" in LArHVData mapping ! Assuming 0 voltage !");
+	       unsigned int hvline = electrode.hvLineNo(igap,hvCabling);
+	       const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+	       if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+		 ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData mapping ! Assuming 0 voltage !");
 		 //return StatusCode::FAILURE;
                  // Do not bomb, but assume the HV=0
                  double hv=0;
@@ -456,9 +457,10 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
  
          double wt = 0.5;
          for (unsigned int igap=0;igap<2;igap++) {
-	   const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvmodule.hvLineNo(igap,hvCabling));
-	   if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-	     ATH_MSG_WARNING("Do not have hvline: "<<hvmodule.hvLineNo(igap,hvCabling)<<" in LArHVData mapping ! Set voltage to 0 !");
+	       unsigned int hvline = hvmodule.hvLineNo(igap,hvCabling);
+	       const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+	       if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+	     ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData mapping ! Set voltage to 0 !");
 	     //return StatusCode::FAILURE;
              double hv=0;
              double curr=0;
@@ -497,9 +499,10 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
            //     " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
            //     " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
-	       const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(igap,hvCabling));
-                 if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                   ATH_MSG_WARNING("Do not have hvline: "<<electrode.hvLineNo(igap,hvCabling)<<" in LArHVData mapping ! Set voltage to 0 !");
+	       unsigned int hvline = electrode.hvLineNo(igap,hvCabling);
+	       const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+                 if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+                   ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData mapping ! Set voltage to 0 !");
                    //return StatusCode::FAILURE;
                    double hv=0;
                    double curr=0;
@@ -536,9 +539,10 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
  
          double wt = 0.5; 
          for (unsigned int igap=0;igap<2;igap++) {
-	   const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvmodule.hvLineNo(igap,hvCabling));
-             if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-	       ATH_MSG_WARNING("Do not have hvline: "<<hvmodule.hvLineNo(igap,hvCabling)<<" in LArHVData mapping ! Set voltage to 0 !");
+	   unsigned int hvline = hvmodule.hvLineNo(igap,hvCabling);
+	   const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+             if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+	       ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData mapping ! Set voltage to 0 !");
                 //return StatusCode::FAILURE;
                double hv=0;
                double curr=0;
@@ -603,9 +607,10 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
     //std::cout << " nsubgaps " << nsubgaps << std::endl;
     for (unsigned int i=0;i<nsubgaps;i++) {
         const HECHVSubgap& subgap = cell->getSubgap(i);
-        const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), subgap.hvLineNo(hvCabling));
-        if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-           ATH_MSG_WARNING("Do not have hvline: "<<subgap.hvLineNo(hvCabling)<<" in LArHVData mapping ! Set voltage to 0");
+	unsigned int hvline = subgap.hvLineNo(hvCabling);
+        const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+        if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+           ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData mapping ! Set voltage to 0");
            //return StatusCode::FAILURE;
            double hv=0;
            double curr=0;
@@ -684,9 +689,10 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
         for (unsigned int i=0;i<nlines;i++) {
           const FCALHVLine* line = tile->getHVLine(i);
           if (!line) continue;
-          const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), line->hvLineNo(hvCabling));
-          if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-           ATH_MSG_WARNING("Do not have hvline: "<<line->hvLineNo(hvCabling)<<" in LArHVData mapping ! Set voltage to 0 !");
+	  unsigned int ihvline = line->hvLineNo(hvCabling);
+          const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), ihvline);
+          if(itrLine == hvlineidx.end() || *itrLine != ihvline) { // error, could not find HVline index
+           ATH_MSG_WARNING("Do not have hvline: "<<ihvline<<" in LArHVData mapping ! Set voltage to 0 !");
            //return StatusCode::FAILURE;
            double hv=0;
            double curr=0;
@@ -863,9 +869,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { // EMB : 2, TRY TO FIND AUTOMATICALLY NB OF GAPS
-                const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap,hvCabling));
-                if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_WARNING("Do not have hvline: "<<electrode.hvLineNo(iGap,hvCabling)<<" in LArHVData ! Assuming missing DCS data");
+		unsigned int hvline = electrode.hvLineNo(iGap,hvCabling);
+                const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+                if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+                  ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData ! Assuming missing DCS data");
                   continue;
                   //return StatusCode::FAILURE;
                 }
@@ -951,9 +958,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
             ATH_MSG_VERBOSE("iSide,iPhi,iEta " << iSide << " " << iPhi << " " << iEta);
             double hv[2];
             for (int iGap=0;iGap<2;iGap++) {
-	      const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvMod.hvLineNo(iGap,hvCabling));
-                if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_WARNING("Do not have hvline: "<<hvMod.hvLineNo(iGap,hvCabling)<<" in LArHVData ! Assuming missing DCS data");
+	      unsigned int hvline = hvMod.hvLineNo(iGap,hvCabling);
+	      const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+                if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+                  ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData ! Assuming missing DCS data");
                   continue;
                   //return StatusCode::FAILURE;
                 }
@@ -1028,9 +1036,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { //EMEC : 2 gaps, TRY TO FIND AUTOMATICALLY NB OF GAPS
-		const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap,hvCabling));
-                  if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-		    ATH_MSG_WARNING("Do not have hvline: "<<electrode.hvLineNo(iGap,hvCabling)<<" in LArHVData ! Assuming missing DCS data");
+		unsigned int hvline = electrode.hvLineNo(iGap,hvCabling);
+		const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+                  if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+		    ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData ! Assuming missing DCS data");
                     continue;
                      //return StatusCode::FAILURE;
                   }
@@ -1117,9 +1126,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec
             const EMECPresamplerHVModule& hvMod = hvManager_EMECPS.getHVModule(iSide,iPhi);
             double hv[2];
             for (int iGap=0;iGap<2;iGap++) {
-	      const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvMod.hvLineNo(iGap,hvCabling));
-                if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-                  ATH_MSG_WARNING("Do not have hvline: "<<hvMod.hvLineNo(iGap,hvCabling)<<" in LArHVData ! Assuming missing DCS data");
+	      unsigned int hvline = hvMod.hvLineNo(iGap,hvCabling);
+	      const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+                if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+                  ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData ! Assuming missing DCS data");
                   continue;
                   //return StatusCode::FAILURE;
                 }
@@ -1192,9 +1202,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec
 
 	      double hv[2];
 	      for (unsigned int iGap=0;iGap<2;iGap++) { 
-		const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), electrode.hvLineNo(iGap,hvCabling));
-                  if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-		    ATH_MSG_WARNING("Do not have hvline: "<<electrode.hvLineNo(iGap,hvCabling)<<" in LArHVData ! Assuming missing DCS data");
+		unsigned int hvline = electrode.hvLineNo(iGap,hvCabling);
+		const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+                  if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+		    ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData ! Assuming missing DCS data");
                     continue;
                      //return StatusCode::FAILURE;
                   }
@@ -1315,9 +1326,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffe
 	  double hv[4] = {0}; // 4 subgaps in HEC
 	  for (unsigned int iGap=0;iGap<hvMod.getNumSubgaps();iGap++) {
 	    const HECHVSubgap& subgap=hvMod.getSubgap(iGap);
-            const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), subgap.hvLineNo(hvCabling));
-            if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-              ATH_MSG_WARNING("Do not have hvline: "<<subgap.hvLineNo(hvCabling)<<" in LArHVData ! Assuminh missing DCS data !");
+	    unsigned int hvline = subgap.hvLineNo(hvCabling);
+            const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
+            if(itrLine == hvlineidx.end() || *itrLine != hvline) { // error, could not find HVline index
+              ATH_MSG_WARNING("Do not have hvline: "<<hvline<<" in LArHVData ! Assuminh missing DCS data !");
               continue;
               //return StatusCode::FAILURE;
             }
@@ -1396,9 +1408,10 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
           float hv[4] = {0};
 	  for (unsigned int iLine=0;iLine<hvMod.getNumHVLines();iLine++) {
 	    const FCALHVLine& hvline = hvMod.getHVLine(iLine);
-            const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline.hvLineNo(hvCabling));
-            if(itrLine == hvlineidx.end()) { // error, could not find HVline index
-              ATH_MSG_WARNING("Do not have hvline: "<<hvline.hvLineNo(hvCabling)<<" in LArHVData ! Assuming missing DCS data !");
+	    unsigned int ihvline = hvline.hvLineNo(hvCabling);
+            const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), ihvline);
+            if(itrLine == hvlineidx.end() || *itrLine != ihvline) { // error, could not find HVline index
+              ATH_MSG_WARNING("Do not have hvline: "<<ihvline<<" in LArHVData ! Assuming missing DCS data !");
               continue;
               //return StatusCode::FAILURE;
             }
