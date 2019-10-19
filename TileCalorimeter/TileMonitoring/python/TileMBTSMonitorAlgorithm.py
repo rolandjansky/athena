@@ -29,6 +29,9 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     result.merge( TileCablingSvcCfg(flags) )
 
+    if flags.Input.Format == 'POOL':
+        kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
+
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -226,9 +229,7 @@ if __name__=='__main__':
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    cfg.merge( TileMBTSMonitoringConfig(ConfigFlags,
-                                        FillHistogramsPerMBTS = True,
-                                        TileDigitsContainer = 'TileDigitsFlt') )
+    cfg.merge( TileMBTSMonitoringConfig(ConfigFlags, FillHistogramsPerMBTS = True) )
 
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
