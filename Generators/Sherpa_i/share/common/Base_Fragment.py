@@ -2,6 +2,7 @@
 from Sherpa_i.Sherpa_iConf import Sherpa_i
 genSeq += Sherpa_i()
 evgenConfig.generators = ["Sherpa"]
+genSeq.Sherpa_i.PluginCode = ""
 
 ## Tell Sherpa to read its run card sections from the jO
 ## TODO: write out Run.dat from genSeq.Sherpa_i.RunCard and read from it
