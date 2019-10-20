@@ -121,6 +121,9 @@ def setupCommonServices():
     svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
     svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
 
+    # Time to wait before closing DB connections (see ATR-8907)
+    svcMgr.HltEventLoopMgr.dbConnIdleWaitSec = 6
+
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
 

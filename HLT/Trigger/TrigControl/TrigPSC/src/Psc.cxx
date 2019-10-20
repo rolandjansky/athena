@@ -36,13 +36,6 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/System.h"
 
-// Athena includes
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-
-// CORAL includes
-#include "CoralKernel/Context.h"
-#include "RelationalAccess/IConnectionService.h"
-
 #include <sstream>
 #include <algorithm>
 #include <vector>
@@ -492,28 +485,6 @@ bool psc::Psc::prepareForRun (const ptree& args)
     ERS_PSC_ERROR("Error preparing the EventLoopMgr");
     return false;
   }
-
-  // Cleanup of dangling database connections from RDBAccessSvc
-  ServiceHandle<IRDBAccessSvc> p_rdbAccessSvc("RDBAccessSvc","psc::Psc");
-  if(p_rdbAccessSvc->shutdown("*Everything*")) {
-    ERS_LOG("Cleaning up RDBAccessSvc connections");
-  } else {
-    ERS_PSC_ERROR("Cleaning up RDBAccessSvc connections failed");
-    return false;
-  }
-
-  // sleep some time to allow the closing of DB connections;
-  // actual timeout depends on connection parameters, we seem to have 5 seconds
-  // timeouts in some places.
-  sleep(6);
-  // Instantiate connection service
-  coral::Context& context = coral::Context::instance();
-  // Load CORAL connection service
-  coral::IHandle<coral::IConnectionService> connSvcH = context.query<coral::IConnectionService>();
-  if (connSvcH.isValid()) {
-     ERS_LOG("Cleaning up idle CORAL connections");
-     connSvcH->purgeConnectionPool();
-  }   
 
   return true;
 }
