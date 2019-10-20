@@ -8,7 +8,7 @@
 // Authors: Jack Cranshaw <Jack.Cranshaw@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-#include "EventBookkeeperTools/BookkeeperTool.h"
+#include "BookkeeperTool.h"
 
 // STL include
 #include <algorithm>
@@ -396,6 +396,7 @@ StatusCode BookkeeperTool::copyContainerToOutput(const std::string& outname)
   // Get the tmp bookkeeper from the input
   const xAOD::CutBookkeeperContainer* tmpBook(NULL);
   if ( outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(outname+"tmp") ) {
+    ATH_MSG_DEBUG("Copying data to the output container " << outname);
     if( !(outputMetaStore()->retrieve( tmpBook, outname+"tmp") ).isSuccess() ) {
       ATH_MSG_WARNING( "Could not get tmp CutBookkeepers from output MetaDataStore" );
     }
