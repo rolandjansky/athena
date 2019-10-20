@@ -188,22 +188,27 @@ if tileESDMon:
 
 if  tileRawMon:
 
-    TileMBTSMon = CfgMgr.TileMBTSMonTool(name              = 'TileMBTSMon'
-                                         , OutputLevel     = INFO
-                                         , histoPathBase   = "/Tile/MBTS"
-                                         , LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc"
-                                         , doOnline        = athenaCommonFlags.isOnline()
-                                         , readTrigger     = False
-                                         , UseTrigger      = False
-                                         , FillHistogramsPerMBTS = False)
-#                                         , readTrigger     = DQMonFlags.useTrigger());
+    if 'doTileMonOld' in dir() and doTileMonOld:
+        TileMBTSMon = CfgMgr.TileMBTSMonTool(name              = 'TileMBTSMon'
+                                             , OutputLevel     = INFO
+                                             , histoPathBase   = "/Tile/MBTS_OLD"
+                                             , LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc"
+                                             , doOnline        = athenaCommonFlags.isOnline()
+                                             , readTrigger     = False
+                                             , UseTrigger      = False
+                                             , FillHistogramsPerMBTS = False)
+        #                                         , readTrigger     = DQMonFlags.useTrigger());
 
 
-    from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.InputFormat() == 'pool':
-        TileMBTSMon.TileDigitsContainerName = 'TileDigitsFlt'
+        from AthenaCommon.GlobalFlags import globalflags
+        if globalflags.InputFormat() == 'pool':
+            TileMBTSMon.TileDigitsContainerName = 'TileDigitsFlt'
 
-    ManagedAthenaTileMon.AthenaMonTools += [ TileMBTSMon ]
+        ManagedAthenaTileMon.AthenaMonTools += [ TileMBTSMon ]
+
+    from TileMonitoring.TileMBTSMonitorAlgorithm import TileMBTSMonitoringConfigOld
+    topSequence += TileMBTSMonitoringConfigOld(DQMonFlags)
+
 
     from TileRecUtils.TileRecFlags import jobproperties
     if jobproperties.TileRecFlags.readDigits():
@@ -231,23 +236,28 @@ if  tileRawMon:
         ManagedAthenaTileMon.AthenaMonTools += [ TileDigiNoiseMon ]
 
 
-    TileDQFragMon = CfgMgr.TileDQFragLWMonTool(name                       = 'TileDQFragMon'
-                                          , OutputLevel              = INFO
-                                          , TileRawChannelContainer  = jobproperties.TileRecFlags.TileRawChannelContainer()
-                                          , TileDigitsContainer      = "TileDigitsCnt"
-                                          , NegAmpHG                 = -200.
-                                          , NegAmpLG                 = -15.
-                                          , SkipMasked               = True
-                                          , SkipGapCells             = True
-                                          , doOnline                 = athenaCommonFlags.isOnline()
-                                          , CheckDCS                 = tileCheckDCS
-                                          , histoPathBase            = "/Tile/DMUErrors")
+    if 'doTileMonOld' in dir() and doTileMonOld:
+        TileDQFragMon = CfgMgr.TileDQFragLWMonTool(name                       = 'TileDQFragMon'
+                                                   , OutputLevel              = INFO
+                                                   , TileRawChannelContainer  = jobproperties.TileRecFlags.TileRawChannelContainer()
+                                                   , TileDigitsContainer      = "TileDigitsCnt"
+                                                   , NegAmpHG                 = -200.
+                                                   , NegAmpLG                 = -15.
+                                                   , SkipMasked               = True
+                                                   , SkipGapCells             = True
+                                                   , doOnline                 = athenaCommonFlags.isOnline()
+                                                   , CheckDCS                 = tileCheckDCS
+                                                   , histoPathBase            = "/Tile/DMUErrors_OLD")
 
 
-    if globalflags.InputFormat() == 'pool':
-        TileDQFragMon.TileDigitsContainer = 'TileDigitsFlt'
+        if globalflags.InputFormat() == 'pool':
+            TileDQFragMon.TileDigitsContainer = 'TileDigitsFlt'
 
-    ManagedAthenaTileMon.AthenaMonTools += [ TileDQFragMon ]
+        ManagedAthenaTileMon.AthenaMonTools += [ TileDQFragMon ]
+
+
+    from TileMonitoring.TileDQFragMonitorAlgorithm import TileDQFragMonitoringConfigOld
+    topSequence += TileDQFragMonitoringConfigOld(DQMonFlags)
 
 topSequence += ManagedAthenaTileMon;
 print ManagedAthenaTileMon;
