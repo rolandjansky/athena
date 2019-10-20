@@ -11,6 +11,10 @@ import re
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 
+if not hasattr(ToolSvc,"MuonSelectorTool"):    
+    from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+    ToolSvc += CP__MuonSelectionTool("MuonSelectorTool")
+
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
     '2GeV'             : [ [0,9.9],              [ 2.000 ] ],
@@ -1782,3 +1786,33 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
         online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()
 	
         self.AthenaMonTools = [ online ]
+
+
+class TrigMuonEFQualityHypoConfig(TrigMuonEFQualityHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonEFQualityHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonEFQualityHypoConfig, self ).__init__( name )
+
+        try:
+            self.AcceptAll = False
+
+            if 'Loose' in args[1]:
+                self.LooseCut = True
+            else :
+                self.LooseCut = False
+
+
+        except LookupError:
+            if(args[1]=='passthrough') :
+                print 'Setting passthrough'
+                self.AcceptAll = True
+            else:
+                print 'args[1] = ', args[1]
+                raise Exception('TrigMuonEFQuality Hypo Misconfigured')
+

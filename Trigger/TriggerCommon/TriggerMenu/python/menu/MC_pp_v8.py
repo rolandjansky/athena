@@ -56,6 +56,19 @@ def setupMenu():
 
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
+        #ATR-19452 (muon)
+        ['mu4_muonqualL',          'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu4_muonqualM',          'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu6_muonqualL',          'L1_MU6',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu6_muonqualM',          'L1_MU6',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['2mu12_muonqualL',                  'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu12_muonqualM',                  'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu14_muonqualL',                  'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu14_muonqualM',                  'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['3mu6_muonqualL',                   'L1_3MU6',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['3mu6_muonqualM',                   'L1_3MU6',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+
+
         # ATR-19382
         ['mu10_ivarmedium_mu10',          'L1_2MU10', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['parallel',-1,[] ]],
         ['2mu10_AND_mu10_ivarmedium',     'L1_2MU10', ['L1_2MU10','L1_MU10'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial', -1, ['2mu10_AND', 'mu10_ivarmedium'],False]],
@@ -631,7 +644,15 @@ def setupMenu():
     #   Bphysics
     ###########################################################################################################
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
-  
+
+        #ATR-19452 
+        ['2mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualL', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+        ['2mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualM', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+        ['2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualL',    'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+        ['2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU4_muonqualM',    'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+        ['2mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-2MU4_muonqualL', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+        ['2mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-2MU4_muonqualM', 'L1_BPH-2M9-0DR15-2MU4', ['L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+
         #ATR-19510
         ['mu4_ivarloose_mu4_7invm9_noos_L1DY-BOX-2MU4',     'L1_DY-BOX-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
         ['mu4_ivarloose_mu4_7invm9_noos_novtx_L1DY-BOX-2MU4',     'L1_DY-BOX-2MU4', ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],	
