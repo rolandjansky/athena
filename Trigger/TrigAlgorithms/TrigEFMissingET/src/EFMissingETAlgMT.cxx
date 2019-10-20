@@ -48,8 +48,8 @@ double EFMissingETAlgMT::toLogGeV( double x, double fallback , double epsilon ) 
 
 //!< converts to from MeV to GeV if above threshold, else falback value
 double EFMissingETAlgMT::toLinGeV( double x, double fallback , double epsilon ) {
-    const double xGeV = x * 1.e-3;
-  if ( xGeV < epsilon ) 
+  const double xGeV = x * 1.e-3;
+  if ( fabs(xGeV) < epsilon ) 
     return fallback;
   return xGeV;
 }
