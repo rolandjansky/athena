@@ -390,14 +390,10 @@ class RingerReFexConfig( RingerReFex ):
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring():
       from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
       monTool = GenericMonitoringTool('MonTool')
-      monTool.Histograms +=[
-                              defineHistogram( "TIME_total", title="Total Time;time[ms]",xbins=50, xmin=0,
-                              xmax=5,type='TH1F', path='EXPERT'),
-                              defineHistogram( "TIME_load_cells", title="Load Cells Time;time[ms]",xbins=50, xmin=0,
-                              xmax=5,type='TH1F', path='EXPERT'),
-                   
-                              ]
+      monTool.defineHistogram( "TIME_total", title="Total Time;time[ms]",xbins=50, xmin=0, xmax=5,type='TH1F', path='EXPERT')
+      monTool.defineHistogram( "TIME_load_cells", title="Load Cells Time;time[ms]",xbins=50, xmin=0, xmax=5,type='TH1F', path='EXPERT')
       self.MonTool = monTool
+      print "WORK"
 
 
 class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
@@ -461,3 +457,18 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
        self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
        self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
+
+       from TriggerJobOpts.TriggerFlags import TriggerFlags
+       if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
+            from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+            monTool = GenericMonitoringTool('MonTool')
+            monTool.defineHistogram('TrigEMCluster_eT', path='EXPERT', type='TH1F', title="T2Calo Egamma E_T; E_T [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=80.0)
+            monTool.defineHistogram('TrigEMCluster_had1', path='EXPERT', type='TH1F', title="T2Calo Egamma had E_T samp1; had E_T samp1 [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=8.0)
+            monTool.defineHistogram('TrigEMCluster_eta', path='EXPERT', type='TH1F', title="T2Calo Egamma #eta; #eta ; Nclusters", xbins=100, xmin=-2.5, xmax=2.5)
+            monTool.defineHistogram('TrigEMCluster_phi', path='EXPERT', type='TH1F', title="T2Calo Egamma #phi; #phi ; Nclusters", xbins=128, xmin=-3.2, xmax=3.2)
+            monTool.defineHistogram('TrigEMCluster_rEta', path='EXPERT', type='TH1F', title="T2Calo Egamma rEta; rEta (e237/e277) ; Nclusters", xbins=140, xmin=-0.2, xmax=1.2)
+            monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="T2Calo Egamma time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0)
+            monTool.defineHistogram('TrigEMCluster_eta,TIME_exec', path='EXPERT', type='TH2F', title="T2Calo Egamma time vs #eta ; #eta ; time [ us ]", xbins=100, xmin=-2.5, xmax=2.5, ybins=80, ymin=0.0, ymax=8000.0)
+
+            self.MonTool = monTool
+
