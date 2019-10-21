@@ -326,12 +326,12 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
 }
 
 void Muon::MdtDriftCircleOnTrackCreator::updateSign( 
-                                                    MdtDriftCircleOnTrack& caliDriftCircle, 
-                                                    Trk::DriftCircleSide si) const
+						    MdtDriftCircleOnTrack& caliDriftCircle, 
+						    Trk::DriftCircleSide si) const
 {
   // ************************
   // Apply additional corrections to local position 
-  Trk::LocalParameters& lpos =  const_cast<Trk::LocalParameters&>(caliDriftCircle.localParameters()) ;
+  Trk::LocalParameters lpos(caliDriftCircle.localParameters()) ;
   
   // set sign LocalPosition
   if ( si == Trk::LEFT ){
