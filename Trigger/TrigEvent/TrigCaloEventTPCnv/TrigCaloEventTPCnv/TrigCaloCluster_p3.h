@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -22,7 +22,7 @@ class TrigCaloCluster_p3
  public:
   static const int MAXSIZE_P = 25;
   
-  TrigCaloCluster_p3() : m_roiWord(0), m_numberUsedCells(0), m_quality(0) {}
+  TrigCaloCluster_p3() : m_allFloats(), m_roiWord(0), m_numberUsedCells(0), m_quality(0) {}
   friend class TrigCaloClusterCnv_p3;
   
  private:
