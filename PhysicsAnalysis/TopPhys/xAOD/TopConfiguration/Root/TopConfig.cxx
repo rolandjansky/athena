@@ -72,12 +72,6 @@ namespace top{
     m_isTruthDxAOD(false),
     // Derivation name
     m_derivationStream("SetMe"),
-    // Do fakes MM weights calculation
-    m_doFakesMMWeights(false),
-    // Directory of efficiency files for MM fake estimate
-    m_FakesMMDir("$ROOTCOREBIN/data/TopFakes"),
-    // Directory of efficiency files for MM fake estimate
-    m_doFakesMMDebug(false),
     // Do fakes MM weights calculation using FakeBkgTools from IFF
     m_doFakesMMWeightsIFF(false),
     // Configurations for MM fake estimate using FakeBkgTools from IFF
@@ -531,7 +525,7 @@ namespace top{
           deriv_rel_name = deriv_rel_name.substr(pos+1);
           if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
             if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
-              throw std::runtime_error("TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4PFlow_BTagging201903\". This is necessary for b-tagging to work!");
+              throw std::runtime_error("TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4PFlowJets_BTagging201903\". This is necessary for b-tagging to work!");
             }
           } else { // release does NOT have tagged jet collection
             if (this->sgKeyJets() != this->sgKeyJetsType()) { // jet collection is NOT tagged
@@ -689,14 +683,6 @@ namespace top{
     else {
       m_doLooseEvents = (settings->value("DoLoose") == "Data" || settings->value("DoLoose") == "Both");
       if (m_doLooseEvents) {
-        if (settings->value("FakesMMWeights") == "True") {
-          this->setFakesMMWeightsCalculation();
-          std::string dir = settings->value("FakesMMDir");
-          if (dir != "")
-            this->setFakesMMDir(dir);
-          if (settings->value("FakesMMDebug") == "True")
-            this->setFakesMMDebug();
-        }
 	if (settings->value("FakesMMWeightsIFF") == "True") {
           this->setFakesMMWeightsCalculationIFF();
           std::string configIFF = settings->value("FakesMMConfigIFF");
@@ -1106,6 +1092,8 @@ namespace top{
       m_chosen_boostedJetTaggers.push_back(std::make_pair(helpvec[0],helpvec[1]));
       
     }
+    
+    m_btagging_cdi_path = settings->value("BTagCDIPath");
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
@@ -1126,15 +1114,15 @@ namespace top{
       std::string tag = "";
       // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
       if(btagAlg_btagWP.size() == 2){
-	alg = btagAlg_btagWP.at(0);
-	tag = btagAlg_btagWP.at(1);
+        alg = btagAlg_btagWP.at(0);
+        tag = btagAlg_btagWP.at(1);
       }
       else if(btagAlg_btagWP.size() == 1){
-	tag = btagAlg_btagWP.at(0);
+        tag = btagAlg_btagWP.at(0);
       }
       else{
-	std::cerr << "Error with btag ALGORITHM_NAME:WP. Incorrect format." << std::endl;
-	continue;
+        std::cerr << "Error with btag ALGORITHM_NAME:WP. Incorrect format." << std::endl;
+        continue;
       }
 
       std::cout << "TopConfig ==========================================================> " << alg << ", " << tag << std::endl;
@@ -1143,7 +1131,7 @@ namespace top{
       // take care that no WP is taken twice
       if ( std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end() ) {
         m_chosen_btaggingWP.push_back(alg_tag);
-	std::cout << "chosen btag alg, WP  ===============================================> " << alg_tag.first << ", " << alg_tag.second << std::endl;
+        std::cout << "chosen btag alg, WP  ===============================================> " << alg_tag.first << ", " << alg_tag.second << std::endl;
       } else {
         std::cout << "alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen" << std::endl;
       }
@@ -1644,6 +1632,10 @@ namespace top{
 	eigen_light.at(WP)++;
       else named_systs[WP].insert(SF_name);
     }
+  }
+
+  void TopConfig::setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname) {
+    m_boostedTaggerSFnames[WP] = SFname;
   }
 
   std::string TopConfig::FormatedWP(std::string raw_WP) {

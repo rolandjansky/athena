@@ -137,6 +137,7 @@ def makeOverlapSequence (dataType) :
 
     return algSeq
 
+
 def makeEventAlgorithmsSequence (dataType) :
 
     # Config:
@@ -155,11 +156,6 @@ def makeEventAlgorithmsSequence (dataType) :
         makeEventSelectionAnalysisSequence( dataType, userGRLFiles=GRLFiles )
     algSeq += eventSelectionSequence
 
-    # Set up the file metadata algorithm:
-    if dataType != 'data':
-        algSeq += createAlgorithm( 'CP::AsgCutBookkeeperAlg', 'CutBookkeeperAlg' )
-        algSeq.CutBookkeeperAlg.runNumber = 123456
-
     # Set up an ntuple to check the job with:
     treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
     treeMaker.TreeName = 'events'
@@ -170,6 +166,48 @@ def makeEventAlgorithmsSequence (dataType) :
         'EventInfo.runNumber   -> runNumber',
         'EventInfo.eventNumber -> eventNumber',
         ]
+    ntupleMaker.systematicsRegex = '.*'
+    algSeq += ntupleMaker
+    treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+    treeFiller.TreeName = 'events'
+    algSeq += treeFiller
+
+    return algSeq
+
+
+def makeGeneratorAlgorithmsSequence (dataType) :
+
+    algSeq = AlgSequence()
+
+    # Set up the systematics loader/handler algorithm:
+    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
+    algSeq.SysLoaderAlg.sigmaRecommended = 1
+
+    # Include, and then set up the pileup analysis sequence (to make a copy):
+    from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+        makePileupAnalysisSequence
+    pileupSequence = makePileupAnalysisSequence( dataType )
+    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    algSeq += pileupSequence
+
+    # Include, and then set up the generator analysis sequence:
+    from AsgAnalysisAlgorithms.GeneratorAnalysisSequence import \
+        makeGeneratorAnalysisSequence
+    generatorSequence = makeGeneratorAnalysisSequence( dataType, saveCutBookkeepers=True, runNumber=284500, cutBookkeepersSystematics=True )
+    generatorSequence.configure( inputName = 'EventInfo_%SYS%', outputName = {} )
+    algSeq += generatorSequence
+
+    # Set up an ntuple to check the job with:
+    treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+    treeMaker.TreeName = 'events'
+    algSeq += treeMaker
+    ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
+    ntupleMaker.TreeName = 'events'
+    ntupleMaker.Branches = [
+        'EventInfo_NOSYS.runNumber   -> runNumber',
+        'EventInfo_NOSYS.eventNumber -> eventNumber',
+        'EventInfo_NOSYS.generatorWeight_%SYS% -> generatorWeight_%SYS%',
+    ]
     ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )

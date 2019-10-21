@@ -16,4 +16,6 @@
 #include "IsolationSelection/Interp3D.h"
 #include "IsolationSelection/IsolationCloseByCorrectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
+#include "IsolationSelection/IsolationLowPtPLVTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #endif // IsolationSelectionDict_H

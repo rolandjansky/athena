@@ -70,7 +70,6 @@ namespace top{
       std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
       std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
 
-      int m_release_series = 25;  // Default to 21
   };
 } // namespace
 #endif

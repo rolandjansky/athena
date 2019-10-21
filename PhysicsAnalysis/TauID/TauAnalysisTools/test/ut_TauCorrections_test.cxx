@@ -127,20 +127,20 @@ int main()
   xTauJetContainer->push_back(xTau3);
 
   xTau1->setP4(25e3, -2.0, 0., 1000);
-  xTau1->auxdecor<float>("etaTauEtaCalib") = xTau1->eta();
-  xTau1->auxdecor<float>("ptTauEtaCalib") = xTau1->pt();
+  xTau1->auxdecor<float>("etaFinalCalib") = xTau1->eta();
+  xTau1->auxdecor<float>("ptFinalCalib") = xTau1->pt();
   xTau1->addTauTrackLink(xTauTrackLink);
 
   xTau2->setP4(50e3, -0.5, 0., 1000);
-  xTau2->auxdecor<float>("etaTauEtaCalib") = xTau2->eta();
-  xTau2->auxdecor<float>("ptTauEtaCalib") = xTau2->pt();
+  xTau2->auxdecor<float>("etaFinalCalib") = xTau2->eta();
+  xTau2->auxdecor<float>("ptFinalCalib") = xTau2->pt();
   xTau2->addTauTrackLink(xTauTrackLink);
   xTau2->addTauTrackLink(xTauTrackLink);
   xTau2->addTauTrackLink(xTauTrackLink);
   
   xTau3->setP4(250e3, 1.0, 0., 1000);
-  xTau3->auxdecor<float>("etaTauEtaCalib") = xTau3->eta();
-  xTau3->auxdecor<float>("ptTauEtaCalib") = xTau3->pt();
+  xTau3->auxdecor<float>("etaFinalCalib") = xTau3->eta();
+  xTau3->auxdecor<float>("ptFinalCalib") = xTau3->pt();
   xTau3->addTauTrackLink(xTauTrackLink);
 
   // ===========================================================================
@@ -148,51 +148,57 @@ int main()
   // ===========================================================================
   std::vector<std::map<std::string, double>> vExpectedValues;
   vExpectedValues.push_back({
-    {"TESScaleFactorHadTau",                    0.9993    },
-    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", 0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",   0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1down",  -0.01301   },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1up",     0.01301   },
-    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",   -0.0102478 },
-    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",      0.0102478 },
-    {"TauScaleFactorReconstructionHadTau",      1.        },
-    {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.00885311},
-    {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
-    {"TauScaleFactorJetIDHadTau",               1.030     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.053000  },
-    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
+    {"TESScaleFactorHadTau",                       0.9934    },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down",    0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",      0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUFIT__1down",  -0.0087578 },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUFIT__1up",     0.0087578 },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1down",  -0.00543588},
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1up",     0.00543588},
+    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",      -0.0102478 },
+    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",         0.0102478 },
+    {"TauScaleFactorReconstructionHadTau",         1.        },
+    {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",        0.00885311},
+    {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",       0.        },
+    {"TauScaleFactorJetIDHadTau",                  1.025     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",        0.00292683},
+    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",      0.        }
   });
 
   vExpectedValues.push_back({
-    {"TESScaleFactorHadTau",                    1.0231    },
-    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", 0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",   0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1down",  -0.01403   },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1up",     0.01403   },
-    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",   -0.00464107},
-    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",      0.00464107},
-    {"TauScaleFactorReconstructionHadTau",      1.        },
-    {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.0155508 },
-    {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
-    {"TauScaleFactorJetIDHadTau",               1.150     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",     0.097     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
+    {"TESScaleFactorHadTau",                       1.0018    },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down",    0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",      0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUFIT__1down",  -0.0139748 },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUFIT__1up",     0.0139748 },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1down",  -0.0058894 },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1up",     0.0058894 },
+    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",      -0.00464107},
+    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",         0.00464107},
+    {"TauScaleFactorReconstructionHadTau",         1.        },
+    {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",        0.0155508 },
+    {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",       0.        },
+    {"TauScaleFactorJetIDHadTau",                  1.062     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",        0.00470810},
+    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",      0.        }
   });
   
   vExpectedValues.push_back({
-    {"TESScaleFactorHadTau",                     1.        },
-    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", -0.0304613 },
-    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",    0.0304613 },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1down",    0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1up",      0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",    -0.00316562},
-    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",       0.00316562},
-    {"TauScaleFactorReconstructionHadTau",       1.        },
-    {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",      0.00591177},
-    {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",     0.        },
-    {"TauScaleFactorJetIDHadTau",                1.094     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",      0.069     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",    0.0140745 }
+    {"TESScaleFactorHadTau",                        1.        },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down",    -0.0304613 },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",       0.0304613 },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUFIT__1down",    0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUFIT__1up",      0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1down",    0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1up",      0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",       -0.00316562},
+    {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",          0.00316562},
+    {"TauScaleFactorReconstructionHadTau",          1.        },
+    {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",         0.00591177},
+    {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",        0.        },
+    {"TauScaleFactorJetIDHadTau",                   1.052     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_SYST__1up",         0.00285171},
+    {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",       0.0140745 }
   });
 
 

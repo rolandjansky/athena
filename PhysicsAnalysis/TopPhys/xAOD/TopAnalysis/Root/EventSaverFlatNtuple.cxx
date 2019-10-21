@@ -20,8 +20,6 @@
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
-#include "TopFakes/TopFakesMMWeightCalculator.h"
-
 #include "FakeBkgTools/AsymptMatrixTool.h"
 
 namespace top {
@@ -134,7 +132,6 @@ namespace top {
     m_weight_indiv_SF_MU_TTVA_STAT_UP(0.),
     m_weight_indiv_SF_MU_TTVA_STAT_DOWN(0.),
 
-    m_fakesMM_weights(),
     m_ASMsize(0.),
     m_ASMweights(),
     m_ASMweights_Syst(),
@@ -374,8 +371,10 @@ namespace top {
     }
 
     if (m_config->useLargeRJets()) {
-    for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
+      for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
         m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
+      for (const std::pair<std::string, std::string>& taggerSF : m_config->boostedTaggerSFnames())
+        m_boostedJetTaggersNamesCalibrated.push_back(taggerSF.first);
     }
 
     //loop over systematics and attach variables
@@ -647,24 +646,6 @@ namespace top {
         }
       }
 
-      ///-- weights for matrix-method fakes estimate --///
-      if (!m_config->isMC() && systematicTree->name().find("Loose") != std::string::npos && m_config->doFakesMMWeights()) {
-        top::TopFakesMMWeightCalculator const* fakesMMWeightCalc(nullptr);
-        if ( asg::ToolStore::contains<top::TopFakesMMWeightCalculator>("MMWeightCalculator") ) {
-          fakesMMWeightCalc = asg::ToolStore::get<top::TopFakesMMWeightCalculator>("MMWeightCalculator");
-        }
-        else {
-          ATH_MSG_ERROR("EventSaverFlatNtuple::initialize" );
-          throw std::runtime_error("Unable to retrieve top::TopFakesMMWeightCalculator tool");
-        }
-        for(const auto& branchName : m_extraBranches){//loop on selections
-          for(const auto& conf : fakesMMWeightCalc->GetFakesMMConfigNames(branchName)) {
-            std::string MMweight_branch_name = "fakesMM_weight_" + branchName + "_" + conf;
-            systematicTree->makeOutputVariable(m_fakesMM_weights[branchName][conf], MMweight_branch_name);
-          }
-        }
-      }
-
       ///-- weights for matrix-method fakes estimate by IFF --///
       if (!m_config->isMC() && systematicTree->name() == nominalLooseTTreeName && m_config->doFakesMMWeightsIFF()) {
 	std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
@@ -793,10 +774,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_jet_eta,     "jet_eta");
         systematicTree->makeOutputVariable(m_jet_phi,     "jet_phi");
         systematicTree->makeOutputVariable(m_jet_e,       "jet_e");
-        systematicTree->makeOutputVariable(m_jet_mv2c00,  "jet_mv2c00");
         systematicTree->makeOutputVariable(m_jet_mv2c10,  "jet_mv2c10");
-        systematicTree->makeOutputVariable(m_jet_mv2c20,  "jet_mv2c20");
-        systematicTree->makeOutputVariable(m_jet_ip3dsv1, "jet_ip3dsv1");
         systematicTree->makeOutputVariable(m_jet_jvt,     "jet_jvt");
         systematicTree->makeOutputVariable(m_jet_passfjvt,"jet_passfjvt");
         if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
@@ -822,25 +800,22 @@ namespace top {
           if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
           else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP] , "jet_tagWeightBin_"+tagWP);
         }
-        // R21 - new b-tagging variables
-        if(m_config->getReleaseSeries() == 25){
-          systematicTree->makeOutputVariable(m_jet_MV2r, "jet_MV2r");
-          systematicTree->makeOutputVariable(m_jet_MV2rmu, "jet_MV2rmu");
-          systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
-          systematicTree->makeOutputVariable(m_jet_DL1r, "jet_DL1r");
-          systematicTree->makeOutputVariable(m_jet_DL1rmu, "jet_DL1rmu");
-          systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
-          systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
-          systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
-          systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
-          systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
-          systematicTree->makeOutputVariable(m_jet_DL1r_pu, "jet_DL1r_pu");
-          systematicTree->makeOutputVariable(m_jet_DL1r_pc, "jet_DL1r_pc");
-          systematicTree->makeOutputVariable(m_jet_DL1r_pb, "jet_DL1r_pb");
-          systematicTree->makeOutputVariable(m_jet_DL1rmu_pu, "jet_DL1rmu_pu");
-          systematicTree->makeOutputVariable(m_jet_DL1rmu_pc, "jet_DL1rmu_pc");
-          systematicTree->makeOutputVariable(m_jet_DL1rmu_pb, "jet_DL1rmu_pb");
-        }
+        systematicTree->makeOutputVariable(m_jet_MV2r, "jet_MV2r");
+        systematicTree->makeOutputVariable(m_jet_MV2rmu, "jet_MV2rmu");
+        systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
+        systematicTree->makeOutputVariable(m_jet_DL1r, "jet_DL1r");
+        systematicTree->makeOutputVariable(m_jet_DL1rmu, "jet_DL1rmu");
+        systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
+        systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
+        systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
+        systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
+        systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
+        systematicTree->makeOutputVariable(m_jet_DL1r_pu, "jet_DL1r_pu");
+        systematicTree->makeOutputVariable(m_jet_DL1r_pc, "jet_DL1r_pc");
+        systematicTree->makeOutputVariable(m_jet_DL1r_pb, "jet_DL1r_pb");
+        systematicTree->makeOutputVariable(m_jet_DL1rmu_pu, "jet_DL1rmu_pu");
+        systematicTree->makeOutputVariable(m_jet_DL1rmu_pc, "jet_DL1rmu_pc");
+        systematicTree->makeOutputVariable(m_jet_DL1rmu_pb, "jet_DL1rmu_pb");
 
       }
 
@@ -882,6 +857,13 @@ namespace top {
 	for(const std::string& taggerName : m_boostedJetTaggersNames){
 	  systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName],"ljet_isTagged_"+taggerName);
 	}
+
+        if (m_config->isMC()) {
+          systematicTree->makeOutputVariable(m_ljet_truthLabel, "ljet_truthLabel");
+          for(const std::string& taggerName : m_boostedJetTaggersNamesCalibrated){
+            systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_"+taggerName);
+          }
+        }
 
       }
 
@@ -1208,16 +1190,12 @@ namespace top {
         // Add all triggers to a map so we don't get any duplicates
         for (auto& trigger_name : m_config->allTriggers_Tight( branchName ) ) {
           m_triggerDecisions [trigger_name] = 0;
-          if (!m_config->isMC() && m_config->doFakesMMWeights())
-            m_triggerPrescales [trigger_name] = -99999.;//initialised to dummmy value, in case it can't be retrieved by the tool
         }
         for (auto& trigger_name : m_config->allTriggers_Loose( branchName ) ) {
           // let's make sure this isn't done twice
           if (m_triggerDecisions.find(trigger_name) != m_triggerDecisions.end()
               && m_triggerPrescales.find(trigger_name) != m_triggerPrescales.end()) continue;
           m_triggerDecisions [trigger_name] = 0;
-          if (!m_config->isMC() && m_config->doFakesMMWeights())
-            m_triggerPrescales [trigger_name] = -99999.;//initialised to dummmy value, in case it can't be retrieved by the tool
         }
         for (auto& trigger_name : m_config->electronTriggers_Tight( branchName ) )
           m_el_trigMatched [trigger_name] = std::vector<char>();
@@ -1238,10 +1216,6 @@ namespace top {
 
       for( auto& trig_name : m_triggerDecisions )
         systematicTree->makeOutputVariable( trig_name.second, trig_name.first );
-      if (!m_config->isMC() && m_config->doFakesMMWeights()) {
-        for( auto& trig_name : m_triggerPrescales )
-          systematicTree->makeOutputVariable( trig_name.second, "PS_"+trig_name.first );
-      }
       for( auto& trig_name : m_el_trigMatched )
         systematicTree->makeOutputVariable( trig_name.second, "el_trigMatch_"+trig_name.first );
       for( auto& trig_name : m_mu_trigMatched )
@@ -1650,11 +1624,6 @@ namespace top {
 
     for (const auto& trigger : m_triggerDecisions)
       m_triggerDecisions[trigger.first] = event.m_info->auxdataConst<char>("TRIGDEC_"+trigger.first);
-    if (!m_config->isMC() && m_config->doFakesMMWeights()) {
-      for (const auto& trigger : m_triggerPrescales)
-        m_triggerPrescales[trigger.first] = event.m_info->auxdataConst<float>("TRIGPS_"+trigger.first);
-    }
-
   }
 
   void EventSaverFlatNtuple::saveEvent(const top::Event& event) {
@@ -1903,30 +1872,6 @@ namespace top {
     /// Bootstrapping poisson weights - Moved to run for MC and data
     if(m_config->saveBootstrapWeights()){
       m_weight_poisson = event.m_info->auxdataConst<std::vector<int> >("weight_poisson");
-    }
-
-    ///-- weights for matrix-method fakes estimate --///
-    if (!m_config->isMC() && m_config->doFakesMMWeights()) {
-      top::TopFakesMMWeightCalculator const* fakesMMWeightCalc(nullptr);
-      if ( asg::ToolStore::contains<top::TopFakesMMWeightCalculator>("MMWeightCalculator") ) {
-        fakesMMWeightCalc = asg::ToolStore::get<top::TopFakesMMWeightCalculator>("MMWeightCalculator");
-      }
-      else {
-        ATH_MSG_ERROR("EventSaverFlatNtuple::initialize" );
-        throw std::runtime_error("Unable to retrieve top::TopFakesMMWeightCalculator tool");
-      }
-      for(const auto& branchName : m_extraBranches) {//loop on selections
-        for(const auto& conf : fakesMMWeightCalc->GetFakesMMConfigNames(branchName)) {
-          std::string MMweight_branch_name = "fakesMM_weight_" + branchName + "_" + conf;
-          std::string decorName = "MMWeight_"; decorName += branchName; decorName += "_"; decorName += conf;
-          if( event.m_info->isAvailable<float>(decorName.c_str()) ) {
-            m_fakesMM_weights[branchName][conf] = event.m_info->auxdataConst<float>(decorName.c_str());
-          }
-          else {//if decoration is not present, it means this weight is not relevant for this channel - a hurtless weight=1. is then applied
-            m_fakesMM_weights[branchName][conf] = 1.;
-          }
-        }
-      }
     }
 
     ///-- weights for matrix-method fakes estimate by IFF --///
@@ -2227,10 +2172,7 @@ namespace top {
       m_jet_eta.resize(event.m_jets.size());
       m_jet_phi.resize(event.m_jets.size());
       m_jet_e.resize(event.m_jets.size());
-      m_jet_mv2c00.resize(event.m_jets.size());
       m_jet_mv2c10.resize(event.m_jets.size());
-      m_jet_mv2c20.resize(event.m_jets.size());
-      m_jet_ip3dsv1.resize(event.m_jets.size());
       m_jet_jvt.resize(event.m_jets.size());
       m_jet_passfjvt.resize(event.m_jets.size());
 
@@ -2255,24 +2197,22 @@ namespace top {
       }
 
       // R21 b-tagging
-      if(m_config->getReleaseSeries() == 25){
-        m_jet_MV2r.resize(event.m_jets.size());
-        m_jet_MV2rmu.resize(event.m_jets.size());
-        m_jet_DL1.resize(event.m_jets.size());
-        m_jet_DL1r.resize(event.m_jets.size());
-        m_jet_DL1rmu.resize(event.m_jets.size());
-        m_jet_MV2cl100.resize(event.m_jets.size());
-        m_jet_MV2c100.resize(event.m_jets.size());
-        m_jet_DL1_pu.resize(event.m_jets.size());
-        m_jet_DL1_pc.resize(event.m_jets.size());
-        m_jet_DL1_pb.resize(event.m_jets.size());
-        m_jet_DL1r_pu.resize(event.m_jets.size());
-        m_jet_DL1r_pc.resize(event.m_jets.size());
-        m_jet_DL1r_pb.resize(event.m_jets.size());
-        m_jet_DL1rmu_pu.resize(event.m_jets.size());
-        m_jet_DL1rmu_pc.resize(event.m_jets.size());
-        m_jet_DL1rmu_pb.resize(event.m_jets.size());
-      }
+      m_jet_MV2r.resize(event.m_jets.size());
+      m_jet_MV2rmu.resize(event.m_jets.size());
+      m_jet_DL1.resize(event.m_jets.size());
+      m_jet_DL1r.resize(event.m_jets.size());
+      m_jet_DL1rmu.resize(event.m_jets.size());
+      m_jet_MV2cl100.resize(event.m_jets.size());
+      m_jet_MV2c100.resize(event.m_jets.size());
+      m_jet_DL1_pu.resize(event.m_jets.size());
+      m_jet_DL1_pc.resize(event.m_jets.size());
+      m_jet_DL1_pb.resize(event.m_jets.size());
+      m_jet_DL1r_pu.resize(event.m_jets.size());
+      m_jet_DL1r_pc.resize(event.m_jets.size());
+      m_jet_DL1r_pb.resize(event.m_jets.size());
+      m_jet_DL1rmu_pu.resize(event.m_jets.size());
+      m_jet_DL1rmu_pc.resize(event.m_jets.size());
+      m_jet_DL1rmu_pb.resize(event.m_jets.size());
       if (m_config->isMC()) {
         m_jet_truthflav.resize(event.m_jets.size());
         m_jet_truthPartonLabel.resize(event.m_jets.size());
@@ -2304,14 +2244,9 @@ namespace top {
         m_jet_eta[i] = jetPtr->eta();
         m_jet_phi[i] = jetPtr->phi();
         m_jet_e[i] = jetPtr->e();
-        double SV1IP3 = -999;
         // In R21, list of b-tagging variables is changing and this is outdated
         const xAOD::BTagging* btag(nullptr);
         btag = jetPtr->btagging();
-        if(m_config->getReleaseSeries() == 24){
-          if (btag) SV1IP3 = btag->SV1plusIP3D_discriminant();
-        }
-        m_jet_ip3dsv1[i] = SV1IP3;
         if (m_config->isMC()) {
           m_jet_truthflav[i] = -99;
           if(jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")){
@@ -2401,15 +2336,10 @@ namespace top {
 
         // for studies on high performance b-tagging
         // the following are in DC14
+
         double mvx = -999;
-        if (btag) btag->MVx_discriminant("MV2c00", mvx);
-        m_jet_mv2c00[i] = mvx;
-        mvx = -999;
         if (btag) btag->MVx_discriminant("MV2c10", mvx);
         m_jet_mv2c10[i] = mvx;
-        mvx = -999;
-        if (btag) btag->MVx_discriminant("MV2c20", mvx);
-        m_jet_mv2c20[i] = mvx;
 
         m_jet_jvt[i] = -1;
         if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
@@ -2420,74 +2350,69 @@ namespace top {
           m_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
         }
 
-        // BTagging variables supported for R21 but method is only in newer version so preprocessor requirement
-#if ROOTCORE_RELEASE_SERIES >= 25
-        if(m_config->getReleaseSeries() == 25){
-          m_jet_MV2r[i] = -999;
-          m_jet_MV2rmu[i] = -999;
-          // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
-          m_jet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
-          m_jet_DL1r[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1r");
-          m_jet_DL1rmu[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rmu");
-          m_jet_MV2cl100[i] = -999;
-          m_jet_MV2c100[i] = -999;
-          m_jet_DL1_pu[i] = -999;
-          m_jet_DL1_pc[i] = -999;
-          m_jet_DL1_pb[i] = -999;
-          m_jet_DL1r_pu[i] = -999;
-          m_jet_DL1r_pc[i] = -999;
-          m_jet_DL1r_pb[i] = -999;
-          m_jet_DL1rmu_pu[i] = -999;
-          m_jet_DL1rmu_pc[i] = -999;
-          m_jet_DL1rmu_pb[i] = -999;
+        m_jet_MV2r[i] = -999;
+        m_jet_MV2rmu[i] = -999;
+        // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
+        m_jet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
+        m_jet_DL1r[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1r");
+        m_jet_DL1rmu[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rmu");
+        m_jet_MV2cl100[i] = -999;
+        m_jet_MV2c100[i] = -999;
+        m_jet_DL1_pu[i] = -999;
+        m_jet_DL1_pc[i] = -999;
+        m_jet_DL1_pb[i] = -999;
+        m_jet_DL1r_pu[i] = -999;
+        m_jet_DL1r_pc[i] = -999;
+        m_jet_DL1r_pb[i] = -999;
+        m_jet_DL1rmu_pu[i] = -999;
+        m_jet_DL1rmu_pc[i] = -999;
+        m_jet_DL1rmu_pb[i] = -999;
 
-          if(btag){
-            // MVX
-            mvx = -999;
-            btag->MVx_discriminant("MV2r", mvx);
-            m_jet_MV2r[i] = mvx;
+        if(btag){
+          // MVX
+          mvx = -999;
+          btag->MVx_discriminant("MV2r", mvx);
+          m_jet_MV2r[i] = mvx;
 
-            mvx = -999;
-            btag->MVx_discriminant("MV2rmu", mvx);
-            m_jet_MV2rmu[i] = mvx;
+          mvx = -999;
+          btag->MVx_discriminant("MV2rmu", mvx);
+          m_jet_MV2rmu[i] = mvx;
 
-            mvx = -999;
-            btag->MVx_discriminant("MV2cl100", mvx);
-            m_jet_MV2cl100[i] = mvx;
+          mvx = -999;
+          btag->MVx_discriminant("MV2cl100", mvx);
+          m_jet_MV2cl100[i] = mvx;
 
-            mvx = -999;
-            btag->MVx_discriminant("MV2c100", mvx);
-            m_jet_MV2c100[i] = mvx;
+          mvx = -999;
+          btag->MVx_discriminant("MV2c100", mvx);
+          m_jet_MV2c100[i] = mvx;
 
-            // DL1
-            double _pu, _pc, _pb = -999;
+          // DL1
+          double _pu, _pc, _pb = -999;
 
-            // DL1rmuCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
-            // so just providing the DL1rmu weights to construct tagger offline
-            btag->pu("DL1rmu",_pu);
-            btag->pb("DL1rmu",_pb);
-            btag->pc("DL1rmu",_pc);
-            m_jet_DL1rmu_pu[i] = _pu;
-            m_jet_DL1rmu_pc[i] = _pc;
-            m_jet_DL1rmu_pb[i] = _pb;
-            // DL1r - as above
-            btag->pu("DL1r",_pu);
-            btag->pb("DL1r",_pb);
-            btag->pc("DL1r",_pc);
-            m_jet_DL1r_pu[i] = _pu;
-            m_jet_DL1r_pc[i] = _pc;
-            m_jet_DL1r_pb[i] = _pb;
-            // DL1 - as above
-            btag->pu("DL1",_pu);
-            btag->pb("DL1",_pb);
-            btag->pc("DL1",_pc);
-            m_jet_DL1_pu[i] = _pu;
-            m_jet_DL1_pc[i] = _pc;
-            m_jet_DL1_pb[i] = _pb;
+          // DL1rmuCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
+          // so just providing the DL1rmu weights to construct tagger offline
+          btag->pu("DL1rmu",_pu);
+          btag->pb("DL1rmu",_pb);
+          btag->pc("DL1rmu",_pc);
+          m_jet_DL1rmu_pu[i] = _pu;
+          m_jet_DL1rmu_pc[i] = _pc;
+          m_jet_DL1rmu_pb[i] = _pb;
+          // DL1r - as above
+          btag->pu("DL1r",_pu);
+          btag->pb("DL1r",_pb);
+          btag->pc("DL1r",_pc);
+          m_jet_DL1r_pu[i] = _pu;
+          m_jet_DL1r_pc[i] = _pc;
+          m_jet_DL1r_pb[i] = _pb;
+          // DL1 - as above
+          btag->pu("DL1",_pu);
+          btag->pb("DL1",_pb);
+          btag->pc("DL1",_pc);
+          m_jet_DL1_pu[i] = _pu;
+          m_jet_DL1_pc[i] = _pc;
+          m_jet_DL1_pb[i] = _pb;
 
-          }
-        } // getReleaseSeries == 25
-#endif // ROOTCORE_RELEASE_SERIES
+        }
 
         ++i;
       }
@@ -2611,7 +2536,13 @@ namespace top {
       m_ljet_m.resize(nLargeRJets);
       m_ljet_sd12.resize(nLargeRJets);
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      for (const std::string& taggerName : m_boostedJetTaggersNames)
+        m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      if (m_config->isMC()) {
+        m_ljet_truthLabel.resize(nLargeRJets);
+        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated)
+          m_ljet_tagSF[taggerName].resize(nLargeRJets);
+      }
 
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
@@ -2624,10 +2555,16 @@ namespace top {
         jetPtr->getAttribute("Split12", Split12);
         m_ljet_sd12[i] = Split12;
 
+        for (const std::string& taggerName : m_boostedJetTaggersNames) {
+          m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName);
+        }
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames ) {
-        try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
-      }
+        if (m_config->isMC()) {
+          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("FatjetTruthLabel");
+          for (const std::pair<std::string, std::string> &tagSF : m_config->boostedTaggerSFnames()) {
+            m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+          }
+        }
 
         ++i;
       }
@@ -2640,9 +2577,7 @@ namespace top {
       m_tjet_eta.resize(event.m_trackJets.size());
       m_tjet_phi.resize(event.m_trackJets.size());
       m_tjet_e.resize(event.m_trackJets.size());
-      m_tjet_mv2c00.resize(event.m_trackJets.size());
       m_tjet_mv2c10.resize(event.m_trackJets.size());
-      m_tjet_mv2c20.resize(event.m_trackJets.size());
       m_tjet_DL1.resize(event.m_trackJets.size());
       m_tjet_DL1r.resize(event.m_trackJets.size());
       m_tjet_DL1rmu.resize(event.m_trackJets.size());
@@ -2674,14 +2609,8 @@ namespace top {
         const xAOD::BTagging* btag(nullptr);
         btag = jetPtr->btagging();
         double mvx = -999;
-        if (btag) btag->MVx_discriminant("MV2c00", mvx);
-        m_tjet_mv2c00[i] = mvx;
-        mvx = -999;
         if (btag) btag->MVx_discriminant("MV2c10", mvx);
         m_tjet_mv2c10[i] = mvx;
-        mvx = -999;
-        if (btag) btag->MVx_discriminant("MV2c20", mvx);
-        m_tjet_mv2c20[i] = mvx;
         m_tjet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
         m_tjet_DL1r[i]   = jetPtr->auxdataConst<float>("AnalysisTop_DL1r");
         m_tjet_DL1rmu[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rmu");

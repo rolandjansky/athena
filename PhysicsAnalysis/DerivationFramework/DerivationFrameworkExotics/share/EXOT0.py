@@ -214,6 +214,15 @@ reducedJetList = [
     "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,SeqEXOT0,"EXOT0")
 
+# redo ghost association
+#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
+#if DerivationFrameworkIsMonteCarlo :
+#    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=SeqEXOT0, algname="JetPtAssociationAlg")
+#    addJetPtAssociation(jetalg="AntiKt4EMPFlow",  truthjetalg="AntiKt4TruthJets", sequence=SeqEXOT0, algname="JetPtAssociationAlg")
+
+#b-tagging for pflow jets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqEXOT0) 
 
 #==============================================================================
 # Tau truth building/matching
@@ -254,5 +263,12 @@ if DerivationFrameworkIsMonteCarlo:
   EXOT0SlimmingHelper.AppendToDictionary = {'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer'}
   EXOT0SlimmingHelper.AppendToDictionary = {'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}  
   # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py) and are added to the AllVariables list in EXOT0ContentList.py
+  
+#PFlow b-tagging
+EXOT0SlimmingHelper.AppendToDictionary ={
+  'BTagging_AntiKt4EMPFlow_201810':'xAOD::BTaggingContainer',
+  'BTagging_AntiKt4EMPFlow_201810Aux':'xAOD::BTaggingAuxContainer',
+  'BTagging_AntiKt4EMPFlow_201903':'xAOD::BTaggingContainer',
+  'BTagging_AntiKt4EMPFlow_201903Aux':'xAOD::BTaggingAuxContainer'}
 
 EXOT0SlimmingHelper.AppendContentToStream(EXOT0Stream)

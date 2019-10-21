@@ -33,8 +33,6 @@ class OverlapRemovalCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
 
-  int m_release_series = 24;  // Default to 2.4
-
   ORUtils::ToolBox m_ORtoolBox;
   ORUtils::ToolBox m_ORtoolBox_Loose;
   asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool;

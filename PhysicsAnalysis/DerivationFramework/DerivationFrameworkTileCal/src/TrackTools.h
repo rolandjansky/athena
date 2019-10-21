@@ -14,6 +14,7 @@
 #define TrackTools_H
 #include "ITrackTools.h"
 
+class TileID;
 
 //========================================================================================================================== 
 class TrackTools: public AthAlgTool, virtual public ITrackTools{ 
@@ -47,11 +48,15 @@ class TrackTools: public AthAlgTool, virtual public ITrackTools{
 
         // JOBOPTIONS PROPERTIES
         std::string         m_cellContainerName;
+        bool   m_isCollision;
         double getPath(const CaloCell* cell, const Trk::TrackParameters *entrance, const Trk::TrackParameters *exit);
 
         // DEFAULT CONSTRUCTOR
         TrackTools(const TrackTools&);
         TrackTools &operator= (const TrackTools&);
+
+	mutable const TileID* m_tileID;  
+
 };
 
 #endif //TrackTools_H

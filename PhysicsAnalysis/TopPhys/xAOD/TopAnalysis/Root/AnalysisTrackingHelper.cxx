@@ -146,6 +146,7 @@ void AnalysisTrackingHelper::finish() {
       out << " " << json_dump("dsid") << ": " << json_dump(m_topConfig->getDSID()) << ",\n";
       out << " " << json_dump("isMC") << ": " << json_dump(m_topConfig->isMC()) << ",\n";
       out << " " << json_dump("isAtlFast2") << ": " << json_dump(m_topConfig->isAFII()) << "\n";
+      out << " " << json_dump("BtagCDIPath") << ": " << json_dump(m_topConfig->bTaggingCDIPath()) << "\n";
       out << "},\n";
    }
    {

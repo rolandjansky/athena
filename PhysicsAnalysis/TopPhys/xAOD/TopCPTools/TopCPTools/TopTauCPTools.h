@@ -37,8 +37,6 @@ class TauCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
 
-  int m_release_series = 24;  // Default to 2.4
-
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelectionTool;
   ToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffCorrTool;
   ToolHandle<CP::IPileupReweightingTool> m_pileupReweightingTool;

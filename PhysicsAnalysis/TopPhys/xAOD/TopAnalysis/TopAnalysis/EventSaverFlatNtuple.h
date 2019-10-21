@@ -274,6 +274,7 @@ private:
 
     // Store boosted jet tagger names
     std::vector<std::string> m_boostedJetTaggersNames;
+    std::vector<std::string> m_boostedJetTaggersNamesCalibrated;
 
     //some event weights
     float m_weight_mc;
@@ -460,8 +461,6 @@ private:
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> m_perjet_weight_trackjet_bTagSF_named_down;
 
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
-    /// m_fakesMM_weights[selection][configuration]
-    std::unordered_map<std::string,std::unordered_map<std::string, float>> m_fakesMM_weights;
     int m_ASMsize;
     std::vector<float> m_ASMweights;
     std::vector<std::vector<float> > m_ASMweights_Syst;
@@ -634,15 +633,10 @@ private:
     std::vector<float> m_ljet_e;
     std::vector<float> m_ljet_m;
     std::vector<float> m_ljet_sd12;
-
-    std::vector<char> m_ljet_isTopTagged_50;
-    std::vector<char> m_ljet_isTopTagged_80;
-    std::vector<char> m_ljet_isWTagged_80;
-    std::vector<char> m_ljet_isWTagged_50;
-    std::vector<char> m_ljet_isZTagged_80;
-    std::vector<char> m_ljet_isZTagged_50;
+    std::vector<int> m_ljet_truthLabel;
     
     std::unordered_map<std::string,std::vector<char> > m_ljet_isTagged;
+    std::unordered_map<std::string,std::vector<float> > m_ljet_tagSF;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -1127,10 +1121,6 @@ protected:
   const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_up() const { return m_perjet_weight_trackjet_bTagSF_named_up;}
   const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_down() const { return m_perjet_weight_trackjet_bTagSF_named_down;}
 
-  ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
-  /// m_fakesMM_weights[selection][configuration]
-  const std::unordered_map<std::string,std::unordered_map<std::string, float>>& fakesMM_weights() const { return m_fakesMM_weights;}
-
   /// Weights for bootstrapping
   const std::vector<int>& weight_poisson() const { return m_weight_poisson;}
 
@@ -1251,12 +1241,7 @@ protected:
   const std::vector<float>& ljet_e() const { return m_ljet_e;}
   const std::vector<float>& ljet_m() const { return m_ljet_m;}
   const std::vector<float>& ljet_sd12() const { return m_ljet_sd12;}
-  const std::vector<char>& ljet_isTopTagged_50() const { return m_ljet_isTopTagged_50;}
-  const std::vector<char>& ljet_isTopTagged_80() const { return m_ljet_isTopTagged_80;}
-  const std::vector<char>& ljet_isWTagged_80() const { return m_ljet_isWTagged_80;}
-  const std::vector<char>& ljet_isWTagged_50() const { return m_ljet_isWTagged_50;}
-  const std::vector<char>& ljet_isZTagged_80() const { return m_ljet_isZTagged_80;}
-  const std::vector<char>& ljet_isZTagged_50() const { return m_ljet_isZTagged_50;}
+  const std::vector<int>& ljet_truthLabel() const { return m_ljet_truthLabel;}
   
   const std::unordered_map<std::string,std::vector<char> >& ljet_isTagged() const { return m_ljet_isTagged;}
   const std::vector<char>& ljet_isTagged(const std::string& taggerName) { return m_ljet_isTagged[taggerName];}

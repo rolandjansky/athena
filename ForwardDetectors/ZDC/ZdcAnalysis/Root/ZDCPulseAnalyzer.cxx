@@ -119,8 +119,11 @@ ZDCPulseAnalyzer::ZDCPulseAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, std::st
 
 ZDCPulseAnalyzer::~ZDCPulseAnalyzer()
 {
-  if (!m_defaultFitWrapper) delete m_defaultFitWrapper;
-  if (!m_prePulseFitWrapper) delete m_prePulseFitWrapper;
+  if (m_defaultFitWrapper)  delete m_defaultFitWrapper;
+  if (m_prePulseFitWrapper) delete m_prePulseFitWrapper;
+
+  if (m_fitHist)     delete m_fitHist;
+  if (m_delayedHist) delete m_delayedHist;
 }
 
 void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline)
@@ -137,6 +140,7 @@ void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fix
   m_defaultT0Min = m_deltaTSample * (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance - 0.5);
 
   m_delayedHist = new TH1F((std::string(m_fitHist->GetName()) + "delayed").c_str(), "", m_Nsample, m_tmin + m_delayedDeltaT, m_tmax + m_delayedDeltaT);
+  m_delayedHist->SetDirectory(0);
 
   m_ADCSamplesHGSub.assign(2 * m_Nsample, 0);
 }
@@ -296,8 +300,8 @@ void ZDCPulseAnalyzer::SetCutValues(float chisqDivAmpCutHG, float chisqDivAmpCut
 
 void ZDCPulseAnalyzer::SetupFitFunctions()
 {
-  if (!m_defaultFitWrapper)  delete m_defaultFitWrapper;
-  if (!m_prePulseFitWrapper) delete m_prePulseFitWrapper;
+  if (m_defaultFitWrapper)  delete m_defaultFitWrapper;
+  if (m_prePulseFitWrapper) delete m_prePulseFitWrapper;
 
   float prePulseTMin = 0;
   float prePulseTMax = prePulseTMin + m_deltaTSample * (m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance);

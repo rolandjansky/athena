@@ -77,6 +77,10 @@ namespace CP {
       /// Function setting up the internal data structures on the first event
       StatusCode setupTree();
 
+      /// Function setting up an individual branch on the first event
+      StatusCode setupBranch( const std::string &branchDecl,
+                              const CP::SystematicSet &sys );
+
       /// @name Algorithm properties
       /// @{
 

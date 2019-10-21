@@ -26,8 +26,6 @@
 #include "TopCorrections/ScaleFactorCalculator.h"
 #include "TopCorrections/PDFScaleFactorCalculator.h"
 
-#include "TopFakes/TopFakesMMWeightCalculator.h"
-
 #include "FakeBkgTools/AsymptMatrixTool.h"
 
 #include "TopSystematicObjectMaker/ObjectCollectionMaker.h"
@@ -251,6 +249,10 @@ int main(int argc, char** argv) {
     // In rel 20.7, need to go back to class access
     xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
 
+    // Read metadata
+    std::unique_ptr<TFile> metadataInitFile(TFile::Open(filenames[0].c_str()));
+    top::check(xaodEvent.readFrom(metadataInitFile.get()), "xAOD::TEvent readFrom failed");
+
     // Setup all asg::AsgTools
     top::TopToolStore topTools("top::TopToolStore");
     top::check(topTools.setProperty("config", topConfig),
@@ -359,16 +361,6 @@ int main(int argc, char** argv) {
     top::check(topScaleFactors->setProperty( "config" , topConfig ) , "Failed to setProperty of top::ScaleFactorCalculator");
     top::check(topScaleFactors->initialize(),"Failed to initialize  top::ScaleFactorCalculator");
 
-    ///-- weights for matrix-method fakes estimate --///
-    std::unique_ptr<top::TopFakesMMWeightCalculator> topfakesMMWeights(nullptr);    
-    if (!topConfig->isMC() && topConfig->doLooseEvents() && topConfig->doFakesMMWeights()) {
-      topfakesMMWeights = std::unique_ptr<top::TopFakesMMWeightCalculator>( new top::TopFakesMMWeightCalculator() );
-      top::check(topfakesMMWeights->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopFakesMMWeightCalculator");
-      top::check(topfakesMMWeights->initialize(),"Failed to initialize  top::TopFakesMMWeightCalculator");
-      for (auto sel : settings->selections()) {
-	top::check(topfakesMMWeights->setSelectionConfigs(sel.m_name, eventSelectionManager.GetFakesMMConfigs(sel.m_name)),"Failed to set the selection FakesMMConfigs for selection"+sel.m_name);
-      }
-    }
     std::vector<std::unique_ptr<CP::AsymptMatrixTool> > topfakesMMWeightsIFF;
     std::vector<std::vector<std::string> > FakesMMConfigIFF;
     if(!topConfig->isMC() && topConfig->doLooseEvents() && topConfig->doFakesMMWeightsIFF()) {
@@ -456,6 +448,10 @@ int main(int argc, char** argv) {
     unsigned int totalYieldSoFar = 0;
     unsigned int skippedEventsSoFar = 0;
     unsigned int eventSavedReco(0),eventSavedRecoLoose(0),eventSavedTruth(0),eventSavedParticle(0),eventSavedUpgrade(0);
+
+    // Close the file that we opened only for metadata
+    metadataInitFile->Close();
+
     for (const auto& filename : filenames) {
         if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun() ) break;
         std::cout << "Opening " << filename << std::endl;
@@ -577,6 +573,13 @@ int main(int argc, char** argv) {
             std::cout << "It will only work on un-skimmed derivations, and it will be impossible to know the name of these weights."<<std::endl;
             recalc_LHE3 = true;
           }
+        }
+
+        if (topConfig->printCDIpathWarning()) {
+          std::cout << "\n*************************************************************************\n";
+          std::cout << "YOU ARE USING A CUSTOM PATH TO THE CDI FILE WHICH IS NOT THE DEFAULT PATH\n";
+          std::cout << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n";
+          std::cout << "*************************************************************************\n\n";
         }
 
         const unsigned int entries = xaodEvent.getEntries();
@@ -815,10 +818,6 @@ int main(int argc, char** argv) {
                 const bool passAnyEventSelection = eventSelectionManager.apply(topEvent,*currentSystematic );
                 currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
                 topEvent.m_saveEvent = passAnyEventSelection;
-		///-- weights for matrix-method fakes estimate, only for nominal --///
-		if (!topConfig->isMC() && topConfig->doFakesMMWeights() && currentSystematic->hashValue() == topConfig->nominalHashValue()) {
-		  top::check( topfakesMMWeights->execute(&topEvent) , "Failed to execute fakes mmweight calculation");
-		}
 		///-- weights for matrix-method fakes estimate from IFF tools, only for nominal --///
 		if (!topConfig->isMC() && topConfig->doFakesMMWeightsIFF() && currentSystematic->hashValue() == topConfig->nominalHashValue()) {
 		  xAOD::IParticleContainer lepton(SG::VIEW_ELEMENTS);

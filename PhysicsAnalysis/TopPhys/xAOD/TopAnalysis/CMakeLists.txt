@@ -25,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
                           TopPartons
                           TopObjectSelectionTools
                           TopSystematicObjectMaker
-                          TopFakes
                           TopDataPreparation
                           TopHLUpgrade
                           Tools/PathResolver
@@ -67,7 +66,6 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   TopPartons
                                   TopObjectSelectionTools
                                   TopSystematicObjectMaker
-                                  TopFakes
                                   TopDataPreparation
                                   TopHLUpgrade
                                   PathResolver
@@ -104,7 +102,6 @@ atlas_add_executable( top-xaod
                                      TopPartons
                                      TopObjectSelectionTools
                                      TopSystematicObjectMaker
-                                     TopFakes
                                      TopDataPreparation
                                      TopHLUpgrade
                                      PathResolver
@@ -134,35 +131,6 @@ atlas_add_executable( top-tool-ftag
                                      TopPartons
                                      TopObjectSelectionTools
                                      TopSystematicObjectMaker
-                                     TopFakes
-                                     TopDataPreparation
-                                     TopHLUpgrade
-                                     PathResolver
-                                     ${ROOT_LIBRARIES}
-                                     TopAnalysis )
-atlas_add_executable( top-xaod-v2
-                      util/top-xaod-v2.cxx
-                      LINK_LIBRARIES xAODCore
-                                     xAODRootAccess
-                                     xAODEgamma
-                                     xAODMuon
-                                     xAODJet
-                                     xAODMissingET
-                                     xAODCutFlow
-                                     xAODMetaData
-                                     AsgTools
-                                     AthContainers
-                                     PATInterfaces
-                                     TopCPTools
-                                     TopEventSelectionTools
-                                     TopConfiguration
-                                     TopCorrections
-                                     TopEvent
-                                     TopParticleLevel
-                                     TopPartons
-                                     TopObjectSelectionTools
-                                     TopSystematicObjectMaker
-                                     TopFakes
                                      TopDataPreparation
                                      TopHLUpgrade
                                      PathResolver

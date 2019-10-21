@@ -49,6 +49,7 @@
     declareProperty("CentralMaxStochPt",  m_maxStochPt       = 35e3             );
     declareProperty("JetScaleFactor",     m_jetScaleFactor   = 0.4              );
     declareProperty("UseTightOP",         m_tightOP          = false            );//Tight or Loose
+    declareProperty("UseFirstVertex",     m_useFirstVertex   = false            );
   }
 
   // Destructor
@@ -114,7 +115,7 @@
       ATH_MSG_WARNING("Unable to retrieve MET_Track container");
     }
     const xAOD::VertexContainer *vxCont = 0;
-    if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
+    if( evtStore()->retrieve(vxCont,"PrimaryVertices").isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     }
     for(const auto& vx : *vxCont) {
@@ -199,6 +200,10 @@
       ATH_MSG_WARNING("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      if (m_useFirstVertex && vxCont->size()) {
+        m_pvind = vxCont->at(0)->index();
+        return;
+      }
       for(const auto& vx : *vxCont) {
         if(vx->vertexType()==xAOD::VxType::PriVtx)
           {m_pvind = vx->index(); break;}

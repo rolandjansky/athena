@@ -102,7 +102,7 @@ namespace CP
     /// \pre isInitialized()
   public:
     StatusCode foreach
-      (const std::function<StatusCode(const CP::SystematicSet)>& func);
+      (const std::function<StatusCode(const CP::SystematicSet&)>& func);
 
 
 

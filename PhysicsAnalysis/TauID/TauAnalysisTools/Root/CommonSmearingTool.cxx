@@ -71,8 +71,8 @@ CommonSmearingTool::CommonSmearingTool(std::string sName)
   : asg::AsgMetadataTool( sName )
   , m_mSF(0)
   , m_sSystematicSet(0)
-  , m_fX(&caloTauPt)
-  , m_fY(&caloTauEta)
+  , m_fX(&finalTauPt)
+  , m_fY(&finalTauEta)
   , m_bIsData(false)
   , m_bIsConfigured(false)
   , m_tMvaTESVariableDecorator("MvaTESVariableDecorator", this)
@@ -447,8 +447,8 @@ template<class T>
 void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap)
 {
   // initialize function pointer
-  m_fX = &caloTauPt;
-  m_fY = &caloTauEta;
+  m_fX = &finalTauPt;
+  m_fY = &finalTauEta;
 
   TKey *kKey;
   TIter itNext(fFile->GetListOfKeys());
@@ -464,9 +464,9 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
       TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
-      if (sTitle == "P")
+      if (sTitle == "P" || sTitle == "PFinalCalib")
       {
-        m_fX = &caloTauP;
+        m_fX = &finalTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
     }
@@ -482,7 +482,7 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &caloTauAbsEta;
+        m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
     }

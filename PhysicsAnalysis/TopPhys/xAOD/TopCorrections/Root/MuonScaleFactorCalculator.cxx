@@ -67,7 +67,6 @@ namespace top {
   StatusCode MuonScaleFactorCalculator::initialize() {
     ATH_MSG_INFO(" top::MuonScaleFactorCalculator initialize");
     
-    // Different tools to retrieve, depending on the release
     m_muonTriggerScaleFactors_R21      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_R21");
     m_muonTriggerScaleFactorsLoose_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_R21");
     

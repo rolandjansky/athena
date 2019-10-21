@@ -25,6 +25,8 @@ namespace CP{
     typedef SG::AuxElement::Decorator<bool> BoolDecorator;
     typedef SG::AuxElement::ConstAccessor<bool> BoolAccessor;
     
+    typedef SG::AuxElement::Decorator<int> IntDecorator;
+    typedef SG::AuxElement::ConstAccessor<int> IntAccessor;
     
     typedef xAOD::Iso::IsolationType IsoType;
     typedef std::vector<IsoType> IsoVector;

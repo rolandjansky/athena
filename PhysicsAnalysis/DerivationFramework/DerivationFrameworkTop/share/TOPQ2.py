@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # TOPQ2
 # DILEPTON SELECTION
@@ -21,8 +23,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -37,7 +39,7 @@ TOPQ2Stream.AcceptAlgs(["TOPQ2Kernel"])
 # PDF Weight Metadata
 #====================================================================
 if DFisMC:
-  from DerivationFrameworkCore.WeightMetadata import *
+    from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
 # TRIGGER NAVIGATION THINNING
@@ -109,8 +111,8 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ2Sequenc
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  TOPQ2Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    TOPQ2Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
 from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables

@@ -112,6 +112,7 @@ private:
   // Private methods
   //
   std::unique_ptr<ZDCDataAnalyzer> initializeDefault();
+  std::unique_ptr<ZDCDataAnalyzer> initializePbPb2015G4();
   std::unique_ptr<ZDCDataAnalyzer> initializepPb2016();
   std::unique_ptr<ZDCDataAnalyzer> initializePbPb2018();
 

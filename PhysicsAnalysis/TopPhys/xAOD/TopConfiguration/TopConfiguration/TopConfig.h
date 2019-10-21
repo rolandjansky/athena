@@ -176,25 +176,6 @@ class TopConfig final {
   // Default is true
   inline bool doLooseSysts() const {return m_doLooseSysts;}
 
-  // Do fakes MM weight calculation
-  inline bool doFakesMMWeights() const {return m_doFakesMMWeights;}
-
-  // Directory of efficiency files for MM fake estimate
-  inline std::string FakesMMDir() const {return m_FakesMMDir;}
-
-  // DDebug mode for MM fake estimate
-  inline bool FakesMMDebug() const {return m_doFakesMMDebug;}
-
-  // enables calculation of MM weights
-  // only possible for data loose
-  // doing it on MC loose is explicitly forbidden
-  inline void setFakesMMWeightsCalculation()
-  {m_doFakesMMWeights = true;}
-  inline void setFakesMMDir(const std::string dir)
-  {m_FakesMMDir = dir;}
-  inline void setFakesMMDebug()
-  {m_doFakesMMDebug = true;}
-
   // Do fakes MM weight calculation using FakeBkgTools from IFF
   inline bool doFakesMMWeightsIFF() const {return m_doFakesMMWeightsIFF;}
 
@@ -832,6 +813,8 @@ class TopConfig final {
 
   
   const std::vector<std::pair<std::string, std::string> > boostedJetTaggers() const { return m_chosen_boostedJetTaggers;}
+  const std::unordered_map<std::string, std::string> boostedTaggerSFnames() const {return m_boostedTaggerSFnames;}
+  void setCalibBoostedJetTagger(const std::string& WP, const std::string& SFname);
   // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
   const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
@@ -852,6 +835,12 @@ class TopConfig final {
 
   std::string FormatedWP(std::string raw_WP);
 
+  bool printCDIpathWarning() const
+  {return m_cdi_path_warning;}
+  void setPrintCDIpathWarning(bool flag)
+  {m_cdi_path_warning = flag;}
+  const std::string bTaggingCDIPath() const
+  {return m_btagging_cdi_path;}
   const std::string& bTaggingCalibration_B() const
   {return m_btagging_calibration_B;};
   const std::string& bTaggingCalibration_C() const
@@ -1107,13 +1096,6 @@ class TopConfig final {
   std::string m_derivationStream;
   std::string m_amiTag;
   int m_amiTagSet = 0;
-
-  // Do fakes MM weights calculation? - only for data loose
-  bool m_doFakesMMWeights;
-  // Directory of efficiency files for MM fake estimate
-  std::string m_FakesMMDir;
-  // Debug mode?
-  bool m_doFakesMMDebug;
 
   // Do fakes MM weights calculation? - only for data loose
   bool m_doFakesMMWeightsIFF;
@@ -1430,6 +1412,7 @@ class TopConfig final {
 
   // Boosted jet taggers requested by user
   std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
+  std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
@@ -1444,6 +1427,8 @@ class TopConfig final {
   std::vector<std::string> m_calibrated_btaggingWP_trkJet;
 
   // B-tagging calibration to be used
+  bool m_cdi_path_warning = false;
+  std::string m_btagging_cdi_path = "Default";
   std::string m_btagging_calibration_B = "default";
   std::string m_btagging_calibration_C = "default";
   std::string m_btagging_calibration_Light = "default";

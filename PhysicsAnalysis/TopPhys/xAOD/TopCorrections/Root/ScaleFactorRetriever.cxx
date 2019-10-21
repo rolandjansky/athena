@@ -922,7 +922,7 @@ namespace top {
         if(acc_tauSFs_loose.find(tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL)) == acc_tauSFs_loose.end()){
           acc_tauSFs_loose.insert( std::pair<TString, SG::AuxElement::ConstAccessor<float>> (tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL)+"_loose" , tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL).Data()) );
         }
-        return acc_tauSFs_loose.at(tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL))(x);
+        return acc_tauSFs_loose.at(tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL)+"_loose")(x);
       }
       if(acc_tauSFs_loose.find((tauSF_name.at(SFSyst)+"_loose")) == acc_tauSFs_loose.end()) {
           acc_tauSFs_loose.insert( std::pair<TString, SG::AuxElement::ConstAccessor<float>> (tauSF_name.at(SFSyst)+"_loose" , (tauSF_name.at(SFSyst)+"_loose").Data()) );
