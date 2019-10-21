@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -25,7 +25,7 @@ namespace MuonGM {
 TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float WireSp, const float NCHRNG,
                                      const float* NWGS, const float* IWGS1, const float* IWGS2,
                                      const float* IWGS3, const float* ROFFST, const float* NSPS,
-				   const float* POFFST, IMessageSvc* msgSvc )
+				   const float* POFFST)
   :m_chamberName(name), m_chamberType(iCh), m_readoutVersion(Version),
    m_wirePitch(WireSp), m_nPhiChambers((int)NCHRNG), m_physicalDistanceFromBase(-9999.)
 {
@@ -60,14 +60,13 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
   StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
   if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
   m_Log = std::make_unique<MsgStream>(m_msgSvc, "TgcReadoutParams");
-  if (msgSvc) (*m_Log) << MSG::DEBUG<<"TgcReadoutParams::TgcReadoutParams() - passed IMessageSvc which is not needed anymore." << endmsg;
 }
 
 
 TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float WireSp, const int NCHRNG,
                                    const float* NWGS, const float* IWGS1, const float* IWGS2, const float* IWGS3,
                                    float PDIST, const float* SLARGE, const float* SSHORT, 
-                                   const float* ROFFST, const float* NSPS, const float* POFFST, IMessageSvc* msgSvc)
+                                   const float* ROFFST, const float* NSPS, const float* POFFST)
   : m_chamberName(name), m_chamberType(iCh), m_readoutVersion(Version),
     m_wirePitch(WireSp), m_nPhiChambers(NCHRNG)
 {
@@ -111,7 +110,6 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
     StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
     if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
     m_Log = std::make_unique<MsgStream>(m_msgSvc, "TgcReadoutParams");
-    if (msgSvc) (*m_Log) << MSG::DEBUG<<"TgcReadoutParams::TgcReadoutParams() - passed IMessageSvc which is not needed anymore." << endmsg;
 }
 
 

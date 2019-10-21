@@ -129,6 +129,7 @@ FLAG_DATA=0
 FLAG_TEST=0
 ERRORS=""
 DETDESCRTAG=""
+NSWAGDDFILE=""
 GLOBCONDTAG=""
 SKIPEVENTS=""
 CRUISEWITHTIME=""
@@ -329,6 +330,11 @@ while [ $i -le $# ]; do
 	DETDESCRTAG_2=${arg:9:$((${#arg}-9))}
 	if [ "x$DETDESCRTAG_2" == "x" ]; then
 	    ERRORS="$ERRORS\nNeed argument to -detdescr. Example: -detdescr=ATLAS-GEO-20-00-01"
+	fi
+    elif [ "x${arg:0:10}" == "x-nswagdd=" ]; then
+	NSWAGDDFILE=${arg:9:$((${#arg}-9))}
+	if [ "x$NSWAGDDFILE" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
 	fi
     elif [ "x${arg:0:10}" == "x-globcond=" ]; then
 	GLOBCONDTAG=${arg:10:$((${#arg}-10))}
@@ -908,6 +914,10 @@ fi
 if [ "x$DETDESCRTAG" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}DetDescrVersion=\"$DETDESCRTAG\""
+fi
+if [ "x$NSWAGDDFILE" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1NSWAGDDFiles=["'"${NSWAGDDFILE}"'"]"
 fi
 if [ "x$GLOBCONDTAG" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi

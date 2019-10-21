@@ -6,6 +6,7 @@ from AthenaCommon.Configurable import Configurable,ConfigurableService,Configura
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
     checkSequenceConsistency, findAllAlgorithmsByName
 from AthenaCommon.AlgSequence import AthSequencer
+from AthenaCommon.Debugging import DbgStage
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
@@ -21,7 +22,7 @@ from AthenaConfiguration.UnifyProperties import unifySet
 class ConfigurationError(RuntimeError):
     pass
 
-_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc'))
+_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc'))
 
 def printProperties(msg, c, nestLevel = 0):
     # Iterate in sorted order.
@@ -86,6 +87,7 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
         self._lastAddedComponent="Unknown" 
+        self._debugStage=DbgStage()
 
     def setAsTopLevel(self):
         self._isMergable = False
@@ -437,6 +439,13 @@ class ComponentAccumulator(object):
                 raise DeduplicationFailed("AppMgr property %s set twice: %s and %s" % (key, self._theAppProps[key], value))
 
 
+        pass
+
+
+    def setDebugStage(self,stage):
+        if stage not in DbgStage.allowed_values:
+            raise RuntimeError("Allowed arguments for setDebugStage are [%s]" % (",".join(DbgStage.allowed_values)))
+        self._debugStage.value=stage
         pass
 
     def merge(self,other, sequenceName=None):
@@ -828,7 +837,7 @@ class ComponentAccumulator(object):
 
         #Add services
         for svc in self._services:
-            if svc.getFullName()=="MessageSvc/MessageSvc":
+            if svc.getName()=="MessageSvc":
                 #Message svc exists already! Needs special treatment
                 for k, v in svc.getValuedProperties().items():
                     bsh.setProperty(msp,k,str(v).encode())
@@ -879,7 +888,7 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
-        from AthenaCommon.Debugging import allowPtrace
+        from AthenaCommon.Debugging import allowPtrace, hookDebugger
         allowPtrace()
 
         app = self.createApp (OutputLevel)
@@ -892,7 +901,8 @@ class ComponentAccumulator(object):
             else:
                 maxEvents=-1
 
-        self._msg.info("INITIALIZE STEP")
+        if (self._debugStage.value == "init"): 
+            hookDebugger()
         sc = app.initialize()
         if not sc.isSuccess():
             self._msg.error("Failed to initialize AppMgr")
@@ -905,6 +915,8 @@ class ComponentAccumulator(object):
             self._msg.error("Failed to start AppMgr")
             return sc
 
+        if (self._debugStage.value=="exec"): 
+            hookDebugger()
         sc = app.run(maxEvents)
         if not sc.isSuccess():
             self._msg.error("Failure running application")
@@ -912,6 +924,8 @@ class ComponentAccumulator(object):
 
         app.stop().ignore()
 
+        if (self._debugStage.value == "fini"): 
+            hookDebugger()
         app.finalize().ignore()
 
         sc1 = app.terminate()

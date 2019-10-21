@@ -78,8 +78,6 @@ if have_atlas_geo and moduleExists ('TrkEventCnvTools') and moduleExists ('MuonE
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
     from TrkEventCnvTools import TrkEventCnvToolsConf
     EventCnvSuperTool = TrkEventCnvToolsConf.Trk__EventCnvSuperTool('EventCnvSuperTool')
-    EventCnvSuperTool.MuonCnvTool.IdHelperTool.HasSTgc = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
-    EventCnvSuperTool.MuonCnvTool.IdHelperTool.HasMM = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
     ToolSvc += EventCnvSuperTool
 
 #

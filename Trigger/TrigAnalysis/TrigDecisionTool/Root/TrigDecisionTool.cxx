@@ -145,11 +145,12 @@ Trig::TrigDecisionTool::initialize() {
      }
    }
 
-
-   StatusCode sc = m_fullNavigation.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_FATAL( "Unable to get Navigation tool");
-     return sc;
+   if (m_navigationFormat == "TriggerElement") {
+     StatusCode sc = m_fullNavigation.retrieve();
+     if ( sc.isFailure() ) {
+       ATH_MSG_FATAL( "Unable to get Navigation tool");
+       return sc;
+     }
    }
 #else
    ATH_CHECK(m_configTool.retrieve());

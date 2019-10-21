@@ -25,31 +25,36 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doTileMon:
         info('Set up Tile monitoring')
-        from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
-        result.merge(TileJetMonitoringConfig(flags))
+        from TileMonitoring.TileMonitoringConfig import TileMonitoringCfg
+        result.merge(TileMonitoringCfg(flags))
 
     if flags.DQ.Steering.doMuonMon:
         info('Set up Muon monitoring')
         from MuonDQAMonitoring.MuonDQAMonitoringConfig import MuonDQAMonitoringConfig
         result.merge(MuonDQAMonitoringConfig(flags))
-        
+
     if flags.DQ.Steering.doHLTMon:
         info('Set up HLT monitoring')
         from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import TrigHLTMonTopConfig
         result.merge(TrigHLTMonTopConfig(flags))
 
+    if flags.DQ.Steering.doJetTagMon:
+        info('Set up JetTagging monitoring')
+        from JetTagMonitoring.JetTagMonitorAlgorithm import JetTagMonitorConfig
+        result.merge(JetTagMonitorConfig(flags))
+
     if flags.DQ.Steering.doJetMon:
         info('Set up Jet monitoring')
         from JetMonitoring.JetMonitoringExample import jetMonitoringExampleConfig
         result.merge(jetMonitoringExampleConfig(flags))
-        
+
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
         from DataQualityTools.DataQualityToolsConfig import DataQualityToolsConfig
         result.merge(DataQualityToolsConfig(flags))
 
     if flags.DQ.Steering.doTauMon:
-        local_logger.info('Set up Tau monitoring')
+        info('Set up Tau monitoring')
         from tauMonitoring.TauMonitoringConfig import TauMonitoringConfig
         result.merge(TauMonitoringConfig(flags))
 

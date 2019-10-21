@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -14,7 +14,6 @@
  * @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - UC Irvine
  *
  * File and Version Information:
- * $Id: TrigSteer.h,v 1.56 2009-05-05 20:29:23 tbold Exp $
 
  **********************************************************************************/
 
@@ -129,7 +128,6 @@ namespace HLT {
       */
       StatusCode initialize(); //!< Gaudi initialize
       StatusCode start();    //!< Gaudi start
-      StatusCode endRun();   //!< Gaudi endRun
       StatusCode stop();     //!< Gaudi stop
       StatusCode finalize(); //!< Gaudi finalize
 

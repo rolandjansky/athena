@@ -23,7 +23,7 @@ TrigConf::L1Item::name() const
 unsigned int
 TrigConf::L1Item::ctpId() const
 {
-   return m_data.get_child("ctpId").get_value<unsigned int>();
+   return m_data.get_child("ctpid").get_value<unsigned int>();
 }
 
 const std::string &

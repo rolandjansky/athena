@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -51,13 +51,13 @@ public:
 
    TgcReadoutParams(std::string name, int iCh, int Version, float WireSp, const float NCHRNG,
                     const float* NWGS, const float* IWGS1, const float* IWGS2, const float* IWGS3,
-                    const float* ROFFST, const float* NSPS, const float* POFFST, IMessageSvc* msgSvc);
+                    const float* ROFFST, const float* NSPS, const float* POFFST);
 
    // Another constructor for the layout Q
    TgcReadoutParams(std::string name, int iCh, int Version, float WireSp, const int NCHRNG,
                     const float* NWGS, const float* IWGS1, const float* IWGS2, const float* IWGS3,
                     float PDIST, const float* SLARGE, const float* SSHORT,
-                    const float* ROFFST, const float* NSPS, const float* POFFST, IMessageSvc* msgSvc);
+                    const float* ROFFST, const float* NSPS, const float* POFFST);
 
    ~TgcReadoutParams();
 

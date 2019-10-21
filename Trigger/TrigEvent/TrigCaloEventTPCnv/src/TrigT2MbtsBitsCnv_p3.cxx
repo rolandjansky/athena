@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigT2MbtsBits.h"
@@ -8,7 +8,7 @@
 
 void TrigT2MbtsBitsCnv_p3::persToTrans( const TrigT2MbtsBits_p3 *persObj,
 					TrigT2MbtsBits    *transObj,
-					MsgStream& log ) {
+					MsgStream& log ) const {
   log << MSG::DEBUG << "TrigT2MbtsBitsCnv_p3::persToTrans" << endmsg;
   
   *transObj = TrigT2MbtsBits (persObj->m_triggerEnergies,
@@ -17,7 +17,7 @@ void TrigT2MbtsBitsCnv_p3::persToTrans( const TrigT2MbtsBits_p3 *persObj,
 
 void TrigT2MbtsBitsCnv_p3::transToPers( const TrigT2MbtsBits    *transObj,
 					TrigT2MbtsBits_p3 *persObj,
-					MsgStream& log ) {
+					MsgStream& log ) const {
   log << MSG::DEBUG << "TrigT2MbtsBitsCnv_p3::transToPers" << endmsg;
   
   persObj->m_triggerEnergies = transObj->triggerEnergies();

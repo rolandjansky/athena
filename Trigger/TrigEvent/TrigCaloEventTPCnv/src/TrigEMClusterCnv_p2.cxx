@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigEMCluster.h"
@@ -13,7 +13,7 @@
 //static ElementLinkCnv_p1< ElementLink<RingerRingsContainer> > ELinkRingerRingsCnv;
 
 void TrigEMClusterCnv_p2::transToPers(const TrigEMCluster* trans, 
-                                     TrigEMCluster_p2* pers, MsgStream &log )
+                                     TrigEMCluster_p2* pers, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "TrigEMClusterCnv_p2::tranToPers" << endmsg;
@@ -40,11 +40,12 @@ void TrigEMClusterCnv_p2::transToPers(const TrigEMCluster* trans,
   pers->m_e2tsts1    = trans->m_e2tsts1;
 
   m_ELinkRingerRingsCnv.transToPers(&trans->m_rings, &pers->m_rings, log);
-  pers->m_trigCaloCluster = baseToPersistent( &m_trigCaloClusterCnv, trans, log );
+  ITPConverterFor<TrigCaloCluster>* cnv = nullptr;
+  pers->m_trigCaloCluster = baseToPersistent( &cnv, trans, log );
 }
 
 void TrigEMClusterCnv_p2::persToTrans(const TrigEMCluster_p2* pers, 
-                                     TrigEMCluster* trans, MsgStream &log )
+                                     TrigEMCluster* trans, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "TrigEMClusterCnv_p2::persToTrans" << endmsg;
@@ -71,6 +72,7 @@ void TrigEMClusterCnv_p2::persToTrans(const TrigEMCluster_p2* pers,
   trans->m_e2tsts1    = pers->m_e2tsts1;
 
   m_ELinkRingerRingsCnv.persToTrans(&pers->m_rings, &trans->m_rings, log);
-  fillTransFromPStore( &m_trigCaloClusterCnv, pers->m_trigCaloCluster, trans, log );
+  ITPConverterFor<TrigCaloCluster>* cnv = nullptr;
+  fillTransFromPStore( &cnv, pers->m_trigCaloCluster, trans, log );
 
 }
