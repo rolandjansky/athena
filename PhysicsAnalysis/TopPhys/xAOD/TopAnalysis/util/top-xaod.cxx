@@ -26,8 +26,6 @@
 #include "TopCorrections/ScaleFactorCalculator.h"
 #include "TopCorrections/PDFScaleFactorCalculator.h"
 
-#include "TopFakes/TopFakesMMWeightCalculator.h"
-
 #include "FakeBkgTools/AsymptMatrixTool.h"
 
 #include "TopSystematicObjectMaker/ObjectCollectionMaker.h"
@@ -363,16 +361,6 @@ int main(int argc, char** argv) {
     top::check(topScaleFactors->setProperty( "config" , topConfig ) , "Failed to setProperty of top::ScaleFactorCalculator");
     top::check(topScaleFactors->initialize(),"Failed to initialize  top::ScaleFactorCalculator");
 
-    ///-- weights for matrix-method fakes estimate --///
-    std::unique_ptr<top::TopFakesMMWeightCalculator> topfakesMMWeights(nullptr);    
-    if (!topConfig->isMC() && topConfig->doLooseEvents() && topConfig->doFakesMMWeights()) {
-      topfakesMMWeights = std::unique_ptr<top::TopFakesMMWeightCalculator>( new top::TopFakesMMWeightCalculator() );
-      top::check(topfakesMMWeights->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopFakesMMWeightCalculator");
-      top::check(topfakesMMWeights->initialize(),"Failed to initialize  top::TopFakesMMWeightCalculator");
-      for (auto sel : settings->selections()) {
-	top::check(topfakesMMWeights->setSelectionConfigs(sel.m_name, eventSelectionManager.GetFakesMMConfigs(sel.m_name)),"Failed to set the selection FakesMMConfigs for selection"+sel.m_name);
-      }
-    }
     std::vector<std::unique_ptr<CP::AsymptMatrixTool> > topfakesMMWeightsIFF;
     std::vector<std::vector<std::string> > FakesMMConfigIFF;
     if(!topConfig->isMC() && topConfig->doLooseEvents() && topConfig->doFakesMMWeightsIFF()) {
@@ -830,10 +818,6 @@ int main(int argc, char** argv) {
                 const bool passAnyEventSelection = eventSelectionManager.apply(topEvent,*currentSystematic );
                 currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
                 topEvent.m_saveEvent = passAnyEventSelection;
-		///-- weights for matrix-method fakes estimate, only for nominal --///
-		if (!topConfig->isMC() && topConfig->doFakesMMWeights() && currentSystematic->hashValue() == topConfig->nominalHashValue()) {
-		  top::check( topfakesMMWeights->execute(&topEvent) , "Failed to execute fakes mmweight calculation");
-		}
 		///-- weights for matrix-method fakes estimate from IFF tools, only for nominal --///
 		if (!topConfig->isMC() && topConfig->doFakesMMWeightsIFF() && currentSystematic->hashValue() == topConfig->nominalHashValue()) {
 		  xAOD::IParticleContainer lepton(SG::VIEW_ELEMENTS);

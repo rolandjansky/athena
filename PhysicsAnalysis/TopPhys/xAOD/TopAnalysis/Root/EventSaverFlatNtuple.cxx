@@ -20,8 +20,6 @@
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
-#include "TopFakes/TopFakesMMWeightCalculator.h"
-
 #include "FakeBkgTools/AsymptMatrixTool.h"
 
 namespace top {
@@ -134,7 +132,6 @@ namespace top {
     m_weight_indiv_SF_MU_TTVA_STAT_UP(0.),
     m_weight_indiv_SF_MU_TTVA_STAT_DOWN(0.),
 
-    m_fakesMM_weights(),
     m_ASMsize(0.),
     m_ASMweights(),
     m_ASMweights_Syst(),
@@ -645,24 +642,6 @@ namespace top {
                 systematicTree->makeOutputVariable(m_weight_trackjet_bTagSF_named_down[tagWP][name], "weight_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_"+betterBtagNamedSyst(name)+"_down" );
               }
             }
-          }
-        }
-      }
-
-      ///-- weights for matrix-method fakes estimate --///
-      if (!m_config->isMC() && systematicTree->name().find("Loose") != std::string::npos && m_config->doFakesMMWeights()) {
-        top::TopFakesMMWeightCalculator const* fakesMMWeightCalc(nullptr);
-        if ( asg::ToolStore::contains<top::TopFakesMMWeightCalculator>("MMWeightCalculator") ) {
-          fakesMMWeightCalc = asg::ToolStore::get<top::TopFakesMMWeightCalculator>("MMWeightCalculator");
-        }
-        else {
-          ATH_MSG_ERROR("EventSaverFlatNtuple::initialize" );
-          throw std::runtime_error("Unable to retrieve top::TopFakesMMWeightCalculator tool");
-        }
-        for(const auto& branchName : m_extraBranches){//loop on selections
-          for(const auto& conf : fakesMMWeightCalc->GetFakesMMConfigNames(branchName)) {
-            std::string MMweight_branch_name = "fakesMM_weight_" + branchName + "_" + conf;
-            systematicTree->makeOutputVariable(m_fakesMM_weights[branchName][conf], MMweight_branch_name);
           }
         }
       }
@@ -1211,16 +1190,12 @@ namespace top {
         // Add all triggers to a map so we don't get any duplicates
         for (auto& trigger_name : m_config->allTriggers_Tight( branchName ) ) {
           m_triggerDecisions [trigger_name] = 0;
-          if (!m_config->isMC() && m_config->doFakesMMWeights())
-            m_triggerPrescales [trigger_name] = -99999.;//initialised to dummmy value, in case it can't be retrieved by the tool
         }
         for (auto& trigger_name : m_config->allTriggers_Loose( branchName ) ) {
           // let's make sure this isn't done twice
           if (m_triggerDecisions.find(trigger_name) != m_triggerDecisions.end()
               && m_triggerPrescales.find(trigger_name) != m_triggerPrescales.end()) continue;
           m_triggerDecisions [trigger_name] = 0;
-          if (!m_config->isMC() && m_config->doFakesMMWeights())
-            m_triggerPrescales [trigger_name] = -99999.;//initialised to dummmy value, in case it can't be retrieved by the tool
         }
         for (auto& trigger_name : m_config->electronTriggers_Tight( branchName ) )
           m_el_trigMatched [trigger_name] = std::vector<char>();
@@ -1241,10 +1216,6 @@ namespace top {
 
       for( auto& trig_name : m_triggerDecisions )
         systematicTree->makeOutputVariable( trig_name.second, trig_name.first );
-      if (!m_config->isMC() && m_config->doFakesMMWeights()) {
-        for( auto& trig_name : m_triggerPrescales )
-          systematicTree->makeOutputVariable( trig_name.second, "PS_"+trig_name.first );
-      }
       for( auto& trig_name : m_el_trigMatched )
         systematicTree->makeOutputVariable( trig_name.second, "el_trigMatch_"+trig_name.first );
       for( auto& trig_name : m_mu_trigMatched )
@@ -1653,11 +1624,6 @@ namespace top {
 
     for (const auto& trigger : m_triggerDecisions)
       m_triggerDecisions[trigger.first] = event.m_info->auxdataConst<char>("TRIGDEC_"+trigger.first);
-    if (!m_config->isMC() && m_config->doFakesMMWeights()) {
-      for (const auto& trigger : m_triggerPrescales)
-        m_triggerPrescales[trigger.first] = event.m_info->auxdataConst<float>("TRIGPS_"+trigger.first);
-    }
-
   }
 
   void EventSaverFlatNtuple::saveEvent(const top::Event& event) {
@@ -1906,30 +1872,6 @@ namespace top {
     /// Bootstrapping poisson weights - Moved to run for MC and data
     if(m_config->saveBootstrapWeights()){
       m_weight_poisson = event.m_info->auxdataConst<std::vector<int> >("weight_poisson");
-    }
-
-    ///-- weights for matrix-method fakes estimate --///
-    if (!m_config->isMC() && m_config->doFakesMMWeights()) {
-      top::TopFakesMMWeightCalculator const* fakesMMWeightCalc(nullptr);
-      if ( asg::ToolStore::contains<top::TopFakesMMWeightCalculator>("MMWeightCalculator") ) {
-        fakesMMWeightCalc = asg::ToolStore::get<top::TopFakesMMWeightCalculator>("MMWeightCalculator");
-      }
-      else {
-        ATH_MSG_ERROR("EventSaverFlatNtuple::initialize" );
-        throw std::runtime_error("Unable to retrieve top::TopFakesMMWeightCalculator tool");
-      }
-      for(const auto& branchName : m_extraBranches) {//loop on selections
-        for(const auto& conf : fakesMMWeightCalc->GetFakesMMConfigNames(branchName)) {
-          std::string MMweight_branch_name = "fakesMM_weight_" + branchName + "_" + conf;
-          std::string decorName = "MMWeight_"; decorName += branchName; decorName += "_"; decorName += conf;
-          if( event.m_info->isAvailable<float>(decorName.c_str()) ) {
-            m_fakesMM_weights[branchName][conf] = event.m_info->auxdataConst<float>(decorName.c_str());
-          }
-          else {//if decoration is not present, it means this weight is not relevant for this channel - a hurtless weight=1. is then applied
-            m_fakesMM_weights[branchName][conf] = 1.;
-          }
-        }
-      }
     }
 
     ///-- weights for matrix-method fakes estimate by IFF --///

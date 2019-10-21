@@ -176,25 +176,6 @@ class TopConfig final {
   // Default is true
   inline bool doLooseSysts() const {return m_doLooseSysts;}
 
-  // Do fakes MM weight calculation
-  inline bool doFakesMMWeights() const {return m_doFakesMMWeights;}
-
-  // Directory of efficiency files for MM fake estimate
-  inline std::string FakesMMDir() const {return m_FakesMMDir;}
-
-  // DDebug mode for MM fake estimate
-  inline bool FakesMMDebug() const {return m_doFakesMMDebug;}
-
-  // enables calculation of MM weights
-  // only possible for data loose
-  // doing it on MC loose is explicitly forbidden
-  inline void setFakesMMWeightsCalculation()
-  {m_doFakesMMWeights = true;}
-  inline void setFakesMMDir(const std::string dir)
-  {m_FakesMMDir = dir;}
-  inline void setFakesMMDebug()
-  {m_doFakesMMDebug = true;}
-
   // Do fakes MM weight calculation using FakeBkgTools from IFF
   inline bool doFakesMMWeightsIFF() const {return m_doFakesMMWeightsIFF;}
 
@@ -1115,13 +1096,6 @@ class TopConfig final {
   std::string m_derivationStream;
   std::string m_amiTag;
   int m_amiTagSet = 0;
-
-  // Do fakes MM weights calculation? - only for data loose
-  bool m_doFakesMMWeights;
-  // Directory of efficiency files for MM fake estimate
-  std::string m_FakesMMDir;
-  // Debug mode?
-  bool m_doFakesMMDebug;
 
   // Do fakes MM weights calculation? - only for data loose
   bool m_doFakesMMWeightsIFF;
