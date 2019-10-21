@@ -15,6 +15,16 @@ xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::P
 xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode;
 #endif
 
+
+#ifdef ASGTOOL_ATHENA
+#include "CLHEP/Units/SystemOfUnits.h"
+using CLHEP::GeV;
+#else
+#define GeV 1000
+#endif
+
+
+
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
@@ -130,6 +140,34 @@ double TauAnalysisTools::tauAbsEta(const xAOD::TauJet& xTau)
 {
   // return absolute tau eta
   return std::abs(xTau.eta());
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauPt(const xAOD::TauJet& xTau)
+{
+  // return MVA based tau pt in GeV
+  return xTau.ptFinalCalib()/GeV;
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauEta(const xAOD::TauJet& xTau)
+{
+  // return MVA based tau eta
+  return xTau.etaFinalCalib();
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauAbsEta(const xAOD::TauJet& xTau)
+{
+  // return MVA based absolute tau eta
+  return std::abs(xTau.etaFinalCalib());
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauP(const xAOD::TauJet& xTau)
+{
+  // return tau P in GeV
+  return xTau.p4(xAOD::TauJetParameters::FinalCalib).P()/GeV;
 }
 
 //______________________________________________________________________________
