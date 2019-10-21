@@ -280,11 +280,6 @@ private:
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
     
-    // do decorate the large-R jets with the boosted-tagging flags 
-    // and decorate jets with TAccept object containing detailed tag result informaiton
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendation2017#TAcceptUsageSection
-    std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
-    
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;
     // Function to decorate event info

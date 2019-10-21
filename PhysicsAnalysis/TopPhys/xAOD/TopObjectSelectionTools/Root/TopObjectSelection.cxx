@@ -99,17 +99,6 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
     top::check( m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool" );
   }
   
-  // boosted tagging stuff
-  if (m_config->useLargeRJets()) {
-    
-    for(const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()){
-      std::string fullName=name.first+"_"+name.second;
-      m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
-      top::check(m_boostedJetTaggers[fullName].retrieve(),"Failed to retrieve "+fullName);
-    }
-    
-  }
-  
   return StatusCode::SUCCESS;  
 }
 
@@ -436,17 +425,6 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
             jetPtr->auxdecor<char>( m_passPreORSelectionLoose ) = decoration;
             jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration * 2;
           }
-          
-	  //decorate with boosted-tagging flags
-	  for (const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()) {
-	    std::string fullName=name.first+"_"+name.second;
-            const Root::TAccept &result = m_boostedJetTaggers[fullName]->tag(*jetPtr);
-            // TAccept has bool operator overloaded, but let's be more explicit in the output to char
-	    jetPtr->auxdecor<char>("isTagged_"+fullName) = (result ? 1 : 0);
-            // for users to extract more detailed tagging result information in custom event saver
-	    jetPtr->auxdecor<unsigned long>("TAccept_bitmap_"+fullName) = result.getCutResultBitSet().to_ulong();
-	  }
-	  
         }
     }
 }

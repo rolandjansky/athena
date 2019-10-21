@@ -16,6 +16,7 @@
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 
 namespace top {
 
@@ -31,7 +32,8 @@ class BoostedTaggingCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
   
-  std::unordered_map<std::string,asg::AnaToolHandle<IJetSelectorTool> > m_taggers;
+  std::unordered_map<std::string, asg::AnaToolHandle<IJetSelectorTool> > m_taggers;
+  std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool> > m_tagSFuncertTool;
 };
 }  // namespace top
 
