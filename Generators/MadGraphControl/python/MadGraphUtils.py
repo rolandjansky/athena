@@ -2437,20 +2437,25 @@ def run_card_consistency_check(isNLO=False,path='.'):
     for k,v in mydict.iteritems():
         mglog.info( '"%s" = %s'%(k,v) )
 
+    if is_version_or_newer([2,5,0]):
+        # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
+        if is_version_or_newer([2,6,1]):
+            if not checkSetting('event_norm','average',mydict):
+                modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'average'})
+        # Only needed for 2.5.0 to 2.6.0 to battle problem with inconsistent event weights [AGENE-1542]
+        # Will likely cause Pythia to calculate the wrong cross section [AGENE-1725]
+        else:
+            if not isNLO and checkSettingIsTrue('use_syst',mydict):
+                if not checkSetting('event_norm','sum',mydict):
+                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
+                    mglog.warning("Setting 'event_norm' to 'sum' -- this will mean the cross section calculated by Pythia is most likely wrong.")
+
     if not isNLO:
         #Check CKKW-L setting
         if float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
             log='Bad combination of settings for CKKW-L merging! ktdurham=%s and ickkw=%s.'%(mydict['ktdurham'],mydict['ickkw'])
             mglog.error(log)
             raise RuntimeError(log)
-
-        version = getMadGraphVersion() # avoiding code duplication
-        # Only needed for 2.5.0 and later
-        if int(version.split('.')[0])>=2 and int(version.split('.')[1])>=5:
-            #event_norm must be "sum" for use_syst to work
-            if mydict['use_syst'].replace('.','').lower() in ['t','true']:
-                if 'event_norm' not in mydict or mydict['event_norm']!="sum":
-                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
 
         # Check if user is trying to use deprecated syscalc arguments with the other systematics script
         if is_version_or_newer([2,6,2]) and (not 'systematics_program' in mydict or mydict['systematics_program']=='systematics'):

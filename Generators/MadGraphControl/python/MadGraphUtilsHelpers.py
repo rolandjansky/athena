@@ -40,7 +40,14 @@ def checkSetting(key_,value_,mydict_):
     for k in mydict_:
         mydict[totallyStripped(k)]=totallyStripped(mydict_[k])
     return key in mydict and mydict[key]==value
-    
+
+def checkSettingIsTrue(key_,mydict_):
+    key=totallyStripped(key_)
+    mydict={}
+    for k in mydict_:
+        mydict[totallyStripped(k)]=totallyStripped(mydict_[k])
+    return key in mydict and mydict[key] in ['t','true']
+
 def checkSettingExists(key_,mydict_):
     key=totallyStripped(key_)
     keys=[]
@@ -64,7 +71,7 @@ def is_version_or_newer(args):
     for x in vs:
         versionnumber+=x*y
         y/=100
-    return testnumber>=versionnumber
+    return versionnumber>=testnumber
 
 def isNLO_from_run_card(run_card):
     f = open(run_card,'r')
