@@ -66,11 +66,10 @@ namespace PMGTools
       // Check for incorrectly stored McChannelNumber
       m_useChannelZeroInMetaData = true;
       for (auto truthMetaData : *m_metaDataContainer) {
-        ATH_MSG_INFO("MC " << truthMetaData->mcChannelNumber());
         if (truthMetaData->mcChannelNumber() != 0) { m_useChannelZeroInMetaData = false; }
       }
       // If we only have one metadata item take MC channel from there if needed
-      if (m_mcChannelNumber == uint32_t(-1) && !m_metaDataContainer->empty()) {
+      if (m_mcChannelNumber == uint32_t(-1) && m_metaDataContainer->size() == 1) {
         m_mcChannelNumber = m_metaDataContainer->at(0)->mcChannelNumber();
         ATH_MSG_WARNING("... MC channel number taken from the metadata as " << m_mcChannelNumber);
       }
@@ -176,9 +175,12 @@ namespace PMGTools
     ANA_CHECK_SET_TYPE (CP::SystematicCode);
     ANA_CHECK (CP::SystematicSet::filterForAffectingSystematics (systConfig, m_systematicsSet, currentSys));
 
-    WeightData currentWeight;
+    WeightData currentWeight{};
     currentWeight.index = m_weightIndicesSys.at(currentSys.name());
-    currentWeight.weight = m_weights.at(currentWeight.index);
+    if (!m_weights.empty())
+    {
+      currentWeight.weight = m_weights.at(currentWeight.index);
+    }
 
     auto insert = m_weightData.emplace(systConfig, std::move(currentWeight));
     m_currentWeightData = &insert.first->second;
