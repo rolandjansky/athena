@@ -14,8 +14,9 @@ namespace HepMC {
 // truth particle and all FTKRawHits that (after
 // clustering) are associated to that particle.
 // It does not own the particle, nor the hits.
-struct FTKTruthTrajectory
+class FTKTruthTrajectory
 {
+public:
 	std::vector<const FTKRawHit*> hits;
 	const HepMC::GenParticle*     genParticle;
 };
