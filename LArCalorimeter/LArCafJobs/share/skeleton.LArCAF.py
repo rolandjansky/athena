@@ -218,10 +218,6 @@ ToolSvc += EventCnvSuperTool
 
 
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
-
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
@@ -236,9 +232,10 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
 
 if hasattr(runArgs,"outputNTUP_SAMPLESMONFile"):
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg(noisetype="totalNoise")
     from LArCafJobs.LArCafJobsConfig import DefaultShapeDumper
     DefaultShapeDumper('LArShapeDumper', 'FREE', noiseSignifCut = 5, doShape = True, doTrigger = True, caloType = 'EMHECFCAL')
-    topSequence.LArShapeDumper.CaloNoiseTool=theCaloNoiseTool
     topSequence.LArShapeDumper.TrigDecisionTool=tdt
     topSequence.LArShapeDumper.FileName=runArgs.outputNTUP_SAMPLESMONFile
     topSequence.LArShapeDumper.OutputLevel=DEBUG
