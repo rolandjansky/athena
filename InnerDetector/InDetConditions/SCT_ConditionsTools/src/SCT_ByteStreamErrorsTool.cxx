@@ -143,9 +143,6 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId, const EventConte
     return false;
   }
 
-  const Identifier waferId{m_sct_id->wafer_id(stripId)};
-  const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
-
   // tempMaskedChips and abcdErrorChips hold 12 bits.
   // bit 0 (LSB) is chip 0 for side 0.
   // bit 5 is chip 5 for side 0.

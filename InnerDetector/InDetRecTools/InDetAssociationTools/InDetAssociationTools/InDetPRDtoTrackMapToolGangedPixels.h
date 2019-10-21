@@ -27,8 +27,10 @@ namespace InDet {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize  () override;
 
+    virtual
     std::unique_ptr<Trk::PRDtoTrackMap> createPRDtoTrackMap() const override;
-    std::unique_ptr<Trk::PRDtoTrackMap> reduceToStorableMap(std::unique_ptr<Trk::PRDtoTrackMap> &&obj_in) const;
+    virtual
+    std::unique_ptr<Trk::PRDtoTrackMap> reduceToStorableMap(std::unique_ptr<Trk::PRDtoTrackMap> &&obj_in) const override;
 
   /** add the PRDs from this track to the store
     @param track all PRDs from 'track' will be added to PRD_AssociationTool's internal store.*/
