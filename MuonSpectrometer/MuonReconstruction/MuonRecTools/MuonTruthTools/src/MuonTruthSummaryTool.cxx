@@ -83,14 +83,14 @@ namespace Muon {
   }
 
   void MuonTruthSummaryTool::clear() {
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     m_wasInit = false;
     m_truthHits.clear();
     m_truthDataPerLevel.clear();
   }
 
   void MuonTruthSummaryTool::init() const {
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     if (!m_wasInit) {
       for(SG::ReadHandle<PRD_MultiTruthCollection>& col : m_TruthNames.makeHandles()){
         if(!col.isValid() || !col.isPresent()) continue;
@@ -113,7 +113,7 @@ namespace Muon {
 
   int MuonTruthSummaryTool::getPdgId( int barcode ) const {
     init();
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     auto pos = m_pdgIdLookupFromBarcode.find(barcode);
     if( pos == m_pdgIdLookupFromBarcode.end() ) return 0;
     return pos->second;    
@@ -121,7 +121,7 @@ namespace Muon {
 
   int MuonTruthSummaryTool::getBarcode( const Identifier& id ) const {
     init();
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     auto pos = m_truthHits.find(id);
     if( pos == m_truthHits.end() ) return -1;
     return pos->second;
@@ -129,7 +129,7 @@ namespace Muon {
 
   void MuonTruthSummaryTool::add( const Identifier& id, int level ) const {
     init();
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     if( m_truthHits.count(id) ) m_truthDataPerLevel[level].insert(id);
   }
 
@@ -138,13 +138,13 @@ namespace Muon {
   }
 
   void MuonTruthSummaryTool::add( const Trk::Track& track, int level ) const {
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     const DataVector<const Trk::MeasurementBase>* meas = track.measurementsOnTrack();                
     if( meas ) add(meas->stdcont(),level);
   }
 
   void MuonTruthSummaryTool::add( const std::vector<const Trk::MeasurementBase*>& measurements, int level ) const {
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     for( std::vector<const Trk::MeasurementBase*>::const_iterator it = measurements.begin();it!=measurements.end();++it ){
       Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( id.is_valid() && m_idHelper->isMuon(id) ) add(id,level);
@@ -152,7 +152,7 @@ namespace Muon {
   }
   
   std::string MuonTruthSummaryTool::printSummary()  {
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     if( m_truthHits.empty() )  return "Event without truth hits";
     if( m_truthDataPerLevel.empty() ) return "No hits added";
     ATH_MSG_DEBUG( "Have " << m_truthHits.size() << " truth hits and "<< m_truthDataPerLevel.size()<<" levels filled."  );
@@ -181,7 +181,7 @@ namespace Muon {
   }
 
   std::string MuonTruthSummaryTool::printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found )  {
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     std::ostringstream sout;
     if( truth.size() != found.size() ){
       sout << " Some truth hits not found: truth " << truth.size() << " found " << found.size() << std::endl;
@@ -210,7 +210,7 @@ namespace Muon {
   }
   
   void MuonTruthSummaryTool::initChamberVariables(const unsigned int levels){
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     if (!m_tree) {
       ATH_MSG_WARNING("Trying to write ntuple, but tree is zero. Setting WriteNtuple to False");
       m_writeTree=false;
@@ -264,7 +264,7 @@ namespace Muon {
   }
   
   void MuonTruthSummaryTool::clearChamberVariables( const unsigned int level){
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     ATH_MSG_DEBUG("clearChamberVariables: Level = "<<level+1);
     m_numChambers[level] = 0;
     m_numMissedHits[level]->clear();
@@ -279,7 +279,7 @@ namespace Muon {
   }
   
   void MuonTruthSummaryTool::fillChamberVariables(const Identifier& chamberId, const unsigned int numMissedHits){
-    std::lock_guard<std::recursive_mutex> guard(m_mutex);
+    std::scoped_lock lock(m_mutex);
     ATH_MSG_DEBUG("fillChamberVariables: Level = "<<(m_level+1)<<" \t chamber = "<<m_idHelper->toStringChamber(chamberId)<<" numMissedHits="<<numMissedHits );
     
     m_numChambers[m_level]++;
