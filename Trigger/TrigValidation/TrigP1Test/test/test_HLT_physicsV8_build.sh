@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: athenaHLT on data with th FTKsim with Physics_pp_v8 menu and doFTK
+# art-description: athenaHLT on data with Physics_pp_v8 menu 
 # art-type: build
 # art-include: 21.1/AthenaP1
 # art-include: 21.3/Athena
