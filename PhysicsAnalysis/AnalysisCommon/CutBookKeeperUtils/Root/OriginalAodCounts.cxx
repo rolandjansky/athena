@@ -4,12 +4,11 @@
 
 #include "CutBookkeeperUtils/OriginalAodCounts.h"
 
-#include "xAODCutflow/CutBookkeeper.h"
-#include "xAODCutflow/CutBookkeeperContainer.h"
+// #include "xAODCutflow/CutBookkeeper.h"
+#include <xAODCutFlow/CutBookkeeper.h>
+#include <xAODCutFlow/CutBookkeeperContainer.h>
 
 #include "xAODRootAccess/TEvent.h"
-
-#include "AsgMessaging/StatusCode.h"
 
 #include "TFile.h"
 
@@ -74,11 +73,3 @@ OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event) {
   return counts;
 }
 
-StatusCode incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts& counts) {
-  try {
-    counts += getOriginalAodCounts(event);
-    return StatusCode::SUCCESS;
-  } catch (std::runtime_error& e) {
-    return StatusCode::FAILURE;
-  }
-}

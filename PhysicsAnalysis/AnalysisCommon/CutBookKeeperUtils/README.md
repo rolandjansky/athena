@@ -23,15 +23,14 @@ You can get this object from a given file by calling
 OriginalAodCounts counts = getOriginalAodCounts(tevent)
 ```
 
-or (recommended interface)
+or (recommended interface), instance a `OriginalAodCountsTool` and call
 
 ```
-OriginalAodCounts counts
-ATH_CHECK(incrementAodCounts(counts, tevent)
+OriginalAodCounts counts;
+ATH_CHECK(tool->incrementAodCounts(counts, tevent));
 ```
 
-where `tfile` is a `TFile` object pointing to the ROOT file, and
-tevent is a the `TEvent` object for your job.
+where `tevent` is a the `TEvent` object for your job.
 
 The `OriginalAodCounts` struct has addition operators defined, so if
 you loop over multiple files you can easily sum the numbers.
