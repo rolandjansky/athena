@@ -6,6 +6,6 @@
 #ifndef CBCU_DICT_H
 #define CBCU_DICT_H
 
-#include <CutBookkeeperUtils/OriginalAODCountsTool.h>
+#include <CutBookkeeperUtils/OriginalAodCountsTool.h>
 
 #endif
