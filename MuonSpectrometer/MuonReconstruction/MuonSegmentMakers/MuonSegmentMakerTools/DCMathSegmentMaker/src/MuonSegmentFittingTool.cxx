@@ -206,10 +206,7 @@ namespace Muon {
 
     segLocPos[Trk::locX] = lpos[Trk::locX];
     if( m_updatePrecisionCoordinate ) segLocPos[Trk::locY] = lpos[Trk::locY];
-    double& locAngleXZ = const_cast<double&>(segLocDir.angleXZ());
-    double& locAngleYZ = const_cast<double&>(segLocDir.angleYZ());
-    locAngleXZ = ldir.angleXZ();
-    if( m_updatePrecisionCoordinate ) locAngleYZ = ldir.angleYZ();
+    segLocDir = Trk::LocalDirection(ldir.angleXZ(), m_updatePrecisionCoordinate ? ldir.angleYZ() : segLocDir.angleYZ());
     
     if(exPars->covariance())  locerr = *exPars->covariance();
 
