@@ -275,7 +275,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     if globalflags.DataSource()=='geant4':
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
-        if TOPQname == 'TOPQ6':  # Specific requirements for TOPQ6: keep GEANT tracks
+        if TOPQname == 'TOPQ6':  # Specific requirements for TOPQ6: keep GEANT tracks
             TOPQTruthThinningTool = DerivationFramework__MenuTruthThinning(
                 name                       = TOPQname + "TruthThinningTool",
                 ThinningService            = TOPQThinningSvc,
@@ -339,31 +339,31 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
         thinningTools.append(TOPQTruthThinningTool)
         print TOPQname+".py", TOPQname+"TruthThinningTool: ", TOPQTruthThinningTool
 
-    if TOPQname == 'TOPQ5':
-        # Only save truth informtion directly associated with Onia
-        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-        TOPQOniaTruthThinningTool = DerivationFramework__GenericTruthThinning(
-            name                    = TOPQname + "OniaTruthThinningTool",
-            ThinningService         = TOPQThinningSvc,
-            ParticleSelectionString = "TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443 || TruthParticles.pdgId == 553 || TruthParticles.pdgId == 100553 || TruthParticles.pdgId == 200553",
-            PreserveDescendants     = True,
-            PreserveAncestors      = True
-        )
-        ToolSvc += TOPQOniaTruthThinningTool
-        thinningTools.append(TOPQOniaTruthThinningTool)
-        print TOPQname+".py", TOPQname+"OniaTruthThinningTool: ", TOPQOniaTruthThinningTool
+        if TOPQname == 'TOPQ5':
+            # Only save truth informtion directly associated with Onia
+            from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+            TOPQOniaTruthThinningTool = DerivationFramework__GenericTruthThinning(
+                name                    = TOPQname + "OniaTruthThinningTool",
+                ThinningService         = TOPQThinningSvc,
+                ParticleSelectionString = "TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443 || TruthParticles.pdgId == 553 || TruthParticles.pdgId == 100553 || TruthParticles.pdgId == 200553",
+                PreserveDescendants     = True,
+                PreserveAncestors      = True
+            )
+            ToolSvc += TOPQOniaTruthThinningTool
+            thinningTools.append(TOPQOniaTruthThinningTool)
+            print TOPQname+".py", TOPQname+"OniaTruthThinningTool: ", TOPQOniaTruthThinningTool
 
-    # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/GenericTruthThinning.cxx
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-    TOPQPhotonThinning = DerivationFramework__GenericTruthThinning(
-        name                    = TOPQname + "PhotonThinning",
-        ThinningService         = TOPQThinningSvc,
-        ParticlesKey            = "TruthPhotons",
-        ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)"
-    )
-    ToolSvc += TOPQPhotonThinning
-    thinningTools.append(TOPQPhotonThinning)
-    print TOPQname+".py", TOPQname+"PhotonThinning: ", TOPQPhotonThinning
+        # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/GenericTruthThinning.cxx
+        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+        TOPQPhotonThinning = DerivationFramework__GenericTruthThinning(
+            name                    = TOPQname + "PhotonThinning",
+            ThinningService         = TOPQThinningSvc,
+            ParticlesKey            = "TruthPhotons",
+            ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)"
+        )
+        ToolSvc += TOPQPhotonThinning
+        thinningTools.append(TOPQPhotonThinning)
+        print TOPQname+".py", TOPQname+"PhotonThinning: ", TOPQPhotonThinning
 
     return thinningTools
 # end setup(TOPQname, TOPQThinningSvc, ToolSvc)
