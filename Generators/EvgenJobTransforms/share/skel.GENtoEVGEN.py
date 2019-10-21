@@ -217,8 +217,6 @@ if len(jofiles) !=1:
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
-#include("EvgenJobTransforms/check_jo_consistency.py")
-#check_consistency(jofile)
 
 joparts = (os.path.basename(jofile)).split(".")
 #jo = runArgs.jobConfig[0]
@@ -243,6 +241,13 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
         evgenLog.error(jofile + " has too few physicsShort fields separated by '_': should contain <generators>(_<tune+PDF_if_available>)_<process>. Please rename.")
         sys.exit(1)
     ## NOTE: a further check on physicsShort consistency is done below, after fragment loading
+    check_jofiles="/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/scripts/check_jo_consistency.py"
+    if os.path.exists(check_jofiles):
+        include(check_jofiles)
+        check_naming(os.path.basename(jofile))
+    else:
+        evgenLog.error("check_jo_consistency.py not found")
+        sys.exit(1)
 
 ## Include the JO fragment
 include(jofile)
