@@ -10,7 +10,8 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
                               postfix = "",
                               preselection=None,
                               kinematicSelection = False,
-                              noEfficiency = False ):
+                              noEfficiency = False,
+                              legacyRecommendations = False ):
     """Create a ftag analysis algorithm sequence
 
     for now the sequence is passed in, I'm unsure if I can concatenate
@@ -23,17 +24,21 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
       btagger -- Flavour tagger
       kinematicSelection -- Wether to run kinematic selection
       noEfficiency -- Wether to run efficiencies calculation
+      legacyRecommendations -- Use legacy recommendations without shallow copied containers
     """
 
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
-    # Remove b-tagging calibration from the container name
-    btIndex = jetCollection.find('_BTagging')
-    if btIndex != -1:
-        jetCollection = jetCollection[:btIndex]
+    if legacyRecommendations:
+        # Remove b-tagging calibration from the container name
+        btIndex = jetCollection.find('_BTagging')
+        if btIndex != -1:
+            jetCollection = jetCollection[:btIndex]
 
-    bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root"
+        bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root"
+    else:
+        bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root"
 
     # # Create the analysis algorithm sequence object:
     # seq = AnaAlgSequence( "FTagAnalysisSequence" )
