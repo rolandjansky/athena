@@ -255,6 +255,31 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     # Check if process is NLO or LO
     isNLO=is_NLO_run(proc_dir=proc_dir)
 
+    # use f2py2 if f2py not available
+    if reweight_card_loc is not None:
+        from distutils.spawn import find_executable
+        if find_executable('f2py') is not None:
+            mglog.info('Found f2py, can run reweighting.')
+        elif find_executable('f2py2') is not None:
+            mglog.info('f2py is called f2py2 on this machine, will update configuration')
+            if isNLO:
+                config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
+            else:
+                config_card=proc_dir+'/Cards/me5_configuration.txt'
+            shutil.move(config_card,config_card+'.old')
+            oldcard = open(config_card+'.old','r')
+            newcard = open(config_card,'w')
+            for line in oldcard:
+                if 'f2py_compiler' in line:
+                    newcard.write(' f2py_compiler = f2py2\n')
+                else:
+                    newcard.write(line)
+            oldcard.close()
+            newcard.close()
+        else:
+            mglog.error('Could not find f2py or f2py2, needed for reweighting')
+            return 1
+
     if grid_pack:
         #Running in gridpack mode
         mglog.info('Started generating gridpack at '+str(time.asctime()))
