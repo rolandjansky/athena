@@ -10,8 +10,6 @@ namespace xAOD {
 }
 class StatusCode;
 
-
-
 struct OriginalAodCounts {
   OriginalAodCounts();
   unsigned long long nEventsProcessed;
@@ -26,8 +24,5 @@ OriginalAodCounts operator+=(const OriginalAodCounts& a,
                              const OriginalAodCounts& b);
 
 OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event);
-
-// RECOMMENDED INTERFACE
-StatusCode incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts&);
 
 #endif
