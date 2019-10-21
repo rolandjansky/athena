@@ -43,6 +43,7 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <stdexcept>
+#include <atomic>
 
 using SG::DataProxy;
 using SG::TransientAddress;
@@ -58,7 +59,7 @@ std::string toUpper(const std::string& str) {
 }
 
 namespace {
-  bool s_firstRun(true);
+  std::atomic<bool> s_firstRun(true);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
