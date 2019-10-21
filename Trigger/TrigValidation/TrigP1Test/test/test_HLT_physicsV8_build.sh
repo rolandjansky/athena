@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# art-description: athenaHLT on data with Physics_pp_v8 menu currently from 2018 EB data 
+# art-description: athenaHLT on data with th FTKsim with Physics_pp_v8 menu and doFTK
 # art-type: build
+# art-include: 21.1/AthenaP1
 # art-include: 21.3/Athena
+# art-include: master/Athena
 
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
