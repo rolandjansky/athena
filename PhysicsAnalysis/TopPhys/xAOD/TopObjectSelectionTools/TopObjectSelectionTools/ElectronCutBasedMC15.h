@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef ELECTRONCUTBASEDMC15_H_
 #define ELECTRONCUTBASEDMC15_H_
@@ -11,12 +11,11 @@
 #include <memory>
 
 namespace top {
-
 /**
  * @brief Electron selection based on the cut-based thingy.
  */
-class ElectronCutBasedMC15 : public top::ElectronSelectionBase {
-public:
+  class ElectronCutBasedMC15: public top::ElectronSelectionBase {
+  public:
     /**
      * @brief Class to help select cut-based good electrons.
      *
@@ -28,8 +27,9 @@ public:
      * @param isolation nullptr for un-isolated, or a new "isolation object" to
      * apply isolation cuts
      */
-    ElectronCutBasedMC15(double ptcut, bool vetoCrack, const std::string& quality, const std::string& qualityLoose, IsolationBase* isolation);
-    virtual ~ElectronCutBasedMC15(){}
+    ElectronCutBasedMC15(double ptcut, bool vetoCrack, const std::string& quality, const std::string& qualityLoose,
+                         IsolationBase* isolation);
+    virtual ~ElectronCutBasedMC15() {}
     /**
      * @brief The cuts to select good electrons for your analysis should be
      * implemented in here.
@@ -56,8 +56,7 @@ public:
      * @param Where the print-out should go, e.g. cout.
      */
     virtual void print(std::ostream&) const override;
-
-protected:
+  protected:
     /**
      * @brief Since both selections are fairly similar, we can perform
      * the un-isolated part in one function.
@@ -85,8 +84,7 @@ protected:
 
     ///The isolation tool, or nullptr if we don't want isolation
     std::unique_ptr<top::IsolationBase> m_isolation;
-};
-
+  };
 }
 
 #endif

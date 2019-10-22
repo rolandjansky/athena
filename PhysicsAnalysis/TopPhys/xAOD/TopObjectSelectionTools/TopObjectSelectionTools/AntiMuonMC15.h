@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef ANTIMUONMC15_H_
 #define ANTIMUONMC15_H_
@@ -12,12 +12,11 @@
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace top {
-
 /**
  * @brief Select muons based on some early MC15 suggestions.
  */
-class AntiMuonMC15 : public MuonSelectionBase {
-public:
+  class AntiMuonMC15: public MuonSelectionBase {
+  public:
     /**
      * @brief Construct the tool to select good muons.
      *
@@ -28,7 +27,7 @@ public:
     AntiMuonMC15(const double ptcut, IsolationBase* isolation);
 
     ///Does nothing.
-    virtual ~AntiMuonMC15(){}
+    virtual ~AntiMuonMC15() {}
 
     /**
      * @brief Implements the logic to select good muons.
@@ -44,13 +43,11 @@ public:
      * @param mu
      * @return
      */
-   virtual bool passSelectionLoose(const xAOD::Muon& mu) const override;
+    virtual bool passSelectionLoose(const xAOD::Muon& mu) const override;
 
     ///Print the cuts to the ostream.
     virtual void print(std::ostream& os) const override;
-
-
-protected:
+  protected:
     ///Lower pT threshold to apply to object selection.
     double m_ptcut;
 
@@ -60,8 +57,7 @@ protected:
 
     ///Isolation tool, can be nullptr meaning "no isolation requirement"
 //    std::unique_ptr<top::IsolationBase> m_isolation;
-};
-
+  };
 }
 
 #endif
