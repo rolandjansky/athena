@@ -59,6 +59,7 @@ public:
         m_electrons(SG::VIEW_ELEMENTS),
         m_fwdElectrons(SG::VIEW_ELEMENTS),
         m_muons(SG::VIEW_ELEMENTS),
+        m_softmuons(SG::VIEW_ELEMENTS),
         m_jets(SG::VIEW_ELEMENTS),
         m_failJvt_jets(SG::VIEW_ELEMENTS),
 	m_photons(SG::VIEW_ELEMENTS),
@@ -102,6 +103,9 @@ public:
 
     ///Container of muons (can be sorted)
     xAOD::MuonContainer m_muons;
+    
+    ///Container of soft muons (can be sorted)
+    xAOD::MuonContainer m_softmuons;
 
     ///Container of jets (can be sorted)
     xAOD::JetContainer m_jets;

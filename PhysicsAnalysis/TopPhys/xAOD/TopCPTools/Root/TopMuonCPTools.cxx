@@ -36,6 +36,10 @@ MuonCPTools::MuonCPTools(const std::string& name) :
   declareProperty( "MuonEfficiencyCorrectionsToolLoose" , m_muonEfficiencyCorrectionsToolLoose );
   declareProperty( "MuonEfficiencyCorrectionsToolIso" , m_muonEfficiencyCorrectionsToolIso );
   declareProperty( "MuonEfficiencyCorrectionsToolLooseIso" , m_muonEfficiencyCorrectionsToolLooseIso );
+  
+  declareProperty( "SoftMuonSelectionTool" , m_softmuonSelectionTool );
+  declareProperty( "SoftMuonEfficiencyCorrectionsTool" , m_softmuonEfficiencyCorrectionsTool );
+  
 }
 
 StatusCode MuonCPTools::initialize() {
@@ -46,7 +50,7 @@ StatusCode MuonCPTools::initialize() {
     return StatusCode::SUCCESS;
   }
 
-  if (!m_config->useMuons()) {
+  if (!m_config->useMuons() && !m_config->useSoftMuons()) {
     ATH_MSG_INFO("top::MuonCPTools: no need to initialise anything since not using muons");
     return StatusCode::SUCCESS;
   }
@@ -90,6 +94,17 @@ StatusCode MuonCPTools::setupCalibration() {
   m_muonSelectionToolVeryLooseVeto = setupMuonSelectionTool("CP::MuonSelectionToolVeryLooseVeto",
                                                     "Loose",
                                                     2.5);
+                                                    
+  //now the soft muon part
+  if(m_config->useSoftMuons())
+  {
+	  m_softmuonSelectionTool = setupMuonSelectionTool("CP::SoftMuonSelectionTool",
+                                                m_config->softmuonQuality(),
+                                                m_config->softmuonEtacut());
+	  
+  }
+  
+  
   return StatusCode::SUCCESS;
 }
 
@@ -147,6 +162,15 @@ StatusCode MuonCPTools::setupScaleFactors() {
   m_muonEfficiencyCorrectionsToolLoose
     = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLoose",
                       m_config->muonQualityLoose());
+                      
+                      
+  //now the soft muon part
+  if(m_config->useSoftMuons())
+  {
+	m_softmuonEfficiencyCorrectionsTool
+	  = setupMuonSFTool("CP::SoftMuonEfficiencyScaleFactorsTool",
+                      m_config->softmuonQuality());  
+  }
   
   /************************************************************
     * Isolation Scale Factors:

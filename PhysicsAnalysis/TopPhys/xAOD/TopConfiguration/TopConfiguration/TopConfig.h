@@ -74,6 +74,7 @@ class TopConfig final {
   inline bool useElectrons()  const {return m_useElectrons; }
   inline bool useFwdElectrons()  const {return m_useFwdElectrons; }
   inline bool useMuons()      const {return m_useMuons;     }
+  inline bool useSoftMuons()      const {return m_useSoftMuons;     }
   inline bool useTaus()       const {return m_useTaus;      }
   inline bool useJets()       const {return m_useJets;      }
   inline bool useLargeRJets() const {return m_useLargeRJets;}
@@ -337,6 +338,7 @@ class TopConfig final {
   virtual void sgKeyElectrons       ( const std::string& s );
   virtual void sgKeyFwdElectrons      ( const std::string& s );
   virtual void sgKeyMuons           ( const std::string& s );
+  virtual void sgKeySoftMuons           ( const std::string& s );
   virtual void sgKeyTaus            ( const std::string& s );
   virtual void sgKeyJets            ( const std::string& s );
   virtual void sgKeyLargeRJets      ( const std::string& s );
@@ -359,6 +361,7 @@ class TopConfig final {
   inline virtual const std::string& sgKeyElectrons()  const {return m_sgKeyElectrons; }
   inline virtual const std::string& sgKeyFwdElectrons()  const {return m_sgKeyFwdElectrons; }
   inline virtual const std::string& sgKeyMuons()      const {return m_sgKeyMuons;     }
+  inline virtual const std::string& sgKeySoftMuons()      const {return m_sgKeySoftMuons;     }
   inline virtual const std::string& sgKeyTaus()       const {return m_sgKeyTaus;      }
   inline virtual const std::string& sgKeyJets()       const {return m_sgKeyJets;      }
   inline virtual const std::string& sgKeyJetsType()   const {return m_sgKeyJetsType;      }
@@ -392,6 +395,7 @@ class TopConfig final {
   virtual const std::string& sgKeyElectronsStandAlone ( const std::size_t hash ) const;
   virtual const std::string& sgKeyFwdElectronsStandAlone ( const std::size_t hash ) const;
   virtual const std::string& sgKeyMuons     ( const std::size_t hash ) const;
+  virtual const std::string& sgKeySoftMuons     ( const std::size_t hash ) const;
   virtual const std::string& sgKeyTaus
     ( const std::size_t hash ) const;
   virtual const std::string& sgKeyJets      ( const std::size_t hash , const bool useLooseLeptonJets ) const;
@@ -410,6 +414,8 @@ class TopConfig final {
   const std::string& sgKeyFwdElectronsTDSAux( const std::size_t hash ) const;
   const std::string& sgKeyMuonsTDS( const std::size_t hash ) const;
   const std::string& sgKeyMuonsTDSAux( const std::size_t hash ) const;
+  const std::string& sgKeySoftMuonsTDS( const std::size_t hash ) const;
+  const std::string& sgKeySoftMuonsTDSAux( const std::size_t hash ) const;
   const std::string& sgKeyTausTDS( const std::size_t hash ) const;
   const std::string& sgKeyTausTDSAux( const std::size_t hash ) const;
   const std::string& sgKeyJetsTDS( const std::size_t hash , const bool useLooseLeptonJets ) const;
@@ -533,6 +539,17 @@ class TopConfig final {
   inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
   std::string const & muonIsolationSF() const {return m_muonIsolationSF;}
   std::string const & muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
+  
+  // Soft Muon configuration
+  inline virtual void softmuonPtcut(const float pt)       {if(!m_configFixed){m_softmuonPtcut = pt;}}
+  inline virtual void softmuonEtacut(const float eta)     {if(!m_configFixed){m_softmuonEtacut = eta;}}
+  inline virtual void softmuonQuality(const std::string& quality)       {if(!m_configFixed){m_softmuonQuality = quality;}}
+  inline virtual void softmuonDRJetcut(const float DRJet)       {if(!m_configFixed){m_softmuonDRJetcut = DRJet;}}
+  
+  inline virtual float softmuonPtcut() const {return m_softmuonPtcut;}
+  inline virtual float softmuonEtacut() const {return m_softmuonEtacut;}
+  inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
+  inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
 
   // Jet configuration
   inline virtual void jetPtcut(const float pt)       {if(!m_configFixed){m_jetPtcut = pt;}}
@@ -926,6 +943,7 @@ class TopConfig final {
   virtual void systematicsElectrons  ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsFwdElectrons  ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsMuons      ( const std::list<CP::SystematicSet>& syst );
+  virtual void systematicsSoftMuons      ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsTaus       ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsJets       ( const std::list<CP::SystematicSet>& syst );
   virtual void systematicsLargeRJets ( const std::list<CP::SystematicSet>& syst );
@@ -943,6 +961,7 @@ class TopConfig final {
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashElectrons() const {return m_systHashElectrons;}
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashFwdElectrons() const {return m_systHashFwdElectrons;}
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashMuons()     const {return m_systHashMuons;    }
+  inline std::shared_ptr<std::unordered_set<std::size_t>> systHashSoftMuons()     const {return m_systHashSoftMuons;    }
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashTaus()      const {return m_systHashTaus;     }
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashJets()      const {return m_systHashJets;     }
   inline std::shared_ptr<std::unordered_set<std::size_t>> systHashAll()       const {return m_systHashAll;      }
@@ -953,6 +972,7 @@ class TopConfig final {
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapElectrons() const {return m_systMapElectrons;}
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapFwdElectrons() const {return m_systMapFwdElectrons;}
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapMuons()     const {return m_systMapMuons;    }
+  inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapSoftMuons()     const {return m_systMapSoftMuons;    }
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapTaus()      const {return m_systMapTaus;     }
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapJets()      const {return m_systMapJets;     }
   inline std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> systMapLargeRJets()      const {return m_systMapLargeRJets;     }
@@ -962,6 +982,7 @@ class TopConfig final {
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapElectrons()  const {return m_systSgKeyMapElectrons; }
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapFwdElectrons()  const {return m_systSgKeyMapFwdElectrons; }
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapMuons()      const {return m_systSgKeyMapMuons;     }
+  inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapSoftMuons()      const {return m_systSgKeyMapSoftMuons;     }
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapTaus()       const {return m_systSgKeyMapTaus;      }
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapJets(const bool useLooseLeptonJets) const;
   inline std::shared_ptr<std::unordered_map<std::size_t,std::string>> systSgKeyMapLargeRJets() const {return m_systSgKeyMapLargeRJets;}
@@ -1039,6 +1060,7 @@ class TopConfig final {
   bool m_useElectrons;
   bool m_useFwdElectrons;
   bool m_useMuons;
+  bool m_useSoftMuons;
   bool m_useAntiMuons;
   bool m_useTaus;
   bool m_useJets;
@@ -1185,6 +1207,7 @@ class TopConfig final {
   std::string m_sgKeyElectrons;
   std::string m_sgKeyFwdElectrons;
   std::string m_sgKeyMuons;
+  std::string m_sgKeySoftMuons;
   std::string m_sgKeyTaus;
   std::string m_sgKeyJets;
   std::string m_sgKeyJetsType;
@@ -1262,7 +1285,12 @@ class TopConfig final {
   std::string m_muonIsolationSFLoose;
   int   m_muon_d0SigCut;
   float m_muon_delta_z0;
-
+  
+  //Soft muon configuration
+  float m_softmuonPtcut; // soft muon object selection pT cut
+  float m_softmuonEtacut; // soft muon object selection (abs) eta cut
+  std::string m_softmuonQuality; // soft muon quality used in object selection
+  float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
 
   // Jet configuration
   float m_jetPtcut; // jet object selection pT cut
@@ -1575,6 +1603,7 @@ class TopConfig final {
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashElectrons;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashFwdElectrons;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashMuons;
+  std::shared_ptr<std::unordered_set<std::size_t>> m_systHashSoftMuons;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashTaus;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashJets;
   std::shared_ptr<std::unordered_set<std::size_t>> m_systHashLargeRJets;
@@ -1591,6 +1620,7 @@ class TopConfig final {
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapFwdElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapMuons;
+  std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapSoftMuons;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapTaus;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapJets;
   std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> m_systMapLargeRJets;
@@ -1601,6 +1631,7 @@ class TopConfig final {
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapFwdElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapMuons;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapSoftMuons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapTaus;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapJets;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapJets_electronInJetSubtraction;
@@ -1614,6 +1645,7 @@ class TopConfig final {
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapFwdElectrons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapMuons;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapSoftMuons;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapTaus;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapJets;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapLargeRJets;
@@ -1632,6 +1664,8 @@ class TopConfig final {
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapFwdElectronsTDSAux;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapMuonsTDS;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapMuonsTDSAux;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapSoftMuonsTDS;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapSoftMuonsTDSAux;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapTausTDS;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapTausTDSAux;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systAllSgKeyMapJetsTDS;
@@ -1690,7 +1724,9 @@ class TopConfig final {
 
   // Switch to use event-level jet cleaning tool for testing
   bool m_useEventLevelJetCleaningTool;
-
+  
+  //ReadFloatOption
+  float readFloatOption(top::ConfigurationSettings* const& settings, std::string in) const;
 
 };
 }  // namespace top

@@ -21,6 +21,7 @@ namespace top{
     m_sgKeyElectrons("SetMe"),
     m_sgKeyFwdElectrons("SetMe"),
     m_sgKeyMuons("SetMe"),
+    m_sgKeySoftMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
     m_sgKeyLargeRJets("SetMe"),
@@ -42,6 +43,8 @@ namespace top{
     m_muonQualityLoose("SetMe"),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
+    
+    m_softmuonQuality("SetMe"),
 
     m_chosen_btaggingWP(),
 
@@ -49,6 +52,7 @@ namespace top{
     m_systSgKeyMapElectrons(),
     m_systSgKeyMapFwdElectrons(),
     m_systSgKeyMapMuons(),
+    m_systSgKeyMapSoftMuons(),
     m_systSgKeyMapTaus(),
     m_systSgKeyMapJets(),
     m_systSgKeyMapJets_electronInJetSubtraction(),

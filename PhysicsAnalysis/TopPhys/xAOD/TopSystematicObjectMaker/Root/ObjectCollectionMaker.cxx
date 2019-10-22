@@ -22,6 +22,7 @@ namespace top{
 
     m_egammaMaker(nullptr),
     m_muonMaker(nullptr),
+    m_softmuonMaker(nullptr),
     m_tauMaker(nullptr),
     m_jetMaker(nullptr),
     m_metMaker(nullptr)
@@ -35,6 +36,7 @@ namespace top{
 
     m_egammaMaker = std::unique_ptr<top::EgammaObjectCollectionMaker>    ( new top::EgammaObjectCollectionMaker   ( "top::EgammaObjectCollectionMaker"    ) );
     m_muonMaker   = std::unique_ptr<top::MuonObjectCollectionMaker>      ( new top::MuonObjectCollectionMaker     ( "top::MuonObjectCollectionMaker"      ) );
+    m_softmuonMaker   = std::unique_ptr<top::SoftMuonObjectCollectionMaker>      ( new top::SoftMuonObjectCollectionMaker     ( "top::SoftMuonObjectCollectionMaker"      ) );
     m_tauMaker    = std::unique_ptr<top::TauObjectCollectionMaker>       ( new top::TauObjectCollectionMaker      ( "top::TauObjectCollectionMaker"       ) );
     m_jetMaker    = std::unique_ptr<top::JetObjectCollectionMaker>       ( new top::JetObjectCollectionMaker      ( "top::JetObjectCollectionMaker"       ) );
     m_metMaker    = std::unique_ptr<top::MissingETObjectCollectionMaker> ( new top::MissingETObjectCollectionMaker( "top::MissingETObjectCollectionMaker" ) );
@@ -48,6 +50,11 @@ namespace top{
     if( m_config->useMuons() ){
       top::check( m_muonMaker->setProperty( "config" , m_config ) , "Failed to setProperty" );
       top::check( m_muonMaker->initialize() , "Failed to initialize" );
+    }
+    
+    if( m_config->useSoftMuons() ){
+      top::check( m_softmuonMaker->setProperty( "config" , m_config ) , "Failed to setProperty" );
+      top::check( m_softmuonMaker->initialize() , "Failed to initialize" );
     }
 
     if( m_config->useTaus() ){
@@ -91,6 +98,7 @@ namespace top{
     if( m_config->useElectrons()  ){ top::check( m_egammaMaker->executeElectrons(true) , "Failed to executeElectrons()"  ); }
     if( m_config->useFwdElectrons()  ){ top::check( m_egammaMaker->executeFwdElectrons(true) , "Failed to executeFwdElectrons()"  ); }
     if( m_config->useMuons()      ){ top::check( m_muonMaker->execute(true) ,            "Failed to executeMuons()"      ); }
+    if( m_config->useSoftMuons()      ){ top::check( m_softmuonMaker->execute(true) ,            "Failed to executeSoftMuons()"      ); }
     if( m_config->useTaus()       ){ top::check( m_tauMaker->execute(true) ,             "Failed to executeTaus()"       ); }
     if( m_config->useJets()       ){ top::check( m_jetMaker->executeJets(true) ,         "Failed to executeJets()"       ); }
     if( m_config->useLargeRJets() ){ top::check( m_jetMaker->executeLargeRJets(true) ,   "Failed to executeLargeRJets()" ); }
@@ -115,6 +123,7 @@ namespace top{
       if( m_config->useElectrons()  ){ top::check( m_egammaMaker->executeElectrons(false) , "Failed to executeElectrons()"  ); }
       if( m_config->useFwdElectrons()  ){ top::check( m_egammaMaker->executeFwdElectrons(false) , "Failed to executeFwdElectrons()"  ); }
       if( m_config->useMuons()      ){ top::check( m_muonMaker->execute(false) ,            "Failed to executeMuons()"      ); }
+      if( m_config->useSoftMuons()      ){ top::check( m_softmuonMaker->execute(false) ,            "Failed to executeSoftMuons()"      ); }
       if( m_config->useTaus()       ){ top::check( m_tauMaker->execute(false) ,             "Failed to executeTaus()"       ); }
       if( m_config->useJets()       ){ top::check( m_jetMaker->executeJets(false) ,         "Failed to executeJets()"       ); }
       if( m_config->useLargeRJets() ){ top::check( m_jetMaker->executeLargeRJets(false) ,   "Failed to executeLargeRJets()" ); }
@@ -139,6 +148,7 @@ namespace top{
     if( m_config->useElectrons()  ){ top::check( m_egammaMaker->printoutElectrons() , "Failed to printoutElectrons()"  ); }
     if( m_config->useFwdElectrons()  ){ top::check( m_egammaMaker->printoutFwdElectrons() , "Failed to printoutFwdElectrons()"  ); }
     if( m_config->useMuons()      ){ top::check( m_muonMaker->printout() ,            "Failed to printoutMuons()"      ); }
+    if( m_config->useSoftMuons()      ){ top::check( m_softmuonMaker->printout() ,            "Failed to printoutSoftMuons()"      ); }
     if( m_config->useTaus()       ){ top::check( m_tauMaker->printout() ,             "Failed to printoutTaus()"       ); }
     if( m_config->useJets()       ){ top::check( m_jetMaker->printoutJets() ,         "Failed to printoutJets()"       ); }
     if( m_config->useLargeRJets() ){ top::check( m_jetMaker->printoutLargeRJets() ,   "Failed to printoutLargeRJets()" ); }

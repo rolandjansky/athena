@@ -47,6 +47,7 @@ namespace top{
       std::string m_sgKeyElectrons;
       std::string m_sgKeyFwdElectrons;
       std::string m_sgKeyMuons;
+      std::string m_sgKeySoftMuons;
       std::string m_sgKeyTaus;
       std::string m_sgKeyJets;
       std::string m_sgKeyLargeRJets;
@@ -68,6 +69,8 @@ namespace top{
       std::string m_muonQualityLoose;
       std::string m_muonIsolation;
       std::string m_muonIsolationLoose;
+      
+      std::string m_softmuonQuality;
 
       std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
 
@@ -75,6 +78,7 @@ namespace top{
       std::map<std::size_t,std::string> m_systSgKeyMapElectrons;
       std::map<std::size_t,std::string> m_systSgKeyMapFwdElectrons;
       std::map<std::size_t,std::string> m_systSgKeyMapMuons;
+      std::map<std::size_t,std::string> m_systSgKeyMapSoftMuons;
       std::map<std::size_t,std::string> m_systSgKeyMapTaus;
       std::map<std::size_t,std::string> m_systSgKeyMapJets;
       std::map<std::size_t,std::string> m_systSgKeyMapJets_electronInJetSubtraction;

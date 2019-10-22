@@ -750,6 +750,35 @@ namespace top {
           systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
         }
       }
+      
+      //soft muons
+      if (m_config->useSoftMuons()) {
+        systematicTree->makeOutputVariable(m_softmu_pt,      "softmu_pt");
+        systematicTree->makeOutputVariable(m_softmu_eta,     "softmu_eta");
+        systematicTree->makeOutputVariable(m_softmu_phi,     "softmu_phi");
+        systematicTree->makeOutputVariable(m_softmu_e,       "softmu_e");
+        systematicTree->makeOutputVariable(m_softmu_charge,  "softmu_charge");
+        systematicTree->makeOutputVariable(m_softmu_d0, "softmu_d0");
+        systematicTree->makeOutputVariable(m_softmu_d0sig, "softmu_d0sig");
+        systematicTree->makeOutputVariable(m_softmu_delta_z0_sintheta, "softmu_delta_z0_sintheta");
+        if (m_config->isMC()) {
+	  systematicTree->makeOutputVariable(m_softmu_true_type,   "softmu_true_type");
+          systematicTree->makeOutputVariable(m_softmu_true_origin, "softmu_true_origin");
+	  systematicTree->makeOutputVariable(m_softmu_SF_ID,  "softmu_SF_ID");
+			
+	  if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) 
+	  {
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_STAT_UP,  "softmu_SF_ID_STAT_UP");
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_STAT_DOWN,  "softmu_SF_ID_STAT_DOWN");
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_SYST_UP,  "softmu_SF_ID_SYST_UP");
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_SYST_DOWN,  "softmu_SF_ID_SYST_DOWN");
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_STAT_LOWPT_UP,  "softmu_SF_ID_STAT_LOWPT_UP");
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_STAT_LOWPT_DOWN,  "softmu_SF_ID_STAT_LOWPT_DOWN");      
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_SYST_LOWPT_UP,  "softmu_SF_ID_SYST_LOWPT_UP");
+		systematicTree->makeOutputVariable(m_softmu_SF_ID_SYST_LOWPT_DOWN,  "softmu_SF_ID_SYST_LOWPT_DOWN");
+	  }
+	}//end of if (m_config->isMC())            
+      }//end of if (m_config->useSoftMuons())  
 
       //photons
       if (m_config->usePhotons()) {
@@ -1565,7 +1594,7 @@ namespace top {
     m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z,    "mu_prodVtx_z");
     m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_perp, "mu_prodVtx_perp");
     m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_phi,  "mu_prodVtx_phi");
-
+    
     // jets
     m_upgradeTreeManager->makeOutputVariable(m_jet_pt, "jet_pt");
     m_upgradeTreeManager->makeOutputVariable(m_jet_eta, "jet_eta");
@@ -2124,6 +2153,82 @@ namespace top {
         ++i;
       }
     }
+    
+    //soft muons
+    if (m_config->useSoftMuons()) {
+      unsigned int i(0);
+      unsigned int n_muons = event.m_softmuons.size();
+      
+      m_softmu_pt.resize(n_muons);
+      m_softmu_eta.resize(n_muons);
+      m_softmu_phi.resize(n_muons);
+      m_softmu_e.resize(n_muons);
+      m_softmu_charge.resize(n_muons);
+      m_softmu_d0.resize(n_muons);
+      m_softmu_d0sig.resize(n_muons);
+      m_softmu_delta_z0_sintheta.resize(n_muons);
+      
+      if (m_config->isMC()) 
+      {
+	m_softmu_true_type.resize(n_muons);
+	m_softmu_true_origin.resize(n_muons);
+	m_softmu_true_isPrompt.resize(n_muons);
+	m_softmu_SF_ID.resize(n_muons);
+	m_softmu_SF_ID_STAT_UP.resize(n_muons);
+	m_softmu_SF_ID_STAT_DOWN.resize(n_muons);
+	m_softmu_SF_ID_SYST_UP.resize(n_muons);
+	m_softmu_SF_ID_SYST_DOWN.resize(n_muons);
+	m_softmu_SF_ID_STAT_LOWPT_UP.resize(n_muons);
+	m_softmu_SF_ID_STAT_LOWPT_DOWN.resize(n_muons);
+	m_softmu_SF_ID_SYST_LOWPT_UP.resize(n_muons);
+	m_softmu_SF_ID_SYST_LOWPT_DOWN.resize(n_muons);
+      }
+      
+      for (const auto* const muPtr : event.m_softmuons) {
+		
+        m_softmu_pt[i] = muPtr->pt();
+        m_softmu_eta[i] = muPtr->eta();
+        m_softmu_phi[i] = muPtr->phi();
+        m_softmu_e[i] = muPtr->e();
+        m_softmu_charge[i] = muPtr->charge();
+        
+        m_softmu_d0[i] = 999.;
+        m_softmu_d0sig[i] = 999.;
+        m_softmu_delta_z0_sintheta[i] = 999.;
+        
+        const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
+        
+        if( mutrack )
+          m_softmu_d0[i] = mutrack->d0();
+        if( muPtr->isAvailable<float>("d0sig") )
+          m_softmu_d0sig[i] = muPtr->auxdataConst<float>("d0sig");
+        if( muPtr->isAvailable<float>("delta_z0_sintheta") )
+          m_softmu_delta_z0_sintheta[i] = muPtr->auxdataConst<float>("delta_z0_sintheta");
+        
+        if (m_config->isMC()) {
+ 
+			m_softmu_SF_ID[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::nominal);
+			m_softmu_SF_ID_STAT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_STAT_UP);
+			m_softmu_SF_ID_STAT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_STAT_DOWN);
+			m_softmu_SF_ID_SYST_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_SYST_UP);
+			m_softmu_SF_ID_SYST_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_SYST_DOWN);
+			m_softmu_SF_ID_STAT_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_STAT_LOWPT_UP);
+			m_softmu_SF_ID_STAT_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_STAT_LOWPT_DOWN);
+			m_softmu_SF_ID_SYST_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_SYST_LOWPT_UP);
+			m_softmu_SF_ID_SYST_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr,top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN);
+			
+			static SG::AuxElement::Accessor<int> acc_mctt("truthType");
+			static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
+			m_softmu_true_type[i]=0;
+			m_softmu_true_origin[i]=0;
+			if (acc_mctt.isAvailable(*muPtr)) m_softmu_true_type[i] = acc_mctt(*muPtr);
+			if (acc_mcto.isAvailable(*muPtr)) m_softmu_true_origin[i] = acc_mcto(*muPtr);
+			m_softmu_true_isPrompt[i] = isPromptMuon(m_softmu_true_type[i], m_softmu_true_origin[i]);
+		}//end of if (m_config->isMC())
+          
+	  }//end of loop on softmuons
+      
+    }//end of if (m_config->useSoftMuons())
 
     //photons
     if (m_config->usePhotons()) {
