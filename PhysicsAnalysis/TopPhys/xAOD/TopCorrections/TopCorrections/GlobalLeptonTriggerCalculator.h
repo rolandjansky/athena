@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 // $Id: GlobalLeptonTriggerCalculator.h 799556 2017-03-05 19:46:03Z tpelzer $
 #ifndef ANALYSISTOP_TOPCORRECTIONS_GLOBALLEPTONTRIGGERCALCULATOR_H
 #define ANALYSISTOP_TOPCORRECTIONS_GLOBALLEPTONTRIGGERCALCULATOR_H
 
 /**
-  * @author Ian Connelly <ian.connelly@cern.ch>
-  *
-  * @brief Global lepton trigger calculator
-  *   Interface to retrieve the global lepton trigger scale factors
-  *
-  **/
+ * @author Ian Connelly <ian.connelly@cern.ch>
+ *
+ * @brief Global lepton trigger calculator
+ *   Interface to retrieve the global lepton trigger scale factors
+ *
+ **/
 
 // system include(s):
 #include <memory>
@@ -34,39 +34,35 @@
 namespace xAOD {
   class SystematicEvent;
 }
-namespace top{
+namespace top {
   class TopConfig;
 }
 
-namespace top{
+namespace top {
+  class GlobalLeptonTriggerCalculator final: public asg::AsgTool {
+  public:
+    explicit GlobalLeptonTriggerCalculator(const std::string& name);
+    virtual ~GlobalLeptonTriggerCalculator() {}
 
-  class GlobalLeptonTriggerCalculator final : public asg::AsgTool {
-    public:
-      explicit GlobalLeptonTriggerCalculator( const std::string& name );
-      virtual ~GlobalLeptonTriggerCalculator(){}
+    // Delete Standard constructors
+    GlobalLeptonTriggerCalculator(const GlobalLeptonTriggerCalculator& rhs) = delete;
+    GlobalLeptonTriggerCalculator(GlobalLeptonTriggerCalculator&& rhs) = delete;
+    GlobalLeptonTriggerCalculator& operator = (const GlobalLeptonTriggerCalculator& rhs) = delete;
 
-      // Delete Standard constructors
-      GlobalLeptonTriggerCalculator(const GlobalLeptonTriggerCalculator& rhs) = delete;
-      GlobalLeptonTriggerCalculator(GlobalLeptonTriggerCalculator&& rhs) = delete;
-      GlobalLeptonTriggerCalculator& operator=(const GlobalLeptonTriggerCalculator& rhs) = delete;
+    StatusCode initialize();
+    StatusCode execute();
+  private:
+    void processEvent(xAOD::SystematicEvent* systEvent, bool withScaleFactorVariations);
 
-      StatusCode initialize();
-      StatusCode execute();
+    std::shared_ptr<top::TopConfig> m_config;
 
-    private:
+    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSF;
+    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
 
-      void processEvent(xAOD::SystematicEvent * systEvent, bool withScaleFactorVariations);
+    std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronTools;
+    std::vector<ToolHandle<CP::IMuonTriggerScaleFactors> > m_muonTools;
 
-      std::shared_ptr<top::TopConfig> m_config;
-
-      ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSF;
-      ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
-
-      std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_electronTools;
-      std::vector<ToolHandle<CP::IMuonTriggerScaleFactors>> m_muonTools;
-
-      std::string m_decor_triggerSF;
-
+    std::string m_decor_triggerSF;
   };
 } // namespace
 #endif
