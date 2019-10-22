@@ -83,6 +83,8 @@ xmlTags = [
             # step 2
             ["ATLAS-P2-ITK-19","InclBrl_4","InclinedQuads"],
             ["ATLAS-P2-ITK-20","InclBrl_4","InclinedDuals"],
+            # step 3.1
+            ["ATLAS-P2-ITK-22","InclBrl_4","InclinedAlternative"],
             ]
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
