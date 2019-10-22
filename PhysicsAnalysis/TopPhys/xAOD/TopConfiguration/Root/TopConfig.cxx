@@ -27,6 +27,7 @@ namespace top{
     m_useElectrons(false),
     m_useFwdElectrons(false),
     m_useMuons(false),
+    m_useSoftMuons(false),
     m_useAntiMuons(false),
     m_useTaus(false),
     m_useJets(false),
@@ -135,6 +136,7 @@ namespace top{
     m_sgKeyElectrons("SetMe"),
     m_sgKeyFwdElectrons("SetMe"),
     m_sgKeyMuons("SetMe"),
+    m_sgKeySoftMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
     m_sgKeyLargeRJets("SetMe"),
@@ -201,6 +203,12 @@ namespace top{
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    
+    // Soft Muon configuration
+    m_softmuonPtcut(4000.),
+    m_softmuonEtacut(2.5),
+    m_softmuonQuality("SetMe"),
+    m_softmuonDRJetcut(0.4),
 
     // Jet configuration
     m_jetPtcut(25000.),
@@ -293,6 +301,7 @@ namespace top{
     m_systHashElectrons(nullptr),
     m_systHashFwdElectrons(nullptr),
     m_systHashMuons(nullptr),
+    m_systHashSoftMuons(nullptr),
     m_systHashTaus(nullptr),
     m_systHashJets(nullptr),
     m_systHashLargeRJets(nullptr),
@@ -309,6 +318,7 @@ namespace top{
     m_systMapElectrons(nullptr),
     m_systMapFwdElectrons(nullptr),
     m_systMapMuons(nullptr),
+    m_systMapSoftMuons(nullptr),
     m_systMapTaus(nullptr),
     m_systMapJets(nullptr),
     m_systMapLargeRJets(nullptr),
@@ -319,6 +329,7 @@ namespace top{
     m_systSgKeyMapElectrons(nullptr),
     m_systSgKeyMapFwdElectrons(nullptr),
     m_systSgKeyMapMuons(nullptr),
+    m_systSgKeyMapSoftMuons(nullptr),
     m_systSgKeyMapTaus(nullptr),
     m_systSgKeyMapJets(nullptr),
     m_systSgKeyMapJets_electronInJetSubtraction(nullptr),
@@ -331,6 +342,7 @@ namespace top{
     m_systAllSgKeyMapElectrons(nullptr),
     m_systAllSgKeyMapFwdElectrons(nullptr),
     m_systAllSgKeyMapMuons(nullptr),
+    m_systAllSgKeyMapSoftMuons(nullptr),
     m_systAllSgKeyMapTaus(nullptr),
     m_systAllSgKeyMapJets(nullptr),
     m_systAllSgKeyMapLargeRJets(nullptr),
@@ -347,6 +359,8 @@ namespace top{
     m_systAllSgKeyMapFwdElectronsTDSAux(nullptr),
     m_systAllSgKeyMapMuonsTDS(nullptr),
     m_systAllSgKeyMapMuonsTDSAux(nullptr),
+    m_systAllSgKeyMapSoftMuonsTDS(nullptr),
+    m_systAllSgKeyMapSoftMuonsTDSAux(nullptr),
     m_systAllSgKeyMapTausTDS(nullptr),
     m_systAllSgKeyMapTausTDSAux(nullptr),
     m_systAllSgKeyMapJetsTDS(nullptr),
@@ -392,6 +406,7 @@ namespace top{
     m_systHashElectrons  = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashFwdElectrons  = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashMuons      = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
+    m_systHashSoftMuons      = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashTaus       = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashJets       = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
     m_systHashLargeRJets = std::shared_ptr<std::unordered_set<std::size_t>> ( new std::unordered_set<std::size_t> );
@@ -407,6 +422,7 @@ namespace top{
     m_systMapElectrons  = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapFwdElectrons  = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapMuons      = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
+    m_systMapSoftMuons      = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapTaus       = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapJets       = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systMapLargeRJets = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
@@ -417,6 +433,7 @@ namespace top{
     m_systSgKeyMapElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapFwdElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapMuons      = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systSgKeyMapSoftMuons      = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapTaus       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapJets       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systSgKeyMapJets_electronInJetSubtraction = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
@@ -429,6 +446,7 @@ namespace top{
     m_systAllSgKeyMapElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapFwdElectrons  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapMuons      = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systAllSgKeyMapSoftMuons      = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapTaus       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapJets       = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapLargeRJets = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
@@ -449,6 +467,8 @@ namespace top{
     m_systAllSgKeyMapFwdElectronsTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapMuonsTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapMuonsTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systAllSgKeyMapSoftMuonsTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systAllSgKeyMapSoftMuonsTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapTausTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapTausTDSAux = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
     m_systAllSgKeyMapJetsTDS = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
@@ -508,6 +528,9 @@ namespace top{
     this->sgKeyElectrons( settings->value("ElectronCollectionName") );
     this->sgKeyFwdElectrons( settings->value("FwdElectronCollectionName") );
     this->sgKeyMuons( settings->value("MuonCollectionName") );
+    //small trick for the soft muons
+    if(settings->value("UseSoftMuons")=="True") this->sgKeySoftMuons( "Soft"+settings->value("MuonCollectionName") ); 
+    else this->sgKeySoftMuons( "None" ); 
     this->sgKeyTaus( settings->value("TauCollectionName") );
     this->sgKeyJets( settings->value("JetCollectionName") );
     this->sgKeyLargeRJets( settings->value("LargeJetCollectionName") );
@@ -882,7 +905,12 @@ namespace top{
 
     if (settings->value("UseAntiMuons") == "True")
       this->m_useAntiMuons = true;
-
+      
+    // Soft Muon configuration
+    this->softmuonPtcut( readFloatOption(settings,"SoftMuonPt") );
+    this->softmuonEtacut( readFloatOption(settings,"SoftMuonEta") );
+    this->softmuonQuality( settings->value("SoftMuonQuality") );
+    this->softmuonDRJetcut( readFloatOption(settings,"SoftMuonDRJet") );
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));
@@ -1329,6 +1357,19 @@ namespace top{
     }
 
   }
+  
+  float TopConfig::readFloatOption(top::ConfigurationSettings* const& settings, std::string instring) const
+  {
+	float invalue=99999999.;
+    try{
+      invalue=std::stof(settings->value(instring));
+    }
+    catch(...){
+      throw std::invalid_argument{"TopConfig: cannot convert Option "+instring+"into float"};
+    }
+    
+    return invalue;
+  }
 
   void TopConfig::setGrlDir( const std::string& s )
   {
@@ -1450,6 +1491,17 @@ namespace top{
               m_useMuons = true;
 
           m_sgKeyMuons = s;
+      }
+  }
+  
+  void TopConfig::sgKeySoftMuons(const std::string& s)
+  {
+      if(!m_configFixed){
+          m_useSoftMuons = false;
+          if (s != "None")
+              m_useSoftMuons = true;
+
+          m_sgKeySoftMuons = s;
       }
   }
 
@@ -1777,6 +1829,20 @@ namespace top{
       m_list_systHashAll->unique();
     }
   }
+  
+  void TopConfig::systematicsSoftMuons( const std::list<CP::SystematicSet>& syst)
+  {
+    if( !m_configFixed ){
+      for( const CP::SystematicSet &s : syst ){
+        m_systHashSoftMuons->insert( s.hash() );
+        m_list_systHashAll->push_back( s.hash() );
+        m_systMapSoftMuons->insert( std::make_pair( s.hash() , s ) );
+        m_systSgKeyMapSoftMuons->insert( std::make_pair( s.hash() , m_sgKeySoftMuons + "_" + s.name() ) );
+      }
+      m_list_systHashAll->sort();
+      m_list_systHashAll->unique();
+    }
+  }
 
   void TopConfig::systematicsTaus( const std::list<CP::SystematicSet>& syst)
   {
@@ -1908,6 +1974,7 @@ namespace top{
     std::string nominalElectrons("SetMe");
     std::string nominalFwdElectrons("SetMe");
     std::string nominalMuons("SetMe");
+    std::string nominalSoftMuons("SetMe");
     std::string nominalTaus("SetMe");
     std::string nominalJets("SetMe");
     std::string nominalLargeRJets("SetMe");
@@ -1935,6 +2002,11 @@ namespace top{
     std::unordered_map<std::size_t,std::string>::const_iterator mu = m_systSgKeyMapMuons->find( m_nominalHashValue );
     if (mu != m_systSgKeyMapMuons->end()) {
       nominalMuons = (*mu).second;
+    }
+    
+    std::unordered_map<std::size_t,std::string>::const_iterator softmu = m_systSgKeyMapSoftMuons->find( m_nominalHashValue );
+    if (softmu != m_systSgKeyMapSoftMuons->end()) {
+      nominalSoftMuons = (*softmu).second;
     }
 
     std::unordered_map<std::size_t,std::string>::const_iterator tau = m_systSgKeyMapTaus->find( m_nominalHashValue );
@@ -1989,6 +2061,14 @@ namespace top{
       }
       if (mu == m_systSgKeyMapMuons->end()) {
         m_systAllSgKeyMapMuons->insert( std::make_pair( (*i) , nominalMuons ) );
+      }
+      
+      std::unordered_map<std::size_t,std::string>::const_iterator softmu = m_systSgKeyMapSoftMuons->find( *i );
+      if (softmu != m_systSgKeyMapSoftMuons->end()) {
+        m_systAllSgKeyMapSoftMuons->insert( std::make_pair( (*i) , (*softmu).second ) );
+      }
+      if (softmu == m_systSgKeyMapSoftMuons->end()) {
+        m_systAllSgKeyMapSoftMuons->insert( std::make_pair( (*i) , nominalSoftMuons ) );
       }
 
       std::unordered_map<std::size_t,std::string>::const_iterator tau = m_systSgKeyMapTaus->find( *i );
@@ -2085,6 +2165,11 @@ namespace top{
       m_systAllSgKeyMapMuonsTDS->insert( std::make_pair( (*i).first , (*i).second + tds ) );
       m_systAllSgKeyMapMuonsTDSAux->insert( std::make_pair( (*i).first , (*i).second + tdsAux ) );
     }
+    
+    for (Itr2 i=m_systAllSgKeyMapSoftMuons->begin();i!=m_systAllSgKeyMapSoftMuons->end();++i) {
+      m_systAllSgKeyMapSoftMuonsTDS->insert( std::make_pair( (*i).first , (*i).second + tds ) );
+      m_systAllSgKeyMapSoftMuonsTDSAux->insert( std::make_pair( (*i).first , (*i).second + tdsAux ) );
+    }
 
     for (Itr2 i=m_systAllSgKeyMapTaus->begin();i!=m_systAllSgKeyMapTaus->end();++i) {
       m_systAllSgKeyMapTausTDS->insert( std::make_pair( (*i).first , (*i).second + tds ) );
@@ -2143,6 +2228,11 @@ namespace top{
     }
     if (m_useMuons) {
       for (Itr i=m_systMapMuons->begin();i!=m_systMapMuons->end();++i) {
+        m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
+      }
+    }
+    if (m_useSoftMuons) {
+      for (Itr i=m_systMapSoftMuons->begin();i!=m_systMapSoftMuons->end();++i) {
         m_systAllTTreeNames->insert( std::make_pair( (*i).first , (*i).second.name() ) );
       }
     }
@@ -2387,6 +2477,33 @@ namespace top{
   {
     std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapMuonsTDSAux->find( hash );
     if (key != m_systAllSgKeyMapMuonsTDSAux->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+  
+  const std::string& TopConfig::sgKeySoftMuons( const std::size_t hash ) const
+  {
+    std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapSoftMuons->find( hash );
+    if (key != m_systAllSgKeyMapSoftMuons->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeySoftMuonsTDS( const std::size_t hash ) const
+  {
+    std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapSoftMuonsTDS->find( hash );
+    if (key != m_systAllSgKeyMapSoftMuonsTDS->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeySoftMuonsTDSAux( const std::size_t hash ) const
+  {
+    std::unordered_map<std::size_t,std::string>::const_iterator key = m_systAllSgKeyMapSoftMuonsTDSAux->find( hash );
+    if (key != m_systAllSgKeyMapSoftMuonsTDSAux->end()) {
       return (*key).second;
     }
     return m_sgKeyDummy;
@@ -2775,6 +2892,7 @@ namespace top{
     out->m_sgKeyElectrons = m_sgKeyElectrons;
     out->m_sgKeyFwdElectrons = m_sgKeyFwdElectrons;
     out->m_sgKeyMuons = m_sgKeyMuons;
+    out->m_sgKeySoftMuons = m_sgKeySoftMuons;
     out->m_sgKeyTaus = m_sgKeyTaus;
     out->m_sgKeyJets = m_sgKeyJets;
     out->m_sgKeyLargeRJets = m_sgKeyLargeRJets;
@@ -2796,6 +2914,8 @@ namespace top{
     out->m_muonQualityLoose = m_muonQualityLoose;
     out->m_muonIsolation = m_muonIsolation;
     out->m_muonIsolationLoose = m_muonIsolationLoose;
+    
+    out->m_softmuonQuality = m_softmuonQuality;
 
     typedef std::unordered_map<std::size_t,std::string>::const_iterator Itr;
 
@@ -2813,6 +2933,9 @@ namespace top{
 
     for (Itr i=m_systSgKeyMapMuons->begin();i!=m_systSgKeyMapMuons->end();++i)
         out->m_systSgKeyMapMuons.insert( std::make_pair( (*i).first , (*i).second ) );
+        
+    for (Itr i=m_systSgKeyMapSoftMuons->begin();i!=m_systSgKeyMapSoftMuons->end();++i)
+        out->m_systSgKeyMapSoftMuons.insert( std::make_pair( (*i).first , (*i).second ) );
 
     for (Itr i=m_systSgKeyMapTaus->begin();i!=m_systSgKeyMapTaus->end();++i)
         out->m_systSgKeyMapTaus.insert( std::make_pair( (*i).first , (*i).second ) );
@@ -2912,6 +3035,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     sgKeyElectrons( settings->m_sgKeyElectrons );
     sgKeyFwdElectrons( settings->m_sgKeyFwdElectrons );
     sgKeyMuons( settings->m_sgKeyMuons );
+    sgKeySoftMuons( settings->m_sgKeySoftMuons );
     sgKeyTaus( settings->m_sgKeyTaus );
     sgKeyJets( settings->m_sgKeyJets );
     sgKeyLargeRJets( settings->m_sgKeyLargeRJets );
@@ -2933,6 +3057,8 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_muonQualityLoose = settings->m_muonQualityLoose;
     m_muonIsolation = settings->m_muonIsolation;
     m_muonIsolationLoose = settings->m_muonIsolationLoose;
+    
+    m_softmuonQuality = settings->m_softmuonQuality;
 
     for (std::vector<std::pair<std::string, std::string> >::const_iterator i=settings->m_chosen_btaggingWP.begin();i!=settings->m_chosen_btaggingWP.end();++i)
         m_chosen_btaggingWP.push_back( *i );
@@ -2950,6 +3076,9 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
 
     for (Itr i=settings->m_systSgKeyMapMuons.begin();i!=settings->m_systSgKeyMapMuons.end();++i)
         m_systSgKeyMapMuons->insert( std::make_pair( (*i).first , (*i).second ) );
+        
+    for (Itr i=settings->m_systSgKeyMapSoftMuons.begin();i!=settings->m_systSgKeyMapSoftMuons.end();++i)
+        m_systSgKeyMapSoftMuons->insert( std::make_pair( (*i).first , (*i).second ) );
 
     for (Itr i=settings->m_systSgKeyMapTaus.begin();i!=settings->m_systSgKeyMapTaus.end();++i)
         m_systSgKeyMapTaus->insert( std::make_pair( (*i).first , (*i).second ) );
@@ -3128,6 +3257,8 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
 
 }
 
+
+
 std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)
 {
   typedef std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> map_t;
@@ -3169,6 +3300,13 @@ std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)
     map_t syst = config.systMapMuons();
     for(Itr i=syst->begin();i!=syst->end();++i){
       os << " Muon systematic\t :: " << (*i).second.name() <<" \n";
+    }
+  }
+  
+  if( config.useSoftMuons() ){
+    map_t syst = config.systMapSoftMuons();
+    for(Itr i=syst->begin();i!=syst->end();++i){
+      os << " Soft Muon systematic\t :: " << (*i).second.name() <<" \n";
     }
   }
 

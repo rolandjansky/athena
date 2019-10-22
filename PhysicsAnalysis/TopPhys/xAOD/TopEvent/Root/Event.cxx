@@ -47,6 +47,11 @@ std::ostream& operator<<(std::ostream& os, const top::Event& event) {
     {
 	    os << "    " << *muPtr << "\n";
     }
+    os << "Soft Muons: " << event.m_softmuons.size() << "\n";
+    for (const auto* const muPtr : event.m_softmuons)
+    {
+	    os << "    " << *muPtr << "\n";
+    }
     os << "Jets: " << event.m_jets.size() << "\n";
     for (const auto* const jetPtr : event.m_jets)
     {

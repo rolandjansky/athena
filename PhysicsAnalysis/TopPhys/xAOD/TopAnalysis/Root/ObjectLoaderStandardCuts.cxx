@@ -12,6 +12,7 @@
 #include "TopObjectSelectionTools/FwdElectronMC15.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
 #include "TopObjectSelectionTools/MuonMC15.h"
+#include "TopObjectSelectionTools/SoftMuonMC15.h"
 #include "TopObjectSelectionTools/AntiMuonMC15.h"
 #include "TopObjectSelectionTools/TauMC15.h"
 #include "TopObjectSelectionTools/JetMC15.h"
@@ -93,6 +94,11 @@ namespace top {
 	objectSelection -> muonSelection(new top::MuonMC15(topConfig->muonPtcut(), new top::StandardIsolation(topConfig->muonIsolation(), topConfig->muonIsolationLoose()), topConfig->applyTTVACut()) );
 
     }
+    
+    ///-- Soft Muons --///
+    if (topConfig->useSoftMuons()) {
+		objectSelection -> softmuonSelection(new top::SoftMuonMC15(topConfig->softmuonPtcut()));
+	}
 
 
     ///-- Taus --///

@@ -228,6 +228,11 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   float muonSF(const top::Event& event,
                const top::topSFSyst SFSyst,
                const top::topSFComp SFComp) const;
+  
+  // Obtain the soft muon SF
+  float softmuonSF(const top::Event& event,
+               const top::topSFSyst SFSyst,
+               const top::topSFComp SFComp) const;
 
   /**
    * @brief: get the tauSF for all taus in event
@@ -325,6 +330,9 @@ class ScaleFactorRetriever final : public asg::AsgTool{
 
   float muonSF_TTVA(const xAOD::Muon& x,
                     const top::topSFSyst SFSyst) const;
+                    
+  float softmuonSF_ID(const xAOD::Muon& x,
+					 const top::topSFSyst SFSyst) const;
 
   /**
    * @brief: get the tauSF for a single tau
@@ -391,6 +399,10 @@ class ScaleFactorRetriever final : public asg::AsgTool{
                        const top::topSFSyst SFSyst) const;
 
   float muonSF_ID(const xAOD::Muon& x,
+                  const std::string& id,
+                  const top::topSFSyst SFSyst) const;
+  
+  float softmuonSF_ID(const xAOD::Muon& x,
                   const std::string& id,
                   const top::topSFSyst SFSyst) const;
 

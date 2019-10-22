@@ -88,6 +88,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
+    
+    registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise","False");
+    registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
+    registerParameter("SoftMuonEta", "Absolute Soft Muon eta cut for object selection. Default 2.5.", "2.5" );
+    registerParameter("SoftMuonQuality", "Soft Muon quality cut for object selection. Options are Loose, Medium, Tight (default), LowPt", "Tight");
+    registerParameter("SoftMuonDRJet", "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4", "0.4");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5" );

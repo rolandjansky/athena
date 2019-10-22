@@ -75,6 +75,7 @@ namespace top {
 
   top::Event TopEventMaker::makeTopEvent(const xAOD::SystematicEvent* currentSystematicPtr)
   {
+
     xAOD::SystematicEvent const & currentSystematic = *currentSystematicPtr;
     //create a new event object
     top::Event event;
@@ -250,6 +251,38 @@ namespace top {
       //shallow copies aren't sorted!
       //sort only the selected muons (faster)
       event.m_muons.sort(top::descendingPtSorter);
+    }
+    
+    //soft muons
+    if (m_config->useSoftMuons()) {
+      ///-- Need to read const collections for mini-xaod read back --///     
+      const xAOD::MuonContainer* calibratedSoftMuons(nullptr);
+
+      top::check(evtStore()->retrieve(calibratedSoftMuons, m_config->sgKeySoftMuons(hash) ), "Failed to retrieve muons"); 
+      
+      
+      ///-- Shallow copy and save to TStore --///
+      if (!evtStore()->contains<xAOD::MuonContainer>(m_config->sgKeySoftMuonsTDS(hash))) {
+        std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > shallow_softmuons = xAOD::shallowCopyContainer( *calibratedSoftMuons );
+          
+        xAOD::TReturnCode save = evtStore()->tds()->record( shallow_softmuons.first , m_config->sgKeySoftMuonsTDS(hash) );
+        xAOD::TReturnCode saveAux = evtStore()->tds()->record( shallow_softmuons.second , m_config->sgKeySoftMuonsTDSAux(hash) );
+        top::check( (save && saveAux) , "Failed to store object in TStore");
+      }
+      
+      ///-- Pull shallow copy back out of TStore in non-const way --///
+      xAOD::MuonContainer* calibratedSoftMuonsTDS(nullptr);
+      top::check(evtStore()->retrieve(calibratedSoftMuonsTDS, m_config->sgKeySoftMuonsTDS(hash) ), "Failed to retrieve soft muons");         
+        
+      //no overlap procedure applied to soft muons for the time being      
+      
+      for (auto index : currentSystematic.goodSoftMuons()) {
+        event.m_softmuons.push_back(calibratedSoftMuonsTDS->at(index));
+      }        
+
+      //shallow copies aren't sorted!
+      //sort only the selected soft muons (faster)
+      event.m_softmuons.sort(top::descendingPtSorter);
     }
 
     //taus

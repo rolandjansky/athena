@@ -143,6 +143,7 @@ class MuonScaleFactorCalculator final : public asg::AsgTool {
 
   // Helper funciton to do above for all systematics
   void decorateIDSFandRecoEffSystematics(const xAOD::Muon& muon);
+  void decorateIDSFandRecoEffSystematicsSoftMuon(const xAOD::Muon& muon);
 
   std::shared_ptr<top::TopConfig> m_config;
 
@@ -161,10 +162,11 @@ class MuonScaleFactorCalculator final : public asg::AsgTool {
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_R21;
 
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsTool;
+  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_softmuonEfficiencyCorrectionsTool;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLoose;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolIso;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLooseIso;
-  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;
+  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;  
 
   std::string m_decor_triggerEff;
   std::string m_decor_triggerEff_loose;
@@ -175,6 +177,8 @@ class MuonScaleFactorCalculator final : public asg::AsgTool {
   std::string m_decor_isoSF;
   std::string m_decor_isoSF_loose;
   std::string m_decor_TTVA;
+  
+  std::string m_decor_softmuon_idSF;
 
   bool m_do_muon_isolation_SFs;
   bool m_do_muon_isolation_SFs_loose;

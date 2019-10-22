@@ -34,6 +34,7 @@
 #include "TopEventSelectionTools/NJetSelector.h"
 #include "TopEventSelectionTools/NJetBtagSelector.h"
 #include "TopEventSelectionTools/NMuonSelector.h"
+#include "TopEventSelectionTools/NSoftMuonSelector.h"
 #include "TopEventSelectionTools/NoBadMuonSelector.h"
 #include "TopEventSelectionTools/NMuonTightSelector.h"
 #include "TopEventSelectionTools/NPhotonSelector.h"
@@ -108,6 +109,8 @@ namespace top {
         return new top::NFwdElectronTightSelector(param);
     else if (toolname == "MU_N")
         return new top::NMuonSelector(param);
+    else if (toolname == "SOFTMU_N")
+        return new top::NSoftMuonSelector(param);
     else if (toolname == "MU_N_TIGHT")
         return new top::NMuonTightSelector(param);
     else if (toolname == "PH_N")

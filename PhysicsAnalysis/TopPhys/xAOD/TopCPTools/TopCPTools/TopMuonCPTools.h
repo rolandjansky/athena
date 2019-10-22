@@ -59,6 +59,9 @@ class MuonCPTools final : public asg::AsgTool {
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLooseIso;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolPromptLeptonIso;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;
+  
+  ToolHandle<CP::IMuonSelectionTool> m_softmuonSelectionTool;
+  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_softmuonEfficiencyCorrectionsTool;
 
 
 

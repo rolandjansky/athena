@@ -23,6 +23,7 @@ namespace top {
     m_systNominal(CP::SystematicSet()),
 
     m_muonEfficiencyCorrectionsTool("CP::MuonEfficiencyScaleFactorsTool"),
+    m_softmuonEfficiencyCorrectionsTool("CP::SoftMuonEfficiencyScaleFactorsTool"),
     m_muonEfficiencyCorrectionsToolLoose("CP::MuonEfficiencyScaleFactorsToolLoose"),
     m_muonEfficiencyCorrectionsToolIso("CP::MuonEfficiencyScaleFactorsToolIso"),
     m_muonEfficiencyCorrectionsToolLooseIso("CP::MuonEfficiencyScaleFactorsToolLooseIso"),
@@ -33,6 +34,8 @@ namespace top {
     m_decor_idSF("SetMe"), m_decor_idSF_loose("SetMe"),
     m_decor_isoSF("SetMe"), m_decor_isoSF_loose("SetMe"),
     m_decor_TTVA("MU_SF_TTVA"),
+    
+    m_decor_softmuon_idSF("SetMe"),
 
     m_do_muon_isolation_SFs(true),
     m_do_muon_isolation_SFs_loose(true),
@@ -92,6 +95,13 @@ namespace top {
 
     this->retrieveSystematicTool(m_muonEfficiencyCorrectionsTool,
 				 recommended_systematics);
+				 
+    if(m_config->useSoftMuons())
+    {
+		this->retrieveSystematicTool(m_softmuonEfficiencyCorrectionsTool,
+				 recommended_systematics);
+	}
+				 
     this->retrieveSystematicTool(m_muonEfficiencyCorrectionsToolLoose,
 				 recommended_systematics);
 
@@ -141,6 +151,8 @@ namespace top {
     m_decor_idSF_loose       = "MU_SF_ID_"        + m_config->muonQualityLoose();
     m_decor_isoSF            = "MU_SF_Isol_"      + m_config->muonIsolationSF();
     m_decor_isoSF_loose      = "MU_SF_Isol_"      + m_config->muonIsolationSFLoose();
+    
+    m_decor_softmuon_idSF             = "SOFTMU_SF_ID_"        + m_config->softmuonQuality();
 
     return StatusCode::SUCCESS;
   }
@@ -192,7 +204,7 @@ namespace top {
       ATH_MSG_DEBUG("RunNumber (0 < 2015 < 284484 < 2016 < 324320 < 2017) : ");
       ATH_MSG_DEBUG(runNumber);
 
-    }
+    }//end of if (m_config->doPileupReweighting())
 
     ///-- Loop over all muon collections --///
     for (auto currentSystematic : *m_config->systSgKeyMapMuons()) {
@@ -319,6 +331,49 @@ namespace top {
         this->decorateTTVASystematics(*muonPtr);
       }
     }
+    
+    ///-- Loop over all soft muon collections --///
+    for (const std::pair<std::size_t,std::string> &currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
+
+      const xAOD::MuonContainer* softmuons(nullptr);
+      top::check(evtStore()->retrieve(softmuons, currentSystematic.second),
+                 "Failed to retrieve softmuons");
+
+      /// -- Loop over all soft muons in each collection --///
+      for (const xAOD::Muon* muonPtr : *softmuons) {
+        /// -- Does the soft muon pass object selection? --///
+        bool passSelection(false);
+        if (muonPtr->isAvailable<char>("passPreORSelection")) {
+          if (muonPtr->auxdataConst<char>("passPreORSelection") == 1) {
+            passSelection = true;
+          }
+        }
+        
+        if (!passSelection) continue;
+        
+        // Tell the SF tools to use the nominal systematic
+        // To be extra sure we do this when we try and get a SF too!
+        this->applySystematicVariation(m_softmuonEfficiencyCorrectionsTool, m_systNominal);
+        
+        // Reco efficiency and ID SF decorations
+        static SG::AuxElement::Decorator<float> id_sf_decor(m_decor_softmuon_idSF);
+
+        this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                     m_systNominal, *muonPtr,
+                                     id_sf_decor);
+                                     
+        // If we are running on the nominal tree, then do the
+        // SF systematic variations too.
+        // Otherwise just move onto the next muon...
+        if (currentSystematic.first != m_config->nominalHashValue()) continue;
+
+        // ID systematics
+        this->decorateIDSFandRecoEffSystematicsSoftMuon(*muonPtr);
+  
+	   }//end of loop on soft muons
+        
+	}
+    
     return StatusCode::SUCCESS;
   }
 
@@ -665,5 +720,64 @@ namespace top {
     this->decorateIDSFandRecoEff(m_muonEfficiencyCorrectionsToolLoose,
                                  m_reco_syst_lowpt_DOWN, muon,
                                  id_sf_loose_decor_syst_lowpt_down);
+  }
+  
+  void MuonScaleFactorCalculator::decorateIDSFandRecoEffSystematicsSoftMuon(const xAOD::Muon& muon) {
+    static SG::AuxElement::Decorator<float> id_sf_decor_stat_up(m_decor_softmuon_idSF + "_STAT_UP");
+
+    static SG::AuxElement::Decorator<float> id_sf_decor_stat_down(m_decor_softmuon_idSF + "_STAT_DOWN");
+
+    static SG::AuxElement::Decorator<float> id_sf_decor_syst_up(m_decor_softmuon_idSF + "_SYST_UP");
+
+    static SG::AuxElement::Decorator<float> id_sf_decor_syst_down(m_decor_softmuon_idSF + "_SYST_DOWN");
+
+
+    ///-- Stat UP --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_stat_UP, muon,
+                                 id_sf_decor_stat_up);
+
+    ///-- Stat DOWN --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_stat_DOWN, muon,
+                                 id_sf_decor_stat_down);
+
+    ///-- Syst UP --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_syst_UP, muon,
+                                 id_sf_decor_syst_up);
+
+    ///-- Syst DOWN --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_syst_DOWN, muon,
+                                 id_sf_decor_syst_down);
+
+    static SG::AuxElement::Decorator<float> id_sf_decor_stat_lowpt_up(m_decor_softmuon_idSF + "_STAT_LOWPT_UP");
+
+    static SG::AuxElement::Decorator<float> id_sf_decor_stat_lowpt_down(m_decor_softmuon_idSF + "_STAT_LOWPT_DOWN");
+
+    static SG::AuxElement::Decorator<float> id_sf_decor_syst_lowpt_up(m_decor_softmuon_idSF + "_SYST_LOWPT_UP");
+
+    static SG::AuxElement::Decorator<float> id_sf_decor_syst_lowpt_down(m_decor_softmuon_idSF + "_SYST_LOWPT_DOWN");
+
+    ///-- Stat UP --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_stat_lowpt_UP, muon,
+                                 id_sf_decor_stat_lowpt_up);
+
+    ///-- Stat DOWN --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_stat_lowpt_DOWN, muon,
+                                 id_sf_decor_stat_lowpt_down);
+
+    ///-- Syst UP --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_syst_lowpt_UP, muon,
+                                 id_sf_decor_syst_lowpt_up);
+
+    ///-- Syst DOWN --///
+    this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
+                                 m_reco_syst_lowpt_DOWN, muon,
+                                 id_sf_decor_syst_lowpt_down);
   }
 }  // namespace top

@@ -2,8 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonObjectCollectionMaker.cxx 810751 2017-09-29 14:41:39Z iconnell $
-#include "TopSystematicObjectMaker/MuonObjectCollectionMaker.h"
+#include "TopSystematicObjectMaker/SoftMuonObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
 
@@ -18,7 +17,7 @@
 
 namespace top{
 
-  MuonObjectCollectionMaker::MuonObjectCollectionMaker( const std::string& name ) :
+  SoftMuonObjectCollectionMaker::SoftMuonObjectCollectionMaker( const std::string& name ) :
     asg::AsgTool( name ),
     m_config(nullptr),
 
@@ -26,43 +25,19 @@ namespace top{
     m_recommendedSystematics(),
 
     m_calibrationPeriodTool("CP::MuonCalibrationPeriodTool"),
-    m_isolationTool_FCTight("CP::IsolationTool_FCTight"),
-    m_isolationTool_FCLoose("CP::IsolationTool_FCLoose"),
-    m_isolationTool_FCTightTrackOnly("CP::IsolationTool_FCTightTrackOnly"),
-    m_isolationTool_FCTightTrackOnly_FixedRad("CP::IsolationTool_FCTightTrackOnly_FixedRad"),
-    m_isolationTool_FCLoose_FixedRad("CP::IsolationTool_FCLoose_FixedRad"),
-    m_isolationTool_FCTight_FixedRad("CP::IsolationTool_FCTight_FixedRad"),
-    m_isolationTool_FixedCutPflowTight("CP::IsolationTool_FixedCutPflowTight"),
-    m_isolationTool_FixedCutPflowLoose("CP::IsolationTool_FixedCutPflowLoose"),
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto")
   {
     declareProperty( "config" , m_config );
 
     declareProperty( "MuonCalibrationPeriodTool" ,       m_calibrationPeriodTool );
-    declareProperty( "IsolationTool_FCTight" ,                m_isolationTool_FCTight );
-    declareProperty( "IsolationTool_FCLoose" ,                m_isolationTool_FCLoose );
-    declareProperty( "IsolationTool_FCTightTrackOnly" ,       m_isolationTool_FCTightTrackOnly );
-    declareProperty( "IsolationTool_FCTightTrackOnly_FixedRad" ,m_isolationTool_FCTightTrackOnly_FixedRad );
-    declareProperty( "IsolationTool_FCLoose_FixedRad" ,m_isolationTool_FCLoose_FixedRad );
-    declareProperty( "IsolationTool_FCTight_FixedRad" ,m_isolationTool_FCTight_FixedRad );
-    declareProperty( "IsolationTool_FixedCutPflowTight" ,m_isolationTool_FixedCutPflowTight );
-    declareProperty( "IsolationTool_FixedCutPflowLoose" ,m_isolationTool_FixedCutPflowLoose );
     declareProperty( "MuonSelectionToolVeryLooseVeto" ,       m_muonSelectionToolVeryLooseVeto );
   }
 
-  StatusCode MuonObjectCollectionMaker::initialize()
+  StatusCode SoftMuonObjectCollectionMaker::initialize()
   {
-    ATH_MSG_INFO(" top::MuonObjectCollectionMaker initialize" );
+    ATH_MSG_INFO(" top::SoftMuonObjectCollectionMaker initialize" );
 
     top::check( m_calibrationPeriodTool.retrieve()     , "Failed to retrieve muon calibration tool" );
-    top::check( m_isolationTool_FCTight.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FCLoose.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FCTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FCTightTrackOnly_FixedRad.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FCLoose_FixedRad.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FCTight_FixedRad.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FixedCutPflowTight.retrieve() , "Failed to retrieve Isolation Tool" );
-    top::check( m_isolationTool_FixedCutPflowLoose.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_muonSelectionToolVeryLooseVeto.retrieve() , "Failed to retrieve Selection Tool" );
 
     ///-- Set Systematics Information --///
@@ -72,31 +47,34 @@ namespace top{
     if( !m_config->isSystNominal(syststr) && !m_config->isSystAll(syststr)){
       bool ok = m_config->getSystematicsList(syststr, syst);
       if (!ok) {
-        ATH_MSG_ERROR(" top::MuonObjectCollectionMaker could not determine systematic list" );
+        ATH_MSG_ERROR(" top::SoftMuonObjectCollectionMaker could not determine systematic list" );
         return StatusCode::FAILURE;
       }
       //here the idea is that if the user specifies AllXXX, we leave syst as an empty string, so that all recommended CP systematics are then used
       if (m_config->contains(syst, "AllMuons")) {
         syst.clear();
       }
+      if (m_config->contains(syst, "AllSoftMuons")) {
+        syst.clear();
+      }
     }
 
     specifiedSystematics( syst );
 
-    m_config->systematicsMuons( specifiedSystematics() );
+    m_config->systematicsSoftMuons( specifiedSystematics() );
 
-    ATH_MSG_INFO(" top::MuonObjectCollectionMaker completed initialize" );
+    ATH_MSG_INFO(" top::SoftMuonObjectCollectionMaker completed initialize" );
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonObjectCollectionMaker::execute(bool executeNominal)
+  StatusCode SoftMuonObjectCollectionMaker::execute(bool executeNominal)
   {
 
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
-    float beam_pos_sigma_x = eventInfo->beamPosSigmaX();
-    float beam_pos_sigma_y = eventInfo->beamPosSigmaY();
-    float beam_pos_sigma_xy = eventInfo->beamPosSigmaXY();
+    const float beam_pos_sigma_x = eventInfo->beamPosSigmaX();
+    const float beam_pos_sigma_y = eventInfo->beamPosSigmaY();
+    const float beam_pos_sigma_xy = eventInfo->beamPosSigmaXY();
 
     ///--- Need to know the year for each event until MCP have consistent recommendations for all years ---///
     unsigned int runnumber = -999999;
@@ -111,7 +89,8 @@ namespace top{
 
     ///-- Get base muons and tracks from xAOD --///
     const xAOD::MuonContainer* xaod(nullptr);
-    top::check( evtStore()->retrieve( xaod , m_config->sgKeyMuons() ) , "Failed to retrieve Muons" );
+
+    top::check( evtStore()->retrieve( xaod , m_config->sgKeyMuons() ) , "Failed to retrieve Soft Muons" );  //we use sgKeyMuons and not sgKeySoftMuons on purpose to use the same collection for muons and soft muons
 
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematics ){
@@ -127,7 +106,7 @@ namespace top{
       std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer( *xaod );
 
       ///-- Loop over the xAOD Container and apply corrections--///
-      for( auto muon : *(shallow_xaod_copy.first) ){
+      for( xAOD::Muon* muon : *(shallow_xaod_copy.first) ){
 
         ///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
@@ -150,47 +129,18 @@ namespace top{
             }
           }
         }
+	}//end of loop on muons
 
-//        ///-- Isolation selection --///
-        char passIsol_FCTight(0),passIsol_FCLoose(0),passIsol_FCTightTrackOnly(0);
-        char passIsol_FCTightTrackOnly_FixedRad(0),passIsol_FCLoose_FixedRad(0),passIsol_FCTight_FixedRad(0);
-        char passIsol_FixedCutPflowTight(0),passIsol_FixedCutPflowLoose(0);
-
-        if (m_isolationTool_FCTight->accept( *muon )) {passIsol_FCTight = 1;}
-        if (m_isolationTool_FCLoose->accept( *muon )) {passIsol_FCLoose = 1;}
-        if (m_isolationTool_FCTightTrackOnly->accept( *muon )) {passIsol_FCTightTrackOnly = 1;}
-        if (m_isolationTool_FCTightTrackOnly_FixedRad->accept( *muon )) {passIsol_FCTightTrackOnly_FixedRad = 1;}
-        if (m_isolationTool_FCLoose_FixedRad->accept( *muon )) {passIsol_FCLoose_FixedRad = 1;}
-        if (m_isolationTool_FCTight_FixedRad->accept( *muon )) {passIsol_FCTight_FixedRad = 1;}
-        if (m_isolationTool_FixedCutPflowTight->accept( *muon )) {passIsol_FixedCutPflowTight = 1;}
-        if (m_isolationTool_FixedCutPflowLoose->accept( *muon )) {passIsol_FixedCutPflowLoose = 1;}
-
-        muon->auxdecor<char>("AnalysisTop_Isol_FCTight") = passIsol_FCTight;
-        muon->auxdecor<char>("AnalysisTop_Isol_FCLoose") = passIsol_FCLoose;
-        muon->auxdecor<char>("AnalysisTop_Isol_FCTightTrackOnly") = passIsol_FCTightTrackOnly;
-        muon->auxdecor<char>("AnalysisTop_Isol_FCTightTrackOnly_FixedRad") = passIsol_FCTightTrackOnly_FixedRad;
-        muon->auxdecor<char>("AnalysisTop_Isol_FCLoose_FixedRad") = passIsol_FCLoose_FixedRad;
-        muon->auxdecor<char>("AnalysisTop_Isol_FCTight_FixedRad") = passIsol_FCTight_FixedRad;
-        muon->auxdecor<char>("AnalysisTop_Isol_FixedCutPflowTight") = passIsol_FixedCutPflowTight;
-        muon->auxdecor<char>("AnalysisTop_Isol_FixedCutPflowLoose") = passIsol_FixedCutPflowLoose;
-
-        // PromptLeptonIsolation - Some protection incase things change in R21
-        if(muon->isAvailable<float>("PromptLeptonIso_TagWeight")){
-          muon->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = (muon->auxdata<float>("PromptLeptonIso_TagWeight") < -0.5) ? 1 : 0;
-        }
-        else{
-          muon->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = 0;
-        }
-
-      }
-
-      ///-- set links to original objects- needed for MET calculation --///
+      ///-- set links to original objects ///
       bool setLinks = xAOD::setOriginalObjectLink( *xaod, *shallow_xaod_copy.first );
       if (!setLinks)
-        ATH_MSG_ERROR(" Cannot set original object links for muons, MET recalculation may struggle" );
+      {
+        ATH_MSG_ERROR(" Cannot set original object links for soft muons" );
+        return StatusCode::FAILURE;
+	  }
 
       ///-- Save corrected xAOD Container to StoreGate / TStore --///
-      std::string outputSGKey = m_config->sgKeyMuons( systematic.hash() );
+      std::string outputSGKey = m_config->sgKeySoftMuons( systematic.hash() );
       std::string outputSGKeyAux = outputSGKey + "Aux.";
 
       xAOD::TReturnCode save = evtStore()->tds()->record( shallow_xaod_copy.first , outputSGKey );
@@ -203,16 +153,16 @@ namespace top{
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonObjectCollectionMaker::printout()
+  StatusCode SoftMuonObjectCollectionMaker::printout()
   {
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematics ){
       const xAOD::MuonContainer* xaod(nullptr);
-      top::check( evtStore()->retrieve( xaod , m_config->sgKeyMuons( systematic.hash() ) ) , "Failed to retrieve Muons" );
+      top::check( evtStore()->retrieve( xaod , m_config->sgKeySoftMuons( systematic.hash() ) ) , "Failed to retrieve Soft Muons" );
 
-      ATH_MSG_INFO(" Muons with sgKey = "<< m_config->sgKeyMuons( systematic.hash() ) );
+      ATH_MSG_INFO(" Soft Muons with sgKey = "<< m_config->sgKeySoftMuons( systematic.hash() ) );
       for( auto muon : *xaod ){
-        ATH_MSG_INFO("   MU pT , eta  = "<< muon->pt() <<" , "<< muon->eta() );
+        ATH_MSG_INFO("   SOFT MU pT , eta  = "<< muon->pt() <<" , "<< muon->eta() );
       }
     }
 
@@ -220,12 +170,12 @@ namespace top{
   }
 
 
-  void MuonObjectCollectionMaker::specifiedSystematics( const std::set<std::string>& specifiedSystematics )
+  void SoftMuonObjectCollectionMaker::specifiedSystematics( const std::set<std::string>& specifiedSystematics )
   {
     ///-- Get the recommended systematics from the tool, in std::vector format --///
     const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector( m_calibrationPeriodTool->recommendedSystematics() );
 
-    for (auto s : systList) {
+    for (const CP::SystematicSet& s : systList) {
       m_recommendedSystematics.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematics.push_back(s);
