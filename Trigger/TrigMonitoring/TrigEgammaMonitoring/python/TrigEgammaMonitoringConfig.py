@@ -31,11 +31,11 @@ log_trigeg = logging.getLogger( 'TrigEgammaMonitoringConfig' )
 
 from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool
-from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import EfficiencyTool, ResolutionTool, DistTool, TrigEgammaPlotTool
-from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
+from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import EfficiencyTool, ResolutionTool, DistTool #, TrigEgammaPlotTool
+#from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
 
-# Move the ProbeList into MonitCategory to keep all configuration in TrigEgammaMonitoring 
-from TrigEgammaMonitoring.TrigEgammaMonitCategory import * 
+# Move the ProbeList into MonitCategory to keep all configuration in TrigEgammaMonitoring
+from TrigEgammaMonitoring.TrigEgammaMonitCategory import *
 
 if not 'DQMonFlags' in dir():
     from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
@@ -45,7 +45,7 @@ if not 'DQMonFlags' in dir():
 class TrigEgammaMonToolBuilder:
     _configured = False
     _get_monitoring_mode_success = False
-    
+
     pp_mode = False
     pPb_mode = False
     HI_mode = False
@@ -56,7 +56,7 @@ class TrigEgammaMonToolBuilder:
     basePath = 'HLT/Egamma'
     debugLevel = INFO
     detailLevel = False
-    
+
     # Add a flag to enable emulation
     __acceptable_keys_list=['derivation','emulation']
     emulation = False
@@ -64,13 +64,13 @@ class TrigEgammaMonToolBuilder:
 
     tagItems = []
     JpsitagItems = []
-    
+
     electronList = []
     photonList = []
     tpList = []
     jpsiList = []
     mam = {}
-    
+
     monTool=[]
 
     def __init__(self,**kwargs):
@@ -86,7 +86,7 @@ class TrigEgammaMonToolBuilder:
             self.config()
             print('monTool')
             print(self.monTool)
-        
+
     def config(self):
         log_trigeg.info("TrigEgammaMonToolBuilder.config()")
         self._get_monitoring_mode_success = self.get_monitoring_mode()
@@ -103,10 +103,10 @@ class TrigEgammaMonToolBuilder:
     def get_monitoring_mode(self):
         log_trigeg.info("TrigEgammaMonToolBuilder.get_monitoring_mode()")
         self.data_type = dqflags.monManDataType()
-        if self.data_type == 'monteCarlo': 
+        if self.data_type == 'monteCarlo':
             self.mc_mode = True
             return True
-        elif self.data_type == 'collisions': 
+        elif self.data_type == 'collisions':
             self.pp_mode = True
             return True
         elif self.data_type == 'heavyioncollisions':
@@ -123,8 +123,8 @@ class TrigEgammaMonToolBuilder:
         log_trigeg.info("TrigEgammaMonToolBuilder.setProperties()")
         self.basePath = 'HLT/Egamma'
         self.debug = INFO
-        self.tagItems = monitoring_tags 
-        self.JpsitagItems = monitoring_jpsitags 
+        self.tagItems = monitoring_tags
+        self.JpsitagItems = monitoring_jpsitags
         if self.pp_mode == True:
             self.setDefaultProperties()
         elif self.cosmic_mode == True:
@@ -159,13 +159,13 @@ class TrigEgammaMonToolBuilder:
 
     def configureElectronMonTool(self,plotTool,toolList):
         log_trigeg.info("TrigEgammaMonToolBuilder.configureElectronMonTool()")
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += plotTool()
-        for t in toolList:
-            ToolSvc += t()
+        #from AthenaCommon.AppMgr import ToolSvc
+        #ToolSvc += plotTool()
+        #for t in toolList:
+        #    ToolSvc += t()
         ElectronAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaElectronAnalysis',
                 Analysis='Electrons',
-                PlotTool=plotTool,
+                #PlotTool=plotTool,
                 Tools=toolList,
                 TriggerList=self.electronList,
                 ForceProbeIsolation=True,
@@ -173,22 +173,27 @@ class TrigEgammaMonToolBuilder:
                 File="",
                 OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
 
+        return [ ElectronAnalysis ]
+
     def configurePhotonMonTool(self,plotTool,toolList):
         PhotonAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaPhotonAnalysis',
             Analysis='Photons',
-            PlotTool=plotTool,
+            #PlotTool=plotTool,
             Tools=toolList,
             TriggerList=self.photonList,
             File="",
             OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
 
-    def configureTPMonTool(self,plotTool,toolList):    
+        return [ PhotonAnalysis ]
+
+
+    def configureTPMonTool(self,plotTool,toolList):
         if self.emulation == True:
             from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig import TrigEgammaEmulationTool
             HLTEgammaEmulationTool=TrigEgammaEmulationTool.copy(name="TrigEgammaEmulationTool",TriggerList=self.tpList)
             TPAnalysis = TrigEgammaNavTPAnalysisTool(name='HLTEgammaTPAnalysis',
                 Analysis='Zee',
-                PlotTool=plotTool,
+                #PlotTool=plotTool,
                 EmulationTool=HLTEgammaEmulationTool,
                 doEmulation=True,
                 Tools=toolList,
@@ -201,7 +206,7 @@ class TrigEgammaMonToolBuilder:
         else:
             TPAnalysis = TrigEgammaNavTPAnalysisTool(name='HLTEgammaTPAnalysis',
                 Analysis='Zee',
-                PlotTool=plotTool,
+                #PlotTool=plotTool,
                 Tools=toolList,
                 TriggerList=self.tpList,
                 DefaultProbePid="LHMedium",
@@ -211,90 +216,111 @@ class TrigEgammaMonToolBuilder:
                 TagTriggerList=self.tagItems,
                 RemoveCrack=False,
                 OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
-  
-    def configureJpsiMonTool(self,plotTool,toolList):        
+
+        return [ TPAnalysis ]
+
+    def configureJpsiMonTool(self,plotTool,toolList):
         JpsiTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='HLTEgammaTPJpsieeAnalysis',
                                                             Analysis='Jpsiee',
-                                                            PlotTool=plotTool,
+                                                            #PlotTool=plotTool,
                                                             Tools=toolList,
                                                             TriggerList=self.jpsiList,
                                                             File="",
                                                             OfflineTagSelector='LHTight',
                                                             #OfflineProbeSelector='LHMedium',
                                                             TagTriggerList= self.JpsitagItems)
-    def configureAllMonTools(self,plotTool,toolList):        
-        self.configureElectronMonTool(plotTool,toolList)
-        self.configurePhotonMonTool(plotTool,toolList)
-        self.configureTPMonTool(plotTool,toolList)
-        self.configureJpsiMonTool(plotTool,toolList)
-    
-    def configureTools(self):
-        HLTEgammaPlotTool = TrigEgammaPlotTool.copy(name="HLTEgammaPlotTool",
-                DirectoryPath=self.basePath,
-                MaM=self.mam,
-                Efficiency=plots_efficiency,
-                Distribution=plots_distribution,
-                Resolution=plots_resolution,
-                OutputLevel=self.debugLevel)
 
-        HLTEgammaEffTool = EfficiencyTool.copy(name="HLTEgammaEffTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
-        HLTEgammaResTool = ResolutionTool.copy(name="HLTEgammaResTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
-        HLTEgammaDistTool = DistTool.copy(name="HLTEgammaDistTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
-        
+        return [ JpsiTPAnalysis ]
+
+
+    def configureAllMonTools(self,plotTool,toolList):
+        res = []
+        res += self.configureElectronMonTool(plotTool,toolList)
+        res += self.configurePhotonMonTool(plotTool,toolList)
+        res += self.configureTPMonTool(plotTool,toolList)
+        res += self.configureJpsiMonTool(plotTool,toolList)
+
+        return res
+
+    def configureTools(self):
+        HLTEgammaPlotTool = None
+        # Not used in Run 3
+        #TrigEgammaPlotTool.copy(name="HLTEgammaPlotTool",
+        #        DirectoryPath=self.basePath,
+        #        MaM=self.mam,
+        #        Efficiency=plots_efficiency,
+        #        Distribution=plots_distribution,
+        #        Resolution=plots_resolution,
+        #        OutputLevel=self.debugLevel)
+
+        HLTEgammaEffTool = EfficiencyTool.copy(name="HLTEgammaEffTool",
+                                               #PlotTool=HLTEgammaPlotTool,
+                                               OutputLevel=self.debugLevel)
+        HLTEgammaResTool = ResolutionTool.copy(name="HLTEgammaResTool",
+                                               #PlotTool=HLTEgammaPlotTool,
+                                               OutputLevel=self.debugLevel)
+        HLTEgammaDistTool = DistTool.copy(name="HLTEgammaDistTool",
+                                          #PlotTool=HLTEgammaPlotTool,
+                                          OutputLevel=self.debugLevel)
+
         toolList = [HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool]
         # For MaM, most important is the list of triggers to monitor
         # Use the MaM categories from those lists
-        
-        # Since we load the tools by name below 
-        # Need to ensure the correct tools are configured 
+
+        # Since we load the tools by name below
+        # Need to ensure the correct tools are configured
         # for each monitoring mode
+        res = []
         if self.mc_mode == True or self.pp_mode == True:
             if(self.derivation == True or self.emulation == True):
-                self.configureTPMonTool(HLTEgammaPlotTool,toolList)
+                res += self.configureTPMonTool(HLTEgammaPlotTool,toolList)
             else:
-                self.configureAllMonTools(HLTEgammaPlotTool,toolList)
+                res += self.configureAllMonTools(HLTEgammaPlotTool,toolList)
         elif self.HI_mode == True or self.pPb_mode == True or self.cosmic_mode == True:
-            self.configureElectronMonTool(HLTEgammaPlotTool,toolList)
-            self.configurePhotonMonTool(HLTEgammaPlotTool,toolList)
+            res += self.configureElectronMonTool(HLTEgammaPlotTool,toolList)
+            res += self.configurePhotonMonTool(HLTEgammaPlotTool,toolList)
         else:
-            self.configureAllMonTools(HLTEgammaPlotTool,toolList)
-        
-  
-    def configureDefaultMonTool(self):
-        log_trigeg.info("Default configuration of HLTEgammaMon")
-        tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
-                histoPathBase=self.basePath,
-                IgnoreTruncationCheck=True,
-                Tools=[ "TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
-                        "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis",
-                        "TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis",
-                        "TrigEgammaNavTPAnalysisTool/HLTEgammaTPJpsieeAnalysis"])
-        return tool 
-        
-    def configureMonTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        toolList=['TrigEgammaMonTool/HLTEgammaMon'];
-        if self.mc_mode == True or self.pp_mode == True:
-            if(self.derivation == True or self.emulation==True):
-                tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
-                        histoPathBase=self.basePath,
-                        IgnoreTruncationCheck=True,
-                        Tools=["TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis"])
-            else:
-                tool = self.configureDefaultMonTool()
-        elif self.HI_mode == True or self.pPb_mode == True:
-            tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
-                    histoPathBase=self.basePath,
-                    IgnoreTruncationCheck=True,
-                    Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
-                            "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-        elif self.cosmic_mode == True:
-            tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
-                    histoPathBase=self.basePath,
-                    IgnoreTruncationCheck=True,
-                    Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
-                            "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
-        else:
-            tool = self.configureDefaultMonTool()
-        
-        return [tool]
+            res += self.configureAllMonTools(HLTEgammaPlotTool,toolList)
+
+        return res
+
+    # Not used in Run3
+    #def configureDefaultMonTool(self):
+    #    log_trigeg.info("Default configuration of HLTEgammaMon")
+    #    tool = TrigEgammaMonTool( name = "HLTEgammaMon",
+    #            histoPathBase=self.basePath,
+    #            IgnoreTruncationCheck=True,
+    #            Tools=[ "TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
+    #                    "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis",
+    #                    "TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis",
+    #                    "TrigEgammaNavTPAnalysisTool/HLTEgammaTPJpsieeAnalysis"])
+    #    return tool
+
+    # Not used in Run3
+    #def configureMonTool(self):
+    #    from AthenaCommon.AppMgr import ToolSvc
+    #    toolList=['TrigEgammaMonTool/HLTEgammaMon'];
+    #    if self.mc_mode == True or self.pp_mode == True:
+    #        if(self.derivation == True or self.emulation==True):
+    #            tool = TrigEgammaMonTool( name = "HLTEgammaMon",
+    #                    histoPathBase=self.basePath,
+    #                    IgnoreTruncationCheck=True,
+    #                    Tools=["TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis"])
+    #        else:
+    #            tool = self.configureDefaultMonTool()
+    #    elif self.HI_mode == True or self.pPb_mode == True:
+    #        tool = TrigEgammaMonTool( name = "HLTEgammaMon",
+    #                histoPathBase=self.basePath,
+    #                IgnoreTruncationCheck=True,
+    #                Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
+    #                        "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
+    #    elif self.cosmic_mode == True:
+    #        tool = TrigEgammaMonTool( name = "HLTEgammaMon",
+    #                histoPathBase=self.basePath,
+    #                IgnoreTruncationCheck=True,
+    #                Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
+    #                        "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
+    #    else:
+    #        tool = self.configureDefaultMonTool()
+    #
+    #    return [tool]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaNavTPAnalysisTool_H
@@ -15,12 +15,12 @@ class TrigEgammaNavTPAnalysisTool
 public:
 
   TrigEgammaNavTPAnalysisTool( const std::string& myname );
-  ~TrigEgammaNavTPAnalysisTool() {};
+  virtual ~TrigEgammaNavTPAnalysisTool() {};
 
-  StatusCode childInitialize ();
-  StatusCode childBook();
-  StatusCode childExecute();
-  StatusCode childFinalize();
+  virtual StatusCode childInitialize () override;
+  virtual StatusCode childBook() override;
+  virtual StatusCode childExecute() override;
+  virtual StatusCode childFinalize() override;
 
 private:
 

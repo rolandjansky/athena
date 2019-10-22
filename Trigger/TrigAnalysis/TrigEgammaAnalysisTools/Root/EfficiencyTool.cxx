@@ -16,7 +16,7 @@
 #include <boost/foreach.hpp>
 //**********************************************************************
 
-EfficiencyTool::EfficiencyTool(const std::string& myname): 
+EfficiencyTool::EfficiencyTool(const std::string& myname):
     TrigEgammaAnalysisBaseTool(myname)
 {
     m_detailedHists=false;
@@ -51,24 +51,24 @@ bool EfficiencyTool::analyseIsEMLH(const xAOD::Electron *eg, const std::string p
 
     bool failIsEMLH = true;
     try{
-	    ATH_MSG_DEBUG("Running selectionisEM("<<pidword<<")");
-	    unsigned int isem = eg->selectionisEM(pidword);
+        ATH_MSG_DEBUG("Running selectionisEM("<<pidword<<")");
+        unsigned int isem = eg->selectionisEM(pidword);
 
-	    failIsEMLH = false;
-	    for (int ii = 0; ii < 11; ii++) {
-	        if ((isem >> ii) & 0x1) {
-	    	failIsEMLH = true;
-	    	hist1(fail)->Fill(ii + 0.5);
-	    	hist1(ineff)->Fill(ii + 3.5, 1);
-	        }
-	    }
+        failIsEMLH = false;
+        for (int ii = 0; ii < 11; ii++) {
+            if ((isem >> ii) & 0x1) {
+            failIsEMLH = true;
+            hist1(fail)->Fill(ii + 0.5);
+            hist1(ineff)->Fill(ii + 3.5, 1);
+            }
+        }
     } catch (const ValidationException &e) {
-	    ATH_MSG_WARNING("Exception thrown: " << e.msg() );
-	    ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
-	    failIsEMLH = true;
+        ATH_MSG_WARNING("Exception thrown: " << e.msg() );
+        ATH_MSG_WARNING("Is " << pidword << " is a valid one? returning failed....");
+        failIsEMLH = true;
     } catch(...) {
-	    ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
-	    failIsEMLH = true;
+        ATH_MSG_WARNING("Unknown exception caught in analyseIsEMLH ... Is " << pidword << " is a valid one? returning failed....");
+        failIsEMLH = true;
     }
     return failIsEMLH;
 
@@ -155,7 +155,7 @@ void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string 
     // Fill Reco efficiency (find a nearby object)
     /*if(clus) hist1("eff_hltreco")->Fill("Cluster", 1);
     else hist1("eff_hltreco")->Fill("Cluster",0);
-    
+
     if(trk) hist1("eff_hltreco")->Fill("Track", 1);
     else hist1("eff_hltreco")->Fill("Track",0);
 
@@ -164,12 +164,12 @@ void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string 
 
     if(selEF) hist1("eff_hltreco")->Fill("Electron", 1);
     else hist1("eff_hltreco")->Fill("Electron",0);*/
-   
+
     std::bitset<4> reco; //Electron, cluster, track, photon
 
     bool failiso = false;
     bool failbits = false;
-    
+
     if(selEF != nullptr) reco.set(0);
     if(clus != nullptr) reco.set(1);
     if(trk != nullptr) reco.set(2);
@@ -248,31 +248,31 @@ void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string 
         }
 
         // hist1(ineff)->Fill(n + 12.5, 1); // total (HLT)
-        
+
         // if(reco.test(3) && reco.test(1)) hist1(ineff)->Fill(n + 7.5, 1); //Has cluster and photon --> should be same as cluster only?
-        
+
         float lastbinfail = hist1(fail)->GetNbinsX() - 1;
         hist1(fail)->Fill(lastbinfail + 0.5);
-      
+
         if (selPh == nullptr) ATH_MSG_DEBUG("fillIneffiency::No photon found!");
         if (selEF != nullptr){
             ATH_MSG_DEBUG("REGTEST::Inefficiency Electron pt, eta, phi "<< selEF->pt() << " " << selEF->eta() << " " << selEF->phi());
         }
         else {
             if (trk == nullptr && clus != nullptr){
-                ATH_MSG_DEBUG("fillInefficiency::No Electron, nearby cluster"); 
+                ATH_MSG_DEBUG("fillInefficiency::No Electron, nearby cluster");
                 // No electron candidate but we have photon
                 // Do something for hasCluster
                 hist1(fail)->Fill((lastbinfail - 3) + 0.5);
             }
             if (clus == nullptr && trk != nullptr){
-                ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster"); 
+                ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster");
                 // No electron candidate but we have photon
                 // Do something for hasCluster
                 hist1(fail)->Fill((lastbinfail - 2) + 0.5);
             }
             if (clus == nullptr && trk == nullptr){
-                ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster"); 
+                ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster");
                 // Unknown failure
                 hist1(fail)->Fill((lastbinfail - 1) + 0.5);
             }
@@ -284,7 +284,7 @@ void EfficiencyTool::fillInefficiency(const std::string& pid, const std::string 
     hist1(ineff)->Fill(lastbin, 1);
 }
 
-void EfficiencyTool::inefficiency(const std::string& pid, const std::string basePath,const float etthr, 
+void EfficiencyTool::inefficiency(const std::string& pid, const std::string basePath,const float etthr,
                                   std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,
                                   const asg::AcceptData& acceptData)
 {
@@ -293,7 +293,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
     // Inefficiency analysis
     float et = 0.0;
     const xAOD::Egamma* eg = pairObj.first;
-    const HLT::TriggerElement *feat = pairObj.second; 
+    const HLT::TriggerElement *feat = pairObj.second;
     if(xAOD::EgammaHelpers::isElectron(pairObj.first)){
         ATH_MSG_DEBUG("Offline Electron");
         const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
@@ -304,7 +304,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
     float eta = eg->eta();
     float phi = eg->phi();
     ATH_MSG_DEBUG("INEFF::Offline et, eta, phi " << et << " " << eta << " " << phi);
-    
+
     const xAOD::Electron* selEF = nullptr;
     const xAOD::Photon* selPh = nullptr;
     const xAOD::CaloCluster* selClus = nullptr;
@@ -325,7 +325,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
         hist1("eff_triggerstep")->Fill("HLT",acceptData.getCutResult("HLT"));
 
         // Fill efficiency plot for HLT trigger steps
-        if(!acceptData.getCutResult("HLT")/* || !acceptData.getCutResult("EFTrack")*/ || !acceptData.getCutResult("EFCalo") || 
+        if(!acceptData.getCutResult("HLT")/* || !acceptData.getCutResult("EFTrack")*/ || !acceptData.getCutResult("EFCalo") ||
            !acceptData.getCutResult("L2") || !acceptData.getCutResult("L2Calo")) {
             ATH_MSG_DEBUG("INEFF::Retrieve features for EF containers only ");
             ATH_MSG_DEBUG("INEFF::Retrieve EF Electron");
@@ -394,7 +394,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
                     if (selPh) hist1("eff_hltreco")->Fill("PhotonMatch",1);
                     else  hist1("eff_hltreco")->Fill("PhotonMatch", 0);
                 }
-                else{ 
+                else{
                     hist1("eff_hltreco")->Fill("Photon", 0);
                     hist1("eff_hltreco")->Fill("PhotonMatch", 0);
                 }
@@ -429,7 +429,7 @@ void EfficiencyTool::inefficiency(const std::string& pid, const std::string base
                for (const auto groupname : groupnames)
                   for (int ibin = 0; ibin < hist1("IneffisEM" + pid + groupname)->GetNbinsX(); ibin++)
                       hist1("IneffisEM" + pid + groupname)->Fill(ibin + 0.5, 0);
-            }        
+            }
         }
     }
     ATH_MSG_DEBUG("End Inefficiency Analysis ======================= " << basePath);
@@ -455,7 +455,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
     float pt = eg->pt()/1e3;
     float avgmu=getAvgMu();
     float npvtx=getNPVtx();
-    ATH_MSG_DEBUG("Mu " << avgmu << " " << getAvgOnlineMu() << " "  << getAvgOfflineMu()); 
+    ATH_MSG_DEBUG("Mu " << avgmu << " " << getAvgOnlineMu() << " "  << getAvgOfflineMu());
     ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
     if(pid){
         hist1("et")->Fill(et);
@@ -521,20 +521,22 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
 StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo info, std::vector<std::pair< const xAOD::Egamma*,
                                        const HLT::TriggerElement*>> pairObjs)
 {
+    ATH_MSG_DEBUG("Executing EfficiencyTool for " << basePath);
+
     if(m_tp) return StatusCode::SUCCESS;
-    
+
     // Removing Prescale check, in reprocessing L1AfterPrescale always false
     //
     /*if(isPrescaled(info.trigName)){
         ATH_MSG_DEBUG(info.trigName << " prescaled, skipping");
-        return StatusCode::SUCCESS; 
+        return StatusCode::SUCCESS;
     }*/
-    
+
     const std::string dir = basePath+"/"+info.trigName;
     const float etthr = info.trigThrHLT;
     const std::string pidword = info.trigPidDecorator;
     const std::string pid = info.trigPidDecorator.substr(2);
-    
+
     ATH_MSG_DEBUG("Efficiency for " << info.trigName << " " <<pidword);
     for(const auto pairObj : pairObjs){
         // Final cuts done here
@@ -557,14 +559,14 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
 
 
         ATH_MSG_DEBUG("Fill probe histograms");
-        
+
         std::vector<std::string> algnames;
         algnames.push_back("Efficiency");
         if( m_doEmulation ) algnames.push_back("Emulation");
-        
+
         unsigned ialg=0;
         for (auto algname : algnames){
-          
+
           // ialg = 0 is decision from TDT tool (Efficency dir) [default]
           // ialg = 1 is decision from emulator tool (Emulation dir)
           asg::AcceptData acceptData (&getAccept());
@@ -590,7 +592,7 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
               this->fillEfficiency(dir+"/"+algname+"/L1Calo",acceptData.getCutResult("L1Calo"),etthr,pidword,pairObj.first);
           else {
               this->fillEfficiency(dir+"/"+algname+"/HLT",acceptData.getCutResult("HLT"),etthr,pidword,pairObj.first);
-              this->fillEfficiency(dir+"/"+algname+"/L2Calo",acceptData.getCutResult("L2Calo"),etthr,pidword,pairObj.first,m_detailedHists); 
+              this->fillEfficiency(dir+"/"+algname+"/L2Calo",acceptData.getCutResult("L2Calo"),etthr,pidword,pairObj.first,m_detailedHists);
               this->fillEfficiency(dir+"/"+algname+"/L2",acceptData.getCutResult("L2"),etthr,pidword,pairObj.first,m_detailedHists);
               this->fillEfficiency(dir+"/"+algname+"/EFCalo",acceptData.getCutResult("EFCalo"),etthr,pidword,pairObj.first,m_detailedHists);
               this->fillEfficiency(dir+"/"+algname+"/L1Calo",acceptData.getCutResult("L1Calo"),etthr,pidword,pairObj.first);
@@ -608,11 +610,23 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
               }
               ATH_MSG_DEBUG("Complete efficiency");
           }
-          
+
           ialg++;
         }// Loop over efficiency (and or) Emulation
 
     }// Loop over trigger electrons pairs
 
     return StatusCode::SUCCESS;
+}
+
+void EfficiencyTool::setDetail(bool doDetail) {
+    m_detailedHists = doDetail;
+}
+
+void EfficiencyTool::setTP(bool tp) {
+    m_tp = tp;
+}
+
+void EfficiencyTool::setEmulation(bool doEmu) {
+    m_doEmulation = doEmu;
 }
