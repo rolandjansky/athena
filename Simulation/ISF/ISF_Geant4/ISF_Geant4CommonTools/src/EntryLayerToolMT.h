@@ -2,18 +2,20 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOL_H
-#define ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOL_H 1
+#ifndef ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOLMT_H
+#define ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOLMT_H 1
 
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 
-// ISF interface
+// ISF interfaces
+#include "ISF_Interfaces/IParticleFilter.h"
+#include "ISF_Interfaces/IGeoIDSvc.h"
 #include "ISF_Interfaces/IEntryLayerTool.h"
+#include "G4AtlasTools/ThreadLocalHolder.h"
 
 // TrackRecordCollection (and TrackRecord)
 #include "TrackRecord/TrackRecordCollection.h"
@@ -23,8 +25,6 @@
 
 namespace ISF {
   class ISFParticle;
-  class IParticleFilter;
-  class IGeoIDSvc;
 }
 
 namespace ISF {
@@ -38,25 +38,25 @@ namespace ISF {
       @author Elmar.Ritsch -at- cern.ch
   */
 
-  class EntryLayerTool : public extends<AthAlgTool, ISF::IEntryLayerTool, IIncidentListener> {
+  class EntryLayerToolMT : public extends<AthAlgTool, ISF::IEntryLayerTool> {
 
   public:
     /** Constructor with parameters */
-    EntryLayerTool( const std::string& t, const std::string& n, const IInterface* p );
+    EntryLayerToolMT( const std::string& t, const std::string& n, const IInterface* p );
 
     /** Destructor */
-    virtual ~EntryLayerTool() = default;
+    virtual ~EntryLayerToolMT() = default;
 
     /** Athena algtool's Hooks */
     virtual StatusCode  initialize() override final;
 
-    /** handle for incident service */
-    void handle(const Incident& inc);
+    // /** handle for incident service */
+    // void handle(const Incident& inc);
 
     /** Check if given particle passes the EntryLayer filters */
     virtual bool passesFilters( const ISFParticle& particle) override final;
 
-    /** Identify the corresponding entry layer for the given particle (may return 
+    /** Identify the corresponding entry layer for the given particle (may return
         ISF::fUnsetEntryLayere if particle is not on an entry layer surface) */
     virtual ISF::EntryLayer identifyEntryLayer( const ISFParticle& particle) override final;
 
@@ -68,24 +68,17 @@ namespace ISF {
     virtual StatusCode registerTrackRecordCollection(TrackRecordCollection* collection, EntryLayer layer) override final;
 
   private:
-    /** used to setup a TrackRecordCollection on storegate */
-    TrackRecordCollection *setupSGCollection(const std::string &name);
-
-    /*  Incident Service */
-    ServiceHandle<IIncidentSvc>               m_incidentSvc;
-
     /** GeoIDSvc will be used to determine the entry layer surface, the particle is on */
-    ServiceHandle<ISF::IGeoIDSvc>             m_geoIDSvc;
-    ISF::IGeoIDSvc                           *m_geoIDSvcQuick;
+    ServiceHandle<ISF::IGeoIDSvc>             m_geoIDSvc{this, "GeoIDSvc", "GeoIDSvc", "AthenaService used to indentify sub-detector by (x,y,z) coordintes."};
+    ISF::IGeoIDSvc                           *m_geoIDSvcQuick{};
 
     /** Array of filters to decide whether a particle is added to the Entry/Exit layer */
-    ParticleFilterArray                       m_particleFilterHandle;
-    ISF::IParticleFilter                    **m_particleFilter;
-    size_t                                    m_numParticleFilters;
+    ParticleFilterArray                       m_particleFilterHandle{this, "ParticleFilters", {}, "ISF Particle filters, defining whether a particle will be stored or not."};
+    ISF::IParticleFilter                    **m_particleFilter{};
+    size_t                                    m_numParticleFilters{0};
 
     /** The entry layer collections */
-    TrackRecordCollection                    *m_collection[ISF::fNumAtlasEntryLayers];
-    std::string                               m_SGName[ISF::fNumAtlasEntryLayers];
+    thread_utils::ThreadLocalOwner< std::array<TrackRecordCollection*, ISF::fNumAtlasEntryLayers> > m_collectionHolder;
     std::string                               m_volumeName[ISF::fNumAtlasEntryLayers];
   };
 
