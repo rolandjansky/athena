@@ -138,7 +138,7 @@ def addTilePartitionMapsArray(helper, algorithm, name, title, path,
             fullTitle = 'Run ' + run + ' ' + fullTitle
 
         tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xbins = Tile.MAX_DRAWER, xmin = 0.5, xmax = Tile.MAX_DRAWER + 0.5,
+                              xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                               ybins = Tile.MAX_CHAN, ymin = -0.5, ymax = Tile.MAX_CHAN - 0.5,
                               labels = labels )
 
