@@ -52,6 +52,7 @@ globalflags.DetDescrVersion = DetDescrVersion
 
 ## Need to set the layout option up front
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+
 if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-20'):
    SLHC_Flags.LayoutOption="InclinedDuals"
 
@@ -61,6 +62,8 @@ elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
 elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
    SLHC_Flags.LayoutOption="InclinedAlternative"
 
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22'):
+   SLHC_Flags.LayoutOption="InclinedAlternative"
 
 SLHC_Flags.doGMX.set_Value_and_Lock(True)
 include("InDetSLHC_Example/preInclude.SLHC.py")
