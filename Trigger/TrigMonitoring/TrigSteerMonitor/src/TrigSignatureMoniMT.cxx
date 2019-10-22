@@ -58,10 +58,9 @@ StatusCode TrigSignatureMoniMT::start() {
 
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/SignatureAcceptance", std::move(h1), m_passHistogram));
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/DecisionCount", std::move(h2), m_countHistogram));
+  ATH_CHECK( m_histSvc->regShared( "/dev/null/" + name() + "/RateBufferHistogram", std::move(h3), m_rateBufferHistogram));
   ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + '/' + outputName.c_str(), std::move(ho), m_rateHistogram));
   
-  m_rateBufferHistogram.set(h3.release(), &m_bufferMutex);
-
   m_timer = std::make_unique<Athena::AlgorithmTimer>(0, boost::bind(&TrigSignatureMoniMT::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
   m_timer->start(m_duration*50);  
 
@@ -69,7 +68,7 @@ StatusCode TrigSignatureMoniMT::start() {
 }
 
 StatusCode TrigSignatureMoniMT::finalize() {
-
+  
   /**
    * This should really be done during stop(). However, at the moment
    * the EventContext is printed for each message in the stop transition
