@@ -1,4 +1,4 @@
- /*
+/*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -9,11 +9,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/WriteHandleKey.h"
-
-#include "JetInterface/IJetProvider.h"
-#include "JetInterface/IJetModifier.h"
-
 
 class IJetExecuteTool;
 
@@ -40,11 +35,8 @@ private:
 private:
 
   /// Athena configured tools
-  //  ToolHandleArray<IJetExecuteTool> m_exetools;
-  ToolHandle<IJetProvider> m_jetprovider ={this , "Builder" , {} , "Tool building the jets (fastjet, copy, grooming...)"};
-  ToolHandleArray<IJetModifier> m_modifiers = {this , "Modifiers", {}, "moment calculators" };
-  SG::WriteHandleKey<xAOD::JetContainer> m_output= {this, "OutputContainer", "AntiKt4LCtopoJets", "The output jet container name"};
-  
+  ToolHandleArray<IJetExecuteTool> m_exetools;
+
 }; 
 
 #endif

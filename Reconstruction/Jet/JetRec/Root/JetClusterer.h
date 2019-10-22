@@ -39,6 +39,10 @@ protected:
 
   SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets= {this, "InputPseudoJets", "inputpseudojet", "input constituents"};
 
+
+  SG::WriteHandleKey<PseudoJetVector> m_finalPSeudoJets= {this, "FinalPSeudoJets", "xxxx", "final jets in PseudoJet format"};
+
+  
   // Job options.
   Gaudi::Property<std::string>  m_jetalg  {this, "JetAlgorithm", "AntiKt", "alg type : AntiKt, Kt, CA..."};
   Gaudi::Property<float> m_jetrad {this,  "JetRadius", 0.4 , "jet size parameter"}; 
