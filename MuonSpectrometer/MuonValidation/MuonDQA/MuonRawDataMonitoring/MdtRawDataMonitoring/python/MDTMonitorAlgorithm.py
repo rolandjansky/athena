@@ -1,5 +1,5 @@
 #
-#Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration                                                                                           
+#Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration                                                                                           
 #
 
 
@@ -11,9 +11,7 @@ from MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
 
 def MdtMonitoringConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     helper = AthMonitorCfgHelperOld(inputFlags,'MdtAthMonitorCfg')
-    #_DQTDetSynchMonAlgConfigCore(helper, athenaCommonFlags.isOnline, True)
     return helper.result()
 
 
@@ -164,8 +162,8 @@ def MdtMonitoringConfig(inputFlags):
 
     #mdtNumberOfHitPerChamber=helper.addGroup(mdtMonAlg, "NumberOfHitPerChamber", "Muon/MuonRawDataMonitoring/MDT/")
     for iregion in bigRegions:
-        theTitle = "NumberOfHitsIn"+iregion+"PerChamber_ADCCut";
-        theTitle_noise = "NumberOfHitsIn"+iregion+"PerChamber_ADCCutt_NoiseBurst";
+        theTitle = "NumberOfHitsIn"+iregion+"PerChamber_ADCCut"
+        theTitle_noise = "NumberOfHitsIn"+iregion+"PerChamber_ADCCutt_NoiseBurst"
         thisLabelx,thisLabely=getMDTLabel(theTitle+"_labelx",theTitle+"_labely")
         if iregion=="Barrel":
             etamin=-8.
@@ -196,7 +194,7 @@ def MdtMonitoringConfig(inputFlags):
         if(ilayer=="Extra"):
             continue
         hits="x_mon_"+ilayer+",y_mon_"+ilayer+";"
-        theTitle = "NumberOfHitsInMDT"+ilayer+"_ADCCut";
+        theTitle = "NumberOfHitsInMDT"+ilayer+"_ADCCut"
         thisLabelx,thisLabely=getMDTLabel(theTitle+"_labelx",theTitle+"_labely")
         if(ilayer=="Inner"):
             etabins=38
@@ -508,9 +506,9 @@ if __name__=='__main__':
     Configurable.configurableRun3Behavior = 1
 
     # Setup logs
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
-    log.setLevel(DEBUG)    
+    #from AthenaCommon.Logging import log
+    #from AthenaCommon.Constants import DEBUG
+    #log.setLevel(DEBUG)    
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
