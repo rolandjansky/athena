@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef DILEPTONANALYSIS_H_
 #define DILEPTONANALYSIS_H_
@@ -16,22 +16,21 @@ namespace EL {
 }
 
 namespace top {
-
-class DileptonAnalysis : public AnalysisBase {
-public:
-    DileptonAnalysis(TFile* outputFile, EL::Worker* wk=nullptr);
+  class DileptonAnalysis: public AnalysisBase {
+  public:
+    DileptonAnalysis(TFile* outputFile, EL::Worker* wk = nullptr);
     ~DileptonAnalysis();
 
     void newFile(TFile* inputFile) override;
     void event(const top::Event& topEvent) override;
     void finalise(TFile* outputFile) override;
-
-private:
+  private:
     void eeAnalysis(const top::Event& topEvent, double eventWeight);
     void mumuAnalysis(const top::Event& topEvent, double eventWeight);
     void emuAnalysis(const top::Event& topEvent, double eventWeight);
 
-    void printCutflow(std::ostream& out, const TH1D* const eventHist, const TH1D* const mcWeightHist, const std::string& name, const unsigned int localYield);
+    void printCutflow(std::ostream& out, const TH1D* const eventHist, const TH1D* const mcWeightHist,
+                      const std::string& name, const unsigned int localYield);
 
     ///MC Channel number is needed to calculate the SF (to 1 fb-1) at the end of the job
     unsigned int m_mcChannelNumber;
@@ -56,8 +55,7 @@ private:
     unsigned int m_counterElEl;
     unsigned int m_counterMuMu;
     unsigned int m_counterElMu;
-};
-
+  };
 }
 
 #endif /* DILEPTONANALYSIS_H_ */
