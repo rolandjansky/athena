@@ -505,6 +505,17 @@ StatusCode sTgcDigitizationTool::doDigitization() {
       int gasGap = m_idHelper->gasGap(layid);
       ATH_MSG_VERBOSE("Gas Gap " << gasGap );
 
+      /// apply the smearing tool to decide if the hit has to be digitized or not
+      /// based on layer efficiency
+      if ( m_doSmearing ) {
+	bool acceptHit = true;
+	ATH_CHECK(m_smearingTool->isAccepted(layid,acceptHit));
+	if ( !acceptHit ) {
+	  ATH_MSG_DEBUG("Dropping the hit - smearing tool");
+	  continue;
+	}
+      }
+
       const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);  //retreiving the sTGC this hit is located in
       if( !detEL ){
         msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid)  << endmsg;

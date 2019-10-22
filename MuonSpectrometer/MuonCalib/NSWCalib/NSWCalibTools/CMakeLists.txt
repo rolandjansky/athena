@@ -17,16 +17,13 @@
 find_package( ROOT COMPONENTS Core Tree MathCore Hist )
  
 # Component(s) in the package:
- atlas_add_library( NSWCalibToolsLib
-                    src/*.cxx
-                    PUBLIC_HEADERS NSWCalibTools
-		    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                    LINK_LIBRARIES GaudiKernel MuonPrepRawData MuonIdHelpers
-		    PRIVATE_LINK_LIBRARIES AthenaBaseComps )
-
  atlas_add_component( NSWCalibTools
-                      src/components/*.cxx
-		      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps MuonPrepRawData MuonIdHelpers NSWCalibToolsLib )
+                      src/*.cxx
+		      src/components/*.cxx
+                      PUBLIC_HEADERS NSWCalibTools
+		      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES GaudiKernel MuonPrepRawData MuonIdHelpers
+		      PRIVATE_LINK_LIBRARIES AthenaBaseComps )
 
+ 
 atlas_install_python_modules( python/*.py )
