@@ -72,12 +72,13 @@ if have_atlas_geo:
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
-    #svcMgr.GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].HasSTgc = False
-
 if have_atlas_geo and moduleExists ('TrkEventCnvTools') and moduleExists ('MuonEventCnvTools'):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     from TrkEventCnvTools import TrkEventCnvToolsConf
     EventCnvSuperTool = TrkEventCnvToolsConf.Trk__EventCnvSuperTool('EventCnvSuperTool')
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+    svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
     ToolSvc += EventCnvSuperTool
 
 #

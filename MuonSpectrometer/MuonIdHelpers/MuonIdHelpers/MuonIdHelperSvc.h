@@ -172,9 +172,9 @@ namespace Muon {
     const MdtIdHelper*                  m_mdtIdHelper;
     const MmIdHelper*                   m_mmIdHelper;
     const sTgcIdHelper*                 m_stgcIdHelper;
-    bool                                m_hasCSC;
-    bool                                m_hasSTgc;
-    bool                                m_hasMM;
+    Gaudi::Property< bool > m_hasCSC {  this, "HasCSC", true, "Specify whether current detector layout contains CSC chambers" };
+    Gaudi::Property< bool > m_hasSTgc { this, "HasSTgc", true, "Specify whether current detector layout contains STGC chambers" };
+    Gaudi::Property< bool > m_hasMM {   this, "HasMM", true, "Specify whether current detector layout contains MicroMegas chambers" };
     
     const ServiceHandle<StoreGateSvc> m_detStore;
     
