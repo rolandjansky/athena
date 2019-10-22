@@ -13,16 +13,14 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonRecToolInterfaces/IMuonRefitTool.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
-namespace Muon {
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-}
-
-namespace Trk {
-  class Track;
-  class ITrackSummaryHelperTool;
-}
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 namespace Muon {
 
@@ -33,7 +31,7 @@ namespace Muon {
     MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa);
 
     /** Destructor: */
-    virtual ~MuonErrorOptimisationTool(); 
+    virtual ~MuonErrorOptimisationTool() = default; 
 
     virtual StatusCode  initialize();
     virtual StatusCode  finalize();
@@ -52,19 +50,19 @@ namespace Muon {
     ToolHandle<Trk::ITrackSummaryHelperTool>    m_trackSummaryTool; //<! muon id helper
     ToolHandle<IMuonRefitTool>      m_refitTool;
 
-    double                                       m_chi2NdofCutRefit;
-    double                                       m_lowPtThreshold;
-    mutable unsigned int                         m_nrefitAll;
-    mutable unsigned int                         m_nrefitAllLowPt;
-    mutable unsigned int                         m_nrefitOk;
-    mutable unsigned int                         m_nrefit;
-    mutable unsigned int                         m_nrefitLowPt;
-    mutable unsigned int                         m_nrefitPrecise;
-    mutable unsigned int                         m_nrefitPreciseLowPt;
-    mutable unsigned int                         m_nbetterPreciseFit;
-    mutable unsigned int                         m_nbetterFit;
+    Gaudi::Property<double>                      m_chi2NdofCutRefit {this, "Chi2NDofCutRefit", 5.};
+    Gaudi::Property<double>                      m_lowPtThreshold   {this, "LowPtThreshold", 5000.};
+    mutable std::atomic_uint                     m_nrefitAll{0};
+    mutable std::atomic_uint                     m_nrefitAllLowPt{0};
+    mutable std::atomic_uint                     m_nrefitOk{0};
+    mutable std::atomic_uint                     m_nrefit{0};
+    mutable std::atomic_uint                     m_nrefitLowPt{0};
+    mutable std::atomic_uint                     m_nrefitPrecise{0};
+    mutable std::atomic_uint                     m_nrefitPreciseLowPt{0};
+    mutable std::atomic_uint                     m_nbetterPreciseFit{0};
+    mutable std::atomic_uint                     m_nbetterFit{0};
 
-    mutable IMuonRefitTool::Settings m_refitSettings;
+    IMuonRefitTool::Settings m_refitSettings;
   }; 
 }
 

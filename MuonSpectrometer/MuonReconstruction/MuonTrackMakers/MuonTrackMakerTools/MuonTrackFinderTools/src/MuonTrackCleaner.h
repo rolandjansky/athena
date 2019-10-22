@@ -13,6 +13,16 @@
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/IUpdator.h"
+
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkParameters/TrackParameters.h"
@@ -25,28 +35,21 @@
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
+
 class MsgStream;
 
 namespace MuonGM {
   class MuonDetectorManager;
 }
 
-namespace Muon {
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonCompetingClustersOnTrackCreator;
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-}
 
 namespace Trk {
   class Track;
   class TrackStateOnSurface;
-  class ITrackFitter;
-  class IUpdator;
   class MeasurementBase;
   class FitQuality;
-  class IResidualPullCalculator;
-  class IExtrapolator;
 }
 
 namespace Muon {
@@ -72,19 +75,19 @@ namespace Muon {
       const Trk::FitQuality*       fitQ;
 
       MCTBCleaningInfo( const Trk::TrackStateOnSurface* orState ) : 
-	id(),chId(),chIndex(MuonStationIndex::ChUnknown),useInFit(1),inBounds(true),isNoise(false),copyState(true),residual(1e10),pull(1e10),
-	originalState(orState),meas(0),pars(0),resPull(),flippedMdt(),cleanedCompROT(),fitQ(0) {}
+        id(),chId(),chIndex(MuonStationIndex::ChUnknown),useInFit(1),inBounds(true),isNoise(false),copyState(true),residual(1e10),pull(1e10),
+        originalState(orState),meas(0),pars(0),resPull(),flippedMdt(),cleanedCompROT(),fitQ(0) {}
 
       MCTBCleaningInfo( const Identifier& i, const Identifier& chi, MuonStationIndex::ChIndex chIn, bool inB, double r, double p,
-			const Trk::TrackStateOnSurface* orState ) : 
-	id(i),chId(chi),chIndex(chIn),useInFit(1),inBounds(inB),isNoise(false),copyState(true),residual(r),pull(p),
-	originalState(orState),meas(0),pars(0),resPull(),flippedMdt(),cleanedCompROT(),fitQ(0) {}
+      const Trk::TrackStateOnSurface* orState ) : 
+        id(i),chId(chi),chIndex(chIn),useInFit(1),inBounds(inB),isNoise(false),copyState(true),residual(r),pull(p),
+        originalState(orState),meas(0),pars(0),resPull(),flippedMdt(),cleanedCompROT(),fitQ(0) {}
 
       MCTBCleaningInfo( const Identifier& i, const Identifier& chi, MuonStationIndex::ChIndex chIn, bool inB, double r, double p,
-			const Trk::TrackStateOnSurface* orState, const Trk::MeasurementBase* me,
-			const Trk::TrackParameters* par, std::unique_ptr<Trk::ResidualPull>& resP, const Trk::FitQuality* fq ) : 
-      id(i),chId(chi),chIndex(chIn),useInFit(1),inBounds(inB),isNoise(false),copyState(false), residual(r), pull(p),
-	originalState(orState),meas(me),pars(par),resPull(std::move(resP)),flippedMdt(),cleanedCompROT(),fitQ(fq) {}
+      const Trk::TrackStateOnSurface* orState, const Trk::MeasurementBase* me,
+      const Trk::TrackParameters* par, std::unique_ptr<Trk::ResidualPull>& resP, const Trk::FitQuality* fq ) : 
+        id(i),chId(chi),chIndex(chIn),useInFit(1),inBounds(inB),isNoise(false),copyState(false), residual(r), pull(p),
+        originalState(orState),meas(me),pars(par),resPull(std::move(resP)),flippedMdt(),cleanedCompROT(),fitQ(fq) {}
     };
     typedef std::vector<MCTBCleaningInfo>   InfoVec;
     typedef InfoVec::iterator               InfoIt;
@@ -101,8 +104,8 @@ namespace Muon {
     };
     struct SortChamberRemovalResultByChi2Ndof {
       bool operator()(const ChamberRemovalOutput& r1, const ChamberRemovalOutput& r2 ) const {
-	SortTracksByChi2Ndof sortTracks;
-	return sortTracks( r1.track.get(), r2.track.get() );
+        SortTracksByChi2Ndof sortTracks;
+        return sortTracks( r1.track.get(), r2.track.get() );
       }
     };
 
@@ -129,7 +132,7 @@ namespace Muon {
 
     struct SortByAvePull {
       bool operator()( const std::pair<double,Identifier>& entry1, const std::pair<double,Identifier>& entry2 ) const {
-	return entry1.first > entry2.first;
+        return entry1.first > entry2.first;
       }
     };
 
@@ -202,25 +205,25 @@ namespace Muon {
     MuonTrackCleaner(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    ~MuonTrackCleaner ();
+    ~MuonTrackCleaner () = default;
     
-    /** @brief AlgTool initilize */
+    /** @brief AlgTool initialize */
     StatusCode initialize();
     
     /** @brief AlgTool finalize */
     StatusCode finalize();
     
     /** @brief clean a track, returns a pointer to a new track if successfull.
-	If the input track is does not require cleaning a pointer the the initial track is return in which case the 
-	user should not delete the old track!
-	The caller should ensure the track gets deleted. */
+    If the input track is does not require cleaning a pointer the the initial track is return in which case the 
+    user should not delete the old track!
+    The caller should ensure the track gets deleted. */
     std::unique_ptr<Trk::Track> clean( Trk::Track& track ) const;
 
     /** @brief clean a track, returns a pointer to a new track if successfull.
-	If the input track is does not require cleaning a pointer the the initial track is return in which case the 
-	user should not delete the old track! The cleaning will not clean if all the chambers in the exclusions list 
-	are marked as to be deleted.
-	The caller should ensure the track gets deleted. */
+    If the input track is does not require cleaning a pointer the the initial track is return in which case the 
+    user should not delete the old track! The cleaning will not clean if all the chambers in the exclusions list 
+    are marked as to be deleted.
+    The caller should ensure the track gets deleted. */
     std::unique_ptr<Trk::Track> clean( Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList ) const;
 
     /** @brief calculate Residual/Pull for a given MeasurementBase + TrackParameters, ownership is transfered to user */
@@ -284,34 +287,34 @@ namespace Muon {
     //choose fitter and fit
     std::unique_ptr<Trk::Track> fitTrack(Trk::Track& track,Trk::ParticleHypothesis pHyp,bool slFit) const;
 
-    ToolHandle<Trk::ITrackFitter>                    m_trackFitter;
-    ToolHandle<Trk::ITrackFitter>                    m_slTrackFitter;
-    ToolHandle<Trk::IUpdator>                        m_measurementUpdator;
-    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator; 
-    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compRotCreator;
-    ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator;
-    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+    ToolHandle<Trk::ITrackFitter>                    m_trackFitter       {this, "Fitter", "Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack",};
+    ToolHandle<Trk::ITrackFitter>                    m_slTrackFitter     {this, "SLFitter", "Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack"};
+    ToolHandle<Trk::IUpdator>                        m_measurementUpdator{this, "MeasurementUpdator", "Trk::KalmanUpdator/MuonMeasUpdator"};
+    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator     {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"}; 
+    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compRotCreator    {this, "CompRotCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"};
+    ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator    {this, "MdtRotCreator", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc      {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper;
-    ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; 
-    ToolHandle<Trk::IExtrapolator>                   m_extrapolator;
+    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer           {this, "EdmPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper          {this, "MuonIdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc       {this, "MagFieldSvc", "AtlasFieldSvc"}; 
+    ToolHandle<Trk::IExtrapolator>                   m_extrapolator      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
 
-    bool   m_useMdtResiCut;
-    double m_chi2Cut;
-    double m_pullCut;
-    double m_mdtResiCut;
-    double m_pullCutPhi;
-    double m_avePullSumPerChamberCut;
-    double m_associationScaleFactor;
-    unsigned int m_ncycles;
-    bool m_recoverOutliers;
-    bool m_flipMdtDriftRadii;
-    bool m_cleanCompROTs;
-    bool m_onlyUseHitErrorInRecovery;
-    double m_adcCut;
-    bool m_iterate;
+    Gaudi::Property<bool> m_useMdtResiCut             {this, "UseMdtResiCut", false};
+    Gaudi::Property<double> m_chi2Cut                 {this, "Chi2Cut", 100.};
+    Gaudi::Property<double> m_pullCut                 {this, "PullCut", 5.};
+    Gaudi::Property<double> m_mdtResiCut              {this, "MdtResiCut", 1.};
+    Gaudi::Property<double> m_pullCutPhi              {this, "PullCutPhi", 10.};
+    Gaudi::Property<double> m_avePullSumPerChamberCut {this, "CloneSegments", false};
+    Gaudi::Property<double> m_associationScaleFactor  {this, "AssociationScaleFactor", 0.7};
+    Gaudi::Property<unsigned int> m_ncycles           {this, "CleaningCycles", 5};
+    Gaudi::Property<bool> m_recoverOutliers           {this, "RecoverOutliers", true};
+    Gaudi::Property<bool> m_flipMdtDriftRadii         {this, "FlipMdtDriftRadii", true};
+    Gaudi::Property<bool> m_cleanCompROTs             {this, "CleanCompROTs", true};
+    Gaudi::Property<bool> m_onlyUseHitErrorInRecovery {this, "OnlyUseHitErrorInRecovery", true};
+    Gaudi::Property<double> m_adcCut                  {this, "AdcCut", 50.};
+    Gaudi::Property<bool> m_iterate                   {this, "Iterate", 0.7};
 
     /** helper function to extract chambers that are to be removed */
     bool extractChambersToBeRemoved( CleaningState& state, std::set<Identifier>& chambersToBeRemovedSet, bool usePhi=false ) const;
