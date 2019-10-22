@@ -10,6 +10,14 @@ namespace xAOD {
 }
 class StatusCode;
 
+// configuration options
+struct AodCountsConfig {
+  AodCountsConfig();
+  // empty structure, can add configuration here
+};
+
+static const AodCountsConfig defaultAodCountsConfig;
+
 struct OriginalAodCounts {
   OriginalAodCounts();
   unsigned long long nEventsProcessed;
@@ -23,6 +31,8 @@ OriginalAodCounts operator+(const OriginalAodCounts& a,
 OriginalAodCounts operator+=(const OriginalAodCounts& a,
                              const OriginalAodCounts& b);
 
-OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event);
+OriginalAodCounts getOriginalAodCounts(
+  xAOD::TEvent& event,
+  const AodCountsConfig& = defaultAodCountsConfig);
 
 #endif
