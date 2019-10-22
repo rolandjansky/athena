@@ -14,8 +14,18 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
+#include "CscSegmentMakers/ICscSegmentFinder.h"
+#include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
+#include "MuonSegmentCombinerToolInterfaces/IMuonSegmentCombinationCleanerTool.h"
+#include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
+#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -54,7 +64,7 @@ namespace Muon
       MooSegmentCombinationFinder(const std::string&,const std::string&,const IInterface*);
 
        /** default destructor */
-      virtual ~MooSegmentCombinationFinder ();
+      virtual ~MooSegmentCombinationFinder () = default;
       
        /** standard Athena-Algorithm method */
       virtual StatusCode initialize();
@@ -88,41 +98,39 @@ namespace Muon
       std::pair<int,int> hitsInMultilayer( const Muon::MuonSegment& segment ) const;
       bool firstIsBest( const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2 ) const;
 
-      /** class member version of retrieving MsgStream */
-      bool                                            m_doSummary; //<! print summary after each stage
+      Gaudi::Property<bool> m_doSummary                     {this, "DoSummary", false, "Print summary after each stage"};
+      Gaudi::Property<bool> m_doCscSegments                 {this, "DoCscSegments", true, "Run CSC segment finding"};
+      Gaudi::Property<bool> m_doMdtSegments                 {this, "DoMdtSegments", true, "Run MDT segment finding"};
+      Gaudi::Property<bool> m_doSegmentCombinations         {this, "DoSegmentCombinations", false, "Run segment combination finding"};
+      Gaudi::Property<bool> m_doSegmentCombinationCleaning  {this, "DoSegmentCombinationCleaning", false, "Run segment combination cleaning"};
+      Gaudi::Property<bool> m_cloneSegments                 {this, "CloneSegments", false, ""};
       
-      bool                                            m_doCscSegments; //<! run CSC segment finding
-      bool                                            m_doMdtSegments; //<! run MDT segment finding
-      bool                                            m_doSegmentCombinations; //<! run segment combination finding
-      bool                                            m_doSegmentCombinationCleaning; //<! run segment combination cleaning
-      
-      ToolHandle<MuonEDMPrinterTool>                 m_edmPrinter;
+      ToolHandle<MuonEDMPrinterTool>                 m_edmPrinter {"Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
       ServiceHandle<IMuonEDMHelperSvc>               m_edmHelperSvc {this, "edmHelper", 
         "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
         "Handle to the service providing the IMuonEDMHelperSvc interface" };
-      ToolHandle<MuonIdHelperTool>                   m_idHelperTool;
-      ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder;
-      ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder;
-      ToolHandle<IMuonHoughPatternFinderTool>        m_houghPatternFinder;
-      ToolHandle<IMuonPatternSegmentMaker>           m_patternSegmentMaker;
-      ToolHandle<IMuonCurvedSegmentCombiner>         m_curvedSegmentCombiner;
-      ToolHandle<IMuonSegmentCombinationCleanerTool> m_segmentCombinationCleaner;
-      ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector;    
+      ToolHandle<MuonIdHelperTool>                   m_idHelperTool {"Muon::MuonIdHelperTool/MuonIdHelperTool"};
+      ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder{this, "Csc2dSegmentMaker", "Csc2dSegmentMaker/Csc2dSegmentMaker"}; 
+      ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder{this, "Csc4dSegmentMaker", "Csc4dSegmentMaker/Csc4dSegmentMaker"};       
+      ToolHandle<IMuonHoughPatternFinderTool>        m_houghPatternFinder; 
+      ToolHandle<IMuonPatternSegmentMaker>           m_patternSegmentMaker{this, "MdtSegmentMaker", "Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"};       
+      ToolHandle<IMuonCurvedSegmentCombiner>         m_curvedSegmentCombiner{this, "SegmentCombiner", "Muon::MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner"};       
+      ToolHandle<IMuonSegmentCombinationCleanerTool> m_segmentCombinationCleaner{this, "SegmentCombinationCleaner","Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool"};       
+      ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector{this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"};         
 
-      bool m_cloneSegments;
 
       /** counters */
-      mutable std::atomic_uint m_nevents;
-      mutable std::atomic_uint m_ncsc2SegmentCombinations;
-      mutable std::atomic_uint m_ncsc4SegmentCombinations;
-      mutable std::atomic_uint m_npatternCombinations;
-      mutable std::atomic_uint m_nmdtSegmentCombinations;
-      mutable std::atomic_uint m_ncombinedSegmentCombinations;
-      mutable std::atomic_uint m_ncleanedSegmentCombinations;
-      mutable std::atomic_uint m_nsegments;
-      mutable std::atomic_uint m_nsegmentsStraight;
-      mutable std::atomic_uint m_nsegmentsCurved;
-      mutable std::atomic_uint m_nremovedBadSegments;
+      mutable std::atomic_uint m_nevents{0};
+      mutable std::atomic_uint m_ncsc2SegmentCombinations{0}; 
+      mutable std::atomic_uint m_ncsc4SegmentCombinations{0};
+      mutable std::atomic_uint m_npatternCombinations{0};
+      mutable std::atomic_uint m_nmdtSegmentCombinations{0};
+      mutable std::atomic_uint m_ncombinedSegmentCombinations{0};
+      mutable std::atomic_uint m_ncleanedSegmentCombinations{0};
+      mutable std::atomic_uint m_nsegments{0};
+      mutable std::atomic_uint m_nsegmentsStraight{0};
+      mutable std::atomic_uint m_nsegmentsCurved{0};
+      mutable std::atomic_uint m_nremovedBadSegments{0};
 
     };
 

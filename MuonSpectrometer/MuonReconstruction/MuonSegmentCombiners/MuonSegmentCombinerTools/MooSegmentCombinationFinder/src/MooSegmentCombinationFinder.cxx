@@ -7,16 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "MooSegmentCombinationFinder.h"
-
-#include "CscSegmentMakers/ICscSegmentFinder.h"
-#include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
-#include "MuonSegmentCombinerToolInterfaces/IMuonSegmentCombinationCleanerTool.h"
-#include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "MuonSegment/MuonSegment.h"
@@ -42,53 +32,12 @@ Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string
                        const std::string& n,
                        const IInterface*  p )
     :
-  AthAlgTool(t,n,p),
-    m_edmPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker", this),
-    m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker", this),
-    m_houghPatternFinder("Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool"),
-    m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker", this),
-    m_curvedSegmentCombiner("Muon::MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner", this),
-    m_segmentCombinationCleaner("Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool", this),
-    m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", this),
-    m_nevents(0),
-    m_ncsc2SegmentCombinations(0),
-    m_ncsc4SegmentCombinations(0),
-    m_npatternCombinations(0),
-    m_nmdtSegmentCombinations(0),
-    m_ncombinedSegmentCombinations(0),
-    m_ncleanedSegmentCombinations(0),
-    m_nsegments(0),
-    m_nsegmentsStraight(0),
-    m_nsegmentsCurved(0),
-    m_nremovedBadSegments(0)
-
+    AthAlgTool(t,n,p),
+    m_houghPatternFinder("Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool")
   {
     declareInterface<IMooSegmentCombinationFinder>(this);
-
-    declareProperty("DoSummary", m_doSummary = false);
-
-    declareProperty("Csc2dSegmentMaker",         m_csc2dSegmentFinder);
-    declareProperty("Csc4dSegmentMaker",         m_csc4dSegmentFinder);
     declareProperty("HoughPatternFinder",        m_houghPatternFinder);
-    declareProperty("MdtSegmentMaker",           m_patternSegmentMaker);
-    declareProperty("SegmentCombiner",           m_curvedSegmentCombiner);
-    declareProperty("SegmentCombinationCleaner", m_segmentCombinationCleaner);
-
-    declareProperty("DoCscSegments", m_doCscSegments = true );
-    declareProperty("DoMdtSegments", m_doMdtSegments = true );
-    declareProperty("DoSegmentCombinations", m_doSegmentCombinations = false );
-    declareProperty("DoSegmentCombinationCleaning", m_doSegmentCombinationCleaning = false );
-
-    declareProperty("CloneSegments",                    m_cloneSegments = false );
   }
-
-  //================ Destructor =================================================
-
-Muon::MooSegmentCombinationFinder::~MooSegmentCombinationFinder()
-{}
-
 
   //================ Initialisation =================================================
 
