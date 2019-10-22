@@ -21,6 +21,7 @@ from MuonConfig.RPC_DigitizationConfig import RPC_DigitizerDigitToRDOCfg
 from MuonConfig.CSC_DigitizationConfig import CSC_DigitBuilderDigitToRDOCfg
 from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
+from Digitization.DigitizationParametersConfig import writeDigitizationMetadata
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -47,6 +48,8 @@ acc.merge(CSC_DigitBuilderDigitToRDOCfg(ConfigFlags))
 acc.merge(LArTriggerDigitizationCfg(ConfigFlags))
 acc.merge(TileDigitizationCfg(ConfigFlags))
 acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
+acc.merge(writeDigitizationMetadata(ConfigFlags))
+
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True
