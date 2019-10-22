@@ -25,8 +25,8 @@ class SCTLorentzMonAlg : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms(const EventContext& ctx) const override final;
 
  private:
-  enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };
-  enum Sides { side0, side1, bothSides, nSidesInclBoth };
+  enum SiliconSurface { surface100, surface111, nSurfaces };
+  enum Sides { side0, side1, nSides };
 
   const SCT_ID* m_pSCTHelper{nullptr};
 

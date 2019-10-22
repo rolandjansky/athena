@@ -57,8 +57,8 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   //@}
 
  private:
-  enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };
-  enum Sides { side0, side1, bothSides, nSidesInclBoth };
+  enum SiliconSurface { surface100, surface111, nSurfaces };
+  enum Sides { side0, side1, nSidesInclBoth };
 
   // Data member, which is not changed after initialization
   std::string m_path{""};
