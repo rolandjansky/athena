@@ -8,7 +8,7 @@ atlas_subdir( MuonSegmentTrackMaker )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-			  Control/AthenaMonitoring
+			              Control/AthenaMonitoring
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate

@@ -91,6 +91,7 @@ StatusCode MuPatTrackBuilder::execute()
                       << msc.size() << ") are not the same size." << endmsg;
   }
 
+  ATH_MSG_INFO("LAURYNAS msc size " << msc.size());
   TrackCollection * newtracks = m_trackMaker->find(msc);
   if (!newtracks) newtracks = new TrackCollection();
 
@@ -122,11 +123,15 @@ StatusCode MuPatTrackBuilder::execute()
 
     // MS-only extrapolated tracks
     int count_mstrks = 0;
-    for (auto const& mstrk : msc) {
+    for (auto const& mstrk : *newtracks) {
       count_mstrks++;
-      ini_mstrkspt.push_back(mstrk->pt()/1000.0); // converted to GeV
-      ini_mstrkseta.push_back(mstrk->eta());
-      ini_mstrksphi.push_back(mstrk->phi());
+      ATH_MSG_INFO("LAURYNAS" << mstrk->trackParameters());
+      const Trk::Perigee* perigee = mstrk->perigeeParameters();
+      const Amg::Vector3D mom = perigee->momentum();
+      ini_mstrkspt.push_back(mom.perp()/1000.0); // Converted to GeV
+      //ini_mstrkspt.push_back(mstrk->pt()/1000.0); // converted to GeV
+      // ini_mstrkseta.push_back(mstrk->eta());
+      // ini_mstrksphi.push_back(mstrk->phi());
     }
     ini_mstrksn.push_back(count_mstrks);
 

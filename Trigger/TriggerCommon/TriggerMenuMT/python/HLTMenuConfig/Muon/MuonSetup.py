@@ -524,6 +524,11 @@ def muEFSARecoSequence( RoIs, name ):
   TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
   TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
 
+  # Monitoring tool for MuonTrackMakerAlgs in SA
+  from MuonTrackMakerAlgs.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
+  TrackBuilder.MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name)
+
+
   from AthenaCommon.Include import include
   include("InDetBeamSpotService/BeamCondSvc.py" )
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
