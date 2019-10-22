@@ -13,7 +13,6 @@ def SCT_TestCablingAlgCfg(configFlags):
 
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     geoCfg=GeoModelCfg(configFlags)
-    gms=geoCfg.getPrimary()
     cfg.merge(geoCfg)
 
     from AthenaCommon.Constants import INFO
@@ -45,15 +44,15 @@ if __name__=="__main__":
     # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConditionsRun1RunNumbers
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-RUN12-SDR-25"
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2015-03-01-00"
+    ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.lock()
 
-    cfg=ComponentAccumulator()
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    cfg=MainServicesThreadedCfg(ConfigFlags)
 
     from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
     cfg.merge(McEventSelectorCfg(ConfigFlags))
 
     cfg.merge(SCT_TestCablingAlgCfg(ConfigFlags))
 
-    f=open("TestSCT_CablingCfg.pkl","w")
-    cfg.store(f)
-    f.close()
+    cfg.run(maxEvents=20)
