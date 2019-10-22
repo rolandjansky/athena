@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef GLOBALTRIGDECISIONSELECTOR_H_
 #define GLOBALTRIGDECISIONSELECTOR_H_
@@ -16,23 +16,18 @@
 
 
 namespace top {
-  class Event;   
+  class Event;
   class TopConfig;
 
-  class GlobalTrigDecisionSelector : public EventSelectorBase {
-
+  class GlobalTrigDecisionSelector: public EventSelectorBase {
   public:
-
     GlobalTrigDecisionSelector();
 
-    bool apply(top::Event const & event) const override;
+    bool apply(top::Event const& event) const override;
     std::string name() const override;
-
   private:
-
     mutable ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSF;
     mutable ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
-
   };
 }
 

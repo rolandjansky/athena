@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopEventSelectionTools/PrintEventSelector.h"
 
@@ -9,8 +9,7 @@
 #include "TopCorrections/ScaleFactorRetriever.h"
 
 namespace top {
-
-bool PrintEventSelector::apply(const top::Event& event) const {
+  bool PrintEventSelector::apply(const top::Event& event) const {
     //print some stuff about the event
     std::cout << event << std::endl;
 
@@ -21,9 +20,9 @@ bool PrintEventSelector::apply(const top::Event& event) const {
 //     }
 
     return true;
-}
+  }
 
-bool PrintEventSelector::applyParticleLevel(const top::ParticleLevelEvent& plEvent) const {
+  bool PrintEventSelector::applyParticleLevel(const top::ParticleLevelEvent& plEvent) const {
     //print some stuff about the event
     std::cout << "Particle Level\n";
     std::cout << plEvent << std::endl;
@@ -35,10 +34,9 @@ bool PrintEventSelector::applyParticleLevel(const top::ParticleLevelEvent& plEve
 //     }
 
     return true;
-}
+  }
 
-std::string PrintEventSelector::name() const {
+  std::string PrintEventSelector::name() const {
     return "PRINT";
-}
-
+  }
 }
