@@ -164,7 +164,7 @@ from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrac
 InDetTrackSelectorTool = InDet__InDetTrackSelectionTool("InDetTrackSelectorTool")
 ##### hard-coded cuts in r20.20, leave these as is, variations will not have an intended effect 
 InDetTrackSelectorTool.minPt            = 400           # Mev
-InDetTrackSelectorTool.maxD0            = 2              # mm
+InDetTrackSelectorTool.maxD0            = 20             # mm
 InDetTrackSelectorTool.maxZ0            = 250          # mm
 InDetTrackSelectorTool.minNSiHits       = 6            # Pixel + SCT
 InDetTrackSelectorTool.maxNPixelHoles   = 2             # Pixel only
