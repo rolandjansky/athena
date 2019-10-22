@@ -1,15 +1,14 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-
-'''@file SCTLorentzMonAlg.py
-@author Susumu Oda
-@date 2019-04-02
+'''@file SCTTracksMonAlg.py
+@author Ken Kreul
+@date 2019-07-15
 @brief Based on AthenaMonitoring/ExampleMonitorAlgorithm.py
 '''
 
-def SCTLorentzMonAlgConfig(inputFlags):
-    
+def SCTTracksMonAlgConfig(inputFlags):
+    '''Function to configures some algorithms in the monitoring system.'''
     ### STEP 1 ###
     # Define one top-level monitoring algorithm. The new configuration 
     # framework uses a component accumulator.
@@ -19,7 +18,7 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags, 'SCTLorentzMonCfg')
+    helper = AthMonitorCfgHelper(inputFlags, 'SCTTracksMonCfg')
 
 
     ### STEP 2 ###
@@ -28,9 +27,8 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from SCT_Monitoring.SCT_MonitoringConf import SCTLorentzMonAlg
-    myMonAlg = helper.addAlgorithm(SCTLorentzMonAlg, 'SCTLorentzMonAlg')
-
+    from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonAlg
+    myMonAlg = helper.addAlgorithm(SCTTracksMonAlg, 'SCTTracksMonAlg')
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
     # # properties and add the algorithm to the monitoring sequence.
@@ -142,10 +140,17 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
+    # # First, add a tool that's set up by a different configuration function. 
+    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
+    # # which must be merged with the one from this function.
+    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
+    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
+    # result.merge(caloNoiseAcc)
+    # myMonAlg.CaloNoiseTool = caloNoiseTool
 
     # set up geometry / conditions
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    result.merge(AtlasGeometryCfg(inputFlags))
+    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    result.merge(InDetGeometryCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
@@ -156,33 +161,87 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # object here is the standard GenericMonitoringTool.
     myMonGroup = helper.addGroup(
         myMonAlg,
-        "SCTLorentzMonitor",
+        "SCTTracksMonitor",
         "SCT/GENERAL/"
     )
 
     ### STEP 5 ###
     # Configure histograms
-    N_BARRELS = 4
-    nSidesInclBoth = 2 # 0: Side 0, 1: Side 1
-    #bothSides = 2
-    nSurfaces = 2 # 0: 100, 1: 111
-    surfaceNames = ["_100",   "_111"]
-    surfaceNames2 = ["_100_",   "_111_"]
-    surfaceTitles = ["100 - ", "111 - "]
-    sideNames = ["_0", "_1"]
-    for l in range(N_BARRELS):
-        for iSurface in range(nSurfaces):
-            for side in range(nSidesInclBoth):
-                xVar = "phiToWafer_"+str(l)+surfaceNames[iSurface]+sideNames[side]
-                yVar = "nStrip_"+str(l)+surfaceNames[iSurface]+sideNames[side]
-                histTitle = surfaceTitles[iSurface]+"Inc. Angle vs nStrips for Layer Side"+str(l)+str(side)
-                histName = "h_phiVsNstrips"+surfaceNames2[iSurface]+str(l)+"Side"+str(side)
-                myMonGroup.defineHistogram(varname=xVar+","+yVar+";"+histName, # ; means alias
-                                           type="TProfile",
-                                           title=histTitle+";#phi to Wafer;Num of Strips",
-                                           path="lorentz", # path cannot be "".
-                                           xbins=360, xmin=-90., xmax=90.)
+    regionNames = ["EndCapC", "Barrel", "EndCapA"]
+    N_REGIONS = len(regionNames)
+    s_triggerNames = ["RNDM", "BPTX", "L1CAL", "TGC", "RPC", "MBTS", "COSM", "Calib"]
+    N_TRIGGER_TYPES = len(s_triggerNames)
+    N_HIT_BINS =  50
+    FIRST_HIT_BIN =  0
+    LAST_HIT_BIN  = N_HIT_BINS-FIRST_HIT_BIN-1 # This is already defined in SCT_MonitoringNumbers.h
+    myMonGroup.defineHistogram(varname="trk_N", # ; means alias
+                                           type="TH1F",
+                                           title="Number of tracks"+";Number of Tracks",
+                                           path="tracks", # path cannot be "".
+                                           xbins=400, xmin=0., xmax=4000.)
+    myMonGroup.defineHistogram(varname="trk_chi2", # ; means alias
+                                           type="TH1F",
+                                           title="Track #chi^{2} div ndf"+";Number of track #chi^{2}/NDF",
+                                           path="tracks", # path cannot be "".
+                                           xbins=150, xmin=0., xmax=150.)
+    myMonGroup.defineHistogram(varname="trk_d0", # ; means alias
+                                           type="TH1F",
+                                           title="Track d0"+";d0 [mm]",
+                                           path="tracks", # path cannot be "".
+                                           xbins=160, xmin=-40., xmax=40.)
+    myMonGroup.defineHistogram(varname="trk_z0", # ; means alias
+                                           type="TH1F",
+                                           title="Track z0"+";z0 [mm]",
+                                           path="tracks", # path cannot be "".
+                                           xbins=200, xmin=-200., xmax=200.)
+    myMonGroup.defineHistogram(varname="trk_phi", # ; means alias
+                                           type="TH1F",
+                                           title="Track Phi"+";#phi [rad]",
+                                           path="tracks", # path cannot be "".
+                                           xbins=160, xmin=-4., xmax=4.)
+    myMonGroup.defineHistogram(varname="trk_pt", # ; means alias
+                                           type="TH1F",
+                                           title="Track P_{T}"+";P_{T} [GeV]",
+                                           path="tracks", # path cannot be "".
+                                           xbins=150, xmin=0., xmax=150.)
 
+    myMonGroup.defineHistogram(varname="trk_sct_hits", # ; means alias
+                                           type="TH1F",
+                                           title="SCT HITS per single Track"+";Num of Hits",
+                                           path="tracks", # path cannot be "".
+                                           xbins=N_HIT_BINS, xmin=FIRST_HIT_BIN, xmax=LAST_HIT_BIN)
+    myMonGroup.defineHistogram(varname="trk_eta", # ; means alias
+                                           type="TH1F",
+                                           title="Track Eta"+";#eta",
+                                           path="tracks", # path cannot be "".
+                                           xbins=160, xmin=-4., xmax=4.)
+                                           
+    myMonGroup.defineHistogram(varname="trackTriggers", # ; means alias
+                                           type="TH1I",
+                                           title="Tracks for different trigger types",
+                                           path="tracks", # path cannot be "".
+                                           xbins=N_TRIGGER_TYPES, xmin=-0.5, xmax=7.5, labels=s_triggerNames)
+    myMonGroup.defineHistogram(varname="region"+","+"hitsRegion"+";"+"SCTTrackRate", # ; means alias
+                                           type="TProfile",
+                                           title="Track per event for SCT regions",
+                                           path="tracks", # path cannot be "".
+                                           xbins=3, xmin=0.0, xmax=3.0, labels=regionNames) #LABELS have to be added
+    myMonGroup.defineHistogram(varname="tracksPerRegion", # ; means alias
+                                           type="TH1F",
+                                           title="Number of tracks in eta regions",
+                                           path="tracks", # path cannot be "".
+                                           xbins=N_REGIONS, xmin=0, xmax=N_REGIONS, labels=regionNames)
+
+
+    for region in regionNames:
+        myMonGroup.defineHistogram(varname="total"+region+"Residual",
+                                    title="Overall Residual Distribution for the "+region+";Residual [mm]",
+                                    type="TH1F", path="tracks",
+                                    xbins=100, xmin=-0.5, xmax=0.5)
+        myMonGroup.defineHistogram(varname="total"+region+"Pull",
+                                    title="Overall Pull Distribution for the "+region+";Pull",
+                                    type="TH1F", path="tracks",
+                                    xbins=100, xmin=-5, xmax=5)
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     # and the sequence containing the created algorithms. If we haven't called
@@ -193,7 +252,7 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # # Otherwise, merge with result object and return
     result.merge(helper.result())
     return result
-    
+
 if __name__ == "__main__": 
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -206,10 +265,10 @@ if __name__ == "__main__":
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
-    #ConfigFlags.Input.Files = [" /afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nigtly_2019-08-24T2130/AOD.pool.root "]
+    #ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
+    ConfigFlags.Input.Files = [" /afs/cern.ch/work/k/kkreul/Qual/data18_13TeV.00364485.express_express.merge.RAW/data18_13TeV.00364485.express_express.merge.RAW._lb0706._SFO-3._0001.1 "]
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Output.HISTFileName = 'SCTLorentzMonOutput.root'
+    ConfigFlags.Output.HISTFileName = 'SCTTracksMonOutput.root'
     ConfigFlags.GeoModel.Align.Dynamic = False
     ConfigFlags.Detector.GeometryID = True
     ConfigFlags.Detector.GeometryPixel = True
@@ -227,7 +286,7 @@ if __name__ == "__main__":
     geoCfg=AtlasGeometryCfg(ConfigFlags)
     cfg.merge(geoCfg)
 
-    sctLorentzMonAcc = SCTLorentzMonAlgConfig(ConfigFlags)
-    cfg.merge(sctLorentzMonAcc)
+    sctTracksMonAcc = SCTTracksMonAlgConfig(ConfigFlags)
+    cfg.merge(sctTracksMonAcc)
 
     cfg.run()

@@ -57,7 +57,6 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     ATH_MSG_WARNING(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::SUCCESS;
   }
-
   SG::ReadHandle<TrackCollection> tracks{m_tracksName, ctx};
   if (not tracks.isValid()) {
     ATH_MSG_WARNING(" TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key());
@@ -124,7 +123,6 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
               ATH_MSG_WARNING(" Null pointer to MeasuredTrackParameters");
               continue;
             }
-
             const Trk::Perigee* perigee{track->perigeeParameters()};
 
             if (perigee) {
@@ -161,21 +159,27 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
 
               if (passesCuts) {
                 // Fill profile
-                std::string sideNames[nSidesInclBoth]{"_0", "_1", ""};
-                std::string surfaceNames[nSurfaces]{"_100",   "_111",   ""};
-                static const unsigned int nTmp{2};
-                unsigned int tmpSides[nTmp]{static_cast<unsigned int>(side), bothSides};
-                // Fill (surface and all surfaces) x (side and both sides)
-                unsigned int tmpSurfaces[nTmp]{surface, allSurfaces};
-                for (unsigned int iSide{0}; iSide<nTmp; iSide++) {
-                  for (unsigned int iSurface{0}; iSurface<nTmp; iSurface++) {
-                    std::string xVar{"phiToWafer_"+std::to_string(layer)+surfaceNames[tmpSurfaces[iSurface]]+sideNames[tmpSides[iSide]]};
-                    std::string yVar{"nStrip_"+std::to_string(layer)+surfaceNames[tmpSurfaces[iSurface]]+sideNames[tmpSides[iSide]]};
-                    auto phiToWaferAcc{Monitored::Scalar<float>(xVar, phiToWafer)};
-                    auto nStripAcc{Monitored::Scalar<int>(yVar, nStrip)};
-                    fill("SCTLorentzMonitor", phiToWaferAcc, nStripAcc);
-                  }
+                std::string xVar{"phiToWafer_"+std::to_string(layer)};
+                std::string yVar{"nStrip_"+std::to_string(layer)};
+                if(surface == surface100){
+                    xVar += "_100";
+                    yVar += "_100";
                 }
+                if(surface == surface111){
+                    xVar += "_111";
+                    yVar += "_111";
+                }
+                if(side == side0){
+                    xVar += "_0";
+                    yVar += "_0";
+                }
+                if(side == side1){
+                    xVar += "_1";
+                    yVar += "_1";
+                }
+                auto phiToWaferAcc{Monitored::Scalar<float>(xVar, phiToWafer)};
+                auto nStripAcc{Monitored::Scalar<int>(yVar, nStrip)};
+                fill("SCTLorentzMonitor", phiToWaferAcc, nStripAcc);
               }// end if passesCuts
             }// end if mtrkp
           } // end if SCT..
