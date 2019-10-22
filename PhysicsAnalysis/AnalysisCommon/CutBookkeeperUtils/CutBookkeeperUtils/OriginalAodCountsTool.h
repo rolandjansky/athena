@@ -6,13 +6,14 @@
 #ifndef AODCOUNTS_TOOL_H
 #define AODCOUNTS_TOOL_H
 
+#include "CutBookkeeperUtils/OriginalAodCounts.h"
+
 #include "AsgTools/AsgTool.h"
 
 namespace xAOD {
   class TEvent;
 }
 class StatusCode;
-struct OriginalAodCounts;
 
 class OriginalAodCountsTool : public asg::AsgTool
 {
@@ -21,8 +22,11 @@ class OriginalAodCountsTool : public asg::AsgTool
   OriginalAodCountsTool(const std::string& name);
   ~OriginalAodCountsTool();
 
+  virtual StatusCode initialize() override;
+
   StatusCode incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts&);
 private:
+  AodCountsConfig m_config;
 };
 
 #endif

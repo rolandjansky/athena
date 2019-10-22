@@ -15,9 +15,15 @@ OriginalAodCountsTool::OriginalAodCountsTool(const std::string& name):
 OriginalAodCountsTool::~OriginalAodCountsTool() {
 }
 
+StatusCode OriginalAodCountsTool::initialize() {
+  // read in configuration stuff here
+  m_config = defaultAodCountsConfig;
+  return StatusCode::SUCCESS;
+}
+
 StatusCode OriginalAodCountsTool::incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts& counts) {
   try {
-    counts += getOriginalAodCounts(event);
+    counts += getOriginalAodCounts(event, m_config);
     return StatusCode::SUCCESS;
   } catch (std::runtime_error& e) {
     ATH_MSG_FATAL("issue getting aod counts: " << e.what());

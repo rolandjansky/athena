@@ -4,13 +4,16 @@
 
 #include "CutBookkeeperUtils/OriginalAodCounts.h"
 
-// #include "xAODCutflow/CutBookkeeper.h"
 #include <xAODCutFlow/CutBookkeeper.h>
 #include <xAODCutFlow/CutBookkeeperContainer.h>
 
 #include "xAODRootAccess/TEvent.h"
 
 #include "TFile.h"
+
+AodCountsConfig::AodCountsConfig() {
+  // add default values here
+}
 
 OriginalAodCounts::OriginalAodCounts():
   nEventsProcessed(0),
@@ -39,7 +42,8 @@ OriginalAodCounts operator+(const OriginalAodCounts& a, const OriginalAodCounts&
 // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisMetadata#Analysis_Metadata_Root_or_athena
 
 
-OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event) {
+OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event,
+                                       const AodCountsConfig&) {
 
   OriginalAodCounts counts;
 
