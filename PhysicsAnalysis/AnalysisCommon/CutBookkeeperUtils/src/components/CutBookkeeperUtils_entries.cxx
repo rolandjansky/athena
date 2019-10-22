@@ -7,9 +7,9 @@
 
 #include <GaudiKernel/DeclareFactoryEntries.h>
 
-#include <CutBookkeeperUtils/OriginalAODCountsTool.h>
+#include <CutBookkeeperUtils/OriginalAodCountsTool.h>
 
-DECLARE_TOOL_FACTORY (OriginalAODCountsTool)
+DECLARE_TOOL_FACTORY (OriginalAodCountsTool)
 DECLARE_FACTORY_ENTRIES(CutBookkeeperUtils) {
-  DECLARE_TOOL(OriginalAODCountsTool)
+  DECLARE_TOOL(OriginalAodCountsTool)
 }
