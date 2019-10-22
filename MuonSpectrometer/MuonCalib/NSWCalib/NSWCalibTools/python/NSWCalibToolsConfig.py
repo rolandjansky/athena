@@ -4,5 +4,10 @@
 #
 from AthenaCommon import CfgMgr
 
-def NSWCalibSmearingTool(name="",**kwargs):
-    return CfgMgr.NSWCalibSmearingTool(name,**kwargs)
+def MMCalibSmearingTool(name="MMCalibSmearingTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__NSWCalibSmearingTool(name,**kwargs)
+
+def STgcCalibSmearingTool(name="STgcCalibSmearingTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__NSWCalibSmearingTool(name,**kwargs)
+
+

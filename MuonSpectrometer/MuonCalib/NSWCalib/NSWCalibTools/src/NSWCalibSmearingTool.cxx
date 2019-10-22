@@ -12,12 +12,16 @@ Muon::NSWCalibSmearingTool::NSWCalibSmearingTool(const std::string& t,
 {
   declareInterface<INSWCalibSmearingTool>(this);
   
-  declareProperty("TimeSmearPattern",   m_timeSmear   = {0.,0.,0.,0.,0.,0.,0.,0.});
-  declareProperty("ChargeSmearPattern", m_chargeSmear = {0.,0.,0.,0.,0.,0.,0.,0.});
-  declareProperty("EfficiencyPattern",  m_efficiency  = {1.,1.,1.,1.,1.,1.,1.,1.});
+  declareProperty("TimeSmear",   m_timeSmear   = {0.,0.,0.,0.,0.,0.,0.,0.});
+  declareProperty("ChargeSmear", m_chargeSmear = {0.,0.,0.,0.,0.,0.,0.,0.});
+  declareProperty("ChannelEfficiency",  m_channelEfficiency  = {1.,1.,1.,1.,1.,1.,1.,1.});
+  declareProperty("ClusterEfficiency",  m_clusterEfficiency  = {1.,1.,1.,1.,1.,1.,1.,1.});
+
+  declareProperty("GainFraction",  m_gainFraction  = {1.,1.,1.,1.,1.,1.,1.,1.});
   
   declareProperty("PhiSectors", m_phiSectors = {true,true,true,true,true,true,true,true} );
-  declareProperty("EtaSectors", m_etaSectors = {true,true} );
+  // first two eta sectors are side-C, second two are side-A
+  declareProperty("EtaSectors", m_etaSectors = {true,true,true,true} );
   
 }
 
@@ -52,47 +56,48 @@ StatusCode Muon::NSWCalibSmearingTool::finalize()
 }
 
 //
+// check if a hit is acceppted
+//
+StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& accepted)
+{
+  accepted = true;
+
+  int etaSector = 0;
+  int phiSector = 0;
+  int gasGap = 0;
+
+  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+
+  /// check if a full hit can be accepted
+  if ( m_random.Rndm() > m_clusterEfficiency.value()[gasGap-1] ) {
+    accepted = false;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//
 // smear only the charge
 //
 StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge, bool& accepted)
 {
-  
-  unsigned int gasGap = 0;
-  unsigned int eta    = 0;
-  unsigned int phi    = 0;
 
-  if ( m_idHelperTool->isMM(id) ) {
-    int multilayer = m_idHelperTool->mmIdHelper().multilayer(id);
-    gasGap = (multilayer-1)*4+m_idHelperTool->mmIdHelper().gasGap(id);
-    eta = m_idHelperTool->mmIdHelper().stationEta(id);
-    phi = m_idHelperTool->mmIdHelper().stationPhi(id);
-  } 
-  else if ( m_idHelperTool->issTgc(id) ) {
-    int multilayer = m_idHelperTool->stgcIdHelper().multilayer(id);
-    gasGap = (multilayer-1)*4+m_idHelperTool->stgcIdHelper().gasGap(id);
-    eta = m_idHelperTool->stgcIdHelper().stationEta(id);
-    phi = m_idHelperTool->stgcIdHelper().stationPhi(id);
-  } 
-  else {
-    ATH_MSG_ERROR("Wrong identifier: should be MM or STGC");
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG("Smearing the strips charge");
 
-  if ( phi < 1 || phi>m_phiSectors.value().size() 
-       || eta < 1 || eta>m_etaSectors.value().size() 
-       || gasGap < 1 || gasGap> m_timeSmear.value().size() || gasGap>m_chargeSmear.value().size() ) {
-    ATH_MSG_ERROR("Wrong phi, eta sector, or gasGap number: " << phi << " " << eta << " " << gasGap);
-    return StatusCode::FAILURE;
-  }
+  int etaSector = 0;
+  int phiSector = 0;
+  int gasGap = 0;
 
-  if ( m_phiSectors.value()[phi-1] && m_etaSectors.value()[eta-1] ) {
+  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+
+  if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
     // smear charge
     double chargeSmear = m_chargeSmear.value()[gasGap-1];
     charge = charge+m_random.Gaus(0.0,chargeSmear);
     
-    // check if the RDO can be accepted
-    accepted = false;
-    if ( m_random.Rndm() <= m_efficiency.value()[gasGap-1] ) {
+    // check if the single strip can be accepted
+    accepted = true;
+    if ( m_random.Rndm() > m_channelEfficiency.value()[gasGap-1] ) {
       accepted = true;
     }
   }
@@ -106,33 +111,18 @@ StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge,
 StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& time, float& charge, bool& accepted)
 {
   
-  unsigned int gasGap = 0;
-  unsigned int eta    = 0;
-  unsigned int phi    = 0;
-
-  if ( m_idHelperTool->isMM(id) ) {
-    int multilayer = m_idHelperTool->mmIdHelper().multilayer(id);
-    gasGap = (multilayer-1)*4+m_idHelperTool->mmIdHelper().gasGap(id);
-    eta = m_idHelperTool->mmIdHelper().stationEta(id);
-    phi = m_idHelperTool->mmIdHelper().stationPhi(id);
-  } 
-  else if ( m_idHelperTool->issTgc(id) ) {
+  if ( m_idHelperTool->issTgc(id) ) {
     ATH_MSG_ERROR("Can't smear time for the STGC's");
     return StatusCode::FAILURE;
   } 
-  else {
-    ATH_MSG_ERROR("Wrong identifier: should be MM or STGC");
-    return StatusCode::FAILURE;
-  }
 
-  if ( phi < 1 || phi>m_phiSectors.value().size() 
-       || eta < 1 || eta>m_etaSectors.value().size() 
-       || gasGap < 1 || gasGap> m_timeSmear.value().size() || gasGap>m_chargeSmear.value().size() ) {
-    ATH_MSG_ERROR("Wrong phi, eta sector, or gasGap number: " << phi << " " << eta << " " << gasGap);
-    return StatusCode::FAILURE;
-  }
+  int etaSector = 0;
+  int phiSector = 0;
+  int gasGap    = 0;
 
-  if ( m_phiSectors.value()[phi-1] && m_etaSectors.value()[eta-1] ) {
+  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+
+  if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
 
     // smear time and charge
     double timeSmear   = m_timeSmear.value()[gasGap-1];
@@ -142,12 +132,69 @@ StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& 
     charge = charge+m_random.Gaus(0.0,chargeSmear);
 
     // check if the RDO can be accepted
-    accepted = false;
-    if ( m_random.Rndm() <= m_efficiency.value()[gasGap-1] ) {
-      accepted = true;
+    accepted = true;
+    if ( m_random.Rndm() > m_channelEfficiency.value()[gasGap-1] ) {
+      accepted = false;
     }
   }
 
   return StatusCode::SUCCESS;
 }
 
+//
+// get the fraction of the actual gain for a given gap
+//
+StatusCode Muon::NSWCalibSmearingTool::getGainFraction(Identifier id, float& gainFraction)
+{
+  int etaSector = 0;
+  int phiSector = 0;
+  int gasGap    = 0;
+
+  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+
+  gainFraction = 1.0;
+
+  if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
+    gainFraction = m_gainFraction.value()[gasGap-1];
+  }  
+
+  return StatusCode::SUCCESS;
+}
+
+
+//
+// get id fields for both STGC and MM
+//
+StatusCode NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int& phiSector,
+					     int& gasGap)
+{
+  if ( m_idHelperTool->isMM(id) ) {
+    int multilayer = m_idHelperTool->mmIdHelper().multilayer(id);
+    gasGap = (multilayer-1)*4+m_idHelperTool->mmIdHelper().gasGap(id);
+    etaSector = m_idHelperTool->mmIdHelper().stationEta(id);
+    phiSector = m_idHelperTool->mmIdHelper().stationPhi(id);
+  } 
+  else if ( m_idHelperTool->issTgc(id) ) {
+    int multilayer = m_idHelperTool->stgcIdHelper().multilayer(id);
+    gasGap = (multilayer-1)*4+m_idHelperTool->stgcIdHelper().gasGap(id);
+    etaSector = m_idHelperTool->stgcIdHelper().stationEta(id);
+    phiSector = m_idHelperTool->stgcIdHelper().stationPhi(id);
+  } 
+  else {
+    ATH_MSG_ERROR("Wrong identifier: should be MM or STGC");
+    return StatusCode::FAILURE;
+  }
+
+  if ( phiSector < 1 || phiSector> (int) m_phiSectors.value().size() 
+       || etaSector < (int) (-m_etaSectors.value().size()) || etaSector> (int) m_etaSectors.value().size() 
+       || gasGap < 1 || gasGap> (int) m_timeSmear.value().size() || gasGap>(int) m_chargeSmear.value().size() ) {
+    ATH_MSG_ERROR("Wrong phi, eta sector, or gasGap number: " << phiSector << " " 
+		  << etaSector << " " << gasGap);
+    return StatusCode::FAILURE;
+  }
+
+  // transform the eta sector
+  etaSector < 0 ? etaSector = etaSector + 3 : etaSector = etaSector + 2;
+
+  return StatusCode::SUCCESS;
+}

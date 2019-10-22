@@ -109,7 +109,7 @@ void MM_StripsResponseSimulation::initFunctions()
 	m_lorentzAngleFunction = new TF1("lorentzAngleFunction","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x",0,2);
 	m_lorentzAngleFunction->SetParameters(0,58.87, -2.983, -10.62, 2.818);
 
-	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", 0., 5.);
+	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", -5., 5.);
 
 	m_transverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
 
