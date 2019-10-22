@@ -80,7 +80,6 @@ class RpcDataPreparator: public AthAlgTool
       const IRPCcablingSvc* m_rpcCabling;
       const CablingRPCBase* m_rpcCablingSvc;
       
-      const MuonGM::MuonDetectorManager* m_muonMgr;
       // Muon Id Helpers
       ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
         "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
