@@ -169,4 +169,10 @@ def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
 
 def getRPC_OverlayDigitizer(name="RPC_OverlayDigitizer", **kwargs):
     kwargs.setdefault("DigitizationTool","Rpc_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     return CfgMgr.RPC_Digitizer(name,**kwargs)

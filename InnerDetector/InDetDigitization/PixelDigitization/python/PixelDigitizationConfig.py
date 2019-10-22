@@ -304,4 +304,10 @@ def PixelDigitizationPU(name="PixelDigitizationPU",**kwargs):
 
 def PixelOverlayDigitization(name="PixelOverlayDigitization",**kwargs):
     kwargs.setdefault("DigitizationTool", "PixelOverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     return CfgMgr.PixelDigitization(name,**kwargs)
