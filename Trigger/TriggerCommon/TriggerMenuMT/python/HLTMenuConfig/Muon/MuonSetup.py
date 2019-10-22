@@ -56,9 +56,11 @@ muNamesFS = muonNames().getNames('FS')
 ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
 def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
-  postFix = ""
-  if forFullScan:
-    postFix = "FS"
+  from AthenaCommon.CFElements import parOR
+  
+  muDecodeRecoSequence = parOR("decodeMuViewNode_"+RoIs)
+
+  postFix = "_"+RoIs
 
   viewAlgs_MuonPRD = []  # These algs should be executed to prepare muon PRDs for muFast and muEF steps.
 
@@ -231,8 +233,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
     viewAlgs_MuonPRD.append( MuonClusterAlg )
 
-
-  return ( viewAlgs_MuonPRD )
+  muDecodeRecoSequence += viewAlgs_MuonPRD
+  return muDecodeRecoSequence
 
 
 def muFastRecoSequence( RoIs ):
@@ -316,7 +318,7 @@ def muonIDFastTrackingSequence( RoIs, name ):
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="Muon", rois = RoIs)
+  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
 
   global TrackParticlesName
   global theFTF_name
@@ -706,16 +708,6 @@ def muEFInsideOutRecoSequence(RoIs, name):
   efmuInsideOutRecoSequence = parOR(viewNodeName)
 
   if "Late" in name:
-    #May be able to do this more nicely in the future to run only if we haven't run this in other chains
-    #Need PRD containers for inside-out reco
-    ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
-    ViewVerifyInsideOut.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                       ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                                       ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                       ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )]
-
-    efmuInsideOutRecoSequence += ViewVerifyInsideOut
 
     #Need to run hough transform at start of late muon chain
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
@@ -747,18 +739,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     efAlgs.append(theSegmentFinderAlg)
 
     # need to run precisions tracking for late muons, since we don't run it anywhere else
-    TrackCollection="TrigFastTrackFinder_Tracks_Muon" 
-    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("lateMuonIDViewDataVerifier")
-
-    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_xAODTracks_Muon' ),
-                                 ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+HLT_xAODTracks_Muon' )]
-    
-    if globalflags.InputFormat.is_bytestream():
-      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
-    efmuInsideOutRecoSequence += ViewVerifyTrk
-
+    TrackCollection="TrigFastTrackFinder_Tracks_MuonLate" 
 
     #Precision Tracking
     PTAlgs = [] #List of precision tracking algs
@@ -767,8 +748,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  ViewVerifyTrk, inputFTFtracks= TrackCollection )
-    PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection )
+    PTSeq = seqAND("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
@@ -915,3 +896,18 @@ def efmuisoRecoSequence( RoIs, Muons ):
   sequenceOut = trigEFmuIso.MuonContName
 
   return efmuisoRecoSequence, sequenceOut
+
+
+def efLateMuRoISequence(): 
+
+  from AthenaCommon.CFElements import parOR
+  efLateMuRoISequence = parOR("efLateMuRoIViewNode")
+
+  from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIMT
+  roiAlg = TrigmuRoIMT("TrigmuRoIMT")
+  sequenceOut = "LateMuRoIs"
+  roiAlg.RoisWriteHandleKey=sequenceOut
+
+  efLateMuRoISequence+=roiAlg
+
+  return efLateMuRoISequence, sequenceOut

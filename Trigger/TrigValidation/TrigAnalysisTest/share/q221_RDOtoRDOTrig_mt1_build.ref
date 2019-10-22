@@ -90,8 +90,8 @@ TrigSignatureMoniMT                                INFO HLT_j80_j60_L1J15       
 TrigSignatureMoniMT                                INFO HLT_j80_j60_L1J15 decisions                       14        0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j85_L1J20                 19        19        13        0         0         0         0         0         13
 TrigSignatureMoniMT                                INFO HLT_j85_L1J20 decisions                           13        0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_mu10_lateMu_L1MU10        10        10        10        10        8         0         0         0         8
-TrigSignatureMoniMT                                INFO HLT_mu10_lateMu_L1MU10 decisions                    14        14        14        0         0         0
+TrigSignatureMoniMT                                INFO HLT_mu10_lateMu_L1MU10        10        10        0         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_mu10_lateMu_L1MU10 decisions                    0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6           10        10        10        5         3         0         0         0         3
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6 decisions                     14        6         3         0         0         0
 TrigSignatureMoniMT                                INFO HLT_mu24_idperf_L1MU20        8         8         6         6         6         6         0         0         6
