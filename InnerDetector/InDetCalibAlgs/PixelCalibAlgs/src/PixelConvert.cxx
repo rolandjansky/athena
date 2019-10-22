@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCalibAlgs/PixelConvert.h"
@@ -26,7 +26,7 @@ namespace PixelConvert {
     return s.str();
   }
 
-  int UnpackOfflineID(std::string offlineID,
+  int UnpackOfflineID(const std::string& offlineID,
 		       int& system,
 		       int& subSystem,
 		       int& endcap,
@@ -121,7 +121,7 @@ namespace PixelConvert {
     return s.str();
   }
 
-  std::string OnlineID(std::string offlineID) {
+  std::string OnlineID(const std::string& offlineID) {
     int system;
     int subSystem;
     int endcap;
@@ -143,7 +143,7 @@ namespace PixelConvert {
   }
 
 
-  int OfflineID(std::string onlineID,
+  int OfflineID(const std::string& onlineID,
 		int& system, 
 		int& subSystem, 
 		int& endcap, 
@@ -246,7 +246,7 @@ namespace PixelConvert {
       else return 1;
   }
 
-  std::string OfflineID(std::string onlineID) {
+  std::string OfflineID(const std::string& onlineID) {
     int system, subSystem, endcap, layer, phi, eta;
     if ( OfflineID(onlineID,system,subSystem,endcap,layer,phi,eta) )
       return PackOfflineID(system,subSystem,endcap,layer,phi,eta);
@@ -278,7 +278,7 @@ namespace PixelConvert {
     return PackOfflineID(system,subSystem,endcap,layer,phi,eta);
   }
 
-  int HashID(std::string ID) {
+  int HashID(const std::string& ID) {
     int system, subSystem, endcap, layer, phi, eta;
     int success;
     if ( ID.at(0)=='[' ) // already offline ID
@@ -310,7 +310,7 @@ namespace PixelConvert {
       +    ((     eta& 0xf)<<13);
   }
 
-  std::string DCSID(std::string OnlineID) {
+  std::string DCSID(const std::string& OnlineID) {
     std::string ID=OnlineID, newID(Error);
     size_t pos=0;
     char ch;
@@ -358,7 +358,7 @@ namespace PixelConvert {
     return ID;
   }
 
-  std::string OnlineIDfromDCSID(std::string DCSID) {
+  std::string OnlineIDfromDCSID(const std::string& DCSID) {
     std::string ID=DCSID, newID(Error);
     size_t pos=0;
     while ( (pos=ID.find('_',pos))!=std::string::npos ) ID.replace(pos,1,"-");
@@ -399,7 +399,7 @@ namespace PixelConvert {
    * file named as in the string datafile initialized above.
    */
 
-  int ReadMap(const std::string filename ) {
+  int ReadMap(const std::string& filename ) {
     std::cerr << "INFO: Opening data file " << filename << std::endl; 
     std::ifstream f(filename.c_str());
     if ( !f.good() ) {

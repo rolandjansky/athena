@@ -16,7 +16,8 @@
 #include <memory>
 #include "./IConditionMT.h"
 
-using ConditionsMT = std::vector<std::unique_ptr<IConditionMT>>;
+using ConditionMT = std::unique_ptr<IConditionMT>;
+using ConditionsMT = std::vector<ConditionMT>;
 using ConditionsMTIter = ConditionsMT::iterator;
 
 #endif

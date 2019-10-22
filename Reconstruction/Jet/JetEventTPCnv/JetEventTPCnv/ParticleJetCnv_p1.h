@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleJetCnv_p1.h 
@@ -24,61 +24,33 @@
 class MsgStream;
 class Jet;
 
-class ParticleJetCnv_p1 : public T_AthenaPoolTPCnvBase<Jet, ParticleJet_p1>
+class ParticleJetCnv_p1 : public T_AthenaPoolTPCnvConstBase<Jet, ParticleJet_p1>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   ParticleJetCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c Jet
    *  from its persistent representation @c ParticleJet_p1
    */
   virtual void persToTrans( const ParticleJet_p1* persObj, 
                             Jet* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c ParticleJet_p1
    *  from its transient representation @c Jet
    */
   virtual void transToPers( const Jet* transObj, 
                             ParticleJet_p1* persObj, 
-                            MsgStream& msg );
-
-  /// Init the converter so that it knows about its "parents" when it
-  /// has to walk the lookup chain.
-//   inline virtual void initPrivateConverters(AthenaPoolTopLevelTPCnvBase *topCnv)
-//   {
-//     m_taginfoCnv.setTopConverter(topCnv, 0);
-//   }
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /// Hold onto the converter for the jet tag info objects
-  //   typedef T_AthenaPoolTPPolyVectorCnv<std::vector<const JetTagInfoBase*>,
-  //                                       std::vector<TPObjRef>,
-  //                                       ITPConverterFor<JetTagInfoBase> > TagInfoCollectionCnv;
-
-  //TagInfoCollectionCnv m_taginfoCnv;
-
-
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline ParticleJetCnv_p1::ParticleJetCnv_p1()
 {

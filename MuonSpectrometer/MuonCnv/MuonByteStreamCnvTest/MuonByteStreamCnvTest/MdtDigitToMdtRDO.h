@@ -14,7 +14,8 @@
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class MdtIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -34,8 +35,9 @@ class MdtDigitToMdtRDO : public AthReentrantAlgorithm {
 
  protected:
 
-  const MdtIdHelper*   m_mdtIdHelper{};
   bool m_BMEpresent{false};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};
   SG::ReadHandleKey<MdtDigitContainer> m_digitContainerKey{this,"InputObjectName","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
   SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};

@@ -18,8 +18,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
+#include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkTrack/TrackCollection.h"
 
 class TH1F_LW;
 class TH2F_LW;
@@ -69,9 +70,9 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   TH2F_LW* MakeHist(const std::string & name, const std::string & title, int nXBins, float xLow, float xUp, int nYBins, float yLow, float yUp, const std::string & xAxisTitle="", const std::string & yAxisTitle="");
   void InitializeHistograms();
   std::string m_stream;
-  std::string m_inputTracksName;
-  std::string m_upperTracksName;
-  std::string m_lowerTracksName;
+  SG::ReadHandleKey<TrackCollection> m_inputTracksName{this, "InputTracksName", "InDetCosmic_Tracks"};
+  SG::ReadHandleKey<TrackCollection> m_upperTracksName{this, "UpperTracksName", "InDetCosmic_Tracks_Upper"};
+  SG::ReadHandleKey<TrackCollection> m_lowerTracksName{this, "LowerTracksName", "InDetCosmic_Tracks_Lower"};
   
   float m_matchedRcut;
   int m_events;

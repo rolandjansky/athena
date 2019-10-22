@@ -269,8 +269,16 @@ class AthConfigFlags(object):
             if not self.hasFlag(key):
                 raise KeyError("%s is not a known configuration flag" % key)
             
+
+            value=argsplit[1].strip()
+
+            try:
+                exec("type(%s)" % value)
+            except NameError: #Can't determine type, assume we got an un-quoted string
+                value="\"%s\"" % value
+
             #Arg looks good enough, just exec it:
-            argToExec="self."+arg
+            argToExec="self.%s=%s" % (key,value)
 
             exec(argToExec)
             pass

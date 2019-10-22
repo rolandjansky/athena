@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -136,13 +136,4 @@ VxContainer * VxContainerCnv::createTransient()
   return p_collection;
   
 }//end of create transient method
-
-void VxContainerCnv::updateLog(){  
-     const DataObject* dObj = getDataObject();
-     if (dObj==0) return; // Can't do much if this fails.
-     const std::string  key = (dObj->name());
- 
-     m_log.m_source="VxContainerCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
-}
-
 

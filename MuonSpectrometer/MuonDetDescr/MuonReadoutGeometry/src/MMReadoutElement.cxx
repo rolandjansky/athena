@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  The MM detector = an assembly module = STGC in amdb 
  ----------------------------------------------------
 ***************************************************************************/
-
-
-//<doc><file>	$Id: MMReadoutElement.cxx,v 1.5 2009-05-13 15:03:47 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -37,8 +33,6 @@ namespace MuonGM {
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
     m_ml = mL;
-    m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:MMReadoutElement");
-    //MsgStream log(Athena::getMessageSvc(), "MuGM:MMReadoutElement");
 
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
@@ -128,7 +122,7 @@ namespace MuonGM {
       }
     }
     if( !foundShape ){
-      *m_MsgStream << MSG::WARNING << " failed to initialize dimensions of this chamber " << endmsg;
+      (*m_Log)  << MSG::WARNING << " failed to initialize dimensions of this chamber " << endmsg;
     }
     //fillCache();
 
@@ -149,14 +143,14 @@ namespace MuonGM {
     // set parent data collection hash id
     int gethash_code = manager()->mmIdHelper()->get_module_hash(id, collIdhash);
     if (gethash_code != 0) 
-      reLog()<<MSG::WARNING
+      (*m_Log) <<MSG::WARNING
      	     <<"MMReadoutElement --  collection hash Id NOT computed for id = "
      	     <<manager()->mmIdHelper()->show_to_string(id)<<std::endl;
     m_idhash = collIdhash;
     // // set RE hash id 
     gethash_code = manager()->mmIdHelper()->get_detectorElement_hash(id, detIdhash);
     if (gethash_code != 0) 
-       reLog()<<MSG::WARNING
+       (*m_Log) <<MSG::WARNING
 	      <<"MMReadoutElement --  detectorElement hash Id NOT computed for id = "
 	      <<manager()->mmIdHelper()->show_to_string(id)<<endmsg;
     m_detectorElIdhash = detIdhash;
@@ -177,7 +171,7 @@ namespace MuonGM {
       int chMax =  manager()->mmIdHelper()->channelMax(id);
       if ( chMax < 0 ) {
         chMax = 2500;
-        reLog()<<MSG::WARNING<<"MMReadoutElement -- Max number of strips not a real value"<<endmsg;
+        (*m_Log) <<MSG::WARNING<<"MMReadoutElement -- Max number of strips not a real value"<<endmsg;
       }
       char side = getStationEta() < 0 ? 'C' : 'A';
       char sector_l = getStationName().substr(2,1)=="L" ? 'L' : 'S';
@@ -207,7 +201,7 @@ namespace MuonGM {
 
       if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
       else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
-      else reLog()<<MSG::WARNING
+      else (*m_Log) <<MSG::WARNING
 	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       
       if (m_etaDesign[il].sAngle == 0.) {    // stereo angle 0.
@@ -253,7 +247,7 @@ namespace MuonGM {
       
       m_nStrips.push_back(m_etaDesign[il].nch);
 
-      reLog()<<MSG::DEBUG
+      (*m_Log) <<MSG::DEBUG
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
 
     }
@@ -264,7 +258,7 @@ namespace MuonGM {
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+      (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
       return;
     }
 
@@ -290,7 +284,7 @@ namespace MuonGM {
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
 // get phi direction of MM eta strip 
-      *m_MsgStream << MSG::DEBUG << " MMReadoutElement layer " << layer << " sAngle " << sAngle << " phi direction MM eta strip " << (m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,1.,0.)).phi() << endmsg; 
+      (*m_Log)  << MSG::DEBUG << " MMReadoutElement layer " << layer << " sAngle " << sAngle << " phi direction MM eta strip " << (m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,1.,0.)).phi() << endmsg; 
     }
   }
 

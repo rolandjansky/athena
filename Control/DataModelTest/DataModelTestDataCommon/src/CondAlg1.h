@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -14,6 +14,7 @@
 #ifndef DATAMODELTESTDATACOMMON_CONDALG1_H
 #define DATAMODELTESTDATACOMMON_CONDALG1_H
 
+#include "GaudiKernel/ICondSvc.h"
 
 #include "DataModelTestDataCommon/S2Cond.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -50,6 +51,7 @@ public:
 
 
 private:
+  ServiceHandle<ICondSvc> m_condSvc;
   SG::ReadCondHandleKey<AthenaAttributeList> m_attrListKey;
   SG::WriteCondHandleKey<DMTest::S2> m_scondKey;
 };

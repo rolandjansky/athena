@@ -237,7 +237,10 @@ def getThresholdsFromDict( chainDict ):
 
 def TrigMufastHypoToolFromDict( chainDict ):	
 
-    thresholds = getThresholdsFromDict( chainDict )
+    if 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
+       thresholds = ['passthrough']
+    else:
+        thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     # Setup MonTool for monitored variables in AthenaMonitoring package
@@ -262,44 +265,46 @@ class TrigMufastHypoConfig(object):
         tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            if "idperf" in toolName or thvalue < 5:
-                thvaluename =  thvalue + 'GeV_v15a'
-            elif "0eta105" in toolName:
-                thvaluename = thvalue+ "GeV_barrelOnly_v15a"
+            if (thvalue == 'passthrough'):
+                tool.PtBins[th] = [-10000.,10000.]
+                tool.PtThresholds[th] = [ -1. * GeV ]
+                tool.AcceptAll = True
             else:
-                thvaluename = '6GeV_v15a'
-
-
-            log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
-
-            try:
-                tool.AcceptAll = False
-                values = muFastThresholds[thvaluename]
-                tool.PtBins[th] = values[0]
-                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
-                log.debug('Configration of threshold[%d] %s', th, tool.PtThresholds[th])
-                log.debug('Configration of PtBins[%d] %s', th, tool.PtBins[th])
-                if thvaluename in muFastThresholdsForECWeakBRegion:
-                    spThres = muFastThresholdsForECWeakBRegion[thvaluename]
-                    tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
-                    tool.PtThresholdForECWeakBRegionB[th] = spThres[1] * GeV
+                if "idperf" in toolName or thvalue < 5:
+                    thvaluename =  thvalue + 'GeV_v15a'
+                elif "0eta105" in toolName:
+                    thvaluename = thvalue+ "GeV_barrelOnly_v15a"
                 else:
-                    log.debug('No special thresholds for EC weak Bfield regions for %s. Copy EC1 for region A, EC2 for region B.', thvaluename)
-                    spThres = values[0][1]
-                    if thvaluename == '2GeV' or thvaluename == '3GeV':
+                    thvaluename = '6GeV_v15a'
+
+
+
+                log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
+
+                try:
+                    tool.AcceptAll = False
+                    values = muFastThresholds[thvaluename]
+                    tool.PtBins[th] = values[0]
+                    tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
+                    log.debug('Configration of threshold[%d] %s', th, tool.PtThresholds[th])
+                    log.debug('Configration of PtBins[%d] %s', th, tool.PtBins[th])
+                    if thvaluename in muFastThresholdsForECWeakBRegion:
+                        spThres = muFastThresholdsForECWeakBRegion[thvaluename]
                         tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
-                        tool.PtThresholdForECWeakBRegionB[th] = spThres[0] * GeV
+                        tool.PtThresholdForECWeakBRegionB[th] = spThres[1] * GeV
                     else:
-                        tool.PtThresholdForECWeakBRegionA[th] = spThres[1] * GeV
-                        tool.PtThresholdForECWeakBRegionB[th] = spThres[2] * GeV
+                        log.debug('No special thresholds for EC weak Bfield regions for %s. Copy EC1 for region A, EC2 for region B.', thvaluename)
+                        spThres = values[0][1]
+                        if thvaluename == '2GeV' or thvaluename == '3GeV':
+                            tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
+                            tool.PtThresholdForECWeakBRegionB[th] = spThres[0] * GeV
+                        else:
+                            tool.PtThresholdForECWeakBRegionA[th] = spThres[1] * GeV
+                            tool.PtThresholdForECWeakBRegionB[th] = spThres[2] * GeV
 
-                log.debug('Thresholds for A[%d]/B[%d] = %d/%d', th, th, tool.PtThresholdForECWeakBRegionA[th], tool.PtThresholdForECWeakBRegionB[th])
+                        log.debug('Thresholds for A[%d]/B[%d] = %d/%d', th, th, tool.PtThresholdForECWeakBRegionA[th], tool.PtThresholdForECWeakBRegionB[th])
 
-            except LookupError:
-                if (thvalue=='passthrough'):
-                    tool.PtBins[th] = [-10000.,10000.]
-                    tool.PtThresholds[th] = [ -1. * GeV ]
-                else:
+                except LookupError:
                     raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % thvaluename)
 
         return tool
@@ -376,7 +381,7 @@ class TrigL2MuonOverlapRemoverMucombConfig(object):
 
 def TrigmuCombHypoToolFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName'] or 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -403,30 +408,28 @@ class TrigmuCombHypoConfig(object):
         tool.PtThresholds = [ [ 5.83 * GeV ] ] * nt
 
         for th, thvalue in enumerate(thresholds):
-            if thvalue >= 24:
-                thvaluename = '22GeV_v15a'
+            if thvalue == 'passthrough':
+                tool.AcceptAll = True
+                tool.PtBins[th] = [-10000.,10000.]
+                tool.PtThresholds[th] = [ -1. * GeV ]
             else:
-                thvaluename = thvalue + 'GeV_v15a'
-            log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
-
-            try:
-                values = muCombThresholds[thvaluename]
-                tool.PtBins[th] = values[0]
-                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
-            except LookupError:
-                if (thvalue=='passthrough'):
-                    tool.AcceptAll = True
-                    tool.PtBins[th] = [-10000.,10000.]
-                    tool.PtThresholds[th] = [ -1. * GeV ]
-                    tool.ApplyStrategyDependentCuts = True
-                    tool.ApplyPikCuts = False
+                if thvalue >= 24:
+                    thvaluename = '22GeV_v15a'
                 else:
+                    thvaluename = thvalue + 'GeV_v15a'
+                log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
+
+                try:
+                    values = muCombThresholds[thvaluename]
+                    tool.PtBins[th] = values[0]
+                    tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
+                    if (tight is True):
+                        tool.ApplyPikCuts        = True
+                        tool.MaxPtToApplyPik      = 25.
+                        tool.MaxChi2IDPik         = 3.5
+                except LookupError:
                     raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % thvaluename)
         
-            if (tight is True):
-                tool.ApplyPikCuts        = True
-                tool.MaxPtToApplyPik      = 25.
-                tool.MaxChi2IDPik         = 3.5
 
         return tool 
 
@@ -476,6 +479,27 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
+def TrigMuonEFMSonlyHypoToolFromName(chainDict):
+    #For full scan chains, we need to configure the thresholds based on all muons
+    #in the chain to get the counting correct. Currently a bit convoluted as 
+    #the chain dict is (improperly) overwritten when merging for FS chains.
+    #Can probably improve this once serial merging is officially implemented
+    thresholds=[]
+    chainName = chainDict["chainName"]
+    hltChainName = chainName[:chainName.index("_L1")]
+    cparts = hltChainName.split("_")
+    if 'HLT' in hltChainName:
+        cparts.remove('HLT')
+    for part in cparts:
+        if 'mu' in part:
+            thr=part.replace('mu','')
+            if 'noL1' in part:
+                thr =thr.replace('noL1','')
+            thresholds.append(thr)
+    config = TrigMuonEFMSonlyHypoConfig()
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
+    addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
+    return tool
     
 class TrigMuonEFMSonlyHypoConfig(object):
 
@@ -509,6 +533,7 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
             except LookupError:
                 if (thvalue=='passthrough'):
+                    tool.AcceptAll = True
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
@@ -524,6 +549,28 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
        thresholds = getThresholdsFromDict( chainDict )
     config = TrigMuonEFCombinerHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
+    return tool
+
+def TrigMuonEFCombinerHypoToolFromName(chainDict):
+    #For full scan chains, we need to configure the thresholds based on all muons
+    #in the chain to get the counting correct. Currently a bit convoluted as 
+    #the chain dict is (improperly) overwritten when merging for FS chains.
+    #Can probably improve this once serial merging is officially implemented
+    thresholds=[]
+    chainName = chainDict["chainName"]
+    hltChainName = chainName[:chainName.index("_L1")]
+    cparts = hltChainName.split("_")
+    if 'HLT' in hltChainName:
+        cparts.remove('HLT')
+    for part in cparts:
+        if 'mu' in part:
+            thr=part.replace('mu','')
+            if 'noL1' in part:
+                thr =thr.replace('noL1','')
+            thresholds.append(thr)
+    config = TrigMuonEFCombinerHypoConfig()
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
     
@@ -553,6 +600,7 @@ class TrigMuonEFCombinerHypoConfig(object):
 
             except LookupError:
                 if (thvalue=='passthrough'):
+                    tool.AcceptAll = True
                     tool.PtBins[th] = [-10000.,10000.]
                     tool.PtThresholds[th] = [ -1. * GeV ]
                 else:

@@ -20,7 +20,7 @@ void Compressor::reduceToUS(const std::vector<float> &vf, std::vector<unsigned s
 	unsigned int max_short_flt = 0x7f7f7fff;
 	union {unsigned int u;float f;} m;
 	vc.reserve(vf.size());
-	for (;i<vf.end();i++){
+	for (;i<vf.end();++i){
 		m.f=(*i);
 		if ( (m.u & 0x7fffffff) > max_short_flt) vc.push_back (m.u>>16);
 		else vc.push_back((m.u+0x8000)>>16);
@@ -31,7 +31,7 @@ void Compressor::expandFromUStoFloat(const std::vector<unsigned short> &vc, std:
 	std::vector<unsigned short>::const_iterator i=vc.begin();
 	union {unsigned int u;float f;} m;
 	vf.reserve(vc.size());
-	for (;i<vc.end();i++){
+	for (;i<vc.end();++i){
 		unsigned int ui((*i)<<16);
 		m.u=ui;
 		vf.push_back(m.f);
@@ -103,7 +103,7 @@ void Compressor::reduce(const std::vector<float> &vf, std::vector<unsigned int> 
 		
 	}
 	else
-		for (;i<vf.end();i++){
+		for (;i<vf.end();++i){
 			m.f=(*i);
 			vi.push_back(m.u);
 			}
@@ -119,7 +119,7 @@ void Compressor::expandToFloat(const std::vector<unsigned int> & vi, std::vector
 
 	std::vector<unsigned int>::const_iterator i=vi.begin();
 	
-	int format=(*i); i++;
+	int format=(*i); ++i;
 	m_sign= 1 & format;
 //	if (m_sign) cout<<"Sign was neglected"<<endl;
 	format=format>>1;
@@ -150,14 +150,14 @@ void Compressor::expandToFloat(const std::vector<unsigned int> & vi, std::vector
                           CP=FP;
                         else {
                           CP = 0;
-                          i++;
+                          ++i;
                           ui = (*i); // take next integer
                         }
 		}
 		else{			// part of the float is in the next integer
 			REM = FP - 32;	// Remainder = Future point - 32
 			R = ( ui & (0xffffffff >> CP) ) << REM; // find first part
-			i++;
+			++i;
 			ui = (*i); // take next integer
 			R |=  ui >> (32-REM) ;
 			R <<= bshift;

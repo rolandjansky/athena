@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOBINDESCRIPTOR_H
@@ -210,7 +210,7 @@ template<typename T>
 size_t CaloBinDescriptor<T>::getIndex(const T& theData) const
 {
   size_t theIndex = 0;
-  while ( theData > m_bins[theIndex] && theIndex < this->getNumberOfBins() )
+  while ( theIndex < this->getNumberOfBins() && theData > m_bins[theIndex] )
     {
       theIndex++;
     }

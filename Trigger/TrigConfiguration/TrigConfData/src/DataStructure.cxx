@@ -147,6 +147,24 @@ TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreI
 }
 
 
+std::vector<std::string>
+TrigConf::DataStructure::getKeys() const 
+{
+   std::vector<std::string> keys;
+   if ( ! m_data.empty() &&
+        ! m_data.front().first.empty() ) 
+      {
+         for( auto & entry : m_data ) {
+            keys.push_back(entry.first);
+         }
+      }
+   return keys;
+}
+
+
+
+
+
 void
 TrigConf::DataStructure::print(ostream & os) const
 {

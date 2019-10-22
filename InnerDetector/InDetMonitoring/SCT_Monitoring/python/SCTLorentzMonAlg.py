@@ -145,8 +145,8 @@ def SCTLorentzMonAlgConfig(inputFlags):
 
 
     # set up geometry / conditions
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
-    result.merge(InDetGeometryCfg(inputFlags))
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    result.merge(AtlasGeometryCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.

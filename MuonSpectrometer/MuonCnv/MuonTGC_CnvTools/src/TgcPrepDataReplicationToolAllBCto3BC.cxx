@@ -19,8 +19,6 @@
 Muon::TgcPrepDataReplicationToolAllBCto3BC::TgcPrepDataReplicationToolAllBCto3BC 
   (const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p),
-  m_muonMgr(0),
-  m_tgcHelper(0),
   m_3BCKeys{"dummy", "dummy", "dummy"},
   m_AllBCKey("TGC_MeasurementsAllBCs")
 {
@@ -47,14 +45,7 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::initialize()
   StatusCode sc = AthAlgTool::initialize();
   if(sc.isFailure()) return sc;
 
-  sc = detStore()->retrieve(m_muonMgr);
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot retrieve MuonDetectorManager");
-    return sc;
-  }
-
-  /// get tgcIdHelper from muonMgr
-  m_tgcHelper = m_muonMgr->tgcIdHelper();
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   for(int ibc = 0; ibc < BC_ALL; ibc++) {
     std::ostringstream location;
@@ -89,7 +80,7 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC()
   // convert
   auto tgc3BCHandles = m_3BCKeys.makeHandles();
   for (int ibc = 0; ibc < BC_ALL; ibc++){
-      tgc3BCHandles.at(ibc) = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_tgcHelper->module_hash_max()) );
+      tgc3BCHandles.at(ibc) = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()) );
   }
 
   Muon::TgcPrepDataContainer::const_iterator tgcAllItr   = tgcAll->begin();
@@ -111,11 +102,11 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC()
         hasBC[BC_NEXT] = TgcPrepData::BCBIT_NEXT;
 
       Identifier channelId = (*tgcAllColItr)->identify();
-      Identifier elementId = m_tgcHelper->elementID(channelId);
+      Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(channelId);
       std::array<Muon::TgcPrepDataCollection*, BC_ALL> collections;
       for (int ibc = 0; ibc < BC_ALL; ibc++) {
         collections[ibc] = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
-                            (elementId, tgc3BCHandles[ibc].ptr(), m_tgcHelper, msg());
+                            (elementId, tgc3BCHandles[ibc].ptr(), m_muonIdHelperTool->tgcIdHelper(), msg());
      
         if (!hasBC[ibc]) continue;
         Muon::TgcPrepData* newPrepData = makeTgcPrepData(tgcAllColItr, hasBC[ibc]);

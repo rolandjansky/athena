@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTKERNEL_SIGNALSTATEHELPER_H
@@ -20,7 +20,7 @@
    @author Pier-Olivier DeViveiros <viveiros AT physics.utoronto.ca>
  */
 
-class SignalStateHelper
+class SignalStateHelper final
 {
 public:
 
@@ -33,19 +33,19 @@ public:
   SignalStateHelper(const ISignalState* theObject, P4SignalState::State s);
   
   /** Destructor */
-  virtual ~SignalStateHelper();
+  ~SignalStateHelper();
   
   /** Change the signal state for future operations */
-  virtual bool setSignalState(P4SignalState::State s) ;
+  bool setSignalState(P4SignalState::State s) ;
 
   /** Reset the Signal State of the controlled object and use it for future operations */
-  virtual bool resetSignalState() ;
+  bool resetSignalState() ;
 
   /** Change the object controlled, this releases previous object and resets its SigState */
-  virtual bool controlObject(const ISignalState* theObject);
+  bool controlObject(const ISignalState* theObject);
   
   /** Release controled object (this resets its signal state) */
-  virtual bool releaseObject();
+  bool releaseObject();
   
 protected:
 
@@ -61,7 +61,7 @@ protected:
 
 // COLL must be a collection of ISignalState objects with an iterator
 template <class COLL>
-class SignalStateCollHelper
+class SignalStateCollHelper final
 {
 public:
   
@@ -78,19 +78,19 @@ public:
   SignalStateCollHelper(const coll_t* theCollection, P4SignalState::State s);
 
   /** Destructor */
-  virtual ~SignalStateCollHelper();
+  ~SignalStateCollHelper();
 
   /** Change the signal state for future operations */
-  virtual bool setSignalState(P4SignalState::State s);
+  bool setSignalState(P4SignalState::State s);
 
   /** Reset the Signal State of the controlled object and use it for future operations */
-  virtual bool resetSignalState();
+  bool resetSignalState();
 
   /** Change the collection controlled, this releases previous object and resets its SigState */
-  virtual bool controlCollection(const coll_t* theCollection);
+  bool controlCollection(const coll_t* theCollection);
 
   /** Release controled object (this resets its signal state) */
-  virtual bool releaseCollection();
+  bool releaseCollection();
 
 protected:
 
@@ -114,6 +114,7 @@ protected:
 /** Empty Constructor */
 template <class COLL>
 SignalStateCollHelper<COLL>::SignalStateCollHelper():
+  m_originalState(P4SignalState::UNKNOWN),
   m_currentState(P4SignalState::UNKNOWN),
   m_collection(0)
 {}
@@ -129,6 +130,7 @@ SignalStateCollHelper<COLL>::SignalStateCollHelper(const COLL* theCollection):
 
 template <class COLL>
 SignalStateCollHelper<COLL>::SignalStateCollHelper(P4SignalState::State s):
+  m_originalState(s),
   m_currentState(s),
   m_collection(0)
 {

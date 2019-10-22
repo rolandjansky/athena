@@ -26,5 +26,4 @@ atlas_add_component( MuonSegmentTrackMaker
                      LINK_LIBRARIES AthenaBaseComps AthenaMonitoringLib GaudiKernel StoreGateLib SGtests MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces Particle TrkSegment TrkTrack )
 
 # Install files from the package:
-atlas_install_headers( MuonSegmentTrackMaker )
 

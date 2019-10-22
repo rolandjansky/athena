@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -76,7 +76,7 @@ void AthenaConverterTLPExtension::usingTPCnvForReading( TopLevelTPCnvBase &baseT
 
          // copy clones of all extending converters to a new converter map 
          for( extCnvMap_t::const_iterator cnvI = m_extendingConverters.begin();
-              cnvI != m_extendingConverters.end(); cnvI++ ) {
+              cnvI != m_extendingConverters.end(); ++cnvI ) {
             AthenaConverterTLPExtension *cloned_converter = cnvI->second->clone();
             if( !cloned_converter ) {
                // basically panicking, this is not a runtime exception but an incomplete converter implementation
@@ -115,7 +115,7 @@ void AthenaConverterTLPExtension::readExtendingObjects( void *baseObj )
 	    extendingConverters = extCnvMapIter->second;
 	 }
 	 // load the remaining "pieces" of this object
-	 for( TPCnvTokenList_p1::const_iterator it = tokens->begin(); it != tokens->end(); it++ ) {
+	 for( TPCnvTokenList_p1::const_iterator it = tokens->begin(); it != tokens->end(); ++it ) {
             if( it->token().size() < 36 ) {
                ostringstream err;
                err << "Corrupted Token in the list of extensions. Token='" << it->token() << "'"
@@ -148,7 +148,7 @@ void AthenaConverterTLPExtension::readExtendingObjects( void *baseObj )
 void AthenaConverterTLPExtension::deletePersistentObjects()
 {
    for( extCnvMap_t::const_iterator cnv = m_extendingConverters.begin();
-	cnv != m_extendingConverters.end(); cnv++ ) {
+	cnv != m_extendingConverters.end(); ++cnv ) {
       cnv->second->deletePersistentObjects();
    }
    for( size_t c = 0; c < m_clonedExtendingCnvs.size(); c++ )
@@ -167,7 +167,7 @@ AthenaConverterTLPExtension::~AthenaConverterTLPExtension()
    for( size_t c = 0; c < m_clonedExtendingCnvs.size(); c++ )
       delete m_clonedExtendingCnvs[c];
    for( extCnvMapMap_t::const_iterator mmiter = m_extCnvMapMap.begin();
-        mmiter != m_extCnvMapMap.end(); mmiter++ ) {
+        mmiter != m_extCnvMapMap.end(); ++mmiter ) {
       delete mmiter->second;
    }
    

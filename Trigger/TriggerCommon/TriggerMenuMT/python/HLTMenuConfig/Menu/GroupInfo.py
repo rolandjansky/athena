@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenu.menu.GroupInfo' )
+log = logging.getLogger( 'TriggerMenuMT.menu.GroupInfo' )
 
 AllowedGroups = ['Muon',
                  'Jet',

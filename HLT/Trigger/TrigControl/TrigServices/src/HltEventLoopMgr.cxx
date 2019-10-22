@@ -7,6 +7,7 @@
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
 #include "TrigSORFromPtreeHelper.h"
+#include "TrigRDBManager.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
@@ -119,21 +120,6 @@ StatusCode HltEventLoopMgr::initialize()
   // Read DataFlow configuration properties
   updateDFProps();
 
-  // JobOptions type
-  SmartIF<IProperty> propMgr = serviceLocator()->service<IProperty>("ApplicationMgr");
-  if (propMgr.isValid()) {
-    if ( m_topAlgNames.value().empty() ) {
-      if (setProperty(propMgr->getProperty("TopAlg")).isFailure()) {
-        ATH_MSG_WARNING("Could not set the TopAlg property from ApplicationMgr");
-      }
-    }
-  }
-  else {
-    ATH_MSG_WARNING("Error retrieving IProperty interface of ApplicationMgr");
-  }
-
-  ATH_CHECK( m_jobOptionsSvc.retrieve() );
-
   // print properties
   ATH_MSG_INFO(" ---> ApplicationName         = " << m_applicationName);
   ATH_MSG_INFO(" ---> HardTimeout             = " << m_hardTimeout.value());
@@ -146,6 +132,7 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> EventContextWHKey       = " << m_eventContextWHKey.key());
   ATH_MSG_INFO(" ---> EventInfoRHKey          = " << m_eventInfoRHKey.key());
 
+  ATH_CHECK( m_jobOptionsSvc.retrieve() );
   const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
   if (prop)
     ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << prop->toString());
@@ -156,36 +143,6 @@ StatusCode HltEventLoopMgr::initialize()
     ATH_MSG_INFO(" ---> NumThreads              = " << prop->toString());
   else
    ATH_MSG_WARNING("Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize");
-
-  //----------------------------------------------------------------------------
-  // Create and initialise the top level algorithms
-  //----------------------------------------------------------------------------
-  SmartIF<IAlgManager> algMgr = serviceLocator()->as<IAlgManager>();
-  if (!algMgr.isValid()) {
-    ATH_MSG_FATAL("Failed to retrieve AlgManager - cannot initialise top level algorithms");
-    return StatusCode::FAILURE;
-  }
-  std::vector<SmartIF<IAlgorithm>> topAlgList;
-  topAlgList.reserve(m_topAlgNames.value().size());
-  for (const auto& it : m_topAlgNames.value()) {
-    Gaudi::Utils::TypeNameString item{it};
-    std::string item_name = item.name();
-    SmartIF<IAlgorithm> alg = algMgr->algorithm(item_name, /*createIf=*/ false);
-    if (alg.isValid()) {
-      ATH_MSG_DEBUG("Top Algorithm " << item_name << " already exists");
-    }
-    else {
-      ATH_MSG_DEBUG("Creating Top Algorithm " << item.type() << " with name " << item_name);
-      IAlgorithm* ialg = nullptr;
-      ATH_CHECK(algMgr->createAlgorithm(item.type(), item_name, ialg));
-      alg = ialg; // manage reference counting
-    }
-    m_topAlgList.push_back(alg);
-  }
-
-  for (auto& ita : m_topAlgList) {
-    ATH_CHECK(ita->sysInitialize());
-  }
 
   //----------------------------------------------------------------------------
   // Setup all Hive services for multithreaded event processing with the exception of SchedulerSvc,
@@ -279,12 +236,6 @@ StatusCode HltEventLoopMgr::stop()
     ATH_CHECK(m_ioCompMgr->io_reinitialize());
   }
 
-  // temporary: endRun will eventually be deprecated
-  for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysEndRun());
-
-  // Stop top level algorithms
-  for (auto& ita : m_topAlgList) ATH_CHECK(ita->sysStop());
-
   return StatusCode::SUCCESS;
 }
 
@@ -299,24 +250,6 @@ StatusCode HltEventLoopMgr::finalize()
 
   // Need to release now - automatic release in destructor is too late since services are already gone
   m_hltROBDataProviderSvc.reset();
-
-  // Finalise top level algorithms
-  for (auto& ita : m_topAlgList) {
-    if (ita->sysFinalize().isFailure())
-      ATH_MSG_WARNING("Finalisation of algorithm " << ita->name() << " failed");
-  }
-  // Release top level algorithms
-  SmartIF<IAlgManager> algMgr = serviceLocator()->as<IAlgManager>();
-  if (!algMgr.isValid()) {
-    ATH_MSG_WARNING("Failed to retrieve AlgManager - cannot finalise top level algorithms");
-  }
-  else {
-    for (auto& ita : m_topAlgList) {
-      if (algMgr->removeAlgorithm(ita).isFailure())
-        ATH_MSG_WARNING("Problems removing Algorithm " << ita->name());
-    }
-  }
-  m_topAlgList.clear();
 
   // Release all handles
   auto releaseAndCheck = [&](auto& handle, std::string handleType) {
@@ -349,37 +282,6 @@ StatusCode HltEventLoopMgr::finalize()
 }
 
 // =============================================================================
-// Reimplementation of AthService::reinitalize (IStateful interface)
-// =============================================================================
-StatusCode HltEventLoopMgr::reinitialize()
-{
-  ATH_CHECK(AthService::reinitialize());
-
-  // reinitialise top level algorithms
-  for (auto& ita : m_topAlgList) {
-    ATH_CHECK(ita->sysReinitialize());
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-// =============================================================================
-// Reimplementation of AthService::restart (IStateful interface)
-// =============================================================================
-StatusCode HltEventLoopMgr::restart()
-{
-  ATH_CHECK(AthService::restart());
-
-  // restart top level algorithms
-  for (auto& ita : m_topAlgList) {
-    m_aess->resetErrorCount(ita);
-    ATH_CHECK(ita->sysRestart());
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-// =============================================================================
 // Implementation of ITrigEventLoopMgr::prepareForRun
 // =============================================================================
 StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
@@ -400,21 +302,16 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     updateInternal(soral);       // update internally kept info
     updateMetadataStore(soral);  // update metadata store
 
-    // start top level algorithms
-    for (auto& ita : m_topAlgList) {
-      ATH_CHECK(ita->sysStart());
-    }
-
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginRun, m_currentRunCtx));
 
-    for (auto& ita : m_topAlgList) {
-      ATH_CHECK(ita->sysBeginRun());   // TEMPORARY: beginRun is deprecated
-    }
     // Initialize COOL helper (needs to be done after IOVDbSvc has loaded all folders)
     ATH_CHECK(m_coolHelper->readFolderInfo());
 
     // close any open files (e.g. THistSvc)
     ATH_CHECK(m_ioCompMgr->io_finalize());
+
+    // close open DB connections
+    ATH_CHECK(TrigRDBManager::closeDBConnections(m_dbIdleWait, msg()));
 
     // Assert that scheduler has not been initialised before forking
     SmartIF<IService> svc = serviceLocator()->service(m_schedulerName, /*createIf=*/ false);

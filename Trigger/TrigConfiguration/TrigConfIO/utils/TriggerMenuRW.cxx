@@ -6,7 +6,8 @@
 #include <vector>
 
 #include "TrigConfIO/JsonFileLoader.h"
-#include "TrigConfIO/TrigDBLoader.h"
+#include "TrigConfIO/TrigDBMenuLoader.h"
+#include "TrigConfIO/TrigDBJobOptionsLoader.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1TopoMenu.h"
@@ -26,7 +27,7 @@ public:
    ~Config(){}
    Config(){}
 
-   std::vector<std::string> knownParameters { "file", "smk", "db", "write", "help", "h" };
+   std::vector<std::string> knownParameters { "file", "smk", "db", "write", "help", "h", "d", "detail" };
 
    // parameters
    // input
@@ -38,8 +39,8 @@ public:
    std::string  base { "" };
 
    // other
-   bool         help {false};
-
+   bool         help { false };
+   bool         detail { false };
    // to keep track of configuration errors
    vector<string> error;
 
@@ -65,6 +66,7 @@ void Config::usage() {
   cout << "  --write               [base]                        ... to write out json files, e.g. L1menu[_<base>].json. base is optional.\n";
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
+  cout << "  -d|--detail                                         ... prints detailed job options\n";
   cout << "\n\n";
   cout << "Examples\n";
   cout << "  --file L1menu.json HLTMenu.json                     ... read L1Menu.json and HLTMenu.json and show some basic statistics\n";
@@ -96,6 +98,7 @@ Config::parseProgramOptions(int argc, char* argv[]) {
          currentParameter = "";
          // check the boolean parameters
          if(paramName == "h" || paramName == "help" ) { help = true; continue; }
+         if(paramName == "d" || paramName == "detail" ) { detail = true; continue; }
          currentParameter = paramName;
          continue;
       }
@@ -127,6 +130,10 @@ Config::parseProgramOptions(int argc, char* argv[]) {
    // some sanity checks
    if ( inputFiles.size() == 0 and smk == 0 ) {
       error.push_back("No input specified! Please provide either input file(s) or smk");
+   }
+
+   if ( listofUnknownParameters.size() > 0 ) {
+      error.push_back( string("Unknown parameter(s):") + listofUnknownParameters);
    }
 
 }
@@ -180,24 +187,47 @@ int main(int argc, char** argv) {
    if( cfg.smk != 0 ) {
       // load config from DB
 
-      // db loader
-      TrigConf::TrigDBLoader dbloader(cfg.dbalias);
+      // db menu loader
+      TrigConf::TrigDBMenuLoader dbloader(cfg.dbalias);
 
       TrigConf::L1Menu l1menu;
       TrigConf::HLTMenu hltmenu;
       
-      dbloader.loadMenu( cfg.smk, l1menu, hltmenu );
+      dbloader.loadL1Menu( cfg.smk, l1menu );
       if (l1menu) {
          cout << "Loaded L1 menu with " << l1menu.size() << " items" <<  endl;
          l1menu.printStats();
       } else {
          cout << "Did not load an L1 menu" << endl;
       }
+
+      dbloader.loadHLTMenu( cfg.smk, hltmenu );
       if (hltmenu) {
          cout << "Loaded HLT menu with " << hltmenu.size() << " chains" << endl;
       } else {
          cout << "Did not load an HLT menu" << endl;
       }
+
+      // db job options loader
+      TrigConf::TrigDBJobOptionsLoader jodbloader(cfg.dbalias);
+
+      TrigConf::DataStructure jo;
+      jodbloader.loadJobOptions( cfg.smk, jo );
+      if (jo) {
+         cout << "Loaded job options with " << jo.getObject("properties").getKeys().size() << " entries " << endl;
+         if( cfg.detail ) {
+            for( const auto alg : jo.getObject("properties").data()) {
+               std::cout << alg.first << std::endl;
+               for( const auto prop : alg.second ) {
+                  std::cout << "      " << prop.first << " -> " << prop.second.data() << std::endl;
+               }
+            }
+         }
+      } else {
+         cout << "Did not load job options" << endl;
+      }
+
+
    }
 
 

@@ -173,6 +173,8 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
      return;
   }
 
+  std::lock_guard<std::mutex> lock(m_mut);
+
   std::map<std::pair<Identifier, unsigned int>, std::vector<unsigned short> > &elecMap = hvpath->getElecMap(); //shorthand
 
   std::vector<unsigned short> list;

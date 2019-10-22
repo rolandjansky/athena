@@ -11,8 +11,7 @@
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
-
-class TgcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class TgcRdoToTgcDigit : public AthReentrantAlgorithm {
 
@@ -28,7 +27,8 @@ class TgcRdoToTgcDigit : public AthReentrantAlgorithm {
   StatusCode decodeTgc( const TgcRdo *, TgcDigitContainer *, Identifier&) const;
 
   ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool{this, "tgcRdoDecoderTool", "Muon::TgcRDO_Decoder", ""};
-  const TgcIdHelper *   m_tgcHelper{};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   /** Switch for warning message disabling on one invalid channel in
       TGC sector A09 seen in 2008 data, at least run 79772 - 91800.
       bug #48828: TgcRdoToTgcDigit WARNING ElementID not found for

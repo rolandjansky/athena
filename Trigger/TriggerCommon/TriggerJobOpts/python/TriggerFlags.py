@@ -894,7 +894,7 @@ class outputHLTmenuJsonFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "HLTmenu_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".json"
+            return "HLTMenu_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".json"
         else:
             return self.get_Value()
 

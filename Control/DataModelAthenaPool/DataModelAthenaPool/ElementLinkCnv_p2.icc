@@ -12,7 +12,9 @@
 #include "AthLinks/ElementLink.h"
 #include "ElementLinkContNames_p2.h"
 #include "AthenaKernel/IThinningSvc.h"
-#include "DataModelAthenaPool/getThinningCache.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/getThinningCache.h"
 
 //#define ELLINK_DEBUG
 
@@ -109,7 +111,7 @@ void ElementLinkCnv_p2<LINK_TYPE>::
 transToPers (State& state,
              const Link_t& trans,
              PersLink_t& pers,
-             const SG::ThinningCache* /*cache*/,
+             const SG::ThinningCache* cache,
              [[maybe_unused]] MsgStream& msg) const
 {
 #ifdef  ELLINK_DEBUG
@@ -187,6 +189,66 @@ transToPers (State& state,
     return;
   }
 
+  // Check for new thinning.
+  if (cache) {
+    const SG::ThinningDecisionBase* dec = cache->thinning (trans.key());
+    if (dec) {
+      // here is the problem: in case the ElementLink was directly created w/
+      // only a pointer to the element, _and_ if the the pointed-at element 
+      // has been thinned away, EL::index() will throw b/c
+      // IndexingPolicy::setIndex will fail.
+      std::size_t idx = SG::ThinningDecisionBase::RemovedIdx;
+      try {
+        idx = trans.index();
+      } catch ( const SG::maybe_thinning_error& err ) {
+        // ok. that's the corner case we talked about above.
+#ifdef  ELLINK_DEBUG
+      msg << MSG::DEBUG << "caught a maybe_thinning_error: ["
+          << err.what() << "]"
+          << endmsg
+          << "(this is an expected case of the EL-state-phase-space "
+          << "when thinning is active)"
+          << endmsg;
+#endif
+      }
+      // Get the updated index:
+      const std::size_t persIdx = dec->index( idx );
+      if (SG::ThinningDecisionBase::RemovedIdx == persIdx) {
+        // this element has been thinned away. So the persistent equivalent
+        // of a null pointer is a default persistent pointer.
+	  
+        // Must save empty string for default EL
+        pers.m_contIndex    = getNameIndex(state, s_empty); 
+        // Index value not used, but 0 compresses better
+        pers.m_elementIndex = 0; 
+      }
+      else {
+        Link_t tmp = trans;
+        if (!m_isPersistible) {
+          tmp.toPersistent();
+        }
+        if (!state.m_lookupTable) {
+#ifdef  ELLINK_DEBUG
+          msg << MSG::ERROR 
+              << "Empty link name table ptr - must use resetForCnv "
+              << endmsg;
+#endif
+        }
+        else {
+          // Save container name index and element link index
+          pers.m_contIndex     = getNameIndex(state, tmp.dataID());
+          pers.m_elementIndex  = persIdx;
+        }
+      }
+    }
+#ifdef  ELLINK_DEBUG
+    msg << MSG::INFO << "ElementLinkCnv_p3::transToPer(): SG Container="
+        << ", Key Hash=" << pers.m_SGKeyHash
+        << ", IDX=" << pers.m_elementIndex << endmsg;
+#endif
+    return;
+  }
+
   Link_t tmp = trans;
   if (!m_isPersistible) {
     tmp.toPersistent();
@@ -222,7 +284,7 @@ transToPers (State& state,
              MsgStream& msg) const
 {
   transToPers (state, trans, pers,
-               DataModelAthenaPool::getThinningCache(),
+               SG::getThinningCache(),
                msg);
 }
 

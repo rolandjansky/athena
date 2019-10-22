@@ -40,17 +40,6 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1", "ROOTTREE:SimplePoolFile5.root" )
 Stream1.ItemList += [ "ExampleHitContainer#MyHits" ]
 Stream1.MetadataItemList += [ "ExampleHitContainer#PedestalWriteData" ]
-"""
-Stream1.MetadataItemList += [ "EventBookkeeperCollection#EventBookkeepers" ]
-
-from EventBookkeeperTools.BookkeepingInfoWriter import EventBookkeepersWriter
-EBWriter1 = EventBookkeepersWriter()
-EBWriter1.setDoMC( False )
-EBWriter1.setCycle( 0 )
-
-EBWriter1.OutputCollectionName = "EventBookkeepers"
-topSequence += EBWriter1
-"""
 
 #--------------------------------------------------------------
 # Private Application Configuration options

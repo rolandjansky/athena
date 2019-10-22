@@ -2284,35 +2284,41 @@ namespace Muon {
     }
 
     // loop over all available CSC collection identifiers and order them per sector
-    it = m_muonIdHelperTool->cscIdHelper().module_begin();
-    it_end = m_muonIdHelperTool->cscIdHelper().module_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_muonIdHelperTool->cscIdHelper().get_module_hash(*it,hash);
-      insertHash(hash,*it);
+    if (m_muonIdHelperTool->hasCSC()) {
+      it = m_muonIdHelperTool->cscIdHelper().module_begin();
+      it_end = m_muonIdHelperTool->cscIdHelper().module_end();
+      for( ;it!=it_end; ++it ){
+        IdentifierHash hash;
+        m_muonIdHelperTool->cscIdHelper().get_module_hash(*it,hash);
+        insertHash(hash,*it);
+      }
     }
 
     // loop over all available MM collection identifiers and order them per sector
-    it = m_muonIdHelperTool->mmIdHelper().detectorElement_begin();
-    it_end = m_muonIdHelperTool->mmIdHelper().detectorElement_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_muonIdHelperTool->mmIdHelper().get_module_hash(*it,hash);
-      insertHash(hash,*it);
+    if (m_muonIdHelperTool->hasMM()) {
+      it = m_muonIdHelperTool->mmIdHelper().detectorElement_begin();
+      it_end = m_muonIdHelperTool->mmIdHelper().detectorElement_end();
+      for( ;it!=it_end; ++it ){
+        IdentifierHash hash;
+        m_muonIdHelperTool->mmIdHelper().get_module_hash(*it,hash);
+        insertHash(hash,*it);
+      }
     }
 
     // loop over all available STGC collection identifiers and order them per sector
-    it = m_muonIdHelperTool->stgcIdHelper().detectorElement_begin();
-    it_end = m_muonIdHelperTool->stgcIdHelper().detectorElement_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_muonIdHelperTool->stgcIdHelper().get_module_hash(*it,hash);
-      int sector = m_muonIdHelperTool->sector(*it);
-      insertHash(sector,hash,*it);
-      int sectorU = sector != 1 ? sector-1 : 16;
-      int sectorD = sector != 16 ? sector+1 : 1;
-      insertHash(sectorU,hash,*it);
-      insertHash(sectorD,hash,*it);
+    if (m_muonIdHelperTool->hasSTgc()) {
+      it = m_muonIdHelperTool->stgcIdHelper().detectorElement_begin();
+      it_end = m_muonIdHelperTool->stgcIdHelper().detectorElement_end();
+      for( ;it!=it_end; ++it ){
+        IdentifierHash hash;
+        m_muonIdHelperTool->stgcIdHelper().get_module_hash(*it,hash);
+        int sector = m_muonIdHelperTool->sector(*it);
+        insertHash(sector,hash,*it);
+        int sectorU = sector != 1 ? sector-1 : 16;
+        int sectorD = sector != 16 ? sector+1 : 1;
+        insertHash(sectorU,hash,*it);
+        insertHash(sectorD,hash,*it);
+      }
     }
 
     // loop over all available TGC collection identifiers and order them per sector

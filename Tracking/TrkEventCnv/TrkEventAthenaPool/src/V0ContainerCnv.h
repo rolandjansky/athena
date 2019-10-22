@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -13,10 +13,7 @@
 #define V0CONTAINER_CNV_H
 
 
-// Hack so we can access the private data. EJWM
-#define protected public
 #include "GaudiKernel/MsgStream.h"
-#undef protected
 
 #include "TrkEventCnvTools/ITrkEventCnvTool.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -49,12 +46,12 @@ class V0ContainerCnv : public V0ContainerCnvBase
 public:
   V0ContainerCnv( ISvcLocator *svcloc );
 protected:
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  virtual V0Container_PERS *createPersistent( V0Container *transCont);
-  virtual V0Container      *createTransient();
+  virtual V0Container_PERS *createPersistent( V0Container *transCont) override;
+  virtual V0Container      *createTransient() override;
 
-  virtual AthenaPoolTopLevelTPCnvBase*	getTopLevelTPCnv() { return &m_TPConverter; }
+  AthenaPoolTopLevelTPCnvBase*	getTopLevelTPCnv() { return &m_TPConverter; }
 
  private:
   void    updateLog(); //!< This method modifies m_log to indicate the current key being converted

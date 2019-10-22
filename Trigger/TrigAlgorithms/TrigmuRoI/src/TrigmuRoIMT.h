@@ -1,0 +1,38 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGMUROIMT_H
+#define TRIGMUROIMT_H
+
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaMonitoring/Monitored.h"
+
+class TrigmuRoIMT : public AthAlgorithm
+{
+   public:
+
+      TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator); //!< std Gaudi algorthm constructor
+      virtual StatusCode initialize() override;
+      virtual StatusCode execute() override;
+
+   private:
+   
+      ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool;
+      ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;
+      ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;
+
+      SG::WriteHandleKey<TrigRoiDescriptorCollection> m_roisWriteHandleKey {this,"RoisWriteHandleKey","Unspecified", "Output collection of RoIs"};
+
+      ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+      Gaudi::Property<int> m_minValueForOutOfTimeBC{this, "MinValueForOutOfTimeBC", -9999, "Min value for out of time bunch crossing"};
+      Gaudi::Property<int> m_maxValueForOutOfTimeBC{this, "MaxValueForOutOfTimeBC", 9999, "Max value for out of time bunch crossing"};
+
+      unsigned int getBitMaskValue( const unsigned int uintValue, const unsigned int mask );
+};
+
+#endif

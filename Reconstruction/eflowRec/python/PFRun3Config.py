@@ -163,8 +163,8 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(GeoModelCfg(inputFlags))
 
     #load folders needed for IBL
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
+    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
     
     #Setup Pixel conditions
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
@@ -205,7 +205,7 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(acc)
     
     #load folders needed for Run2 ID alignment
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
     

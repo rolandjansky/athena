@@ -16,6 +16,7 @@
 // Includes
 
 #include "MuonIdHelpers/MuonIdHelper.h"
+#include <atomic>
 
 // ******************************************************************************
 // class CscIdHelper
@@ -70,12 +71,21 @@ class CscIdHelper : public MuonIdHelper
   ///////////// compact identifier stuff begins ////////////////////////////////////// 
 
   /// Initialization from the identifier dictionary
-  virtual int         initialize_from_dictionary(const IdDictMgr& dict_mgr);
-  virtual int get_module_hash     (const Identifier& id,
-				   IdentifierHash& hash_id ) const;
-  virtual int get_detectorElement_hash (const Identifier& id,
-					IdentifierHash& hash_id ) const;
-  virtual int get_channel_hash(const Identifier&, IdentifierHash&) const;
+  int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
+
+  // need to overwrite get_module_hash and get_detectorElement_hash for Run2 geometries (since they contain both 
+  // CSC chamberLayer 1 and 2 although only chamberLayer 2 is actually built into ATLAS)
+  // function checks whether chamberLayer 1 identifiers are around and in this case returns the correct module hash
+  int get_module_hash(const Identifier& id, IdentifierHash& hash_id ) const override;
+  int get_detectorElement_hash (const Identifier& id, IdentifierHash& hash_id) const override;
+  
+  // in some parts of athena (still) hashes which encode geometrical information for the CSCs are around,
+  // therefore, need those additional hash functions here (feel free to fix it in the future)
+  int get_geo_module_hash(const Identifier& id, IdentifierHash& hash_id ) const;
+  int get_geo_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id ) const;
+  int get_geo_channel_hash(const Identifier&, IdentifierHash&) const;
+
+
 
   ///////////// compact identifier stuff ends ////////////////////////////////////// 
   
@@ -102,13 +112,13 @@ class CscIdHelper : public MuonIdHelper
 
   // Access to levels: missing field returns 0 
 
-  int channel(const Identifier& id) const;
+  int channel(const Identifier& id) const override;
 
   int chamberLayer(const Identifier& id) const;
   int wireLayer(const Identifier& id) const;
-  bool measuresPhi(const Identifier& id) const;
+  bool measuresPhi(const Identifier& id) const override;
   int strip(const Identifier& id) const;
-  int gasGap(const Identifier& id) const; //Returns chamber Layer here
+  int gasGap(const Identifier& id) const override; //Returns chamber Layer here
 
   int sector(const Identifier& id) const;
   // Access to min and max of level ranges
@@ -163,10 +173,7 @@ class CscIdHelper : public MuonIdHelper
   IdDictFieldImplementation   m_mea_impl;
   IdDictFieldImplementation   m_str_impl;
 
-  // Create hash from compact
-  virtual int  get_hash_calc   (const Identifier& compact_id,
-				IdentifierHash& hash_id,
-				const IdContext* context) const;
+  int get_geo_hash_calc   (const Identifier& compact_id, IdentifierHash& hash_id, const IdContext* context) const;
 
   // Private validation of levels
 
@@ -212,10 +219,9 @@ class CscIdHelper : public MuonIdHelper
     };
   int m_hashOffset[2][2];
 
-  mutable unsigned int m_etaStripMax;
-  mutable unsigned int m_phiStripMax;
-  inline virtual void create_mlog() const;
- 
+  mutable std::atomic<unsigned int> m_etaStripMax;
+  mutable std::atomic<unsigned int> m_phiStripMax;
+  bool m_hasChamLay1;
 };
 
 // For backwards compatibility

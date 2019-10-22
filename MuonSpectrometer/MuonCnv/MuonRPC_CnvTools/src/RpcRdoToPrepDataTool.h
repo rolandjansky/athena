@@ -20,6 +20,8 @@
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPadContainer.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <string>
 #include <set>
 
@@ -34,7 +36,6 @@ namespace MuonGM
 }
 
 class IRPCcablingSvc;
-class RpcIdHelper;
 class RpcPadIdHash;
 class IdentifierHash;
 class RpcPad;
@@ -108,7 +109,8 @@ private:
   const MuonGM::MuonDetectorManager * m_muonMgr;
   
   /// RPC identifier helper
-  const RpcIdHelper*  m_rpcHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   // RpcPadIdHash helper 
   //RpcPadIdHash* m_padHashIdHelper;
  

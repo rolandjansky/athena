@@ -26,7 +26,7 @@
 
 
 #include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -76,7 +76,7 @@ namespace MuonCalib {
 MdtDqaTubeEfficiency::MdtDqaTubeEfficiency(float nsigma, float chi2Cut,
                  bool defaultResol, float adcCut, bool GTFitON, 
                  bool useNewCalibConstants, bool useTimeCorrections) : 
-  m_mdtIdHelper(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), p_calib_input_svc(NULL),
+  m_muonIdHelperTool(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), p_calib_input_svc(NULL),
   m_histoManager(NULL),
   //m_tfile(NULL), m_tfile_debug(NULL), m_hit_ntuple(NULL),
   //m_cal_region(NULL),
@@ -99,10 +99,10 @@ MdtDqaTubeEfficiency::MdtDqaTubeEfficiency(float nsigma, float chi2Cut,
 //:::::::::::::::::
 //:: METHOD init ::
 //:::::::::::::::::
-StatusCode MdtDqaTubeEfficiency::initialize(const MdtIdHelper *mdtIdHelper, const MuonGM::MuonDetectorManager *detMgr, 
+StatusCode MdtDqaTubeEfficiency::initialize(const Muon::MuonIdHelperTool *muonIdHelperTool, const MuonGM::MuonDetectorManager *detMgr, 
 					    const MuonCalib::IIdToFixedIdTool *id_tool, RegionSelectionSvc *reg_sel_svc,
 					    MdtCalibInputSvc *calib_input_svc, HistogramManager *histoManager) {
-  m_mdtIdHelper = mdtIdHelper;
+  m_muonIdHelperTool = muonIdHelperTool;
   m_detMgr = detMgr; 
   m_id_tool = id_tool;
   p_reg_sel_svc = reg_sel_svc;
@@ -148,16 +148,16 @@ StatusCode MdtDqaTubeEfficiency::initialize(const MdtIdHelper *mdtIdHelper, cons
     int eta_id = stationsInRegion.at(istation).GetEta();
 
     // string fullStationName = chamberType+"_"+ts(phi_id)+"_"+ts(eta_id);
-    Identifier station_id = m_mdtIdHelper->elementID(chamberType, eta_id, phi_id);
+    Identifier station_id = m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
     int stationIntId = static_cast<int>(station_id.get_identifier32().get_compact());
-    int numberOfML = m_mdtIdHelper->numberOfMultilayers(station_id);
+    int numberOfML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
     
     for (int multilayer=1;multilayer<=numberOfML; multilayer++) {
-      Identifier MdtML = m_mdtIdHelper->multilayerID(station_id, multilayer);
-      int layerMin = m_mdtIdHelper->tubeLayerMin(MdtML);
-      int layerMax = m_mdtIdHelper->tubeLayerMax(MdtML);
-      int tubeMin = m_mdtIdHelper->tubeMin(MdtML);
-      int tubeMax = m_mdtIdHelper->tubeMax(MdtML);
+      Identifier MdtML = m_muonIdHelperTool->mdtIdHelper().multilayerID(station_id, multilayer);
+      int layerMin = m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(MdtML);
+      int layerMax = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(MdtML);
+      int tubeMin = m_muonIdHelperTool->mdtIdHelper().tubeMin(MdtML);
+      int tubeMax = m_muonIdHelperTool->mdtIdHelper().tubeMax(MdtML);
       m_nb_layers_tubes[istation][0] = stationIntId;
       m_nb_layers_tubes[istation][1] = layerMax-layerMin+1;
       m_nb_layers_tubes[istation][1+multilayer] = tubeMax-tubeMin+1;
@@ -277,7 +277,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     // 
     // Get numberOfMultiLayers, numberOfLayers, numberOfTubes :
     // 
-    int stationIntId = static_cast<int>(m_mdtIdHelper-> elementID(stationNameStr,eta,phi).get_compact());
+    int stationIntId = static_cast<int>(m_muonIdHelperTool->mdtIdHelper(). elementID(stationNameStr,eta,phi).get_compact());
     Identifier station_id = m_id_tool->fixedIdToId(Mid);
     
     int numberOfML, numberOfLayers, numberOfTubes[2];
@@ -590,7 +590,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     for (int multilayer=1; multilayer<=numberOfML; multilayer++) {  // LOOP OVER MULTILAYERS
       
       const MuonGM::MdtReadoutElement *MdtRoEl = 
-	m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(station_id,multilayer,1,1) );
+	m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
     
       //loop over layers
       for (int layer=1; layer<=numberOfLayers; layer++) {   // LOOP OVER LAYERS
@@ -819,7 +819,7 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
     // with istation following the same order of stationsInRegion.at(istation)
     // ...if this is not the case, then the service m_mdtIdHelper should be used
     // matching the stationIntId :
-    // int stationIntId = (int) m_mdtIdHelper->elementID(chamberType, eta, phi);
+    // int stationIntId = (int) m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta, phi);
     int numberOfML = 0;
     int numberOfTubes[2];
     int numberOfLayers = m_nb_layers_tubes[istation][1];

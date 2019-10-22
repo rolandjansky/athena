@@ -9,13 +9,13 @@
 #include "MdtCalibInterfaces/IMdtCalibDBTool.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtRtRelationCollection.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 class IAtRndmGenSvc;
 
 class MdtCalibrationRegionSvc;
 class Identifier; 
-class MdtIdHelper;
 
 namespace MuonGM{
 class MuonDetectorManager;
@@ -70,7 +70,8 @@ private:
   /** interprets file names in the calibration directory */
   bool interpret_chamber_name(const std::string &nm, const char *prefix, std::string & station, int &eta, int & phi) const;
 
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager* m_detMgr;
   MdtCalibrationRegionSvc* m_regionSvc;
   mutable MdtTubeCalibContainerCollection * m_tubeData;

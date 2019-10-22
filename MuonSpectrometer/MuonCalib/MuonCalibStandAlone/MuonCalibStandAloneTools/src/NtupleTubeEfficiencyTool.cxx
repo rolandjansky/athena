@@ -21,9 +21,6 @@
 #include <vector>
 #include <cstdlib>
 
-// Athena //
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
@@ -108,7 +105,7 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
     //-- Get the StoreGate Stuff --//
     //-----------------------------//
 
-    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
     ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
@@ -352,7 +349,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
   
 
     if(m_nb_multilayers<0){  
-	m_nb_multilayers = m_mdtIdHelper->numberOfMultilayers(station_id);
+	m_nb_multilayers = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
     }
 
     
@@ -398,7 +395,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
     for (int multilayer=1; multilayer<m_nb_multilayers+1; multilayer++) {
 
 	const MuonGM::MdtReadoutElement* MdtRoEl = 
-	    m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(station_id,multilayer,1,1) );
+	    m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
     
 	if(m_nb_layers<0)  m_nb_layers = MdtRoEl->getNLayers();
 	if(m_nb_tubes<0)   m_nb_tubes  = MdtRoEl->getNtubesperlayer(); 

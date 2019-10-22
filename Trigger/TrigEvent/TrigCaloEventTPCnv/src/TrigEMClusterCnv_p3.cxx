@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigEMCluster.h"
@@ -11,11 +11,11 @@
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 #include "TrigCaloEventTPCnv/TrigCaloClusterCnv_p2.h"
 
-static ElementLinkCnv_p3< ElementLink<RingerRingsContainer> > ELinkRingerRingsCnv;
-static TrigCaloClusterCnv_p2 trigCaloClusterCnv;
+static const ElementLinkCnv_p3< ElementLink<RingerRingsContainer> > ELinkRingerRingsCnv;
+static const TrigCaloClusterCnv_p2 trigCaloClusterCnv;
 
 void TrigEMClusterCnv_p3::transToPers(const TrigEMCluster* trans, 
-                                     TrigEMCluster_p3* pers, MsgStream &log )
+                                     TrigEMCluster_p3* pers, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "TrigEMClusterCnv_p3::tranToPers" << endmsg;
@@ -47,7 +47,7 @@ void TrigEMClusterCnv_p3::transToPers(const TrigEMCluster* trans,
 }
 
 void TrigEMClusterCnv_p3::persToTrans(const TrigEMCluster_p3* pers, 
-                                     TrigEMCluster* trans, MsgStream &log )
+                                     TrigEMCluster* trans, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "TrigEMClusterCnv_p3::persToTrans" << endmsg;

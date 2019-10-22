@@ -575,6 +575,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
            digitContList).isSuccess()) || digitContList.size()==0)
       {
          ATH_MSG_ERROR("Cannot retrieve LArDigitContainer for random event overlay or empty Container");
+	 ATH_MSG_ERROR("Random Digit Key= " << m_RandomDigitContainer << ",size=" << digitContList.size());
          return StatusCode::FAILURE ;
       }
       TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin()) ;
@@ -878,7 +879,7 @@ float  LArPileUpTool::get_strip_xtalk(int eta)
 // eta = in strip cell units for Barrel EM
 // definition:signal observed in strip ieta when strip ieta-1 is pulsed
 {
- static float fstrip[448] = {
+ static const float fstrip[448] = {
 0.000000,0.000000,4.941840,4.995340,5.068500,4.899490,5.202390,4.878160,
 4.420290,4.725940,4.654810,4.844920,4.839140,4.675500,4.964490,4.815590,
 3.468430,4.831320,4.820070,4.988120,4.978390,4.893490,5.071190,4.750850,
@@ -955,7 +956,7 @@ float LArPileUpTool::get_strip_xtalk_ec(int region,int eta)
 // region,eta=region,eta for strips in End Cap outer wheel:
 // region=0 to 5 with (1,3,96,48,64,4) strips => total = 216 strips
 {
- static float fstripec[216]={
+ static const float fstripec[216]={
 0,0.647012,0.169466,-0.362632,0.731123,4.89171,5.28338,5.07526,
 5.21291,5.025,5.34636,5.2136,3.8526,4.7453,4.86375,4.83032,
 4.9479,4.8181,5.09672,4.84965,3.64455,4.64494,4.72441,4.70608,
@@ -1009,7 +1010,7 @@ float  LArPileUpTool::get_middleback_xtalk(int eta)
 // eta=in middle cell units
 // signal observed in back cell a ieta when one corresponding middle cell is pulsed
 {
- static float fback[56] = {
+ static const float fback[56] = {
 0.00581541, 0.00373308, 0.00473475, 0.00375685, 0.00468253, 0.00314712,
 0.00346465, 0.00471375, 0.00491536, 0.00322414, 0.00341004, 0.00463626,
 0.00460005, 0.00304867, 0.0032422, 0.00438614, 0.00526148, 0.00332974,
@@ -1037,7 +1038,7 @@ float  LArPileUpTool::get_middleback_xtalk(int eta)
 float LArPileUpTool::get_middleback_xtalk_ecow(int eta)
 // eta=in middle cell units (from 0 to 42 for eta between 1.425 and 2.5), for the first 3 cells (1.425-1.5) there is no back layer
 {
- static float fbackecow[43] = {
+ static const float fbackecow[43] = {
 0., 0., 0., 0.00652081, 0.0046481, 0.0052409,
 0.00399028, 0.00424165, 0.00312753, 0.00342063, 0.00391649, 0.00397975,
 0.00332866, 0.00350436, 0.00408691, 0.00410245, 0.00328291, 0.00360715,
@@ -1064,7 +1065,7 @@ float LArPileUpTool::get_middleback_xtalk_eciw(int eta)
 // eta=in back cell units (from 0 to 6 for eta between 2.5 and 3.2)
 //  (same size for the two samplings in depth)
 {
- static float fbackeciw[7] = {
+ static const float fbackeciw[7] = {
  0.400584,0.332231,0.348472,0.222996,0.402843,0.362233,0.448652
  };
  float result;
@@ -1084,7 +1085,7 @@ float LArPileUpTool::get_stripmiddle_xtalk(int eta)
 // eta = ieta of strip in barrel
 // signal observed in strip ieta when corresponding middle cell is puilsed
 {
- static float fstripmiddle[448]= {
+ static const float fstripmiddle[448]= {
 0.000000,0.057593,0.066206,0.065568,0.074090,0.071852,0.067529,0.056533,
 0.063181,0.070852,0.069660,0.068299,0.073207,0.070664,0.068899,0.058289,
 0.062070,0.069117,0.067532,0.065357,0.072678,0.069367,0.066721,0.056106,
@@ -1158,7 +1159,7 @@ float LArPileUpTool::get_stripmiddle_xtalk(int eta)
 float LArPileUpTool::get_stripmiddle_xtalk_ec(int region,int eta)
 // eta = ieta of strip in endcap (outer wheel)
 {
-  static float fstripmiddleow[216]= {
+  static const float fstripmiddleow[216]= {
 -2.50602,-0.476067,-0.139486,-0.128851,0.0390557,0.0493432,0.0527529,0.0531567,
 0.0578755,0.0578588,0.0590179,0.0476273,0.0504438,0.0556113,0.0567476,0.0569607,
 0.0581592,0.055223,0.0550925,0.045735,0.0505001,0.0567269,0.0572249,0.0562184,
@@ -1234,7 +1235,7 @@ float LArPileUpTool::get_2strip_xtalk_ec(int region, int eta) {
 // middle to middle cross-talk in barrel
 
 float LArPileUpTool::get_middle_xtalk1(int ieta) {
- static float middle_barrel_xtalk1[56]={
+ static const float middle_barrel_xtalk1[56]={
  0.000000,0.005352,0.006647,0.004541,0.005774,0.004467,
  0.005626,0.004118,0.005527,0.004558,0.005754,0.004386,
  0.005496,0.004072,0.005483,0.003973,0.006305,0.005371,
@@ -1251,7 +1252,7 @@ float LArPileUpTool::get_middle_xtalk1(int ieta) {
 }
 
 float LArPileUpTool::get_middle_xtalk2(int ieta) {
- static float middle_barrel_xtalk2[56]={
+ static const float middle_barrel_xtalk2[56]={
  0.004981,0.006938,0.004264,0.005237,0.004481,0.005738,
  0.004026,0.005395,0.004610,0.005865,0.004134,0.004966,
  0.004182,0.005500,0.004925,0.006109,0.004272,0.006086,
@@ -1272,7 +1273,7 @@ float LArPileUpTool::get_middle_xtalk2(int ieta) {
 // middle to middle cross-talk in end-cap
 
 float LArPileUpTool::get_middle_xtalk1_ec(int ieta) {
-  static float middle_endcap_xtalk1[43]={
+  static const float middle_endcap_xtalk1[43]={
   0.000000,-0.002289,0.000726,0.007255,0.002213,0.004363,
   0.002208,0.005293,0.002690,0.002920,0.002130,0.003346,
   0.000657,0.002562,0.000152,0.002327,0.002135,0.002988,
@@ -1287,7 +1288,7 @@ float LArPileUpTool::get_middle_xtalk1_ec(int ieta) {
 }
 
 float LArPileUpTool::get_middle_xtalk2_ec(int ieta) {
-  static float middle_endcap_xtalk2[43]={
+  static const float middle_endcap_xtalk2[43]={
   -0.001290,0.001778,0.001121,0.002102,0.004127,0.002443,
   0.003744,0.001327,0.003492,0.001388,0.002851,0.001007,
   0.002180,0.001223,0.004599,0.001143,0.003484,0.001263,

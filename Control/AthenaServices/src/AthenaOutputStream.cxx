@@ -136,6 +136,11 @@ namespace {
 } // anonymous namespace
 
 
+// the global map of event slot mutexes
+// to prevent different streams from writing from the same Store
+std::map< EventContext::ContextID_t, std::mutex > AthenaOutputStream::m_toolMutexMap;
+
+
 //****************************************************************************
 
 
@@ -184,6 +189,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
 // Standard Destructor
 AthenaOutputStream::~AthenaOutputStream() {
    m_streamerMap.clear();
+   m_toolMutexMap.clear();
 }
 
 // initialize data writer
@@ -374,7 +380,9 @@ void AthenaOutputStream::handle(const Incident& inc)
          ATH_MSG_INFO("Records written: " << m_events);
       }
       if (!m_metadataItemList.value().empty()) {
-         std::lock_guard<mutex_t>   tool_lock( m_toolMutexMap[outputFN] );
+         // MN: super global lock - temporary while we review metadata writing
+         static std::mutex      metawrite_mtx;
+         std::lock_guard<std::mutex>   meta_lock( metawrite_mtx );
          m_currentStore = &m_metadataStore;
          StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
          if (status.isFailure()) {
@@ -454,7 +462,7 @@ void AthenaOutputStream::handle(const Incident& inc)
                strm_iter->second->finalizeOutput().ignore();
                strm_iter->second->finalize().ignore();
                m_streamerMap.erase(strm_iter);
-               m_toolMutexMap.erase( rangeFN );            
+               //m_toolMutexMap.erase( rangeFN );            
             }
             m_slotRangeMap[ slot ].clear();   
          } else {
@@ -587,11 +595,12 @@ StatusCode AthenaOutputStream::write() {
    }
    // prepare before releasing lock because m_outputAttributes change in metadataStop
    const std::string connectStr = outputFN + m_outputAttributes;
-   // mutex_t   &stream_mutex = m_toolMutexMap[outputFN];
-   // switch to locking on streamerTool level to allow parallelism
-   // lock.unlock();
-   // MN: maybe a mutex inside the tool is better?
-   // std::lock_guard<mutex_t>   tool_lock( stream_mutex );
+
+   // MN: lock the event slot so 2 streams don't operate on the same Store 
+   std::lock_guard<std::mutex>   tool_lock( m_toolMutexMap[ slot ] );
+
+   // MN: would be nice to release the Stream lock here
+   // lock.unlock(); 
 
    // Connect the output file to the service
    if( !streamer->connectOutput( connectStr ).isSuccess()) {

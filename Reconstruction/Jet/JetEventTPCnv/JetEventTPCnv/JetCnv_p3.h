@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCnv_p3.h 
@@ -23,47 +23,33 @@
 class MsgStream;
 class Jet;
 
-class JetCnv_p3 : public T_AthenaPoolTPCnvBase<Jet, Jet_p3>
+class JetCnv_p3 : public T_AthenaPoolTPCnvConstBase<Jet, Jet_p3>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   JetCnv_p3();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c Jet
    *  from its persistent representation @c Jet_p3
    */
   virtual void persToTrans( const Jet_p3* persObj, 
                             Jet* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c Jet_p3
    *  from its transient representation @c Jet
    */
   virtual void transToPers( const Jet* transObj, 
                             Jet_p3* persObj, 
-                            MsgStream& msg );
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline JetCnv_p3::JetCnv_p3()
 {

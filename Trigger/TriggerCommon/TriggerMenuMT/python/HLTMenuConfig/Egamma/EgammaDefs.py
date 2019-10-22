@@ -7,10 +7,10 @@ class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
       SuperElectronRecCollectionName = "HLT_ElectronSuperRecCollection"
       outputElectronKey = "HLT_egamma_Electrons"
-      """Static class to collect all string manipulation in Photon sequences """
       SuperPhotonRecCollectionName = "HLT_PhotonSuperRecCollection"
       EgammaRecKey = "HLT_egammaRecCollection"
       outputPhotonKey = "HLT_egamma_Photons"
       outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
+      TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
 

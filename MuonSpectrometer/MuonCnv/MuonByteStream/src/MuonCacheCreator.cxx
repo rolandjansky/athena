@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCacheCreator.h"
@@ -16,13 +16,13 @@ MuonCacheCreator::MuonCacheCreator(const std::string &name,ISvcLocator *pSvcLoca
   m_MdtCsmCacheKey(""),
   m_CscCacheKey(""),
   m_RpcCacheKey(""),
-  m_TgcCacheKey("")
+  m_TgcCacheKey(""),
+  m_disableWarningCheck(false)
 {
   declareProperty("MdtCsmCacheKey", m_MdtCsmCacheKey);
   declareProperty("CscCacheKey",    m_CscCacheKey);
   declareProperty("RpcCacheKey",    m_RpcCacheKey);
   declareProperty("TgcCacheKey",    m_TgcCacheKey);
-  declareProperty("DisableViewWarning", m_disableWarning);
 }
 
 MuonCacheCreator::~MuonCacheCreator() {
@@ -40,19 +40,19 @@ StatusCode MuonCacheCreator::initialize() {
 
 bool MuonCacheCreator::isInsideView(const EventContext& context) const
 {
-   const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
+   const IProxyDict* proxy = Atlas::getExtendedEventContext(context).proxy();
    const SG::View* view = dynamic_cast<const SG::View*>(proxy);
    return view != nullptr;
 }
 
 StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
 
-  if(!m_disableWarning){
+  if(!m_disableWarningCheck and !m_disableWarning.value()){
      if(isInsideView(ctx)){
         ATH_MSG_ERROR("CacheCreator is running inside a view, this is probably a misconfiguration");
         return StatusCode::FAILURE;
      }
-     m_disableWarning = true; //only check once
+     m_disableWarningCheck = true; //only check once
   }
   // Create the MDT cache container
   auto maxHashMDTs = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1 ? m_muonIdHelperTool->mdtIdHelper().detectorElement_hash_max() : m_muonIdHelperTool->mdtIdHelper().module_hash_max();

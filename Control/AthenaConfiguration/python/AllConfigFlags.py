@@ -5,24 +5,11 @@ from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, GetDetDescrInfo
-import six
-
-
-def _moduleExists (modName):
-    if six.PY34:
-        import importlib
-        return importlib.util.find_spec (modName) is not None
-    else:
-        import imp
-        try:
-           imp.find_module (modName)
-        except ImportError:
-            return False
-        return True
+from PyUtils.moduleExists import moduleExists
 
 
 def _addFlagsCategory (acf, name, generator, modName = None):
-    if _moduleExists (modName):
+    if moduleExists (modName):
         return acf.addFlagsCategory (name, generator)
     return None
 
@@ -36,6 +23,7 @@ def _createCfgFlags():
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
+    acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
     def _inputCollections(inputFile):
         rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
@@ -116,7 +104,7 @@ def _createCfgFlags():
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("GeoAtlas",None) or "ATLAS-R2-2016-01-00-01") #
-    acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
+    acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate and not prevFlags.Input.isMC))
     acf.addFlag("GeoModel.StripGeoType", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('StripGeoType',"GMX")) # Based on CommonGeometryFlags.StripGeoType
     acf.addFlag("GeoModel.Run", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('Run',"RUN2")) # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
     acf.addFlag("GeoModel.Type", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('GeoType',"UNDEFINED")) # Geometry type in {ITKLoI, ITkLoI-VF, etc...}

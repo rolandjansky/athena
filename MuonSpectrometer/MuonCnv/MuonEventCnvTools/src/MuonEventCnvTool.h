@@ -14,7 +14,8 @@
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <string>
 
@@ -32,6 +33,7 @@ namespace Trk {
 }
 
 namespace Muon {
+    class MuonIdHelperSvc;
 
     /**Tool used in the persisency convertors to help rebuild EDM objects*/
     class MuonEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTool   {
@@ -74,7 +76,7 @@ namespace Muon {
 
         const MuonGM::MuonDetectorManager* m_muonMgr;                 //!<Muon detector manager
 
-        ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool {this, "IdHelperTool", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
         SG::ReadHandleKey<RpcPrepDataContainer>   m_rpcPrdKey
              { this, "RpcClusterContainer", "RPC_Measurements", "Location for RPC PRDs" };
@@ -92,6 +94,7 @@ namespace Muon {
         /** If true, search for PRDs manually - i.e. do not rely on ElementLink working
         @warning This functionality is left in primarily for debugging - will probably be removed in near future.*/
         Gaudi::Property<bool> m_manuallyFindPRDs{ this, "FindPRDsManually", false, "If true, search for PRDs manually - i.e. do not rely on ElementLink working"};
+        Gaudi::Property<bool> m_fixTGCs{ this, "FixTGCs", false, "If true, try to fix broken EL, e.g. ATLASRECTS-5151"};
 
     };
 

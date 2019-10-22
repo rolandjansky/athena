@@ -4,7 +4,7 @@ print "Haas: Reading muon alignment constants from DB for reco"
 
 from IOVDbSvc.CondDB import conddb
 
-MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
+#MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
 #MGM_AlignmentDbTool.OutputLevel=DEBUG
 #print MGM_AlignmentDbTool
 from AtlasGeoModel.MuonGM import GeoModelSvc

@@ -2418,19 +2418,12 @@ void MultiRange::add (const ExpandedIdentifier& id)
  
 //----------------------------------------------- 
 void MultiRange::remove_range (const ExpandedIdentifier& id) 
-{ 
-    // Remove all ranges for which id matches
-    range_vector::iterator first=m_ranges.begin();
-    range_vector::iterator last=m_ranges.end();
-    while (first != last) {
-	if (first->match(id)) {
-	    m_ranges.erase(first);  // remove range
-	    first=m_ranges.begin(); // restart loop every time
-	    last=m_ranges.end();    // when range removed 
-	} else {
-	    ++first;
-	}
-    }
+{
+  // Remove all ranges for which id matches
+  range_vector::iterator end =
+    std::remove_if (m_ranges.begin(), m_ranges.end(),
+                    [&] (const Range& r) { return r.match(id); });
+  m_ranges.erase (end, m_ranges.end());
 }
 
  

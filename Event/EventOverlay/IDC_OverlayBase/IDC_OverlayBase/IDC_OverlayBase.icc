@@ -14,7 +14,7 @@
 template <class IDC_Container>
 StatusCode IDC_OverlayBase::overlayContainer(const IDC_Container *bkgContainer,
                                              const IDC_Container *signalContainer,
-                                             IDC_Container *outputContainer)
+                                             IDC_Container *outputContainer) const
 {
   ATH_MSG_DEBUG("overlayContainer<>() begin");
 

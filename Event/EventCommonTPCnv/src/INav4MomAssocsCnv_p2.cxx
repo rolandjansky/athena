@@ -22,7 +22,7 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/INav4MomAssocsCnv_p2.h"
 
-#include "DataModelAthenaPool/getThinningCache.h"
+#include "AthenaKernel/getThinningCache.h"
 
 // some useful typedefs
 typedef INav4MomAssocs::object_link INav4MomLink_t;
@@ -94,7 +94,7 @@ INav4MomAssocsCnv_p2::transToPers( const INav4MomAssocs* trans,
 
   // reset element link converters, and provide container name lookup table
   INav4MomCnv_t::State state (pers->m_contNames);
-  const SG::ThinningCache* cache = DataModelAthenaPool::getThinningCache();
+  const SG::ThinningCache* cache = SG::getThinningCache();
 
   j = 0;
   pers->m_assocs.resize( trans->size() );

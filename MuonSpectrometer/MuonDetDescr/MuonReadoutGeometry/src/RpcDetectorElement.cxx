@@ -26,8 +26,6 @@ RpcDetectorElement::RpcDetectorElement(GeoVFullPhysVol* pv,
                                        IdentifierHash idHash) :
    MuonDetectorElement(pv, mgr, id, idHash), m_ndbz(0)
 {
-    //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:RpcDetectorElement");
-  //std::cerr<<"Costruttore di RpcDetectorElement per idhash = "<<idHash<<std::endl;
   for (unsigned int i=0; i<NDoubletZ; i++) m_rpcVector[i] = NULL; 
   m_nREinDetectorElement=0;
   m_helper=manager()->rpcIdHelper();

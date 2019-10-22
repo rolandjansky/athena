@@ -41,9 +41,6 @@ private:
       "CellContainerName", "AllCalo", 
       "Names of containers which contain cells"};
 
-  //
-  // The tools
-  //
   /** @brief Pointer to the egammaCheckEnergyDepositTool*/
   ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this, 
       "egammaCheckEnergyDepositTool", "",
@@ -63,16 +60,12 @@ private:
 
   Gaudi::Property<std::vector<double> > m_EMEtRanges {this,
       "EMEtRanges", {}, 
-      "EM Et Ranges to consider, with different cuts; Low limit of ranges given"};
+      "EM Et Ranges to consider, with different cuts; Minimal EM Et cut will be the value of the 0th bin"};
 
   /// For the cuts below, the size must be 0 (meaning not applied)
   /// or equal to the number of Et ranges.
   Gaudi::Property<std::vector<double> >  m_EMFCuts {this,
       "EMFCuts", {}, "Cut on cluster EM fraction, per EM Et bin"};
-
-  Gaudi::Property<std::vector<double> >  m_lateralCuts {this,
-      "LateralCuts", {},
-      "Cut on cluster LATERAL, i.e., the second transverse moment normalized, per EM Et bin"};
 
   Gaudi::Property<std::vector<double> >  m_RetaCuts {this,
       "RetaCut", {}, "Cut on cluster Reta"};
@@ -83,9 +76,6 @@ private:
   // these variables are set at initialize based on the configuration
   bool m_doReta{false}; 
   bool m_doHadLeak{false};
-
-
-
 };
 
 #endif // RECONSTRUCTION/EGAMMA/EGAMMACALOTOOLS_EGAMMACALOCLUSTERSELECTOR_H

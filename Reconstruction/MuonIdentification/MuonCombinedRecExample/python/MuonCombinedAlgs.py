@@ -10,6 +10,9 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
     if muonCombinedRecFlags.doMuGirl():
@@ -17,12 +20,17 @@ def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs)
     if muonCombinedRecFlags.doCaloTrkMuId():
         tools.append(getPublicTool("MuonCaloTagTool"))
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
-    kwargs.setdefault("useNSW", muonRecFlags.dosTGCs() and muonRecFlags.doMicromegas() )
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlAlg(name="MuGirlAlg",**kwargs):
     tools = [getPublicTool("MuGirlTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 
@@ -33,6 +41,9 @@ def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
     kwargs.setdefault("CombinedTrackCollection","")
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","")
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
@@ -41,9 +52,16 @@ def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
 
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
+    from MuonLayerSegmentMakerTools.MuonLayerSegmentMakerToolsConf import Muon__MuonLayerSegmentFinderTool
+    from AthenaCommon.AppMgr import ToolSvc
+    MuonLayerSegmentFinderTool = Muon__MuonLayerSegmentFinderTool("MuonLayerSegmentFinderTool", Csc2DSegmentMaker=(getPublicTool("Csc2dSegmentMaker") if MuonGeometryFlags.hasCSC() else ""), Csc4DSegmentMaker=(getPublicTool("Csc4dSegmentMaker") if MuonGeometryFlags.hasCSC() else ""))
+    ToolSvc += MuonLayerSegmentFinderTool
+    tools[0].MuonLayerSegmentFinderTool = MuonLayerSegmentFinderTool
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
-    kwargs.setdefault("useNSW", muonRecFlags.dosTGCs() and muonRecFlags.doMicromegas() )
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
     kwargs.setdefault("TagMap","muGirlTagMap")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
@@ -51,7 +69,9 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     tools = [getPublicTool("MuonStauRecoTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","stauTagMap")
-    kwargs.setdefault("useNSW", muonRecFlags.dosTGCs() and muonRecFlags.doMicromegas() )
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
     kwargs.setdefault("CombinedTrackCollection","MuGirlStauCombinedTracks")
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","MuGirlStauSegments")

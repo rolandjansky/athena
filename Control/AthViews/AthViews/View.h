@@ -135,6 +135,7 @@ public:
 
   typedef T::const_iterator const_iterator;
   typedef T::iterator iterator;
+  typedef T::reverse_iterator reverse_iterator;
   typedef T::const_reference const_reference;
   typedef T::reference reference;
   typedef T::value_type value_type;
@@ -153,6 +154,9 @@ public:
   const_iterator end() const { return m_data.end(); }
   iterator begin() { return m_data.begin(); }
   iterator end() { return m_data.end(); }
+  reverse_iterator rbegin() { return m_data.rbegin(); }
+  reverse_iterator rend() { return m_data.rend(); }
+
   const_reference at(size_t pos) const { return m_data.at(pos); }
   reference at(size_t pos) { return m_data.at(pos); }
   const_reference back() const { return m_data.back(); }

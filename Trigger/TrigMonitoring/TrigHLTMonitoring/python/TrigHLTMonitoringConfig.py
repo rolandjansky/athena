@@ -1,38 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def createHLTDQConfigFlags():
-    from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-    acf=AthConfigFlags()
-
-    acf.addFlag('DQ.Steering.HLT.doEgamma', True)
-    acf.addFlag('DQ.Steering.HLT.doMET', True)
-    acf.addFlag('DQ.Steering.HLT.doBjet', True)
-    
-    return acf
-
-def TrigHLTMonitoringConfig(flags):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
-
-    if flags.DQ.Steering.HLT.doEgamma:
-        from TrigEgammaMonitoring.TrigEgammaMonitorAlgorithm import TrigEgammaMonConfig
-        result.merge(TrigEgammaMonConfig(flags))
-
-    if flags.DQ.Steering.HLT.doMET:
-        from TrigMETMonitoring.TrigMETMonitorAlgorithm import TrigMETMonConfig
-        result.merge(TrigMETMonConfig(flags))
-
-    if flags.DQ.Steering.HLT.doBjet:
-        from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig
-        result.merge(TrigBjetMonConfig(flags))
-
-    return result
 
 def HLTGeneralTool():
     #from AthenaCommon.AppMgr import ToolSvc
     from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
     HLTMon = HLTMonTool(    name               = 'HLTMon',
-                            histoPathBase      = "/Trigger/HLT/ResultMon",
+                            histoPathBase      = "/HLT/ResultMon",
                             IgnoreTruncationCheck = True,
                             RegExes = {
                                 'AllChains' : 'HLT_.*', 
@@ -58,6 +31,5 @@ def HLTGeneralTool():
                                 },
                             LumiKey = 'LumiBlocks'
                             )
-    #ToolSvc += HLTMon
     list = [ HLTMon ]
     return list

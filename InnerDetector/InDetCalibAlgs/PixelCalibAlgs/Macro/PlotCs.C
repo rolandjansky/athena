@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 {
@@ -75,7 +75,8 @@ TCanvas *c1 = new TCanvas(parameter.c_str(),"",5);
 c1->SetLeftMargin(0.14);
 int iglobal = 0;
 
-for(int ifile = 0;  ifile < filenames.size(); ifile++){
+size_t nfilenames = filenames.size();
+for(int ifile = 0;  ifile < nfilenames; ++ifile){
 	for(int iCS = 0; iCS < maxcs; iCS++){
 		iglobal++;
 		TFile *file = TFile::Open((filenames[ifile] + ".root").c_str());

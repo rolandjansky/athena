@@ -92,7 +92,7 @@ public:
   */
   template < class CNV >
   TPObjRef
-  baseToPersistent( CNV **cnv, const typename CNV::Trans_t* transObj, MsgStream& log)  {
+  baseToPersistent( CNV **cnv, const typename CNV::Trans_t* transObj, MsgStream& log)  const {
      if( !*cnv || (*cnv)->wasUsedForReading() ) {
         // don't trust the converter if it was used for reading, find again
 	*cnv = converterForType( *cnv, typeid(typename CNV::Trans_t), log );
@@ -140,7 +140,7 @@ public:
    @param log [IN] output message stream
   */
   template < class CNV, class TRANS_T >
-  void	fillTransFromPStore( CNV **cnv, const TPObjRef& ref, TRANS_T *trans, MsgStream &log ) {
+  void	fillTransFromPStore( CNV **cnv, const TPObjRef& ref, TRANS_T *trans, MsgStream &log ) const {
     if( ref.isNull() )  return;
     CNV *temp_cnv_p = 0;
     if( !cnv ) cnv = &temp_cnv_p;
@@ -718,6 +718,7 @@ public:
 
 
   virtual TRANS* createTransientConst (const PERS* persObj, MsgStream& log) const;
+  virtual PERS* createPersistentConst(const TRANS* transObj, MsgStream &log) const;
 };
 
 

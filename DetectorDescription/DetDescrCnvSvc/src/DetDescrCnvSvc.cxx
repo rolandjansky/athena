@@ -37,7 +37,9 @@ DetDescrCnvSvc::DetDescrCnvSvc(const std::string& name, ISvcLocator* svc)
         m_compact_ids_only(false),
         m_do_checks(false),
         m_do_neighbours(true),
-        m_useCSC(true)
+        m_hasCSC(true),
+        m_hasSTgc(true),
+        m_hasMM(true)
 {
     declareProperty("DetectorManagers",            m_detMgrs);
     declareProperty("DetectorNodes",   	           m_detNodes );
@@ -51,7 +53,9 @@ DetDescrCnvSvc::DetDescrCnvSvc(const std::string& name, ISvcLocator* svc)
     declareProperty("CompactIDsOnly",              m_compact_ids_only);
     declareProperty("DoIdChecks",                  m_do_checks);
     declareProperty("DoInitNeighbours",            m_do_neighbours);
-    declareProperty("UseCSC",                      m_useCSC);
+    declareProperty("HasCSC",                      m_hasCSC);
+    declareProperty("HasSTgc",                     m_hasSTgc);
+    declareProperty("HasMM",                       m_hasMM);
 
     declareProperty("AtlasIDFileName",             m_idDictATLASName);
     declareProperty("InDetIDFileName",             m_idDictInDetName);
@@ -197,7 +201,7 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(4170, "MDTIDHELPER");
     if (status != StatusCode::SUCCESS) return status;
-    if (m_useCSC) {
+    if (m_hasCSC) {
         status =  addToDetStore(4171, "CSCIDHELPER");
         if (status != StatusCode::SUCCESS) return status;
     }
@@ -205,11 +209,14 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(4173, "TGCIDHELPER");
     if (status != StatusCode::SUCCESS) return status;    
-    // for nSW
-    status =  addToDetStore(4174, "STGCIDHELPER");
-    if (status != StatusCode::SUCCESS) return status;
-    status =  addToDetStore(4175, "MMIDHELPER");     
-    if (status != StatusCode::SUCCESS) return status;
+    if (m_hasSTgc) {
+        status =  addToDetStore(4174, "STGCIDHELPER");
+        if (status != StatusCode::SUCCESS) return status;
+    }
+    if (m_hasMM) {
+        status =  addToDetStore(4175, "MMIDHELPER");     
+        if (status != StatusCode::SUCCESS) return status;
+    }
     status =  addToDetStore(108133391, "CaloLVL1_ID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(123500438, "CaloCell_ID");

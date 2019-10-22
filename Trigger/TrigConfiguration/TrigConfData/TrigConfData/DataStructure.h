@@ -59,8 +59,8 @@ namespace TrigConf {
        */
       void clear();
 
-      /** Access to the underlying data, if needed */ 
-      const ptree & data() const { return m_data; }
+      /** Access to the underlying data, if needed */
+      ptree data() const { return m_data; }
 
       /** Check for attribute
        * @return true if the structure is just a value
@@ -121,6 +121,14 @@ namespace TrigConf {
        *@endcode
        **/
       DataStructure getObject(const std::string & pathToChild, bool ignoreIfMissing = false) const;
+
+
+      /** Access to the keys of an DataStructure which presents a dictionary 
+       *
+       * In case the DataStructure is a list or a simple attribute, an empty vector is returned
+       **/
+      std::vector<std::string> getKeys() const;
+
 
       /** Access to initialized state */
       explicit operator bool() const { return m_initialized; }

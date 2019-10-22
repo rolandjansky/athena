@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1DECODER_CTPUNPACKINGTOOLBASE_H
@@ -36,7 +36,7 @@ public:
 
 protected:
 
-  static const int s_CTPIDForUndeededChains = -1;
+  static constexpr int s_CTPIDForUndeededChains = -1;
   typedef std::unordered_map<int, HLT::IDVec> IndexToIdentifiers;
   IndexToIdentifiers       m_ctpToChain;
 

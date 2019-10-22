@@ -16,10 +16,7 @@
 
 namespace MuonGM {
 
-RpcReadoutSet::RpcReadoutSet(const MuonDetectorManager* mgr, Identifier id) :
-  m_nreadoutelemets(999),
-  m_ndoubletz(999),
-  m_nsegmenteddoubletz(999)
+RpcReadoutSet::RpcReadoutSet(const MuonDetectorManager* mgr, Identifier id) 
 {
   m_mgr = mgr;
   m_helper = m_mgr->rpcIdHelper();
@@ -59,81 +56,75 @@ void RpcReadoutSet::setId(Identifier id)
 
 unsigned int RpcReadoutSet::NreadoutElements() const
 {
-  if( m_nreadoutelemets == 999 ) {
-    m_nreadoutelemets = 0;
-    //    for (int dbz = 1; dbz< 4; ++dbz)
-    //     std::cerr<<" dbzmax, dbphimax = "<<m_helper->doubletZMax(m_id)<<" "
-    //              <<m_helper->doubletPhiMax(m_id)<<std::endl;
-    for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz) {
-      const RpcReadoutElement* rpcold = nullptr;
-      for (int dbp = 1; dbp<=m_helper->doubletPhiMax(m_id) ; ++dbp) {
-        Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
-        const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
-        //std::cerr<<" iz, ip "<<dbz<<" "<<dbp<<"  pointer "<<rpc<<std::endl;
-        if (rpc != nullptr) {
-          if (dbp == 2 && rpc != rpcold ) {
-            //std::cerr<<" componenti "<<rpc->getStationName()
-            //         <<"/"<<rpc->getTechnologyName()<<std::endl;
-            ++m_nreadoutelemets;
-          } else if (dbp == 1) {
-            //std::cerr<<" componenti "<<rpc->getStationName()
-            //         <<"/"<<rpc->getTechnologyName()<<std::endl;
-            ++m_nreadoutelemets;
-            rpcold = rpc;
-          }
+  unsigned int nreadoutelemets = 0;
+  //    for (int dbz = 1; dbz< 4; ++dbz)
+  //     std::cerr<<" dbzmax, dbphimax = "<<m_helper->doubletZMax(m_id)<<" "
+  //              <<m_helper->doubletPhiMax(m_id)<<std::endl;
+  for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz) {
+    const RpcReadoutElement* rpcold = nullptr;
+    for (int dbp = 1; dbp<=m_helper->doubletPhiMax(m_id) ; ++dbp) {
+      Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
+      const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
+      //std::cerr<<" iz, ip "<<dbz<<" "<<dbp<<"  pointer "<<rpc<<std::endl;
+      if (rpc != nullptr) {
+        if (dbp == 2 && rpc != rpcold ) {
+          //std::cerr<<" componenti "<<rpc->getStationName()
+          //         <<"/"<<rpc->getTechnologyName()<<std::endl;
+          ++nreadoutelemets;
+        } else if (dbp == 1) {
+          //std::cerr<<" componenti "<<rpc->getStationName()
+          //         <<"/"<<rpc->getTechnologyName()<<std::endl;
+          ++nreadoutelemets;
+          rpcold = rpc;
         }
       }
     }
   }
-  return m_nreadoutelemets;
+  return nreadoutelemets;
 }
 
 unsigned int RpcReadoutSet::NdoubletZ() const
 {
-    if( m_ndoubletz == 999 ) {
-      m_ndoubletz = 0;
-      for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz)
-      {
-          int dbp = 1;
-          Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
-          const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
-          if (rpc != nullptr) ++m_ndoubletz;
-      }
-    }
-    return m_ndoubletz;
+  unsigned int ndoubletz = 0;
+  for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz)
+  {
+      int dbp = 1;
+      Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
+      const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
+      if (rpc != nullptr) ++ndoubletz;
+  }
+  return ndoubletz;
 }
 
 unsigned int RpcReadoutSet::NsegmentedDoubletZ() const
 {
-    if( m_nsegmenteddoubletz == 999 ) {
-      m_nsegmenteddoubletz = 0;
-      for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz)
+  unsigned int nsegmenteddoubletz = 0;
+  for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz)
+  {
+      int nre = 0;
+      const RpcReadoutElement* rpcold = nullptr;
+      for (int dbp = 1; dbp<=m_helper->doubletPhiMax(m_id); ++dbp)
       {
-          int nre = 0;
-          const RpcReadoutElement* rpcold = nullptr;
-          for (int dbp = 1; dbp<=m_helper->doubletPhiMax(m_id); ++dbp)
-          {
-              Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
-              const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
-              if (rpc != nullptr) {
-                  if (dbp == 2 && rpc != rpcold )
-                  {
-                      std::cout<<" componenti "<<rpc->getStationName()
-                               <<"/"<<rpc->getTechnologyName()<<std::endl;
-                      ++nre;
-                  }
-                  else if (dbp == 1) {
-                      std::cout<<" componenti "<<rpc->getStationName()
-                               <<"/"<<rpc->getTechnologyName()<<std::endl;
-                      ++nre;
-                      rpcold = rpc;
-                  }
+          Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
+          const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
+          if (rpc != nullptr) {
+              if (dbp == 2 && rpc != rpcold )
+              {
+                  std::cout<<" componenti "<<rpc->getStationName()
+                           <<"/"<<rpc->getTechnologyName()<<std::endl;
+                  ++nre;
+              }
+              else if (dbp == 1) {
+                  std::cout<<" componenti "<<rpc->getStationName()
+                           <<"/"<<rpc->getTechnologyName()<<std::endl;
+                  ++nre;
+                  rpcold = rpc;
               }
           }
-          if (nre > 1) m_nsegmenteddoubletz++;
       }
-    }
-    return m_nsegmenteddoubletz;
+      if (nre > 1) nsegmenteddoubletz++;
+  }
+  return nsegmenteddoubletz;
 }
 
 unsigned int RpcReadoutSet::NPhimodules(int dbz) const

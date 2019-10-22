@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -30,9 +30,7 @@
 // small hack to be able to modify original TileRawChannel
 #include "TileRawChannelToTTL1.h"
 
-#define private public
 #include "TileEvent/TileRawChannel.h"
-#undef private
 
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileFragHash.h"
@@ -242,27 +240,30 @@ StatusCode TileRawChannelToTTL1::execute() {
           //=== check if we have VeryLargeHfNoise, this indicates hot channel overflow
           if (status.contains(TileBchPrbs::VeryLargeHfNoise)) {
             hwid = m_tileHWID->adc_id(m_tileHWID->channel_id(hwid), adc);
-            pRch->m_adc_hwid = hwid;
-            pRch->m_amplitude[0] = m_tileToolEmscale->channelCalib(drawerIdx,
+            float amp = m_tileToolEmscale->channelCalib(drawerIdx,
                 channel, adc, 1023., TileRawChannelUnit::ADCcounts, rChUnit);
-            pRch->m_time[0] = 0.0;
-            pRch->m_quality[0] = 15.;
-            pRch->m_pedestal = 0.0;
+            *pRch = TileRawChannel (hwid,
+                                    amp,
+                                    0.0, // time
+                                    15., // quality
+                                    0.0); // pedestal
           } else {
           //=== dead channel, put zero energy
 
-            pRch->m_amplitude[0] = 0.0;
-            pRch->m_time[0] = 0.0;
-            pRch->m_quality[0] = 0.0;
-            pRch->m_pedestal = 0.0;
+            *pRch = TileRawChannel (pRch->adc_HWID(),
+                                    0.0, // amplitude
+                                    0.0, // time
+                                    0.0, // quality
+                                    0.0); // pedestal
           }
         } else if (status.isNoisy()) { // noisy channel ...
 
         //=== not bad, but noisy channel
 
           float noise = 0.0; // FIXME::add some noise - but don't know what to add
-          pRch->m_amplitude[0] += m_tileToolEmscale->channelCalib(drawerIdx,
+          float delamp = m_tileToolEmscale->channelCalib(drawerIdx,
               channel, adc, noise, TileRawChannelUnit::ADCcounts, rChUnit);
+          pRch->setAmplitude (delamp + pRch->amplitude());
         }
 
       }

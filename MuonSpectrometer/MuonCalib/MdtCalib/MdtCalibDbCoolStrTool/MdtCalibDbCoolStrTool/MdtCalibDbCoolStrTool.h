@@ -12,6 +12,7 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //c - c++
 #include "zlib.h"
@@ -21,7 +22,6 @@
 
 class MdtCalibrationRegionSvc;
 class Identifier; 
-class MdtIdHelper;
 class IIOVDbSvc;
 class MsgStream;
 class IAtRndmGenSvc;
@@ -77,7 +77,8 @@ private:
   /** loads the tube constants from the DB */
   virtual StatusCode loadTube(IOVSVC_CALLBACK_ARGS);
 
-  const MdtIdHelper *m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager *m_detMgr;
   ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
   ServiceHandle<IIOVDbSvc>     m_IOVDbSvc;

@@ -61,3 +61,13 @@ if TriggerFlags.doCalo:
   algo.RoIs="StoreGateSvc+EMRoIs"
   topSequence += algo
 
+
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+generateJSON()
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags    
+hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
+from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc, findFileInXMLPATH
+hltJsonFile = findFileInXMLPATH(hltJsonFile)
+svcMgr += HLTConfigSvc()
+svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile

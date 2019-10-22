@@ -42,7 +42,7 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
   //  auto viewVector = std::make_unique< ViewContainer >();
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = context.getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+  unsigned int conditionsRun = Atlas::getExtendedEventContext(context).conditionsRun();
 
   //map all RoIs that are stored
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;
@@ -90,7 +90,8 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
           auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
           viewVector->push_back( newView );
           contexts.emplace_back( context );
-          contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
+          Atlas::setExtendedEventContext (contexts.back(),
+                                          Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
           
           // link decision to this view
           outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
@@ -108,16 +109,12 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
     } // loop over decisions   
   }// loop over output keys
 
-  // debug option to reorder views
-  if ( m_reverseViews ) {
-    std::reverse( viewVector->begin(), viewVector->end() );
-  }
-
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
              m_viewNodeName,             // CF node to attach views to
              context,                    // Source context
-             getScheduler() ) );
+             getScheduler(),
+             m_reverseViews ) );
   
   // store views
   // auto viewsHandle = SG::makeHandle( m_viewsKey );

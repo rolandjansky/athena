@@ -45,7 +45,6 @@ RegionSelectionSvc :: RegionSelectionSvc(const std::string & name, ISvcLocator *
 	declareProperty("PrintList", m_print_list_of_selected_chambers);
 	
 	//for the sake of coverity
-	m_mdtIdHelper=NULL;
 	m_detMgr=NULL;
 	m_detStore=NULL;
 	m_master_region=NULL;
@@ -89,7 +88,7 @@ StatusCode RegionSelectionSvc :: initialize()
     return sc;
   }
 
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  sc = m_muonIdHelperTool.retrieve();
   if (!sc.isSuccess()) {
     ATH_MSG_ERROR("Can't retrieve MdtIdHelper");
     return sc;
@@ -172,14 +171,14 @@ void RegionSelectionSvc :: Print(std::ostream &os) const
 
 inline void RegionSelectionSvc :: search_chambers_in_region()
 	{
-	MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
-	MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
+	MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
+	MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
 	for( ; it!=it_end;++it )
 		{
-		const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(*it,1,1,1));
+		const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(*it,1,1,1));
 		if(!detEl) continue;
 	//get number of mls;
-		int n_mls=m_mdtIdHelper->numberOfMultilayers(*it);
+		int n_mls=m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(*it);
 	//fixed id
 		MuonCalib::MuonFixedId fixed_id(m_idToFixedIdTool->idToFixedId(*it));
 		std::vector<MuonCalib::NtupleStationId> the_ids;

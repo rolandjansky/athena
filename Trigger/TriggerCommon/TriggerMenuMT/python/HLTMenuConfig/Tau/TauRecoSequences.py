@@ -13,7 +13,7 @@ def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
     algo.RoIInputKey  = inputRoIs
-    algo.RoIOutputKey = "RoiForTau"
+    algo.RoIOutputKey = recordable("HLT_RoiForTau")
     algo.CaloClustersKey = clusters
     return algo
 
@@ -35,6 +35,28 @@ def _algoTauCaloOnlyMVA(inputRoIs, clusters):
     algo.L1RoIKey            = roiUpdateAlgo.RoIInputKey
     algo.clustersKey         = clusters
     algo.TrigTauRecOutputKey = recordable("HLT_TrigTauRecMerged")
+    return algo
+
+def _algoTauTrackRoiUpdater(inputRoIs, tracks):
+    from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
+    algo = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
+    algo.RoIInputKey   = inputRoIs
+    algo.RoIOutputKey  = recordable("HLT_RoiForID2")
+    algo.fastTracksKey = tracks
+    return algo
+
+def _algoTauPrecisionMVA(inputRoIs, tracks):
+    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
+    algo = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
+    algo.RoIInputKey = inputRoIs
+    algo.L1RoIKey    = "TAUCaloRoIs"
+    algo.TrigTauRecOutputKey = recordable("HLT_TrigTauRecMerged_MVA")
+    algo.TrigTauJet = "HLT_TrigTauRecMerged"
+    algo.Key_trackPartInputContainer = tracks
+    algo.UseCaloClusters = False
+    #algo.clustersKey = "caloclusters"
+    algo.Key_vertexInputContainer = "VxPrimaryCandidate"
+    algo.TrigTauTrkOutputKey = recordable("HLT_tautrack_MVA")
     return algo
 
 def tauCaloRecoSequence(InViewRoIs, SeqName):
@@ -86,3 +108,126 @@ def tauCaloMVASequence(ConfigFlags):
 
     tauCaloMVASequence = seqAND("tauCaloMVASequence", [tauCaloMVAViewsMaker, tauCaloMVAInViewSequence ])
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
+
+def tauCoreTrackSequence( RoIs, name ):
+    import AthenaCommon.CfgMgr as CfgMgr
+
+    tauCoreTrackSequence = parOR(name)
+
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
+
+    for viewAlg in viewAlgs:
+       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+         TrackCollection = viewAlg.TrackName
+
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierCoreFTF")
+    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
+    viewAlgs.append(ViewVerify)
+
+    tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
+
+    viewAlgs.append(tauTrackRoiUpdaterAlg)
+
+    for viewAlg in viewAlgs:
+       tauCoreTrackSequence += viewAlg
+       #print viewAlg.name()
+       if "RoIs" in viewAlg.properties():
+         viewAlg.RoIs = RoIs
+       if "roiCollectionName" in viewAlg.properties():
+         viewAlg.roiCollectionName = RoIs
+       if "TrackRoiUpdater" in viewAlg.name():
+         viewAlg.RoIInputKey = RoIs
+
+    sequenceOut = TrackCollection
+
+    return tauCoreTrackSequence, sequenceOut
+
+def tauIsoTrackSequence( RoIs , name):
+    import AthenaCommon.CfgMgr as CfgMgr
+
+    tauIsoTrackSequence = parOR(name)
+
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso",rois = RoIs)
+
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierIsoFTF")
+    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
+    viewAlgs.append(ViewVerify)
+
+    for viewAlg in viewAlgs:
+       tauIsoTrackSequence += viewAlg
+       #print viewAlg.name()
+       if "RoIs" in viewAlg.properties():
+         viewAlg.RoIs = RoIs
+       if "roiCollectionName" in viewAlg.properties():
+         viewAlg.roiCollectionName = RoIs
+       if "TrackRoiUpdater" in viewAlg.name():
+         viewAlg.RoIInputKey = RoIs
+       if "TrigFastTrackFinder" in  viewAlg.name():
+         TrackCollection = viewAlg.TracksName
+
+
+    #Precision Tracking
+    PTAlgs = [] #List of precision tracking algs
+    PTTracks = [] #List of TrackCollectionKeys
+    PTTrackParticles = [] #List of TrackParticleKeys
+
+    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    #When run in a different view than FTF some data dependencies needs to be loaded through verifier
+    #Pass verifier as an argument and it will automatically append necessary DataObjects
+    #@NOTE: Don't provide any verifier if loaded in the same view as FTF
+
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "taus",  ViewVerify, inputFTFtracks= TrackCollection )
+    PTSeq = seqAND("precisionTrackingInTaus", PTAlgs  )
+    #Get last tracks from the list as input for other alg
+
+    tauIsoTrackSequence += PTSeq
+
+    #Default from FTF
+    #trackParticles = "xAODTracks"
+    #TODO: change according to what needs to be done here
+    #Last key in the list is for the TrackParticles after all PT stages (so far only one :) )
+    trackParticles = PTTrackParticles[-1]
+
+    tauPrecisionMVAAlg = _algoTauPrecisionMVA(inputRoIs = RoIs, tracks = trackParticles)
+
+    tauIsoTrackSequence += tauPrecisionMVAAlg
+
+    sequenceOut = tauPrecisionMVAAlg.TrigTauRecOutputKey
+
+    return tauIsoTrackSequence, sequenceOut
+
+def tauFTFCoreSequence(ConfigFlags):
+
+    RecoSequenceName = "tauFTFCoreInViewSequence"
+
+    ftfCoreViewsMaker                   = EventViewCreatorAlgorithm("IMFTFCore")
+    ftfCoreViewsMaker.RoIsLink          = "roi" # -||-
+    ftfCoreViewsMaker.InViewRoIs        = "TCoreViewRoIs" # contract with the fastCalo
+    ftfCoreViewsMaker.Views             = "TAUFTFCoreViews"
+    ftfCoreViewsMaker.ViewFallThrough   = True
+    ftfCoreViewsMaker.RequireParentView = True
+    ftfCoreViewsMaker.ViewNodeName      = RecoSequenceName
+
+    (tauFTFCoreInViewSequence, sequenceOut) = tauCoreTrackSequence( ftfCoreViewsMaker.InViewRoIs, RecoSequenceName)
+
+    tauFastTrackCoreSequence = seqAND("tauFastTrackCoreSequence", [ftfCoreViewsMaker, tauFTFCoreInViewSequence ])
+    return (tauFastTrackCoreSequence, ftfCoreViewsMaker, sequenceOut)
+
+def tauFTFIsoSequence(ConfigFlags):
+
+    RecoSequenceName = "tauFTFIsoInViewSequence"
+
+    ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
+    ftfIsoViewsMaker.RoIsLink          = "roi" # -||-                                                                            
+    ftfIsoViewsMaker.InViewRoIs        = "TIsoViewRoIs" # contract with the fast track core
+    ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
+    ftfIsoViewsMaker.ViewFallThrough   = True
+    ftfIsoViewsMaker.RequireParentView = True
+    ftfIsoViewsMaker.ViewNodeName      = RecoSequenceName
+
+    (tauFTFIsoInViewSequence, sequenceOut) = tauIsoTrackSequence( ftfIsoViewsMaker.InViewRoIs, RecoSequenceName)
+
+    tauFastTrackIsoSequence = seqAND("tauFastTrackIsoSequence", [ftfIsoViewsMaker, tauFTFIsoInViewSequence ])
+    return (tauFastTrackIsoSequence, ftfIsoViewsMaker, sequenceOut)

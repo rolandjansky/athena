@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
@@ -33,6 +33,8 @@ from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicT
 # temporarily for backwards compat. TO BE REMOVED
 from AthenaCommon.CfgGetter import addTool,addToolClone,addService
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 #--------------------------------------------------------------------------------
 # Hit-on-track creation tools
@@ -231,6 +233,18 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
     return CfgMgr.Trk__Extrapolator(name,**kwargs)
 # end of factory function MuonExtrapolator
 
+def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
+    getService("MuonIdHelperSvc")
+    return Muon__MuonIdHelperTool(name,**kwargs)
+
+def MuonIdHelperSvc(name="MuonIdHelperSvc",**kwargs):
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+    return Muon__MuonIdHelperSvc(name,**kwargs)
+
 def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
     kwargs.setdefault("Propagators",["Trk::STEP_Propagator/MuonStraightLinePropagator"])
     kwargs.setdefault("STEP_Propagator","Trk::STEP_Propagator/MuonStraightLinePropagator")
@@ -252,15 +266,12 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
     def __init__(self,name='MuonEDMPrinterTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
         super(MuonEDMPrinterTool,self).__init__(name,**kwargs)
-        getPublicTool("MuonIdHelperTool")
+        kwargs.setdefault("MuonIdHelperTool", "MuonIdHelperTool")
         getService("MuonEDMHelperSvc")
 # end of class MuonEDMPrinterTool
 
 
-def MuonTrackSummaryHelper(name="MuonTrackSummaryHelper",**kwargs):
-    AtlasTrackingGeometrySvc = getService("AtlasTrackingGeometrySvc")
-    kwargs.setdefault("TrackingGeometryName", AtlasTrackingGeometrySvc.TrackingGeometryName)
-    kwargs.setdefault("DoHolesOnTrack", False)
+def MuonTrackSummaryHelperTool(name="MuonTrackSummaryHelperTool",**kwargs):
     kwargs.setdefault("CalculateCloseHits", True)
 
     from MuonTrackSummaryHelperTool.MuonTrackSummaryHelperToolConf import Muon__MuonTrackSummaryHelperTool
@@ -275,7 +286,7 @@ class MuonTrackSummaryTool(Trk__TrackSummaryTool,ConfiguredBase):
 
     def __init__(self,name="MuonTrackSummaryTool",**kwargs):
         self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelper" )
+        kwargs.setdefault("MuonSummaryHelperTool", "MuonTrackSummaryHelperTool" )
         kwargs.setdefault("doSharedHits", False )
         kwargs.setdefault("AddDetailedMuonSummary", True )
         super(MuonTrackSummaryTool,self).__init__(name,**kwargs)
@@ -462,8 +473,9 @@ if DetFlags.detdescr.Muon_on() and rec.doMuon():
     getPublicTool("MuonEDMPrinterTool")
     getPublicTool("MuonSegmentMomentum")
     getPublicTool("MuonClusterOnTrackCreator")
-    getPrivateTool("CscClusterOnTrackCreator")
-    getPrivateTool("CscBroadClusterOnTrackCreator")
+    if MuonGeometryFlags.hasCSC():
+        getPrivateTool("CscClusterOnTrackCreator")
+        getPrivateTool("CscBroadClusterOnTrackCreator")
     getPublicTool("MdtDriftCircleOnTrackCreator")
     getPublicTool("MdtTubeHitOnTrackCreator")
         

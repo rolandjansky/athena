@@ -3,6 +3,7 @@
 */
 
 #include "PixelRawDataProviderTool.h"
+#include "StoreGate/WriteHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -89,12 +90,10 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 
     if (isNewEvent) {
       unsigned int lvl1id = (*rob_it)->rod_lvl1_id();
-      std::pair<uint32_t, unsigned int>* lvl1Pair = new std::pair<uint32_t, unsigned int>(robid,lvl1id);
-      m_LVL1Collection->push_back(lvl1Pair) ;
+      m_LVL1Collection->emplace_back(robid,lvl1id) ;
 
       unsigned int bcid = (*rob_it)->rod_bc_id();  
-      std::pair<uint32_t, unsigned int>* bcidPair = new std::pair<uint32_t, unsigned int>(robid,bcid);
-      m_BCIDCollection->push_back(bcidPair);
+      m_BCIDCollection->emplace_back(robid,bcid);
       
 #ifdef PIXEL_DEBUG
       ATH_MSG_DEBUG("Stored LVL1ID "<<lvl1id<<" and BCID "<<bcid<<" in InDetTimeCollections");

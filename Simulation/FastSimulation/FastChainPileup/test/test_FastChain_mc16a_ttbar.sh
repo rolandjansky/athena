@@ -3,6 +3,7 @@
 # art-description: Run AFII simulation and full digitization of an MC16a ttbar sample with 2016a geometry and conditions, 25ns pile-up
 # art-type: grid
 # art-include: 21.3/Athena
+# art-include: master/Athena
 # art-output: mc16a_ttbar.RDO.pool.root
 # art-output: config.txt
 

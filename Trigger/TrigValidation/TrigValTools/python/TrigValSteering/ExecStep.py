@@ -218,7 +218,11 @@ class ExecStep(Step):
         # Append input
         if len(self.input) > 0:
             if self.input_object is not None:
-                input_str = ','.join(self.input_object.paths)
+                if self.type == 'athenaHLT':
+                    # athenaHLT can only take one input file
+                    input_str = self.input_object.paths[0]
+                else:
+                    input_str = ','.join(self.input_object.paths)
             else:
                 input_str = self.input
             if self.type == 'athena':

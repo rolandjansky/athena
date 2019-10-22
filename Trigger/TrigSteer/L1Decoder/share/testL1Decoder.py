@@ -23,13 +23,15 @@ for unpack in topSequence.L1Decoder.roiUnpackers:
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-
-#testChains =[x for x, y in CTPToChainMapping.items()]
-#topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
-#print testChains
 print topSequence.L1Decoder
 
 #from TrigUpgradeTest.jetDefs import jetRecoSequence
 #(recoSequence, sequenceOut) = jetRecoSequence("FSRoI") 
 #topSequence += recoSequence
-    
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags    
+hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
+from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc, findFileInXMLPATH
+hltJsonFile = findFileInXMLPATH(hltJsonFile)
+svcMgr += HLTConfigSvc()
+svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile

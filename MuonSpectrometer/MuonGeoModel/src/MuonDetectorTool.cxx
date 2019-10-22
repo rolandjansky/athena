@@ -41,7 +41,9 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
       m_fillCache_initTime(0),
       m_dumpMemoryBreakDown(false),
       m_enableFineClashFixing(0),
-      m_useCSC(true),
+      m_hasCSC(true),
+      m_hasSTgc(true),
+      m_hasMM(true),
       m_stationSelection(0),
       m_controlAlines(111111),
       m_dumpAlines(false),
@@ -56,7 +58,6 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
       m_enableMdtDeformations(0),
       m_enableMdtAsBuiltParameters(0),
       m_altMdtAsBuiltFile(""),
-      m_condDataTool(),
       m_manager(0)
 {
     declareInterface<IGeoModelTool>(this);
@@ -72,7 +73,9 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
     declareProperty("DumpMemoryBreakDown"		, m_dumpMemoryBreakDown = false);
     //
     declareProperty("EnableFineClashFixing"		, m_enableFineClashFixing = 0);
-    declareProperty("UseCSC", m_useCSC);
+    declareProperty("HasCSC", m_hasCSC);
+    declareProperty("HasSTgc", m_hasSTgc);
+    declareProperty("HasMM", m_hasMM);
     //
     declareProperty("StationSelection"			, m_stationSelection = 0);
     declareProperty("SelectedStations"			, m_selectedStations);
@@ -95,7 +98,6 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
     declareProperty("EnableMdtAsBuiltParameters"	, m_enableMdtAsBuiltParameters = 0);
     declareProperty("AlternateAsBuiltParamAlignFile"    , m_altMdtAsBuiltFile);
     //
-    declareProperty("TheMuonAlignmentTool",     m_condDataTool,      "a Tool to read from the condDB and save in StoreGate" );
     // THESE ALLOW TO RESET THE MUON SWITCHES IN THE oracle TABLES:
     // to reset (for example) BUILDBARRELTOROID use ForceSwitchOnOff_BUILDBARRELTOROID = 1001/1000 to have/not have the BARRELTOROID
     // i.e  you must set 1000 to force resetting + 1/0 (enable/disable)
@@ -130,8 +132,6 @@ StatusCode
 MuonDetectorTool::initialize()
 {
     ATH_MSG_INFO("Initializing ...");
-
-    if( !m_condDataTool.empty() ) ATH_CHECK( m_condDataTool.retrieve() );
 
     // Incident Svc 
     ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
@@ -320,7 +320,9 @@ MuonDetectorTool::create()
         theFactory.setMdtDeformationFlag(m_enableMdtDeformations);
         theFactory.setMdtAsBuiltParaFlag(m_enableMdtAsBuiltParameters);
         theFactory.setFineClashFixingFlag(m_enableFineClashFixing);
-        theFactory.useCSC(m_useCSC);
+        theFactory.hasCSC(m_hasCSC);
+        theFactory.hasSTgc(m_hasSTgc);
+        theFactory.hasMM(m_hasMM);
         if ( m_stationSelection > 0 ) theFactory.setSelection(m_selectedStations, m_selectedStEta, m_selectedStPhi);
 		
         theFactory.setRDBAccess(access);
@@ -444,188 +446,4 @@ MuonDetectorTool::clear()
     m_manager = 0;
   }
   return StatusCode::SUCCESS;
-}
-
-StatusCode   
-MuonDetectorTool::registerCallback()
-{
-
-    if (m_accessCondDb == 0) 
-    {
-        ATH_MSG_INFO("No data will be read from the condition DB" );
-        if (m_asciiCondData == 0) return StatusCode::FAILURE;//!< This is OK: We don't want to look at condition data !
-    }
-
-    // m_accessCondDb == 1, Amdcsimrec will expect A/B line containers from MuonDetectorManager -> fill the starting point 
-    // init A/B line historical container
-    // m_manager->initABlineContainers();
-    // record in SG the A/B line full containers 
-    //if ((detStore->record(m_manager->ALineContainer(),"MDT_A_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
-    //if ((detStore->record(m_manager->BLineContainer(),"MDT_B_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
-
-    bool aFolderFound = false;
-    std::vector<std::string> foundFolderNames;
-
-    if( !m_condDataTool.empty() ){
-      std::vector<std::string> folderNames = m_condDataTool->abLineFolderNames();
-      ATH_MSG_INFO("Register call-back  against "<<folderNames.size()<<" folders listed below " );
-      int ic=0;
-      for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
-      {
-          ++ic;
-          if (detStore()->contains<CondAttrListCollection>(*ifld)) {
-              aFolderFound=true;
-              foundFolderNames.push_back(*ifld);
-              ATH_MSG_INFO(" Folder n. "<<ic<<" <"<<(*ifld)<<">     found in the DetStore" );
-          }
-          else
-              ATH_MSG_INFO(" Folder n. "<<ic<<" <"<<(*ifld)<<"> NOT found in the DetStore" );
-      }
-    }
-
-    if (!aFolderFound) 
-    {
-        ATH_MSG_INFO("CondAttrListCollection not found in the DetectorStore"<<endmsg
-                   <<"Unable to register callback on CondAttrListCollection for any folder in the list "<<endmsg
-                   <<"This is OK unless you expect to read alignment and deformations from COOL " );
-        if (m_asciiCondData!=0) 	
-	{
-            int dummyint;
-            std::list<std::string> dummylist;
-            this->align(dummyint,dummylist);
-            if (m_accessCondDb==0) return StatusCode::FAILURE;
-	}
-	else return StatusCode::FAILURE;//!< This is OK for standard reconstruction until we are running with static MS geometry DB !
-    }
-
-    //!< register the IGeoModelTool::align interface of this tool for call back after the data
-    for (std::vector<std::string>::const_iterator ifld=foundFolderNames.begin(); ifld!=foundFolderNames.end(); ++ifld)
-    {
-        const DataHandle<CondAttrListCollection> parlineData;
-        StatusCode sc = detStore()->regFcn(&IGeoModelTool::align,
-                                         dynamic_cast<IGeoModelTool *>(this),
-                                         parlineData,
-                                         *ifld);
-        if (sc.isFailure())
-        {
-            ATH_MSG_WARNING("Unable to register call-back to MuonDetectorTool::align() against folder <"<<*ifld<<">"
-               <<" This is OK unless you expect to read alignment and deformations from COOL " );
-        }
-        else ATH_MSG_INFO("Call-back to MuonDetectorTool::align() against folder "<<*ifld<<" registered " );
-    }
-    
-    return StatusCode::SUCCESS;
-}
-
-StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
-{
-    ATH_MSG_INFO("In MuonDetectorTool::align" );
-    if (m_accessCondDb == 0) 
-    {
-        ATH_MSG_INFO("Access to the cond DB not enabled by MuonGeoModel specific job-options (UseConditionDb=0)" );
-        if (m_asciiCondData==0) return StatusCode::SUCCESS;
-    }	
-    if (m_asciiCondData==0) ATH_MSG_INFO("Access to the cond DB enabled by MuonGeoModel specific job-options (UseConditionDb=1)" );
-    
-    ATH_MSG_DEBUG("ToolHandle in align - "<<m_condDataTool );
-    IMuonAlignmentDbTool* pAliTool = &*m_condDataTool;
-    //and why not also print out this pAliTool pointer ? The &* is the trick to get the pointer to the real tool.
-    ATH_MSG_DEBUG("pointer to the concrete tool in align - "<<(uintptr_t)pAliTool );
-
-    std::ofstream geoModelStats;
-    int mem = 0;
-    float cpu = 0;
-    int umem = 0;
-    float ucpu = 0;
-    
-    if (m_dumpMemoryBreakDown){
-      geoModelStats.open("MuonGeoModelStatistics_MuonDetectorTool",std::ios::app);
-	umem = GeoPerfUtils::getMem();
-	ucpu = float(GeoPerfUtils::getCpu()/100.);
-	geoModelStats <<"At MuonDetectorTool::align method just called back   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
-	mem = umem;
-	cpu = ucpu;
-    }
-    
-    StatusCode sc = m_condDataTool->loadParameters(I, keys);
-    if (sc.isRecoverable())
-    {
-        ATH_MSG_WARNING("Recoverable error while loading the Alignment and Deformation parameters"<<endmsg
-                      <<"part of alignment data requested might be missing" );
-    }
-    else if (sc.isFailure())
-    {
-        ATH_MSG_ERROR("Unable to load the Alignment and Deformation parameters" );
-        return sc;
-    }
-    ATH_MSG_INFO("Alignment and Deformation parameters loaded and stored in the DetectorStore" );
-
-    if (m_dumpMemoryBreakDown)
-    {
-	umem = GeoPerfUtils::getMem();
-	ucpu = float(GeoPerfUtils::getCpu()/100.);
-	geoModelStats <<"At MuonDetectorTool::align method finished reading from COOL   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
-	mem = umem;
-	cpu = ucpu;
-    }
-
-    sc = m_manager->updateAlignment(m_condDataTool->ALineContainer());
-    if (sc.isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
-    else ATH_MSG_DEBUG("updateAlignment DONE" );
-
-    if (m_dumpMemoryBreakDown)
-    {
-	umem = GeoPerfUtils::getMem();
-	ucpu = float(GeoPerfUtils::getCpu()/100.);
-	geoModelStats <<"At MuonDetectorTool::align method after manager->updateAlignment   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
-	mem = umem;
-	cpu = ucpu;
-    }
-
-
-    sc = m_manager->updateDeformations(m_condDataTool->BLineContainer());
-    if (sc.isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
-    else ATH_MSG_DEBUG("updateDeformations DONE" );
-
-    if (m_dumpMemoryBreakDown)
-    {
-	umem = GeoPerfUtils::getMem();
-	ucpu = float(GeoPerfUtils::getCpu()/100.);
-	geoModelStats <<"At MuonDetectorTool::align method after manager->updateDeformations   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
-	mem = umem;
-	cpu = ucpu;
-    }
-
-    sc = m_manager->updateAsBuiltParams(m_condDataTool->AsBuiltContainer());
-    if (sc.isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
-    else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
-
-    if (m_dumpMemoryBreakDown)
-    {
-	umem = GeoPerfUtils::getMem();
-	ucpu = float(GeoPerfUtils::getCpu()/100.);
-	geoModelStats <<"At MuonDetectorTool::align method after manager->updateAsBuiltParams   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
-	mem = umem;
-	cpu = ucpu;
-    }
-    
-    if (!m_useCscIntAlinesFromGM) sc = m_manager->updateCSCInternalAlignmentMap(m_condDataTool->ILineContainer());
-    if (sc.isFailure() && !m_useCscIntAlinesFromGM) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
-    else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE or used via GM" );
-
-    if (m_dumpMemoryBreakDown && !m_useCscIntAlinesFromGM)
-    {
-	umem = GeoPerfUtils::getMem();
-	ucpu = float(GeoPerfUtils::getCpu()/100.);
-	geoModelStats <<"At MuonDetectorTool::align method after manager->updateCSCInternalAlignmentMap   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
-	mem = umem;
-	cpu = ucpu;
-    }    
-
-    if (m_dumpMemoryBreakDown)
-    {
-	geoModelStats.close();
-    }    
-
-    return sc;
 }

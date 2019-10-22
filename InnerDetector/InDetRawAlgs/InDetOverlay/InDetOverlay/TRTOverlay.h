@@ -5,7 +5,7 @@
 #ifndef INDETOVERLAY_TRTOVERLAY_H
 #define INDETOVERLAY_TRTOVERLAY_H
 
-#include <AthenaBaseComps/AthAlgorithm.h>
+#include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <InDetRawData/TRT_RDO_Container.h>
 
 #include "AthenaKernel/IAthRNGSvc.h"
@@ -20,28 +20,28 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class TRTOverlay : public AthAlgorithm
+class TRTOverlay : public AthReentrantAlgorithm
 {
 public:
 
   TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
 
   StatusCode overlayContainer(const TRT_RDO_Container *bkgContainer,
                               const TRT_RDO_Container *signalContainer,
                               TRT_RDO_Container *outputContainer,
-                              const InDetSimDataCollection *signalSDOCollection);
+                              const InDetSimDataCollection *signalSDOCollection) const;
 
   void mergeCollections(TRT_RDO_Collection *bkgCollection,
                         TRT_RDO_Collection *signalCollection,
                         TRT_RDO_Collection *outputCollection,
                         double occupancy,
                         const InDetSimDataCollection *signalSDOCollection,
-                        CLHEP::HepRandomEngine *rndmEngine);
+                        CLHEP::HepRandomEngine *rndmEngine) const;
 
   const TRT_ID *m_trtId{};
 

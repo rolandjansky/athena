@@ -7,9 +7,9 @@
 template< class IDC, class IDHELPER >
 static
 typename IDC::IDENTIFIABLE* 
-Muon::IDC_Helper::getCollection( const Identifier collId,  IDC* idc, const IDHELPER* idHelper, MsgStream& log){
+Muon::IDC_Helper::getCollection( const Identifier collId,  IDC* idc, const IDHELPER& idHelper, MsgStream& log){
     IdentifierHash idHash;
-    if (idHelper->get_module_hash( collId, idHash )) {
+    if (idHelper.get_module_hash( collId, idHash )) {
         log << MSG::ERROR << "Unable to get CSC hash id from CSC RDO collection " 
             << " the identifier is "
             << endmsg;

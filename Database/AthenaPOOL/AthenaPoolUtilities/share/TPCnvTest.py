@@ -1,6 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ##
-# $Id$
-#
 # @file AthenaPoolUtilities/share/TPCnvTest.py
 # @author sss
 # @date Nov 2015
@@ -19,6 +18,7 @@
 
 import AthenaCommon.AtlasUnixStandardJob
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from PyUtils.moduleExists import moduleExists
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -66,17 +66,20 @@ if not globals().get ('noID',False):
 from AthenaCommon.JobProperties import jobproperties
 if jobproperties.Global.DetDescrVersion.isDefault():
     jobproperties.Global.DetDescrVersion = 'ATLAS-R1-2012-03-01-00'
-import imp
-have_atlas_geo = True
-try:
-    imp.find_module ('AtlasGeoModel')
-except ImportError:
-    have_atlas_geo = False
+have_atlas_geo = moduleExists ('AtlasGeoModel')
 if have_atlas_geo:
     import AtlasGeoModel.GeoModelInit
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
+if have_atlas_geo and moduleExists ('TrkEventCnvTools') and moduleExists ('MuonEventCnvTools'):
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    from TrkEventCnvTools import TrkEventCnvToolsConf
+    EventCnvSuperTool = TrkEventCnvToolsConf.Trk__EventCnvSuperTool('EventCnvSuperTool')
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+    svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+    ToolSvc += EventCnvSuperTool
 
 #
 # If a new xAOD variable appears, print a warning, but don't treat

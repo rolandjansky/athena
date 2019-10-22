@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCollectionCnv_p2.cxx 
@@ -13,12 +13,8 @@
 #include "AthAllocators/DataPool.h"
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
-#undef private
-#undef protected
 
 
 // JetEventTPCnv includes
@@ -33,27 +29,13 @@
 #include <sstream>
 
 // preallocate converters
-static JetCnv_p2 jetCnv;
-static JetKeyDescriptorCnv_p1 jetkeyCnv;
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
+static const JetCnv_p2 jetCnv;
+static const JetKeyDescriptorCnv_p1 jetkeyCnv;
 
 void 
 JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers, 
                                   JetCollection* trans, 
-                                  MsgStream& msg ) 
+                                  MsgStream& msg ) const
 {
   msg << MSG::DEBUG << "Loading JetCollection from persistent state..."
       << endmsg;
@@ -67,23 +49,23 @@ JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers,
     trans->m_keyStore.toDefaultObject();
   // link the JetKeyDescriptorInstance to the store:
   if( trans->m_keyStore.isValid() ){
-    trans->m_keyDescInstance.m_Stores  = trans->m_keyStore.getDataNonConstPtr();
+    trans->keyDesc()->m_Stores  = trans->m_keyStore.getDataNonConstPtr();
     // make sure the global instance is pointing to this jetkey store
-    JetKeyDescriptorInstance::instance()->m_Stores =  trans->m_keyDescInstance.m_Stores;
+    JetKeyDescriptorInstance::instance()->m_Stores =  trans->keyDesc()->m_Stores;
   }
   else if (trans->m_keyStore.isDefault()) {
     DataLink<JetKeyDescriptor> dl ("JetKeyMap");
     if (dl.isValid()) {
-      trans->m_keyDescInstance.m_Stores  = dl.getDataNonConstPtr();
+      trans->keyDesc()->m_Stores  = dl.getDataNonConstPtr();
       // make sure the global instance is pointing to this jetkey store
-      JetKeyDescriptorInstance::instance()->m_Stores =  trans->m_keyDescInstance.m_Stores;
+      JetKeyDescriptorInstance::instance()->m_Stores =  trans->keyDesc()->m_Stores;
     }
     else
-      trans->m_keyDescInstance.m_Stores  =
+      trans->keyDesc()->m_Stores  =
         JetKeyDescriptorInstance::instance()->m_Stores;
   }
   else 
-    trans->m_keyDescInstance.m_Stores  = JetKeyDescriptorInstance::instance()->m_Stores;
+    trans->keyDesc()->m_Stores  = JetKeyDescriptorInstance::instance()->m_Stores;
 
   //(trans->m_keyStore)->printOut(msg);
   msg <<  MSG::DEBUG << "Rolf : " << &(*trans->m_keyStore) << endmsg;
@@ -100,7 +82,7 @@ JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers,
     pool.reserve( pool.allocated() + nJets );
   }
   
-  trans->m_ordered   = static_cast<JetCollection::OrderedVar>(pers->m_ordered);
+  trans->setOrdered (static_cast<JetCollection::OrderedVar>(pers->m_ordered));
   // the transient version does not have this data member any more,
   // each jet knows its ROI
   //trans->m_ROIauthor = //pers->m_roiAuthor;
@@ -136,12 +118,12 @@ JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers,
 void 
 JetCollectionCnv_p2::transToPers( const JetCollection* trans, 
                                   JetCollection_p2* pers, 
-                                  MsgStream& msg ) 
+                                  MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection..."
 //       << endmsg;
 
-  pers->m_ordered   = static_cast<short>(trans->m_ordered);
+  pers->m_ordered   = static_cast<short>(trans->ordered());
   //pers->m_roiAuthor = trans->m_ROIauthor;
 
   std::size_t size = trans->size();     
@@ -164,18 +146,3 @@ JetCollectionCnv_p2::transToPers( const JetCollection* trans,
   return;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 

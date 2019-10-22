@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FourMomentumError_H
 #define FourMomentumError_H
 
 #include "EventKernel/I4MomentumError.h"
-#include "FourMom/DeepCopyPointer.h"
-
 #include "CLHEP/Matrix/SymMatrix.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 template < class FourMom>
 class FourMomentumError : public I4MomentumError {
@@ -29,38 +28,38 @@ public:
   FourMomentumError( const FourMomentumError& other);
   FourMomentumError &operator=( const FourMomentumError& other);
 
-  virtual const ErrorMatrixPxPyPzE* pxPyPzEMatrix() const;
-  virtual const ErrorMatrixEEtaPhiM* eEtaPhiMMatrix() const;
-  virtual const ErrorMatrixPtEtaPhiM* ptEtaPhiMMatrix() const;
-  virtual const ErrorMatrixPtCotThPhiM* ptCotThPhiMMatrix() const;
-  virtual double pxError() const;
-  virtual double pyError() const;
-  virtual double pzError() const;
-  virtual double mError() const;
-  virtual double m2Error() const;
-  virtual double pError() const;
-  virtual double p2Error() const;
-  virtual double etaError() const;
-  virtual double rapidityError() const;
-  virtual double phiError() const;
-  virtual double eError() const;
-  virtual double etError() const;   
-  virtual double ptError() const;
-  virtual double iPtError() const;
-  virtual double cosPhiError() const;
-  virtual double sinPhiError() const;
-  virtual double cosThError() const;
-  virtual double sinThError() const;
-  virtual double cotThError() const;
-  virtual double tanThError() const;
+  virtual const ErrorMatrixPxPyPzE* pxPyPzEMatrix() const override;
+  virtual const ErrorMatrixEEtaPhiM* eEtaPhiMMatrix() const override;
+  virtual const ErrorMatrixPtEtaPhiM* ptEtaPhiMMatrix() const override;
+  virtual const ErrorMatrixPtCotThPhiM* ptCotThPhiMMatrix() const override;
+  virtual double pxError() const override;
+  virtual double pyError() const override;
+  virtual double pzError() const override;
+  virtual double mError() const override;
+  virtual double m2Error() const override;
+  virtual double pError() const override;
+  virtual double p2Error() const override;
+  virtual double etaError() const override;
+  virtual double rapidityError() const override;
+  virtual double phiError() const override;
+  virtual double eError() const override;
+  virtual double etError() const override;   
+  virtual double ptError() const override;
+  virtual double iPtError() const override;
+  virtual double cosPhiError() const override;
+  virtual double sinPhiError() const override;
+  virtual double cosThError() const override;
+  virtual double sinThError() const override;
+  virtual double cotThError() const override;
+  virtual double tanThError() const override;
 
 private: 
 
   const FourMom&                  m_p4;
-  mutable DeepCopyPointer<ErrorMatrixPxPyPzE>     m_PxPyPzE;
-  mutable DeepCopyPointer<ErrorMatrixEEtaPhiM>    m_EEtaPhiM;
-  mutable DeepCopyPointer<ErrorMatrixPtEtaPhiM>   m_PtEtaPhiM;
-  mutable DeepCopyPointer<ErrorMatrixPtCotThPhiM> m_PtCotThPhiM;
+  CxxUtils::CachedUniquePtr<ErrorMatrixPxPyPzE>     m_PxPyPzE;
+  CxxUtils::CachedUniquePtr<ErrorMatrixEEtaPhiM>    m_EEtaPhiM;
+  CxxUtils::CachedUniquePtr<ErrorMatrixPtEtaPhiM>   m_PtEtaPhiM;
+  CxxUtils::CachedUniquePtr<ErrorMatrixPtCotThPhiM> m_PtCotThPhiM;
 
   ParamType m_originalType;
 

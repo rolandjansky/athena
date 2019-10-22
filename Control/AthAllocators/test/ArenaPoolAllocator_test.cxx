@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaPoolAllocator_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -37,6 +37,8 @@ struct Payload
   static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
+// Work around cppcheck 1.87 bug, which warns about clear().
+// cppcheck-suppress uninitMemberVar
 Payload::Payload()
 {
   x = n++;

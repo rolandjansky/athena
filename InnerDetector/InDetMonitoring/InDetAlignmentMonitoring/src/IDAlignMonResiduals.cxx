@@ -33,7 +33,6 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetPrepRawData/PixelCluster.h"
@@ -190,8 +189,6 @@ struct IDAlignMonResiduals::TRTEndcapHistograms{
 
 IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::string & name, const IInterface* parent )
  :ManagedMonitorToolBase( type, name, parent ),
-  m_theComTime(0),
-  m_comTimeObjectName("ComTime"),
   m_trtcaldbSvc("TRT_CalDbSvc",name),
   m_hWeightInFile(0),
   m_etapTWeight(0)
@@ -205,7 +202,6 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_trt_b_hist  = new TRTBarrelHistograms();
 	m_trt_ec_hist = new TRTEndcapHistograms();
 	
-	m_tracksName  = "ExtendedTracks";
 	m_triggerChainName = "NoTriggerSelection";
 	m_z_fix = 366.5; // IBL Stave fixing screw position [mm]
 	m_NLumiBlocksMon = 1;
@@ -259,7 +255,6 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	InitializeHistograms();
 
 
-	declareProperty("tracksName"                , m_tracksName);
 	declareProperty("CheckRate"                 , m_checkrate=1000);
 	declareProperty("triggerChainName"          , m_triggerChainName);
 	declareProperty("minTRTResidualWindow"      , m_minTRTResWindow);
@@ -278,7 +273,6 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	declareProperty("do3DOverlapHistos"         , m_do3DOverlapHistos);
 	declareProperty("doClusterSizeHistos"       , m_doClusterSizeHistos);
 	declareProperty("ITRT_CalDbSvc"             , m_trtcaldbSvc);
-	declareProperty("ComTimeObjectName"         , m_comTimeObjectName = "TRT_Phase");
 	declareProperty("useExtendedPlots"          , m_extendedPlots);
 	declareProperty("maxPIXResXFillRange"       , m_maxPIXResXFillRange);
 	declareProperty("minPIXResXFillRange"       , m_minPIXResXFillRange);
@@ -629,6 +623,8 @@ StatusCode IDAlignMonResiduals::initialize()
 	}
 
         ATH_CHECK( m_eventInfoKey.initialize() );
+        ATH_CHECK( m_tracksName.initialize() );
+        ATH_CHECK( m_comTimeObjectName.initialize(not m_comTimeObjectName.key().empty()) );
 
 	return StatusCode::SUCCESS;
 }
@@ -643,8 +639,8 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     // book histograms that are only relevant for cosmics data...
   }
 
-  std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/Residuals";
-  //std::cout << " -- SALVA -- histos for track collection: " <<  m_tracksName << "_" << m_triggerChainName << std::endl;
+  std::string outputDirName = "IDAlignMon/" + m_tracksName.key() + "_" + m_triggerChainName + "/Residuals";
+  //std::cout << " -- SALVA -- histos for track collection: " <<  m_tracksName.key() << "_" << m_triggerChainName << std::endl;
 
   MonGroup al_mon ( this, outputDirName, run );
 
@@ -1089,35 +1085,31 @@ StatusCode IDAlignMonResiduals::fillHistograms()
     m_totalEvents->Fill(0);
   }
 
-  if (evtStore()->contains<ComTime>(m_comTimeObjectName)){
-    if(evtStore()->retrieve(m_theComTime, m_comTimeObjectName).isFailure() ){
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "ComTime object not found with name " << m_comTimeObjectName << "!!!" << endmsg;
+  float timeCor = 0.;
+  if (not m_comTimeObjectName.key().empty()) {
+    SG::ReadHandle<ComTime> theComTime{m_comTimeObjectName};
+    if (not theComTime.isValid()) {
+      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "ComTime object not found with name " << m_comTimeObjectName.key() << "!!!" << endmsg;
       //return StatusCode::FAILURE;
     }
     else{
       if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "ComTime object found successfully " << endmsg;
+      timeCor = theComTime->getTime();
     }
-  }
-
-  float timeCor=0.0;
-  if(m_theComTime){
-    timeCor = m_theComTime->getTime();
-  }
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " ** IDAlignMonResiduals::fillHistograms() ** going to fill histos for " << m_tracksName << " tracks" << endmsg;
-  if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
-    if(m_events == 1) {if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Unable to get " << m_tracksName << " tracks from TrackCollection" << endmsg;}
-    else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " ** IDAlignMonResiduals::fillHistograms() ** Unable to get " << m_tracksName << " tracks from TrackCollection " << endmsg;
-    return StatusCode::SUCCESS;
   }
 
   // Code is able to get a weight from an external file and appy it to all histograms
   double hweight = 1.;
   // NB the weight is a "per track" weight, so histograms such as BS info are never weighted
 
-
-  const DataVector<Trk::Track>* tracks = m_trackSelection->selectTracks(m_tracksName);
+  SG::ReadHandle<TrackCollection> inputTracks{m_tracksName};
+  if (not inputTracks.isValid()) {
+    ATH_MSG_ERROR(m_tracksName.key() << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  const DataVector<Trk::Track>* tracks = m_trackSelection->selectTracks(inputTracks);
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDAlignMonResiduals::fillHistograms() -- event: " << m_events
-					 << " with Track collection " << m_tracksName << " has size =" << tracks->size()
+					 << " with Track collection " << m_tracksName.key() << " has size =" << tracks->size()
 					 << endmsg;
 
   int nTracks = 0;

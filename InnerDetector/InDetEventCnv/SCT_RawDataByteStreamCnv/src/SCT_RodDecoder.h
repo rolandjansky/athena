@@ -59,18 +59,16 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @brief Fill SCT RDO Collection with decoded ROB data
    *
    * Decode the rob data fragment and fill the collection SCT_RDO_Collection with the RDO built by the makeRDO(..) method.
-   * rdoIdc, errs, and bsFracCont are updated based on robFrag and vecHash.
+   * rdoIdc, and errs are updated based on robFrag and vecHash.
    *
    * @param robFrag ROB fragment.
    * @param rdoIDCont RDO ID Container to be filled.
    * @param errs Byte stream error container.
-   * @param bsFracCont Byte stream fraction container.
    * @param vecHash Vector of hashes.
    */
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                     ISCT_RDO_Container& rdoIDCont,
                                     InDetBSErrContainer* errs,
-                                    SCT_ByteStreamFractionContainer* bsFracCont,
                                     const std::vector<IdentifierHash>* vecHash = nullptr) const override;
 
  private:
