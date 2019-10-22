@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include <iostream>
 
@@ -47,7 +47,7 @@
 std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int, char**);
 int TestFTag(std::shared_ptr<top::TopConfig>);
 
-std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int argc, char** argv){
+std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int argc, char** argv) {
   if (argc != 3) {
     std::cout << "Code to read an input file and return information on the";
     std::cout << "anticipated systematics list in the b-tagging calibration";
@@ -57,12 +57,13 @@ std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int argc, char** argv){
     std::cout << "    input.txt  - file containing list of input files\n";
     std::cout << "\n";
     std::cout << "For example\n";
-    std::cout << "    " << argv[0] << " $ROOTCOREBIN/data/TopAnalysis/nocuts.txt $ROOTCOREBIN/data/TopAnalysis/input-13TeV-fondueworld.txt\n";
+    std::cout << "    " << argv[0] <<
+    " $ROOTCOREBIN/data/TopAnalysis/nocuts.txt $ROOTCOREBIN/data/TopAnalysis/input-13TeV-fondueworld.txt\n";
     return 0;
   }
 
   // to disable the sending of file access statistics
-  xAOD::TFileAccessTracer::enableDataSubmission( false );
+  xAOD::TFileAccessTracer::enableDataSubmission(false);
 
   //magic xAOD stuff
   //true = fail at even the slightest xaod issue
@@ -94,31 +95,31 @@ std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int argc, char** argv){
   // A configuration that John can easily understand
   // This is not the same as a good configuration
   std::shared_ptr<top::TopConfig> topConfig(new top::TopConfig());
- 
+
   topConfig->setMapIndex(410501);
   topConfig->setConfigSettings(settings);
   xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
   // Setup all asg::AsgTools
   top::TopToolStore topTools("top::TopToolStore");
   top::check(topTools.setProperty("config", topConfig),
-	     "Failed to setProperty of topTools");
-  top::check(topTools.initialize() ,  "Failed to initialize topTools");
+             "Failed to setProperty of topTools");
+  top::check(topTools.initialize(), "Failed to initialize topTools");
   topConfig->fixConfiguration();
   std::cout << *topConfig << "\n";
-  
+
   return topConfig;
 }
 
-int TestFTag(std::shared_ptr<top::TopConfig> topConfig){
+int TestFTag(std::shared_ptr<top::TopConfig> topConfig) {
   // Here we need to access the flavour tagging CP tool
-  // and get it to tell us what systematics are available 
+  // and get it to tell us what systematics are available
   // given the configuration we setup up
 
   // Get TopCPTool handle
   top::BTagScaleFactorCalculator* m_btagSF = new top::BTagScaleFactorCalculator("top::BTagScaleFactorCalculator");
   top::check(m_btagSF->setProperty("config", topConfig), "Failed to pass in the config");
-  top::check(m_btagSF->initialize(),                     "Failed to init");
-  top::check(m_btagSF->debug(),                          "Failed to debug");
+  top::check(m_btagSF->initialize(), "Failed to init");
+  top::check(m_btagSF->debug(), "Failed to debug");
   return 0;
 }
 

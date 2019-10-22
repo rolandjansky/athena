@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef METADATATREE_H
 #define METADATATREE_H
@@ -16,7 +16,7 @@
 // trees which we create in AnalysisTop, rather than defining these objects
 // directly in the exectutable
 
-class MetadataTree{
+class MetadataTree {
 public:
   /// Constructor
   MetadataTree(std::shared_ptr<TFile> );
@@ -43,7 +43,7 @@ public:
   int dsid;
   ULong64_t totalEvents;        // Metadata, for one file
   ULong64_t totalEventsInFiles; // Total events in actual file
-  std::unordered_map<std::string, std::vector<float> *> totalEventsPdfWeighted;
+  std::unordered_map<std::string, std::vector<float>*> totalEventsPdfWeighted;
   int dsidPdf;
   bool pdfMetadataExists;
   std::string filename;
@@ -53,7 +53,5 @@ private:
   TTree* m_sumPdfWeights;
   bool savePDF;
   TFile* m_outputFile;
-
-
 };
 #endif
