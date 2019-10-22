@@ -68,9 +68,8 @@ class SCTCalib : public AthAlgorithm {
   SCTCalib( const std::string &name, ISvcLocator* pSvcLocator ) ;
   ~SCTCalib() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode beginRun() override;
   virtual StatusCode execute() override;
-  virtual StatusCode endRun() override;
+  virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
 
  private:
