@@ -4,7 +4,6 @@
 
 #include "CutBookkeeperUtils/OriginalAodCounts.h"
 
-// #include "xAODCutflow/CutBookkeeper.h"
 #include <xAODCutFlow/CutBookkeeper.h>
 #include <xAODCutFlow/CutBookkeeperContainer.h>
 
