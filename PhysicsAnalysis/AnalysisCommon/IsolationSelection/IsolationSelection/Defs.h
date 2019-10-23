@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ISOLATIONSELECTION_DEFS_H
@@ -27,6 +27,9 @@ namespace CP{
     
     typedef SG::AuxElement::Decorator<int> IntDecorator;
     typedef SG::AuxElement::ConstAccessor<int> IntAccessor;
+    
+    typedef SG::AuxElement::Decorator<short> ShortDecorator;
+    typedef SG::AuxElement::ConstAccessor<short> ShortAccessor;
     
     typedef xAOD::Iso::IsolationType IsoType;
     typedef std::vector<IsoType> IsoVector;

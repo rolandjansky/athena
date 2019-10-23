@@ -15,7 +15,7 @@
 
 namespace CP {
   // Accessors for input variables
-  static const IntAccessor s_acc_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
+  static const ShortAccessor s_acc_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
   static const FloatAccessor s_acc_DRlj("PromptLeptonInput_DRlj");
   static const FloatAccessor s_acc_PtRel("PromptLeptonInput_PtRel");
   static const FloatAccessor s_acc_PtFrac("PromptLeptonInput_PtFrac");
