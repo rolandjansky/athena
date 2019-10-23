@@ -11,8 +11,9 @@
 
 #include "TFile.h"
 
-AodCountsConfig::AodCountsConfig() {
+AodCountsConfig::AodCountsConfig()
   // add default values here
+{
 }
 
 OriginalAodCounts::OriginalAodCounts():

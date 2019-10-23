@@ -16,8 +16,6 @@ struct AodCountsConfig {
   // empty structure, can add configuration here
 };
 
-static const AodCountsConfig defaultAodCountsConfig;
-
 struct OriginalAodCounts {
   OriginalAodCounts();
   unsigned long long nEventsProcessed;
@@ -33,6 +31,6 @@ OriginalAodCounts operator+=(const OriginalAodCounts& a,
 
 OriginalAodCounts getOriginalAodCounts(
   xAOD::TEvent& event,
-  const AodCountsConfig& = defaultAodCountsConfig);
+  const AodCountsConfig& = AodCountsConfig());
 
 #endif

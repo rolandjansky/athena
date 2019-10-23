@@ -9,19 +9,21 @@
 #include "AsgMessaging/MsgStreamMacros.h"
 
 OriginalAodCountsTool::OriginalAodCountsTool(const std::string& name):
-  asg::AsgTool(name)
+  asg::AsgTool(name),
+  m_config()
 {
 }
-OriginalAodCountsTool::~OriginalAodCountsTool() {
+OriginalAodCountsTool::~OriginalAodCountsTool(){
 }
 
 StatusCode OriginalAodCountsTool::initialize() {
   // read in configuration stuff here
-  m_config = defaultAodCountsConfig;
   return StatusCode::SUCCESS;
 }
 
-StatusCode OriginalAodCountsTool::incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts& counts) {
+StatusCode OriginalAodCountsTool::incrementAodCounts(
+  xAOD::TEvent& event,
+  OriginalAodCounts& counts) const {
   try {
     counts += getOriginalAodCounts(event, m_config);
     return StatusCode::SUCCESS;
