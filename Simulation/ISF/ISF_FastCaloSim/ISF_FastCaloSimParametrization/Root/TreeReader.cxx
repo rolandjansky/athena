@@ -123,17 +123,7 @@ int TreeReader::GetEntry(int entry)
         //fManager->Clear();
         std::map<std::string, TTreeFormula*>::iterator itr = m_formulae.begin();
         std::map<std::string, TTreeFormula*>::iterator itrE= m_formulae.end();
-        TTreeFormula* dummy = m_formulae["__DUMMY__"];
-        for(;itr!=itrE;++itr)
-        {
-        int I = static_cast<TChain*>(m_tree)->GetTreeNumber();   
-        if(I!=m_currentTree) 
-          {
-          m_currentTree = I;
-          //fManager->Clear();
-          std::map<std::string, TTreeFormula*>::iterator itr = m_formulae.begin();
-          std::map<std::string, TTreeFormula*>::iterator itrE= m_formulae.end();  
-          TTreeFormula* dummy = m_formulae["__DUMMY__"];     
+        TTreeFormula* dummy = m_formulae["__DUMMY__"];   
           for(;itr!=itrE;itr++) 
             { 
             if(itr->second!=dummy) itr->second->Notify(); //itr->second->UpdateFormulaLeaves();
