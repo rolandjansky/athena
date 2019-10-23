@@ -17,31 +17,16 @@ TrigMuonEFMSonlyHypoAlg::TrigMuonEFMSonlyHypoAlg( const std::string& name,
 
 } 
 
-TrigMuonEFMSonlyHypoAlg::~TrigMuonEFMSonlyHypoAlg() 
-{}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMuonEFMSonlyHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muonKey);
   ATH_CHECK(m_muonKey.initialize());
 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMuonEFMSonlyHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 

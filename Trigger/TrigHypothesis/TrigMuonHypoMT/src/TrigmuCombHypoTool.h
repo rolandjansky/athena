@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUCOMBHYPO_TRIGMUCOMBHYPOTOOL_H 
-#define TRIGMUCOMBHYPO_TRIGMUCOMBHYPOTOOL_H 1
+#ifndef TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 
+#define TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 1
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -13,7 +13,6 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 class StoreGateSvc;
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
