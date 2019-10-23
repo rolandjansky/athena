@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -1213,7 +1213,7 @@ bool ModuleSpecialPixelMap::fill_from_string(const std::string& clob){
 
    for(int i = 0; i < mch; i++){
      if((specialRegionsStatus & (1 << i)) != 0){
-       input_string >> m_chip_status[i];
+       m_chip_status[i]=1;
      }
      if((specialRegionsStatus & (1 << (i+mch))) != 0){
        m_column_pair_status[i].resize(mcolumns);
