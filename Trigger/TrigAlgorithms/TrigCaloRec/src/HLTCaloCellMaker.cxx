@@ -16,6 +16,7 @@
 
 #include "HLTCaloCellMaker.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
+#include "AthenaMonitoring/Monitored.h"
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
@@ -44,10 +45,14 @@ StatusCode HLTCaloCellMaker::initialize() {
   ATH_CHECK( m_tileEMScaleKey.initialize() );
   ATH_CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
+  if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
+
+  auto timer = Monitored::Timer("TIME_exec");
+  auto clN = Monitored::Scalar  ("Cells_N",0.);
 
   auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
   if ( not roisHandle.isValid() ) {
@@ -113,6 +118,11 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->updateCaloIterators();
       }
       ATH_MSG_INFO ("Producing "<<cdv->size()<<" cells");
+      clN=cdv->size();
+      auto clET = Monitored::Collection ("Cells_eT",*cdv,&CaloCell::et);
+      auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
+      auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
+      auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
       auto ss = cellContainer.record( std::move(cdv) );
       ATH_CHECK( ss );
 
@@ -167,6 +177,11 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         }
         c->setHasCalo(CaloCell_ID::LARFCAL);
         c->updateCaloIterators();
+        clN=c->size();
+        auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
+        auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
+        auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
+        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 	cellContainerV->push_back( c.release()->asDataVector() );
       }
     }
