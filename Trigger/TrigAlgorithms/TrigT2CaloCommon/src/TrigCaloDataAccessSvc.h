@@ -64,7 +64,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   ServiceHandle<IROBDataProviderSvc>  m_robDataProvider{ this, "ROBDataProvider", "ROBDataProviderSvc/ROBDataProviderSvc", ""};
   ServiceHandle<IRegSelSvc>         m_regionSelector{ this, "RegionSelector", "RegSelSvc/RegSelSvc", ""};
   
-  Gaudi::Property<bool> m_applyOffsetCorrection { this, "ApplyOffsetCorrection", false, "Enable offset correction" };
+  Gaudi::Property<bool> m_applyOffsetCorrection { this, "ApplyOffsetCorrection", true, "Enable offset correction" };
 
   SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey ;
 
