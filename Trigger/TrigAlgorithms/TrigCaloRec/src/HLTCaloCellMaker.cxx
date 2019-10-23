@@ -78,6 +78,11 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
 	cdv->setHasCalo(CaloCell_ID::TILE);
 	cdv->updateCaloIterators();
+        clN=cdv->size();
+        auto clET = Monitored::Collection ("Cells_eT",*cdv,&CaloCell::et);
+        auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
+        auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
+        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 	
       } else {
 	// TT EM PART
@@ -138,6 +143,11 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
 	cellContainerV->push_back( c.release()->asDataVector() );
+        clN=c->size();
+        auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
+        auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
+        auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
+        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
 
