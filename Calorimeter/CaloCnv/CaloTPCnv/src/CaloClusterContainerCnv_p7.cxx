@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p7.h" 
@@ -27,7 +27,9 @@ bool testbit (unsigned int x, unsigned int i)
 
 
 void CaloClusterContainerCnv_p7::persToTrans(const CaloClusterContainer_p7* pers, 
-					     CaloClusterContainer* trans, MsgStream &log) {
+					     CaloClusterContainer* trans,
+                                             MsgStream &log) const
+{
   if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p7" << endmsg;
 
   static CaloPhiRange range;
@@ -344,14 +346,18 @@ void CaloClusterContainerCnv_p7::persToTrans(const CaloClusterContainer_p7* pers
 
 
 void CaloClusterContainerCnv_p7::transToPers(const CaloClusterContainer* /*trans*/, 
-					     CaloClusterContainer_p7* /*pers*/, MsgStream &log) {
+					     CaloClusterContainer_p7* /*pers*/,
+                                             MsgStream &log) const
+{
   log << MSG::ERROR << "Writing of  CaloClusterContainerCnv_p7 not implemented any more" << endmsg;
 } 
 
 
 
 void CaloClusterContainerCnv_p7::persToTrans(const CaloClusterContainer_p7::CaloCluster_p* pers, 
-					     CaloCluster* trans, MsgStream& log) {
+					     CaloCluster* trans,
+                                             MsgStream& log) const
+{
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
   trans->setBasicEnergy (pers->m_basicSignal);
   trans->setTime (pers->m_time);
@@ -373,8 +379,9 @@ void CaloClusterContainerCnv_p7::persToTrans(const CaloClusterContainer_p7::Calo
 
 
 void CaloClusterContainerCnv_p7::transToPers(const CaloCluster* trans, 
-					     CaloClusterContainer_p7::CaloCluster_p* pers, MsgStream& log) {
-
+					     CaloClusterContainer_p7::CaloCluster_p* pers,
+                                             MsgStream& log) const
+{
   pers->m_basicSignal=trans->getBasicEnergy();
   pers->m_time=trans->getTime();
   pers->m_samplingPattern=trans->m_samplingPattern; 
