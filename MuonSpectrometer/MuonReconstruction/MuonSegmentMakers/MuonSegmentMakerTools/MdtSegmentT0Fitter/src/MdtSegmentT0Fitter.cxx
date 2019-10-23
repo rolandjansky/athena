@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <atomic>
 
 #include "TTree.h"
 #include "TROOT.h"
@@ -53,9 +54,9 @@
 
 namespace TrkDriftCircleMath {
   
-  bool use_hardcoded;
-  bool use_shift_constraint;
-  double constrainT0Error;
+  std::atomic<bool> use_hardcoded;
+  std::atomic<bool> use_shift_constraint;
+  std::atomic<double> constrainT0Error;
 	
 //	int count;
     
