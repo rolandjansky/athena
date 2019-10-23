@@ -19,9 +19,6 @@
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
-#include "CxxUtils/checker_macros.h"
-ATLAS_CHECK_FILE_THREAD_SAFETY;
-
 namespace Muon {
 
   class MuonErrorOptimisationTool : virtual public IMuonErrorOptimisationTool, public AthAlgTool { 
