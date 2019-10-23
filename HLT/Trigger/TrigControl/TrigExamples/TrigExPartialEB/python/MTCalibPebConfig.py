@@ -233,7 +233,6 @@ def configure_hlt_result(hypo_algs):
     stmaker = StreamTagMakerTool()
     stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
-    stmaker.HLTmenuFile = menu_json  # TODO: remove after !26849
 
     # Tool adding HLT bits to HLT result
     bitsmaker = TriggerBitsMakerTool()
