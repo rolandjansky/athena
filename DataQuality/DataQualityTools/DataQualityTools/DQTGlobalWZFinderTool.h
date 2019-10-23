@@ -23,10 +23,18 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 
+#include "PATInterfaces/ISystematicsTool.h"
+#include <PATInterfaces/SystematicRegistry.h>
+#include <PATInterfaces/SystematicVariation.h>
+
+#include "MCTruthClassifier/IMCTruthClassifier.h"
+
 #include "TMath.h"
 #include <string>
 #include <iostream>
 
+#include "xAODTruth/TruthEvent.h"
+#include "xAODTruth/TruthParticle.h"
 
 class TProfile;
 class TH1F_LW;
@@ -70,6 +78,7 @@ private:
   void setDQTGlobalWZFinderBranches();
 
   void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
+  void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
   void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
   void doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
 
@@ -83,6 +92,12 @@ private:
                          const xAOD::Vertex* pVtx, bool isBad);
   bool kinematicCuts(const xAOD::Electron*);
 
+  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
+  ToolHandle<IMCTruthClassifier> m_truthClassifier;
+
+  bool checkTruthElectron(const xAOD::Electron* electron);
+  bool checkTruthTrack(const xAOD::TrackParticle* trk);
+  bool checkTruthMuon(const xAOD::Muon* muon);
 
   bool m_isSimulation;
   bool m_writeTTrees;
@@ -183,7 +198,7 @@ private:
 
   int m_this_lb; //remove _t
   int m_eventNumber; //remove _t
-  float m_evtWeight;
+  Float_t m_evtWeight;
       
   std::string m_electronContainerName;
   std::string m_egDetailContainerName;
@@ -195,13 +210,13 @@ private:
   std::string m_muonContainerName;
   std::string m_jetCollectionName;
   std::string m_tracksName;
-  float m_electronEtCut;
-  float m_muonPtCut;
+  Float_t m_electronEtCut;
+  Float_t m_muonPtCut;
 
-  float m_metCut;
-  float m_zCutLow;
-  float m_zCutHigh;
-  float m_muonMaxEta;
+  Float_t m_metCut;
+  Float_t m_zCutLow;
+  Float_t m_zCutHigh;
+  Float_t m_muonMaxEta;
   bool m_doTrigger;
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
@@ -218,110 +233,109 @@ private:
   std::vector<std::string> m_Jpsi_mm_trigger;
   std::vector<std::string> m_Z_mm_trigger;
   std::vector<std::string> m_Z_ee_trigger;
-  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
 
   // Here we define all the TTree variables
 
   // Muon TTrees
   TTree *m_muontree;
-  bool m_muontree_isTruth;
-  float m_muontree_eta1;
-  float m_muontree_eta2;
-  float m_muontree_phi1;
-  float m_muontree_phi2;
-  float m_muontree_pT1;
-  float m_muontree_pT2;
-  float m_muontree_weight;
-  float m_muontree_mass;
-  int m_muontree_lb;
-  int m_muontree_runnumber;
+  Bool_t m_muontree_isTruth;
+  Float_t m_muontree_eta1;
+  Float_t m_muontree_eta2;
+  Float_t m_muontree_phi1;
+  Float_t m_muontree_phi2;
+  Float_t m_muontree_pT1;
+  Float_t m_muontree_pT2;
+  Float_t m_muontree_weight;
+  Float_t m_muontree_mass;
+  Int_t m_muontree_lb;
+  Int_t m_muontree_runnumber;
   unsigned long long  m_muontree_eventnumber;
 
   TTree *m_muon_reco_tptree;
-  bool m_muon_reco_tptree_isTruth;
-  float m_muon_reco_tptree_pT;
-  float m_muon_reco_tptree_eta;
-  float m_muon_reco_tptree_phi;
-  float m_muon_reco_tptree_mass;
-  float m_muon_reco_tptree_weight;
-  int m_muon_reco_tptree_mtype;
-  int m_muon_reco_tptree_lb;
-  int m_muon_reco_tptree_runnumber;
+  Bool_t m_muon_reco_tptree_isTruth;
+  Float_t m_muon_reco_tptree_pT;
+  Float_t m_muon_reco_tptree_eta;
+  Float_t m_muon_reco_tptree_phi;
+  Float_t m_muon_reco_tptree_mass;
+  Float_t m_muon_reco_tptree_weight;
+  Int_t m_muon_reco_tptree_mtype;
+  Int_t m_muon_reco_tptree_lb;
+  Int_t m_muon_reco_tptree_runnumber;
   unsigned long long  m_muon_reco_tptree_eventnumber;
 
   TTree *m_muon_indet_tptree;
-  bool m_muon_indet_tptree_isTruth;
-  float m_muon_indet_tptree_pT;
-  float m_muon_indet_tptree_eta;
-  float m_muon_indet_tptree_phi;
-  float m_muon_indet_tptree_mass;
-  float m_muon_indet_tptree_weight;
-  int m_muon_indet_tptree_mtype;
-  int m_muon_indet_tptree_lb;
-  int m_muon_indet_tptree_runnumber;
+  Bool_t m_muon_indet_tptree_isTruth;
+  Float_t m_muon_indet_tptree_pT;
+  Float_t m_muon_indet_tptree_eta;
+  Float_t m_muon_indet_tptree_phi;
+  Float_t m_muon_indet_tptree_mass;
+  Float_t m_muon_indet_tptree_weight;
+  Int_t m_muon_indet_tptree_mtype;
+  Int_t m_muon_indet_tptree_lb;
+  Int_t m_muon_indet_tptree_runnumber;
   unsigned long long  m_muon_indet_tptree_eventnumber;
 
   TTree *m_muon_trig_tptree;
-  bool m_muon_trig_tptree_isTruth;
-  float m_muon_trig_tptree_pT;
-  float m_muon_trig_tptree_eta;
-  float m_muon_trig_tptree_phi;
-  float m_muon_trig_tptree_mass;
-  float m_muon_trig_tptree_weight;
-  int m_muon_trig_tptree_mtype;
-  int m_muon_trig_tptree_lb;
-  int m_muon_trig_tptree_runnumber;
+  Bool_t m_muon_trig_tptree_isTruth;
+  Float_t m_muon_trig_tptree_pT;
+  Float_t m_muon_trig_tptree_eta;
+  Float_t m_muon_trig_tptree_phi;
+  Float_t m_muon_trig_tptree_mass;
+  Float_t m_muon_trig_tptree_weight;
+  Int_t m_muon_trig_tptree_mtype;
+  Int_t m_muon_trig_tptree_lb;
+  Int_t m_muon_trig_tptree_runnumber;
   unsigned long long  m_muon_trig_tptree_eventnumber;
 
   // Electron TTrees
   TTree *m_electrontree;
-  bool m_electrontree_isTruth;
-  float m_electrontree_eta1;
-  float m_electrontree_eta2;
-  float m_electrontree_phi1;
-  float m_electrontree_phi2;
-  float m_electrontree_pT1;
-  float m_electrontree_pT2;
-  float m_electrontree_weight;
-  float m_electrontree_mass;
-  int m_electrontree_lb;
-  int m_electrontree_runnumber;
+  Bool_t m_electrontree_isTruth;
+  Float_t m_electrontree_eta1;
+  Float_t m_electrontree_eta2;
+  Float_t m_electrontree_phi1;
+  Float_t m_electrontree_phi2;
+  Float_t m_electrontree_pT1;
+  Float_t m_electrontree_pT2;
+  Float_t m_electrontree_weight;
+  Float_t m_electrontree_mass;
+  Int_t m_electrontree_lb;
+  Int_t m_electrontree_runnumber;
   unsigned long long  m_electrontree_eventnumber;
 
   TTree *m_electron_reco_tptree;
-  bool m_electron_reco_tptree_isTruth;
-  float m_electron_reco_tptree_pT;
-  float m_electron_reco_tptree_eta;
-  float m_electron_reco_tptree_phi;
-  float m_electron_reco_tptree_mass;
-  float m_electron_reco_tptree_weight;
-  int m_electron_reco_tptree_mtype;
-  int m_electron_reco_tptree_lb;
-  int m_electron_reco_tptree_runnumber;
+  Bool_t m_electron_reco_tptree_isTruth;
+  Float_t m_electron_reco_tptree_pT;
+  Float_t m_electron_reco_tptree_eta;
+  Float_t m_electron_reco_tptree_phi;
+  Float_t m_electron_reco_tptree_mass;
+  Float_t m_electron_reco_tptree_weight;
+  Int_t m_electron_reco_tptree_mtype;
+  Int_t m_electron_reco_tptree_lb;
+  Int_t m_electron_reco_tptree_runnumber;
   unsigned long long  m_electron_reco_tptree_eventnumber;
 
   TTree *m_electron_container_tptree;
-  bool m_electron_container_tptree_isTruth;
-  float m_electron_container_tptree_pT;
-  float m_electron_container_tptree_eta;
-  float m_electron_container_tptree_phi;
-  float m_electron_container_tptree_mass;
-  float m_electron_container_tptree_weight;
-  int m_electron_container_tptree_mtype;
-  int m_electron_container_tptree_lb;
-  int m_electron_container_tptree_runnumber;
+  Bool_t m_electron_container_tptree_isTruth;
+  Float_t m_electron_container_tptree_pT;
+  Float_t m_electron_container_tptree_eta;
+  Float_t m_electron_container_tptree_phi;
+  Float_t m_electron_container_tptree_mass;
+  Float_t m_electron_container_tptree_weight;
+  Int_t m_electron_container_tptree_mtype;
+  Int_t m_electron_container_tptree_lb;
+  Int_t m_electron_container_tptree_runnumber;
   unsigned long long  m_electron_container_tptree_eventnumber;
 
   TTree *m_electron_trig_tptree;
-  bool m_electron_trig_tptree_isTruth;
-  float m_electron_trig_tptree_pT;
-  float m_electron_trig_tptree_eta;
-  float m_electron_trig_tptree_phi;
-  float m_electron_trig_tptree_mass;
-  float m_electron_trig_tptree_weight;
-  int m_electron_trig_tptree_mtype;
-  int m_electron_trig_tptree_lb;
-  int m_electron_trig_tptree_runnumber;
+  Bool_t m_electron_trig_tptree_isTruth;
+  Float_t m_electron_trig_tptree_pT;
+  Float_t m_electron_trig_tptree_eta;
+  Float_t m_electron_trig_tptree_phi;
+  Float_t m_electron_trig_tptree_mass;
+  Float_t m_electron_trig_tptree_weight;
+  Int_t m_electron_trig_tptree_mtype;
+  Int_t m_electron_trig_tptree_lb;
+  Int_t m_electron_trig_tptree_runnumber;
   unsigned long long  m_electron_trig_tptree_eventnumber;
 
 };

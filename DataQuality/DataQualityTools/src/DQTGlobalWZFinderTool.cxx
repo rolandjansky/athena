@@ -28,6 +28,14 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEvent.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODEgamma/ElectronxAODHelpers.h"
+#include "xAODEgamma/PhotonxAODHelpers.h"
+#include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "xAODJet/Jet.h"
@@ -51,6 +59,7 @@ using xAOD::Jet;
 using xAOD::JetContainer;
 using Gaudi::Units::GeV;
 using Gaudi::Units::mm;
+using namespace MCTruthPartClassifier;
 
 //----------------------------------------------------------------------------------
 DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type, 
@@ -83,7 +92,9 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
      m_Jpsi_mm_trigger{"CATEGORY_primary_bphys"},
      m_Z_mm_trigger{"CATEGORY_monitoring_muonIso", "CATEGORY_monitoring_muonNonIso"},
      m_Z_ee_trigger{"CATEGORY_primary_single_ele_iso", "CATEGORY_primary_single_ele"},
-     m_elTrigMatchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool", this)
+     m_elTrigMatchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool", this),
+     m_truthClassifier("MCTruthClassifier/IMCTruthClassifier")
+
 //----------------------------------------------------------------------------------
 
 {
@@ -333,21 +344,27 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
 
     }
 
+    if (m_isSimulation) {
+      // failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
 
-    if (m_writeTTrees){
-      // Currently we hide the ttrees in the m_isSimulation check
-      // To be done, change to a job option so runs on data
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muontree = new TTree("muontree","muontree")).isFailure();
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muon_reco_tptree = new TTree("muon_reco_tptree","muon_reco_tptree")).isFailure();
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muon_indet_tptree = new TTree("muon_indet_tptree","muon_indet_tptree")).isFailure();
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muon_trig_tptree = new TTree("muon_trig_tptree","muon_trig_tptree")).isFailure();
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electrontree = new TTree("electrontree","electrontree")).isFailure();
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electron_reco_tptree = new TTree("electron_reco_tptree","electron_reco_tptree")).isFailure();
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electron_container_tptree = new TTree("electron_container_tptree","electron_container_tptree")).isFailure();
-      failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electron_trig_tptree = new TTree("electron_trig_tptree","electron_trig_tptree")).isFailure();
-      setDQTGlobalWZFinderBranches();
+      if (m_writeTTrees){
+
+        // Currently we hide the ttrees in the m_isSimulation check
+        // To be done, change to a job option so runs on data
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muontree = new TTree("muontree","muontree")).isFailure();
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muon_reco_tptree = new TTree("muon_reco_tptree","muon_reco_tptree")).isFailure();
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muon_indet_tptree = new TTree("muon_indet_tptree","muon_indet_tptree")).isFailure();
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_muon_trig_tptree = new TTree("muon_trig_tptree","muon_trig_tptree")).isFailure();
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electrontree = new TTree("electrontree","electrontree")).isFailure();
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electron_reco_tptree = new TTree("electron_reco_tptree","electron_reco_tptree")).isFailure();
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electron_container_tptree = new TTree("electron_container_tptree","electron_container_tptree")).isFailure();
+        failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electron_trig_tptree = new TTree("electron_trig_tptree","electron_trig_tptree")).isFailure();
+        setDQTGlobalWZFinderBranches();
+      }
+
     }
 
+     
      //Resonance particle rate monitoring
      m_minLumiBlock  = 0.0;
      m_maxLumiBlock = 1200.0;
@@ -600,7 +617,16 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          goodmuonJPsicharge.push_back(charge);
        }
      }
+
+     // Function currently causes explosion of Histograms on MC
+     // if (m_isSimulation) {
+     //   doMuonTruthEff(goodmuonsZ);
+     // }
+
+
      // Check Sum of Candidate Leptons, Return if None
+
+
      ATH_MSG_DEBUG("Candidate e+mu = " << El_N+MuZ_N+MuJPsi_N); 
      if ((El_N + MuZ_N + MuJPsi_N) < 1) return sc;
 
@@ -726,7 +752,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
            m_electrontree_eventnumber = thisEventInfo->eventNumber();
            m_electrontree_mass = mass;
            // Replace with truth matching code
-           m_electrontree_isTruth = true;
+           m_electrontree_isTruth = checkTruthElectron(leadingEle) & checkTruthElectron(subleadingEle);
            m_electrontree->Fill();
          }
 
@@ -778,7 +804,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
            m_muontree_lb = m_this_lb;
            m_muontree_runnumber = thisEventInfo->runNumber();
            m_muontree_eventnumber = thisEventInfo->eventNumber();
-           m_muontree_isTruth = true;
+           m_muontree_isTruth = checkTruthMuon(leadingMuZ) & checkTruthMuon(subleadingMuZ);
            m_muontree_mass = mass;
            m_muontree->Fill();
          }
@@ -1061,6 +1087,7 @@ void DQTGlobalWZFinderTool::doEleTriggerTP(const xAOD::Electron* el1, const xAOD
       m_electron_trig_tptree_pT = probeel->pt();
       m_electron_trig_tptree_phi = probeel->phi();
       m_electron_trig_tptree_eta = probeel->caloCluster()->etaBE(2);
+      m_electron_trig_tptree_eta = checkTruthElectron(probeel);
       m_electron_trig_tptree_mass = mass;
       m_electron_trig_tptree_runnumber =  thisEventInfo->runNumber();
       m_electron_trig_tptree_eventnumber = thisEventInfo->eventNumber();
@@ -1094,6 +1121,7 @@ void DQTGlobalWZFinderTool::doEleTriggerTP(const xAOD::Electron* el1, const xAOD
       if (m_writeTTrees){
         m_electron_trig_tptree->Fill();
       }
+
     }
   }
 }
@@ -1129,7 +1157,7 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
       for (const auto chain: m_Z_ee_trigger) { 
         if (m_elTrigMatchTool->match(leadingAllEle, chain)){
           leading_trig = true;
-	      break;
+	  break;
         }
       }
 
@@ -1137,7 +1165,7 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
       for (const auto chain: m_Z_ee_trigger) {
         if (m_elTrigMatchTool->match(subleadingAllEle, chain)){ 
           subleading_trig = true;
-	      break;
+	  break;
         }
       }
 
@@ -1147,6 +1175,7 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
         m_electron_reco_tptree_pT = subleadingAllEle->pt();
         m_electron_reco_tptree_phi = subleadingAllEle->phi();
         m_electron_reco_tptree_eta = subleadingAllEle->caloCluster()->etaBE(2);
+        m_electron_reco_tptree_isTruth = checkTruthElectron(subleadingAllEle);
         m_electron_reco_tptree_mass = mass;
         m_electron_reco_tptree_runnumber =  thisEventInfo->runNumber();
         m_electron_reco_tptree_eventnumber = thisEventInfo->eventNumber();
@@ -1154,6 +1183,7 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
         m_electron_reco_tptree_lb = m_this_lb;
 
         if(Zeecharge==0){
+
           (subleading_good) ? m_electron_reco_tptree_mtype = 0 : m_electron_reco_tptree_mtype = 2;
           if(subleading_antigood){
             m_electron_reco_tptree_mtype = 4;
@@ -1186,6 +1216,7 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
         m_electron_reco_tptree_pT = leadingAllEle->pt();
         m_electron_reco_tptree_phi = leadingAllEle->phi();
         m_electron_reco_tptree_eta = leadingAllEle->caloCluster()->etaBE(2);
+        m_electron_reco_tptree_isTruth = checkTruthElectron(leadingAllEle);
         m_electron_reco_tptree_mass = mass;
         m_electron_reco_tptree_runnumber =  thisEventInfo->runNumber();
         m_electron_reco_tptree_eventnumber = thisEventInfo->eventNumber();
@@ -1220,6 +1251,7 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
           m_electron_reco_tptree->Fill();
         }
       } 
+
     }// subleading pointer exixts
   }// leading pointer exists
 }// end doEleTP
@@ -1431,7 +1463,8 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
     // only consider trigger-matched tags to avoid bias on probes                                                     
     bool matched = false;
     for (const auto chain: m_Z_mm_trigger) {
-      if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {
+      //if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {                                                
+      if (m_muTrigMatchTool->match(tagmu, chain)) {
         matched=true;
         break;
       }
@@ -1451,6 +1484,7 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
       m_muon_trig_tptree_pT = probemu->pt();
       m_muon_trig_tptree_eta = probemu->eta();
       m_muon_trig_tptree_phi = probemu->phi();
+      m_muon_trig_tptree_isTruth = checkTruthMuon(probemu);
       m_muon_trig_tptree_mass = mass;
       m_muon_trig_tptree_runnumber =  thisEventInfo->runNumber();
       m_muon_trig_tptree_eventnumber = thisEventInfo->eventNumber();
@@ -1462,7 +1496,8 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
       }
 
       for (const auto chain: m_Z_mm_trigger) {
-        if (m_muTrigMatchTool->match(probemu, chain) || ! m_doTrigger) {                                            
+        //if (m_muTrigMatchTool->match(probemu, chain) || ! m_doTrigger) {                                            
+        if (m_muTrigMatchTool->match(probemu, chain)) {
           matched=true;
           break;
         }
@@ -1505,6 +1540,29 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
 }
 
 
+void DQTGlobalWZFinderTool::doMuonTruthEff(std::vector<const xAOD::Muon*>& goodmuonsZ) {
+  const xAOD::TruthParticleContainer* vtruth;
+  evtStore()->retrieve(vtruth, "MuonTruthParticles");
+  if (! vtruth) {
+    ATH_MSG_WARNING("No muon truth particles");
+    return;
+  }
+  for (const auto& truthmu : *vtruth) {
+    if (truthmu->abseta() > m_muonMaxEta || truthmu->pt() < m_muonPtCut*GeV) {
+      continue;
+    }
+    TLorentzVector truthp4(truthmu->p4());
+    int match = 0;
+    for (const auto& foundmu : goodmuonsZ) {
+      if (foundmu->p4().DeltaR(truthp4) < 0.05) {
+	match = 1;
+	break;
+      }
+    }
+    // m_mcmatch->Fill(match);
+  }
+}
+
 void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsTP, const xAOD::Vertex* pVtx) {
 
   const xAOD::EventInfo* thisEventInfo;
@@ -1538,6 +1596,7 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
       m_muon_reco_tptree_pT = trk->pt();
       m_muon_reco_tptree_phi = trk->phi();
       m_muon_reco_tptree_eta = trk->eta();
+      m_muon_reco_tptree_isTruth = checkTruthTrack(trk);
       m_muon_reco_tptree_mass = mass;
       m_muon_reco_tptree_runnumber =  thisEventInfo->runNumber();
       m_muon_reco_tptree_eventnumber = thisEventInfo->eventNumber();
@@ -1627,13 +1686,12 @@ void DQTGlobalWZFinderTool::doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmu
       m_muon_indet_tptree_pT = trk->pt();
       m_muon_indet_tptree_phi = trk->phi();
       m_muon_indet_tptree_eta = trk->eta();
+      m_muon_indet_tptree_isTruth = checkTruthTrack(trk);
       m_muon_indet_tptree_mass = mass;
       m_muon_indet_tptree_runnumber =  thisEventInfo->runNumber();
       m_muon_indet_tptree_eventnumber = thisEventInfo->eventNumber();
       m_muon_indet_tptree_weight = m_evtWeight;
       m_muon_indet_tptree_lb = m_this_lb;
-
-
 
                                                                                                                            
       //for all ms tracks
@@ -1768,6 +1826,83 @@ void DQTGlobalWZFinderTool::setDQTGlobalWZFinderBranches(){
   m_electron_container_tptree->Branch("lb",&m_electron_container_tptree_lb);
   m_electron_container_tptree->Branch("runnumber",&m_electron_container_tptree_runnumber);
   m_electron_container_tptree->Branch("eventnumber",&m_electron_container_tptree_eventnumber);
+
+}
+
+
+bool DQTGlobalWZFinderTool::checkTruthElectron(const xAOD::Electron* elec){
+
+  unsigned int iTypeOfPart;
+  unsigned int iPartOrig;
+
+  bool truthMatched = false;
+
+  const xAOD::TruthParticle* lastElTruth = xAOD::EgammaHelpers::getBkgElectronMother(elec);
+  if( lastElTruth ){
+    auto res = m_truthClassifier->particleTruthClassifier(lastElTruth);
+    iTypeOfPart = res.first;
+    iPartOrig   = res.second;
+
+    if((iTypeOfPart == 2 && iPartOrig == 13) || (iPartOrig == 40)){
+      truthMatched = true;
+    }
+  }
+
+  return truthMatched;
+
+}
+
+
+bool DQTGlobalWZFinderTool::checkTruthMuon(const xAOD::Muon* muon){
+  bool truthMatched = false;
+  
+  std::pair<unsigned int, unsigned int> res;
+  ParticleDef partDef;
+
+  res=m_truthClassifier->particleTruthClassifier(muon);
+
+  unsigned int iTypeOfPart = res.first;
+  unsigned int iPartOrig   = res.second;
+
+  const auto* thePart = m_truthClassifier->getGenPart();
+  
+  if(thePart){
+    int partpdgID = thePart->absPdgId();
+
+    if(iTypeOfPart == 6 && iPartOrig == 13){
+      truthMatched = true;
+    }
+  }
+
+  return truthMatched;
+
+}
+
+
+
+bool DQTGlobalWZFinderTool::checkTruthTrack(const xAOD::TrackParticle* trk){
+  bool truthMatched = false;
+
+  std::pair<unsigned int, unsigned int> res;
+  ParticleDef partDef;
+
+  res=m_truthClassifier->particleTruthClassifier(trk);
+
+  unsigned int iTypeOfPart = res.first;
+  unsigned int iPartOrig   = res.second;
+
+  const auto* thePart = m_truthClassifier->getGenPart();
+
+  if(thePart){
+    int partpdgID = thePart->absPdgId();
+
+    if(iTypeOfPart == 6 && iPartOrig == 13){
+      //if(partpdgID == 13 && iPartOrig == 13){
+        truthMatched = true;
+    }
+
+  }
+  return truthMatched;
 
 }
 
