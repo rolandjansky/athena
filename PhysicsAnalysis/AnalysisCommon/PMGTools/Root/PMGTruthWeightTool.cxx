@@ -248,6 +248,7 @@ namespace PMGTools
         ATH_MSG_WARNING("No weight names were available in this sample! Proceeding under the assumption that the single available weight should be 'nominal'");
         m_weightNames.push_back("nominal");
         m_weightIndices["nominal"] = 0;
+        m_weightIndicesSys[""] = 0;
       } else {
         ATH_MSG_ERROR("Expected " << m_weightNames.size() << " weights from the metadata but found " << m_weights.size() << " in this event");
         ATH_MSG_ERROR("Perhaps this sample was made using a release which did not correctly propagate the event weights.");
@@ -340,6 +341,7 @@ namespace PMGTools
   void PMGTruthWeightTool::clearWeightLocationCaches() {
     m_weightNames.clear();
     m_weightIndices.clear();
+    m_weightIndicesSys.clear();
     m_systematicsSet.clear();
   }
 
