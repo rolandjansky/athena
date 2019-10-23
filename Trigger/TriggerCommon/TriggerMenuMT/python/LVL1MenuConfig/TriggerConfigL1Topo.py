@@ -50,8 +50,6 @@ class TriggerConfigL1Topo(object):
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]
-            if 'pp_run3_v1' in menuName:
-                menuName = 'LS2_v1'
         else:
             log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
         return menuName         
