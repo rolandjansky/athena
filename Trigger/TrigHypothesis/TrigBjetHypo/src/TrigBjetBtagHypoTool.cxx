@@ -26,29 +26,13 @@ TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
 
 // -----------------------------------------------------------------------------------------------------------------
 
-TrigBjetBtagHypoTool::~TrigBjetBtagHypoTool() {}
-
-// -----------------------------------------------------------------------------------------------------------------
-
 StatusCode TrigBjetBtagHypoTool::initialize()  {
 
-  // Get message service  
-
-  ATH_MSG_INFO("Initializing " << name() << " ..." );
- 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_acceptAll        ); 
   ATH_MSG_DEBUG(  "   " << m_methodTag        ); 
   ATH_MSG_DEBUG(  "   " << m_bTaggingCut      );
  
-  // Retrieve Tools
-  //  ATH_CHECK( m_monTool.retrieve() );
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigBjetBtagHypoTool::finalize()  {
-  ATH_MSG_INFO( "Finalizing " << name() <<" ..." );
   return StatusCode::SUCCESS;
 }
 
