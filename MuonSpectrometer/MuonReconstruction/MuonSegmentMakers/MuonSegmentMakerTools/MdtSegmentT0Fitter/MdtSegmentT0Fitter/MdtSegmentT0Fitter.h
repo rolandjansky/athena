@@ -17,6 +17,7 @@
 
 #include <atomic>
 #include <vector>
+#include <memory>
 
 class IIdToFixedIdTool;
 class MdtCalibrationDbTool;
@@ -37,6 +38,26 @@ namespace TrkDriftCircleMath {
 
  
       virtual const DCSLFitter* getFitter() const override { return this; }
+
+      /// Struct for passing data to/from TMinuit fit function
+      struct MdtSegmentT0FcnData {
+        struct HitCoords {
+          double z;
+          double t;
+          double y;
+          double w;
+          double r;
+          const MuonCalib::IRtRelation *rt;
+        };
+
+        bool use_hardcoded;
+        bool use_shift_constraint;
+        double constrainT0Error;  
+        std::vector<HitCoords> data;
+        double t_lo, t_hi;
+        int used;
+        int t0Error;
+      };
 
     private:
       bool m_trace; // debug - traces operation
@@ -64,6 +85,8 @@ namespace TrkDriftCircleMath {
       mutable std::atomic_uint m_npassedNSelectedHits;
       mutable std::atomic_uint m_npassedMinHits;
       mutable std::atomic_uint m_npassedMinuitFit;
+
+      std::unique_ptr<MdtSegmentT0FcnData> m_fcnData; //!< Struct to hold data to pass to/from TMinuit fit function
     };
     
   inline bool MdtSegmentT0Fitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const { 
