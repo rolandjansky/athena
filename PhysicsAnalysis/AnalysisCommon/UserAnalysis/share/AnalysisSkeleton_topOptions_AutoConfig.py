@@ -24,8 +24,8 @@ jp.AthenaCommonFlags.FilesInput = ['/afs/cern.ch/atlas/maxidisk/d49/AOD.191045._
 # you don't need to set Geometry tags anymore. They are read from the file itself.
 from RecExConfig.RecFlags import rec
 
-# get inputFileSummary - will use it to extract info for MC/DATA
-from RecExConfig.InputFilePeeker import inputFileSummary
+# get MetaReader - will use it to extract info for MC/DATA
+from PyUtils.MetaReaderPeeker import metadata
 
 # import the data types 
 import EventKernel.ParticleDataType
@@ -86,8 +86,8 @@ topSequence.AnalysisSkeleton.IsAtlFastData = IsAtlfast
 topSequence.AnalysisSkeleton.SusyJetMinEt      = 50*GeV
 topSequence.AnalysisSkeleton.DoTruth = False
 
-if 'IS_SIMULATION' in inputFileSummary['evt_type']:
-   topSequence.AnalysisSkeleton.DoTruth                = True
+if 'IS_SIMULATION' in metadata['eventTypes']:
+   topSequence.AnalysisSkeleton.DoTruth = True
 
 print AnalysisSkeleton
 
