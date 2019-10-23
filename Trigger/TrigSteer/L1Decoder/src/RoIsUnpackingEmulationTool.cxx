@@ -193,7 +193,7 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
     
     for ( auto th: roi.passedThresholdIDs ) {
-      ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains" );
+      ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains " );
       addChainsToDecision( HLT::Identifier( th ), decision, activeChains );
       
       
