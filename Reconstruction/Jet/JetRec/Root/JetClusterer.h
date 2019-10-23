@@ -34,14 +34,14 @@ public:
 
 protected:
 
+  /// Handle to EventInfo. This is used to get the evt&run number to set the Ghost area random seeds.
   SG::ReadHandleKey<xAOD::EventInfo> m_eventinfokey{"EventInfo"};
 
-
+  /// Handle Input PseudoJetContainer
   SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets= {this, "InputPseudoJets", "inputpseudojet", "input constituents"};
 
-
-  SG::WriteHandleKey<PseudoJetVector> m_finalPSeudoJets= {this, "FinalPSeudoJets", "xxxx", "final jets in PseudoJet format"};
-
+  /// used to build the key under which the final PJ will be stored in evtStore() 
+  std::string m_finalPSeudoJets;
   
   // Job options.
   Gaudi::Property<std::string>  m_jetalg  {this, "JetAlgorithm", "AntiKt", "alg type : AntiKt, Kt, CA..."};

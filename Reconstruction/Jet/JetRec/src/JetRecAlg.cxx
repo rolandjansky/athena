@@ -8,6 +8,8 @@
 #include <memory>
 #include "JetRecAlg.h"
 #include "JetInterface/IJetExecuteTool.h"
+#include "xAODJet/JetAuxContainer.h"
+
 
 using std::string;
 
@@ -27,13 +29,15 @@ JetRecAlg::~JetRecAlg() { }
 
 StatusCode JetRecAlg::initialize() {
 
+  ATH_CHECK(m_jetprovider.retrieve());
+  ATH_MSG_INFO(" Initialized  IJetProvider : "<< m_jetprovider->name());
+  
   ATH_MSG_INFO(" Initialize .... List of modifiers: ");
   ATH_CHECK(m_modifiers.retrieve());
   for(ToolHandle<IJetModifier> t : m_modifiers){
     ATH_MSG_INFO("    --> : "<< t->name());
   }
-  ATH_CHECK(m_jetprovider.retrieve());
-  ATH_MSG_INFO(" Initialize .... IJetProvider : "<< m_jetprovider->name());
+
   ATH_CHECK(m_output.initialize());
   return StatusCode::SUCCESS;
 }
@@ -55,16 +59,20 @@ StatusCode JetRecAlg::execute() {
     ATH_MSG_ERROR("Builder tool "<< m_jetprovider->name() << "  returned a null pointer");
     return StatusCode::FAILURE;
   }
-    
+  std::unique_ptr<xAOD::JetAuxContainer>  auxCont( dynamic_cast<xAOD::JetAuxContainer *>(jets->getStore() ) );  
+
+  
   // Calculate moments, calibrate, sort, filter...  -----------
   for(const ToolHandle<IJetModifier> t : m_modifiers){
     ATH_CHECK(t->modify(*jets));
   }
 
+
   ATH_MSG_DEBUG("Done jet finding "<< jets->size() << "  | writing to "<< m_output.key() );
   
+  // Write out JetContainer and JetAuxContainer
   SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output);
-  ATH_CHECK( jetContHandle.record(std::move(jets)) );
+  ATH_CHECK( jetContHandle.record(std::move(jets), std::move(auxCont) ) );
   
   return StatusCode::SUCCESS;
 

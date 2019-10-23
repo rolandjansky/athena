@@ -50,7 +50,8 @@ StatusCode JetClusterer::initialize() {
   // Input DataHandles
   ATH_CHECK( m_eventinfokey.initialize() );
   ATH_CHECK( m_inputPseudoJets.initialize() );
-  ATH_CHECK( m_finalPSeudoJets.initialize() );
+  m_finalPSeudoJets = m_inputPseudoJets.key() +"FinalPJ";
+
   return StatusCode::SUCCESS;
 }
 
@@ -60,7 +61,8 @@ xAOD::JetContainer* JetClusterer::build() const {
   // Build the container to be returned 
   std::unique_ptr<xAOD::JetContainer>  jets = std::make_unique<xAOD::JetContainer>() ;
   jets->setStore(new xAOD::JetAuxContainer);  
-  
+
+  // retrieve input
   SG::ReadHandle<PseudoJetContainer> pjContHandle(m_inputPseudoJets);
   if(!pjContHandle.isValid()) {
     ATH_MSG_ERROR("No valid PseudoJetContainer with key "<< m_inputPseudoJets.key());
@@ -139,23 +141,27 @@ xAOD::JetContainer* JetClusterer::build() const {
   // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
   clSequence->delete_self_when_unused();
 
-  
+
+  // -------------------------------------
+  // translate to xAOD::Jet
   static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
   for (const fastjet::PseudoJet &  pj: *pjVector ) {
     // create the xAOD::Jet from the PseudoJet, doing the signal & ghost constituents extraction
-    xAOD::Jet* pjet = m_jetFromPseudoJet.add(pj, *pjContHandle, *jets, xAOD::JetInput::Type( (int) m_inputType));
+    xAOD::Jet* jet = m_jetFromPseudoJet.add(pj, *pjContHandle, *jets, xAOD::JetInput::Type( (int) m_inputType));
     // Add the PseudoJet onto the xAOD jet. Maybe we should do it in the above JetFromPseudojet call ??
-    pjAccessor(*pjet) = &pj;
+    pjAccessor(*jet) = &pj;
     
     xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
-    pjet->setAlgorithmType(ialg);
-    pjet->setSizeParameter((float)m_jetrad);
-    pjet->setAttribute("JetGhostArea", (float)m_ghostarea);
+    jet->setAlgorithmType(ialg);
+    jet->setSizeParameter((float)m_jetrad);
+    jet->setAttribute("JetGhostArea", (float)m_ghostarea);
   }
 
+  // -------------------------------------
+  // record 
   SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPSeudoJets);
   if(!pjVectorHandle.record(std::move(pjVector))){
-    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPSeudoJets.key());
+    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPSeudoJets);
     return nullptr;
   }
   ATH_MSG_DEBUG("Reconstructed jet count: " << jets->size() <<  "  clusterseq="<<clSequence);
