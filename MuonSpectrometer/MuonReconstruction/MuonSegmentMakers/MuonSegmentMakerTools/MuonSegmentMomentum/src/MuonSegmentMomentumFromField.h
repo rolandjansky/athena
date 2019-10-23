@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonSegmentMomentumFromField_MuonSegmentMomentumFromField_H
@@ -9,6 +9,8 @@
 #include "MuonRecToolInterfaces/IMuonSegmentMomentumEstimator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkExInterfaces/INavigator.h"
 
 class RpcIdHelper;
 class CscIdHelper;
@@ -19,19 +21,13 @@ namespace Muon {
   class MuonSegment;
 }
 
-namespace Trk {
-  class IPropagator;
-  class INavigator;  
-}
-
 class MuonSegmentMomentumFromField : public AthAlgTool, virtual public Muon::IMuonSegmentMomentumEstimator
 {
  public: 
   /** constructor */
   MuonSegmentMomentumFromField(const std::string&,const std::string&,const IInterface*);
-  /** destructor */
-  virtual ~MuonSegmentMomentumFromField();
-
+  MuonSegmentMomentumFromField& operator= (const MuonSegmentMomentumFromField& ) = delete;
+  
   /** to initiate private members */
   virtual StatusCode initialize(); 
   /** to delete private members */
@@ -46,24 +42,20 @@ class MuonSegmentMomentumFromField : public AthAlgTool, virtual public Muon::IMu
  private:
   double fieldIntegralEstimate(const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
   double fieldIntegralEstimate_old(const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
+  
+  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc {this, "MagFieldSvc", "AtlasFieldSvc"};
+  ToolHandle<Trk::IPropagator>          m_propagator{this, "PropagatorTool", 
+                                          "Trk::STEP_Propagator/MuonPropagator"};  
+  ToolHandle<Trk::INavigator>           m_navigator {this, "NavigatorTool",
+                                          "Trk::Navigator/MuonNavigator"};
 
-  /** flag to print out debugging information */
-  bool m_debug;
-  /** flag to print out a summary of what comes in and what comes out */
-  bool m_summary; 
-  /** flag for use of cosmics, straight line model will be used, no interaction point constraint */
-  bool m_cosmics; 
-  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; 
-  ToolHandle<Trk::IPropagator> m_propagator;
-  ToolHandle<Trk::INavigator> m_navigator;
-
-  const RpcIdHelper*                  m_rpcid;
-  const TgcIdHelper*                  m_tgcid;
-  const CscIdHelper*                  m_cscid;
-  const sTgcIdHelper*                 m_stgcid;
-  bool m_doOld;
-  bool m_hasCSC;
-  bool m_hasSTgc;
+  const RpcIdHelper*                  m_rpcid {nullptr};
+  const TgcIdHelper*                  m_tgcid {nullptr};
+  const CscIdHelper*                  m_cscid {nullptr};
+  const sTgcIdHelper*                 m_stgcid {nullptr};
+  Gaudi::Property<bool> m_doOld {this, "DoOld", false, "Use old fitMomentum2Segments"};
+  Gaudi::Property<bool> m_hasCSC {this, "HasCSC", true, "Is CSC available?"};
+  Gaudi::Property<bool> m_hasSTgc {this, "HasSTgc", true, "is sTGC available?"};
 };
 
 #endif // MuonSegmentMomentumFromField_H
