@@ -125,8 +125,8 @@ namespace TrkDriftCircleMath {
   /// RT function from Craig Blocker
   /// ok for now, possibly replace with actual RT function used to calibrate run
   
-  static double t2r_a[10] = {1.184169e-1, 3.32382e-2, 4.179808e-4, -5.012896e-6, 2.61497e-8, -7.800677e-11, 1.407393e-13, -1.516193e-16, 8.967997e-20, -2.238627e-23};
-  static double rcorr_a[] = {234.3413, -5.803375, 5.061677e-2, -1.994959e-4, 4.017433e-7, -3.975037e-10, 1.522393e-13};
+  constexpr double T2R_A[] = {1.184169e-1, 3.32382e-2, 4.179808e-4, -5.012896e-6, 2.61497e-8, -7.800677e-11, 1.407393e-13, -1.516193e-16, 8.967997e-20, -2.238627e-23};
+  constexpr double RCORR_A[] = {234.3413, -5.803375, 5.061677e-2, -1.994959e-4, 4.017433e-7, -3.975037e-10, 1.522393e-13};
   
   double rcorr(double tin) {
     double rc;
@@ -136,7 +136,7 @@ namespace TrkDriftCircleMath {
       double tpow = 1.;
       rc = 0.;
       for(int j = 0; j < 7; j++) {
-        rc += rcorr_a[j]*tpow;
+        rc += RCORR_A[j]*tpow;
         tpow *= tin;
       }
     }
@@ -152,7 +152,7 @@ namespace TrkDriftCircleMath {
     double tpow = 1.;
     double rc = 0.;
     for(int j = 0; j < 10; j++) {
-      rc += t2r_a[j]*tpow;
+      rc += T2R_A[j]*tpow;
       tpow *= tin;
     }
     
@@ -169,7 +169,7 @@ namespace TrkDriftCircleMath {
       double tpow = 1.;
       rc = 0.;
       for(int j = 1; j < 7; j++) {
-        rc += j*rcorr_a[j]*tpow;
+        rc += j*RCORR_A[j]*tpow;
         tpow *= tin;
       }
     }
@@ -185,7 +185,7 @@ namespace TrkDriftCircleMath {
     double tpow = 1.;
     double rc = 0.;
     for(int j = 1; j < 10; j++) {
-      rc += j*t2r_a[j]*tpow;
+      rc += j*T2R_A[j]*tpow;
       tpow *= tin;
     }
     
