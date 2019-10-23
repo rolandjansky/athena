@@ -26,7 +26,7 @@ LArAutoCorrTotalCondAlg::LArAutoCorrTotalCondAlg(const std::string &name,
       m_LArMinBiasObjKey("LArMinBiasSym"),
       m_LArAutoCorrTotalObjKey("LArAutoCorrTotal"),
       m_condSvc("CondSvc", name), m_Nminbias(0), m_NoPile(false), m_isMC(true),
-      m_isSuperCell(false), m_useMixedOFCOpt(false), m_Nsamples(5),
+      m_isSuperCell(false), m_Nsamples(5),
       m_firstSample(0), m_deltaBunch(1) {
   declareProperty("LArADC2MeVObjKey", m_LArADC2MeVObjKey,
                   "Key to read LArADC2MeV object");
@@ -50,7 +50,6 @@ LArAutoCorrTotalCondAlg::LArAutoCorrTotalCondAlg(const std::string &name,
   declareProperty("NoPile", m_NoPile);
   declareProperty("isMC", m_isMC);
   declareProperty("isSuperCell", m_isSuperCell);
-  declareProperty("UseMixedOFCOpt", m_useMixedOFCOpt);
   declareProperty("Nsamples", m_Nsamples, "Max number of samples to use");
   declareProperty(
       "firstSample", m_firstSample,
@@ -259,20 +258,6 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
 
     if (larOnOffIdMapping->isOnlineConnected(chid)) {
         count2++;
-
-      if (m_useMixedOFCOpt) {
-        const bool isEMB = larOnlineID->isEMBchannel(chid);
-        const bool isEMECOW = larOnlineID->isEMECOW(chid);
-        if (isEMB || isEMECOW) {
-          ATH_MSG_DEBUG("No Pileup AutoCorr for ChID 0x" << MSG::hex << chid
-                                                         << MSG::dec);
-          m_NoPile = true;
-        } else {
-          ATH_MSG_DEBUG("Using Pileup AutoCorr for ChID 0x" << MSG::hex << chid
-                                                            << MSG::dec);
-          m_NoPile = false;
-        }
-      }
 
       for (size_t igain = 0; igain < m_nGains; igain++) {
         const ILArShape::ShapeRef_t Shape = larShape->Shape(chid, igain);

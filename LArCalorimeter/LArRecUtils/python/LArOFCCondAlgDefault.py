@@ -13,6 +13,8 @@ condSeq = AthSequencer("AthCondSeq")
 def LArOFCCondAlgDefault():
 
     mlog = logging.getLogger('LArOFCCondAlg')
+    mlog.info("entering LArOFCCondAlgDefault")
+
     LArOnOffIdMapping()
     condSeq = AthSequencer("AthCondSeq")
     if hasattr (condSeq,"LArOFCCondAlg"):
@@ -22,40 +24,23 @@ def LArOFCCondAlgDefault():
     #theOFCCondAlg.MCSym = True
     theOFCCondAlg.isMC  = True
     from LArROD.LArRODFlags import larRODFlags
+    from AthenaCommon.BeamFlags import jobproperties
 
     theOFCCondAlg.firstSample = larRODFlags.firstSample()
     theOFCCondAlg.useHighestGainAutoCorr = larRODFlags.useHighestGainAutoCorr()
-      
-    if larRODFlags.doOFCMixedOptimization(): # kept for backward compatibility
-        theOFCCondAlg.UseDelta = 1 # only EMECIW/HEC/FCAL
-        from AthenaCommon.BeamFlags import jobproperties
-        theOFCCondAlg.DeltaBunch = int(jobproperties.Beam.bunchSpacing()/( 25.*ns)+0.5)
-        mlog.info("  OFC *MIXED* optimization")
-    else:
-        theOFCCondAlg.UseDelta = larRODFlags.UseDelta()
-        
-        if ( larRODFlags.UseDelta() == 0 ):
-            mlog.info("  Standard OFC optimization computation")
 
-        elif ( larRODFlags.UseDelta() == 1 ):
-            mlog.info("  OFC optimization asking for no average shift as extra constraint only in EMECIW/HEC/FCAL")
-            from AthenaCommon.BeamFlags import jobproperties
-            theOFCCondAlg.DeltaBunch = int(jobproperties.Beam.bunchSpacing()/( 25.*ns)+0.5)
-
-        elif ( larRODFlags.UseDelta() == 2 ):
-            mlog.info("  OFC optimization asking for no average shift as extra constraint everywhere")
-            from AthenaCommon.BeamFlags import jobproperties
-            theOFCCondAlg.DeltaBunch = int(jobproperties.Beam.bunchSpacing()/( 25.*ns)+0.5)
-
-        elif ( larRODFlags.UseDelta() == 3 ):
-            mlog.info("  OFC optimization asking for no average shift as extra constraint only in EMECIW/HEC/FCAL1+high eta FCAL2-3")
-            from AthenaCommon.BeamFlags import jobproperties
-            theOFCCondAlg.DeltaBunch = int(jobproperties.Beam.bunchSpacing()/( 25.*ns)+0.5)
-            
+    if larRODFlags.doOFCPileupOptimization():
+        if larRODFlags.NumberOfCollisions():
+            theOFCCondAlg.Nminbias=larRODFlags.NumberOfCollisions()
+            mlog.info("  setup for  Ncollisions %f   " % (larRODFlags.NumberOfCollisions()))
         else:
-            theOFCCondAlg.UseDelta = 0 ### avoid unforseed options
-
-        pass
+            theOFCCondAlg.Nminbias=jobproperties.Beam.numberOfCollisions()
+            mlog.info("  setup for  Ncollisions %f   " % (jobproperties.Beam.numberOfCollisions()))
+    else:
+        theOFCCondAlg.Nminbias=0
+        mlog.info("  setup for no pileup optimization")
+      
+    pass
     
     condSeq+=theOFCCondAlg
     return theOFCCondAlg
