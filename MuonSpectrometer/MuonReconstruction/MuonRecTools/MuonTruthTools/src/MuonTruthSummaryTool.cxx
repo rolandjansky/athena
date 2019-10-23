@@ -157,19 +157,17 @@ namespace Muon {
     if( m_truthDataPerLevel.empty() ) return "No hits added";
     ATH_MSG_DEBUG( "Have " << m_truthHits.size() << " truth hits and "<< m_truthDataPerLevel.size()<<" levels filled."  );
 
-    std::set<Identifier> truthHits;
+    std::unordered_set<Identifier, IdentifierHash> truthHits;
     for( auto it = m_truthHits.begin();it!=m_truthHits.end();++it ) truthHits.insert(it->first);
 
     m_truthHitsTotal+=truthHits.size();
     std::ostringstream sout;
     sout << " Summarizing: truth hits " << truthHits.size() << " levels filled " << m_truthDataPerLevel.size()<<std::endl;
-    std::map<int,std::set<Identifier> >::const_iterator it = m_truthDataPerLevel.begin();
-    std::map<int,std::set<Identifier> >::const_iterator it_end = m_truthDataPerLevel.end();
-    for( ;it!=it_end;++it ){
-      m_level=it->first-1;
+    for (auto& pair : m_truthDataPerLevel) {
+      m_level=pair.first-1;
       if (m_writeTree) clearChamberVariables( m_level );
-      sout << " Comparing truth to level " << m_level << std::endl << printSummary( truthHits, it->second );
-      m_lossesPerLevel[it->first]+=(truthHits.size()-it->second.size());
+      sout << " Comparing truth to level " << m_level << std::endl << printSummary( truthHits, pair.second );
+      m_lossesPerLevel[pair.first]+=(truthHits.size()-pair.second.size());
     }
     if (m_writeTree) {
       std::cout<<"About to try to fill try tree "<<m_tree->GetName()<<std::endl;
@@ -180,7 +178,8 @@ namespace Muon {
     return sout.str();
   }
 
-  std::string MuonTruthSummaryTool::printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found )  {
+  std::string MuonTruthSummaryTool::printSummary( const std::unordered_set<Identifier, IdentifierHash>& truth, 
+      const std::unordered_set<Identifier, MuonTruthSummaryTool::IdentifierHash>& found )  {
     std::scoped_lock lock(m_mutex);
     std::ostringstream sout;
     if( truth.size() != found.size() ){

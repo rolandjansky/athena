@@ -17,9 +17,10 @@
 #include "StoreGate/ReadHandleKeyArray.h"
 #include <string>
 #include <set>
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include <atomic>
+#include <functional>
 
 namespace Trk {
   class Track;
@@ -70,11 +71,20 @@ namespace Muon {
 
     void handle(const Incident& inc);
 
+    struct IdentifierHash
+    {
+      size_t operator() (const Identifier& id) const
+      {
+        return std::hash<Identifier::value_type>{}(id.get_compact());
+      }
+    };
+
   private:
 
     /** add measurements */
     void add( const std::vector<const Trk::MeasurementBase*>& measurements, int level ) const ;
-    std::string printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found );
+    std::string printSummary( const std::unordered_set<Identifier, IdentifierHash>& truth, 
+      const std::unordered_set<Identifier, IdentifierHash>& found );
 
     ToolHandle<MuonIdHelperTool>                m_idHelper;
     ServiceHandle<IMuonEDMHelperSvc>            m_edmHelperSvc {this, "edmHelper", 
@@ -87,11 +97,11 @@ namespace Muon {
 
     SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_TruthNames{this,"TruthNames",{"RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"},"truth names"};
 
-    mutable std::map<int,int>                           m_pdgIdLookupFromBarcode ATLAS_THREAD_SAFE; // protected by mutex
-    mutable std::map<Identifier,int>                    m_truthHits ATLAS_THREAD_SAFE; // protected by mutex. map containing truth hits associated with muons, stores barcode as second element
-    mutable std::map<int,std::set<Identifier> >         m_truthDataPerLevel ATLAS_THREAD_SAFE; // protected by mutex
-    std::map<int,unsigned int >                         m_lossesPerLevel;
-    mutable unsigned int                                m_truthHitsTotal ATLAS_THREAD_SAFE; // protected by mutex
+    mutable std::unordered_map<int,int> m_pdgIdLookupFromBarcode ATLAS_THREAD_SAFE; // protected by mutex
+    mutable std::unordered_map<Identifier,int,IdentifierHash> m_truthHits ATLAS_THREAD_SAFE; // protected by mutex. map containing truth hits associated with muons, stores barcode as second element
+    mutable std::unordered_map<int,std::unordered_set<Identifier, IdentifierHash>> m_truthDataPerLevel ATLAS_THREAD_SAFE; // protected by mutex
+    std::unordered_map<int,unsigned int> m_lossesPerLevel;
+    mutable unsigned int m_truthHitsTotal ATLAS_THREAD_SAFE; // protected by mutex
 
     mutable std::recursive_mutex                m_mutex;
     
