@@ -24,7 +24,7 @@ class OriginalAodCountsTool : public asg::AsgTool
 
   virtual StatusCode initialize() override;
 
-  StatusCode incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts&);
+  StatusCode incrementAodCounts(xAOD::TEvent& event, OriginalAodCounts&) const;
 private:
   AodCountsConfig m_config;
 };
