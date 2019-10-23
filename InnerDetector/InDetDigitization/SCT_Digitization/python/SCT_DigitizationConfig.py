@@ -105,7 +105,7 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     # If noise is turned off:
     if not digitizationFlags.doInDetNoise.get_Value():
         ###kwargs.setdefault("OnlyHitElements", True)
-        print 'SCT_Digitization:::: Turned off Noise in SCT_FrontEnd'
+        print('SCT_Digitization:::: Turned off Noise in SCT_FrontEnd')
         kwargs.setdefault("NoiseOn", False)
         kwargs.setdefault("AnalogueNoiseOn", False)
     else:
