@@ -14,21 +14,14 @@ TrigL2CaloHypoAlgMT::TrigL2CaloHypoAlgMT( const std::string& name,
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigL2CaloHypoAlgMT::~TrigL2CaloHypoAlgMT() {}
 
 StatusCode TrigL2CaloHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
-  
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_clustersKey.initialize() );
   renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigL2CaloHypoAlgMT::finalize() {   
   return StatusCode::SUCCESS;
 }
 
