@@ -69,7 +69,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
   virtual ~LArCellCont() { };
 
   /** initialize method. Builds all cells and collections. */
-  StatusCode initialize( bool applyOffsetCorrection ) ;
+  StatusCode initialize( ) ;
   /** finalize method. Destroys all cells and collections. */
   StatusCode finalize( void ) ;
   /** sets Event Number */
@@ -116,13 +116,12 @@ private:
 	std::vector< std::vector<float> > m_corrBCID;
 	/** reference to the corrections for a given BCID */
 	std::vector<float>& m_corrBCIDref;
-	/** update BCID dependent correction table */
-	void updateBCID();
 	/** index table */
 	std::map<HWIdentifier,int> m_indexset;
         /** current lumi_block */
         float m_lumi_block;
 	unsigned int m_bcid;
+	EventIDBase::event_number_t m_bcidEvt;
 	
 	/** Needs also the LArCablingSvc */
 	LArCablingLegacyService* m_larCablingSvc;  
