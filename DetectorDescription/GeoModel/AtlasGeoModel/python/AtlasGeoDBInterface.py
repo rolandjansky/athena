@@ -73,7 +73,7 @@ class AtlasGeoDBInterface:
         for currentRow in iter(query.execute()):
             for i in range(0,currentRow.size()):
                 if currentRow[i].specification().name()=="TAG_ID":
-                    Logging.log.verbose("*** GeoTagId ******** ",str(currentRow))
+                    Logging.log.verbose("*** GeoTagId ******** "+str(currentRow))
                     self.dbGeoTagId=currentRow[i].data()
                     continue
 
