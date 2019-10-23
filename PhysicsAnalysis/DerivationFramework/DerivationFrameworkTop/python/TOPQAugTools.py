@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # Common file used for TOPQ augmentation
 # Call with:
@@ -12,17 +14,17 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 def setup(ToolSvc):
 
-  augmentationTools=[]
+    augmentationTools=[]
 
-  from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__ExKtbbAugmentation
-  TOPQExKtbbAugmentation = DerivationFramework__ExKtbbAugmentation(name = "TOPQExKtbbAugmentation")
-  TOPQExKtbbAugmentation.isMC = (globalflags.DataSource()=='geant4')
-  ToolSvc += TOPQExKtbbAugmentation
-  augmentationTools.append(TOPQExKtbbAugmentation)
-  #=============
-  # RETURN TOOLS
-  #=============   
-  return augmentationTools
+    from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__ExKtbbAugmentation
+    TOPQExKtbbAugmentation = DerivationFramework__ExKtbbAugmentation(name = "TOPQExKtbbAugmentation")
+    TOPQExKtbbAugmentation.isMC = (globalflags.DataSource()=='geant4')
+    ToolSvc += TOPQExKtbbAugmentation
+    augmentationTools.append(TOPQExKtbbAugmentation)
+    #=============
+    # RETURN TOOLS
+    #=============
+    return augmentationTools
 
 #==============================================================================
 # SETUP TRUTH KERNEL

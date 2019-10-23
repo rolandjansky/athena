@@ -31,7 +31,7 @@ def IsSUSYSignal():
       # Do it the old-fashioned way
       # https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/share/Blocks.list
       issusy = (370000 <= mc_channel_number < 405000) or (406000 <= mc_channel_number < 410000) \
-               or (436000 <= mc_channel_number < 439000) or (448000 <= mc_channel_number < 449000)
+               or (436000 <= mc_channel_number < 439000) or (448000 <= mc_channel_number < 450000)
     else:
       # Automatic detection based on cvmfs
       issusy = False

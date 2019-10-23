@@ -23,7 +23,6 @@ namespace top {
 OverlapRemovalCPTools::OverlapRemovalCPTools(const std::string& name) :
     asg::AsgTool(name) {
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 }
 
 StatusCode OverlapRemovalCPTools::initialize() {

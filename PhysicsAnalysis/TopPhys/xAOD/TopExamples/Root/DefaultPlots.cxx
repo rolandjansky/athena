@@ -55,31 +55,31 @@ void addPlots(top::PlotManager& manager) {
     manager.addHist("jet_eta", ";Jet #eta;Jets", 25, -2.5, 2.5);
     manager.addHist("jet_phi", ";Jet #phi;Jets", 25, -M_PI, M_PI);
     manager.addHist("jet_e", ";Jet E / GeV;Jets", 50, 0, 250);
-    manager.addHist("jet_mv2c20", ";Jet mv2c20;Jets", 50, 0, 1);
+    manager.addHist("jet_mv2c10", ";Jet mv2c10;Jets", 50, 0, 1);
 
     manager.addHist("jet0_pt", ";Jet0 p_{T} / GeV; Events / 10 GeV", 25, 5, 255);
     manager.addHist("jet0_eta", ";Jet0 #eta; Jets", 25, -2.5, 2.5);
     manager.addHist("jet0_phi", ";Jet0 #phi; Jets", 25, -M_PI, M_PI);
     manager.addHist("jet0_e", ";Jet0 E / GeV; Jets", 50, 0, 250);
-    manager.addHist("jet0_mv2c20", ";Jet0 mv2c20; Jets", 50, 0, 1);
+    manager.addHist("jet0_mv2c10", ";Jet0 mv2c10; Jets", 50, 0, 1);
 
     manager.addHist("jet1_pt", ";Jet1 p_{T} / GeV; Events / 10 GeV", 25, 5, 255);
     manager.addHist("jet1_eta", ";Jet1 #eta; Jets", 25, -2.5, 2.5);
     manager.addHist("jet1_phi", ";Jet1 #phi; Jets", 25, -M_PI, M_PI);
     manager.addHist("jet1_e", ";Jet1 E / GeV; Jets", 50, 0, 250);
-    manager.addHist("jet1_mv2c20", ";Jet1 mv2c20; Jets", 50, 0, 1);
+    manager.addHist("jet1_mv2c10", ";Jet1 mv2c10; Jets", 50, 0, 1);
 
     manager.addHist("jet2_pt", ";Jet2 p_{T} / GeV; Events / 10 GeV", 25, 5, 255);
     manager.addHist("jet2_eta", ";Jet2 #eta; Jets", 25, -2.5, 2.5);
     manager.addHist("jet2_phi", ";Jet2 #phi; Jets", 25, -M_PI, M_PI);
     manager.addHist("jet2_e", ";Jet2 E / GeV; Jets", 50, 0, 250);
-    manager.addHist("jet2_mv2c20", ";Jet2 mv2c20; Jets", 50, 0, 1);
+    manager.addHist("jet2_mv2c10", ";Jet2 mv2c10; Jets", 50, 0, 1);
 
     manager.addHist("jet3_pt", ";Jet3 p_{T} / GeV; Events / 10 GeV", 25, 5, 255);
     manager.addHist("jet3_eta", ";Jet3 #eta; Jets", 25, -2.5, 2.5);
     manager.addHist("jet3_phi", ";Jet3 #phi; Jets", 25, -M_PI, M_PI);
     manager.addHist("jet3_e", ";Jet3 E / GeV; Jets", 50, 0, 250);
-    manager.addHist("jet3_mv2c20", ";Jet3 mv2c20; Jets", 50, 0, 1);
+    manager.addHist("jet3_mv2c10", ";Jet3 mv2c10; Jets", 50, 0, 1);
 
     manager.addHist("met_et", ";MET / GeV;Events / 5 GeV", 40, 0, 200);
     manager.addHist("met_phi", ";MET #phi;Events", 40, -M_PI, M_PI);
@@ -130,17 +130,17 @@ void fillPlots(const top::Event& topEvent, top::PlotManager& manager, double eve
         manager.hist("jet_phi")->Fill(jetPtr->phi(), eventWeight);
         manager.hist("jet_e")->Fill(jetPtr->e() * toGeV, eventWeight);
 
-	double mv2c20_discriminant = 0.;
-	jetPtr->btagging()->MVx_discriminant("MV2c20", mv2c20_discriminant);
+	double mv2c10_discriminant = 0.;
+	jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
 
-        manager.hist("jet_mv2c20")->Fill(mv2c20_discriminant, eventWeight);
+        manager.hist("jet_mv2c10")->Fill(mv2c10_discriminant, eventWeight);
 
         if (i < numbers.size()) {
             manager.hist(numbers[i] + "_pt")->Fill(jetPtr->pt() * toGeV, eventWeight);
             manager.hist(numbers[i] + "_eta")->Fill(jetPtr->eta(), eventWeight);
             manager.hist(numbers[i] + "_phi")->Fill(jetPtr->phi(), eventWeight);
             manager.hist(numbers[i] + "_e")->Fill(jetPtr->e() * toGeV, eventWeight);
-            manager.hist(numbers[i] + "_mv2c20")->Fill(mv2c20_discriminant, eventWeight);
+            manager.hist(numbers[i] + "_mv2c10")->Fill(mv2c10_discriminant, eventWeight);
         }
 
         ++i;

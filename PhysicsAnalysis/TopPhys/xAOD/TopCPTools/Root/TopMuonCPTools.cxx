@@ -25,7 +25,6 @@ namespace top {
 MuonCPTools::MuonCPTools(const std::string& name) :
     asg::AsgTool(name) {
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 
   declareProperty( "MuonCalibrationPeriodTool"    , m_muonCalibrationPeriodTool );
 
@@ -37,6 +36,10 @@ MuonCPTools::MuonCPTools(const std::string& name) :
   declareProperty( "MuonEfficiencyCorrectionsToolLoose" , m_muonEfficiencyCorrectionsToolLoose );
   declareProperty( "MuonEfficiencyCorrectionsToolIso" , m_muonEfficiencyCorrectionsToolIso );
   declareProperty( "MuonEfficiencyCorrectionsToolLooseIso" , m_muonEfficiencyCorrectionsToolLooseIso );
+  
+  declareProperty( "SoftMuonSelectionTool" , m_softmuonSelectionTool );
+  declareProperty( "SoftMuonEfficiencyCorrectionsTool" , m_softmuonEfficiencyCorrectionsTool );
+  
 }
 
 StatusCode MuonCPTools::initialize() {
@@ -47,7 +50,7 @@ StatusCode MuonCPTools::initialize() {
     return StatusCode::SUCCESS;
   }
 
-  if (!m_config->useMuons()) {
+  if (!m_config->useMuons() && !m_config->useSoftMuons()) {
     ATH_MSG_INFO("top::MuonCPTools: no need to initialise anything since not using muons");
     return StatusCode::SUCCESS;
   }
@@ -91,6 +94,17 @@ StatusCode MuonCPTools::setupCalibration() {
   m_muonSelectionToolVeryLooseVeto = setupMuonSelectionTool("CP::MuonSelectionToolVeryLooseVeto",
                                                     "Loose",
                                                     2.5);
+                                                    
+  //now the soft muon part
+  if(m_config->useSoftMuons())
+  {
+	  m_softmuonSelectionTool = setupMuonSelectionTool("CP::SoftMuonSelectionTool",
+                                                m_config->softmuonQuality(),
+                                                m_config->softmuonEtacut());
+	  
+  }
+  
+  
   return StatusCode::SUCCESS;
 }
 
@@ -127,31 +141,15 @@ StatusCode MuonCPTools::setupScaleFactors() {
     *    as SFs very similar for all WPs.
   ************************************************************/
 
-  if(m_config->getReleaseSeries() == 24){
-    m_muonTriggerScaleFactors_2015
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_2015",
-			    m_config->muonQuality(), "2015");
-    m_muonTriggerScaleFactorsLoose_2015
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_2015",
-			    m_config->muonQualityLoose(), "2015");
-    m_muonTriggerScaleFactors_2016
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_2016",
-			    m_config->muonQuality(), "2016");
-    m_muonTriggerScaleFactorsLoose_2016
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_2016",
-			    m_config->muonQualityLoose(), "2016");
-  }
   // In R21 now, we only need one instance of the tool 
   // and do not need to set the year as it is handled
   // internally with PRW tool
-  if(m_config->getReleaseSeries() == 25){
-    m_muonTriggerScaleFactors_R21
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_R21",
-                            m_config->muonQuality(), "");
-    m_muonTriggerScaleFactorsLoose_R21
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_R21",
-                            m_config->muonQualityLoose(), "");
-  }
+  m_muonTriggerScaleFactors_R21
+    = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_R21",
+                          m_config->muonQuality());
+  m_muonTriggerScaleFactorsLoose_R21
+    = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_R21",
+                          m_config->muonQualityLoose());
   /************************************************************
     * Efficiency Scale Factors:
     *    setup muon efficiency SFs for the nominal and 
@@ -164,6 +162,15 @@ StatusCode MuonCPTools::setupScaleFactors() {
   m_muonEfficiencyCorrectionsToolLoose
     = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLoose",
                       m_config->muonQualityLoose());
+                      
+                      
+  //now the soft muon part
+  if(m_config->useSoftMuons())
+  {
+	m_softmuonEfficiencyCorrectionsTool
+	  = setupMuonSFTool("CP::SoftMuonEfficiencyScaleFactorsTool",
+                      m_config->softmuonQuality());  
+  }
   
   /************************************************************
     * Isolation Scale Factors:
@@ -253,7 +260,7 @@ MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& 
 
 
 CP::IMuonTriggerScaleFactors*
-MuonCPTools::setupMuonTrigSFTool(const std::string& name, const std::string& quality, const std::string& year) {
+MuonCPTools::setupMuonTrigSFTool(const std::string& name, const std::string& quality) {
   CP::IMuonTriggerScaleFactors* tool = nullptr;
   if (asg::ToolStore::contains<CP::IMuonTriggerScaleFactors>(name)) {
     tool = asg::ToolStore::get<CP::IMuonTriggerScaleFactors>(name);
@@ -261,20 +268,8 @@ MuonCPTools::setupMuonTrigSFTool(const std::string& name, const std::string& qua
     tool = new CP::MuonTriggerScaleFactors(name);
     top::check(asg::setProperty(tool, "MuonQuality", quality),
                 "Failed to set MuonQuality for " + name);    
-    // Setting year and MC is only needed in R20.7 
-    // R21 is smarter and uses eventInfo for this info
-    if(m_config->getReleaseSeries() == 24){
-      top::check(asg::setProperty(tool, "Year", year),
-		 "Failed to set Year for " + name);
-      std::string MC_version = "mc15c";
-      top::check(asg::setProperty(tool, "MC", MC_version),
-		 "Failed to set MC for " + name);
-    }
-    else{
-      // This is now needed for R21 as we get many error messages otherwise
-      top::check(asg::setProperty(tool,"AllowZeroSF", true),
-		 "Failed to set AllowZeroSF for "+name);
-    }
+    top::check(asg::setProperty(tool,"AllowZeroSF", true),
+		"Failed to set AllowZeroSF for "+name);
     top::check(tool->initialize(), "Failed to init. " + name);
   }
   return tool;

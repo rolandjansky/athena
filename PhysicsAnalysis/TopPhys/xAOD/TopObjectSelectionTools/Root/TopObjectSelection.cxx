@@ -29,6 +29,7 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
   m_electronSelection(nullptr),
   m_fwdElectronSelection(nullptr),
   m_muonSelection(nullptr),
+  m_softmuonSelection(nullptr),
   m_tauSelection(nullptr),
   m_jetSelection(nullptr),
   m_photonSelection(nullptr),
@@ -99,17 +100,6 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
     top::check( m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool" );
   }
   
-  // boosted tagging stuff
-  if (m_config->useLargeRJets()) {
-    
-    for(const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()){
-      std::string fullName=name.first+"_"+name.second;
-      m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
-      top::check(m_boostedJetTaggers[fullName].retrieve(),"Failed to retrieve "+fullName);
-    }
-    
-  }
-  
   return StatusCode::SUCCESS;  
 }
 
@@ -125,6 +115,10 @@ void TopObjectSelection::fwdElectronSelection(FwdElectronSelectionBase* ptr) {
 
 void TopObjectSelection::muonSelection(MuonSelectionBase* ptr) {
     m_muonSelection.reset(ptr);
+}
+
+void TopObjectSelection::softmuonSelection(SoftMuonSelectionBase* ptr) {
+    m_softmuonSelection.reset(ptr);
 }
 
 void TopObjectSelection::tauSelection(TauSelectionBase* ptr) {
@@ -182,6 +176,7 @@ void TopObjectSelection::applySelectionPreOverlapRemoval()
 
   if( m_config->usePhotons() && m_photonSelection != nullptr ){applySelectionPreOverlapRemovalPhotons()    ;}
   if( m_config->useMuons() && m_muonSelection != nullptr     ){applySelectionPreOverlapRemovalMuons()      ;}
+  if( m_config->useSoftMuons() && m_softmuonSelection != nullptr     ){applySelectionPreOverlapRemovalSoftMuons()      ;}
   if( m_config->useTaus()  && m_tauSelection != nullptr      ){applySelectionPreOverlapRemovalTaus()       ;}
   if( m_config->useJets()  && m_jetSelection != nullptr      ){applySelectionPreOverlapRemovalJets()       ;}
   if( m_config->useLargeRJets() && m_largeJetSelection != nullptr){applySelectionPreOverlapRemovalLargeRJets() ;}
@@ -287,6 +282,21 @@ void TopObjectSelection::applySelectionPreOverlapRemovalMuons() {
                 muonPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_muonSelection->passSelectionLoose(*muonPtr);
                 muonPtr->auxdecor<char>( m_ORToolDecorationLoose ) = muonPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
             }
+        }
+    }
+}
+
+void TopObjectSelection::applySelectionPreOverlapRemovalSoftMuons() {
+    for (const std::pair<std::size_t,std::string> & currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
+        ///-- if executeNominal, skip other systematics (and vice-versa) --///
+        if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        const xAOD::MuonContainer* softmuons(nullptr);
+        top::check(evtStore()->retrieve(softmuons, currentSystematic.second) , "TopObjectSelection::applySelectionPreOverlapRemovalSoftMuons() failed to retrieve soft muons" );
+        
+        for (const xAOD::Muon* softmuonPtr : *softmuons) {
+            softmuonPtr->auxdecor<char>( m_passPreORSelection ) = m_softmuonSelection->passSelection(*softmuonPtr);
+            softmuonPtr->auxdecor<char>( m_ORToolDecoration ) = softmuonPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
         }
     }
 }
@@ -436,17 +446,6 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
             jetPtr->auxdecor<char>( m_passPreORSelectionLoose ) = decoration;
             jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration * 2;
           }
-          
-	  //decorate with boosted-tagging flags
-	  for (const std::pair<std::string,std::string>& name : m_config->boostedJetTaggers()) {
-	    std::string fullName=name.first+"_"+name.second;
-            const Root::TAccept &result = m_boostedJetTaggers[fullName]->tag(*jetPtr);
-            // TAccept has bool operator overloaded, but let's be more explicit in the output to char
-	    jetPtr->auxdecor<char>("isTagged_"+fullName) = (result ? 1 : 0);
-            // for users to extract more detailed tagging result information in custom event saver
-	    jetPtr->auxdecor<unsigned long>("TAccept_bitmap_"+fullName) = result.getCutResultBitSet().to_ulong();
-	  }
-	  
         }
     }
 }
@@ -645,6 +644,10 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
   const xAOD::MuonContainer* xaod_mu(nullptr);
   if (m_config->useMuons())
       top::check(evtStore()->retrieve(xaod_mu, m_config->sgKeyMuons(hash)) , "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve muons" );
+      
+  const xAOD::MuonContainer* xaod_softmu(nullptr);
+  if (m_config->useSoftMuons())
+      top::check(evtStore()->retrieve(xaod_softmu, m_config->sgKeySoftMuons(hash)) , "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve soft muons" );
   
   const xAOD::TauJetContainer* xaod_tau(nullptr);
   if (m_config->useTaus())
@@ -664,7 +667,7 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
       
   
   // vectors to store the indices of objects passing selection and overlap removal
-  std::vector<unsigned int> goodPhotons,goodElectrons,goodFwdElectrons,goodMuons,goodTaus,goodJets,goodLargeRJets,goodTrackJets;
+  std::vector<unsigned int> goodPhotons,goodElectrons,goodFwdElectrons,goodMuons,goodSoftMuons,goodTaus,goodJets,goodLargeRJets,goodTrackJets;
   
   // Apply overlap removal
   m_overlapRemovalToolPostSelection->overlapremoval(xaod_photon,xaod_el,xaod_mu,xaod_tau,
@@ -698,9 +701,6 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
     applyTightSelectionPostOverlapRemoval( xaod_tjet , goodTrackJets );
   }  
   
-  // Post overlap removal decorations
-  decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);
-  
   // for the time being no OR applied on FwdElectrons
   if(xaod_fwdel)
   {
@@ -712,20 +712,59 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
 	if (looseLeptonOR) {
 		passTopCuts = "passPreORSelectionLoose";
 	  }
-	for (const auto& x: *xaod_fwdel)
+	for (const xAOD::Electron* x: *xaod_fwdel)
 	{
-		 if( x->auxdataConst< char >(passTopCuts) != 1 ) continue;
-		 goodFwdElectrons.push_back(i);
+		 if( x->auxdataConst< char >(passTopCuts) == 1 )
+		 	 goodFwdElectrons.push_back(i);
 		 
 		 i++;
 	}
   }
+  
+  // Post overlap removal decorations
+  decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);  
+  
+  // for the time being the only OR performed on soft muons is wrt prompt muons
+  if(xaod_softmu)
+  {
+	int i(0);
+	std::string passTopCuts= "passPreORSelection";
+
+	for (const xAOD::Muon* x: *xaod_softmu)
+	{
+		  
+		 //OR with prompt muons
+		 bool promptMuOR=false;
+		 if(xaod_mu)
+		 {
+			for(unsigned int iMu : goodMuons)
+			{
+			 // Get muon iMu
+			 const xAOD::Muon* muPtr = xaod_mu->at(iMu);
+			 if(muPtr->p4().DeltaR(x->p4())<0.01)
+			 {
+				 promptMuOR=true;
+				 break;
+			 }
+			
+			}			
+		 }
+		 
+		 float dRMin=this->calculateMinDRMuonJet(*x,xaod_jet,goodJets); //nearest jet dR
+
+		 if( x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && dRMin<m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i);	//the dR selection must be done here, because we need the post-OR jets... 
+		 i++;
+	} 
+  }//end of OR procedure for soft muons
+
+  
   
   // set the indices in the xAOD::SystematicEvent
   currentSystematic->setGoodPhotons( goodPhotons );
   currentSystematic->setGoodElectrons( goodElectrons );
   currentSystematic->setGoodFwdElectrons( goodFwdElectrons );
   currentSystematic->setGoodMuons( goodMuons );
+  currentSystematic->setGoodSoftMuons( goodSoftMuons );
   currentSystematic->setGoodTaus( goodTaus );
   currentSystematic->setGoodJets( goodJets );
   currentSystematic->setGoodLargeRJets( goodLargeRJets );
@@ -817,18 +856,27 @@ void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContain
   // Use the good indicies to loop through the good objects
   for(auto iMu : goodMuons){
     // Get muon iMu
-    const xAOD::Muon* muPtr = xaod_mu->at(iMu);
-    float dRMin = 100.0;
-    // Loop over jets, calculate dR and record smallest value
-    for(auto iJet : goodJets){
-      const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
-      float dR = muPtr->p4().DeltaR(jetPtr->p4()); 
-      if(dR < dRMin) dRMin = dR; 
-    }
-    // Decorate the good muon with dR of closest jet (ie smallest dR)
-    muPtr->auxdecor< float >("dRJet") = dRMin;
+    const xAOD::Muon* muPtr = xaod_mu->at(iMu);   
+    this->calculateMinDRMuonJet(*muPtr,xaod_jet,goodJets);
   }
   return;
+}
+
+float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets)
+{
+	float dRMin = 100.0;
+	// Loop over jets, calculate dR and record smallest value
+    for(auto iJet : goodJets){
+      const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
+      float dR = mu.p4().DeltaR(jetPtr->p4()); 
+      if(dR < dRMin) dRMin = dR; 
+    }
+    
+    // Decorate the muon with dR of closest jet (ie smallest dR)
+
+    mu.auxdecor< float >("dRJet") = dRMin;
+    
+    return dRMin;
 }
 
 void TopObjectSelection::decorateEventInfoPostOverlapRemoval(int nGoodJets, bool isLoose){
@@ -900,6 +948,17 @@ void TopObjectSelection::print(std::ostream& os) const {
             os << "All";
         else
             os << *m_muonSelection;
+    }
+    
+    os << "\n";
+    os << "SoftMuons\n";
+    os << "  ContainerName: " << m_config->sgKeySoftMuons() << "\n";
+    if (m_config->useSoftMuons()) {
+        os << "  Selection: ";
+        if (!m_softmuonSelection)
+            os << "All";
+        else
+            os << *m_softmuonSelection;
     }
 //
 //    os << "\n";

@@ -75,6 +75,7 @@ namespace top{
         ATH_MSG_ERROR(" top::MuonObjectCollectionMaker could not determine systematic list" );
         return StatusCode::FAILURE;
       }
+      //here the idea is that if the user specifies AllXXX, we leave syst as an empty string, so that all recommended CP systematics are then used
       if (m_config->contains(syst, "AllMuons")) {
         syst.clear();
       }

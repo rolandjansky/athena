@@ -29,6 +29,7 @@
 
 #include "TopSystematicObjectMaker/EgammaObjectCollectionMaker.h"
 #include "TopSystematicObjectMaker/MuonObjectCollectionMaker.h"
+#include "TopSystematicObjectMaker/SoftMuonObjectCollectionMaker.h"
 #include "TopSystematicObjectMaker/TauObjectCollectionMaker.h"
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
 #include "TopSystematicObjectMaker/MissingETObjectCollectionMaker.h"
@@ -64,6 +65,7 @@ namespace top{
       std::shared_ptr<top::TopConfig> m_config;
       std::unique_ptr<top::EgammaObjectCollectionMaker>    m_egammaMaker;
       std::unique_ptr<top::MuonObjectCollectionMaker>      m_muonMaker;
+      std::unique_ptr<top::SoftMuonObjectCollectionMaker>      m_softmuonMaker;
       std::unique_ptr<top::TauObjectCollectionMaker>       m_tauMaker;
       std::unique_ptr<top::JetObjectCollectionMaker>       m_jetMaker; 
       std::unique_ptr<top::MissingETObjectCollectionMaker> m_metMaker;

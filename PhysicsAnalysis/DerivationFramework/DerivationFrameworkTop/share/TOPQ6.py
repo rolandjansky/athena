@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # TOPQ6
 # SINGLE TOP SELECTION
@@ -22,8 +24,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -38,7 +40,7 @@ TOPQ6Stream.AcceptAlgs(["TOPQ6Kernel"])
 # PDF Weight Metadata
 #====================================================================
 if DFisMC:
-  from DerivationFrameworkCore.WeightMetadata import *
+    from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
 # TRIGGER NAVIGATION THINNING
@@ -67,9 +69,9 @@ thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ6',TOPQ6Thi
 #====================================================================
 doSimpleV0Finder = False
 if doSimpleV0Finder:
-  include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
+    include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
 else:
-  include("DerivationFrameworkBPhys/configureV0Finder.py")
+    include("DerivationFrameworkBPhys/configureV0Finder.py")
 
 TOPQ6_V0FinderTools = BPHYV0FinderTools("TOPQ6")
 print TOPQ6_V0FinderTools
@@ -130,8 +132,8 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ6Sequenc
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  TOPQ6Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    TOPQ6Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
 from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables

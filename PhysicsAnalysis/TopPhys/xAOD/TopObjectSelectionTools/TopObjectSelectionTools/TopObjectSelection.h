@@ -31,6 +31,7 @@
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
 #include "TopObjectSelectionTools/FwdElectronSelectionBase.h"
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
+#include "TopObjectSelectionTools/SoftMuonSelectionBase.h"
 #include "TopObjectSelectionTools/JetSelectionBase.h"
 #include "TopObjectSelectionTools/TauSelectionBase.h"
 #include "TopObjectSelectionTools/PhotonSelectionBase.h"
@@ -45,6 +46,9 @@
 // b-tagging
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "TopEvent/Event.h"
+
+#include "xAODMuon/MuonContainer.h"
+#include "xAODJet/JetContainer.h"
 
 // forward declare
 namespace xAOD{
@@ -122,13 +126,24 @@ public:
      */
     void muonSelection(MuonSelectionBase* ptr);
     
-     /**
-     * @brief Set the code used to select taus.
+    /**
+     * @brief Set the code used to select soft muons.
      *
      * Note that nullptr means that no selection will be applied (so all
      * muons will be accepted).
      *
-     * @param ptr The code used to perform the muon selection (see
+     * @param ptr The code used to perform the soft muon selection (see
+     * TopObjectSelectionTools).
+     */
+    void softmuonSelection(SoftMuonSelectionBase* ptr);
+    
+     /**
+     * @brief Set the code used to select taus.
+     *
+     * Note that nullptr means that no selection will be applied (so all
+     * taus will be accepted).
+     *
+     * @param ptr The code used to perform the taus selection (see
      * TopObjectSelectionTools).
      */
     void tauSelection(TauSelectionBase* ptr);   
@@ -207,6 +222,7 @@ private:
     void applySelectionPreOverlapRemovalElectrons();
     void applySelectionPreOverlapRemovalFwdElectrons();
     void applySelectionPreOverlapRemovalMuons();
+    void applySelectionPreOverlapRemovalSoftMuons();
     void applySelectionPreOverlapRemovalTaus();
     void applySelectionPreOverlapRemovalJets();
     void applySelectionPreOverlapRemovalLargeRJets();
@@ -243,6 +259,9 @@ private:
 
     ///Muon selection code - can load user defined classes
     std::unique_ptr<top::MuonSelectionBase> m_muonSelection;
+    
+    ///Soft Muon selection code - can load user defined classes
+    std::unique_ptr<top::SoftMuonSelectionBase> m_softmuonSelection;
 
     ///Tau selection code - can load user defined classes
     std::unique_ptr<top::TauSelectionBase> m_tauSelection;
@@ -280,15 +299,11 @@ private:
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
     
-    // do decorate the large-R jets with the boosted-tagging flags 
-    // and decorate jets with TAccept object containing detailed tag result informaiton
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendation2017#TAcceptUsageSection
-    std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
-    
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;
     // Function to decorate event info
     void decorateEventInfoPostOverlapRemoval(int, bool);
+    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets);
 };
 }
 #endif

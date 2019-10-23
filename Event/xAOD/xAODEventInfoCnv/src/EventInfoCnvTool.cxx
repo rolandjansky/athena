@@ -159,7 +159,12 @@ namespace xAODMaker {
             if (aod->event_type()->mc_channel_number()==0){
                xaod->setMCChannelNumber( aod->event_ID()->run_number() );
             }
-            xaod->setMCEventNumber( aod->event_type()->mc_event_number() );
+            if (aod->event_type()->mc_event_number()!=0){
+               xaod->setMCEventNumber( aod->event_type()->mc_event_number() );
+            } else {
+               // In evgen, the MC event number is not yet set
+               xaod->setMCEventNumber( aod->event_ID()->event_number() );
+            }
             std::vector< float >
                eventWeights( aod->event_type()->n_mc_event_weights(), 0.0 );
             for( unsigned int i = 0; i < aod->event_type()->n_mc_event_weights();

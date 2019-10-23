@@ -115,7 +115,6 @@
 + PhysicsAnalysis/TopPhys/xAOD/TopEventReconstructionTools
 + PhysicsAnalysis/TopPhys/xAOD/TopEventSelectionTools
 + PhysicsAnalysis/TopPhys/xAOD/TopExamples
-+ PhysicsAnalysis/TopPhys/xAOD/TopFakes
 + PhysicsAnalysis/TopPhys/xAOD/TopHLUpgrade
 + PhysicsAnalysis/TopPhys/xAOD/TopJetSubstructure
 + PhysicsAnalysis/TopPhys/xAOD/TopObjectSelectionTools

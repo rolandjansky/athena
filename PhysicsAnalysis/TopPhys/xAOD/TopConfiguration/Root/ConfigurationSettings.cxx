@@ -88,6 +88,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
+    
+    registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise","False");
+    registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
+    registerParameter("SoftMuonEta", "Absolute Soft Muon eta cut for object selection. Default 2.5.", "2.5" );
+    registerParameter("SoftMuonQuality", "Soft Muon quality cut for object selection. Options are Loose, Medium, Tight (default), LowPt", "Tight");
+    registerParameter("SoftMuonDRJet", "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4", "0.4");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5" );
@@ -223,10 +229,6 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PerfStats"," I/O Performance printouts. None, Summary or Full" , "None");
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
     registerParameter("FilterBranches", "Comma separated list of names of the branches that will be removed from the output", " ");
-
-    registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
-    registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
-    registerParameter("FakesMMDebug","Enables debug mode for matrix-method weight calculation: True, False (default)", "False");
 
     registerParameter("FakesMMWeightsIFF","Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMConfigIFF",

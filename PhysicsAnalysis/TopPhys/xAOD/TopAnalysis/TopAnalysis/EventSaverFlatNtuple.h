@@ -274,6 +274,7 @@ private:
 
     // Store boosted jet tagger names
     std::vector<std::string> m_boostedJetTaggersNames;
+    std::vector<std::string> m_boostedJetTaggersNamesCalibrated;
 
     //some event weights
     float m_weight_mc;
@@ -460,8 +461,6 @@ private:
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> m_perjet_weight_trackjet_bTagSF_named_down;
 
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
-    /// m_fakesMM_weights[selection][configuration]
-    std::unordered_map<std::string,std::unordered_map<std::string, float>> m_fakesMM_weights;
     int m_ASMsize;
     std::vector<float> m_ASMweights;
     std::vector<std::vector<float> > m_ASMweights_Syst;
@@ -541,6 +540,29 @@ private:
     std::vector<float>  m_mu_prodVtx_z;
     std::vector<float>  m_mu_prodVtx_perp;
     std::vector<float>  m_mu_prodVtx_phi;
+    
+    //soft muons
+    std::vector<float> m_softmu_pt;
+    std::vector<float> m_softmu_eta;
+    std::vector<float> m_softmu_phi;
+    std::vector<float> m_softmu_e;
+    std::vector<float> m_softmu_charge;
+    std::vector<float> m_softmu_d0;
+    std::vector<float> m_softmu_d0sig;
+    std::vector<float> m_softmu_delta_z0_sintheta;
+    std::vector<int> m_softmu_true_type;
+    std::vector<int> m_softmu_true_origin;
+    std::vector<int> m_softmu_true_isPrompt;
+    std::vector<float> m_softmu_SF_ID;
+    std::vector<float> m_softmu_SF_ID_STAT_UP;
+    std::vector<float> m_softmu_SF_ID_STAT_DOWN;
+    std::vector<float> m_softmu_SF_ID_SYST_UP;
+    std::vector<float> m_softmu_SF_ID_SYST_DOWN;
+    std::vector<float> m_softmu_SF_ID_STAT_LOWPT_UP;
+    std::vector<float> m_softmu_SF_ID_STAT_LOWPT_DOWN;
+    std::vector<float> m_softmu_SF_ID_SYST_LOWPT_UP;
+    std::vector<float> m_softmu_SF_ID_SYST_LOWPT_DOWN;
+    
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
@@ -634,15 +656,10 @@ private:
     std::vector<float> m_ljet_e;
     std::vector<float> m_ljet_m;
     std::vector<float> m_ljet_sd12;
-
-    std::vector<char> m_ljet_isTopTagged_50;
-    std::vector<char> m_ljet_isTopTagged_80;
-    std::vector<char> m_ljet_isWTagged_80;
-    std::vector<char> m_ljet_isWTagged_50;
-    std::vector<char> m_ljet_isZTagged_80;
-    std::vector<char> m_ljet_isZTagged_50;
+    std::vector<int> m_ljet_truthLabel;
     
     std::unordered_map<std::string,std::vector<char> > m_ljet_isTagged;
+    std::unordered_map<std::string,std::vector<float> > m_ljet_tagSF;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -672,6 +689,7 @@ private:
     std::vector<std::string> m_VarRCJetMassScale;
     std::string m_egamma;      // egamma systematic naming scheme
     std::string m_muonsyst;    // muon systematic naming scheme
+    std::string m_softmuonsyst;    // soft muon systematic naming scheme
     std::string m_jetsyst;     // jet systematic naming scheme
     std::map<std::string,std::vector<float>> m_VarRCjetBranches;
     std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranches;
@@ -1127,10 +1145,6 @@ protected:
   const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_up() const { return m_perjet_weight_trackjet_bTagSF_named_up;}
   const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_down() const { return m_perjet_weight_trackjet_bTagSF_named_down;}
 
-  ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
-  /// m_fakesMM_weights[selection][configuration]
-  const std::unordered_map<std::string,std::unordered_map<std::string, float>>& fakesMM_weights() const { return m_fakesMM_weights;}
-
   /// Weights for bootstrapping
   const std::vector<int>& weight_poisson() const { return m_weight_poisson;}
 
@@ -1195,6 +1209,19 @@ protected:
   const std::vector<int>& mu_true_type() const { return m_mu_true_type;}
   const std::vector<int>& mu_true_origin() const { return m_mu_true_origin;}
   const std::vector<char>& mu_true_isPrompt() const { return m_mu_true_isPrompt;}
+  
+  //soft muons
+  const std::vector<float>& softmu_pt() const { return m_softmu_pt;}
+  const std::vector<float>& softmu_eta() const { return m_softmu_eta;}
+  const std::vector<float>& softmu_phi() const { return m_softmu_phi;}
+  const std::vector<float>& softmu_e() const { return m_softmu_e;}
+  const std::vector<float>& softmu_charge() const { return m_softmu_charge;}
+  const std::vector<float>& softmu_d0() const { return m_softmu_d0;}
+  const std::vector<float>& softmu_d0sig() const { return m_softmu_d0sig;}
+  const std::vector<float>& softmu_delta_z0_sintheta() const { return m_softmu_delta_z0_sintheta;}
+  const std::vector<int>& softmu_true_type() const { return m_softmu_true_type;}
+  const std::vector<int>& softmu_true_origin() const { return m_softmu_true_origin;}
+  const std::vector<int>& softmu_true_isPrompt() const { return m_softmu_true_isPrompt;}
 
   //photons
   const std::vector<float>& ph_pt() const { return m_ph_pt;}
@@ -1251,12 +1278,7 @@ protected:
   const std::vector<float>& ljet_e() const { return m_ljet_e;}
   const std::vector<float>& ljet_m() const { return m_ljet_m;}
   const std::vector<float>& ljet_sd12() const { return m_ljet_sd12;}
-  const std::vector<char>& ljet_isTopTagged_50() const { return m_ljet_isTopTagged_50;}
-  const std::vector<char>& ljet_isTopTagged_80() const { return m_ljet_isTopTagged_80;}
-  const std::vector<char>& ljet_isWTagged_80() const { return m_ljet_isWTagged_80;}
-  const std::vector<char>& ljet_isWTagged_50() const { return m_ljet_isWTagged_50;}
-  const std::vector<char>& ljet_isZTagged_80() const { return m_ljet_isZTagged_80;}
-  const std::vector<char>& ljet_isZTagged_50() const { return m_ljet_isZTagged_50;}
+  const std::vector<int>& ljet_truthLabel() const { return m_ljet_truthLabel;}
   
   const std::unordered_map<std::string,std::vector<char> >& ljet_isTagged() const { return m_ljet_isTagged;}
   const std::vector<char>& ljet_isTagged(const std::string& taggerName) { return m_ljet_isTagged[taggerName];}
@@ -1281,6 +1303,7 @@ protected:
   const std::vector<std::string>& VarRCJetMassScale() const { return m_VarRCJetMassScale;}
   const std::string& egamma() const { return m_egamma;} // egamma systematic naming scheme
   const std::string& muonsyst() const { return m_muonsyst;} // muon systematic naming scheme
+  const std::string& softmuonsyst() const { return m_softmuonsyst;} // soft muon systematic naming scheme
   const std::string& jetsyst() const { return m_jetsyst;} // jet systematic naming scheme
   const std::map<std::string,std::vector<float>>& VarRCjetBranches() const { return m_VarRCjetBranches;}
   const std::map<std::string,std::vector<std::vector<float>>>& VarRCjetsubBranches() const { return m_VarRCjetsubBranches;}

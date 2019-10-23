@@ -27,7 +27,6 @@ TauCPTools::TauCPTools(const std::string& name) :
     asg::AsgTool(name),
     m_pileupReweightingTool("CP::PileupReweightingTool"){
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 
   declareProperty( "TauSmearingTool" , m_tauSmearingTool );
 }

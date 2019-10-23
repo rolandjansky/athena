@@ -40,8 +40,6 @@ class EgammaCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
 
-  int m_release_series = 24;  // Default to 2.4
-
   std::string m_electronEffTriggerFile;
   std::string m_electronEffTriggerLooseFile;
   std::string m_electronEffSFTriggerFile;

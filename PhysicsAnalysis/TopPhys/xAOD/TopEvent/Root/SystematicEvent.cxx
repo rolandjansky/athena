@@ -22,6 +22,7 @@ namespace xAOD{
     AUX_VARIABLE( goodElectrons );
     AUX_VARIABLE( goodFwdElectrons );
     AUX_VARIABLE( goodMuons );
+    AUX_VARIABLE( goodSoftMuons );
     AUX_VARIABLE( goodTaus );
     AUX_VARIABLE( goodJets );
     AUX_VARIABLE( goodLargeRJets ); 
@@ -41,6 +42,7 @@ namespace xAOD{
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodElectrons , setGoodElectrons )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodFwdElectrons , setGoodFwdElectrons )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodMuons , setGoodMuons )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodSoftMuons , setGoodSoftMuons )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodTaus , setGoodTaus )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodJets , setGoodJets )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( SystematicEvent , std::vector<unsigned int> , goodLargeRJets , setGoodLargeRJets ) 

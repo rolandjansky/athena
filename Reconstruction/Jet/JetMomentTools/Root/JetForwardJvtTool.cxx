@@ -115,7 +115,7 @@
       ATH_MSG_WARNING("Unable to retrieve MET_Track container");
     }
     const xAOD::VertexContainer *vxCont = 0;
-    if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
+    if( evtStore()->retrieve(vxCont,"PrimaryVertices").isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     }
     for(const auto& vx : *vxCont) {
@@ -194,13 +194,16 @@
   void JetForwardJvtTool::getPV() const {
     const xAOD::VertexContainer *vxCont = 0;
     m_pvind = 0;
-    if (m_useFirstVertex) return;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     } else if(vxCont->empty()) {
       ATH_MSG_WARNING("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      if (m_useFirstVertex && vxCont->size()) {
+        m_pvind = vxCont->at(0)->index();
+        return;
+      }
       for(const auto& vx : *vxCont) {
         if(vx->vertexType()==xAOD::VxType::PriVtx)
           {m_pvind = vx->index(); break;}

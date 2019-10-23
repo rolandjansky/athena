@@ -802,6 +802,52 @@ namespace top {
     // This should never happen
     throw std::runtime_error("Something has gone wrong in mu ID SF retrieval");
   }
+  
+  float ScaleFactorRetriever::softmuonSF_ID(const xAOD::Muon& x,
+                                             const top::topSFSyst SFSyst) const {
+    return softmuonSF_ID(x, m_config->softmuonQuality(), SFSyst);
+  }
+  
+  float ScaleFactorRetriever::softmuonSF_ID(const xAOD::Muon& x,
+                                        const std::string& id,
+                                        const top::topSFSyst SFSyst) const {
+    
+    std::string decoration = "SOFTMU_SF_ID_"+id;
+    switch (SFSyst) {
+    case top::topSFSyst::MU_SF_ID_STAT_UP:
+      decoration += "_STAT_UP";
+      break;
+    case top::topSFSyst::MU_SF_ID_STAT_DOWN:
+      decoration += "_STAT_DOWN";
+      break;
+    case top::topSFSyst::MU_SF_ID_SYST_UP:
+      decoration += "_SYST_UP";
+      break;
+    case top::topSFSyst::MU_SF_ID_SYST_DOWN:
+      decoration += "_SYST_DOWN";
+      break;
+    case top::topSFSyst::MU_SF_ID_STAT_LOWPT_UP:
+      decoration += "_STAT_LOWPT_UP";
+      break;
+    case top::topSFSyst::MU_SF_ID_STAT_LOWPT_DOWN:
+      decoration += "_STAT_LOWPT_DOWN";
+      break;
+    case top::topSFSyst::MU_SF_ID_SYST_LOWPT_UP:
+      decoration += "_SYST_LOWPT_UP";
+      break;
+    case top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN:
+      decoration += "_SYST_LOWPT_DOWN";
+      break;
+    default:
+      // Do nothing, we have the decoration already
+      break;
+    }
+
+    return x.auxdataConst<float>(decoration);
+    
+    // This should never happen
+    throw std::runtime_error("Something has gone wrong in mu ID SF retrieval");
+  }
                              
   float ScaleFactorRetriever::muonSF_Isol(const xAOD::Muon& x,
                                           const top::topSFSyst SFSyst,

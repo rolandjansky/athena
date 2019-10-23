@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # TOPQ1
 # SINGLE TOP SELECTION
@@ -21,8 +23,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -37,7 +39,7 @@ TOPQ1Stream.AcceptAlgs(["TOPQ1Kernel"])
 # PDF Weight Metadata
 #====================================================================
 if DFisMC:
-  from DerivationFrameworkCore.WeightMetadata import *
+    from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
 # TRIGGER NAVIGATION THINNING
@@ -66,9 +68,9 @@ thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ1',TOPQ1Thi
 #====================================================================
 doSimpleV0Finder = False
 if doSimpleV0Finder:
-  include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
+    include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
 else:
-  include("DerivationFrameworkBPhys/configureV0Finder.py")
+    include("DerivationFrameworkBPhys/configureV0Finder.py")
 
 TOPQ1_V0FinderTools = BPHYV0FinderTools("TOPQ1")
 print TOPQ1_V0FinderTools
@@ -165,15 +167,15 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ1Sequenc
 # Quark-gluon tagging
 truthjetalg='AntiKt4TruthJets'
 if not DFisMC:
-  truthjetalg=None
+    truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  TOPQ1Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    TOPQ1Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
 from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables

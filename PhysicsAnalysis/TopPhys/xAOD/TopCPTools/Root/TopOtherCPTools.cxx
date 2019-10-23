@@ -29,7 +29,6 @@ namespace top {
 OtherCPTools::OtherCPTools(const std::string& name) :
     asg::AsgTool(name) {
   declareProperty("config", m_config);
-  declareProperty("release_series", m_release_series );
 
   declareProperty( "GRLTool" , m_grlTool );
 }

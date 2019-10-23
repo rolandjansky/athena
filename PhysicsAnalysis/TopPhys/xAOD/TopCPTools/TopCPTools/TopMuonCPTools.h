@@ -36,8 +36,6 @@ class MuonCPTools final : public asg::AsgTool {
  private:
   std::shared_ptr<top::TopConfig> m_config;
 
-  int m_release_series = 25;  // Default to R21
-
   ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationPeriodTool;
   // This is a new tool handle required to manage different sagitta correction recommendations re:2017 data
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d
@@ -61,6 +59,9 @@ class MuonCPTools final : public asg::AsgTool {
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLooseIso;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolPromptLeptonIso;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;
+  
+  ToolHandle<CP::IMuonSelectionTool> m_softmuonSelectionTool;
+  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_softmuonEfficiencyCorrectionsTool;
 
 
 
@@ -71,7 +72,7 @@ class MuonCPTools final : public asg::AsgTool {
     setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta);
 
   CP::IMuonTriggerScaleFactors*
-    setupMuonTrigSFTool(const std::string& name, const std::string& quality, const std::string& year);
+    setupMuonTrigSFTool(const std::string& name, const std::string& quality);
 
   CP::IMuonEfficiencyScaleFactors*
     setupMuonSFTool(const std::string& name, const std::string& WP);
