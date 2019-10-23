@@ -292,12 +292,12 @@ namespace Muon {
     ToolHandle<Trk::IUpdator>                        m_measurementUpdator{this, "MeasurementUpdator", "Trk::KalmanUpdator/MuonMeasUpdator"};
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator     {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"}; 
     ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compRotCreator    {this, "CompRotCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"};
-    ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator    {this, "MdtRotCreator", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
+    ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator    {this, "PullCalculator", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
     ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc      {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer           {this, "EdmPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper          {this, "MuonIdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer           {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper          {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
     ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc       {this, "MagFieldSvc", "AtlasFieldSvc"}; 
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
 
@@ -306,9 +306,9 @@ namespace Muon {
     Gaudi::Property<double> m_pullCut                 {this, "PullCut", 5.};
     Gaudi::Property<double> m_mdtResiCut              {this, "MdtResiCut", 1.};
     Gaudi::Property<double> m_pullCutPhi              {this, "PullCutPhi", 10.};
-    Gaudi::Property<double> m_avePullSumPerChamberCut {this, "CloneSegments", false};
     Gaudi::Property<double> m_associationScaleFactor  {this, "AssociationScaleFactor", 0.7};
     Gaudi::Property<unsigned int> m_ncycles           {this, "CleaningCycles", 5};
+    Gaudi::Property<double> m_avePullSumPerChamberCut  {this, "MaxAvePullSumPerChamber", 3.5};
     Gaudi::Property<bool> m_recoverOutliers           {this, "RecoverOutliers", true};
     Gaudi::Property<bool> m_flipMdtDriftRadii         {this, "FlipMdtDriftRadii", true};
     Gaudi::Property<bool> m_cleanCompROTs             {this, "CleanCompROTs", true};
