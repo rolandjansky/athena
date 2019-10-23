@@ -14,10 +14,8 @@ TrigTauCaloHypoAlgMT::TrigTauCaloHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigTauCaloHypoAlgMT::~TrigTauCaloHypoAlgMT() {}
 
 StatusCode TrigTauCaloHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );  
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_tauJetKey.initialize() );
   renounce( m_tauJetKey );// clusters are made in views, so they are not in the EvtStore: hide them
@@ -25,9 +23,6 @@ StatusCode TrigTauCaloHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTauCaloHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
