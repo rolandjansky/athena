@@ -9,7 +9,8 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                               deepCopyOutput = False,
                               shallowViewOutput = True,
                               postfix = '',
-                              ptSelectionOutput = False ):
+                              ptSelectionOutput = False,
+                              qualitySelectionOutput = True ):
     """Create a muon analysis algorithm sequence
 
     Keyword arguments:
@@ -25,6 +26,8 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                  names are unique.
       ptSelectionOutput -- Whether or not to apply pt selection when creating
                            output containers.
+      qualitySelectionOutput -- Whether or not to apply muon quality selection
+                                when creating output containers.
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -124,12 +127,14 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 2 )
 
+    # Setup the muon quality selection
+    qualitySelectionDecoration = 'good_muon' + postfix + ',as_bits'
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonQualitySelectionAlg' + postfix )
     alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionTool.MuQuality = quality
-    alg.selectionDecoration = 'good_muon' + postfix + ',as_bits'
+    alg.selectionDecoration = qualitySelectionDecoration
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
     selectionDecorNames.append( alg.selectionDecoration )
@@ -171,6 +176,8 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         selectionDecorNamesOutput = selectionDecorNames[ : ]
         if not ptSelectionOutput:
             selectionDecorNamesOutput.remove(ptSelectionDecoration)
+        if not qualitySelectionOutput:
+            selectionDecorNamesOutput.remove(qualitySelectionDecoration)
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
