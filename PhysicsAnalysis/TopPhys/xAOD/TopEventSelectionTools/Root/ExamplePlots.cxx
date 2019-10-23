@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopEventSelectionTools/ExamplePlots.h"
 
@@ -19,14 +19,13 @@
 #include "PATInterfaces/SystematicSet.h"
 
 namespace top {
+  const double ExamplePlots::toGeV = 0.001;
 
-const double ExamplePlots::toGeV = 0.001;
-
-  ExamplePlots::ExamplePlots(const std::string& name, TFile* outputFile, EL::Worker* wk, std::shared_ptr<top::TopConfig> config) :
+  ExamplePlots::ExamplePlots(const std::string& name, TFile* outputFile, EL::Worker* wk,
+                             std::shared_ptr<top::TopConfig> config) :
     m_hists(name, outputFile, wk), m_nominalHashValue(0) {
-
     m_config = config;
-    CP::SystematicSet nominal; 
+    CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
 
     m_hists.addHist("event_mu", ";<#mu>;Events", 25, 0., 50.);
@@ -86,7 +85,6 @@ const double ExamplePlots::toGeV = 0.001;
     if (m_config->isMC()) {
       m_hists.addHist("jet_truthflav", ";Jet truth flavor;Jets", 20, 0., 20.);
       m_hists.addHist("jet_btagSF_MV2c10_77", ";Jet btag SF;Jets", 100, 0.5, 1.5);
-
     }
     m_hists.addHist("jet_isbtagged_MV2c10_77", ";Jet is b-tagged;Jets", 2, 0., 2.);
 
@@ -150,248 +148,238 @@ const double ExamplePlots::toGeV = 0.001;
 
     m_hists.addHist("event_met_et", ";MET / GeV;Events", 50, 0., 400.);
     m_hists.addHist("event_met_phi", ";MET #phi;Events", 20, -M_PI, M_PI);
-}
+  }
 
-bool ExamplePlots::apply(const top::Event& event) const {
+  bool ExamplePlots::apply(const top::Event& event) const {
     //only nominal
-    
-    if (event.m_hashValue != m_nominalHashValue)
-        return true;
+
+    if (event.m_hashValue != m_nominalHashValue) return true;
 
     //only plot tight selection
     //before, we were plotting tight and loose together
-    if (event.m_isLoose)
-        return true;
+    if (event.m_isLoose) return true;
 
     //std::cout << event << std::endl;
 
     double eventWeight = 1.;
-    if (top::isSimulation(event))
-        eventWeight = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
+    if (top::isSimulation(event)) eventWeight = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     if (m_config->isMC()) {
       m_hists.hist("mc_weight")->Fill(eventWeight, eventWeight);
       m_hists.hist("jvt_SF")->Fill(event.m_jvtSF, eventWeight);
 
       //pileup weight needs pileup reweighting tool to have run
-      if (top::ScaleFactorRetriever::hasPileupSF(event))
-          m_hists.hist("pileup_weight")->Fill(top::ScaleFactorRetriever::pileupSF(event), eventWeight);
+      if (top::ScaleFactorRetriever::hasPileupSF(event)) m_hists.hist("pileup_weight")->Fill(top::ScaleFactorRetriever::pileupSF(
+                                                                                               event), eventWeight);
     }
 
     m_hists.hist("event_mu")->Fill(event.m_info->averageInteractionsPerCrossing(), eventWeight);
 
     m_hists.hist("el_n")->Fill(event.m_electrons.size(), eventWeight);
     for (const auto* const elPtr : event.m_electrons) {
-        m_hists.hist("el_pt")     -> Fill(elPtr->pt() * toGeV, eventWeight);
-        m_hists.hist("el_eta")    -> Fill(elPtr->eta(),        eventWeight);
-        m_hists.hist("el_phi")    -> Fill(elPtr->phi(),        eventWeight);
-        m_hists.hist("el_charge") -> Fill(elPtr->charge(),     eventWeight);
+      m_hists.hist("el_pt")->Fill(elPtr->pt() * toGeV, eventWeight);
+      m_hists.hist("el_eta")->Fill(elPtr->eta(), eventWeight);
+      m_hists.hist("el_phi")->Fill(elPtr->phi(), eventWeight);
+      m_hists.hist("el_charge")->Fill(elPtr->charge(), eventWeight);
 
-        //protection from the derivation framework -
-        //So far we keep tracks associated with "good" electrons.
-        //It could be you have a super-loose selection here (just for testing)
-        //so we need to check if the electron has a track associated with it
-        if (elPtr->trackParticle())
-            m_hists.hist("el_trkpart_charge")->Fill(elPtr->trackParticle()->charge(), eventWeight);
+      //protection from the derivation framework -
+      //So far we keep tracks associated with "good" electrons.
+      //It could be you have a super-loose selection here (just for testing)
+      //so we need to check if the electron has a track associated with it
+      if (elPtr->trackParticle()) m_hists.hist("el_trkpart_charge")->Fill(elPtr->trackParticle()->charge(),
+                                                                          eventWeight);
 
-	//retrieve the truth-matching variables from MCTruthClassifier
-	if (m_config->isMC()) {
-	  static SG::AuxElement::Accessor<int> typeel("truthType");
-	  if (typeel.isAvailable(*elPtr)) m_hists.hist("el_true_type")->Fill(typeel(*elPtr), eventWeight);
-	}
+      //retrieve the truth-matching variables from MCTruthClassifier
+      if (m_config->isMC()) {
+        static SG::AuxElement::Accessor<int> typeel("truthType");
+        if (typeel.isAvailable(*elPtr)) m_hists.hist("el_true_type")->Fill(typeel(*elPtr), eventWeight);
+      }
 
-        //testing isolation in the derivation framework
-        float iso = 0;
+      //testing isolation in the derivation framework
+      float iso = 0;
 
-        if (elPtr->isolationValue(iso, xAOD::Iso::topoetcone20))
-            m_hists.hist("el_topoetcone20")->Fill(iso * toGeV, eventWeight);
+      if (elPtr->isolationValue(iso, xAOD::Iso::topoetcone20)) m_hists.hist("el_topoetcone20")->Fill(iso * toGeV,
+                                                                                                     eventWeight);
 
-        if (elPtr->isolationValue(iso, xAOD::Iso::topoetcone30))
-            m_hists.hist("el_topoetcone30")->Fill(iso * toGeV, eventWeight);
+      if (elPtr->isolationValue(iso, xAOD::Iso::topoetcone30)) m_hists.hist("el_topoetcone30")->Fill(iso * toGeV,
+                                                                                                     eventWeight);
 
-        if (elPtr->isolationValue(iso, xAOD::Iso::topoetcone40))
-            m_hists.hist("el_topoetcone40")->Fill(iso * toGeV, eventWeight);
+      if (elPtr->isolationValue(iso, xAOD::Iso::topoetcone40)) m_hists.hist("el_topoetcone40")->Fill(iso * toGeV,
+                                                                                                     eventWeight);
 
-        if (elPtr->isolationValue(iso, xAOD::Iso::ptcone20))
-            m_hists.hist("el_ptcone20")->Fill(iso * toGeV, eventWeight);
+      if (elPtr->isolationValue(iso, xAOD::Iso::ptcone20)) m_hists.hist("el_ptcone20")->Fill(iso * toGeV, eventWeight);
 
-        if (elPtr->isolationValue(iso, xAOD::Iso::ptcone30))
-            m_hists.hist("el_ptcone30")->Fill(iso * toGeV, eventWeight);
+      if (elPtr->isolationValue(iso, xAOD::Iso::ptcone30)) m_hists.hist("el_ptcone30")->Fill(iso * toGeV, eventWeight);
 
-        if (elPtr->isolationValue(iso, xAOD::Iso::ptcone40))
-            m_hists.hist("el_ptcone40")->Fill(iso * toGeV, eventWeight);
+      if (elPtr->isolationValue(iso, xAOD::Iso::ptcone40)) m_hists.hist("el_ptcone40")->Fill(iso * toGeV, eventWeight);
 
-        if (elPtr->isAvailable<float>("ptvarcone20")) {
-            float ptvarcone20 = elPtr->auxdataConst<float>("ptvarcone20");
-            m_hists.hist("el_ptvarcone20")->Fill(ptvarcone20 * toGeV, eventWeight);
-        }
+      if (elPtr->isAvailable<float>("ptvarcone20")) {
+        float ptvarcone20 = elPtr->auxdataConst<float>("ptvarcone20");
+        m_hists.hist("el_ptvarcone20")->Fill(ptvarcone20 * toGeV, eventWeight);
+      }
 
-        if (elPtr->isAvailable<float>("ptvarcone30")) {
-            float ptvarcone30 = elPtr->auxdataConst<float>("ptvarcone30");
-            m_hists.hist("el_ptvarcone30")->Fill(ptvarcone30 * toGeV, eventWeight);
-        }
+      if (elPtr->isAvailable<float>("ptvarcone30")) {
+        float ptvarcone30 = elPtr->auxdataConst<float>("ptvarcone30");
+        m_hists.hist("el_ptvarcone30")->Fill(ptvarcone30 * toGeV, eventWeight);
+      }
 
-        if (elPtr->isAvailable<float>("ptvarcone40")) {
-            float ptvarcone40 = elPtr->auxdataConst<float>("ptvarcone40");
-            m_hists.hist("el_ptvarcone40")->Fill(ptvarcone40 * toGeV, eventWeight);
-        }
+      if (elPtr->isAvailable<float>("ptvarcone40")) {
+        float ptvarcone40 = elPtr->auxdataConst<float>("ptvarcone40");
+        m_hists.hist("el_ptvarcone40")->Fill(ptvarcone40 * toGeV, eventWeight);
+      }
     }
 
     m_hists.hist("mu_n")->Fill(event.m_muons.size(), eventWeight);
     for (const auto* const muPtr : event.m_muons) {
-        m_hists.hist("mu_pt")->Fill(muPtr->pt() * toGeV, eventWeight);
-        m_hists.hist("mu_eta")->Fill(muPtr->eta(), eventWeight);
-        m_hists.hist("mu_phi")->Fill(muPtr->phi(), eventWeight);
+      m_hists.hist("mu_pt")->Fill(muPtr->pt() * toGeV, eventWeight);
+      m_hists.hist("mu_eta")->Fill(muPtr->eta(), eventWeight);
+      m_hists.hist("mu_phi")->Fill(muPtr->phi(), eventWeight);
 
-        //protection from derivation framework removing tracks
-	const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
-        if (mutrack!=nullptr) {
-	    m_hists.hist("mu_charge")->Fill(mutrack->charge(), eventWeight);
-	    if (m_config->isMC()) {
-	        static SG::AuxElement::Accessor<int> acc_mctt("truthType");
-		if (acc_mctt.isAvailable(*mutrack)) m_hists.hist("mu_true_type")->Fill(acc_mctt(*mutrack), eventWeight);
-	    }
-	}
-
-        //testing isolation in the derivation framework
-        float iso = 0;
-
-        if (muPtr->isAvailable<float>("topoetcone20") && muPtr->isolation(iso, xAOD::Iso::topoetcone20))
-            m_hists.hist("mu_topoetcone20")->Fill(iso * toGeV, eventWeight);
-
-        if (muPtr->isAvailable<float>("topoetcone30") && muPtr->isolation(iso, xAOD::Iso::topoetcone30))
-            m_hists.hist("mu_topoetcone30")->Fill(iso * toGeV, eventWeight);
-
-        if (muPtr->isAvailable<float>("topoetcone40") && muPtr->isolation(iso, xAOD::Iso::topoetcone40))
-            m_hists.hist("mu_topoetcone40")->Fill(iso * toGeV, eventWeight);
-
-        if (muPtr->isolation(iso, xAOD::Iso::ptcone20))
-            m_hists.hist("mu_ptcone20")->Fill(iso * toGeV, eventWeight);
-
-        if (muPtr->isolation(iso, xAOD::Iso::ptcone30))
-            m_hists.hist("mu_ptcone30")->Fill(iso * toGeV, eventWeight);
-
-        if (muPtr->isolation(iso, xAOD::Iso::ptcone40))
-            m_hists.hist("mu_ptcone40")->Fill(iso * toGeV, eventWeight);
-
-        if (muPtr->isAvailable<float>("ptvarcone20")) {
-            float ptvarcone20 = muPtr->auxdataConst<float>("ptvarcone20");
-            m_hists.hist("mu_ptvarcone20")->Fill(ptvarcone20 * toGeV, eventWeight);
+      //protection from derivation framework removing tracks
+      const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
+      if (mutrack != nullptr) {
+        m_hists.hist("mu_charge")->Fill(mutrack->charge(), eventWeight);
+        if (m_config->isMC()) {
+          static SG::AuxElement::Accessor<int> acc_mctt("truthType");
+          if (acc_mctt.isAvailable(*mutrack)) m_hists.hist("mu_true_type")->Fill(acc_mctt(*mutrack), eventWeight);
         }
+      }
 
-        if (muPtr->isAvailable<float>("ptvarcone30")) {
-            float ptvarcone30 = muPtr->auxdataConst<float>("ptvarcone30");
-            m_hists.hist("mu_ptvarcone30")->Fill(ptvarcone30 * toGeV, eventWeight);
-        }
+      //testing isolation in the derivation framework
+      float iso = 0;
 
-        if (muPtr->isAvailable<float>("ptvarcone40")) {
-            float ptvarcone40 = muPtr->auxdataConst<float>("ptvarcone40");
-            m_hists.hist("mu_ptvarcone40")->Fill(ptvarcone40 * toGeV, eventWeight);
-        }
+      if (muPtr->isAvailable<float>("topoetcone20") && muPtr->isolation(iso, xAOD::Iso::topoetcone20)) m_hists.hist(
+          "mu_topoetcone20")->Fill(iso * toGeV, eventWeight);
+
+      if (muPtr->isAvailable<float>("topoetcone30") && muPtr->isolation(iso, xAOD::Iso::topoetcone30)) m_hists.hist(
+          "mu_topoetcone30")->Fill(iso * toGeV, eventWeight);
+
+      if (muPtr->isAvailable<float>("topoetcone40") && muPtr->isolation(iso, xAOD::Iso::topoetcone40)) m_hists.hist(
+          "mu_topoetcone40")->Fill(iso * toGeV, eventWeight);
+
+      if (muPtr->isolation(iso, xAOD::Iso::ptcone20)) m_hists.hist("mu_ptcone20")->Fill(iso * toGeV, eventWeight);
+
+      if (muPtr->isolation(iso, xAOD::Iso::ptcone30)) m_hists.hist("mu_ptcone30")->Fill(iso * toGeV, eventWeight);
+
+      if (muPtr->isolation(iso, xAOD::Iso::ptcone40)) m_hists.hist("mu_ptcone40")->Fill(iso * toGeV, eventWeight);
+
+      if (muPtr->isAvailable<float>("ptvarcone20")) {
+        float ptvarcone20 = muPtr->auxdataConst<float>("ptvarcone20");
+        m_hists.hist("mu_ptvarcone20")->Fill(ptvarcone20 * toGeV, eventWeight);
+      }
+
+      if (muPtr->isAvailable<float>("ptvarcone30")) {
+        float ptvarcone30 = muPtr->auxdataConst<float>("ptvarcone30");
+        m_hists.hist("mu_ptvarcone30")->Fill(ptvarcone30 * toGeV, eventWeight);
+      }
+
+      if (muPtr->isAvailable<float>("ptvarcone40")) {
+        float ptvarcone40 = muPtr->auxdataConst<float>("ptvarcone40");
+        m_hists.hist("mu_ptvarcone40")->Fill(ptvarcone40 * toGeV, eventWeight);
+      }
     }
 
     m_hists.hist("ph_n")->Fill(event.m_photons.size(), eventWeight);
     for (const auto* const phPtr : event.m_photons) {
-        m_hists.hist("ph_pt")     -> Fill(phPtr->pt() * toGeV, eventWeight);
-        m_hists.hist("ph_eta")    -> Fill(phPtr->eta(),        eventWeight);
-        m_hists.hist("ph_phi")    -> Fill(phPtr->phi(),        eventWeight);
-        m_hists.hist("ph_e")      -> Fill(phPtr->e() * toGeV,  eventWeight);
-        if (phPtr->isAvailable<float>("ptvarcone20")) {
-            float ptvarcone20 = phPtr->auxdataConst<float>("ptvarcone20");
-            m_hists.hist("ph_ptvarcone20")->Fill(ptvarcone20 * toGeV, eventWeight);
-        }
+      m_hists.hist("ph_pt")->Fill(phPtr->pt() * toGeV, eventWeight);
+      m_hists.hist("ph_eta")->Fill(phPtr->eta(), eventWeight);
+      m_hists.hist("ph_phi")->Fill(phPtr->phi(), eventWeight);
+      m_hists.hist("ph_e")->Fill(phPtr->e() * toGeV, eventWeight);
+      if (phPtr->isAvailable<float>("ptvarcone20")) {
+        float ptvarcone20 = phPtr->auxdataConst<float>("ptvarcone20");
+        m_hists.hist("ph_ptvarcone20")->Fill(ptvarcone20 * toGeV, eventWeight);
+      }
     }
 
     m_hists.hist("jet_n")->Fill(event.m_jets.size(), eventWeight);
     unsigned int i = 0;
-    std::array<std::string, 4> numbers{ {"jet0", "jet1", "jet2", "jet3"} };
+    std::array<std::string, 4> numbers {{
+                                          "jet0", "jet1", "jet2", "jet3"
+                                        }};
 
     for (const auto* const jetPtr : event.m_jets) {
-        m_hists.hist("jet_pt")     -> Fill(jetPtr->pt() * toGeV, eventWeight);
-        m_hists.hist("jet_eta")    -> Fill(jetPtr->eta(), eventWeight);
-        m_hists.hist("jet_phi")    -> Fill(jetPtr->phi(), eventWeight);
-        m_hists.hist("jet_e")      -> Fill(jetPtr->e() * toGeV, eventWeight);
+      m_hists.hist("jet_pt")->Fill(jetPtr->pt() * toGeV, eventWeight);
+      m_hists.hist("jet_eta")->Fill(jetPtr->eta(), eventWeight);
+      m_hists.hist("jet_phi")->Fill(jetPtr->phi(), eventWeight);
+      m_hists.hist("jet_e")->Fill(jetPtr->e() * toGeV, eventWeight);
 
-        double mv2c10_discriminant = 0.;
-        const bool hasmv2c10 = jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
-        if (hasmv2c10){
-            m_hists.hist("jet_mv2c10")->Fill(mv2c10_discriminant, eventWeight);
-	    
-	}
+      double mv2c10_discriminant = 0.;
+      const bool hasmv2c10 = jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
+      if (hasmv2c10) {
+        m_hists.hist("jet_mv2c10")->Fill(mv2c10_discriminant, eventWeight);
+      }
 
-        int jet_truthflav = -1;
-	if (m_config->isMC()) {
-	    if(jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")){
-	        jetPtr->getAttribute("HadronConeExclTruthLabelID", jet_truthflav);
-                m_hists.hist("jet_truthflav")->Fill(jet_truthflav, eventWeight);
-	    }
-	}
+      int jet_truthflav = -1;
+      if (m_config->isMC()) {
+        if (jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")) {
+          jetPtr->getAttribute("HadronConeExclTruthLabelID", jet_truthflav);
+          m_hists.hist("jet_truthflav")->Fill(jet_truthflav, eventWeight);
+        }
+      }
 
-	int isbtagged = 0;
-        bool hasBtag = false;
-        float btagSF = 1.;
-        bool hasBtagSF = false;
-        hasBtag = jetPtr->isAvailable<char>("isbtagged_MV2c10_FixedCutBEff_77");
-        if(hasBtag) {
-          isbtagged = jetPtr->auxdataConst<char>("isbtagged_MV2c10_FixedCutBEff_77");
-          m_hists.hist("jet_isbtagged_MV2c10_77")->Fill(isbtagged, eventWeight);
-          if (m_config->isMC()) {
-            if (jetPtr -> isAvailable<float>("btag_SF_MV2c10_FixedCutBEff_77_nom")) {
-              btagSF = jetPtr -> auxdataConst<float>("btag_SF_MV2c10_FixedCutBEff_77_nom");
-              m_hists.hist("jet_btagSF_MV2c10_77")->Fill(btagSF, eventWeight);
-              hasBtagSF = true;
-            }
+      int isbtagged = 0;
+      bool hasBtag = false;
+      float btagSF = 1.;
+      bool hasBtagSF = false;
+      hasBtag = jetPtr->isAvailable<char>("isbtagged_MV2c10_FixedCutBEff_77");
+      if (hasBtag) {
+        isbtagged = jetPtr->auxdataConst<char>("isbtagged_MV2c10_FixedCutBEff_77");
+        m_hists.hist("jet_isbtagged_MV2c10_77")->Fill(isbtagged, eventWeight);
+        if (m_config->isMC()) {
+          if (jetPtr->isAvailable<float>("btag_SF_MV2c10_FixedCutBEff_77_nom")) {
+            btagSF = jetPtr->auxdataConst<float>("btag_SF_MV2c10_FixedCutBEff_77_nom");
+            m_hists.hist("jet_btagSF_MV2c10_77")->Fill(btagSF, eventWeight);
+            hasBtagSF = true;
           }
         }
+      }
 
-        if (i < numbers.size()) {
-            m_hists.hist(numbers[i] + "_pt")     -> Fill(jetPtr->pt() * toGeV, eventWeight);
-            m_hists.hist(numbers[i] + "_eta")    -> Fill(jetPtr->eta(),        eventWeight);
-            m_hists.hist(numbers[i] + "_phi")    -> Fill(jetPtr->phi(),        eventWeight);
-            m_hists.hist(numbers[i] + "_e")      -> Fill(jetPtr->e() * toGeV,  eventWeight);
-            m_hists.hist(numbers[i] + "_mv2c10") -> Fill(mv2c10_discriminant, eventWeight);
-	    if(hasBtag) m_hists.hist(numbers[i] + "_isbtagged_MV2c10_77")->Fill(isbtagged, eventWeight);
-            if (m_config->isMC()) {
-              if (hasBtagSF) m_hists.hist(numbers[i] + "_btagSF_MV2c10_77")->Fill(btagSF, eventWeight);
-              m_hists.hist(numbers[i] + "_truthflav")->Fill(jet_truthflav, eventWeight);
-            }
+      if (i < numbers.size()) {
+        m_hists.hist(numbers[i] + "_pt")->Fill(jetPtr->pt() * toGeV, eventWeight);
+        m_hists.hist(numbers[i] + "_eta")->Fill(jetPtr->eta(), eventWeight);
+        m_hists.hist(numbers[i] + "_phi")->Fill(jetPtr->phi(), eventWeight);
+        m_hists.hist(numbers[i] + "_e")->Fill(jetPtr->e() * toGeV, eventWeight);
+        m_hists.hist(numbers[i] + "_mv2c10")->Fill(mv2c10_discriminant, eventWeight);
+        if (hasBtag) m_hists.hist(numbers[i] + "_isbtagged_MV2c10_77")->Fill(isbtagged, eventWeight);
+        if (m_config->isMC()) {
+          if (hasBtagSF) m_hists.hist(numbers[i] + "_btagSF_MV2c10_77")->Fill(btagSF, eventWeight);
+          m_hists.hist(numbers[i] + "_truthflav")->Fill(jet_truthflav, eventWeight);
         }
+      }
 
 
-        ++i;
+      ++i;
     }
 
-    m_hists.hist("ljet_n") -> Fill(event.m_largeJets.size(), eventWeight);
+    m_hists.hist("ljet_n")->Fill(event.m_largeJets.size(), eventWeight);
     for (const auto* const jetPtr : event.m_largeJets) {
-        m_hists.hist("ljet_pt")     -> Fill(jetPtr->pt() * toGeV, eventWeight);
-        m_hists.hist("ljet_eta")    -> Fill(jetPtr->eta(), eventWeight);
-        m_hists.hist("ljet_phi")    -> Fill(jetPtr->phi(), eventWeight);
-        m_hists.hist("ljet_m")      -> Fill(jetPtr->m() * toGeV, eventWeight);
-        
-        float Split12 = 0;
-        jetPtr->getAttribute("Split12", Split12);
-        m_hists.hist("ljet_sd12")   -> Fill(Split12 * toGeV, eventWeight);
+      m_hists.hist("ljet_pt")->Fill(jetPtr->pt() * toGeV, eventWeight);
+      m_hists.hist("ljet_eta")->Fill(jetPtr->eta(), eventWeight);
+      m_hists.hist("ljet_phi")->Fill(jetPtr->phi(), eventWeight);
+      m_hists.hist("ljet_m")->Fill(jetPtr->m() * toGeV, eventWeight);
 
+      float Split12 = 0;
+      jetPtr->getAttribute("Split12", Split12);
+      m_hists.hist("ljet_sd12")->Fill(Split12 * toGeV, eventWeight);
     }
 
     m_hists.hist("taujet_n")->Fill(event.m_tauJets.size(), eventWeight);
     for (const auto* const tauPtr : event.m_tauJets) {
-        m_hists.hist("taujet_pt")     -> Fill(tauPtr->pt() * toGeV, eventWeight);
-        m_hists.hist("taujet_eta")    -> Fill(tauPtr->eta(),        eventWeight);
-        m_hists.hist("taujet_phi")    -> Fill(tauPtr->phi(),        eventWeight);
-        m_hists.hist("taujet_charge") -> Fill(tauPtr->charge(),     eventWeight);
+      m_hists.hist("taujet_pt")->Fill(tauPtr->pt() * toGeV, eventWeight);
+      m_hists.hist("taujet_eta")->Fill(tauPtr->eta(), eventWeight);
+      m_hists.hist("taujet_phi")->Fill(tauPtr->phi(), eventWeight);
+      m_hists.hist("taujet_charge")->Fill(tauPtr->charge(), eventWeight);
     }
 
     if (event.m_met != nullptr) {
-        m_hists.hist("event_met_et")  -> Fill(event.m_met->met() * toGeV, eventWeight);
-        m_hists.hist("event_met_phi") -> Fill(event.m_met->phi(),         eventWeight);
+      m_hists.hist("event_met_et")->Fill(event.m_met->met() * toGeV, eventWeight);
+      m_hists.hist("event_met_phi")->Fill(event.m_met->phi(), eventWeight);
     }
 
     return true;
-}
+  }
 
-std::string ExamplePlots::name() const {
+  std::string ExamplePlots::name() const {
     return "EXAMPLEPLOTS";
-}
-
+  }
 }

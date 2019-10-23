@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopExamples/MiniToFlatAnalysis.h"
 
@@ -29,20 +29,21 @@ namespace top {
 
     m_outputFileName("SetMe"),
     m_outputFile(nullptr) {
-    declareProperty("config" , m_config);
-    declareProperty("outputFileName" , m_outputFileName = "miniout.root");
+    declareProperty("config", m_config);
+    declareProperty("outputFileName", m_outputFileName = "miniout.root");
   }
 
   StatusCode MiniToFlatAnalysis::initialize() {
     m_topTools = std::unique_ptr<top::TopToolStore> (new top::TopToolStore("top::TopToolStore"));
-    top::check(m_topTools->setProperty("config", m_config) ,
+    top::check(m_topTools->setProperty("config", m_config),
                "Failed to set config for topTools");
-    top::check(m_topTools->initialize() , "Failed to initialize");
+    top::check(m_topTools->initialize(), "Failed to initialize");
 
-    m_sfCalc = std::unique_ptr<top::ScaleFactorCalculator> (new top::ScaleFactorCalculator("top::ScaleFactorCalculator"));
-    top::check(m_sfCalc->setProperty("config", m_config) ,
+    m_sfCalc =
+      std::unique_ptr<top::ScaleFactorCalculator> (new top::ScaleFactorCalculator("top::ScaleFactorCalculator"));
+    top::check(m_sfCalc->setProperty("config", m_config),
                "Failed to set config for sfCalc");
-    top::check(m_sfCalc->initialize() , "Failed to initialize");
+    top::check(m_sfCalc->initialize(), "Failed to initialize");
 
     m_evtMaker = std::unique_ptr<top::TopEventMaker>(new top::TopEventMaker("top::TopEventMaker"));
     top::check(m_evtMaker->setProperty("config", m_config),
@@ -59,9 +60,10 @@ namespace top {
 
   StatusCode MiniToFlatAnalysis::execute() {
     // Re-do Scale Factors - You cannot do this with a flat ntuple
-    top::check(m_sfCalc->execute() , "Failed to calculate scale factors");
+    top::check(m_sfCalc->execute(), "Failed to calculate scale factors");
 
-    const xAOD::SystematicEventContainer* allSystematics = m_evtMaker->systematicEvents(m_config->sgKeyTopSystematicEvents());
+    const xAOD::SystematicEventContainer* allSystematics = m_evtMaker->systematicEvents(
+      m_config->sgKeyTopSystematicEvents());
     // ATH_MSG_INFO(" Total number of SystematicEvents (inc Nominal) = "<<allSystematics->size());
 
     for (auto currentSystematic : *allSystematics) {
@@ -89,12 +91,10 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-
   StatusCode MiniToFlatAnalysis::finalize() {
     m_outputFile->cd();
     m_event_saver->finalize();
 
     return StatusCode::SUCCESS;
   }
-
 }  // namespace top

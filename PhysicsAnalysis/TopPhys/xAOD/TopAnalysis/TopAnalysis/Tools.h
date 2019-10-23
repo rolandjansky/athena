@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPTOOLS_H__
 #define TOPTOOLS_H__
@@ -21,8 +21,8 @@
  */
 
 namespace top {
-class TopObjectSelection;
-class EventSaverBase;
+  class TopObjectSelection;
+  class EventSaverBase;
 
 /**
  * @brief A little wrapper for the xAOD tools.  Also turns enabled the failure
@@ -31,7 +31,7 @@ class EventSaverBase;
  * @param failOnUnchecked Terminate the job on unchecked status codes by
  * default.
  */
-void xAODInit(bool failOnUnchecked = true);
+  void xAODInit(bool failOnUnchecked = true);
 
 /**
  * @brief Sometimes we need to know if we're running on a primary xAOD or a
@@ -45,7 +45,7 @@ void xAODInit(bool failOnUnchecked = true);
  * @param inputFile A pointer to the input file
  * @return True if this is a primary xAOD
  */
-bool isFilePrimaryxAOD(TFile* inputFile);
+  bool isFilePrimaryxAOD(TFile* inputFile);
 
 /**
  * @brief Some of our things need to know if the events are MC or data before
@@ -56,21 +56,21 @@ bool isFilePrimaryxAOD(TFile* inputFile);
  * @param eventInfoName Name of the EventInfo container in the xAOD
  * @return True if MC simulation, false for data
  */
-bool isFileSimulation(TFile* inputFile, const std::string& eventInfoName);
+  bool isFileSimulation(TFile* inputFile, const std::string& eventInfoName);
 
-bool isTruthDxAOD(TFile* inputFile);
+  bool isTruthDxAOD(TFile* inputFile);
 
-unsigned int getDSID(TFile* inputFile, const std::string& eventInfoName);
+  unsigned int getDSID(TFile* inputFile, const std::string& eventInfoName);
 
-/**                                                                                                                                                                                                           
+/**
  * @brief Some of our things need to know if the events are AFII or FullSim
- * for certain systematics.                                                                        
- *                                                                                                                                   
- * @param inputFile A pointer to the input file                                                                                                                                                              
- * @param eventInfoName Name of the EventInfo container in the xAOD                                                                                                                                          
- * @return True if fast simulation, false for FullSim                                                                                                                                                         
+ * for certain systematics.
+ *
+ * @param inputFile A pointer to the input file
+ * @param eventInfoName Name of the EventInfo container in the xAOD
+ * @return True if fast simulation, false for FullSim
  */
-bool isFileFastSim(TFile* inputFile);
+  bool isFileFastSim(TFile* inputFile);
 
 /**
  * @brief Function to determine the derivation type using string manipulation
@@ -80,7 +80,7 @@ bool isFileFastSim(TFile* inputFile);
  * @return string with the derivation stream name
  */
 
-std::string getDerivationStream(TFile* inputFile);
+  std::string getDerivationStream(TFile* inputFile);
 
 
 /**
@@ -105,7 +105,7 @@ std::string getDerivationStream(TFile* inputFile);
  *
  * @return BranchAccess (preferred) or ClassAccess if the test fails.
  */
-xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::string& electronCollectionName);
+  xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::string& electronCollectionName);
 
 /**
  * @brief Load the file and make a vector of the cuts to pass on to the
@@ -116,7 +116,7 @@ xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::s
  *
  * @return a vector with one cut-tool and configuration per line.
  */
-std::vector<std::string> loadCuts(const std::string& filename);
+  std::vector<std::string> loadCuts(const std::string& filename);
 
 /**
  * @brief Given a filename for a text file, parse it and extract a list of root
@@ -128,7 +128,7 @@ std::vector<std::string> loadCuts(const std::string& filename);
  * @param filename The text file that we want to parse.
  * @return A vector of filenames.
  */
-std::vector<std::string> fileList(const std::string& filename);
+  std::vector<std::string> fileList(const std::string& filename);
 
 /**
  * @brief Open each file in the vector and get the number of events in it.
@@ -141,7 +141,7 @@ std::vector<std::string> fileList(const std::string& filename);
  * @param filenames A vector of filenames to check.
  * @return The total yield for all files.
  */
-unsigned int checkFiles(const std::vector<std::string>& filenames);
+  unsigned int checkFiles(const std::vector<std::string>& filenames);
 
 /**
  * @brief So that we can load external libraries with (1) extra event selection
@@ -153,7 +153,7 @@ unsigned int checkFiles(const std::vector<std::string>& filenames);
  * @param libraryNames The name of the library, for exmample
  * libTopEventSelectionTools
  */
-void loadLibraries(const std::string& libraryNames);
+  void loadLibraries(const std::string& libraryNames);
 
 /**
  * @brief Users may want to define (and load!) their own object selection. Once
@@ -168,7 +168,7 @@ void loadLibraries(const std::string& libraryNames);
  *
  * @return The object selection pointer.
  */
-top::TopObjectSelection* loadObjectSelection(std::shared_ptr<top::TopConfig> config);
+  top::TopObjectSelection* loadObjectSelection(std::shared_ptr<top::TopConfig> config);
 
 /**
  * @brief Users may also want to write out custom ntuples / xAODs.  This too
@@ -181,7 +181,7 @@ top::TopObjectSelection* loadObjectSelection(std::shared_ptr<top::TopConfig> con
  * @return If everything works, then a pointer to the event saver object.
  * Otherwise the program should end and tell people why.
  */
-top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config);
+  top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config);
 
 /**
  * @brief This function will be used to load the metadata object and pull information
@@ -193,8 +193,7 @@ top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config);
  * @return If successful, return true, else return false
  */
 
-bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config);
-
+  bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config);
 }
 
 #endif

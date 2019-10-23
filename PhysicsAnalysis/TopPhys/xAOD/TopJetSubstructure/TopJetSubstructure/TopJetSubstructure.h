@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPJETSUBSTRUCTURE_H
 #define TOPJETSUBSTRUCTURE_H
@@ -8,13 +8,12 @@
 #include "xAODJet/JetContainer.h"
 
 namespace top {
-
 /**
  * @brief JetCorrection-derived class that applies a jet substructure action on the object
  */
 
-class TopJetSubstructure {
-public:
+  class TopJetSubstructure {
+  public:
     TopJetSubstructure();
     ~TopJetSubstructure();
 
@@ -22,11 +21,8 @@ public:
 
     ///Useful messages on the screen.
     void print(std::ostream&) const;
-
-private:
-};
-
+  private:
+  };
 }
 
 #endif
-

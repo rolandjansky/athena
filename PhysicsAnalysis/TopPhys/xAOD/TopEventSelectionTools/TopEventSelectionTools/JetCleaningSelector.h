@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef JETCLEANINGSELECTOR_H_
 #define JETCLEANINGSELECTOR_H_
@@ -25,8 +25,8 @@ namespace top {
  * passed the event selection are marked as bad.  Probably should check that
  * this is okay after overlap removal.
  */
-class JetCleaningSelector : public EventSelectorBase {
-public:
+  class JetCleaningSelector: public EventSelectorBase {
+  public:
     /**
      * @brief Setup the jet group's cleaning tool.
      *
@@ -51,8 +51,7 @@ public:
      * at.
      */
     std::string name() const override;
-
-private:
+  private:
     /**
      * @brief A helper function to check if the event passes BadBatman cleaning
      * in a specified range (from config) of RunNUmbers
@@ -75,8 +74,7 @@ private:
     bool m_useEventLevelJetCleaningTool;
 
     std::shared_ptr<top::TopConfig> m_config;
-};
-
+  };
 }
 
 #endif

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef SAVEEVENTSELECTOR_H_
 #define SAVEEVENTSELECTOR_H_
@@ -8,7 +8,6 @@
 #include "TopEventSelectionTools/EventSelectorBase.h"
 
 namespace top {
-
 /**
  * @brief Save this event in the output file.
  *
@@ -16,7 +15,7 @@ namespace top {
  * selection, but it will also write out the selected objects to the output
  * file in the CollectionTree.
  */
-class SaveEventSelector : public EventSelectorBase {
+  class SaveEventSelector: public EventSelectorBase {
     /**
      * @brief Accept every event
      *
@@ -31,8 +30,7 @@ class SaveEventSelector : public EventSelectorBase {
      * @return The word SAVE.
      */
     std::string name() const override;
-};
-
+  };
 }
 
 #endif

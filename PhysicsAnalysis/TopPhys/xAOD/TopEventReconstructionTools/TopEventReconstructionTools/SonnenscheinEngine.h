@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef SONNENSCEINENGINE_H_
 #define SONNENSCEINENGINE_H_
@@ -12,7 +12,6 @@
 #include "TLorentzVector.h"
 
 namespace top {
-
 /**
  * @brief Rewrite the top and anti-top decays as a quartic polynomial using top
  * and W mass constraints. And solve.
@@ -22,8 +21,8 @@ namespace top {
  * and returns the neutrino Lorentz vectors for both neutrinos in the event.
  *
  */
-class SonnenscheinEngine {
-public:
+  class SonnenscheinEngine {
+  public:
     /**
      * @brief Does nothing except sets the default flag to false.
      */
@@ -46,9 +45,12 @@ public:
      * function you assumed a lepton-b pairing, so if you want to try the other
      * one you'll have to call it again with the b and bbar swapped or something.
      */
-    std::vector<std::pair<TLorentzVector, TLorentzVector> > solve(const TLorentzVector& me_t_lp, const TLorentzVector& me_t_b, double mass_t, double mass_wp, const TLorentzVector& me_tbar_lm, const TLorentzVector& me_tbar_bbar, double mass_tbar, double mass_wm, double me_mex, double me_mey) const;
-
-private:
+    std::vector<std::pair<TLorentzVector, TLorentzVector> > solve(const TLorentzVector& me_t_lp,
+                                                                  const TLorentzVector& me_t_b, double mass_t,
+                                                                  double mass_wp, const TLorentzVector& me_tbar_lm,
+                                                                  const TLorentzVector& me_tbar_bbar, double mass_tbar,
+                                                                  double mass_wm, double me_mex, double me_mey) const;
+  private:
     /**
      * @brief Solve a quartic.
      *
@@ -90,8 +92,7 @@ private:
 
     ///Print a load of debug information (probably not by default, right)?
     bool m_debug;
-};
-
+  };
 }
 
 #endif

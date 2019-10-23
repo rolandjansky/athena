@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef FWDELECTRONMC15_H_
 #define FWDELECTRONMC15_H_
@@ -14,12 +14,11 @@
 #include <memory>
 
 namespace top {
-
 /**
  * @brief Electron selection based on the cut-based thingy.
  */
-class FwdElectronMC15 : public top::FwdElectronSelectionBase {
-public:
+  class FwdElectronMC15: public top::FwdElectronSelectionBase {
+  public:
     /**
      * @brief Class to help select cut-based good electrons.
      *
@@ -30,7 +29,7 @@ public:
      * @param maxEtacut The maximum |eta| cut to apply to the electrons.
      */
     FwdElectronMC15(double ptcut, double minEtacut, double maxEtacut, const std::shared_ptr<top::TopConfig> config);
-    virtual ~FwdElectronMC15(){}
+    virtual ~FwdElectronMC15() {}
     /**
      * @brief The cuts to select good electrons for your analysis should be
      * implemented in here.
@@ -57,8 +56,7 @@ public:
      * @param Where the print-out should go, e.g. cout.
      */
     virtual void print(std::ostream&) const override;
-
-protected:
+  protected:
     /**
      * @brief Since both selections are fairly similar, we can perform
      * the common part in one function.
@@ -77,20 +75,18 @@ protected:
     bool m_isMC;
     int m_fwdElectronBCIDCleaningMinRun;
     int m_fwdElectronBCIDCleaningMaxRun;
-    
+
     /// Proper tool to select electrons.
     ToolHandle<AsgForwardElectronLikelihoodTool> m_fwdElectronSelectionTool;
     ToolHandle<AsgForwardElectronLikelihoodTool> m_fwdElectronLooseSelectionTool;
     ToolHandle<Trig::WebBunchCrossingTool> m_webBunchCrossingTool;
-    
+
     /**
      * @brief Pointer to the configuration object so we can check which objects
      * were requested in the config file.
      */
     const std::shared_ptr<top::TopConfig> m_config;
-
-};
-
+  };
 }
 
 #endif

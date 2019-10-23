@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef PDFSCALEFACTORCALCULATOR
 #define PDFSCALEFACTORCALCULATOR
@@ -25,25 +25,25 @@
 #include "TopEvent/Event.h"
 
 namespace top {
-
   class TopConfig;
 
   /**
    * @brief For testing PDF reweighting with LHAPDF6.  Not serious, just a toy.
    *
    * Lots of stuff is available on cvmfs, set this:
-   * export LHAPDF_DATA_PATH=$ROOTCOREBIN/data/Asg_Lhapdf_LHAPDF:/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/:$LHAPDF_DATA_PATH
+   * export
+   *LHAPDF_DATA_PATH=$ROOTCOREBIN/data/Asg_Lhapdf_LHAPDF:/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/:$LHAPDF_DATA_PATH
    */
-  class PDFScaleFactorCalculator final : public asg::AsgTool {
+  class PDFScaleFactorCalculator final: public asg::AsgTool {
   public:
-    explicit PDFScaleFactorCalculator( const std::string& name );
-  
-    virtual ~PDFScaleFactorCalculator(){};
+    explicit PDFScaleFactorCalculator(const std::string& name);
+
+    virtual ~PDFScaleFactorCalculator() {};
 
     // Delete Standard constructors
     PDFScaleFactorCalculator(const PDFScaleFactorCalculator& rhs) = delete;
     PDFScaleFactorCalculator(PDFScaleFactorCalculator&& rhs) = delete;
-    PDFScaleFactorCalculator& operator=(const PDFScaleFactorCalculator& rhs) = delete;
+    PDFScaleFactorCalculator& operator = (const PDFScaleFactorCalculator& rhs) = delete;
 
     StatusCode initialize();
     StatusCode execute();
@@ -51,6 +51,7 @@ namespace top {
 
     int numberInSet(const std::string& name) const {
       const LHAPDF::PDFSet set(name);
+
       return set.size();
     }
 
@@ -63,12 +64,10 @@ namespace top {
     void printAvailablePDFs() const {
       std::cout << "List of available PDFs:" << std::endl;
       for (const std::string& pdfname : LHAPDF::availablePDFSets())
-	std::cout << "    " << pdfname << std::endl;
+        std::cout << "    " << pdfname << std::endl;
     }
 
-
   private:
-
     std::shared_ptr<top::TopConfig> m_config;
 
     std::vector< std::string > m_pdf_names;
@@ -77,32 +76,25 @@ namespace top {
 
     // Small helper class to hold the information we need
     class PDFSet {
-
     public:
+      PDFSet() {;};
 
-      PDFSet(){;};
-
-      explicit PDFSet( const std::string& name ){
-	
-	LHAPDF::mkPDFs( name, pdf_members );
-	unsigned int n_members = pdf_members.size();
-	event_weights.resize( n_members );
-	sum_of_event_weights.resize( n_members );
-
+      explicit PDFSet(const std::string& name) {
+        LHAPDF::mkPDFs(name, pdf_members);
+        unsigned int n_members = pdf_members.size();
+        event_weights.resize(n_members);
+        sum_of_event_weights.resize(n_members);
       };
-           
+
       std::vector< std::unique_ptr<const LHAPDF::PDF> > pdf_members = {};
 
       std::vector< float > event_weights = {};
-      
+
       std::vector< float > sum_of_event_weights = {};
-      
     };
 
     std::unordered_map< std::string, PDFSet > m_pdf_sets;
-    
   };
-
 }
 
 #endif

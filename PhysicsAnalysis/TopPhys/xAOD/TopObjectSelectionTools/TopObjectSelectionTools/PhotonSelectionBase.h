@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef PHOTONSELECTIONBASE_H_
 #define PHOTONSELECTIONBASE_H_
@@ -10,7 +10,6 @@
 #include <memory>
 
 namespace top {
-
 /**
  * @brief Base class for implementing an Photon selection.
  *
@@ -18,19 +17,19 @@ namespace top {
  *
  */
 
-class PhotonSelectionBase {
-public:
+  class PhotonSelectionBase {
+  public:
     PhotonSelectionBase();
     virtual ~PhotonSelectionBase();
 
     ///No copy construction
     PhotonSelectionBase(const PhotonSelectionBase& rhs) = delete;
 
-    ///No moving 
+    ///No moving
     PhotonSelectionBase(PhotonSelectionBase&& rhs) = delete;
 
     ///No assignment
-    PhotonSelectionBase& operator=(const PhotonSelectionBase& rhs) = delete;
+    PhotonSelectionBase& operator = (const PhotonSelectionBase& rhs) = delete;
 
     ///For the main analysis object selection
     virtual bool passSelection(const xAOD::Photon&) const = 0;
@@ -40,10 +39,9 @@ public:
 
     ///Because everybody likes to know what object definitions they ran with
     virtual void print(std::ostream&) const = 0;
-};
-
+  };
 }
 
-std::ostream& operator<<(std::ostream& os, const top::PhotonSelectionBase& selection);
+std::ostream& operator << (std::ostream& os, const top::PhotonSelectionBase& selection);
 
 #endif

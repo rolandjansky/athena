@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef UPGRADEPERFORMANCEFUNCTIONSXAOD_H
 #define UPGRADEPERFORMANCEFUNCTIONSXAOD_H
@@ -21,15 +21,13 @@
  *
  * @author Mark Owen <markowen@cern.ch>
  */
-class UpgradePerformanceFunctionsxAOD : public Upgrade::UpgradePerformanceFunctions {
-
- public:
-
+class UpgradePerformanceFunctionsxAOD: public Upgrade::UpgradePerformanceFunctions {
+public:
   /// Default constructor
-  UpgradePerformanceFunctionsxAOD( const std::string& name );
+  UpgradePerformanceFunctionsxAOD(const std::string& name);
 
   /// Constructor specifing layout & mu
-  UpgradePerformanceFunctionsxAOD( const std::string& name, UpgradeLayout layout, double avgMu);
+  UpgradePerformanceFunctionsxAOD(const std::string& name, UpgradeLayout layout, double avgMu);
 
   /// Destructor
   ~UpgradePerformanceFunctionsxAOD() {};
@@ -59,11 +57,8 @@ class UpgradePerformanceFunctionsxAOD : public Upgrade::UpgradePerformanceFuncti
 
   /// Access to random number generator
   inline TRandom3* getRandom3() {return &m_randgen;}
-
- private:
-
+private:
   TRandom3 m_randgen;
-
 };//class UpgradePerformanceFunctionsxAOD
 
 #endif //UPGRADEPERFORMANCEFUNCTIONSXAOD_H

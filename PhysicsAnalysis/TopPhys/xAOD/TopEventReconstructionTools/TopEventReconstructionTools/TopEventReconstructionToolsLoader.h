@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef RECONSTRUCTIONTOOLLOADER_H_
 #define RECONSTRUCTIONTOOLLOADER_H_
@@ -8,7 +8,6 @@
 #include "TopEventSelectionTools/ToolLoaderBase.h"
 
 namespace top {
-
 /**
  * @brief Load a ttbar event reconstruction code based on the same.
  *
@@ -25,8 +24,8 @@ namespace top {
  * top::ToolLoaderBase.
  *
  */
-class TopEventReconstructionToolsLoader : public ToolLoaderBase {
-public:
+  class TopEventReconstructionToolsLoader: public ToolLoaderBase {
+  public:
     /**
      * @brief Some sort of factory that can create the tool you need given a
      * string.
@@ -38,11 +37,11 @@ public:
      * @param wk Not used, but needed by EventLoop for some of the selection tools.
      * @return A pointer to a fully initialised and ready to use tool.
      */
-    top::EventSelectorBase* initTool(const std::string& name, const std::string& line, TFile* outputFile, std::shared_ptr<top::TopConfig> config,EL::Worker* wk = nullptr);
+    top::EventSelectorBase* initTool(const std::string& name, const std::string& line, TFile* outputFile,
+                                     std::shared_ptr<top::TopConfig> config, EL::Worker* wk = nullptr);
 
     ClassDef(top::TopEventReconstructionToolsLoader, 0)
-};
-
+  };
 }
 
 #endif

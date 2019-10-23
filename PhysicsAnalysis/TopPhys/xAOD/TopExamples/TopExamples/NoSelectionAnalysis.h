@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef NOSELECTIONANALYSIS_H_
 #define NOSELECTIONANALYSIS_H_
@@ -18,17 +18,15 @@ namespace EL {
 }
 
 namespace top {
-
-class NoSelectionAnalysis : public AnalysisBase {
-public:
-    NoSelectionAnalysis(TFile* outputFile, EL::Worker* wk=nullptr);
+  class NoSelectionAnalysis: public AnalysisBase {
+  public:
+    NoSelectionAnalysis(TFile* outputFile, EL::Worker* wk = nullptr);
     ~NoSelectionAnalysis();
 
     void newFile(TFile* inputFile) override;
     void event(const top::Event& topEvent) override;
     void finalise(TFile* outputFile) override;
-
-private:
+  private:
     void printCutflow(TH1D* eventHist, TH1D* mcWeightHist, const std::string& name, unsigned int localYield);
 
     top::PlotManager m_hists;
@@ -37,8 +35,7 @@ private:
     TH1D* m_cutflowMCWeights;
 
     unsigned int m_counter;
-};
-
+  };
 }
 
 #endif

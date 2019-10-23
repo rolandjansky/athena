@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 // $Id: MuonObjectCollectionMaker.h 799839 2017-03-08 11:07:28Z grancagn $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_SOFTMUONOBJECTCOLLECTIONMAKER_H
 #define ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_SOFTMUONOBJECTCOLLECTIONMAKER_H
 
 /**
-  * @author Marco Vanadia <marco.vanadia@cern.ch>
-  * 
-  * @brief SoftMuonObjectCollectionMaker
-  *   Makes all systematic variations of soft muons.
-  *   Momentum Corrections are applied using the calibration tool.
-  *   Efficiency Corrections are applied using the efficiency tool.
-  *    
-  **/ 
+ * @author Marco Vanadia <marco.vanadia@cern.ch>
+ *
+ * @brief SoftMuonObjectCollectionMaker
+ *   Makes all systematic variations of soft muons.
+ *   Momentum Corrections are applied using the calibration tool.
+ *   Efficiency Corrections are applied using the efficiency tool.
+ *
+ **/
 
 // system include(s):
 #include <memory>
@@ -34,49 +34,45 @@
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 // Forward declaration(s):
-namespace top{
+namespace top {
   class TopConfig;
 }
 
-namespace top{
+namespace top {
+  class SoftMuonObjectCollectionMaker final: public asg::AsgTool {
+  public:
+    explicit SoftMuonObjectCollectionMaker(const std::string& name);
+    virtual ~SoftMuonObjectCollectionMaker() {}
 
-  class SoftMuonObjectCollectionMaker final : public asg::AsgTool {
-    public:
-      explicit SoftMuonObjectCollectionMaker( const std::string& name );
-      virtual ~SoftMuonObjectCollectionMaker(){}
+    // Delete Standard constructors
+    SoftMuonObjectCollectionMaker(const SoftMuonObjectCollectionMaker& rhs) = delete;
+    SoftMuonObjectCollectionMaker(SoftMuonObjectCollectionMaker&& rhs) = delete;
+    SoftMuonObjectCollectionMaker& operator = (const SoftMuonObjectCollectionMaker& rhs) = delete;
 
-      // Delete Standard constructors
-      SoftMuonObjectCollectionMaker(const SoftMuonObjectCollectionMaker& rhs) = delete;
-      SoftMuonObjectCollectionMaker(SoftMuonObjectCollectionMaker&& rhs) = delete;
-      SoftMuonObjectCollectionMaker& operator=(const SoftMuonObjectCollectionMaker& rhs) = delete;
+    StatusCode initialize();
+    StatusCode execute(bool);
 
-      StatusCode initialize();
-      StatusCode execute(bool);
+    StatusCode printout();
 
-      StatusCode printout();
+    // return specific Systematic
+    inline virtual const std::list<CP::SystematicSet>& specifiedSystematics() const {return m_specifiedSystematics;}
 
-      // return specific Systematic
-      inline virtual const std::list<CP::SystematicSet>& specifiedSystematics() const {return m_specifiedSystematics;}
-  
-      // return all recommendedSystematics
-      inline const std::list<CP::SystematicSet>& recommendedSystematics() const {return m_recommendedSystematics;}
+    // return all recommendedSystematics
+    inline const std::list<CP::SystematicSet>& recommendedSystematics() const {return m_recommendedSystematics;}
+  protected:
+    // specify Systematic
+    virtual void specifiedSystematics(const std::set<std::string>& specifiedSystematics);
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
-    protected:
-      // specify Systematic
-      virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics );
+    std::list<CP::SystematicSet> m_specifiedSystematics;
+    std::list<CP::SystematicSet> m_recommendedSystematics;
 
-    private:
-      std::shared_ptr<top::TopConfig> m_config;
+    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationPeriodTool;
+    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
 
-      std::list<CP::SystematicSet> m_specifiedSystematics;
-      std::list<CP::SystematicSet> m_recommendedSystematics;
-
-      ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationPeriodTool;
-      ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
-
-      // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
-      ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
-
+    // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
   };
 } // namespace
 #endif

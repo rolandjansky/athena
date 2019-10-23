@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPEVENT_H_
 #define TOPEVENT_H_
@@ -28,7 +28,7 @@
 
 
 namespace xAOD {
-class SystematicEvent;
+  class SystematicEvent;
 }
 
 /**
@@ -36,7 +36,6 @@ class SystematicEvent;
  * somewhere else in the code.
  */
 namespace top {
-
 /**
  * @brief Very simple class to hold event data after reading from a file.
  *
@@ -47,36 +46,35 @@ namespace top {
  * The best way to ensure this is reset every event is probably to make a new
  * one every event, that way it'll tidy-up after itself.
  */
-class Event {
-public:
+  class Event {
+  public:
     Event() :
-        m_hashValue(0),      // this will be set properly by TopEventMaker
-        m_ttreeIndex(99999), // this will be set properly by TopEventMaker
-        m_isLoose(false),    // this will be set properly by TopEventMaker
-        m_saveEvent(false),
-        m_info(nullptr),
-        m_primaryVertices(nullptr),
-        m_electrons(SG::VIEW_ELEMENTS),
-        m_fwdElectrons(SG::VIEW_ELEMENTS),
-        m_muons(SG::VIEW_ELEMENTS),
-        m_softmuons(SG::VIEW_ELEMENTS),
-        m_jets(SG::VIEW_ELEMENTS),
-        m_failJvt_jets(SG::VIEW_ELEMENTS),
-	m_photons(SG::VIEW_ELEMENTS),
-        m_largeJets(SG::VIEW_ELEMENTS),
-	m_RCJets(SG::VIEW_ELEMENTS),
-        m_trackJets(SG::VIEW_ELEMENTS),
-        m_tauJets(SG::VIEW_ELEMENTS),
-        m_met(nullptr),
-        
-        m_truthEvent(nullptr),
-        m_truth(nullptr),      
-        m_partonHistory(nullptr),
-	m_KLFitterResults(nullptr),
-	m_PseudoTopResult(nullptr)
-	    {        
+      m_hashValue(0),      // this will be set properly by TopEventMaker
+      m_ttreeIndex(99999), // this will be set properly by TopEventMaker
+      m_isLoose(false),    // this will be set properly by TopEventMaker
+      m_saveEvent(false),
+      m_info(nullptr),
+      m_primaryVertices(nullptr),
+      m_electrons(SG::VIEW_ELEMENTS),
+      m_fwdElectrons(SG::VIEW_ELEMENTS),
+      m_muons(SG::VIEW_ELEMENTS),
+      m_softmuons(SG::VIEW_ELEMENTS),
+      m_jets(SG::VIEW_ELEMENTS),
+      m_failJvt_jets(SG::VIEW_ELEMENTS),
+      m_photons(SG::VIEW_ELEMENTS),
+      m_largeJets(SG::VIEW_ELEMENTS),
+      m_RCJets(SG::VIEW_ELEMENTS),
+      m_trackJets(SG::VIEW_ELEMENTS),
+      m_tauJets(SG::VIEW_ELEMENTS),
+      m_met(nullptr),
+
+      m_truthEvent(nullptr),
+      m_truth(nullptr),
+      m_partonHistory(nullptr),
+      m_KLFitterResults(nullptr),
+      m_PseudoTopResult(nullptr) {
     }
-    
+
     ///systematic has value
     std::size_t m_hashValue;
     ///TTree index
@@ -85,25 +83,25 @@ public:
     bool m_isLoose;
     ///save the event?
     bool m_saveEvent;
-    
+
     ///Pointer to the event info - nullptr if not loaded, but that's probably a bad idea
     const xAOD::EventInfo* m_info;
 
     ///Pointer to the systematic event info - nullptr if not loaded, but that's probably a bad idea
-    xAOD::SystematicEvent const * m_systematicEvent;
-    
+    xAOD::SystematicEvent const* m_systematicEvent;
+
     ///Primary Vertices
-    const xAOD::VertexContainer* m_primaryVertices;    
+    const xAOD::VertexContainer* m_primaryVertices;
 
     ///Container of electrons (can be sorted)
     xAOD::ElectronContainer m_electrons;
-    
+
     ///Container of forward electrons (can be sorted)
     xAOD::ElectronContainer m_fwdElectrons;
 
     ///Container of muons (can be sorted)
     xAOD::MuonContainer m_muons;
-    
+
     ///Container of soft muons (can be sorted)
     xAOD::MuonContainer m_softmuons;
 
@@ -112,37 +110,37 @@ public:
 
     ///Container of fail-JVT jets (can be sorted)
     xAOD::JetContainer m_failJvt_jets;
-    
-    ///Container of photons (can be sorted)                                                                                                                          
+
+    ///Container of photons (can be sorted)
     xAOD::PhotonContainer m_photons;
 
     ///Container of large jets (can be sorted)
     xAOD::JetContainer m_largeJets;
-    
+
     ///Container of recluster jets (can be sorted)
     xAOD::JetContainer m_RCJets;
-    
+
     /// Containers of variable-R reclustered jets (can be sorted)
-    mutable std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
-    
+    mutable std::unordered_map< std::string, std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
+
     ///Container of track jets (can be sorted)
-    xAOD::JetContainer m_trackJets;    
+    xAOD::JetContainer m_trackJets;
 
     ///Container of taujets (can be sorted)
     xAOD::TauJetContainer m_tauJets;
 
     ///Pointer to MET if it is loaded
     const xAOD::MissingET* m_met;
-    
+
     ///Truth event
     const xAOD::TruthEventContainer* m_truthEvent;
 
     ///Container of truth particles
-    const xAOD::TruthParticleContainer *m_truth;
-    
+    const xAOD::TruthParticleContainer* m_truth;
+
     ///Top Parton TopPartonHistory
-    const xAOD::PartonHistory* m_partonHistory;   
-    
+    const xAOD::PartonHistory* m_partonHistory;
+
     ///KLFitter Results
     mutable const xAOD::KLFitterResultContainer* m_KLFitterResults;
 
@@ -154,20 +152,18 @@ public:
     float m_jvtSF = 1.;
     float m_jvtSF_UP = 1.;
     float m_jvtSF_DOWN = 1.;
-
-};
-
+  };
 }
 
-std::ostream& operator<<(std::ostream& os, const TLorentzVector& v);
-std::ostream& operator<<(std::ostream& os, const top::Event& event);
-std::ostream& operator<<(std::ostream& os, const xAOD::EventInfo& ei);
-std::ostream& operator<<(std::ostream& os, const xAOD::Electron& el);
-std::ostream& operator<<(std::ostream& os, const xAOD::Muon& mu);
-std::ostream& operator<<(std::ostream& os, const xAOD::Photon& ph);
-std::ostream& operator<<(std::ostream& os, const xAOD::Jet& jet);
-std::ostream& operator<<(std::ostream& os, const xAOD::TauJet& tau);
-std::ostream& operator<<(std::ostream& os, const xAOD::TruthParticle& truth);
-std::ostream& operator<<(std::ostream& os, const xAOD::MissingET& met);
+std::ostream& operator << (std::ostream& os, const TLorentzVector& v);
+std::ostream& operator << (std::ostream& os, const top::Event& event);
+std::ostream& operator << (std::ostream& os, const xAOD::EventInfo& ei);
+std::ostream& operator << (std::ostream& os, const xAOD::Electron& el);
+std::ostream& operator << (std::ostream& os, const xAOD::Muon& mu);
+std::ostream& operator << (std::ostream& os, const xAOD::Photon& ph);
+std::ostream& operator << (std::ostream& os, const xAOD::Jet& jet);
+std::ostream& operator << (std::ostream& os, const xAOD::TauJet& tau);
+std::ostream& operator << (std::ostream& os, const xAOD::TruthParticle& truth);
+std::ostream& operator << (std::ostream& os, const xAOD::MissingET& met);
 
 #endif
