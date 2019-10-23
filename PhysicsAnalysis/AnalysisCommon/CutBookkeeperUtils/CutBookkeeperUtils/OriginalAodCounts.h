@@ -15,7 +15,7 @@ struct AodCountsConfig {
   AodCountsConfig();
   // empty structure, can add configuration here
 };
-inline const DEFAULT_AOD_COUNTS_CONFIG = AodCountsConfig();
+inline const AodCountsConfig DEFAULT_AOD_COUNTS_CONFIG;
 
 struct OriginalAodCounts {
   OriginalAodCounts();
