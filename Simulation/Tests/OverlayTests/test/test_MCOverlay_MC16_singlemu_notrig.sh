@@ -43,7 +43,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --file *RDO.pool.root
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --file *RDO.pool.root --diff-root
     rc3=$?
 fi
 echo "art-result: $rc3 regression"
