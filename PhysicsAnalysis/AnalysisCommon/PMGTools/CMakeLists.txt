@@ -33,6 +33,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTruth
+   PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
@@ -52,7 +53,7 @@ atlas_add_library( PMGToolsLib
    PMGTools/*.h Root/*.cxx
    PUBLIC_HEADERS PMGTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODTruth
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATCoreLib PATInterfaces xAODTruth
    PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver RootCoreUtils xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
 
 if( NOT XAOD_STANDALONE )
