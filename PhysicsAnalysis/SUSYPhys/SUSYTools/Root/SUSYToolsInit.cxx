@@ -149,8 +149,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_prwTool.retrieve() );
   } else {
     ATH_MSG_INFO("Using user-configured PRW tool");
-  } else ATH_CHECK( m_prwTool.retrieve() );
-
+    ATH_CHECK( m_prwTool.retrieve() );
+  }
   std::string toolName; // to be used for tool init below, keeping explicit string constants a minimum /CO
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1751,7 +1751,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     ATH_CHECK( m_orToolbox.initialize() );
 
-  } else ATH_CHECK( m_orToolbox.retrieve());
+  } 
   // Done with the OR toolbox setup!
 
 // /////////////////////////////////////////////////////////////////////////////////////////
