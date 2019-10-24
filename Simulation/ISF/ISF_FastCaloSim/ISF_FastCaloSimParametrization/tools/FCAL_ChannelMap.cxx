@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -457,11 +457,11 @@ FCAL_ChannelMap::print_tubemap( int imap) const
   //boost::io::ios_all_saver ias (std::cout);
   std::cout << "First 10 elements of the New FCAL tube map : " << imap << std::endl;
   std::cout.precision(5);
-  for ( int i=0;  i<10; i++, it++)
-    std::cout << std::hex << it->first << "\t" 
-	      << (it->second).get_tileName() << std::dec <<"\t" 
-	      << (it->second).x() <<"\t" 
-	      << (it->second).y() << std::endl;
+  for ( int i=0;  i<10; ++i, ++it)
+    std::cout << std::hex << it->first << "\t"
+              << (it->second).get_tileName() << std::dec <<"\t"
+              << (it->second).x() <<"\t"
+              << (it->second).y() << std::endl;
 
 }
 
