@@ -90,10 +90,11 @@ namespace xAODMaker {
       if(m_disableBeamSpot){
          ATH_MSG_WARNING( "Beam conditions service manually disabled on EventInfo object" );
          m_beamCondSvcAvailable = false;
-      }
+      } 
+      
       // Try to access the beam conditions service:
       if( m_beamCondSvcAvailable )
-        ATH_CHECK(m_beamSpotKey.initialize());
+        ATH_CHECK(m_beamSpotKey.initialize(SG::AllowEmpty));
 
       CHECK( m_lumiDataKey.initialize (SG::AllowEmpty) );
 #else
@@ -175,7 +176,7 @@ namespace xAODMaker {
       }
 
       // Copy the trigger properties into the xAOD object:
-      if( aod->trigger_info() && ( ! pileUpInfo ) ) {
+      if( aod->trigger_info() && !pileUpInfo  ) {
          xaod->setStatusElement( aod->trigger_info()->statusElement() );
          xaod->setExtendedLevel1ID( aod->trigger_info()->extendedLevel1ID() );
          xaod->setLevel1TriggerType( aod->trigger_info()->level1TriggerType() );
