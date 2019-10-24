@@ -1089,21 +1089,20 @@ namespace asg
 #ifndef NDEBUG
     this->testInvariant ();
 #endif
-
+    
     assert (!m_isInitialized);
-
-    if (m_handleUser->isSet())
+    
+    if (m_handleUser->isSet() || (!m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))){
       return detail::AnaToolHandleMode::USER;
-
+    }
     if (!m_originalTypeAndName.empty() &&
         m_handleUser->typeAndName() != m_originalTypeAndName)
       return detail::AnaToolHandleMode::USER;
 
 #ifdef XAOD_STANDALONE
-    if (m_parentPtr != nullptr)
-    {
+    if (m_parentPtr != nullptr) {
       if (m_handleUser->parentName() != m_parentPtr->name())
-	return detail::AnaToolHandleMode::USER;
+        return detail::AnaToolHandleMode::USER;
     } else
     {
       if (m_handleUser->parentName() != "ToolSvc")
