@@ -153,4 +153,34 @@ TEST (GridToolsTest, download)
   ASSERT_EQ (0u, result.notDownloaded);
 }
 
+TEST (GridToolsTest, downloadCache)
+{
+  // can't use my current directory, it may easily overflow
+  std::ostringstream location;
+  {
+    const char *TMPDIR = getenv ("TMPDIR");
+    if (TMPDIR)
+      location << TMPDIR << "/";
+    else
+      location << "/tmp/";
+  }
+  location << "GridToolsTest." << getpid();
+  sh::exec ("rm -rf " + sh::quote (location.str()));
+  sh::exec ("mkdir -p " + sh::quote (location.str()));
+
+  std::vector<std::string> result =
+    rucioCacheDatasetGlob (location.str(), "user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset0", "*.root*");
+  ASSERT_EQ (1u, result.size());
+  ASSERT_EQ (location.str() + "/user.krumnack.EventLoopTest.2019-03-25.dataset0/EventLoopTest.2019-03-25.test_ntuple0.root", result[0]);
+  ASSERT_FALSE (gSystem->AccessPathName (result[0].c_str()));
+
+  std::vector<std::string> result2 =
+    rucioCacheDatasetGlob (location.str(), "user.krumnack:user.krumnack.EventLoopTest.2019-03-25.dataset1", "*.root*");
+  ASSERT_EQ (2u, result2.size());
+  std::sort (result2.begin(), result2.end());
+  ASSERT_EQ (location.str() + "/user.krumnack.EventLoopTest.2019-03-25.dataset1/EventLoopTest.2019-03-25.test_ntuple1.root", result2[0]);
+  ASSERT_EQ (location.str() + "/user.krumnack.EventLoopTest.2019-03-25.dataset1/EventLoopTest.2019-03-25.test_ntuple2.root", result2[1]);
+  ASSERT_FALSE (gSystem->AccessPathName (result2[0].c_str()));
+}
+
 ATLAS_GOOGLE_TEST_MAIN
