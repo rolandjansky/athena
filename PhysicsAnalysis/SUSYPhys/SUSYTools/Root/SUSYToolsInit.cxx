@@ -1347,7 +1347,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagEffTool.setProperty("EfficiencyLightCalibrations", MCshowerID   ));
     ATH_CHECK( m_btagEffTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagEffTool.retrieve() );
-  }
+  } else ATH_CHECK( m_btagEffTool.retrieve() );
+  
 
   if (!m_btagEffTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
     if (trkjetcoll != "AntiKt2PV0TrackJets" && trkjetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
@@ -1368,7 +1369,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("EfficiencyLightCalibrations", MCshowerID   ));
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagEffTool_trkJet.retrieve() );
-  }
+  } else if (m_btagEffTool_trkJet.isUserConfigured()) ATH_CHECK( m_btagEffTool_trkJet.retrieve() );
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise MET tools
@@ -1398,7 +1400,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     ATH_CHECK( m_metMaker.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_metMaker.retrieve() );
-  }
+  } else ATH_CHECK( m_metMaker.retrieve() );
+
 
   if (!m_metSystTool.isUserConfigured()) {
     m_metSystTool.setTypeAndName("met::METSystematicsTool/METSystTool");
@@ -1430,7 +1433,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         // Recommendation from TJ: if we are using EM topo jets, make sure the clusters are considered at LC scale
         ATH_CHECK( m_metSystTool.setProperty("JetConstitScaleMom","JetLCScaleMomentum") );
       }
-    }
+    } 
 
     if (m_trkJetsyst) {
       ATH_CHECK( m_metSystTool.setProperty("ConfigJetTrkFile", "JetTrackSyst.config") );
@@ -1438,7 +1441,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     ATH_CHECK( m_metSystTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_metSystTool.retrieve());
-  }
+  } else ATH_CHECK( m_metSystTool.retrieve());
+ 
 
   if (!m_metSignif.isUserConfigured()) {
     // See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MetSignificance 
@@ -1455,7 +1459,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     ATH_CHECK( m_metSignif.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_metSignif.retrieve() );
-  }
+  } else ATH_CHECK( m_metSignif.retrieve() );
+  
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise trigger tools
@@ -1470,14 +1475,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigDecTool.setProperty("TrigDecisionKey", "xTrigDecision") );
     ATH_CHECK( m_trigDecTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_trigDecTool.retrieve() );
-  }
+  } else  ATH_CHECK( m_trigDecTool.retrieve() );
+  
 
   if (!m_trigMatchingTool.isUserConfigured()) {
     m_trigMatchingTool.setTypeAndName("Trig::MatchingTool/TrigMatchingTool");
     ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
     ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_trigMatchingTool.retrieve() );
-  }
+  } else  ATH_CHECK( m_trigMatchingTool.retrieve() );
+  
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise trigGlobalEfficiencyCorrection tool
@@ -1514,7 +1521,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("NumberOfToys", 250) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.initialize() );
-  }
+  } else  ATH_CHECK( m_trigGlobalEffCorrTool_diLep.initialize() );
+ 
 
   if (!m_trigGlobalEffCorrTool_multiLep.isUserConfigured()) {
 
@@ -1548,7 +1556,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("NumberOfToys", 250) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.initialize() );
-  }
+  } else ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.initialize() );
+  
 
   if (!m_trigGlobalEffCorrTool_diPhoton.isUserConfigured()) {
     m_trigGlobalEffCorrTool_diPhoton.setTypeAndName("TrigGlobalEfficiencyCorrectionTool/TrigGlobal_diPhoton");
@@ -1562,7 +1571,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("NumberOfToys", 250) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.initialize() );
-  }
+  } else  ATH_CHECK( m_trigGlobalEffCorrTool_diPhoton.initialize() );
+ 
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Isolation Correction Tool
@@ -1573,7 +1583,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoCorrTool.setProperty( "AFII_corr", isAtlfast()) );
     ATH_CHECK( m_isoCorrTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoCorrTool.retrieve() );
-  }
+  } else  ATH_CHECK( m_isoCorrTool.retrieve() );
+  
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Isolation Tool
@@ -1584,7 +1595,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoTool.setProperty("PhotonWP",   m_photonIso_WP.empty() ? "FixedCutTight" : m_photonIso_WP ) );
     ATH_CHECK( m_isoTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoTool.retrieve() );
-  }
+  } else  ATH_CHECK( m_isoTool.retrieve() );
+ 
 
   if (!m_isoBaselineTool.isUserConfigured()) {
     m_isoBaselineTool.setTypeAndName("CP::IsolationSelectionTool/IsoBaselineTool");
@@ -1593,7 +1605,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoBaselineTool.setProperty("PhotonWP",   m_photonBaselineIso_WP.empty() ? "FixedCutTight" : m_photonBaselineIso_WP ) );
     ATH_CHECK( m_isoBaselineTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoBaselineTool.retrieve() );
-  }
+  } else ATH_CHECK( m_isoBaselineTool.retrieve() );
+  
 
   if (!m_isoHighPtTool.isUserConfigured()) {
     m_isoHighPtTool.setTypeAndName("CP::IsolationSelectionTool/IsoHighPtTool");
@@ -1602,7 +1615,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoHighPtTool.setProperty("PhotonWP",   m_photonIso_WP.empty()    ? "FixedCutTight" : m_photonIso_WP ) );
     ATH_CHECK( m_isoHighPtTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoHighPtTool.retrieve() );
-  }
+  } else ATH_CHECK( m_isoHighPtTool.retrieve() );
+  
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise IsolationCloseByCorrectionTool Tool
@@ -1619,7 +1633,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     ATH_CHECK( m_isoCloseByTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoCloseByTool.retrieve() );
-  }
+  } else  ATH_CHECK( m_isoCloseByTool.retrieve() );
+  
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Overlap Removal Tool
@@ -1736,7 +1751,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     ATH_CHECK( m_orToolbox.initialize() );
 
-  } // Done with the OR toolbox setup!
+  } else ATH_CHECK( m_orToolbox.retrieve());
+  // Done with the OR toolbox setup!
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise PMG Tools
@@ -1745,14 +1761,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_pmgSHnjetWeighter.setProperty( "TruthJetContainer", "AntiKt4TruthJets"));
     ATH_CHECK( m_pmgSHnjetWeighter.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_pmgSHnjetWeighter.retrieve());
-  }
+  } else  ATH_CHECK( m_pmgSHnjetWeighter.retrieve());
+
 
   if (!m_pmgSHnjetWeighterWZ.isUserConfigured()) {
     m_pmgSHnjetWeighterWZ.setTypeAndName("PMGTools::PMGSherpa22VJetsWeightTool/PMGSHVjetReweighterWZ");
     ATH_CHECK( m_pmgSHnjetWeighterWZ.setProperty( "TruthJetContainer", "AntiKt4TruthWZJets"));
     ATH_CHECK( m_pmgSHnjetWeighterWZ.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_pmgSHnjetWeighterWZ.retrieve() );
-  }
+  } else  ATH_CHECK( m_pmgSHnjetWeighterWZ.retrieve() );
+  
 
   // prevent these initialiation snippets from being run again
   m_subtool_init = true;
