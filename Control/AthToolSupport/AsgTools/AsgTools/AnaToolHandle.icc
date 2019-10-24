@@ -1089,20 +1089,21 @@ namespace asg
 #ifndef NDEBUG
     this->testInvariant ();
 #endif
-    
+
     assert (!m_isInitialized);
-    
-    if (m_handleUser->isSet() || (!m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))){
+
+    if (m_handleUser->isSet())
       return detail::AnaToolHandleMode::USER;
-    }
+
     if (!m_originalTypeAndName.empty() &&
         m_handleUser->typeAndName() != m_originalTypeAndName)
       return detail::AnaToolHandleMode::USER;
 
 #ifdef XAOD_STANDALONE
-    if (m_parentPtr != nullptr) {
+    if (m_parentPtr != nullptr)
+    {
       if (m_handleUser->parentName() != m_parentPtr->name())
-        return detail::AnaToolHandleMode::USER;
+	return detail::AnaToolHandleMode::USER;
     } else
     {
       if (m_handleUser->parentName() != "ToolSvc")
@@ -1134,7 +1135,13 @@ namespace asg
 
     if (m_config.empty() && m_name.empty())
       return detail::AnaToolHandleMode::EMPTY;
+    
+    if (!m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
+      return detail::AnaToolHandleMode::USER;
 
+     
+      
+      
     if (isPublic())
       return detail::AnaToolHandleMode::CREATE_SHARED;
     else
@@ -1193,7 +1200,7 @@ namespace asg
 #endif
 
     m_config.setType (std::move (val_type));
-    if (m_originalTypeAndName.empty() &&
+    if (//m_originalTypeAndName.empty() &&
         !this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
@@ -1218,7 +1225,7 @@ namespace asg
 #endif
 
     m_name = std::move (val_name);
-    if (m_originalTypeAndName.empty() &&
+    if (//m_originalTypeAndName.empty() &&
         !this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
