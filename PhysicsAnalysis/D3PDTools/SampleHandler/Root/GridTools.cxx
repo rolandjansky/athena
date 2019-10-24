@@ -17,7 +17,9 @@
 #include <RootCoreUtils/StringUtil.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/MetaObject.h>
+#include <TSystem.h>
 #include <chrono>
+#include <fstream>
 #include <mutex>
 
 namespace sh = RCU::Shell;
@@ -176,6 +178,14 @@ namespace SH
     {
       return "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh -q && lsetup --force 'rucio -w'";
     }
+  }
+
+
+
+  const std::string& downloadStageEnvVar ()
+  {
+    static const std::string result = "SAMPLEHANDLER_RUCIO_DOWNLOAD";
+    return result;
   }
 
 
@@ -503,6 +513,47 @@ namespace SH
     std::vector<RucioDownloadResult> result;
     for (auto& dataset : datasets)
       result.push_back (rucioDownload (location, dataset));
+    return result;
+  }
+
+
+
+  std::vector<std::string>
+  rucioCacheDatasetGlob (const std::string& location,
+                         const std::string& dataset,
+                         const std::string& fileGlob)
+  {
+    std::vector<std::string> result;
+
+    std::string path = location;
+    if (path.back() != '/')
+      path += "/";
+    if (dataset.find (':') != std::string::npos)
+      path += dataset.substr (dataset.find (':')+1);
+    else
+      path += dataset;
+    const std::string finished {
+      path + "-finished"};
+
+    // check if the finished file does not exist
+    // note that AccessPathName has the weirdest calling convention
+    if (gSystem->AccessPathName (finished.c_str()) != 0)
+    {
+      RucioDownloadResult status = rucioDownload (location, dataset);
+      if (status.downloadedFiles + status.alreadyLocal < status.totalFiles)
+        throw std::runtime_error ("failed to download all files of " + dataset);
+      //  this just creates an empty file
+      std::ofstream (finished.c_str());
+    }
+
+    std::string output = sh::exec_read ("find " + sh::quote (path) + " -type f -name " + sh::quote (fileGlob));
+    std::istringstream str (output);
+    std::string line;
+    while (std::getline (str, line))
+    {
+      if (!line.empty())
+        result.push_back (line);
+    }
     return result;
   }
 }
