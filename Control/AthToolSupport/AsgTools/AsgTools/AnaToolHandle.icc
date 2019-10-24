@@ -1133,14 +1133,11 @@ namespace asg
       return detail::AnaToolHandleMode::USER;
 #endif
 
-    if (m_config.empty() && m_name.empty())
-      return detail::AnaToolHandleMode::EMPTY;
-    
     if (!m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
       return detail::AnaToolHandleMode::USER;
 
-     
-      
+    if (m_config.empty() && m_name.empty())
+      return detail::AnaToolHandleMode::EMPTY;
       
     if (isPublic())
       return detail::AnaToolHandleMode::CREATE_SHARED;
