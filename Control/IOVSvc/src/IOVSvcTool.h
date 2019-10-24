@@ -110,17 +110,17 @@ public:
                               IOVRange& iov) const override;
 
   // Subscribe method for DataProxy. key StoreGate key
-  virtual StatusCode regProxy( const SG::DataProxy *proxy, 
+  virtual StatusCode regProxy( SG::DataProxy *proxy, 
                                const std::string& key ) override;
   // Another way to subscribe
   virtual StatusCode regProxy( const CLID& clid, const std::string& key ) override;
 
-  virtual StatusCode deregProxy( const SG::DataProxy *proxy ) override;
+  virtual StatusCode deregProxy( SG::DataProxy *proxy ) override;
   virtual StatusCode deregProxy( const CLID& clid, const std::string& key ) override;
 
   // replace method for DataProxy, to be used when an update is necessary
-  virtual StatusCode replaceProxy( const SG::DataProxy *pOld,
-                                   const SG::DataProxy *pNew) override;
+  virtual StatusCode replaceProxy( SG::DataProxy *pOld,
+                                   SG::DataProxy *pNew) override;
 
   // Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
@@ -149,7 +149,7 @@ public:
   virtual StatusCode getTriggeredTools(const std::string& key,
                                        std::set<std::string>& tools) override;
 
-  virtual bool holdsProxy( const SG::DataProxy* proxy ) const override;
+  virtual bool holdsProxy( SG::DataProxy* proxy ) const override;
   virtual bool holdsProxy( const CLID& clid, const std::string& key ) const override;
   virtual bool holdsCallback( const CallBackID& ) const override;
   virtual bool holdsAlgTool( const IAlgTool* ia ) const override;
@@ -161,7 +161,7 @@ public:
     m_ignoredProxyNames.insert( std::make_pair(clid,key) );
   }
   virtual
-  void ignoreProxy(const SG::DataProxy* proxy) override {
+  void ignoreProxy(SG::DataProxy* proxy) override {
     m_ignoredProxies.insert(proxy);
   }
 
@@ -177,7 +177,7 @@ private:
   std::string fullProxyName( const SG::TransientAddress* ) const;
   std::string fullProxyName( const SG::DataProxy* ) const;
   std::string fullProxyName( const CLID&, const std::string& ) const;
-  void setRange_impl (const SG::DataProxy* proxy, IOVRange& iovr);
+  void setRange_impl (SG::DataProxy* proxy, IOVRange& iovr);
 
   std::string m_storeName;
 
@@ -200,11 +200,11 @@ private:
 
   std::map< const SG::DataProxy*, std::string> m_names;
 
-  std::set< const SG::DataProxy*, SortDPptr > m_proxies;
+  std::set< SG::DataProxy*, SortDPptr > m_proxies;
   std::multimap< const SG::DataProxy*, BFCN* > m_proxyMap;
   std::multimap< BFCN*, const SG::DataProxy* > m_bfcnMap;
 
-  std::set<const SG::DataProxy*> m_ignoredProxies;
+  std::set<SG::DataProxy*> m_ignoredProxies;
   std::set< std::pair<CLID, std::string> > m_ignoredProxyNames;
 
   std::map<BFCN*, CallBackID> m_fcnMap;
@@ -248,9 +248,9 @@ private:
 
 
   void scanStartSet(startSet &pSet, const std::string &type,
-                    std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset);
+                    std::set<SG::DataProxy*, SortDPptr> &proxiesToReset);
   void scanStopSet(stopSet &pSet, const std::string &type,
-                   std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset);
+                   std::set<SG::DataProxy*, SortDPptr> &proxiesToReset);
 
   void PrintStartSet();
   void PrintStopSet();
