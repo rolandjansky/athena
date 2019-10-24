@@ -74,7 +74,7 @@ if DataSource == 'data' :
         solenoidCurrent = magField.solenoidCurrent()
         toroidCurrent   = magField.toroidCurrent()
     else:
-        print "Magnetic field info not available"
+        print("Magnetic field info not available")
 
     #--- set geometry from field info : both fields ON in default
     if GeometryTag == '' :
@@ -178,60 +178,60 @@ if DoNoisyStrip and NoisyUploadTest :
     RunList  = GetRunList( dbstring, folder, tag, RunNumber, numRuns )
     if ( len(RunList) != 0 ) :
         #--- List of data and average num of modules w/ >= 1 noisy strip
-        print "---------------> Noisy strips in COOL : last ", numRuns, " runs <---------------"
+        print("---------------> Noisy strips in COOL : last ", numRuns, " runs <---------------")
         sumNoisyModulesInDB = 0
         sumNoisyStripsInDB = 0
         for i in range( len(RunList) ) :
             numNoisyModules = GetNumNoisyMods( dbstring, folder, tag, RunList[i] )
             numNoisyStrips  = GetNumNoisyStrips( dbstring, folder, tag, RunList[i] )
-            print "[ run, modules, strips ] = [", RunList[i], ",", numNoisyModules, ",", numNoisyStrips, "]"
+            print("[ run, modules, strips ] = [", RunList[i], ",", numNoisyModules, ",", numNoisyStrips, "]")
             sumNoisyModulesInDB = sumNoisyModulesInDB + numNoisyModules
             sumNoisyStripsInDB = sumNoisyStripsInDB + numNoisyStrips
         NoisyModuleAverageInDB = float(sumNoisyModulesInDB) / float(len(RunList))
         NoisyStripAverageInDB = float(sumNoisyStripsInDB) / float(len(RunList))
         #--- Num of noisy strips in the last run
         NoisyStripLastRunInDB = GetNumNoisyStrips( dbstring, folder, tag, RunList[0] )
-        print "Average num of modules w/ >= 1 noisy strip  : ",         NoisyModuleAverageInDB
-        print "Num of noisy strips in the last run", RunList[0], " : ", NoisyStripLastRunInDB
-        print "Average num of noisy strips in last runs", RunList[0], " : ", NoisyStripAverageInDB
-        print "----------------------------------------------------------------------"
+        print("Average num of modules w/ >= 1 noisy strip  : ",         NoisyModuleAverageInDB)
+        print("Num of noisy strips in the last run", RunList[0], " : ", NoisyStripLastRunInDB)
+        print("Average num of noisy strips in last runs", RunList[0], " : ", NoisyStripAverageInDB)
+        print("----------------------------------------------------------------------")
         
 
 #--------------------------------------------------------------
 # Print out summay of user setting
 #--------------------------------------------------------------
-print "------ Begin : User setting for SCTCalib/SCTCalibWriteSvc ------------"
-print "- RunNumber                              : %s" %( RunNumber )
-print "- Number of events                       : %s" %( EvtMax )
-print "- Global flag for Geometry               : %s" %( GeometryTag )
-print "- Global flag for ConditionsDB           : %s" %( ConditionsTag )
-print "- Global flag for DataSource             : %s" %( DataSource )
-print "- Beam flag                              : %s" %( beamType )
-print "- Flag to read BS                        : %s" %( ReadBS )
-print "- Flag to run NoisyStrip                 : %s" %( DoNoisyStrip )
-print "- Flag to run NoisyLB                    : %s" %( DoNoisyLB )
-print "- Flag to run HVTrip                     : %s" %( DoHV )
-print "- Flag to run DeadStrip                  : %s" %( DoDeadStrip )
-print "- Flag to run DeadChip                   : %s" %( DoDeadChip )
-print "- Flag to run NoiseOccupancy             : %s" %( DoNoiseOccupancy )
-print "- Flag to run LorentzAngle               : %s" %( DoLorentzAngle ) #Roger
-print "- Flag to run RawOccupancy               : %s" %( DoRawOccupancy )
-print "- Flag to run Efficiency                 : %s" %( DoEfficiency )
-print "- Flag to run BSErrors for DB            : %s" %( DoBSErrorDB )
-print "- Flag to write local DB                 : %s" %( WriteToCool )
-print "- Flag to use DCSCondisionsSvc           : %s" %( UseDCS )
-print "- Flag to use ConfigurationCondisionsSvc : %s" %( UseConfiguration )
-print "- Flag to use ReadCalibDataSvc           : %s" %( UseCalibration )
-print "- Flag to use MajorityCondisionsSvc      : %s" %( UseMajority )
-print "- Flag to use ByteStreamErrorsSvc        : %s" %( UseBSError )
-print "- Tag for NoisyStrip                     : %s" %( TagID4NoisyStrips )
-print "- Tag for DeadStrip                      : %s" %( TagID4DeadStrips )
-print "- Tag for DeadChip                       : %s" %( TagID4DeadChips )
-print "- Tag for NoiseOccupancy                 : %s" %( TagID4NoiseOccupancy )
-print "- Tag for RawOccupancy                   : %s" %( TagID4RawOccupancy )
-print "- Tag for Efficiency                     : %s" %( TagID4Efficiency )
-print "- Tag for BSErrorDB                      : %s" %( TagID4BSErrors )
-print "------ End : User setting for SCTCalib/SCTCalibWriteSvc --------------"
+print("------ Begin : User setting for SCTCalib/SCTCalibWriteSvc ------------")
+print("- RunNumber                              : %s" %( RunNumber ))
+print("- Number of events                       : %s" %( EvtMax ))
+print("- Global flag for Geometry               : %s" %( GeometryTag ))
+print("- Global flag for ConditionsDB           : %s" %( ConditionsTag ))
+print("- Global flag for DataSource             : %s" %( DataSource ))
+print("- Beam flag                              : %s" %( beamType ))
+print("- Flag to read BS                        : %s" %( ReadBS ))
+print("- Flag to run NoisyStrip                 : %s" %( DoNoisyStrip ))
+print("- Flag to run NoisyLB                    : %s" %( DoNoisyLB ))
+print("- Flag to run HVTrip                     : %s" %( DoHV ))
+print("- Flag to run DeadStrip                  : %s" %( DoDeadStrip ))
+print("- Flag to run DeadChip                   : %s" %( DoDeadChip ))
+print("- Flag to run NoiseOccupancy             : %s" %( DoNoiseOccupancy ))
+print("- Flag to run LorentzAngle               : %s" %( DoLorentzAngle )) #Roger
+print("- Flag to run RawOccupancy               : %s" %( DoRawOccupancy ))
+print("- Flag to run Efficiency                 : %s" %( DoEfficiency ))
+print("- Flag to run BSErrors for DB            : %s" %( DoBSErrorDB ))
+print("- Flag to write local DB                 : %s" %( WriteToCool ))
+print("- Flag to use DCSCondisionsSvc           : %s" %( UseDCS ))
+print("- Flag to use ConfigurationCondisionsSvc : %s" %( UseConfiguration ))
+print("- Flag to use ReadCalibDataSvc           : %s" %( UseCalibration ))
+print("- Flag to use MajorityCondisionsSvc      : %s" %( UseMajority ))
+print("- Flag to use ByteStreamErrorsSvc        : %s" %( UseBSError ))
+print("- Tag for NoisyStrip                     : %s" %( TagID4NoisyStrips ))
+print("- Tag for DeadStrip                      : %s" %( TagID4DeadStrips ))
+print("- Tag for DeadChip                       : %s" %( TagID4DeadChips ))
+print("- Tag for NoiseOccupancy                 : %s" %( TagID4NoiseOccupancy ))
+print("- Tag for RawOccupancy                   : %s" %( TagID4RawOccupancy ))
+print("- Tag for Efficiency                     : %s" %( TagID4Efficiency ))
+print("- Tag for BSErrorDB                      : %s" %( TagID4BSErrors ))
+print("------ End : User setting for SCTCalib/SCTCalibWriteSvc --------------")
 
 #--------------------------------------------------------------
 # Load Global Flags and set defaults
@@ -324,7 +324,7 @@ InDetSCT_MajorityConditionsTool = sct_MajorityConditionsToolSetup.getTool()
 InDetSCT_MajorityConditionsTool.UseOverall       = True
 InDetSCT_MajorityConditionsTool.MajorityFraction = 0.9
 if ( InDetFlags.doPrintConfigurables() ):
-    print InDetSCT_MajorityConditionsTool
+    print(InDetSCT_MajorityConditionsTool)
 
 #--- conditions tag
 conddb.setGlobalTag( globalflags.ConditionsTag() ) 
@@ -369,7 +369,7 @@ SCTCalibWrite.TagID4BSErrors       = TagID4BSErrors
 SCTCalibWrite.TagID4LorentzAngle   = TagID4LorentzAngle #Roger
 SCTCalibWrite.OutputLevel = INFO
 
-print SCTCalibWrite
+print(SCTCalibWrite)
 
 #--------------------------------------------------------------
 # Setup for writing local COOL DB
@@ -498,7 +498,7 @@ SCTCalib.AuditAlgorithms = True # False
 SCTCalib.AuditBeginRun   = True # False
 SCTCalib.AuditEndRun     = True # False
 
-print SCTCalib
+print(SCTCalib)
 
 #--------------------------------------------------------------
 # Event related parameters

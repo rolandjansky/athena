@@ -35,7 +35,7 @@ def main( runNum=None, projectName='' ):
     #    RunCtrlDb = dbSvc.openDatabase( RunCtrlDB )
     try:
         RunCtrlDb = dbSvc.openDatabase( RunCtrlDB )
-    except Exception,e:
+    except Exception as e:
         print('Problem opening database', e)
         sys.exit(-1)
     
