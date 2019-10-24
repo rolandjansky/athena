@@ -13,7 +13,6 @@
 ###############################################################
 from __future__ import print_function
 
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from TriggerJobOpts.TriggerFlags import TriggerFlags
