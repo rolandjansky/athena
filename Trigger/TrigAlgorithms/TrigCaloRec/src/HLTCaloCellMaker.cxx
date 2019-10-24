@@ -86,10 +86,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	
       } else {
 	// TT EM PART
-        auto clET = Monitored::Collection ("Cells_eT",*cdv,&CaloCell::et);
-        auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
-        auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
-        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 	for(int sampling=0;sampling<4;sampling++){
 	LArTT_Selector<LArCellCont> sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, sampling, sel ));
@@ -146,8 +142,8 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
         auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
-	cellContainerV->push_back( c.release()->asDataVector() );
         clN=c->size();
+	cellContainerV->push_back( c.release()->asDataVector() );
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
         auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
