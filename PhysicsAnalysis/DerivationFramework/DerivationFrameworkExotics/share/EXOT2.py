@@ -77,6 +77,11 @@ if DerivationFrameworkIsMonteCarlo:
     ToolSvc += EXOT2MCThinningTool
     thinningTools += EXOT2MCThinningTool
 
+
+import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
+if DerivationFrameworkIsMonteCarlo: 
+    MCTruthCommon.addStandardTruthContents()
+
 #further truth thinning to ensure useful parton info
 if DerivationFrameworkIsMonteCarlo:
     truth_cond_jets = "(((abs(TruthParticles.pdgId) > 0) && (abs(TruthParticles.pdgId) <= 7) || (abs(TruthParticles.pdgId) == 21)) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
