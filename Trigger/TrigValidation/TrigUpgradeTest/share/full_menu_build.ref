@@ -2,7 +2,7 @@ TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_j45_L1J15 ID#1364976160
 TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_xe30_tcpufit_L1XE10 ID#1583719916
@@ -18,6 +18,7 @@ TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
 TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -34,7 +35,7 @@ TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_j45_L1J15 ID#1364976160
 TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_xe30_tcpufit_L1XE10 ID#1583719916
@@ -52,6 +53,7 @@ TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
 TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
@@ -71,7 +73,7 @@ TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
@@ -82,6 +84,7 @@ TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -96,7 +99,7 @@ TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_j45_L1J15 ID#1364976160
 TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
@@ -112,6 +115,7 @@ TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
 TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
@@ -133,7 +137,7 @@ TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
@@ -144,6 +148,7 @@ TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
 TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -158,7 +163,7 @@ TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e5_etcut_L1EM3 
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_mu6_mu6noL1_L1MU6 ID#451489897
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
 TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_mu6Comb_L1MU6 ID#996392590
@@ -178,6 +183,7 @@ TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
@@ -196,9 +202,9 @@ TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6_mu6noL1_L1M
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu24_idperf_L1MU20 ID#677658909
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu80_msonly_3layersEC_L1MU20 ID#761101109
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu50_RPCPEBSecondaryReadout_L1MU20 ID#827327262
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6Comb_L1MU6 ID#996392590
@@ -222,6 +228,7 @@ TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu24_idperf_L1M
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu80_msonly_3layersEC_L1MU20 ID#761101109
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu50_RPCPEBSecondaryReadout_L1MU20 ID#827327262
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu6Comb_L1MU6 ID#996392590
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu6_ivarmedium_L1MU6 ID#1012713062
@@ -251,7 +258,7 @@ TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
@@ -262,6 +269,7 @@ TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -276,7 +284,7 @@ TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
@@ -288,6 +296,7 @@ TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -299,16 +308,17 @@ TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_2e3_etcut_L12EM
 TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
 TriggerSummaryStep4                     8   0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_noalg_L1RD0_FILLED ID#211699639
-TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_noalg_L1EM3 ID#4169267792
+TriggerSummaryStep2                     9   0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_noalg_L1RD0_FILLED ID#211699639
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_j45_L1J15 ID#1364976160
 TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e26_etcut_L1EM22VHI ID#1703681121
@@ -323,6 +333,7 @@ TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e26_etcut_L1EM22VHI ID#1703681121
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
@@ -346,7 +357,7 @@ TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
 TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -355,6 +366,7 @@ TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
 TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
@@ -366,7 +378,7 @@ TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e5_etcut_L1EM3 
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_xe65_cell_L1XE50 ID#531141817
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
@@ -379,6 +391,7 @@ TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
 TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_g20_etcut_LArPEB_L1EM15 ID#2706532790
@@ -396,7 +409,7 @@ TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
@@ -409,6 +422,7 @@ TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
 TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -424,7 +438,7 @@ TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e5_etcut_L1EM3 
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_xe65_cell_L1XE50 ID#531141817
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
@@ -434,6 +448,7 @@ TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
 TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
@@ -443,9 +458,9 @@ TriggerSummaryStep4                     14  0     DEBUG  +++ HLT_g5_etcut_LArPEB
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_noalg_L1RD0_FILLED ID#211699639
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_mu6noL1_L1MU6 ID#451489897
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu24_idperf_L1MU20 ID#677658909
-TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu80_msonly_3layersEC_L1MU20 ID#761101109
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu50_RPCPEBSecondaryReadout_L1MU20 ID#827327262
+TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6Comb_L1MU6 ID#996392590
@@ -460,6 +475,7 @@ TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_mu6_msonly_L1MU
 TriggerSummaryStep1                     15  0     DEBUG  +++ HLT_noalg_L1EM3 ID#4169267792
 TriggerSummaryStep2                     15  0     DEBUG  +++ HLT_mu24_idperf_L1MU20 ID#677658909
 TriggerSummaryStep2                     15  0     DEBUG  +++ HLT_mu80_msonly_3layersEC_L1MU20 ID#761101109
+TriggerSummaryStep2                     15  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     15  0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
 TriggerSummaryStep2                     15  0     DEBUG  +++ HLT_mu6_msonly_L1MU6 ID#3895421032
 TriggerSummaryStep3                     15  0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
@@ -467,20 +483,21 @@ TriggerSummaryStep3                     15  0     DEBUG  +++ HLT_mu6_msonly_L1MU
 TriggerSummaryStep4                     15  0     DEBUG  +++ HLT_mu6_idperf_L1MU6 ID#934918532
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_noalg_L1RD0_FILLED ID#211699639
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_xe30_mht_L1XE10 ID#3626903018
 TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_noalg_L1EM3 ID#4169267792
 TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep3                     16  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_noalg_L1RD0_FILLED ID#211699639
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_xe65_cell_L1XE50 ID#531141817
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_xe30_cell_L1XE10 ID#1649696554
 TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
@@ -492,6 +509,7 @@ TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
 TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
@@ -506,7 +524,7 @@ TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_beamspot_allTE_trkfast_L1J15 ID#2487298406
@@ -516,6 +534,7 @@ TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_xe30_mht_L1XE10
 TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_noalg_L1EM3 ID#4169267792
 TriggerSummaryStep2                     18  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     18  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     18  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     18  0     DEBUG  +++ HLT_g5_etcut_LArPEB_L1EM3 ID#3486231698
 TriggerSummaryStep3                     18  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep3                     18  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -527,7 +546,7 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j85_L1J20 ID#510475538
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j80_j60_L1J15 ID#582699527
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_costmonitor_L1TE5 ID#732706776
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_noalg_L1RD0_EMPTY ID#914660695
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j45_L1J15 ID#1364976160
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_xe30_tcpufit_L1XE10 ID#1583719916
@@ -547,6 +566,7 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_costmonitor_CostMonDS_L1All ID#843341480
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_2e3_etcut_L12EM3 ID#2613484113
@@ -596,8 +616,8 @@ TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L14J20 
 TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L14J20 decisions                    0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_beamspot_allTE_trkfast_L1J1520        20        20        0         0         0         0         0         20        
 TrigSignatureMoniMT                                INFO HLT_beamspot_allTE_trkfast_L1J15 decisions                    20        0         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_costmonitor_L1TE5         20        20        20        0         0         0         0         0         20        
-TrigSignatureMoniMT                                INFO HLT_costmonitor_L1TE5 decisions                    20        0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_costmonitor_CostMonDS_L1All20        20        20        20        0         0         0         0         20        
+TrigSignatureMoniMT                                INFO HLT_costmonitor_CostMonDS_L1All decisions                    20        20        0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e26_etcut_L1EM22VHI       20        20        1         1         1         0         0         0         1         
 TrigSignatureMoniMT                                INFO HLT_e26_etcut_L1EM22VHI decisions                    1         6         1         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU1020        20        10        0         0         0         0         0         1         

@@ -59,7 +59,7 @@ def addP1Signatures():
           ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
     ]
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
-          ChainProp(name='HLT_costmonitor_L1TE5',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
+          ChainProp(name='HLT_costmonitor_CostMonDS_L1All',        l1SeedThresholds=[''], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
