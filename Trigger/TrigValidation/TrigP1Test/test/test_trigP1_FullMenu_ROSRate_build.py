@@ -10,7 +10,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TrigUpgradeTest/full_menu.py'
 ex.input = 'data'
-ex.args = '-c "doWriteESD=False" --ros2rob /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/ATLASros2rob2018-r22format.py'
+ex.args = '--ros2rob /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/ATLASros2rob2018-r22format.py'
 ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 ros2json = CheckSteps.InputDependentStep("RosRateToJson")

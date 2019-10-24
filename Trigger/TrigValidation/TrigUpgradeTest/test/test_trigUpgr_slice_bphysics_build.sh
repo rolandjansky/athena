@@ -11,7 +11,7 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
-export EXTRA="doEmptyMenu=True;doBphysicsSlice=True"
+export EXTRA="doEmptyMenu=True;doBphysicsSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/slice_bphysics.ref`
