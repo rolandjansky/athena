@@ -69,6 +69,10 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
     SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
     auto cdv = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+    auto clET = Monitored::Collection ("Cells_eT",*cdv,&CaloCell::et);
+    auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
+    auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
+    auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
@@ -79,13 +83,13 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::TILE);
 	cdv->updateCaloIterators();
         clN=cdv->size();
+	
+      } else {
+	// TT EM PART
         auto clET = Monitored::Collection ("Cells_eT",*cdv,&CaloCell::et);
         auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
         auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
         auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
-	
-      } else {
-	// TT EM PART
 	for(int sampling=0;sampling<4;sampling++){
 	LArTT_Selector<LArCellCont> sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, sampling, sel ));
@@ -124,10 +128,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
       }
       ATH_MSG_INFO ("Producing "<<cdv->size()<<" cells");
       clN=cdv->size();
-      auto clET = Monitored::Collection ("Cells_eT",*cdv,&CaloCell::et);
-      auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
-      auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
-      auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
       auto ss = cellContainer.record( std::move(cdv) );
       ATH_CHECK( ss );
 
@@ -141,15 +141,19 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
-	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
-	cellContainerV->push_back( c.release()->asDataVector() );
-        clN=c->size();
         auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
         auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
         auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
         auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
+	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
+	cellContainerV->push_back( c.release()->asDataVector() );
+        clN=c->size();
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
+        auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
+        auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
+        auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
+        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 
         // TT EM PART
         for(int sampling=0;sampling<4;sampling++){
@@ -188,10 +192,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         c->setHasCalo(CaloCell_ID::LARFCAL);
         c->updateCaloIterators();
         clN=c->size();
-        auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
-        auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
-        auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
-        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 	cellContainerV->push_back( c.release()->asDataVector() );
       }
     }

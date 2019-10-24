@@ -42,7 +42,7 @@ if TriggerFlags.doCalo:
      #l1DecoderTest=L1DecoderTest()
      #topSequence+=l1DecoderTest
     
-     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
+     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker, HLTCaloCellSumMaker
      algo1=HLTCaloCellMaker("testFastAlgo1")
      algo1.RoIs="StoreGateSvc+EMRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
