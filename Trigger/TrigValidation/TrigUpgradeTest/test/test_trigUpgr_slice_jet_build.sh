@@ -7,8 +7,8 @@
 
 export SKIPEVENTS=10
 export EVENTS=20
-export THREADS=2
-export SLOTS=2
+export THREADS=1
+export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="isOnline=True;doEmptyMenu=True;doJetSlice=True"
