@@ -134,18 +134,18 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
 
     The structure of the network is
 
-                         source
+                         sink
                      /     /       \
 		  cond  cond      cond        final condition layer
 		          ......              build uo combined jgs, conditions
 
 		   leaf_0 leaf_1 ... leaf_n
-                         / \|   /             oncoming jg-leaf matches
+                         / \|   /             incoming jg-leaf matches
 
 		   jg_0   jg_1....jg_m
 
                     \     |    /
-                         sink
+                         source
 
    Each of the incoming job groups are tested against the leaf conditions.
    Edges represnt matchs. The jgs that satisfy a condition are noted.
@@ -161,7 +161,7 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
   std::size_t cur_jg = m_tree.size();  // (first node - 1)  for jets
 
   std::vector<std::shared_ptr<FlowEdge>> edges;
-  makeSourceToLeafEdges(edges, leaves);
+  // makeSourceToLeafEdges(edges, leaves);
  
 
   // flow network node number for contributing JetGroups. We only
@@ -174,7 +174,8 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
  // jet grp id, jet grp
   std::map<std::size_t, HypoJetVector> indJetGroups{}; 
   
-  findInitialJobGroups(leaves,
+  findInitialJobGroups(edges,
+		       leaves,
 		       groups_b,
 		       groups_e,
 		       satisfiedBy,
@@ -212,6 +213,7 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
   return std::make_optional<std::vector<std::shared_ptr<FlowEdge>>>(edges);
 }
 
+/*
 void
 UnifiedFlowNetworkBuilder::makeSourceToLeafEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 						 const std::vector<int>& leaves) const {
@@ -221,8 +223,10 @@ UnifiedFlowNetworkBuilder::makeSourceToLeafEdges(std::vector<std::shared_ptr<Flo
 					       m_conditions[i]->capacity()));
   }
 }
+*/
 
-void UnifiedFlowNetworkBuilder::findInitialJobGroups(const std::vector<int>& leaves,
+void UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
+						     const std::vector<int>& leaves,
 						     const HypoJetGroupCIter& groups_b,
 						     const HypoJetGroupCIter& groups_e,
 						     CondInd2JetGroupsInds& satisfiedBy,
@@ -257,6 +261,13 @@ void UnifiedFlowNetworkBuilder::findInitialJobGroups(const std::vector<int>& lea
 	satisfiedBy[leaf].push_back(std::vector<std::size_t>{cur_jg});
 	// edges.push_back(std::make_shared<FlowEdge>(leaf, cur_jg, jg.size()));
 	jg_used = true;
+	edges.push_back(std::make_shared<FlowEdge>(0,
+						   cur_jg,
+						   m_conditions[leaf]->capacity()));
+	edges.push_back(std::make_shared<FlowEdge>(cur_jg,
+						   leaf,
+						   m_conditions[leaf]->capacity()));
+	
       }
     }
     if(jg_used){

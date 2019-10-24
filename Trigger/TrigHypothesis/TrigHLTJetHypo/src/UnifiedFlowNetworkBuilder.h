@@ -56,10 +56,13 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
 		    std::map<int, pHypoJet>& nodeToJet,
 		    const std::vector<int>& leaves) const;
   
+  /*
   void makeSourceToLeafEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 			     const std::vector<int>& leaves)  const;
+  */
 
-  void findInitialJobGroups(const std::vector<int>& leaves,
+  void findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
+			    const std::vector<int>& leaves,
 			    const HypoJetGroupCIter& groups_b,
 			    const HypoJetGroupCIter& groups_e,
 			    CondInd2JetGroupsInds&,
