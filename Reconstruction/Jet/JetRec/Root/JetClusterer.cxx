@@ -154,7 +154,7 @@ xAOD::JetContainer* JetClusterer::build() const {
     xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
     jet->setAlgorithmType(ialg);
     jet->setSizeParameter((float)m_jetrad);
-    jet->setAttribute("JetGhostArea", (float)m_ghostarea);
+    jet->setAttribute(xAOD::JetAttribute::JetGhostArea, (float)m_ghostarea);
   }
 
   // -------------------------------------
