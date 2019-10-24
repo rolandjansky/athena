@@ -48,6 +48,9 @@ def _is_exit_early():
                   nargs='*',
                   default=('BCID',),
                   help='set of leaves names we make sure to compare')
+@acmdlib.argument('--leaves-prefix',
+                  default='',
+                  help='Remove prefix value from all leaves')
 @acmdlib.argument('--known-hacks',
                   nargs='*',
                   default=('m_athenabarcode', 'm_token',),
@@ -112,6 +115,7 @@ def main(args):
     msg.info(' new: [%s]', args.new)
     msg.info('ignore  leaves: %s', args.ignore_leaves)
     msg.info('enforce leaves: %s', args.enforce_leaves)
+    msg.info('leaves prefix:  %s', args.leaves_prefix)
     msg.info('hacks:          %s', args.known_hacks)
     msg.info('entries:        %s', args.entries)
     msg.info('mode:           %s', args.mode)
@@ -129,6 +133,8 @@ def main(args):
         # l.GetBranch().GetName() gives the full leaf path name
         leaves = [l.GetBranch().GetName() for l in tree.GetListOfLeaves()
                   if l.GetBranch().GetName() not in args.ignore_leaves]
+        if args.leaves_prefix:
+            leaves = [l.replace(args.leaves_prefix, '') for l in leaves]
         return {
             'entries' : nentries,
             'leaves': set(leaves),
@@ -235,7 +241,7 @@ def main(args):
         def leafname_fromdump(entry):
             return '.'.join([s for s in entry[2] if not s.isdigit()])
         
-        def reach_next(dump_iter, skip_leaves):
+        def reach_next(dump_iter, skip_leaves, leaves_prefix=None):
             keep_reading = True
             while keep_reading:
                 try:
@@ -243,6 +249,8 @@ def main(args):
                 except StopIteration:
                     return None
                 entry[2][0] = entry[2][0].rstrip('.\0')  # clean branch name
+                if leaves_prefix:
+                    entry[2][0] = entry[2][0].replace(leaves_prefix, '')
                 name = []
                 skip = False
                 for n in leafname_fromdump(entry).split('.'):
@@ -263,10 +271,10 @@ def main(args):
         while True:
             if read_old:
                 prev_d_old = d_old
-                d_old = reach_next(old_dump_iter, skip_leaves)
+                d_old = reach_next(old_dump_iter, skip_leaves, args.leaves_prefix)
             if read_new:
                 prev_d_new = d_new
-                d_new = reach_next(new_dump_iter, skip_leaves)
+                d_new = reach_next(new_dump_iter, skip_leaves, args.leaves_prefix)
                 
             if not d_new and not d_old:
                 break
