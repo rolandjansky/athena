@@ -1723,7 +1723,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
         monTool = GenericMonitoringTool('MonTool')
         finalLimit=1600.0;
-        finalLimitTime=40000.0;
+        finalLimitTime=800.0;
         if ( "FS" in name ):
           finalLimit=240000;
           finalLimitTime=160000;

@@ -69,7 +69,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
     SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
     auto cdv = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
-    auto clET = Monitored::Collection ("Cells_eT",*cdv,&CaloCell::et);
+    auto clET = Monitored::Collection ("Cells_eT",*cdv,getCellPt);
     auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
     auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
     auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
@@ -137,7 +137,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
-        auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
+        auto clET = Monitored::Collection ("Cells_eT",*c,getCellPt);
         auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
         auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
         auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
@@ -146,7 +146,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cellContainerV->push_back( c.release()->asDataVector() );
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
-        auto clET = Monitored::Collection ("Cells_eT",*c,&CaloCell::et);
+        auto clET = Monitored::Collection ("Cells_eT",*c,getCellPt);
         auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
         auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
         auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
