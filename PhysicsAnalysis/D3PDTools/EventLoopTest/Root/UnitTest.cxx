@@ -166,6 +166,7 @@ namespace EL
 
       for (std::size_t iter = 0, end = samples.size(); iter != end; ++ iter)
       {
+        ANA_MSG_INFO ("looking at sample " << samples[iter]->name());
 	TH1 *ref_hist = dynamic_cast<TH1*>(samples[iter]->meta()->get ("hist"));
 	if (ref_hist != 0)
 	{
@@ -179,6 +180,7 @@ namespace EL
 	  {
 	    TH1 *file_executes = dynamic_cast<TH1*>(sample->readHist ("file_executes"));
 	    RCU_ASSERT_SOFT (file_executes != 0);
+            ANA_MSG_INFO ("file executes: " << file_executes->GetEntries() << " " << samples[iter]->makeFileList().size());
 	    RCU_ASSERT_SOFT (file_executes->GetEntries() == samples[iter]->makeFileList().size());
 	  }
 
