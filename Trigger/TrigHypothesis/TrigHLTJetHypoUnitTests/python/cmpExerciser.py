@@ -54,14 +54,16 @@ class CombinationsTests(object):
         return trigJetHypoToolHelperFromDict(chain_dict)
 
 
-    def make_event_generator(self):
+    def make_event_generator(self, useEtNotE=True):
         generator = SimpleHypoJetVectorGenerator()
 
-        generator.ets = [80000. + 1000.*i for i in range(self.n_sgnl)]
+        generator.ets = [80000. + 1000.*i + 500. for i in range(self.n_sgnl)]
         generator.etas = [0.5* pow(-1, i) for i in range(self.n_sgnl)]
 
         generator.n_bkgd = self.n_bkgd
         generator.bkgd_etmax = self.bkgd_etmax
+
+        generator.useEtaEtNotEtaE = useEtNotE
 
         return generator
 
@@ -129,8 +131,10 @@ def JetHypoExerciserCompareCfg(label,
     jetHypoExerciserAlg.JetHypoHelperTool0 = ht0
     # jetHypoExerciserAlg.JetHypoHelperTool1 = ht0
     jetHypoExerciserAlg.JetHypoHelperTool1 = ht1
-  
-    jetHypoExerciserAlg.event_generator = test_conditions.make_event_generator()
+
+    useEtNotE = True
+    jetHypoExerciserAlg.event_generator = test_conditions.make_event_generator(
+        useEtNotE)
     jetHypoExerciserAlg.visit_debug = True
 
     lfn = test_conditions.logfile_name(chain_name)
@@ -166,7 +170,7 @@ if __name__=="__main__":
                                          bkgdEmax)
     )
 
-    cfg.setAppProperty("EvtMax", 10)
+    cfg.setAppProperty("EvtMax", 1)
     cfg.run()
 
     #f=open("HelloWorld.pkl","w")

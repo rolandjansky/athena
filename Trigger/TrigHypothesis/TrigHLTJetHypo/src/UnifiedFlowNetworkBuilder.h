@@ -11,6 +11,7 @@
 #include "./ConditionsDefsMT.h"
 #include "./Tree.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
+#include "./JetGroupProduct.h"
 
 using TreeVec = std::vector<std::size_t>;
 using IDJetGroup = std::map<std::size_t, HypoJetVector>;
@@ -58,24 +59,32 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
   void makeSourceToLeafEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 			     const std::vector<int>& leaves)  const;
 
-  void makeLeafJobGroupEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
-			     const std::vector<int>& leaves,
-			     const HypoJetGroupCIter& groups_b,
-			     const HypoJetGroupCIter& groups_e,
-			     std::map<int, std::vector<std::size_t>>&,
-			     std::map<std::size_t, HypoJetVector>&,
-			     std::size_t& cur_jg,
-			     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+  void findInitialJobGroups(const std::vector<int>& leaves,
+			    const HypoJetGroupCIter& groups_b,
+			    const HypoJetGroupCIter& groups_e,
+			    CondInd2JetGroupsInds&,
+			    std::map<std::size_t, HypoJetVector>&,
+			    std::size_t& cur_jg,
+			    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 
   
   void propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
-		      std::map<int, std::vector<std::size_t>>& satisfiedBy,
-		      std::map<std::size_t, HypoJetVector>& indJetGroups,
+		      CondInd2JetGroupsInds& satisfiedBy,
+		      const std::map<std::size_t, HypoJetVector>& indJetGroups,
 		      std::size_t& cur_jg,
 		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
   
-void makeSinkEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
-		   std::size_t sink) const;
+  void makeSinkEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
+		     std::size_t sink) const;
+  
+  bool propagate_(std::vector<std::shared_ptr<FlowEdge>>& edges,
+		  std::size_t par,
+		  const std::vector<std::size_t>& siblings,
+		  CondInd2JetGroupsInds& satisfiedBy,
+		  const std::map<std::size_t, HypoJetVector>& indJetGroups,
+		  std::size_t& cur_jg,
+		  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+  
 };
 
 #endif

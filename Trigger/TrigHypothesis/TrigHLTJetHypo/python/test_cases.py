@@ -50,14 +50,14 @@ test_strings = [
                          simple([(neta)(peta)])
                         )             
                  combgen([]
-                         qjet([(qjmass)])
+                         qjet([(151qjmass152)])
                          partgen([]
                                  combgen([] 
-                                         dijet([(80djmass90)])
-                                         simple([(84et)(84et)]))
+                                         dijet([(79djmass90)])
+                                         simple([(82et)(83et)]))
                                  combgen([] 
-                                         dijet([(81djmass91)])
-                                         simple([(84et)(84et)])))))""",
+                                         dijet([(79djmass91)])
+                                         simple([(82et)(83et)])))))""",
 ]
 
 

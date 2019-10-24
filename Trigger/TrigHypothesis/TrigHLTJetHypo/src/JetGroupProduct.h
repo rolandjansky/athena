@@ -10,24 +10,31 @@
 #include <vector>
 #include <optional>
 
+using CondInd2JetGroupsInds =
+  std::map<int, std::vector<std::vector<std::size_t>>>;
+
 class JetGroupProduct{
   /*
-   * Iterate through the combinations of jet grpuops talen from a vector
-   * of vector of jet groups. return the merge of the groups)
-   * eg for [(jg11, jj12), (jg21)], the product is [(jg11,jg21), (jg12, jg21)]
-   * If jg11 contains jets j111, j112, jg12 contains jg121, jg 122 and jg21 
-   * contains jg211, then the merges contain 
-   * [(j111, jg112, jg211)(jg121, jg122, jg121)] from the sequence of all
-   * merged groups.
+   * Iterate through the combinations of jet groups.
+   * The job groups are those that satisfied a set up siblings.
+   * Their parent is tested against all the combioinations of job groups
+   * that satisfy the siblings.
+   * 
+   * eg for a vector of siblings [s1, s2]
+   * satisfiedBy[s1] is a  vector<vector<size_t>> say <[jg1, jg2], [jg3, jg4]>
+   * satisfiedBy[s2] is a  vector<vector<size_t>> say <[jg5, jg6]>
+   * the products are then [jg1, jg2, jg5, jg6], [jg3, jg4, jg5, jg6]
+   * jg1 is an key in a map that has a value of an input job group (typically
+   * containing a single jet.
    */
-public:
-  JetGroupProduct(const std::vector<std::vector<std::size_t>>& inVecs,
-		  const std::map<std::size_t, HypoJetVector>& indJetGroups);
-  std::optional<HypoJetVector> next();
-
-private:
-  const std::vector<std::vector<std::size_t>> m_jetGroupIndVec;
-  const std::map<std::size_t, HypoJetVector> m_indJetGroups;
+ public:
+  JetGroupProduct(const std::vector<std::size_t>& siblings,
+		  const CondInd2JetGroupsInds& satisfiedBy);
+  std::optional<std::vector<std::size_t>> next();
+  
+ private:
+  const std::vector<std::size_t> m_siblings;
+  const CondInd2JetGroupsInds m_satisfiedBy;
   ProductGen m_productGen;
 };
 

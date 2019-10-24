@@ -79,7 +79,9 @@ PartitionsGroupsToHelpersMatcherMT::match(const HypoJetGroupCIter& groups_b,
 			    collector)){
       
       if(collector){
-	collector->collect("PartitionsGroupsToHelpersMatcherMT", "fail");
+	collector->collect("PartitionsGroupsToHelpersMatcherMT",
+			   "child " + std::to_string(i) + '/' +
+			   std::to_string(m_helpers.size()) + " fails");
       }
       return std::make_optional<bool>(false);
     }
@@ -91,7 +93,7 @@ PartitionsGroupsToHelpersMatcherMT::match(const HypoJetGroupCIter& groups_b,
   }
   
   if(collector){
-    collector->collect("PartitionsGroupsToHelpersMatcherMT", "pass");
+    collector->collect("PartitionsGroupsToHelpersMatcherMT", "passes");
   }
   return std::make_optional<bool>(true);  
 }

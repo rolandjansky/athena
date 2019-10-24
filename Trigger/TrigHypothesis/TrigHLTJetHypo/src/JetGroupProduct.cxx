@@ -7,75 +7,83 @@
 #include <set>
 #include <iostream>
 
-HypoJetVector merge_groups(HypoJetGroupCIter& iter,
-			   const HypoJetGroupCIter& end){
-  HypoJetVector jets;
+/*
+std::vector<std::size_t> merge_groups(std::vector<std::vector<std::size_t>>& iter,
+				      std::vector<std::vector<std::size_t>>& end){
+
+  std::vector<std::size_t> indices;
   for(; iter != end; ++iter){
-    jets.insert(jets.end(),
-		iter->begin(),
-		iter->end());
+    indices.insert(indices.end(),
+		   iter->begin(),
+		   iter->end());
   }
-  return jets;
-    
-  }
-
-
-JetGroupProduct::JetGroupProduct(const std::vector<std::vector<std::size_t>>&
-				 jetGroupIndVec,
-				 const std::map<std::size_t, HypoJetVector>&
-				 indJetGroups
-				 ):
-  m_jetGroupIndVec(jetGroupIndVec), m_indJetGroups(indJetGroups){
-  std::vector<std::size_t> ends;
-  ends.reserve(m_jetGroupIndVec.size());
-  for(const auto& v : m_jetGroupIndVec){
-    ends.push_back(v.size());
-  }
-  m_productGen = ProductGen(ends);
-  std::cout
-    << "JetGroupProduct size jetGroupIndVec = "
-    <<jetGroupIndVec.size() << " content sizes: ";
-  for(const auto& e : jetGroupIndVec){std::cout <<  e.size() << " ";}
-  std::cout << '\n';
+  return indices;
   
 }
+*/
+
+
+JetGroupProduct::JetGroupProduct(const std::vector<std::size_t>& siblings,
+				 const CondInd2JetGroupsInds& satisfiedBy
+				 ):
+  // inner vector of jetGroupIndVec are the indices of indJetGroups
+  // that satisfy one child. A parent may have many children
+  // indJetGroups is a size_t: jet group table.
   
-std::optional<HypoJetVector> JetGroupProduct::next(){
+  m_siblings(siblings), m_satisfiedBy(satisfiedBy){
+  std::vector<std::size_t> ends;
+  ends.reserve(m_siblings.size());
+  for(const auto& s : m_siblings){
+    ends.push_back((m_satisfiedBy.at(s)).size());
+  }
+  m_productGen = ProductGen(ends);
+  std::cout << "JetGroupProduct siblings ";
+  for(const auto& e : m_siblings){std::cout <<  e << " ";}
+  std::cout << '\n';
+}
+  
+std::optional<std::vector<std::size_t>> JetGroupProduct::next(){
 
   while(true){
     auto opt_indices = m_productGen.next();
     if(!opt_indices.has_value()){
       std::cout<<"JGP returning with no result\n";
-      return  std::optional<HypoJetVector>();
+      return std::optional<std::vector<std::size_t>>();
     }
 
+    // indices index job groups in the indJetGroups table
     auto indices = *opt_indices;
 
-    std::vector<std::size_t> j_indices;
+    // select inicies from the child jet group inicies. Form a vector
+    // of inidices.
+    std::vector<std::size_t> jg_indices;
     for(std::size_t i = 0; i < indices.size(); ++i){
-      std::cout << "Prodgen " << i << " " << indices[i] << " " << m_jetGroupIndVec.size() << '\n';
-      j_indices.push_back(m_jetGroupIndVec.at(i).at(indices[i]));
+      auto s = m_siblings[i];
+      std::cout << "Prodgen " << i << " " << indices[i] << " "
+		<< ((m_satisfiedBy.at(s)).at(indices[i])).size() << '\n';
+      //i: child; indices[i]: the particular job group for the child.
+      jg_indices.insert(jg_indices.end(),
+			(m_satisfiedBy.at(s)).at(indices[i]).begin(),
+			(m_satisfiedBy.at(s)).at(indices[i]).end());
     }
+
     
-    HypoJetGroupVector groups;
-    std::set<std::size_t> unique_indices(indices.begin(), indices.end());
-    if(indices.size() == unique_indices.size()){
-      for(const auto& i : j_indices){
-	groups.push_back(m_indJetGroups.at(i));
-      } 
-      
-      auto iter {groups.cbegin()};
-      auto end {groups.cend()};
-      
-      auto result =  merge_groups(iter, end);
-      std::cout<< "JGP returning group of size " << result.size() << '\n';
-      std:: copy(indices.begin(),
-		 indices.end(),
-		 std::ostream_iterator<std::size_t>(std::cout, " "));
-      std::cout << '\n';
-      return result;
-    }else {
-      std::cout << "JetGroupProduct combined group rejected due to bad size\n";
+    // require there are no duplicate inidices - this would be
+    // rejected  by a non-sharing flow network. but remove the
+    // case early. Sharing is handled otherwise...
+    std::set<std::size_t> unique_indices(jg_indices.begin(),
+					 jg_indices.end());
+    std::cout<< "JGP requiring unique indice set for ";
+    std:: copy(jg_indices.begin(),
+	       jg_indices.end(),
+	       std::ostream_iterator<std::size_t>(std::cout, " "));
+    std::cout<<'\n';
+    
+    if(jg_indices.size() == unique_indices.size()){
+      return jg_indices;
+    } else {
+      std::cout << "JGP combined group rejected due to duplicates\n";
     }
+
   }
 }
