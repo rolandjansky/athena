@@ -460,11 +460,11 @@ def muEFSARecoSequence( RoIs, name ):
   #                                                   doTGCClust = False,
   #                                                   doRPCClust = False)
 
-  TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" )
+  TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder_"+name )
   TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
 
   # Monitoring tool for MuonTrackMakerAlgs in SA
-  from MuonTrackMakerAlgs.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
+  from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
   TrackBuilder.MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name)
 
 

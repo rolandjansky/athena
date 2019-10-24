@@ -29,8 +29,12 @@ StatusCode MuPatTrackBuilder::initialize()
   }
   if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved " << m_trackMaker << endmsg;
   
- ATH_CHECK( m_segmentKey.initialize() );
- ATH_CHECK( m_spectroTrackKey.initialize() );
+  ATH_CHECK( m_segmentKey.initialize() );
+  ATH_CHECK( m_spectroTrackKey.initialize() );
+
+  if ( not m_monTool.name().empty() ) {
+    ATH_CHECK( m_monTool.retrieve() );
+  }
 
   return StatusCode::SUCCESS; 
 }
@@ -65,7 +69,6 @@ StatusCode MuPatTrackBuilder::execute()
                       << msc.size() << ") are not the same size." << endmsg;
   }
 
-  ATH_MSG_INFO("LAURYNAS msc size " << msc.size());
   TrackCollection * newtracks = m_trackMaker->find(msc);
   if (!newtracks) newtracks = new TrackCollection();
 
@@ -93,23 +96,36 @@ StatusCode MuPatTrackBuilder::execute()
     auto mstrks_eta   = Monitored::Collection("mstrks_eta", ini_mstrkseta);
     auto mstrks_phi   = Monitored::Collection("mstrks_phi", ini_mstrksphi);
 
-    auto monitorIt = Monitored::Group(m_monTool, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi);
+    std::vector<int>    ini_mssegsn(0);
+    std::vector<double> ini_mssegseta(0);
+    std::vector<double> ini_mssegsphi(0);
+    auto mssegs_n     = Monitored::Collection("mssegs_n", ini_mssegsn);
+    auto mssegs_eta   = Monitored::Collection("mssegs_eta", ini_mssegseta);
+    auto mssegs_phi   = Monitored::Collection("mssegs_phi", ini_mssegsphi);
+
+    auto monitorIt = Monitored::Group(m_monTool, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi, mssegs_n, mssegs_eta, mssegs_phi);
 
     // MS-only extrapolated tracks
     int count_mstrks = 0;
     for (auto const& mstrk : *newtracks) {
       count_mstrks++;
-      ATH_MSG_INFO("LAURYNAS" << mstrk->trackParameters());
       const Trk::Perigee* perigee = mstrk->perigeeParameters();
       const Amg::Vector3D mom = perigee->momentum();
       ini_mstrkspt.push_back(mom.perp()/1000.0); // Converted to GeV
-      //ini_mstrkspt.push_back(mstrk->pt()/1000.0); // converted to GeV
-      // ini_mstrkseta.push_back(mstrk->eta());
-      // ini_mstrksphi.push_back(mstrk->phi());
+      double theta = perigee->parameters()[Trk::theta];
+      double eta = -log(tan(theta*0.5));
+      ini_mstrkseta.push_back(eta);
+      ini_mstrksphi.push_back(perigee->parameters()[Trk::phi0]);
     }
     ini_mstrksn.push_back(count_mstrks);
 
-
+    int count_mssegs = 0;
+    for (auto const& seg : msc) {
+      count_mssegs++;
+      ini_mssegseta.push_back(seg->globalDirection().eta());
+      ini_mssegsphi.push_back(seg->globalDirection().phi());      
+    }
+    ini_mssegsn.push_back(count_mssegs);
   }
 
 
