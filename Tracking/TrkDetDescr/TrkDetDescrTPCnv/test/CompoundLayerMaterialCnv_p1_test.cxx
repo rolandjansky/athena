@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkGeometry/CompoundLayerMaterialCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -105,6 +106,7 @@ void testit (const Trk::CompoundLayerMaterial& trans1,
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   Trk::BinUtility bin1 (10, 0, 10);
   Trk::ValueStore thickness {1.0, 0.1, {{1,2}, {3,4}}};
   Trk::ValueStore x0bins {1.1, 0.2, {{2,1}, {4,3}}};

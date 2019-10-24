@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -76,9 +76,14 @@ void TrackCollectionCnv::initializeOldExtConverters()
 
 TrackCollection_PERS * TrackCollectionCnv::createPersistent( TrackCollection *transCont)
 {
-    m_log.setLevel( m_msgSvc->outputLevel() );
-    updateLog(); // Make m_log indicate the current key
-    return m_TPConverter.createPersistent( transCont, m_log );
+    std::string logname = "TrackCollectionCnv";
+    if (const DataObject* dObj = getDataObject()) {
+      logname += dObj->name();
+    }
+
+    MsgStream log (m_msgSvc, logname );
+
+    return m_TPConverter.createPersistent( transCont, log );
 }
 
 //-----------------------------------------------------------------------------
@@ -133,10 +138,3 @@ TrackCollection *TrackCollectionCnv::createTransient()
     return p_collection;
 }
 
-void TrackCollectionCnv::updateLog(){  
-     const DataObject* dObj = getDataObject();
-     if (dObj==0) return; // Can't do much if this fails.
-     const std::string  key = (dObj->name());
- 
-     m_log.m_source="TrackCollectionCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
-}

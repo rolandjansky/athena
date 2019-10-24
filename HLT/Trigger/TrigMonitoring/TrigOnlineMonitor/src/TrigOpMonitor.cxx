@@ -6,7 +6,12 @@
 
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
+#include "ByteStreamData/ByteStreamMetadata.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
+#include "eformat/DetectorMask.h"
+#include "eformat/SourceIdentifier.h"
 
 #include <algorithm>
 #include <fstream>
@@ -75,6 +80,8 @@ StatusCode TrigOpMonitor::execute()
        after all other services have been setup. */
     fillMagFieldHist();
     fillIOVDbHist();
+    // This one needs to run after prepareForRun, which is currently called after Alg's start()
+    fillSubDetHist();
   }
 
   /* Per-LB fills */
@@ -118,13 +125,19 @@ StatusCode TrigOpMonitor::bookHists()
 
   m_releaseHist = new TH1I("GeneralOpInfo", "General operational info;;Applications", 1, 0, 1);
 
+  m_subdetHist = new TH2I("Subdetectors", "State of subdetectors", 1, 0, 1, 3, 0, 3);
+  m_subdetHist->SetCanExtend(TH1::kXaxis);
+  m_subdetHist->GetYaxis()->SetBinLabel(1, "# ROB");
+  m_subdetHist->GetYaxis()->SetBinLabel(2, "off");
+  m_subdetHist->GetYaxis()->SetBinLabel(3, "on");
+
   m_lumiHist = new TProfile("Luminosity", "Luminosity;Lumiblock;Luminosity [10^{33} cm^{-2}s^{-1}]",
                             m_maxLB, 0, m_maxLB);
 
   m_muHist = new TProfile("Pileup", "Pileup;Lumiblock;Interactions per BX", m_maxLB, 0, m_maxLB);
 
   // Register histograms
-  TH1* hist[] = {m_releaseHist, m_iovChangeHist, m_magFieldHist, m_lumiHist, m_muHist};
+  TH1* hist[] = {m_releaseHist, m_subdetHist, m_iovChangeHist, m_magFieldHist, m_lumiHist, m_muHist};
   for (TH1* h : hist) {
     if (h) ATH_CHECK(m_histSvc->regHist(m_histPath + h->GetName(), h));
   }
@@ -349,5 +362,74 @@ void TrigOpMonitor::fillReleaseDataHist()
     }
 
     m_releaseHist->Fill((result["project name"] + " " + result["release"]).c_str(), 1);
+  }
+}
+
+void TrigOpMonitor::fillSubDetHist()
+{
+  // Retrieve the enabled ROBs/SubDets list from DataFlowConfig which is a special object
+  // used online to hold DF properties passed from TDAQ to HLT as run parameters
+  SmartIF<IJobOptionsSvc> jobOptionsSvc = service<IJobOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
+  if (!jobOptionsSvc.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve JobOptionsSvc, will not fill SubDetectors histogram");
+    return;
+  }
+  const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_Enabled_ROB_IDs");
+  Gaudi::Property<std::vector<uint32_t>> enabledROBsProp("EnabledROBs",{});
+  std::set<uint32_t> enabledROBs;
+  if (prop && enabledROBsProp.assign(*prop)) {
+    enabledROBs.insert(enabledROBsProp.value().begin(), enabledROBsProp.value().end());
+    ATH_MSG_DEBUG("Retrieved a list of " << enabledROBs.size()
+                  << " ROBs from DataFlowConfig.DF_Enabled_ROB_IDs");
+  }
+  else {
+    ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_Enabled_ROB_IDs from JobOptionsSvc. This is fine if running "
+                  << "offline, but should not happen online");
+  }
+
+  // Retrieve detector mask from detector store
+  SmartIF<StoreGateSvc> inputMetaDataStore = service<StoreGateSvc>("InputMetaDataStore", /*createIf=*/ false);
+  if (!inputMetaDataStore.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve InputMetaDataStore, will not fill SubDetectors histogram");
+    return;
+  }
+  const ByteStreamMetadataContainer* metadatacont{nullptr};
+  if (inputMetaDataStore->retrieve(metadatacont, "ByteStreamMetadata").isFailure()) {
+    ATH_MSG_WARNING("Could not retrieve ByteStreamMetadata, will not fill SubDetectors histogram");
+    return;
+  }
+
+  const ByteStreamMetadata* metadata = *(metadatacont->begin());
+  uint64_t detMaskLeast = metadata->getDetectorMask();
+  uint64_t detMaskMost = metadata->getDetectorMask2();
+
+  // Decode subdetector masks
+  std::vector<eformat::SubDetector> subDetOn;
+  std::vector<eformat::SubDetector> subDetOff;
+  std::vector<eformat::SubDetector> subDetAll;
+  eformat::helper::DetectorMask(detMaskLeast, detMaskMost).sub_detectors(subDetOn);
+  eformat::helper::DetectorMask(~detMaskLeast, ~detMaskMost).sub_detectors(subDetOff);
+  eformat::helper::DetectorMask(~std::bitset<128>()).sub_detectors(subDetAll);
+
+  // Add bins with labels for every subdetector name
+  for (const eformat::SubDetector sd : subDetAll) {
+    m_subdetHist->GetXaxis()->FindBin(eformat::helper::SubDetectorDictionary.string(sd).data());
+  }
+  m_subdetHist->LabelsDeflate("X");
+
+  // Fill histogram with enabled subdetectors
+  for (const eformat::SubDetector sd : subDetOn) {
+    m_subdetHist->Fill(eformat::helper::SubDetectorDictionary.string(sd).data(), "on", 1.0);
+  }
+
+  // Fill histogram with disabled subdetectors
+  for (const eformat::SubDetector sd : subDetOff) {
+    m_subdetHist->Fill(eformat::helper::SubDetectorDictionary.string(sd).data(), "off", 1.0);
+  }
+
+  // Fill histogram with ROB counts
+  for (const uint32_t robid : enabledROBs) {
+    const std::string sdname = eformat::helper::SourceIdentifier(robid).human_detector();
+    m_subdetHist->Fill(sdname.data(), "# ROB", 1.0);
   }
 }

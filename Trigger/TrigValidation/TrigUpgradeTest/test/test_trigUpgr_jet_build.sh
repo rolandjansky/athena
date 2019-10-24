@@ -10,6 +10,7 @@ export EVENTS=10
 export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/simpleJetJob.py"
+export EXTRA="createHLTMenuExternally=True"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
 export REGTESTEXP="leaving with code"

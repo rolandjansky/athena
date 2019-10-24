@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkGeometry/BinnedLayerMaterialCnv_p1.h"
 #include "TrkDetDescrTPCnv/LayerMaterialMapCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -111,6 +112,7 @@ void testit (const Trk::BinnedLayerMaterial& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   Trk::MaterialPropertiesMatrix mm;
   mm.resize(2);
   Trk::Material mat1 ( 1.5,  2.5,  3.5,  4.5,  5.5);

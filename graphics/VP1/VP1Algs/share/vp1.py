@@ -90,14 +90,10 @@ if (vp1InputFiles == []):
 
     # Set geometry version
     if (not "DetDescrVersion" in dir()):
+        DetDescrVersion = "ATLAS-R2-2016-01-00-01" # default Run 2 geometry
         if (vp1NSW): 
             print("You set the '-nsw' flag, so the Geometry Tag 'ATLAS-R3S-2021-01-00-00' will be used...")
             DetDescrVersion="ATLAS-R3S-2021-01-00-00"
-            globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
-        else:
-            #DetDescrVersion = "ATLAS-GEO-20-00-01" # old
-            DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
-            globalflags.DetDescrVersion = DetDescrVersion
 
     globalflags.DetDescrVersion = DetDescrVersion
     

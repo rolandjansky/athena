@@ -151,6 +151,9 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonIso',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFIsoViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonIsoAux.',          'BS ESD AODFULL', 'Muon'),
 
+    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonLate',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFLATEViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonLateAux.',          'BS ESD AODFULL', 'Muon'),
+
     #bphys
     ('xAOD::TrigBphysContainer#TrigBphysDimu',                              'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
     ('xAOD::TrigBphysAuxContainer#TrigBphysDimuAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),

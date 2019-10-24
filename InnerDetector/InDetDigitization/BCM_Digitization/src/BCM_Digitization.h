@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BCM_DIGITIZATION_BCM_DIGITIZATION_H
@@ -18,13 +18,15 @@ class BCM_Digitization : public AthAlgorithm {
   /** Constructor with parameters */
   BCM_Digitization(const std::string &name,ISvcLocator *pSvcLocator);
 
+  virtual ~BCM_Digitization() = default;
+
   /** Basic algorithm methods */
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual bool isClonable() const override final { return true; }
 
  private:
-   ToolHandle<IPileUpTool> m_digTool;
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "BCM_DigitizationTool", ""};
 };
 
 #endif // BCM_DIGITIZATION_BCM_DIGITIZATION_H

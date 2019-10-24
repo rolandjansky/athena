@@ -115,7 +115,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "msonly":[[self.getmuFast(), self.getmuMSEmpty(1)], [self.getmuEFMS()]],
             "ivarmedium":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()]],
             "invM":[[],[self.getmuInvM()]],
-            "lateMu":[[self.getmuFast(), self.getmuComb()],[self.getLateMu()]]
+            "lateMu":[[],[self.getLateMu()]]
         }
        
         return stepDictionary

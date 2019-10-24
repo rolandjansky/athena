@@ -63,5 +63,11 @@ def BCM_OverlayDigitizationTool(name="BCM_OverlayDigitizationTool",**kwargs):
 
 def BCM_OverlayDigitization(name="BCM_OverlayDigitization",**kwargs):
      kwargs.setdefault("DigitizationTool", "BCM_OverlayDigitizationTool")
+     # Multi-threading settinggs
+     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+     if is_hive:
+         kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
      from AthenaCommon import CfgMgr
      return CfgMgr.BCM_Digitization(name,**kwargs)

@@ -14,7 +14,8 @@
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <string>
 
@@ -32,6 +33,7 @@ namespace Trk {
 }
 
 namespace Muon {
+    class MuonIdHelperSvc;
 
     /**Tool used in the persisency convertors to help rebuild EDM objects*/
     class MuonEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTool   {
@@ -41,7 +43,7 @@ namespace Muon {
 
         MuonEventCnvTool(const std::string&,const std::string&,const IInterface*);
 
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
 
         /** check that the RoT is correctly filled*/
         virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const override;
@@ -74,7 +76,7 @@ namespace Muon {
 
         const MuonGM::MuonDetectorManager* m_muonMgr;                 //!<Muon detector manager
 
-        ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool {this, "IdHelperTool", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
         SG::ReadHandleKey<RpcPrepDataContainer>   m_rpcPrdKey
              { this, "RpcClusterContainer", "RPC_Measurements", "Location for RPC PRDs" };

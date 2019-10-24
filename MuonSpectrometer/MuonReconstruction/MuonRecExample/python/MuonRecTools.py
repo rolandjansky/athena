@@ -35,6 +35,7 @@ from AthenaCommon.CfgGetter import addTool,addToolClone,addService
 
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 #--------------------------------------------------------------------------------
 # Hit-on-track creation tools
@@ -177,6 +178,7 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
     getPublicTool("MuonHoughPatternTool") 
     if muonStandaloneFlags.reconstructionMode() == 'collisions':  
         kwargs.setdefault("MDT_TDC_cut", False)
+    if muonStandaloneFlags.reconstructionMode() == 'collisions' or TriggerFlags.MuonSlice.doTrigMuonConfig:  
         kwargs.setdefault("RecordAll",False)
     return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs) 
 
@@ -235,10 +237,15 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
 
 def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
     from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
+    getService("MuonIdHelperSvc")
+    return Muon__MuonIdHelperTool(name,**kwargs)
+
+def MuonIdHelperSvc(name="MuonIdHelperSvc",**kwargs):
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
     kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
     kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
-    return Muon__MuonIdHelperTool(name,**kwargs)
+    return Muon__MuonIdHelperSvc(name,**kwargs)
 
 def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
     kwargs.setdefault("Propagators",["Trk::STEP_Propagator/MuonStraightLinePropagator"])

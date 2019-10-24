@@ -110,7 +110,7 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   const Amg::Vector3D& globalPrdPos( const Trk::PrepRawData* prd ) const;
 
   /** adds eta,phi pair to candidate vector, also performs splitting and associated pattern (only for cosmics!)*/
-  void addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern)const; 
+  void addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete)const; 
 
   /** clean candidates from subsets or duplicates */
   void cleanCandidates(std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates)const;
@@ -147,9 +147,6 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
 
   /** phi eta association map, eta prds are key*/
   std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* m_phiEtaHitAssMap;
-
-  /** vector containing temporary made patterns, which are to be deleted at end of matching */
-  mutable std::vector<const Muon::MuonPrdPattern*> m_patternsToDelete;
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};

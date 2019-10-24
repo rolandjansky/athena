@@ -17,7 +17,7 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
-export EXTRA="doL1Sim=True"
+export EXTRA="doL1Sim=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 source exec_TrigUpgradeTest_art_athenaMT.sh
 source exec_TrigUpgradeTest_art_post.sh

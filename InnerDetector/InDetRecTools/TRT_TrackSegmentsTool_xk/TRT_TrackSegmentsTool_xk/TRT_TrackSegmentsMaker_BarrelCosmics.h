@@ -121,7 +121,6 @@ namespace InDet{
 	  
       const TRT_ID*                            m_trtid       ; 
 
-      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRTDriftCircleCollection","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container
       unsigned int                             m_segmentDriftCirclesCount;
       std::vector< std::vector<const InDet::TRT_DriftCircle *> > m_segmentDriftCircles; // vector of DriftCircles associated to the segments
       std::vector< Trk::TrackSegment * >       m_segments    ; //!< List of found segments

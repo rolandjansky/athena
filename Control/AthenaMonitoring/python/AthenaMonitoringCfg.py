@@ -25,8 +25,8 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doTileMon:
         info('Set up Tile monitoring')
-        from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
-        result.merge(TileJetMonitoringConfig(flags))
+        from TileMonitoring.TileMonitoringConfig import TileMonitoringCfg
+        result.merge(TileMonitoringCfg(flags))
 
     if flags.DQ.Steering.doMuonMon:
         info('Set up Muon monitoring')
@@ -54,7 +54,7 @@ def AthenaMonitoringCfg(flags):
         result.merge(DataQualityToolsConfig(flags))
 
     if flags.DQ.Steering.doTauMon:
-        local_logger.info('Set up Tau monitoring')
+        info('Set up Tau monitoring')
         from tauMonitoring.TauMonitoringConfig import TauMonitoringConfig
         result.merge(TauMonitoringConfig(flags))
 

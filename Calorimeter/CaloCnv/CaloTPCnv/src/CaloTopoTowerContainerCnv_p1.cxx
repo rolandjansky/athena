@@ -1,17 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloTopoTowerContainerCnv_p1.h"
 
 #include "CaloTPCnv/CaloTopoTowerContainer_p1.h"
-#define private public
 #include "CaloEvent/CaloTopoTowerContainer.h"
-#undef private
 
 #include <iostream>
 
-void CaloTopoTowerContainerCnv_p1::persToTrans(const CaloTopoTowerContainer_p1* pers, CaloTopoTowerContainer* trans,MsgStream& msg) {
+void CaloTopoTowerContainerCnv_p1::persToTrans(const CaloTopoTowerContainer_p1* pers,
+                                               CaloTopoTowerContainer* trans,
+                                               MsgStream& msg) const
+{
   CaloTowerSeg seg;
   m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&seg);
   CaloTopoTowerContainer ctmp (seg, true);
@@ -37,7 +38,10 @@ void CaloTopoTowerContainerCnv_p1::persToTrans(const CaloTopoTowerContainer_p1* 
 }
 
 
-void CaloTopoTowerContainerCnv_p1::transToPers(const CaloTopoTowerContainer* trans, CaloTopoTowerContainer_p1* pers,MsgStream& msg)  {
+void CaloTopoTowerContainerCnv_p1::transToPers(const CaloTopoTowerContainer* trans,
+                                               CaloTopoTowerContainer_p1* pers,
+                                               MsgStream& msg) const
+{
   m_caloTowerSegCnv.transToPers(&(trans->towerseg()),&(pers->m_towerSeg));
   std::vector<CaloCell_ID::SUBCALO> reg;
   (void)trans->getCalos (reg);

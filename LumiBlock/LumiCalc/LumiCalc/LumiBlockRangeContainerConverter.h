@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,8 +11,8 @@
  *      Marjorie Shapiro <mdshapiro@lbl.gov>
  **********************************************************************************/
 
-#ifndef __LumiBlockRangeContainerConverter__
-#define __LumiBlockRangeContainerConverter__
+#ifndef LUMICALC_LUMIBLOCKRANGECONTAINERCONVERTER_H
+#define LUMICALC_LUMIBLOCKRANGECONTAINERCONVERTER_H
 
 #include <map>
 #include <vector>
@@ -36,6 +36,9 @@ class LumiBlockRangeContainerConverter {
 
   LumiBlockRangeContainerConverter();      
   virtual ~LumiBlockRangeContainerConverter();
+
+  LumiBlockRangeContainerConverter (const LumiBlockRangeContainerConverter&) = delete;
+  LumiBlockRangeContainerConverter& operator= (const LumiBlockRangeContainerConverter&) = delete;
 
   xAOD::LumiBlockRangeContainer* GetLumiBlockRangeContainer(const Root::TGoodRunsList& grl, std::map<TString,TString>& metadata, TString& version) ;
   xAOD::LumiBlockRangeContainer* GetLumiBlockRangeContainer(const Root::TGoodRunsList& grl) const;

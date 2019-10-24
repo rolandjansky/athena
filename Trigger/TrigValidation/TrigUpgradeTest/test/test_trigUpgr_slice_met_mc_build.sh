@@ -11,7 +11,7 @@ export SLOTS=1
 export INPUT="run2mc_ttbar"
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
-export EXTRA="doL1Sim=True;doEmptyMenu=True;doMETSlice=True"
+export EXTRA="doL1Sim=True;doEmptyMenu=True;doMETSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # Find the regtest reference installed with the release
 #export REGTESTREF=`find_data.py TrigUpgradeTest/slice_met_mc.ref`

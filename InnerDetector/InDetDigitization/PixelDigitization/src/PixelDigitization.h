@@ -19,13 +19,15 @@ public:
   PixelDigitization(const std::string &name,ISvcLocator *pSvcLocator);
 
   /** Destructor */
-  ~PixelDigitization();
+  virtual ~PixelDigitization() = default;
 
   /** Algorithm::initialize() */
   virtual StatusCode initialize() override final;
 
   /** Algorithm::execute() */
   virtual StatusCode execute() override final;
+
+  virtual bool isClonable() const override final { return true; }
 
 private:
   ToolHandle<IPileUpTool> m_pixelDigitizationTool{this, "DigitizationTool", "PixelDigitizationTool", "PixelDigitizationTool name"};

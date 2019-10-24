@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+#include "TrkVertexFitterInterfaces/IVertexAnalyticSeedFinder.h"
 #include "TrkVertexFitterInterfaces/IVertexTrackDensityEstimator.h"
 
 namespace Trk
@@ -26,7 +26,7 @@ namespace Trk
   // 
   // -------------------------------------------
 
-  class TrackDensitySeedFinder : public extends<AthAlgTool, IVertexSeedFinder>
+  class TrackDensitySeedFinder : public extends<AthAlgTool, IVertexAnalyticSeedFinder>
   {
   public:
     // Standard Gaudi constructor.
@@ -62,6 +62,9 @@ namespace Trk
     virtual Amg::Vector3D
     findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,
              const xAOD::Vertex * constraint=0) const override;
+
+    virtual std::pair<Amg::Vector3D,Amg::MatrixX>  findAnalyticSeed (const std::vector<const Trk::TrackParameters*>& perigeeList,
+    														   const xAOD::Vertex * constraint=0) const override;
 
 
     /**

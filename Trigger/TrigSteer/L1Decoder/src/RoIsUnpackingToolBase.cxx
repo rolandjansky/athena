@@ -23,6 +23,13 @@ StatusCode RoIsUnpackingToolBase::initialize()
   return StatusCode::SUCCESS;
 }
 
+std::string createLegName( const std::string& original, int counter ) {
+  std::string legName = "leg000_" + original;
+  const std::string ps = std::to_string( counter );
+  legName.replace( 6-ps.size(), ps.size(), ps );
+  return legName;
+}
+
 StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
 
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
@@ -30,17 +37,16 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
 
   for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
     const std::vector<std::string> thresholds{ chain.l1thresholds() };
-    int prefix = -1;
+    int counter = -1;
     for ( const std::string& th: thresholds ) {
-      prefix++;
+      counter++;
       if ( filter(th) ) {
 	m_thresholdToChainMapping[ HLT::Identifier( th ) ].push_back(  HLT::Identifier( chain.name() ) );
 	ATH_MSG_DEBUG( "Associating " << chain.name() << " with threshold " << th );
 	if ( thresholds.size() > 1 ) {
-	  std::string legName = "leg000_" + chain.name();
-	  const std::string ps = std::to_string(prefix);
-	  legName.replace( 6-ps.size(), ps.size(), ps );
+	  std::string legName = createLegName( chain.name(), counter);
 	  m_thresholdToChainMapping[ HLT::Identifier(th) ].push_back( HLT::Identifier( legName ) );
+	  m_legToChainMapping.insert( std::make_pair( HLT::Identifier( legName ),  HLT::Identifier( chain.name() ) ) );
 	  ATH_MSG_INFO( "Associating additional chain leg " << legName << " with threshold " << th );
 	}
       }
@@ -63,6 +69,14 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
     if ( activeChains.find(chainId) != activeChains.end() ) {
       ids.insert( chainId.numeric() );
       ATH_MSG_DEBUG( "Added chain to the RoI/threshold decision " << chainId );
+    } else {    // maybe it is a leg?
+      auto legIterator = m_legToChainMapping.find( chainId );
+      if ( legIterator != m_legToChainMapping.end() ) { // this is a leg we care about, need to check if respective chain was active, and activate
+	if ( activeChains.find( legIterator->second ) != activeChains.end() ) {
+	  ids.insert( chainId.numeric() );
+	  ATH_MSG_DEBUG( "Added chain leg to the RoI/threshold decision " << chainId );
+	}
+      }
     }
   }
   TrigCompositeUtils::insertDecisionIDs(ids, d);

@@ -56,6 +56,7 @@ protected:
   ///@}
 
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
+  std::map<HLT::Identifier, HLT::Identifier> m_legToChainMapping;
   /**
    * Fills mapping from L1 threshold -> to HLT chain
    * @arg filter is a function that, using the threshold name defines if this decoder instance should take care of this threshold

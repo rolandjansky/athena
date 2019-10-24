@@ -10,6 +10,7 @@ export EVENTS=20
 export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu_cf.py"
+export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;"
 export ATHENAOPTS="--config-only=config.pkl"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
