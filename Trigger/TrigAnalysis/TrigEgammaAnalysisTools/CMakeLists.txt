@@ -34,6 +34,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/AthenaMonitoringKernel
                           Control/AthenaMonitoring
                           Control/StoreGate
                           GaudiKernel
@@ -44,7 +45,7 @@ find_package( ROOT COMPONENTS Core Hist Tree )
 
 # Component(s) in the package:
 atlas_add_library( TrigEgammaAnalysisToolsLib
-   TrigEgammaAnalysisTools/*.h Root/*.cxx
+   Root/*.cxx
    PUBLIC_HEADERS TrigEgammaAnalysisTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
@@ -57,17 +58,18 @@ atlas_add_library( TrigEgammaAnalysisToolsLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfxAODLib )
 
 atlas_add_component( TrigEgammaAnalysisTools
-                     src/*.h
                      src/*.cxx
-                     Root/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools xAODCaloEvent xAODMissingET xAODEgamma xAODEventInfo xAODJet xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODCaloRings xAODTrigger xAODTruth LumiBlockCompsLib ElectronPhotonSelectorToolsLib egammaMVACalibLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigEgammaEmulationToolLib TrigConfHLTData TrigSteeringEvent TrigHLTMonitoringLib AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests GaudiKernel PATCoreLib )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES}
+                     TrigEgammaAnalysisToolsLib
+                     AthenaBaseComps AthenaMonitoringLib AthenaMonitoringKernelLib
+                     StoreGateLib SGtests GaudiKernel  )
 
 # Install files from the package:
 atlas_install_python_modules( python/TrigEgamma*.py )
 atlas_install_joboptions( share/test*.py )
-atlas_install_generic( share/trigEgammaDQ.py share/get_trigEgammaDQ.sh 
+atlas_install_generic( share/trigEgammaDQ.py share/get_trigEgammaDQ.sh
                         DESTINATION share
                         EXECUTABLE )
 

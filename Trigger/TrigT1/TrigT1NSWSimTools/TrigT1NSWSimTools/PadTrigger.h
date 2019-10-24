@@ -23,7 +23,8 @@ namespace NSWL1 {
     as well as the resulting trigger primitive.
 
     */
-    struct PadTrigger {//S.I make this a proper class // needs a wrap-up
+    class PadTrigger {//S.I make this a proper class // needs a wrap-up
+    public:
         uint16_t m_bandid; ///< see bandId below
         float m_eta;
         float m_phi;

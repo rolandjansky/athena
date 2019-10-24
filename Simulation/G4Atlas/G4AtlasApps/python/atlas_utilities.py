@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Provide different utilities like:
@@ -104,9 +104,9 @@ class MemorySnooper(PyAthena.Alg):
         self.now = time.time()
         return True
 
-    def beginRun(self):
+    def start(self):
         self.eventNumber = -2
-        self.memcheck('beginOfRun')
+        self.memcheck('start')
         self.eventNumber = 0
         return True
 

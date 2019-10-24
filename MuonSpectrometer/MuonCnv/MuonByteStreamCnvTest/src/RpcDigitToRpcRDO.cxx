@@ -155,8 +155,6 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
 
   IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
 
-  typedef RpcDigitCollection::const_iterator digit_iterator;
-
   SG::ReadHandle<RpcDigitContainer> container (m_digitContainerKey, ctx);
   if (!container.isValid()) {
     ATH_MSG_ERROR("Could not find RpcDigitContainer called " << container.name() << " in store " << container.store());

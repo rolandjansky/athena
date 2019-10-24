@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,18 +13,20 @@ class IPileUpTool;
 
 class ZDC_DigiTop: public AthAlgorithm
 {
- 
+
  public:
-   
+
   ZDC_DigiTop(const std::string& name, ISvcLocator* pSvcLocator);
- 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
-   
+
+  virtual ~ZDC_DigiTop() = default;
+
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual bool isClonable() const override final { return true; }
+
  private:
-  
-  ToolHandle<IPileUpTool> m_digTool;
+
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "ZDC_PileUpTool", ""};
 };
-  
+
 #endif

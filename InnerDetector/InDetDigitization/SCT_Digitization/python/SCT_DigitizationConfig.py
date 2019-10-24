@@ -105,7 +105,7 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     # If noise is turned off:
     if not digitizationFlags.doInDetNoise.get_Value():
         ###kwargs.setdefault("OnlyHitElements", True)
-        print 'SCT_Digitization:::: Turned off Noise in SCT_FrontEnd'
+        print('SCT_Digitization:::: Turned off Noise in SCT_FrontEnd')
         kwargs.setdefault("NoiseOn", False)
         kwargs.setdefault("AnalogueNoiseOn", False)
     else:
@@ -288,4 +288,10 @@ def SCT_DigitizationPU(name="SCT_DigitizationPU",**kwargs):
 
 def SCT_OverlayDigitization(name="SCT_OverlayDigitization",**kwargs):
     kwargs.setdefault("DigitizationTool", "SCT_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     return CfgMgr.SCT_Digitization(name,**kwargs)

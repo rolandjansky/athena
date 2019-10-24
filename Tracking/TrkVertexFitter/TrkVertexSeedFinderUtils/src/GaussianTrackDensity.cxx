@@ -73,6 +73,12 @@ namespace Trk
     return globalMaximumImpl (perigeeList, *dp);
   }
 
+  std::pair<double,double> GaussianTrackDensity::globalMaximumWithWidth (const std::vector<const TrackParameters*>& perigeeList/*,
+                                                  std::unique_ptr<ITrackDensity>& density*/) const
+  {
+    TrackDensity d (m_gaussStep);
+    return globalMaximumWithWidthImpl (perigeeList, d);
+  }
 
   /**
    * @brief Find position of global maximum for density function.
@@ -84,6 +90,13 @@ namespace Trk
   {
     addTracks (perigeeList, density);
     return density.globalMaximum (msg());
+  }
+
+  std::pair<double,double> GaussianTrackDensity::globalMaximumWithWidthImpl (const std::vector<const TrackParameters*>& perigeeList,
+                                                  TrackDensity& density) const
+  {
+    addTracks (perigeeList, density);
+    return density.globalMaximumWithWidth (msg());
   }
 
 
@@ -200,13 +213,7 @@ namespace Trk
     }
   }
 
-
-  /**
-   * @brief Return position of global maximum for density function.
-   * @param msg Message stream.
-   */
-  double
-  GaussianTrackDensity::TrackDensity::globalMaximum (MsgStream& msg) const
+  std::pair<double,double> GaussianTrackDensity::TrackDensity::globalMaximumWithWidth (MsgStream& msg) const
   {
     // strategy:
     // the global maximum must be somewhere near a track...
@@ -220,6 +227,7 @@ namespace Trk
     //
     double maximumPosition = 0.0;
     double maximumDensity = 0.0;
+    double maxCurvature = 0. ;
     
     for (const auto& entry : m_trackMap)
     {
@@ -229,23 +237,32 @@ namespace Trk
       double curvature = 0.0;
       trackDensity( trialZ, density, slope, curvature );
       if ( curvature >= 0.0 || density <= 0.0 ) continue; 
-      updateMaximum( trialZ, density, maximumPosition, maximumDensity );
+      updateMaximum( trialZ, density, curvature, maximumPosition, maximumDensity, maxCurvature);
       trialZ += stepSize( density, slope, curvature );
       trackDensity( trialZ, density, slope, curvature );
       if ( curvature >= 0.0 || density <= 0.0 ) continue;
-      updateMaximum( trialZ, density, maximumPosition, maximumDensity );
+      updateMaximum( trialZ, density, curvature, maximumPosition, maximumDensity, maxCurvature);
       trialZ += stepSize( density, slope, curvature );
       trackDensity( trialZ, density, slope, curvature );
       if ( curvature >= 0.0 || density <= 0.0) continue;
-      updateMaximum( trialZ, density, maximumPosition, maximumDensity );
+      updateMaximum( trialZ, density, curvature, maximumPosition, maximumDensity, maxCurvature);
     }
-
     if ( maximumDensity <= 0 &&  msg.level() <= MSG::DEBUG) {
       msg << MSG::DEBUG << "Global maximum at density of 0; track map contains "
           <<  m_trackMap.size() << " tracks" << endmsg;
     }
 
-    return maximumPosition;
+    return {maximumPosition,std::pow(-(maximumDensity/maxCurvature),0.5)};
+  }
+
+  /**
+   * @brief Return position of global maximum for density function.
+   * @param msg Message stream.
+   */
+  double
+  GaussianTrackDensity::TrackDensity::globalMaximum (MsgStream& msg) const
+  {
+    return GaussianTrackDensity::TrackDensity::globalMaximumWithWidth(msg).first;
   }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p2.h" 
@@ -26,7 +26,9 @@
     
 
 void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers, 
-					     CaloClusterContainer* trans, MsgStream &log) {
+					     CaloClusterContainer* trans,
+                                             MsgStream &log)
+{
   // reset element link converters, and provide container name lookup table
   m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);
   m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
@@ -36,10 +38,14 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers
 
   trans->clear (SG::VIEW_ELEMENTS);
   trans->reserve(pers->m_vec.size());
+  CaloClusterMomentContainer_p1::const_iterator momentStoreIterator;
+  CaloSamplingDataContainerCnv_p1::State samplingState;
   if ( ! m_momentContainerCnv.setIterator(&pers->m_momentContainer,
-                                          pers->m_vec.size()) ||
-       ! m_samplingDataContainerCnv.setIterator(&pers->m_samplingDataContainer,
-                                                pers->m_vec.size()))
+                                          pers->m_vec.size(),
+                                          momentStoreIterator) ||
+       ! m_samplingDataContainerCnv.setState(&pers->m_samplingDataContainer,
+                                             pers->m_vec.size(),
+                                             samplingState))
   {
     REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING, "CaloClusterContainerCnv_p2")
       << "Not converting CaloClusterContainer.";
@@ -60,9 +66,11 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers
     //Convert Cluster-quantities
     persToTrans(&(*itp),transCluster,log);
     //Convert sampling data store
-    m_samplingDataContainerCnv.persToTrans(&(pers->m_samplingDataContainer),&(transCluster->m_dataStore));
+    m_samplingDataContainerCnv.persToTrans(&(pers->m_samplingDataContainer),&(transCluster->m_dataStore),
+                                           samplingState);
     //Convert moment store
-    m_momentContainerCnv.persToTrans(&(pers->m_momentContainer),&(transCluster->m_momentStore));
+    m_momentContainerCnv.persToTrans(&(pers->m_momentContainer),&(transCluster->m_momentStore),
+                                     momentStoreIterator);
     trans->push_back(transCluster);
   }
   //Convert TowerSegment
@@ -73,8 +81,9 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers
 
 
 void CaloClusterContainerCnv_p2::transToPers(const CaloClusterContainer* trans, 
-					     CaloClusterContainer_p2* pers, MsgStream &log) {
-
+					     CaloClusterContainer_p2* pers,
+                                             MsgStream &log)
+{
   // reset element link converters, and provide container name lookup table
   m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);
   m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
@@ -106,7 +115,9 @@ void CaloClusterContainerCnv_p2::transToPers(const CaloClusterContainer* trans,
 
 
 void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2::CaloCluster_p* pers, 
-					     CaloCluster* trans, MsgStream& log) {
+					     CaloCluster* trans,
+                                             MsgStream& log)
+{
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
   trans->setBasicEnergy (pers->m_basicSignal);
   trans->setTime (pers->m_time);
@@ -133,8 +144,9 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2::Calo
 
 
 void CaloClusterContainerCnv_p2::transToPers(const CaloCluster* trans, 
-					     CaloClusterContainer_p2::CaloCluster_p* pers, MsgStream& log) {
-
+					     CaloClusterContainer_p2::CaloCluster_p* pers,
+                                             MsgStream& log)
+{
   pers->m_basicSignal=trans->getBasicEnergy();
   pers->m_time=trans->getTime();
   pers->m_samplingPattern=trans->m_samplingPattern; 

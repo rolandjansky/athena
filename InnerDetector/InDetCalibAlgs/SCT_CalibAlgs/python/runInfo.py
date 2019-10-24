@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import sys
 import time
@@ -10,16 +10,16 @@ from CoolRunQuery.utils.AtlRunQueryLookup import InitDetectorMaskDecoder
 
 def main( runNum=None, projectName='' ):
     if runNum == None:
-        print 'ERROR no runNumber given'
+        print('ERROR no runNumber given')
         sys.exit(-1)
 
     if projectName == '':
-        print 'ERROR no projectName given'
+        print('ERROR no projectName given')
         sys.exit(-1)
 
     year=int(projectName[4:6])
 
-    print 'runInfo from python folder'
+    print('runInfo from python folder')
     since = ( runNum << 32 )
     until = ( (runNum+1) << 32 )-1
     dbSvc = cool.DatabaseSvcFactory.databaseService()
@@ -36,20 +36,20 @@ def main( runNum=None, projectName='' ):
     try:
         RunCtrlDb = dbSvc.openDatabase( RunCtrlDB )
     except Exception,e:
-        print 'Problem opening database', e
+        print('Problem opening database', e)
         sys.exit(-1)
     
     folder_runCtrl = RunCtrlDb.getFolder( '/TDAQ/RunCtrl/EOR' )
     chList = folder_runCtrl.listChannels()
     if not chList:
-        print 'ERROR : no data in /TDAQ/RunCtrl/EOR'
+        print('ERROR : no data in /TDAQ/RunCtrl/EOR')
 
     for Id in chList:
 
         objs = folder_runCtrl.browseObjects( since, until, cool.ChannelSelection(Id) )
         for obj in objs:
             payl = obj.payload()
-            #print payl
+            #print(payl)
             RunNumber    = payl[ 'RunNumber' ]
             SORTime      = payl[ 'SORTime' ]
             EORTime      = payl[ 'EORTime' ]
@@ -99,7 +99,7 @@ def main( runNum=None, projectName='' ):
         else:
             res += 'NONE'
         
-    #print RunNumber, ProjectTag, ts1, ts2, nLB, res
+    #print(RunNumber, ProjectTag, ts1, ts2, nLB, res)
     fw = open( 'runInfo.txt', 'w' )
     fw.write( str(RunNumber) + ' ' + str(ProjectTag) + ' ' + str(ts1) + ' ' + str(ts2) + ' ' + str(nLB) + ' ' + res )
     fw.close()
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     try:
         runNumber = int( sys.argv[1] )
     except:
-        print "run number %s could not be converted to int"%(sys.argv[1])
+        print("run number %s could not be converted to int"%(sys.argv[1]))
         sys.exit(-1)
         
     main(runNum = runNumber)

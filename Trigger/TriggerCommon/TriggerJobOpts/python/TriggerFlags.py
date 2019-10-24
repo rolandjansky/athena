@@ -1066,7 +1066,6 @@ class triggerMenuSetup(JobProperty):
         # Run 3 (and preparation for Run-3)
         'LS2_v1', # for development of AthenaMT
         'LS2_emu_v1', # emulation test menu for AthenaMT
-        'Dev_pp_run3_v1', # Dev_pp_run3 for AthenaMT
         'MC_pp_run3_v1', # MC_pp_run3 for AthenaMT
         'PhysicsP1_pp_run3_v1', # PhysicsP1_pp_run3 for AthenaMT
         'Physics_pp_run3_v1', # Physics_pp_run3 for AthenaMT

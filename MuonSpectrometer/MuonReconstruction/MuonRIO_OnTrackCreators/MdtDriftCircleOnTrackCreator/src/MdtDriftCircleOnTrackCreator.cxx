@@ -326,12 +326,12 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
 }
 
 void Muon::MdtDriftCircleOnTrackCreator::updateSign( 
-                                                    MdtDriftCircleOnTrack& caliDriftCircle, 
-                                                    Trk::DriftCircleSide si) const
+						    MdtDriftCircleOnTrack& caliDriftCircle, 
+						    Trk::DriftCircleSide si) const
 {
   // ************************
   // Apply additional corrections to local position 
-  Trk::LocalParameters& lpos =  const_cast<Trk::LocalParameters&>(caliDriftCircle.localParameters()) ;
+  Trk::LocalParameters lpos(caliDriftCircle.localParameters()) ;
   
   // set sign LocalPosition
   if ( si == Trk::LEFT ){
@@ -504,12 +504,6 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
   if( !mdtPrd ){
     ATH_MSG_WARNING( " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " );
     return 0;
-  }
-  
-  static bool firstTime = true;
-  if (firstTime){
-   ATH_MSG_DEBUG( "Called correct using the base class implementation.  Will use the default error strategy" );
-    firstTime = false;
   }
   
   return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -48,13 +48,15 @@ class TileHitVecToCnt : public AthAlgorithm {
   /** Constructor with parameters */
   TileHitVecToCnt(const std::string &name,ISvcLocator *pSvcLocator);
 
+  virtual ~TileHitVecToCnt() = default;
+
   /** Basic algorithm methods */
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual bool isClonable() const override final { return true; }
 
  private:
-   ToolHandle<IPileUpTool> m_digTool;
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "TileHitVecToCntTool", "AthAlgTool which performs the conversion from TileHitVectors to TileHitContainers"};
 };
 
 #endif // TILESIMALGS_TILEHITVECTOCNT_H

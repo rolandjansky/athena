@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODCaloClusterTrigAuxContainerCnv.h
@@ -9,43 +9,19 @@
 #define XAODTRIGCALOATHENAPOOL_XAODCALOCLUSTERTRIGAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
+#include "AthenaPoolCnvSvc/T_AuxContainerCopyTPCnv.h"
 
 // EDM include(s):
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
+#include "xAODCaloClusterTrigAuxContainerOfflineCnv_v1.h"
+#include "xAODCaloClusterTrigAuxContainerOfflineCnv_v2.h"
 
-/// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterTrigAuxContainer,
-                               xAOD::CaloClusterTrigAuxContainer >
-   xAODCaloClusterTrigAuxContainerCnvBase;
 
-/**
- *  @short POOL converter for the xAOD::CaloClusterTrigAuxContainer class
- *
- * @author Aranzazu Ruiz Martinez <Aranzazu.Ruiz.Martinez@cern.ch>
- * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
- *
- * $Revision: 705793 $
- * $Date: 2015-11-04 14:13:26 +0100 (Wed, 04 Nov 2015) $
- */
-class xAODCaloClusterTrigAuxContainerCnv :
-   public xAODCaloClusterTrigAuxContainerCnvBase {
+typedef T_AthenaPoolAuxContainerCnv< xAOD::CaloClusterTrigAuxContainer,
+                                     xAODCaloClusterTrigAuxContainerOfflineCnv_v2,
+                                     xAODCaloClusterTrigAuxContainerOfflineCnv_v1 >
+   xAODCaloClusterTrigAuxContainerCnv;
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODCaloClusterTrigAuxContainerCnv >;
-
-protected:
-   /// Converter constructor
-public:
-   xAODCaloClusterTrigAuxContainerCnv( ISvcLocator* svcLoc );
-protected:
-
-   /// Function preparing the container to be written out
-   virtual xAOD::CaloClusterTrigAuxContainer*
-   createPersistent( xAOD::CaloClusterTrigAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::CaloClusterTrigAuxContainer* createTransient();
-
-}; // class xAODCaloClusterTrigAuxContainerCnv
 
 #endif // XAODTRIGCALOATHENAPOOL_XAODCALOCLUSTERTRIGAUXCONTAINERCNV_H

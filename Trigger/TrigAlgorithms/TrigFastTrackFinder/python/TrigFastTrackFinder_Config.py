@@ -415,6 +415,7 @@ remap  = {
     "FTK"      : "FTK",
     "Muon"     : "muon",
     "MuonFS"   : "muon",
+    "MuonLate" : "muon",
     "MuonCore" : "muonCore",
     "MuonIso"  : "muonIso",
     "eGamma"   : "electron",
@@ -612,6 +613,10 @@ class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_MuonFS(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MuonFS"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonFS","Muon")
+
+class TrigFastTrackFinder_MuonLate(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_MuonLate"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MuonLate","Muon")
 
 class TrigFastTrackFinder_MuonIso(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MuonIso"):

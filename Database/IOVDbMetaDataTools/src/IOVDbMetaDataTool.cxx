@@ -480,12 +480,8 @@ IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
 
     // Retrieve all meta data containers from InputMetaDataStore
 
-    // Before migrating to SG::ConstIterator, the 'key' method needs to be defined! RDS 08/2010
-    // SG::ConstIterator<IOVMetaDataContainer> cont;
-    // SG::ConstIterator<IOVMetaDataContainer> contEnd;
-    const DataHandle<IOVMetaDataContainer> cont;
-    const DataHandle<IOVMetaDataContainer> contEnd;
-
+    SG::ConstIterator<IOVMetaDataContainer> cont;
+    SG::ConstIterator<IOVMetaDataContainer> contEnd;
 
     StatusCode sc = m_inputStore->retrieve(cont, contEnd);
     if (!sc.isSuccess()) {

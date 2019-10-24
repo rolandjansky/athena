@@ -113,7 +113,9 @@ copyThinned1 (CONTAINER& orig,
   if (size > 0 && (dec || (svc && svc->thinningOccurred(&orig))))
   {
     auto newcont = std::make_unique<CONTAINER>();
-    newcont->clear (SG::VIEW_ELEMENTS);
+    // Avoid some ambiguities with clear().
+    auto* dv = static_cast<DataVector<typename CONTAINER::base_value_type>*> (newcont.get());
+    dv->clear (SG::VIEW_ELEMENTS);
     newcont->reserve (size);
 
     for (size_t i = 0; i < size; i++) {
