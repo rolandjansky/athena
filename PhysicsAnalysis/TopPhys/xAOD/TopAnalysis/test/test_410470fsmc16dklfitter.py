@@ -3,7 +3,7 @@
 # art-description: DxAOD MC16d TOPQ1 FullSim 410470                                                          
 # art-type: grid                                                                                              
 # art-output: output.root                                                                                     
-# art-input: user.artprod.user.iconnell.410470.DAOD_TOPQ1.e6337_s3126_r10201_p3554.ART.v2
+# art-input: user.mvanadia.ART.mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_s3126_r10201_r10210_p3980
 # art-input-nfiles: 2
 # art-include: 21.2/AnalysisTop
 
