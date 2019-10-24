@@ -5,11 +5,6 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
-# import flags
-from RecExConfig.RecFlags  import rec
-rec.doESD=True
-rec.doWriteESD=True
-
 createHLTMenuExternally=True # menu will be build up explicitly here 
 include("TrigUpgradeTest/testHLT_MT.py")
 
@@ -289,63 +284,48 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
-
 ##########################################
-# Some debug
+# Configure trigger output using parts of the NewJO configuration
+# in a somewhat hacky way - copy-pasted from full_menu.py
 ##########################################
-from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
-dumpSequence(topSequence)
-
-
-import DecisionHandling
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputCfg
 from AthenaCommon.CFElements import findAlgorithm,findSubSequence
-for a in findSubSequence(topSequence, "HLTAllSteps").getChildren():
-    if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
-        a.OutputLevel = DEBUG
-
-
-# this part uses parts from the NewJO configuration, it is very hacky for the moment
-
-from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
 hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
 filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
 # try to find L1Decoder
 l1decoder = findAlgorithm(topSequence,'L1Decoder')
-l1decoder.OutputLevel=DEBUG
-
-
-
 if not l1decoder:
     l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
-
 if l1decoder:
     decObj = collectDecisionObjects( hypos, filters, l1decoder )
-    __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
+    __log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
     __log.debug(decObj)
-
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-    ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
-    ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
-    ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ "xAOD::EventInfo#EventInfo" ]
-
-    ItemList = list(set(ItemList))
-
 else:
-    ItemList = []
+    __log.warning("Failed to find L1Decoder, cannot determine Decision names for output configuration")
+    decObj = []
 
+# find DecisionSummaryMakerAlg
+summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
+if not summaryMakerAlg:
+    __log.warning("Failed to find DecisionSummaryMakerAlg")
 
-import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.ItemList = ItemList
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior+=1
+acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, summaryMakerAlg)
+Configurable.configurableRun3Behavior-=1
+acc.appendToGlobals()
 
+##########################################
+# Print top sequence for debugging
+##########################################
+from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
+dumpSequence(topSequence)
 
+##########################################
+# Write menu JSON
+##########################################
 HLTTop = findSubSequence(topSequence, "HLTTop")
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
-
-

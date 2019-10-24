@@ -19,7 +19,7 @@ writeBS = ExecStep.ExecStep("WriteBS")
 writeBS.type = 'athenaHLT'
 writeBS.job_options = 'TrigUpgradeTest/full_menu.py'
 writeBS.input = 'data'
-writeBS.args = '-c "doWriteESD=False" -o output'
+writeBS.args = '-o output'
 writeBS.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 decodeBS = ExecStep.ExecStep("DecodeBS")
