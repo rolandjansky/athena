@@ -3,7 +3,7 @@
 # art-description: DxAOD MC16a TOPQ1 AtlFast2 410470                                                          
 # art-type: grid                                                                                              
 # art-output: output.root                                                                                     
-# art-input: user.artprod.user.iconnell.410470.DAOD_TOPQ1.e6337_a875_r9364_p3554.ART.v2
+# art-input: user.mvanadia.ART.mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_a875_r9364_r9315_p3980
 # art-input-nfiles: 2
 # art-include: 21.2/AnalysisTop
 

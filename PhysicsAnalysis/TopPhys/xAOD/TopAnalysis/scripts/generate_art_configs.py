@@ -82,10 +82,10 @@ rewriteConfig('410470fsmc16a', 'validation-cuts.txt', 'mc16a')
 rewriteConfig('410470fsmc16d', 'validation-cuts.txt', 'mc16d')
 rewriteConfig('410470fsmc16dactualmurw', 'validation-cuts.txt', 'mc16d', actualmurw=True)
 rewriteConfig('410470fsmc16apflow', 'validation-cuts.txt', 'mc16a', overrides={
-       'JetCollectionName': 'AntiKt4EMPFlowJets',
+       'JetCollectionName': 'AntiKt4EMPFlowJets_BTagging201810',
    })
 rewriteConfig('410470fsmc16dpflow', 'validation-cuts.txt', 'mc16d', overrides={
-       'JetCollectionName': 'AntiKt4EMPFlowJets',
+       'JetCollectionName': 'AntiKt4EMPFlowJets_BTagging201810',
    })
 rewriteConfig('410470fsmc16asysts', 'validation-cuts.txt', 'mc16a', overrides={
        'Systematics': 'All',
