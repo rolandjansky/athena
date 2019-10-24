@@ -11,9 +11,9 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-import TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 as physics_menu 
+import TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 as physics_menu 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import PhysicsStream,SingleMuonGroup,SinglePhotonGroup,MinBiasGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,SinglePhotonGroup,MinBiasGroup
 
 
 def addP1Signatures():

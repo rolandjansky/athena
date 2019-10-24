@@ -156,7 +156,7 @@ def main():
         #generateL1Menu(menu="Physics_pp_v7",doFTK=FTKFlag)
         #generateL1Menu(menu="MC_pp_v7",doFTK=FTKFlag)
         generateL1Menu(menu="LS2_v1" )
-        generateL1Menu(menu="Dev_pp_run3_v1" )
+        #generateL1Menu(menu="Dev_pp_run3_v1" )
         return 0
 
     
