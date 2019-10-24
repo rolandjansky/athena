@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaAud.cxx 
@@ -201,30 +201,6 @@ Aud::afterFinalize(INamedInterface* comp)
   py_after (IAuditor::Finalize, comp->name(), StatusCode::SUCCESS);
 }
 
-void 
-Aud::beforeBeginRun(INamedInterface* comp)
-{
-  py_before (IAuditor::BeginRun, comp->name());
-}
-
-void 
-Aud::afterBeginRun(INamedInterface* comp)
-{
-  py_after (IAuditor::BeginRun, comp->name(), StatusCode::SUCCESS);
-}
-
-void
-Aud::beforeEndRun(INamedInterface* comp)
-{
-  py_before (IAuditor::EndRun, comp->name());
-}
-
-void 
-Aud::afterEndRun(INamedInterface* comp)
-{
-  py_after (IAuditor::EndRun, comp->name(), StatusCode::SUCCESS);
-}
-
 /// Audit the start of a standard "event".
 void 
 Aud::py_before (IAuditor::StandardEventType evt, const std::string& component)
@@ -234,8 +210,6 @@ Aud::py_before (IAuditor::StandardEventType evt, const std::string& component)
   case Initialize:   evtname = "initialize";   break;
   case ReInitialize: evtname = "reinitialize"; break;
   case Execute:      evtname = "execute";      break;
-  case BeginRun:     evtname = "beginrun";     break;
-  case EndRun:       evtname = "endrun";       break;
   case Finalize:     evtname = "finalize";     break;
   case Start:        evtname = "start";        break;
   case Stop:         evtname = "stop";         break;
@@ -260,8 +234,6 @@ Aud::py_after(IAuditor::StandardEventType evt,
   case Initialize:   evtname = "initialize";   break;
   case ReInitialize: evtname = "reinitialize"; break;
   case Execute:      evtname = "execute";      break;
-  case BeginRun:     evtname = "beginrun";     break;
-  case EndRun:       evtname = "endrun";       break;
   case Finalize:     evtname = "finalize";     break;
   case Start:        evtname = "start";        break;
   case Stop:         evtname = "stop";         break;
