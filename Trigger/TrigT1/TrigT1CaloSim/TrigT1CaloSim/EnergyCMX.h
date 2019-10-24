@@ -69,10 +69,9 @@
    // Methods used by Athena to run the algorithm
    //------------------------------------------------------
 
-   StatusCode initialize() ;
-   StatusCode beginRun() ;
-   StatusCode execute() ;
-   StatusCode finalize() ;
+   virtual StatusCode initialize() override;
+   virtual StatusCode start() override;
+   virtual StatusCode execute() override;
 
 private: // Private attributes
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
