@@ -56,7 +56,7 @@ namespace InDet {
         @param[in] rioOnTrack The RIO_OnTrack we're interested in
         @return  std::pair of the pointers to the two corresponding objects*/
     virtual std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
-      getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const;
+      getLinks( Trk::RIO_OnTrack& rioOnTrack ) const;
       
     /** @copydoc Trk::ITrkEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack* rot)*/
     virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const;
