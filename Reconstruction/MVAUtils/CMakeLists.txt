@@ -23,3 +23,7 @@ atlas_add_executable( convertXmlToRootTree util/convertXmlToRootTree.cxx
 		      INCLUDE_DIRS MVAUtils
 		      LINK_LIBRARIES MVAUtils CxxUtils)
 
+atlas_add_dictionary( MVAUtilsDict
+                      MVAUtils/MVAUtilsDict.h
+                      MVAUtils/selection.xml
+                      LINK_LIBRARIES egammaMVACalibLib )
