@@ -12,8 +12,13 @@
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+// For handles
+#include "GaudiKernel/ServiceHandle.h"
 // Standard library includes
 #include <string>
+
+// Forward declaration
+class StoreGateSvc;
 
 namespace DerivationFramework {
 
@@ -28,6 +33,7 @@ namespace DerivationFramework {
       std::string m_eventsKey; //!< Input particle collection (navigates to the vertices)
       std::string m_collectionName; //!< Output collection name stem
       int m_generations; //!< Number of generations after the particle in question to keep
+      ServiceHandle<StoreGateSvc> m_metaStore; //!< Handle on the metadata store for init
   }; 
 }
 
