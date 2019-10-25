@@ -52,16 +52,12 @@ public:
   virtual void beforeInitialize(INamedInterface* alg);
   virtual void beforeReinitialize(INamedInterface* alg);
   virtual void beforeExecute(INamedInterface* alg);
-  virtual void beforeBeginRun(INamedInterface* alg);
-  virtual void beforeEndRun(INamedInterface* alg);
   virtual void beforeFinalize(INamedInterface* alg);
 
   // add after* hooks to reset name of algorithm to "framework"
   virtual void afterInitialize(INamedInterface* alg);
   virtual void afterReinitialize(INamedInterface* alg);
   virtual void afterExecute(INamedInterface* alg, const StatusCode& sc);
-  virtual void afterBeginRun(INamedInterface* alg);
-  virtual void afterEndRun(INamedInterface* alg);
   virtual void afterFinalize(INamedInterface* alg);
 
   bool m_reported;

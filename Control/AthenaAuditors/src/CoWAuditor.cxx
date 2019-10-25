@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CoWAuditor.h"
@@ -139,29 +139,6 @@ void CoWAuditor::beforeExecute(INamedInterface* comp)
  
 void CoWAuditor::afterExecute( INamedInterface* comp, 
 			       const StatusCode& ) 
-{
-  ATH_MSG_VERBOSE("Running for "<<comp->name());
-  popStats(comp->name());
-}
- 
-void CoWAuditor::beforeBeginRun(INamedInterface* comp){
-  ATH_MSG_VERBOSE("Running for "<<comp->name());
-  pushStats(comp->name());
-}
- 
-void CoWAuditor::afterBeginRun(INamedInterface* comp)
-{
-  ATH_MSG_VERBOSE("Running for "<<comp->name());
-  popStats(comp->name());
-}
- 
-void CoWAuditor::beforeEndRun(INamedInterface* comp)
-{
-  ATH_MSG_VERBOSE("Running for "<<comp->name());
-  pushStats(comp->name());
-}
- 
-void CoWAuditor::afterEndRun(INamedInterface* comp)
 {
   ATH_MSG_VERBOSE("Running for "<<comp->name());
   popStats(comp->name());

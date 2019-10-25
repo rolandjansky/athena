@@ -65,10 +65,6 @@ class FPEAuditor : public AthCommonMsg<Auditor>
   virtual void afterReinitialize(INamedInterface* alg) override;
   virtual void beforeExecute(INamedInterface* alg) override;
   virtual void afterExecute(INamedInterface* alg, const StatusCode&) override;
-  virtual void beforeBeginRun(INamedInterface* alg) override;
-  virtual void afterBeginRun(INamedInterface *alg) override;
-  virtual void beforeEndRun(INamedInterface* alg) override;
-  virtual void afterEndRun(INamedInterface *alg) override;
   virtual void beforeFinalize(INamedInterface* alg) override;
   virtual void afterFinalize(INamedInterface* alg) override;
 
