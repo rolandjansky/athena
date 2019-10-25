@@ -19,6 +19,10 @@ def TRTMonitoringRun3_ToolConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
+    # does not run on AOD; do not run un RAW -> ESD
+    if inputFlags.DQ.Environment in ('AOD', 'tier0Raw'):
+        return result
+    
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
