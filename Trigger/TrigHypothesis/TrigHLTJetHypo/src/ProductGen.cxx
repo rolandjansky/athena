@@ -14,10 +14,6 @@ ProductGen::ProductGen() {}
 ProductGen::ProductGen(const std::vector<std::size_t>& ends):
   m_ends(ends), m_counters(ends.size(), 0), m_ncounters(ends.size()){
   
-  std::cout << " Prodgen m_ends before:\n";
-  for(const auto& i : m_ends){std::cout << i << " ";}
-  std::cout<<'\n';
-  
   for(auto& i : m_ends){
     if(i < 1) {
       m_done = true;
@@ -27,9 +23,6 @@ ProductGen::ProductGen(const std::vector<std::size_t>& ends):
     }
   }
   
-  std::cout << " Prodgen m_ends after:\n";
-  for(const auto& i : m_ends){std::cout << i << " ";}
-  std::cout<<'\n';
 }
 
 std::optional<std::vector<std::size_t>>  ProductGen::next() {

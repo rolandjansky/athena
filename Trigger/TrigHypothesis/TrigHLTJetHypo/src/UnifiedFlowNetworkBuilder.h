@@ -16,6 +16,11 @@
 using TreeVec = std::vector<std::size_t>;
 using IDJetGroup = std::map<std::size_t, HypoJetVector>;
 
+// define a map from a jet group index to a set of indices
+// that can be used to find a jet
+using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
+
+
 class UnifiedFlowNetworkBuilder: 
 virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
  public:
@@ -55,18 +60,19 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
 		    int& V,
 		    std::map<int, pHypoJet>& nodeToJet,
 		    const std::vector<int>& leaves) const;
-  
+
   /*
   void makeSourceToLeafEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 			     const std::vector<int>& leaves)  const;
   */
-
+  
   void findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
 			    const std::vector<int>& leaves,
 			    const HypoJetGroupCIter& groups_b,
 			    const HypoJetGroupCIter& groups_e,
-			    CondInd2JetGroupsInds&,
-			    std::map<std::size_t, HypoJetVector>&,
+			    CondInd2JetGroupsInds& satisfiedBy,
+			    std::map<std::size_t, HypoJetVector>& indJetGroups,
+			    JetGroupInd2ElemInds& jg2elemjgs,  
 			    std::size_t& cur_jg,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 
@@ -74,16 +80,20 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
   void propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 		      CondInd2JetGroupsInds& satisfiedBy,
 		      const std::map<std::size_t, HypoJetVector>& indJetGroups,
+		      JetGroupInd2ElemInds&,  
 		      std::size_t& cur_jg,
 		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
-  
-  void makeSinkEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
-		     std::size_t sink) const;
+
+  /*
+    void makeSinkEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
+    std::size_t sink) const;
+  */
   
   bool propagate_(std::vector<std::shared_ptr<FlowEdge>>& edges,
 		  std::size_t par,
 		  const std::vector<std::size_t>& siblings,
 		  CondInd2JetGroupsInds& satisfiedBy,
+		  JetGroupInd2ElemInds& jg2elemjgs,  
 		  const std::map<std::size_t, HypoJetVector>& indJetGroups,
 		  std::size_t& cur_jg,
 		  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;

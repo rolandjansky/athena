@@ -59,12 +59,10 @@ std::optional<std::vector<std::size_t>> JetGroupProduct::next(){
     std::vector<std::size_t> jg_indices;
     for(std::size_t i = 0; i < indices.size(); ++i){
       auto s = m_siblings[i];
-      std::cout << "Prodgen " << i << " " << indices[i] << " "
-		<< ((m_satisfiedBy.at(s)).at(indices[i])).size() << '\n';
+      std::cout << "Sibling " << s << " prodgen pos " << i << " prodgen val " << indices[i] << " jg index "
+		<< (m_satisfiedBy.at(s)).at(indices[i]) << '\n';
       //i: child; indices[i]: the particular job group for the child.
-      jg_indices.insert(jg_indices.end(),
-			(m_satisfiedBy.at(s)).at(indices[i]).begin(),
-			(m_satisfiedBy.at(s)).at(indices[i]).end());
+      jg_indices.push_back((m_satisfiedBy.at(s)).at(indices[i]));
     }
 
     
@@ -73,16 +71,23 @@ std::optional<std::vector<std::size_t>> JetGroupProduct::next(){
     // case early. Sharing is handled otherwise...
     std::set<std::size_t> unique_indices(jg_indices.begin(),
 					 jg_indices.end());
+    /*
     std::cout<< "JGP requiring unique indice set for ";
     std:: copy(jg_indices.begin(),
 	       jg_indices.end(),
 	       std::ostream_iterator<std::size_t>(std::cout, " "));
     std::cout<<'\n';
+    */
     
+    std::cout << "JGP indices before duplicates check\n";
+    for(const auto& i :jg_indices){std::cout << i << " ";}
+    std::cout<<'\n';
+
     if(jg_indices.size() == unique_indices.size()){
+      std::cout << "JGP no duplicates, returning indices\n";
       return jg_indices;
     } else {
-      std::cout << "JGP combined group rejected due to duplicates\n";
+      std::cout << "JGP  duplicates, get next\n";
     }
 
   }

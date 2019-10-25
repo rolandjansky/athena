@@ -10,8 +10,7 @@
 #include <vector>
 #include <optional>
 
-using CondInd2JetGroupsInds =
-  std::map<int, std::vector<std::vector<std::size_t>>>;
+using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
 
 class JetGroupProduct{
   /*

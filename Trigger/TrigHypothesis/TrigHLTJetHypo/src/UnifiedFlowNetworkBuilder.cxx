@@ -11,6 +11,7 @@
 #include <assert.h>
 
 
+
 void
 recordJetGroup(std::size_t ind,
 	       const HypoJetVector& jg,
@@ -158,7 +159,8 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
    */
 
 
-  std::size_t cur_jg = m_tree.size();  // (first node - 1)  for jets
+  // cur_jg will be used as a flow network node identifier. 0 is the source, start at 1
+  std::size_t cur_jg = 1;
 
   std::vector<std::shared_ptr<FlowEdge>> edges;
   // makeSourceToLeafEdges(edges, leaves);
@@ -170,7 +172,7 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
   // cond id to vector of inidices pointing into the inJetGroup vector
   // The inJetGroup vector contains jet groups that satisfied the leaf nodes.
   CondInd2JetGroupsInds satisfiedBy;
-
+  JetGroupInd2ElemInds jg2elemjgs;
  // jet grp id, jet grp
   std::map<std::size_t, HypoJetVector> indJetGroups{}; 
   
@@ -180,6 +182,7 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
 		       groups_e,
 		       satisfiedBy,
 		       indJetGroups,
+		       jg2elemjgs,
 		       cur_jg,
 		       collector);
   
@@ -197,18 +200,22 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
   propagateEdges(edges,
 		 satisfiedBy,
 		 indJetGroups,
+		 jg2elemjgs,
 		 cur_jg,
 		 collector);
 
   //sink index follows last jet group index
   std::size_t sink = cur_jg;
-  ++sink;
   V = sink;
   ++V;
   for(const auto e : edges){std::cout << "after propagate: "<<  *e <<'\n';}
 
-  makeSinkEdges(edges, sink);
+  for(const auto& i :satisfiedBy[1]){
+    edges.push_back(std::make_shared<FlowEdge>(i, sink, jg2elemjgs[i].size())); 
+  }
+  // makeSinkEdges(satisfiedBy[1], sink);
   for(const auto e : edges){std::cout << "final: "<<  *e <<'\n';}
+  std::cout<<"after propagate, sink: " << sink << " V: " << V << '\n';
   
   return std::make_optional<std::vector<std::shared_ptr<FlowEdge>>>(edges);
 }
@@ -231,6 +238,7 @@ void UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
 						     const HypoJetGroupCIter& groups_e,
 						     CondInd2JetGroupsInds& satisfiedBy,
 						     std::map<std::size_t, HypoJetVector>& indJetGroups,
+						     JetGroupInd2ElemInds& jg2elemjgs,
 						     std::size_t& cur_jg,
 						     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   
@@ -258,22 +266,20 @@ void UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
     for(const auto& leaf: leaves){
       
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
-	satisfiedBy[leaf].push_back(std::vector<std::size_t>{cur_jg});
-	// edges.push_back(std::make_shared<FlowEdge>(leaf, cur_jg, jg.size()));
-	jg_used = true;
-	edges.push_back(std::make_shared<FlowEdge>(0,
-						   cur_jg,
-						   m_conditions[leaf]->capacity()));
-	edges.push_back(std::make_shared<FlowEdge>(cur_jg,
-						   leaf,
-						   m_conditions[leaf]->capacity()));
-	
+	if(!jg_used){
+	  // do the following once if jet group satisfies any condition...
+	  jg_used= true;
+	  jg2elemjgs.emplace(cur_jg, std::vector<std::size_t>{cur_jg});
+	  indJetGroups.emplace(cur_jg, jg);
+	  edges.push_back(std::make_shared<FlowEdge>(0,
+						     cur_jg,
+						     jg.size()));
+	  if(collector){recordJetGroup(cur_jg, jg, collector);}
+	  ++cur_jg;
+	}
+	// do the following for each satisfied condition ...
+	satisfiedBy[leaf].push_back(cur_jg-1);
       }
-    }
-    if(jg_used){
-      if(collector){recordJetGroup(cur_jg, jg, collector);}
-      indJetGroups.emplace(cur_jg++, jg);
-
     }
   }
 }
@@ -283,6 +289,7 @@ void UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
 void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 					       CondInd2JetGroupsInds& satisfiedBy,
 					       const std::map<std::size_t, HypoJetVector>& indJetGroups,
+					       JetGroupInd2ElemInds& jg2elemjgs,  
 					       std::size_t& cur_jg,
 					       const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
 
@@ -352,6 +359,7 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
 				       k,
 				       siblings,
 				       satisfiedBy,
+				       jg2elemjgs,
 				       indJetGroups,
 				       cur_jg,
 				       collector);
@@ -369,6 +377,7 @@ bool UnifiedFlowNetworkBuilder::propagate_(std::vector<std::shared_ptr<FlowEdge>
 					   std::size_t child,
 					   const std::vector<std::size_t>& siblings,
 					   CondInd2JetGroupsInds& satisfiedBy,
+					   JetGroupInd2ElemInds& jg2elemjgs,  
 					   const std::map<std::size_t, HypoJetVector>& indJetGroups,
 					   std::size_t& cur_jg,
 					   const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
@@ -379,82 +388,98 @@ bool UnifiedFlowNetworkBuilder::propagate_(std::vector<std::shared_ptr<FlowEdge>
   // if any such edge is constructed, the calling rroutine is notified so it
   // can scheduling processing the parent as a child.
 
-  bool par_satisfied{false};  
-  
-  std::cout << "sent 100 \n";
-  for(const auto& s : siblings){
-    std::cout << "sibling:  " << s << " no of satisfying job groups " << satisfiedBy[s].size() << '\n';
-    for(const auto& jg : satisfiedBy[s]){
-      std::cout << "  ";
-      for(const auto& i: jg) {std::cout << i << " ";}
-      std::cout << '\n';
-    }
+  std::cout << "propagate_ 0\n";
+  std::cout << "siblings: ";
+  for(const auto& i :siblings){ std::cout << i << " ";}
+  std::cout <<'\n';
+  std::cout << "satisfiedBy:\n";
+  for(const auto& p : satisfiedBy){
+    std:: cout << p.first << ": ";
+    for(const auto& i :p.second){ std::cout << i << " ";}
+    std::cout << '\n';
   }
-  std::cout << '\n';
-    
-  // std::cout<< collector->toString();
+  std::cout << "jg2elemjgs:\n";
+  for(const auto& p : jg2elemjgs){
+    std:: cout << p.first << ": ";
+    for(const auto& i :p.second){ std::cout << i << " ";}
+    std::cout << '\n';
+  }
+  std::size_t par =  m_tree.getParent(child);
+  if(par == 0){return false;}
   
+  std::cout << "child: " << child << " parent: " <<par << '\n';
+      
+  bool par_satisfied{false};  
+      
   // calculate the external product of the jet groups
   // eg if condition c1 is satisfied by jg11 and jg12, while its only
   // sibling c2 is satisfied by jg21, the external jet groups are
   // jg11jg21, jg12jg21. Each of these  are flattened.
   
-  std::cout << "UFNB size indJetGroups  dump: [" << indJetGroups.size() << "] for child " << child << " sibling groups \n";
-
   auto jg_product = JetGroupProduct(siblings, satisfiedBy);
-  std::cout << "sent 150\n";
   // Note: while not siblings have been processed, next() will fail due to empty group vectors
   auto next = jg_product.next();
-  std::cout << "sent 155\n";
 
   // step through the job groups found by combining ghe child groups
   // check ecach combination to see if it satisfies the parent. If so
   // add an edge from the contributing children, and from the new job group to the parent.
-  std::size_t par =  m_tree.getParent(child);
+
   while (next.has_value()){
     
     auto jg_indices = *next;
+    std::vector<std::size_t> elem_jgs;
     HypoJetVector jg;
+ 
     for(const auto& ind : jg_indices){
-      jg.push_back(indJetGroups.at(ind)[0]);
+      elem_jgs.insert(elem_jgs.end(),
+		      jg2elemjgs[ind].begin(),
+		      jg2elemjgs[ind].end());
     }
-    std::cout<<"UFNB child: " << child << " par " << par << " siblings  ";
-    for(const auto& s: siblings) {std::cout << s << " ";}
-    std::cout << " job group ";
-    for(const auto& j: jg) {std::cout << j << " ";}
-    std::cout<< '\n';
 
-    if(!m_conditions[par]->isSatisfied(jg, collector)){
-      std::cout << "parent " << par << " NOT satisfied by jg\n";
+    std::set<std::size_t> unique_indices(elem_jgs.begin(),
+					 elem_jgs.end());
+    if(unique_indices.size() != elem_jgs.size()){
+      next = jg_product.next();
+      continue;
     }
-    
+
+    for(const auto& i : elem_jgs){
+      jg.push_back(indJetGroups.at(i)[0]);  // why [0]? assume elemental jg has size 1
+    }
+    std::cout<< "propagate_ parent testing condition " << par << " jet group indices ";
+    for(const auto& i : elem_jgs){std::cout<< i << " ";}
+    std::cout << " size jet vec " << jg.size() << '\n';
+        
+    std::cout << "propagate_ 100\n";
+
     if (m_conditions[par]->isSatisfied(jg, collector)){// par is a tree ind.
-      std::cout << "parent " << par << " satisfied by jg\n";
       par_satisfied = true;
-      satisfiedBy[par].push_back(jg_indices);
-     
-      for(const auto& sib : siblings){
-	
-	edges.push_back(std::make_shared<FlowEdge>(sib,
-						   cur_jg,
-						   m_conditions[sib]->capacity()));
-	std::cout<< "UFNB sib-jg edge: " << *(edges.back())<<'\n';
-      }
-      edges.push_back(std::make_shared<FlowEdge>(cur_jg,
-						 par,
-						 jg.size()));
-      std::cout<< "UFNB jg-par edge: " << *(edges.back())<<'\n';
-
+      std::cout<< "propagate_ parent condition " << par << " satisfied, by jet group "
+	       <<cur_jg<< "with elements: ";
+      for(const auto& i : elem_jgs){std::cout<< i << " ";}
+      std::cout << '\n';
+      satisfiedBy[par].push_back(cur_jg);
+      jg2elemjgs[cur_jg] = elem_jgs;
       if(collector){recordJetGroup(cur_jg, jg, collector);}
-
+      
+      for(const auto& i : jg_indices){
+	edges.push_back(std::make_shared<FlowEdge>(i,
+						   cur_jg,
+						   jg2elemjgs[i].size()));
+	std::cout<< "propagate_ adding edge " << *(edges.back())<<'\n';
+      }
       ++cur_jg;
+    } else {
+      std::cout<< "propagate_ parent condition " << par << " NOT satisfied, no update\n";
     }
     
     next = jg_product.next();
   }
+  std::cout << "propagate_ 9999\n";
   return par_satisfied;
 }
 
+/*
 void UnifiedFlowNetworkBuilder::makeSinkEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 					      std::size_t sink) const {
   for(const auto& i : m_tree.firstGeneration()){
@@ -463,6 +488,7 @@ void UnifiedFlowNetworkBuilder::makeSinkEdges(std::vector<std::shared_ptr<FlowEd
 					       m_conditions[i]->capacity()));
   }
 }
+*/
 
 std::string UnifiedFlowNetworkBuilder::toString() const {
   std::stringstream ss;
