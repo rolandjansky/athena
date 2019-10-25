@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloSamplingDataCnv_p1.h"
 #include "CaloTPCnv/CaloSamplingData_p1.h"
-
-#define private public
 #include "CaloEvent/CaloSamplingData.h"
-#undef private
 
 #include <algorithm>
 #include <cassert>
@@ -18,7 +15,9 @@ CaloSamplingDataCnv_p1::CaloSamplingDataCnv_p1()
 }
 
 
-void CaloSamplingDataCnv_p1::persToTrans(const CaloSamplingData_p1* pers, CaloSamplingData* trans /*, MsgStream &*/) {
+void CaloSamplingDataCnv_p1::persToTrans(const CaloSamplingData_p1* pers,
+                                         CaloSamplingData* trans /*, MsgStream &*/) const
+{
   trans->m_varTypePattern=pers->m_varTypePattern;
   if (pers->m_dataStore.empty()) {
     trans->m_dataStore.clear();
@@ -43,7 +42,9 @@ void CaloSamplingDataCnv_p1::persToTrans(const CaloSamplingData_p1* pers, CaloSa
 }
 
 
-void CaloSamplingDataCnv_p1::transToPers(const CaloSamplingData* trans, CaloSamplingData_p1* pers /*, MsgStream &*/)  {
+void CaloSamplingDataCnv_p1::transToPers(const CaloSamplingData* trans,
+                                         CaloSamplingData_p1* pers /*, MsgStream &*/) const
+{
   pers->m_varTypePattern=trans->m_varTypePattern;
   if (trans->m_dataStore.empty()) {
     pers->m_dataStore.clear();

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOATHENAPOOL_CALOCLUSTERCONTAINERCNV_P1_H
@@ -25,17 +25,21 @@ class CaloCluster;
 
 class CaloClusterContainerCnv_p1 {
 public:
+  typedef CaloClusterContainer Trans_t;
+  typedef CaloClusterContainer_p1 Pers_t;
+
+
   CaloClusterContainerCnv_p1() {};
   ~CaloClusterContainerCnv_p1() {}; 
 
 
-  void persToTrans(const CaloClusterContainer_p1*, CaloClusterContainer*, MsgStream &log) ;
-  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p1*, MsgStream &log) ;
+  void persToTrans(const CaloClusterContainer_p1*, CaloClusterContainer*, MsgStream &log) const;
+  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p1*, MsgStream &log) const;
 
 private:
   //Conversion function for individual clusters (called in a loop over the container)
-  void persToTrans(const CaloClusterContainer_p1::CaloCluster_p*, CaloCluster*, MsgStream &) ;
-  void transToPers(const CaloCluster*, CaloClusterContainer_p1::CaloCluster_p*, MsgStream &) ;
+  void persToTrans(const CaloClusterContainer_p1::CaloCluster_p*, CaloCluster*, MsgStream &) const;
+  void transToPers(const CaloCluster*, CaloClusterContainer_p1::CaloCluster_p*, MsgStream &) const;
 
 
   //Sub-Converters:

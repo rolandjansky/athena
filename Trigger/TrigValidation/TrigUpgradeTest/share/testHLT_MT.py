@@ -30,7 +30,8 @@ class opt:
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
-    doWriteESD       = True           # Write out an ESD?
+    doWriteRDOTrigger = False         # Write out RDOTrigger?
+    doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
@@ -278,8 +279,6 @@ rec.doESD = False
 rec.doAOD = False
 rec.doTruth = False
 
-TriggerFlags.writeBS = True
-
 #-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------
@@ -482,14 +481,32 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
     jobproperties.print_JobProperties('tree&value')
     print(svcMgr)
 
-
+#-------------------------------------------------------------
+# Use parts of NewJO
+#-------------------------------------------------------------
 from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=True
+Configurable.configurableRun3Behavior+=1
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+# Output flags
+isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
+if opt.doWriteRDOTrigger:
+    if isPartition:
+        log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
+        theApp.exit(1)
+    rec.doWriteRDO = False  # RecExCommon flag
+    ConfigFlags.Output.doWriteRDO = True  # new JO flag
+    ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+if opt.doWriteBS:
+    rec.doWriteBS = True  # RecExCommon flag
+    TriggerFlags.writeBS = True  # RecExCommon flag
+    ConfigFlags.Output.doWriteBS = True  # new JO flag
+    ConfigFlags.Trigger.writeBS = True  # new JO flag
+
+# ID Cache Creators
 ConfigFlags.lock()
 triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
-Configurable.configurableRun3Behavior=False
+Configurable.configurableRun3Behavior-=1
 
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring

@@ -11,8 +11,6 @@ PixelDigitization::PixelDigitization(const std::string &name,
 {
 }
 
-PixelDigitization::~PixelDigitization() { }
-
 // Initialize method:
 StatusCode PixelDigitization::initialize() {
 

@@ -28,7 +28,7 @@ RunNumber = 363899
 input_base = 'data18_tilecomm.00363899.calibration_tile.daq.RAW._lb0000._TileREB-ROS._0005-200ev.data'
 if not globals().has_key ('ATLAS_REFERENCE_TAG'):
     ATLAS_REFERENCE_TAG = os.environ.get ('ATLAS_REFERENCE_TAG',
-                                          'TileByteStream-01-00-00')
+                                          'TileByteStream-02-00-00')
 from AthenaCommon.Utils.unixtools import find_datafile
 r = find_datafile (os.path.join ('TileByteStream', ATLAS_REFERENCE_TAG))
 refdir = None
@@ -91,6 +91,12 @@ from TileRecUtils.TileRecUtilsConf import TileMuonReceiverDumper
 topSequence += TileMuonReceiverDumper ('TileMuonReceiverDumper',
                                        TileMuonReceiverContainer = 'TileMuRcvCnt',
                                        Prefix = dumpdir + '/')
+
+from AthenaCommon import CfgMgr
+toolSvc = CfgMgr.ToolSvc()
+from TileByteStream.TileByteStreamConf import TileROD_Decoder
+toolSvc += TileROD_Decoder()
+toolSvc.TileROD_Decoder.fullTileMode=RunNumber
 
 
 os.system ('rm -rf ' + dumpdir)

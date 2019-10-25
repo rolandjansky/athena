@@ -1,18 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloSamplingDataContainerCnv_p1.h"
-#define private public
-#define protected public
 #include "CaloEvent/CaloSamplingData.h"
-#undef private
-#undef protected
 #include "AthenaKernel/errorcheck.h"
 
 void CaloSamplingDataContainerCnv_p1::transToPers(const CaloSamplingData* trans, 
-						  CaloSamplingDataContainer_p1* pers, MsgStream& /*log*/) {
-
+						  CaloSamplingDataContainer_p1* pers,
+                                                  MsgStream& /*log*/) const
+{
   pers->m_varTypePatterns.push_back(trans->m_varTypePattern);
   typedef CaloSamplingData::variable_store_type::size_type var_size_type;
   //The sampling data store gets resized to nVariables x nSamplings by its constructor
@@ -30,27 +27,28 @@ void CaloSamplingDataContainerCnv_p1::transToPers(const CaloSamplingData* trans,
 }
 					  
 void CaloSamplingDataContainerCnv_p1::persToTrans(const CaloSamplingDataContainer_p1* /*pers*/,
-						  CaloSamplingData* trans) {
-
+						  CaloSamplingData* trans,
+                                                  State& state) const
+{
   //Convert m_varTypePattern
-  trans->m_varTypePattern=*(m_varTypePatternsIterator++);
+  trans->m_varTypePattern=*(state.m_varTypePatternsIterator++);
   size_t nVar=trans->getNumberOfVariableTypes();
   size_t nSamplings=trans->fastNsamp();
   typedef CaloSamplingData::variable_key_type vartype;
 
-  size_t nCopySamplings = std::min (nSamplings, m_nPersSamplings);
+  size_t nCopySamplings = std::min (nSamplings, state.m_nPersSamplings);
 
   for (size_t i=0;i<nVar;++i) {
     //Copy only if filled
     if (trans->m_varTypePattern & (0x1U<<i)) {
       CaloSamplingData::variable_store_type::iterator pos =
         trans->m_dataStore.begin() + trans->index (i, 0);
-      std::copy (m_samplingStoreIterator,
-                 m_samplingStoreIterator + nCopySamplings,
+      std::copy (state.m_samplingStoreIterator,
+                 state.m_samplingStoreIterator + nCopySamplings,
                  pos);
-      if (m_nPersSamplings < nSamplings)
-        std::fill (pos + m_nPersSamplings, pos + nSamplings, 0);
-      m_samplingStoreIterator += m_nPersSamplings;
+      if (state.m_nPersSamplings < nSamplings)
+        std::fill (pos + state.m_nPersSamplings, pos + nSamplings, 0);
+      state.m_samplingStoreIterator += state.m_nPersSamplings;
     }
     else //variable not present, set to zero
       trans->removeVariable (static_cast<vartype>(i));
@@ -58,11 +56,12 @@ void CaloSamplingDataContainerCnv_p1::persToTrans(const CaloSamplingDataContaine
 }
 
 
-bool CaloSamplingDataContainerCnv_p1::setIterator(const CaloSamplingDataContainer_p1* pers,
-                                                  unsigned int ncluster)
+bool CaloSamplingDataContainerCnv_p1::setState(const CaloSamplingDataContainer_p1* pers,
+                                               unsigned int ncluster,
+                                               State& state) const
 {
-  m_samplingStoreIterator=pers->m_dataStore.begin();
-  m_varTypePatternsIterator=pers->m_varTypePatterns.begin();
+  state.m_samplingStoreIterator=pers->m_dataStore.begin();
+  state.m_varTypePatternsIterator=pers->m_varTypePatterns.begin();
 
   // Previous versions of the code could have written one more sampling
   // than actually exists.  Count the number of variables that were written,
@@ -81,10 +80,11 @@ bool CaloSamplingDataContainerCnv_p1::setIterator(const CaloSamplingDataContaine
       mask >>= 1;
     }
   }
+
   if (nPersVars == 0)
-    m_nPersSamplings = 0;
+    state.m_nPersSamplings = 0;
   else
-    m_nPersSamplings = pers->m_dataStore.size() / nPersVars;
+    state.m_nPersSamplings = pers->m_dataStore.size() / nPersVars;
 
   if (ncluster != pers->m_varTypePatterns.size()) {
     REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING, "CaloSamplingDataContainerCnv_p1")

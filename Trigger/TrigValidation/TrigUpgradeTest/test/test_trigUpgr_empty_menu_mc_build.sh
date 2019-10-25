@@ -10,7 +10,7 @@ export THREADS=1
 export SLOTS=1
 export INPUT="ttbar"
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
-export EXTRA="doL1Sim=True;doEmptyMenu=True"
+export EXTRA="doL1Sim=True;doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
 export REGTESTEXP="leaving with code"

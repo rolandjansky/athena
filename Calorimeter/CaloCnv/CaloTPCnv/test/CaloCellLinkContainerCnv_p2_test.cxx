@@ -253,10 +253,10 @@ void runtest  (int nclus_max,
                                   wmin, wmax));
   if (print)
     dump_celllinkcontainer (c1);
-  cnv.transToPers (&c1, &pers, log);
+  cnv.transToPersWithKey (&c1, &pers, "key", log);
   if (print)
     dump_pers (pers);
-  cnv.persToTrans (&pers, &c1out, log);
+  cnv.persToTransWithKey (&pers, &c1out, "key", log);
   if (print)
     dump_celllinkcontainer (c1out);
   compare (c1, c1out);
@@ -278,7 +278,7 @@ void test_pack_errors()
     lnk->push (1, 1, "cells2");
     lnk->push (2, 1, "cells1");
     c1.push_back (lnk);
-    cnv.transToPers (&c1, &p1, log);
+    cnv.transToPersWithKey (&c1, &p1, "key", log);
     dump_pers (p1);
   }
 
@@ -291,7 +291,7 @@ void test_pack_errors()
     lnk->push (1, 1e10);
     lnk->push (2, 1);
     c1.push_back (lnk);
-    cnv.transToPers (&c1, &p1, log);
+    cnv.transToPersWithKey (&c1, &p1, "key", log);
     dump_pers (p1);
   }
 
@@ -304,7 +304,7 @@ void test_pack_errors()
     lnk->push (500000, 1);
     lnk->push (2, 1);
     c1.push_back (lnk);
-    cnv.transToPers (&c1, &p1, log);
+    cnv.transToPersWithKey (&c1, &p1, "key", log);
     dump_pers (p1);
   }
 }
@@ -321,7 +321,7 @@ void test_unpack_errors()
     CaloCellLinkContainer_p2 p1;
     p1.m_contName = "cellx";
     p1.m_nClusters = 1;
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -332,7 +332,7 @@ void test_unpack_errors()
     p1.m_nClusters = 1;
     p1.m_vISizes.push_back (1);
     p1.m_vWSizes.push_back (1);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -344,7 +344,7 @@ void test_unpack_errors()
     p1.m_vISizes.push_back (1);
     p1.m_vWSizes.push_back (1);
     p1.m_linkI.push_back ((1<<18) + 1);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -357,7 +357,7 @@ void test_unpack_errors()
     p1.m_vWSizes.push_back (1);
     p1.m_linkI.push_back ((1<<18) + 1);
     p1.m_linkW.push_back (2001);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -371,7 +371,7 @@ void test_unpack_errors()
     p1.m_linkI.push_back ((1<<18) + 1);
     p1.m_linkW.push_back (1001);
     p1.m_linkW.push_back (1002);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -383,7 +383,7 @@ void test_unpack_errors()
     p1.m_vWSizes.push_back (2);
     p1.m_linkI.push_back ((1<<18) + 1);
     p1.m_linkW.push_back (1001);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 }
 

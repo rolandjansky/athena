@@ -32,7 +32,7 @@ input_fname = os.path.join (fpath, 'data12_8TeV.00204073.physics_JetTauEtmiss.me
 # Find reference file.
 if not globals().has_key ('ATLAS_REFERENCE_TAG'):
     ATLAS_REFERENCE_TAG = os.environ.get ('ATLAS_REFERENCE_TAG',
-                                          'TileByteStream-01-00-00')
+                                          'TileByteStream-02-00-00')
 from AthenaCommon.Utils.unixtools import find_datafile
 r = find_datafile (os.path.join ('TileByteStream', ATLAS_REFERENCE_TAG))
 refdir = None
@@ -95,6 +95,12 @@ topSequence += TileRawChannelDumper ('TileRawChannelCntDumper',
 topSequence += TileRawChannelDumper ('MuRcvRawChannelCntDumper',
                                      TileRawChannelContainer = 'MuRcvRawChCnt',
                                      Prefix = dumpdir + '/')
+
+from AthenaCommon import CfgMgr
+toolSvc = CfgMgr.ToolSvc()
+from TileByteStream.TileByteStreamConf import TileROD_Decoder
+toolSvc += TileROD_Decoder()
+toolSvc.TileROD_Decoder.fullTileMode=RunNumber
 
 
 os.system ('rm -rf ' + dumpdir)

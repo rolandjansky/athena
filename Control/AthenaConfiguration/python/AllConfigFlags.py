@@ -63,6 +63,10 @@ def _createCfgFlags():
 
 
     acf.addFlag('Output.doESD', False) # produce ESD containers
+    acf.addFlag('Output.doWriteRDO', False) # write out RDO file
+    acf.addFlag('Output.doWriteESD', False) # write out ESD file
+    acf.addFlag('Output.doWriteAOD', False) # write out AOD file
+    acf.addFlag('Output.doWriteBS', False) # write out RDO ByteStream file
 
     acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
     acf.addFlag('Output.HITSFileName','myHITS.pool.root')

@@ -35,8 +35,8 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
 
     PixelByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~PixelByteStreamErrorsTool(){}
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     virtual bool isGood(const IdentifierHash & elementIdHash) const override final;
 
@@ -71,8 +71,8 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
     virtual void addBadFE(IdentifierHash hashID, int badFE) const override final;
     virtual unsigned int getBadFE(IdentifierHash hashID) const override final;
 
-    virtual StatusCode readData();
-    virtual StatusCode recordData();
+    virtual StatusCode readData() override;
+    virtual StatusCode recordData() override;
 
     // FE-I4B trailer errors
     virtual void addLinkMaskedByPPC() const override final;

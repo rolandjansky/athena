@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaDistTool_H
@@ -15,16 +15,15 @@ class TrigEgammaDistTool
 public:
 
   TrigEgammaDistTool( const std::string& myname );
-  ~TrigEgammaDistTool() {};
+  virtual ~TrigEgammaDistTool() {};
 
-  StatusCode childInitialize();
-  StatusCode childBook();
-  StatusCode childExecute();
-  StatusCode childFinalize();
-  StatusCode toolExecute(const std::string,const TrigInfo,std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs);
-  void setDetail(bool doDetail){ m_detailedHists = doDetail; }
-  void setTP(bool tp){ m_tp = tp; }
-protected:
+  virtual StatusCode childInitialize() override;
+  virtual StatusCode childBook() override;
+  virtual StatusCode childExecute() override;
+  virtual StatusCode childFinalize() override;
+  virtual StatusCode toolExecute(const std::string,const TrigInfo,std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs) override;
+  virtual void setDetail(bool doDetail) override;
+  virtual void setTP(bool tp) override;
 private:
   /*! fill kinematic histograms, et,eta,phi,lumi and efficiency */
   void fillShowerShapes(const std::string &, const xAOD::Egamma *); // Online and Offline fillers

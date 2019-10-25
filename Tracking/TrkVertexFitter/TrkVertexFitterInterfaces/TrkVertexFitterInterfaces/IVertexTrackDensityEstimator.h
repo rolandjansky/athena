@@ -93,6 +93,8 @@ namespace Trk
     virtual double
     globalMaximum (const std::vector<const TrackParameters*>& perigeeList) const = 0;
 
+    virtual std::pair<double,double>
+    globalMaximumWithWidth (const std::vector<const TrackParameters*>& perigeeList) const = 0;
 
     /**
      * @brief Find position of global maximum for density function.
@@ -103,6 +105,8 @@ namespace Trk
     globalMaximum (const std::vector<const TrackParameters*>& perigeeList,
                    std::unique_ptr<ITrackDensity>& density) const = 0;
   };
+
+
 
 
 } // namespace Trk

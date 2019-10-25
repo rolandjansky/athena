@@ -2,94 +2,86 @@
 # Write to Transient BS
 #--------------------------------------------------------------
 include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
-#
-# add here in ExtraInputs all conditions data which are needed for BS encoding
-#        
+
+# Configure Transient BS Output Stream. ExtraInputs make sure all data (e.g. conditions)
+# needed for BS encoding are scheduled to be produced before StreamBS
 StreamBS = AthenaOutputStream("StreamBS",
                               EvtConversionSvc = "ByteStreamCnvSvc",
-                              ExtraInputs = [('xAOD::EventInfo','StoreGateSvc+EventInfo'),
-                                             ('TileBadChannels','ConditionStore+TileBadChannels'),
-                                             ('SCT_CablingData','ConditionStore+SCT_CablingData'), 
-                                             ('PixelHitDiscCnfgData','ConditionStore+PixelHitDiscCnfgData'),
-                                             ('MuonMDT_CablingMap','ConditionStore+MuonMDT_CablingMap') 
-                                             ])
+                              ExtraInputs = [('xAOD::EventInfo','StoreGateSvc+EventInfo')])
+
 if not TriggerFlags.fakeLVL1():
-   #LVL1
-   theApp.Dlls += [ "TrigT1ResultByteStream" ]
-   StreamBS.ItemList   += [ "ROIB::RoIBResult#*" ]
-      
+   theApp.Dlls += ["TrigT1ResultByteStream"]
+   StreamBS.ItemList += ["ROIB::RoIBResult#*"]
+
 if TriggerFlags.doID():
-   # Make RDOs and Write BS  for all 3 InDet detectors 
-      
-   # TRT 
-   StreamBS.ItemList +=["2542#*"]      
+   # TRT
+   StreamBS.ItemList += ["TRT_RDO_Container#*"]
    # SCT
-   StreamBS.ItemList +=["2541#*"]   
+   StreamBS.ItemList += ["SCT_RDO_Container#*"]
+   StreamBS.ExtraInputs += [('SCT_CablingData','ConditionStore+SCT_CablingData')]
    # Pixel
-   StreamBS.ItemList +=["2540#*"]
-      
+   StreamBS.ItemList += ["PixelRDO_Container#*"]
+   StreamBS.ExtraInputs += [('PixelHitDiscCnfgData','ConditionStore+PixelHitDiscCnfgData')]
+
 if TriggerFlags.doCalo():
-   #LAr
-   theApp.Dlls   += [ "LArCalibUtils" ]
-   theApp.Dlls   += [ "LArByteStream" ]
-   #        StreamBS.ItemList +=["LArRawChannels#*"]
-   StreamBS.ItemList +=["2721#*"]
-   #Tile
-   theApp.Dlls   += [ "TileByteStream" ]
-   #        StreamBS.ItemList +=["TileRawChannelCnt#*"]
-   StreamBS.ItemList +=["2927#*"]
+   # LAr
+   theApp.Dlls += ["LArCalibUtils"]
+   theApp.Dlls += ["LArByteStream"]
+   StreamBS.ItemList += ["LArRawChannelContainer#*"]
+   from AthenaCommon.AppMgr import ToolSvc
+   from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
+   ToolSvc += LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
+   # Tile
+   theApp.Dlls += ["TileByteStream"]
+   StreamBS.ItemList += ["TileRawChannelContainer#*"]
+   StreamBS.ExtraInputs += [('TileBadChannels','ConditionStore+TileBadChannels')]
 
 if TriggerFlags.doMuon():
-   # Muon 
-   theApp.Dlls += [ "MuonByteStream" ]
-   StreamBS.ItemList +=["MdtCsmContainer#*"]
-   StreamBS.ItemList +=["RpcPadContainer#*"]
-   StreamBS.ItemList +=["TgcRdoContainer#*"]
-   StreamBS.ItemList +=["CscRawDataContainer#*"]
+   theApp.Dlls += ["MuonByteStream" ]
+   # MDT
+   StreamBS.ItemList += ["MdtCsmContainer#*"]
+   StreamBS.ExtraInputs += [('MuonMDT_CablingMap','ConditionStore+MuonMDT_CablingMap')]
+   # RPC
+   StreamBS.ItemList += ["RpcPadContainer#*"]
+   # TGC
+   StreamBS.ItemList += ["TgcRdoContainer#*"]
+   # CSC
+   StreamBS.ItemList += ["CscRawDataContainer#*"]
 
 #--------------------------------------------------------------
-# BSCnv Svc: Provider Service for all RIO classes
+# List types to be read from transient BS in the BS address provider
 #--------------------------------------------------------------
 if not hasattr( ServiceMgr, "ByteStreamAddressProviderSvc" ):
    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
    ServiceMgr += ByteStreamAddressProviderSvc()
 
 if TriggerFlags.doCalo():
-   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ 
-#        "LArCellIDC/LArCellIDC",
-        "TileCellIDC/TileCellIDC"
-        ]
-   from AthenaCommon.AppMgr import ToolSvc
-   from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
-   ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True) 
+   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
+      "TileCellIDC/TileCellIDC"]
 
 if TriggerFlags.doID():
-   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ 
+   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
       "InDet::PixelClusterContainer/PixelOnlineClusters",
       "InDet::SCT_ClusterContainer/SCT_OnlineClusters",
-      "InDet::TRT_DriftCircleContainer/TRT_DriftCircle"
-      ]
+      "InDet::TRT_DriftCircleContainer/TRT_DriftCircle"]
 
-#if TriggerFlags.doMuon():
-# needed for LVL1 simulation
-ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ 
+# Muon digits not under doMuon() because needed for LVL1 simulation
+ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
       "MdtDigitContainer/MDT_DIGITS",
       "RpcDigitContainer/RPC_DIGITS",
       "TgcDigitContainer/TGC_DIGITS",
-      "CscDigitContainer/CSC_DIGITS",
-      ]
+      "CscDigitContainer/CSC_DIGITS"]
+
 if TriggerFlags.doMuon():
-   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ 
-      # RDO
+   ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
       "RpcPadContainer/RPCPAD",
       "MdtCsmContainer/MDTCSM",
       "TgcRdoContainer/TGCRDO",
       "CscRawDataContainer/CSCRDO",
-      "MuCTPI_RDO/MUCTPI_RDO"
-      ]
+      "MuCTPI_RDO/MUCTPI_RDO"]
 
-# this must be in a fragment:
-if not hasattr(ServiceMgr,"ProxyProviderSvc"):                           
+# Tell the central proxy provider that some proxies may come from BS address provider
+if not hasattr(ServiceMgr,"ProxyProviderSvc"):
    from SGComps.SGCompsConf import ProxyProviderSvc
    ServiceMgr += ProxyProviderSvc()
-ServiceMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
+ServiceMgr.ProxyProviderSvc.ProviderNames += ["ByteStreamAddressProviderSvc"]

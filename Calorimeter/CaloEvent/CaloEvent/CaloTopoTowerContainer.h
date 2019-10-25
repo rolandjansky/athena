@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOTOPOTOWERCONTAINER_H
@@ -132,6 +132,8 @@ public:
 
  
  private:
+  friend class CaloTopoTowerContainerCnv_p1;
+
   DataLink<CaloClusterContainer>  m_clusters;
   DataLink<CaloTowerContainer> m_towers;
   DataLink<CaloCellContainer>  m_cells;

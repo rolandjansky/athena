@@ -42,14 +42,16 @@ TrigDecisionMakerMT::~TrigDecisionMakerMT() {}
 StatusCode TrigDecisionMakerMT::initialize()
 {
 
+  bool resultObjectIsUsed = true;
   if (!m_bitsMakerTool.empty()) {
     ATH_MSG_INFO("TrigDecisionMakerMT is setting up for MC to use the TriggerBitsMakerTool");
     ATH_CHECK( m_bitsMakerTool.retrieve() );
+    resultObjectIsUsed = false;
   } else {
     ATH_MSG_INFO("TrigDecisionMakerMT is setting up for Data to use the HLTResultMT. "
       "If this job is for MC, make sure that the BitsMakerTool property is set instead.");
-    ATH_CHECK( m_hltResultKeyIn.initialize() );
   }
+  ATH_CHECK( m_hltResultKeyIn.initialize(resultObjectIsUsed) ); // If false, this removes the ReadHandle
 
   ATH_CHECK( m_ROIBResultKeyIn.initialize() );
   ATH_CHECK( m_EventInfoKeyIn.initialize() );

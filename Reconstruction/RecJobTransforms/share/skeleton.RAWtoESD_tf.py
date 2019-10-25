@@ -81,6 +81,9 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     DQMonFlags.doHLTMon = False
     DQMonFlags.useTrigger = False
     DQMonFlags.doLVL1CaloMon = False
+    # Auto-configure EDM decoding version
+    from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
+    EDMDecodingVersion()
     from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
     from RecExConfig.ObjKeyStore import objKeyStore
     if TriggerFlags.doMT():

@@ -103,7 +103,7 @@ def muCombAlgSequence(ConfigFlags):
     
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
-    muFastIDRecoSequence, eventAlgs = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs,"muComb" )
+    muFastIDRecoSequence, eventAlgs = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs,"")
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
@@ -407,21 +407,29 @@ def muEFCBFSSequence():
 
 def efLateMuAlgSequence(ConfigFlags):
 
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence, efLateMuRoISequence, makeMuonPrepDataAlgs, muonIDFastTrackingSequence
     
     eflateViewsMaker = EventViewCreatorAlgorithm("IMeflatemu")
     eflateViewsMaker.ViewFallThrough = True
     eflateViewsMaker.RoIsLink = "initialRoI" # -||-
     eflateViewsMaker.InViewRoIs = "MUEFLATERoIs" # contract with the consumer
     eflateViewsMaker.Views = "MUEFLATEViewRoIs"
-    eflateViewsMaker.RequireParentView = True
 
+
+    #Get Late Muon RoIs
+    efLateMuRoISequence, roiName = efLateMuRoISequence()
+    #decode data in these RoIs
+    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=roiName)
+    #ID fast tracking
+    muFastIDRecoSequence, eventAlgs = muonIDFastTrackingSequence( roiName,"Late" )
     #inside-out reco sequence 
-    muonEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( eflateViewsMaker.InViewRoIs, "RoILate")
+    muonEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( roiName, "LateMu")
+
+    lateMuRecoSequence = parOR("lateMuonRecoSequence", [efLateMuRoISequence, viewAlgs_MuonPRD, muFastIDRecoSequence, muonEFInsideOutRecoSequence])
 
     #Final sequence running in view
-    eflateViewsMaker.ViewNodeName = muonEFInsideOutRecoSequence.name()
-    muonSequence = seqAND("lateMuonOutSequence", [eflateViewsMaker, muonEFInsideOutRecoSequence])
+    eflateViewsMaker.ViewNodeName = lateMuRecoSequence.name()
+    muonSequence = seqAND("lateMuonOutSequence", [eflateViewsMaker, lateMuRecoSequence])
 
     return (muonSequence, eflateViewsMaker, sequenceOut)
 

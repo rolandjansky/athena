@@ -20,10 +20,10 @@
 
 #include "EventInfoMgt/ITagInfoMgr.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaBaseComps/AthCnvSvc.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ConversionSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IOVRange.h"
@@ -71,7 +71,7 @@ class CondAttrListCollection;
  *  IOVSvc, as is done below for this class. 
  *
  */
-class TagInfoMgr : public ::ConversionSvc,
+class TagInfoMgr : public ::AthCnvSvc,
                    virtual public ITagInfoMgr,
                    virtual public IIncidentListener,
 		   virtual public IAddressProvider
@@ -229,9 +229,6 @@ private:
 
     /// IOVRange of last TagInfo added to the file meta data
     IOVRange                       m_lastIOVRange;
-
-    /// Message log
-    mutable MsgStream              m_log;
 
     /// Last TagInfo added to the detector store
     TagInfo                        m_lastTagInfo;
