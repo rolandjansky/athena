@@ -152,30 +152,37 @@ StatusCode MuonCreatorAlg::execute()
   // Only run monitoring for online algorithms
   if ( not m_monTool.name().empty() ) {
     // Variables to initialize and keep for monitoring
+    std::vector<int> ini_mun(0);
     std::vector<double> ini_mupt(0);
     std::vector<double> ini_mueta(0);
     std::vector<double> ini_muphi(0);
+    std::vector<int> ini_satrksn(0);
     std::vector<double> ini_satrkspt(0);
     std::vector<double> ini_satrkseta(0);
     std::vector<double> ini_satrksphi(0);
+    std::vector<int> ini_cbtrksn(0);
     std::vector<double> ini_cbtrkspt(0);
     std::vector<double> ini_cbtrkseta(0);
     std::vector<double> ini_cbtrksphi(0);
 
     // Monitoring histograms
+    auto muon_n       = Monitored::Collection("muon_n", ini_mun);
     auto muon_pt      = Monitored::Collection("muon_pt", ini_mupt);
     auto muon_eta     = Monitored::Collection("muon_eta", ini_mueta);
     auto muon_phi     = Monitored::Collection("muon_phi", ini_muphi);
+    auto satrks_n     = Monitored::Collection("satrks_n", ini_satrksn);
     auto satrks_pt    = Monitored::Collection("satrks_pt", ini_satrkspt);
     auto satrks_eta   = Monitored::Collection("satrks_eta", ini_satrkseta);
     auto satrks_phi   = Monitored::Collection("satrks_phi", ini_satrksphi);
+    auto cbtrks_n     = Monitored::Collection("cbtrks_n", ini_cbtrksn);
     auto cbtrks_pt    = Monitored::Collection("cbtrks_pt", ini_cbtrkspt);
     auto cbtrks_eta   = Monitored::Collection("cbtrks_eta", ini_cbtrkseta);
     auto cbtrks_phi   = Monitored::Collection("cbtrks_phi", ini_cbtrksphi);
     
-    auto monitorIt = Monitored::Group(m_monTool, muon_pt, muon_eta, muon_phi, satrks_pt, satrks_eta, satrks_phi, cbtrks_pt, cbtrks_eta, cbtrks_phi);
+    auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt, cbtrks_eta, cbtrks_phi);
     
     // Muon
+    ini_mun.push_back(wh_muons->size());
     for (auto const& muon : *(wh_muons.ptr())) {
       ini_mupt.push_back(muon->pt()/1000.0); // converted to GeV
       ini_mueta.push_back(muon->eta());
@@ -195,7 +202,7 @@ StatusCode MuonCreatorAlg::execute()
 	    ini_cbtrkseta.push_back(cbtrk->eta());
 	    ini_cbtrksphi.push_back(cbtrk->phi());
     }
-
+  }
   return StatusCode::SUCCESS;
 }
 
