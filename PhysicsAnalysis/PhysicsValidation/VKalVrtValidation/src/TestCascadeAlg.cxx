@@ -98,7 +98,7 @@ StatusCode TestCascadeAlg::execute() {
           }
           std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade(*state));
           if(result) {
-          	result->getSVOwnership(true);
+          	result->setSVOwnership(true);
           	const std::vector< std::vector<TLorentzVector> > &moms = result->getParticleMoms();
           	for(auto& p :moms) { ATH_MSG_DEBUG("new part"); for(auto &l : p) ATH_MSG_DEBUG("vect " << l.M()); }
            pereventcount++;
