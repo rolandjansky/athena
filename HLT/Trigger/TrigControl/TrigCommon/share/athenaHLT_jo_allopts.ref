@@ -13,7 +13,7 @@
     <finalizeTimeout>120</finalizeTimeout>
     <numberOfEventSlots>2</numberOfEventSlots>
     <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>
-    <maximumHltResultMb>10</maximumHltResultMb>
+    <maximumHltResultMb>42</maximumHltResultMb>
     <numberOfAthenaMTThreads>2</numberOfAthenaMTThreads>
     <DataSource>
       <HLTDFFileBackend>
