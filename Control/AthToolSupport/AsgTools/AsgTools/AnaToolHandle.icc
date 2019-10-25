@@ -310,7 +310,7 @@ namespace asg
 #endif
 
     private:
-      AnaToolConfig m_config;
+      const AnaToolConfig& m_config;
     };
 
 
@@ -412,7 +412,7 @@ namespace asg
 
     private:
       std::string m_name;
-      AnaToolConfig m_config;
+      const AnaToolConfig& m_config;
     };
 
 
@@ -533,7 +533,7 @@ namespace asg
 	  ANA_MSG_ERROR ("trying to initialize ToolHandleArray property " << val_name << " with empty handle");
 	  return StatusCode::FAILURE;
 	}
-      
+
 	//strip the parent name
 	std::string tool_name = toolHandle.name();
 	tools.push_back (toolHandle.type() + "/" + tool_name);
@@ -1133,12 +1133,12 @@ namespace asg
       return detail::AnaToolHandleMode::USER;
 #endif
 
-    if (!m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
+    if (m_config.empty() && !m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
       return detail::AnaToolHandleMode::USER;
 
     if (m_config.empty() && m_name.empty())
       return detail::AnaToolHandleMode::EMPTY;
-      
+
     if (isPublic())
       return detail::AnaToolHandleMode::CREATE_SHARED;
     else
@@ -1197,8 +1197,7 @@ namespace asg
 #endif
 
     m_config.setType (std::move (val_type));
-    if (//m_originalTypeAndName.empty() &&
-        !this->type().empty() && !this->name().empty())
+    if (!this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
 #ifndef NDEBUG
@@ -1222,8 +1221,7 @@ namespace asg
 #endif
 
     m_name = std::move (val_name);
-    if (//m_originalTypeAndName.empty() &&
-        !this->type().empty() && !this->name().empty())
+    if (!this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
 #ifndef NDEBUG
