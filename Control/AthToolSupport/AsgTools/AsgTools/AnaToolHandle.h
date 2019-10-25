@@ -899,6 +899,14 @@ namespace asg
   private:
     std::shared_ptr<ToolHandle<T>> m_handleUser;
 
+    /// \brief the typeAndName at time of creation
+    ///
+    /// This is used to determine whether the user has been overriding
+    /// the ToolHandle during configuration time.
+  private:
+    std::string m_originalTypeAndName;
+
+    /// \brief the value of \ref isInitialized
   private:
     std::atomic<bool> m_isInitialized {false};
 
