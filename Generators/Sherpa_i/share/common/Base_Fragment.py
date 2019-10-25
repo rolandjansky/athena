@@ -2,6 +2,7 @@
 from Sherpa_i.Sherpa_iConf import Sherpa_i
 genSeq += Sherpa_i()
 evgenConfig.generators = ["Sherpa"]
+genSeq.Sherpa_i.PluginCode = ""
 
 ## Tell Sherpa to read its run card sections from the jO
 ## TODO: write out Run.dat from genSeq.Sherpa_i.RunCard and read from it
@@ -31,6 +32,11 @@ genSeq.Sherpa_i.Parameters += [
 ## Enable scale variations by default
 genSeq.Sherpa_i.Parameters += [
     "HEPMC_USE_NAMED_WEIGHTS=1",
+    "CSS_REWEIGHT=1",
+    "REWEIGHT_SPLITTING_PDF_SCALES=1",
+    "REWEIGHT_SPLITTING_ALPHAS_SCALES=1",
+    "CSS_REWEIGHT_SCALE_CUTOFF=5.0",
+    "HEPMC_INCLUDE_ME_ONLY_VARIATIONS=1",
     "SCALE_VARIATIONS=0.25,0.25 0.25,1. 1.,0.25 1.,1. 1.,4. 4.,1. 4.,4.",
     ]
 
@@ -89,5 +95,6 @@ genSeq.Sherpa_i.Parameters += [
 
 ## OpenLoops parameters
 genSeq.Sherpa_i.Parameters += [
+    "OL_PREFIX=/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt",
     "OL_PARAMETERS=preset=2 write_parameters=1",
     ]

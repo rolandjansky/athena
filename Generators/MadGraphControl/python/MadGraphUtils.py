@@ -255,6 +255,31 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     # Check if process is NLO or LO
     isNLO=is_NLO_run(proc_dir=proc_dir)
 
+    # use f2py2 if f2py not available
+    if reweight_card_loc is not None:
+        from distutils.spawn import find_executable
+        if find_executable('f2py') is not None:
+            mglog.info('Found f2py, can run reweighting.')
+        elif find_executable('f2py2') is not None:
+            mglog.info('f2py is called f2py2 on this machine, will update configuration')
+            if isNLO:
+                config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
+            else:
+                config_card=proc_dir+'/Cards/me5_configuration.txt'
+            shutil.move(config_card,config_card+'.old')
+            oldcard = open(config_card+'.old','r')
+            newcard = open(config_card,'w')
+            for line in oldcard:
+                if 'f2py_compiler' in line:
+                    newcard.write(' f2py_compiler = f2py2\n')
+                else:
+                    newcard.write(line)
+            oldcard.close()
+            newcard.close()
+        else:
+            mglog.error('Could not find f2py or f2py2, needed for reweighting')
+            return 1
+
     if grid_pack:
         #Running in gridpack mode
         mglog.info('Started generating gridpack at '+str(time.asctime()))
@@ -2437,20 +2462,25 @@ def run_card_consistency_check(isNLO=False,path='.'):
     for k,v in mydict.iteritems():
         mglog.info( '"%s" = %s'%(k,v) )
 
+    if is_version_or_newer([2,5,0]):
+        # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
+        if is_version_or_newer([2,6,1]):
+            if not checkSetting('event_norm','average',mydict):
+                modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'average'})
+        # Only needed for 2.5.0 to 2.6.0 to battle problem with inconsistent event weights [AGENE-1542]
+        # Will likely cause Pythia to calculate the wrong cross section [AGENE-1725]
+        else:
+            if not isNLO and checkSettingIsTrue('use_syst',mydict):
+                if not checkSetting('event_norm','sum',mydict):
+                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
+                    mglog.warning("Setting 'event_norm' to 'sum' -- this will mean the cross section calculated by Pythia is most likely wrong.")
+
     if not isNLO:
         #Check CKKW-L setting
         if float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
             log='Bad combination of settings for CKKW-L merging! ktdurham=%s and ickkw=%s.'%(mydict['ktdurham'],mydict['ickkw'])
             mglog.error(log)
             raise RuntimeError(log)
-
-        version = getMadGraphVersion() # avoiding code duplication
-        # Only needed for 2.5.0 and later
-        if int(version.split('.')[0])>=2 and int(version.split('.')[1])>=5:
-            #event_norm must be "sum" for use_syst to work
-            if mydict['use_syst'].replace('.','').lower() in ['t','true']:
-                if 'event_norm' not in mydict or mydict['event_norm']!="sum":
-                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
 
         # Check if user is trying to use deprecated syscalc arguments with the other systematics script
         if is_version_or_newer([2,6,2]) and (not 'systematics_program' in mydict or mydict['systematics_program']=='systematics'):
