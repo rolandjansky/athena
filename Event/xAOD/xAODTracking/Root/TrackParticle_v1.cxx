@@ -6,6 +6,7 @@
 #include <bitset>
 #include <cassert>
 #include <vector>
+#include <stdexcept>
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -334,7 +335,10 @@ namespace xAOD {
 
   void TrackParticle_v1::setDefiningParametersCovMatrixDiagVec( const std::vector< float >& vec ) {
 
-    assert( vec.size() == ParametersCovMatrix_t::RowsAtCompileTime );
+    if( vec.size() != ParametersCovMatrix_t::RowsAtCompileTime ){
+      throw std::runtime_error("Setting track definingParametersCovMatrixDiag with vector of size "+std::to_string(vec.size())+" instead of expected "+std::to_string(ParametersCovMatrix_t::RowsAtCompileTime)+" is not supported");
+    }
+
     accCovMatrixDiag( *this ) = vec;
     return;
   }
@@ -347,7 +351,10 @@ namespace xAOD {
 				    ParametersCovMatrix_t::RowsAtCompileTime ) / 2 );
     unsigned int size = offDiagCompr ? m_covMatrixOffDiagVecComprSize : uncompr_size;
 
-    if( !(vec.size() == size || vec.size() ==uncompr_size) ) assert(0); //If off-diagonal elements are already compressed, can either set with uncompressed or compressed vector
+    if( !(vec.size() == size || vec.size() == uncompr_size) ){ //If off-diagonal elements are already compressed, can either set with uncompressed or compressed vector
+      throw std::runtime_error("Setting track definingParametersCovMatrixOffDiag with vector of size "+std::to_string(vec.size())+" instead of expected "+std::to_string(size)+" or "+std::to_string(uncompr_size)+" is not supported");
+    }
+
     accCovMatrixOffDiag( *this ) = vec;
     return;
   }
