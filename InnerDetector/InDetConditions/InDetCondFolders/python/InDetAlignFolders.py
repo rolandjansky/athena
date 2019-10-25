@@ -31,11 +31,11 @@ if DetFlags.TRT_on():
 # TRT Lvl 3 alignment
 if DetFlags.TRT_on() :
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/DX","/TRT/Calib/DX")
-# Pixel module distortions
+# Pixel/IBL module distortions
 if DetFlags.pixel_on() :
-    conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist")
-# IBL stave distortions 
-    conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection")
+    if not conddb.folderRequested("/Indet/PixelDist"):
+        conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist", className="DetCondCFloat")
+        conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection")
 
 # TRT Condition Algorithm
 from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTAlignCondAlg

@@ -11,6 +11,7 @@
 
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelConditionsData/PixelDistortionData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 
@@ -38,6 +39,9 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
 
     SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
     {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Output key"};
+
+    SG::ReadCondHandleKey<PixelDistortionData> m_distortionKey
+    {this, "PixelDistortionData", "PixelDistortionData", "Output key"};
 
 };
 

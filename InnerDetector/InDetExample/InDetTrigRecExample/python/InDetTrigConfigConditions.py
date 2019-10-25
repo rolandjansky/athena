@@ -158,6 +158,12 @@ class PixelConditionsServicesSetup:
       condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
       PixelOfflineCalibCondAlg.InputSource = 2
 
+    if not conddb.folderRequested("/Indet/PixelDist"):
+      conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist",className="DetCondCFloat") 
+
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+      condSeq += PixelDistortionAlg(name="PixelDistortionAlg", ReadKey="/Indet/PixelDist")
 
     ### configure the special pixel map service
     if not (conddb.folderRequested("/PIXEL/PixMapShort") or conddb.folderRequested("/PIXEL/Onl/PixMapShort")):

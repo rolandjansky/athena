@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,9 +32,12 @@
 #include "GaudiKernel/Service.h"
 #include "HitManagement/TimedHitPtr.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+
+#include "InDetIdentifier/PixelID.h"
+#include "PixelConditionsData/PixelDistortionData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace RadDam{
 
@@ -65,12 +68,12 @@ public:
   virtual ~EnergyDepositionTool();
   StatusCode initTools();
   
-  std::vector<std::pair<double,double> > BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy) const;   // output hit record in the format (hit position, energy loss)
+  std::vector<std::pair<double,double> > BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy, CLHEP::HepRandomEngine *rndmEngine) const;   // output hit record in the format (hit position, energy loss)
   
   std::vector<std::pair<double,double> > ClusterHits(std::vector<std::pair<double,double> >& rawHitRecord, int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)
   int trfPDG(int pdgId) const;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
   
-  virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions) const;
+  virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) const;
 
 
 // Variables
@@ -92,12 +95,10 @@ private:
   bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
   bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
 
-  ToolHandle<IModuleDistortionsTool> m_pixDistoTool;
+  const PixelID* m_pixelID;
 
-protected:
-  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
-  std::string                  m_rndmEngineName;
-  CLHEP::HepRandomEngine*      m_rndmEngine;
+  SG::ReadCondHandleKey<PixelDistortionData> m_distortionKey
+  {this, "PixelDistortionData", "PixelDistortionData", "Output readout distortion data"};
 
 // Functions
 private:

@@ -222,6 +222,13 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
       PixelOfflineCalibCondAlg.InputSource = 2
 
+    if not conddb.folderRequested("/Indet/PixelDist"):
+      conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
+
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+      condSeq += PixelDistortionAlg(name="PixelDistortionAlg", ReadKey="/Indet/PixelDist")
+
     chargeTools = []
     feSimTools = []
     if InDetGeometryFlags.isSLHC():
