@@ -310,7 +310,7 @@ namespace asg
 #endif
 
     private:
-      AnaToolConfig m_config;
+      const AnaToolConfig& m_config;
     };
 
 
@@ -412,7 +412,7 @@ namespace asg
 
     private:
       std::string m_name;
-      AnaToolConfig m_config;
+      const AnaToolConfig& m_config;
     };
 
 
@@ -533,7 +533,7 @@ namespace asg
 	  ANA_MSG_ERROR ("trying to initialize ToolHandleArray property " << val_name << " with empty handle");
 	  return StatusCode::FAILURE;
 	}
-      
+
 	//strip the parent name
 	std::string tool_name = toolHandle.name();
 	tools.push_back (toolHandle.type() + "/" + tool_name);
@@ -620,7 +620,6 @@ namespace asg
       m_name (that.m_name),
       m_parentPtr (that.m_parentPtr),
       m_handleUser (new ToolHandle<T> (*that.m_handleUser)),
-      m_originalTypeAndName (that.m_originalTypeAndName),
       m_isInitialized (that.m_isInitialized.load()),
       m_allowEmpty (that.m_allowEmpty)
   {
@@ -675,7 +674,7 @@ namespace asg
       *m_handleUser = *that.m_handleUser;
       *that.m_handleUser = tmp;
     }
-    m_originalTypeAndName.swap (that.m_originalTypeAndName);
+
     {
       const auto tmp = m_isInitialized.load();
       m_isInitialized = that.m_isInitialized.load();
@@ -1002,8 +1001,6 @@ namespace asg
       ANA_MSG_FATAL ("can't declare tool handle " << *this << " as property for tool " << tool->name() << " as it has a different parent tool " << m_parentPtr->name());
       std::abort ();
     }
-    if (m_originalTypeAndName.empty())
-      m_originalTypeAndName = m_handleUser->typeAndName ();
     ANA_CHECK_THROW (tool->declareProperty (name, *m_handleUser, description));
   }
 
@@ -1095,9 +1092,6 @@ namespace asg
     if (m_handleUser->isSet())
       return detail::AnaToolHandleMode::USER;
 
-    if (!m_originalTypeAndName.empty() &&
-        m_handleUser->typeAndName() != m_originalTypeAndName)
-      return detail::AnaToolHandleMode::USER;
 
 #ifdef XAOD_STANDALONE
     if (m_parentPtr != nullptr)
@@ -1133,12 +1127,12 @@ namespace asg
       return detail::AnaToolHandleMode::USER;
 #endif
 
-    if (!m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
+    if (m_config.empty() && !m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
       return detail::AnaToolHandleMode::USER;
 
     if (m_config.empty() && m_name.empty())
       return detail::AnaToolHandleMode::EMPTY;
-      
+
     if (isPublic())
       return detail::AnaToolHandleMode::CREATE_SHARED;
     else
@@ -1197,8 +1191,7 @@ namespace asg
 #endif
 
     m_config.setType (std::move (val_type));
-    if (//m_originalTypeAndName.empty() &&
-        !this->type().empty() && !this->name().empty())
+    if (!this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
 #ifndef NDEBUG
@@ -1222,8 +1215,7 @@ namespace asg
 #endif
 
     m_name = std::move (val_name);
-    if (//m_originalTypeAndName.empty() &&
-        !this->type().empty() && !this->name().empty())
+    if (!this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
 #ifndef NDEBUG
