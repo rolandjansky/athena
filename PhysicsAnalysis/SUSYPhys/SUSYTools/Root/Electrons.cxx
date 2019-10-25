@@ -132,6 +132,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     dec_d0sig(input) = d0sigError;
   }
 
+  // don't bother calibrating or computing WP
+  if ( input.pt() < 4e3 ) return StatusCode::SUCCESS;
+  if ( !input.caloCluster() ) { ATH_MSG_WARNING( "FillElectron: no caloCluster found: " << input.caloCluster() ); return StatusCode::SUCCESS; }
+
   if (m_debug) {
     unsigned char el_nPixHits(0), el_nSCTHits(0);
     input.trackParticle()->summaryValue(el_nPixHits, xAOD::numberOfPixelHits);
@@ -149,9 +153,6 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     ATH_MSG_INFO( "ELECTRON nPixHits: " << (int) el_nPixHits );
     ATH_MSG_INFO( "ELECTRON nSCTHits: " << (int) el_nSCTHits );
   }
-
-  // don't bother calibrating or computing WP
-  if ( input.pt() < 4e3 || !input.caloCluster() ) return StatusCode::SUCCESS;
 
   if (!input.isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return StatusCode::SUCCESS;
 
