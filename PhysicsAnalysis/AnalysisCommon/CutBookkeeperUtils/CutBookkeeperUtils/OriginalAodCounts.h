@@ -26,8 +26,6 @@ struct OriginalAodCounts {
 };
 OriginalAodCounts operator+(const OriginalAodCounts& a,
                             const OriginalAodCounts& b);
-OriginalAodCounts& operator+=(const OriginalAodCounts& a,
-                             const OriginalAodCounts& b);
 
 OriginalAodCounts getOriginalAodCounts(
   xAOD::TEvent& event,
