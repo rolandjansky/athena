@@ -24,17 +24,20 @@ hit2rdo.args += ' --numberOfLowPtMinBias="59.3447981771"'
 hit2rdo.args += ' --pileupFinalBunch="6"'
 hit2rdo.args += ' --jobNumber="1"'
 
-hit2rdo.args += ' --preExec "HITtoRDO:userRunLumiOverride={\"run\":300000, \"startmu\":40.0, \"endmu\":70.0, \"stepmu\":1.0, \"startlb\":1, \"timestamp\": 1500000000};ScaleTaskLength=0.1"'
+hit2rdo.args += ' --preExec "HITtoRDO:userRunLumiOverride={\'run\':300000, \'startmu\':40.0, \'endmu\':70.0, \'stepmu\':1.0, \'startlb\':1, \'timestamp\': 1500000000};ScaleTaskLength=0.1" '
+
 hit2rdo.args += ' --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_muRange.py"'
 
 # RDO -> RDO_TRIG step in 21.0
 rdo2rdotrig = ExecStep.ExecStep('RDOtoRDOTrigger')
 rdo2rdotrig.type = 'Reco_tf'
 rdo2rdotrig.input = ''
+rdo2rdotrig.imf = False
 rdo2rdotrig.explicit_input = True
 rdo2rdotrig.args = '--inputRDOFile=RDO.pool.root --outputRDO_TRIGFile=RDO_TRIG.pool.root'
 rdo2rdotrig.args += ' --asetup="RDOtoRDOTrigger:Athena,21.0,latest,slc6"'
 rdo2rdotrig.args += ' --triggerConfig="MCRECO:DBF:TRIGGERDBMC:2233,87,279"'
+rdo2rdotrig.args += ' --imf="all:True"'
 
 # RDO_TRIG -> AOD step in master
 rdotrig2aod = ExecStep.ExecStep('RDOTriggertoAOD')
