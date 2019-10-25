@@ -50,7 +50,7 @@ test_strings = [
                          simple([(neta)(peta)])
                         )             
                  combgen([]
-                         qjet([(151qjmass152)])
+                         qjet([(175qjmass177)])
                          partgen([]
                                  combgen([] 
                                          dijet([(79djmass90)])

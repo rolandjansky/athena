@@ -176,33 +176,43 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
  // jet grp id, jet grp
   std::map<std::size_t, HypoJetVector> indJetGroups{}; 
   
-  findInitialJobGroups(edges,
-		       leaves,
-		       groups_b,
-		       groups_e,
-		       satisfiedBy,
-		       indJetGroups,
-		       jg2elemjgs,
-		       cur_jg,
-		       collector);
-  
-  for(const auto e : edges){std::cout << "after making jg-leaf edges 1: "<<  *e <<'\n';}
-  
-  // require all leaf nodes to be satisfied.
-  if (satisfiedBy.size() != leaves.size()){
-    std::cout << "Early return 0 " << satisfiedBy.size() << " " << leaves.size() <<'\n';
+  if(!findInitialJobGroups(edges,
+			   leaves,
+			   groups_b,
+			   groups_e,
+			   satisfiedBy,
+			   indJetGroups,
+			   jg2elemjgs,
+			   cur_jg,
+			   collector)){
+    if(collector){
+      collector->collect("UnifiedFlowNetworkBuilder early return",
+			 "from findInitialJobGroups");
+    }
+    
     return std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
   }
+    
+  
+  for(const auto e : edges){std::cout << "after making jg-leaf edges 1: "<<  *e <<'\n';}
   
   // now know which job groups match which leaf nodes. Propagate combined
   // job groups to parents of condition being processed
 
-  propagateEdges(edges,
-		 satisfiedBy,
-		 indJetGroups,
-		 jg2elemjgs,
-		 cur_jg,
-		 collector);
+  if(not propagateEdges(edges,
+			satisfiedBy,
+			indJetGroups,
+			jg2elemjgs,
+			cur_jg,
+			collector)){
+    // error propagating edges. e.g. unsatisfied condition
+    if(collector){
+      collector->collect("UnifiedFlowNetworkBuilder early return",
+			 "from propagateEdges");
+    }
+    
+    return std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
+  }
 
   //sink index follows last jet group index
   std::size_t sink = cur_jg;
@@ -232,7 +242,7 @@ UnifiedFlowNetworkBuilder::makeSourceToLeafEdges(std::vector<std::shared_ptr<Flo
 }
 */
 
-void UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
+bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
 						     const std::vector<int>& leaves,
 						     const HypoJetGroupCIter& groups_b,
 						     const HypoJetGroupCIter& groups_e,
@@ -282,17 +292,26 @@ void UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
       }
     }
   }
+  
+  if(collector){
+    for(const auto& p : indJetGroups){
+      recordJetGroup(p.first, p.second, collector);
+    }
+  }
+  
+  // check all leaf conditions are satisfied
+  return satisfiedBy.size() == leaves.size();
 }
 
 
 
-void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
+bool UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 					       CondInd2JetGroupsInds& satisfiedBy,
 					       const std::map<std::size_t, HypoJetVector>& indJetGroups,
 					       JetGroupInd2ElemInds& jg2elemjgs,  
 					       std::size_t& cur_jg,
 					       const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
-
+  
   
   // construct jet groups according from jet groups that pass child
   // conditions.
@@ -301,14 +320,14 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
   
   //The parent of the next condition to be processed
   // is found, and from the parent the condition's siblings are found,
-
+  
   typedef std::priority_queue<std::size_t,
 			      std::vector<std::size_t>,
 			      DepthComparison> DepthQueue;
-
+  
   auto comparator = DepthComparison(m_tree);
   DepthQueue to_process(comparator); // conditions to be processed.
-
+  
   // keep track if a condition's sibling has been processed.
   std::vector<bool> checked(m_conditions.size(), false);
 
@@ -337,39 +356,27 @@ void UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
       checked[s] = true;
     }
     std::cout << "processing " << k << '\n';
-    
-    // find the siblings indices of the condition being processed.
-    // bool siblings_complete{true};
-    // for(const auto& s : siblings){
-    //  if(!checked[s]){
-    //	to_process.push(s);
-    //	std::cout << "pushed " << s << '\n';
-    //	siblings_complete = false;
-    //	break;
-    //      }
-    //    }
-
-    //    if(!siblings_complete){continue;}
-
 
     // check if combinations of groups satisfying children satisfy their parent
     if (k != 0){
 
-      auto par_satisfied =  propagate_(edges,
-				       k,
-				       siblings,
-				       satisfiedBy,
-				       jg2elemjgs,
-				       indJetGroups,
-				       cur_jg,
-				       collector);
-      if(par_satisfied){
-	std::size_t par =  m_tree.getParent(k);
-	std::cout << "pushed " << par << '\n';
-	to_process.push(par);
+      if(!propagate_(edges,
+		     k,
+		     siblings,
+		     satisfiedBy,
+		     jg2elemjgs,
+		     indJetGroups,
+		     cur_jg,
+		     collector)){
+	return false;
       }
+
+      std::size_t par =  m_tree.getParent(k);
+      std::cout << "pushed " << par << '\n';
+      to_process.push(par);
     }
   }
+  return true;
 }
 
 
@@ -405,8 +412,10 @@ bool UnifiedFlowNetworkBuilder::propagate_(std::vector<std::shared_ptr<FlowEdge>
     std::cout << '\n';
   }
   std::size_t par =  m_tree.getParent(child);
-  if(par == 0){return false;}
-  
+
+  // par == true not an error, but not precessed
+  if(par == 0){return true;}
+
   std::cout << "child: " << child << " parent: " <<par << '\n';
       
   bool par_satisfied{false};  

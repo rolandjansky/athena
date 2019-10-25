@@ -31,8 +31,8 @@ QjetMassConditionMT::isSatisfied(const HypoJetVector& ips,
   
   auto j0 = ips[0];
   auto j1 = ips[1];
-  auto j2 = ips[1];
-  auto j3 = ips[1];
+  auto j2 = ips[2];
+  auto j3 = ips[3];
 
   auto rj0 = j0 -> p4();
   auto rj1 = j1 -> p4();
@@ -53,7 +53,8 @@ QjetMassConditionMT::isSatisfied(const HypoJetVector& ips,
 
      for(auto ip : ips){
        address = static_cast<const void*>(ip);
-       ss1 << "    "  << address << " eta " << ip->eta() << " e " << ip->e() << '\n';
+       ss1 << "    "  << address << " eta " << ip->eta()
+	   << " e " << ip->e() << " et: " << ip->et() << '\n';
      }
      ss1 << '\n';
      collector -> collect(ss0.str(), ss1.str());

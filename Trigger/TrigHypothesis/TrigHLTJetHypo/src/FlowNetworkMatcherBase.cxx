@@ -107,10 +107,14 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
     ss << **G;
     collector->collect("MaximumBipartiteGroupsMatcher - after", ss.str());
   }
-  
+
+  std::cout << "FlowNetworkMatcherBase::match 500\n";
   auto edges = (*G)->edges();
  
+  std::cout << "FlowNetworkMatcherBase::match 600\n";
   bool pass = std::round(ff.value()) == m_totalCapacity;
+  std::cout << "FlowNetworkMatcherBase::match 700\n";
+
   if(collector){
     std::string msg("FordFulkerson pass status: ");
     msg += pass ? "true" : "false";
@@ -121,20 +125,36 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
   // figure out if it the jet is used (flow == 1)
   // add the jet to passing_jets. As this is a set, duplicates
   // will be removed (each edge appears twice in G).
-  
+
+  std::cout << "FlowNetworkMatcherBase::match 800\n";
+
   HypoJetVector passing_jets;
+  /*
   auto iter = std::partition(edges.begin(),
                              edges.end(),
                              [V](const auto& edge){return edge->to() == V-1 and
                                                    std::round(edge->flow()) == 1;});
+  std::cout << "FlowNetworkMatcherBase::match 900\n";
 
   std::transform(edges.begin(),
                  iter,
                  std::back_inserter(passing_jets),
                  [&nodeToJet](const auto& edge){return nodeToJet[edge->from()];});
 
+  std::cout << "FlowNetworkMatcherBase::match 1000\n";
 
+  if(collector){
+    std::stringstream ss;
+    ss << "FordFulkerson passing jets: \n";
+    for(const auto& j :passing_jets){
+      ss << " eta" << j->eta() <<  " e: " << j->e() << " et: " << j->et() <<'\n'; 
+    }
+    collector -> collect("MaximumBipartiteGroupsMatcher", ss.str());
+  }
+  std::cout << "FlowNetworkMatcherBase::match 1100\n";
+  */
   jetCollector.addJets(passing_jets.cbegin(), passing_jets.cend());
+  std::cout << "FlowNetworkMatcherBase::match 1200\n";
 	       
   return std::make_optional<bool>(pass);
   

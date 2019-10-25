@@ -66,7 +66,7 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
 			     const std::vector<int>& leaves)  const;
   */
   
-  void findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
+  bool findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
 			    const std::vector<int>& leaves,
 			    const HypoJetGroupCIter& groups_b,
 			    const HypoJetGroupCIter& groups_e,
@@ -77,7 +77,7 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 
   
-  void propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
+  bool propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
 		      CondInd2JetGroupsInds& satisfiedBy,
 		      const std::map<std::size_t, HypoJetVector>& indJetGroups,
 		      JetGroupInd2ElemInds&,  
