@@ -138,19 +138,5 @@ namespace xAOD {
      }     
    }
 
-   /// This function is used to implement simple schema evolution rules that
-   /// don't warrant creating a _v6 class yet.
-   void TrackParticleAuxContainer_v5::toTransient() {
-
-      // Make sure that the numberOfDBMHits variable is of the right size:
-      if( numberOfDBMHits.size() != phi.size() ) {
-         numberOfDBMHits.resize( phi.size(), 0 );
-      }
-      if( numberOfTRTHighThresholdHitsTotal.size() != phi.size() ) {
-         numberOfTRTHighThresholdHitsTotal.resize( phi.size(), 0 );
-      }
-
-      return;
-   }
 
 } // namespace xAOD

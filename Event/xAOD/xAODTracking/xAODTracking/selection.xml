@@ -54,14 +54,6 @@
   <class name="xAOD::TrackParticleAuxContainer_v5"
 	 id="3CE194F2-99D1-42D5-A3EB-D193E0AFA9FF"/>
 
-  <read sourceClass="xAOD::TrackParticleAuxContainer_v5" version="[1-]"
-        targetClass="xAOD::TrackParticleAuxContainer_v5"
-        source="" target="" >
-    <![CDATA[
-      newObj->toTransient();
-     ]]>
-  </read>
-
   <read sourceClass="xAOD::TrackParticleAuxContainer_v4" version="[1-]"
         targetClass="xAOD::TrackParticleAuxContainer_v4"
         source="" target="" >

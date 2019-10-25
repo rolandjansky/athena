@@ -41,8 +41,6 @@ namespace xAOD {
       TrackParticleAuxContainer_v5();
       /// Dumps contents (for debugging)
       void dump() const;
-      /// Function implementing soft schema evolution for the class
-      void toTransient();
 
    private:
 
