@@ -334,7 +334,7 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	  snprintf(pdfdir,256,"%s/%s",vstr.c_str(),sig_bkg.c_str());
 	  char pdf[282];
 	  snprintf(pdf,sizeof(pdf),"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
-	  char pdf_newname[272];
+	  char pdf_newname[300];
 	  snprintf(pdf_newname,sizeof(pdf_newname),"%s_%s_%s_LHtool_copy_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
 
 	  if (!m_pdfFile->GetListOfKeys()->Contains(vstr.c_str())){
