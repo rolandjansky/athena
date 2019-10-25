@@ -22,7 +22,7 @@
 #include "JetRec/JetPseudojetCopier.h"
 #include "JetRec/JetFilterTool.h"
 #include "JetRec/JetConstitRemover.h"
-#include "../../Root/JetClusterer.h"
+#include "JetRec/JetClusterer.h"
 
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )

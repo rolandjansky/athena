@@ -92,6 +92,12 @@ atlas_add_test(ExtractorUnitTests
     test/ExtractorTest.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+
+atlas_add_test(JetClustererTest
+  SOURCES
+    test/JetClustererTest.cxx
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
   
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

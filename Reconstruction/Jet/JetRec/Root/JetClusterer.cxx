@@ -2,12 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "JetClusterer.h"
+#include "JetRec/JetClusterer.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/config.h"
-#include "fastjet/AreaDefinition.hh"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
@@ -15,13 +14,32 @@
 
 #include "JetEDM/FastJetUtils.h"
 #include "JetEDM/PseudoJetVector.h"
-#include "JetEDM/ClusterSequence.h"
+//#include "JetEDM/ClusterSequence.h"
 
+#include "JetRec/PseudoJetTranslator.h"
+
+
+namespace JetClustererHelper {
+
+  void seedsFromEventInfo(const xAOD::EventInfo* ei, std::vector<int> &seeds){
+      //const xAOD::EventInfo* pevinfo = handle.cptr();
+      auto ievt = ei->eventNumber();
+      auto irun = ei->runNumber();
+      
+      if ( ei->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+	// For MC, use the channel and MC event number
+	ievt = ei->mcEventNumber();
+	irun = ei->mcChannelNumber();
+      }      
+      seeds.push_back(ievt);
+      seeds.push_back(irun);
+  }  
+}
 
 
 JetClusterer::JetClusterer(std::string name)
-: AsgTool(name),
-  m_jetFromPseudoJet("JetFromPseudojet") {
+: AsgTool(name)
+{
 
 }
 
@@ -62,6 +80,7 @@ xAOD::JetContainer* JetClusterer::build() const {
   std::unique_ptr<xAOD::JetContainer>  jets = std::make_unique<xAOD::JetContainer>() ;
   jets->setStore(new xAOD::JetAuxContainer);  
 
+  // -----------------------
   // retrieve input
   SG::ReadHandle<PseudoJetContainer> pjContHandle(m_inputPseudoJets);
   if(!pjContHandle.isValid()) {
@@ -71,37 +90,84 @@ xAOD::JetContainer* JetClusterer::build() const {
 
   const PseudoJetVector* pseudoJetVector = pjContHandle->casVectorPseudoJet();
 
-  fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
 
+  // -----------------------
+  // Build the cluster sequence
+  fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
   fastjet::ClusterSequence *clSequence = nullptr;
-  if ( m_ghostarea <= 0 ) {
+  bool useArea = m_ghostarea <= 0 ;
+  if ( useArea ) {
     ATH_MSG_DEBUG("Creating input cluster sequence");
     clSequence = new fastjet::ClusterSequence(*pseudoJetVector, jetdef);    
   } else {
     // Prepare ghost area specifications -------------
-    fastjet::GhostedAreaSpec gspec(5.0, 1, m_ghostarea);
+    ATH_MSG_DEBUG("Creating input area cluster sequence");
+    bool seedsok=true;
+    fastjet::AreaDefinition adef = buildAreaDefinition(seedsok);
+    if(seedsok) clSequence = new fastjet::ClusterSequenceArea(*pseudoJetVector, jetdef, adef);
+    else return nullptr;
+  }
 
+  
+  // -----------------------
+  // Build a new pointer to a PseudoJetVector containing the final PseudoJet
+  // This allows us to own the vector of PseudoJet which we will put in the evt store.
+  // Thus the contained PseudoJet will be kept frozen there and we can safely use pointer to them from the xAOD::Jet objects
+  auto pjVector = std::make_unique<PseudoJetVector>(fastjet::sorted_by_pt(clSequence->inclusive_jets(m_ptmin)) );
+  ATH_MSG_DEBUG("Found jet count: " << pjVector->size());
+  
+  // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
+  clSequence->delete_self_when_unused();
+
+
+  // -------------------------------------
+  // translate to xAOD::Jet
+  static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
+  PseudoJetTranslator pjTranslator(useArea, useArea);
+  for (const fastjet::PseudoJet &  pj: *pjVector ) {
+    // create the xAOD::Jet from the PseudoJet, doing the signal & ghost constituents extraction
+    xAOD::Jet* jet = pjTranslator.translate(pj, *pjContHandle, *jets);
+    
+    // Add the PseudoJet onto the xAOD jet. Maybe we should do it in the above JetFromPseudojet call ??
+    pjAccessor(*jet) = &pj;
+
+    jet->setInputType(  xAOD::JetInput::Type( (int) m_inputType) ) ;
+    xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
+    jet->setAlgorithmType(ialg);
+    jet->setSizeParameter((float)m_jetrad);
+    if(useArea) jet->setAttribute(xAOD::JetAttribute::JetGhostArea, (float)m_ghostarea);
+  }
+
+  // -------------------------------------
+  // record final PseudoJetVector
+  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPSeudoJets);
+  if(!pjVectorHandle.record(std::move(pjVector))){
+    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPSeudoJets);
+    return nullptr;
+  }
+
+  ATH_MSG_DEBUG("Reconstructed jet count: " << jets->size() <<  "  clusterseq="<<clSequence);
+  return jets.release();  
+}
+
+
+
+fastjet::AreaDefinition JetClusterer::buildAreaDefinition(bool & seedsok) const {
+
+    fastjet::GhostedAreaSpec gspec(5.0, 1, m_ghostarea);
+    seedsok = true;
+    
     if ( m_ranopt == 1 ) {
       // Use run/event number as random number seeds.      
       auto evtInfoHandle = SG::makeHandle(m_eventinfokey);
       if (!evtInfoHandle.isValid()){
         ATH_MSG_ERROR("Unable to retrieve event info");
-        return nullptr;
+	seedsok = false;
+        return fastjet::AreaDefinition();
       }
-      //const xAOD::EventInfo* pevinfo = handle.cptr();
-      auto ievt = evtInfoHandle->eventNumber();
-      auto irun = evtInfoHandle->runNumber();
-      
-      if ( evtInfoHandle->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-	// For MC, use the channel and MC event number
-	ievt = evtInfoHandle->mcEventNumber();
-	irun = evtInfoHandle->mcChannelNumber();
-      }
-      
-      std::vector<int> inseeds;
-      inseeds.push_back(ievt);
-      inseeds.push_back(irun);
 
+      std::vector<int> inseeds;
+      JetClustererHelper::seedsFromEventInfo(evtInfoHandle.cptr(), inseeds);
       gspec.set_random_status(inseeds);
     }
 
@@ -123,47 +189,5 @@ xAOD::JetContainer* JetClusterer::build() const {
       for ( auto seed : seeds ) ATH_MSG_DEBUG("                 " << seed);
     }
 
-    fastjet::AreaDefinition adef(fastjet::active_area_explicit_ghosts, gspec);
-    ATH_MSG_DEBUG("Creating input area cluster sequence");
-    clSequence = new fastjet::ClusterSequenceArea(*pseudoJetVector, jetdef, adef);
-  }
-
-  
-  // -----------------------
-  // we have the cluster sequence .
-
-  // Build a new pointer to a PseudoJetVector.
-  // This allows us to own the vector of PseudoJet which we will put in the evt store.
-  // Thus the contained PseudoJet will be kept frozen there and we can safely use pointer to them from the xAOD::Jet objects
-  auto pjVector = std::make_unique<PseudoJetVector>(fastjet::sorted_by_pt(clSequence->inclusive_jets(m_ptmin)) );
-  ATH_MSG_DEBUG("Found jet count: " << pjVector->size());
-
-  // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
-  clSequence->delete_self_when_unused();
-
-
-  // -------------------------------------
-  // translate to xAOD::Jet
-  static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
-  for (const fastjet::PseudoJet &  pj: *pjVector ) {
-    // create the xAOD::Jet from the PseudoJet, doing the signal & ghost constituents extraction
-    xAOD::Jet* jet = m_jetFromPseudoJet.add(pj, *pjContHandle, *jets, xAOD::JetInput::Type( (int) m_inputType));
-    // Add the PseudoJet onto the xAOD jet. Maybe we should do it in the above JetFromPseudojet call ??
-    pjAccessor(*jet) = &pj;
-    
-    xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
-    jet->setAlgorithmType(ialg);
-    jet->setSizeParameter((float)m_jetrad);
-    jet->setAttribute(xAOD::JetAttribute::JetGhostArea, (float)m_ghostarea);
-  }
-
-  // -------------------------------------
-  // record 
-  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPSeudoJets);
-  if(!pjVectorHandle.record(std::move(pjVector))){
-    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPSeudoJets);
-    return nullptr;
-  }
-  ATH_MSG_DEBUG("Reconstructed jet count: " << jets->size() <<  "  clusterseq="<<clSequence);
-  return jets.release();  
+    return fastjet::AreaDefinition(fastjet::active_area, gspec);
 }
