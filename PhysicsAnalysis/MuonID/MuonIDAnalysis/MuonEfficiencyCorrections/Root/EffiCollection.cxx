@@ -345,7 +345,7 @@ namespace CP {
                 }
             }
         } else return true;
-        Error("CollectionContainer", "Could not find any SF period matching the run number %u", RunNumber);
+        Error("CollectionContainer", "Could not find any SF period in %s matching the run number %u", FileTypeName(type()).c_str(), RunNumber);
         return false;
     }
     EfficiencyScaleFactor* EffiCollection::CollectionContainer::retrieve(unsigned int RunNumber) const {
