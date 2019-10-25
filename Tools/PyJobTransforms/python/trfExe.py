@@ -1003,8 +1003,11 @@ class athenaExecutor(scriptExecutor):
             for dataType in output:
                 self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
                 if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value is False:
-                    self.conf._dataDictionary[dataType].value[0] += "_000"
-                    msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
+                    if 'sharedWriter' in self.conf.argdict and self.conf.argdict['sharedWriter'].value:
+                        msg.info("SharedWriter: not updating athena output filename for {0}".format(dataType))
+                    else:
+                        self.conf._dataDictionary[dataType].value[0] += "_000"
+                        msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
         else:
             self._athenaMPWorkerTopDir = self._athenaMPFileReport = None
 
