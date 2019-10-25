@@ -817,8 +817,13 @@ namespace ST {
     switch (ret) {
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::JVT_SF" );
+      // this is probably not right, should report an error here
+      break;
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
+      // this may or may not be right, may want to report that this
+      // jet doesn't have a valid scale factor
+      break;
     default:
       ATH_MSG_VERBOSE( "Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
     }
@@ -870,8 +875,13 @@ namespace ST {
     switch (ret) {
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::FJVT_SF" );
+      // this is probably not right, should report an error here
+      break;
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::FJVT_SF" );
+      // this may or may not be right, may want to report that this
+      // jet doesn't have a valid scale factor
+      break;
     default:
       ATH_MSG_VERBOSE( "Retrieve SF for jet container in SUSYTools_xAOD::FJVT_SF with value " << totalSF );
     }
