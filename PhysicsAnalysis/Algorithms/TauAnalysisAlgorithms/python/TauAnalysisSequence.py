@@ -61,7 +61,7 @@ def makeTauAnalysisSequence( dataType, workingPoint,
 
     # Setup the tau selection tool
     selectionTool = createPublicTool( 'TauAnalysisTools::TauSelectionTool',
-                                      'TauSelectionTool')
+                                      'TauSelectionTool' + postfix)
     selectionTool.ConfigPath = inputfile
     seq.addPublicTool( selectionTool )
 
@@ -102,7 +102,8 @@ def makeTauAnalysisSequence( dataType, workingPoint,
                         'TauAnalysisTools::TauEfficiencyCorrectionsTool' )
         alg.efficiencyCorrectionsTool.TauSelectionTool = '%s/%s' % \
             ( selectionTool.getType(), selectionTool.getName() )
-        alg.scaleFactorDecoration = 'tau_effSF' + postfix
+        alg.scaleFactorDecoration = 'tau_effSF' + postfix + '_%SYS%'
+        alg.scaleFactorDecorationRegex = '(^TAUS_TRUEELECTRON_EFF_.*)|(^TAUS_TRUEHADTAU_EFF_.*)'
         alg.outOfValidity = 2 #silent
         alg.outOfValidityDeco = 'bad_eff' + postfix
         seq.append( alg, inputPropName = 'taus',
