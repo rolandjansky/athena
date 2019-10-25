@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonSvc.cxx
@@ -11,6 +11,7 @@
 
 // Python includes
 #include "Python.h"
+#include "patchlevel.h"
 
 #ifdef Py_False
 #undef Py_False
@@ -624,7 +625,11 @@ StatusCode PerfMonSvc::initialize()
       PMON_WARNING("Problem during pmon-dso-logger installation");
       ::throw_py_exception();
     }
+#if PY_MAJOR_VERSION < 3
     long do_dso = PyInt_AS_LONG(res);
+#else
+    long do_dso = PyLong_AS_LONG(res);
+#endif
     Py_DECREF( res );
 
     if (do_dso) {
@@ -786,6 +791,7 @@ PerfMonSvc::domain(const std::string& compName, std::string& domain) const
     ::throw_py_exception();
   }
 
+#if PY_MAJOR_VERSION < 3
   if (!PyString_Check(py_domain)) {
     PMON_WARNING("domains_db() returned a non-string for component ["
 		    << compName << "]");
@@ -795,6 +801,17 @@ PerfMonSvc::domain(const std::string& compName, std::string& domain) const
 
   domain = std::string(PyString_AS_STRING(py_domain));
   Py_DECREF(db);
+#else
+  if (!PyUnicode_Check(py_domain)) {
+    PMON_WARNING("domains_db() returned a non-unicode for component ["
+		    << compName << "]");
+    Py_DECREF(db);
+    ::throw_py_exception();
+  }
+
+  domain = std::string(PyUnicode_AsUTF8(py_domain));
+  Py_DECREF(db);
+#endif
 
   return;
 }
