@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigMissingETHypoAlgMT.h"
 
@@ -15,15 +15,8 @@ TrigMissingETHypoAlgMT::TrigMissingETHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigMissingETHypoAlgMT::~TrigMissingETHypoAlgMT() {}
-
-StatusCode TrigMissingETHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode TrigMissingETHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   CHECK( m_hypoTools.retrieve() );
   CHECK( m_metKey.initialize() );
