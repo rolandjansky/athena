@@ -24,6 +24,8 @@
 #include "CTPfragment/CTPExtraWordsFormat.h"
 #include "CTPfragment/Issue.h"
 
+#include <algorithm>
+
 //=========================================================================
 // Standard methods
 //=========================================================================
@@ -189,16 +191,15 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
 StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
 {
   // Loop over folders to be updated
-  std::map<CTPfragment::FolderIndex, FolderUpdate>::iterator f = m_folderUpdates.begin();
-  for (; f!=m_folderUpdates.end(); ++f) {
+  for (auto& [idx, f] : m_folderUpdates) {
           
-    if (f->second.needsUpdate) {
+    if (f.needsUpdate) {
       std::string folderName;
-      if (getFolderName(f->second.folderIndex, folderName).isFailure()) {
+      if (getFolderName(f.folderIndex, folderName).isFailure()) {
         continue;  // On purpose not a failure
       }
 
-      ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock " << f->second.lumiBlock
+      ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock " << f.lumiBlock
                    << ". Current event: "  << ctx.eventID());
               
       if ( hltCoolUpdate(folderName, ctx).isFailure() ) {
@@ -206,7 +207,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
         return StatusCode::FAILURE;
       }
       // All OK
-      f->second.needsUpdate = false;
+      f.needsUpdate = false;
     }      
   }
   
@@ -218,6 +219,12 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, co
   if ( m_iovSvc==nullptr || m_coolFolderName.empty() ) {
     ATH_MSG_DEBUG("Passive mode. Not updating COOL folders");
     return StatusCode::SUCCESS;
+  }
+
+  if (std::find(m_folders.begin(), m_folders.end(), folderName)==m_folders.end()) {
+    ATH_MSG_ERROR("Received request to update COOL folder '" << folderName
+                  << "' but this folder is not in the allowed list:" << m_folders);
+    return StatusCode::FAILURE;
   }
 
   auto mon_t = Monitored::Timer("TIME_CoolFolderUpdate");
