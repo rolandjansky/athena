@@ -13,7 +13,8 @@ if DerivationFrameworkIsMonteCarlo:
     # Build truth collection if input is HepMC. Must be scheduled first to allow slimming.
     # Input file is EVNT
     if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-        DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
+        if not hasattr(DerivationFrameworkJob,'GEN_EVNT2xAOD'):
+            DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
         dfInputIsEVNT = True
     # Input file is HITS and translation hasn't been scheduled - careful with the name difference!
     elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):

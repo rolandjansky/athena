@@ -38,11 +38,34 @@ def setup(TOPQname, stream):
         "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
     }
 
-    #================================
-    # SMART SLIMMING
-    #================================
-    TOPQSlimmingHelper.SmartCollections =  []
-    TOPQSlimmingHelper.SmartCollections += TOPQSmartSlimmingCollections
+    # list of existing containers with a smart list is available here :
+    # DerivationFrameworkCore/python/FullListOfSmartContainers.py
+    TOPQSlimmingHelper.SmartCollections =  [
+        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+        "AntiKt4EMPFlowJets",
+        "AntiKt4EMPFlowJets_BTagging201810",
+        "AntiKt4EMPFlowJets_BTagging201903",
+        "AntiKt4EMTopoJets",
+        "AntiKt4EMTopoJets_BTagging201810",
+        "AntiKt4TruthDressedWZJets",
+        "AntiKt4TruthJets",
+        "AntiKt4TruthWZJets",
+        "BTagging_AntiKt4EMPFlow_201810",
+        "BTagging_AntiKt4EMPFlow_201903",
+        "BTagging_AntiKt4EMTopo_201810",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+        "Electrons",
+        "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+        "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
+        "InDetTrackParticles",
+        "MET_Reference_AntiKt4EMPFlow",
+        "MET_Reference_AntiKt4EMTopo",
+        "Muons",
+        "Photons",
+        "PrimaryVertices",
+        "TauJets",
+    ]
 
     print "TOPQSlimmingHelper.SmartCollections: " , TOPQSlimmingHelper.SmartCollections
 
@@ -52,46 +75,24 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables = []
     # for jets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets
-    # for TOPQDERIV-62
-    if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
-
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201810
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201903
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo_201810
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 
-    # For TCC W/Z taggers, see TOPQDERIV-80
-    if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10TrackCaloClusterJets
-
-    # see TOPQDERIV70
-    if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
-
-    # Xbb tagger extra variables
-    if TOPQname == 'TOPQ1':
-        from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
-        TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
-
     # additional variables for electrons/photons objects
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ForwardElectrons
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Photons
     # additional variables for muons (and associated tracks)
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Muons
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_CombinedMuonTrackParticles
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ExtrapolatedMuonTrackParticles
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MuonSpectrometerTrackParticles
+    TOPQSlimmingHelper.AllVariables += ["CombinedMuonTrackParticles"]
+    TOPQSlimmingHelper.AllVariables += ["ExtrapolatedMuonTrackParticles"]
+    TOPQSlimmingHelper.AllVariables += ["MuonSpectrometerTrackParticles"]
     # additional variables for inner detector
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_InDetTrackParticles
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_PrimaryVertices
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_InDetForwardTrackParticles
+    TOPQSlimmingHelper.AllVariables += ["InDetForwardTrackParticles"]
     # additional variables for tau
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Taus
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TauJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TauTracks
     # additional variables for tracks in jets
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets
@@ -111,57 +112,92 @@ def setup(TOPQname, stream):
     addOriginCorrectedClusters(TOPQSlimmingHelper, writeLC=True, writeEM=True)
 
     if DFisMC:
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Photons_Truth
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons_Truth
+        # Additional truth variables for existing collections
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ForwardElectrons_Truth
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Muons_Truth
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_CombinedMuonTrackParticles_Truth
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MuonSpectrometerTrackParticles_Truth
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ExtrapolatedMuonTrackParticles_Truth
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_IndetForwardTrackParticles_Truth
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Taus_Truth
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets_Truth
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_Truth
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets_Truth
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth
-
-    # add these trigger variables to all MC and data (TOPQ4 only)
-    if DFisMC or TOPQname == 'TOPQ4':
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_EFJet
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_GSCJet
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_SplitJet
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_a10r_tcemsubjesFS
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_a10r_tcemsubjesISFS
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_a10tclcwsubjesFS
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_a10ttclcwjesFS
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_a4tcemsubjesISFS
-        TOPQSlimmingHelper.ExtraVariables +  TOPQExtraVariables_LVL1EnergySumRoI
-    # at truth level
-    if DFisMC:
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthWZJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthDressedWZJets
+        # Additional variables for truth-only collections
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthEvents
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthParticles
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthVertices
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MET_Truth
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MET_TruthRegions
+        # Additional trigger information for MC
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_EFJet
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_SplitJet
+
+    if TOPQname == 'TOPQ1':
+        # for TOPQDERIV-62
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
+        # see TOPQDERIV70
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+        # Xbb tagger extra variables
+        from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
+        TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
+    elif TOPQname == 'TOPQ4':
+        # see TOPQDERIV70
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+        # add these trigger variables to both data and MC
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_EFJet
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_SplitJet
+    elif TOPQname == 'TOPQ6':
+        # for TOPQDERIV-62
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
 
     print "TOPQSlimmingHelper.ExtraVariables: " , TOPQSlimmingHelper.ExtraVariables
 
     #================================
     # CREATED ON-THE-FLY COLLECTIONS
     #================================
-    TOPQSlimmingHelper.StaticContent = []
-    TOPQSlimmingHelper.StaticContent += TOPQStaticContent
+    TOPQSlimmingHelper.StaticContent = [
+        'xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
+        'xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.',
+        'xAOD::JetContainer#AntiKt10TruthTrimmedPtFrac5SmallR20Jets',
+        'xAOD::JetAuxContainer#AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.',
+        'xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets',
+        'xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.',
+    ]
 
     # for TOPQDERIV-69
     if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
-        TOPQSlimmingHelper.StaticContent += TOPQStaticContentV0
+        TOPQSlimmingHelper.StaticContent += [
+            'xAOD::VertexContainer#TOPQ1RecoV0Candidates',
+            'xAOD::VertexAuxContainer#TOPQ1RecoV0CandidatesAux'
+                + '.-vxTrackAtVertex'
+                + '.-vertexType'
+                + '.-neutralParticleLinks'
+                + '.-neutralWeights'
+                + '.-KshortLink'
+                + '.-LambdaLink'
+                + '.-LambdabarLink'
+                + '.-gamma_fit'
+                + '.-gamma_mass'
+                + '.-gamma_massError'
+                + '.-gamma_probability',
+        ]
 
     if DFisMC:
-        TOPQSlimmingHelper.StaticContent += TOPQStaticContentTruth
+        TOPQSlimmingHelper.StaticContent += [
+            'xAOD::TruthParticleContainer#TruthElectrons',
+            'xAOD::TruthParticleAuxContainer#TruthElectronsAux.',
+            'xAOD::TruthParticleContainer#TruthMuons',
+            'xAOD::TruthParticleAuxContainer#TruthMuonsAux.',
+            'xAOD::TruthParticleContainer#TruthPhotons',
+            'xAOD::TruthParticleAuxContainer#TruthPhotonsAux.',
+            'xAOD::TruthParticleContainer#TruthTaus',
+            'xAOD::TruthParticleAuxContainer#TruthTausAux.',
+            'xAOD::TruthParticleContainer#TruthNeutrinos',
+            'xAOD::TruthParticleAuxContainer#TruthNeutrinosAux.',
+        ]
 
     print "TOPQSlimmingHelper.StaticContent: " , TOPQSlimmingHelper.StaticContent
 
@@ -195,11 +231,13 @@ def setup(TOPQname, stream):
     # ADD CUSTOM JET OUTPUT
     #=======================
     addJetOutputs(TOPQSlimmingHelper,[TOPQname],
-                  ["AntiKt4EMTopoJets", # smart list
+                  # Add the following smart jet collections
+                  ["AntiKt4EMTopoJets",
                    "AntiKt4EMPFlowJets",
                    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                   ],
+                  # Veto the following jet containers in the output
                   ["AntiKt3PV0TrackJets",
                    "AntiKt4PV0TrackJets",
                    "AntiKt4LCTopoJets",
@@ -208,8 +246,7 @@ def setup(TOPQname, stream):
                    "AntiKt10LCTopoCSSKJets",
                    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                    "AntiKt10TruthWZJets",
-                  ] # veto list
-    )
+                  ])
 
     #================================
     # THIS NEEDS TO BE THE LAST LINE
