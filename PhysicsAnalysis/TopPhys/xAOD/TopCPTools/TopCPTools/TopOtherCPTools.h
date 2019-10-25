@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPCPTOOLS_TOPOTHERCPTOOLS_H_
 #define TOPCPTOOLS_TOPOTHERCPTOOLS_H_
@@ -26,28 +26,26 @@
 #include "PMGAnalysisInterfaces/IPMGTruthWeightTool.h"
 
 namespace top {
+  class TopConfig;
 
-class TopConfig;
+  class OtherCPTools final: public asg::AsgTool {
+  public:
+    explicit OtherCPTools(const std::string& name);
+    virtual ~OtherCPTools() {}
 
-class OtherCPTools final : public asg::AsgTool {
- public:
-  explicit OtherCPTools(const std::string& name);
-  virtual ~OtherCPTools() {}
+    StatusCode initialize();
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
-  StatusCode initialize();
+    ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
+    ToolHandle<CP::IPileupReweightingTool> m_pileupReweightingTool;
+    ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool> m_pmg_sherpa22_vjets_tool;
+    ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool;
 
- private:
-  std::shared_ptr<top::TopConfig> m_config;
-
-  ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
-  ToolHandle<CP::IPileupReweightingTool> m_pileupReweightingTool;
-  ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool> m_pmg_sherpa22_vjets_tool;
-  ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool;
-
-  StatusCode setupGRL();
-  StatusCode setupPileupReweighting();
-  StatusCode setupPMGTools();
-};
+    StatusCode setupGRL();
+    StatusCode setupPileupReweighting();
+    StatusCode setupPMGTools();
+  };
 }  // namespace top
 
 #endif  // TOPCPTOOLS_TOPOTHERCPTOOLS_H_

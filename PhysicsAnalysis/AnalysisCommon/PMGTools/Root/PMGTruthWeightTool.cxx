@@ -282,6 +282,7 @@ namespace PMGTools
     // Update cached weight data
     const std::vector<std::string> &truthWeightNames = (*itTruthMetaDataPtr)->weightNames();
     for(std::size_t idx = 0; idx < truthWeightNames.size(); ++idx ) {
+      ANA_MSG_VERBOSE("    " << truthWeightNames.at(idx));
       m_weightNames.push_back(truthWeightNames.at(idx));
       m_weightIndices[truthWeightNames.at(idx)] = idx;
 
@@ -313,6 +314,7 @@ namespace PMGTools
     // Use input map to fill the index map and the weight names
     ATH_MSG_INFO("Attempting to load weight meta data from HepMC IOVMetaData container");
     for (auto& kv : hepMCWeightNamesMap) {
+      ANA_MSG_VERBOSE("    " << kv.first);
       m_weightNames.push_back(kv.first);
       m_weightIndices[kv.first] = kv.second;
 
@@ -327,12 +329,19 @@ namespace PMGTools
   }
 
 
-  StatusCode PMGTruthWeightTool::validateWeightLocationCaches() const {
+  StatusCode PMGTruthWeightTool::validateWeightLocationCaches() {
     // Validate weight caches against one another
     if (m_weightNames.size() != m_weightIndices.size()) {
       ATH_MSG_ERROR("Found " << m_weightNames.size() << " but " << m_weightIndices.size() << " weight indices!");
       return StatusCode::FAILURE;
     }
+    // Check if we can work with systematics
+    auto it = m_weightIndicesSys.find("");
+    if (it == m_weightIndicesSys.end()) {
+      ATH_MSG_WARNING("Could not detect nominal weight automatically. The first weight will also be considered nominal.");
+      m_weightIndicesSys[""] = 0;
+    }
+
     ATH_MSG_INFO("Successfully loaded information about " << m_weightNames.size() << " weights");
     return StatusCode::SUCCESS;
   }
@@ -366,7 +375,10 @@ namespace PMGTools
     sys = RCU::substitute (sys, "=", "");
     sys = RCU::substitute (sys, ",", "");
     sys = RCU::substitute (sys, ".", "");
+    sys = RCU::substitute (sys, ":", "");
     sys = RCU::substitute (sys, " ", "_");
+    sys = RCU::substitute (sys, "#", "num");
+    sys = RCU::substitute (sys, "\n", "_");
     sys = RCU::substitute (sys, "/", "over"); // MadGraph
 
     return generatorSystematicsPrefix + sys;

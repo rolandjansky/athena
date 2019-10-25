@@ -45,7 +45,7 @@ DerivationFramework::TruthCollectionMaker::TruthCollectionMaker(const std::strin
     declareProperty("Do_Compress",m_do_compress=false);
     declareProperty("Do_Sherpa",m_do_sherpa=false);
     declareProperty("KeepNavigationInfo",m_keep_navigation_info=true);
-    declareProperty( "MetaDataStore", m_metaStore );
+    declareProperty("MetaDataStore", m_metaStore );
 }
 
 // Destructor

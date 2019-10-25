@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 // $Id: JetScaleFactorCalculator.cxx 794672 2017-01-31 00:41:04Z tpelzer $
 #include "TopCorrections/JetScaleFactorCalculator.h"
@@ -11,7 +11,6 @@
 
 
 namespace top {
-
   JetScaleFactorCalculator::JetScaleFactorCalculator(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
@@ -20,7 +19,7 @@ namespace top {
     m_systUP(CP::SystematicSet()),
     m_systDOWN(CP::SystematicSet()),
     m_jvt_tool("JetJvtEfficiencyTool") {
-    declareProperty("config" , m_config);
+    declareProperty("config", m_config);
   }
 
   StatusCode JetScaleFactorCalculator::initialize() {
@@ -33,7 +32,6 @@ namespace top {
 
     return StatusCode::SUCCESS;
   }
-
 
   StatusCode JetScaleFactorCalculator::execute() {
     ///-- Loop over all jet collections --///
@@ -73,12 +71,10 @@ namespace top {
           }
 
           int passes_jvt = jetPtr->auxdataConst< char >("passJVT");
-          if (!(passes_jvt >= 0))
-            continue;
+          if (!(passes_jvt >= 0)) continue;
 
-          if (passes_jvt)
-            top::check(m_jvt_tool->getEfficiencyScaleFactor(*jetPtr, jvtSF),
-                       "Failed to getEfficiencyScaleFactor for JVT");
+          if (passes_jvt) top::check(m_jvt_tool->getEfficiencyScaleFactor(*jetPtr, jvtSF),
+                                     "Failed to getEfficiencyScaleFactor for JVT");
           else {
             top::check(m_jvt_tool->getInefficiencyScaleFactor(*jetPtr, jvtSF),
                        "Failed to getInefficiencyScaleFactor for JVT");
@@ -88,7 +84,6 @@ namespace top {
 
           ///-- For nominal calibration, vary the SF systematics --///
           if (currentSystematic.first == m_config->nominalHashValue()) {
-
             float jvtSF_up(1.), jvtSF_down(1.);  // made up values
 
             if (passes_jvt) {
@@ -100,8 +95,7 @@ namespace top {
                          "Failed to applySystematicVariation down for JVT");
               top::check(m_jvt_tool->getEfficiencyScaleFactor(*jetPtr, jvtSF_down),
                          "Failed to get JVT SF (systematic down)");
-            }
-            else {
+            } else {
               top::check(m_jvt_tool->applySystematicVariation(m_systUP),
                          "Failed to applySystematicVariation up for JVT");
               top::check(m_jvt_tool->getInefficiencyScaleFactor(*jetPtr, jvtSF_up),
@@ -116,7 +110,6 @@ namespace top {
             jetPtr->auxdecor<float>("JET_SF_jvt_UP") = jvtSF_up;
             jetPtr->auxdecor<float>("JET_SF_jvt_DOWN") = jvtSF_down;
           } // Calibration systematic is nominal, so calculate SF systematics
-
         }
       }
     }
@@ -124,5 +117,4 @@ namespace top {
 
     return StatusCode::SUCCESS;
   }
-
 }  // namespace top

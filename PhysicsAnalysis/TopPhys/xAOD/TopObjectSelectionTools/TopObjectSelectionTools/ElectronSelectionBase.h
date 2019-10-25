@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef ELECTRONSELECTIONBASE_H_
 #define ELECTRONSELECTIONBASE_H_
@@ -10,7 +10,6 @@
 #include <memory>
 
 namespace top {
-
 /**
  * @brief Base class for implementing an electron selection.
  *
@@ -20,8 +19,8 @@ namespace top {
  * passSelection for an Electron.  I think it would be a less-clean solution if
  * we were to use the 'proper' CP tool style.
  */
-class ElectronSelectionBase {
-public:
+  class ElectronSelectionBase {
+  public:
     ElectronSelectionBase();
     virtual ~ElectronSelectionBase();
 
@@ -32,7 +31,7 @@ public:
     ElectronSelectionBase(ElectronSelectionBase&& rhs) = delete;
 
     ///No assignment
-    ElectronSelectionBase& operator=(const ElectronSelectionBase& rhs) = delete;
+    ElectronSelectionBase& operator = (const ElectronSelectionBase& rhs) = delete;
 
     ///For the main analysis object selection
     virtual bool passSelection(const xAOD::Electron&) const = 0;
@@ -42,10 +41,9 @@ public:
 
     ///Because everybody likes to know what object definitions they ran with
     virtual void print(std::ostream&) const = 0;
-};
-
+  };
 }
 
-std::ostream& operator<<(std::ostream& os, const top::ElectronSelectionBase& selection);
+std::ostream& operator << (std::ostream& os, const top::ElectronSelectionBase& selection);
 
 #endif

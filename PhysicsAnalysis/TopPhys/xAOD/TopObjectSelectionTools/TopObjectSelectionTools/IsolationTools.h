@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef ISOLATIONTOOLS_H_
 #define ISOLATIONTOOLS_H_
@@ -9,13 +9,12 @@
 #include "xAODPrimitives/IsolationType.h"
 
 namespace top {
-
 /**
  * @brief A common base for implementing isolation cuts.  Probably these
  * isolation tools should be in individual files?  Time will tell.
  */
-class IsolationBase {
-public:
+  class IsolationBase {
+  public:
     ///Create
     IsolationBase();
 
@@ -48,7 +47,7 @@ public:
      * @param os Where to print things to, e.g. cout.
      */
     virtual void print(std::ostream& os) const = 0;
-};
+  };
 
 /**
  * @brief These should give you access to xAOD::Iso::topoetcone20, 30, 40
@@ -61,8 +60,8 @@ public:
  * fancy things, we should implement them.  Don't you want to look at using
  * RelativePTVarCone instead though?
  */
-class AbsoluteIsolationDC14 : public IsolationBase {
-public:
+  class AbsoluteIsolationDC14: public IsolationBase {
+  public:
     /**
      * @brief Absolute cut on topoetcone or ptcone.
      *
@@ -83,21 +82,20 @@ public:
     virtual bool passSelection(const xAOD::IParticle& p) const override;
     virtual bool passSelectionLoose(const xAOD::IParticle& p) const override;
     virtual void print(std::ostream& os) const override;
-
-protected:
+  protected:
     ///What to cut on (topoetcone20, 30, 40 or ptcone20, 30, 40).
     xAOD::Iso::IsolationType m_type;
 
     ///The value, in MeV, to cut.
     double m_cutvalue;
-};
+  };
 
 /**
  * @brief Yay DC14 now has isolation! This should allow you to cut on the
  * isolation (ptvarcone) as a fraction of the pt of the lepton.
  */
-class RelativePTVarCone : public IsolationBase {
-public:
+  class RelativePTVarCone: public IsolationBase {
+  public:
     /**
      * @brief Cut on the mini-isolation (aka ptvarcone) as a fraction of the
      * pt of the lepton.
@@ -129,8 +127,7 @@ public:
 
     ///Come on, you really need me to tell you what this does?
     virtual void print(std::ostream& os) const override;
-
-protected:
+  protected:
     ///The name of the variable to access, e.g. ptvarcone20 formed in the constructor.
     std::string m_size;
 
@@ -142,7 +139,7 @@ protected:
 
     ///For the objects used in the looser object selection (e.g. matrix method fakes)
     double m_fractionLoose;
-};
+  };
 
 /**
  * @brief Danilo's approximation of mini-isolation which has been calculated
@@ -153,8 +150,8 @@ protected:
  * options will be better, and almost certainly faster if we don't need to load
  * all the tracks!
  */
-class ApproxPTVarCone : public IsolationBase {
-public:
+  class ApproxPTVarCone: public IsolationBase {
+  public:
     /**
      * @brief An approximation of mini-isolation.
      *
@@ -186,27 +183,26 @@ public:
 
     ///Come on, you really need me to tell you what this does?
     virtual void print(std::ostream& os) const override;
-
-protected:
+  protected:
     ///For the main analysis object selection
     double m_fraction;
 
     ///For the objects used in the looser object selection (e.g. matrix method fakes)
     double m_fractionLoose;
-};
+  };
 
 /**
  * @brief Apply the cuts to etcone and ptcone like we used to in Run-I
  */
-class StandardIsolation : public IsolationBase {
-public:
+  class StandardIsolation: public IsolationBase {
+  public:
     /**
      * @brief Applies the cuts to etcone and ptcone like we used to in Run-I
      *
      * This sets up the isolation tool and configures it with the cuts.
      */
-    StandardIsolation(const std::string& tightLeptonIsolation = "Gradient" , 
-                      const std::string& looseLeptonIsolation = "None" );
+    StandardIsolation(const std::string& tightLeptonIsolation = "Gradient",
+                      const std::string& looseLeptonIsolation = "None");
 
     /**
      * @brief Does this particle pass the isolation cuts for the main analysis
@@ -231,8 +227,7 @@ public:
 
     ///Come on, you really need me to tell you what this does?
     virtual void print(std::ostream& os) const override;
-
-protected:
+  protected:
     std::string m_tightLeptonDecoration;
     std::string m_looseLeptonDecoration;
     std::string m_tightLeptonIsolation;
@@ -242,8 +237,7 @@ protected:
     bool m_doTightPromptLeptonIso;
     bool m_doLoosePromptLeptonIso;
     bool m_skipUnavailable; // skip unavailable working points (instead of aborting)
-};
-
+  };
 }
 
 #endif

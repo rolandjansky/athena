@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 // $Id: MuonScaleFactorCalculator.cxx 805964 2017-06-05 19:27:16Z iconnell $
 #include "TopCorrections/MuonScaleFactorCalculator.h"
@@ -16,7 +16,6 @@
 #include "xAODMuon/MuonContainer.h"
 
 namespace top {
-
   MuonScaleFactorCalculator::MuonScaleFactorCalculator(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
@@ -34,7 +33,7 @@ namespace top {
     m_decor_idSF("SetMe"), m_decor_idSF_loose("SetMe"),
     m_decor_isoSF("SetMe"), m_decor_isoSF_loose("SetMe"),
     m_decor_TTVA("MU_SF_TTVA"),
-    
+
     m_decor_softmuon_idSF("SetMe"),
 
     m_do_muon_isolation_SFs(true),
@@ -69,41 +68,43 @@ namespace top {
 
   StatusCode MuonScaleFactorCalculator::initialize() {
     ATH_MSG_INFO(" top::MuonScaleFactorCalculator initialize");
-    
-    m_muonTriggerScaleFactors_R21      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_R21");
-    m_muonTriggerScaleFactorsLoose_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_R21");
-    
+
+    m_muonTriggerScaleFactors_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_R21");
+    m_muonTriggerScaleFactorsLoose_R21 =
+      ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_R21");
+
     std::set<std::string> implemented_systematics;
-    implemented_systematics = {"MUON_EFF_RECO_STAT",
-			       "MUON_EFF_RECO_STAT_LOWPT",
-			       "MUON_EFF_RECO_SYS",
-			       "MUON_EFF_RECO_SYS_LOWPT",
-			       "MUON_EFF_TrigStatUncertainty",
-			       "MUON_EFF_TrigSystUncertainty",
-			       "MUON_EFF_ISO_STAT",
-			       "MUON_EFF_ISO_SYS",
-			       "MUON_EFF_TTVA_STAT",
-			       "MUON_EFF_TTVA_SYS"};
+    implemented_systematics = {
+      "MUON_EFF_RECO_STAT",
+      "MUON_EFF_RECO_STAT_LOWPT",
+      "MUON_EFF_RECO_SYS",
+      "MUON_EFF_RECO_SYS_LOWPT",
+      "MUON_EFF_TrigStatUncertainty",
+      "MUON_EFF_TrigSystUncertainty",
+      "MUON_EFF_ISO_STAT",
+      "MUON_EFF_ISO_SYS",
+      "MUON_EFF_TTVA_STAT",
+      "MUON_EFF_TTVA_SYS"
+    };
 
     std::set<std::string> recommended_systematics;
 
     // For R21, a single tool
     this->retrieveSystematicTool(m_muonTriggerScaleFactors_R21,
-				 recommended_systematics);
+                                 recommended_systematics);
     this->retrieveSystematicTool(m_muonTriggerScaleFactorsLoose_R21,
-				 recommended_systematics);
+                                 recommended_systematics);
 
     this->retrieveSystematicTool(m_muonEfficiencyCorrectionsTool,
-				 recommended_systematics);
-				 
-    if(m_config->useSoftMuons())
-    {
-		this->retrieveSystematicTool(m_softmuonEfficiencyCorrectionsTool,
-				 recommended_systematics);
-	}
-				 
+                                 recommended_systematics);
+
+    if (m_config->useSoftMuons()) {
+      this->retrieveSystematicTool(m_softmuonEfficiencyCorrectionsTool,
+                                   recommended_systematics);
+    }
+
     this->retrieveSystematicTool(m_muonEfficiencyCorrectionsToolLoose,
-				 recommended_systematics);
+                                 recommended_systematics);
 
 
     if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>("CP::MuonEfficiencyScaleFactorsToolIso")) {
@@ -143,28 +144,27 @@ namespace top {
                " muon SF systematic uncertainties");
 
 
-    m_decor_triggerEff       = "MU_EFF_Trigger_"  + m_config->muonQuality();
-    m_decor_triggerEff_loose = "MU_EFF_Trigger_"  + m_config->muonQualityLoose();
-    m_decor_triggerSF        = "MU_SF_Trigger_"   + m_config->muonQuality();
-    m_decor_triggerSF_loose  = "MU_SF_Trigger_"   + m_config->muonQualityLoose();
-    m_decor_idSF             = "MU_SF_ID_"        + m_config->muonQuality();
-    m_decor_idSF_loose       = "MU_SF_ID_"        + m_config->muonQualityLoose();
-    m_decor_isoSF            = "MU_SF_Isol_"      + m_config->muonIsolationSF();
-    m_decor_isoSF_loose      = "MU_SF_Isol_"      + m_config->muonIsolationSFLoose();
-    
-    m_decor_softmuon_idSF             = "SOFTMU_SF_ID_"        + m_config->softmuonQuality();
+    m_decor_triggerEff = "MU_EFF_Trigger_" + m_config->muonQuality();
+    m_decor_triggerEff_loose = "MU_EFF_Trigger_" + m_config->muonQualityLoose();
+    m_decor_triggerSF = "MU_SF_Trigger_" + m_config->muonQuality();
+    m_decor_triggerSF_loose = "MU_SF_Trigger_" + m_config->muonQualityLoose();
+    m_decor_idSF = "MU_SF_ID_" + m_config->muonQuality();
+    m_decor_idSF_loose = "MU_SF_ID_" + m_config->muonQualityLoose();
+    m_decor_isoSF = "MU_SF_Isol_" + m_config->muonIsolationSF();
+    m_decor_isoSF_loose = "MU_SF_Isol_" + m_config->muonIsolationSFLoose();
+
+    m_decor_softmuon_idSF = "SOFTMU_SF_ID_" + m_config->softmuonQuality();
 
     return StatusCode::SUCCESS;
   }
 
-
   StatusCode MuonScaleFactorCalculator::execute() {
     /*************************************************************
-     *
-     *  The muon trigger SF tool wants a random run number,
-     *  which we can get from the PRW tool.
-     *
-     *************************************************************/
+    *
+    *  The muon trigger SF tool wants a random run number,
+    *  which we can get from the PRW tool.
+    *
+    *************************************************************/
 
     if (m_config->doPileupReweighting()) {
       const xAOD::EventInfo* eventInfo(nullptr);
@@ -173,37 +173,35 @@ namespace top {
 
       // This is the default value in the MuonTriggerScaleFactors tool
       unsigned int runNumber = 267639;
-      if (eventInfo->isAvailable<unsigned int>("RandomRunNumber"))
-        runNumber = eventInfo->auxdataConst<unsigned int>("RandomRunNumber");
-      else
-        ATH_MSG_WARNING("Event has not been decorated with RandomRunNumber");
+      if (eventInfo->isAvailable<unsigned int>("RandomRunNumber")) runNumber = eventInfo->auxdataConst<unsigned int>(
+          "RandomRunNumber");
+      else ATH_MSG_WARNING("Event has not been decorated with RandomRunNumber");
 
       // Keep an eye here for trigger strings
       // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15#Supported_triggers
-      m_muonTriggerScaleFactors      = m_muonTriggerScaleFactors_R21;
+      m_muonTriggerScaleFactors = m_muonTriggerScaleFactors_R21;
       m_muonTriggerScaleFactorsLoose = m_muonTriggerScaleFactorsLoose_R21;
-      m_muon_trigger_sf_config       = "";
-      
-      if(runNumber == 0){
-	m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
+      m_muon_trigger_sf_config = "";
+
+      if (runNumber == 0) {
+        m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
       }
       // 2015
-      else if(runNumber > 0 && runNumber <= 284484){
-	m_muon_trigger_sf_config = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      else if (runNumber > 0 && runNumber <= 284484) {
+        m_muon_trigger_sf_config = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
       }
       // 2016 (set to a large value but split as we may need to have strings for 2016 -> certain 2017 run)
       else if (runNumber > 284484 && runNumber < 324320) {
-	m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
+        m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
       }
       // 2017+ (324320+)
-      else{
-	m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50"; 
+      else {
+        m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
       }
 
-      ATH_MSG_DEBUG("Muon trigger scale factor config is : "+m_muon_trigger_sf_config);
+      ATH_MSG_DEBUG("Muon trigger scale factor config is : " + m_muon_trigger_sf_config);
       ATH_MSG_DEBUG("RunNumber (0 < 2015 < 284484 < 2016 < 324320 < 2017) : ");
       ATH_MSG_DEBUG(runNumber);
-
     }//end of if (m_config->doPileupReweighting())
 
     ///-- Loop over all muon collections --///
@@ -238,10 +236,9 @@ namespace top {
         this->applySystematicVariation(m_muonEfficiencyCorrectionsToolTTVA, m_systNominal);
 
         //-- Only do isolation if we actually get the tools --//
-        if (m_do_muon_isolation_SFs)
-          this->applySystematicVariation(m_muonEfficiencyCorrectionsToolIso, m_systNominal);
-        if (m_do_muon_isolation_SFs_loose)
-          this->applySystematicVariation(m_muonEfficiencyCorrectionsToolLooseIso, m_systNominal);
+        if (m_do_muon_isolation_SFs) this->applySystematicVariation(m_muonEfficiencyCorrectionsToolIso, m_systNominal);
+        if (m_do_muon_isolation_SFs_loose) this->applySystematicVariation(m_muonEfficiencyCorrectionsToolLooseIso,
+                                                                          m_systNominal);
 
         // The nominal SFs/efficiencies.
         // Include are::
@@ -287,19 +284,19 @@ namespace top {
                                    m_systNominal, *muonPtr, TTVA_decor);
 
         /**********************************************************************
-         * Muon Trigger Scale Factors
-         * TOM : The MCP tool takes a container of muons. The examples seem to
-         *       suggest these should somehow be selected muons but it isn't clear
-         *       to me what level of selection should be applied.
-         *
-         * *** To be followed up with MCP people by Jay ***
-         *
-         * TOM : We trick it by creating a view container
-         *       with a single muon in.
-         * NOTE: This also happens later on for the systematics so if we ever
-         *       get a nice function make sure we change it there too!
-         *
-         **********************************************************************/
+        * Muon Trigger Scale Factors
+        * TOM : The MCP tool takes a container of muons. The examples seem to
+        *       suggest these should somehow be selected muons but it isn't clear
+        *       to me what level of selection should be applied.
+        *
+        * *** To be followed up with MCP people by Jay ***
+        *
+        * TOM : We trick it by creating a view container
+        *       with a single muon in.
+        * NOTE: This also happens later on for the systematics so if we ever
+        *       get a nice function make sure we change it there too!
+        *
+        **********************************************************************/
 
         ConstDataVector<xAOD::MuonContainer> trigger_SF_muon(SG::VIEW_ELEMENTS);
         trigger_SF_muon.push_back(muonPtr);
@@ -331,10 +328,9 @@ namespace top {
         this->decorateTTVASystematics(*muonPtr);
       }
     }
-    
-    ///-- Loop over all soft muon collections --///
-    for (const std::pair<std::size_t,std::string> &currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
 
+    ///-- Loop over all soft muon collections --///
+    for (const std::pair<std::size_t, std::string>& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
       const xAOD::MuonContainer* softmuons(nullptr);
       top::check(evtStore()->retrieve(softmuons, currentSystematic.second),
                  "Failed to retrieve softmuons");
@@ -348,20 +344,20 @@ namespace top {
             passSelection = true;
           }
         }
-        
+
         if (!passSelection) continue;
-        
+
         // Tell the SF tools to use the nominal systematic
         // To be extra sure we do this when we try and get a SF too!
         this->applySystematicVariation(m_softmuonEfficiencyCorrectionsTool, m_systNominal);
-        
+
         // Reco efficiency and ID SF decorations
         static SG::AuxElement::Decorator<float> id_sf_decor(m_decor_softmuon_idSF);
 
         this->decorateIDSFandRecoEff(m_softmuonEfficiencyCorrectionsTool,
                                      m_systNominal, *muonPtr,
                                      id_sf_decor);
-                                     
+
         // If we are running on the nominal tree, then do the
         // SF systematic variations too.
         // Otherwise just move onto the next muon...
@@ -369,11 +365,9 @@ namespace top {
 
         // ID systematics
         this->decorateIDSFandRecoEffSystematicsSoftMuon(*muonPtr);
-  
-	   }//end of loop on soft muons
-        
-	}
-    
+      }//end of loop on soft muons
+    }
+
     return StatusCode::SUCCESS;
   }
 
@@ -387,7 +381,6 @@ namespace top {
     for (auto s : tool->recommendedSystematics().getBaseNames())
       recommended_systematics.insert(std::string(s));
   }
-
 
   template<typename T>
   void MuonScaleFactorCalculator::applySystematicVariation(ToolHandle<T>& tool,
@@ -425,6 +418,7 @@ namespace top {
                                                             const xAOD::Muon& muon,
                                                             const SG::AuxElement::Decorator<float>& decor) {
     double trigEff = 1.0;
+
     top::check(tool->getTriggerEfficiency(muon, trigEff,
                                           m_muon_trigger_sf_config,
                                           !m_config->isMC()),
@@ -436,6 +430,7 @@ namespace top {
                                                     const ConstDataVector<xAOD::MuonContainer>& muon_cont,
                                                     const SG::AuxElement::Decorator<float>& decor) {
     double trigSF = 1.0;
+
     top::check(tool->getTriggerScaleFactor(*muon_cont.asDataVector(), trigSF,
                                            m_muon_trigger_sf_config),
                "Failed to get muon trigger scale factor");
@@ -455,7 +450,8 @@ namespace top {
     this->decorateTriggerEfficiency(tool, *muon_cont[0], eff_decor);
   }
 
-  void MuonScaleFactorCalculator::decorateTriggerSystematics(const ConstDataVector<xAOD::MuonContainer>& trigger_SF_muon) {
+  void MuonScaleFactorCalculator::decorateTriggerSystematics(const ConstDataVector<xAOD::MuonContainer>& trigger_SF_muon)
+  {
     // Perform all trigger systematic variations, for loose and tight,
     // (stat/syst up/down)
     static SG::AuxElement::Decorator<float> trig_eff_decor_stat_up(m_decor_triggerEff + "_STAT_UP");
@@ -543,16 +539,16 @@ namespace top {
 
   void MuonScaleFactorCalculator::decorateIsolationSystematics(const xAOD::Muon& muon) {
     // Decorate 'tight' isolation SFs
-    static SG::AuxElement::Decorator<float> iso_sf_decor_stat_up(m_decor_isoSF+"_STAT_UP");
-    static SG::AuxElement::Decorator<float> iso_sf_decor_stat_down(m_decor_isoSF+"_STAT_DOWN");
-    static SG::AuxElement::Decorator<float> iso_sf_decor_syst_up(m_decor_isoSF+"_SYST_UP");
-    static SG::AuxElement::Decorator<float> iso_sf_decor_syst_down(m_decor_isoSF+"_SYST_DOWN");
+    static SG::AuxElement::Decorator<float> iso_sf_decor_stat_up(m_decor_isoSF + "_STAT_UP");
+    static SG::AuxElement::Decorator<float> iso_sf_decor_stat_down(m_decor_isoSF + "_STAT_DOWN");
+    static SG::AuxElement::Decorator<float> iso_sf_decor_syst_up(m_decor_isoSF + "_SYST_UP");
+    static SG::AuxElement::Decorator<float> iso_sf_decor_syst_down(m_decor_isoSF + "_SYST_DOWN");
 
     // Decorate 'loose' isolation SFs
-    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_stat_up(m_decor_isoSF_loose+"_STAT_UP");
-    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_stat_down(m_decor_isoSF_loose+"_STAT_DOWN");
-    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_syst_up(m_decor_isoSF_loose+"_SYST_UP");
-    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_syst_down(m_decor_isoSF_loose+"_SYST_DOWN");
+    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_stat_up(m_decor_isoSF_loose + "_STAT_UP");
+    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_stat_down(m_decor_isoSF_loose + "_STAT_DOWN");
+    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_syst_up(m_decor_isoSF_loose + "_SYST_UP");
+    static SG::AuxElement::Decorator<float> iso_sf_loose_decor_syst_down(m_decor_isoSF_loose + "_SYST_DOWN");
 
     if (m_do_muon_isolation_SFs) {
       ///-- Stat UP --///
@@ -608,10 +604,10 @@ namespace top {
   }
 
   void MuonScaleFactorCalculator::decorateTTVASystematics(const xAOD::Muon& muon) {
-    static SG::AuxElement::Decorator<float> TTVA_decor_stat_up(m_decor_TTVA+"_STAT_UP");
-    static SG::AuxElement::Decorator<float> TTVA_decor_stat_down(m_decor_TTVA+"_STAT_DOWN");
-    static SG::AuxElement::Decorator<float> TTVA_decor_syst_up(m_decor_TTVA+"_SYST_UP");
-    static SG::AuxElement::Decorator<float> TTVA_decor_syst_down(m_decor_TTVA+"_SYST_DOWN");
+    static SG::AuxElement::Decorator<float> TTVA_decor_stat_up(m_decor_TTVA + "_STAT_UP");
+    static SG::AuxElement::Decorator<float> TTVA_decor_stat_down(m_decor_TTVA + "_STAT_DOWN");
+    static SG::AuxElement::Decorator<float> TTVA_decor_syst_up(m_decor_TTVA + "_SYST_UP");
+    static SG::AuxElement::Decorator<float> TTVA_decor_syst_down(m_decor_TTVA + "_SYST_DOWN");
 
     this->decorateEfficiencySF(m_muonEfficiencyCorrectionsToolTTVA,
                                m_TTVA_stat_UP, muon, TTVA_decor_stat_up);
@@ -721,7 +717,7 @@ namespace top {
                                  m_reco_syst_lowpt_DOWN, muon,
                                  id_sf_loose_decor_syst_lowpt_down);
   }
-  
+
   void MuonScaleFactorCalculator::decorateIDSFandRecoEffSystematicsSoftMuon(const xAOD::Muon& muon) {
     static SG::AuxElement::Decorator<float> id_sf_decor_stat_up(m_decor_softmuon_idSF + "_STAT_UP");
 

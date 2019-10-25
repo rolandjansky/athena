@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopConfiguration/TopPersistentSettings.h"
 
-namespace top{
+namespace top {
   TopPersistentSettings::TopPersistentSettings() :
     m_isMC(false),
     m_isAFII(false),
@@ -35,7 +35,7 @@ namespace top{
     m_electronIsolationLoose("SetMe"),
     m_useElectronChargeIDSelection(false),
     m_useEgammaLeakageCorrection(false),
-    
+
     m_fwdElectronID("SetMe"),
 
     m_muon_trigger_SF("SetMe"),
@@ -43,7 +43,7 @@ namespace top{
     m_muonQualityLoose("SetMe"),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
-    
+
     m_softmuonQuality("SetMe"),
 
     m_chosen_btaggingWP(),

@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef ANALYSISTOP_TOPCORRECTIONS_FWDELECTRONSCALEFACTORCALCULATOR_H
 #define ANALYSISTOP_TOPCORRECTIONS_FWDELECTRONSCALEFACTORCALCULATOR_H
 
 /**
-  * @author Marco Vanadia <marco.vanadia@cern.ch>
-  * 
-  * @brief FwdElectronScaleFactorCalculator
-  *   Calculate all forward electron scale factors and decorate
-  * 
-  **/ 
+ * @author Marco Vanadia <marco.vanadia@cern.ch>
+ *
+ * @brief FwdElectronScaleFactorCalculator
+ *   Calculate all forward electron scale factors and decorate
+ *
+ **/
 
 // system include(s):
 #include <memory>
@@ -29,38 +29,35 @@
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
 
 // Forward declaration(s):
-namespace top{
+namespace top {
   class TopConfig;
 }
 
-namespace top{
+namespace top {
+  class FwdElectronScaleFactorCalculator final: public asg::AsgTool {
+  public:
+    explicit FwdElectronScaleFactorCalculator(const std::string& name);
+    virtual ~FwdElectronScaleFactorCalculator() {}
 
-  class FwdElectronScaleFactorCalculator final : public asg::AsgTool {
-    public:
-      explicit FwdElectronScaleFactorCalculator( const std::string& name );
-      virtual ~FwdElectronScaleFactorCalculator(){}
+    // Delete Standard constructors
+    FwdElectronScaleFactorCalculator(const FwdElectronScaleFactorCalculator& rhs) = delete;
+    FwdElectronScaleFactorCalculator(FwdElectronScaleFactorCalculator&& rhs) = delete;
+    FwdElectronScaleFactorCalculator& operator = (const FwdElectronScaleFactorCalculator& rhs) = delete;
 
-      // Delete Standard constructors
-      FwdElectronScaleFactorCalculator(const FwdElectronScaleFactorCalculator& rhs) = delete;
-      FwdElectronScaleFactorCalculator(FwdElectronScaleFactorCalculator&& rhs) = delete;
-      FwdElectronScaleFactorCalculator& operator=(const FwdElectronScaleFactorCalculator& rhs) = delete;
+    StatusCode initialize();
+    StatusCode execute();
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
-      StatusCode initialize();
-      StatusCode execute();
+    CP::SystematicSet m_systNominal;
+    CP::SystematicSet m_systID_UP;
+    CP::SystematicSet m_systID_DOWN;
 
-    private:
-      std::shared_ptr<top::TopConfig> m_config;
+    ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFID;
+    ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIDLoose;
 
-      CP::SystematicSet m_systNominal;
-      CP::SystematicSet m_systID_UP;
-      CP::SystematicSet m_systID_DOWN;
-     
-      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFID;
-      ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_electronEffSFIDLoose;
-
-      std::string m_decor_idSF;
-      std::string m_decor_idSF_loose;
-
+    std::string m_decor_idSF;
+    std::string m_decor_idSF_loose;
   };
 } // namespace
 #endif

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TREEMANAGER_H_
 #define TREEMANAGER_H_
@@ -16,7 +16,6 @@
 class TFile;
 
 namespace top {
-
 /**
  * @brief A class that hopefully makes making a flat ntuple tree a bit easier
  * since you don't need to worry about what type to make the branches and stuff.
@@ -24,8 +23,8 @@ namespace top {
  * Almost all this code is stolen from SFrame:
  * http://sourceforge.net/p/sframe
  */
-class TreeManager {
-public:
+  class TreeManager {
+  public:
     /**
      * @brief Default constructor - note need to initialize the class if you use this.
      */
@@ -44,10 +43,10 @@ public:
     TreeManager(const TreeManager&& rhs);
 
     ///But not to copy it.
-    TreeManager(const TreeManager&)= delete;
+    TreeManager(const TreeManager&) = delete;
 
     ///Or assign it.
-    TreeManager& operator=(TreeManager const&) = delete;
+    TreeManager& operator = (TreeManager const&) = delete;
 
     /**
      * @brief Initialize the class with a new output file
@@ -58,20 +57,20 @@ public:
      * @brief Calls TTree::Fill.  Needed to fill the tree.
      */
     void fill();
-    
+
     /**
      * @brief name of the TTree
      */
     const std::string& name() const;
 
     /** @brief function object type used for branch filters */
-    typedef std::function<int(TreeManager const *, std::string const &)> BranchFilter;
+    typedef std::function<int (TreeManager const*, std::string const&)> BranchFilter;
 
     /** @copydoc TreeManager::m_branchFilters */
-    std::vector<BranchFilter> & branchFilters() { return m_branchFilters; }
+    std::vector<BranchFilter>& branchFilters() {return m_branchFilters;}
 
     /** @copydoc TreeManager::m_branchFilters */
-    std::vector<BranchFilter> const & branchFilters() const { return m_branchFilters; }
+    std::vector<BranchFilter> const& branchFilters() const {return m_branchFilters;}
 
     /**
      * @brief The idea is to simplify the creation of branches so that you don't
@@ -87,32 +86,30 @@ public:
      */
     template<class T>
     void makeOutputVariable(T& obj, const std::string name) {
-        for (auto branchFilter : branchFilters()) {
-            int status = branchFilter(this, name);
-            if (status > 0)
-                break;
-            if (status == 0)
-                return;
-        }
-        const char* type_name = typeid(obj).name();
-        if (strlen( type_name ) == 1) {
-            std::ostringstream leaflist;
-            leaflist << name << "/" << RootType( type_name );
-            m_tree->Branch(name.c_str(), &obj, leaflist.str().c_str(), m_basketSizePrimitive);
-        } else {
-            m_outputVarPointers.push_back( &obj );
-            T** pointer = reinterpret_cast< T** >( &m_outputVarPointers.back() );
-            m_tree->Branch( name.c_str(), pointer, m_basketSizeVector );
-        }
+      for (auto branchFilter : branchFilters()) {
+        int status = branchFilter(this, name);
+        if (status > 0) break;
+        if (status == 0) return;
+      }
+      const char* type_name = typeid(obj).name();
+      if (strlen(type_name) == 1) {
+        std::ostringstream leaflist;
+        leaflist << name << "/" << RootType(type_name);
+        m_tree->Branch(name.c_str(), &obj, leaflist.str().c_str(), m_basketSizePrimitive);
+      } else {
+        m_outputVarPointers.push_back(&obj);
+        T** pointer = reinterpret_cast< T** >(&m_outputVarPointers.back());
+        m_tree->Branch(name.c_str(), pointer, m_basketSizeVector);
+      }
     }
 
-private:
-    /** 
+  private:
+    /**
      * name of the tree
      */
     std::string m_name;
-  
-  
+
+
     /**
      * @brief Stolen from SFrame code.
      *
@@ -174,9 +171,7 @@ private:
     // Two member variables to manage the size of the tree branch baskets
     int m_basketSizePrimitive;
     int m_basketSizeVector;
-
-};
-
+  };
 }
 
 #endif

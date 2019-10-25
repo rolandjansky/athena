@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EVENTSELECTORBASE_H_
 #define EVENTSELECTORBASE_H_
@@ -10,7 +10,6 @@
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
 namespace top {
-
 /**
  * @brief This should apply event-level cuts and perform  simple plotting on
  * top::Event objects.
@@ -18,8 +17,8 @@ namespace top {
  * This is the base class, and all classes that do stuff
  * to events should inherit from it.
  */
-class EventSelectorBase {
-public:
+  class EventSelectorBase {
+  public:
     /**
      * @brief Default constructor, doesn't do anything.
      */
@@ -43,7 +42,7 @@ public:
     /**
      * @brief Assignment is not allowed.
      */
-    EventSelectorBase& operator=(const EventSelectorBase &) = delete;
+    EventSelectorBase& operator = (const EventSelectorBase&) = delete;
 
     /**
      * @brief This does stuff based on the information in an event.
@@ -71,7 +70,7 @@ public:
      * @param true if the event should be kept (i.e. it passed the selector
      * criteria), false otherwise.
      */
-    virtual bool applyParticleLevel( const top::ParticleLevelEvent & ) const { return true; }
+    virtual bool applyParticleLevel(const top::ParticleLevelEvent&) const {return true;}
 
     /**
      * @brief A human readable name.
@@ -80,8 +79,7 @@ public:
      * implemented for each tool.
      */
     virtual std::string name() const = 0;
-};
-
+  };
 } //namespace top
 
 #endif

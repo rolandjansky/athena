@@ -51,7 +51,7 @@ int DerivationFramework::CollectionMakerHelpers::addTruthVertex( const xAOD::Tru
 
 int DerivationFramework::CollectionMakerHelpers::addTruthParticle( const xAOD::TruthParticle& oldPart, xAOD::TruthParticleContainer* partCont,
                                                                    xAOD::TruthVertexContainer* vertCont, std::vector<int>& seenParticles,
-                                                                   const int generations) {
+                                                                   const int generations, bool includeVertex) {
     // See if we've seen it - note, could also do this with a unary function on the container itself
     if (std::find(seenParticles.begin(),seenParticles.end(),oldPart.barcode())!=seenParticles.end()){
       for (size_t p=0;p<partCont->size();++p){
@@ -61,6 +61,23 @@ int DerivationFramework::CollectionMakerHelpers::addTruthParticle( const xAOD::T
     } // Found it in the old container
     // Now we have seen it
     seenParticles.push_back(oldPart.barcode());
+    // Make a nw truth particle
+    xAOD::TruthParticle* xTruthParticle = setupTruthParticle(oldPart,partCont);
+    // Make a link to this particle
+    int myIndex = partCont->size()-1;
+    ElementLink<xAOD::TruthParticleContainer> eltp(*partCont, myIndex);
+    // Decay vertex information
+    if (oldPart.hasDecayVtx() && includeVertex) {
+        int vertIndex = CollectionMakerHelpers::addTruthVertex( *oldPart.decayVtx(), partCont, vertCont, seenParticles, generations);
+        ElementLink<xAOD::TruthVertexContainer> eltv( *vertCont, vertIndex );
+        xTruthParticle->setDecayVtxLink( eltv );
+        (*vertCont)[vertIndex]->addIncomingParticleLink( eltp );
+    }
+    // Return a link to this particle
+    return myIndex;
+}
+
+xAOD::TruthParticle* DerivationFramework::CollectionMakerHelpers::setupTruthParticle(const xAOD::TruthParticle& oldPart, xAOD::TruthParticleContainer* partCont){
     // Set up decorators
     const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
     const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
@@ -70,16 +87,6 @@ int DerivationFramework::CollectionMakerHelpers::addTruthParticle( const xAOD::T
     // Make a truth particle and add it to the container
     xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
     partCont->push_back( xTruthParticle );
-    // Make a link to this particle
-    int myIndex = partCont->size()-1;
-    ElementLink<xAOD::TruthParticleContainer> eltp(*partCont, myIndex);
-    // Decay vertex information
-    if (oldPart.hasDecayVtx()) {
-        int vertIndex = CollectionMakerHelpers::addTruthVertex( *oldPart.decayVtx(), partCont, vertCont, seenParticles, generations);
-        ElementLink<xAOD::TruthVertexContainer> eltv( *vertCont, vertIndex );
-        xTruthParticle->setDecayVtxLink( eltv );
-        (*vertCont)[vertIndex]->addIncomingParticleLink( eltp );
-    }
     // Fill with numerical content
     xTruthParticle->setPdgId(oldPart.pdgId());
     xTruthParticle->setBarcode(oldPart.barcode());
@@ -104,6 +111,5 @@ int DerivationFramework::CollectionMakerHelpers::addTruthParticle( const xAOD::T
     if (oldPart.isAvailable<unsigned int>("classifierParticleOutCome")) {
         outcomeDecorator(*xTruthParticle) = oldPart.auxdata< unsigned int >( "classifierParticleOutCome" );
     } else {outcomeDecorator(*xTruthParticle) = 0;}
-    // Return a link to this particle
-    return myIndex;
+    return xTruthParticle;
 }

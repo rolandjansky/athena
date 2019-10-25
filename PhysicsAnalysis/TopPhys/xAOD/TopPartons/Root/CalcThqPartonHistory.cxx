@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopPartons/CalcThqPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
@@ -8,12 +8,12 @@
 
 
 namespace top {
-
   CalcThqPartonHistory::CalcThqPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
   const xAOD::TruthParticle* CalcThqPartonHistory::findAfterGamma(const xAOD::TruthParticle* particle) {
     bool isAfterGamma(false);
     const int particle_ID = particle->pdgId();
     int forLoop;
+
     while (!isAfterGamma) {
       forLoop = 0;
       for (size_t j = 0; j < particle->nChildren(); j++) {
@@ -25,31 +25,40 @@ namespace top {
         }//if
       }//for
 
-      if (forLoop == 0)       isAfterGamma = true;
+      if (forLoop == 0) isAfterGamma = true;
     }//while
     return particle;
   }
+
   int CalcThqPartonHistory::sign(int a) {
-    if (a < 0) { return -1; }
-    else return 1;
+    if (a < 0) {
+      return -1;
+    } else return 1;
   }
+
   bool CalcThqPartonHistory::bottom(const xAOD::TruthParticleContainer* truthParticles, int start) {
     for (const xAOD::TruthParticle* particle : *truthParticles) {
-      if (particle->pdgId() != start) { continue; }
+      if (particle->pdgId() != start) {
+        continue;
+      }
       tH.b_p4 = particle->p4();
       tH.b_pdgId = particle->pdgId();
       return true;
     }
     return false;
   }
+
   bool CalcThqPartonHistory::Higgstautau(const xAOD::TruthParticleContainer* truthParticles, int start) {
     bool has_Higgs = false;
     bool has_tau1_neutrino = false;
     bool has_tau2_neutrino = false;
     bool hadr_tau1 = false;
     bool hadr_tau2 = false;
+
     for (const xAOD::TruthParticle* particle : *truthParticles) {
-      if (particle->pdgId() != start || particle->nChildren() != 2) { continue; }
+      if (particle->pdgId() != start || particle->nChildren() != 2) {
+        continue;
+      }
       tH.Higgs_p4 = particle->p4();
       has_Higgs = true;
       for (size_t k = 0; k < particle->nChildren(); k++) {
@@ -59,8 +68,7 @@ namespace top {
           if (k == 0) {
             tH.Tau1_from_Higgs_p4 = tau->p4();
             tH.Tau1_from_Higgs_pdgId = tau->pdgId();
-          }
-          else {
+          } else {
             tH.Tau2_from_Higgs_p4 = tau->p4();
             tH.Tau2_from_Higgs_pdgId = tau->pdgId();
           }
@@ -71,55 +79,56 @@ namespace top {
                 tH.nu_from_Tau1_p4 = tauChildren->p4();
                 tH.nu_from_Tau1_pdgId = tauChildren->pdgId();
                 has_tau1_neutrino = true;
-              }
-              else {
+              } else {
                 tH.nu_from_Tau2_p4 = tauChildren->p4();
                 tH.nu_from_Tau2_pdgId = tauChildren->pdgId();
                 has_tau2_neutrino = true;
               }
-            }
-            else if (fabs(tauChildren->pdgId()) >= 11 && fabs(tauChildren->pdgId()) <= 14) { //light leptons
+            } else if (fabs(tauChildren->pdgId()) >= 11 && fabs(tauChildren->pdgId()) <= 14) { //light leptons
               if (fabs(tauChildren->pdgId()) == 11 || fabs(tauChildren->pdgId()) == 13) { //electron or muon
                 if (k == 0) {
                   tH.W_decay1_from_Tau1_p4 = tauChildren->p4();
                   tH.W_decay1_from_Tau1_pdgId = tauChildren->pdgId();
-                }
-                else {
+                } else {
                   tH.W_decay1_from_Tau2_p4 = tauChildren->p4();
                   tH.W_decay1_from_Tau2_pdgId = tauChildren->pdgId();
                 }
-              }
-              else if (fabs(tauChildren->pdgId()) == 12 || fabs(tauChildren->pdgId()) == 14) { // electron or muon neutrino
+              } else if (fabs(tauChildren->pdgId()) == 12 || fabs(tauChildren->pdgId()) == 14) { // electron or muon
+                                                                                                 // neutrino
                 if (k == 0) {
                   tH.W_decay2_from_Tau1_p4 = tauChildren->p4();
                   tH.W_decay2_from_Tau1_pdgId = tauChildren->pdgId();
-                }
-                else {
+                } else {
                   tH.W_decay2_from_Tau2_p4 = tauChildren->p4();
                   tH.W_decay2_from_Tau2_pdgId = tauChildren->pdgId();
                 }
               }
-            }
-            else { // if a particle passes the criteria above, it has to be a hadron.
-              if (k == 0) { hadr_tau1 = true; }
-              else { hadr_tau2 = true; }
+            } else { // if a particle passes the criteria above, it has to be a hadron.
+              if (k == 0) {
+                hadr_tau1 = true;
+              } else {
+                hadr_tau2 = true;
+              }
             }// else
           } // for
-        }//if 
+        }//if
       } //for
     }
     if (has_Higgs && has_tau1_neutrino && has_tau2_neutrino) {
       if (hadr_tau1) { //convention: store hadr. decaying W-Boson as Wdecay1, set all parameters of Wdecay2 to 0.
         tH.W_decay1_from_Tau1_p4 = tH.Tau1_from_Higgs_p4 - tH.nu_from_Tau1_p4;
         tH.W_decay1_from_Tau1_pdgId = -24 * sign(tH.nu_from_Tau1_pdgId);
-        tH.W_decay2_from_Tau1_p4 = { 0, 0, 0, 0 };
+        tH.W_decay2_from_Tau1_p4 = {
+          0, 0, 0, 0
+        };
         tH.W_decay2_from_Tau1_pdgId = 0;
         tH.TauJets1 = 1;
-      }
-      else if (hadr_tau2) {
+      } else if (hadr_tau2) {
         tH.W_decay1_from_Tau2_p4 = tH.Tau2_from_Higgs_p4 - tH.nu_from_Tau2_p4;
         tH.W_decay1_from_Tau2_pdgId = -24 * sign(tH.nu_from_Tau2_pdgId);
-        tH.W_decay2_from_Tau2_p4 = { 0, 0, 0, 0 };
+        tH.W_decay2_from_Tau2_p4 = {
+          0, 0, 0, 0
+        };
         tH.W_decay2_from_Tau2_pdgId = 0;
         tH.TauJets2 = 1;
       }
@@ -129,8 +138,9 @@ namespace top {
     tH.TauJets2 = 0;
     return false;
   }
-  void CalcThqPartonHistory::THHistorySaver(const xAOD::TruthParticleContainer* truthParticles, xAOD::PartonHistory* ThqPartonHistory) {
 
+  void CalcThqPartonHistory::THHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
+                                            xAOD::PartonHistory* ThqPartonHistory) {
     ThqPartonHistory->IniVarThqtautau();
     TLorentzVector t_before, t_after, t_after_SC;
     TLorentzVector Wp;
@@ -140,18 +150,19 @@ namespace top {
     int WpDecay1_pdgId;
     int WpDecay2_pdgId;
 
-    bool event_top = CalcTopPartonHistory::topWb(truthParticles, 6, t_before, t_after, Wp, b, WpDecay1, WpDecay1_pdgId, WpDecay2, WpDecay2_pdgId);
+    bool event_top = CalcTopPartonHistory::topWb(truthParticles, 6, t_before, t_after, Wp, b, WpDecay1, WpDecay1_pdgId,
+                                                 WpDecay2, WpDecay2_pdgId);
     bool event_top_SC = CalcTopPartonHistory::topAfterFSR_SC(truthParticles, 6, t_after_SC);
-    bool event_topbar = CalcTopPartonHistory::topWb(truthParticles, -6, t_before, t_after, Wp, b, WpDecay1, WpDecay1_pdgId, WpDecay2, WpDecay2_pdgId);
+    bool event_topbar = CalcTopPartonHistory::topWb(truthParticles, -6, t_before, t_after, Wp, b, WpDecay1,
+                                                    WpDecay1_pdgId, WpDecay2, WpDecay2_pdgId);
     bool event_topbar_SC = CalcTopPartonHistory::topAfterFSR_SC(truthParticles, -6, t_after_SC);
     bool event_Higgs = CalcThqPartonHistory::Higgstautau(truthParticles, 25);
     bool event_bottom = CalcThqPartonHistory::bottom(truthParticles, 5);
     bool event_bottombar = CalcThqPartonHistory::bottom(truthParticles, -5);
 
 
-    if (event_Higgs ) {
-      if ((event_top && event_bottombar) || (event_topbar && event_bottom))
-      {
+    if (event_Higgs) {
+      if ((event_top && event_bottombar) || (event_topbar && event_bottom)) {
         ThqPartonHistory->auxdecor< float >("MC_t_beforeFSR_m") = t_before.M();
         ThqPartonHistory->auxdecor< float >("MC_t_beforeFSR_pt") = t_before.Pt();
         ThqPartonHistory->auxdecor< float >("MC_t_beforeFSR_phi") = t_before.Phi();
@@ -190,7 +201,7 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Wdecay2_from_t_phi") = WpDecay2.Phi();
         ThqPartonHistory->auxdecor< int >("MC_Wdecay2_from_t_pdgId") = WpDecay2_pdgId;
         fillEtaBranch(ThqPartonHistory, "MC_Wdecay2_from_t_eta", WpDecay2);
-        
+
         //Higgs-Variables
         ThqPartonHistory->auxdecor< float >("MC_Higgs_m") = tH.Higgs_p4.M();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_pt") = tH.Higgs_p4.Pt();
@@ -266,18 +277,19 @@ namespace top {
       }
     }
   }
-  StatusCode CalcThqPartonHistory::execute()
-  {
+
+  StatusCode CalcThqPartonHistory::execute() {
     //Get the Truth Particles
     const xAOD::TruthParticleContainer* truthParticles(nullptr);
+
     ATH_CHECK(evtStore()->retrieve(truthParticles, m_config->sgKeyMCParticle()));
 
     // Create the partonHistory xAOD object
-    xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer{};
-    xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer{};
+    xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer {};
+    xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer {};
     partonCont->setStore(partonAuxCont);
 
-    xAOD::PartonHistory* ThqPartonHistory = new xAOD::PartonHistory{};
+    xAOD::PartonHistory* ThqPartonHistory = new xAOD::PartonHistory {};
     partonCont->push_back(ThqPartonHistory);
 
     // Recover the parton history for TH events

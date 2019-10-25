@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EVENTSELECTION_H_
 #define EVENTSELECTION_H_
@@ -34,8 +34,8 @@ namespace top {
  * of events passing each cut.  It is also responsible for writing out the
  * 4-vectors in the output file if the user so wished.
  */
-class EventSelection final {
-public:
+  class EventSelection final {
+  public:
     /**
      * @brief Construct using a vector of cuts.
      *
@@ -46,7 +46,9 @@ public:
      * It also sets up a histogram which contains all the cuts on the x-axis
      * and each bin is the number of events passing a cut (in order).
      */
-    EventSelection(const std::string& name, const std::vector<std::string>& cutNames, TFile* outputFile, const std::vector<std::unique_ptr<top::ToolLoaderBase>>& toolLoaders,std::shared_ptr<top::TopConfig> config, EL::Worker* wk);
+    EventSelection(const std::string& name, const std::vector<std::string>& cutNames, TFile* outputFile,
+                   const std::vector<std::unique_ptr<top::ToolLoaderBase> >& toolLoaders,
+                   std::shared_ptr<top::TopConfig> config, EL::Worker* wk);
 
     /**
      * @brief Does not do anything
@@ -71,25 +73,25 @@ public:
     /**
      * @brief Assignment is not allowed.
      */
-    EventSelection& operator=(const EventSelection&) = delete;
-    
-     /**
+    EventSelection& operator = (const EventSelection&) = delete;
+
+    /**
      * @brief Count the number of initial events
      */
-    virtual void countInitial(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const;   
-     /**
+    virtual void countInitial(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
+    /**
      * @brief Count the number of events passing GRL
      */
-    virtual void countGRL(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const;  
-     /**
+    virtual void countGRL(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
+    /**
      * @brief Count the number of events passing Good Calo
      */
-    virtual void countGoodCalo(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const;         
+    virtual void countGoodCalo(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
     /**
      * @brief Count the number of events passing Primary Vertex
      */
-    virtual void countPrimaryVertex(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const;
-    
+    virtual void countPrimaryVertex(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
+
     /**
      * @brief Apply the selection for each event.
      *
@@ -162,7 +164,7 @@ public:
      * @return The list of configurations
      */
     std::vector<std::string> GetFakesMMConfigs() const;
-    
+
     /**
      * @brief Tells if the event should be saved if it passes this selection
      *
@@ -170,15 +172,14 @@ public:
      *
      */
     bool ToBeSaved() const {return m_toBeSaved;};
-
-private:
+  private:
     /**
      * @brief Print a cutflow showing the number of events passing each cut.
      */
     virtual void printCuts();
 
     ///Vector of all the tools that will be used in the analysis.
-    std::vector<std::unique_ptr<EventSelectorBase>> m_allCuts;
+    std::vector<std::unique_ptr<EventSelectorBase> > m_allCuts;
 
     ///The cutflow histogram filled by the tool.
     mutable TH1D* m_cutflow;
@@ -232,14 +233,14 @@ private:
     ///
     std::shared_ptr<TopConfig> m_config;
 
-    ///Scale factors                                                                                                                                                 
+    ///Scale factors
     ScaleFactorRetriever* m_sfRetriever;
     /// Function to setup the tool in one place
     void initialiseTopScaleFactorRetriever(std::shared_ptr<TopConfig> config);
 
     // Nominal hash value
-    std::size_t m_nominalHashValue;   
-    
+    std::size_t m_nominalHashValue;
+
     // Does this selection contain initial and GRL?
     // If so, what are their positions in the cut flow?
     bool m_containsInitial;
@@ -250,13 +251,12 @@ private:
     unsigned int m_positionGRL;
     unsigned int m_positionGoodCalo;
     unsigned int m_positionPrimaryVertex;
-    
+
     // If true, event will be saved if it passes this selection
     // If false, event will only be saved if it passes another selection
     // If an event is saved, the flags of all selections (those passed and those not passed) are saved
     bool m_toBeSaved;
-};
-
+  };
 }
 
 #endif

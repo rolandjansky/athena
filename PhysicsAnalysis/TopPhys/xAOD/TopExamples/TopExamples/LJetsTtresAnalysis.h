@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef LJETSTTRESANALYSIS_H_
 #define LJETSTTRESANALYSIS_H_
@@ -17,20 +17,18 @@ class TH1D;
 class TFile;
 
 namespace top {
-
-class LJetsTtresAnalysis : public AnalysisBase {
-public:
+  class LJetsTtresAnalysis: public AnalysisBase {
+  public:
     LJetsTtresAnalysis(TFile* outputFile);
     ~LJetsTtresAnalysis();
 
     void newFile(TFile* inputFile) override;
     void event(const top::Event& topEvent) override;
     void finalise(TFile* outputFile) override;
-
-private:
+  private:
     void printCutflow(TH1D* eventHist, TH1D* mcWeightHist, const std::string& name, unsigned int localYield);
 
-    void fillIt(top::PlotManager &hist, const top::Event& topEvent, bool isBoosted);
+    void fillIt(top::PlotManager& hist, const top::Event& topEvent, bool isBoosted);
 
     unsigned int m_mcChannelNumber;
 
@@ -57,8 +55,7 @@ private:
 
     TtresNeutrinoBuilder m_neutrinoBuilder;
     TtresChi2 m_chi2;
-};
-
+  };
 }
 
 #endif
