@@ -310,7 +310,7 @@ namespace asg
 #endif
 
     private:
-      const AnaToolConfig& m_config;
+      AnaToolConfig m_config;
     };
 
 
@@ -412,7 +412,7 @@ namespace asg
 
     private:
       std::string m_name;
-      const AnaToolConfig& m_config;
+      AnaToolConfig m_config;
     };
 
 
@@ -1197,7 +1197,8 @@ namespace asg
 #endif
 
     m_config.setType (std::move (val_type));
-    if (!this->type().empty() && !this->name().empty())
+    if (m_originalTypeAndName.empty() &&
+        !this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
 #ifndef NDEBUG
@@ -1221,7 +1222,8 @@ namespace asg
 #endif
 
     m_name = std::move (val_name);
-    if (!this->type().empty() && !this->name().empty())
+    if (m_originalTypeAndName.empty() &&
+        !this->type().empty() && !this->name().empty())
       m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
 #ifndef NDEBUG
