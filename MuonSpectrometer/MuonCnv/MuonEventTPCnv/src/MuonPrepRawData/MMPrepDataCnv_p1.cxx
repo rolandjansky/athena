@@ -43,7 +43,13 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
                          localPos,
                          std::move(rdoList),
                          cmat.release(),
-                         detEl);
+                         detEl,
+			 persObj->m_time,
+			 persObj->m_charge);
+
+  // se the microTPC parameters
+  data.setMicroTPC(persObj->m_angle, persObj->m_chisqProb);
+
   return data;
 }
 
@@ -62,6 +68,12 @@ transToPers( const Muon::MMPrepData *transObj, Muon::MMPrepData_p1 *persObj, Msg
     //log << MSG::DEBUG << "MMPrepDataCnv_p3::transToPers" << endmsg;
     persObj->m_locX     = transObj->localPosition()[Trk::locX];
     persObj->m_errorMat = (transObj->localCovariance())(0,0);
+    
+    persObj->m_time     = (int) transObj->time();
+    persObj->m_charge   = (int) transObj->charge();
+
+    persObj->m_angle     = (float) transObj->angle();
+    persObj->m_chisqProb = (float) transObj->chisqProb();
 
     std::vector<signed char> rdoListPers;
     /// store the rdoList in a vector with the different
