@@ -45,7 +45,7 @@ UnifiedFlowNetworkMatcher::UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
 		    0.,
 		    [&cs](auto sum, auto ind) {
 		      //cnvrt from tree indices to Condition vector inds by -1:
-		      return  sum + cs[ind-1]->capacity();});  
+		      return  sum + cs[ind]->capacity();});  
   setTotalCapacity(totalCapacity);
 
   // create the flow network builder. Foe each event this will

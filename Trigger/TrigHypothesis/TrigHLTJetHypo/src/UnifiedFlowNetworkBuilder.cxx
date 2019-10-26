@@ -220,8 +220,11 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
   ++V;
   for(const auto e : edges){std::cout << "after propagate: "<<  *e <<'\n';}
 
-  for(const auto& i :satisfiedBy[1]){
-    edges.push_back(std::make_shared<FlowEdge>(i, sink, jg2elemjgs[i].size())); 
+
+  for(const auto& fg : m_tree.firstGeneration()){
+    for(const auto& i : satisfiedBy[fg]){
+      edges.push_back(std::make_shared<FlowEdge>(i, sink, jg2elemjgs[i].size()));
+    }
   }
   // makeSinkEdges(satisfiedBy[1], sink);
   for(const auto e : edges){std::cout << "final: "<<  *e <<'\n';}
@@ -275,22 +278,28 @@ bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
     bool jg_used{false};
     for(const auto& leaf: leaves){
       
+      std::cout << " UnifiedFlowNetworkBuilder::findInitialJobGroups leaf " << leaf << " jg " << cur_jg << '\n';
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
+	std::cout << " UnifiedFlowNetworkBuilder::findInitialJobGroups leaf " << leaf << " passed\n";
 	if(!jg_used){
-	  // do the following once if jet group satisfies any condition...
+	  // do the following once if jet group satisfies any leaf condition...
+	  std::cout << " UnifiedFlowNetworkBuilder::findInitialJobGroups updating leaf "
+		    << leaf << " jg " << cur_jg << '\n';
 	  jg_used= true;
-	  jg2elemjgs.emplace(cur_jg, std::vector<std::size_t>{cur_jg});
+	  jg2elemjgs[cur_jg] =  std::vector<std::size_t>{cur_jg};
 	  indJetGroups.emplace(cur_jg, jg);
 	  edges.push_back(std::make_shared<FlowEdge>(0,
 						     cur_jg,
 						     jg.size()));
 	  if(collector){recordJetGroup(cur_jg, jg, collector);}
-	  ++cur_jg;
 	}
 	// do the following for each satisfied condition ...
-	satisfiedBy[leaf].push_back(cur_jg-1);
+	satisfiedBy[leaf].push_back(cur_jg);
+	std::cout << " UnifiedFlowNetworkBuilder::findInitialJobGroups leaf "
+		  << leaf << "satisfied\n";
       }
     }
+    if(jg_used){++cur_jg;}
   }
   
   if(collector){
@@ -300,6 +309,8 @@ bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
   }
   
   // check all leaf conditions are satisfied
+  std::cout << " UnifiedFlowNetworkBuilder::findInitialJobGroups return"
+	    << " " << satisfiedBy.size() << " " << leaves.size() <<'\n';
   return satisfiedBy.size() == leaves.size();
 }
 

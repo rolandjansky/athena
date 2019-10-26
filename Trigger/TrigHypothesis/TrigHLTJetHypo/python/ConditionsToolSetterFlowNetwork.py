@@ -344,6 +344,9 @@ class ConditionsToolSetterFlowNetwork(object):
         slist = self._find_shared(root, shared)
         self._remove_scenario(root, 'and')
 
+        # remove top stub node
+        assert len(root.children) == 1
+        root = root.children[0]
         root.set_ids(node_id=0, parent_id = 0)
 
         # would like to pass a list of lists to the C++ tools

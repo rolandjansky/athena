@@ -63,6 +63,8 @@ class CombinationsTests(object):
         generator.n_bkgd = self.n_bkgd
         generator.bkgd_etmax = self.bkgd_etmax
 
+        # generator.bkgd_etamax = 1.0
+
         generator.useEtaEtNotEtaE = useEtNotE
 
         return generator
@@ -153,8 +155,8 @@ def JetHypoExerciserCompareCfg(label,
 if __name__=="__main__":
 
     n_signal = 6
-    n_background = 0
-    bkgdEmax = 0.
+    n_background = 10
+    bkgdEmax = 50000.
     label_ind = 21
     label = test_strings[label_ind]
 
