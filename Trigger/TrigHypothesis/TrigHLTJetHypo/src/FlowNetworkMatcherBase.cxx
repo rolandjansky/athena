@@ -59,17 +59,25 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
      the sink.
   */
 
+  if(collector){
+    collector->collect("FlowNetworkMatcherBase", "matching starts");
+  }
+
   if(!m_nConditions){
     if(collector){
       collector->collect("FlowNetworkMatcherBase", "No conditions configured");
     }
     return std::make_optional<bool>(false);
   }
-
   // Determine jet group - condition satisfaction.
 
   auto iter_diff = groups_e - groups_b;  // number of jet groups
-  if (iter_diff < 0){return std::optional<bool>();}  // must be postive
+  if (iter_diff < 0){
+    if(collector){
+      collector->collect("FlowNetworkMatcherBase", "Negative number of jets");
+    }
+    return std::optional<bool>();
+  }  // must be postive
 
   std::map<int, pHypoJet> nodeToJet; 
 

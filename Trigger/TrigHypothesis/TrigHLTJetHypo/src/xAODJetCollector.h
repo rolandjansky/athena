@@ -25,7 +25,6 @@ class xAODJetCollector {
 public:
 
   void addJets(const HypoJetCIter& begin, const HypoJetCIter& end){
-    return; //FIXME !!!!
     HypoJetVector jets(begin, end);
 
     // determine whether each jet has an associated xAOD::Jet

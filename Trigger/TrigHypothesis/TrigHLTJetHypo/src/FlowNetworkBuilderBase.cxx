@@ -47,7 +47,6 @@ FlowNetworkBuilderBase::conditionGroupMatches(const HypoJetGroupCIter& groups_b,
   std::vector<std::vector<int>> result;
 
   if(collector){collector->collect("FlowNetworkBuilder", "start satisfsaction checks");}
-     
   for(const auto& cond : m_conditions){
     std::vector<int> groups;
     // jetgroup node numbers follow immediately after the condition node

@@ -5,7 +5,6 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
-from  TrigHLTJetHypo.ConditionsToolSetterFlowNetwork import ConditionsToolSetterFlowNetwork
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
