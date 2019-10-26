@@ -25,7 +25,7 @@ namespace CP {
     declareProperty( "EventInfoContName", m_eventInfoContName = "EventInfo" );
 
     //for users of high-pT working point to choose whether to include "safe" 2-station muons
-    declareProperty( "Use2stationMuonsHighPt", m_use2stationMuonsHighPt = false );
+    declareProperty( "Use2stationMuonsHighPt", m_use2stationMuonsHighPt = true );
 
     //for users of low-pT working point to choose whether to use MVA
     declareProperty( "UseMVALowPt", m_useMVALowPt = false );
