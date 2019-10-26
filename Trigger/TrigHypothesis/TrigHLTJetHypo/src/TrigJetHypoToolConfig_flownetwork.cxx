@@ -94,14 +94,11 @@ StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
 			false);
     
     if (it == checked.rend()){
-      std::cout<<"TrigJetHypoToolConfig_flownetwork::initialise no unchecked nodes found\n";
-      std::cout<<"TrigJetHypoToolConfig_flownetwork::initialise checked size " << checked.size() << '\n';
       break;
     }
     (*it) = true;
     
     std::size_t ind = start - (it - checked.rbegin());
-    std::cout<<"TrigJetHypoToolConfig_flownetwork::initialise intial ind = " << ind<< '\n';
     
     std::size_t cap{0};
     while(true){
@@ -110,22 +107,14 @@ StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
       // path upwards already traversed from this point if checked = true
       if (checked[ind]){break;}
       if((m_conditionMakers[ind]->addToCapacity(cap))){
-	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise  succeded in adding cap, ind = " << ind << " " << cap << '\n';
 	break;
       } else {
 	cap = m_conditionMakers[ind]->capacity();
 	checked[ind] = true;
-	std::cout << "TrigJetHypoToolConfig_flownetwork::initialise   cap not set, ind = " << ind << " " << cap << '\n';
       }
     }
   }
 
-  std::cout << "TrigJetHypoToolConfig_flownetwork::initialise - capacities\n";
-  for(const auto& cp : m_conditionMakers){
-    std::cout << cp->capacity() << " ";
-  }
-  std::cout << '\n';
-  
   return StatusCode::SUCCESS;
 }
 

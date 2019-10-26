@@ -125,30 +125,7 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
   // will be removed (each edge appears twice in G).
 
   HypoJetVector passing_jets;
-  /*
-  auto iter = std::partition(edges.begin(),
-                             edges.end(),
-                             [V](const auto& edge){return edge->to() == V-1 and
-                                                   std::round(edge->flow()) == 1;});
-  std::cout << "FlowNetworkMatcherBase::match 900\n";
 
-  std::transform(edges.begin(),
-                 iter,
-                 std::back_inserter(passing_jets),
-                 [&nodeToJet](const auto& edge){return nodeToJet[edge->from()];});
-
-  std::cout << "FlowNetworkMatcherBase::match 1000\n";
-
-  if(collector){
-    std::stringstream ss;
-    ss << "FordFulkerson passing jets: \n";
-    for(const auto& j :passing_jets){
-      ss << " eta" << j->eta() <<  " e: " << j->e() << " et: " << j->et() <<'\n'; 
-    }
-    collector -> collect("MaximumBipartiteGroupsMatcher", ss.str());
-  }
-  std::cout << "FlowNetworkMatcherBase::match 1100\n";
-  */
   jetCollector.addJets(passing_jets.cbegin(), passing_jets.cend());
 	       
   return std::make_optional<bool>(pass);

@@ -6,8 +6,6 @@
 #include "./ProductGen.h"
 #include <algorithm>
 
-#include <iostream>
-
 
 ProductGen::ProductGen() {}
 
