@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PyROOTInspector.cxx 790007 2016-12-15 17:46:55Z ssnyder $
@@ -103,7 +103,7 @@ to_pyobj(void* ptr, EDataType mbr_dtype)
   case kOther_t:
   case kNoType_t:
   default:
-    return PyString_FromString("(UNKNOWN)");
+    return PyROOT_PyUnicode_FromString("(UNKNOWN)");
     //py_mbr = Py_None;
     //Py_INCREF(py_mbr);
   } // switch
@@ -171,7 +171,7 @@ recurse_pyinspect(PyObject *pyobj,
     std::string *str = (std::string*)obj;
     PyObject *val= PyTuple_New(2);
     PyObject *v0 = pyobj_name; Py_INCREF(v0);
-    PyObject *v1 = PyString_FromString(str->c_str());
+    PyObject *v1 = PyROOT_PyUnicode_FromString(str->c_str());
     PyTuple_SET_ITEM(val, 0, v0);
     PyTuple_SET_ITEM(val, 1, v1);
     PyList_Append(pystack, val);
@@ -183,7 +183,7 @@ recurse_pyinspect(PyObject *pyobj,
   if (tstring.BeginsWith("pair<") ||
       tstring.BeginsWith("std::pair<")) {
     {
-      PyObject *v0 = PyString_FromString("first");
+      PyObject *v0 = PyROOT_PyUnicode_FromString("first");
       PyObject *v1 = PyObject_GetAttrString(pyobj, "first");
       PyObject *v1_name = ::new_pylist(pyobj_name, v0);
       recurse_pyinspect(v1, v1_name, pystack, persistentOnly);
@@ -193,7 +193,7 @@ recurse_pyinspect(PyObject *pyobj,
     }
 
     {
-      PyObject *v0 = PyString_FromString("second");
+      PyObject *v0 = PyROOT_PyUnicode_FromString("second");
       PyObject *v1 = PyObject_GetAttrString(pyobj, "second");
       PyObject *v1_name = ::new_pylist(pyobj_name, v0);
       recurse_pyinspect(v1, v1_name, pystack, persistentOnly);
@@ -304,7 +304,7 @@ recurse_pyinspect(PyObject *pyobj,
     if (mbr->IsBasic()) {
       TDataType * mbr_type = mbr->GetDataType();
       EDataType mbr_dtype = (EDataType)mbr_type->GetType();
-      py_mbr_name = PyString_FromString(mbr->GetName());
+      py_mbr_name = PyROOT_PyUnicode_FromString(mbr->GetName());
       py_mbr = to_pyobj(ptr, mbr_dtype);
 
     } else if (mbr->IsEnum()) {
@@ -314,10 +314,10 @@ recurse_pyinspect(PyObject *pyobj,
                 << (*(int*)ptr) << "]["
                 << mbr->GetName() << "] is an enum !!\n";
 #endif
-      py_mbr_name = PyString_FromString(mbr->GetTypeName());
-      py_mbr = PyString_FromString(mbr->GetName());
+      py_mbr_name = PyROOT_PyUnicode_FromString(mbr->GetTypeName());
+      py_mbr = PyROOT_PyUnicode_FromString(mbr->GetName());
     } else {
-      py_mbr_name = PyString_FromString(mbr->GetName());
+      py_mbr_name = PyROOT_PyUnicode_FromString(mbr->GetName());
       py_mbr = TPython::ObjectProxy_FromVoidPtr((void*)ptr,
                                                 mbr->GetTypeName());
     }
@@ -369,7 +369,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
 
   if (!strcmp(tcls->GetName(), "string")) {
     std::string *str = (std::string*)obj;
-    return PyString_FromString(str->c_str());
+    return PyROOT_PyUnicode_FromString(str->c_str());
   }
 
   TString tstring = tcls->GetName();
@@ -463,7 +463,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
                 << (*(int*)ptr) << "]["
                 << mbr->GetName() << "] is an enum !!\n";
 #endif
-      py_mbr = PyString_FromString(mbr->GetTypeName());
+      py_mbr = PyROOT_PyUnicode_FromString(mbr->GetTypeName());
     } else {
       PyObject *pyroot_obj = TPython::ObjectProxy_FromVoidPtr
         ((void*)ptr,
@@ -482,7 +482,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
 
     PyObject *py_item = PyTuple_New(2);
     PyTuple_SET_ITEM(py_item, 0, 
-                     PyString_FromString(mbr->GetName()));
+                     PyROOT_PyUnicode_FromString(mbr->GetName()));
     PyTuple_SET_ITEM(py_item, 1, py_mbr);
     PyList_SET_ITEM(py_members, j+hdr, py_item);
   }
