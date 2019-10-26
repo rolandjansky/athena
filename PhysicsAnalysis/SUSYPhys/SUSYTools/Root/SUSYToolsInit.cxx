@@ -465,6 +465,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   case (int)xAOD::Muon::Quality(xAOD::Muon::Tight):  muQualBaseline = "Tight";  break;
   case 4:  muQualBaseline = "HighPt";  break;
   case 5:  muQualBaseline = "LowPt";  break;
+  case 6:  muQualBaseline = "LowPtMVA"; break;
+  case 7:  muQualBaseline = "HighPt3Layers"; break;
   default:
     ATH_MSG_ERROR("Invalid muon working point provided: " << m_muIdBaseline << ". Cannot initialise!");
     return StatusCode::FAILURE;
@@ -474,14 +476,21 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_muonSelectionToolBaseline.isUserConfigured()) {
     toolName = "MuonSelectionTool_Baseline_" + muQualBaseline;
     m_muonSelectionToolBaseline.setTypeAndName("CP::MuonSelectionTool/"+toolName);
+    
     if (m_muBaselineEta<m_muEta){  // Test for inconsistent configuration
       ATH_MSG_ERROR( "Requested a baseline eta cut for muons (" << m_muBaselineEta <<
                      ") that is tighter than the signal cut (" << m_muEta << ").  Please check your config." );
       return StatusCode::FAILURE;
     }
+    int IdBaselineInt = m_muIdBaseline;
     ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MaxEta", m_muBaselineEta) );
-    //      ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MuQuality", int(m_muIdBaseline) ) );
-    ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MuQuality", m_muIdBaseline ) );
+    if (IdBaselineInt == 6){
+        ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MuQuality", 5 ) );
+        ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "UseMVALowPt", true));
+    } else if (IdBaselineInt == 7){
+        ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MuQuality", 4 ) );
+        ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "Use2stationMuonsHighPt", false));        
+    } else ATH_CHECK(m_muonSelectionToolBaseline.setProperty( "MuQuality", m_muIdBaseline ));
     ATH_CHECK( m_muonSelectionToolBaseline.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_muonSelectionToolBaseline.retrieve() );
   }
@@ -496,6 +505,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   case (int)xAOD::Muon::Quality(xAOD::Muon::Tight):  muQual = "Tight";  break;
   case 4:  muQual = "HighPt";  break;
   case 5:  muQual = "LowPt";  break;
+  case 6:  muQual = "LowPtMVA"; break;
+  case 7:  muQual = "HighPt3Layers"; break;
   default:
     ATH_MSG_ERROR("Invalid muon working point provided: " << m_muId << ". Cannot initialise!");
     return StatusCode::FAILURE;
@@ -506,8 +517,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "MuonSelectionTool_" + muQual;
     m_muonSelectionTool.setTypeAndName("CP::MuonSelectionTool/"+toolName);
     ATH_CHECK( m_muonSelectionTool.setProperty( "MaxEta", m_muEta) );
-    //      ATH_CHECK( m_muonSelectionTool.setProperty( "MuQuality", int(m_muId) ) );
-    ATH_CHECK( m_muonSelectionTool.setProperty( "MuQuality", m_muId ) );
+    int IdInt = m_muId;
+    if (IdInt == 6){
+        ATH_CHECK( m_muonSelectionTool.setProperty( "MuQuality", 5 ) );
+        ATH_CHECK( m_muonSelectionTool.setProperty( "UseMVALowPt", true));
+    } else if (IdInt == 7){
+        ATH_CHECK( m_muonSelectionTool.setProperty( "MuQuality", 4 ) );
+        ATH_CHECK( m_muonSelectionTool.setProperty( "Use2stationMuonsHighPt", false));        
+    } else ATH_CHECK(m_muonSelectionTool.setProperty( "MuQuality", m_muId ));
     ATH_CHECK( m_muonSelectionTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_muonSelectionTool.retrieve() );
   }
