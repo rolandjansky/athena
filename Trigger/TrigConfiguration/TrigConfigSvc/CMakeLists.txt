@@ -7,6 +7,7 @@ atlas_subdir( TrigConfigSvc )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
                           GaudiKernel
@@ -16,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
                           Control/AthenaKernel
                           Control/AthAnalysisBaseComps
                           Control/AthenaMonitoring
@@ -37,17 +37,11 @@ find_package( ROOT COMPONENTS Hist )
 find_package( cx_Oracle )
 find_package( nlohmann_json )
 
-# Component(s) in the package:
-atlas_add_library( TrigConfigSvcLib
-                   src/*.cxx src/*.h
-                   PUBLIC_HEADERS TrigConfigSvc
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib TrigConfHLTData TrigConfInterfaces TrigConfL1Data
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib AthenaMonitoringLib AthenaPoolUtilities EventInfo IOVDbDataModel L1TopoConfig PathResolver TrigConfBase TrigConfStorage TrigConfData TrigConfIOLib nlohmann_json::nlohmann_json )
-
 atlas_add_component( TrigConfigSvc
+                     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES TrigConfigSvcLib )
+                     INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
+                     LINK_LIBRARIES AthAnalysisBaseCompsLib AthenaBaseComps TrigConfIOLib TrigConfData TrigConfStorage TrigConfL1Data L1TopoConfig EventInfo AthenaMonitoringLib nlohmann_json::nlohmann_json )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -48,7 +48,6 @@ namespace MuonCalib {
   RpcCoolStrSvc::RpcCoolStrSvc(const string& name, ISvcLocator* svc) :
     AthService(name,svc),
     p_detstore(0),
-    m_rpcId(0),
     m_log(msgSvc(),name),  
     m_folder(""),   
     m_debugLevel(false)
@@ -103,19 +102,14 @@ namespace MuonCalib {
     StatusCode sc = serviceLocator()->service("DetectorStore",detStore);
     
     if(sc.isSuccess())
-      {
-	sc = detStore->retrieve(m_rpcId,"RPCIDHELPER");
-	if(sc.isFailure())
-	  {
-	    m_log << MSG::ERROR << "Cannot retrieve RpcIdHelper from detector store" << endmsg;
-	    return sc;
-	  }
-      }
+    {
+	    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    }
     else
-      {
-	m_log << MSG::ERROR << "MuonDetDescrMgr not found in DetectorStore " << endmsg;
-	return sc;
-      } 
+    {
+	    m_log << MSG::ERROR << "MuonDetDescrMgr not found in DetectorStore " << endmsg;
+	    return sc;
+    } 
 
     return StatusCode::SUCCESS;
   }

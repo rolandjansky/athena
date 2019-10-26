@@ -17,19 +17,19 @@ TrigConf::L1TopoAlgorithm::~L1TopoAlgorithm()
 unsigned int
 TrigConf::L1TopoAlgorithm::algId() const
 {
-   return data().get_child("algId").get_value<unsigned int>();
+   return m_data.get_child("algId").get_value<unsigned int>();
 }
 
 const std::string &
 TrigConf::L1TopoAlgorithm::name() const
 {
-   return data().get_child("name").data();
+   return m_data.get_child("name").data();
 }
 
 const std::string &
 TrigConf::L1TopoAlgorithm::type() const
 {
-   return data().get_child("type").data();
+   return m_data.get_child("type").data();
 }
 
 

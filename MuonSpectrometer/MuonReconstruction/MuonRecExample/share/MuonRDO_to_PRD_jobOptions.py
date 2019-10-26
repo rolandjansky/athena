@@ -19,7 +19,10 @@ beamFlags = jobproperties.Beam
 from AthenaCommon.CfgGetter import getAlgorithm
 from MuonRecExample.MuonPrdProviderToolsConfig import RpcPrepDataProviderTool, MdtPrepDataProviderTool, TgcPrepDataProviderTool, CscPrepDataProviderTool
 
-if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
+if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
     topSequence += getAlgorithm("CscRdoToCscPrepData", tryDefaultConfigurable=True)
     topSequence.CscRdoToCscPrepData.CscRdoToCscPrepDataTool = CscPrepDataProviderTool()
 
@@ -36,11 +39,11 @@ if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC
     topSequence.TgcRdoToTgcPrepData.DecodingTool = TgcPrepDataProviderTool()
 
 if not muonRecFlags.doFastDigitization():
-  if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
-    topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
-
-  if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):
-    topSequence += getAlgorithm("MM_RdoToMM_PrepData", tryDefaultConfigurable=True)
+    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+        if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
+            topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
+        if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):
+            topSequence += getAlgorithm("MM_RdoToMM_PrepData", tryDefaultConfigurable=True)
 
 #
 # Remove hits from part of the detector to mimic dead channels
@@ -48,7 +51,7 @@ if not muonRecFlags.doFastDigitization():
 if muonRecFlags.doPrdSelect():
     include("MuonPrdSelector/MuonPrdSelector_jobOptions.py")
 
-if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on():
+if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on():
     topSequence += getAlgorithm("CscThresholdClusterBuilder")
 
 

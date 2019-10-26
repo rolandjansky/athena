@@ -15,7 +15,7 @@ public:
   PixelOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   SG::ReadHandleKey<PixelRDO_Container> m_bkgInputKey{ this, "BkgInputKey", "Bkg_PixelRDOs", "ReadHandleKey for Background Input PixelRDO_Container" };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelResidualHistograms_h
@@ -21,8 +21,8 @@ class PixelResidualHistograms;
 class PixelResidualHistograms{
 
 public:
-	PixelResidualHistograms(const std::string name,
-			   const std::string title,
+	PixelResidualHistograms(const std::string& name,
+			   const std::string& title,
 			   double limits,
 			   int nbins,
 			   const std::vector< std::vector < float > > &binnage,
@@ -30,16 +30,16 @@ public:
 	
 	virtual ~PixelResidualHistograms();
 
-	void SetAxisTitle(std::string title);
+	void SetAxisTitle(const std::string& title);
 	
-	void Fill(float residual, std::vector< float > parameters);
+	void Fill(float residual, const std::vector< float >& parameters);
 
 	int Write(bool writebins = false);
 	int Read();
 
 	TH1D* GetHisto(const int i) const;
-	TProfile* GetMeanProfile(const std::string binname);
-	TProfile* GetRMSProfile(const std::string binname);
+	TProfile* GetMeanProfile(const std::string& binname);
+	TProfile* GetRMSProfile(const std::string& binname);
 	TProfile* GetProfile(const int binnumber, bool RMS = false, bool savebins = false);
 
 	TH1D *GetGlobalHisto();
@@ -48,7 +48,7 @@ public:
 			  int marker,
 			  float labely = 0,
 			  std::vector <TCanvas *> *canvasvector = 0,
-			  std::string name = "");
+			  const std::string& name = "");
 
 	//const std::vector< std::string > *GetBinsNames() const;
 	//const std::vector < float > *GetBins(const std::string binname) const;

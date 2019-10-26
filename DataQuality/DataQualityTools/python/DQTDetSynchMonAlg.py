@@ -1,8 +1,6 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-from __future__ import print_function
-
 def DQTDetSynchMonAlgConfig(flags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(flags,'DQTDetSynchMonAlgCfg')
@@ -12,6 +10,8 @@ def DQTDetSynchMonAlgConfig(flags):
     acc.getEventAlgo('DQTDetSynchMonAlg').doRPC = False
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc.merge(MagneticFieldSvcCfg(flags))
+    from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
+    acc.merge(TileCablingSvcCfg(flags))
     return acc
 
 def DQTDetSynchMonAlgConfigOld(flags):
@@ -86,7 +86,6 @@ def _DQTDetSynchMonAlgConfigCore(helper, isOnline=False, run2Compat=False):
             if run2Compat and det2 == 'Pixel':
                 didx1, didx2 = didx2, didx1
                 det1, det2 = det2, det1
-            print('Defining', det1, det2, didx1, didx2)
             # BCID
             bcidg.defineHistogram('diff_%1d_%1d;m_diff_%s_%s_BCID' % (didx1, didx2, det1, det2),
                                   title='BCID difference between %s and %s detectors' % (det1, det2),

@@ -130,7 +130,6 @@ def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector"
     return LArG4__DeadSDTool(name, **kwargs)
 
 def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwargs):
-
     result = ComponentAccumulator()
     bare_collection_name = "LArHitEMB"
     mergeable_collection_suffix = "_G4"
@@ -138,6 +137,8 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
                                                               mergeable_collection_suffix,
                                                               merger_input_property)
+
+    result.merge(acc)
     ## Main configuration
     kwargs.setdefault("StacVolumes",["LArMgr::LAr::EMB::STAC"])
     kwargs.setdefault("PresamplerVolumes",["LArMgr::LAr::Barrel::Presampler::Module"])
@@ -149,8 +150,15 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
 
     #Note - frozen showers to be migrated later
 
-    result.merge(acc)
-    return result, LArG4__EMBSDTool(name, **kwargs)
+    from LArG4Barrel.LArG4BarrelConfigNew import EMBPresamplerCalculatorCfg, EMBCalculatorCfg
+    result.merge(EMBPresamplerCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMBPSCalculator", result.getService("EMBPresamplerCalculator") )
+
+    result.merge(EMBCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMBCalculator", result.getService("EMBCalculator"))
+    
+    result.setPrivateTools( LArG4__EMBSDTool(name, **kwargs) )
+    return result
 
 def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -160,6 +168,7 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
                                                               mergeable_collection_suffix,
                                                               merger_input_property)
+    result.merge(acc)
 
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2002","tb_LArH6EC_2002"]:
         kwargs.setdefault("NegIWVolumes",["LArMgr::LAr::EMEC::Neg::InnerWheel"])
@@ -177,8 +186,31 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
 
     #Note - frozen showers to be migrated later
 
-    result.merge(acc)
-    return result, LArG4__EMECSDTool(name, **kwargs)
+    from LArG4EC.LArG4ECConfigNew import EMECPosInnerWheelCalculatorCfg, EMECNegInnerWheelCalculatorCfg, EMECPosOuterWheelCalculatorCfg, EMECNegOuterWheelCalculatorCfg, EMECPresamplerCalculatorCfg, EMECPosBackOuterBarretteCalculatorCfg, EMECNegBackOuterBarretteCalculatorCfg
+
+    result.merge(EMECPosInnerWheelCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMECPosIWCalculator",result.getService("EMECPosInnerWheelCalculator") )
+
+    result.merge(EMECNegInnerWheelCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMECNegIWCalculator",result.getService("EMECNegInnerWheelCalculator") )
+
+    result.merge(EMECPosOuterWheelCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMECPosOWCalculator",result.getService("EMECPosOuterWheelCalculator") )
+
+    result.merge(EMECNegOuterWheelCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMECNegOWCalculator",result.getService("EMECNegOuterWheelCalculator") )
+
+    result.merge(EMECPresamplerCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMECPSCalculator",result.getService("EMECPresamplerCalculator") )
+
+    result.merge(EMECPosBackOuterBarretteCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMECPosBOBCalculator",result.getService("EMECPosBackOuterBarretteCalculator") )
+
+    result.merge(EMECNegBackOuterBarretteCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("EMECNegBOBCalculator",result.getService("EMECNegBackOuterBarretteCalculator") )
+
+    result.setPrivateTools( LArG4__EMECSDTool(name, **kwargs) )
+    return result
 
 def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -188,6 +220,8 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
                                                               mergeable_collection_suffix,
                                                               merger_input_property)
+    result.merge(acc)
+
     kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::Gap"])
     kwargs.setdefault("FCAL2Volumes",["LArMgr::LAr::FCAL::Module2::Gap"])
     kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::Gap"])
@@ -200,8 +234,19 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
 
     #Note - frozen showers to be migrated later
 
-    result.merge(acc)
-    return result, LArG4__FCALSDTool(name, **kwargs)
+    from LArG4FCAL.LArG4FCALConfigNew import FCAL1CalculatorCfg, FCAL2CalculatorCfg, FCAL3CalculatorCfg
+
+    result.merge(FCAL1CalculatorCfg(ConfigFlags))
+    kwargs.setdefault("FCAL1Calculator", result.getService("FCAL1Calculator") )
+
+    result.merge(FCAL2CalculatorCfg(ConfigFlags))
+    kwargs.setdefault("FCAL2Calculator", result.getService("FCAL2Calculator") )
+
+    result.merge(FCAL3CalculatorCfg(ConfigFlags))
+    kwargs.setdefault("FCAL3Calculator", result.getService("FCAL3Calculator") )
+
+    result.setPrivateTools( LArG4__FCALSDTool(name, **kwargs) )
+    return result
 
 def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -211,7 +256,7 @@ def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kw
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
                                                               mergeable_collection_suffix,
                                                               merger_input_property)
-
+    result.merge(acc)
 
     kwargs.setdefault("WheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Slice"])
     #kwargs.setdefault("SliceVolumes",["LAr::HEC::Module::Depth::Slice"])
@@ -220,8 +265,12 @@ def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kw
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.merge(acc)
-    return result, LArG4__HECSDTool(name, **kwargs)
+    from LArG4HEC.LArG4HECConfigNew import HECWheelCalculatorCfg
+    result.merge(HECWheelCalculatorCfg(ConfigFlags))
+    kwargs.setdefault("HECWheelCalculator", result.getService("HECWheelCalculator"))
+
+    result.setPrivateTools( LArG4__HECSDTool(name, **kwargs) )
+    return result
 
 def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveDetector", **kwargs):
     ## Main configuration
@@ -315,8 +364,10 @@ def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveD
     return LArG4__InactiveSDTool(name, **kwargs)
 
 def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveDetector", **kwargs):
+    result = ComponentAccumulator()
     kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL::Wafer"])
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArHitMiniFCAL"])
 
-    return LArG4__MiniFCALSDTool(name, **kwargs)
+    result.setPrivateTools(LArG4__MiniFCALSDTool(name, **kwargs))
+    return result

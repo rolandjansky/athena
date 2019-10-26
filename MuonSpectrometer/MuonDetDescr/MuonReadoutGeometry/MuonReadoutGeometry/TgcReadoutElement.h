@@ -381,12 +381,12 @@ namespace MuonGM {
   bool TgcReadoutElement::measuresPhi(const Identifier& id) const { return manager()->tgcIdHelper()->isStrip(id); } 
 
   double TgcReadoutElement::distanceToReadout( const Amg::Vector2D& , const Identifier&  ) const {
-    reLog() << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
+    (*m_Log)  << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
     return 0.;
   }
 
   int TgcReadoutElement::stripNumber( const Amg::Vector2D& , const Identifier& ) const { 
-    reLog() << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
+    (*m_Log)  << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
     return 1;
   }
 
@@ -394,7 +394,7 @@ namespace MuonGM {
     /** please don't copy the inefficient code below!! Look at the RpcReadoutElement for a proper implementation */
     Amg::Vector3D gpos = channelPos(id);  
     if( !surface(id).globalToLocal(gpos,gpos,pos) ){
-      reLog() << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(id).transform().inverse()*gpos << std::endl;
+      (*m_Log)  << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(id).transform().inverse()*gpos << std::endl;
       return false;
     }
     return true;
@@ -433,7 +433,7 @@ namespace MuonGM {
     Amg::Vector3D gpos;
     spacePointPosition(phiId,etaId,gpos);
     if( !surface(phiId).globalToLocal(gpos,gpos,pos) ){
-      reLog() << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(phiId).transform().inverse()*gpos << std::endl;
+      (*m_Log)  << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(phiId).transform().inverse()*gpos << std::endl;
       return false;
     }
     return true;

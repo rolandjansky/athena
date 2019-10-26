@@ -46,7 +46,7 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    
    return m
 
-def TriggerEDMSerialiserToolCfg(name):
+def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
    from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
 
    # Configuration helper methods
@@ -93,3 +93,21 @@ def TriggerEDMSerialiserToolCfg(name):
    serialiser.TPTool = tpTool
 
    return serialiser
+
+def StreamTagMakerToolCfg(name="StreamTagMakerTool"):
+   from TrigOutputHandlingConf import StreamTagMakerTool
+
+   stmaker = StreamTagMakerTool(name)
+   # Extra configuration may come here
+
+   return stmaker
+
+
+def TriggerBitsMakerToolCfg(name="TriggerBitsMakerTool"):
+   from TrigOutputHandlingConf import TriggerBitsMakerTool
+   from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+   bitsmaker = TriggerBitsMakerTool(name)
+   # Extra configuration may come here
+
+   return bitsmaker

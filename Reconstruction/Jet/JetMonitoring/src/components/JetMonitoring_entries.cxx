@@ -3,11 +3,21 @@
 #include "JetMonitoring/HistoDefinitionTool.h"
 #include "JetMonitoring/HistosForJetSelection.h"
 #include "JetMonitoring/LeadingJetsRelations.h"
+#include "JetMonitoring/JetHistoLeadingJetsRelations.h"
 #include "JetMonitoring/EfficiencyResponseHistos.h"
 #include "JetMonitoring/HIEfficiencyResponseHistos.h"
 #include "JetMonitoring/JetContainerHistoFiller.h"
 #include "JetMonitoring/JetSelectorAttribute.h"
 #include "JetMonitoring/HIJetUEMonitoring.h"
+
+#include "JetMonitoring/JetMonitoringAlg.h"
+#include "JetMonitoring/JetHistoPtTool.h"
+#include "JetMonitoring/JetHistoAttributeFiller.h"
+#include "JetMonitoring/JetHistoTriggEfficiency.h"
+#include "JetMonitoring/JetHistoVarTool.h"
+#include "JetMonitoring/JetHistoSelectSort.h"
+
+#include "JetMonitoring/JetSelectorAttributeRunII.h"
 
 #include "../JetMonitoringTool.h"
 
@@ -16,13 +26,23 @@ DECLARE_COMPONENT( JetMonitoringTool )
 DECLARE_COMPONENT( HistoDefinitionTool )
 DECLARE_COMPONENT( HistosForJetSelection )
 DECLARE_COMPONENT( LeadingJetsRelations )
+DECLARE_COMPONENT( JetHistoLeadingJetsRelations )
 DECLARE_COMPONENT( EfficiencyResponseHistos )
 DECLARE_COMPONENT( HIEfficiencyResponseHistos )
 DECLARE_COMPONENT( JetContainerHistoFiller )
 DECLARE_COMPONENT( JetSelectorAttribute )
 DECLARE_COMPONENT( HIJetUEMonitoring )
 
+DECLARE_COMPONENT( JetMonitoringAlg )
+DECLARE_COMPONENT( JetHistoPtTool)
+DECLARE_COMPONENT( JetHistoTriggEfficiency)
+DECLARE_COMPONENT( JetHistoAttributeFiller)
+DECLARE_COMPONENT( JetHistoSelectSort)
+DECLARE_COMPONENT( JetHistoVarTool)
+
 DECLARE_COMPONENT( JetAttributeHisto )
+
+DECLARE_COMPONENT( JetSelectorAttributeRunII )
 
 
 

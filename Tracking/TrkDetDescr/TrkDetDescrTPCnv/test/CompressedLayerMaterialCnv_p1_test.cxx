@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkGeometry/CompressedLayerMaterialCnv_p1.h"
 #include "TrkDetDescrTPCnv/LayerMaterialMapCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -106,6 +107,7 @@ void testit (const Trk::CompressedLayerMaterial& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   Trk::MaterialPropertiesVector mm;
   Trk::Material mat1 ( 1.5,  2.5,  3.5,  4.5,  5.5);
   Trk::Material mat2 (11.5, 12.5, 13.5, 14.5, 15.5);

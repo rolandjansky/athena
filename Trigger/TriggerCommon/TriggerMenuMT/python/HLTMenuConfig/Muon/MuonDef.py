@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence, efLateMuRoISequence, efLateMuSequence
 
 
 
@@ -54,6 +54,12 @@ def FSmuEFCBSequenceCfg(flags):
 
 def muEFIsoSequenceCfg(flags):
     return muEFIsoSequence()
+
+def muEFLateRoISequenceCfg(flags):
+    return efLateMuRoISequence()
+
+def muEFLateSequenceCfg(flags):
+    return efLateMuSequence()
 
 
 ############################################# 
@@ -112,6 +118,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "msonly":[[self.getmuFast(), self.getmuMSEmpty(1)], [self.getmuEFMS()]],
             "ivarmedium":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()]],
             "invM":[[],[self.getmuInvM()]],
+            "lateMu":[[],[self.getLateMuRoI(),self.getLateMu()]]
         }
        
         return stepDictionary
@@ -188,6 +195,12 @@ class MuonChainConfiguration(ChainConfigurationBase):
         stepName = 'Step5_muInvM'
         log.debug("Configuring step " + stepName)
         seq = RecoFragmentsPool.retrieve( muEFCBInvMSequenceCfg, None)
-        return ChainStep(stepName, [seq], multiplicity=1)
+        return ChainStep(stepName, [seq], multiplicity=[1])
 
+    #--------------------
+    def getLateMuRoI(self):
+        return self.getStep(1,'muEFLateRoI',[muEFLateRoISequenceCfg])
 
+    #--------------------
+    def getLateMu(self):
+        return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])

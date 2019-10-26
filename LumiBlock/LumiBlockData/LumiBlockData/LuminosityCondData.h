@@ -65,7 +65,7 @@ private:
 
 
 CLASS_DEF (LuminosityCondData, 222148049, 0)
-CONDCONT_DEF (LuminosityCondData, 180584023);
+CONDCONT_MIXED_DEF (LuminosityCondData, 180584023);
 
 
 #endif // not LUMIBLOCKDATA_LUMINOSITYCONDDATA_H

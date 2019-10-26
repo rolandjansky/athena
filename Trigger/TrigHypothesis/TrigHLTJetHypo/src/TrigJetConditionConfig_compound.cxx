@@ -50,3 +50,4 @@ std::size_t TrigJetConditionConfig_compound::capacity() const {
   
   return capacity;
 }
+

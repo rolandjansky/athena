@@ -44,5 +44,10 @@ def createSimConfigFlags():
     scf.addFlag("Sim.G4Version", "geant4.10.1.patch03.atlas02")
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
 
+    #For G4AtlasToolsConfig
+    scf.addFlag('Sim.RecordStepInfo',False) 
+    scf.addFlag('Sim.StoppedParticleFile', False) 
+
+
     return scf
 

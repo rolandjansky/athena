@@ -90,6 +90,9 @@ if DetFlags.haveRIO.pixel_on():
         if not conddb.folderRequested("/PIXEL/PixReco"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
 
+        if not conddb.folderRequested("/Indet/PixelDist"):
+            conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
+
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
@@ -105,6 +108,10 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+        condSeq += PixelDistortionAlg(name="PixelDistortionAlg")
 
 #
 # --- Load SCT Conditions Services

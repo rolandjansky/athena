@@ -301,62 +301,62 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     for (unsigned int drawer = 0; drawer < Tile::MAX_DRAWER; ++drawer) {
 
       clearDigiError(dmus, errors);
+      bool isGoodModuleDCS(true);
 
       if (m_checkDCS && dcsState->isStatusBad(ros, drawer)) {
 
-        for (int dmu = 0; dmu < MAX_DMU; ++dmu) {
-          setDigiError(dmus, errors, dmu, ALL_M_BAD_DCS);
-        }
-
         fractionOfBadDMUs = -1.0; // By convention
+        isGoodModuleDCS = false;
 
-      } else {
+      }
 
-        int status = dqStatus->checkGlobalErr(ros, drawer, 0);
-        TileDigiErrors error(OK);
-        if (status & (TileFragStatus::ALL_FF | TileFragStatus::ALL_00)) {
-          error = DUMMY_FRAG;
-        } else if (status & (TileFragStatus::NO_FRAG | TileFragStatus::NO_ROB)) {
-          error = NO_RECO_FRAG;
+      int status = dqStatus->checkGlobalErr(ros, drawer, 0);
+      TileDigiErrors error(OK);
+      if (status & (TileFragStatus::ALL_FF | TileFragStatus::ALL_00)) {
+        error = DUMMY_FRAG;
+      } else if (status & (TileFragStatus::NO_FRAG | TileFragStatus::NO_ROB)) {
+        error = NO_RECO_FRAG;
+      }
+
+      float nBadNotMaskedDMUs = 0;
+
+      for (int dmu = 0; dmu < MAX_DMU; ++dmu) { // loop over dmus
+        int channel = 3 * dmu;
+
+        bool isMaskedDMU(false);
+
+        unsigned int drawerIdx = Tile::getDrawerIdx(ros, drawer);
+
+        TileBchStatus channelStatus0 = m_tileBadChanTool->getChannelStatus(drawerIdx, channel, ctx);
+        TileBchStatus channelStatus1 = m_tileBadChanTool->getChannelStatus(drawerIdx, channel + 1, ctx);
+        TileBchStatus channelStatus2 = m_tileBadChanTool->getChannelStatus(drawerIdx, channel + 2, ctx);
+
+        bool specialEB; // special treatment of EBA15, EBC18
+
+        if ((ros == 3 && drawer == 14) || (ros == 4 && drawer == 17)) {
+          specialEB = true; // EBA15, EBC18
+        } else {
+          specialEB = false;
         }
 
-        float nBadNotMaskedDMUs = 0;
+        if ((channelStatus0.isBad() && channelStatus1.isBad() && channelStatus2.isBad())
+            // Check disconnected channels for EBs
+            || ((ros > 2 && ((channel == 18 && !specialEB) || channel == 33)) && channelStatus2.isBad())
+            // Check disconnected channels for LBs
+            || ((ros < 3 && channel == 30) && channelStatus2.isBad())
+            // Check disconnected channels for LBs
+            || ((ros < 3 && channel == 42) && channelStatus0.isBad() && channelStatus2.isBad())
+            // Check void DMUs for EBs
+            || (ros > 2 && (channel == 24 || channel == 27 || channel == 42 || channel == 45))
+            || (specialEB && channel == 0) // Check void DMU 0 for EBA15, EBC18
+            // Check disconnected PMT of DMU 1 for EBA15, EBC18
+            || ((specialEB && channel == 3) && channelStatus1.isBad() && channelStatus2.isBad())) {
 
-        for (int dmu = 0; dmu < MAX_DMU; ++dmu) { // loop over dmus
-          int channel = 3 * dmu;
+          setDigiError(dmus, errors, dmu, MASKED);
+          isMaskedDMU = true;
+        }
 
-          bool isMaskedDMU(false);
-
-          unsigned int drawerIdx = Tile::getDrawerIdx(ros, drawer);
-
-          TileBchStatus channelStatus0 = m_tileBadChanTool->getChannelStatus(drawerIdx, channel, ctx);
-          TileBchStatus channelStatus1 = m_tileBadChanTool->getChannelStatus(drawerIdx, channel + 1, ctx);
-          TileBchStatus channelStatus2 = m_tileBadChanTool->getChannelStatus(drawerIdx, channel + 2, ctx);
-
-          bool specialEB; // special treatment of EBA15, EBC18
-
-          if ((ros == 3 && drawer == 14) || (ros == 4 && drawer == 17)) {
-            specialEB = true; // EBA15, EBC18
-          } else {
-            specialEB = false;
-          }
-
-          if ((channelStatus0.isBad() && channelStatus1.isBad() && channelStatus2.isBad())
-              // Check disconnected channels for EBs
-              || ((ros > 2 && ((channel == 18 && !specialEB) || channel == 33)) && channelStatus2.isBad())
-              // Check disconnected channels for LBs
-              || ((ros < 3 && channel == 30) && channelStatus2.isBad())
-              // Check disconnected channels for LBs
-              || ((ros < 3 && channel == 42) && channelStatus0.isBad() && channelStatus2.isBad())
-              // Check void DMUs for EBs
-              || (ros > 2 && (channel == 24 || channel == 27 || channel == 42 || channel == 45))
-              || (specialEB && channel == 0) // Check void DMU 0 for EBA15, EBC18
-              // Check disconnected PMT of DMU 1 for EBA15, EBC18
-              || ((specialEB && channel == 3) && channelStatus1.isBad() && channelStatus2.isBad())) {
-
-            setDigiError(dmus, errors, dmu, MASKED);
-            isMaskedDMU = true;
-          }
+        if (isGoodModuleDCS) {
 
           if (m_checkDCS
               && ((dcsState->isStatusBad(ros, drawer, channel)
@@ -418,13 +418,16 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
               }
             }
           }
-        } // loop over DMUs
+        } else {
+          setDigiError(dmus, errors, dmu, ALL_M_BAD_DCS);
+        }
+      } // loop over DMUs
 
+      if (isGoodModuleDCS) {
         fractionOfBadDMUs = nBadNotMaskedDMUs / MAX_DMU;
       }
 
       fill(m_tools[m_errorsGroups[ros - 1][drawer]], drawerDMUs, errorsInDMUs);
-
       fill(m_tools[m_errorsVsLBGroups[ros - 1][drawer]], lumiBlock, fractionOfBadDMUs);
 
     }

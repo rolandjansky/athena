@@ -3,6 +3,7 @@
 */
 
 #include "./UnifiedFlowNetworkBuilder.h"
+
 #include <map>
 #include <algorithm>
 #include <sstream>
@@ -241,7 +242,6 @@ bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
       
       // input jet groups of size 1 (for now....). This used
       // to establish which jets participated in a passing hypo.
-      
       // return std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
       // TEMPORARY while  developing
       throw std::runtime_error("Edge making failed");
@@ -305,6 +305,7 @@ bool UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
   auto comparator = DepthComparison(m_tree);
   DepthQueue to_process(comparator); // conditions to be processed.
   
+
   // keep track if a condition's sibling has been processed.
   std::vector<bool> checked(m_conditions.size(), false);
 
@@ -425,6 +426,7 @@ bool UnifiedFlowNetworkBuilder::propagate_(std::vector<std::shared_ptr<FlowEdge>
   }
   return par_satisfied;
 }
+
 
 
 std::string UnifiedFlowNetworkBuilder::toString() const {

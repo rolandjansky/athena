@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonPVBiases_H
@@ -23,6 +23,8 @@
 #include "TH3F.h"
 #include "TH2F.h"
 #include "TFile.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
@@ -172,6 +174,8 @@ private:
 	
   ToolHandle< InDetAlignMon::TrackSelectionTool > m_trackSelection; 
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "SG Key of EventInfo object"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey{this, "TrackParticleKey", "InDetTrackParticles"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
 };
 

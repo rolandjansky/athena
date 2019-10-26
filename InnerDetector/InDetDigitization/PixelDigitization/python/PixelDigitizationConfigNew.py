@@ -13,7 +13,7 @@ from PixelDigitization.PixelDigitizationConf import (
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
+from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
@@ -107,6 +107,7 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     acc.merge(PixelCablingSvcCfg(flags))
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))
+    acc.merge(PixelDistortionAlgCfg(flags))
     # set up tool handle lists
     chargeTools = []
     feSimTools = []

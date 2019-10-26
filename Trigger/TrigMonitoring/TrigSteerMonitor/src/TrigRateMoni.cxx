@@ -28,7 +28,7 @@
 #include "TrigSteering/TrigSteer.h"
 
 #include "TrigRateMoni.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 
  

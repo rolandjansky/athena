@@ -25,7 +25,6 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
 
   virtual bool addToCapacity(std::size_t) override;
   virtual std::size_t capacity() const override;
-  
  private:
   
   Gaudi::Property<std::string>

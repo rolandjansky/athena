@@ -30,8 +30,8 @@
  * XAOD is the class being read/written.
  * TPCNVS is a list of TP converters to handle older versions of the class.
  *
- * On writing, the container is simply copied (thinning is handled by the
- * thinning service).  For reading, we read the object either directly
+ * On writing, the container is copied with thinning applied.
+ * For reading, we read the object either directly
  * or using one of the TP converters, depending on the saved GUID.
  * The link to the aux store is then set based on the SG key.
  */

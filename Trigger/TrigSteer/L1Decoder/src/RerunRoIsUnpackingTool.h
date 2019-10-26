@@ -33,7 +33,7 @@ class RerunRoIsUnpackingTool : public RoIsUnpackingToolBase
   virtual ~RerunRoIsUnpackingTool(); 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode updateConfiguration(const IRoIsUnpackingTool::SeedingMap&) override;
+  virtual StatusCode updateConfiguration() override;
 
   StatusCode unpack( const EventContext& ctx,
 		     const ROIB::RoIBResult& roib,

@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 #include "Navigation/Navigable.h"
-#include "DataModelAthenaPool/getThinningCache.h"
+#include "AthenaKernel/getThinningCache.h"
 
 
 //#include <iostream>
@@ -62,7 +62,7 @@ NavigableCnv_p1<NAV, RPAR>::transToPers(const Navigable_t& trans,
                                         MsgStream& msg) const
 {
   transToPers (trans, pers,
-               DataModelAthenaPool::getThinningCache(),
+               SG::getThinningCache(),
                msg);
 }
 
@@ -152,7 +152,7 @@ NavigableCnv_p1<NAV, NavigationDefaults::DefaultWeight >
               MsgStream& msg) const
 {
   transToPers (trans, pers,
-               DataModelAthenaPool::getThinningCache(),
+               SG::getThinningCache(),
                msg);
 }
 

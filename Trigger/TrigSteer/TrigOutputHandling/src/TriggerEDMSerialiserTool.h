@@ -42,7 +42,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 	     const IInterface* parent );
 
   virtual ~TriggerEDMSerialiserTool();
-  virtual StatusCode fill( HLT::HLTResultMT& resultToFill ) const override;
+  virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
 
   virtual StatusCode  initialize() override;
 
@@ -124,7 +124,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    * Place inside the buffer serialised the xOAD Aux container
    * invloves selection and recording of dynamic variables
    */
-  StatusCode serialisexAODAuxContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const;
+  StatusCode serialisexAODAuxContainer( void* data, const Address& address, std::vector<uint32_t>& buffer, SGImplSvc* evtStore ) const;
 
   /**
    * Place inside the buffer the serialised old type of container

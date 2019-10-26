@@ -5,7 +5,7 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d] [-x]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-x]"
     echo " -f: Force rebuild of externals from scratch, otherwise if script"
     echo "     finds an external build present it will only do an incremental"
     echo "     build"

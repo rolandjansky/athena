@@ -1439,7 +1439,7 @@ test4
 test5
 test_pack_errors1
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...  ERROR FILE:LINE (void CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer*, CaloCellLinkContainer_p2*, MsgStream&)): Multiple container names seen; cannot be persistified correctly: cells1 != cells2; cell skipped
+CaloCellLinkCon...  ERROR FILE:LINE (void CaloCellLinkContainerCnv_p2::transToPersWithKey(const CaloCellLinkContainer*, CaloCellLinkContainer_p2*, const std::string&, MsgStream&) const): Multiple container names seen; cannot be persistified correctly: cells1 != cells2; cell skipped
 Pers: 1 clusts; container cells1
   isizes: 2
   wsizes: 1
@@ -1447,7 +1447,7 @@ Pers: 1 clusts; container cells1
   wlinks: 2001
 test_pack_errors2
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer*, CaloCellLinkContainer_p2*, MsgStream&)): Crazy cluster cell weight 1e+10 reset to 1
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::transToPersWithKey(const CaloCellLinkContainer*, CaloCellLinkContainer_p2*, const std::string&, MsgStream&) const): Crazy cluster cell weight 1e+10 reset to 1
 Pers: 1 clusts; container cells
   isizes: 1
   wsizes: 1
@@ -1455,7 +1455,7 @@ Pers: 1 clusts; container cells
   wlinks: 3001
 test_pack_errors3
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer*, CaloCellLinkContainer_p2*, MsgStream&)): Bad cell index 500000 had high bits masked off.
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::transToPersWithKey(const CaloCellLinkContainer*, CaloCellLinkContainer_p2*, const std::string&, MsgStream&) const): Bad cell index 500000 had high bits masked off.
 Pers: 1 clusts; container cells
   isizes: 3
   wsizes: 1
@@ -1463,32 +1463,32 @@ Pers: 1 clusts; container cells
   wlinks: 3001
 test_unpack_errors1
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Inconsistent sequence array lengths: 1 0 0
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Inconsistent sequence array lengths: 1 0 0
 
 test_unpack_errors2
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Cell index array overrun
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Cell index array overrun
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Discarding cluster cells
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Discarding cluster cells
 test_unpack_errors3
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Cell weight array overrun
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Cell weight array overrun
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Discarding cluster cells
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Discarding cluster cells
 test_unpack_errors4
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Weight/index arrays out of sync
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Weight/index arrays out of sync
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Discarding cluster cells
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Discarding cluster cells
 test_unpack_errors5
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Wrong number of weight sequences
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Wrong number of weight sequences
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Discarding cluster cells
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Discarding cluster cells
 test_unpack_errors6
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Wrong number of weight sequences
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Wrong number of weight sequences
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Missing cell container name
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Missing cell container name
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, MsgStream&)): Discarding cluster cells
+CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Discarding cluster cells

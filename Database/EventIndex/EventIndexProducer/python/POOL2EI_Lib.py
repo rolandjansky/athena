@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file POOL2EI_Lib.py
 # @purpose provide components to get EventIndex data from pool files
@@ -501,12 +501,11 @@ class POOL2EI(PyAthena.Alg):
         
  
     ##########################################
-    # execute at begin of run
+    # execute at start of run
     ##########################################
-    def beginRun(self):
-        import AthenaPython.PyAthena as PyAthena
+    def start(self):
         _info = self.msg.info
-        _info("POOL2EI::beginRun")
+        _info("POOL2EI::start")
 
         # get trigger chains
         if self.DoTriggerInfo and self.HaveHlt:

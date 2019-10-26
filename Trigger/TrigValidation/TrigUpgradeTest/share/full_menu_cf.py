@@ -5,11 +5,7 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
-# import flags
-from RecExConfig.RecFlags  import rec
-rec.doESD=True
-rec.doWriteESD=True
-
+createHLTMenuExternally=True # menu will be build up explicitly here 
 include("TrigUpgradeTest/testHLT_MT.py")
 
 ##########################################
@@ -28,7 +24,7 @@ from TrigUpgradeTest.TestUtils import makeChain
 ##################################################################
 # egamma chains
 ##################################################################
-if opt.doElectronSlice == True:
+if opt.doEgammaSlice == True:
     from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
     fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
     electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
@@ -38,7 +34,7 @@ if opt.doElectronSlice == True:
     FastElectronStep = ChainStep("ElectronFastTrackStep", [electronSeq])
     PrecisionCaloStep = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
 
-    egammaChains  = [
+    electronChains  = [
         makeChain(name='HLT_e3_etcut1step_L1EM3',  L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep]  ),
         makeChain(name='HLT_e3_etcut_L1EM3',       L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
         makeChain(name='HLT_e5_etcut_L1EM3',       L1Thresholds=["EM3"],  ChainSteps=[FastCaloStep, FastElectronStep, PrecisionCaloStep]  ),
@@ -48,13 +44,8 @@ if opt.doElectronSlice == True:
 #    DiEleStep1=ChainStep("DiEleStep1",[fastCaloSeq, fastCaloSeq], multiplicity=2) #same step
 #    DiEleStep2=ChainStep("DiEleStep2",[electronSeq, electronSeq], multiplicity=2) #need to be: one leg with only one step, one with 3 steps!
     
-#    egammaChains += [Chain(name='HLT_e5_etcut1step_e8_etcut',  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
-    testChains += egammaChains
-
-##################################################################
-# photon chains
-##################################################################
-if opt.doPhotonSlice == True:
+#    electronChains += [Chain(name='HLT_e5_etcut1step_e8_etcut',  ChainSteps=[DiEleStep1, DiEleStep2 ]  )]
+    testChains += electronChains
 
     from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
 
@@ -102,20 +93,20 @@ if opt.doMuonSlice == True:
 
     # multi muon trigger
     # 2muons symmetric
-    step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ muFastSequence()], multiplicity=2)
-    step2_2muComb_sym= ChainStep("Step1_2muComb_sym", [ muCombSequence()], multiplicity=2)
+    step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ muFastSequence()], multiplicity=[2])
+    step2_2muComb_sym= ChainStep("Step1_2muComb_sym", [ muCombSequence()], multiplicity=[2])
     
-    step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=2)
-    step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=2)
+    step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=[2])
+    step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=[2])
  
     MuonChains += [ makeChain(name='HLT_2mu6Comb_L12MU6',  L1Thresholds=["MU6"], ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
 
     # 2muons asymmetric (this will change): 2 sequences, 2 seeds
-    step1_2mufast_asym= ChainStep("Step1_2muFast_asym", [ muFastSequence(), muFastSequence()], multiplicity=2)
-    step2_2muComb_asym= ChainStep("Step1_2muComb_asym", [ muCombSequence(), muCombSequence()], multiplicity=2)
+    step1_2mufast_asym= ChainStep("Step1_2muFast_asym", [ muFastSequence(), muFastSequence()], multiplicity=[2])
+    step2_2muComb_asym= ChainStep("Step1_2muComb_asym", [ muCombSequence(), muCombSequence()], multiplicity=[2])
     
-    step3_2muEFSA_asym= ChainStep("Step3_2muEFSA_asym", [ muEFSASequence(), muEFSASequence()], multiplicity=2)
-    step4_2muEFCB_asym= ChainStep("Step4_2muEFCB_asym", [ muEFCBSequence(), muEFCBSequence()], multiplicity=2)
+    step3_2muEFSA_asym= ChainStep("Step3_2muEFSA_asym", [ muEFSASequence(), muEFSASequence()], multiplicity=[2])
+    step4_2muEFCB_asym= ChainStep("Step4_2muEFCB_asym", [ muEFCBSequence(), muEFCBSequence()], multiplicity=[2])
     
     
     MuonChains += [ makeChain(name='HLT_mu6_mu4_L12MU4',
@@ -127,7 +118,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [ makeChain(name='HLT_mu6nol1_L1MU6', L1Thresholds=["MU6"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=[""],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 
@@ -221,7 +212,7 @@ if opt.doMETSlice == True:
 
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
     metClusterPufitStep          = ChainStep("Step1_met_clusterpufit", [metClusterPufitSeq])
-    comboStep_cell_clusterpufit  = ChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=2)
+    comboStep_cell_clusterpufit  = ChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=[2])
 
     metChains = [
         makeChain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
@@ -274,8 +265,8 @@ if opt.doCombinedSlice == True:
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence
 
-    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=2)
-    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=2)
+    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[2])
+    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=[2])
 
 
     comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM8I_MU10', L1Thresholds=["EM8I", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
@@ -293,63 +284,48 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
-
 ##########################################
-# Some debug
+# Configure trigger output using parts of the NewJO configuration
+# in a somewhat hacky way - copy-pasted from full_menu.py
 ##########################################
-from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
-dumpSequence(topSequence)
-
-
-import DecisionHandling
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputCfg
 from AthenaCommon.CFElements import findAlgorithm,findSubSequence
-for a in findSubSequence(topSequence, "HLTAllSteps").getChildren():
-    if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
-        a.OutputLevel = DEBUG
-
-
-# this part uses parts from the NewJO configuration, it is very hacky for the moment
-
-from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
 hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
 filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
 # try to find L1Decoder
 l1decoder = findAlgorithm(topSequence,'L1Decoder')
-l1decoder.OutputLevel=DEBUG
-
-
-
 if not l1decoder:
     l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
-
 if l1decoder:
     decObj = collectDecisionObjects( hypos, filters, l1decoder )
-    __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
+    __log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
     __log.debug(decObj)
-
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-    ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
-    ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
-    ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ "xAOD::EventInfo#EventInfo" ]
-
-    ItemList = list(set(ItemList))
-
 else:
-    ItemList = []
+    __log.warning("Failed to find L1Decoder, cannot determine Decision names for output configuration")
+    decObj = []
 
+# find DecisionSummaryMakerAlg
+summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
+if not summaryMakerAlg:
+    __log.warning("Failed to find DecisionSummaryMakerAlg")
 
-import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.ItemList = ItemList
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior+=1
+acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, summaryMakerAlg)
+Configurable.configurableRun3Behavior-=1
+acc.appendToGlobals()
 
+##########################################
+# Print top sequence for debugging
+##########################################
+from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
+dumpSequence(topSequence)
 
+##########################################
+# Write menu JSON
+##########################################
 HLTTop = findSubSequence(topSequence, "HLTTop")
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
-
-

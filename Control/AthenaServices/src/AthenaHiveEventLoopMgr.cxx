@@ -352,6 +352,12 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 
   CHECK( m_conditionsCleaner.retrieve() );
 
+  // Print if we override the event number using the one from secondary event
+  if (m_useSecondaryEventNumber)
+  {
+    info() << "Using secondary event number." << endmsg;
+  }
+
   return sc;
 }
 
@@ -627,7 +633,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent( EventContext &&ctx )
       conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
     }
   }
-  ctx.template getExtension<Atlas::ExtendedEventContext>().setConditionsRun (conditionsRun);
+  Atlas::getExtendedEventContext(ctx).setConditionsRun (conditionsRun);
   Gaudi::Hive::setCurrentContext ( ctx );
 
   // Record EventContext in current whiteboard
@@ -1116,24 +1122,31 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
     
         // an option to override primary eventNumber with the secondary one in case of DoubleEventSelector
         if ( m_useSecondaryEventNumber ) {
+            unsigned long long eventNumberSecondary{};
             if ( !(pAttrList->exists("hasSecondaryInput") && (*pAttrList)["hasSecondaryInput"].data<bool>()) ) {
                 fatal() << "Secondary EventNumber requested, but secondary input does not exist!" << endmsg;
                 return -1;
             }
             if ( pAttrList->exists("EventNumber_secondary") ) {
-                eventNumber = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
+                eventNumberSecondary = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
             }
             else {
                 // try legacy EventInfo if secondary input did not have attribute list
                 // primary input should not have this EventInfo type
                 const EventInfo* pEventSecondary = eventStore()->tryConstRetrieve<EventInfo>();
                 if (pEventSecondary) {
-                    eventNumber = pEventSecondary->event_ID()->event_number();
+                    eventNumberSecondary = pEventSecondary->event_ID()->event_number();
                 }
                 else {
                     fatal() << "Secondary EventNumber requested, but it does not exist!" << endmsg;
                     return -1;
                 }
+            }
+            if (eventNumberSecondary != 0) {
+                if (m_doEvtHeartbeat) {
+                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "<<<===" << endmsg;
+                }
+                eventNumber = eventNumberSecondary;
             }
         }
     
@@ -1218,7 +1231,8 @@ EventContext AthenaHiveEventLoopMgr::createEventContext() {
             << " could not be selected for the WhiteBoard" << endmsg;
     return EventContext{};       // invalid EventContext
   } else {
-    ctx.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
+    Atlas::setExtendedEventContext(ctx,
+                                   Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
 
     debug() << "created EventContext, num: " << ctx.evt()  << "  in slot: " 
 	    << ctx.slot() << endmsg;

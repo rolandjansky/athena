@@ -11,8 +11,6 @@
 #include "PixelDigitizationTool.h"
 
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
 
 // Random Number Generation
 #include "AthenaKernel/RNGWrapper.h"

@@ -18,12 +18,8 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 /*******************************************************************************/
-inline void sTgcIdHelper::create_mlog() const {
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "sTgcIdHelper");
-}
-/*******************************************************************************/
 // Constructor/Destructor
-sTgcIdHelper::sTgcIdHelper() : MuonIdHelper() {
+sTgcIdHelper::sTgcIdHelper() : MuonIdHelper("sTgcIdHelper") {
     m_GASGAP_INDEX = 6;
     m_CHANNELTYPE_INDEX = 7;
 }
@@ -35,8 +31,6 @@ sTgcIdHelper::~sTgcIdHelper() {
 /*******************************************************************************/
 // Initialize dictionary
 int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
-  create_mlog();
-
   int status = 0;
   
   // Check whether this helper should be reinitialized
@@ -665,8 +659,6 @@ int sTgcIdHelper::padPhi(const Identifier& id) const
 /*******************************************************************************/
 // validation of levels
 bool sTgcIdHelper::valid(const Identifier& id) const {
-  create_mlog();
-
   if (! validElement(id)) return false;
   
   int mplet     = multilayer(id);
@@ -738,8 +730,6 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 }  //end sTgcIdHelper::valid
 /*******************************************************************************/
 bool sTgcIdHelper::validElement(const Identifier& id) const {
-  create_mlog();
-  
   int station = stationName(id);
   std::string name = stationNameString(station);
 
@@ -779,8 +769,6 @@ bool sTgcIdHelper::validElement(const Identifier& id) const {
 /*******************************************************************************/
 // Private validation of levels
 bool sTgcIdHelper::validElement(const Identifier& id, int stationName, int stationEta, int stationPhi) const {
-  create_mlog();
-
   std::string name = stationNameString(stationName);
 
   if ( ('S' != name[0]) && ('T' != name[1]) ) {
@@ -814,8 +802,6 @@ bool sTgcIdHelper::validElement(const Identifier& id, int stationName, int stati
 /*******************************************************************************/
 // Check values down to readout channel level
 bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel) const {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
   if ( (multilayer < multilayerMin(id)) || (multilayer > multilayerMax(id)) )
@@ -878,8 +864,6 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 /*******************************************************************************/
 // Check values down to readout channel level
   bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi) const {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
   if ( (multilayer < multilayerMin(id)) || (multilayer > multilayerMax(id)) )

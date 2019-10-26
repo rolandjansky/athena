@@ -139,14 +139,14 @@ class FilePeeker(PyAthena.Alg):
         _info = self.msg.info
         return StatusCode.Success
         
-    def beginRun(self):
+    def start(self):
         self._begin_run_flag = True
         # retrieving data available at start...
         self.peeked_data.update(self._do_peeking(peek_evt_data=False))
         self.print_summary()
         return StatusCode.Success
 
-    def endRun(self):
+    def stop(self):
         if not self._begin_run_flag:
             # retrieving data for event less jobs, where no beginRun is called
             self.peeked_data.update(self._do_peeking(peek_evt_data=False))

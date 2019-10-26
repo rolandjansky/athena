@@ -612,6 +612,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
       return HLT::TOOL_FAILURE;
     }
 
+
     m_regionSelector->DetHashIDList(SCT, m_listOfSctIds );
     m_sctListSize = m_listOfSctIds.size();
 

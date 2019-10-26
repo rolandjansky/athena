@@ -36,11 +36,14 @@ namespace iFatras {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize  () override;
 
+    virtual
     std::unique_ptr<Trk::PRDtoTrackMap> createPRDtoTrackMap() const override;
-    std::unique_ptr<Trk::PRDtoTrackMap> reduceToStorableMap(std::unique_ptr<Trk::PRDtoTrackMap> &&obj_in) const;
+    virtual
+    std::unique_ptr<Trk::PRDtoTrackMap> reduceToStorableMap(std::unique_ptr<Trk::PRDtoTrackMap> &&obj_in) const override;
 
   /** add the PRDs from this track to the store
     @param track all PRDs from 'track' will be added to ISF_PRDtoTrackMapTool's internal store.*/
+    virtual
     StatusCode addPRDs(Trk::PRDtoTrackMap &virt_prd_to_track_map,  const Trk::Track& track ) const override;
 
   /**returns a vector of PRDs belonging to the passed track.

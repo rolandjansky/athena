@@ -193,7 +193,7 @@ AnalysisSkeleton::~AnalysisSkeleton() {}
 /// get a handle on the analysis tools
 /// book histograms
 
-StatusCode AnalysisSkeleton::beginRun() {
+StatusCode AnalysisSkeleton::start() {
 
   ATH_MSG_ERROR("Initializing AnalysisSkeleton (before eventloop)");
 

@@ -124,6 +124,7 @@ bool simpleBuildAndRunMatcher(const std::vector<double>& etaMins,
   xAODJetCollector j_collector;
   
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
+
   std::vector<std::vector<int>> sharedNodes {};
   matcher.reset(new UnifiedFlowNetworkMatcher(std::move(conditions),
 					      treeVec,

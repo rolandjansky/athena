@@ -153,6 +153,7 @@ class SimpleConditionsTests(CombinationsTests) :
                  n_bkgd=4,
                  bkgd_etmax=20000.,  # MeV
     ):
+        # useEtaEtNotEtaE = False 
         CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
         self.chain_name = 'HLT_DijetConditionTests'
 
@@ -224,6 +225,7 @@ class ConditionsTests(CombinationsTests) :
         generator.ets = [80000. + 1000.*i for i in range(self.n_sgnl)]
         generator.etas = [0.5] * self.n_sgnl
 
+
         # alternate eta signs to get high mass
         factor = 1
         for i in range(len(generator.etas)):
@@ -235,14 +237,13 @@ class ConditionsTests(CombinationsTests) :
 
         return generator
 
+
     
 def JetHypoExerciserCfg(label,
                         n_signal,
                         n_background,
                         bkgdEmax,
                         label_ind=0):
-
-
 
     # test_conditions = FlowNetworkTests_1(n_sgnl=1, n_bkgd=0)
     # test_conditions = SimpleFlowNetworkTests(n_sgnl=4, n_bkgd=0)

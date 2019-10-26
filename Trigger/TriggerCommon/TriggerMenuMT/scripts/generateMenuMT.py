@@ -25,11 +25,8 @@ TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 g = GenerateMenuMT()
-#allChainConfigs = g.generateChainConfigs()
-allChainConfigs = g.getChainsFromMenu()
 
-EnabledChainNamesToCTP = dict([ (c[0], c[1])  for c in allChainConfigs])
-topSequence.L1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
+
 
 
 

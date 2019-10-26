@@ -19,5 +19,4 @@ std::unique_ptr<IGroupsMatcherMT>
 groupsMatcherFactoryMT_Unified(ConditionsMT&&,
 			       const std::vector<std::size_t>& treeVec,
 			       const std::vector<std::vector<int>>&);
-
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<vector>
@@ -347,7 +347,7 @@ int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_et
   return 0;
 }
 
-std::vector<int> getPositionFromDCSID (std::string module_name){
+std::vector<int> getPositionFromDCSID (const std::string& module_name){
   for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
     if (m_pixelMapping[ii].first == module_name)
       return m_pixelMapping[ii].second;
@@ -365,7 +365,7 @@ std::vector<int> getChannelFromHashID (int hashid){
   return m_channelMapping[1].second;
 }
 
-void make_pyfile(std::string srun, std::string stag_name, int npush_back, std::vector<std::string> vsmodule, std::vector<int> vLB_start, std::vector<int> vLB_end, bool flag_first){
+void make_pyfile(const std::string& srun, const std::string& stag_name, int npush_back, const std::vector<std::string>& vsmodule, const std::vector<int>& vLB_start, const std::vector<int>& vLB_end, bool flag_first){
   std::string spyfilename = "./PixMapOverlay_run" + srun;
   spyfilename += ".py";
   std::ofstream pyFile;
@@ -455,9 +455,9 @@ void make_pyfile(std::string srun, std::string stag_name, int npush_back, std::v
       }else{
 	pyFile << "                  [" << srun << ", " << *it_LBstart << ", " << (*it_LBend + 1)<< ", " << channel << "]]" << std::endl;
       }//(i != (npush_back-1))
-      it_smodule++;
-      it_LBstart++;
-      it_LBend++;
+      ++it_smodule;
+      ++it_LBstart;
+      ++it_LBend;
     }//for(int i=0; i<npush_back; i++)
 
     pyFile << "nIOVs = len(badModulesList)" << std::endl;

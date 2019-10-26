@@ -118,8 +118,6 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   std::vector<std::string> m_sampSelTriggers;
   bool m_doEvtSel;
 
-  const CscIdHelper* m_cscIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
   SG::ReadHandleKey<Trk::SegmentCollection> m_segmKey{this,"SegmentKey","MuonSegments","muon segments"};
   double m_segmSlope;
 

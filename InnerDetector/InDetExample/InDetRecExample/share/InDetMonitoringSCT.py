@@ -6,6 +6,8 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 # These lines were previously in SCT_Monitoring_ConditionsAccess.py
 ########################################################################
 
+useNewAlgs = True # Use new AthenaMT friendly DQ algorithms instead of DQ tools
+
 tracksName = (InDetKeys.SCTTracks() if InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks())
 
 doTriggger = False
@@ -88,23 +90,24 @@ if jobproperties.Beam.beamType()=='collisions':
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTHitEffMonTool
 
-from SCT_Monitoring.SCT_MonitoringConf import SCTLorentzMonTool
-from BTagging.BTaggingConfiguration_CommonTools import toolAtlasExtrapolator
-atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
-options = {}
-options.setdefault('Extrapolator', atlasExtrapolator)
-from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
-trackToVertex = Reco__TrackToVertex(**options)
-InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool",
-                                             OutputLevel      = 4,
-                                             tracksName       = tracksName )
+if not useNewAlgs:
+  from SCT_Monitoring.SCT_MonitoringConf import SCTLorentzMonTool
+  from BTagging.BTaggingConfiguration_CommonTools import toolAtlasExtrapolator
+  atlasExtrapolator = toolAtlasExtrapolator('AtlasExtrapolator')
+  options = {}
+  options.setdefault('Extrapolator', atlasExtrapolator)
+  from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+  trackToVertex = Reco__TrackToVertex(**options)
+  InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool",
+                                               OutputLevel      = 4,
+                                               tracksName       = tracksName )
 
-if jobproperties.Beam.beamType()=='collisions':
-  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
-  InDetSCTLorentzMonTool.FilterTools += [GetFilledBunchFilterTool()]
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetSCTLorentzMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
-if (InDetFlags.doPrintConfigurables()):
-  print InDetSCTLorentzMonTool
+  if (InDetFlags.doPrintConfigurables()):
+    print InDetSCTLorentzMonTool
 
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTRatioNoiseMonTool
@@ -125,12 +128,17 @@ InDetSCTMonMan = AthenaMonManager("InDetSCTMonManager",
                                   Environment         = DQMonFlags.monManEnvironment(),
                                   Run                 = DQMonFlags.monManRun(),
                                   LumiBlock           = DQMonFlags.monManLumiBlock(),
-                                  AthenaMonTools      = [ InDetSCTTracksMonTool,
-                                                          InDetSCTRatioNoiseMonTool,
-                                                          InDetSCTLorentzMonTool,
+                                  AthenaMonTools      = [ InDetSCTRatioNoiseMonTool,
                                                           InDetSCTHitEffMonTool,
                                                           InDetSCTHitsTool,
                                                           InDetSCTErrMonTool ] )
+
+if useNewAlgs:
+  include("SCT_Monitoring/SCTLorentzMonAlg_jobOptions.py")
+  include("SCT_Monitoring/SCTTracksMonAlg_jobOptions.py")
+else:
+  InDetSCTMonMan.AthenaMonTools += [ InDetSCTLorentzMonTool ]
+  InDetSCTMonMan.AthenaMonTools += [ InDetSCTTracksMonTool ]
 
 topSequence += InDetSCTMonMan
 if (InDetFlags.doPrintConfigurables()):

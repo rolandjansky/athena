@@ -49,7 +49,7 @@ def setupCommonServices():
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     svcMgr += AlgResourcePool( OutputLevel = INFO,
-                               TopAlg=["AthMasterSeq"])       # this should enable control flow
+                               TopAlg=["AthSequencer/AthMasterSeq"] )
 
     from AthenaCommon.AlgSequence import AlgSequence
     from SGComps.SGCompsConf import SGInputLoader
@@ -106,7 +106,8 @@ def setupCommonServices():
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
     # Online services for ByteStream input/output
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigByteStreamInputSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc
     svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
     svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
     svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")
@@ -119,6 +120,9 @@ def setupCommonServices():
     svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
     svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
     svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
+
+    # Time to wait before closing DB connections (see ATR-8907)
+    svcMgr.HltEventLoopMgr.dbConnIdleWaitSec = 6
 
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()

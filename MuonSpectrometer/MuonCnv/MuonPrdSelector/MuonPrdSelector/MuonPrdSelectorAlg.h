@@ -13,6 +13,7 @@
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 //#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
@@ -20,16 +21,13 @@
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <utility>
 #include <vector>
 #include <string>
 
 
 
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 
 /*
    class MuonPrdSelectorAlg
@@ -67,13 +65,8 @@ class MuonPrdSelectorAlg : public AthAlgorithm  {
   StatusCode selectTGCs() ; //!< selects the hits from TGCcollections
   StatusCode selectCSCs() ; //!< selects the hits from CSCcollections
 
-
-  const MuonGM::MuonDetectorManager*  m_detMgr;
-
-  const MdtIdHelper*  m_mdtIdHelper;
-  const CscIdHelper*  m_cscIdHelper;
-  const RpcIdHelper*  m_rpcIdHelper;
-  const TgcIdHelper*  m_tgcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   ToolHandle<IMuonIdCutTool>             m_muonIdCutTool;  //defines the cuts
 

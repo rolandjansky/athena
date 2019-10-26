@@ -26,5 +26,6 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
  private:
 
   std::size_t m_capacity{0};  // not a property: set at run time
+
 };
 #endif

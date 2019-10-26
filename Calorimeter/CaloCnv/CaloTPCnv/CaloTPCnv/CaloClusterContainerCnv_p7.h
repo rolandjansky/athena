@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTPCNV_CaloClusterContainerCnv_p7_H
@@ -26,31 +26,35 @@ class CaloCluster;
 
 class CaloClusterContainerCnv_p7 : public ITPCnvBase {
 public:
+  typedef CaloClusterContainer Trans_t;
+  typedef CaloClusterContainer_p7 Pers_t;
+
+
   CaloClusterContainerCnv_p7() {};
   virtual ~CaloClusterContainerCnv_p7() {}; 
 
   // Methods for invoking conversions on objects given by generic pointers.
   virtual void persToTransUntyped(const void* pers,
                                   void* trans,
-                                  MsgStream& log);
+                                  MsgStream& log) override;
   virtual void transToPersUntyped(const void* trans,
                                   void* pers,
-                                  MsgStream& log);
-  virtual const std::type_info& transientTInfo() const;
+                                  MsgStream& log) override;
+  virtual const std::type_info& transientTInfo() const override;
 
   /** return C++ type id of the persistent class this converter is for
       @return std::type_info&
   */
-  virtual const std::type_info& persistentTInfo() const;
+  virtual const std::type_info& persistentTInfo() const override;
 
-  void persToTrans(const CaloClusterContainer_p7*, CaloClusterContainer*, MsgStream &log);
-  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p7*, MsgStream &log);
+  void persToTrans(const CaloClusterContainer_p7*, CaloClusterContainer*, MsgStream &log) const;
+  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p7*, MsgStream &log) const;
 
 private:
   friend class CaloClusterContainerCnvTest_p7;
   //Conversion function for individual clusters (called in a loop over the container)
-  void persToTrans(const CaloClusterContainer_p7::CaloCluster_p*, CaloCluster*, MsgStream &);
-  void transToPers(const CaloCluster*, CaloClusterContainer_p7::CaloCluster_p*, MsgStream &);
+  void persToTrans(const CaloClusterContainer_p7::CaloCluster_p*, CaloCluster*, MsgStream &) const;
+  void transToPers(const CaloCluster*, CaloClusterContainer_p7::CaloCluster_p*, MsgStream &) const;
 
   //Sub-Converters:
   CaloTowerSegCnv_p1                                     m_caloTowerSegCnv;

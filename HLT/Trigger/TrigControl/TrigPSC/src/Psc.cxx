@@ -36,13 +36,6 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/System.h"
 
-// Athena includes
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-
-// CORAL includes
-#include "CoralKernel/Context.h"
-#include "RelationalAccess/IConnectionService.h"
-
 #include <sstream>
 #include <algorithm>
 #include <vector>
@@ -268,10 +261,10 @@ bool psc::Psc::configure(const ptree& config)
       // Normally this is TrigPSC/TrigPSCPythonDbSetup
       std::string pyBasicFile = m_config->getOption("PYTHONSETUPFILE") ;
       if ( pyBasicFile != "" ) {
-	if ( !psc::Utils::pyInclude(pyBasicFile) ) {
-	  ERS_PSC_ERROR("Basic Python configuration failed.");
-	  return false;
-	}
+        if ( !psc::Utils::pyInclude(pyBasicFile) ) {
+          ERS_PSC_ERROR("Basic Python configuration failed.");
+          return false;
+        }
       }
     }   
   }
@@ -372,6 +365,9 @@ bool psc::Psc::configure(const ptree& config)
         <<" MuonCalBufferSize = " << m_config->getOption("MUONCALBUFFERSIZE") );
   }
 
+  // Write configuration specific to athena (HltEventLoopMgr)
+  if(!setAthenaProperties()) return false;
+
   if ( !jobOptConfig ) {
     // Run post-command
     std::string cmd = m_config->getOption("POSTCOMMAND");
@@ -425,9 +421,6 @@ bool psc::Psc::doAppMgrInit()
     m_nameEventLoopMgr.assign(value, value.find_first_of("\"")+1,
         value.find_last_of("\"")-value.find_first_of("\"")-1) ;
   }
-
-  // Write configuration specific to athena (HltEventLoopMgr)
-  if(!setAthenaProperties()) return false;
 
   return true;
 }
@@ -492,28 +485,6 @@ bool psc::Psc::prepareForRun (const ptree& args)
     ERS_PSC_ERROR("Error preparing the EventLoopMgr");
     return false;
   }
-
-  // Cleanup of dangling database connections from RDBAccessSvc
-  ServiceHandle<IRDBAccessSvc> p_rdbAccessSvc("RDBAccessSvc","psc::Psc");
-  if(p_rdbAccessSvc->shutdown("*Everything*")) {
-    ERS_LOG("Cleaning up RDBAccessSvc connections");
-  } else {
-    ERS_PSC_ERROR("Cleaning up RDBAccessSvc connections failed");
-    return false;
-  }
-
-  // sleep some time to allow the closing of DB connections;
-  // actual timeout depends on connection parameters, we seem to have 5 seconds
-  // timeouts in some places.
-  sleep(6);
-  // Instantiate connection service
-  coral::Context& context = coral::Context::instance();
-  // Load CORAL connection service
-  coral::IHandle<coral::IConnectionService> connSvcH = context.query<coral::IConnectionService>();
-  if (connSvcH.isValid()) {
-     ERS_LOG("Cleaning up idle CORAL connections");
-     connSvcH->purgeConnectionPool();
-  }   
 
   return true;
 }
@@ -657,11 +628,17 @@ bool psc::Psc::doEventLoop()
 
 bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 {
-  using namespace std;
   psc::Utils::ScopeTimer timer("Psc prepareWorker");
 
-  ERS_LOG("Individualizing DF properties");
+  /* Release the Python GIL (which we inherited from the mother)
+     to avoid dead-locking on the first call to Python. Only relevant
+     if Python is initialized and Python-based algorithms are used. */
+  if ( PyEval_ThreadsInitialized() ) {
+    ERS_DEBUG(1, "Releasing Python GIL");
+    PyEval_SaveThread();
+  }
 
+  ERS_LOG("Individualizing DF properties");
   m_config->prepareWorker(args);
 
   if (!setDFProperties({{"DF_Pid", "DF_PID"},

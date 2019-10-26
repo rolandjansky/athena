@@ -24,7 +24,6 @@ atlas_add_component( TrigStreamerHypo
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/TriggerConfig_*.py )
 
 # Unit tests:
 atlas_add_test( TrigStreamerHypoConfigMT SCRIPT python -m TrigStreamerHypo.TrigStreamerHypoConfigMT

@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 """Instantiates TrigJetHypoToolConfig_flownetwork AlgTool 
 from a hypo tree."""
 
@@ -37,6 +38,7 @@ def is_inner(node):
 
 
 class ConditionsToolSetterFlowNetwork(object):
+
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
     def __init__(self, name):
@@ -61,14 +63,12 @@ class ConditionsToolSetterFlowNetwork(object):
             'helper': [TrigJetHypoToolHelperMT, 0],
             }
 
-
         # map conaining parent child ids for the node
         self.treeMap = {0: 0}
 
         # map containing the a list of Condition factory AlgTools for scenario
         self.conditionMakers = defaultdict(list)
 
-    
     def _set_conditions(self, node):
         """attach Conditions to leaf nodes"""
 
@@ -248,6 +248,7 @@ class ConditionsToolSetterFlowNetwork(object):
                                node.scenario))
 
         return shared
+
 
 
     def report(self):

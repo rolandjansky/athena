@@ -299,16 +299,6 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
   return false;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-/// beginRun - process after initialize() and before execute()
-///////////////////////////////////////////////////////////////////////////////////
-
-StatusCode SCTCalib::beginRun() {
-  ATH_MSG_INFO ("----- in beginRun() -----");
-  //--- Check if calibration data is available or not
-  return StatusCode::SUCCESS;
-}
-
 //////////////////////////////////////////////////////////////////////////////////
 // Execute - on event by event
 //////////////////////////////////////////////////////////////////////////////////
@@ -354,11 +344,11 @@ StatusCode SCTCalib::execute() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-/// endRun - process results accumulated in execute()
+/// stop - process results accumulated in execute()
 ///////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCTCalib::endRun() {
-  ATH_MSG_INFO("----- in endRun() ----- ");
+StatusCode SCTCalib::stop() {
+  ATH_MSG_INFO("----- in stop() ----- ");
   //--- Number of events processed
   m_numberOfEvents = (m_readHIST or (!m_doHitMaps and m_readHitMaps)) ? m_numberOfEventsHist : m_calibEvtInfoTool->counter();
   m_calibEvtInfoTool->getTimeStamps(m_utcBegin, m_utcEnd);

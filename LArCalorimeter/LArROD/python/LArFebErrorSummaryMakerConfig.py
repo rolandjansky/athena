@@ -14,7 +14,7 @@ def LArFebErrorSummaryMakerCfg(configFlags):
     #from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = LArBadFebCfg(configFlags)
 
-    acc.addEventAlgo(LArFebErrorSummaryMaker())
+    acc.addEventAlgo(febSummaryMaker)
 
     return acc
 

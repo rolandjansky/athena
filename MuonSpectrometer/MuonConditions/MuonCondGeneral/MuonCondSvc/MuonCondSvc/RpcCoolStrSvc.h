@@ -13,7 +13,7 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
-
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/IInterface.h"
@@ -32,6 +32,7 @@
 // temporary includes to access CLOBs
 //#include "CoolKernel/ExtendedAttributeListSpecification.h"
 //#include "CoolKernel/PredefinedStorageHints.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //Calib conditions data classes
 #include "MuonCondData/RpcCondParType.h"
@@ -106,7 +107,9 @@ namespace MuonCalib {
     mutable std::vector<const RpcOnlineDBEntry*> m_theOnlineEntries;
 
 
-    const RpcIdHelper* m_rpcId;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
     //      const MuonGM::MuonDetectorManager * m_muonMgr;
 
     /// Conditions Attribute List collections used for getting datahandles for callback functions*/

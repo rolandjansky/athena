@@ -44,7 +44,7 @@ class ChainConfigurationBase(object):
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
-        return ChainStep(stepName, seqArray, self.mult)
+        return ChainStep(stepName, seqArray, [self.mult])
 
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,

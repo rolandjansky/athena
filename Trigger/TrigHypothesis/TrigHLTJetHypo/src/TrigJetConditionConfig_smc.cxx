@@ -45,5 +45,3 @@ bool TrigJetConditionConfig_smc::addToCapacity(std::size_t) {
 std::size_t TrigJetConditionConfig_smc::capacity() const {
   return getCondition()->capacity();
 }
-
-

@@ -102,6 +102,12 @@ atlas_add_test( T_AthenaPoolTPCnvCnv_test
    CxxUtils AthenaPoolCnvSvcLib
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( T_AuxContainerCopyTPCnv_test
+   SOURCES test/T_AuxContainerCopyTPCnv_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel SGTools TestTools
+   CxxUtils AthenaPoolCnvSvcLib )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

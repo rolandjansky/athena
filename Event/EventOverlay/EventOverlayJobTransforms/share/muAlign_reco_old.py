@@ -18,9 +18,9 @@ print "Haas: Reading muon alignment constants from DB for reco"
 #                                      "/MUONALIGN/TGC/SIDEC"]
 
 #ToolSvc += MuonAlignmentDbTool
-MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
-MGM_AlignmentDbTool.OutputLevel=DEBUG
-print MGM_AlignmentDbTool
+#MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
+#MGM_AlignmentDbTool.OutputLevel=DEBUG
+#print MGM_AlignmentDbTool
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 MuonDetectorTool.UseConditionDb = 1

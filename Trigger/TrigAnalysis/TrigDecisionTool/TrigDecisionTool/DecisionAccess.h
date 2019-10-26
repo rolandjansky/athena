@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_DecisionAccess_H
@@ -117,9 +117,9 @@ namespace Trig {
     template<class CONTAINER>
     std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const Trig::ChainGroup* group,
                                                                     const unsigned int condition = TrigDefs::Physics,
-                                                                    const std::string container = "",
+                                                                    const std::string& container = "",
                                                                     const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
-                                                                    const std::string featureName = "feature") const;
+                                                                    const std::string& featureName = "feature") const;
 
     /**
      * @brief Runs 3+. Returns features related to given chain
@@ -133,9 +133,9 @@ namespace Trig {
     template<class CONTAINER>
     std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const std::string& chainName = "HLT_.*",
                                                                     const unsigned int condition = TrigDefs::Physics,
-                                                                    const std::string container = "",
+                                                                    const std::string& container = "",
                                                                     const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
-                                                                    const std::string featureName = "feature") const;
+                                                                    const std::string& featureName = "feature") const;
 
     /**
      * @brief gives back feature matching (by seeding relation)

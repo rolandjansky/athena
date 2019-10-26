@@ -98,13 +98,14 @@
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 class TrackToVtxLinkContainer;
 class NN;
 
 
 namespace Trk
 {
-  class IVertexSeedFinder;
+  class IVertexAnalyticSeedFinder;
   class AdaptiveMultiVertexFitter;
   class Track;
   class ITrackLink;
@@ -152,7 +153,7 @@ namespace InDet
     virtual void printParameterSettings();
 
     ToolHandle< Trk::AdaptiveMultiVertexFitter > m_MultiVertexFitter;
-    ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
+    ToolHandle< Trk::IVertexAnalyticSeedFinder > m_analyticSeedFinder;
     ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
@@ -248,6 +249,12 @@ namespace InDet
      */
 
     double m_minweight;
+
+
+    /*
+    * Impact parameter estimator used to calculate significance
+    */
+    ToolHandle< Trk::ITrackToVertexIPEstimator > m_ipEstimator { "Trk::TrackToVertexIPEstimator" };
     
     /*
      * Maximum amount of iterations allowed for vertex finding.
@@ -275,6 +282,17 @@ namespace InDet
 
    double m_maximumVertexContamination;
 
+    /*
+    * Maximum allowed significance of track position to vertex seed
+    */
+    double m_tracksMaxSignificance ;
+
+    /*
+    * Toggle vertex seed constraint on/off
+    */
+    bool m_useSeedConstraint ;
+
+
    struct CompareTheTwoVertices {
      bool operator()( xAOD::Vertex* const & first, xAOD::Vertex* const & second);
    };
@@ -291,6 +309,11 @@ namespace InDet
     */
    
    double estimateDeltaZ(const Trk::TrackParameters& myPerigee, const Amg::Vector3D& myTransvVertex);
+
+   /** 
+   * copying from the guassian density alg
+   */
+   double ipSignificance(const Trk::TrackParameters* params, const Amg::Vector3D * vertex) const;
 
    /**
     * Clean decorator data from a vertex candidate (to avoid memory leaks) and then delete it and set to zero

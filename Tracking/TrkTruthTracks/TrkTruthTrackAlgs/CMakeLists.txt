@@ -1,7 +1,6 @@
 ################################################################################
 # Package: TrkTruthTrackAlgs
 ################################################################################
-add_compile_options(-g -O0)
 # Declare the package name:
 atlas_subdir( TrkTruthTrackAlgs )
 

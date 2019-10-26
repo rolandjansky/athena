@@ -1,9 +1,15 @@
-Py:Athena            INFO using release [WorkDir-22.0.4] [x86_64-centos7-gcc8-opt] [LArAndTileCellConfig2/4ac470b] -- built on [2019-08-15T1328]
+Py:Athena            INFO using release [WorkDir-22.0.7] [x86_64-centos7-gcc8-opt] [22-LAr-NoiseFix/7203dc425b] -- built on [2019-10-19T1201]
 --- LArOFCCondAlg 1
-Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
+Py:LArOFCCondAlgCfg    INFO  entering LArOFCCondAlgCfg
+Py:LArOFCCondAlgCfg    INFO  no pileup optimization
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
 Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:LArAutoCorrTotalCondAlgCfg    INFO  entering LArAutoCorrTotalCondAlgCfg
+Py:LArAutoCorrTotalCondAlgCfg    INFO Nsamples 5
+Py:LArAutoCorrTotalCondAlgCfg    INFO firstSample 0
+Py:LArAutoCorrTotalCondAlgCfg    INFO DeltaBunch 1 
+Py:LArAutoCorrTotalCondAlgCfg    INFO  no pileup noise in LArAutoCorrTotal 
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
 Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArShape32MC', '/LAR/ElecCalibMC/Shape'), ('LArNoiseMC', '/LAR/ElecCalibMC/Noise'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'), ('LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'), ('LArfSamplMC', '/LAR/ElecCalibMC/fSampl'), ('LArMinBiasMC', '/LAR/ElecCalibMC/MinBias')]
@@ -27,77 +33,21 @@ Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArMinBiasMC, LArMinBia
 Py:ComponentAccumulator    INFO      * ReadKey: LArMinBias
 Py:ComponentAccumulator    INFO      * WriteKey: LArMinBiasSym
 Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * Nminbias: 0.0
 Py:ComponentAccumulator    INFO      * Nsamples: 5
-Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * UseDelta: 0
+Py:ComponentAccumulator    INFO      * deltaBunch: 1
 Py:ComponentAccumulator    INFO      * firstSample: 0
-Py:ComponentAccumulator    INFO      * isMC: True
-Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
---- LArOFCCondAlg 2
-Py:LArOFCCondAlgCfg    INFO   OFC optimization asking for no average shift as extra constraint everywhere
-Py:ComponentAccumulator    INFO Condition Algorithms
-Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArShape32MC', '/LAR/ElecCalibMC/Shape'), ('LArNoiseMC', '/LAR/ElecCalibMC/Noise'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'), ('LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'), ('LArfSamplMC', '/LAR/ElecCalibMC/fSampl'), ('LArMinBiasMC', '/LAR/ElecCalibMC/MinBias')]
-Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
-Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArShape32MC, LArShape32Sym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArShape
-Py:ComponentAccumulator    INFO      * WriteKey: LArShapeSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArNoiseMC, LArNoiseSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArNoise
-Py:ComponentAccumulator    INFO      * WriteKey: LArNoiseSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArAutoCorrMC, LArAutoCorrSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArAutoCorr
-Py:ComponentAccumulator    INFO      * WriteKey: LArAutoCorrSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArfSamplMC, LArfSamplSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArfSampl
-Py:ComponentAccumulator    INFO      * WriteKey: LArfSamplSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArMinBiasMC, LArMinBiasSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArMinBias
-Py:ComponentAccumulator    INFO      * WriteKey: LArMinBiasSym
-Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * Nsamples: 5
 Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * DeltaBunch: 1
-Py:ComponentAccumulator    INFO      * UseDelta: 2
-Py:ComponentAccumulator    INFO      * firstSample: 0
-Py:ComponentAccumulator    INFO      * isMC: True
-Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
---- LArOFCCondAlg 3
-Py:LArOFCCondAlgCfg    INFO   OFC *MIXED* optimization
-Py:ComponentAccumulator    INFO Condition Algorithms
-Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArShape32MC', '/LAR/ElecCalibMC/Shape'), ('LArNoiseMC', '/LAR/ElecCalibMC/Noise'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'), ('LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'), ('LArfSamplMC', '/LAR/ElecCalibMC/fSampl'), ('LArMinBiasMC', '/LAR/ElecCalibMC/MinBias')]
-Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
-Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArShape32MC, LArShape32Sym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArShape
-Py:ComponentAccumulator    INFO      * WriteKey: LArShapeSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArNoiseMC, LArNoiseSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArNoise
-Py:ComponentAccumulator    INFO      * WriteKey: LArNoiseSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArAutoCorrMC, LArAutoCorrSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArAutoCorr
-Py:ComponentAccumulator    INFO      * WriteKey: LArAutoCorrSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArfSamplMC, LArfSamplSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArfSampl
-Py:ComponentAccumulator    INFO      * WriteKey: LArfSamplSym
-Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArMinBiasMC, LArMinBiasSym> (cond alg)
-Py:ComponentAccumulator    INFO      * ReadKey: LArMinBias
-Py:ComponentAccumulator    INFO      * WriteKey: LArMinBiasSym
-Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * Nsamples: 5
-Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * DeltaBunch: 1
-Py:ComponentAccumulator    INFO      * UseDelta: 1
+Py:ComponentAccumulator    INFO      * Nminbias: 0.0
 Py:ComponentAccumulator    INFO      * firstSample: 0
 Py:ComponentAccumulator    INFO      * isMC: True
 Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
 --- LArAutoCorrTotalCondAlg
+Py:LArAutoCorrTotalCondAlgCfg    INFO  entering LArAutoCorrTotalCondAlgCfg
+Py:LArAutoCorrTotalCondAlgCfg    INFO Nsamples 32
+Py:LArAutoCorrTotalCondAlgCfg    INFO firstSample 0
+Py:LArAutoCorrTotalCondAlgCfg    INFO DeltaBunch 1 
+Py:LArAutoCorrTotalCondAlgCfg    INFO  no pileup noise in LArAutoCorrTotal 
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
 Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArShape32MC', '/LAR/ElecCalibMC/Shape'), ('LArAutoCorrMC', '/LAR/ElecCalibMC/AutoCorr'), ('LArNoiseMC', '/LAR/ElecCalibMC/Noise'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal'), ('LArfSamplMC', '/LAR/ElecCalibMC/fSampl'), ('LArMinBiasMC', '/LAR/ElecCalibMC/MinBias')]
@@ -121,4 +71,7 @@ Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArMinBiasMC, LArMinBia
 Py:ComponentAccumulator    INFO      * ReadKey: LArMinBias
 Py:ComponentAccumulator    INFO      * WriteKey: LArMinBiasSym
 Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * Nminbias: 0.0
 Py:ComponentAccumulator    INFO      * Nsamples: 32
+Py:ComponentAccumulator    INFO      * deltaBunch: 1
+Py:ComponentAccumulator    INFO      * firstSample: 0

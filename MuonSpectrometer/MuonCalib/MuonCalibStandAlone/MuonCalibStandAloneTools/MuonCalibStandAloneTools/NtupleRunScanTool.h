@@ -13,11 +13,12 @@
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneTools/HitCounter.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//root
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class TFile;
 
 
-class MdtIdHelper;
 namespace MuonGM {
 class MuonDetectorManager;
 }
@@ -65,7 +66,8 @@ class NtupleRunScanTool:  public AthAlgTool, virtual public NtupleCalibrationToo
 	//! hit counter classes - sortet by station
 		std::map<NtupleStationId, HitCounter> m_hit_counters;
 	//!access to geomodel
-		const MdtIdHelper* m_mdtIdHelper;
+		ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    		"Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 		const MuonGM::MuonDetectorManager* m_detMgr;
 	//!iov informatino
 		unsigned int m_time_min, m_time_max;

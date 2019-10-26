@@ -25,12 +25,14 @@ namespace Analysis {
   JetBTaggerAlg::JetBTaggerAlg(const std::string& n, ISvcLocator *p) : 
     AthAlgorithm(n,p),
     m_JetName(""),
+    m_BTagLink(".btaggingLink"),
     m_bTagTool("Analysis::BTagTool",this),
     m_BTagTrackAssocTool("Analysis::BTagTrackAssociation",this),
     m_bTagSecVtxTool("Analysis::BTagSecVertexing",this),
     m_magFieldSvc("AtlasFieldSvc",n)
   {
     declareProperty("JetCalibrationName", m_JetName);
+    declareProperty("BTaggingLink", m_BTagLink);
     declareProperty("BTagTool", m_bTagTool);
     declareProperty("BTagTrackAssocTool", m_BTagTrackAssocTool);
     declareProperty("BTagSecVertexing", m_bTagSecVtxTool);
@@ -49,7 +51,7 @@ namespace Analysis {
     // by job configuration.
     ATH_CHECK( m_JetCollectionName.initialize() );
     ATH_CHECK( m_BTaggingCollectionName.initialize() );
-    m_jetBTaggingLinkName = m_JetCollectionName.key()+".btaggingLink";
+    m_jetBTaggingLinkName = m_JetCollectionName.key() + m_BTagLink;
     ATH_CHECK( m_jetBTaggingLinkName.initialize() );
    
     /// retrieve the main BTagTool
@@ -137,7 +139,6 @@ namespace Analysis {
     StatusCode jetIsAssociated;
     if (!m_BTagTrackAssocTool.empty()) {
       ATH_MSG_VERBOSE("#BTAG# Track association tool is not empty");
-      //jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jets, h_BTaggingCollectionName.ptr());
       jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(h_JetCollectionName.ptr(), h_BTaggingCollectionName.ptr());
       if ( jetIsAssociated.isFailure() ) {
         ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");

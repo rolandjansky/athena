@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_DIGITIZATION_H
@@ -16,10 +16,11 @@ class IPileUpTool;
 class LUCID_DigiTop : public AthAlgorithm {
 public:
   LUCID_DigiTop(const std::string& name, ISvcLocator* svcLoc);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual ~LUCID_DigiTop() = default;
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
+  virtual bool isClonable() const override final { return true; }
 private:
-  ToolHandle<IPileUpTool> m_mergeTool;
+  ToolHandle<IPileUpTool> m_mergeTool{this, "LUCID_PileUpTool", "LUCID_PileUpTool", ""};
 };
 #endif

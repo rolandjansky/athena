@@ -26,7 +26,7 @@ StatusCode TileGeoG4CalibSDTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-G4VSensitiveDetector* TileGeoG4CalibSDTool::makeSD() {
+G4VSensitiveDetector* TileGeoG4CalibSDTool::makeSD() const {
   if (m_outputCollectionNames.size() < 4) {
     ATH_MSG_ERROR( "Expected 4 output collection names, found " << m_outputCollectionNames.size()
                    << ". Expect the job to crash when the SD is created.");

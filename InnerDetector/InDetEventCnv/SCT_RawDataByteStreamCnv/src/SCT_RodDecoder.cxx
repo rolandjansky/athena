@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RodDecoder.h"
@@ -174,23 +174,16 @@ StatusCode SCT_RodDecoder::finalize()
 StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                           ISCT_RDO_Container& rdoIDCont,
                                           InDetBSErrContainer* errs,
-                                          SCT_ByteStreamFractionContainer* bsFracCont,
                                           const std::vector<IdentifierHash>* vecHash) const
 {
   const uint32_t robID{robFrag.rod_source_id()};
   // Determine whether this data was generated using the ROD simulator
   const uint32_t rodDataType{robFrag.rod_detev_type()};
   const bool rodSimulatedData{static_cast<bool>((rodDataType >> 20) & 1)};
-  if (bsFracCont) {
-     bsFracCont->insert(SCT_ByteStreamFractionContainer::SimulatedData, robID, rodSimulatedData);
-  }
   if (rodSimulatedData) addRODError(robID, SCT_ByteStreamErrors::RODSimulatedData, errs);
 
   // Look for the bit that denotes "Super-condensed" mode
   const bool superCondensedMode{static_cast<bool>((rodDataType >> 21) & 1)};
-  if (bsFracCont) {
-     bsFracCont->insert(SCT_ByteStreamFractionContainer::SuperCondensedMode, robID, superCondensedMode);
-  }
 
   bool condensedMode{true};
 
@@ -269,9 +262,8 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
         sc=StatusCode::RECOVERABLE;
       }
       // Look at bits 20-23 for DCS HV
-      const int hvBits{static_cast<int>((statusWord >> 20) & 0xf)};
-      const bool hvOn{hvBits==0xf};
-      if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::HVOn, robID, hvOn);
+      // const int hvBits{static_cast<int>((statusWord >> 20) & 0xf)};
+      // const bool hvOn{hvBits==0xf};
     }
   }
   
@@ -855,8 +847,6 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
       saved[side*768+strip] = rdoMade;
     }
   }
-
-  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::CondensedMode, robID, condensedMode);
 
   if (sc.isFailure()) ATH_MSG_DEBUG("One or more ByteStream errors found ");
   return sc;

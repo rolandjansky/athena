@@ -18,11 +18,6 @@
 
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
-//#include "MuonRDO/RpcPadIdHash.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
-
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 

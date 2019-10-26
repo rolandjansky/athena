@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -12,10 +12,7 @@
 #ifndef MVFVXCONTAINER_CNV_H
 #define MVFVXCONTAINER_CNV_H
 
-// Hack so we can access the private data. EJWM
-#define protected public
 #include "GaudiKernel/MsgStream.h"
-#undef protected
 
 #include "TrkEventCnvTools/ITrkEventCnvTool.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -45,24 +42,19 @@ public:
   MVFVxContainerCnv( ISvcLocator *svcloc );
 protected:
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  virtual MVFVxContainer_PERS *createPersistent( MVFVxContainer *transCont);
+  virtual MVFVxContainer_PERS *createPersistent( MVFVxContainer *transCont) override;
 
-  virtual MVFVxContainer      *createTransient();
+  virtual MVFVxContainer      *createTransient() override;
 
-  virtual AthenaPoolTopLevelTPCnvBase*	getTopLevelTPCnv() { return &m_TPConverter; }
+  virtual AthenaPoolTopLevelTPCnvBase*	getTopLevelTPCnv() override { return &m_TPConverter; }
 
-  virtual AthenaPoolCnvTPExtension*  clone() { return new MVFVxContainerCnv(0); }
+  virtual AthenaPoolCnvTPExtension*  clone() override { return new MVFVxContainerCnv(0); }
 
-  virtual void          readObjectFromPool( const std::string& token);
+  virtual void          readObjectFromPool( const std::string& token) override;
 
  private:
-  // void    updateLog(); //!< This method modifies m_log to indicate the current key being converted
-  
-  // IMessageSvc          *m_msgSvc;
-  // MsgStream             m_log;
-  
   MVFVxContainerCnv_tlp1	m_TPConverter;
 
 };//end of class definitions

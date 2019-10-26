@@ -238,14 +238,18 @@ StatusCode TriggerEDMSerialiserTool::serialiseContainer( void* data, const Addre
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const {
+StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data,
+  const Address& address,
+  std::vector<uint32_t>& buffer,
+  SGImplSvc* evtStore) const
+{
   ATH_MSG_DEBUG("xAOD Aux Contianer");
   ATH_CHECK( serialiseContainer( data, address, buffer ) );
   size_t baseSize = buffer.size();
   if ( not m_saveDynamic )
     return StatusCode::SUCCESS;
 
-  DataObject* dObj = evtStore()->accessData( address.clid, address.key );
+  DataObject* dObj = evtStore->accessData( address.clid, address.key );
   ATH_CHECK( dObj != nullptr );
   size_t nDynWritten = 0;
   ATH_CHECK( serialiseDynAux( dObj, address, buffer, nDynWritten ) );
@@ -268,7 +272,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseTPContainer( void* data, const Add
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) const {
+StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const {
 
   // Leave this check until there is a justified case for appending data to an existing result
   if (not resultToFill.getSerialisedData().empty()) {
@@ -276,10 +280,13 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     return StatusCode::FAILURE;
   }
 
+  SGImplSvc* evtStore = static_cast<SGImplSvc*>(Atlas::getExtendedEventContext(ctx).proxy());
+  ATH_CHECK( evtStore != nullptr );
+
   for ( const Address& address: m_toSerialise ) {
     ATH_MSG_DEBUG( "Streaming " << address.persType );
     // obtain object
-    DataObject* dObj = evtStore()->accessData( address.clid, address.key );
+    DataObject* dObj = evtStore->accessData( address.clid, address.key );
     if ( dObj == nullptr ) {
       ATH_MSG_DEBUG("Data Object with the CLID " << address.clid <<" and the key " << address.key << " is missing");
       continue;
@@ -299,7 +306,7 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill ) cons
     if ( address.category == Address::xAODInterface ) {
       ATH_CHECK( serialiseContainer( rawptr, address, fragment ) );
     } else if ( address.category == Address::xAODAux ) {
-      ATH_CHECK(  serialisexAODAuxContainer( rawptr, address, fragment ) );
+      ATH_CHECK(  serialisexAODAuxContainer( rawptr, address, fragment, evtStore ) );
     } else if ( address.category == Address::OldTP ) {
       ATH_CHECK( serialiseTPContainer( rawptr, address, fragment ) );
     }

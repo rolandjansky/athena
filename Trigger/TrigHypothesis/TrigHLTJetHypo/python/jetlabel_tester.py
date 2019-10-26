@@ -23,6 +23,7 @@ def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
         tree.accept(visitor)
 
     print ('compile: tree.scenario', tree.scenario)
+
     if setter.__class__.__name__ == 'ConditionsToolSetterFlowNetwork':
         setter.mod(tree)
     else:
@@ -74,4 +75,3 @@ if __name__ == '__main__':
     print ('svec: %s' % setter.shared)
     print ('conditionsVec [%d]: %s' % (len(setter.conditionsVec),
                                        str(setter.conditionsVec)))
-

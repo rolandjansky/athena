@@ -33,6 +33,7 @@ Reco_tf.py \
 --maxEvents=${EVENTS} \
 --inputRDOFile=${INPUT} \
 --outputRDO_TRIGFile=RDO_TRIG.pool.root \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

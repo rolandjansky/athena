@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -46,9 +46,9 @@ void testit (const CaloClusterCellLinkContainer& trans1)
   MsgStream log (0, "test");
   CaloClusterCellLinkContainerCnv_p1 cnv;
   CaloClusterCellLinkContainer_p1 pers;
-  cnv.transToPers (&trans1, &pers, log);
+  cnv.transToPersWithKey (&trans1, &pers, "key", log);
   CaloClusterCellLinkContainer trans2;
-  cnv.persToTrans (&pers, &trans2, log);
+  cnv.persToTransWithKey (&pers, &trans2, "key", log);
   compare (trans1, trans2);
 }
 

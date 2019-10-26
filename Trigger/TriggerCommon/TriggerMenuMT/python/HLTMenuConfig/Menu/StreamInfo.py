@@ -31,9 +31,10 @@ _all_streams = [
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # CALIBRATION STREAMS
-    StreamInfo('BeamSpot', 'calibration', False, False),
-    StreamInfo('LArCells', 'calibration', True, False),
-    StreamInfo('RPCSecondaryReadout', 'calibration', True, False),
+    StreamInfo('BeamSpot', 'calibration', True, False),
+    StreamInfo('LArCells', 'calibration', False, False),
+    StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
+    StreamInfo('CostMonitoring','calibration', False, False)
 ]
 
 

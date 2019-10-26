@@ -85,14 +85,14 @@ StatusCode MuonCombinePatternTool::finalize()
 const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(const MuonPrdPatternCollection* phiPatternCollection, const MuonPrdPatternCollection* etaPatternCollection)const
 {
   bool myDebug = false;
-
+  std::vector<const Muon::MuonPrdPattern*> patternsToDelete;
   std::vector<std::pair <const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > candidates; // vector of etapatterns (key) and phipatterns (value), that are candidates for combining. Both etapatterns and phipatterns can occur multiple times
 
   if (m_use_cosmics==true && m_splitpatterns == true) {
-    m_patternsToDelete.reserve(6*etaPatternCollection->size()); // split eta (2) and phi patterns (2) + associated (2) , might be more when more than one match is found
+    patternsToDelete.reserve(6*etaPatternCollection->size()); // split eta (2) and phi patterns (2) + associated (2) , might be more when more than one match is found
   }
   else {
-    m_patternsToDelete.reserve(etaPatternCollection->size()); // only associated patterns
+    patternsToDelete.reserve(etaPatternCollection->size()); // only associated patterns
   }
   // strategy
   // associate eta pattern to phi patterns
@@ -559,8 +559,8 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  phipattern = updatedpatterns.first;
 	  etapattern = updatedpatterns.second;
 	    
-	  m_patternsToDelete.push_back(updatedpatterns.first);
-	  m_patternsToDelete.push_back(updatedpatterns.second);
+	  patternsToDelete.push_back(updatedpatterns.first);
+	  patternsToDelete.push_back(updatedpatterns.second);
 	  ATH_MSG_DEBUG(" Combination accepted with cosmic selection ");
 	}else if( useTightAssociation ){
 
@@ -595,15 +595,15 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	    if( chPos->second.neta == 0 ) continue;
 	    phiPat->addPrd(prd);
 	  }
-	  m_patternsToDelete.push_back(etaPat);
-	  m_patternsToDelete.push_back(phiPat);
+	  patternsToDelete.push_back(etaPat);
+	  patternsToDelete.push_back(phiPat);
 	  phipattern = phiPat;
 	  etapattern = etaPat;
 	    
 	}
 	  
 	if (m_bestphimatch == false) {
-	  addCandidate(etapattern,phipattern,candidates,false);
+	  addCandidate(etapattern,phipattern,candidates,false,patternsToDelete);
 	  ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " phi " << philevel << " dotprod: " << dotprod );	  
 	}else {
 	  if(average_distance < min_average_distance) {
@@ -633,7 +633,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
     if (m_bestphimatch == true) {
       if( ismatched == true ){
 	//      const Muon::MuonPrdPattern* phipattern = phiPatternCollection->at(max_philevel);
-	addCandidate(etapattern,max_phipattern,candidates,true);
+	addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete);
 	ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " phi " << max_philevel );
       }
     }
@@ -660,7 +660,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	}
 	else {
 	  // these associated phi patterns should be deleted at end of routine:
-	  m_patternsToDelete.push_back(assphipattern);
+	  patternsToDelete.push_back(assphipattern);
 
 	  ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " and associated phipattern ");
 	  
@@ -675,18 +675,18 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	    assphipattern = updatedpatterns.first;
 	    etapattern = updatedpatterns.second;
 	    
-	    m_patternsToDelete.push_back(updatedpatterns.first);
-	    m_patternsToDelete.push_back(updatedpatterns.second);
+	    patternsToDelete.push_back(updatedpatterns.first);
+	    patternsToDelete.push_back(updatedpatterns.second);
 	    delete[] new_pars;
 	  }
 	  ATH_MSG_DEBUG(" adding eta pattern with recalculated associated phi pattern ");
 	  
-	  addCandidate(etapattern,assphipattern,candidates,false);
+	  addCandidate(etapattern,assphipattern,candidates,false,patternsToDelete);
 	}
       }
     }
     if( !ismatched && max_philevel > -1 ){
-      addCandidate(etapattern,max_phipattern,candidates,true);
+      addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete);
       ismatched = true;
       ATH_MSG_DEBUG("No good candidate found, adding best phi pattern " << etalevel << " phi " << max_philevel );
     }
@@ -707,13 +707,13 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
   const MuonPrdPatternCollection* combinedpatterns = makeCombinedPatterns(candidates);
 
   // delete associated and split patterns:
-  std::vector<const Muon::MuonPrdPattern*>::iterator it = m_patternsToDelete.begin();
-  for (; it!=m_patternsToDelete.end(); ++it) {
+  std::vector<const Muon::MuonPrdPattern*>::iterator it = patternsToDelete.begin();
+  for (; it!=patternsToDelete.end(); ++it) {
     delete (*it);
   }
   
   // release memory:
-  std::vector<const Muon::MuonPrdPattern*>().swap(m_patternsToDelete);
+  std::vector<const Muon::MuonPrdPattern*>().swap(patternsToDelete);
 
   return combinedpatterns;
 
@@ -1968,7 +1968,7 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::cleanPhiPattern(const Muon::MuonPr
   return cleanpattern;
 }
 
-void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern)const
+void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete)const
 {
   if (m_use_cosmics == false || m_splitpatterns == false) {
     candidates.push_back(std::make_pair(etapattern,phipattern));
@@ -1992,8 +1992,8 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
 	candidates.push_back(std::make_pair(splitpatterns[i].second,splitpatterns[i].first));
 	
 	// these associated phi patterns should be deleted at end of routine:
-	m_patternsToDelete.push_back(splitpatterns[i].first);
-	m_patternsToDelete.push_back(splitpatterns[i].second);
+	patternsToDelete.push_back(splitpatterns[i].first);
+	patternsToDelete.push_back(splitpatterns[i].second);
       }
     }
   }
@@ -2019,8 +2019,8 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
       assphipattern = updatedpatterns.first;
       etapattern = updatedpatterns.second;
 	    
-      m_patternsToDelete.push_back(updatedpatterns.first);
-      m_patternsToDelete.push_back(updatedpatterns.second);
+      patternsToDelete.push_back(updatedpatterns.first);
+      patternsToDelete.push_back(updatedpatterns.second);
       delete[] new_pars;
 
       std::vector <std::pair<Muon::MuonPrdPattern*,Muon::MuonPrdPattern*> > splitpatterns_ass = splitPatternsCylinder(assphipattern,etapattern);
@@ -2039,8 +2039,8 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
 	    candidates.push_back(std::make_pair(splitpatterns_ass[i].second,splitpatterns_ass[i].first));
 	    
 	    // these associated phi patterns should be deleted at end of routine:
-	    m_patternsToDelete.push_back(splitpatterns_ass[i].first);
-	    m_patternsToDelete.push_back(splitpatterns_ass[i].second);
+	    patternsToDelete.push_back(splitpatterns_ass[i].first);
+	    patternsToDelete.push_back(splitpatterns_ass[i].second);
 	  }
 	}
       }

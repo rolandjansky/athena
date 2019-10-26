@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonNtuple_H
@@ -22,8 +22,11 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
+#include "StoreGate/ReadHandleKey.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTruthData/TrackTruthCollection.h"
+#include "VxVertex/VxContainer.h"
 
 class AtlasDetectorID;
 class PixelID;
@@ -65,13 +68,13 @@ protected:
 	StatusCode getSiResiduals(const Trk::Track*, const Trk::TrackStateOnSurface*, bool, double*);
 
 	std::string m_stream;
-	std::string m_tracksName;
-	std::string m_tracksTruthName;
+        SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "ExtendedTracks"};
+        SG::ReadHandleKey<TrackTruthCollection> m_tracksTruthName{this, "tracksTruthName", "ExtendedTracksTruthCollection"};
 	int m_checkrate;
 	bool m_unbiasedSCT;
 	bool m_usePRD;	//if desired we can use PrepRawData hits information i.e. before insitu calibration of hits
 	bool m_doPulls;
-	std::string m_VxPrimContainerName;
+        SG::ReadHandleKey<VxContainer> m_VxPrimContainerName{this, "VxPrimContainerName", ""};
 
 	//tools
 	const AtlasDetectorID*                m_idHelper;

@@ -18,8 +18,6 @@
 Muon::TgcPrepDataReplicationTool3BCtoAllBC::TgcPrepDataReplicationTool3BCtoAllBC 
   (const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p),
-  m_muonMgr(0),
-  m_tgcHelper(0),
   m_3BCKeys{"dummy", "dummy", "dummy"},
   m_AllBCKey("TGC_MeasurementsAllBCs")
 {
@@ -37,15 +35,8 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
   if(sc.isFailure()) return sc;
-
-  sc = detStore()->retrieve(m_muonMgr);
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot retrieve MuonDetectorManager");
-    return sc;
-  }
-
-  /// get tgcIdHelper from muonMgr
-  m_tgcHelper = m_muonMgr->tgcIdHelper();
+  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   for(int ibc = 0; ibc < BC_ALL; ibc++) {
     std::ostringstream location;
@@ -77,7 +68,7 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC()
 {
 
   SG::WriteHandle<TgcPrepDataContainer> tgcPrepDataContainerAll(m_AllBCKey);
-  tgcPrepDataContainerAll = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_tgcHelper->module_hash_max()) );
+  tgcPrepDataContainerAll = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()) );
   
   auto tgc3BCs = m_3BCKeys.makeHandles();
 
@@ -104,10 +95,10 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC()
 
       for (; tgcColItr != tgcColItrE; ++tgcColItr) {
         Identifier channelId = (*tgcColItr)->identify();
-        Identifier elementId = m_tgcHelper->elementID(channelId);
+        Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(channelId);
 
         Muon::TgcPrepDataCollection* collection = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
-                            (elementId, tgcPrepDataContainerAll.ptr(), m_tgcHelper, msg());
+                            (elementId, tgcPrepDataContainerAll.ptr(), m_muonIdHelperTool->tgcIdHelper(), msg());
 
         bool duplicateInAllBCs = false;
         TgcPrepDataCollection::iterator tgcAllItr  = collection->begin();

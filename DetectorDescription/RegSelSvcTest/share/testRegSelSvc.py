@@ -1,14 +1,7 @@
 # Joboptions fragement for backward compatability;
 # please import configurables yourself instead.
 
-from AthenaCommon.DetFlags import DetFlags
-DetFlags.ID_setOn()
-DetFlags.FTK_setOn()
-DetFlags.pixel_setOn()
-DetFlags.SCT_setOn()
-DetFlags.Calo_setOn()
-DetFlags.Muon_setOn()
-
+doEmptyMenu = True
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from RegSelSvcTest.RegSelSvcTestConf import RegSelTestAlg

@@ -24,9 +24,11 @@ using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 class UnifiedFlowNetworkBuilder: 
 virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
  public:
+
   UnifiedFlowNetworkBuilder(ConditionsMT,
 			    const Tree&,
 			    const std::vector<std::vector<int>>&);
+
 
  protected:
   virtual std::optional<std::vector<std::shared_ptr<FlowEdge>>>

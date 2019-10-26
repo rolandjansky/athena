@@ -3,6 +3,7 @@
 */
 
 #include "PixelRawDataProviderTool.h"
+#include "StoreGate/WriteHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -46,8 +47,6 @@ StatusCode PixelRawDataProviderTool::finalize() {
 StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc) {
   if (vecRobs.size()==0) { return StatusCode::SUCCESS; }
 
-  ATH_MSG_INFO("Called wiht " << vecRobs.size() << "robs" );
-  ATH_MSG_INFO("The RDO IDC ptr " << rdoIdc << " has external cache " << rdoIdc->hasExternalCache() );
 
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
@@ -91,12 +90,10 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 
     if (isNewEvent) {
       unsigned int lvl1id = (*rob_it)->rod_lvl1_id();
-      std::pair<uint32_t, unsigned int>* lvl1Pair = new std::pair<uint32_t, unsigned int>(robid,lvl1id);
-      m_LVL1Collection->push_back(lvl1Pair) ;
+      m_LVL1Collection->emplace_back(robid,lvl1id) ;
 
       unsigned int bcid = (*rob_it)->rod_bc_id();  
-      std::pair<uint32_t, unsigned int>* bcidPair = new std::pair<uint32_t, unsigned int>(robid,bcid);
-      m_BCIDCollection->push_back(bcidPair);
+      m_BCIDCollection->emplace_back(robid,bcid);
       
 #ifdef PIXEL_DEBUG
       ATH_MSG_DEBUG("Stored LVL1ID "<<lvl1id<<" and BCID "<<bcid<<" in InDetTimeCollections");
@@ -106,6 +103,9 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
     // here the code for the timing monitoring should be reinserted
     // using 1 container per event and subdetector
     StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc);
+
+
+
     const int issuesMessageCountLimit = 100;
     if (sc==StatusCode::FAILURE) {
       if (m_DecodeErrCount < issuesMessageCountLimit) {

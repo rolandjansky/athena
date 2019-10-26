@@ -48,7 +48,7 @@ class ITrkEventCnvTool : virtual public IAlgTool
         @return this is a pair, where the (possibly null) pointers contained represent the missing links from rioOnTrack*
         @param[in] rioOnTrack the RIO_OnTrack which needs recreating. MUST point to a valid object.*/
         virtual std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
-                getLinks( const Trk::RIO_OnTrack& rioOnTrack  ) const = 0;
+                getLinks( Trk::RIO_OnTrack& rioOnTrack  ) const = 0;
         
         /**This templated method will set the EL for the passed RIO_OnTrack.*/
         template <class CONT, class ROT> void prepareRIO_OnTrackElementLink(ROT* rot) const;

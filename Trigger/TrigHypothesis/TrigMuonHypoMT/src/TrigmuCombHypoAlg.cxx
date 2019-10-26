@@ -16,31 +16,14 @@ TrigmuCombHypoAlg::TrigmuCombHypoAlg( const std::string& name,
   ::HypoBase( name, pSvcLocator )
 {} 
 
-TrigmuCombHypoAlg::~TrigmuCombHypoAlg() 
-{}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 
 StatusCode TrigmuCombHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muCombKey);
   ATH_CHECK(m_muCombKey.initialize());
 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigmuCombHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -100,9 +83,6 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
     // DEBUG
-    auto muFastInfo = (*muCombEL)->muSATrack(); 
-    ATH_MSG_DEBUG("REGTEST: muSATrack pt in " << m_muCombKey.key() << " = " << muFastInfo->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: muSATrack eta/phi in " << m_muCombKey.key() << " = " << muFastInfo->eta() << "/" << muFastInfo->phi());
     ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
     ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );

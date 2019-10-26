@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s)
@@ -20,7 +20,6 @@
 //C++ includes
 #include <math.h>
 #include <string.h>
-#include <CxxUtils/make_unique.h>
 
 //_____________________________________________________________________________
 CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) : 

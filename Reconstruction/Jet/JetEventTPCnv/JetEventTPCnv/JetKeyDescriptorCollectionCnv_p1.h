@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETKEYDESCRIPTORCOLLECTIONCNV_P1_H
@@ -10,6 +10,6 @@
 #include "JetEventTPCnv/JetKeyDescriptorCollection_p1.h"
 #include "JetEventTPCnv/JetKeyDescriptorCnv_p1.h"
 
-typedef T_AthenaPoolTPCnvVector< JetKeyDescriptorCollection, JetKeyDescriptorCollection_p1, JetKeyDescriptorCnv_p1 > JetKeyDescriptorCollectionCnv_p1;
+typedef T_AthenaPoolTPCnvVectorConst< JetKeyDescriptorCollection, JetKeyDescriptorCollection_p1, JetKeyDescriptorCnv_p1 > JetKeyDescriptorCollectionCnv_p1;
 
 #endif

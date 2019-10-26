@@ -70,7 +70,7 @@ StatusCode TestFEXAlgView::execute() {
       m_outputProxyContainer->push_back(proxy);
 
       // This retrieval and cast could use some protection, but do we actually need this alg?
-      SG::View * myView = dynamic_cast< SG::View * >( ctx.getExtension<Atlas::ExtendedEventContext>().proxy() );
+      SG::View * myView = dynamic_cast< SG::View * >( Atlas::getExtendedEventContext(ctx).proxy() );
       proxy->setObjectLink("cluster", ElementLink<TestClusterContainer>(m_outputClusterContainer.name(), nRoI, myView ) );
       proxy->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputContainer.name(), nRoI, myView ) );
     } else {

@@ -202,7 +202,7 @@ std::string MuTagMatchingTool::segmentStationString( const Muon::MuonSegment* se
     if( m_muonIdHelperTool->mdtIdHelper().is_mdt(segID) ){
       station = m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName( segID ) );
       break;
-    } else if( m_muonIdHelperTool->cscIdHelper().is_csc(segID) ){
+    } else if( m_muonIdHelperTool->isCsc(segID) ){
       station = m_muonIdHelperTool->cscIdHelper().stationNameString( m_muonIdHelperTool->cscIdHelper().stationName( segID ) );
       break ;
     }
@@ -1143,7 +1143,7 @@ bool MuTagMatchingTool::isCscSegment( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ) isCsc=true;
+    if( m_muonIdHelperTool->isCsc( rot->identify() ) ) isCsc=true;
   }
 
   return isCsc;
@@ -1164,7 +1164,7 @@ unsigned int MuTagMatchingTool::cscHits( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ) ++nrHits;
+    if( m_muonIdHelperTool->isCsc( rot->identify() ) ) ++nrHits;
   }
   
   return nrHits ;

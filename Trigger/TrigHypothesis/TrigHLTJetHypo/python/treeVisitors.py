@@ -43,6 +43,7 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
     return defaults.get(parameter, default)
 
 
+
 def scaleFactors(parameter):
     defaults = {
         'eta': 0.01,

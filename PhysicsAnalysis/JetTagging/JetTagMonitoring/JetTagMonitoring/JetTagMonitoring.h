@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // *******************************************************
@@ -24,8 +24,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include "xAODJet/Jet.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
@@ -455,9 +453,6 @@ private:
 
     MonGroup* m_monGr_shift = nullptr;
     MonGroup* m_monGr_LowStat = nullptr;
-
-    //--------------Pixel stuff--------------------------------------
-    ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc;
 
   //bool m_doModules;
   //bool m_doOffline;

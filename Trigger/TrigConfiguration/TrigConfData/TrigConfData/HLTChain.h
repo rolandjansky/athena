@@ -38,6 +38,12 @@ namespace TrigConf {
        */
       unsigned int counter() const;
 
+      /** Accessor to the chain name hash
+       *
+       * The hash is unique within the menu and identifies the chain online
+       */
+      unsigned int namehash() const;
+
       /** Accessor to the seeding L1 item */
       const std::string & l1item() const;
 

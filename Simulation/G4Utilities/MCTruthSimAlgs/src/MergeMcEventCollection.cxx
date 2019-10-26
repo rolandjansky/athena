@@ -1,38 +1,26 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeMcEventCollection.h"
 #include "PileUpTools/IPileUpTool.h"
 
 MergeMcEventCollection::MergeMcEventCollection(const std::string& name,
-					       ISvcLocator *svcLoc):
-  AthAlgorithm(name, svcLoc),
-  m_mergeTool("MergeMcEventCollTool", this)
+                                               ISvcLocator *svcLoc):
+  AthAlgorithm(name, svcLoc)
 {
-  declareProperty("MergeMcEventCollTool",   m_mergeTool);
 }
 
-StatusCode MergeMcEventCollection::initialize() 
+StatusCode MergeMcEventCollection::initialize()
 {
-  ATH_MSG_DEBUG ( "Initializing " << name() << " - package version " << PACKAGE_VERSION ); 
-  if(m_mergeTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve MergeMcEventCollTool!");
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG ( "Initializing " << name() );
+  ATH_CHECK(m_mergeTool.retrieve());
   ATH_MSG_DEBUG("Retrieved MergeMcEventCollTool (" << m_mergeTool->name() << ").");
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeMcEventCollection::execute() 
+StatusCode MergeMcEventCollection::execute()
 {
-  ATH_MSG_DEBUG("execute()");  
+  ATH_MSG_DEBUG("execute()");
   return m_mergeTool->processAllSubEvents();
 }
-
-StatusCode MergeMcEventCollection::finalize() 
-{
-  ATH_MSG_DEBUG("finalize.");
-  return StatusCode::SUCCESS;
-}
-

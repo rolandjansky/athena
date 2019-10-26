@@ -34,6 +34,7 @@ class JetGroupProduct{
  private:
   const std::vector<std::size_t> m_siblings;
   const CondInd2JetGroupsInds m_satisfiedBy;
+
   ProductGen m_productGen;
 };
 

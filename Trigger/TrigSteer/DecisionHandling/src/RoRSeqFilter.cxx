@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DecisionHandling includes
 #include "RoRSeqFilter.h"
-#include "AthenaMonitoring/MonitoredScalar.h"
-#include "AthenaMonitoring/MonitoredGroup.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/Property.h"
 
 using TrigCompositeUtils::DecisionContainer;
@@ -22,12 +21,9 @@ RoRSeqFilter::RoRSeqFilter( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator )
 {}
 
-RoRSeqFilter::~RoRSeqFilter()
-{}
 
 StatusCode RoRSeqFilter::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   CHECK( not m_inputKeys.empty() );
   CHECK( not m_outputKeys.empty() );
 
@@ -70,9 +66,6 @@ StatusCode RoRSeqFilter::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode RoRSeqFilter::finalize() {
-  return StatusCode::SUCCESS;
-}
 
 StatusCode RoRSeqFilter::execute() {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );

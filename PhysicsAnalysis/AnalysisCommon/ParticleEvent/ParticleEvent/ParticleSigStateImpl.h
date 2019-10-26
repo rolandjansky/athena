@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSigStateImpl.h
@@ -303,6 +303,7 @@ public:
   virtual  void set_origin( const VxContainer* theContainer, int index );
   virtual  void set_origin( const VxContainer* theContainer,
 			    const Trk::VxCandidate * vertex );
+  virtual  void set_origin( const ElementLink<VxContainer>& origin );
 
   // ISignalState methods
 
@@ -1118,6 +1119,14 @@ inline void ParticleSigStateImpl<INavigable_t,
                                                            const Trk::VxCandidate * vertex )
 {
   m_part.set_origin(theContainer, vertex);
+}
+
+template< class INavigable_t, class I4Momentum_t, class IParticle_t>
+inline void ParticleSigStateImpl<INavigable_t,
+                                 I4Momentum_t,
+                                 IParticle_t>::set_origin( const ElementLink<VxContainer>& origin )
+{
+  m_part.set_origin(origin);
 }
 
 template< class INavigable_t, class I4Momentum_t, class IParticle_t>

@@ -154,6 +154,7 @@ class ConditionsToolSetterTree(object):
 
         nodestr = 'n%dp%d' % (node.node_id, node.parent_id)
         helper_tool = self._get_tool_instance('combgen_helper', extra=nodestr)
+
         helper_tool.HypoConfigurer = config_tool
 
         helper_tool.node_id = node.node_id
@@ -225,6 +226,7 @@ class ConditionsToolSetterTree(object):
 
         nodestr = 'n%dp%d' % (node.node_id, node.parent_id)
         helper_tool = self._get_tool_instance('helper', extra=nodestr)
+
         helper_tool.HypoConfigurer = config_tool
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id

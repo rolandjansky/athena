@@ -23,7 +23,7 @@ SliceIDDict = {
     'Cosmic'  : 'cosmic',
     'Calibration'   : 'calib',
     'Streaming'     : 'streamer',
-    'Monitoring'    : 'mon',
+    'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
     'EnhancedBias'  : 'eb',
     'Test'          : 'TestChain',
@@ -179,7 +179,7 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
+    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
     'invMassInfo'    : ['10invm70'],
@@ -634,7 +634,7 @@ AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',  'costmonitor',
 
 # ---- Monitor Chain Dictinary of all allowed Values ----
 MonitorChainParts = {
-    'signature'      : ['Monitoring'],
+    'signature'      : ['Monitor'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'monType'        : AllowedMonitorChainIdentifiers,
@@ -647,7 +647,7 @@ MonitorChainParts = {
 
 # ---- Monitor Chain Default Dictinary of all allowed Values ----
 MonitorChainParts_Default = {
-    'signature'      : ['Monitoring'],
+    'signature'      : ['Monitor'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'monType'        : [],
@@ -802,7 +802,7 @@ def getSignatureInformation(signature):
         return [CalibChainParts_Default, CalibChainParts]
     if signature == "Streaming":
         return [StreamingChainParts_Default, StreamingChainParts]
-    if signature == "Monitoring":
+    if signature == "Monitor":
         return [MonitorChainParts_Default, MonitorChainParts]
     if signature == "Beamspot":
         return [BeamspotChainParts_Default, BeamspotChainParts]

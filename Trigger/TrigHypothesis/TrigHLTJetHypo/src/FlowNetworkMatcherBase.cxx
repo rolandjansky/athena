@@ -108,6 +108,7 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
     collector->collect("MaximumBipartiteGroupsMatcher - after", ss.str());
   }
 
+
   auto edges = (*G)->edges();
  
   bool pass = std::round(ff.value()) == m_totalCapacity;
@@ -117,6 +118,7 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
     msg += pass ? "true" : "false";
     msg += " total capacity: " + std::to_string(m_totalCapacity) + " flow: "
       +std::to_string(std::round(ff.value())); 
+
     collector -> collect("MaximumBipartiteGroupsMatcher", msg);
   }
   // loop over edges, figure out if it is a condition - jet edge

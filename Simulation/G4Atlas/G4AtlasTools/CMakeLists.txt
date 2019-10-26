@@ -60,6 +60,10 @@ atlas_add_test( G4FieldConfig_test
                 PROPERTIES TIMEOUT 300 )
 
 
+atlas_add_test( G4AtlasToolsConfigNew_test
+                SCRIPT test/G4AtlasToolsConfigNew_test.py
+                PROPERTIES TIMEOUT 300 )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 

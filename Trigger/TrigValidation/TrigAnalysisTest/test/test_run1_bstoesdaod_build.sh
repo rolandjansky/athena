@@ -26,6 +26,7 @@ Reco_tf.py --maxEvents $EVENTS \
 --inputBSFile='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1' \
 --outputESDFile 'ESD.pool.root' \
 --outputAODFile 'AOD.pool.root' \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 --outputHISTFile 'HIST.root' &> ${JOB_LOG}
 
 N_CONTAINERS=$(grep -o HLT_xAOD__ ${RECO_LOG} | wc -l)
@@ -36,5 +37,7 @@ else
   echo "ERROR no converted HLT xAOD containers found in the output root file. Please check whether the conversion was scheduled"; 
   echo "art-result: 1 xAODContainers"
 fi
+
+export SKIP_CHAIN_DUMP=1
 
 source exec_art_triggertest_post.sh

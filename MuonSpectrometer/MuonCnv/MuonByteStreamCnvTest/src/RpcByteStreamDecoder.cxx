@@ -5,10 +5,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "MuonByteStreamCnvTest/RpcByteStreamDecoder.h"
 
-RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const IRPCcablingSvc * p_cabling, const RpcIdHelper * rpcHelper, MsgStream* log) :
+RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const IRPCcablingSvc * p_cabling, const Muon::MuonIdHelperTool * muonIdHelperTool, MsgStream* log) :
   m_bytestream(p_bytestream),
   m_cabling(p_cabling),
-  m_rpcHelper(rpcHelper)
+  m_muonIdHelperTool(muonIdHelperTool)
 { 
   m_rpcpads = new std::vector<RpcPad*>;
   m_log = log;
@@ -91,7 +91,7 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
   // Build the pad offline identifier
   bool check = true;
   bool valid = false;
-  Identifier id = m_rpcHelper->padID(name, eta, phi, doublet_r, 
+  Identifier id = m_muonIdHelperTool->rpcIdHelper().padID(name, eta, phi, doublet_r, 
 			     		doublet_z, doublet_phi,
                                         check, &valid);
 

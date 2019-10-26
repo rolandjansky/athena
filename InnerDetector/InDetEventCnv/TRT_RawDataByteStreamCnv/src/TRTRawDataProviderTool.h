@@ -57,11 +57,10 @@ private:
 
   // bookkeeping if we have decoded a ROB already
   uint32_t      m_LastLvl1ID;
-  InDetTimeCollection* m_LVL1Collection;
-  InDetTimeCollection* m_BCCollection;
-  bool  m_storeInDetTimeColls;
   SG::WriteHandleKey<InDetTimeCollection> m_lvl1idkey{this,"LVL1IDKey","TRT_LVL1ID","TRT_LVL1ID out-key"};
   SG::WriteHandleKey<InDetTimeCollection> m_bcidkey{this,"BCIDKey","TRT_BCID","TRT_BCID out-key"};
+  bool  m_storeInDetTimeColls;
+  bool  m_doEventCheck;
 };
 
 #endif

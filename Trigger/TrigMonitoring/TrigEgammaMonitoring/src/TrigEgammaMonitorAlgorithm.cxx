@@ -5,21 +5,59 @@
 #include "TrigEgammaMonitorAlgorithm.h"
 #include "TRandom3.h"
 
+#include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
+
 TrigEgammaMonitorAlgorithm::TrigEgammaMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthMonitorAlgorithm(name,pSvcLocator)
-{}
+  : base_class(name, pSvcLocator)
+{
+  declareProperty("IsChainSpecific", m_isChainSpecific=true);
+}
 
 
 TrigEgammaMonitorAlgorithm::~TrigEgammaMonitorAlgorithm() {}
 
 
 StatusCode TrigEgammaMonitorAlgorithm::initialize() {
-    return AthMonitorAlgorithm::initialize();
+    ATH_MSG_INFO("Initializing " << name() << "...");
+
+    StatusCode sc = AthMonitorAlgorithm::initialize();
+    if ( ! sc.isSuccess() ) {
+        ATH_MSG_ERROR("Error initialize parent");
+        return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_INFO("Retrieving tools... " << m_tools.size());
+
+    for ( const auto htool : m_tools ) {
+        ATH_MSG_INFO("Retrieving "<< htool <<"..." );
+        StatusCode sc = htool.retrieve();
+        if ( ! sc.isSuccess() ) {
+            ATH_MSG_ERROR("Tool retrieval failed: " << htool);
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO("...//" );
+    }
+
+    for ( auto htool : m_tools ) {
+        ATH_MSG_INFO("Initializing "<< htool <<"..." );
+        htool->setMGLookup(this);
+        ATH_MSG_INFO("...//" );
+        ATH_MSG_INFO("Booking "<< htool <<"..." );
+        sc = htool->book();
+        if ( ! sc.isSuccess() ) {
+            ATH_MSG_ERROR("Tool book failed:" << htool);
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO("...//" );
+    }
+
+    ATH_MSG_INFO("Tools retrieval completed.");
+    return StatusCode::SUCCESS;
 }
 
 
 StatusCode TrigEgammaMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
-    using namespace Monitored;
+    //using namespace Monitored;
 
     // Declare the quantities which should be monitored
     //NB! The variables and histograms defined here must match the ones in the py file exactly!
@@ -34,6 +72,11 @@ StatusCode TrigEgammaMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     auto res_etInEta0 = Monitored::Scalar<float>("res_etInEta0",0.0);
 
     auto phi = Monitored::Scalar<float>("phi",0.0);
+
+    auto r_x = Monitored::Scalar<float>("r#x",0.0);
+    auto r_y = Monitored::Scalar<float>("r#y",0.0);
+    auto t_x = Monitored::Scalar<float>("t#x",0.0);
+    auto t_y = Monitored::Scalar<float>("t#y",0.0);
 
     //Access a hard-coded trigger chain
     //(this should probably be moved elsewhere and done in a more automatic way in the future)
@@ -69,20 +112,66 @@ StatusCode TrigEgammaMonitorAlgorithm::fillHistograms( const EventContext& ctx )
 
     res_etInEta0 = (r.Rndm()-0.5)/5;
 
-    phi = (r.Rndm()-0.5)*2*3.1415;
+    // Alternative fill method. Get the group yourself, and pass it to the fill function.
+    auto tool = getGroup("TrigEgammaMonitor");
+    float aphi = 0.0;
+    unsigned int codepoints[] = {0x0308BD20, 0x04888520, 0x04889DE0, 0x04888520, 0x033BBD20, 0x00000000, 0x181E9324,
+        0x240294A4, 0x240E94BC, 0x3C0267A4, 0x241E64A4, 0x00000000, 0xA639EEE9, 0xA950224B, 0x4950E24F, 0x4F50224D, 0x4939EEE9, 0x00000000};
+    for( int i=0; i<100; i++) {
+        aphi = (r.Rndm()-0.5)*2*3.1415;
+
+        const float radius = r.Gaus(0, 0.2)+(cos(7*aphi)+3);
+        const float f_x = r.Uniform(-5, 5);
+        const float f_y = r.Uniform(-5, 5);
+
+        r_x = radius*cos(aphi);
+        r_y = radius*sin(aphi);
+        ATH_MSG_DEBUG("Test fill r#x, r#y: " << i);
+
+        fill(tool, r_x, r_y);
+
+        if ((codepoints[int(1.6*(5-f_y)+0.5)] >> int((f_x+5)*3.1+0.5))&0x1) {
+            t_x = f_x*0.9;
+            t_y = f_y*0.9;
+            fill(tool, t_x, t_y);
+        }
+    }
 
     // Fill. First argument is the tool (GMT) name as defined in the py file,
     // all others are the variables to be saved.
     //fill("TrigEgammaMonitor",lumiPerBCID,lb);
-    fill("TrigEgammaMonitor",lb);
+    fill("TrigEgammaMonitor", lb, run);
 
-    // Alternative fill method. Get the group yourself, and pass it to the fill function.
-    auto tool = getGroup("TrigEgammaMonitor");
-    fill(tool,run);
 
-    //fill("TrigEgammaMonitor_AbsResolutions_HLT", res_etInEta0);
+    if (m_isChainSpecific) {
+        //fill("TrigEgammaMonitor_AbsResolutions_HLT", res_etInEta0);
 
-    fill("TrigEgammaMonitor_Distributions_L1Calo", phi);
+        phi = aphi;
+
+        fill("Expert_Distributions_L1Calo", phi);
+
+        phi = aphi*aphi/3.1415;
+
+        fill("Expert_Distributions_HLT", phi);
+    }
+
+    ATH_MSG_DEBUG ("Executing " << name() << "...");
+    // Loop over monitoring tools
+    ATH_MSG_DEBUG("Looping over monitoring tools.");
+    const std::string line = "---------------------------------------------------";
+    ATH_MSG_DEBUG(line);
+    for ( auto htool : m_tools ) {
+        StatusCode sc = htool->execute();
+        if ( ! sc.isSuccess() ) {
+            ATH_MSG_ERROR("Tool execute failed: " << htool);
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_DEBUG(line);
+    }
 
     return StatusCode::SUCCESS;
+}
+
+ToolHandle<GenericMonitoringTool> TrigEgammaMonitorAlgorithm::findGroup( const std::string& name ) const {
+    return getGroup(name);
 }

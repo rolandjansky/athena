@@ -3,9 +3,9 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import addFolders
+from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import (
-    PixelConfigCondAlg, PixelOfflineCalibCondAlg, PixelChargeCalibCondAlg
+    PixelConfigCondAlg, PixelOfflineCalibCondAlg, PixelChargeCalibCondAlg, PixelDistortionAlg
 )
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
@@ -97,5 +97,13 @@ def PixelOfflineCalibCondAlgCfg(flags, name="PixelOfflineCalibCondAlg", **kwargs
     kwargs.setdefault("ReadKey", "/PIXEL/PixReco")
     kwargs.setdefault("InputSource", 2)
     acc.addCondAlgo(PixelOfflineCalibCondAlg(name, **kwargs))
+    return acc
+
+def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDistortionAlg"""
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/PixelDist","/Indet/PixelDist",className="DetCondCFloat"))
+    kwargs.setdefault("ReadKey", "/Indet/PixelDist")
+    acc.addCondAlgo(PixelDistortionAlg(name, **kwargs))
     return acc
 

@@ -13,7 +13,7 @@
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtAmtHit.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "MDT_Hid2RESrcID.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
@@ -81,7 +81,8 @@ private:
         MDT_Hid2RESrcID* m_hid2re;
 	SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
-        const MdtIdHelper* m_mdtIdHelper;
+        ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+                "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
         /** TMP special ROB number for sector13 runs*/
         int m_specialROBNumber;

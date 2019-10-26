@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENTTPCNV_SIGNALSTATESTORE_H 
@@ -68,9 +68,9 @@ class SignalStateCnv {
 
 
   // round to closest integer :
-  char round(double d){return (char)floor(d+0.5);}
+  char round(double d) const {return (char)floor(d+0.5);}
 
-  char char_from_ratio(double r){
+  char char_from_ratio(double r) const {
     double d= r -m_center ;
     if( d>0){
       if(d>m_delta_p) d = m_delta_p;
@@ -82,7 +82,7 @@ class SignalStateCnv {
 
   }
 
-  double ratio_from_char(char c){
+  double ratio_from_char(char c) const {
     bool isneg = c & 128; // are storing a negativ diff ?
     int val   = c & 127;  // the actual diff value
     if(isneg){
@@ -99,7 +99,7 @@ class SignalStateCnv {
   JetConverterTypes::signalState_pers_t
     compress( const JetConverterTypes::momentum & momCal,
 	      const JetConverterTypes::momentum & momRaw,
-	      CompressionLevel level, MsgStream& msg )
+	      CompressionLevel level, MsgStream& msg ) const
     {
       int exponent[4];
       double mantissa[4] = {0};
@@ -393,7 +393,7 @@ class SignalStateCnv {
   
   JetConverterTypes::momentum decompress( JetConverterTypes::signalState_pers_t ps,
 					  JetConverterTypes::momentum momCal,
-					  MsgStream& msg )
+					  MsgStream& msg ) const
     {
       JetConverterTypes::momentum momRaw;
       int exponent[4] = {0};

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class declaration
-#include "TrigConfigSvc/HLTConfigSvc.h"
+#include "./HLTConfigSvc.h"
 
 #include <exception>
 #include <vector>
@@ -26,6 +26,7 @@
 
 // Local includes:
 #include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/StorageMgr.h"
@@ -40,7 +41,11 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
+
+#include "TrigConfInterfaces/IJobOptionsSvc.h"
+
+#include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
 #include "boost/lexical_cast.hpp"
@@ -83,29 +88,51 @@ HLTConfigSvc::~HLTConfigSvc()
 StatusCode
 HLTConfigSvc::writeConfigToDetectorStore() {
 
-    // load the json file into TrigConf::HLTMenu
-    TrigConf::JsonFileLoader fileLoader;
-    fileLoader.setLevel(TrigConf::MSGTC::WARNING);
-
     TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
 
-    if( m_inputType == "file" ) {
-       if( fileLoader.loadFile( m_hltFileName, *hltmenu ).isSuccess() ) {
-          ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
-       } else {
-          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());
-          return StatusCode::RECOVERABLE;
-       }
-    }
+   if( m_inputType == "db" ) {
 
-    ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );
+      // db menu loader
+      TrigConf::TrigDBMenuLoader dbloader(m_dbConnection);
+      dbloader.setLevel(TrigConf::MSGTC::WARNING);
 
-    ATH_CHECK( detStore.retrieve() );
-    if( detStore->record(hltmenu,"HLTTriggerMenu").isSuccess() ) {
-       ATH_MSG_INFO( "Recorded HLT menu with key 'HLTTriggerMenu' in the detector store" );
-    }
+      if( dbloader.loadHLTMenu( m_smk, *hltmenu ) ) {
+         ATH_MSG_INFO( "Loaded HLT menu from DB " << m_dbConnection << " for SMK " << m_smk.value() );
+      } else {
+         ATH_MSG_WARNING( "Failed loading HLT menu from DB for SMK " << m_smk.value());
+         return StatusCode::RECOVERABLE;
+      }
 
-    return StatusCode::SUCCESS;
+   } else if ( m_inputType == "file" ) {
+
+      // load the json file into TrigConf::HLTMenu
+      TrigConf::JsonFileLoader fileLoader;
+      fileLoader.setLevel(TrigConf::MSGTC::WARNING);
+
+      if( fileLoader.loadFile( m_hltFileName, *hltmenu ).isSuccess() ) {
+         ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
+      } else {
+         ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());
+         return StatusCode::RECOVERABLE;
+      }
+
+   } else if( m_inputType == "cool" ) {
+      ATH_MSG_FATAL( "Loading of HLT menu from COOL + DB not implemented");
+      return StatusCode::FAILURE;
+   }
+
+   // To the reviewers: I will need to leave this commented, as one has to understand why this solution does not work
+   // auto writeHandle = SG::makeHandle(m_hltMenuKey);
+   // ATH_MSG_INFO("Recording HLT menu with " << m_hltMenuKey);
+   // ATH_CHECK( writeHandle.record( std::unique_ptr<TrigConf::HLTMenu>(hltmenu) ));
+
+   ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );
+   ATH_CHECK( detStore.retrieve() );
+   if( detStore->record(hltmenu,"HLTTriggerMenu").isSuccess() ) {
+      ATH_MSG_INFO( "Recorded HLT menu with key 'HLTTriggerMenu' in the detector store" );
+   }
+
+   return StatusCode::SUCCESS;
 } 
 
 
@@ -146,142 +173,31 @@ HLTConfigSvc::sequences() const {
 StatusCode
 HLTConfigSvc::initialize() {
 
-   ATH_CHECK(ConfigSvcBase::initialize());
+   // ATH_CHECK( m_hltMenuKey.initialize() );
 
-   StatusCode sc = writeConfigToDetectorStore();
-   if( !sc.isSuccess() ) {
-          ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
+   {
+      /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
+      if( auto joSvc = serviceLocator()->service<TrigConf::IJobOptionsSvc>( "JobOptionsSvc" ) ) {
+         if( joSvc->superMasterKey()>0 ) {
+            m_inputType = "db";
+            m_smk = joSvc->superMasterKey();
+            m_dbConnection = joSvc->server();
+            m_configSourceString = "none";
+         }
+      } else {
+         ATH_MSG_INFO("Did not locate TrigConf::JobOptionsSvc, not running athenaHLT");
+      }
+
+      StatusCode sc = writeConfigToDetectorStore();
+      if( !sc.isSuccess() ) {
+         ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
+      }
    }
 
-   //////////////////////////////////////////////////////////////
-   // BEGIN RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
-   //////////////////////////////////////////////////////////////
-   string s(boost::to_lower_copy(m_configSourceString)); // lower case
-   if (s == "run3_dummy") {
-      std::map<std::string, std::string> dummyChains;
-      dummyChains["HLT_e3_etcut1step_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_e3_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_e3_etcut_mu6_L1EM8I_MU10"] = "L1_EM8I_MU10";
-      dummyChains["HLT_e5_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_e7_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_g5_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_g5_etcut_LArPEB_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_g20_etcut_LArPEB_L1EM15"] = "L1_EM15";
-      dummyChains["HLT_g10_etcut_L1EM7"] = "L1_EM7";
-      dummyChains["HLT_g15_etcut_L1EM12"] = "L1_EM12";
-      dummyChains["HLT_mu6_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu6Comb_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_2mu6Comb_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu8_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu10_L1MU10"] = "L1_MU10";
-      dummyChains["HLT_mu20_L1MU20"] = "L1_MU20";
-      dummyChains["HLT_j85_L1J20"] = "L1_J20";
-      dummyChains["HLT_j100_L1J20"] = "L1_J20";
-      // from egamma test
-      dummyChains["HLT_2e17_etcut_L12EM15VH"] = "L1_2EM15VH";
-      dummyChains["HLT_2e3_etcut"] = "L1_2EM3";
-      dummyChains["HLT_2e3_etcut_L12EM3"] = "L1_2EM3";
-      dummyChains["HLT_2g35_etcut_L12EM20VH"] = "L1_2EM20VH";
-      dummyChains["HLT_e26_etcut_L1EM22VHI"] = "L1_EM22VHI";
-      dummyChains["HLT_e3_e5_etcut"] = "L1_2EM3";
-      dummyChains["HLT_e3_etcut"] = "L1_EM3";
-      dummyChains["HLT_e3_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_e5_etcut"] = "L1_EM3";
-      dummyChains["HLT_e5_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_e7_etcut"] = "L1_EM7";
-      dummyChains["HLT_e7_etcut_L1EM3"] = "L1_EM3";
-      dummyChains["HLT_g140_etcut_L1EM24VHI"] = "L1_EM24VHI";
-      dummyChains["HLT_g5_etcut_L1EM3"] = "L1_EM3";
-      // for menu test
-      dummyChains["HLT_2j330_a10t_lcw_jes_35smcINF_L1J100"] = "L1_J100";
-      dummyChains["HLT_j460_a10t_lcw_jes_30smcINF_L1J100"] = "L1_J100";
-      dummyChains["HLT_mu26_ivarmedium_L1MU20"] = "L1_MU20";
-      dummyChains["HLT_mu50_L1MU20"] = "L1_MU20";
-      dummyChains["HLT_mu50_RPCPEBSecondaryReadout_L1MU20"] = "L1_MU20";
-      dummyChains["HLT_2mu14_L12MU10"] = "L1_2MU10";
-      dummyChains["HLT_j420_L1J100"] = "L1_J100";
-      dummyChains["HLT_j260_320eta490_L1J75_31ETA49"] = "L1_J75.31ETA49";
-      dummyChains["HLT_j460_a10r_L1J100"] = "L1_J100";
-      dummyChains["HLT_j460_a10_lcw_subjes_L1J100"] = "L1_J100";
-      dummyChains["HLT_j460_a10t_lcw_jes_L1J100"] = "L1_J100";
-      dummyChains["HLT_3j200_L1J100"] = "L1_J100";
-      dummyChains["HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"] = "L1_TAU100";
-      dummyChains["HLT_2mu4_bBmumu_L12MU4"] = "L1_2MU4";
-      dummyChains["HLT_2mu4_bDimu_L12MU4"] = "L1_2MU4";
-      dummyChains["HLT_2mu4_bJpsimumu_L12MU4"] = "L1_2MU4";
-      dummyChains["HLT_2mu4_bUpsimumu_L12MU4"] = "L1_2MU4";
-      dummyChains["HLT_2mu6_L12MU6"] = "L1_2MU6";
-      dummyChains["HLT_2mu6Comb_L12MU6"] = "L1_2MU6";
-      dummyChains["HLT_2mu6_bJpsimumu_L12MU6"] = "L1_2MU6";
-      dummyChains["HLT_2mu6_10invm70_L1MU6"] = "L1_2MU6";
-      dummyChains["HLT_3j200_L1J20"] = "L1_J20";
-      dummyChains["HLT_5j70_0eta240_L14J20"] = "L1_4J20";
-      dummyChains["HLT_e3_etcut1step_mu6fast_L1EM8I_MU10"] = "L1_EM8I_MU10";
-      dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
-      dummyChains["HLT_g5_etcut"] = "L1_EM3";
-      dummyChains["HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20"] = "L1_L1J20";
-      dummyChains["HLT_j225_gsc420_boffperf_split20"] = "L1_J100";
-      dummyChains["HLT_j260_320eta490_L1J20"] = "L1_J20";
-      dummyChains["HLT_j420_L1J20"] = "L1_J20";
-      dummyChains["HLT_j45_L1J15"] = "L1_J15";
-      dummyChains["HLT_j460_a10_lcw_subjes_L1J20"] = "L1_J20";
-      dummyChains["HLT_j460_a10r_L1J20"] = "L1_J20";
-      dummyChains["HLT_mu20_ivar_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu6"] = "L1_MU6";
-      dummyChains["HLT_mu6_ivarmedium_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu6Comb"] = "L1_MU6";
-      dummyChains["HLT_mu6fast_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu6_msonly_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu6noL1_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu6_mu4_L12MU4"] = "L1_2MU4";
-      dummyChains["HLT_mu80_msonly_3layersEC_L1MU20"] = "L1_MU20";
-      dummyChains["HLT_xe30_cell_L1XE10"] = "L1_XE10";
-      dummyChains["HLT_xe30_tcpufit_L1XE10"] = "L1_XE10";
-      dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";
-      dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";
-      dummyChains["HLT_tau0_perf_ptonly_L1TAU12"] = "L1_TAU12";
-      dummyChains["HLT_tau25_medium1_tracktwo_L1TAU12IM"] = "L1_TAU12IM";
-      dummyChains["HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM"] = "L1_TAU12IM";
-      dummyChains["HLT_j35_gsc45_boffperf_split_L1J20"] = "L1_J20";
-      dummyChains["HLT_j35_gsc45_bmv2c1070_split_L1J20"] = "L1_J20";
-      dummyChains["HLT_xe30_cell_xe30_tcpufit_L1XE10"] = "L1_XE10";
-      dummyChains["HLT_xe30_mht_L1XE10"] = "L1_XE10";
-      dummyChains["HLT_mu60_0eta105_msonly_L1MU20"] = "L1_MU20";
-      dummyChains["HLT_3mu6_L13MU6"] = "L1_3MU6";
-      dummyChains["HLT_3mu6_msonly_L13MU6"] = "L1_3MU6";
-      dummyChains["HLT_4mu4_L14MU4"] = "L1_4MU4";
-      dummyChains["HLT_j175_gsc225_bmv2c1040_split_L1J100"] = "L1_J100";
-      dummyChains["HLT_j225_gsc275_bmv2c1060_split_L1J100"] = "L1_J100";
-      dummyChains["HLT_j225_gsc300_bmv2c1070_split_L1J100"] = "L1_J100";
-      dummyChains["HLT_j225_gsc360_bmv2c1077_split_L1J100"] = "L1_J100";
-      dummyChains["HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"] = "L1_TAU100";
-      dummyChains["HLT_2mu10_bJpsimumu_L12MU10"] = "L1_2MU10";
-      dummyChains["HLT_2mu10_bUpsimumu_L12MU10"] = "L1_2MU10";
-      // ATR-19985
-      dummyChains["HLT_mu6_idperf_L1MU6"] = "L1_MU6";
-      dummyChains["HLT_mu24_idperf_L1MU20"] = "L1_MU20";
-      dummyChains["HLT_tau25_idperf_tracktwo_L1TAU12IM"] = "L1_TAU12IM";
-      dummyChains["HLT_tau25_idperf_tracktwoEF_L1TAU12IM"] = "L1_TAU12IM";
-      dummyChains["HLT_tau25_idperf_tracktwoMVA_L1TAU12IM"] = "L1_TAU12IM";
+   ATH_CHECK(ConfigSvcBase::initialize());
 
-      m_HLTFrame.setMergedHLT( m_setMergedHLT );
-      for (const auto& mapPair : dummyChains) {
-         const std::string& chainName = mapPair.first;
-         const std::string& chainSeed = mapPair.second;
-         const int chainCounter = std::distance(dummyChains.begin(), dummyChains.find(chainName));
-         HLTChain* chain = new HLTChain( chainName, chainCounter, 1, "HLT", chainSeed, 0, vector<HLTSignature*>() );
-         // Note: the ownership of chain is transfered to the frame, the frame will delete it on deconstruct.
-         m_HLTFrame.theHLTChainList().addHLTChain( chain );
-         ATH_MSG_INFO(" RUN 3 TESTING MODE! Adding dummy chain with hash:" << chain->chain_hash_id() << " : " << chainName << " [" << chainCounter << "] <- " << chainSeed); 
-      }
-      ATH_MSG_INFO(" RUN 3 TESTING MODE! Total number of chains: " << m_HLTFrame.chains().size()); 
-
-      return StatusCode::SUCCESS;
-
-   //////////////////////////////////////////////////////////////
-   // END RUN-3 TESTING BLOCK - THIS SHOULD BE TEMPORARY
-   //////////////////////////////////////////////////////////////
-   } else if( !fromDB() and m_xmlFile=="NONE" ) {
+   std::string xmlFile(boost::to_lower_copy(m_xmlFile)); // lower case
+   if( !fromDB() and (xmlFile=="none" or xmlFile == "")) {
       ATH_MSG_INFO("xml file set to NONE, will not load HLT Menu");
       return StatusCode::SUCCESS;
    }
@@ -291,7 +207,7 @@ HLTConfigSvc::initialize() {
    if(m_PartitionName.value() !="") {
       m_partition = m_PartitionName;
    } else {
-      ServiceHandle<IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
+      ServiceHandle<::IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
       if (jobOptionsSvc.retrieve().isFailure()) {
          ATH_MSG_WARNING("Cannot retrieve JobOptionsSvc");
       } else {

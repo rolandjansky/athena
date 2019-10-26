@@ -18,11 +18,11 @@ if (not 'doLVL1CaloMon' in dir()):
   doLVL1CaloMon = doTrigMon
 
 if (not 'doHLTMon' in dir()):
-  doHLTMon = doTrigMon
-
+  #doHLTMon = doTrigMon
+  doHLTMon = False 
 if (not 'doCTPMon' in dir()):
-  doCTPMon = doTrigMon
-
+  #doCTPMon = doTrigMon
+  doCTPMon = False
 if (not 'doIDMon' in dir()):
   doIDMon = doAllMon
 
@@ -47,6 +47,12 @@ if (not 'isOnline' in dir()):
 if (not 'doTileMon' in dir()):
   doTileMon = False #doAllMon
 
+if (not 'doHIMon' in dir()):
+  doHIMon = False
+
+if (not 'isOfflineTest' in dir()):
+  isOfflineTest   = False
+
 ## if ('isGlobalMonitoring' not in dir()):
 ##     isGlobalMonitoring = False
 
@@ -59,10 +65,10 @@ if isOnline and useEmon:
   DQMonFlags.monManFileKey = 'ourGLOBAL'                                   # must use a different stream w.r.t what sets in DQ steering JO
   DQMonFlags.monManEnvironment.set_Value_and_Lock('online')
 
-#DQMonFlags.monManDataType.set_Value_and_Lock('data')
-DQMonFlags.monManDataType.set_Value_and_Lock('cosmics')
+DQMonFlags.monManDataType.set_Value_and_Lock('data')
+#DQMonFlags.monManDataType.set_Value_and_Lock('cosmics')
 
-orMon = doAllMon or doCaloMon or doPhysMon or doIDMon or doMuonMon or doTRTMon or doCTPMon or doLucidMon or doSCTMon or doPixelOnlyMon or doLVL1CaloMon or doHLTMon
+orMon = doAllMon or doCaloMon or doPhysMon or doIDMon or doMuonMon or doTRTMon or doCTPMon or doLucidMon or doSCTMon or doPixelOnlyMon or doLVL1CaloMon or doHLTMon or doHIMon
 DQMonFlags.doMonitoring.set_Value_and_Lock(orMon)
 
 from RecExConfig.RecFlags import rec
@@ -79,7 +85,7 @@ DQMonFlags.doJetMon.set_Value_and_Lock(doPhysMon)
 DQMonFlags.doJetTagMon.set_Value_and_Lock(doPhysMon)
 DQMonFlags.doTauMon.set_Value_and_Lock(doPhysMon)
 DQMonFlags.doCaloMon.set_Value_and_Lock(doCaloMon)
-DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(doPhysMon)
+### DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(doPhysMon) ### replaced by MuonTrackMonitoring (SMW Jan 23 2016)
 DQMonFlags.doGlobalMon.set_Value_and_Lock(doPhysMon)
 
 # ******************* Trigger monitorings
@@ -103,16 +109,21 @@ from MuonDQAMonFlags.MuonDQAProperFlags import MuonDQADetFlags
 DQMonFlags.doMuonAlignMon.set_Value_and_Lock(False)                      #### set False by default
 DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(doMuonMon)
 
-MuonDQADetFlags.doTGCMon.set_Value_and_Lock(False)
-MuonDQADetFlags.doTGCL1Mon.set_Value_and_Lock(False)
-MuonDQADetFlags.doMDTTGCL1Mon.set_Value_and_Lock(False)
+#MuonDQADetFlags.doTGCMon.set_Value_and_Lock(False)
+#MuonDQADetFlags.doTGCL1Mon.set_Value_and_Lock(False)
+#MuonDQADetFlags.doMDTTGCL1Mon.set_Value_and_Lock(False)
 
-DQMonFlags.doMuonRawMon.set_Value_and_Lock(False) #AK - 04/07/2014 doMuonMon)
+### DQMonFlags.doMuonRawMon.set_Value_and_Lock(False) #AK - 04/07/2014 doMuonMon)
+DQMonFlags.doMuonRawMon.set_Value_and_Lock(doMuonMon)
 DQMonFlags.doMuonSegmentMon.set_Value_and_Lock(doMuonMon)
 DQMonFlags.doMuonTrackMon.set_Value_and_Lock(doMuonMon)
 
 # ******************* Additional monitorings
 DQMonFlags.doLucidMon.set_Value_and_Lock(doLucidMon)
+
+# ******************* Heavy Ion monitorings
+DQMonFlags.doHIMon.set_Value_and_Lock(doHIMon)
+
 
 #toRun='GM-Application:GlobalMonitoringSegment:pc-tdq-gmon-02:1'
 #if (toRun==publishName):

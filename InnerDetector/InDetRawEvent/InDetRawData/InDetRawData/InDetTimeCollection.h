@@ -5,11 +5,11 @@
 #ifndef INDETRAWDATA_INDETTIMECOLLECTION_H
 #define INDETRAWDATA_INDETTIMECOLLECTION_H
 
-#include "AthContainers/DataVector.h"
+#include <vector>
 #include "AthenaKernel/CLASS_DEF.h"
 
 
-typedef DataVector< std::pair<uint32_t,  unsigned int > > InDetTimeCollection;
+typedef std::vector< std::pair<uint32_t,  unsigned int > > InDetTimeCollection;
 CLASS_DEF(InDetTimeCollection ,1103971028,1 )
 
 

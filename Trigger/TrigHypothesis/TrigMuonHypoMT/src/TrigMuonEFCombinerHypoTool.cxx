@@ -36,7 +36,7 @@ StatusCode TrigMuonEFCombinerHypoTool::initialize(){
     ATH_CHECK( m_monTool.retrieve() );
     ATH_MSG_DEBUG("MonTool name: " << m_monTool);
   }
-  ATH_MSG_INFO("Initialization completed successfully");
+
   return StatusCode::SUCCESS;
 }
 bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const{

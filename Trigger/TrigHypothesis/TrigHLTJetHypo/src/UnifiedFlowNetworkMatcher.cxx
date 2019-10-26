@@ -26,6 +26,7 @@
 #include <map>
 
 UnifiedFlowNetworkMatcher::UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
+
 						     const std::vector<std::size_t>& treeVec,
 						     const std::vector<std::vector<int>>& sharedNodes
 						     ) : FlowNetworkMatcherBase(cs.size()){

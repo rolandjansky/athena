@@ -43,7 +43,7 @@ StatusCode TrigJetHypoToolConfig_combgen::initialize() {
 		    << c -> name()
 		    << c-requiresNJets()
 		    );
-	
+
       return StatusCode::FAILURE;
     }
   }

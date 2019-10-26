@@ -41,7 +41,7 @@ namespace InDet{
 
     bool CacheCreator::isInsideView(const EventContext& context) const
     {
-        const IProxyDict* proxy = context.getExtension<Atlas::ExtendedEventContext>().proxy();
+        const IProxyDict* proxy = Atlas::getExtendedEventContext(context).proxy();
         const SG::View* view = dynamic_cast<const SG::View*>(proxy);
         return view != nullptr;
     }

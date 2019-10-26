@@ -22,6 +22,8 @@
 
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 namespace MuonCalib {
 
 //this
@@ -39,7 +41,6 @@ const InterfaceID IID_IRegionSelectionSvc("RegionSelectionSvc", 1, 0);
 
 class Identifier; 
 class StoreGateSvc; 
-class MdtIdHelper;
 
 /** @class RegionSelectionSvc
 Seolect calibration region
@@ -100,7 +101,8 @@ class RegionSelectionSvc : public AthService
 		ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
 		StoreGateSvc* m_detStore;
 	//!towers in selected region
-		const MdtIdHelper* m_mdtIdHelper;
+		ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+			"Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 		const MuonGM::MuonDetectorManager* m_detMgr;	//! search for chambers and multilayers in selected region
 		inline void search_chambers_in_region();
 	/** process string */

@@ -10,11 +10,14 @@ class HistDefinition(object):
     def __setitem__(self, key, value):
         self.kwargs[key] = value
 
-# Emulate multiple ROOT C++ constructors to minimize retyping of histograms definitions
 
-#    TH1F (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup) -- signature 1
-#    TH1F (const char *name, const char *title, Int_t nbinsx, const Double_t *xbins)       -- signature 2
-def TH1F(name, title, nxbins, bins_par2, bins_par3=None, path='/', **kwargs):
+def _define1D(name, title, nxbins, bins_par2, bins_par3=None, path='/', **kwargs):
+    """
+    Emulate multiple ROOT C++ constructors to minimize retyping of histograms definitions
+
+    TH1F (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup) -- signature 1
+    TH1F (const char *name, const char *title, Int_t nbinsx, const Double_t *xbins)       -- signature 2
+    """
 
     res = HistDefinition(name)
     res['type'] = 'TH1F'
@@ -32,20 +35,32 @@ def TH1F(name, title, nxbins, bins_par2, bins_par3=None, path='/', **kwargs):
     return res
 
 
+def TH1F(*args, **kwargs):
+    res = _define1D(*args, **kwargs)
+    res['type'] = 'TH1F'
+    return res
+
+def TH1I(*args, **kwargs):
+    res = _define1D(*args, **kwargs)
+    res['type'] = 'TH1I'
+    return res
+
 def TProfile(*args, **kwargs):
-    res = TH1F(*args, **kwargs)
-    res.name = res.name+','+res.name # Temporary emulate two monitored variables
+    res = _define1D(*args, **kwargs)
+    res.name = '{0}#1,{0}#2;{0}'.format(res.name) # Create two monitored variables with automatic names (; alias=hist name in ROOT), the same names created in C++ at filling time
     res['type'] = 'TProfile'
     return res
 
-#    TH2F (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup) -- signature 1
-#    TH2F (const char *name, const char *title, Int_t nbinsx, const Double_t *xbins,       Int_t nbinsy, Double_t ylow, Double_t yup) -- signature 2
-#    TH2F (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, const Double_t *ybins)       -- signature 3
-#    TH2F (const char *name, const char *title, Int_t nbinsx, const Double_t *xbins,       Int_t nbinsy, const Double_t *ybins)       -- signature 4
-def TH2F(name, title, nxbins, bins_par2, bins_par3, bins_par4, bins_par5=None, bins_par6=None, path='/', **kwargs):
+def _define2D(name, title, nxbins, bins_par2, bins_par3, bins_par4, bins_par5=None, bins_par6=None, path='/', **kwargs):
+    """
+    Emulate multiple ROOT C++ constructors to minimize retyping of histograms definitions
 
-    res = HistDefinition(name+','+name) # Temporary emulate two monitored variables
-    res['type'] = 'TH2F'
+    TH2F (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup) -- signature 1
+    TH2F (const char *name, const char *title, Int_t nbinsx, const Double_t *xbins,       Int_t nbinsy, Double_t ylow, Double_t yup) -- signature 2
+    TH2F (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, const Double_t *ybins)       -- signature 3
+    TH2F (const char *name, const char *title, Int_t nbinsx, const Double_t *xbins,       Int_t nbinsy, const Double_t *ybins)       -- signature 4
+    """
+    res = HistDefinition(name)
     res['title'] = title
 
     if isinstance(bins_par2, (list, tuple) ): # signature 2 or 4
@@ -72,9 +87,14 @@ def TH2F(name, title, nxbins, bins_par2, bins_par3, bins_par4, bins_par5=None, b
     res.kwargs.update(kwargs)
     return res
 
+def TH2F(name, *args, **kwargs):
+    res = _define2D(name, *args, **kwargs)
+    res.name = '{0}#1,{0}#2;{0}'.format(res.name) # Create two monitored variables with automatic names (; alias=hist name in ROOT), the same names created in C++ at filling time
+    res['type'] = 'TH2F'
+    return res
 
 def TProfile2D(name, *args, **kwargs):
-    res = TH2F(name, *args, **kwargs)
-    res.name = res.name+','+name # Temporary emulate three monitored variables
+    res = _define2D(name, *args, **kwargs)
+    res.name = '{0}#1,{0}#2,{0}#3;{0}'.format(res.name) # Create tree monitored variables with automatic names (; alias=hist name in ROOT), the same names created in C++ at filling time
     res['type'] = 'TProfile2D'
     return res

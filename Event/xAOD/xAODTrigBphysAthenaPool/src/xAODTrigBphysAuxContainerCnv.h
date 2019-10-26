@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigBphysAuxContainerCnv.h
@@ -9,14 +9,13 @@
 #define xAODTrigBphysATHENAPOOL_XAODTrigBphysAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::TrigBphysAuxContainer,
-                               xAOD::TrigBphysAuxContainer >
+typedef T_AthenaPoolAuxContainerCnv< xAOD::TrigBphysAuxContainer >
    xAODTrigBphysAuxContainerCnvBase;
 
 /**
@@ -28,19 +27,16 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigBphysAuxContainer,
  * $Date: 2013-11-29 01:15:54 -0800 (Fri, 29 Nov 2013) $
  */
 class xAODTrigBphysAuxContainerCnv :
-   public xAODTrigBphysAuxContainerCnvBase {
-
+   public xAODTrigBphysAuxContainerCnvBase
+{
 public:
-   /// Converter constructor
-   xAODTrigBphysAuxContainerCnv( ISvcLocator* svcLoc );
+  using xAODTrigBphysAuxContainerCnvBase::xAODTrigBphysAuxContainerCnvBase;
 
-protected:
-   /// Function preparing the container to be written out
-   virtual xAOD::TrigBphysAuxContainer*
-   createPersistent( xAOD::TrigBphysAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::TrigBphysAuxContainer* createTransient();
-
+  /// Function preparing the container to be written out
+  virtual xAOD::TrigBphysAuxContainer*
+  createPersistentWithKey( xAOD::TrigBphysAuxContainer* trans,
+                           const std::string& key) override;
 }; // class xAODTrigBphysAuxContainerCnv
+
 
 #endif // xAODTrigBphysATHENAPOOL_XAODTrigBphysAUXCONTAINERCNV_H

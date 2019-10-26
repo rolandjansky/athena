@@ -7,10 +7,9 @@
 
 export ATHENA_CORE_NUMBER=8
 
-python $Athena_DIR/python/MuonConfig/MuonSegmentFindingConfig.py | tee temp1.log
-echo "art-result: ${PIPESTATUS[0]}"
-athena --threads=2 MuonSegmentFinding.pkl | tee temp2.log
+python -m MuonConfig.MuonSegmentFindingConfig --run --threads=2 -o=ESD_2.pool.root  | tee temp1.log
+
 echo "art-result: ${PIPESTATUS[0]}"
 
+
 test_postProcessing_Errors.sh temp1.log
-test_postProcessing_Errors.sh temp2.log
