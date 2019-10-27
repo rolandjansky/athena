@@ -486,7 +486,7 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_qj0){
     conditions.push_back(std::move(condition));
   }
 
-  std::vector<std::size_t> treeVec{0, 1, 1, 2, 2, 3, 3};
+  std::vector<std::size_t> treeVec{0, 0, 0, 1, 1, 2, 2};
   std::map<int, pHypoJet> nodeToJet;
 
   bool pass = buildAndRunMatcher(std::move(conditions),
@@ -496,8 +496,8 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_qj0){
 				 m_debug);
   
   
-  EXPECT_TRUE(pass);   // UnifiedFlowNetwork flow under dev. flow=cap = 0
-                       // so pass = rrue...
+  EXPECT_FALSE(pass);   // UnifiedFlowNetwork under development
+
  }
 
 
@@ -535,7 +535,7 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_qj1){
   conditions.push_back(std::move(condition23));
 
 
-  std::vector<std::size_t> jetIndicies{1, 2, 3, 0};
+  std::vector<std::size_t> jetIndicies{0, 0, 1, 2};
   
  for(std::size_t i=0; i< jets.size(); ++i){
     std::unique_ptr<IConditionMT> condition;
@@ -545,7 +545,7 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_qj1){
   }
   
   
- std::vector<std::size_t> treeVec {0, 1, 1, 2, 2, 3, 3};
+ std::vector<std::size_t> treeVec {0, 0, 0, 1, 1, 2, 2};
   std::map<int, pHypoJet> nodeToJet;
 
   bool pass = buildAndRunMatcher(std::move(conditions),
@@ -555,8 +555,7 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_qj1){
 				 m_debug);
   
   
-  EXPECT_TRUE(pass);    // UnifiedFlowNetwork flow under dev. flow=cap = 0
-                       // so pass = rrue...
+  EXPECT_FALSE(pass);    // UnifiedFlowNetwork flow under dev.
 
  }
 
@@ -603,7 +602,7 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_qj2){
   }
   
   
-  std::vector<std::size_t> treeVec{0, 1, 1, 2, 2, 3, 3};
+  std::vector<std::size_t> treeVec{0, 0, 0, 1, 1, 2, 2};
   std::map<int, pHypoJet> nodeToJet;
 
   bool pass = buildAndRunMatcher(std::move(conditions),
@@ -613,7 +612,6 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_qj2){
 				 m_debug);
   
   
-  EXPECT_TRUE(pass);   // UnifiedFlowNetwork flow under dev. flow=cap = 0
-                       // so pass = rrue...
- }
+  EXPECT_FALSE(pass);   // UnifiedFlowNetwork flow under dev.
+   }
 
