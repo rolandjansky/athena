@@ -74,15 +74,14 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 
   
-  bool propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
-		      CondInd2JetGroupsInds& satisfiedBy,
-		      const std::map<std::size_t, HypoJetVector>& indJetGroups,
-		      JetGroupInd2ElemInds&,  
-		      std::size_t& cur_jg,
-		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
-
-  bool propagate_(std::vector<std::shared_ptr<FlowEdge>>& edges,
-		  std::size_t par,
+  bool
+    propagateJobGroups(CondInd2JetGroupsInds& satisfiedBy,
+		       const std::map<std::size_t, HypoJetVector>& indJetGroups,
+		       JetGroupInd2ElemInds&,  
+		       std::size_t& cur_jg,
+		       const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+  
+  bool propagate_(std::size_t child,
 		  const std::vector<std::size_t>& siblings,
 		  CondInd2JetGroupsInds& satisfiedBy,
 		  JetGroupInd2ElemInds& jg2elemjgs,  

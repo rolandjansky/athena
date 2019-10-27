@@ -31,6 +31,7 @@ void JetTrigTimer::stop(){
     m_delta += duration_cast<microseconds>(m_stop - m_start).count();
   }
   m_elapsedDelta += m_delta;
+  m_delta = 0;
 }
 
 

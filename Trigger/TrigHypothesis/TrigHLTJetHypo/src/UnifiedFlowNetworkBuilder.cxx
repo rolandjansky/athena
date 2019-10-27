@@ -192,35 +192,87 @@ UnifiedFlowNetworkBuilder::make_flowEdges_(const HypoJetGroupCIter& groups_b,
   // now know which job groups match which leaf nodes. Propagate combined
   // job groups to parents of condition being processed
 
-  if(not propagateEdges(edges,
-			satisfiedBy,
-			indJetGroups,
-			jg2elemjgs,
-			cur_jg,
-			collector)){
+  if(not propagateJobGroups(satisfiedBy,
+			    indJetGroups,
+			    jg2elemjgs,
+			    cur_jg,
+			    collector)){
     // error propagating edges. e.g. unsatisfied condition
     if(collector){
       collector->collect("UnifiedFlowNetworkBuilder early return",
-			 "from propagateEdges");
+			 "from propagateJobGroups");
     }
     
     return std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
   }
 
-  //sink index follows last jet group index
-  std::size_t sink = cur_jg;
-  V = sink;
-  ++V;
 
-  for(const auto& fg : m_tree.firstGeneration()){
-    for(const auto& i : satisfiedBy[fg]){
-      edges.push_back(std::make_shared<FlowEdge>(i, sink, jg2elemjgs[i].size()));
+  //find all the indices of the incomming job groups that satisfy
+  // the first generation (ie final) Conditions.
+  // To do this:
+  // find the (condition) indices of the first generation conditions
+  // find the (job group) indices of  job groups satisfying these conditions
+  // find the iniidces of the elemental job groups that make up the satisfying
+  //     job groups 
+  // remove duplicates for the list of elemental job groups
+
+  
+  std::vector<std::size_t> satisfyingJobGroups;
+  const auto fgConditionIndices = m_tree.firstGeneration();
+
+  for(const auto& fgen : fgConditionIndices){
+    satisfyingJobGroups.insert(satisfyingJobGroups.end(),
+			       satisfiedBy[fgen].begin(),
+			       satisfiedBy[fgen].end());
+  }
+  
+  std::vector<std::size_t> elSatisfyingJobGroups;
+  for(const auto& jg: satisfyingJobGroups){
+    elSatisfyingJobGroups.insert(elSatisfyingJobGroups.end(),
+				 jg2elemjgs[jg].begin(),
+				 jg2elemjgs[jg].end());
+  }
+
+  std::set<std::size_t> uqElSatsfyingJobGroups(elSatisfyingJobGroups.begin(),
+					       elSatisfyingJobGroups.end());
+
+  //build edges. Start with sink to job group indices for elemental
+  // job groups that participate in the satisfact of the final conditions
+
+  // will use condition node indices to label flownetwork nodes.
+  // cannot use elemental jet group indices as these overlap with
+  // the condition indices.
+  auto cur_node = *std::max_element(fgConditionIndices.begin(),
+				    fgConditionIndices.end());
+  
+
+  // now add edges between the
+  //  job groups that participate in the satisfaction of the final conditions
+  // and those  final conditions in which it participates
+  for(const auto& ejg : uqElSatsfyingJobGroups){ // elemental job group
+    edges.push_back(std::make_shared<FlowEdge>(0, ++cur_node, 1));
+    
+    for(const auto& fg : fgConditionIndices){
+      for(const auto& sjg : satisfiedBy[fg]){ // indices of jgs that satisfy a final conditions
+	if(std::find(jg2elemjgs[sjg].begin(),  // determine which condition the el jg satisfies
+		     jg2elemjgs[sjg].end(),
+		     ejg) != jg2elemjgs[sjg].end()){
+	  edges.push_back(std::make_shared<FlowEdge>(cur_node, fg, 1));
+	}
+      }
     }
+  }
+  
+  std::size_t sink = ++cur_node;
+  V = ++cur_node;
+
+  for(const auto& i : fgConditionIndices){
+    edges.push_back(std::make_shared<FlowEdge>(i, sink, m_conditions[i]->capacity()));
   }
   return std::make_optional<std::vector<std::shared_ptr<FlowEdge>>>(edges);
 }
 
-bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>& edges,
+bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr<FlowEdge>>&,
 						     const std::vector<int>& leaves,
 						     const HypoJetGroupCIter& groups_b,
 						     const HypoJetGroupCIter& groups_e,
@@ -258,9 +310,11 @@ bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
 	  jg_used= true;
 	  jg2elemjgs[cur_jg] =  std::vector<std::size_t>{cur_jg};
 	  indJetGroups.emplace(cur_jg, jg);
+	  /*
 	  edges.push_back(std::make_shared<FlowEdge>(0,
 						     cur_jg,
 						     jg.size()));
+	  */
 	  if(collector){recordJetGroup(cur_jg, jg, collector);}
 	}
 	// do the following for each satisfied condition ...
@@ -282,12 +336,11 @@ bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
 
 
 
-bool UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowEdge>>& edges,
-					       CondInd2JetGroupsInds& satisfiedBy,
-					       const std::map<std::size_t, HypoJetVector>& indJetGroups,
-					       JetGroupInd2ElemInds& jg2elemjgs,  
-					       std::size_t& cur_jg,
-					       const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
+bool UnifiedFlowNetworkBuilder::propagateJobGroups(CondInd2JetGroupsInds& satisfiedBy,
+						   const std::map<std::size_t, HypoJetVector>& indJetGroups,
+						   JetGroupInd2ElemInds& jg2elemjgs,  
+						   std::size_t& cur_jg,
+						   const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
   
   
   // construct jet groups according from jet groups that pass child
@@ -329,8 +382,7 @@ bool UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
     // check if combinations of groups satisfying children satisfy their parent
     if (k != 0){
 
-      if(!propagate_(edges,
-		     k,
+      if(!propagate_(k,
 		     siblings,
 		     satisfiedBy,
 		     jg2elemjgs,
@@ -348,8 +400,7 @@ bool UnifiedFlowNetworkBuilder::propagateEdges(std::vector<std::shared_ptr<FlowE
 }
 
 
-bool UnifiedFlowNetworkBuilder::propagate_(std::vector<std::shared_ptr<FlowEdge>>& edges,
-					   std::size_t child,
+bool UnifiedFlowNetworkBuilder::propagate_(std::size_t child,
 					   const std::vector<std::size_t>& siblings,
 					   CondInd2JetGroupsInds& satisfiedBy,
 					   JetGroupInd2ElemInds& jg2elemjgs,  
@@ -413,12 +464,14 @@ bool UnifiedFlowNetworkBuilder::propagate_(std::vector<std::shared_ptr<FlowEdge>
       satisfiedBy[par].push_back(cur_jg);
       jg2elemjgs[cur_jg] = elem_jgs;
       if(collector){recordJetGroup(cur_jg, jg, collector);}
-      
+
+      /*
       for(const auto& i : jg_indices){
 	edges.push_back(std::make_shared<FlowEdge>(i,
 						   cur_jg,
 						   jg2elemjgs[i].size()));
       }
+      */
       ++cur_jg;
     }
     
