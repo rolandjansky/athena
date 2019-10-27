@@ -130,9 +130,9 @@ def JetHypoExerciserCompareCfg(label,
     # print('ht1 = ', ht1)
     
     jetHypoExerciserAlg=JetHypoExerciserCompareAlg("JetHypoCompareExerciser")
-    jetHypoExerciserAlg.JetHypoHelperTool0 = ht0
+    jetHypoExerciserAlg.JetHypoHelperTool0 = ht1  # run ufn first
     # jetHypoExerciserAlg.JetHypoHelperTool1 = ht0
-    jetHypoExerciserAlg.JetHypoHelperTool1 = ht1
+    jetHypoExerciserAlg.JetHypoHelperTool1 = ht0  # then tree
 
     useEtNotE = True
     jetHypoExerciserAlg.event_generator = test_conditions.make_event_generator(
@@ -155,7 +155,7 @@ def JetHypoExerciserCompareCfg(label,
 if __name__=="__main__":
 
     n_signal = 6
-    n_background = 10
+    n_background = 25
     bkgdEmax = 50000.
     label_ind = 21
     label = test_strings[label_ind]
