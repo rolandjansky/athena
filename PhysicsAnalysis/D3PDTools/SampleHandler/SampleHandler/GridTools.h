@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SAMPLE_HANDLER__GRID_TOOLS_H
@@ -16,6 +16,12 @@
 namespace SH
 {
   ANA_MSG_HEADER (msgGridTools)
+
+
+  /// \brief the name of the environment variable containing the
+  /// directory for staging files from the grid
+  const std::string& downloadStageEnvVar ();
+
 
   /// \brief return whether we have a valid VOMS proxy available
   /// \par Guarantee
@@ -191,6 +197,19 @@ namespace SH
   std::vector<RucioDownloadResult>
   rucioDownloadList (const std::string& location,
                      const std::vector<std::string>& datasets);
+
+
+  /// \brief download the dataset, and return a list matching the
+  /// pattern
+  /// \par Guarantee
+  ///   basic
+  /// \par Failures
+  ///   grid utility failures
+  ///   i/o errors
+  std::vector<std::string>
+  rucioCacheDatasetGlob (const std::string& location,
+                         const std::string& dataset,
+                         const std::string& fileGlob);
 }
 
 #endif
