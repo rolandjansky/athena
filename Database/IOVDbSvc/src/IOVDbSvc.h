@@ -166,6 +166,10 @@ public:
                   std::string& tag, IOVRange& range, bool& retrieved,
                   unsigned long long& bytesRead, float& readTime) override;
 
+  /// Return information about SG key
+  /// return false if this key is not known to IOVDbSvc
+  virtual
+  bool getKeyInfo(const std::string& key, IIOVDbSvc::KeyInfo& info) override;
 
   // drop an IOVDbSvc-managed object from Storegate, indicating we will
   // not read it again and can free up memory 
