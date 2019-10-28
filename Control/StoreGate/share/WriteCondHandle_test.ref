@@ -1,0 +1,46 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts /home/leggett/work/condhanddep/src/Control/StoreGate/share/WriteCondHandle_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/work/condhanddep/src/Control/StoreGate/share/WriteCondHandle_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/ConditionStore"]
+JobOptionsSvc        INFO # (2,1): ConditionStore.ProxyProviderSvc = ""
+JobOptionsSvc        INFO Job options successfully read in from /home/leggett/work/condhanddep/src/Control/StoreGate/share/WriteCondHandle_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r2)
+                                          running on zeus on Thu Oct 24 12:04:07 2019
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 764 CLIDRegistry entries for module ALL
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test2
+r1: {[0,t:0] - [0,t:3]} {[0,t:3] - [0,t:7]} {[0,t:7] - [0,t:10]}
+r2: {[0,t:0] - [0,t:5]} {[0,t:5] - [0,t:10]}
+r3: {[0,t:0] - [0,t:2]} {[0,t:2] - [0,t:6]} {[0,t:6] - [0,t:10]}
+ClassIDSvc           INFO  getRegistryEntries: read 2638 CLIDRegistry entries for module ALL
+expected ERROR: WriteCondHandle     ERROR WriteCondHandle::record() : no range defined for key  ( 'MyDObj' , 'ConditionStore+MyObjD_err' ) 
+expected ERROR: WriteCondHandle     ERROR WriteCondHandle::record(EventIDRange, T*): for key  ( 'MyDObj' , 'ConditionStore+MyObjD_err' )  cannot use this method if range has already been set via dependencies
+test EventID: [0,t:1]
+o1: 1  {[0,t:0] - [0,t:3]} {[0,t:0] - [0,t:3]}
+o2: 21  {[0,t:0] - [0,t:5]}
+o3: 131  {[0,t:0] - [0,t:2]}
+rD: {[0,t:0] - [0,t:2]}  ==  {[0,t:0] - [0,t:2]}
+test EventID: [0,t:4]
+o1: 2  {[0,t:3] - [0,t:7]} {[0,t:3] - [0,t:7]}
+o2: 21  {[0,t:0] - [0,t:5]}
+o3: 132  {[0,t:2] - [0,t:6]}
+rD: {[0,t:3] - [0,t:5]}  ==  {[0,t:3] - [0,t:5]}
+test EventID: [0,t:6]
+o1: 2  {[0,t:3] - [0,t:7]} {[0,t:3] - [0,t:7]}
+o2: 22  {[0,t:5] - [0,t:10]}
+o3: 133  {[0,t:6] - [0,t:10]}
+rD: {[0,t:6] - [0,t:7]}  ==  {[0,t:6] - [0,t:7]}
+test EventID: [0,t:9]
+o1: 3  {[0,t:7] - [0,t:10]} {[0,t:7] - [0,t:10]}
+o2: 22  {[0,t:5] - [0,t:10]}
+o3: 133  {[0,t:6] - [0,t:10]}
+rD: {[0,t:7] - [0,t:10]}  ==  {[0,t:7] - [0,t:10]}
