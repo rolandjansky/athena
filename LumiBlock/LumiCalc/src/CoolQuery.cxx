@@ -81,9 +81,10 @@ unsigned int CoolQuery::getTriggerLevel(std::string triggername){
   size_t found = triggername.find_first_of("_");
   if(found != std::string::npos){
     std::string s_lvl = triggername.substr(0,found);
-    if(s_lvl == "EF")return 3;
-    if(s_lvl == "L2")return 2;
-    if(s_lvl == "L1")return 1;
+    if(s_lvl == "EF") return 3;
+    if(s_lvl == "L2") return 2;
+    if(s_lvl == "L1") return 1;
+    if(s_lvl == "HLT") return 2;
   }
 
   // Indicate no valid trigger name passed
