@@ -149,7 +149,9 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
           m_decoder->fillCollection(robf[0], *digitsCollection);
         }
       } else {
-        digitsCollection->setFragBCID((TileROD_Decoder::NO_ROB)<<16);
+        uint32_t status = TileROD_Decoder::NO_ROB;
+        digitsCollection->setFragBCID(0xDEAD | (status<<16));
+        ATH_MSG_DEBUG( "Status for " << ((isTMDB)?"TMDB ":"") << "drawer 0x" << MSG::hex << collID << " in Digi frag is 0x" << status << MSG::dec);
       }
     }
 
