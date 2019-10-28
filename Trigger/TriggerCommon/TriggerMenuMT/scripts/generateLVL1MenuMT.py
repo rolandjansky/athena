@@ -72,7 +72,7 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
 def findUnneededRun2():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+    from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
     
     menus = ['Physics_pp_v6']
 
@@ -86,7 +86,7 @@ def findUnneededRun2():
 
 def findRequiredItemsFromXML():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+    from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
     
     menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1']
 

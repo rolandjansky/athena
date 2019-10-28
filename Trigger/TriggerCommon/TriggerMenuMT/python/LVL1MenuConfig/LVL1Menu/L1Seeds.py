@@ -8,7 +8,7 @@ from TriggerJobOpts.TriggerFlags  import TriggerFlags
 #######################################
 # trigger type definitions
 ######################################
-from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 run1 = Lvl1Flags.CTPVersion()<=3
 
 if run1:
@@ -16,7 +16,7 @@ if run1:
     rpcout_type = TT.rpcout | TT.phys
     rpcin_type  = TT.rpcin  | TT.phys             
 else:
-    from TriggerMenu.l1.TriggerTypeDef import TT
+    from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDef import TT
     rpcout_type = TT.muon   | TT.phys
     rpcin_type  = TT.muon   | TT.phys             
 
