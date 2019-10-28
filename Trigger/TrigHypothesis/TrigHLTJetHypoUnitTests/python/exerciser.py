@@ -13,7 +13,6 @@ from TrigHLTJetHypo.TrigJetHypoToolConfig import (
     trigJetHypoToolHelperFromDict_,)
 
 from TrigHLTJetHypo.test_cases import test_strings
-from TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
