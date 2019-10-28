@@ -20,6 +20,8 @@
 # undef _XOPEN_SOURCE
 #endif
 #include "Python.h"
+#include <string>
+#include <utility>
 
 
 namespace RootUtils {
