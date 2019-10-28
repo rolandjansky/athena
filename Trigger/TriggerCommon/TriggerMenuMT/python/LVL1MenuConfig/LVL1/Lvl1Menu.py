@@ -10,7 +10,7 @@ from Limits import Limits
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerMenu.l1.Lvl1Menu")
+log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Menu")
 
 class Lvl1Menu(object):
 
