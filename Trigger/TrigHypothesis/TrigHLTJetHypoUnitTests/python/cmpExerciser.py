@@ -155,9 +155,10 @@ def JetHypoExerciserCompareCfg(label,
 if __name__=="__main__":
 
     n_signal = 6
-    n_background = 5
+    n_background = 0
     bkgdEmax = 50000.
-    label_ind = 0
+    # label_ind = 1
+    label_ind = 21
     label = test_strings[label_ind]
 
     
@@ -172,7 +173,7 @@ if __name__=="__main__":
                                          bkgdEmax)
     )
 
-    cfg.setAppProperty("EvtMax", 20)
+    cfg.setAppProperty("EvtMax", 1)
     cfg.run()
 
     #f=open("HelloWorld.pkl","w")

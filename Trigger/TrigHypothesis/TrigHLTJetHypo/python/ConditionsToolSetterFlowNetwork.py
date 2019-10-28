@@ -191,13 +191,19 @@ class ConditionsToolSetterFlowNetwork(object):
             for cn in node.children:
                 if is_leaf(cn):
                     if len(cn.compound_condition_tools) > 1:
-                        new_nodes =  []
+                        new_children =  []
+                        new_node = copy.deepcopy(cn)
+                        # set scenarrio to other than leaf results in 
+                        # the assignement of  an acceptall condition
+                        new_node.scenario = 'inserted'
+                        new_node.compound_condition_tools = []
                         for ct in cn.compound_condition_tools:
-                            new_nodes.append(copy.deepcopy(cn))
-                            new_nodes[-1].compound_condition_tools = [ct]
-                            new_nodes[-1].conf_attrs = []
+                            new_children.append(copy.deepcopy(cn))
+                            new_children[-1].compound_condition_tools = [ct]
+                            new_children[-1].conf_attrs = []
+                        new_node.children.extend(new_children)
                         node.children.remove(cn)
-                        node.children.extend(new_nodes)
+                        node.children.append(new_node)
                         return True # return after first modification
 
             return False
@@ -230,7 +236,11 @@ class ConditionsToolSetterFlowNetwork(object):
         elif node.scenario == 'partgen':
             for cn in node.children:
                 self._find_shared(cn, shared)
-                
+
+        elif node.scenario == 'inserted':
+            for cn in node.children:
+                self._find_shared(cn, shared)
+
         elif is_leaf(node):
             if len(node.children) == 0:
                 if len(shared) == 0:
@@ -303,6 +313,9 @@ class ConditionsToolSetterFlowNetwork(object):
         reduce it to form from whuch the treevector, conditionsVector and
         sharedNodes list can be extracted. These will be used to initialise
         FlowNetworkBuilder.
+
+        In particular: all leaf nodes will have a single ConmpoundCondition
+        All other nodes will be assigned an AcceptAll condition.
         """
 
         # navigate the tree filling in node-parent and node- Condtion factory
