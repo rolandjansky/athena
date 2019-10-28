@@ -11,6 +11,7 @@
 
 #include <TriggerAnalysisAlgorithms/TrigPrescalesAlg.h>
 
+#include <RootCoreUtils/StringUtil.h>
 #include <xAODEventInfo/EventInfo.h>
 
 //
@@ -55,7 +56,7 @@ namespace CP
 
     for (const std::string &chain : m_trigListAll)
     {
-      m_prescaleAccessors.emplace_back(m_prescaleDecoration + "_" + chain);
+      m_prescaleAccessors.emplace_back(m_prescaleDecoration + "_" + RCU::substitute (chain, "-", "_"));
 
       // Generate helper functions
       if (std::find(m_trigList.begin(), m_trigList.end(), chain) != m_trigList.end())
