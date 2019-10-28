@@ -11,6 +11,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArCOOLConditions/LArDSPConfig.h"
 #include "CaloIdentifier/CaloGain.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TFile.h"
 #include "TKey.h"
 #include "TTree.h"
