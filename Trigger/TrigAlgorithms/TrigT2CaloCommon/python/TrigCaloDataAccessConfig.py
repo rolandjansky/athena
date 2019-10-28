@@ -33,7 +33,7 @@ def createLArRoI_Map( flags ):
 def trigCaloDataAccessSvcCfg( flags ):    
 
     acc = ComponentAccumulator()
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
+    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svc = TrigCaloDataAccessSvc()
 
     # since the svc depends on calo geometry configure it here
