@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LumiCalc/LumiCalculator.h"
@@ -13,10 +13,8 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TString.h"
+#include "TObjString.h"
 #include "TROOT.h"
-
-// MB 20100115: turn off for now, RootGraphics lib crashes on some non-cern sites.
-//#include "TCanvas.h"
 
 // stl includes
 #include <iomanip>
@@ -26,7 +24,6 @@
 
 LumiCalculator::LumiCalculator()
  : m_logger( "LumiCalculator" )
- //, m_effxsec = 47.134 
  , m_lbstarttime(0.)
  , m_lbendtime(0.)
 
@@ -201,7 +198,6 @@ void LumiCalculator::setTree(TTree * tree){
     m_LumiTree->Branch("IOVRStart", &m_lbstart);
     m_LumiTree->Branch("IOVREnd", &m_lbstop);
     m_LumiTree->Branch("LBStart", &m_clumiblocknbr);
-    //  m_LumiTree->Branch("LBEnd", &m_clumiblocknbrend);
     m_LumiTree->Branch("Inst_m_Lumi", &m_instLumi);
     m_LumiTree->Branch("LiveTime", &m_livetime);
     m_LumiTree->Branch("L1Presc", &m_l1prescale);
@@ -307,13 +303,16 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
   const IOVRange* iovr = new IOVRange(IOVTime((*it)->startRunNumber(),(*it)->startLumiBlockNumber()), 
                                       IOVTime((*it)->stopRunNumber(),(*it)->stopLumiBlockNumber()));
 
+  bool isrun2 = false;
   std::string onlfolder;
   std::string oflfolder;
   if (iovr->start().run() > 222222) {
+    isrun2 = true;
     m_data_db="CONDBR2";
     onlfolder = "/TRIGGER/LUMI/OnlPrefLumi";
     oflfolder = "/TRIGGER/OFLLUMI/OflPrefLumi";
   } else {
+    isrun2 = false;
     m_data_db="COMP200";
     onlfolder = "/TRIGGER/LUMI/LBLESTONL";
     oflfolder = "/TRIGGER/OFLLUMI/LBLESTOFL";
@@ -483,6 +482,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
   //==============================
 
   IOVData<cool::Int32> L1preObj;
+  IOVData<cool::Int32> L1preOther;
   IOVData<cool::Float> L2preObj;
   IOVData<cool::Float> L3preObj;
   IOVData<cool::UInt32> LArObj;
@@ -499,7 +499,6 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
   std::map<cool::ValidityKey, CoolQuery::L1CountFolderData> L1accept_map;
 
   for(xAOD::LumiBlockRangeContainer::const_iterator it = iovc->begin(); it != iovc->end(); ++it){
-    //    const IOVRange * iovr = (*it);
     const IOVRange* iovr = new IOVRange(IOVTime((*it)->startRunNumber(),(*it)->startLumiBlockNumber()), 
                                         IOVTime((*it)->stopRunNumber(),(*it)->stopLumiBlockNumber()));
     
@@ -550,6 +549,9 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       m_L3Valid = false;
       m_LiveValid = false;
       m_triggerlowerchains.clear();
+      // These are used to resolve L1 ORs like [L1_MU20,L1_MU21]
+      m_L1triggerchains.clear();
+      m_L1idList.clear();
 
       std::string lowerch = "";
 
@@ -560,27 +562,27 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 
 	lowerch =  cq_trigger->getHLTLowerChainName(triggerchain, m_parhltmenufolder); 
 	m_triggerlowerchains.push_back(lowerch); 
+	//
 	m_L2id = cq_trigger->getHLTChannelId(lowerch, m_parhltmenufolder);
 	m_L2Valid = cq_trigger->channelIdValid();
 
 	lowerch = cq_trigger->getHLTLowerChainName(lowerch, m_parhltmenufolder); 
 	m_triggerlowerchains.push_back(lowerch);
+	//
 	m_L1id = cq_trigger->getL1ChannelId(lowerch, m_parlvl1menufolder );
 	m_L1Valid = cq_trigger->channelIdValid();
 
-      }else if(m_triglevel == 2){
+      }else if(m_triglevel == 2){  // Run2 or starting at L2 in Run1
 	lowerch =  cq_trigger->getHLTLowerChainName(triggerchain, m_parhltmenufolder); 
 	m_triggerlowerchains.push_back(lowerch);
 	m_L2id = cq_trigger->getHLTChannelId(triggerchain, m_parhltmenufolder);
 	m_L2Valid = cq_trigger->channelIdValid();
 
-	m_L1id = cq_trigger->getL1ChannelId(lowerch, m_parlvl1menufolder); 
-	m_L1Valid = cq_trigger->channelIdValid();
+	ParseL1Trigger(lowerch, cq_trigger);
 
       }else if(m_triglevel == 1){
-	m_L1id = cq_trigger->getL1ChannelId(triggerchain, m_parlvl1menufolder);
-	m_L1Valid = cq_trigger->channelIdValid();
-	
+
+	ParseL1Trigger(triggerchain, cq_trigger);
       }
 
       if (firstL1Missing && (!m_L1Valid && m_triglevel > 0)) {
@@ -671,30 +673,6 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
     // Update DB for this specific IOV range
     cq_trigger->setIOV(iovr->start().re_time(), iovr->stop().re_time());
 
-    //----------------------------
-    // Load prescales for this IOV
-    L1preObj.clear();
-    L2preObj.clear();
-    L3preObj.clear();
-    
-    if(m_L1Valid) {
-      L1preObj = cq_trigger->getIOVData<cool::Int32>("Lvl1Prescale", m_parlvl1prescalesfolder, m_L1id);
-    }
-      
-    if(m_L2Valid) {
-      L2preObj = cq_trigger->getIOVData<cool::Float>("Prescale", m_parhltprescalesfolder, 2*m_L2id);
-    }    
-      
-    if(m_L3Valid) {
-      L3preObj = cq_trigger->getIOVData<cool::Float>("Prescale", m_parhltprescalesfolder, 2*m_L3id+1);
-    }
-
-    // Reload the time map to get the ATLAS range
-    L1starttime_map.clear();
-    L1endtime_map.clear();
-    L1starttime_map = cq_trigger->getObjMapFromFolderAtChan<cool::UInt63>("StartTime", m_parlvl1lblbfolder, 0);
-    L1endtime_map = cq_trigger->getObjMapFromFolderAtChan<cool::UInt63>("EndTime", m_parlvl1lblbfolder, 0);
-
     // Print this here (will be output for each contiguous LB range in XML file)
     m_logger << Root::kINFO << std::left << "-----------------------------------" << Root::GEndl;
     m_logger << Root::kINFO << "Beginning calculation for ";
@@ -709,6 +687,109 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       }
     }
     m_logger << Root::kINFO << "Run " << m_runnbr << " LB [" << m_lbstart << "-" << m_lbstop << "]" << Root::GEndl;
+    m_logger << Root::kINFO << std::left << "-----------------------------------" << Root::GEndl;
+    
+    //----------------------------
+    // Load prescales for this IOV
+    L1preObj.clear();
+    L2preObj.clear();
+    L3preObj.clear();
+    L1preOther.clear();  // Used for mutliple L1 triggers
+
+    if(m_L1Valid) {
+      // Normal case
+      if (m_L1idList.size() <= 1) {
+	L1preObj = cq_trigger->getIOVData<cool::Int32>("Lvl1Prescale", m_parlvl1prescalesfolder, m_L1id);
+
+      // Multiple L1 items defined
+      } else {
+
+	m_logger << Root::kINFO << "Resolving multiple L1 prescales:" << Root::GEndl;
+
+	// Load first one
+	L1preObj = cq_trigger->getIOVData<cool::Int32>("Lvl1Prescale", m_parlvl1prescalesfolder, m_L1idList[0]);
+
+	// Dump prescales
+	std::list< std::pair<IOVRange, cool::Int32> >::iterator it;
+
+	m_logger << Root::kINFO << std::setw(10) << std::left << m_L1triggerchains[0];
+	for(it = L1preObj.data.begin(); it != L1preObj.data.end(); it++) {
+	  m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
+
+	  if (it->second < 0)
+	    m_logger << it->second <<  ", "; 
+	  else
+	    m_logger << (0xFFFFFF / float(0x1000000 - it->second)) <<  ", "; 
+	}
+	m_logger << Root::kINFO << Root::GEndl;
+
+	// Now loop over the remaining and replace
+	for (unsigned int iid=1; iid < m_L1idList.size(); iid++) {
+	  L1preOther = cq_trigger->getIOVData<cool::Int32>("Lvl1Prescale", m_parlvl1prescalesfolder, m_L1idList[iid]);	
+
+	  // Dump prescales
+	  m_logger << Root::kINFO << std::setw(10) << std::left << m_L1triggerchains[iid];
+	  for(it = L1preOther.data.begin(); it != L1preOther.data.end(); it++) {
+	    m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
+
+	    if (it->second < 0)
+	      m_logger << it->second <<  ", "; 
+	    else
+	      m_logger << (0xFFFFFF / float(0x1000000 - it->second)) <<  ", "; 
+	  }
+	  m_logger << Root::kINFO << Root::GEndl;
+
+	  // Iterate through both lists and keep lowest non-negative prescale
+	  std::list< std::pair<IOVRange, cool::Int32> >::iterator it1;
+	  std::list< std::pair<IOVRange, cool::Int32> >::iterator it2;
+	  for(it1 = L1preObj.data.begin(), it2 = L1preOther.data.begin(); it1 != L1preObj.data.end(); it1++, it2++) {
+
+	    // -1 is disabled, otherwise this is the event count to prescale
+	    if ((it2->second > 0) && (it1->second > it2->second)) {
+	      // Check if they are both prescaled (this is bad)
+	      if ((it1->second > 1) && (it2->second > 1)) {
+	        m_logger << Root::kWARNING << "L1 Prescales combined with both triggers prescaled for Run " << m_runnbr << "!" << Root::GEndl;
+	      }
+	      it1->second = it2->second;// See if this works...
+	    }
+	  }
+	}
+
+	// OK done, lets check the result
+	// Dump prescales
+	m_logger << Root::kINFO << std::setw(10) << std::left << "L1 Pre:";
+	for(it = L1preObj.data.begin(); it != L1preObj.data.end(); it++) {
+	  m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
+
+	  if (it->second < 0)
+	    m_logger << it->second <<  ", "; 
+	  else
+	    m_logger << (0xFFFFFF / float(0x1000000 - it->second)) <<  ", "; 
+	}
+	m_logger << Root::kINFO << Root::GEndl;
+
+      }
+
+    }
+      
+    if(m_L2Valid) {
+      if (isrun2) {
+	L2preObj = cq_trigger->getIOVData<cool::Float>("Prescale", m_parhltprescalesfolder, 20000 + m_L2id);
+      }
+      else {
+	L2preObj = cq_trigger->getIOVData<cool::Float>("Prescale", m_parhltprescalesfolder, 2*m_L2id);
+      }
+    }    
+      
+    if(m_L3Valid) {
+      L3preObj = cq_trigger->getIOVData<cool::Float>("Prescale", m_parhltprescalesfolder, 2*m_L3id+1);
+    }
+
+    // Reload the time map to get the ATLAS range
+    L1starttime_map.clear();
+    L1endtime_map.clear();
+    L1starttime_map = cq_trigger->getObjMapFromFolderAtChan<cool::UInt63>("StartTime", m_parlvl1lblbfolder, 0);
+    L1endtime_map = cq_trigger->getObjMapFromFolderAtChan<cool::UInt63>("EndTime", m_parlvl1lblbfolder, 0);
 
     // Restrict lb range if necessary based on actual ATLAS run/lb values
     if (L1starttime_map.begin()->first > iovr->start().re_time() || L1starttime_map.rbegin()->first < iovr->stop().re_time()) {
@@ -728,17 +809,11 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
     int lastMissing = -1;
 
     for (cool::ValidityKey currentVK = L1starttime_map.begin()->first; currentVK <= L1starttime_map.rbegin()->first; currentVK++) {
-      //for(; itOL != LumiDataMap.end(); ++itOL){
-
-      // Current ValidityKey:
-      //cool::ValidityKey currentVK = itOL->first;
 	  
       // Current IOVTime
       IOVTime curIOV;
       curIOV.setRETime(currentVK);
 
-      //m_clumiblocknbr = (itOL->first & 0xFFFFFFFF);
-      //m_clumiblocknbrend = ((itOL->first & 0xFFFFFFFF) + 1);
       m_clumiblocknbr = curIOV.event();
       m_clumiblocknbrend = curIOV.event()+1;
 
@@ -834,7 +909,15 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
        if(m_L1Valid && m_triglevel > 0) {
 	
 	 // Get L1 prescale
-	 m_l1prescale = L1preObj.getValue(curIOV);
+	 if (isrun2) {
+	   if (L1preObj.getValue(curIOV) < 0)
+	     m_l1prescale = L1preObj.getValue(curIOV);
+	   else
+	     m_l1prescale = 0xFFFFFF / float(0x1000000 - L1preObj.getValue(curIOV));
+	 }
+	 else {
+	   m_l1prescale = L1preObj.getValue(curIOV);
+	 }
 
 	if (m_triglevel >=2) {
 	  if(m_L2Valid) {
@@ -877,6 +960,19 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 	m_livefrac = 0.0;
       }
       
+      // Hack for bad SFO in particular run
+      if (m_runnbr == 286367) {
+	m_livefrac *= 5./6.;
+      }
+
+      if (m_runnbr == 281385) {
+	if (m_clumiblocknbr <= 196) {
+	  m_livefrac *= 4./6.;
+	} else if (m_clumiblocknbr <= 196) {
+	  m_livefrac *= 5./6.;
+	}
+      }
+
       // Check for low statistics in afterprescale counts
       if(m_livetime_beforeprescale > 0 && m_livetime_afterprescale <= 0 ){
 	std::string ttrig = "";
@@ -977,8 +1073,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       } else {
 	
 	// For offline, we also need to strip out the preferred channel value from the validity word
-	// if (m_Lumiid == 0) m_Valid &= 0x3FF;
-	m_Valid &= 0x3FF;
+	m_Valid &= 0xFFFF;
       }
 
       // Dump out debugging information
@@ -987,7 +1082,11 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 	if(m_uselivetrigger) m_logger << ", Livetime trigger L1Acc: " << m_livetime_l1acc;
 	m_logger << ", InstLumi: " << m_instLumi << ", deltaT: " << m_deltaT << ", AvEvtsPerBX: " << m_AvEvtsPerBX << ", BeforePrescale: " << m_beforeprescale << ", AfterPrescale: " << m_afterprescale;
 	if (m_uselivetrigger) m_logger  << ", Livetime trigger BeforePrescale: " << m_livetime_beforeprescale << " Livetime trigger AfterPrescale: " << m_livetime_afterprescale;
-	m_logger  << ", Livefrac: " << m_livefrac << ", L1Presc: " << m_l1prescale << ", L2Presc: " << m_l2prescale << ", L3Presc: " << m_l3prescale <<  ", Valid: " << m_Valid;
+	if (isrun2) {
+	  m_logger  << ", Livefrac: " << m_livefrac << ", L1Presc: " << m_l1prescale << ", HLTPresc: " << m_l2prescale <<  ", Valid: " << m_Valid;
+	} else {
+	  m_logger  << ", Livefrac: " << m_livefrac << ", L1Presc: " << m_l1prescale << ", L2Presc: " << m_l2prescale << ", L3Presc: " << m_l3prescale <<  ", Valid: " << m_Valid;
+	}
 	if (m_uselar) m_logger << ", LAr ready fraction: " << m_larfrac;
 	m_logger << Root::GEndl;
       }
@@ -1000,14 +1099,14 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 	m_instLumi = 0.0;
 	m_totalbadblock += 1;
 	m_t_totalbadblock += 1;
-	if(m_verbose == true)m_logger << Root::kWARNING << "Skipping lumiblock " <<  m_runnbr << "[" << m_clumiblocknbr << "] with invalid inst. lumi.!" << Root::GEndl;
+	m_logger << Root::kWARNING << "Skipping lumiblock " <<  m_runnbr << "[" << m_clumiblocknbr << "] with invalid inst. lumi. (valid=" << m_Valid << ")!" << Root::GEndl;
 	
       } else if ((m_triglevel > 0) && (m_l1prescale < 0. || m_l2prescale < 0. || m_l3prescale < 0.)) {
 	
 	// Disabled trigger, call bad but still record delivered luminosity
 	m_totalbadblock += 1;
 	m_t_totalbadblock += 1;
-	if(m_verbose == true)m_logger << Root::kWARNING << "Lumiblock " <<  m_runnbr << "[" << m_clumiblocknbr << "] has a disabled or incorrectly specified trigger.! " << Root::GEndl;
+	m_logger << Root::kWARNING << "Lumiblock " <<  m_runnbr << "[" << m_clumiblocknbr << "] has a disabled or incorrectly specified trigger.! " << Root::GEndl;
 	
       }
 
@@ -1096,7 +1195,6 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
     } // End of loop over lumi blocks
 
     // Print IOV summary
-    m_logger << Root::kINFO << std::left << "-----------------------------------" << Root::GEndl;
     m_logger << Root::kINFO<< std::setw(10) << std::left << ">== Trigger  : " << triggerchain << Root::GEndl;
     m_logger << Root::kINFO<< std::setw(10) << std::right << "Run" <<  std::setw(10) << std::right << "L1-Acc" << std::setw(10) << std::right << "L2-Acc" << std::setw(10) << std::right <<  "L3-Acc" << std::setw(10) << std::right <<  "LiveTime" << std::setw(18) << std::right <<  "IntL rec.(ub^-1)" << std::setw(18) << std::right <<  "IntL del.(ub^-1)" << Root::GEndl;
     m_logger << Root::kINFO<< std::setw(10) << std::right << m_runnbr << std::setw(10) << std::right << m_t_l1acc << std::setw(10) << std::right << m_t_l2acc << std::setw(10) << std::right << m_t_l3acc << std::setw(10) << std::right << m_t_totaltime << std::setw(18) << std::right << m_t_totalL << std::setw(18) << std::right << m_t_totalDelL << Root::GEndl;
@@ -1127,14 +1225,27 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 
       std::list< std::pair<IOVRange, cool::Int32> >::iterator it;
       for(it = L1preObj.data.begin(); it != L1preObj.data.end(); it++) {
-	m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" << it->second <<  ", "; 
+	m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
+	if (isrun2) {
+	  if (it->second < 0)
+	    m_logger << it->second <<  ", "; 
+	  else
+	    m_logger << (0xFFFFFF / float(0x1000000 - it->second)) <<  ", "; 
+	} else {
+	  m_logger << it->second <<  ", "; 
+	}
       }
       m_logger << Root::kINFO << Root::GEndl;
     }
     
     if(m_triglevel >= 2){
       // Print L2 Prescale values:
-      m_logger << Root::kINFO << std::setw(10) << std::left << "L2 Prescales: ";
+      if (isrun2) {
+	m_logger << Root::kINFO << std::setw(10) << std::left << "HLT Prescales: ";
+      } 
+      else {
+	m_logger << Root::kINFO << std::setw(10) << std::left << "L2 Prescales: ";
+      }
 
       std::list< std::pair<IOVRange, cool::Float> >::iterator it;
       for(it = L2preObj.data.begin(); it != L2preObj.data.end(); it++) {
@@ -1206,6 +1317,48 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
   delete cq_lumi;
   delete cq_lar;
   delete cq_bs;
+}
+
+// Deal with composite L1 trigger
+void
+LumiCalculator::ParseL1Trigger(std::string lowerch, CoolQuery * cq_trigger) {
+
+  //
+  // Check if we have multiple entries
+  size_t last = 0; 
+  size_t next = 0; 
+  cool::ChannelId id;
+  bool valid;
+  
+  m_L1id = 0;
+  m_L1Valid = false;
+  
+  if (lowerch.find(',', last) == std::string::npos) {
+    // Normal case
+    m_L1id = cq_trigger->getL1ChannelId(lowerch, m_parlvl1menufolder); 
+    m_L1Valid = cq_trigger->channelIdValid();
+    
+  } else {
+    m_logger << Root::kINFO << "L1 item is composite: " << lowerch << Root::GEndl;
+    do {
+      next = lowerch.find(',', last);
+      // Check if these are valid before using them
+      id = cq_trigger->getL1ChannelId(lowerch.substr(last, next-last),  m_parlvl1menufolder);
+      valid = cq_trigger->channelIdValid();
+      if (valid) {
+	m_L1triggerchains.push_back(lowerch.substr(last, next-last));
+	m_L1idList.push_back(m_L1id);
+	m_L1id = id;
+	m_L1Valid = true;
+      } else {
+	m_logger << Root::kINFO << lowerch.substr(last, next-last) << " Invalid" << Root::GEndl;	    
+      }
+      
+      last = next + 1; 
+    } while (next != std::string::npos);
+    
+    
+  }
 }
 
 // ---------------------------------------------------------------------------------
@@ -1305,31 +1458,6 @@ LumiCalculator::SetHistogramStyle(TH1F* hist, const char* title, const char* xax
 
   hist->SetLineWidth(2);
 }
-
-
-/*
-// MB 20100115: turn off for now, RootGraphics lib crashes on some non-cern sites.
-TCanvas* 
-LumiCalculator::GetNiceCanvas(const char* name, const char* title)
-{
-  TCanvas *tcan = new TCanvas(name,title,4,45,800,600);
-  //gStyle->SetOptStat(0);
-  //tcan->SetHighLightColor(1);
-  tcan->Range(500.0, 100.0, 1000.,1000.);
-  //Int_t ci = TColor::GetColor("#ffffff");
-  tcan->SetFillColor(0);
-  tcan->SetBorderMode(0);
-  tcan->SetBorderSize(0);
-  tcan->SetGridx();
-  tcan->SetGridy();
-  tcan->SetLeftMargin(0.14);
-  tcan->SetRightMargin(0.14);
-  tcan->SetBottomMargin(0.15);
-  tcan->SetFrameFillColor(0);
-
-  return tcan;
-}
-*/
 
 void
 LumiCalculator::MakePlots(const std::string& triggerchain)
@@ -1431,41 +1559,10 @@ LumiCalculator::MakePlots(const std::string& triggerchain)
     this->SetHistogramStyle(m_intlumitrigrateruns_recorded, Form("Delivered luminosity = %.1f /#mub, Recorded luminosity = %.1f /#mub", //, Efficiency * x-sec = %.1f #mub",
 								 total_l1ratediveffxsec,total_l1ratediveffxsec_recorded/*,m_effxsec*/), "Run number", Form("%s Luminosity (#mu b^{-1})",triggerchain.c_str()));
     
-    std::vector<TH1F*>::iterator itr;
+    std::vector<TH1F*>::iterator itr, itr2;
     
-    /*
-    // MB 20100115: turn off for now, RootGraphics lib crashes on some non-cern sites.
-    // save pictures
-    m_logger << Root::kINFO << "Saving plots (this may take a while)." << Root::GEndl;
-    gROOT->SetBatch(true); // batch mode, don't draw pictures
-    TCanvas* tcan = GetNiceCanvas(); tcan->cd();
-    if (m_effxsec==1.0) {
-    m_intlumiruns->Draw(); tcan->SaveAs(Form("%s.png",m_intlumiruns->GetName()));
-    for (itr=m_lumiplbVec.begin(); itr!=m_lumiplbVec.end(); ++itr)                 { (*itr)->Draw(); tcan->SaveAs(Form("%s.png",(*itr)->GetName())); }
-    for (itr=m_intlumiVec.begin(); itr!=m_intlumiVec.end(); ++itr)                 { (*itr)->Draw(); tcan->SaveAs(Form("%s.png",(*itr)->GetName())); }
-    }
-    for (itr=m_ntrigplbVec.begin(); itr!=m_ntrigplbVec.end(); ++itr)                 { (*itr)->Draw(); tcan->SaveAs(Form("%s.png",(*itr)->GetName())); }
-    for (itr=m_trigrateplbVec.begin(); itr!=m_trigrateplbVec.end(); ++itr)           { (*itr)->Draw(); tcan->SaveAs(Form("%s.png",(*itr)->GetName())); }
-    if (m_effxsec!=1.0) { // results only make sense when proper xsec is provided externally
-    m_intlumitrigrateruns->SetFillColor(0);
-    m_intlumitrigrateruns->Draw(); //tcan->SaveAs(Form("%s.png",m_intlumitrigrateruns->GetName()));
-    m_intlumitrigrateruns_recorded->Draw("SAME"); tcan->SaveAs(Form("%s.png",m_intlumitrigrateruns->GetName()));
-    for (itr=m_lumitrigrateplbVec.begin(), itr2=m_lumitrigrateplb_recordedVec.begin(); itr!=m_lumitrigrateplbVec.end(); ++itr, ++itr2) { 
-    (*itr)->SetFillColor(0);
-  (*itr)->Draw(); //tcan->SaveAs(Form("%s.png",(*itr)->GetName())); 
-  (*itr2)->Draw("SAME"); tcan->SaveAs(Form("%s.png",(*itr)->GetName()));
-  }
-  for (itr=m_intlumitrigrateVec.begin(), itr2=m_intlumitrigrate_recordedVec.begin(); itr!=m_intlumitrigrateVec.end(); ++itr, ++itr2) { 
-  (*itr)->SetFillColor(0);
-  (*itr)->Draw(); //tcan->SaveAs(Form("%s.png",(*itr)->GetName())); 
-  (*itr2)->Draw("SAME"); tcan->SaveAs(Form("%s.png",(*itr)->GetName()));
-  }
-  }
-  delete tcan;
-    */
-  
   // and store the histograms
-  TString histFileName = TString("ilumicalc_histograms_") + TString(triggerchain) + ( runnbrstart==runnbrend ? Form("_%d.root",runnbrstart) : Form("_%d-%d.root",runnbrstart,runnbrend) );
+    TString histFileName = TString("ilumicalc_histograms_") + TString(triggerchain) + ( runnbrstart==runnbrend ? Form("_%d_",runnbrstart) : Form("_%d-%d_",runnbrstart,runnbrend)) + TString(m_lumitag) + TString(".root");
   TFile *ff = new TFile(histFileName.Data(),"recreate");
   m_avgintperbx->Write();
   if (m_effxsec==1.0) {
@@ -1484,6 +1581,15 @@ LumiCalculator::MakePlots(const std::string& triggerchain)
     for (itr=m_intlumitrigrate_recordedVec.begin(); itr!=m_intlumitrigrate_recordedVec.end(); ++itr) { (*itr)->Write(); }
   }
   m_LumiTree->Write();
+
+  // And write out the lumi tag information
+  TObjString lumiTag(m_lumitag.c_str());
+  lumiTag.Write("lumiTag");
+
+  TObjString larTag(m_lartag.c_str());
+  larTag.Write("larTag");
+
+
   ff->Close();
   delete ff;
   m_logger << Root::kINFO << "Histograms stored as          : " << histFileName << Root::GEndl;
@@ -1495,30 +1601,4 @@ LumiCalculator::MakePlots(const std::string& triggerchain)
 
 }
 
-// 	  // Reporting also lumi algorithm - for future...
-// 	  std::map<int, std::string> m_lumialgo_chan;
-	  
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(0, "ATLAS_PREFERRED")); 
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(1, "LHC")); 
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(101, "LUCID_ZEROS_OR"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(102, "LUCID_ZEROS_AND"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(103, "LUCID_HITS_OR"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(104, "LUCID_HITS_AND"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(201, "BCM_H_ZEROS_AND"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(202, "BCM_H_EVENTS_AND"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(203, "BCM_H_XORA"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(204, "BCM_H_EVENTS_XORC"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(301, "MBTS_ZEROS_AND"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(302, "MBTS_ZEROS_OR"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(303, "MBTS_HITS_OR"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(401, "ZDC_EVENTS_AND"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(402, "ZDC_EVENTS_ORA")); 
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(403, "ZDC_EVENTS_ORC"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(501, "FCAL"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(601, "HLT"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(901, "OflLumi_LArTime_Events"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(998, "OflLumi_Fake0"));
-// 	  m_lumialgo_chan.insert(std::pair<int, std::string>(999, "OflLumi_Fake1"));
-	  
-//	  m_logger << Root::kINFO << "Algorithm: " << m_lumialgo_chan.find((m_Valid >> 22))->second << Root::GEndl;
 	  
