@@ -135,9 +135,6 @@ def TrigInDetCondConfig( flags ):
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
   acc.addCondAlgo(PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg"))
 
-  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
-  acc.addCondAlgo(PixelDistortionAlg(name="PixelDistortionAlg", ReadKey="/Indet/Onl/PixelDist"))
-
   from AthenaCommon.CfgGetter import getService
   PixelCablingSvc = getService("PixelCablingSvc")
   acc.addService(PixelCablingSvc)
