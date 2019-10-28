@@ -136,8 +136,20 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
 
   HypoJetVector passing_jets;
 
+  auto iter =
+    std::partition(edges.begin(),
+		   edges.end(),
+		   [V](const auto& edge){return edge->to() == V-1 and
+					 std::round(edge->flow()) == 1;});
+  
+  std::transform(edges.begin(),
+                  iter,
+		 std::back_inserter(passing_jets),
+		 [&nodeToJet](const auto& edge){
+		   return nodeToJet[edge->from()];});
+  
   jetCollector.addJets(passing_jets.cbegin(), passing_jets.cend());
-	       
+  
   return std::make_optional<bool>(pass);
   
 }
