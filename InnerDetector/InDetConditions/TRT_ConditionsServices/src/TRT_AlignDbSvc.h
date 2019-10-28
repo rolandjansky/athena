@@ -87,6 +87,7 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   const Amg::Transform3D* getAlignmentTransformPtr(const Identifier& ident, unsigned int level) const;
   
   /** tweak L1 DB for global folders for an identifier */
+  StatusCode tweakGlobalFolder_original(Identifier ident, Amg::Transform3D trans ); 
   StatusCode tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ); 
 
  private:  
