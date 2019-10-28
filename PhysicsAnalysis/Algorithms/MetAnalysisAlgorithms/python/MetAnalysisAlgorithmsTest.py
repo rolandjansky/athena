@@ -15,7 +15,7 @@ def makeSequence (dataType) :
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-    jetContainer = 'AntiKt4EMTopoJets'
+    jetContainer = 'AntiKt4EMPFlowJets'
     jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
     jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 
