@@ -1,4 +1,5 @@
-#Files for use in configuration unit tests
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Files for use in configuration unit tests
 
 from __future__ import print_function
 
