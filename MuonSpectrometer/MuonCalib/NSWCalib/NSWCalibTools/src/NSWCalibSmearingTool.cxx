@@ -66,7 +66,10 @@ StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& acc
   int phiSector = 0;
   int gasGap = 0;
 
-  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+  if (!getIdFields(id,etaSector,phiSector,gasGap)) {
+    ATH_MSG_WARNING("Invalid identifier");
+    return StatusCode::SUCCESS;
+  }
 
   /// check if a full hit can be accepted
   if ( m_random.Rndm() > m_clusterEfficiency.value()[gasGap-1] ) {
@@ -88,7 +91,10 @@ StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge,
   int phiSector = 0;
   int gasGap = 0;
 
-  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+  if (!getIdFields(id,etaSector,phiSector,gasGap)) {
+    ATH_MSG_WARNING("Invalid identifier");
+    return StatusCode::SUCCESS;
+  }
 
   if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
     // smear charge
@@ -120,7 +126,10 @@ StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& 
   int phiSector = 0;
   int gasGap    = 0;
 
-  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+  if (!getIdFields(id,etaSector,phiSector,gasGap)) {
+    ATH_MSG_WARNING("Invalid identifier");
+    return StatusCode::SUCCESS;
+  }
 
   if ( m_phiSectors.value()[phiSector-1] && m_etaSectors.value()[etaSector-1] ) {
 
@@ -150,7 +159,10 @@ StatusCode Muon::NSWCalibSmearingTool::getGainFraction(Identifier id, float& gai
   int phiSector = 0;
   int gasGap    = 0;
 
-  ATH_CHECK(getIdFields(id,etaSector,phiSector,gasGap));
+  if (!getIdFields(id,etaSector,phiSector,gasGap)) {
+    ATH_MSG_WARNING("Invalid identifier");
+    return StatusCode::SUCCESS;
+  }
 
   gainFraction = 1.0;
 
@@ -165,9 +177,10 @@ StatusCode Muon::NSWCalibSmearingTool::getGainFraction(Identifier id, float& gai
 //
 // get id fields for both STGC and MM
 //
-StatusCode NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int& phiSector,
-					     int& gasGap)
+bool NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int& phiSector,
+				       int& gasGap)
 {
+
   if ( m_idHelperTool->isMM(id) ) {
     int multilayer = m_idHelperTool->mmIdHelper().multilayer(id);
     gasGap = (multilayer-1)*4+m_idHelperTool->mmIdHelper().gasGap(id);
@@ -181,20 +194,21 @@ StatusCode NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector
     phiSector = m_idHelperTool->stgcIdHelper().stationPhi(id);
   } 
   else {
-    ATH_MSG_ERROR("Wrong identifier: should be MM or STGC");
-    return StatusCode::FAILURE;
-  }
-
-  if ( phiSector < 1 || phiSector> (int) m_phiSectors.value().size() 
-       || etaSector < (int) (-m_etaSectors.value().size()) || etaSector> (int) m_etaSectors.value().size() 
-       || gasGap < 1 || gasGap> (int) m_timeSmear.value().size() || gasGap>(int) m_chargeSmear.value().size() ) {
-    ATH_MSG_ERROR("Wrong phi, eta sector, or gasGap number: " << phiSector << " " 
-		  << etaSector << " " << gasGap);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Wrong identifier: should be MM or STGC");
+    return false;
   }
 
   // transform the eta sector
   etaSector < 0 ? etaSector = etaSector + 3 : etaSector = etaSector + 2;
 
-  return StatusCode::SUCCESS;
+
+  if ( phiSector < 1 || phiSector> (int) m_phiSectors.value().size() 
+       || etaSector < (int) (-m_etaSectors.value().size()) || etaSector> (int) m_etaSectors.value().size() || etaSector==0
+       || gasGap < 1 || gasGap> (int) m_timeSmear.value().size() || gasGap>(int) m_chargeSmear.value().size() ) {
+    ATH_MSG_WARNING("Wrong phi, eta sector, or gasGap number: " << phiSector << " " 
+		  << etaSector << " " << gasGap);
+    return false;
+  }
+
+  return true;
 }

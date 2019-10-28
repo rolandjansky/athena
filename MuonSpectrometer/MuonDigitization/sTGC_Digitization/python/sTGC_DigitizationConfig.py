@@ -30,6 +30,7 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", "sTGC_SDO")
     kwargs.setdefault("doToFCorrection", True)
+    kwargs.setdefault("SmearingTool","Muon::NSWCalibSmearingTool/STgcCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:

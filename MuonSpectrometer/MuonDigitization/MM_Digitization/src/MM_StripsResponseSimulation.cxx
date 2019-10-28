@@ -36,7 +36,7 @@ MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 	m_driftVelocity(0),              // 0.047
 
 	// Other variables
-	m_avalancheGain(1.16e4),
+	m_avalancheGain(8.0e3),
 	m_maxPrimaryIons(300),
 	m_interactionDensityMean( 16.15 / 5. ),  //   16.15 interactions per 5 mm traversed
 	m_interactionDensitySigma( 4.04 / 5. ),  //   Spread in this number.
