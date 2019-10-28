@@ -152,9 +152,6 @@ triggerGetter = TriggerGetter()
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 ToolSvc+=theCaloNoiseTool
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-ToolSvc+=theLArBadChannelTool
 
 # --- BunchCrossing Tool configuration ---
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool

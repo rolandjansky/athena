@@ -29,7 +29,7 @@ StatusCode LArBadChannelCondAlg::initialize() {
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
-  ATH_CHECK( m_BCInputKey.initialize() );
+  if(!m_BCInputKey.key().empty()) ATH_CHECK( m_BCInputKey.initialize() );
   ATH_CHECK( m_BCOutputKey.initialize() );
   ATH_CHECK(m_cablingKey.initialize());
  
@@ -51,43 +51,59 @@ StatusCode LArBadChannelCondAlg::execute() {
     return StatusCode::SUCCESS;
   }  
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_BCInputKey};
-  const CondAttrListCollection* attrListColl{*readHandle};
-
+  std::unique_ptr<LArBadChannelCont> badChannelCont(new LArBadChannelCont());
 
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};
+ 
+  EventIDRange rangeW;
 
-  if (attrListColl==nullptr) {
-    msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_BCInputKey.key() << endmsg;
-    return StatusCode::FAILURE;
-  }
+  if(!m_BCInputKey.key().empty()) {
 
-  std::unique_ptr<LArBadChannelCont> badChannelCont(new LArBadChannelCont());
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_BCInputKey};
+    const CondAttrListCollection* attrListColl{*readHandle};
+ 
+    if(!readHandle.range(rangeW)) {
+       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
+       return StatusCode::FAILURE;
+    }
+ 
+    if (attrListColl==nullptr) {
+      msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_BCInputKey.key() << endmsg;
+      return StatusCode::FAILURE;
+    }
+
   
-  //Loop over COOL channels:
-   CondAttrListCollection::const_iterator chanIt=attrListColl->begin();
-   CondAttrListCollection::const_iterator chanIt_e=attrListColl->end();
-   for (;chanIt!=chanIt_e;++chanIt) {
+    //Loop over COOL channels:
+     CondAttrListCollection::const_iterator chanIt=attrListColl->begin();
+     CondAttrListCollection::const_iterator chanIt_e=attrListColl->end();
+     for (;chanIt!=chanIt_e;++chanIt) {
+       
+       const coral::AttributeList& attrList = chanIt->second;
+       const coral::Blob& blob = attrList["Blob"].data<coral::Blob>();
+       unsigned int chanSize = attrList["ChannelSize"].data<unsigned int>();
+       unsigned int stateSize = attrList["StatusWordSize"].data<unsigned int>();
+       unsigned int endian = attrList["Endianness"].data<unsigned int>();
+       unsigned int version = attrList["Version"].data<unsigned int>();
+      
+       std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = 
+         LArBadChanBlobUtils::decodeBlob<LArBadChannel>( &blob, chanSize, stateSize, endian,
+          					       version, msg());
      
-     const coral::AttributeList& attrList = chanIt->second;
-     const coral::Blob& blob = attrList["Blob"].data<coral::Blob>();
-     unsigned int chanSize = attrList["ChannelSize"].data<unsigned int>();
-     unsigned int stateSize = attrList["StatusWordSize"].data<unsigned int>();
-     unsigned int endian = attrList["Endianness"].data<unsigned int>();
-     unsigned int version = attrList["Version"].data<unsigned int>();
-    
-     std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = 
-       LArBadChanBlobUtils::decodeBlob<LArBadChannel>( &blob, chanSize, stateSize, endian,
-						       version, msg());
+       for (auto& idBC : bcVec) {
+         badChannelCont->add(idBC.first,idBC.second);
+       }
+       
+     }// end loop over COOL channels
+  } else {
+     EventIDBase start(0, 0);
+     EventIDBase stop(std::numeric_limits<unsigned int>::max()-1,0);
+     start.set_lumi_block(0);
+     stop.set_lumi_block(std::numeric_limits<unsigned int>::max()-1);
+     rangeW=EventIDRange( start, stop );
+  }
    
-     for (auto& idBC : bcVec) {
-       badChannelCont->add(idBC.first,idBC.second);
-     }
-     
-   }// end loop over COOL channels
-   
-   if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
+  if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
      
      const LArOnlineID* onlineID;
      ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));	       
@@ -96,35 +112,26 @@ StatusCode LArBadChannelCondAlg::execute() {
      for (auto& idBC : bcVec) {
        badChannelCont->add(idBC.first,idBC.second);
      }
-   } //end if have ASCII filename
-
-
+  } //end if have ASCII filename
    
-   size_t nChanBeforeMege=badChannelCont->size();
-   badChannelCont->sort(); //Sorts vector of bad channels and merges duplicate entries
+  size_t nChanBeforeMege=badChannelCont->size();
+  badChannelCont->sort(); //Sorts vector of bad channels and merges duplicate entries
    
-   ATH_MSG_INFO("Read a total of " << badChannelCont->size() << " problematic channels from database");
-   if (nChanBeforeMege!=badChannelCont->size()) {
+  ATH_MSG_INFO("Read a total of " << badChannelCont->size() << " problematic channels from database");
+  if (nChanBeforeMege!=badChannelCont->size()) {
      ATH_MSG_INFO("Merged " << nChanBeforeMege-badChannelCont->size() << " duplicate entries");
-   }
+  }
 
 
-   //Fill vector by offline id
-   LArBadChannelCont::BadChanVec oflVec;
-   for (const auto& entry : badChannelCont->fullCont()) {
+  //Fill vector by offline id
+  LArBadChannelCont::BadChanVec oflVec;
+  for (const auto& entry : badChannelCont->fullCont()) {
      const Identifier id= cabling->cnvToIdentifier(HWIdentifier(entry.first));
      if (id.is_valid()) oflVec.emplace_back(id.get_identifier32().get_compact(),entry.second);
-   }
-   
-   badChannelCont->setOflVec(oflVec);
-   
-
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
   }
+   
+  badChannelCont->setOflVec(oflVec);
+   
 
   if(writeHandle.record(rangeW,badChannelCont.release()).isFailure()) {
     ATH_MSG_ERROR("Could not record LArBadChannelCont object with " 
