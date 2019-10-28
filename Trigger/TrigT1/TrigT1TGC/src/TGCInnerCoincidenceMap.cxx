@@ -20,13 +20,11 @@
 
 namespace LVL1TGCTrigger {
 
- extern bool        g_USE_INNER;
- extern bool        g_USE_CONDDB;
-
-TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
+TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs, const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
   :m_verName("NA"),
    m_side(0),
    m_fullCW(false),
+   m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
   // intialize map
@@ -49,12 +47,14 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTr
   return;
 }
    
-  TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+  TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(TGCArguments* tgcargs,
+						 const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                                                  const std::string& version,
 						 int   sideID)
   :m_verName(version),
    m_side(sideID),
    m_fullCW(false),
+   m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
   // initialize map
@@ -75,8 +75,8 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTr
     }
   }
 
-  if (!g_USE_INNER) return;
-  if (g_USE_CONDDB) return;
+  if (!tgcArgs()->USE_INNER()) return;
+  if (tgcArgs()->USE_CONDDB()) return;
  
   //////////////////////////////
   IMessageSvc* msgSvc = 0;
@@ -96,7 +96,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const SG::ReadCondHandleKey<TGCTr
   } else {
     log << MSG::INFO  
 	<< " NOT use inner station " << endmsg;
-    g_USE_INNER = false;
+    tgcArgs()->set_USE_INNER( false );
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
 	m_flagPT[0][ssc][sec] =0; //pt1     
@@ -283,7 +283,7 @@ int TGCInnerCoincidenceMap::getFlagPT(const int pt,
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
   if ((sec<0)||(sec>=N_EndcapSector)) return -1;
 
-  if  (g_USE_CONDDB) {
+  if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagPtEifi(m_side,pt-1,ssc,sec);
@@ -300,7 +300,7 @@ int  TGCInnerCoincidenceMap::getFlagROI(const int roi,
   if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
   if ((sec<0)||(sec>=N_EndcapSector)) return -1;
 
-  if  (g_USE_CONDDB) {
+  if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getFlagRoiEifi(m_side,roi,ssc,sec);
@@ -316,7 +316,7 @@ int TGCInnerCoincidenceMap::getTriggerBit(const int slot,
                   const int read,
                   const int bit) const
 {
-  if  (g_USE_CONDDB) {
+  if  (tgcArgs()->USE_CONDDB()) {
     SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
     const TGCTriggerData* readCdo{*readHandle};
     return readCdo->getTrigBitEifi(m_side,slot,ssc,sec,reg,read,bit);
