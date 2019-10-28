@@ -214,14 +214,14 @@ StatusCode SUSYToolsAlg::initialize() {
   ATH_CHECK( book(TH1D("met_et_jet", "MET [RefJet] (Nominal)", 50, 0, 500) ) );
   ATH_CHECK( book(TH1D("met_et_tau", "MET [RefTau] (Nominal)", 50, 0, 500) ) );
   
-  const int n_event_weights = (const int)(syst_event_weights.size());
-  const int n_el_weights = (const int)(syst_el_weights.size());
-  const int n_mu_weights = (const int)(syst_mu_weights.size());
-  const int n_ph_weights = (const int)(syst_ph_weights.size());
-  const int n_tau_weights = (const int)(syst_tau_weights.size());
-  const int n_jet_weights = (const int)(syst_jet_weights.size());
-  const int n_fatjet_weights = (const int)(syst_fatjet_weights.size());
-  const int n_btag_weights = (const int)(syst_btag_weights.size());
+  const int n_event_weights = (int)(syst_event_weights.size());
+  const int n_el_weights = (int)(syst_el_weights.size());
+  const int n_mu_weights = (int)(syst_mu_weights.size());
+  const int n_ph_weights = (int)(syst_ph_weights.size());
+  const int n_tau_weights = (int)(syst_tau_weights.size());
+  const int n_jet_weights = (int)(syst_jet_weights.size());
+  const int n_fatjet_weights = (int)(syst_fatjet_weights.size());
+  const int n_btag_weights = (int)(syst_btag_weights.size());
 
   ATH_CHECK( book(TH1D("weight_event", "Event weights (Nom+Systematics) [MC*PRW]", n_event_weights,0,n_event_weights))); //weights
   ATH_CHECK( book(TH1D("weight_electrons", "Electron total weights (Nom+Systematics)",  n_el_weights,0, n_el_weights) ) );  //weights
