@@ -326,8 +326,10 @@ namespace Trk
       ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p  );
       return 0;
     }
-    if(!theSurfaceAtIP) ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
-
+    if(!theSurfaceAtIP){ 
+      ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
+      return 0;
+    }
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
     ATH_MSG_VERBOSE( "Original perigee was: " << *(vtxTrack.initialPerigee())  );
     ATH_MSG_VERBOSE( "The resulting surface is: " << *theSurfaceAtIP  );
