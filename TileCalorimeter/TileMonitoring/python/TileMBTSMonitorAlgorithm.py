@@ -29,13 +29,47 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     result.merge( TileCablingSvcCfg(flags) )
 
-    if flags.Input.Format == 'POOL':
+    if flags.Input.Format.lower() == 'pool':
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(flags,'TileMonitoring')
+    helper = AthMonitorCfgHelper(flags, 'TileMBTSMonAlgCfg')
+
+    runNumber = flags.Input.RunNumber[0]
+    _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs)
+
+    accumalator = helper.result()
+    result.merge(accumalator)
+    return result
+
+
+def TileMBTSMonitoringConfigOld(flags, **kwargs):
+
+    ''' Function to configure TileMBTSMonitorAlgorithm algorithm in the old monitoring system.'''
+
+    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from AthenaCommon.GlobalFlags import globalflags
+
+    if globalflags.InputFormat().lower() == 'pool':
+        kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
+
+    helper = AthMonitorCfgHelperOld(flags, 'TileMBTSMonAlgCfg')
+
+    from RecExConfig.AutoConfiguration import GetRunNumber
+    runNumber = GetRunNumber()
+
+    _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs)
+
+    return helper.result()
+
+
+def _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs):
+
+    ''' Function to configure TileMBTSMonitorAlgorithm algorithm in the monitoring system.'''
+
+    run = str(runNumber)
 
     # Adding an TileMBTSMonitorAlgorithm algorithm to the helper
     from TileMonitoring.TileMonitoringConf import TileMBTSMonitorAlgorithm
@@ -58,7 +92,7 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
                                      xbins = 100, xmin = 0, xmax = 1000)
 
 
-    run = str(flags.Input.RunNumber[0])
+
     numberOfMBTS = 32
 
     labelsMBTS  =  ['MBTSA' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS / 2)]
@@ -197,10 +231,6 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
                                  xbins = 7, xmin = -0.5, xmax = 6.5)
 
 
-
-    accumalator = helper.result()
-    result.merge(accumalator)
-    return result
 
 if __name__=='__main__':
 

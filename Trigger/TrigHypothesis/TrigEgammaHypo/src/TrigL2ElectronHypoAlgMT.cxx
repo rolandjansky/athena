@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <map>
 #include "GaudiKernel/Property.h"
@@ -23,11 +23,8 @@ TrigL2ElectronHypoAlgMT::TrigL2ElectronHypoAlgMT( const std::string& name,
 			  ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigL2ElectronHypoAlgMT::~TrigL2ElectronHypoAlgMT() {}
 
 StatusCode TrigL2ElectronHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
   CHECK( m_hypoTools.retrieve() );
   
   CHECK( m_electronsKey.initialize() );
@@ -36,12 +33,7 @@ StatusCode TrigL2ElectronHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
- StatusCode TrigL2ElectronHypoAlgMT::finalize() {
-    ATH_MSG_INFO( "Finalizing " << name() << "..." );
-    return StatusCode::SUCCESS;
-  }
-
-StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
@@ -117,7 +109,3 @@ StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const
 
   return StatusCode::SUCCESS;
 }
-
-
-
-

@@ -37,7 +37,7 @@ string filePar;
 
 string findRef()
 {
-  char line[999];
+  char line[999] = {0};
   FILE *f=gSystem->OpenPipe("grep RTTINFO CaloRec_RTT*log | cut -d= -f2 | tail -n1","r");
   if(f)
     {
@@ -46,11 +46,11 @@ string findRef()
 	line[strlen(line)-1] = 0;
       else 
 	return -1;
-    }
   
-  if(-1 == fclose(f)){
-    std::cerr<<"can not close file"<< std::endl;
-  }
+      if(-1 == fclose(f)){
+        std::cerr<<"can not close file"<< std::endl;
+      }
+    }
 
   string temp(line);
   string temp2="";
@@ -64,7 +64,7 @@ string findRef()
 
 int getPar()
 {
- char line[999];
+  char line[999] = {0};
   FILE *f=gSystem->OpenPipe("grep RTTINFO CaloRec_RTT*log | cut -d= -f2 | tail -n1","r");
   if(f)
     {
@@ -72,12 +72,12 @@ int getPar()
       if (strlen(line)>0)
 	line[strlen(line)-1] = 0;
       else 
-	return "PB";
-    }
+	return -1;
   
-  if(-1 == fclose(f)){
-    std::cerr<<"can not close file"<< std::endl;
-  }
+      if(-1 == fclose(f)){
+        std::cerr<<"can not close file"<< std::endl;
+      }
+    }
 
   string temp(line);
   string temp2="";
@@ -516,17 +516,17 @@ bool almostIdentical(TH1 *h1,TH1 *h2)
   
   std::cout << com << std::endl;
 
-  char line[999];
+  char line[999] = {0};
   FILE *f=gSystem->OpenPipe(com.Data(),"r");
   if(f)
     {
       fgets(line,999,f);
       line[strlen(line)-1] = 0;
-    }
   
-  if(-1 == fclose(f)){
-    std::cerr<<"Can not close file"<< std::endl;
-  }
+      if(-1 == fclose(f)){
+        std::cerr<<"Can not close file"<< std::endl;
+      }
+    }
 
   float cut=atof(line);
 

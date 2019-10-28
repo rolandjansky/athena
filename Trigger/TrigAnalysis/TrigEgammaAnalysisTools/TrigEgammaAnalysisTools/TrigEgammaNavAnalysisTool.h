@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaNavAnalysisTool_H
@@ -14,12 +14,12 @@ class TrigEgammaNavAnalysisTool : public TrigEgammaNavBaseTool,
     ASG_TOOL_CLASS(TrigEgammaNavAnalysisTool, ITrigEgammaAnalysisBaseTool)
     public:
         TrigEgammaNavAnalysisTool( const std::string& myname );
-        ~TrigEgammaNavAnalysisTool() {};
+        virtual ~TrigEgammaNavAnalysisTool() {};
 
-        StatusCode childInitialize();
-        StatusCode childBook();
-        StatusCode childExecute();
-        StatusCode childFinalize();
+        virtual StatusCode childInitialize() override;
+        virtual StatusCode childBook() override;
+        virtual StatusCode childExecute() override;
+        virtual StatusCode childFinalize() override;
     protected:
 
     private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -22,13 +22,8 @@ TrigBjetEtHypoTool::TrigBjetEtHypoTool( const std::string& type,
 
 // -----------------------------------------------------------------------------------------------------------------
 
-TrigBjetEtHypoTool::~TrigBjetEtHypoTool() {}
-
-// -----------------------------------------------------------------------------------------------------------------
-
 StatusCode TrigBjetEtHypoTool::initialize()  {
-  ATH_MSG_INFO("Initializing " << name() << "... " );
- 
+
   ATH_MSG_DEBUG(  "declareProperty review:"          );
   ATH_MSG_DEBUG(  "    "   <<     m_acceptAll        ); 
   ATH_MSG_DEBUG(  "    "   <<     m_etThreshold      );
@@ -39,12 +34,7 @@ StatusCode TrigBjetEtHypoTool::initialize()  {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetEtHypoTool::finalize()  {
-  ATH_MSG_INFO( "Finalizing " << name() << "... " );
-  return StatusCode::SUCCESS;
-}
-
-// ----------------------------------------------------------------------------------------------------------------- 
+// -----------------------------------------------------------------------------------------------------------------
 
 StatusCode TrigBjetEtHypoTool::decide( std::vector< TrigBjetEtHypoToolInfo >& bJetInfos ) const {
 

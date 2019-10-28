@@ -13,7 +13,6 @@
 ###############################################################
 from __future__ import print_function
 
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -29,7 +28,7 @@ class _modifier:
         return self.__class__.__name__
     
     def __init__(self):
-        print('WARNING: using modifier: %s',self.name())
+        print('WARNING: using modifier: %s' % self.name())
         print(self.__doc__)
     
     def preSetup(self):
@@ -82,20 +81,6 @@ class noCalo(_modifier):
         TriggerFlags.doCalo=False
 
 
-class ForceNewTRTDigiversion(_modifier):
-    """
-    setup TRT to use latest digi version (for rel >=14 MC)
-    determines which t0 shift to use
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if hasattr(ToolSvc,"TRT_DriftFunctionTool"):
-            ToolSvc.TRT_DriftFunctionTool.AllowDigiVersionOverride=True
-            ToolSvc.TRT_DriftFunctionTool.ForcedDigiVersion=11
-        if hasattr(ToolSvc,"InDetTrigTRT_DriftFunctionTool"):
-            ToolSvc.InDetTrigTRT_DriftFunctionTool.AllowDigiVersionOverride=True
-            ToolSvc.InDetTrigTRT_DriftFunctionTool.ForcedDigiVersion=11
-
 class BunchSpacing25ns(_modifier):
     """
     ID (and other settings) related to 25ns bunch spacing
@@ -115,41 +100,6 @@ class BunchSpacing50ns(_modifier):
         jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
         InDetTrigFlags.InDet25nsec.set_Value_and_Lock(False)
-
-class disableTRTActiveFraction(_modifier):
-    """
-    remove TRT ActiveFractionSvc from the configuration 
-    temporarily disable a non-essential component to work around M5 crashes 
-    https://its.cern.ch/jira/browse/ATR-9017
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if hasattr(svcMgr,'InDetTRTActiveFractionSvc'):
-           delattr(svcMgr,'InDetTRTActiveFractionSvc')
-           ToolSvc.InDetTrigTRTDriftCircleCut.UseActiveFractionSvc=False
-           ToolSvc.InDetTrigTRTDriftCircleCut.TrtConditionsSvc=""
-
-
-class TrackingInStandBy(_modifier):
-    """
-    adjust settings of the beamspot tracking to work with SCT in standby
-    """
-    def postSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if hasattr(ToolSvc,"StrategyB_BeamSpot"):
-            ToolSvc.StrategyB_BeamSpot.Map_ForcedTurnedOffLayers = [0,1,2,7,8,9]
-            ToolSvc.StrategyB_BeamSpot.Extension_CutSpacePointsMiss2 = 3
-            ToolSvc.StrategyB_BeamSpot.Extension_SpacePointsMiss2 = 4
-            ToolSvc.StrategyB_BeamSpot.Vertexing_Enable = False
-
-
-class setRecCommissioning(_modifier):
-    """
-    Use commissioning setup
-    """
-    def preSetup(self):
-        from RecExConfig.RecFlags import rec
-        rec.Commissioning=True
 
 class noLArCalibFolders(_modifier):
     """
@@ -244,30 +194,6 @@ class useNewRPCCabling(_modifier):
         from MuonCnvExample.MuonCnvFlags import muonCnvFlags
         if hasattr(muonCnvFlags,'RpcCablingMode'):
             muonCnvFlags.RpcCablingMode.set_Value_and_Lock('new')
-
-class TGCCablingPatch(_modifier):
-    """
-    TGC cabling IDs are different
-    """
-    def preSetup(self):
-        from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiSvc
-        TGCRecRoiSvc.PatchForP5 = True
-
-class TGCCablingFixOn(_modifier):
-    """
-    Fix TGC cabling problem in real data taking in fall 2008
-    """
-    def preSetup(self):
-        from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiSvc
-        TGCRecRoiSvc.PatchForRoIWord=True
-
-class TGCCablingFixOff(_modifier):
-    """
-    Turn off the TGC cabling problem in real data taking in fall 2008 - should be off for MC
-    """
-    def preSetup(self):
-        from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiSvc
-        TGCRecRoiSvc.PatchForRoIWord=False
 
 class openThresholdRPCCabling(_modifier):
     """
@@ -1077,10 +1003,6 @@ class enableALFAMon(_modifier):
             log.error('No ALFA ROB monitoring available.')
 
 
-
-
-
-
 class mufastDebug(_modifier):
     """
     enable additional log output from muFast
@@ -1141,15 +1063,6 @@ class caf(_modifier):
         for m in self.modifiers: m.postSetup()
 
         
-class libAuditor(_modifier):
-    """
-    Turn on print out of shared library loading
-    """
-    def postSetup(self):
-        from AthenaServices.AthDsoLogger import DsoLogger
-        dso = DsoLogger()  # noqa: F841
-
-
 class nameAuditors(_modifier):
     """
     Turn on name auditor
@@ -1196,8 +1109,8 @@ class athMemAuditor(_modifier):
         theApp.AuditServices = True
         theApp.AuditTools = True
         svcMgr.AuditorSvc += CfgMgr.AthMemoryAuditor(MaxStacktracesPerAlg=20,
-                                      DefaultStacktraceDepth=50,
-                                      StacktraceDepthPerAlg=["Stream1 100"])
+                                                     DefaultStacktraceDepth=50,
+                                                     StacktraceDepthPerAlg=["Stream1 100"])
 class detailedTiming(_modifier):
     """
     Add detailed timing information
@@ -1359,16 +1272,6 @@ class autoConditionsTag(_modifier):
     def preSetup(self):
         from RecExConfig.AutoConfiguration import ConfigureConditionsTag
         ConfigureConditionsTag()
-
-
-class disableOnlineMode(_modifier):
-    """
-    Athena-only modifier for running with isOnline=False
-    Needed only for accessing offline only conditions
-    """
-    def preSetup(self):
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        athenaCommonFlags.isOnline = False
 
 
 class enableCostD3PD(_modifier):

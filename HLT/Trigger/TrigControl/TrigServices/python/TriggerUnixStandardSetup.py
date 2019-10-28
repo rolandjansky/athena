@@ -49,7 +49,7 @@ def setupCommonServices():
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     svcMgr += AlgResourcePool( OutputLevel = INFO,
-                               TopAlg=["AthMasterSeq"])       # this should enable control flow
+                               TopAlg=["AthSequencer/AthMasterSeq"] )
 
     from AthenaCommon.AlgSequence import AlgSequence
     from SGComps.SGCompsConf import SGInputLoader

@@ -10,9 +10,8 @@
 class TrigBjetEtHypoAlgEVMT : public TrigBjetEtHypoAlgMT {
  public: 
   TrigBjetEtHypoAlgEVMT( const std::string& name, ISvcLocator* pSvLocator );
-  virtual ~TrigBjetEtHypoAlgEVMT();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
  protected:
   TrigBjetEtHypoAlgEVMT();

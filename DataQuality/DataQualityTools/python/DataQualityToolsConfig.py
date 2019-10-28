@@ -12,7 +12,8 @@ def DataQualityToolsConfig(flags):
     result.merge(DQTDataFlowMonAlgConfig(flags))
     result.merge(DQTBackgroundMonAlgConfig(flags))
 
-    # really should only configure when input is RAW
-    result.merge(DQTDetSynchMonAlgConfig(flags))
+    # only when input is RAW
+    if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
+        result.merge(DQTDetSynchMonAlgConfig(flags))
 
     return result

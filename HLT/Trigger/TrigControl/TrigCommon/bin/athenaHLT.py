@@ -160,7 +160,8 @@ def HLTMPPy_cfgdict(args):
       'num_slots' : args.concurrent_events,
       'partition_name' : args.partition,
       'hard_timeout' : args.timeout,
-      'soft_timeout_fraction' : 0.95
+      'soft_timeout_fraction' : 0.95,
+      'hltresultSizeMb': args.hltresult_size
    }
 
    cdict['datasource'] = {
@@ -174,8 +175,7 @@ def HLTMPPy_cfgdict(args):
       'outFile': args.save_output,
       'preload': False,
       'extraL1Robs': args.extra_l1r_robs,
-      'skipEvents': args.skip_events,
-      'hltresultSize': args.hltresult_size
+      'skipEvents': args.skip_events
    }
 
    cdict['global'] = {
@@ -338,7 +338,7 @@ def main():
    g.add_argument('--preloadlib', metavar='LIB', help='preload an arbitrary library')
    g.add_argument('--unique-log-files', '-ul', action='store_true', help='add pid/timestamp to worker log files')
    g.add_argument('--debug-fork', action='store_true', help='Dump open files/threads during forking')
-   g.add_argument('--hltresult-size', metavar='BYTES', default=10485760, help='Maximum HLT result size in bytes')
+   g.add_argument('--hltresult-size', metavar='MB', type=int, default=10, help='Maximum HLT result size in MB')
    g.add_argument('--extra-l1r-robs', metavar='ROBS', type=arg_eval, default=[],
                   help='List of additional ROB IDs that are considered part of the L1 result and passed to the HLT')
    g.add_argument('--ros2rob', metavar='DICT', type=arg_ros2rob, default={},

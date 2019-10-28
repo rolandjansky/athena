@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@
  * <tr><td>DigitizationTool</td>    <td>Pixel Digtization Tool Name</td></tr>
  * </table>
  */
-	
+
 #ifndef PIXELDIGITIZATION_PIXELDIGITIZATION_H
 #define PIXELDIGITIZATION_PIXELDIGITIZATION_H
 
@@ -66,7 +66,7 @@
 // Data members
 #include "GaudiKernel/ToolHandle.h"
 
-#include "PileUpTools/PileUpToolBase.h"
+class IPileUpTool;
 
 namespace RadDam{
 
@@ -78,20 +78,20 @@ public:
   PixelDigitization(const std::string &name,ISvcLocator *pSvcLocator);
 
   /** Destructor */
-  ~PixelDigitization();
+  virtual ~PixelDigitization() = default;
 
   /** Algorithm::initialize() */
-  virtual StatusCode initialize();
-   
+  virtual StatusCode initialize() override final;
+
   /** Algorithm::execute() */
-  virtual StatusCode execute();
-   
-  /** Algorithm::finalize() */
-  virtual StatusCode finalize();
+  virtual StatusCode execute() override final;
+
+  /** this Alg is Clonable (for AthenaMT) */
+  virtual bool isClonable() const override final { return true; }
 
 private:
-  ToolHandle<IPileUpTool> m_pixelDigitizationTool;
+  ToolHandle<IPileUpTool> m_pixelDigitizationTool{this, "DigitizationTool", "PixelDigitizationTool", "PixelDigitizationTool Name"};
 };
 
-}	
+}
 #endif // PIXELDIGITIZATION_PIXELDIGITIZATION_H

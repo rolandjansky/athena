@@ -77,7 +77,7 @@ def tauCoreTrackSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     RoIs = "TCoreViewRoIs"
-    (viewAlgsTP, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
+    viewAlgsTP = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
@@ -111,7 +111,7 @@ def tauCoreTrackSequence():
 
     fastTrackViewsMaker.ViewNodeName = tauInViewAlgs.name()
 
-    tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", eventAlgs + [fastTrackViewsMaker, tauInViewAlgs ] )
+    tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", [fastTrackViewsMaker, tauInViewAlgs ] )
 
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
     fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg")
@@ -132,7 +132,7 @@ def tauPrecisionSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     RoIs = "TCoreViewRoIs" # contract with the fastCalo
-    (viewAlgsPT, eventAlgs) = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
+    viewAlgsPT = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
 
     TrackParticlesName = ""
     for viewAlg in viewAlgsPT:
@@ -177,7 +177,7 @@ def tauPrecisionSequence():
 
     precisionViewsMaker.ViewNodeName = tauPInViewAlgs.name()
 
-    tauPrecisionAthSequence = seqAND("tauPrecisionAthSequence", eventAlgs + [precisionViewsMaker, tauPInViewAlgs ] )
+    tauPrecisionAthSequence = seqAND("tauPrecisionAthSequence", [precisionViewsMaker, tauPInViewAlgs ] )
 
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT

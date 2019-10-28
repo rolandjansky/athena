@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -725,7 +725,7 @@ private:
   /// Disallow (avoid coverity warning).
   CaloCluster& operator= (const CaloCluster&);
 
-  friend class CaloClusterContainerCnv;
+  friend class CaloClusterContainerCnv_p1;
   friend class CaloClusterContainerCnv_p2;
   friend class CaloClusterContainerCnv_p3;
   friend class CaloClusterContainerCnv_p4;

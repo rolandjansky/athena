@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes:
@@ -64,9 +64,6 @@
 #include "TrigT1Interfaces/BptxCTP.h"
 #include "TrigT1Interfaces/FrontPanelCTP.h"
 
-
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 using namespace std;
 
 
@@ -102,6 +99,9 @@ TrigT1CTMonitoring::DeriveSimulationInputs::initialize() {
       ATH_MSG_WARNING("Unable to retrieve CTP configuration");
       return StatusCode::RECOVERABLE;
    }
+
+   ATH_CHECK( detStore()->regFcn( &TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool, this,
+                                  m_ctpCoreMapping, "/TRIGGER/LVL1/CTPCoreInputMapping" ) );
    return StatusCode::SUCCESS;
 }
 	
@@ -109,20 +109,6 @@ TrigT1CTMonitoring::DeriveSimulationInputs::initialize() {
 	
 //======================================================================================================
 	
-
-StatusCode
-TrigT1CTMonitoring::DeriveSimulationInputs::beginRun(){
-   ATH_MSG_DEBUG("beginRun()");
-   StatusCode sc = ReadInputMappingFromCool();
-   ATH_MSG_DEBUG("Read switch matrix of size " << m_pitVector.size() << " from cool ");
-   return sc;
-}
-
-
-
-//======================================================================================================
-
-
 
 StatusCode
 TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
@@ -847,21 +833,11 @@ TrigT1CTMonitoring::DeriveSimulationInputs::DeriveL1CaloInput_fromSim() {
 
 
 StatusCode
-TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool() {
-   StatusCode sc = StatusCode::SUCCESS;
-   ATH_MSG_DEBUG("Reading CTP input mapping from COOL");  
-		
-   const CondAttrListCollection* atrlistcol;
-   sc = detStore()->retrieve(atrlistcol,"/TRIGGER/LVL1/CTPCoreInputMapping");
-		
-   if (sc.isFailure()){
-      ATH_MSG_INFO("Could not retrieve CTP input mapping from COOL, no PIT lines will be simulated ");
-      return sc;
-   }
-		
+TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool( IOVSVC_CALLBACK_ARGS ) {
+
    ATH_MSG_DEBUG("Reading CTP PIT mapping from COOL /TRIGGER/LVL1/CTPCoreInputMapping");
 
-   for (CondAttrListCollection::const_iterator citr = atrlistcol->begin();citr != atrlistcol->end(); ++citr) {
+   for (CondAttrListCollection::const_iterator citr = m_ctpCoreMapping->begin();citr != m_ctpCoreMapping->end(); ++citr) {
       
       TrigConf::PIT* pit = new TrigConf::PIT();
       
@@ -894,7 +870,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool() {
       
       m_pitVector.push_back(pit);
    }
-   return sc;
+   return StatusCode::SUCCESS;
 }
 
 

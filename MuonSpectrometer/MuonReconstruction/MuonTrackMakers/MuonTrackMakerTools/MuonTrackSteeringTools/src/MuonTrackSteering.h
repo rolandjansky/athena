@@ -83,13 +83,13 @@ namespace Muon {
     MuonTrackSteering(const std::string&, const std::string&, const IInterface*);
     
     /** destructor */
-    ~MuonTrackSteering();
+    virtual ~MuonTrackSteering();
     
     /** initialize method, method taken from bass-class AlgTool */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /** @brief find tracks starting from a MuonSegmentCollection
     @param coll a reference to a MuonSegmentCollection

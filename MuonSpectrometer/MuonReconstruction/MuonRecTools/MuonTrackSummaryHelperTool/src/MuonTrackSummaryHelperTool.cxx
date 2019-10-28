@@ -423,7 +423,6 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
 //   ATH_MSG_DEBUG("updateHoleContent " << m_idHelperTool->toString(chamberHitSummary.chamberId())
 // 	       << " nphi " << chamberHitSummary.phiProjection().nhits << " holes " << chamberHitSummary.phiProjection().nholes 
 // 	       << " neta " << chamberHitSummary.etaProjection().nhits << " holes " << chamberHitSummary.etaProjection().nholes );
-  ATH_MSG_INFO("MuonTrackSummaryHelperTool::updateHoleContent");
 
   if( m_idHelperTool->issTgc(chamberHitSummary.chamberId()) ){
     ATH_MSG_DEBUG(" holes eta " << chamberHitSummary.etaProjection().nholes
@@ -478,7 +477,6 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
 
 void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary, 
 							 const Trk::TrackParameters& pars ) const {
-  ATH_MSG_INFO("MuonTrackSummaryHelperTool::calculateRoadHits");
   bool isStraightLine = false;
   if ( pars.parameters().rows() < 5 ) { // no momentum parameter given
     isStraightLine = true;
@@ -609,8 +607,6 @@ bool Muon::MuonTrackSummaryHelperTool::isFirstProjection( const Identifier& id )
 }
 
 const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdCollection( const Identifier& chId ) const {
-  ATH_MSG_INFO("MuonTrackSummaryHelperTool::findMdtPrdCollection");
-
   SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrdContainer(m_mdtKey);
 
   if(!mdtPrdContainer.isValid()){

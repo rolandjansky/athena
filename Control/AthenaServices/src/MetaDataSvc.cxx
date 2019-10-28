@@ -36,6 +36,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_incSvc("IncidentSvc", name),
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
+	m_clearedOutputDataStore(false),
 	m_allowMetaDataStop(false),
         m_outputPreprared(false),
 	m_persToClid(),
@@ -346,11 +347,18 @@ StatusCode MetaDataSvc::prepareOutput()
 StatusCode MetaDataSvc::shmProxy(const std::string& filename)
 {
    if (!m_clearedInputDataStore) {
-      if (!m_inputDataStore->clearStore().isSuccess()) {
+      if (!m_inputDataStore->clearStore(true).isSuccess()) {
          ATH_MSG_ERROR("Unable to clear input MetaData Proxies");
 	 return StatusCode::FAILURE;
       }
       m_clearedInputDataStore = true;
+   }
+   if (!m_clearedOutputDataStore) {
+      if (!m_outputDataStore->clearStore(true).isSuccess()) {
+         ATH_MSG_ERROR("Unable to clear output MetaData Proxies");
+	 return StatusCode::FAILURE;
+      }
+      m_clearedOutputDataStore = true;
    }
    if (!addProxyToInputMetaDataStore(filename).isSuccess()) {
       ATH_MSG_ERROR("Unable to add proxy to InputMetaDataStore");
@@ -463,12 +471,6 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
             m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
             cfSvc.release().ignore();
-         }
-         if (!m_outputDataStore->clearStore(true).isSuccess()) {
-            ATH_MSG_WARNING("Unable to clear output MetaData Proxies");
-         }
-         if (!m_inputDataStore->clearStore(true).isSuccess()) {
-            ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
          }
       }
    }

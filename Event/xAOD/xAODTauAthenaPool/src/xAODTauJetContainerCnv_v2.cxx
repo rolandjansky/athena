@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,13 +24,15 @@
    } while( 0 )
 
 xAODTauJetContainerCnv_v2::xAODTauJetContainerCnv_v2()
-{
+  : T_AthenaPoolTPCnvBase< xAOD::TauJetContainer,
+                           xAOD::TauJetContainer_v2 >() {
+
 }
 
 void xAODTauJetContainerCnv_v2::
 persToTrans( const xAOD::TauJetContainer_v2* oldObj,
              xAOD::TauJetContainer* newObj,
-             MsgStream& log ) const {
+             MsgStream& log ) {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::TauJetContainer_v2 to current version..." );
@@ -55,7 +57,7 @@ persToTrans( const xAOD::TauJetContainer_v2* oldObj,
 ///
 void xAODTauJetContainerCnv_v2::transToPers( const xAOD::TauJetContainer*,
                                              xAOD::TauJetContainer_v2*,
-                                             MsgStream& log ) const {
+                                             MsgStream& log ) {
 
    log << MSG::ERROR
        << "Somebody called xAODTauJetContainerCnv_v2::transToPers"

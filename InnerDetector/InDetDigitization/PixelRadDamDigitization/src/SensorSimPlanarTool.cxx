@@ -392,7 +392,7 @@ StatusCode SensorSimPlanarTool::finalize() {
 //===============================================
 //    I N D U C E    C H A R G E
 //===============================================
-StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection &chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions) {
+StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection &chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) {
 
   // So far, this is only discriminating variable from 3D sensor.
   if (p_design.numberOfCircuits()<2){
@@ -446,7 +446,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   if (Module.isDBM()){
     eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
     m_diffusionConstant = .00265;//diffusion contant for DBM - not changed wrt previous version of digitization. Does someone know where this comes from?
-    smearRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    smearRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
   }
   else{
     eleholePairEnergy = siProperties.electronHolePairsPerEnergy(); // = 1 / 3.6 eV -> expressed in MeV^-1 = 276243 MeV^-1
@@ -564,7 +564,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         double dz_h = fabs(depth_f_h - dist_electrode);           
 
         //Apply drift due to Lorentz force and diffusion
-        double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+        double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
         int  nbin_Lorentz_e = lorentzMap_e[Layer]->FindBin(dist_electrode,depth_f_e);
         tanLorentz = lorentzMap_e[Layer]->GetBinContent(nbin_Lorentz_e);       
@@ -573,10 +573,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         //Apply diffusion. rdif is teh max. diffusion
         double rdif_e=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_e)*coLorentz/0.3);
         double phi_f_e=phi_i + dz_e*tanLorentz + rdif_e*phiRand;
-        double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+        double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_f_e=eta_i + rdif_e*etaRand;
   
-        phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+        phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
         int  nbin_Lorentz_h = lorentzMap_h[Layer]->FindBin(dist_electrode,depth_f_h);
         tanLorentz = lorentzMap_h[Layer]->GetBinContent(nbin_Lorentz_h);       
@@ -585,7 +585,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         double rdif_h=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_h)*coLorentz/0.3);
 
         double phi_f_h=phi_i + dz_h*tanLorentz + rdif_h*phiRand;
-        etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+        etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_f_h=eta_i + rdif_h*etaRand;
 
         // Slim Edge for IBL planar sensors:
@@ -690,9 +690,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         
 	      double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3);
 	      // position at the surface
-	      double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+	      double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 	      double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*phiRand;
-	      double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+	      double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 	      double eta_drifted=eta_i+rdif*etaRand;
 
 

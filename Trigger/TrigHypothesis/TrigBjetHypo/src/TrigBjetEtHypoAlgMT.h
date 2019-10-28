@@ -16,7 +16,6 @@ class TrigBjetEtHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  public: 
 
   TrigBjetEtHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~TrigBjetEtHypoAlgMT();
 
   virtual StatusCode  initialize();
   virtual StatusCode  execute( const EventContext& context ) const;

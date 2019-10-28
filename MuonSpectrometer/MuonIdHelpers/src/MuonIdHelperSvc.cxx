@@ -10,11 +10,8 @@
 namespace Muon {
 
   MuonIdHelperSvc::MuonIdHelperSvc(const std::string& name, ISvcLocator* svc)
-    : base_class(name, svc), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_detStore("DetectorStore", name)
+    : base_class(name, svc), m_detStore("DetectorStore", name)
   {
-    declareProperty("HasCSC", m_hasCSC);
-    declareProperty("HasSTgc", m_hasSTgc);
-    declareProperty("HasMM", m_hasMM);
   }
 
 

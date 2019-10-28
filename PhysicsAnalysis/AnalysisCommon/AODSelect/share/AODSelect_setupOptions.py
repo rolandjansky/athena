@@ -25,7 +25,7 @@ from AthenaCommon import CfgMgr
 
 
 # ====================================================================
-# Check if we have Monte Carlo or real data, based on the inputFileSummary
+# Check if we have Monte Carlo or real data, based on the MetaReader
 # ====================================================================
 from AthenaCommon.GlobalFlags  import globalflags
 if not globalflags.DataSource() == 'data':

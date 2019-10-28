@@ -9,7 +9,8 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
     TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool,
     TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
     TrigL2MuonOverlapRemoverMufastAlg, TrigL2MuonOverlapRemoverMucombAlg, TrigL2MuonOverlapRemoverTool,
-    TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoTool
+    TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoTool,
+    TrigMuonLateMuRoIHypoAlg, TrigMuonLateMuRoIHypoTool
 )
 
 # import monitoring
@@ -681,6 +682,26 @@ class TrigMuonEFInvMassHypoConfig(object) :
             else:
                 log.error('threshokds = ', thresholds)
                 raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
+        return tool
+
+def TrigMuonLateMuRoIHypoToolFromDict( chainDict ) :
+    config = TrigMuonLateMuRoIHypoConfig()
+    tool = config.ConfigurationHypoTool( chainDict['chainName'] )
+    return tool
+
+class TrigMuonLateMuRoIHypoConfig(object) :
+
+    log = logging.getLogger('TrigMuonLateMuRoIHypoConfig')
+
+    def ConfigurationHypoTool(self, toolName):
+
+        tool=TrigMuonLateMuRoIHypoTool(toolName)
+
+        try:
+            tool.AcceptAll = False
+
+        except LookupError:
+            raise Exception('TrigMuonLateMuRoI Hypo Misconfigured')
         return tool
 
 

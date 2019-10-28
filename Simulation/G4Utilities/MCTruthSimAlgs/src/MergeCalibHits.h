@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGECALIBHITS_H
@@ -16,10 +16,11 @@ class IPileUpTool;
 class MergeCalibHits : public AthAlgorithm {
 public:
   MergeCalibHits(const std::string& name, ISvcLocator* svcLoc);
-  StatusCode initialize() override final;
-  StatusCode execute() override final;
-  StatusCode finalize() override final;
+  virtual ~MergeCalibHits() = default;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual bool isClonable() const override final { return true; }
 private:
-  ToolHandle<IPileUpTool> m_mergeTool;
+  ToolHandle<IPileUpTool> m_mergeTool{this, "MergeCalibHitsTool", "MergeCalibHitsTool", ""};
 };
 #endif //MCTRUTHSIMALGS_MERGECALIBHITS_H

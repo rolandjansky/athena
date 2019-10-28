@@ -20,7 +20,11 @@ flags.Detector.GeometryMDT   = True
 flags.Detector.GeometryTGC   = True
 flags.Detector.GeometryCSC   = True     
 flags.Detector.GeometryRPC   = True     
-flags.Trigger.writeBS=True # switches on HLTResultMT creation
+
+# Output configuration - currently testing offline workflow
+flags.Trigger.writeBS = False
+flags.Output.doWriteRDO = True
+flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
 flags.Trigger.CostMonitoring.doCostMonitoring = True
 

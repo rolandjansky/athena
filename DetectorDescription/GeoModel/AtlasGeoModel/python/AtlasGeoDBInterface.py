@@ -73,7 +73,7 @@ class AtlasGeoDBInterface:
         for currentRow in iter(query.execute()):
             for i in range(0,currentRow.size()):
                 if currentRow[i].specification().name()=="TAG_ID":
-                    Logging.log.verbose("*** GeoTagId ******** ",str(currentRow))
+                    Logging.log.verbose("*** GeoTagId ******** "+str(currentRow))
                     self.dbGeoTagId=currentRow[i].data()
                     continue
 
@@ -126,7 +126,7 @@ class AtlasGeoDBInterface:
 
         # Check if the geometry tag was found in the DB
         if self.dbGeoTagId=="":
-            Logging.log.error("The geometry tag ",self.dbGeoTag," could not be found in the database.")
+            Logging.log.error("The geometry tag "+self.dbGeoTag+" could not be found in the database.")
             Logging.log.error("Its name might be misspelled and/or the script might access a local DB that is not up to date.")
             import sys
             sys.exit();

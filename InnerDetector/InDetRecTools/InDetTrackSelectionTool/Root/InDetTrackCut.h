@@ -102,7 +102,6 @@ namespace InDet {
     std::function<bool(const std::array<uint8_t,N>&)> m_func;
     std::array< xAOD::SummaryType, N> m_summaryTypes;
     std::array< std::shared_ptr<SummaryAccessor>,N > m_summaryAccessors;
-    mutable std::array<uint8_t,N> m_results; // member variable to store the results
   }; // class FuncSummaryValueCut
   
 

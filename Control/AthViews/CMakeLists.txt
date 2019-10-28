@@ -4,6 +4,7 @@
 
 find_package( TBB )
 find_package( GTest )
+find_package( ROOT COMPONENTS Core )
 
 # Declare the package name:
 atlas_subdir( AthViews )
