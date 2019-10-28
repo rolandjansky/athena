@@ -1720,7 +1720,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
         super( HLTCaloCellMaker, self ).__init__(name)
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
         self.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
-        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         finalLimit=1600.0;
         finalLimitTime=800.0;
