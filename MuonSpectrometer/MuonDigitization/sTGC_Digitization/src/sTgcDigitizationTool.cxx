@@ -55,6 +55,8 @@
 #include <TH2.h>
 #include <TH1.h>
 
+#include <memory>
+
 namespace Trk{
    class PlaneSurface;
 }
@@ -105,7 +107,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_digitizer(0),
     m_thpcsTGC(0),
     m_sdoContainer(0), 
-    m_smearingTool("Muon::NSWSmearingTool/NSWSmearingTool",this),
+    m_smearingTool("Muon::NSWCalibSmearingTool/STgcCalibSmearingTool",this),
     m_inputHitCollectionName("sTGCSensitiveDetector"),
     m_outputDigitCollectionName("sTGC_DIGITS"),
     m_outputSDO_CollectionName("sTGC_SDO"),
@@ -146,7 +148,8 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareProperty("timeWindowPad",           m_timeWindowPad); 
   declareProperty("timeWindowStrip",         m_timeWindowStrip); 
   declareProperty("energyDepositThreshold",  m_energyDepositThreshold, "Minimum energy deposit considered for digitization");
-  declareProperty("doSmearing",m_doSmearing=false);
+  declareProperty("doSmearing",  m_doSmearing=false);
+  declareProperty("SmearingTool",m_smearingTool);
 }
 /*******************************************************************************/
 // member function implementation
@@ -1046,10 +1049,15 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 	} 
 
 	if ( acceptDigit ) { 
-	  
-	  sTgcDigit* finalDigit = new sTgcDigit(it_digit->identify(), it_digit->bcTag(), it_digit->time(), chargeAfterSmearing, 
-						it_digit->isDead(), it_digit->isPileup());	  
-	  digitCollection->push_back(finalDigit);
+
+	  std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
+									      it_digit->bcTag(), 
+									      it_digit->time(), 
+									      chargeAfterSmearing, 
+									      it_digit->isDead(), 
+									      it_digit->isPileup());	  
+
+	  digitCollection->push_back(std::move(finalDigit));
 	  ATH_MSG_VERBOSE("Final Digit") ;
 	  ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
 	  ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;

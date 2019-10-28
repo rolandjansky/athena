@@ -30,6 +30,7 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", "MM_SDO")
+    kwargs.setdefault("SmearingTool","Muon::NSWCalibSmearingTool/MMCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:

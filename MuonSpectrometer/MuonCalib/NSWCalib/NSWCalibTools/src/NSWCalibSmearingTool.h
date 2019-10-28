@@ -38,8 +38,8 @@ namespace Muon {
 
   private:
     
-    StatusCode getIdFields(const Identifier id, int& etaSector, int& phiSector,
-			   int& gasGap);
+    bool getIdFields(const Identifier id, int& etaSector, int& phiSector,
+		     int& gasGap);
 
     ToolHandle<MuonIdHelperTool> m_idHelperTool;
 
