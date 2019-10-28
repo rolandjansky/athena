@@ -131,21 +131,5 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
     )
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
-    from DataQualityTools.DataQualityToolsConf import DQTLumiMonTool
-    DQTLumiMonToolAnyTrigger = DQTLumiMonTool(
-        name = 'DQTLumiMonToolAnyTrigger',
-        histoPath  = '/GLOBAL/Luminosity/AnyTrigger',
-    )
-    DQTLumiMonToolMu = DQTLumiMonTool(
-        name = 'DQTLumiMonToolMu',
-        histoPath = '/GLOBAL/Luminosity/EF_muX',
-        TriggerChain = 'CATEGORY_monitoring_muonIso',
-        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
-    )
-    DQTLumiMonToolEl = DQTLumiMonTool(
-        name = 'DQTLumiMonToolEl',
-        histoPath = '/GLOBAL/Luminosity/EF_eX',
-        TriggerChain = 'CATEGORY_primary_single_ele',
-        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
-    )
-    ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
+    from DataQualityTools.DQTLumiMonTool import DQTLumiMonAlgConfig
+    topSequence += DQTLumiMonAlgConfig(DQMonFlags, isOld=True)
