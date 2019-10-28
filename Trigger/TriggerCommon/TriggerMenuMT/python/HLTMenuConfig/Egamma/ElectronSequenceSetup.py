@@ -16,7 +16,7 @@ def fastElectronSequence(ConfigFlags):
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs" # contract with the fastCalo
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
+    viewAlgs = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
 
 
     # A simple algorithm to confirm that data has been inherited from parent view
@@ -49,7 +49,7 @@ def fastElectronSequence(ConfigFlags):
     electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
-    electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
+    electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )
     return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
 
 
