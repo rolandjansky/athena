@@ -320,7 +320,7 @@ def muonIDFastTrackingSequence( RoIs, name ):
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
+  viewAlgs = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
 
   global TrackParticlesName
   global theFTF_name
@@ -333,7 +333,7 @@ def muonIDFastTrackingSequence( RoIs, name ):
       if "TrigFastTrackFinder" in  viewAlg.name():
           theFTF_name = viewAlg.getName()
 
-  return muonIDFastTrackingSequence, eventAlgs
+  return muonIDFastTrackingSequence
 
 def muCombRecoSequence( RoIs ):
 
@@ -519,11 +519,10 @@ def muEFCBRecoSequence( RoIs, name ):
   ViewVerifyMS = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
   ViewVerifyMS.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates') ]
   muEFCBRecoSequence += ViewVerifyMS
-  eventAlgs=[]
   if "FS" in name:
     #Need to run tracking for full scan chains
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
+    viewAlgs = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
 
      #TrackParticlesName = ""
     for viewAlg in viewAlgs:
@@ -652,7 +651,7 @@ def muEFCBRecoSequence( RoIs, name ):
   sequenceOut = themuoncbcreatoralg.MuonContainerLocation
 
 
-  return muEFCBRecoSequence, eventAlgs, sequenceOut
+  return muEFCBRecoSequence, sequenceOut
 
 
 def muEFInsideOutRecoSequence(RoIs, name):
@@ -814,7 +813,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   efmuisoRecoSequence = parOR("efmuIsoViewNode")
 
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-  (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
+  viewAlgs = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
 
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
