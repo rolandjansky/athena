@@ -161,7 +161,8 @@ namespace CP {
     if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable as currently missing in many derivations; LowPtEfficiency working point will always return false, but this is expected at the moment. Have a look here: https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionToolR21#New_LowPtEfficiency_working_poin");
 
     //Print warning to ensure that users including 2-station muons in the high-pT selection are aware of this
-    if (m_use2stationMuonsHighPt) ATH_MSG_WARNING("You have opted to include 2-stations muons in the high-pT selection! The momentum reconstruction performance of these muons is significantly worse than for the high-pT selection in general. Please study the effect carefully to evaluate whether the efficiency gain improves your analysis in spite of the worse resolution. The 2-station muons can be studied/categorized individually by selecting numberOfPrecisionLayers == 2.");
+    if (!m_use2stationMuonsHighPt) ATH_MSG_INFO("You have opted select 3-station muons in the high-pT selection! "<<
+        "Please feed 'HighPt3Layers' to the 'WorkingPoint'  property to retrieve the appropiate scale-factors");
 
 
     // Set up the TAccept object:
@@ -201,7 +202,7 @@ namespace CP {
 
     ATH_MSG_INFO( "Reading muon tight working point histograms from " << tightWP_rootFile_fullPath  );
     // 
-    TFile* file = TFile::Open( tightWP_rootFile_fullPath.c_str() ,"READ");
+    std::unique_ptr<TFile> file ( TFile::Open( tightWP_rootFile_fullPath.c_str() ,"READ"));
 
     if( !file->IsOpen() ){
       ATH_MSG_ERROR( "Cannot read tight working point file from " << tightWP_rootFile_fullPath );
@@ -215,8 +216,7 @@ namespace CP {
     ATH_CHECK( getHist( file,"tightWP_highPt_rhoCuts",m_tightWP_highPt_rhoCuts) ) ;
     // 
     file->Close();
-    delete file;
-
+  
 
     //Set up TMVA readers for MVA-based low-pT working point
     //E and O refer to even and odd event numbers to avoid applying the MVA on events used for training
