@@ -13,6 +13,7 @@
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysDecorationHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODTau/TauJetContainer.h>
@@ -61,11 +62,8 @@ namespace CP
 
     /// \brief the decoration for the tau scale factor
   private:
-    std::string m_scaleFactorDecoration;
-
-    /// \brief the accessor for \ref m_scaleFactorDecoration
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
+    SysDecorationHandle<float> m_scaleFactorDecoration {
+      this, "scaleFactorDecoration", "", "the decoration for the tau efficiency scale factor"};
   };
 }
 

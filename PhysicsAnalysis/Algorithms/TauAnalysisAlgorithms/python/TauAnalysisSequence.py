@@ -6,6 +6,7 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
 
 def makeTauAnalysisSequence( dataType, workingPoint,
+                             legacyRecommendations = False,
                              deepCopyOutput = False,
                              shallowViewOutput = True,
                              rerunTruthMatching = True,
@@ -14,6 +15,7 @@ def makeTauAnalysisSequence( dataType, workingPoint,
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
+      legacyRecommendations -- use legacy tau BDT and electron veto recommendations
       deepCopyOutput -- If set to 'True', the output containers will be
                         standalone, deep copies (slower, but needed for xAOD
                         output writing)
@@ -39,29 +41,16 @@ def makeTauAnalysisSequence( dataType, workingPoint,
     if len (splitWP) != 1 :
         raise ValueError ('working point should be of format "quality", not ' + workingPoint)
 
+    nameFormat = 'TauAnalysisAlgorithms/tau_selection_{}.conf'
+    if legacyRecommendations:
+        nameFormat = 'TauAnalysisAlgorithms/tau_selection_{}_legacy.conf'
+
     sfWorkingPoint = splitWP[0]
-    if splitWP[0] == 'Tight' :
-        inputfile = 'TauAnalysisAlgorithms/tau_selection_tight.conf'
-        pass
-    elif splitWP[0] == 'Medium' :
-        inputfile = 'TauAnalysisAlgorithms/tau_selection_medium.conf'
-        pass
-    elif splitWP[0] == 'Loose' :
-        inputfile = 'TauAnalysisAlgorithms/tau_selection_loose.conf'
-        pass
-    elif splitWP[0] == 'VeryLoose' :
-        inputfile = 'TauAnalysisAlgorithms/tau_selection_veryloose.conf'
-        pass
-    elif splitWP[0] == 'NoID' :
-        inputfile = 'TauAnalysisAlgorithms/tau_selection_noid.conf'
-        pass
-    elif splitWP[0] == 'Baseline' :
-        inputfile = 'TauAnalysisAlgorithms/tau_selection_baseline.conf'
-        pass
-    else :
+    if splitWP[0] not in ['Tight', 'Medium', 'Loose', 'VeryLoose', 'NoID', 'Baseline'] :
         raise ValueError ("invalid tau quality: \"" + splitWP[0] +
                           "\", allowed values are Tight, Medium, Loose, " +
                           "VeryLoose, NoID, Baseline")
+    inputfile = nameFormat.format(splitWP[0].lower())
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "TauAnalysisSequence" + postfix )
@@ -72,7 +61,7 @@ def makeTauAnalysisSequence( dataType, workingPoint,
 
     # Setup the tau selection tool
     selectionTool = createPublicTool( 'TauAnalysisTools::TauSelectionTool',
-                                      'TauSelectionTool')
+                                      'TauSelectionTool' + postfix)
     selectionTool.ConfigPath = inputfile
     seq.addPublicTool( selectionTool )
 
@@ -94,11 +83,11 @@ def makeTauAnalysisSequence( dataType, workingPoint,
                 affectingSystematics = '(^TAUS_TRUEHADTAU_SME_TES_.*)',
                 stageName = 'calibration' )
 
-    # Set up the algorithm selecting "good" taus:
+    # Set up the algorithm selecting taus:
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'TauSelectionAlg' + postfix )
     alg.selectionTool = '%s/%s' % \
         ( selectionTool.getType(), selectionTool.getName() )
-    alg.selectionDecoration = 'good_tau' + postfix + ',as_bits'
+    alg.selectionDecoration = 'selected_tau' + postfix + ',as_bits'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
     selectionDecorNames.append( alg.selectionDecoration )
@@ -108,12 +97,13 @@ def makeTauAnalysisSequence( dataType, workingPoint,
     # taus:
     if dataType != 'data':
         alg = createAlgorithm( 'CP::TauEfficiencyCorrectionsAlg',
-                            'TauEfficiencyCorrectionsAlg' + postfix )
+                               'TauEfficiencyCorrectionsAlg' + postfix )
         addPrivateTool( alg, 'efficiencyCorrectionsTool',
                         'TauAnalysisTools::TauEfficiencyCorrectionsTool' )
         alg.efficiencyCorrectionsTool.TauSelectionTool = '%s/%s' % \
             ( selectionTool.getType(), selectionTool.getName() )
-        alg.scaleFactorDecoration = 'tau_effSF' + postfix
+        alg.scaleFactorDecoration = 'tau_effSF' + postfix + '_%SYS%'
+        alg.scaleFactorDecorationRegex = '(^TAUS_TRUEELECTRON_EFF_.*)|(^TAUS_TRUEHADTAU_EFF_.*)'
         alg.outOfValidity = 2 #silent
         alg.outOfValidityDeco = 'bad_eff' + postfix
         seq.append( alg, inputPropName = 'taus',
