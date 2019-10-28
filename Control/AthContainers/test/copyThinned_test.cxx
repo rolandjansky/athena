@@ -197,7 +197,6 @@ void test1()
   dec.buildIndexMap();
 
   tryit (store, &svc, true);
-  tryitConst (dv, &svc, true);
   tryit (v, &svc, true);
 
   tryit (store, &dec, true);
