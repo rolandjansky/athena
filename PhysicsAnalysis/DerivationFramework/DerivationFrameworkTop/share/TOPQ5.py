@@ -237,10 +237,6 @@ DerivationFrameworkJob += TOPQ5Sequence
 #====================================================================
 # SLIMMING
 #====================================================================
-from DerivationFrameworkTop.TOPQCommonExtraContent import TOPQStaticContent
-TOPQStaticContent += ['xAOD::VertexContainer#TOPQ5RefittedPrimaryVertices']
-TOPQStaticContent += ['xAOD::VertexAuxContainer#TOPQ5RefittedPrimaryVerticesAux.']
-
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ5', TOPQ5Stream)
 
