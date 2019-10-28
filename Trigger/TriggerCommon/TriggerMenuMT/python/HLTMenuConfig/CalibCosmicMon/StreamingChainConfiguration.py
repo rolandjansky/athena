@@ -49,28 +49,4 @@ class StreamingChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-        stepDictionary = {
-            "noalg":[self.getNoalgStep()],
-        }
-
-        #key = self.chainPart['EFrecoAlg']
-        key = 'noalg'
-        steps=stepDictionary[key]
-        for step in steps:
-            chainSteps+=[step]
-            
-        myChain = self.buildChain(chainSteps)
-        return myChain
-
-   
-    # --------------------
-    # Configuration of noalg
-    # --------------------
-    def getNoalgStep(self):
-        return self.getStep(1,"noalg", [StreamingSequenceCfg] )
-
+        return self.buildChain([]) # empty list of steps and the chain requires none
