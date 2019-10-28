@@ -27,8 +27,8 @@ EventViewCreatorAlgorithmWithMuons::~EventViewCreatorAlgorithmWithMuons() {}
 StatusCode EventViewCreatorAlgorithmWithMuons::initialize() {
 
   ATH_CHECK( EventViewCreatorAlgorithm::initialize() );
-  ATH_CHECK( m_inViewMuons.initialize(!m_doLateMu) );
-  ATH_CHECK( m_inViewMuonCandidates.initialize(!m_doLateMu) );
+  ATH_CHECK( m_inViewMuons.initialize(!m_doLateMu && !m_doFSRoI) );
+  ATH_CHECK( m_inViewMuonCandidates.initialize(!m_doLateMu && !m_doFSRoI) );
   ATH_CHECK( m_roisWriteHandleKey.initialize() );
 
   return StatusCode::SUCCESS;
