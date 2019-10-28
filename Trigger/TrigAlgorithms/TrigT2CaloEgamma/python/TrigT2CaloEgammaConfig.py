@@ -454,7 +454,7 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
 
        from TriggerJobOpts.TriggerFlags import TriggerFlags
        if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-            from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+            from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
             monTool = GenericMonitoringTool('MonTool')
             monTool.defineHistogram('TrigEMCluster_eT', path='EXPERT', type='TH1F', title="T2Calo Egamma E_T; E_T [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=80.0)
             monTool.defineHistogram('TrigEMCluster_had1', path='EXPERT', type='TH1F', title="T2Calo Egamma had E_T samp1; had E_T samp1 [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=8.0)
