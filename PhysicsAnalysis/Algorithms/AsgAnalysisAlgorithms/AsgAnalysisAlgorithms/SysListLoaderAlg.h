@@ -58,6 +58,10 @@ namespace CP
   private:
     std::vector<std::string> m_systematicsList;
 
+    /// \brief the regular expression for filterinf systematics
+  private:
+    std::string m_systematicsRegex {"(.*)"};
+
     /// \brief load all recommended systematics at the given number of
     /// sigmas
     ///
