@@ -5,10 +5,7 @@
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
-def makeSequence (dataType) :
-
-    # config parameters
-    jetContainer = "AntiKt4EMTopoJets"
+def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
     algSeq = AlgSequence()
 

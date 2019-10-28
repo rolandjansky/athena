@@ -51,7 +51,7 @@ def makeOverlapSequence (dataType) :
     algSeq += muonSequence
 
     # Include, and then set up the jet analysis algorithm sequence:
-    jetContainer = 'AntiKt4EMTopoJets'
+    jetContainer = 'AntiKt4EMPFlowJets'
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
     jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
     jetSequence.configure( inputName = jetContainer,
@@ -68,7 +68,7 @@ def makeOverlapSequence (dataType) :
     # Include, and then set up the overlap analysis algorithm sequence:
     from AsgAnalysisAlgorithms.OverlapAnalysisSequence import \
         makeOverlapAnalysisSequence
-    overlapSequence = makeOverlapAnalysisSequence( dataType )
+    overlapSequence = makeOverlapAnalysisSequence( dataType, doMuPFJetOR=True )
     overlapSequence.configure(
         inputName = {
             'electrons' : 'AnalysisElectrons_%SYS%',
