@@ -43,16 +43,6 @@ theTester=LArBadChannelTimingAlg()
 theTester.ReallyCheck=True
 topSequence+=theTester
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=False
-theLArBadChannelTool.DumpCache=False
-
-#theLArBadChannelTool.EMBAfile = "badchan1.txt"
-theLArBadChannelTool.EMBCfile = "badchan1.txt"
-
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
 
 svcMgr.IOVDbSvc.Folders+=["/LAR/ElecCalib/BadChannels<tag>TestTag</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
 

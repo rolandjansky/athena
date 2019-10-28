@@ -76,20 +76,13 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
         # -----------------------------------------------------------
         # Initialize LArCabling service
-        self.larCablingSvc=PyAthena.py_tool("LArCablingService")
+        self.larCablingSvc=PyAthena.py_tool("LArCablingLegacyService")
         if self.larCablingSvc is None:
             self.msg.error('Problem retrieving LArCablingService pointer !')
             return StatusCode.Failure
         else:
             self.msg.info('retrieved [%s]', self.larCablingSvc.name())
 
-
-        self.badChannelTool=PyAthena.py_tool("LArBadChanTool",iface="ILArBadChanTool")
-        if self.badChannelTool is None:
-            self.msg.error('Problem retrieving LArBadChanTool pointer !')
-            return StatusCode.Failure
-        else:
-            self.msg.info('retrieved [%s]', self.badChannelTool.name())
 
 
         self.class_larBCBitPacking=cppyy.makeClass("LArBadChanBitPacking")
@@ -282,8 +275,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
         return StatusCode.Success
 
     def printChannelInfo(self,id,chid):
-        bc=self.badChannelTool.status(chid)
-        print self.IdentifiersToString(chid,id) + " " + self.bc_packing.stringStatus(bc)
         
         if id!=self.noid: #Don't try to show anything more for disconnected channels
             if self.includeLocation:
@@ -848,11 +839,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
             
             #print "Loop hash=%i , on: %x , off: %x" % (idH, chid.get_identifier32().get_compact(), self.offlineID.cell_id(idHash).get_identifier32().get_compact())
 
-            #Check Bad-Channel Status
-            if bctypes!=0:
-                bcstat=self.badChannelTool.status(chid)
-                bcw=bcstat.packedData()
-                if bcw & bctypes == 0: continue
                     
             #Check Online Id
             if bec is not None and bec!=self.onlineID.barrel_ec(chid): continue
@@ -888,9 +874,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
             id=self.offlineID.cell_id(idHash)
             if subcalo is not None and subcalo!=self.offlineID.sub_calo(id): continue
             if layer is not None and (self.offlineID.sampling(id)<layer[0] or self.offlineID.sampling(id)>layer[1]): continue
-            if bctypes==0: bcstat=self.badChannelTool.status(chid)
 
-            br=self.output(self.IdentifiersToString(chid,id) + " " +ep+self.bc_packing.stringStatus(bcstat),outfile)
+            br=self.output(self.IdentifiersToString(chid,id) + " " +ep,outfile)
             if br: break
             
         if outfile is not None: outfile.close()
