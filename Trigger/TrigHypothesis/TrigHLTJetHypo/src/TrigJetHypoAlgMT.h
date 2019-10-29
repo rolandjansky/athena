@@ -23,12 +23,9 @@ class TrigJetHypoAlgMT : public ::HypoBase {
 
   TrigJetHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigJetHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private:
 
 /**

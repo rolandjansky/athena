@@ -58,14 +58,14 @@ helper = AthMonitorCfgHelperOld(DQMonFlags, "NewPixelMonitoring")
 
 
 if doHitMonTool:
-  pixelAthMonAlgHitMonTool = helper.addAlgorithm(PixelAthHitMonTool, 'PixelAthHitMonTool', 'PixelAthHitMonTool')
+  pixelAthMonAlgHitMonTool = helper.addAlgorithm(PixelAthHitMonTool, 'PixelAthHitMonTool')
   for k, v in kwargsHitMonTool.items():
     setattr(pixelAthMonAlgHitMonTool, k, v)
   PixelAthHitMonToolCfg(helper, pixelAthMonAlgHitMonTool, **kwargsHitMonTool)
 
 
 if doClusterMonTool:
-  pixelAthClusterMonTool = helper.addAlgorithm(PixelAthClusterMonTool, 'PixelAthClusterMonTool', 'PixelAthClusterMonTool')
+  pixelAthClusterMonTool = helper.addAlgorithm(PixelAthClusterMonTool, 'PixelAthClusterMonTool')
   for k, v in kwargsClusMonTool.items():
     setattr(pixelAthClusterMonTool, k, v)
   pixelAthClusterMonTool.TrackSelectionTool.UseTrkTrackTools = True
@@ -80,7 +80,7 @@ if doClusterMonTool:
   PixelAthClusterMonToolCfg(helper, pixelAthClusterMonTool, **kwargsClusMonTool)
 
 if doErrorMonTool:
-  pixelAthMonAlgErrorMonTool = helper.addAlgorithm(PixelAthErrorMonTool, 'PixelAthErrorMonTool', 'PixelAthErrorMonTool')
+  pixelAthMonAlgErrorMonTool = helper.addAlgorithm(PixelAthErrorMonTool, 'PixelAthErrorMonTool')
   for k, v in kwargsErrMonTool.items():
     setattr(pixelAthMonAlgErrorMonTool, k, v)
   PixelAthErrorMonToolCfg(helper, pixelAthMonAlgErrorMonTool, **kwargsErrMonTool)

@@ -5,14 +5,17 @@
 def DataQualityToolsConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from .DQTDataFlowMonAlg import DQTDataFlowMonAlgConfig
+    from .DQTLumiMonTool import DQTLumiMonAlgConfig
     from .DQTBackgroundMon import DQTBackgroundMonAlgConfig
     from .DQTDetSynchMonAlg import DQTDetSynchMonAlgConfig
-    
+
     result = ComponentAccumulator()
     result.merge(DQTDataFlowMonAlgConfig(flags))
+    result.merge(DQTLumiMonAlgConfig(flags))
     result.merge(DQTBackgroundMonAlgConfig(flags))
 
-    # really should only configure when input is RAW
-    result.merge(DQTDetSynchMonAlgConfig(flags))
+    # only when input is RAW
+    if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
+        result.merge(DQTDetSynchMonAlgConfig(flags))
 
     return result

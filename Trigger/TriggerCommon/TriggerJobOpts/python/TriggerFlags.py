@@ -174,15 +174,13 @@ class writeL1TopoValData(JobProperty):
 _flags.append(writeL1TopoValData)
 
 class EDMDecodingVersion(JobProperty):
-    """ if 1, Run1 decoding version is set; if 2, Run2 """
+    """ if 1, Run1 decoding version is set; if 2, Run2; if 3, Run3 """
     statusOn=True
     allowedType=['int']
     allowedValues=[1,2,3]
-    StoredValue=2
+    StoredValue=3
 
 _flags.append(EDMDecodingVersion)
-
-
 
 class doFEX(JobProperty):
     """ if False disable Feature extraction algorithms """

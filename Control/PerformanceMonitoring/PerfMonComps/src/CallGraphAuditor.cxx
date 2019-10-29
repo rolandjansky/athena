@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CallGraphAuditor.cxx 
@@ -107,30 +107,6 @@ void CallGraphAuditor::beforeExecute( INamedInterface* alg )
 void CallGraphAuditor::afterExecute( INamedInterface* alg, const StatusCode& ) 
 {
   m_callGraphSvc->closeNode( alg->name() + ":execute" );
-  return;
-}
-
-void CallGraphAuditor::beforeBeginRun( INamedInterface* alg )
-{
-  m_callGraphSvc->openNode( alg->name() + ":beginRun" );
-  return;
-}
-
-void CallGraphAuditor::afterBeginRun( INamedInterface* alg )
-{
-  m_callGraphSvc->closeNode( alg->name() + ":beginRun" );
-  return;
-}
-
-void CallGraphAuditor::beforeEndRun( INamedInterface* alg )
-{
-  m_callGraphSvc->openNode( alg->name() + ":endRun" );
-  return;
-}
-
-void CallGraphAuditor::afterEndRun( INamedInterface* alg )
-{
-  m_callGraphSvc->closeNode( alg->name() + ":endRun" );
   return;
 }
 

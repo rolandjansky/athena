@@ -28,7 +28,7 @@ def ConvertedRunNumber(rNumber):
 def RunListInDBTotal(start_date, end_date, file_name, string_pattern):
     prefix="http://atlas-service-runinformation.web.cern.ch/atlas-service-runinformation/cgi-bin/runnumbers.py?"
     url=prefix+"start.date="+start_date+"%2012:06:00&end.date="+end_date+"%2012:06:00&format=html"
-    # print url
+    # print(url)
     request=urllib2.Request(url)
     u=urllib2.urlopen(request)
     DocString = u.read()
@@ -53,7 +53,7 @@ def RunListInDBTotal(start_date, end_date, file_name, string_pattern):
                 Runs.append(int(ar[1]))
         f.close()
     else:
-        print "-->ERROR: athena_checkUpload: Can't find input file !"
+        print("-->ERROR: athena_checkUpload: Can't find input file !")
 
     ## delete the temporary file
     os.remove(file_name)
@@ -68,7 +68,7 @@ def channelValueQuery(server, schema, dbname, folder, iov0, iov1, tag, channels)
     url = prefix+server+d+schema+d+dbname+folder+'/timespan/'+timespan+'/tag/'+tag+'/channels/'+channels
     httpHeaders={'Accept':'text/xml'}
     textData=None
-    print url
+    print(url)
     request=urllib2.Request(url,textData, httpHeaders)
     u=urllib2.urlopen(request)
     xmlDocString = u.read()
@@ -82,7 +82,7 @@ def RunListInDB(array, server, schema, dbname, folder, tag, channels):
             runNumber=array[i]
             iovSince=ConvertedRunNumber(runNumber)
             iovUntil=ConvertedRunNumber(runNumber+1)-1
-            print "..checking for runs..."
+            print("..checking for runs...")
             derived_string=channelValueQuery(server, schema, dbname, folder, iovSince, iovUntil, tag, channels)
 
             derived=NonvalidatingReader.parseString(derived_string,uri="dummy")
@@ -168,9 +168,9 @@ def GetNoisyModulesAverageInDB(array):
 def DisplayInfoForRunsInDB(runs, noisy_mods, noisy_strips):
     if (len(runs) != 0):
         for i in range(len(runs)):
-            print "Run: ",runs[i], " --> Num. noisy modules: ", noisy_mods[i], " --> Num. noisy channels: ", noisy_strips[i]
+            print("Run: ",runs[i], " --> Num. noisy modules: ", noisy_mods[i], " --> Num. noisy channels: ", noisy_strips[i])
     else:
-        print "--> No information found."
+        print("--> No information found.")
 
 #############################################################################################
 #############################################################################################
@@ -199,7 +199,7 @@ def DisplayInfoForRunsInDB(runs, noisy_mods, noisy_strips):
 #  #RunsInDBTotal=RunListInDBTotal(startDate, endDate, fileName, String_Pattern)
 #  RunsInDBTotal=[167661]
 #  RunsInDB=RunListInDB(RunsInDBTotal, Server,Schema,Dbname,Folder,Tag,'*')
-#  print "Runs in DB: %s"%RunsInDB
+#  print("Runs in DB: %s"%RunsInDB)
 #  numNoisyModulesInDB=GetNumberOfNoisyModulesInDB(RunsInDB, Server,Schema,Dbname,Folder,Tag,'*')
 #  noisyModulesAverageInDB=GetNoisyModulesAverageInDB(numNoisyModulesInDB)
 #  noisyStripsInDB=GetNumberOfNoisyStripsInDB(RunsInDB, Server,Schema,Dbname,Folder,Tag,'*')
@@ -209,11 +209,11 @@ def DisplayInfoForRunsInDB(runs, noisy_mods, noisy_strips):
 #  nNoisyStrips=0
 #  if RunsInDB:
 #    nNoisyStrips=RunsInDB[0]
-#  print "------------> Runs in COOL DB since ", startDate, " until ", endDate, "<------------"
+#  print("------------> Runs in COOL DB since ", startDate, " until ", endDate, "<------------")
 #  DisplayInfoForRunsInDB(RunsInDB, numNoisyModulesInDB, noisyStripsInDB)
-#  print "      Average of number noisy modules for the above runs: ", noisyModulesAverageInDB
-#  print "      Number of noisy strips in the last uploaded run ", nNoisyStrips,": ", noisyStripsInDB_lastRun
-#  print "--------------------------------------------------------------------------------"
+#  print("      Average of number noisy modules for the above runs: ", noisyModulesAverageInDB)
+#  print("      Number of noisy strips in the last uploaded run ", nNoisyStrips,": ", noisyStripsInDB_lastRun)
+#  print("--------------------------------------------------------------------------------")
 #
 #
 #if __name__=="__main__":

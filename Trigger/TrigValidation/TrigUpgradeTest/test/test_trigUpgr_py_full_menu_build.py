@@ -12,7 +12,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TrigUpgradeTest/full_menu.py'
 ex.input = 'data'
-ex.args = '-c "isOnline=True;"'
+ex.args = '-c "isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 ex.skip_events = 10
 
 test = Test.Test()

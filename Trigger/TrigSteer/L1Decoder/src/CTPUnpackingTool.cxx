@@ -89,7 +89,7 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
   for ( size_t wordCounter = 0; wordCounter < tavSize; ++wordCounter ) {
     for ( size_t bitCounter = 0;  bitCounter < 32; ++bitCounter ) {
       const size_t ctpIndex = 32*wordCounter + bitCounter;
-      const bool decision = ( tav[wordCounter].roIWord() & (1 << bitCounter) ) > 0;
+      const bool decision = ( tav[wordCounter].roIWord() & ((uint32_t)1 << bitCounter) ) > 0;
 
       if ( decision == true or m_forceEnable ) {
 	if ( decision ) {

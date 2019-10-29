@@ -114,7 +114,6 @@ print TRT_StrawStatus
 #conddb.addFolder('TRT_OFL','/TRT/Calib/DX')
 #conddb.addOverride('/TRT/Calib/DX','TRTCalibDX_L3BarrelEndcap_01')
 #conddb.addOverride('/Indet/Beampos','IndetBeampos-ES1-UPD2')  
-#conddb.addOverride('/Indet/PixelDist','InDetPixelDist-000-01')  
 #conddb.addOverride('/TRT/Align/','TRTAlign_Collision_7T_2010_07')  
 #conddb.addOverride('/Indet/Align/','InDetAlign_Collision_7T_2010_07')  
 #conddb.addOverride('/Indet/TrkErrorScaling','TrkErrorScaling_7T_2010_02')

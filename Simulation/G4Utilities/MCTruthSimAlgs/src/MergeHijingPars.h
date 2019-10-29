@@ -21,10 +21,12 @@ class IPileUpTool;
 class MergeHijingPars : public AthAlgorithm {
 public:
   MergeHijingPars(const std::string& name, ISvcLocator* svcLoc);
+  virtual ~MergeHijingPars() = default;
   StatusCode initialize() override final;
   StatusCode execute() override final;
-  StatusCode finalize() override final;
+  bool isClonable() const override final { return true; }
+
 private:
-  ToolHandle<IPileUpTool> m_mergeTool;
+  ToolHandle<IPileUpTool> m_mergeTool{this, "MergeHijingParsTool", "MergeHijingParsTool", ""};
 };
 #endif

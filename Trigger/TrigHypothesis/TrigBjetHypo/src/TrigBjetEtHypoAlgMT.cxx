@@ -10,20 +10,15 @@ TrigBjetEtHypoAlgMT::TrigBjetEtHypoAlgMT( const std::string& name,
 					  ISvcLocator* pSvcLocator ) : 
   TrigBjetHypoAlgBaseMT( name, pSvcLocator ) {}
 
-TrigBjetEtHypoAlgMT::~TrigBjetEtHypoAlgMT() {}
-
 
 StatusCode TrigBjetEtHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   ATH_MSG_DEBUG(  "declareProperty review:"    );
   ATH_MSG_DEBUG(  "   " << m_roiLink           );
   ATH_MSG_DEBUG(  "   " << m_prmVtxLink        );
 
-  ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve()   );
 
-  ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_inputJetsKey.initialize()       );
   CHECK( m_inputRoIKey.initialize()        );
   CHECK( m_inputPrmVtx.initialize()        );

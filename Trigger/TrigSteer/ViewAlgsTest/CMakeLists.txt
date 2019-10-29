@@ -30,19 +30,12 @@ atlas_add_component( ViewAlgsTest
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODTrigger xAODTracking TrigConfHLTData TrigSteeringEvent ViewAlgsLib AthContainers FourMomUtils)
 
 atlas_install_joboptions( share/*.py )
-
 atlas_install_python_modules( python/*.py )
 
-atlas_install_xmls( data/*.xml )
-
-
 atlas_add_test( creatingEVTest 
-		SCRIPT scripts/creatingEVTest.sh
-		POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/post_with_filter.sh creatingEVTest"
-		ENVIRONMENT PATTERNS=EMViewsMaker algInView "start processing")
+                SCRIPT athena --threads=1 ViewAlgsTest/EVTest.py
+                EXTRA_PATTERNS "-s EMViewsMaker|algInView|'start processing'" )
 
 atlas_add_test( mergingEVTest 
-		SCRIPT scripts/mergingEVTest.sh
- 		POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/post_with_filter.sh mergingEVTest"
-                PROPERTIES TIMEOUT 300
-		ENVIRONMENT PATTERNS=EMViewsMaker algInView EMViewsMerger "start processing" )
+		        SCRIPT athena --threads=1 -c "doMerging=True" ViewAlgsTest/EVTest.py
+                EXTRA_PATTERNS "-s EMViewsMaker|algInView|'start processing'" )

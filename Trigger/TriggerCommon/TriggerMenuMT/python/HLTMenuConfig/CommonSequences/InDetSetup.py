@@ -29,7 +29,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     
 
 
-  eventAlgs = []
   viewAlgs = []
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from InDetRecExample.InDetKeys import InDetKeys
@@ -281,4 +280,4 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
 
   
-  return (viewAlgs, eventAlgs) 
+  return viewAlgs

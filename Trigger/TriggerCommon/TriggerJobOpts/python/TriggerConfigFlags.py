@@ -26,8 +26,8 @@ def createTriggerFlags():
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
     
-    # if 1, Run1 decoding version is set; if 2, Run2 
-    flags.addFlag('Trigger.EDMDecodingVersion', 2)
+    # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
+    flags.addFlag('Trigger.EDMDecodingVersion', 3)
 
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
@@ -53,15 +53,18 @@ def createTriggerFlags():
 
     # list of thresholds (not sure if we want to use new flags to generate L1, leaving out for now?)
     
+    # partition name used to determine online vs offline BS result writing
+    import os
+    flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
     
     # enable streaming of HLT content as BS payload
     flags.addFlag('Trigger.writeBS', False)
 
     # list of EDM objects to be written to AOD
-    flags.addFlag('Trigger.AODEDMSet', [])
+    flags.addFlag('Trigger.AODEDMSet', 'AODSLIM')
 
     # list of objects to be written to ESD
-    flags.addFlag('Trigger.ESDEDMSet', [])
+    flags.addFlag('Trigger.ESDEDMSet', 'ESD')
 
     # tag to be used for condutions used by HLT code
     flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')

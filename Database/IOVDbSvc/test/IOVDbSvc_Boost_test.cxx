@@ -112,21 +112,16 @@ BOOST_AUTO_TEST_SUITE(IOVDbSvcTest )
   }
   
   BOOST_AUTO_TEST_CASE(getKeyInfo){
-    std::string foldername{};
-    std::string tag{"dummy"};
-    IOVRange range;
-    bool retrieved{};
-    unsigned long long bytesRead(0);
-    float readTime(0.);
-    BOOST_TEST( iovdbsvc->getKeyInfo(db.fixtureFoldername, foldername, tag, range, retrieved,bytesRead, readTime));
-    std::string rangeString(range);
+    IIOVDbSvc::KeyInfo info;
+    BOOST_TEST( iovdbsvc->getKeyInfo(db.fixtureFoldername, info));
+    std::string rangeString(info.range);
 
-    BOOST_TEST(db.fixtureFoldername == foldername);
-    BOOST_TEST(tag.empty());
+    BOOST_TEST(db.fixtureFoldername == info.foldername);
+    BOOST_TEST(info.tag.empty());
     BOOST_TEST("{[100] - [9223372036854775807]}"==rangeString);
-    BOOST_TEST(retrieved);
-    BOOST_TEST(bytesRead == 8);//why?
-    BOOST_TEST(readTime<0.5);
+    BOOST_TEST(info.retrieved);
+    BOOST_TEST(info.bytesRead == 8);//why?
+    BOOST_TEST(info.readTime<0.5);
   }
   BOOST_AUTO_TEST_CASE(dropObject){ 
     //not sure I can meaningfully test that the object was really dropped

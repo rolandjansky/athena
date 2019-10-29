@@ -125,10 +125,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # Check if triggerConfigHLT exits, if yes, derive information from this
     # this will be in use once TrigUpgrade test has migrated to TriggerMenuMT completely
 
-    # lock flags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.lock()
-
     # get topSequnece
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
@@ -168,8 +164,9 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
         triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
+    Configurable.configurableRun3Behavior+=1
 
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
@@ -187,7 +184,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
     hltTop += edmAlg
 
-    Configurable.configurableRun3Behavior=0
+    Configurable.configurableRun3Behavior-=1
 
     topSequence += hltTop
 

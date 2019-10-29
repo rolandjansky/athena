@@ -9,8 +9,7 @@
 '''
 
 def SCTLorentzMonAlgConfig(inputFlags):
-    '''Function to configures some algorithms in the monitoring system.'''
-
+    
     ### STEP 1 ###
     # Define one top-level monitoring algorithm. The new configuration 
     # framework uses a component accumulator.
@@ -163,31 +162,26 @@ def SCTLorentzMonAlgConfig(inputFlags):
 
     ### STEP 5 ###
     # Configure histograms
-    nProfileBins = 360
     N_BARRELS = 4
-    nSidesInclBoth = 3 # 0: Side 0, 1: Side 1, 2: both sides
-    bothSides = 2
-    nSurfaces = 3 # 0: 100, 1: 111, 2: all surfaces
-    surfaceNames = ["_100",   "_111",   ""]
-    surfaceNames2 = ["_100_",   "_111_",   ""]
-    surfaceTitles = ["100 - ", "111 - ", ""]
-    sideNames = ["_0", "_1", ""]
+    nSidesInclBoth = 2 # 0: Side 0, 1: Side 1
+    #bothSides = 2
+    nSurfaces = 2 # 0: 100, 1: 111
+    surfaceNames = ["_100",   "_111"]
+    surfaceNames2 = ["_100_",   "_111_"]
+    surfaceTitles = ["100 - ", "111 - "]
+    sideNames = ["_0", "_1"]
     for l in range(N_BARRELS):
         for iSurface in range(nSurfaces):
             for side in range(nSidesInclBoth):
                 xVar = "phiToWafer_"+str(l)+surfaceNames[iSurface]+sideNames[side]
                 yVar = "nStrip_"+str(l)+surfaceNames[iSurface]+sideNames[side]
-                if side==bothSides:
-                    histTitle = surfaceTitles[iSurface]+"Inc. Angle vs nStrips for Layer"+str(l)
-                    histName = "h_phiVsNstrips"+surfaceNames2[iSurface]+str(l)
-                else:
-                    histTitle = surfaceTitles[iSurface]+"Inc. Angle vs nStrips for Layer Side"+str(l)+str(side)
-                    histName = "h_phiVsNstrips"+surfaceNames2[iSurface]+str(l)+"Side"+str(side)
+                histTitle = surfaceTitles[iSurface]+"Inc. Angle vs nStrips for Layer Side"+str(l)+str(side)
+                histName = "h_phiVsNstrips"+surfaceNames2[iSurface]+str(l)+"Side"+str(side)
                 myMonGroup.defineHistogram(varname=xVar+","+yVar+";"+histName, # ; means alias
                                            type="TProfile",
                                            title=histTitle+";#phi to Wafer;Num of Strips",
                                            path="lorentz", # path cannot be "".
-                                           xbins=nProfileBins, xmin=-90., xmax=90.)
+                                           xbins=360, xmin=-90., xmax=90.)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -199,8 +193,8 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # # Otherwise, merge with result object and return
     result.merge(helper.result())
     return result
-
-if __name__ == "__main__":
+    
+if __name__ == "__main__": 
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
@@ -213,6 +207,7 @@ if __name__ == "__main__":
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
+    #ConfigFlags.Input.Files = [" /afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nigtly_2019-08-24T2130/AOD.pool.root "]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'SCTLorentzMonOutput.root'
     ConfigFlags.GeoModel.Align.Dynamic = False

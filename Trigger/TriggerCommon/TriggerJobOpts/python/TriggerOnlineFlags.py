@@ -35,6 +35,14 @@ class doValidation(JobProperty):
 
 _flags += [doValidation]
 
+class partitionName(JobProperty):
+   """ Name of the partition if running in online environment, otherwise empty """
+   statusOn = True
+   allowedTypes = ['str']
+   StoredValue = ''
+
+_flags += [partitionName]
+
 # Create "Online" container
 class Online(JobPropertyContainer):
    """ Trigger online flags

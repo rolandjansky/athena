@@ -1,14 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterMomentContainerCnv_p1.h"
 //#include "CaloTPCnv/CaloClusterMomentContainer_p1.h"
-#define private public
-#define protected public
 #include "CaloEvent/CaloClusterMomentStore.h"
-#undef private
-#undef protected
 #include "AthenaKernel/errorcheck.h"
      
 CaloClusterMomentContainerCnv_p1::CaloClusterMomentContainerCnv_p1()
@@ -16,7 +12,8 @@ CaloClusterMomentContainerCnv_p1::CaloClusterMomentContainerCnv_p1()
 }
 
 void CaloClusterMomentContainerCnv_p1::transToPers(const CaloClusterMomentStore* trans, 
-						   CaloClusterMomentContainer_p1* pers) {
+						   CaloClusterMomentContainer_p1* pers) const
+{
   CaloClusterMomentStore::moment_iterator it=trans->begin();
   CaloClusterMomentStore::moment_iterator it_e=trans->end();
   CaloClusterMomentContainer_p1::ClusterMoment_p mom;
@@ -28,27 +25,30 @@ void CaloClusterMomentContainerCnv_p1::transToPers(const CaloClusterMomentStore*
 }
 
 void CaloClusterMomentContainerCnv_p1::persToTrans(const CaloClusterMomentContainer_p1* pers,
-						   CaloClusterMomentStore* trans) {
+						   CaloClusterMomentStore* trans,
+                                                   CaloClusterMomentContainer_p1::const_iterator& momentStoreIterator) const
+{
   typedef CaloClusterMomentStore::moment_store moment_store;
   typedef moment_store::value_type value_type;
-  moment_store& transStore=trans->m_store;
-  transStore.clear(); 
+  moment_store transStore;
 
   for (unsigned short i=0;i<pers->m_nMoments;++i) {
-    //trans->insert((CaloClusterMoment::MomentType)m_momentStoreIterator->key,
-    //		  CaloClusterMoment(m_momentStoreIterator->value));
+    //trans->insert((CaloClusterMoment::MomentType)momentStoreIterator->key,
+    //		  CaloClusterMoment(momentStoreIterator->value));
     //Insert with 'hint', should be faster
     transStore.insert(transStore.end(),    
-		      value_type(m_momentStoreIterator->key,
- 				 m_momentStoreIterator->value));
-    ++m_momentStoreIterator;
+		      value_type(momentStoreIterator->key,
+ 				 momentStoreIterator->value));
+    ++momentStoreIterator;
   }
+  trans->setMomentStore (std::move (transStore));
 }
 
 bool CaloClusterMomentContainerCnv_p1::setIterator(const CaloClusterMomentContainer_p1* pers,
-                                                   unsigned int ncluster)
+                                                   unsigned int ncluster,
+                                                   CaloClusterMomentContainer_p1::const_iterator& momentStoreIterator) const
 {
-  m_momentStoreIterator=pers->m_store.begin();
+  momentStoreIterator=pers->m_store.begin();
 
   if (pers->m_nMoments * ncluster != pers->m_store.size()) {
     REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING, "CaloClusterMomentContainerCnv_p1")

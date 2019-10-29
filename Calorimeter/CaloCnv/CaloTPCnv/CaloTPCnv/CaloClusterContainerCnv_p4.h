@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTPCNV_CaloClusterContainerCnv_p4_H
@@ -25,22 +25,26 @@ class CaloCluster;
 
 class CaloClusterContainerCnv_p4 : public ITPCnvBase {
 public:
+  typedef CaloClusterContainer Trans_t;
+  typedef CaloClusterContainer_p4 Pers_t;
+
+
   CaloClusterContainerCnv_p4() {};
   virtual ~CaloClusterContainerCnv_p4() {}; 
 
   // Methods for invoking conversions on objects given by generic pointers.
   virtual void persToTransUntyped(const void* pers,
                                   void* trans,
-                                  MsgStream& log);
+                                  MsgStream& log) override;
   virtual void transToPersUntyped(const void* trans,
                                   void* pers,
-                                  MsgStream& log);
-  virtual const std::type_info& transientTInfo() const;
+                                  MsgStream& log) override;
+  virtual const std::type_info& transientTInfo() const override;
 
   /** return C++ type id of the persistent class this converter is for
       @return std::type_info&
   */
-  virtual const std::type_info& persistentTInfo() const;
+  virtual const std::type_info& persistentTInfo() const override;
 
   void persToTrans(const CaloClusterContainer_p4*, CaloClusterContainer*, MsgStream &log);
   void transToPers(const CaloClusterContainer*, CaloClusterContainer_p4*, MsgStream &log);

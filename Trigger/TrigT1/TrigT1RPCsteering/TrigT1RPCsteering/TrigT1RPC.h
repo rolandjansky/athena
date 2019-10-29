@@ -32,8 +32,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
-
-#define DEFAULT_L1MuctpiStoreLocationRPC "L1MuctpiStoreRPC"
+#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
 class RpcIdHelper;
 
@@ -49,37 +48,39 @@ public:
   StatusCode finalize();
 
 private:
-  IntegerProperty m_fast_debug;            // bits for debugging "fast" algos
-
-  IntegerProperty m_cma_debug;             // bits for debugging CMA simulation
-  IntegerProperty m_pad_debug;             // bits for debugging PAD simulation
-  IntegerProperty m_sl_debug;              // bits for debugging SL simulation
-
-  IntegerProperty m_cma_ro_debug;          // bits for debugging CMA readout
-  IntegerProperty m_pad_ro_debug;          // bits for debugging PAD readout
-  IntegerProperty m_rx_ro_debug;           // bits for debugging Rx readout
-  IntegerProperty m_sl_ro_debug;           // bits for debugging SL readout
-
-  IntegerProperty m_cma_rostruct_debug;    // bits for debugging CMA ro struct
-  IntegerProperty m_pad_rostruct_debug;    // bits for debugging PAD ro struct
-  IntegerProperty m_rx_rostruct_debug;     // bits for debugging Rx ro struct
-  IntegerProperty m_sl_rostruct_debug;     // bits for debugging SL ro struct 
-
-  BooleanProperty m_geometric_algo;        // flag to activate fast simu
-  BooleanProperty m_logic_emulation;       // flag to activate logic emulation
-  BooleanProperty m_hardware_emulation;    // flag to activate hardware emula.
-  BooleanProperty m_bytestream_production; // flag to produce RPC byte stream
-  StringProperty  m_bytestream_file;       // name for the bytestream file
-
-  BooleanProperty m_data_detail;           // flag to printout detailed INFO on
-                                           // processed data
-
-    IntegerProperty m_firstBC_to_MUCTPI;   // First BC to be sent to muctpi, wrt to BC0, e.g. -1 meanst the BC before the trigger Bc
-    IntegerProperty m_lastBC_to_MUCTPI;   // First BC to be sent to muctpi, wrt to BC0, e.g. -1 meanst the BC before the trigger Bc
-    
+  IntegerProperty m_fast_debug{this,"FastDebug",0};            // bits for debugging "fast" algos
+  
+  IntegerProperty m_cma_debug{this,"CMAdebug",0};             // bits for debugging CMA simulation
+  IntegerProperty m_pad_debug{this,"PADdebug",0};             // bits for debugging PAD simulation
+  IntegerProperty m_sl_debug{this,"SLdebug",0};              // bits for debugging SL simulation
+  
+  IntegerProperty m_cma_ro_debug{this,"CMArodebug",0};          // bits for debugging CMA readout
+  IntegerProperty m_pad_ro_debug{this,"PADrodebug",0};          // bits for debugging PAD readout
+  IntegerProperty m_rx_ro_debug{this,"RXrodebug",0};           // bits for debugging Rx readout
+  IntegerProperty m_sl_ro_debug{this,"SLrodebug",0};           // bits for debugging SL readout
+  
+  IntegerProperty m_cma_rostruct_debug{this,"CMArostructdebug",0};    // bits for debugging CMA ro struct
+  IntegerProperty m_pad_rostruct_debug{this,"PADrostructdebug",0};    // bits for debugging PAD ro struct
+  IntegerProperty m_rx_rostruct_debug{this,"RXrostructdebug",0};     // bits for debugging Rx ro struct
+  IntegerProperty m_sl_rostruct_debug{this,"SLrostructdebug",0};     // bits for debugging SL ro struct 
+  
+  BooleanProperty m_geometric_algo{this,"Geometric",false};        // flag to activate fast simu
+  BooleanProperty m_logic_emulation{this,"Logic",false};       // flag to activate logic emulation
+  BooleanProperty m_hardware_emulation{this,"Hardware",true};    // flag to activate hardware emula.
+  BooleanProperty m_bytestream_production{this,"RPCbytestream",false}; // flag to produce RPC byte stream
+  StringProperty  m_bytestream_file{this,"RPCbytestreamFile",""};       // name for the bytestream file
+  
+  BooleanProperty m_data_detail{this,"DataDetail",false};           // flag to printout detailed INFO on
+  // processed data
+  
+  IntegerProperty m_firstBC_to_MUCTPI{this,"firstBC_to_MUCTPI",-1};   // First BC to be sent to muctpi, wrt to BC0, e.g. -1 meanst the BC before the trigger Bc
+  IntegerProperty m_lastBC_to_MUCTPI{this,"lastBC_to_MUCTPI",1};   // First BC to be sent to muctpi, wrt to BC0, e.g. -1 meanst the BC before the trigger Bc
+  
+  BooleanProperty m_useRun3Config{this,"useRun3Config",false};         // flag for using switch between Run3 and Run2 configurations
+  
   StatusCode fill_RPCdata(RPCsimuData&);
-
-private:
+  
+ private:
 
     //  ActiveStoreSvc*                      m_activeStore;
   
@@ -90,7 +91,9 @@ private:
   const IRPCcablingSvc*                m_cabling;
 
   SG::ReadHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RPCDigitContainer", "RPC_DIGITS", "RPC Digit Input Container"};
-  SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationRPC", DEFAULT_L1MuctpiStoreLocationRPC, "Location of muctip for Rpc"};
+  SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationRPC", "L1MuctpiStoreRPC", "Location of muctpi for Rpc"};
+  SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationRPC", "L1MuctpiStoreRPC", "Location of muctpiPhase1 for Rpc"};
+  
 };
 
 

@@ -77,23 +77,18 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 theApp.EvtMax=1
 
+from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadFebCondAlg(ReadKey="", InputFileName=InputFile, OutputLevel=DEBUG)
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq+=theLArBadFebCondAlg
+
 #Thats the registration algo
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelDBAlg
 theLArDBAlg=LArBadChannelDBAlg()
 theLArDBAlg.WritingMode = 1
 theLArDBAlg.FEBFolder=Folder
 topSequence += theLArDBAlg
-
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=True
-theLArBadChannelTool.CoolFolder=""
-
-theLArBadChannelTool.CoolMissingFEBsFolder = ""#FEBFolder
-theLArBadChannelTool.FEBfile = InputFile
-#theLArBadChannelTool.WriteEmptyFolders = False
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
 
 OutputList=[ "AthenaAttributeList#"+Folder ]
 FEBTag=join(split(Folder, '/'),'') + TagPostfix

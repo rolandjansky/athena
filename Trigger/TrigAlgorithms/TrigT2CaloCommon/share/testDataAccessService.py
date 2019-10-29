@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+doEmptyMenu=True
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -21,7 +22,7 @@ if TriggerFlags.doCalo:
   if ( True ) :
      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     
-     from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc#, TestCaloDataAccess
+     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc#, TestCaloDataAccess
      import math
      mon = GenericMonitoringTool("CaloDataAccessSvcMon")
      mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path="EXPERT", title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
@@ -29,7 +30,8 @@ if TriggerFlags.doCalo:
                       defineHistogram( "TIME_locking_LAr_FullDet", path="EXPERT", title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),
                       defineHistogram( "roiEta_LAr,roiPhi_LAr", type="TH2F", path="EXPERT", title="Geometric usage", xbins=50, xmin=-5, xmax=5, ybins=64, ymin=-math.pi, ymax=math.pi )]
     
-     svcMgr += TrigCaloDataAccessSvc()
+     if not hasattr(svcMgr,"TrigCaloDataAccessSvc"):
+         svcMgr += TrigCaloDataAccessSvc()
      svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
      svcMgr.TrigCaloDataAccessSvc.MonTool = mon
     

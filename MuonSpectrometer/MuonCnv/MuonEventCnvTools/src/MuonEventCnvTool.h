@@ -43,13 +43,13 @@ namespace Muon {
 
         MuonEventCnvTool(const std::string&,const std::string&,const IInterface*);
 
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
 
         /** check that the RoT is correctly filled*/
         virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const override;
 
         virtual std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-            getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const override;
+            getLinks( Trk::RIO_OnTrack& rioOnTrack ) const override;
         
         /** @copydoc Trk::ITrkEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack* rot)*/    
         virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const override;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Property.h"
@@ -21,12 +21,8 @@ TrigL2PhotonHypoAlgMT::TrigL2PhotonHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigL2PhotonHypoAlgMT::~TrigL2PhotonHypoAlgMT() {}
 
 StatusCode TrigL2PhotonHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
-  
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_photonsKey.initialize() );
@@ -35,12 +31,7 @@ StatusCode TrigL2PhotonHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2PhotonHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
-
-  
-StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit

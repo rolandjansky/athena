@@ -54,4 +54,10 @@ def STGC_OverlayDigitizationTool(name="STGC_OverlayDigitizationTool",**kwargs):
 
 def getSTGC_OverlayDigitizer(name="STGC_OverlayDigitizer", **kwargs):
     kwargs.setdefault("DigitizationTool","STGC_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     return CfgMgr.sTGC_Digitizer(name,**kwargs)

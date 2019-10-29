@@ -13,7 +13,7 @@ ex.input = 'data'
 ex.forks = 2
 ex.threads = 2
 ex.concurrent_events = 2
-ex.args = '-c "doEmptyMenu=True;BFieldAutoConfig=False;doWriteESD=False"'
+ex.args = '-c "doEmptyMenu=True;BFieldAutoConfig=False;"'
 ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
