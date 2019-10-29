@@ -48,7 +48,7 @@ def trigCaloDataAccessSvcCfg( flags ):
     
     acc.merge( createLArRoI_Map( flags ) )
 
-    # Needed by LArBadChanLegacyTool, refrerenced from LArCellCont.
+    # Needed by bad channel maskers, refrerenced from LArCellCont.
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge(addFolders(flags, ['/LAR/BadChannels/BadChannels'], 'LAR'))
     acc.merge(addFolders(flags, ['/LAR/BadChannels/MissingFEBs'], 'LAR'))

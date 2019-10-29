@@ -5,6 +5,7 @@
 #ifndef TGCSector_h
 #define TGCSector_h
 
+#include "TrigT1TGC/TGCArguments.hh"
 #include "TrigT1TGC/TGCDatabaseManager.hh"
 #include "TrigT1TGC/TGCTimingManager.hh"
 #include "TrigT1TGC/TGCReadoutIndex.h"
@@ -37,13 +38,14 @@ namespace LVL1TGCTrigger {
 class TGCSector {
 
 public:
-  TGCSector(int idIn, 
+  TGCSector(TGCArguments*,
+	    int idIn, 
 	    TGCRegionType type, 
 	    TGCForwardBackwardType forwardBackward, 
 	    const TGCDatabaseManager* db,
 	    const TGCTMDB*            tmdb);
 
-  TGCSector();
+  TGCSector(TGCArguments*);
 
 private:
   // copy constructor and assignement operator are hidden
@@ -73,6 +75,8 @@ public:
   int getSideId() const { return m_sideId; }
   int getOctantId() const { return m_octantId; }
   int getModuleId() const { return m_moduleId; }
+
+  TGCArguments* tgcArgs() const;
 
 private:
   const TGCTMDB* getTMDB() const { return m_TMDB; }
@@ -117,7 +121,15 @@ private:
 
   TGCSectorLogic* m_SL;
   const TGCTMDB* m_TMDB;
+
+  TGCArguments* m_tgcArgs;
+
 };
+
+inline
+TGCArguments* TGCSector::tgcArgs() const {
+  return m_tgcArgs;
+}
 
 inline 
  bool TGCSector::hasHit() const

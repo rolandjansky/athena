@@ -44,7 +44,7 @@ def bJetStep1Sequence():
     RoIs=RoIBuilder.RoIOutputKey
 
     # Fast Tracking
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS", rois=RoIs)
+    viewAlgs = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS", rois=RoIs)
 
     # Primary Vertex 
     #from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
@@ -85,7 +85,7 @@ def bJetStep1Sequence():
     hypo.PrmVtx = outputVertexKey
 
     # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
+    BjetAthSequence = seqAND("BjetAthSequence_step1", [InputMakerAlg,recoSequence,bJetEtSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
@@ -108,7 +108,7 @@ def bJetStep1SequenceALLTE():
 
 
     # Fast Tracking 
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS",rois=RoIs)
+    viewAlgs = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS",rois=RoIs)
 
 
     # Primary Vertex 
@@ -141,7 +141,7 @@ def bJetStep1SequenceALLTE():
     hypo.PrmVtx = prmVtx.OutputVertexKey
 
     # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence_step1_ALLTE",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
+    BjetAthSequence = seqAND("BjetAthSequence_step1_ALLTE", [InputMakerAlg,recoSequence,bJetEtSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,

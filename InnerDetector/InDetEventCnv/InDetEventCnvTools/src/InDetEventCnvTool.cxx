@@ -120,7 +120,7 @@ InDet::InDetEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const {
 }
 
 std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-InDet::InDetEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const
+InDet::InDetEventCnvTool::getLinks( Trk::RIO_OnTrack& rioOnTrack ) const
 {
   using namespace Trk;
   const TrkDetElementBase* detEl = 0;

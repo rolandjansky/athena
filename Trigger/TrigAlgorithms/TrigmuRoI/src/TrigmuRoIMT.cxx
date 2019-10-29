@@ -12,7 +12,6 @@
 
 TrigmuRoIMT::TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_trigMuonRoITool( "TrigMuonRoITool" ),
     m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
     m_recTGCRoiSvc("LVL1TGC::TGCRecRoiSvc","")
 {   
@@ -88,18 +87,20 @@ StatusCode TrigmuRoIMT::execute()
 
   for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
 	it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
-    
-    ATH_MSG_DEBUG(" Difference(RoI(BCID) - Event(BCID)) = " << (*it).second);
-    ATH_MSG_DEBUG(" ------------------------------------- ");
-    ATH_MSG_DEBUG("RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec);
-    ATH_MSG_DEBUG("Threshold               :  pt" << ((*it).first).pt());
-    ATH_MSG_DEBUG("Sector ID               :  " << ((*it).first).getSectorID());
-    ATH_MSG_DEBUG("Sector addr             :  0x" << MSG::hex << ((*it).first).getSectorAddress() << MSG::dec);
-    ATH_MSG_DEBUG("Sector overflow         :  " << ((*it).first).getSectorOverflow());
-    ATH_MSG_DEBUG("RoI overflow            :  " << ((*it).first).getRoiOverflow());
-    ATH_MSG_DEBUG("RoI number              :  " << ((*it).first).getRoiNumber());
-    ATH_MSG_DEBUG("IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt());
-    ATH_MSG_DEBUG("=================================================");
+
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG(" Difference(RoI(BCID) - Event(BCID)) = " << (*it).second);
+      ATH_MSG_DEBUG(" ------------------------------------- ");
+      ATH_MSG_DEBUG("RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec);
+      ATH_MSG_DEBUG("Threshold               :  pt" << ((*it).first).pt());
+      ATH_MSG_DEBUG("Sector ID               :  " << ((*it).first).getSectorID());
+      ATH_MSG_DEBUG("Sector addr             :  0x" << MSG::hex << ((*it).first).getSectorAddress() << MSG::dec);
+      ATH_MSG_DEBUG("Sector overflow         :  " << ((*it).first).getSectorOverflow());
+      ATH_MSG_DEBUG("RoI overflow            :  " << ((*it).first).getRoiOverflow());
+      ATH_MSG_DEBUG("RoI number              :  " << ((*it).first).getRoiNumber());
+      ATH_MSG_DEBUG("IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt());
+      ATH_MSG_DEBUG("=================================================");
+    }
             
     unsigned int temp_sysID = getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
     unsigned int sysID = 0;                // Barrel

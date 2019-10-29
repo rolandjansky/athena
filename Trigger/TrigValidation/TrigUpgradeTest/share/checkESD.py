@@ -1,4 +1,7 @@
-include("AthenaPoolDataModelTest/esdtoesd_base.py")
+import AthenaPoolCnvSvc.ReadAthenaPool
+from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+Stream1 = AthenaPoolOutputStream( "Stream1")
+Stream1.OutputFile = "ESDout.pool.root"
 
 svcMgr.EventSelector.InputCollections   = [ "myESD.pool.root" ]
 

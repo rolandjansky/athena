@@ -2,13 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUCOMBHYPO_TRIGMUCOMBHYPOALG_H 
-#define TRIGMUCOMBHYPO_TRIGMUCOMBHYPOALG_H 1 
+#ifndef TRIGMUONHYPOMT_TRIGMUCOMBHYPOALG_H
+#define TRIGMUONHYPOMT_TRIGMUCOMBHYPOALG_H 1
 
 #include "TrigmuCombHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
-
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -20,12 +18,9 @@ class TrigmuCombHypoAlg
 
    TrigmuCombHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );   
 
-   virtual ~TrigmuCombHypoAlg();
-
    virtual StatusCode  initialize() override;
    virtual StatusCode  execute( const EventContext& context ) const override;
-   virtual StatusCode  finalize() override;
-    
+
   private:
  
     ToolHandleArray<TrigmuCombHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 

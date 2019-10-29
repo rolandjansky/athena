@@ -14,6 +14,8 @@
 #include "src/TrigL2MuonOverlapRemoverMufastAlg.h"
 #include "src/TrigL2MuonOverlapRemoverMucombAlg.h"
 #include "src/TrigL2MuonOverlapRemoverTool.h"
+#include "src/TrigMuonLateMuRoIHypoAlg.h"
+#include "src/TrigMuonLateMuRoIHypoTool.h"
 
 
 DECLARE_COMPONENT( TrigMufastHypoAlg )
@@ -33,3 +35,5 @@ DECLARE_COMPONENT( TrigMuonEFInvMassHypoTool )
 DECLARE_COMPONENT( TrigL2MuonOverlapRemoverMufastAlg )
 DECLARE_COMPONENT( TrigL2MuonOverlapRemoverMucombAlg )
 DECLARE_COMPONENT( TrigL2MuonOverlapRemoverTool )
+DECLARE_COMPONENT( TrigMuonLateMuRoIHypoAlg )
+DECLARE_COMPONENT( TrigMuonLateMuRoIHypoTool )

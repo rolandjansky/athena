@@ -129,7 +129,7 @@ def collectDecisionObjects(  hypos, filters, l1decoder ):
 
 def triggerSummaryCfg(flags, hypos):
     """
-    Configures an algorithm(s) that should be run after the section process
+    Configures an algorithm(s) that should be run after the selection process
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
@@ -137,13 +137,28 @@ def triggerSummaryCfg(flags, hypos):
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = {}
+
+
     for stepName, stepHypos in sorted( hypos.items() ):
         for hypo in stepHypos:
             hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
             allChains.update( dict.fromkeys( hypoChains, hypoOutputKey ) )
 
+    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+    if len(TriggerConfigHLT.dicts()) == 0:
+        __log.warning("No HLT menu, chains w/o algorithms are not handled")
+    else:
+        for chainName, chainDict in TriggerConfigHLT.dicts().iteritems():
+            if chainName not in allChains:                
+                __log.debug("The chain %s is not mentiond in any step", chainName)
+                # TODO once sequences available in the menu we need to crosscheck it here
+                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense"
+                allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
+                __log.info("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
+
     for c, cont in allChains.iteritems():
-        __log.info("Final decision of chain  " + c + " will be red from " + cont )
+        __log.info("Final decision of chain  " + c + " will be read from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output

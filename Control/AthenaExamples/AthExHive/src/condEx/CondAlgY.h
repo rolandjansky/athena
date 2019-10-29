@@ -17,7 +17,7 @@
 #include <string>
 
 class CondAlgY  :  public AthAlgorithm {
-  
+
 public:
     
   CondAlgY (const std::string& name, ISvcLocator* pSvcLocator);
@@ -37,7 +37,6 @@ private:
   Gaudi::Property<std::string> m_dbk1 {this, "Key_DB1", "Y1", "explicit dbKey for cond handle 1"};
   Gaudi::Property<std::string> m_dbk2 {this, "Key_DB2", "Y2", "explicit dbKey for cond handle 2"};
 
-  ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IASCIICondDbSvc> m_cds;
 
 };

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,6 +23,7 @@
 
 
 #if PY_VERSION_HEX < 0x03000000
+# define PyROOT_PyUnicode_Type               PyString_Type
 # define PyROOT_PyUnicode_Check              PyString_Check
 # define PyROOT_PyUnicode_FromFormat         PyString_FromFormat
 # define PyROOT_PyUnicode_AsString           PyString_AS_STRING
@@ -30,12 +31,14 @@
 # define PyROOT_PyUnicode_GET_SIZE           PyString_GET_SIZE
 # define PyROOT_PyUnicode_FromString         PyString_FromString
 # define PyROOT_PyUnicode_FromStringAndSize  PyString_FromStringAndSize
+# define PyROOT_PyUnicode_InternFromString   PyString_InternFromString
 # define PyROOT_PyCapsule_CheckExact    PyCObject_Check
 static inline void* PyROOT_PyCapsule_GetPointer( PyObject* capsule, const char* /* name */ )
 {
    return (void*)PyCObject_AsVoidPtr( capsule );
 }
 #else
+# define PyROOT_PyUnicode_Type               PyUnicode_Type
 # define PyROOT_PyUnicode_Check              PyUnicode_Check
 # define PyROOT_PyUnicode_FromFormat         PyUnicode_FromFormat
 # define PyROOT_PyUnicode_AsString           _PyUnicode_AsString
@@ -43,8 +46,21 @@ static inline void* PyROOT_PyCapsule_GetPointer( PyObject* capsule, const char* 
 # define PyROOT_PyUnicode_GET_SIZE           PyUnicode_GET_SIZE
 # define PyROOT_PyUnicode_FromString         PyUnicode_FromString
 # define PyROOT_PyUnicode_FromStringAndSize  PyUnicode_FromStringAndSize
+# define PyROOT_PyUnicode_InternFromString   PyUnicode_InternFromString
 # define PyROOT_PyCapsule_CheckExact    PyCapsule_CheckExact
 # define PyROOT_PyCapsule_GetPointer    PyCapsule_GetPointer
+
+# define PyInt_Type                     PyLong_Type
+# define PyInt_Check                    PyLong_Check
+# define PyInt_CheckExact               PyLong_CheckExact
+# define PyInt_AsLong                   PyLong_AsLong
+# define PyInt_AS_LONG                  PyLong_AsLong
+# define PyInt_AsSsize_t                PyLong_AsSsize_t
+# define PyInt_FromLong                 PyLong_FromLong
+
+# define PyBuffer_Type                  PyMemoryView_Type
+
+# define Py_TPFLAGS_CHECKTYPES 0
 #endif
 
 

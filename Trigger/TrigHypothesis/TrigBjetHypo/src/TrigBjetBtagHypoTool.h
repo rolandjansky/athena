@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -31,9 +31,6 @@
 #include "AthenaBaseComps/AthAlgTool.h" 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
-static const InterfaceID IID_TrigBjetBtagHypoTool("TrigBjetBtagHypoTool", 1, 0);
-
-
 class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
 
  public:
@@ -50,13 +47,9 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
   TrigBjetBtagHypoTool (const std::string& type,
 		const std::string& name,
 		const IInterface* parent );
-  /** @brief Destructor. */
-  virtual ~TrigBjetBtagHypoTool ();
 
-  StatusCode initialize() override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
 
-  static const InterfaceID& interfaceID();
   TrigCompositeUtils::DecisionID decisionId() const;
   const HLT::Identifier getId() const;
 
@@ -82,10 +75,4 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
   //  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" }; Temporary commenting this out
 };
 
-inline const InterfaceID& TrigBjetBtagHypoTool::interfaceID()
-{
-   return IID_TrigBjetBtagHypoTool;
-}
-
 #endif // !TRIGBJETHYPO_TRIGBJETHYPOTOOL_H
-

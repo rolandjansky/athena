@@ -8,10 +8,8 @@ TrigBjetEtHypoAlgEVMT::TrigBjetEtHypoAlgEVMT( const std::string& name,
 					      ISvcLocator* pSvcLocator ) :
   ::TrigBjetEtHypoAlgMT( name,pSvcLocator ) {}
 
-TrigBjetEtHypoAlgEVMT::~TrigBjetEtHypoAlgEVMT() {}
 
 StatusCode TrigBjetEtHypoAlgEVMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   CHECK( TrigBjetEtHypoAlgMT::initialize() );
   CHECK( m_inputTracksKey.initialize() );

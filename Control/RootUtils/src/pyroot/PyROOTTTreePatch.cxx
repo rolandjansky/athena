@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PyROOTTTreePatch.cxx,v 1.5 2009-02-17 19:26:31 ssnyder Exp $
@@ -159,7 +159,7 @@ Bool_t TreeNotifier::Notify()
 
   // Intern __pynotify__ if needed.
   if (pynotify_str == 0)
-    pynotify_str = PyString_InternFromString("__pynotify__");
+    pynotify_str = PyROOT_PyUnicode_InternFromString("__pynotify__");
 
   // Look for a notification object.
   PyObject* treeobj = PyWeakref_GetObject (m_treeobj_ref);
@@ -415,8 +415,8 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
 
   // Intern strings.
   if (elements_str == 0) {
-    elements_str = PyString_InternFromString("__elements__");
-    notifier_str = PyString_InternFromString("__notifier__");
+    elements_str = PyROOT_PyUnicode_InternFromString("__elements__");
+    notifier_str = PyROOT_PyUnicode_InternFromString("__notifier__");
   }
 
   // Get our name argument as a py string.
@@ -570,7 +570,7 @@ PyObject* treeSetNotify (PyObject*, PyObject* args)
 
   // Intern string if needed.
   if (pynotify_str == 0)
-    pynotify_str = PyString_InternFromString("__pynotify__");
+    pynotify_str = PyROOT_PyUnicode_InternFromString("__pynotify__");
 
   // Install the object.
   int stat = PyObject_SetAttr (self, pynotify_str, obj);
@@ -596,7 +596,7 @@ PyObject* treeGetNotify (PyObject*, PyObject* args)
 
   // Intern string if needed.
   if (pynotify_str == 0)
-    pynotify_str = PyString_InternFromString("__pynotify__");
+    pynotify_str = PyROOT_PyUnicode_InternFromString("__pynotify__");
 
   // Retrieve the notifier.
   PyObject* ret = PyObject_GetAttr (self, pynotify_str);
@@ -674,7 +674,11 @@ void installMethod (PyObject* pyclass,
   pdef.ml_doc = 0;
 
   PyObject* func = PyCFunction_New (&pdef, 0);
+#if PY_VERSION_HEX >= 0x03000000
+  PyObject* method = PyMethod_New (func, pyclass);
+#else
   PyObject* method = PyMethod_New (func, 0, pyclass);
+#endif
   Bool_t isOK = PyObject_SetAttrString (pyclass, pdef.ml_name, method) == 0;
 
   if (PyErr_Occurred())

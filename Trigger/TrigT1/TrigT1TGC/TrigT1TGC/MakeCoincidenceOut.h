@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/NTuple.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "TrigT1TGC/TGCCoincidence.hh"
 
 namespace LVL1TGCTrigger {
 
@@ -37,8 +38,8 @@ namespace LVL1TGCTrigger {
     StatusCode bookHistos();
 
    private:
-    StringProperty  m_key;
-    BooleanProperty m_WriteMCtruth;
+    StringProperty  m_key{this,"InputData_perEvent",""};
+    BooleanProperty m_WriteMCtruth{this,"WriteMCtruth",true};
     ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
       "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     //NTuple::Tuple* m_ntuplePtr;
@@ -52,6 +53,9 @@ namespace LVL1TGCTrigger {
     NTuple::Item<long>   m_nmuMC;
     NTuple::Array<long>  m_idMC;
     NTuple::Array<double>  m_ptMC, m_etaMC, m_phiMC;
+
+    bool m_OUTCOINCIDENCE;
+    TGCCoincidences * m_TGCCOIN;
     
   }; // class MakeCoincidenceOut
  

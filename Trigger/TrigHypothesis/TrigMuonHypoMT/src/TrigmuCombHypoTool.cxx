@@ -27,12 +27,9 @@ TrigmuCombHypoTool::~TrigmuCombHypoTool(){
 
 StatusCode TrigmuCombHypoTool::initialize()
 {
-   ATH_MSG_INFO("Initializing " << name());
- 
    ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
  
    if (m_acceptAll) {
-      ATH_MSG_DEBUG("AcceptAll = True");
       ATH_MSG_INFO("Accepting all the events!");
    } else {
       ATH_MSG_DEBUG("AcceptAll = False");
@@ -56,8 +53,6 @@ StatusCode TrigmuCombHypoTool::initialize()
       ATH_CHECK( m_monTool.retrieve() );
       ATH_MSG_DEBUG("MonTool name: " << m_monTool);
    }
- 
-   ATH_MSG_INFO("Initializing" << name() << "successfully");
  
    return StatusCode::SUCCESS;
 }

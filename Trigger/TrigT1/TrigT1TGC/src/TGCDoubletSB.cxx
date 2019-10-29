@@ -12,11 +12,8 @@
 
 namespace LVL1TGCTrigger {
 
-extern bool g_STRICTWD;
-extern bool g_STRICTSD;
-
-TGCDoubletSB::TGCDoubletSB()
-  :TGCSlaveBoard(),
+TGCDoubletSB::TGCDoubletSB( TGCArguments* tgcargs)
+  :TGCSlaveBoard(tgcargs),
    m_priorSign(1),m_numberOfData(2),m_nChInBlock(32),
    m_maxDev(0),m_posMaxDev(0),m_negMaxDev(0),m_nChAdj(0),m_iChBase(0),
    m_MatrixOverlap(4),m_SType(WIREGROUP)
@@ -342,10 +339,10 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
 
 bool TGCDoubletSB::element(bool A, bool B, bool C, bool D)
 {
-  if(g_STRICTWD) {
+  if(tgcArgs()->STRICTWD()) {
     if(m_SType == WIREGROUP) return (A & D);
   }
-  if (g_STRICTSD) {
+  if (tgcArgs()->STRICTSD()) {
     if(m_SType == STRIP) return (A & D);
   }
   

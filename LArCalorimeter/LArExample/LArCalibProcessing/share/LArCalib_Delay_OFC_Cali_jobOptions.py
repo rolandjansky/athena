@@ -228,9 +228,10 @@ if not 'InputAutoCorrPoolDir' in dir():
    InputAutoCorrPoolDir = commands.getoutput("pwd")
 
 ## Output
-
-   
-rs=FolderTagResover()
+if 'dbname' in dir():
+   rs=FolderTagResover(dbname=dbname)
+else:
+   rs=FolderTagResover()
 if not 'PedLArCalibFolderTag' in dir():
    PedLArCalibFolderTag=rs.getFolderTagSuffix(LArCalib_Flags.LArPedestalFolder)
 
@@ -342,7 +343,8 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
       
 ###########################################################################
 #                             OFC properties
@@ -426,8 +428,8 @@ if SuperCells:
   from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
   LArOnOffIdMappingSC()
   LArCalibIdMappingSC()
-from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
-LArBadChannelAccess()
+#from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+#LArBadChannelAccess()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -436,6 +438,8 @@ LArBadChannelAccess()
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -496,8 +500,10 @@ if ( runAccumulator ) :
    # this is a OLD jobOptions which can maybe work but only for the barrel                        #
    # can be used as a skeleton if needed but                                                      #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
-   if SuperCells:
-      ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+   ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+   #if SuperCells is False:
+   #   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
+   
    include("./LArCalib_CalibrationPatterns.py")
 
 else:
@@ -538,7 +544,10 @@ from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
 #include ("LArCalibProcessing/LArCalib_BadChanTool.py")
-
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayOFCLog.info( "Read Bad Channels from Oracle DB")
@@ -548,17 +557,25 @@ else :
 if 'BadChannelsFolder' in dir():
  if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
  else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
 
 if 'MissingFEBsFolder' in dir():
  if 'MissingFEBsLArCalibFolderTag' in dir() :
    MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
  else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
    
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
+
+
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
 try:
@@ -760,9 +777,9 @@ if doOFC:
 #                                                                        #
 ##########################################################################
 
-if not SuperCells:
-   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-   topSequence+=xAODMaker__EventInfoCnvAlg()
+#if not SuperCells:
+#   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+#   topSequence+=xAODMaker__EventInfoCnvAlg()
 
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg

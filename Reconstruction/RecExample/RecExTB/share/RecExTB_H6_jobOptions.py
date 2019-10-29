@@ -669,12 +669,8 @@ if doLAr :
     if doMask:
        from LArCellRec.LArCellRecConf import LArCellNoiseMaskingTool
        theLArCellMaskingTool = LArCellNoiseMaskingTool()
-       from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-       theLArBadChannelTool=LArBadChanTool()
-       ToolSvc+=theLArBadChannelTool
        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker   
        theLArMasker=LArBadChannelMasker("LArMasker")
-       theLArMasker.TheLArBadChanTool = theLArBadChannelTool
        theLArMasker.DoMasking=True
        theLArMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
        ToolSvc+=theLArMasker

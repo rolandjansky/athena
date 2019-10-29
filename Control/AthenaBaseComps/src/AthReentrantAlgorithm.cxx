@@ -12,6 +12,8 @@
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthAlgorithmDHUpdate.h"
+#include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // Framework includes
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -83,4 +85,35 @@ const DataObjIDColl& AthReentrantAlgorithm::extraOutputDeps() const
     return m_extendedExtraObjects;
   }
   return Algorithm::extraOutputDeps();
+}
+
+
+/**
+ * @brief Override sysInitialize from the base class
+ *
+ * Scan through all outputHandles, and if they're WriteCondHandles,
+ * register them with the CondSvc
+ */
+StatusCode AthReentrantAlgorithm::sysInitialize() {
+  StatusCode sc=AthCommonDataStore<AthCommonMsg<Gaudi::Algorithm>>::sysInitialize();
+
+  if (sc.isFailure()) {
+    return sc;
+  }
+  
+  ServiceHandle<ICondSvc> cs("CondSvc",name());
+  if ( cs.retrieve().isFailure() ) {
+    ATH_MSG_WARNING("no CondSvc found: won't autoreg WriteCondHandles");
+    return StatusCode::SUCCESS;
+  }
+  for (auto h : outputHandles()) {
+    if (h->isCondition() && h->mode() == Gaudi::DataHandle::Writer) {
+      if (cs->regHandle(this,*h).isFailure()) {
+        sc = StatusCode::FAILURE;
+        ATH_MSG_ERROR("unable to register WriteCondHandle " << h->fullKey()
+                      << " with CondSvc");
+      }
+    }
+  }
+  return sc;  
 }

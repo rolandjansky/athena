@@ -58,7 +58,12 @@ PyObject* pynameFromType (PyObject* tp)
   PyObject* pyname = nullptr;
 
   if ( ! PyType_Check( tp ) ) {
-    if ( ! PyString_Check( tp ) ) {
+#if PY_VERSION_HEX < 0x03000000
+    if ( ! PyString_Check( tp ) )
+#else
+    if ( ! PyUnicode_Check( tp ) )
+#endif
+    {
       PyErr_SetString( PyExc_TypeError, 
                        "contains() argument 1 must be type or class name" );
       return nullptr;
@@ -73,7 +78,12 @@ PyObject* pynameFromType (PyObject* tp)
     if (!pyname) {
       pyname = PyObject_GetAttrString( tp, (char*)"__name__" );
     }
-    if ( pyname && ! PyString_Check( pyname ) ) {
+#if PY_VERSION_HEX < 0x03000000
+    if ( pyname && ! PyString_Check( pyname ) )
+#else
+    if ( pyname && ! PyUnicode_Check( pyname ) )
+#endif
+    {
       PyObject* pystr = PyObject_Str( pyname );
       if ( pystr ) {
         Py_DECREF( pyname );
@@ -226,19 +236,31 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
   } else if (realID == char_clid) {
     res = dbb->cast( char_clid );
     char *v = reinterpret_cast<char*>(res);
+#if PY_VERSION_HEX < 0x03000000
     objProxy = PyString_FromStringAndSize(v, 1);
+#else
+    objProxy = PyUnicode_FromStringAndSize(v, 1);
+#endif
     return objProxy;
 
   } else if (realID == int_clid) {
     res = dbb->cast( int_clid );
     int *v = reinterpret_cast<int*>(res);
+#if PY_VERSION_HEX < 0x03000000
     objProxy = PyInt_FromLong(*v);
+#else
+    objProxy = PyLong_FromLong(*v);
+#endif
     return objProxy;
 
   } else if (realID == uint_clid) {
     res = dbb->cast( uint_clid );
     unsigned int *v = reinterpret_cast<unsigned int*>(res);
+#if PY_VERSION_HEX < 0x03000000
     objProxy = PyInt_FromLong(*v);
+#else
+    objProxy = PyLong_FromLong(*v);
+#endif
     return objProxy;
 
   } else if (realID == long_clid) {
@@ -494,7 +516,11 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
   // check if this is a PyRoot object or a 'regular' PyObject
   const bool isPlainPyObj = !TPython::ObjectProxy_Check (obj);
   if ( isPlainPyObj ) {
+#if PY_VERSION_HEX < 0x03000000
     pyname = PyString_FromString ((char*)"PyObject");
+#else
+    pyname = PyUnicode_FromString ((char*)"PyObject");
+#endif
   } else {
     pyname = pynameFromType( tp );
   }

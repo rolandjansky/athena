@@ -23,9 +23,11 @@
 #include "../condEx/AlgB.h"
 #include "../condEx/AlgC.h"
 #include "../condEx/AlgD.h"
+#include "../condEx/AlgE.h"
 #include "../condEx/AlgT.h"
 #include "../condEx/CondAlgX.h"
 #include "../condEx/CondAlgY.h"
+#include "../condEx/CondAlgZ.h"
 #include "../condEx/ASCIICondDbSvc.h"
 
 #include "../ThreadInitTool.h"
@@ -52,9 +54,11 @@ DECLARE_COMPONENT( AlgA )
 DECLARE_COMPONENT( AlgB )
 DECLARE_COMPONENT( AlgC )
 DECLARE_COMPONENT( AlgD )
+DECLARE_COMPONENT( AlgE )
 DECLARE_COMPONENT( AlgT )
 DECLARE_COMPONENT( CondAlgX )
 DECLARE_COMPONENT( CondAlgY )
+DECLARE_COMPONENT( CondAlgZ )
 
 DECLARE_COMPONENT( ThreadInitTool )
 DECLARE_COMPONENT( HiveTool )
