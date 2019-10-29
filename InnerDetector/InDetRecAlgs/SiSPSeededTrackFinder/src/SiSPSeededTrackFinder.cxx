@@ -66,8 +66,6 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_problemsTotalV         = 0                 ; 
   m_zstep                  = 0                 ;
   m_inputClusterContainerName = "InDetCaloClusterROIs";
-  m_rmax                   = 1100.             ;
-  m_rmin                   = 0.                ;
 
 
   // SiSPSeededTrackFinder steering parameters
@@ -999,19 +997,4 @@ void InDet::SiSPSeededTrackFinder::magneticFieldInit()
   else                         pMF = new Trk::MagneticFieldProperties(Trk::FastField);
   m_fieldprop = *pMF; delete pMF;
 }
-
-
-
-bool InDet::SiSPSeededTrackFinder::isUsed(const Trk::SpacePoint* sp)
-{
-  const Trk::PrepRawData* d = sp->clusterList().first ;
-  if(!m_assoTool->isUsed(*d)) return false;
-
-  d = sp->clusterList().second;
-  if(!d || m_assoTool->isUsed(*d)) return true;
-
-  return false;
-}
-
-
 

@@ -117,8 +117,6 @@ namespace InDet {
       double                         m_zcut      ;
       double*                        m_zhistogram;
       double*                        m_phistogram;
-      double                         m_rmax      ;
-      double                         m_rmin      ;
 
       std::string                    m_beamconditions          ;
       std::string                    m_fieldmode               ;
@@ -134,7 +132,6 @@ namespace InDet {
       
       bool isGoodEvent();
       double trackQuality(const Trk::Track*);
-      bool isUsed(const Trk::SpacePoint*);
       void filterSharedTracks(std::multimap<double,Trk::Track*>&);
       void fillZHistogram(const Trk::Track*,Trk::PerigeeSurface&);
       void findZvertex(std::list<Trk::Vertex>&,double*); 
