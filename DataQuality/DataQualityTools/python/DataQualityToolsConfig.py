@@ -10,12 +10,16 @@ def DataQualityToolsConfig(flags):
     from .DQTDetSynchMonAlg import DQTDetSynchMonAlgConfig
 
     result = ComponentAccumulator()
+    # the following should run in all configurations
     result.merge(DQTDataFlowMonAlgConfig(flags))
-    result.merge(DQTLumiMonAlgConfig(flags))
-    result.merge(DQTBackgroundMonAlgConfig(flags))
+
+    # the following should not run in RAW to ESD, if we're in two-step
+    if flags.DQ.Environment != 'tier0Raw':
+        result.merge(DQTLumiMonAlgConfig(flags))
 
     # only when input is RAW
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
         result.merge(DQTDetSynchMonAlgConfig(flags))
+        result.merge(DQTBackgroundMonAlgConfig(flags))
 
     return result
