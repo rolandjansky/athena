@@ -36,7 +36,7 @@ namespace top {
       return StatusCode::SUCCESS;
     }
 
-    if (!m_config->useElectrons() && m_config->useMuons()) {
+    if (!m_config->useElectrons() && !m_config->useMuons()) {
       ATH_MSG_INFO("top::IsolationCPTools: no need to initialise since neither using electrons nor muons");
       return StatusCode::SUCCESS;
     }
