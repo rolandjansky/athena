@@ -186,9 +186,6 @@ ToolSvc += theBCTool
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 ToolSvc+=theCaloNoiseTool
-#from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-#theLArBadChannelTool=LArBadChanTool()
-#ToolSvc+=theLArBadChannelTool
 
 
 # variable for testing on ESD

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -1580,8 +1580,8 @@ class InDetJobProperties(JobPropertyContainer):
        # --- set default track configuration
        self.checkThenSet(self.doxKalman              , False)
        self.checkThenSet(self.doiPatRec              , False)
-       # --- enable phase for collisions by default
-       self.checkThenSet(self.doTRTPhaseCalculation  , True )       
+       # --- disable phase for collisions by default
+       self.checkThenSet(self.doTRTPhaseCalculation  , False )       
 
        # --- new setup for MinBias tracking
        if self.doMinBias():

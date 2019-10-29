@@ -14,9 +14,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 using namespace std;
@@ -50,7 +49,6 @@ SCTTracksMonAlg::SCTTracksMonAlg(const std::string& name, ISvcLocator* pSvcLocat
 
 StatusCode SCTTracksMonAlg::initialize(){
   ATH_CHECK( m_tracksName.initialize() );
-  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK(m_trackSummaryTool.retrieve());
   ATH_CHECK(m_residualPullCalculator.retrieve());
   if (m_doUnbiasedCalc) {
@@ -258,7 +256,8 @@ SCTTracksMonAlg::calculatePull(const float residual, const float trkErr, const f
 
 StatusCode
 SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
-  SG::ReadHandle<xAOD::EventInfo> evtInfo{m_eventInfoKey};
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EventInfo> evtInfo = GetEventInfo (ctx);
   if (evtInfo.isValid()) {
     firedTriggers = evtInfo->level1TriggerType();
 

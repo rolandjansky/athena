@@ -234,6 +234,15 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
 
   resetHists( histSvc );
   {
+    int testVal = 0.2;
+    auto eta = Monitored::Scalar<int>( "Eta", [&](){ return testVal; } ); // some generator
+    auto monitorIt = Monitored::Group( monTool, eta );
+  }
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 );
+
+
+  resetHists( histSvc );
+  {
     std::vector<float> eta( {0.2, 0.1} );
     std::set<double> phi( {-1, 1} ) ;
     auto vectorT   = Monitored::Collection( "Eta", eta );

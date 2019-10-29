@@ -94,7 +94,15 @@ class AthReentrantAlgorithm
                         const std::string& version=PACKAGE_VERSION);
 
   /// Destructor: 
-  virtual ~AthReentrantAlgorithm() override; 
+  virtual ~AthReentrantAlgorithm() override;
+
+  /** @brief Override sysInitialize
+   *
+   * Loop through all output handles, and if they're WriteCondHandles,
+   * automatically register them and this Algorithm with the CondSvc
+   */
+  virtual StatusCode sysInitialize() override;
+  
 
   /** Specify if the algorithm is clonable
    *

@@ -133,16 +133,6 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                 print(traceback.format_exc())
                 return False
 
-            # bad channel tools
-            try:
-                from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                theLArBadChannelTool = LArBadChanTool()
-            except Exception:
-                mlog.error("could not access bad channel tool Quit")
-                print(traceback.format_exc())
-                return False
-            ToolSvc += theLArBadChannelTool
-
             if doSporadicMask:
                 try:
                     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -192,17 +182,7 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                 return False
             theCaloCellMaker += theLArBadFebMaskingTool
 
-            # bad channel tools
-            try:
-                from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                theLArBadChannelTool = LArBadChanTool()
-            except Exception:
-                mlog.error("could not access bad channel tool Quit")
-                print(traceback.format_exc())
-                return False
-            ToolSvc += theLArBadChannelTool
 
-            theLArBadFebMaskingTool.badChannelTool = theLArBadChannelTool
             theCaloCellMaker.CaloCellMakerToolNames += [theLArBadFebMaskingTool]
 
         #

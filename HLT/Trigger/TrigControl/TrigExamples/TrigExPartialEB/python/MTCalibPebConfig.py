@@ -280,6 +280,7 @@ def make_hlt_seq(concurrent=False):
 
 def write_dummy_menu_json(chains, chain_to_streams):
     import json
+    from TrigConfHLTData.HLTUtils import string2hash
     menu_name = 'MTCalibPeb'
     menu_dict = {
         'name': menu_name,
@@ -293,6 +294,7 @@ def write_dummy_menu_json(chains, chain_to_streams):
         chain_dict['counter'] = counter
         chain_dict['name'] = chain
         chain_dict['streams'] = chain_to_streams[chain]
+        chain_dict['nameHash'] = string2hash(chain)
 
         # Other attributes not used in MTCalibPeb
         chain_dict['groups'] = []

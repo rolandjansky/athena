@@ -192,7 +192,6 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,
     if(sc.isFailure()) return sc;
     ATH_MSG_DEBUG("Found HoughPeaks");
     
-    std::tuple<double,double,double,double> track;
     sc = selectTrack(houghPeaks,xpos,time,flag,idx_selected);
     ATH_MSG_DEBUG("Selected track");
     if(sc.isFailure()) return sc;

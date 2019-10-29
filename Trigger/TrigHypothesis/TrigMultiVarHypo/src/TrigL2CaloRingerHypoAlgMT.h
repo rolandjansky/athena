@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGL2CALORINGERHYPOALGMT_H
 #define TRIGL2CALORINGERHYPOALGMT_H 1
@@ -23,9 +23,8 @@ class TrigL2CaloRingerHypoAlgMT
  public: 
 
   TrigL2CaloRingerHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~TrigL2CaloRingerHypoAlgMT(); 
+
   virtual StatusCode  initialize() override;
-  virtual StatusCode  finalize() override;
   virtual StatusCode  execute(const EventContext& context) const override;
 
  

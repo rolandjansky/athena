@@ -35,10 +35,7 @@ if TriggerFlags.doID:
 
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   
-  (viewAlgs, eventAlgs) = makeInDetAlgs("FS")
-
-  for eventAlg in eventAlgs:
-    viewSeq += eventAlg
+  viewAlgs = makeInDetAlgs("FS")
 
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg

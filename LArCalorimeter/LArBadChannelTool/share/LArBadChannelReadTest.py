@@ -73,16 +73,6 @@ topSequence+=theDumper;
 
 
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=False
-theLArBadChannelTool.DumpCache=True
-#theLArBadChannelTool.ASCIIFileName="/home/wlampl/LArCondPatcher/dead_dummy.txt"
-#theLArBadChannelTool.EMBAfile ="/afs/cern.ch/user/t/todorov/scratch0/testarea/rel_5/LArCalorimeter/LArBadChannelTool/share/noisePb_29142.txt"
-#theLArBadChannelTool.EMBCfile ="/afs/cern.ch/user/t/todorov/scratch0/testarea/rel_5/LArCalorimeter/LArBadChannelTool/share/noisePb_29142.txt"
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
-
 svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/BadChannels<tag>LARBadChannelsBadChannels-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
 svcMgr.IOVDbSvc.Folders+=["/LAR/BadChannels/MissingFEBs<tag>LARBadChannelsMissingFEBs-M6-01</tag><dbConnection>sqlite://;schema=BadChannels.db;dbname=CONDBR2</dbConnection>" ]
 svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"

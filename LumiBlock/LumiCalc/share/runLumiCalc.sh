@@ -1,5 +1,5 @@
 #!/bin/bash
-export release=19.2.0
+export release=20.7.8.6
 
 echo `date`
 echo Working directory is `pwd`
@@ -13,10 +13,10 @@ export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
 echo   $AtlasSetup/scripts/asetup.sh --release=$release --testarea=$MyTestArea
 source $AtlasSetup/scripts/asetup.sh --release=$release --testarea=$MyTestArea
 
-echo which iLumiCalc.exe: `which iLumiCalc.exe`
-
-echo Executing iLumiCalc.exe $*
-iLumiCalc.exe $*
+chmod +x /var/www/lumicalc/LumiBlock/LumiCalc/x86_64-slc6-gcc49-opt/iLumiCalc
+echo which iLumiCalc: `which iLumiCalc`
+echo Executing /var/www/lumicalc/LumiBlock/LumiCalc/x86_64-slc6-gcc49-opt/iLumiCalc $*
+/var/www/lumicalc/LumiBlock/LumiCalc/x86_64-slc6-gcc49-opt/iLumiCalc $*
 
 echo Done
 echo `date`
