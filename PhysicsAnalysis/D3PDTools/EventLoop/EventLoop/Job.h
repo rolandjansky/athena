@@ -413,6 +413,8 @@ namespace EL
     static const std::string optGridAddNthFieldOfInDSToLFN;
     static const std::string optGridWorkingGroup;
     static const std::string optGridShowCmd;
+    static const std::string optGridCpuTimePerEvent;
+    static const std::string optGridMaxWalltime;
     static const std::string optTmpDir;
     static const std::string optRootVer;
     static const std::string optCmtConfig;
