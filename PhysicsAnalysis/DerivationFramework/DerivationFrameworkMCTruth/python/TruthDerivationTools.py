@@ -31,11 +31,11 @@ DFCommonTruthPhotonTool = DerivationFramework__TruthCollectionMaker(name        
                                                          KeepNavigationInfo      = False,
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))
 ToolSvc += DFCommonTruthPhotonTool
-# this tool is needed for making TruthPhotons from sim samples, where extra cuts are needed
+# this tool is needed for making TruthPhotons from sim samples, where extra cuts are needed. Origin 42 (pi0) and 23 (light meson) cut way down uninteresting photons
 DFCommonTruthPhotonToolSim = DerivationFramework__TruthCollectionMaker(name      = "DFCommonTruthPhotonToolSim",
                                                          NewCollectionName       = "TruthPhotons",
                                                          KeepNavigationInfo      = False,
-                                                         ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
+                                                         ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42 && TruthParticles.classifierParticleOrigin !=23) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
 ToolSvc += DFCommonTruthPhotonToolSim
 
 neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)
