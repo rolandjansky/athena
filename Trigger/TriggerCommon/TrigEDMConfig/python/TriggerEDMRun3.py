@@ -320,6 +320,16 @@ EDMDetailsRun3[ "xAOD::CaloClusterTrigAuxContainer" ] = {'parent':"xAOD::CaloClu
 
 
 #-------------------------------------------------------------------------------
+# Truncation thresholds (in bytes) for each HLT result type
+#-------------------------------------------------------------------------------
+TruncationThresholds = {
+    0: 5*(1024**2),  # Main: 5 MB
+    1: 1*(1024**2),  # CostMonDS: 1 MB
+    5: 1*(1024**2),  # JetDS: 1 MB
+}
+
+
+#-------------------------------------------------------------------------------
 # Helper functions 
 #-------------------------------------------------------------------------------
 def persistent( transient ):
