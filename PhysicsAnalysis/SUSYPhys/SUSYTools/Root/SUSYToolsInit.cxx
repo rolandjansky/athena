@@ -104,7 +104,7 @@ using namespace ST;
     ATH_CHECK(TOOLHANDLE.setProperty("PileupReweightingTool", m_prwTool.getHandle() )); \
     ATH_CHECK(TOOLHANDLE.setProperty("OutputLevel", this->msg().level())); \
     ATH_CHECK(TOOLHANDLE.retrieve());                                        \
-  } else ATH_CHECK( TOOLHANDLE.retrieve());
+  } else if (TOOLHANDLE.isUserConfigured()) ATH_CHECK( TOOLHANDLE.retrieve());
 
 StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 {
