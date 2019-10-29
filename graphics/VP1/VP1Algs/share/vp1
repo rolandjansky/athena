@@ -326,13 +326,18 @@ while [ $i -le $# ]; do
 	if [ "x$DETDESCRTAG" == "x" ]; then
 	    ERRORS="$ERRORS\nNeed argument to -detdescr"
 	fi
-    elif [ "x${arg:0:10}" == "x-detdescr" ]; then
+    elif [ "x${arg:0:9}" == "x-detdescr" ]; then
 	DETDESCRTAG_2=${arg:9:$((${#arg}-9))}
 	if [ "x$DETDESCRTAG_2" == "x" ]; then
 	    ERRORS="$ERRORS\nNeed argument to -detdescr. Example: -detdescr=ATLAS-GEO-20-00-01"
 	fi
-    elif [ "x${arg:0:10}" == "x-nswagdd=" ]; then
+    elif [ "x${arg:0:9}" == "x-nswagdd=" ]; then
 	NSWAGDDFILE=${arg:9:$((${#arg}-9))}
+	if [ "x$NSWAGDDFILE" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
+	fi
+    elif [ "x${arg:0:8}" == "x-nswagdd" ]; then
+	NSWAGDDFILE=${arg:8:$((${#arg}-8))}
 	if [ "x$NSWAGDDFILE" == "x" ]; then
 	    ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
 	fi
