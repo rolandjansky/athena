@@ -34,7 +34,8 @@ _all_streams = [
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
-    StreamInfo('CostMonitoring','calibration', False, False)
+    StreamInfo('CostMonitoring','calibration', False, False),
+    StreamInfo('CosmicMuons','calibration',False,False),
 ]
 
 
