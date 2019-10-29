@@ -44,11 +44,11 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 {
 
   auto timer = Monitored::Timer("TIME_exec");
-  auto clET = Monitored::Scalar("TrigEMCluster_eT",0.);
-  auto clHET = Monitored::Scalar("TrigEMCluster_had1",0.);
-  auto clEta = Monitored::Scalar("TrigEMCluster_eta",0.);
-  auto clPhi = Monitored::Scalar("TrigEMCluster_phi",0.);
-  auto clReta = Monitored::Scalar("TrigEMCluster_rEta",0.);
+  auto clET = Monitored::Scalar("TrigEMCluster_eT",-999.0);
+  auto clHET = Monitored::Scalar("TrigEMCluster_had1",-999.0);
+  auto clEta = Monitored::Scalar("TrigEMCluster_eta",-999.0);
+  auto clPhi = Monitored::Scalar("TrigEMCluster_phi",-999.0);
+  auto clReta = Monitored::Scalar("TrigEMCluster_rEta",-999.0);
   auto monitoring = Monitored::Group( m_monTool, timer, clET, clHET, clEta, clPhi, clReta);
 
   SG::WriteHandle<xAOD::TrigEMClusterContainer> trigEmClusterCollection(m_clusterContainerKey, context);

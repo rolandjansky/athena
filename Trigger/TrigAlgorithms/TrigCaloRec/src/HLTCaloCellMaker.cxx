@@ -52,7 +52,7 @@ StatusCode HLTCaloCellMaker::initialize() {
 StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
   auto timer = Monitored::Timer("TIME_exec");
-  auto clN = Monitored::Scalar  ("Cells_N",0.);
+  auto clN = Monitored::Scalar  ("Cells_N",-999.0);
 
   auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
   if ( not roisHandle.isValid() ) {
