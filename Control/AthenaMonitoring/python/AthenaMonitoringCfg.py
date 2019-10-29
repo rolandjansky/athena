@@ -50,8 +50,8 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doJetMon:
         info('Set up Jet monitoring')
-        from JetMonitoring.JetMonitoringExample import jetMonitoringExampleConfig
-        result.merge(jetMonitoringExampleConfig(flags))
+        from JetMonitoring.JetMonitoringStandard import standardJetMonitoring
+        result.merge(standardJetMonitoring(flags))
 
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
