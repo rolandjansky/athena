@@ -5,6 +5,8 @@
 #ifndef TGCInnerTrackletSlot_hh
 #define TGCInnerTrackletSlot_hh
 
+#include "TrigT1TGC/TGCArguments.hh"
+
 namespace LVL1TGCTrigger {
   class TGCInnerTrackletSlot {
   public: 
@@ -37,6 +39,9 @@ namespace LVL1TGCTrigger {
       NUMBER_OF_TRIGGER_BITS = 4 
     };
 
+    const TGCArguments* tgcArgs() const;
+    void setTgcArguments( const TGCArguments* );
+
   private:
     int m_sideId; // Side A or Side C
     // slot01 - slot24
@@ -44,9 +49,14 @@ namespace LVL1TGCTrigger {
     int m_slotId; 
     // Trigger bits from EI/FI, TRIG0-TRIG3
     // https://twiki.cern.ch/twiki/pub/Main/TgcDocument/celladdress2_asic_rev2.pdf
-    bool m_triggerBit[NUMBER_OF_REGIONS][NUMBER_OF_READOUTS][NUMBER_OF_TRIGGER_BITS]; 
+    bool m_triggerBit[NUMBER_OF_REGIONS][NUMBER_OF_READOUTS][NUMBER_OF_TRIGGER_BITS];
+
+    const TGCArguments* m_tgcArgs;
   };
 
+  inline const TGCArguments* TGCInnerTrackletSlot::tgcArgs() const {
+    return m_tgcArgs;
+  }
 } //end of namespace bracket
 
 #endif // TGCInnerTrackletSlot_hh

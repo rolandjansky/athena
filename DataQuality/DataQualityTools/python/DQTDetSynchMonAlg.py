@@ -177,7 +177,7 @@ if __name__ == '__main__':
     from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
     cfg = MainServicesSerialCfg()
     cfg.merge(TrigBSReadCfg(ConfigFlags))
-    from TrigUpgradeTest.InDetConfig import TrigInDetConfig
+    from TrigInDetConfig.InDetConfig import TrigInDetConfig
     cfg.merge(TrigInDetConfig(ConfigFlags))
 
     cfg.merge(DQTDetSynchMonAlgConfig(ConfigFlags))

@@ -365,12 +365,12 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
 
   RoiDescriptor roi( etamin, etamax, phimin, phimax );
 
-  if ((&(m_idHelperTool->mdtIdHelper())) && (m_idHelperTool->mdtIdHelper().isInitialized())) addHashes(MDT, roi, data.mdt, data.mdtTrack);
-  if ((&(m_idHelperTool->rpcIdHelper())) && (m_idHelperTool->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
-  if ((&(m_idHelperTool->tgcIdHelper())) && (m_idHelperTool->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
-  if ((&(m_idHelperTool->cscIdHelper())) && (m_idHelperTool->cscIdHelper().isInitialized())) addHashes(CSC, roi, data.csc, data.cscTrack);
-  if ((&(m_idHelperTool->stgcIdHelper())) && (m_idHelperTool->stgcIdHelper().isInitialized())) addHashes(STGC, roi, data.stgc, data.stgcTrack);
-  if ((&(m_idHelperTool->mmIdHelper())) && (m_idHelperTool->mmIdHelper().isInitialized())) addHashes(MM, roi, data.mm, data.mmTrack);
+  if (m_idHelperTool->hasMdtIdHelper() && (m_idHelperTool->mdtIdHelper().isInitialized())) addHashes(MDT, roi, data.mdt, data.mdtTrack);
+  if (m_idHelperTool->hasRpcIdHelper() && (m_idHelperTool->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
+  if (m_idHelperTool->hasTgcIdHelper() && (m_idHelperTool->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
+  if (m_idHelperTool->hasCscIdHelper() && (m_idHelperTool->cscIdHelper().isInitialized())) addHashes(CSC, roi, data.csc, data.cscTrack);
+  if (m_idHelperTool->hasSTgcIdHelper() && (m_idHelperTool->stgcIdHelper().isInitialized())) addHashes(STGC, roi, data.stgc, data.stgcTrack);
+  if (m_idHelperTool->hasMmIdHelper() && (m_idHelperTool->mmIdHelper().isInitialized())) addHashes(MM, roi, data.mm, data.mmTrack);
 
   std::set<IdentifierHash>::iterator hsit = data.mdt.begin();
   std::set<IdentifierHash>::iterator hsit_end = data.mdt.end();
@@ -990,7 +990,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     }
     data.tgcCols = newtcols;
 
-    if ((&(m_idHelperTool->cscIdHelper())) && (m_idHelperTool->cscIdHelper().isInitialized())) {
+    if (m_idHelperTool->hasCscIdHelper() && (m_idHelperTool->cscIdHelper().isInitialized())) {
       m_seededSegmentFinder->extractCscPrdCols( data.csc, data.cscCols );
       std::vector<const CscPrepDataCollection*>::const_iterator cit = data.cscCols.begin();
       std::vector<const CscPrepDataCollection*>::const_iterator cit_end = data.cscCols.end();
@@ -1015,7 +1015,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
   }
 
   unsigned int nstates = states.size();
-  if ((&(m_idHelperTool->stgcIdHelper())) && (m_idHelperTool->stgcIdHelper().isInitialized())) {
+  if (m_idHelperTool->hasSTgcIdHelper() && (m_idHelperTool->stgcIdHelper().isInitialized())) {
     m_seededSegmentFinder->extractsTgcPrdCols( data.stgc, data.stgcCols );
     std::vector<const sTgcPrepDataCollection*>::const_iterator stit = data.stgcCols.begin();
     std::vector<const sTgcPrepDataCollection*>::const_iterator stit_end = data.stgcCols.end();
@@ -1040,7 +1040,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     data.stgcCols = newstcols;
   }
 
-  if ((&(m_idHelperTool->mmIdHelper())) && (m_idHelperTool->mmIdHelper().isInitialized())) {
+  if (m_idHelperTool->hasMmIdHelper() && (m_idHelperTool->mmIdHelper().isInitialized())) {
     m_seededSegmentFinder->extractMMPrdCols( data.mm, data.mmCols );
     ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
     std::vector<const MMPrepDataCollection*>::const_iterator mit = data.mmCols.begin();

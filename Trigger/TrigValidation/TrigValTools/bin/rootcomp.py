@@ -148,21 +148,10 @@ def main():
                      action = "store_true", default = False,
                      help = "be verbose")
 
-   parser.add_option("--atnMode",
-                     action = "store_true", default = False, help = "reference file is one from previous atn nightly test")
-   
    parser.add_option("--html",action="store_true",default=False,help="generate root html code to view results in web browser")
 
    (opts, args) = parser.parse_args()
    
-   if opts.atnMode and len(args)==1:
-      from TrigValTools.Utils import getPreviousNightlyPath
-      for i in range(1,7):
-         refFile = getPreviousNightlyPath(i) + "/" + args[0]
-         if os.path.isfile(refFile): break
-         print("Could not find file %s" % refFile)
-      args = [refFile] + args
-
    if len(args)!=2:
       parser.print_help()
       return 255

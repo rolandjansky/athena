@@ -69,26 +69,8 @@ template <class CONTAINER>
 const CONTAINER*
 copyThinned1 (const CONTAINER& orig,
               const DataVector<typename CONTAINER::base_value_type>* /*dummy*/,
-              IThinningSvc* svc)
+              IThinningSvc* /*svc*/)
 {
-  size_t size = orig.size();
-  if (size > 0 &&
-      svc &&
-      svc->thinningOccurred (&orig))
-  {
-    ConstDataVector<CONTAINER>* newcont = new ConstDataVector<CONTAINER>;
-    newcont->clear (SG::VIEW_ELEMENTS);
-    newcont->reserve (size);
-
-    for (size_t i = 0; i < size; i++) {
-      if (!IThinningSvc::isThinned (svc->index (&orig, i))) {
-        newcont->push_back (orig[i]);
-      }
-    }
-    
-    return newcont->asDataVector();
-  }
-
   return new CONTAINER (orig);
 }
 
@@ -108,10 +90,8 @@ copyThinned1 (CONTAINER& orig,
               DataVector<typename CONTAINER::base_value_type>* /*dummy*/,
               const SG::ThinningDecisionBase* dec)
 {
-  IThinningSvc* svc = IThinningSvc::instance();
   size_t size = orig.size();
-  if (size > 0 && (dec || (svc && svc->thinningOccurred(&orig))))
-  {
+  if (size > 0 && dec) {
     auto newcont = std::make_unique<CONTAINER>();
     // Avoid some ambiguities with clear().
     auto* dv = static_cast<DataVector<typename CONTAINER::base_value_type>*> (newcont.get());
@@ -119,9 +99,7 @@ copyThinned1 (CONTAINER& orig,
     newcont->reserve (size);
 
     for (size_t i = 0; i < size; i++) {
-      if (!(dec && dec->thinned (i)) &&
-          !(svc && IThinningSvc::isThinned (svc->index (&orig, i))))
-      {
+      if (!(dec && dec->thinned (i))) {
         newcont->push_back (orig[i]);
       }
     }
@@ -148,17 +126,14 @@ copyThinned1 (const CONTAINER& orig,
               const DataVector<typename CONTAINER::base_value_type>* /*dummy*/,
               const SG::ThinningDecisionBase* dec)
 {
-  IThinningSvc* svc = IThinningSvc::instance();
   size_t size = orig.size();
-  if (size > 0 && (dec || (svc && svc->thinningOccurred(&orig))))
-  {
+  if (size > 0 && dec) {
     auto newcont = std::make_unique<ConstDataVector<CONTAINER> >();
     newcont->clear (SG::VIEW_ELEMENTS);
     newcont->reserve (size);
 
     for (size_t i = 0; i < size; i++) {
-      if (!(dec && dec->thinned (i)) &&
-          !(svc && IThinningSvc::isThinned (svc->index (&orig, i))))
+      if (!(dec && dec->thinned (i)))
       {
         newcont->push_back (orig[i]);
       }

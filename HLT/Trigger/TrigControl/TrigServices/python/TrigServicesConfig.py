@@ -4,7 +4,9 @@
 # @purpose: customized configurables
 
 from TrigServicesConf import TrigCOOLUpdateHelper as _TrigCOOLUpdateHelper
-      
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigCOOLUpdateHelper')
+ 
 class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
    __slots__ = ()
 
@@ -18,19 +20,26 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
                                    xbins=100, xmin=0, xmax=200)
       return
 
-   def enable(self, folder='/TRIGGER/HLT/COOLUPDATE', tag=None):
-      """Enable the COOL folder updates (only use this for data)"""
+   def enable(self, folders = ['/Indet/Onl/Beampos',
+                               '/TRIGGER/LUMI/HLTPrefLumi']):
+      """Enable COOL folder updates for given folders (only use this for data)"""
       
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
       if not hasattr(svcMgr,'IOVDbSvc'): return
       
-      self.coolFolder = folder
+      self.CoolFolderMap = '/TRIGGER/HLT/COOLUPDATE'
+      self.Folders = folders
+
       from IOVDbSvc.CondDB import conddb
-      if tag is None:
-         conddb.addFolder('TRIGGER',self.coolFolder)
-      else:
-         conddb.addFolderWithTag('TRIGGER',self.coolFolder,tag)
-      
+      conddb.addFolder('TRIGGER', self.CoolFolderMap)
+
+      # Make sure relevant folders are marked as 'extensible'
+      for i, dbf in enumerate(svcMgr.IOVDbSvc.Folders):
+         for f in self.Folders:
+            if f in dbf and '<extensible/>' not in f:
+               svcMgr.IOVDbSvc.Folders[i] += ' <extensible/>'
+               log.info('IOVDbSvc folder %s not marked as extensible. Fixing this...', f)
+
 
 def setupMessageSvc():
    import os

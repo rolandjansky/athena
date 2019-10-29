@@ -17,7 +17,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, createStepView
 from AthenaCommon.CFElements import seqOR
 from RegionSelector.RegSelConfig import regSelCfg
-from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
+from TrigInDetConfig.InDetConfig import TrigInDetCondConfig
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 
 log = logging.getLogger('EmuNewJOTest')

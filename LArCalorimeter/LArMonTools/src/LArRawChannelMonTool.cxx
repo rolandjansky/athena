@@ -36,8 +36,6 @@
 // --- boost ---
 #include <boost/assign/list_of.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
 
 
 // --- stl ---
@@ -291,14 +289,14 @@ StatusCode LArRawChannelMonTool::initialize()
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG( "Number of channels in detectors: " );
     typedef std::map<Detector,unsigned int> det_int_map_t;
-    foreach( det_int_map_t::value_type i, m_det_to_nchannels){
+    for( det_int_map_t::value_type i : m_det_to_nchannels){
       ATH_MSG_DEBUG( detector_str( i.first ) << " has " << i.second << "channels " );
     }
   }
 
 
   std::deque<Detector> detectors = list_of( EMBA )( EMBC )( EMECA )( EMECC )( HECA )( HECC )( FCALA )( FCALC );
-  foreach( const Detector & det, detectors ){
+  for( const Detector & det : detectors ){
     m_selectionContext[det].quality( m_quality_threshold );
   }
 
@@ -436,7 +434,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     // --- FEB histogram factories ---
     if ( m_monitor_febs ) {
 
-      foreach ( const Detector& det, detectors ) {
+      for ( const Detector& det : detectors ) {
 
 	if ( m_monitor_occupancy ) {
           std::string title = "Number" +
@@ -498,7 +496,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     }
 
     if ( m_monitor_feedthroughs ) {
-      foreach( const Detector &det, detectors ) {
+      for( const Detector &det : detectors ) {
 
 	int n_slots        = n_slots_in_feedthroughs( det );
 	double x_slots_max = double( n_slots ) + 0.5;
@@ -562,7 +560,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
     if ( m_monitor_detectors ) {
 
-      foreach( Detector det, detectors ) {
+      for( Detector det : detectors ) {
 
 	std::vector<double> axis = detector_superslot_axis(  det, m_lar_online_id_ptr );
 	int n_bins = axis.size() - 1;
@@ -967,7 +965,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     if ( m_monitor_detectors ) {
 
       // --- occupancy histograms ---
-      foreach( Detector det, detectors ) {
+      for( Detector det : detectors ) {
 
         std::map<RawChHisto,shared_ptr<LWHistFactoryBase> > &the_det_histo_factories = det_histogram_factories[det];
 
@@ -1272,8 +1270,8 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       m_is_noise_event = m_noise_streams.size() == 0;
       //Loop on the JO defined streams
       std::vector<TriggerInfo::StreamTag> event_stream_tags = trig->streamTags();
-      foreach( const std::string & stream_name, m_noise_streams ) {
-	foreach( const TriggerInfo::StreamTag stream_tag, event_stream_tags ) {
+      for( const std::string & stream_name : m_noise_streams ) {
+	for( const TriggerInfo::StreamTag stream_tag : event_stream_tags ) {
 	  ATH_MSG_DEBUG( "Keeping Stream Tag: " << stream_tag.type() << "_" << stream_tag.name()  );
 	  if( stream_name == stream_tag.name()) {
 	    m_is_noise_event = true;
@@ -1365,7 +1363,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   //Sampling lastsampling(presampler);
 
   // --- Loop over RawChannels ---
-  foreach( const LArRawChannel &chan, *raw_channels ){
+  for( const LArRawChannel &chan : *raw_channels ){
 
     // --- Channel Information ---
     HWIdentifier hardware_id = chan.hardwareID();
@@ -1707,7 +1705,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   std::vector<Detector> detectors = list_of( EMBA )( EMBC )( EMECA )( EMECC )( HECA )( HECC )( FCALA )( FCALC );
   if ( m_monitor_burst ) {
-    foreach( Detector det, detectors ) {
+    for( Detector det : detectors ) {
 
       double noisy_channel_percent =
 	double(det_n_noisy_channels[det]) /
@@ -1816,9 +1814,9 @@ StatusCode LArRawChannelMonTool::fillHistograms()
     double t = event_mean_time.result();
     typedef std::map<HWIdentifier, MeanCalculator> element_mean_calculator;
     typedef std::map<Detector,element_mean_calculator > det_element_mean_calculator;
-    foreach( const det_element_mean_calculator::value_type & a, mean_feb_times ) {
+    for( const det_element_mean_calculator::value_type & a : mean_feb_times ) {
       const Detector & detector = a.first;
-      foreach( const element_mean_calculator::value_type & b, a.second ) {
+      for( const element_mean_calculator::value_type & b : a.second ) {
 	const MeanCalculator &avg= b.second;
 	m_per_detector_hists[mean_feb_time_h][detector]->Fill( (avg.result() - t) / nanosecond );
       }
@@ -1927,8 +1925,8 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	std::vector<std::vector<shared_ptr<IHistoProxyBase> >*> per_feb_hists_to_scale;
 	if ( m_monitor_quality )        per_feb_hists_to_scale.push_back(&m_per_feb_hists[quality_h]);
 
-	foreach( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr, per_feb_hists_to_scale )
-	  foreach( shared_ptr<IHistoProxyBase> const histo_cptr, *th1_vect_cptr )
+	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr : per_feb_hists_to_scale )
+	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th1_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_event_counter ) );
 
@@ -1939,8 +1937,8 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	std::vector<std::vector<shared_ptr<IHistoProxyBase> >*> per_ft_hists_to_scale;
 	if ( m_monitor_quality )        per_ft_hists_to_scale.push_back(&m_per_feedthrough_hists[quality_h]);
 
-	foreach( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr, per_ft_hists_to_scale )
-	  foreach( shared_ptr<IHistoProxyBase> const histo_cptr, *th2_vect_cptr )
+	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr : per_ft_hists_to_scale )
+	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th2_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_event_counter ) );
       }
@@ -1960,8 +1958,8 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_positive_noise ) per_feb_hists_to_scale.push_back(&m_per_feb_hists[pos_noise_h]);
 	if ( m_monitor_negative_noise ) per_feb_hists_to_scale.push_back(&m_per_feb_hists[neg_noise_h]);
 
-	foreach( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr, per_feb_hists_to_scale )
-	  foreach( shared_ptr<IHistoProxyBase> const histo_cptr, *th1_vect_cptr )
+	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr : per_feb_hists_to_scale )
+	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th1_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_noise_stream_event_counter ) );
 
@@ -1973,8 +1971,8 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_positive_noise ) per_ft_hists_to_scale.push_back(&m_per_feedthrough_hists[pos_noise_h]);
 	if ( m_monitor_negative_noise ) per_ft_hists_to_scale.push_back(&m_per_feedthrough_hists[neg_noise_h]);
 
-	foreach( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr, per_ft_hists_to_scale )
-	  foreach( shared_ptr<IHistoProxyBase> const histo_cptr, *th2_vect_cptr )
+	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr : per_ft_hists_to_scale )
+	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th2_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_noise_stream_event_counter ) );
       }

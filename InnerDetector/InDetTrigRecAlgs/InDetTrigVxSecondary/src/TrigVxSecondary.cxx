@@ -401,7 +401,7 @@ namespace InDet {
             m_secVertexInfo->vertices().front()->setVertexType((xAOD::VxType::VertexType)2);
           }
           m_secVertexInfoContainer->push_back(const_cast<Trk::VxSecVertexInfo*>(m_secVertexInfo));
-          m_secVertexInfoContainer->back()->getSVOwnership(true);
+          m_secVertexInfoContainer->back()->setSVOwnership(true);
           m_nVxSecVertexInfo++;
         }
         if(outputLevel <= MSG::DEBUG) {

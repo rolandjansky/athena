@@ -797,7 +797,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc(TgcDigitContainer* tgcContainer, co
 		{
 		  // get collection
             m_acSvc->setStore( &*evtStore() );
-            TgcDigitCollection* aCollection;
+            TgcDigitCollection* aCollection = nullptr;
             ATH_CHECK(tgcContainer->naughtyRetrieve(coll_hash, aCollection));
             if (nullptr !=  aCollection) {
                   collection = aCollection;

@@ -28,6 +28,7 @@ find_package( Eigen )
 # Component(s) in the package:
 atlas_add_library( MuonSegmentMomentumLib
                    src/*.cxx
+                   NO_PUBLIC_HEADERS
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel MagFieldInterfaces MuonRecToolInterfaces MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives MuonSegment TrkGeometry TrkCompetingRIOsOnTrack TrkParameters TrkRIO_OnTrack TrkExInterfaces TrkExUtils )
