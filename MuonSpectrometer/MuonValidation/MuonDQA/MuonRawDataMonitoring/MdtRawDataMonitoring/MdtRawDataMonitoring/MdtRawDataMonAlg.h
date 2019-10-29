@@ -133,7 +133,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   const MuonGM::MuonDetectorManager*  p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
 
   virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate) const;
-  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, std::set<std::string>, bool &isNoiseBurstCandidate, int lb, bool trig_barrel, bool trig_endcap ) const;
+  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, /*std::set<std::string>,*/ bool &isNoiseBurstCandidate, int lb, bool trig_barrel, bool trig_endcap ) const;
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* ) const;//fill chamber by chamber histos
 
 

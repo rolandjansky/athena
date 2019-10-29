@@ -346,12 +346,9 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   DEV */
 
   int lumiblock = -1;
-  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo, ctx);
   lumiblock = evt->lumiBlock();
   
-  uint32_t time;
-  time = (1000000000L*(uint64_t)evt->timeStamp()+evt->timeStampNSOffset()) * 0.000000001;
-
   ATH_MSG_DEBUG("MdtRawDataMonAlg::MDT RawData Monitoring Histograms being filled" );
 
   // Retrieve the LVL1 Muon RoIs:
@@ -517,7 +514,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 	  //=======================================================================
 	  //=======================================================================
 
-	  sc = fillMDTSummaryHistograms(*mdtCollection,  chambers_from_tracks, isNoiseBurstCandidate, lumiblock, trig_BARREL, trig_ENDCAP);
+	  sc = fillMDTSummaryHistograms(*mdtCollection, /* chambers_from_tracks,*/ isNoiseBurstCandidate, lumiblock, trig_BARREL, trig_ENDCAP);
           if(sc.isSuccess()){
             ATH_MSG_DEBUG("Filled MDTSummaryHistograms " );
           }   else {
@@ -708,7 +705,7 @@ StatusCode MdtRawDataMonAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
 
 }
 
-StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, std::set<std::string>  chambers_from_tracks, bool &isNoiseBurstCandidate, int lb, bool trig_barrel, bool trig_endcap ) const{
+StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, /*std::set<std::string>  chambers_from_tracks,*/ bool &isNoiseBurstCandidate, int lb, bool trig_barrel, bool trig_endcap ) const{
 
   StatusCode sc = StatusCode::SUCCESS;
   Identifier digcoll_id = (mdtCollection)->identify();
@@ -726,18 +723,18 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   std::string layer[4]={"Inner","Middle","Outer","Extra"};
   //  std::string slayer[4]={"inner","middle","outer","extra"};
 
-  int ibarrel = chamber->GetBarrelEndcapEnum();
+  //  int ibarrel = chamber->GetBarrelEndcapEnum();
   int iregion = chamber->GetRegionEnum();
   int ilayer = chamber->GetLayerEnum();
-  int icrate = chamber->GetCrate();
+  //  int icrate = chamber->GetCrate();
   //
   int stationPhi = chamber->GetStationPhi();
   std::string chambername = chamber->getName();
-  bool is_on_track = false;
-  for(auto ch : chambers_from_tracks) {
-    if(chambername==ch) is_on_track=true;
-  }
-  bool isBIM = (chambername.at(2)=='M');
+  //  bool is_on_track = false;
+  //  for(auto ch : chambers_from_tracks) {
+  //    if(chambername==ch) is_on_track=true;
+  //  }
+  //  bool isBIM = (chambername.at(2)=='M');
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
   if(chambername.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
@@ -859,18 +856,20 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     //    else m_mdtoccvslb[iregion][2]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM)); // Put extras in with outer
 
     //correct readout crate info for BEE,BIS7/8
+    /*
     int crate_region = iregion;
     if(chambername.substr(0,3)=="BEE" || (chambername.substr(0,3) == "BIS" && (stationEta == 7 || stationEta == 8) )){
       if(iregion==0) crate_region=2;
       if(iregion==1) crate_region=3;
     }
+    */
     //DEV to do
     //use stationPhi+1 because that's the actual phi, not phi indexed from zero.
     //    m_mdtoccvslb_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
 
-    if (is_on_track)    {
+    //    if (is_on_track)    {
       //      m_mdtoccvslb_ontrack_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
-    }
+    //    }
 
   }  
 
@@ -952,7 +951,7 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
     //    fill(monPerCh,  Monitored::Scalar<float>("tdc_perch2d", tdc), Monitored::Scalar<float>("adc_perch2d", adc) );
   }
 
-  int mezz = mezzmdt(digcoll_id);
+  //  int mezz = mezzmdt(digcoll_id);
   if (  adc >m_ADCCut  )     {
     auto tube_perch = Monitored::Scalar<int>("tube_perch_"+hardware_name, mdttube);
     fill(monPerCh, tube_perch );
@@ -970,7 +969,7 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 
 /* DEV3
 
- StatusCode MdtRawDataMonAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun ) {
+   StatusCode MdtRawDataMonAlg::procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun ) {
 
 <<<<<<< HEAD
   if(endOfRunFlag()) {
@@ -1072,14 +1071,14 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         if( store_ROTs.find(tmpid) == store_ROTs.end() ) { // Let's not double-count hits belonging to multiple segments
           store_ROTs.insert(tmpid);   
 
-          double tdc = mrot->prepRawData()->tdc()*25.0/32.0;
+	  //          double tdc = mrot->prepRawData()->tdc()*25.0/32.0;
           // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-          if(chambername.substr(0,3)=="BMG") tdc = mrot->prepRawData()->tdc() * 0.2;
+	  //          if(chambername.substr(0,3)=="BMG") tdc = mrot->prepRawData()->tdc() * 0.2;
               //      double tdc = mrot->driftTime()+500;
-              int iregion = chamber->GetRegionEnum();
-              int ilayer = chamber->GetLayerEnum();
-              int statphi = chamber->GetStationPhi();
-              int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
+	  // int iregion = chamber->GetRegionEnum();
+	  //  int ilayer = chamber->GetLayerEnum();
+	  //  int statphi = chamber->GetStationPhi();
+	  //  int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
 	      /* DEV
 	      //hard cut to adc only to present this histogram
               if(m_overalladc_segm_PR_Lumi[iregion] && adc > 50.) m_overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
