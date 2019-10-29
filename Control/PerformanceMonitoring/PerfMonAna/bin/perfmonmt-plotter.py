@@ -20,6 +20,7 @@ import operator
 
 if ( len(sys.argv) != 2 ):
   print("Please give result file as an argument!")
+  sys.exit()
 
 # Get the result Json file
 result_file = sys.argv[1] 
@@ -142,7 +143,6 @@ def time_plotter(complevel_data, plotname):
     plt.yticks(index + bar_width, sorted_components)
     plt.legend(prop={'size': 30})
     
-    ax.tick_params(axis='both', which='major', labelsize=40)
     ax.tick_params(axis='both', which='minor', labelsize=40)
 
 
@@ -247,7 +247,6 @@ def mem_plotter(complevel_data, plotname):
     plt.yticks(index + bar_width, sorted_components)
     plt.legend(prop={'size': 60})
     
-    ax.tick_params(axis='both', which='major', labelsize=40)
     ax.tick_params(axis='both', which='minor', labelsize=40)
 
 
@@ -359,11 +358,13 @@ with open( result_file ) as json_file:
   timeMon_serial_data = data['TimeMon_Serial']
   time_plotter(timeMon_serial_data, 'TimeMon_Serial.pdf')
 
-  timeMon_parallel_data = data['TimeMon_Parallel']
-  eventLevelTimeMon_plotter(timeMon_parallel_data, 'TimeMon_Parallel.pdf')
-
   memMon_serial_data = data['MemMon_Serial']
   mem_plotter(memMon_serial_data, 'MemMon_Serial.pdf')
 
-  memMon_parallel_data = data['MemMon_Parallel']
-  eventLevelMemMon_plotter(memMon_parallel_data, 'MemMon_Parallel.pdf')
+  if 'TimeMon_Parallel' in data:
+    timeMon_parallel_data = data['TimeMon_Parallel']
+    eventLevelTimeMon_plotter(timeMon_parallel_data, 'TimeMon_Parallel.pdf')
+
+  if 'MemMon_Parallel' in data:
+    memMon_parallel_data = data['MemMon_Parallel']
+    eventLevelMemMon_plotter(memMon_parallel_data, 'MemMon_Parallel.pdf')
