@@ -25,7 +25,9 @@ export EVENTS="100"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoBS.py"
 
 source exec_athena_art_trigger_validation.sh
-athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.${JOB_LOG#*.}
+
+#the ConditionsTag should match what was used in the RDOtoBS step
+athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data'];from AthenaCommon.GlobalFlags import globalflags;globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-MC16-SDR-25')" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.BStoESD.${JOB_LOG#*.}
 echo "art-result: ${PIPESTATUS[0]} athena.BStoESD"
 
 source exec_art_triggertest_post.sh
