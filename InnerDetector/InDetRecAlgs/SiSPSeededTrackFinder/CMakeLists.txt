@@ -21,13 +21,16 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Event/xAOD/xAODEventInfo
                           Tracking/TrkEvent/TrkPatternParameters
-                          Tracking/TrkEvent/TrkRIO_OnTrack )
+                          Tracking/TrkEvent/TrkRIO_OnTrack
+                          Tracking/TrkEvent/TrkCaloClusterROI
+                          Tracking/TrkTools/TrkToolInterfaces
+                          DetectorDescription/RoiDescriptor )
 
 # Component(s) in the package:
 atlas_add_component( SiSPSeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRecToolInterfaces TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces CxxUtils xAODEventInfo TrkPatternParameters TrkRIO_OnTrack )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRecToolInterfaces TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces CxxUtils xAODEventInfo TrkPatternParameters TrkRIO_OnTrack TrkCaloClusterROI TrkToolInterfaces RoiDescriptor )
 
 # Install files from the package:
 atlas_install_headers( SiSPSeededTrackFinder )
