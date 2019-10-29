@@ -6,9 +6,10 @@
 
 from __future__ import print_function
 
-import AthenaCommon.Constants as Lvl
-from AthenaCommon.Configurable import *
-from AthenaCommon import CfgMgr
+from AthenaCommon.Configurable import (ConfigurableAlgorithm,
+                                       ConfigurableService,
+                                       ConfigurableAlgTool,
+                                       ConfigurableAuditor)
 import six
 
 ### 
@@ -224,10 +225,14 @@ class CfgPyAud( ConfigurableAuditor ):
     def msg(self):
         import AthenaCommon.Logging as _L
         return _L.logging.getLogger( self.getJobOptName() )
-    def getGaudiType( self ): return 'Auditor'
-    def getType(self):        return 'PyAthena::Aud'
-    def getDlls(self):        return 'AthenaPython'
-    def getHandle(self):      return None
+    def getGaudiType( self ):
+        return 'Auditor'
+    def getType(self):
+        return 'PyAthena::Aud'
+    def getDlls(self):
+        return 'AthenaPython'
+    def getHandle(self):
+        return None
     def setup(self):
         from AthenaCommon import CfgMgr
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
