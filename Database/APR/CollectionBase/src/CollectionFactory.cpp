@@ -210,7 +210,7 @@ pool::CollectionFactory::createAndRegister( const pool::ICollectionDescription& 
      try {
         fcRegister.registerLFN( physicalName, logicalName );
      } 
-     catch( pool::FCduplicateLFNException )
+     catch( pool::FCduplicateLFNException& )
      {}
   }
   if( metadata ) {
@@ -354,7 +354,7 @@ pool::CollectionFactory::registerExisting( pool::ICollection* collection,
       try    {
 	 fcRegister.registerLFN( physicalName, logicalName );
       } 
-      catch( pool::FCduplicateLFNException ){};
+      catch( pool::FCduplicateLFNException& ){};
    }
    if( metadata )  {
       fcRegister.registerMetaData( guid, *metadata );
