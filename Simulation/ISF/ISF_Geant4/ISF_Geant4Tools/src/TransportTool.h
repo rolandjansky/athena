@@ -63,7 +63,7 @@ namespace iGeant4
     G4TransportTool(const std::string&,const std::string&,const IInterface*);
 
     /** Destructor */
-    virtual ~G4TransportTool ();
+    virtual ~G4TransportTool () = default;
 
     /** AlgTool initialize method */
     virtual StatusCode initialize() override final;
@@ -102,7 +102,7 @@ namespace iGeant4
     /// @{
 
     // timing checks
-    bool  m_doTiming{true};
+    Gaudi::Property<bool> m_doTiming{this, "PrintTimingInfo", true, ""};
     //float m_runTime;
     float m_accumulatedEventTime{0.};
     float m_accumulatedEventTimeSq{0.};
@@ -120,21 +120,21 @@ namespace iGeant4
       mutex_t m_mutex;
     };
     mutable SG::SlotSpecificObj<Slot> m_slots ATLAS_THREAD_SAFE;
-    std::string m_mcEventCollectionName{"TruthEvent"};
+    Gaudi::Property<std::string> m_mcEventCollectionName{this, "McEventCollection", "TruthEvent", ""};
     /// Helper Tool to provide G4RunManager
     PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};
     G4AtlasRunManager    *m_pRunMgr{};
 
-    std::string m_libList{""};
-    std::string m_physList{""};
-    std::string m_fieldMap{""};
-    bool   m_releaseGeoModel{true};
-    bool   m_recordFlux{false};
+    Gaudi::Property<std::string> m_libList{this, "Dll", "", ""};
+    Gaudi::Property<std::string> m_physList{this, "Physics", "", ""};
+    Gaudi::Property<std::string> m_fieldMap{this, "FieldMap", "", ""};
+    Gaudi::Property<bool> m_releaseGeoModel{this, "ReleaseGeoModel", true, ""};
+    Gaudi::Property<bool> m_recordFlux{this, "RecordFlux", false, ""};
     /// Commands to send to the G4 UI
-    std::vector<std::string> m_g4commands;
+    Gaudi::Property<std::vector<std::string> > m_g4commands{this, "G4Commands", {}, "Commands to send to the G4UI"};
     /// Activate multi-threading configuration
-    bool m_useMT{false};
-    bool m_activateParallelGeometries{false};
+    Gaudi::Property<bool> m_useMT{this,"MultiThreading",  false, "Multi-threading specific settings"};
+    Gaudi::Property<bool> m_activateParallelGeometries{this, "ActivateParallelWorlds", false, "Toggle on/off the G4 parallel geometry system"};
     // Random number service
     ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomNumberService", "AthRNGSvc", ""};
     ///

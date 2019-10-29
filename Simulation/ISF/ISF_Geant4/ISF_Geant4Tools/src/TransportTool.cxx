@@ -55,24 +55,9 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& type,
                                           const IInterface*  parent )
   : ISF::BaseSimulatorTool(type, name, parent)
 {
-  declareProperty("Dll",                   m_libList);
-  declareProperty("Physics",               m_physList);
-  declareProperty("FieldMap",              m_fieldMap);
-  declareProperty("ReleaseGeoModel",       m_releaseGeoModel);
-  declareProperty("RecordFlux",            m_recordFlux);
-  declareProperty("McEventCollection",     m_mcEventCollectionName);
-  declareProperty("G4Commands",            m_g4commands, "Commands to send to the G4UI");
-  declareProperty("MultiThreading",        m_useMT, "Multi-threading specific settings");
   //declareProperty("KillAllNeutrinos",      m_KillAllNeutrinos=true);
   //declareProperty("KillLowEPhotons",       m_KillLowEPhotons=-1.);
-  declareProperty("PrintTimingInfo",      m_doTiming       );
-  declareProperty("ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
-
 }
-
-//________________________________________________________________________
-iGeant4::G4TransportTool::~G4TransportTool()
-{}
 
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::initialize()
