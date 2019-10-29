@@ -61,9 +61,12 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
   ATH_MSG_VERBOSE("State for update is valid!");
 
   std::unique_ptr< std::vector<Trk::ComponentParameters> > returnMultiComponentState = std::make_unique<std::vector<Trk::ComponentParameters> >();
-
   std::vector<double> componentDeterminantR;
   std::vector<double> componentChi2;
+  int nComps = predictedState.size();
+  returnMultiComponentState->reserve(nComps);
+  componentDeterminantR.reserve(nComps);
+  componentChi2.reserve(nComps);
 
   // Calculate chi2 and determinant of each component.
   double minimumChi2(10.e10); // Initalise high
