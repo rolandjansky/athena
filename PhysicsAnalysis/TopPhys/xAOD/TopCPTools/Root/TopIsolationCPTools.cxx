@@ -16,6 +16,7 @@
 
 // Isolation include(s):
 #include "IsolationSelection/IsolationSelectionTool.h"
+#include "IsolationSelection/IsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IsolationCorrectionTool.h"
 
 namespace top {
@@ -93,6 +94,8 @@ namespace top {
                                                  "TightTrackOnly",
                                                  "PflowTight",
                                                  "PflowLoose",
+						 "PLVTight",
+						 "PLVLoose",
                                                }};
 
     // Photon Isolation WPs
@@ -111,7 +114,16 @@ namespace top {
     all_isolations.insert(photon_isolations.begin(), photon_isolations.end());
 
     for (const std::string& isoWP : all_isolations) {
-      std::string tool_name = "CP::IsolationTool_" + isoWP;
+      std::string tool_name;
+      if (isoWP.find("PLV")!=std::string::npos){
+	tool_name = "CP::IsolationTool_LowPtPLV";
+	if(!asg::ToolStore::contains<CP::IIsolationLowPtPLVTool>(tool_name)) {
+	  CP::IIsolationLowPtPLVTool* iso_tool = new CP::IsolationLowPtPLVTool(tool_name);
+	  top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
+	  m_isolationToolsLowPtPLV.push_back(iso_tool);
+	}
+      }
+      tool_name = "CP::IsolationTool_" + isoWP;
       if (!asg::ToolStore::contains<CP::IIsolationSelectionTool>(tool_name)) {
         CP::IIsolationSelectionTool* iso_tool = new CP::IsolationSelectionTool(tool_name);
         top::check(asg::setProperty(iso_tool, "CalibFileName", m_isolationCalibFile),

@@ -33,6 +33,7 @@
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 
 // Forward declaration(s):
@@ -116,6 +117,10 @@ namespace top {
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_HighPtCaloOnly;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVTight;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVLoose;
+
+    ToolHandle<CP::IIsolationLowPtPLVTool> m_isolationTool_LowPtPLV;
 
     ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
 
