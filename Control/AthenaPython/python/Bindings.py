@@ -39,7 +39,7 @@ def _import_ROOT():
         def __call__(self, *args):
             try:
                 result = ROOT._Template.__call__(self, *args)
-            except Exception as err:
+            except Exception:
                 # try again...
                 result = ROOT._Template.__call__(self, *args)
 
@@ -102,10 +102,9 @@ class _PyAthenaBindingsCatalog(object):
             if cb is None: eval( 'cb = _py_init_%s'%klass )
         except Exception as err:
             _msg = _PyAthenaBindingsCatalog.msg
-            _msg.error("Problem registering callback for [%s]" % klass)
+            _msg.error("Problem registering callback for [%s]", klass)
             _msg.error("Exception: %s", err)
-            cb = lambda : None
-        _PyAthenaBindingsCatalog.instances[klass] = cb
+        _PyAthenaBindingsCatalog.instances[klass] = lambda : None
         return
 
     @staticmethod
@@ -117,7 +116,7 @@ class _PyAthenaBindingsCatalog(object):
         klass = None
         try: klass = _PyAthenaBindingsCatalog.instances[name]()
         except KeyError:
-            ROOT = _import_ROOT()
+            ROOT = _import_ROOT()  # noqa: F841
             from AthenaServices.Dso import registry
             registry.load_type (name)
             try:
@@ -203,7 +202,6 @@ def py_tool(toolName, createIf=True, iface=None):
      assert(type(tool) == cppyy.gbl.ILArOnlDbPrepTool)
 
     """
-    fullName = toolName
     t        = toolName.split('/')
     toolType = t[0]
     if len(t)==2: toolName=t[1]
@@ -313,7 +311,7 @@ def _py_init_ThinningSvc():
     _load_dict( "libAthenaPythonDict" )
 
     # we also need StoreGate bindings to be initialized
-    sgbindings = _py_init_StoreGateSvc()
+    sgbindings = _py_init_StoreGateSvc()  # noqa: F841
 
     # make sure the global C++ namespace has been created
     gbl = cppyy.makeNamespace('')
@@ -359,7 +357,7 @@ def _py_init_IIncidentSvc():
     # IIncidentSvc bindings from dictionary
     _load_dict( "libGaudiKernelDict" )
     # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
+    gbl = cppyy.makeNamespace('')  # noqa: F841
 
     # retrieve the IIncidentSvc class
     global IIncidentSvc
@@ -394,15 +392,14 @@ def _py_init_ClassIDSvc():
     _load_dict( "libAthenaPythonDict" )
 
     # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
+    gbl = cppyy.makeNamespace('')  # noqa: F841
 
     # load the AthenaInternal::getClid helper method
     cppyy.makeNamespace('AthenaInternal')
     # Really make sure that dictionaries are loaded.
     # Needed this with 20.7.X-VAL.
     cppyy.gbl.AthenaInternal.ROOT6_AthenaPython_WorkAround_Dummy
-    _getClid = cppyy.gbl.AthenaInternal.getClid
-    
+
     # retrieve the IClassIDSvc class
     global IClassIDSvc
     IClassIDSvc = cppyy.gbl.IClassIDSvc
@@ -456,11 +453,7 @@ def _py_init_THistSvc():
     # retrieve the ITHistSvc class
     global ITHistSvc
     ITHistSvc = cppyy.gbl.ITHistSvc
-    from weakref import WeakValueDictionary
-    # per-object cache of ROOT objects
-    #ITHistSvc._py_cache = WeakValueDictionary()
-    #ITHistSvc._py_cache = dict()
-    
+
     ROOT = _import_ROOT()
     @property
     def _py_cache(self):
@@ -529,12 +522,12 @@ def _py_init_THistSvc():
                 klass = getattr(ROOT, klass)
             if args:
                 return self.book(oid, obj=klass(*args))
-            if kw and kw.has_key('args'):
+            if kw and 'args' in kw:
                 return self.book(oid, obj=klass(*kw['args']))
             err = "invalid arguments: either provide a valid `*args` or "\
                   "a `**kw` containing a 'args' key"
             raise RuntimeError(err)
-        raise RuntimeError("unforseen case: oid='%r' obj='%r' args='%r' "\
+        raise RuntimeError("unforseen case: oid='%r' obj='%r' args='%r' "
                            "kw='%r'"%(oid,obj,args,kw))
     
     ITHistSvc.book = book
@@ -574,7 +567,7 @@ def _py_init_THistSvc():
         # we might as well update our local cache...
         
         # first update histos
-        oids = [n for n in self.getHists() if not n in self._py_cache.keys()]
+        oids = [n for n in self.getHists() if n not in self._py_cache.keys()]
         for name in oids:
             obj = _get_helper(ROOT.TH1, self, self.getHist, name,
                               update_cache=False)
@@ -591,7 +584,7 @@ def _py_init_THistSvc():
 ##             _get_helper(ROOT.TGraph, self, self.getGraph, name)
         
         # finally try ttrees
-        oids = [n for n in self.getTrees() if not n in self._py_cache.keys()]
+        oids = [n for n in self.getTrees() if n not in self._py_cache.keys()]
         for name in oids:
             _get_helper(ROOT.TTree, self, self.getTree, name)
 
@@ -608,7 +601,7 @@ def _py_init_THistSvc():
     
     def delitem(self, oid):
         if isinstance(oid, str):
-            obj=self.get(oid)
+            self.get(oid)
             del self._py_cache[oid]
         assert self.deReg(oid).isSuccess(), \
                "could not remove object [%r]"%oid
@@ -644,7 +637,7 @@ del reg%s""" % (n,n,n,n,n)
          - 'graph', to load TGraph and TGraphErrors
         """
         _allowed_values = ('hist','tree','graph')
-        if not oid_type in _allowed_values:
+        if oid_type not in _allowed_values:
             raise ValueError(
                 'oid_type (=%r) MUST be one of %r'%(oid_type,
                                                     _allowed_values)
@@ -748,7 +741,7 @@ def _py_init_EventType():
     # EventStreamInfo bindings from dictionary
     _load_dict( "libEventInfoDict" )
     # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
+    gbl = cppyy.makeNamespace('')  # noqa: F841
 
     # retrieve the EventType class
     cls = cppyy.gbl.EventType
@@ -892,7 +885,7 @@ def _std_map_pythonize(cls, key_type, value_type):
     cls.__cxx_getitem__ = cls.__getitem__
     def __getitem__(self, k):
         # python's dict semantics
-        if not k in self:
+        if k not in self:
             raise KeyError(k)
         return self.__cxx_getitem__(k)
     cls.__getitem__ = __getitem__
