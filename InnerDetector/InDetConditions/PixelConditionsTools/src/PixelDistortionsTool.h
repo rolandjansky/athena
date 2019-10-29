@@ -66,6 +66,17 @@ private:
   const DetCondCFloat * generateConstantBow();
   const DetCondCFloat * generateRandomBow();
   const DetCondCFloat * readFromTextFile(); 
+  // Calculate local z from parametrisation taken from track measurements
+  double getInSituZ(const double localeta, const double eta_size, const double localphi, const double phi_size, const float *disto) const;
+  // Calculate local z from Pixel survey data
+  double getSurveyZ(const double localeta, const double localphi, const float *disto) const;
+  bool isOldParam(const unsigned long long ull_id) const;
+  bool isIBL3D(const unsigned long long ull_id) const;
+  // Bernstein-Bezier
+  double bernstein_grundpolynom(const double *t, const int n, const int i) const;
+  double bernstein_bezier(const double *u, const double *v, const float *P) const;
+  // Inverse distance weighting
+  double IDW(const double *u, const double *u_length, const double *v, const double *v_length, const float *P) const;
   std::string getVersionName() const;
 
   // Tool properties
@@ -116,7 +127,7 @@ private:
   bool m_ownDistortions;
 
   int m_version;
-
+  bool m_useBB;
 };
 
 #endif // PixelDistortionsTool_H
