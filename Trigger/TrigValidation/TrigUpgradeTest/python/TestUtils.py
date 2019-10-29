@@ -49,7 +49,7 @@ class L1EmulationTest(L1Decoder):
         if TriggerFlags.doID() or TriggerFlags.doCalo():
             emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                                     Decisions = "EMRoIDecisions",
-                                                    OutputTrigRoIs = "EMRoIs",
+                                                    OutputTrigRoIs = "HLT_EMRoIs",
                                                     OutputLevel = self.getDefaultProperty("OutputLevel"))
             self.roiUnpackers += [emUnpacker]
             print emUnpacker
@@ -59,7 +59,7 @@ class L1EmulationTest(L1Decoder):
         if TriggerFlags.doMuon():
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
                                                     Decisions = "MURoIDecisions",
-                                                    OutputTrigRoIs = "MURoIs",
+                                                    OutputTrigRoIs = "HLT_MURoIs",
                                                     OutputLevel=self.getDefaultProperty("OutputLevel"))
             self.roiUnpackers += [muUnpacker]
 

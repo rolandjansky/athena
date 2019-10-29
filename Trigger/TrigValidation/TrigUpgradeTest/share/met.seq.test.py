@@ -11,7 +11,7 @@ topSequence = AlgSequence()
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 InputMakerAlg = InputMakerForRoI("MetCellInputMaker", RoIsLink="initialRoI")
 InputMakerAlg.RoIs='METCellRoI'
-InputMakerAlg.InputMakerInputDecisions=["L1MET"]
+InputMakerAlg.InputMakerInputDecisions=["HLTNav_L1MET"]
 InputMakerAlg.InputMakerOutputDecisions=["InputMaker_from_L1MET"]
 topSequence += InputMakerAlg
 

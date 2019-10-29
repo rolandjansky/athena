@@ -53,7 +53,7 @@ hypoAlg.HypoTools=[makeMETHypoTool()]
 hypoAlg.METContainerKey=metAlg.METContainerKey
 
 hypoAlg.OutputLevel = DEBUG
-hypoAlg.HypoInputDecisions = "L1MET"
+hypoAlg.HypoInputDecisions = "HLTNav_L1MET"
 hypoAlg.HypoOutputDecisions = "EFMETDecisions"
 topSequence += hypoAlg
 

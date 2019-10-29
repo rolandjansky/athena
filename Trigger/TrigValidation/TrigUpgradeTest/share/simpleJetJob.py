@@ -35,7 +35,7 @@ if TriggerFlags.doCalo:
              L1JetDecisions=unpack.Decisions
 
 
-     inputRoIs="FSRoI"
+     inputRoIs="HLT_FSRoI"
      hypoDecisions=L1JetDecisions
 
      addFiltering=True

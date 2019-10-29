@@ -67,7 +67,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
 
     if forTrigger:
         # Configure the RAW data provider for ROI access
-        RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
+        RpcRawDataProvider.RoIs = "HLT_MURoIs" # Maybe we don't want to hard code this?
 
     acc.addEventAlgo(RpcRawDataProvider, primary=True)
     return acc

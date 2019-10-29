@@ -9,9 +9,9 @@ viewAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator=
 
 for viewAlg in viewAlgs:
         if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = "FSRoI"
+            viewAlg.RoIs = "HLT_FSRoI"
         if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = "FSRoI"
+            viewAlg.roiCollectionName = "HLT_FSRoI"
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence  = AlgSequence()

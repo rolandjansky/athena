@@ -62,7 +62,7 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         RpcRdoToRpcPrepData.DoSeededDecoding = True
-        RpcRdoToRpcPrepData.RoIs = "MURoIs"
+        RpcRdoToRpcPrepData.RoIs = "HLT_MURoIs"
 
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
@@ -93,7 +93,7 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         TgcRdoToTgcPrepData.DoSeededDecoding = True
-        TgcRdoToTgcPrepData.RoIs = "MURoIs"
+        TgcRdoToTgcPrepData.RoIs = "HLT_MURoIs"
 
     acc.addEventAlgo(TgcRdoToTgcPrepData)
     return acc
@@ -126,7 +126,7 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         MdtRdoToMdtPrepData.DoSeededDecoding = True
-        MdtRdoToMdtPrepData.RoIs = "MURoIs"
+        MdtRdoToMdtPrepData.RoIs = "HLT_MURoIs"
 
     acc.addEventAlgo(MdtRdoToMdtPrepData)
     return acc
@@ -159,7 +159,7 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         CscRdoToCscPrepData.DoSeededDecoding = True
-        CscRdoToCscPrepData.RoIs = "MURoIs"
+        CscRdoToCscPrepData.RoIs = "HLT_MURoIs"
 
     acc.addEventAlgo(CscRdoToCscPrepData)
     return acc

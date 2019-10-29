@@ -36,7 +36,7 @@ steps+=_algoHLTTopoCluster(OutputLevel=DEBUG)
 
 
 filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
-filterL1RoIsAlg.Input = ["L1EM"]
+filterL1RoIsAlg.Input = ["HLTNav_L1EM"]
 filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
 filterL1RoIsAlg.Chains = [ 
                            "HLT_e3_etcut", 

@@ -55,10 +55,10 @@ private:
       "Object with the time stamp when decoding started" };
 
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
-    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all chains in which FS reconstruction happens and have no dependencey on L1 information"};
+    this, "OutputFSTrigRoI", "HLT_FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all chains in which FS reconstruction happens and have no dependencey on L1 information"};
 
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_FSDecisions{
-    this, "FSDecisions", "L1FS", "Name of the decisions container (suitable for filters) containing all unprescaled chains"};
+    this, "FSDecisions", "HLTNav_L1FS", "Name of the decisions container (suitable for filters) containing all unprescaled chains"};
 
   Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false, 
     "Enables start-of-event cost monitoring behavior."};

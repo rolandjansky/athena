@@ -82,6 +82,8 @@ def collectL1DecoderDecisionObjects(l1decoder):
     __log.info("Collecting decision objects from L1 decoder instance")
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
     decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
+    # decisionObjects.add( l1decoder.FSDecisions ) # Crashes?
+    decisionObjects.add( "HLTNav_L1FS" ) # Hard-coded, but should be l1decoder.FSDecisions 
     return decisionObjects
 
 def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
@@ -114,17 +116,28 @@ def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
                 decisionObjects.update( filt.Output )
     return decisionObjects
 
-def collectDecisionObjects(  hypos, filters, l1decoder ):
+def collectHLTSummaryDecisionObjects(hltSummary):
+    decisionObjects = set()
+    __log.info("Collecting decision objects from hltSummary")
+    decisionObjects.update( hltSummary.DecisionsSummaryKey )
+    return decisionObjects
+
+def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
     """
     Returns the set of all decision objects of HLT
     """
     decObjL1 = collectL1DecoderDecisionObjects(l1decoder)
-    decObjHypo = collectHypoDecisionObjects(hypos)
-    decObjFilter = collectFilterDecisionObjects(filters)
+    decObjHypo = collectHypoDecisionObjects(hypos, inputs = True, outputs = True)
+    decObjFilter = collectFilterDecisionObjects(filters, inputs = True, outputs = True)
+    # InputMaker are not needed explicitly as the Filter Outputs = InputMaker Inputs
+    # and InputMaker Outputs = Hypo Inputs
+    # Therefore we implicitly collect all navigaiton I/O of all InputMakers
+    decObjSummary = collectHLTSummaryDecisionObjects(hltSummary)
     decisionObjects = set()
     decisionObjects.update(decObjL1)
     decisionObjects.update(decObjHypo)
     decisionObjects.update(decObjFilter)
+    decisionObjects.update(decObjSummary)
     return decisionObjects
 
 def triggerSummaryCfg(flags, hypos):
@@ -188,7 +201,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     return acc, mon
 
 
-def triggerOutputCfg(flags, decObj, summaryAlg):
+def triggerOutputCfg(flags, decObj, decObjFilterOut, summaryAlg):
     # Following cases are considered:
     # 1) Running in partition or athenaHLT - configure BS output written by the HLT framework
     # 2) Running offline athena and writing BS - configure BS output written by OutputStream alg
@@ -227,13 +240,13 @@ def triggerOutputCfg(flags, decObj, summaryAlg):
     # Create the configuration
     if onlineWriteBS:
         __log.info("Configuring online ByteStream HLT output")
-        acc = triggerBSOutputCfg(flags, decObj, summaryAlg)
+        acc = triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg)
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
-        acc = triggerBSOutputCfg(flags, decObj, summaryAlg, offline=True)
+        acc = triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg, offline=True)
     elif writePOOL:
         __log.info("Configuring POOL HLT output")
-        acc = triggerPOOLOutputCfg(flags, decObj, edmSet)
+        acc = triggerPOOLOutputCfg(flags, decObj, decObjFilterOut, edmSet)
     else:
         __log.info("No HLT output writing is configured")
         acc = ComponentAccumulator()
@@ -241,7 +254,7 @@ def triggerOutputCfg(flags, decObj, summaryAlg):
     return acc, edmSet
 
 
-def triggerBSOutputCfg(flags, decObj, summaryAlg, offline=False):
+def triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg, offline=False):
     from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     from TrigEDMConfig.TriggerEDMRun3 import persistent
@@ -260,8 +273,11 @@ def triggerBSOutputCfg(flags, decObj, summaryAlg, offline=False):
 
     # Add decision containers (navigation)
     for item in decObj:
+        dynamic = '.-'
+        if item in decObjFilterOut:
+            dynamic = '.remap_linkColKeys.remap_linkColIndices.'
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
-        typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux.-'.format(item)
+        typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
         if typeName not in ItemModuleDict.keys():
             ItemModuleDict[typeName] = [EventBuildingInfo.getFullHLTResultID()]
         if typeNameAux not in ItemModuleDict.keys():
@@ -319,7 +335,7 @@ def triggerBSOutputCfg(flags, decObj, summaryAlg, offline=False):
     return acc
 
 
-def triggerPOOLOutputCfg(flags, decObj, edmSet):
+def triggerPOOLOutputCfg(flags, decObj, decObjFilterOut, edmSet):
     # Get the list from TriggerEDM
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMDecodingVersion)
@@ -331,8 +347,11 @@ def triggerPOOLOutputCfg(flags, decObj, edmSet):
 
     # Add decision containers (navigation)
     for item in decObj:
+        dynamic = '.-'
+        if item in decObjFilterOut:
+            dynamic = '.remap_linkColKeys.remap_linkColIndices.'
         itemsToRecord.append('xAOD::TrigCompositeContainer#{:s}'.format(item))
-        itemsToRecord.append('xAOD::TrigCompositeAuxContainer#{:s}Aux.-'.format(item))
+        itemsToRecord.append('xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic))
 
     # Create OutputStream
     outputType = ''
@@ -365,7 +384,7 @@ def triggerPOOLOutputCfg(flags, decObj, edmSet):
     return acc
 
 
-def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
+def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjFilterOut ):
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
@@ -435,7 +454,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
     __log.debug("The GapFiller is ensuring the creation of all the decision object collections: '{}'".format( decObj ) )
     # Append and hence confirm all TrigComposite collections
     # Gap filler is also used to perform re-mapping of the HypoAlg outputs which is a sub-set of decObj
-    tool.FixLinks = list(collectHypoDecisionObjects(hypos, inputs=False, outputs=True))
+    tool.FixLinks = list(decObjFilterOut)
     tool.TrigCompositeContainer += list(decObj)
     alg.OutputTools += [tool]
 
@@ -484,8 +503,10 @@ def triggerRunCfg( flags, menu=None ):
     from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
     acc.merge( TrigCostMonitorMTCfg( flags ) )
 
-    decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
+    decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg, summaryAlg )
+    decObjFilterOut = collectFilterDecisionObjects(filters, inputs=False, outputs=True)
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
+    __log.info( "Of which, %d are the outputs of filters", len( decObjFilterOut ) )
     __log.info( str( decObj ) )
 
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )
@@ -497,11 +518,11 @@ def triggerRunCfg( flags, menu=None ):
     # configure components need to normalise output before writing out
     viewMakers = collectViewMakers( HLTSteps )
 
-    outputAcc, edmSet = triggerOutputCfg( flags, decObj, summaryAlg )
+    outputAcc, edmSet = triggerOutputCfg( flags, decObj, decObjFilterOut, summaryAlg )
     acc.merge( outputAcc )
 
     if edmSet:
-        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj )
+        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj, decObjFilterOut )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTTop" )
 
     return acc

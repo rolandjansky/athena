@@ -15,7 +15,7 @@ def setMinimalCaloSetup() :
 # defined as private within this module, so that they can be configured only in functions in this module
 ########################
 
-def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='FSRoI', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
+def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='HLT_FSRoI', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
    setMinimalCaloSetup()
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
@@ -43,7 +43,7 @@ def _algoHLTTopoClusterLC(inputEDM="CellsClusters", OutputLevel=ERROR, algSuffix
    algo.OutputLevel=OutputLevel
    return algo
 
-def _algoL2Egamma(inputEDM="EMRoIs",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
+def _algoL2Egamma(inputEDM="HLT_EMRoIs",OutputLevel=ERROR,doRinger=False, ClustersName="HLT_L2CaloEMClusters", RingerKey="HLT_L2CaloRinger"):
     setMinimalCaloSetup()
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
     algo=T2CaloEgamma_ReFastAlgo("FastCaloL2EgammaAlg", doRinger=doRinger, RingerKey=RingerKey)

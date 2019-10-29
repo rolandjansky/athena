@@ -10,15 +10,15 @@ def mapThresholdToL1DecisionCollection(threshold):
     Translates L1 threshold  name of the DecisionsContainer name in the L1Decoder unpacking tools
     """
     if threshold == "" or threshold == "FS":
-        return "L1FS"
+        return "HLTNav_L1FS"
 
-    mapThresholdToL1Decoder = { "EM" : "L1EM",
-                                "MU" : "L1MU",
-                                "J"  : "L1J",
-                                "TAU": "L1TAU",
-                                "XE" : "L1MET",
-                                "XS" : "L1MET",
-                                "TE" : "L1MET" }
+    mapThresholdToL1Decoder = { "EM" : "HLTNav_L1EM",
+                                "MU" : "HLTNav_L1MU",
+                                "J"  : "HLTNav_L1J",
+                                "TAU": "HLTNav_L1TAU",
+                                "XE" : "HLTNav_L1MET",
+                                "XS" : "HLTNav_L1MET",
+                                "TE" : "HLTNav_L1MET" }
 
     # remove actual threshold value from L1 threshold string
     for thresholdType, l1Collection in mapThresholdToL1Decoder.iteritems():
@@ -34,26 +34,26 @@ def createCaloRoIUnpackers():
     from L1Decoder.L1DecoderConf import EMRoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool, RerunRoIsUnpackingTool, TAURoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    emUnpacker = EMRoIsUnpackingTool(Decisions = recordable("L1EM"),
-                                     OutputTrigRoIs = recordable("EMRoIs"),
+    emUnpacker = EMRoIsUnpackingTool(Decisions = "HLTNav_L1EM",
+                                     OutputTrigRoIs = recordable("HLT_EMRoIs"),
                                      MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
 
     #            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
 
     emRerunUnpacker = RerunRoIsUnpackingTool("EMRerunRoIsUnpackingTool",
-                                             SourceDecisions="L1EM",
-                                             Decisions="RerunL1EM" )
+                                             SourceDecisions="HLTNav_L1EM",
+                                             Decisions="HLTNav_RerunL1EM" )
 
-    metUnpacker = METRoIsUnpackingTool(Decisions = recordable("L1MET"))
+    metUnpacker = METRoIsUnpackingTool(Decisions = "HLTNav_L1MET")
 
 
-    tauUnpacker = TAURoIsUnpackingTool(Decisions = "L1TAU",
-                                       OutputTrigRoIs = "TAURoIs")
+    tauUnpacker = TAURoIsUnpackingTool(Decisions = "HLTNav_L1TAU",
+                                       OutputTrigRoIs = recordable("HLT_TAURoI"))
 
     tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
 
-    jUnpacker = JRoIsUnpackingTool(Decisions = recordable("L1J"),
-                                   OutputTrigRoIs = recordable("JETRoI") )
+    jUnpacker = JRoIsUnpackingTool(Decisions = "HLTNav_L1J",
+                                   OutputTrigRoIs = recordable("HLT_JETRoI") )
 
     jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
 
@@ -65,14 +65,14 @@ def createMuonRoIUnpackers():
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    muUnpacker = MURoIsUnpackingTool(Decisions = recordable("L1MU"),
-                                     OutputTrigRoIs = recordable("MURoIs"))
+    muUnpacker = MURoIsUnpackingTool(Decisions = "HLTNav_L1MU",
+                                     OutputTrigRoIs = recordable("HLT_MURoIs"))
 
     muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 
     muRerunUnpacker =  RerunRoIsUnpackingTool("MURerunRoIsUnpackingTool",
-                                              SourceDecisions="L1MU",
-                                              Decisions="RerunL1MU" )
+                                              SourceDecisions="HLTNav_L1MU",
+                                              Decisions="HLTNav_RerunL1MU" )
     return [muUnpacker],[muRerunUnpacker]
 
 
@@ -114,7 +114,6 @@ class L1Decoder(L1Decoder) :
 
 def L1DecoderCfg(flags):
 
-    from TrigEDMConfig.TriggerEDMRun3 import recordable
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
     from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool
@@ -122,7 +121,7 @@ def L1DecoderCfg(flags):
 
     acc = ComponentAccumulator()
     decoderAlg = L1Decoder()
-    decoderAlg.L1DecoderSummaryKey = recordable("L1DecoderSummary")
+    decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 

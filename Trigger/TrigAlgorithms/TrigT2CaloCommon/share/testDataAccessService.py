@@ -44,7 +44,7 @@ if TriggerFlags.doCalo:
     
      from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
      algo1=HLTCaloCellMaker("testFastAlgo1")
-     algo1.RoIs="StoreGateSvc+EMRoIs"
+     algo1.RoIs="StoreGateSvc+HLT_EMRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
      #algo1.roiMode=False
      algo1.OutputLevel=VERBOSE
@@ -60,7 +60,7 @@ if TriggerFlags.doCalo:
   algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")
   algo.OutputLevel=VERBOSE
 
-  algo.RoIs="StoreGateSvc+EMRoIs"
+  algo.RoIs="StoreGateSvc+HLT_EMRoIs"
   topSequence += algo
 
 

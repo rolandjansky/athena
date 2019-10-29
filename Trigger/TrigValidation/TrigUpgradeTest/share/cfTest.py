@@ -91,9 +91,9 @@ mueChains = [ 'HLT_mu8_e8' ]
 
 steps = [ parOR("step%i" % i) for i in range(5)]
 stepNo = 0
-steps[stepNo] += seqFilter( "Step1MU", Inputs=["L1MU"], Outputs=["step0MU"], Chains=muChains )
-steps[stepNo] += seqFilter( "Step1MU_E", Inputs=["L1MU", "L1EM"], Outputs=["step0MU","step0EM"], Chains=mueChains )
-steps[stepNo] += seqFilter( "Step1EM", Inputs=["L1EM"], Outputs=["step0EM"], Chains=(eChains + gChains)  )
+steps[stepNo] += seqFilter( "Step1MU", Inputs=["HLTNav_L1MU"], Outputs=["step0MU"], Chains=muChains )
+steps[stepNo] += seqFilter( "Step1MU_E", Inputs=["HLTNav_L1MU", "HLTNav_L1EM"], Outputs=["step0MU","step0EM"], Chains=mueChains )
+steps[stepNo] += seqFilter( "Step1EM", Inputs=["HLTNav_L1EM"], Outputs=["step0EM"], Chains=(eChains + gChains)  )
 
 emHypo = hypo("Step1ElGamHypo", Input="EMClusters", Output="EMDecisions")
 emHypoTools = [ emHTool("HLT_e2"), emHTool("HLT_e3"), emHTool("HLT_e5"),

@@ -214,12 +214,12 @@ def generateL1DecoderAndChains():
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM", ThresholdPrefix="EM" )
-    emUnpacker.Decisions="L1EM"
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="HLT_L1EMRoIs", Decisions="HLTNav_L1EM", ThresholdPrefix="EM" )
+    emUnpacker.Decisions="HLTNav_L1EM"
 
 
-    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU", ThresholdPrefix="MU" )
-    muUnpacker.Decisions="L1MU"
+    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs="HLT_L1MURoIs", Decisions="HLTNav_L1MU", ThresholdPrefix="MU" )
+    muUnpacker.Decisions="HLTNav_L1MU"
 
 
     l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]

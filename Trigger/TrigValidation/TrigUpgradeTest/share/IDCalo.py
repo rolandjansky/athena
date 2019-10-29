@@ -14,7 +14,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
 topSequence += viewSeq
 
-roiCollectionName =  "EMRoIs"  
+roiCollectionName =  "HLT_EMRoIs"  
 
 # View maker alg
 from AthenaCommon import CfgMgr

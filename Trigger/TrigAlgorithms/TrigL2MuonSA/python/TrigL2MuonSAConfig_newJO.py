@@ -273,14 +273,14 @@ def AlignmentBarrelLUTSvcCfg( flags ):
 
 # In the future, above functions should be moved to TrigL2MuonSA package(?)
 
-def l2MuFastAlgCfg( flags, roisKey="MURoIs" ):
+def l2MuFastAlgCfg( flags, roisKey="HLT_MURoIs" ):
 
     acc = ComponentAccumulator()
 
     # Get Reco alg of muFast step
     muFastAcc, muFastFex = muFastSteeringCfg( flags, roisKey )  
     muFastFex.MuRoIs = roisKey
-    muFastFex.RecMuonRoI = "RecMURoIs"
+    muFastFex.RecMuonRoI = "HLT_RecMURoIs"
     muFastFex.MuonL2SAInfo = muFastInfo
     muFastFex.forID = "forID"
     muFastFex.forMS = "forMS"
