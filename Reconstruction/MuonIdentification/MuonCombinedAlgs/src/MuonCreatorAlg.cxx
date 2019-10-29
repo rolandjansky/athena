@@ -190,18 +190,24 @@ StatusCode MuonCreatorAlg::execute()
     }
 
     // Extrapolated tracks
-    for (auto const& satrk : *(wh_extrtp.ptr())) {      
+    int count_satrks = 0;
+    for (auto const& satrk : *(wh_extrtp.ptr())) {
+      count_satrks++;      
       ini_satrkspt.push_back(satrk->pt()/1000.0); // converted to GeV
       ini_satrkseta.push_back(satrk->eta());
       ini_satrksphi.push_back(satrk->phi());
     }
+    ini_satrksn.push_back(count_satrks);
 
     // Combined tracks
+    int count_cbtrks = 0;
     for (auto const& cbtrk : *(wh_combtp.ptr())) {
+      count_cbtrks++;
 	    ini_cbtrkspt.push_back(cbtrk->pt()/1000.0); // converted to GeV
 	    ini_cbtrkseta.push_back(cbtrk->eta());
 	    ini_cbtrksphi.push_back(cbtrk->phi());
     }
+    ini_cbtrksn.push_back(count_cbtrks);
   }
   return StatusCode::SUCCESS;
 }
