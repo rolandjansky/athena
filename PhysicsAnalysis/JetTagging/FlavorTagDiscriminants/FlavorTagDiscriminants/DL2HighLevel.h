@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <string>
+#include <map>
 
 namespace FlavorTagDiscriminants {
 
@@ -21,7 +22,8 @@ namespace FlavorTagDiscriminants {
   {
   public:
     DL2HighLevel(const std::string& nn_file_name,
-                 FlipTagConfig = FlipTagConfig::STANDARD);
+                 FlipTagConfig = FlipTagConfig::STANDARD,
+                 const std::map<std::string, std::string>& out_remap = {});
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::Jet& jet) const;

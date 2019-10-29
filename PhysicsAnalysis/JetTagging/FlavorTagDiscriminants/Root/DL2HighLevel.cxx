@@ -29,7 +29,8 @@ namespace {
 namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
-                             FlipTagConfig flip_config):
+                             FlipTagConfig flip_config,
+                             const std::map<std::string,std::string>& out_map):
     m_dl2(nullptr)
   {
     // get the graph
@@ -152,7 +153,7 @@ namespace FlavorTagDiscriminants {
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
     m_dl2.reset(
-      new DL2(config, input_config, trk_config, flip_config));
+      new DL2(config, input_config, trk_config, flip_config, out_map));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
