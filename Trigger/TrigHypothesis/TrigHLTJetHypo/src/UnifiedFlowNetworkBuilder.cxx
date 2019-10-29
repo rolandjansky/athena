@@ -310,11 +310,6 @@ bool UnifiedFlowNetworkBuilder::findInitialJobGroups(std::vector<std::shared_ptr
 	  jg_used= true;
 	  jg2elemjgs[cur_jg] =  std::vector<std::size_t>{cur_jg};
 	  indJetGroups.emplace(cur_jg, jg);
-	  /*
-	  edges.push_back(std::make_shared<FlowEdge>(0,
-						     cur_jg,
-						     jg.size()));
-	  */
 	  if(collector){recordJetGroup(cur_jg, jg, collector);}
 	}
 	// do the following for each satisfied condition ...
@@ -465,13 +460,6 @@ bool UnifiedFlowNetworkBuilder::propagate_(std::size_t child,
       jg2elemjgs[cur_jg] = elem_jgs;
       if(collector){recordJetGroup(cur_jg, jg, collector);}
 
-      /*
-      for(const auto& i : jg_indices){
-	edges.push_back(std::make_shared<FlowEdge>(i,
-						   cur_jg,
-						   jg2elemjgs[i].size()));
-      }
-      */
       ++cur_jg;
     }
     

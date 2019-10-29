@@ -40,8 +40,6 @@ class Node(object):
 
         c_node_id = node_id + 1
         for c in self.children:
-            print('bumping child id %s %s %s' % (
-                str(c_node_id), self.scenario, c.scenario))
             c_node_id = c.set_ids(c_node_id, self.node_id)
         return c_node_id
     

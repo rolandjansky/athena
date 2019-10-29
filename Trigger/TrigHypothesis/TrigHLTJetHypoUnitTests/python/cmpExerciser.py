@@ -157,8 +157,8 @@ if __name__=="__main__":
     n_signal = 6
     n_background = 0
     bkgdEmax = 50000.
-    # label_ind = 1
-    label_ind = 21
+    label_ind = 1
+    # label_ind = 21
     label = test_strings[label_ind]
 
     

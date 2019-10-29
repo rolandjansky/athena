@@ -5,21 +5,6 @@
 #include "./JetGroupProduct.h"
 #include <set>
 
-/*
-std::vector<std::size_t> merge_groups(std::vector<std::vector<std::size_t>>& iter,
-				      std::vector<std::vector<std::size_t>>& end){
-
-  std::vector<std::size_t> indices;
-  for(; iter != end; ++iter){
-    indices.insert(indices.end(),
-		   iter->begin(),
-		   iter->end());
-  }
-  return indices;
-  
-}
-*/
-
 
 JetGroupProduct::JetGroupProduct(const std::vector<std::size_t>& siblings,
 				 const CondInd2JetGroupsInds& satisfiedBy

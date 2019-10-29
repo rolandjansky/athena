@@ -24,10 +24,11 @@ def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
 
     print ('compile: tree.scenario', tree.scenario)
 
-    if setter.__class__.__name__ == 'ConditionsToolSetterFlowNetwork':
-        setter.mod(tree)
-    else:
-        raise NotImplementedError('Unknown setter ' + setter.__class__.__name__)
+    if setter is not None:
+        if setter.__class__.__name__ == 'ConditionsToolSetterFlowNetwork':
+            setter.mod(tree)
+        else:
+            raise NotImplementedError('Unknown setter ' + setter.__class__.__name__)
         
     if do_print:
         print ('\nnode dumping top node only:\n')
@@ -66,8 +67,9 @@ if __name__ == '__main__':
     print('index', index)
     label = test_strings[index]
 
-    setter = ConditionsToolSetterTree('toolSetter')
-    setter = ConditionsToolSetterFlowNetwork('fnToolSetter')
+    setter = None
+    # setter = ConditionsToolSe#tterTree('toolSetter')
+    # setter = ConditionsToolSetterFlowNetwork('fnToolSetter')
     
     tree = compile(label, setter=setter,  expand=True, do_dump=True)
 
