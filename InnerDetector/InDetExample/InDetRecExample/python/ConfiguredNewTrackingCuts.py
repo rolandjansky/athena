@@ -452,7 +452,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxPrimaryImpact        = 10.0 * Units.mm 
       self.__maxZImpact              = 150.0 * Units.mm 
       self.__minClusters             = 6 
-      self.__minSiNotShared          = 4 
+      self.__minSiNotShared          = 6
       #self.__maxShared               = 3 
       self.__maxHoles                = 0 
       #self.__maxPixelHoles           = D2
@@ -469,6 +469,20 @@ class ConfiguredNewTrackingCuts :
       #self.__nWeightedClustersMin    = self.__minClusters-1
       # --- turn on Z Boundary seeding                                                                                                  
       self.__doZBoundary              = False # 
+
+    if mode == "ROIConv":
+      self.__extension        = "ROIConv" # this runs parallel to NewTracking
+      self.__minPT                   = .9 * Units.GeV
+      self.__maxPrimaryImpact        = 10.0 * Units.mm
+      self.__maxZImpact              = 150.0 * Units.mm
+      self.__minClusters             = 6
+      self.__minSiNotShared          = 6
+      self.__maxShared               = 0
+      self.__maxHoles                = 0
+      self.__radMax                  = 1000. * Units.mm
+      self.__radMin                  = 0. * Units.mm # not turn on this cut for now
+      self.__doZBoundary              = False #
+      self.__nWeightedClustersMin    = 6
 
 
     # --- change defaults for very low pt tracking  

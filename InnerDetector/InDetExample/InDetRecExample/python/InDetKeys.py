@@ -757,6 +757,12 @@ class SiSpSeededSLHCConversionFindingTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSpSeededSLHCConversionFindingTracks'
 
+class SiSpSeededROIConvTracks(JobProperty):
+    """ Storegate key for new-tracking SP seeded ROI conversion finding tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'SiSpSeededROIConvTracks'
+
 class SiSpSeededBeamGasTracks(JobProperty):
     """ Storegate key for new-tracking SP seeded beam gas tracks"""
     statusOn     = True
@@ -804,6 +810,12 @@ class ResolvedSLHCConversionFindingTracks(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ResolvedSLHCConversionFindingTracks'
+
+class ResolvedROIConvTracks(JobProperty):
+    """ Storegate key for new-tracking resolved ROI Conversion tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedROIConvTracks'
 
 class ResolvedForwardTracksTruth(JobProperty):
     """ Storegate key for new-tracking resolved very forward tracks truth"""
@@ -1347,6 +1359,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededLowPtTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededVeryLowPtTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededForwardTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSLHCConversionFindingTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededROIConvTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededBeamGasTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededLargeD0Tracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededDSPTracks)
@@ -1358,6 +1371,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTrackParticles)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedSLHCConversionFindingTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedROIConvTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedForwardTrackParticlesTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedBeamGasTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedLargeD0Tracks)

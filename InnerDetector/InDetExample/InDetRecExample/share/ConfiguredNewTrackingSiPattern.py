@@ -24,7 +24,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "PixelThreeLayer" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "PixelThreeLayer" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding" or NewTrackingCuts.mode() == "ROIConv"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -61,7 +61,7 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_LowMomentum as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
-         elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
+         elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "ROIConv":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "DisplacedSoftPion" :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_TrkSeeded as SiSpacePointsSeedMaker
@@ -108,7 +108,7 @@ class  ConfiguredNewTrackingSiPattern:
             except:
                pass 
             InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
-         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCConversionFinding":
+         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCConversionFinding" or NewTrackingCuts.mode() == "ROIConv":
             InDetSiSpacePointsSeedMaker.minRadius1         = 0
             InDetSiSpacePointsSeedMaker.minRadius2         = 0
             InDetSiSpacePointsSeedMaker.minRadius3         = 0
@@ -277,6 +277,9 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "SLHCConversionFinding":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_SLHCConversionTracks'
 
+         elif NewTrackingCuts.mode() == "ROIConv":
+           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ROIConvTracks'
+
          elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
         
@@ -301,6 +304,19 @@ class  ConfiguredNewTrackingSiPattern:
          #
 
          from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
+
+         if NewTrackingCuts.mode() == "ROIConv":
+
+            InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
+                                                                      TrackTool      = InDetSiTrackMaker,
+                                                                      TracksLocation = self.__SiTrackCollection,
+                                                                      SeedsTool      = InDetSiSpacePointsSeedMaker,
+                                                                      useZvertexTool = InDetFlags.useZvertexTool(),
+                                                                      ZvertexTool    = InDetZvertexMaker,
+                                                                      useConvSeeded = True,
+                                                                      useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
+                                                                      useZBoundFinding = True)
+
 
          if NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks":
 

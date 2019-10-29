@@ -277,6 +277,12 @@ class doSLHCConversionFinding(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doROIConv(InDetFlagsJobProperty):
+    """Turn running of doROIConvFinding second pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doForwardTracks(InDetFlagsJobProperty):
     """Turn running of doForwardTracks pass on and off"""
     statusOn     = True
@@ -1391,7 +1397,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking                     , True )
        self.checkThenSet(self.doLowPt                           , False)
        self.checkThenSet(self.doVeryLowPt                       , False)
-       self.checkThenSet(self.doSLHCConversionFinding           , False )
+       self.checkThenSet(self.doSLHCConversionFinding           , False)
+       self.checkThenSet(self.doROIConv                         , False)
        self.checkThenSet(self.doBeamGas                         , False)
        self.checkThenSet(self.doBeamHalo                        , False)
        self.checkThenSet(self.doxKalman                         , False)
@@ -1808,6 +1815,7 @@ class InDetJobProperties(JobPropertyContainer):
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!      
       self.doVeryLowPt   = self.doVeryLowPt() and self.doLowPt()
       #
+      self.doROIConv = self.doROIConv() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       self.doSLHCConversionFinding = self.doSLHCConversionFinding() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # new forward tracklets
       self.doForwardTracks = self.doForwardTracks() and self.doNewTracking()
@@ -2410,6 +2418,10 @@ class InDetJobProperties(JobPropertyContainer):
        print '*'
        print '* SLHCConversionFinding is ON'
     # -----------------------------------------
+    if self.doROIConv() :
+       print '*'
+       print '* ROIConversionFinding is ON'
+    # -----------------------------------------
     if self.doForwardTracks():
        print '*'
        print '* Forward Tracklets are ON'
@@ -2722,6 +2734,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowPt,
                             doVeryLowPt,
                             doSLHCConversionFinding,
+                            doROIConv,
                             doForwardTracks,
                             doLowPtLargeD0,
                             doLargeD0,
