@@ -48,7 +48,11 @@ public:
   /** AlgTool finalise method */
   StatusCode finalize();
 
-  /** Method to compute the state weights after measurement update */
+  /** Method to compute the state weights after measurement update 
+   *  It should be noted that the caller does not own the contents of the 
+   *  returned vector of std::pair<const Trk::TrackParameters*, double>
+   **/
+  
   virtual std::unique_ptr<std::vector<Trk::ComponentParameters>>  weights(const MultiComponentState&, const MeasurementBase&) const;
 
 private:
