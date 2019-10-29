@@ -12,22 +12,9 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "SortMuPatHits.h"
 
-#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMomentumEstimator.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonHitSelector.h"
-#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
-
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/Layer.h"
-#include "TrkExInterfaces/IPropagator.h"
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
@@ -63,25 +50,15 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
+
 namespace Muon {
 
   
   MooTrackFitter::MooTrackFitter(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
-    m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-    m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitter"),                        
-    m_trackFitterPrefit("Trk::GlobalChi2Fitter/MCTBFitter"),                          
-    m_hitHandler("Muon::MuPatHitTool/MuPatHitTool"),
-    m_momentumEstimator("MuonSegmentMomentum/MuonSegmentMomentum"),
     m_magFieldProperties(Trk::FullField),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
-    m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtTubeHitOnTrackCreator"),
-    m_phiHitSelector("MuonPhiHitSelector/MuonPhiHitSelector"),
-    m_cleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
-    m_overlapResolver("Muon::MuonSegmentInOverlapResolvingTool/MuonSegmentInOverlapResolvingTool"),
-    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
     m_patRecInfo(Trk::TrackInfo::Moore)
   {
 
@@ -89,18 +66,6 @@ namespace Muon {
 
     declareProperty("PreCleaningReducedChi2Cut",m_preCleanChi2Cut = 500.,"minimum reduced chi2 for a track to be cleaned");
     declareProperty("ReducedChi2Cut",m_chi2Cut = 100.,"minimum reduced chi2 for a track to be accepted");
-    declareProperty("Propagator",          m_propagator);
-    declareProperty("Fitter",              m_trackFitter);
-    declareProperty("FitterPreFit",        m_trackFitterPrefit);
-    declareProperty("SegmentMomentum",     m_momentumEstimator);
-    declareProperty("HitTool",m_hitHandler);
-    declareProperty("IdHelper",m_idHelperTool);
-    declareProperty("MuonPrinterTool",m_printer);
-    declareProperty("TrackToSegmentTool",m_trackToSegmentTool);
-    declareProperty("MdtRotCreator",m_mdtRotCreator);
-    declareProperty("PhiHitSelector",m_phiHitSelector);
-    declareProperty("TrackCleaner",m_cleaner);
-    declareProperty("SegmentInOverlapTool",m_overlapResolver);
 
     declareProperty("SLProp",              m_slProp = false, "Enable straight line propagation");
     declareProperty("SLFit",               m_slFit = true);
@@ -1276,19 +1241,21 @@ namespace Muon {
 
     std::map<MuonStationIndex::StIndex,StationPhiData> stationDataMap;
     
+    // Get a MuonTrackSummary.
     const Trk::TrackSummary* summary = track.trackSummary();
     Trk::MuonTrackSummary muonSummary;
     if( summary ){
-      if( summary->muonTrackSummary() ) muonSummary = *summary->muonTrackSummary();
-      else{
-	Trk::TrackSummary* tmpSum = const_cast<Trk::TrackSummary*>(summary);
-	if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(track,*tmpSum);
-	if( tmpSum->muonTrackSummary() ) muonSummary = *tmpSum->muonTrackSummary();
+      if( summary->muonTrackSummary() ) {
+        muonSummary = *summary->muonTrackSummary();
+      } else {
+        Trk::TrackSummary tmpSum(*summary);
+        m_trackSummaryTool->addDetailedTrackSummary(track,tmpSum);
+        if( tmpSum.muonTrackSummary() ) muonSummary = *(tmpSum.muonTrackSummary());
       }
     }else{
       Trk::TrackSummary tmpSummary;
       m_trackSummaryTool->addDetailedTrackSummary(track,tmpSummary);
-      if( tmpSummary.muonTrackSummary() ) muonSummary = *tmpSummary.muonTrackSummary();
+      if( tmpSummary.muonTrackSummary() ) muonSummary = *(tmpSummary.muonTrackSummary());
     }
 
     std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit = muonSummary.chamberHitSummary().begin();

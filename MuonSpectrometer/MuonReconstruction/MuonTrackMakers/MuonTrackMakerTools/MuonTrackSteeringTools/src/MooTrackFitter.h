@@ -15,6 +15,18 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
+#include "MuonRecToolInterfaces/IMuonSegmentMomentumEstimator.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonHitSelector.h"
+#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+
 #include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "MuPatCandidateBase.h"
@@ -160,21 +172,20 @@ namespace Muon {
     };
 
     struct GarbageCan{
-
       MeasVec measurementsToBeDeleted; //<! vector of measurements created during fitting that should be deleted
       std::vector<const Trk::TrackParameters*> parametersToBeDeleted; //<! vector of parameters created during fitting that should be deleted
       std::vector<const MuPatHit*> mctbHitsToBeDeleted;
 
       /** clean up memory managed by tool */
       void cleanUp() {
-	for( const auto meas : measurementsToBeDeleted ) delete meas;
-	measurementsToBeDeleted.clear();
+      	for( const auto meas : measurementsToBeDeleted ) delete meas;
+      	measurementsToBeDeleted.clear();
 
-	for(const auto par : parametersToBeDeleted) delete par;
-	parametersToBeDeleted.clear();
+      	for(const auto par : parametersToBeDeleted) delete par;
+      	parametersToBeDeleted.clear();
 
-	for(const auto hit : mctbHitsToBeDeleted) delete hit;
-	mctbHitsToBeDeleted.clear();
+      	for(const auto hit : mctbHitsToBeDeleted) delete hit;
+      	mctbHitsToBeDeleted.clear();
       }
     };
     
@@ -292,27 +303,27 @@ namespace Muon {
     void cleanSegment( const MuonSegment& seg, std::set<Identifier>& removedIdentifiers  ) const;
     void copyHitList( const MuPatHitList& hitList, MuPatHitList& copy, GarbageCan& garbage ) const;
 
-    ToolHandle<Trk::IPropagator>                m_propagator;  //!< propagator
-    ToolHandle<Trk::ITrackFitter>               m_trackFitter; //!< fitter
-    ToolHandle<Trk::ITrackFitter>               m_trackFitterPrefit; //!< fitter used for prefit
-    ToolHandle<MuPatHitTool>                    m_hitHandler; //!< hit handler
-    ToolHandle<IMuonSegmentMomentumEstimator>   m_momentumEstimator; //!< tool to estimate track momentum
+    ToolHandle<Trk::IPropagator>                    m_propagator          {this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};  //!< propagator
+    ToolHandle<Trk::ITrackFitter>                   m_trackFitter         {this, "Fitter", "Trk::GlobalChi2Fitter/MCTBFitter"}; //!< fitter
+    ToolHandle<Trk::ITrackFitter>                   m_trackFitterPrefit   {this, "FitterPreFit", "Trk::GlobalChi2Fitter/MCTBFitter"}; //!< fitter used for prefit
+    ToolHandle<MuPatHitTool>                        m_hitHandler          {this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool"}; //!< hit handler
+    ToolHandle<IMuonSegmentMomentumEstimator>       m_momentumEstimator   {this, "SegmentMomentum", "MuonSegmentMomentum/MuonSegmentMomentum"}; //!< tool to estimate track momentum
  
-    Trk::RunOutlierRemoval                m_runOutlier;         //!< switch whether to run outlier logics or not
-    int                                   m_matEffects;         //!< type of material interaction in extrapolation
-    Trk::ParticleHypothesis               m_ParticleHypothesis; //!< nomen est omen 
-    Trk::MagneticFieldProperties          m_magFieldProperties; //!< magnetic field properties
-    ToolHandle<MuonIdHelperTool>          m_idHelperTool;       //!< id helper tool
-    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc {this, "edmHelper", 
+    Trk::RunOutlierRemoval                          m_runOutlier;         //!< switch whether to run outlier logics or not
+    int                                             m_matEffects;         //!< type of material interaction in extrapolation
+    Trk::ParticleHypothesis                         m_ParticleHypothesis; //!< nomen est omen 
+    Trk::MagneticFieldProperties                    m_magFieldProperties; //!< magnetic field properties
+    ToolHandle<MuonIdHelperTool>                    m_idHelperTool        {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //!< id helper tool
+    ServiceHandle<IMuonEDMHelperSvc>                m_edmHelperSvc        {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< multi purpose helper tool
-    ToolHandle<MuonEDMPrinterTool>        m_printer;            //!< tool to print out EDM objects
-    ToolHandle<IMuonTrackToSegmentTool>   m_trackToSegmentTool; //!< helper tool to convert tracks into segments
-    ToolHandle<IMdtDriftCircleOnTrackCreator>   m_mdtRotCreator; //!< mdt tube hit creator
-    ToolHandle<IMuonHitSelector>          m_phiHitSelector; //!< tool to clean phi hits
-    ToolHandle<IMuonTrackCleaner>         m_cleaner;
-    ToolHandle<IMuonSegmentInOverlapResolvingTool>   m_overlapResolver;
-    ToolHandle<Trk::ITrackSummaryHelperTool>         m_trackSummaryTool; //<! muon track summary helper
+    ToolHandle<MuonEDMPrinterTool>                  m_printer             {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //!< tool to print out EDM objects
+    ToolHandle<IMuonTrackToSegmentTool>             m_trackToSegmentTool  {this, "TrackToSegmentTool", "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"}; //!< helper tool to convert tracks into segments
+    ToolHandle<IMdtDriftCircleOnTrackCreator>       m_mdtRotCreator       {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtTubeHitOnTrackCreator"}; //!< mdt tube hit creator
+    ToolHandle<IMuonHitSelector>                    m_phiHitSelector      {this, "PhiHitSelector", "MuonPhiHitSelector/MuonPhiHitSelector"}; //!< tool to clean phi hits
+    ToolHandle<IMuonTrackCleaner>                   m_cleaner             {this, "TrackCleaner", "Muon::MuonTrackCleaner/MuonTrackCleaner"};
+    ToolHandle<IMuonSegmentInOverlapResolvingTool>  m_overlapResolver     {this, "SegmentInOverlapTool", "Muon::MuonSegmentInOverlapResolvingTool/MuonSegmentInOverlapResolvingTool"};
+    ToolHandle<Trk::ITrackSummaryHelperTool>        m_trackSummaryTool    {this, "TrackSummaryTool", "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"}; //<! muon track summary helper
 
     bool         m_slFit;              //<! perform sl fit
     bool         m_slProp;             //<! perform sl propagation
@@ -329,9 +340,9 @@ namespace Muon {
     bool         m_seedAtStartOfTrack;  //<! provide seed parameters at the start of the track
     bool         m_preciseFirstStation; //<! use precise hits in first station to stabalise the fit
 
-    double m_openingAngleCut;  //<! cut on the maximum difference in phi between measurements on the track
-    double m_preCleanChi2Cut;  //<! minimum chi2/ndof for a track to be passed to cleaner
-    double m_chi2Cut;          //<! minimum chi2/ndof for a track to be accepted
+    double       m_openingAngleCut;  //<! cut on the maximum difference in phi between measurements on the track
+    double       m_preCleanChi2Cut;  //<! minimum chi2/ndof for a track to be passed to cleaner
+    double       m_chi2Cut;          //<! minimum chi2/ndof for a track to be accepted
 
     mutable std::atomic_uint m_nfits;
     mutable std::atomic_uint m_nfailedExtractInital;
