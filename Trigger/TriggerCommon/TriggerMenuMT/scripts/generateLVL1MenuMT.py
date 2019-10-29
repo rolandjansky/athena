@@ -90,7 +90,7 @@ def findRequiredItemsFromXML():
     
     menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1']
 
-    from TriggerMenu.l1.XMLReader import L1MenuXMLReader
+    from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLReader import L1MenuXMLReader
 
     allItems = set()
     allThrs = set()
