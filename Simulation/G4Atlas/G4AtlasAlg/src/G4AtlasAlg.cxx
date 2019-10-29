@@ -53,19 +53,6 @@ static std::once_flag releaseGeoModelOnceFlag;
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty( "Dll", m_libList);
-  declareProperty( "Physics", m_physList);
-  declareProperty( "FieldMap", m_fieldMap);
-  declareProperty( "RandomGenerator", m_rndmGen);
-  declareProperty( "ReleaseGeoModel", m_releaseGeoModel);
-  declareProperty( "RecordFlux", m_recordFlux);
-  declareProperty( "KillAbortedEvents", m_killAbortedEvents);
-  declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
-  declareProperty("G4Commands", m_g4commands, "Commands to send to the G4UI");
-  // Multi-threading specific settings
-  declareProperty("MultiThreading", m_useMT, "Multi-threading specific settings");
-  declareProperty("ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
-
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
 }
