@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 729159 2016-03-11 12:58:15Z krasznaa $
 ################################################################################
 # Package: RngComps
 ################################################################################
@@ -72,5 +71,5 @@ atlas_add_test( RandomServices_test
                 SCRIPT test/RandomServices_test.py )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py test/*.py )
