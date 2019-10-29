@@ -43,12 +43,10 @@ namespace Muon
 
     /** standard initialize method */
     virtual StatusCode initialize() override;
-    
-    /** standard finalize method */
-    //virtual StatusCode finalize();
 
+    virtual
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec);
+			   std::vector<Muon::MMPrepData*>& clustersVec) override;
 
   private: 
 

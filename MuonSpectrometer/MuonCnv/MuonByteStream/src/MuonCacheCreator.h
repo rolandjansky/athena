@@ -13,6 +13,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
+#include <atomic>
 
 class MuonCacheCreator : public AthReentrantAlgorithm {
  public:
@@ -40,8 +41,9 @@ protected:
   SG::WriteHandleKey<TgcRdo_Cache> m_TgcCacheKey;
   /// ID helpers
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};  
-  mutable bool m_disableWarning = false;
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  BooleanProperty m_disableWarning{this,"DisableViewWarning",false};
+  mutable std::atomic_bool m_disableWarningCheck;
   bool isInsideView(const EventContext&) const;
 
 };//class MuonCacheCreator

@@ -39,7 +39,6 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
-#include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
@@ -99,7 +98,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixMinimalPathCut(0.06),// Optimized choice of threshold (old 0.02)
   m_pixPathLengthTotConv(125.),
   m_pixModuleDistortion(true), // default: false
-  m_pixDistortionTool("PixelDistortionsTool/PixelDistortionsTool"),
   m_pixErrorStrategy(2),
   m_pixDiffShiftBarrX(0.005),
   m_pixDiffShiftBarrY(0.005),
@@ -130,7 +128,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("PixelMinimalPathLength"         , m_pixMinimalPathCut);
   declareProperty("PixelPathLengthTotConversion"   , m_pixPathLengthTotConv);
   declareProperty("PixelEmulateModuleDistortion"   , m_pixModuleDistortion);
-  declareProperty("PixelDistortionTool"            , m_pixDistortionTool);
   declareProperty("PixelErrorPhi"                  , m_pixPhiError);
   declareProperty("PixelErrorEta"                  , m_pixEtaError);
   declareProperty("PixelErrorStrategy"             , m_pixErrorStrategy);
@@ -202,15 +199,8 @@ StatusCode PixelFastDigitizationTool::initialize()
   }
 
   if (m_pixModuleDistortion) {
-    if (m_pixDistortionTool.retrieve().isFailure()){
-      ATH_MSG_WARNING( "Could not retrieve " << m_pixDistortionTool );
-      ATH_MSG_WARNING( "-> Switching stave distortion off!" );
-      m_pixModuleDistortion = false;
-      m_pixDistortionTool.disable();
-    }
-  } else {
-    m_pixDistortionTool.disable();
-  }
+    ATH_CHECK(m_distortionKey.initialize());
+  } 
 
   //locate the PileUpMergeSvc and initialize our local ptr
   if (!m_mergeSvc.retrieve().isSuccess()) {
@@ -827,8 +817,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 
         //ATTENTION this can be enabled, take a look to localDirection
         //         if (m_pixModuleDistortion &&  hitSiDetElement->isBarrel() )
-        //           clusterPosition = m_pixDistortionTool->correctSimulation(hitSiDetElement->identify(), clusterPosition, localDirection);
-
+        //           clusterPosition = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixel_ID->wafer_hash(hitSiDetElement->identify()), clusterPosition, localDirection);
 
         // from InDetReadoutGeometry: width from eta
         double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);

@@ -44,6 +44,8 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
 def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", **kwargs):
     from MuonSegmentMomentum.MuonSegmentMomentumConf import MuonSegmentMomentumFromField
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     
     result = ComponentAccumulator()
     acc  = MagneticFieldSvcCfg(flags) 
@@ -62,13 +64,15 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     result.merge(acc)
     result.addPublicTool(muon_prop)
     kwargs.setdefault("PropagatorTool", muon_prop)
+    
+    kwargs.setdefault("HasCSC",  MuonGeometryFlags.hasCSC())
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
         
     muon_seg_mom_from_field = MuonSegmentMomentumFromField(name=name, **kwargs)
     result.setPrivateTools(muon_seg_mom_from_field)
     return result
     
 def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kwargs):
-    # m_muonTgTool("MuonHolesOnTrack"),
     #   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     #   m_edmHelperTool("Muon::MuonEDMHelperSvc/MuonEDMHelperSvc"),
     #   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
@@ -78,7 +82,6 @@ def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kw
     acc  = TrackingGeometrySvcCfg(flags)
     
     result.merge(acc)
-    kwargs.setdefault("TrackingGeometryName", 'AtlasTrackingGeometry') # FIXME - get this from somewhere?
     
     acc = MuonExtrapolatorCfg(flags)
     extrap = acc.getPrimary()
@@ -86,13 +89,7 @@ def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kw
     result.merge(acc)
     kwargs.setdefault("Extrapolator", extrap)
 
-    from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonHolesOnTrackTool
-    holetool = Muon__MuonHolesOnTrackTool (ExtrapolatorName = extrap,
-                                           TrackingGeometryName = 'MuonStandaloneTrackingGeometry')
-    
-    kwargs.setdefault("DoHolesOnTrack", False)
     kwargs.setdefault("CalculateCloseHits", True)
-    kwargs.setdefault("HoleOnTrackTool", holetool)
 
     from MuonTrackSummaryHelperTool.MuonTrackSummaryHelperToolConf import Muon__MuonTrackSummaryHelperTool
     result.setPrivateTools(Muon__MuonTrackSummaryHelperTool(name=name,**kwargs))

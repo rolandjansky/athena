@@ -1,33 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETKEYDESCRIPTORCNV_H
 #define JETEVENT_JETKEYDESCRIPTORCNV_H
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 
 #include <string>
 #include <vector>
 
 #include "JetEvent/JetKeyDescriptor.h"
-#include "JetEventTPCnv/JetKeyDescriptor_p1.h"
+#include "JetEventTPCnv/JetKeyDescriptorCnv_p1.h"
 
 // the latest persistent representation type of JetKeyDescriptor_p1
-typedef  JetKeyDescriptor_p1  JetKeyDescriptor_PERS;
-typedef  T_AthenaPoolCustomCnv<JetKeyDescriptor, JetKeyDescriptor_PERS>  JetKeyDescriptorCnvBase;
+typedef T_AthenaPoolTPCnvCnv<JetKeyDescriptor,
+                             JetKeyDescriptorCnv_p1>
+  JetKeyDescriptorCnv;
 
-class JetKeyDescriptorCnv : public JetKeyDescriptorCnvBase
-{
-  friend class CnvFactory<JetKeyDescriptorCnv>;
-  
- protected:
-
-public:
-  JetKeyDescriptorCnv (ISvcLocator* svcloc) : JetKeyDescriptorCnvBase(svcloc) {};
-protected:
-  virtual JetKeyDescriptor_PERS*   createPersistent (JetKeyDescriptor* transObj);
-  virtual JetKeyDescriptor*        createTransient ();
-};
 
 #endif

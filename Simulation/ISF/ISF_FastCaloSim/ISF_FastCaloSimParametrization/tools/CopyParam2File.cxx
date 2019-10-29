@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,7 +32,9 @@ std::string doSParam(std::string pstr, std::string kstr) {
 }
 
 // build string eparam.<pdgid>.<energy>.<eta>.<pca#>.<
-std::string doEParam(std::string pstr, std::string kstr, std::string dirstr) {
+std::string doEParam(const std::string& pstr,
+                     const std::string& kstr,
+                     const std::string& dirstr) {
   std::string lNum;
   std::string retstr = "";
   // bin/pca common amongst all
@@ -105,7 +107,7 @@ void copyDir(TDirectory* src, std::string param_str) {
   savdir->cd();
 }
 
-void copyFile(const char* fname, std::string param_str) {
+void copyFile(const char* fname, const std::string& param_str) {
   TDirectory* target = gDirectory;
   TFile* fsrc = TFile::Open(fname);
   if (!fsrc || fsrc->IsZombie()) {
@@ -121,7 +123,7 @@ void copyFile(const char* fname, std::string param_str) {
 }
 
 void 
-CopyParam2File(std::string src_str, std::string param_type, unsigned int pdgid, unsigned int energy, float eta, std::string dest_str = "FCSParams.root") {
+CopyParam2File(const std::string& src_str, const std::string& param_type, unsigned int pdgid, unsigned int energy, float eta, const std::string& dest_str = "FCSParams.root") {
   // ROOT-aware
   TLorentzVector* t;
   gROOT->LoadMacro("../20.20.X-VAL/Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent/src/IntArray.cxx+");

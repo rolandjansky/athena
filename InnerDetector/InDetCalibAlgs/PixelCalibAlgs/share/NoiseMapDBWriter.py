@@ -39,7 +39,6 @@ from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag('CONDBR2-BLKPA-2014-03')
 #conddb.blockFolder("/PIXEL/PixCalib");conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib <tag>PixCalib-IBL3D25DBM-04-01</tag>",force=True,forceMC=True);
 #conddb.blockFolder("/Indet/Align");conddb.addFolder("INDET_OFL","/Indet/Align<tag>InDetAlign-RUN2-BLK-UPD4-09</tag>",force=True,forceMC=True);
-#conddb.blockFolder("/Indet/PixelDist");conddb.addFolder("INDET_OFL","/Indet/PixelDist<tag>InDetPixelDist-RUN2-ES1-UPD1-01</tag>",force=True,forceMC=True);
 #conddb.blockFolder("/TRT/Align");conddb.addFolder("TRT_OFL","/TRT/Align<tag>InDetAlign-RUN2-BLK-UPD4-09</tag>",force=True,forceMC=True);
 #conddb.blockFolder("/TRT/Calib/DX");conddb.addFolder("TRT_OFL","/TRT/Calib/DX<tag>TRTCalibDX-RUN2-BLK-UPD4-03</tag>",force=True,forceMC=True);
 

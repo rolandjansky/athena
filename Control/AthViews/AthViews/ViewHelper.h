@@ -18,6 +18,8 @@
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "tbb/task.h"
+#include "CxxUtils/checker_macros.h"
+
 
 namespace ViewHelper
 {
@@ -305,7 +307,7 @@ namespace ViewHelper
   template<typename T>
   SG::ReadHandle<T> makeHandle( const SG::View* view , const SG::ReadHandleKey<T>& rhKey, const EventContext& context ) {
 
-    SG::View* nview = const_cast<SG::View*>(view);  // we need it until reading from const IProxyDict is not supported
+    SG::View* nview ATLAS_THREAD_SAFE = const_cast<SG::View*>(view);  // we need it until reading from const IProxyDict is not supported
 
     auto handle = SG::makeHandle( rhKey, context );
     if ( handle.setProxyDict( nview ).isFailure() ) { // we ignore it besause the handle will be invalid anyways if this call is unsuccesfull

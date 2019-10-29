@@ -13,15 +13,8 @@ TrigStreamerHypoAlgMT::TrigStreamerHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigStreamerHypoAlgMT::~TrigStreamerHypoAlgMT() {}
-
-StatusCode TrigStreamerHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode TrigStreamerHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   CHECK( m_hypoTools.retrieve() );
   return StatusCode::SUCCESS;

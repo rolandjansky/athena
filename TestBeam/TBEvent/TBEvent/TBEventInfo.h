@@ -32,16 +32,17 @@ class TBEventInfo
   // Constructors and Destructor //
   /////////////////////////////////
 
-  TBEventInfo() { 
-    m_ev_number=0;
-    m_ev_clock=0;
-    m_ev_type=0;
-    m_run_num=0;
-    m_beam_moment=0;
-    m_beam_part="";
-    m_cryoX=0;
-    m_cryoAngle=0;
-    m_tableY=0; };
+  TBEventInfo()
+    : m_ev_number(0),
+      m_ev_clock(0),
+      m_ev_type(0),
+      m_run_num(0),
+      m_beam_moment(0),
+      m_cryoX(0),
+      m_cryoAngle(0),
+      m_tableY(0)
+  {
+  }
     
   TBEventInfo(int ev_number,
 	      int ev_clock,

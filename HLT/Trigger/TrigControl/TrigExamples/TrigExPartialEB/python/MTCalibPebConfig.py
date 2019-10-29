@@ -233,15 +233,10 @@ def configure_hlt_result(hypo_algs):
     stmaker = StreamTagMakerTool()
     stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
-    stmaker.HLTmenuFile = menu_json  # TODO: remove after !26849
 
     # Tool adding HLT bits to HLT result
     bitsmaker = TriggerBitsMakerTool()
     bitsmaker.ChainDecisions = 'HLTNav_Summary'
-    bitsmaker.ChainToBit = {}
-    bitsmaker.ChainToBit['HLT_MTCalibPeb1'] = 3
-    bitsmaker.ChainToBit['HLT_MTCalibPeb2'] = 50
-    bitsmaker.ChainToBit['HLT_MTCalibPeb3'] = 11
 
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -285,6 +280,7 @@ def make_hlt_seq(concurrent=False):
 
 def write_dummy_menu_json(chains, chain_to_streams):
     import json
+    from TrigConfHLTData.HLTUtils import string2hash
     menu_name = 'MTCalibPeb'
     menu_dict = {
         'name': menu_name,
@@ -298,6 +294,7 @@ def write_dummy_menu_json(chains, chain_to_streams):
         chain_dict['counter'] = counter
         chain_dict['name'] = chain
         chain_dict['streams'] = chain_to_streams[chain]
+        chain_dict['nameHash'] = string2hash(chain)
 
         # Other attributes not used in MTCalibPeb
         chain_dict['groups'] = []

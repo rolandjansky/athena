@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigTauCluster.h"
@@ -8,11 +8,11 @@
 #include "TrigCaloEventTPCnv/TrigCaloClusterCnv_p2.h"
 
 // pre-allocate converters
-static TrigCaloClusterCnv_p2 trigCaloClusterCnv;
+static const TrigCaloClusterCnv_p2 trigCaloClusterCnv;
 
 void TrigTauClusterCnv_p3 :: persToTrans( const TrigTauCluster_p3 *persObj,
                                             TrigTauCluster    *transObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p3::persToTrans" << endmsg;
@@ -41,7 +41,7 @@ void TrigTauClusterCnv_p3 :: persToTrans( const TrigTauCluster_p3 *persObj,
 
 void TrigTauClusterCnv_p3 :: transToPers( const TrigTauCluster    *transObj,
                                             TrigTauCluster_p3 *persObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p3::transToPers" << endmsg;

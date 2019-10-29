@@ -38,7 +38,6 @@ private:
 
   Gaudi::Property<std::string> m_dbKey {this, "Key_DB", "X2", "explicit dbKey for cond handle"};
 
-  ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IASCIICondDbSvc> m_cds;
 
 

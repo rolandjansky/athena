@@ -1,48 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonSegmentMomentum/MuonSegmentMomentum.h"
+#include "MuonSegmentMomentum.h"
 #include "MuonSegment/MuonSegment.h"
 #include <sstream>
 #include <iostream>
 #include <vector>
 
-MuonSegmentMomentum::MuonSegmentMomentum(const std::string& type,const std::string& name,const IInterface* parent):AthAlgTool(type,name,parent)
+MuonSegmentMomentum::MuonSegmentMomentum(const std::string& type,const std::string& name,const IInterface* parent)
+  :
+  AthAlgTool(type,name,parent)
 {
   declareInterface<IMuonSegmentMomentumEstimator>(this);
-
-
-  m_debug = false;
-  declareProperty("DoDebug",m_debug);
-
-  m_summary = false;
-  declareProperty("DoSummary",m_summary);
-
-  m_cosmics = false;
-  declareProperty("DoCosmics",m_cosmics);
-
-
-
-}
-
-MuonSegmentMomentum::~MuonSegmentMomentum()
-{
-}
-
-StatusCode MuonSegmentMomentum::initialize()
-{
-
-  ATH_MSG_VERBOSE(" MuonSegmentMomentum::Initializing ");
-
-  ATH_MSG_VERBOSE("End of Initializing");  
-
-  return StatusCode::SUCCESS; 
-}
-
-StatusCode MuonSegmentMomentum::finalize()
-{
-  return StatusCode::SUCCESS;
 }
 
 void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Muon::MuonSegment*> segments, double & signedMomentum ) const
@@ -53,7 +23,7 @@ void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Mu
 
 //  MsgStream log(messageService(),name());
   ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentumVectorSegments ");
-  if (m_debug||m_summary) std::cout << " fitMomentumVectorSegments " << segments.size() << " segments " << std::endl;
+  ATH_MSG_DEBUG(" fitMomentumVectorSegments " << segments.size() << " segments ");
 
   std::vector<const Muon::MuonSegment*>::const_iterator it = segments.begin();
   std::vector<const Muon::MuonSegment*>::const_iterator it2 = segments.begin();
@@ -65,7 +35,7 @@ void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Mu
       if (it == it2) continue;
       double smom;
       fitMomentum2Segments(*it, *it2, smom);
-      if (m_debug) std::cout << " Fit pair of segments signed momentum " << smom << std::endl;
+      ATH_MSG_DEBUG(" Fit pair of segments signed momentum " << smom);
       if (fabs(smom) < fabs(pmin)) pmin = smom; 
     }
   }
@@ -74,8 +44,7 @@ void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Mu
   if (signedMomentum < 100. && signedMomentum > 0 ) signedMomentum = 100.; 
   if (signedMomentum > -100. && signedMomentum <= 0 ) signedMomentum = -100.; 
 
-   if (m_debug||m_summary) std::cout << " Estimated signed momentum " << signedMomentum << std::endl;
-
+  ATH_MSG_DEBUG( " Estimated signed momentum " << signedMomentum);
 }
 
 
@@ -89,7 +58,7 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
 //  MsgStream log(messageService(),name());
   ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentum2Segments ");
 
-  if (m_debug) std::cout << " fitMomentum2Segments " << std::endl;
+  ATH_MSG_DEBUG(" fitMomentum2Segments");
 
 
 
@@ -132,7 +101,7 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
 //   double phispe  = atan2( segment2->globalPosition().y(), segment2->globalPosition().x());
   double thespe  = atan2( rse,zse);
   double era2 = 0.002;
-  if (m_debug) std::cout << " radius1 " << rs << " radius2 " <<  rse << " z1 " << zs << " z2 " << zse << " theta1 " << thetas << " theta2 " << thetase << " thetasp1 " << thesp << " thetasp2 " << thespe <<  std::endl;
+  ATH_MSG_DEBUG(" radius1 " << rs << " radius2 " <<  rse << " z1 " << zs << " z2 " << zse << " theta1 " << thetas << " theta2 " << thetase << " thetasp1 " << thesp << " thetasp2 " << thespe);
 
   bool barrel = false;
   if (fabs(cos(thesp)) < cos_barrel || fabs(cos(thespe)) < cos_barrel ) barrel = true;
@@ -140,7 +109,7 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
   if (fabs(cos(thesp)) > cos_barrel || fabs(cos(thespe)) > cos_barrel ) forward = true;
 
   double scf = 20.;
-  if (m_debug) std::cout << " error scaling in Curved fit " << scf << std::endl;
+  ATH_MSG_DEBUG(" error scaling in Curved fit " << scf);
   if (forward) scf = 2*scf;
   double scfn = 20.0;
   if (forward) scfn = 2*scfn;
@@ -184,7 +153,7 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
     ym(4,0)= cos(thetase)/sin(thetase);
   } else {
     imeth = 1;
-    if (m_debug) std::cout << " forward fit " << cos(thetas) << std::endl;
+    ATH_MSG_DEBUG(" forward fit " << cos(thetas));
     // Forward Track Model Matrix
     model(0,0) = 1.;
     model(1,0) = 1.;
@@ -219,7 +188,7 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
     ym(4,0)= tan(thetase);
     //   std::cout << " Forward zs " << zs << std::endl;
   }
-  if (m_debug) std::cout << " distance segments " << sqrt((zs-zse)*(zs-zse)+(rs-rse)*(rs-rse))<< std::endl;
+  ATH_MSG_DEBUG(" distance segments " << sqrt((zs-zse)*(zs-zse)+(rs-rse)*(rs-rse)) );
   
   for(int i = 0; i <3 ; ++i )  {
     v(i,0)= model(0,i)*ym(0,0)/ebs2 + model(1,i)*ym(1,0)/ers2 + model(2,i)*ym(2,0)/ets21
@@ -253,7 +222,7 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
 
   signedMomentum = (1./invcurvature)/10.;
 
-  if (m_debug) std::cout << " MuonSegmentMomentum in MeV " << (1./invcurvature)/10. << " theta fit " << theta << " cos theta " << cos(theta) << std::endl;
+  ATH_MSG_DEBUG(" MuonSegmentMomentum in MeV " << (1./invcurvature)/10. << " theta fit " << theta << " cos theta " << cos(theta) );
 
   // calculate residuals and chi2
   for(int i = 0; i <5 ; ++i )  {
@@ -261,8 +230,8 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
   }
   double chi2 = resi(0,0)*resi(0,0)/ebs2 + resi(1,0)*resi(1,0)/ers2 + resi(2,0)*resi(2,0)/ets21
     + resi(3,0)*resi(3,0)/ers2 + resi(4,0)*resi(4,0)/ets22;
-  if (m_debug) std::cout << " resi 00 " << resi(0,0) << " chi2 " << chi2 << std::endl;
-  if (m_debug) std:: cout << " Track parameters Matrix T00 " << t(0,0) << " T10 " << t(1,0) << " T20 " << t(2,0) << std::endl;
+  ATH_MSG_DEBUG("resi 00 " << resi(0,0) << " chi2 " << chi2);
+  ATH_MSG_DEBUG(" Track parameters Matrix T00 " << t(0,0) << " T10 " << t(1,0) << " T20 " << t(2,0) );
 
   // Reshuffle residuals  res(0) -> segment position in model (1,x)
   //                      res(1) -> segment angle in model (2,x)
@@ -283,22 +252,22 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
     if ( fabs( pull[i] ) > 5 ) toobig = true;
   }
 
-  if (toobig && m_debug) {
-    std::cout << " Pull too BIGFIT " << " rad pos1 " << rs << " rad pos2 " << rse << " ang1 " << thetas << " ang2 " << thetase << std::endl;
+  if (toobig) {
+    ATH_MSG_DEBUG(" Pull too BIGFIT " << " rad pos1 " << rs << " rad pos2 " << rse << " ang1 " << thetas << " ang2 " << thetase );
     double phisp  = atan2( segment1->globalPosition().y(), segment1->globalPosition().x());
     double phispe  = atan2( segment2->globalPosition().y(), segment2->globalPosition().x());
-    std::cout << " z pos1 " << zs << " z pos2 " << zse << " phi pos 1 " << phisp << " phi pos 2 " << phispe << std::endl;
+    ATH_MSG_DEBUG(" z pos1 " << zs << " z pos2 " << zse << " phi pos 1 " << phisp << " phi pos 2 " << phispe );
 
     Amg::Vector3D d1 = segment1->globalDirection();
     Amg::Vector3D d2 = segment2->globalDirection();
-    std::cout << " diff phi " << d1.x()*d2.y() - d1.y()*d2.x() << std::endl ;
+    ATH_MSG_DEBUG(" diff phi " << d1.x()*d2.y() - d1.y()*d2.x() );
   }
-  if (m_debug) std::cout << " Fit2MomentumSegments: residual 0 " << res[0] << " pull 0 " << pull[0] << " residual 1 " << res[1] << " pull 1 " << pull[1] << std::endl;
-  if (m_debug) std::cout << " Fit2MomentumSegments: residual 2 " << res[2] << " pull 2 " << pull[2] << " residual 3 " << res[3] << " pull 3 " << pull[3] << std::endl;
-  if (m_debug) std::cout << " radius 1  " << ym(1,0) << " cottan theta 1 " << ym(2,0) << " radius 2  " << ym(3,0)
-                       << " cottan theta 2 " << ym(4,0) << std::endl;
-  if (m_debug) std::cout << " radius fit 1  " << -(res[0]+ym(1,0)) << " cottan theta fit 1 " << -(res[1]+ym(2,0)) << " radius 2 fit  " << -(res[2]+ym(3,0))
-                       << " cottan theta 2 fit " << -(res[3]+ym(4,0)) << std::endl;
+  ATH_MSG_DEBUG( " Fit2MomentumSegments: residual 0 " << res[0] << " pull 0 " << pull[0] << " residual 1 " << res[1] << " pull 1 " << pull[1] );
+  ATH_MSG_DEBUG(" Fit2MomentumSegments: residual 2 " << res[2] << " pull 2 " << pull[2] << " residual 3 " << res[3] << " pull 3 " << pull[3] );
+  ATH_MSG_DEBUG(" radius 1  " << ym(1,0) << " cottan theta 1 " << ym(2,0) << " radius 2  " << ym(3,0)
+                       << " cottan theta 2 " << ym(4,0) );
+  ATH_MSG_DEBUG(" radius fit 1  " << -(res[0]+ym(1,0)) << " cottan theta fit 1 " << -(res[1]+ym(2,0)) << " radius 2 fit  " << -(res[2]+ym(3,0))
+                       << " cottan theta 2 fit " << -(res[3]+ym(4,0)) );
 }
 
 

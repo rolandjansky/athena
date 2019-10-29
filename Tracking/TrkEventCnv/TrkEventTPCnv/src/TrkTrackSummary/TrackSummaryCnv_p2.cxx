@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummary/TrackSummary.h"
@@ -15,11 +15,11 @@ void TrackSummaryCnv_p2::dbgPrint( const Trk::TrackSummary *t){
     std::cout << "m_nhitsdedx   :\t" << t->m_nhitsdedx << std::endl;
     
     std::cout << " std::vector m_information size: "<< t->m_information.size() <<std::endl;
-    for (std::vector<int>::const_iterator i=t->m_information.begin();i!=t->m_information.end();i++) std::cout<<"\t "<<(*i);
+    for (std::vector<int>::const_iterator i=t->m_information.begin();i!=t->m_information.end();++i) std::cout<<"\t "<<(*i);
     std::cout<<std::endl;
     
     std::cout << " std::vector m_eProbability size: "<< t->m_eProbability.size() <<std::endl;
-    for (std::vector<float>::const_iterator i=t->m_eProbability.begin();i!=t->m_eProbability.end();i++) std::cout<<"\t "<<(*i);
+    for (std::vector<float>::const_iterator i=t->m_eProbability.begin();i!=t->m_eProbability.end();++i) std::cout<<"\t "<<(*i);
     std::cout<<std::endl;
     
     if(t->m_indetTrackSummary){
@@ -94,25 +94,25 @@ void TrackSummaryCnv_p2::persToTrans( const Trk::TrackSummary_p2 *persObj, Trk::
         Trk::MuonTrackSummary *ts= new Trk::MuonTrackSummary();
         std::vector<unsigned int>::const_iterator i = persObj->m_muonTrackSummary.begin();
         
-        ts->m_nscatterers = *i; i++;
-        ts->m_npseudoMeasurements = *i; i++;
+        ts->m_nscatterers = *i; ++i;
+        ts->m_npseudoMeasurements = *i; ++i;
         
         size_t size=(s-2)/12;
         ts->m_chamberHitSummary.resize(size);
 
         for (size_t sc=0;  sc<size ; ++sc ){
-            ts->m_chamberHitSummary[sc].m_chId = Identifier(*i); i++;
-            ts->m_chamberHitSummary[sc].m_isMdt          =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_first.nhits      =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_first.nholes     =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_first.noutliers  =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_first.ndeltas    =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_first.ncloseHits =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_second.nhits     =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_second.nholes    =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_second.noutliers =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_second.ndeltas   =(*i);i++;
-            ts->m_chamberHitSummary[sc].m_second.ncloseHits=(*i);i++;
+            ts->m_chamberHitSummary[sc].m_chId = Identifier(*i); ++i;
+            ts->m_chamberHitSummary[sc].m_isMdt          =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_first.nhits      =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_first.nholes     =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_first.noutliers  =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_first.ndeltas    =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_first.ncloseHits =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_second.nhits     =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_second.nholes    =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_second.noutliers =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_second.ndeltas   =(*i);++i;
+            ts->m_chamberHitSummary[sc].m_second.ncloseHits=(*i);++i;
         }
         
         transObj->m_muonTrackSummary=ts;

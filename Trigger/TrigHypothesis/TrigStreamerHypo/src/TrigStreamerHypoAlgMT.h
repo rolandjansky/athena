@@ -20,12 +20,9 @@ class TrigStreamerHypoAlgMT : public ::HypoBase {
 
   TrigStreamerHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigStreamerHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private:
 
   ToolHandleArray<ITrigStreamerHypoToolMT> m_hypoTools {

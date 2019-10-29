@@ -50,7 +50,7 @@ public:
   typedef std::multiset<IOVEntry*,IOVEntryStartCritereon>::iterator startITR;
   typedef std::multiset<IOVEntry*,IOVEntryStopCritereon>::iterator  stopITR;
 
-  IOVEntry( const SG::DataProxy *proxy, IOVRange* range):
+  IOVEntry( SG::DataProxy *proxy, IOVRange* range):
     m_proxy(proxy), m_range(range), 
     m_removedStart(false), m_removedStop(false),
     m_startITR(0), m_stopITR(0) {}
@@ -63,6 +63,7 @@ public:
   IOVRange* range() const { return m_range; }
   void setRange( IOVRange* range) { m_range=range; }
 
+  SG::DataProxy* proxy() { return m_proxy; }
   const SG::DataProxy* proxy() const { return m_proxy; }
 
   bool removedStart() const { return m_removedStart; }
@@ -78,7 +79,7 @@ public:
   stopITR  getStopITR()  const { return m_stopITR;  }
 
 private:
-  const SG::DataProxy* m_proxy;
+  SG::DataProxy* m_proxy;
   IOVRange* m_range;
 
   bool m_removedStart;

@@ -1831,15 +1831,13 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 		InDetTimeCollection::const_iterator itrt_bcid = trtBCIDCollection->begin();
 
 		while (goodid_status == 0 && itrt_bcid != trtBCIDCollection->end()) {
-			if (!(*itrt_bcid)) continue;
-
-			const unsigned int trt_bcid = (*itrt_bcid)->second;
+			const unsigned int trt_bcid = (*itrt_bcid).second;
 
 			if (itrt_bcid > trtBCIDCollection->begin() && prev_bcid - trt_bcid == 0) {
 				goodid_status = 1;
 			} else if (itrt_bcid > trtBCIDCollection->begin() && prev_bcid - trt_bcid != 0) {
 				ATH_MSG_WARNING("TRT BCID is not consistent.  TRT RODID is " <<
-				                std::hex << (*itrt_bcid)->first << " trt bcid from ROD is " <<
+				                std::hex << (*itrt_bcid).first << " trt bcid from ROD is " <<
 				                std::hex << trt_bcid);
 			}
 

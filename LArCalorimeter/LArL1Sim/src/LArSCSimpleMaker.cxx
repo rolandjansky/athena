@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -20,7 +20,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "boost/foreach.hpp"
 #include <cmath>
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
@@ -86,7 +85,7 @@ StatusCode LArSCSimpleMaker::execute()
   std::vector<uint16_t> qualities (hash_max,0);
 
 
-  BOOST_FOREACH (const CaloCell* cell, *cells) {
+  for (const CaloCell* cell : *cells) {
     Identifier cell_id = cell->ID(); 
     Identifier sCellID  = m_scidtool->offlineToSuperCellID (cell_id);
 
@@ -156,7 +155,7 @@ StatusCode LArSCSimpleMaker::execute()
 	std::cout<<" cell, " <<tile_cell_id->print_to_string (cell_id)<< " " <<cell->eta()<< std::endl;
 	std::cout<<" sc, " <<tile_sc_id->print_to_string(sCellID)<<std::endl;
 	std::vector<Identifier> ids_in_SC  = m_scidtool->superCellToOfflineID (sCellID);
-	BOOST_FOREACH (Identifier id_in_SC, ids_in_SC)
+	for (Identifier id_in_SC : ids_in_SC)
 	  {
 	    std::cout<<" cells in sc " <<tile_cell_id->print_to_string(id_in_SC)<< std::endl;	    
 	  }

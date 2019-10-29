@@ -188,7 +188,9 @@ public:
                           std::string& /*tag*/, IOVRange& /*range*/, bool& /*retrieved*/,
                           unsigned long long& /*bytesRead*/, float& /*readTime*/) override
   { std::abort(); }
-    
+  virtual bool getKeyInfo(const std::string& /*key*/, IIOVDbSvc::KeyInfo& /*info*/) override
+  { std::abort(); }
+
   virtual bool dropObject(const std::string& /*key*/,
                           const bool /*resetCache*/=false) override
   { std::abort(); }

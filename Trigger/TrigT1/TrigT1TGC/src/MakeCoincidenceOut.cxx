@@ -35,64 +35,57 @@
 #define MaxNdig 4096
 
 namespace LVL1TGCTrigger {
-  extern bool g_OUTCOINCIDENCE;
-  extern TGCCoincidences * g_TGCCOIN;
   
   MakeCoincidenceOut::MakeCoincidenceOut(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator)
-    //m_ntuplePtr(0)
   {
-    declareProperty("InputData_perEvent",  m_key);
-    declareProperty("WriteMCtruth",  m_WriteMCtruth=true);
   }
   
   MakeCoincidenceOut::~MakeCoincidenceOut()
   {
-    if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "MakeCoincidenceOut destructor called" << endmsg;
-    }
+    ATH_MSG_DEBUG("MakeCoincidenceOut destructor called");
   }
   
   
   StatusCode MakeCoincidenceOut::initialize()
   {
-    if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "MakeCoincidenceOut::initialize() called" << endmsg;
-    }
-    msg(MSG::INFO) << "MakeCoincidenceOut initialize" << endmsg;
+    ATH_MSG_DEBUG("MakeCoincidenceOut::initialize() called");
+    ATH_MSG_INFO("MakeCoincidenceOut initialize");
     
     // get ID helper
     ATH_CHECK( m_muonIdHelperTool.retrieve() );    
 
-    if (0==g_OUTCOINCIDENCE) {
-      msg(MSG::INFO) << "You should make LVL1TGCTrigger::OUTCOINCIDENCE=1 in your jobOptions file" << endmsg;
+    if (0==m_OUTCOINCIDENCE) {
+      ATH_MSG_INFO("You should make LVL1TGCTrigger::OUTCOINCIDENCE=1 in your jobOptions file");
       return StatusCode::FAILURE;
     }
 
     StatusCode sc = bookHistos();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Cannot book histograms" << endmsg;
+      ATH_MSG_ERROR("Cannot book histograms");
       return StatusCode::FAILURE;
     }
+
+    m_TGCCOIN = new TGCCoincidences();
     
     return StatusCode::SUCCESS; 
   }
   
   StatusCode MakeCoincidenceOut::finalize()
   {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MakeCoincidenceOut::finalize() called" << endmsg;
+    ATH_MSG_DEBUG("MakeCoincidenceOut::finalize() called");
     return StatusCode::SUCCESS; 
   }
   
   
   StatusCode MakeCoincidenceOut::execute()
   {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MakeCoincidenceOut::execute() called" << endmsg;
+    ATH_MSG_DEBUG("MakeCoincidenceOut::execute() called");
 
     const EventInfo * evtInfo=0;
     StatusCode sc = evtStore()->retrieve(evtInfo, "McEventInfo");
     if (sc.isFailure()) {
-      msg(MSG::WARNING) << "Cannot retrieve EventInfo" << endmsg;
+      ATH_MSG_WARNING("Cannot retrieve EventInfo");
       m_runNumber=-1;
       m_eventNumber=-1;
     } else {
@@ -100,12 +93,12 @@ namespace LVL1TGCTrigger {
       m_eventNumber = (long int)(evtInfo->event_ID())->event_number();
     }
 
-    TGCCoincidences::iterator iss=g_TGCCOIN->begin(); 
+    TGCCoincidences::iterator iss=m_TGCCOIN->begin(); 
     m_nhpt=0;
-    if (g_TGCCOIN->size()>MaxNhpt) {
-      msg(MSG::WARNING) << "Number of Hpt triggers is " << g_TGCCOIN->size() << ", more than " << MaxNhpt << endmsg;
+    if (m_TGCCOIN->size()>MaxNhpt) {
+      ATH_MSG_WARNING("Number of Hpt triggers is " << m_TGCCOIN->size() << ", more than " << MaxNhpt);
     }
-    while( iss!=g_TGCCOIN->end() && m_nhpt<MaxNhpt) {
+    while( iss!=m_TGCCOIN->end() && m_nhpt<MaxNhpt) {
       m_hbid  [m_nhpt]=(*iss)->getBid();
       m_hsec  [m_nhpt]=(*iss)->getSLid();
       m_hmod  [m_nhpt]=(*iss)->getModule();
@@ -125,7 +118,7 @@ namespace LVL1TGCTrigger {
     const DataHandle<TgcDigitContainer> tgc_container;
     sc = evtStore()->retrieve(tgc_container, m_key);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << " Cannot retrieve TGC Digit Container " << endmsg;
+      ATH_MSG_ERROR(" Cannot retrieve TGC Digit Container ");
       return sc;
     }
 
@@ -152,7 +145,7 @@ namespace LVL1TGCTrigger {
       const DataHandle<McEventCollection> mcColl(0);
       sc = evtStore()->retrieve(mcColl,"TruthEvent");
       if (sc.isFailure() && !mcColl) {
-        msg(MSG::WARNING) << "Cannot retrieve McEventCollection. McEventCollection is recorded in simulation file?" << endmsg;
+        ATH_MSG_WARNING("Cannot retrieve McEventCollection. McEventCollection is recorded in simulation file?");
       } else {
 	McEventCollection::const_iterator itr;
 	m_nmuMC=0;
@@ -177,7 +170,7 @@ namespace LVL1TGCTrigger {
     // write 
     sc = ntupleSvc()->writeRecord("/NTUPLES/FILE1/merge");  
     if (!sc.isSuccess()) { 
-      msg(MSG::ERROR) << "Cannot fill ntuple" << endmsg;
+      ATH_MSG_ERROR("Cannot fill ntuple");
       return StatusCode::FAILURE;
     }
     
@@ -186,7 +179,7 @@ namespace LVL1TGCTrigger {
   
   
   StatusCode MakeCoincidenceOut::bookHistos() {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bookHistos is Called" << endmsg;
+    ATH_MSG_DEBUG("bookHistos is Called");
 
     StatusCode sc;
     
@@ -228,12 +221,12 @@ namespace LVL1TGCTrigger {
 	  if (sc.isSuccess()) sc = nt->addItem ("phiMC", m_nmuMC,m_phiMC);
 	}
       } else {
-        msg(MSG::ERROR) << "Cannot book this histo" << endmsg;
+        ATH_MSG_ERROR("Cannot book this histo");
 	return StatusCode::FAILURE;
       }
       
       if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Error happens during add an item..." << endmsg;
+        ATH_MSG_ERROR("Error happens during add an item...");
 	return sc;
       }
     }

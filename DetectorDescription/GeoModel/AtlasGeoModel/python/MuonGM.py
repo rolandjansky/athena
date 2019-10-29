@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
@@ -20,8 +20,8 @@ elif ( DetFlags.detdescr.Muon_on() ):
     import os
     GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].BuildFromNova = 0
     if ( ( not DetFlags.simulate.any_on() or DetFlags.overlay.any_on() ) and "AthSimulation_DIR" not in os.environ ):
-      GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = "MuonAlignmentDbTool/MGM_AlignmentDbTool"
+#      GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = "MuonAlignmentDbTool/MGM_AlignmentDbTool"
+        pass
     else:
-      GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = ""
       GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].UseConditionDb = 0
       GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].UseAsciiConditionData = 0

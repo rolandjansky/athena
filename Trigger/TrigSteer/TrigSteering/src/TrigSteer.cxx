@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -13,7 +13,6 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: TrigSteer.cxx,v 1.112 2009-05-05 20:29:14 tbold Exp $
  **********************************************************************************/
 
 #include <algorithm>
@@ -1241,23 +1240,17 @@ StatusCode TrigSteer::start()
 }
 
 
-// Exectued at every run-number change both online and offline
-StatusCode TrigSteer::endRun()
-{
-  // reset Navigation
-  m_navigation->reset();
-  ATH_MSG_DEBUG("Navigation reset for the last time");
-
-  if (!resetChains(m_chains) ) {
-    ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
 // Exectued once per offline job and for every new run online
 StatusCode TrigSteer::stop()
 {
+   // reset Navigation
+   m_navigation->reset();
+   ATH_MSG_DEBUG("Navigation reset for the last time");
+
+   if (!resetChains(m_chains) ) {
+      ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
+   }
+
    // OPI tools : finalHists()
    ToolHandleArray< IMonitorToolBase >::iterator itOPI    = m_opiTools.begin();
    ToolHandleArray< IMonitorToolBase >::iterator itOPIEnd = m_opiTools.end();

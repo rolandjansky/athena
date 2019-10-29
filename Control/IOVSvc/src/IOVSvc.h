@@ -91,13 +91,13 @@ public:
                               IOVRange& io) const override;
 
   /// Subscribe method for DataProxy. key StoreGate key
-  virtual StatusCode regProxy( const SG::DataProxy *proxy, 
+  virtual StatusCode regProxy( SG::DataProxy *proxy, 
                                const std::string& key,
                                const std::string& storeName) override;
 
   /// replace a registered DataProxy with a new version
-  virtual StatusCode replaceProxy( const SG::DataProxy *pOld,
-                                   const SG::DataProxy *pNew,
+  virtual StatusCode replaceProxy(       SG::DataProxy *pOld,
+                                         SG::DataProxy *pNew,
                                    const std::string& storeName) override;
 
 
@@ -106,7 +106,7 @@ public:
                                const std::string& storeName ) override;
 
 
-  virtual StatusCode deregProxy( const SG::DataProxy *proxy ) override;
+  virtual StatusCode deregProxy( SG::DataProxy *proxy ) override;
   virtual StatusCode deregProxy( const CLID& clid, const std::string& key ) override;
 
 
@@ -156,7 +156,7 @@ private:
   IIOVSvcTool* getTool( const std::string& storeName, 
                         bool createIF=true );
   IIOVSvcTool* getTool( const CLID& clid, const std::string& key) const;
-  IIOVSvcTool* getTool( const SG::DataProxy* proxy ) const;
+  IIOVSvcTool* getTool( SG::DataProxy* proxy ) const;
   IIOVSvcTool* getTool( const CallBackID& c1 ) const;
   IIOVSvcTool* getTool( const IAlgTool* ia ) const;
   std::string fullProxyName( const SG::DataProxy* proxy ) const;

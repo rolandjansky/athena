@@ -326,8 +326,8 @@ StatusCode QratCscClusterFitter::initialize() {
 //**********************************************************************
 
 const DataNames& QratCscClusterFitter::dataNames() const {
-  static DataNames dnames;
-  if ( ! dnames.size() ) {
+  auto init = [&](){
+    DataNames dnames;
     bool dofixed = false;
     bool docharge = false;
     if ( m_posopt_phi == "POLYNOMIAL"  ||  m_posopt_phi == "TABLE"  ||  m_posopt_phi == "ATANH") {
@@ -350,7 +350,9 @@ const DataNames& QratCscClusterFitter::dataNames() const {
       dnames.push_back("scordiff");
       dnames.push_back("dscordiff");
     }
-  }
+    return dnames;
+  };
+  static DataNames dnames ATLAS_THREAD_SAFE = init();
   return dnames;
 }
   

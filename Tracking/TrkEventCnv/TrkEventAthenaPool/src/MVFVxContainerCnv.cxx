@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -57,8 +57,8 @@ MVFVxContainer_PERS * MVFVxContainerCnv::createPersistent( MVFVxContainer* )
 MVFVxContainer * MVFVxContainerCnv::createTransient()
 {
     MsgStream log(msgSvc());
- static pool::Guid p1_guid( "D7BAA7AD-1A46-4DA3-9CA7-350A1A3F0656" );
- static pool::Guid p0_guid( "6C6999B7-F961-4B72-B6D9-DF71CB2364CC" );
+ static const pool::Guid p1_guid( "D7BAA7AD-1A46-4DA3-9CA7-350A1A3F0656" );
+ static const pool::Guid p0_guid( "6C6999B7-F961-4B72-B6D9-DF71CB2364CC" );
 
  MVFVxContainer *p_collection = 0;
  
@@ -83,7 +83,7 @@ MVFVxContainer * MVFVxContainerCnv::createTransient()
 
 void        MVFVxContainerCnv::readObjectFromPool( const std::string& token )
 {
-  static pool::Guid p1_guid( "D7BAA7AD-1A46-4DA3-9CA7-350A1A3F0656" );
+  static const pool::Guid p1_guid( "D7BAA7AD-1A46-4DA3-9CA7-350A1A3F0656" );
   
    // set the POOL token which will be used for reading from POOL
    setToken( token );

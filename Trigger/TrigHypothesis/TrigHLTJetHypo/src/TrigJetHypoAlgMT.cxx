@@ -16,17 +16,8 @@ TrigJetHypoAlgMT::TrigJetHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigJetHypoAlgMT::~TrigJetHypoAlgMT() {}
-
-StatusCode TrigJetHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode TrigJetHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
-  
   CHECK( m_hypoTools.retrieve() );
   
   CHECK( m_jetsKey.initialize() );

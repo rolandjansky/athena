@@ -7,7 +7,7 @@
 @brief Configuration of Pixel Monitoring Clusters, Tracks and Status Histograms for Run 3
 '''
 
-from PixelMonitoring.PixelAthMonitoringBase import define2DProfLayers, definePP0Histos
+from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, definePP0Histos
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx
@@ -20,6 +20,7 @@ runtext = ' (Run ' + str(runNumber) + ')'
 def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
     doOnline  = kwargs.get('doOnline',  False)
+    doLumiBlock = kwargs.get('doLumiBlock', False)
 
 ### begin status histograms
 
@@ -28,15 +29,14 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
     histoGroupName = 'Map_Of_Modules_Status' 
     title = 'Modules Status (0=Active+Good 1=Active+Bad 2=Inactive)'
-    define2DProfLayers(helper, alg, histoGroupName, title, path, type='TProfile2D')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
 
-    histoGroupName = 'Map_Of_Modules_Status_Mon'
     title = 'Modules Status Reset (0=Active+Good 1=Active+Bad 2=Inactive)'
-    define2DProfLayers(helper, alg, histoGroupName, title, path, type='TProfile2D', zmin=0, zmax=2, opt='kLBNHistoryDepth=2')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D', zmin=0, zmax=2, opt='kLBNHistoryDepth=2', histname='Map_Of_Modules_Status_Mon')
 
-    histoGroupName = 'Map_Of_Modules_Status_LB' 
-    title = 'Modules Status (0=Active+Good 1=Active+Bad 2=Inactive)'
-    define2DProfLayers(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lowStat')
+    if doLumiBlock:
+        title = 'Modules Status (0=Active+Good 1=Active+Bad 2=Inactive)'
+        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lowStat', histname='Map_Of_Modules_Status_LB')
 
     histoGroupName = 'BadModules_per_lumi'
     title          = 'Number of bad modules (bad+active) per event per LB'
@@ -55,15 +55,15 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
     histoGroupName = 'TSOS_Measurement' 
     title = 'TSOS of type Measurement'
-    define2DProfLayers(helper, alg, histoGroupName, title, path, type='TH2F')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
     histoGroupName = 'TSOS_Hole' 
     title = 'TSOS of type Hole'
-    define2DProfLayers(helper, alg, histoGroupName, title, path, type='TH2F')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
     histoGroupName = 'TSOS_Outlier' 
     title = 'TSOS of type Outlier'
-    define2DProfLayers(helper, alg, histoGroupName, title, path, type='TH2F')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
 
     histoGroupName = 'HitEff_all'
     title          = 'hit efficiency'
@@ -72,44 +72,39 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
     histoGroupName = 'HolesRatio' 
     title = 'Holes per track'
-    define2DProfLayers(helper, alg, histoGroupName, title, path, type='TProfile2D')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
 
     histoGroupName = 'MissHitsRatio' 
     title = 'Hole+Outlier per track'
-    define2DProfLayers(helper, alg, histoGroupName, title, path, type='TProfile2D')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
 
-
+    trackGroup = helper.addGroup(alg, 'Track')
     varName = 'res_phi'
     title = fullDressTitle('Pixel Residual LocX(phi)', False, ';Residual LocX(phi)',';# measurements on track')
-    trackGroup = helper.addGroup(alg, 'Track_res_phi')
     varName += ';Track_res_phi'
     trackGroup.defineHistogram(varName,
                                 type='TH1F', path=path, title=title,
                                 xbins=100, xmin=-0.1, xmax=0.1)
     varName = 'res_eta'
     title = fullDressTitle('Pixel Residual LocY(eta)', False, ';Residual LocY(eta)',';# measurements on track')
-    trackGroup = helper.addGroup(alg, 'Track_res_eta')
     varName += ';Track_res_eta'
     trackGroup.defineHistogram(varName,
                                 type='TH1F', path=path, title=title,
                                 xbins=100, xmin=-0.3, xmax=0.3)
     varName = 'pull_phi'
     title = fullDressTitle('Pixel Pull LocX(phi)', False, ';Pull LocX(phi)',';# measurements on track')
-    trackGroup = helper.addGroup(alg, 'Track_pulls_phi')
     varName += ';Track_pulls_phi'
     trackGroup.defineHistogram(varName,
                                 type='TH1F', path=path, title=title,
                                 xbins=100, xmin=-1.2, xmax=1.2)
     varName = 'pull_eta'
     title = fullDressTitle('Pixel Pull LocY(eta)', False, ';Pull LocY(eta)',';# measurements on track')
-    trackGroup = helper.addGroup(alg, 'Track_pulls_eta')
     varName += ';Track_pulls_eta'
     trackGroup.defineHistogram(varName,
                                 type='TH1F', path=path, title=title,
                                 xbins=100, xmin=-2.0, xmax=2.0)
     varName = 'fit_chi2byndf'
     title = fullDressTitle('chi2/ndf of track', False, ';#chi^{2}/DoF',';# of tracks')
-    trackGroup = helper.addGroup(alg, 'Track_chi2byndf')
     varName += ';Track_chi2byndf'
     trackGroup.defineHistogram(varName,
                                 type='TH1F', path=path, title=title,
@@ -117,7 +112,6 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
     varName = 'pixclusmontool_lb,ntrks_per_event'
     title = fullDressTitle('Number of tracks per event per LB', False, ';lumi block', ';tracks/event')
-    trackGroup = helper.addGroup(alg, 'tracksPerEvt_per_lumi')
     varName += ';tracksPerEvt_per_lumi'
     trackGroup.defineHistogram(varName,
                                 type='TProfile', path=path, title=title,
@@ -125,7 +119,6 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
     varName = 'pixclusmontool_lb,npixhits_per_track'
     title   = fullDressTitle('Number of pixhits per track per LB', False, ';lumi block', ';number of hits')
-    trackGroup = helper.addGroup(alg, 'NPixhits_per_track_lumi')
     varName += ';NPixhits_per_track_lumi'
     trackGroup.defineHistogram(varName,
                                 type='TH2F', path=path, title=title, weight='npixhits_per_track_wgt',
@@ -135,11 +128,11 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
     if doOnline:
         histoGroupName = 'HolesRatio_5min' 
         title = 'Holes per track reset every 5 min'
-        define2DProfLayers(helper, alg, histoGroupName, title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5')
+        define2DProfHist(helper, alg, 'HolesRatio', title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5', histname=histoGroupName)
 
         histoGroupName = 'MissHitsRatio_5min' 
         title = 'Hole+Outlier per track reset every 5 min'
-        define2DProfLayers(helper, alg, histoGroupName, title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5')
+        define2DProfHist(helper, alg, 'MissHitsRatio', title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5', histname=histoGroupName)
 
 ### end track histograms
 ### begin cluster histograms
@@ -149,25 +142,26 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
 ### begin cluster timing
 ###
+    clusterGroup = { True: helper.addGroup(alg, "Cluster_OnTrack" ),
+                     False: helper.addGroup(alg, "Cluster") }
     for ontrack in True,False:
         pathGroup = addOnTrackToPath(pathTiming, ontrack)
         varName = 'Cluster_LVL1A_lvl1a'
         title = fullDressTitle('Cluster Level 1 Accept', ontrack, ';LVL1A',';# clusters/event')
-        clusterGroup = helper.addGroup(alg, addOnTrackTxt('Cluster_LVL1A', ontrack) )
         varName += ';'+ addOnTrackTxt('Cluster_LVL1A', ontrack)
-        clusterGroup.defineHistogram(varName, 
-                                     type='TH1F', path=pathGroup, title=title,
-                                     xbins=14, xmin=-1.5, xmax=12.5)
+        clusterGroup[ontrack].defineHistogram(varName, 
+                                              type='TH1F', path=pathGroup, title=title,
+                                              xbins=14, xmin=-1.5, xmax=12.5)
 
         histoGroupName = addOnTrackTxt('Cluster_LVL1A_Mod', ontrack)
         title = addOnTrackTxt('Average cluster Level 1 Accept', ontrack, True)
-        define2DProfLayers(helper, alg, histoGroupName, title, pathGroup, type='TProfile2D')
+        define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TProfile2D')
 
         histoGroupName = addOnTrackTxt('Cluster_LVL1A_SizeCut', ontrack)
         title = addOnTrackTxt('Average Size>1 Cluster Level 1 Accept', ontrack, True)
-        define2DProfLayers(helper, alg, histoGroupName, title, pathGroup, type='TProfile2D')
+        define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TProfile2D')
 
-        varName = 'Cluster_LVL1A_lvl1a' # re-using sam e variable
+        varName = 'Cluster_LVL1A_lvl1a' # re-using same variable
         histoGroupName = addOnTrackTxt('Cluster_LVL1A_ToTCut', ontrack)
         xaxistext      = ';LVL1A'
         yaxistext      = ';# clusters/event'
@@ -203,7 +197,7 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
             histoGroupName = addOnTrackTxt('Cluster_Size_Map', ontrack)
             title = addOnTrackTxt('Average cluster size map', ontrack, True)
-            define2DProfLayers(helper, alg, histoGroupName, title, pathGroup, type='TProfile2D')
+            define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TProfile2D')
 
 ### 
 ### end cluster sizes
@@ -213,11 +207,10 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
         varName = 'pixclusmontool_lb,ncls_per_event'
         title = fullDressTitle('Average number of pixel clusters per event per LB', ontrack, ';lumi block', ';clusters/event')
-        trackGroup = helper.addGroup(alg, addOnTrackTxt('Clusters_per_lumi', ontrack) )
         varName += ';'+ addOnTrackTxt('Clusters_per_lumi', ontrack)
-        trackGroup.defineHistogram(varName,
-                                   type='TProfile', path=pathGroup, title=title,
-                                   xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
+        clusterGroup[ontrack].defineHistogram(varName,
+                                              type='TProfile', path=pathGroup, title=title,
+                                              xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
 
         histoGroupName = addOnTrackTxt('Clusters_per_lumi', ontrack)
         title          = addOnTrackTxt('Average number of pixel clusters per event per LB', ontrack, True)
@@ -227,11 +220,10 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
         if ontrack:
             varName = 'pixclusmontool_lb,cls_frac_ontrack'
             title = fullDressTitle('Fraction pixel clusters on track per event per LB', False, ';lumi block', ';fraction clusters/event')
-            trackGroup = helper.addGroup(alg, 'ClustersOnOffTrack_per_lumi' )
             varName += ';ClustersOnOffTrack_per_lumi'
-            trackGroup.defineHistogram(varName,
-                                   type='TProfile', path=pathGroup, title=title,
-                                   xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
+            clusterGroup[ontrack].defineHistogram(varName,
+                                                  type='TProfile', path=pathGroup, title=title,
+                                                  xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
 
 
             histoGroupName = 'num_clusters_per_track_per_lumi'
@@ -242,7 +234,7 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
         if doOnline:
             histoGroupName = addOnTrackTxt('ClusterMap_Mon', ontrack)
             title = addOnTrackTxt('Cluster map for monitoring', ontrack, True)
-            define2DProfLayers(helper, alg, histoGroupName, title, pathGroup, type='TH2D', zmin=0, zmax=1e4, opt='kLBNHistoryDepth=2') #FIXME zmax value w/ high stat
+            define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TH2D', zmin=0, zmax=1e4, opt='kLBNHistoryDepth=2') #FIXME zmax value w/ high stat
 
 ### 
 ### end cluster rates
@@ -252,21 +244,22 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
         histoGroupName = addOnTrackTxt('Cluster_Occupancy', ontrack)
         title = addOnTrackTxt('Cluster occupancy', ontrack, True)
-        define2DProfLayers(helper, alg, histoGroupName, title, pathGroup, type='TH2D')
+        define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TH2D')
 
         histoGroupName = addOnTrackTxt('Clus_Occ_SizeCut', ontrack)
         title = addOnTrackTxt('Size>1 Cluster occupancy', ontrack, True)
-        define2DProfLayers(helper, alg, histoGroupName, title, pathGroup, type='TH2D')
+        define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TH2D')
         if ontrack:
             histoGroupName = addOnTrackTxt('Cluster_Occupancy_PP0', ontrack)
             title = addOnTrackTxt('Average per module(FE) cluster occupancy reset every 5 min', ontrack, True)
             definePP0Histos(helper, alg, histoGroupName, title, pathGroup, opt='kLBNHistoryDepth=5')
 
 
-        pathGroup = addOnTrackToPath(pathLowStat, ontrack)
-        histoGroupName = addOnTrackTxt('Cluster_Occupancy_LB', ontrack)
-        title = addOnTrackTxt('Cluster occupancy lowStat', ontrack, True)
-        define2DProfLayers(helper, alg, histoGroupName, title, pathGroup, type='TH2D', lifecycle='lowStat')
+        if doLumiBlock:
+            pathGroup = addOnTrackToPath(pathLowStat, ontrack)
+            histoGroupName = addOnTrackTxt('Cluster_Occupancy_LB', ontrack)
+            title = addOnTrackTxt('Cluster occupancy lowStat', ontrack, True)
+            define2DProfHist(helper, alg, addOnTrackTxt('Cluster_Occupancy', ontrack), title, pathGroup, type='TH2D', lifecycle='lowStat', histname=histoGroupName)
 
 
 ### 

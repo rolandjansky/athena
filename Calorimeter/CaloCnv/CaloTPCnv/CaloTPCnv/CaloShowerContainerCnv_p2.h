@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTPCNV_CALOSHOWERCONTAINERCNV_P2_H
@@ -21,10 +21,14 @@ class CaloShowerContainerCnv_p2
   : public ITPCnvBase
 {
 public:
+  typedef CaloShowerContainer Trans_t;
+  typedef CaloShowerContainer_p2 Pers_t;
+
+
   CaloShowerContainerCnv_p2();
 
-  void persToTrans(const CaloShowerContainer_p2*, CaloShowerContainer*, MsgStream &);
-  void transToPers(const CaloShowerContainer*, CaloShowerContainer_p2*, MsgStream &);
+  void persToTrans(const CaloShowerContainer_p2*, CaloShowerContainer*, MsgStream &) const;
+  void transToPers(const CaloShowerContainer*, CaloShowerContainer_p2*, MsgStream &) const;
 
   /** Convert persistent object representation to transient
       @param pers [IN] void* pointer to the persistent object
@@ -32,7 +36,7 @@ public:
       @param log [IN] output message stream
   */
   virtual void persToTransUntyped(const void* pers, void* trans,
-                                  MsgStream& log);
+                                  MsgStream& log) override;
 
   /** Convert transient object representation to persistent
       @param trans [IN] void* pointer to the transient object
@@ -40,19 +44,20 @@ public:
       @param log [IN] output message stream
   */  
   virtual void transToPersUntyped(const void* trans, void* pers,
-                                  MsgStream& log);
+                                  MsgStream& log) override;
 
   /** return C++ type id of the transient class this converter is for
       @return std::type_info&
   */
-  virtual const std::type_info& transientTInfo() const;
+  virtual const std::type_info& transientTInfo() const override;
 
   /** return C++ type id of the persistent class this converter is for
       @return std::type_info&
   */
-  virtual const std::type_info& persistentTInfo() const;
+  virtual const std::type_info& persistentTInfo() const override;
 
- private:
+
+private:
   CaloClusterMomentContainerCnv_p1 m_momentContainerCnv;
   CaloSamplingDataContainerCnv_p1 m_samplingContainerCnv;
 

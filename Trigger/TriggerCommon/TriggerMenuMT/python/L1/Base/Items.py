@@ -156,6 +156,7 @@ class MenuItem(object):
 
     def json(self):
         confObj = odict()
+        confObj["name"] = self.name
         confObj["ctpid"] = self.ctpid
         confObj["definition"] = str(self.logic)
         if self.bunchGroups:

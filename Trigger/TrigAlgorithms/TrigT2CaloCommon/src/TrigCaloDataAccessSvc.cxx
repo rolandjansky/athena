@@ -192,7 +192,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
        cache->larContainer->eventNumber( context.evt() ) ;
   if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
 	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
-	cache->larContainer->updateBCID( *avg.cptr() ); 
+	if ( avg.cptr() ) cache->larContainer->updateBCID( *avg.cptr() ); 
   }
 
   unsigned int status(0);
@@ -319,7 +319,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
-  if ( cache->larContainer->initialize( m_applyOffsetCorrection ).isFailure() )
+  if ( cache->larContainer->initialize( ).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
   local_cell_copy.reserve(200000);
@@ -571,7 +571,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   cache->larContainer->eventNumber( context.evt() );
   if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
 	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
-	cache->larContainer->updateBCID( *avg.cptr() ); 
+	if ( avg.cptr() ) cache->larContainer->updateBCID( *avg.cptr() ); 
   }
   
   unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );

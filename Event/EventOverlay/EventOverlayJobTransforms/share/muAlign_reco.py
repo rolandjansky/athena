@@ -18,7 +18,7 @@ from IOVDbSvc.CondDB import conddb
 #                                      "/MUONALIGN/TGC/SIDEC"]
 
 #ToolSvc += MuonAlignmentDbTool
-MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
+#MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
 #MGM_AlignmentDbTool.OutputLevel=DEBUG
 #print MGM_AlignmentDbTool
 from AtlasGeoModel.MuonGM import GeoModelSvc

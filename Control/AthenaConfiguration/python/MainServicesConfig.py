@@ -86,6 +86,11 @@ def MainServicesThreadedCfg(cfgFlags):
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService( StoreGateSvc("ConditionStore") )
     
+    from AthenaServices.AthenaServicesConf import CoreDumpSvc
+    #438 is the logical or of  FATAL_ON_QUIT, FATAL_ON_INT, FATAL_DUMP_SIG, FATAL_DUMP_STACK, FATAL_DUMP_CONTEXT, FATAL_AUTO_EXIT
+    #as defiend in Control/AthenaServices/src/SetFatalHandler.h 
+    cfg.addService(CoreDumpSvc(FatalHandler = 438))
+
     cfg.setAppProperty('InitializationLoopCheck',False)
 
     ########################################################################

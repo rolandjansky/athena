@@ -1,11 +1,10 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "egammaCaloClusterSelector.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloCellList.h"
-#include <memory>
+
 egammaCaloClusterSelector::egammaCaloClusterSelector(const std::string& type, 
                                                      const std::string& name, 
                                                      const IInterface* parent) :
@@ -49,12 +48,6 @@ StatusCode egammaCaloClusterSelector::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_lateralCuts.size() != 0 && m_lateralCuts.size() != numBins) {
-    ATH_MSG_FATAL("The size of LateralCuts, now " <<  m_lateralCuts.size() 
-		  << ", must be zero or the number of Et bins: " <<  numBins);
-    return StatusCode::FAILURE;
-  }
-
   if (m_RetaCuts.size() != 0 && m_RetaCuts.size() != numBins) {
     ATH_MSG_FATAL("The size of RetaCuts, now " <<  m_RetaCuts.size() 
 		  << ", must be zero or the number of Et bins: " <<  numBins);
@@ -65,8 +58,6 @@ StatusCode egammaCaloClusterSelector::initialize()
 		  << ", must be zero or the number of Et bins: " <<  numBins);
     return StatusCode::FAILURE;
   }
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -75,66 +66,56 @@ StatusCode egammaCaloClusterSelector::finalize()
   return StatusCode::SUCCESS;
 }
 
-// ======================================================================
 bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) const
 {
-  // switch to using cluster properties, not layer 2 properties
+  /* Minimum Cluster energy*/
   if ( cluster->et() < m_ClusterEtCut ){
     ATH_MSG_DEBUG("Cluster failed Energy Cut: dont make ROI");
     return false;
   }
-  /* 
-   * If lower than the minimum one requested via the ranges
-   * return false.
-   * Only then run the  egammaCheckEnergyDepositTool or any other step.
-   */ 
-  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-  double emFrac(0.);
-  if (acc.isAvailable(*cluster)) {
-    emFrac = acc(*cluster);
-  } else if (!cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-    throw std::runtime_error("No EM fraction momement stored");
-  }
-  const double EMEt = cluster->et()*emFrac;
-  const double bin = findETBin(EMEt);
-  const double eta2   = fabs(cluster->etaBE(2));   
 
-  if (!m_EMEtRanges.empty() && bin<0){
-    ATH_MSG_DEBUG("Cluster EM Energy is lower than the lowest cut in EMEtRanges  dont make ROI");
-    return false;
-  }  
-
-  //Check energy deposit if requested
+  /*Check energy deposit if requested*/
   if( !m_egammaCheckEnergyDepositTool.empty() && 
       !m_egammaCheckEnergyDepositTool->checkFractioninSamplingCluster( cluster ) ) {
     ATH_MSG_DEBUG("Cluster failed sample check: dont make ROI");
     return false;
   }
   /*
-   * All other cuts are binned. 
-   * Pass if no binning is defined.
+   * All e/gamma cuts assume/need binning in Et. 
+   * Pass if no such binning is defined.
    */  
   if (m_EMEtRanges.empty()) {
-    // no ET bins defined, so pass
     return true;
   }
+  /*
+   * We need to have second sampling present.
+   * And calculate the EM energy and EM Et. 
+   */
+  if (!cluster->hasSampling(CaloSampling::EMB2) && !cluster->hasSampling(CaloSampling::EME2)){
+      return false;
+  }
+  const double eta2 = fabs(cluster->etaBE(2));
+  if(eta2>10){
+    return false;
+  }  
+  const double EMEnergy= cluster->energyBE(0)+cluster->energyBE(1)+cluster->energyBE(2)+cluster->energyBE(3);
+  const double EMEt = EMEnergy/cosh(eta2);
+  const double bin = findETBin(EMEt);
+  /* Check for the minimum EM Et required this should be the 0th entry in EMEtRanges*/
+  if (bin<0){
+    ATH_MSG_DEBUG("Cluster EM Et is lower than the lowest cut in EMEtRanges dont make ROI");
+    return false;
+  }
 
+  //use the egamma definition of EMFrac (includes presampler , helps with eff in the crack)
+  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
+  const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;
+  /* EM fraction cut*/
   if ( m_EMFCuts.size() != 0 && emFrac < m_EMFCuts[bin] ){
     ATH_MSG_DEBUG("Cluster failed EM Fraction cut: don't make ROI");
     return false;
   }
-
-  if (m_lateralCuts.size() != 0) {
-    double lateral(0.);
-    if (!cluster->retrieveMoment(xAOD::CaloCluster::LATERAL, lateral)){
-      throw std::runtime_error("No LATERAL momement stored");
-    }
-    if ( lateral >  m_lateralCuts[bin] ){
-      ATH_MSG_DEBUG("Cluster failed LATERAL cut: dont make ROI");
-      return false;
-    }
-  }
-
+  /* Reta and Rhad cuts*/
   if (m_doReta||m_doHadLeak) {
     // retrieve the cell containers
     SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
@@ -165,10 +146,10 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
         ATH_MSG_WARNING("call to Iso returns failure for execute");
         return false;
       }
-      const float ethad1 = info.ethad1;
-      const float ethad  = info.ethad;
-      const float raphad1 =EMEt > 0. ? ethad1/EMEt : 0.;
-      const float raphad = EMEt > 0. ? ethad/EMEt : 0.;
+      const double ethad1 = info.ethad1;
+      const double ethad  = info.ethad;
+      const double raphad1 =EMEt != 0. ? ethad1/EMEt : 0.;
+      const double raphad = EMEt != 0. ? ethad/EMEt : 0.;
       if (eta2 >= 0.8 && eta2 < 1.37){
         if (raphad>m_HadLeakCuts[bin]){
           ATH_MSG_DEBUG("Cluster failed Hadronic Leakage test: dont make ROI");
@@ -192,5 +173,4 @@ int egammaCaloClusterSelector::findETBin(double EMEt) const
     newBin++;
   }
   return newBin - 1;
-}
-     
+}    

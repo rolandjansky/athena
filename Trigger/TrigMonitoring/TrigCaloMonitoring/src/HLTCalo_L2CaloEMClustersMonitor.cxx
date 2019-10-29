@@ -51,12 +51,13 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   //////////////////
 
   unsigned int n_hlt_clusters = 0;
+  std::vector<float> vec_hlt_et, vec_hlt_eta, vec_hlt_phi, vec_hlt_size;
 
   auto HLT_num = Monitored::Scalar<int>("HLT_num",0);
-  auto HLT_et = Monitored::Scalar<float>("HLT_et",0.0);
-  auto HLT_eta = Monitored::Scalar<float>("HLT_eta",0.0);
-  auto HLT_phi = Monitored::Scalar<float>("HLT_phi",0.0);
-  auto HLT_size = Monitored::Scalar<float>("HLT_size",0.0);
+  auto HLT_et = Monitored::Collection("HLT_et", vec_hlt_et);
+  auto HLT_eta = Monitored::Collection("HLT_eta", vec_hlt_eta);
+  auto HLT_phi = Monitored::Collection("HLT_phi", vec_hlt_phi);
+  auto HLT_size = Monitored::Collection("HLT_size", vec_hlt_size);
 
   // Loop over HLT clusters
 
@@ -66,18 +67,16 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 	++n_hlt_clusters;
 
-	HLT_et = hlt_cluster->et() * 0.001;
-	HLT_eta = hlt_cluster->eta();
-	HLT_phi = hlt_cluster->phi();
-	HLT_size = hlt_cluster->nCells();
-
-	fill(m_mongroup_name, HLT_et, HLT_eta, HLT_phi, HLT_size);
+        vec_hlt_et.push_back(hlt_cluster->et() * 0.001);
+        vec_hlt_eta.push_back(hlt_cluster->eta());
+        vec_hlt_phi.push_back(hlt_cluster->phi());
+        vec_hlt_size.push_back(hlt_cluster->nCells());
 
   } // End loop over HLT clusters
 
   HLT_num = n_hlt_clusters;
 
-  fill(m_mongroup_name, HLT_num);
+  fill(m_mongroup_name, HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_size);
 
   //////////////////
   // OFF CLUSTERS //
@@ -88,32 +87,43 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   unsigned int n_off_clusters_with_match = 0;
 
   // OFF cluster
+  std::vector<float> vec_off_et, vec_off_eta, vec_off_phi;
+  std::vector<int> vec_off_type;
+
   auto OFF_num = Monitored::Scalar<int>("OFF_num",0);
-  auto OFF_et = Monitored::Scalar<float>("OFF_et",0.0);
-  auto OFF_eta = Monitored::Scalar<float>("OFF_eta",0.0);
-  auto OFF_phi = Monitored::Scalar<float>("OFF_phi",0.0);
-  auto OFF_type = Monitored::Scalar<int>("OFF_type",0);
+  auto OFF_et = Monitored::Collection("OFF_et", vec_off_et);
+  auto OFF_eta = Monitored::Collection("OFF_eta", vec_off_eta);
+  auto OFF_phi = Monitored::Collection("OFF_phi", vec_off_phi);
+  auto OFF_type = Monitored::Collection("OFF_type", vec_off_type);
 
   // OFF cluster without HLT match
+  std::vector<float> vec_off_no_hlt_match_et, vec_off_no_hlt_match_eta, vec_off_no_hlt_match_phi;
+  std::vector<int> vec_off_no_hlt_match_type;
+
   auto OFF_no_HLT_match_num = Monitored::Scalar<int>("OFF_no_HLT_match_num",0);
-  auto OFF_no_HLT_match_et = Monitored::Scalar<float>("OFF_no_HLT_match_et",0.0);
-  auto OFF_no_HLT_match_eta = Monitored::Scalar<float>("OFF_no_HLT_match_eta",0.0);
-  auto OFF_no_HLT_match_phi = Monitored::Scalar<float>("OFF_no_HLT_match_phi",0.0);
-  auto OFF_no_HLT_match_type = Monitored::Scalar<int>("OFF_no_HLT_match_type",0);
+  auto OFF_no_HLT_match_et = Monitored::Collection("OFF_no_HLT_match_et", vec_off_no_hlt_match_et);
+  auto OFF_no_HLT_match_eta = Monitored::Collection("OFF_no_HLT_match_eta", vec_off_no_hlt_match_eta);
+  auto OFF_no_HLT_match_phi = Monitored::Collection("OFF_no_HLT_match_phi", vec_off_no_hlt_match_phi);
+  auto OFF_no_HLT_match_type = Monitored::Collection("OFF_no_HLT_match_type", vec_off_no_hlt_match_type);
 
   // OFF cluster with HLT match
+  std::vector<float> vec_off_with_hlt_match_et, vec_off_with_hlt_match_eta, vec_off_with_hlt_match_phi;
+  std::vector<int> vec_off_with_hlt_match_type;
+
   auto OFF_with_HLT_match_num = Monitored::Scalar<int>("OFF_with_HLT_match_num",0);
-  auto OFF_with_HLT_match_et = Monitored::Scalar<float>("OFF_with_HLT_match_et",0.0);
-  auto OFF_with_HLT_match_eta = Monitored::Scalar<float>("OFF_with_HLT_match_eta",0.0);
-  auto OFF_with_HLT_match_phi = Monitored::Scalar<float>("OFF_with_HLT_match_phi",0.0);
-  auto OFF_with_HLT_match_type = Monitored::Scalar<int>("OFF_with_HLT_match_type",0);
+  auto OFF_with_HLT_match_et = Monitored::Collection("OFF_with_HLT_match_et", vec_off_with_hlt_match_et);
+  auto OFF_with_HLT_match_eta = Monitored::Collection("OFF_with_HLT_match_eta", vec_off_with_hlt_match_eta);
+  auto OFF_with_HLT_match_phi = Monitored::Collection("OFF_with_HLT_match_phi", vec_off_with_hlt_match_phi);
+  auto OFF_with_HLT_match_type = Monitored::Collection("OFF_with_HLT_match_type", vec_off_with_hlt_match_type);
 
   // OFF clusters vs. HLT clusters
-  auto HLT_vs_OFF_minimum_delta_r = Monitored::Scalar<float>("HLT_vs_OFF_minimum_delta_r",0.0);
-  auto HLT_vs_OFF_minimum_delta_eta = Monitored::Scalar<float>("HLT_vs_OFF_minimum_delta_eta",0.0);
-  auto HLT_vs_OFF_minimum_delta_phi = Monitored::Scalar<float>("HLT_vs_OFF_minimum_delta_phi",0.0);
-  auto HLT_vs_OFF_resolution = Monitored::Scalar<float>("HLT_vs_OFF_resolution",0.0);
-  auto HLT_match_et = Monitored::Scalar<float>("HLT_match_et",0.0);
+  std::vector<float> vec_hlt_vs_off_minimum_delta_r, vec_hlt_vs_off_delta_eta, vec_hlt_vs_off_delta_phi, vec_hlt_vs_off_resolution, vec_hlt_match_et;
+
+  auto HLT_vs_OFF_minimum_delta_r = Monitored::Collection("HLT_vs_OFF_minimum_delta_r", vec_hlt_vs_off_minimum_delta_r);
+  auto HLT_vs_OFF_delta_eta = Monitored::Collection("HLT_vs_OFF_delta_eta", vec_hlt_vs_off_delta_eta);
+  auto HLT_vs_OFF_delta_phi = Monitored::Collection("HLT_vs_OFF_delta_phi", vec_hlt_vs_off_delta_phi);
+  auto HLT_vs_OFF_resolution = Monitored::Collection("HLT_vs_OFF_resolution", vec_hlt_vs_off_resolution);
+  auto HLT_match_et = Monitored::Collection("HLT_match_et", vec_hlt_match_et);
 
   const xAOD::TrigEMCluster *hlt_match = nullptr; // For matching
 
@@ -133,12 +143,10 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 	++n_off_clusters;
 
-	OFF_et = off_cluster->et() * 0.001;
-	OFF_eta = off_cluster->eta();
-	OFF_phi = off_cluster->phi();
-	OFF_type = off_cluster->clusterSize();
-
-	fill(m_mongroup_name, OFF_et, OFF_eta, OFF_phi, OFF_type);
+        vec_off_et.push_back(off_cluster->et()*0.001);
+        vec_off_eta.push_back(off_cluster->eta());
+        vec_off_phi.push_back(off_cluster->phi());
+        vec_off_type.push_back(off_cluster->clusterSize());
 
 	// matching HLT clusters to OFF clusters
 
@@ -148,7 +156,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 		if (hlt_cluster->et() < m_HLT_min_et) continue;
 
-		float delta_r = calculateDeltaR(off_cluster->eta(), off_cluster->phi(), hlt_cluster->eta(), hlt_cluster->phi());
+		float delta_r = calculateDeltaR(m_max_delta_r, off_cluster->eta(), off_cluster->phi(), hlt_cluster->eta(), hlt_cluster->phi());
 
 		if (delta_r < min_delta_r) {
 
@@ -158,20 +166,18 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 	} // End loop over HLT clusters
 
-	HLT_vs_OFF_minimum_delta_r = min_delta_r;
-	fill(m_mongroup_name, HLT_vs_OFF_minimum_delta_r);
+	vec_hlt_vs_off_minimum_delta_r.push_back(min_delta_r);
 
 	// No HLT match
 	if (min_delta_r >= m_max_delta_r) {
 
 		++n_off_clusters_no_match;
 
-		OFF_no_HLT_match_et = off_cluster->et() * 0.001;
-		OFF_no_HLT_match_eta = off_cluster->eta();
-		OFF_no_HLT_match_phi = off_cluster->phi();
-		OFF_no_HLT_match_type = off_cluster->clusterSize();
+		vec_off_no_hlt_match_et.push_back(off_cluster->et()*0.001);
+                vec_off_no_hlt_match_eta.push_back(off_cluster->eta());
+                vec_off_no_hlt_match_phi.push_back(off_cluster->phi());
+                vec_off_no_hlt_match_type.push_back(off_cluster->clusterSize());
 
-		fill(m_mongroup_name, OFF_no_HLT_match_et, OFF_no_HLT_match_eta, OFF_no_HLT_match_phi, OFF_no_HLT_match_type);
 	}
 
 	// With HLT match
@@ -179,17 +185,16 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 		++n_off_clusters_with_match;
 
-		OFF_with_HLT_match_et = off_cluster->et() * 0.001;
-		OFF_with_HLT_match_eta = off_cluster->eta();
-		OFF_with_HLT_match_phi = off_cluster->phi();
-		OFF_with_HLT_match_type = off_cluster->clusterSize();
-		HLT_match_et = hlt_match->et() * 0.001;
+		vec_off_with_hlt_match_et.push_back(off_cluster->et()*0.001);
+                vec_off_with_hlt_match_eta.push_back(off_cluster->eta());
+                vec_off_with_hlt_match_phi.push_back(off_cluster->phi());
+                vec_off_with_hlt_match_type.push_back(off_cluster->clusterSize());
+                vec_hlt_match_et.push_back(hlt_match->et() * 0.001);
 
-		HLT_vs_OFF_resolution = ((off_cluster->et() - hlt_match->et()) / off_cluster->et()) * 100;
-		HLT_vs_OFF_minimum_delta_eta = off_cluster->eta() - hlt_match->eta();
-		HLT_vs_OFF_minimum_delta_phi = calculateDeltaPhi(off_cluster->phi(), hlt_match->phi());
+                vec_hlt_vs_off_resolution.push_back(((off_cluster->et() - hlt_match->et()) / off_cluster->et()) * 100);
+                vec_hlt_vs_off_delta_eta.push_back(off_cluster->eta() - hlt_match->eta());
+                vec_hlt_vs_off_delta_phi.push_back(calculateDeltaPhi(off_cluster->phi(), hlt_match->phi()));
 
-		fill(m_mongroup_name, OFF_with_HLT_match_et, HLT_match_et, OFF_with_HLT_match_eta, OFF_with_HLT_match_phi, OFF_with_HLT_match_type, HLT_vs_OFF_resolution, HLT_vs_OFF_minimum_delta_eta, HLT_vs_OFF_minimum_delta_phi);
 	}
 
   } // End loop over OFF clusters
@@ -198,14 +203,17 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   OFF_no_HLT_match_num = n_off_clusters_no_match;
   OFF_with_HLT_match_num = n_off_clusters_with_match;
 
-  fill(m_mongroup_name, OFF_num, OFF_no_HLT_match_num, OFF_with_HLT_match_num);
+  fill(m_mongroup_name, OFF_num, OFF_et, OFF_eta, OFF_phi, OFF_type, OFF_no_HLT_match_num, HLT_vs_OFF_minimum_delta_r, OFF_no_HLT_match_et, OFF_no_HLT_match_eta, OFF_no_HLT_match_phi, OFF_no_HLT_match_type, OFF_with_HLT_match_num, OFF_with_HLT_match_et, HLT_match_et, OFF_with_HLT_match_eta, OFF_with_HLT_match_phi, OFF_with_HLT_match_type, HLT_vs_OFF_resolution, HLT_vs_OFF_delta_eta, HLT_vs_OFF_delta_phi);
 
   return StatusCode::SUCCESS;
 }
 
 
-float HLTCalo_L2CaloEMClustersMonitor::calculateDeltaR( float eta_1, float phi_1, float eta_2, float phi_2 ) const {
+float HLTCalo_L2CaloEMClustersMonitor::calculateDeltaR( float max_deltar, float eta_1, float phi_1, float eta_2, float phi_2 ) const {
+  // reject the match as early as possible to avoid the expensive delta r calculation
+  if (fabs(eta_1-eta_2) > max_deltar) return 99.9;
   double DeltaPhi = calculateDeltaPhi(phi_1, phi_2);
+  if (DeltaPhi > max_deltar) return 99.9;
   return sqrt( ((eta_1-eta_2)*(eta_1-eta_2)) + (DeltaPhi*DeltaPhi) );
 }
 

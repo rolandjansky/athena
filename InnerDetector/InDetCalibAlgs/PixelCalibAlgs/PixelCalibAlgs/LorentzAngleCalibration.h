@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LorentzAngleCalibration_h
@@ -15,14 +15,16 @@ namespace PixelCalib{
 class LorentzAngleCalibration{
 
 public :
-	LorentzAngleCalibration(int layer = 0, std::string cosmicORbeam="beam");
+	LorentzAngleCalibration(int layer = 0, const std::string& cosmicORbeam="beam");
 	virtual ~LorentzAngleCalibration(){};
+        LorentzAngleCalibration (const LorentzAngleCalibration&) = delete;
+        LorentzAngleCalibration& operator= (const LorentzAngleCalibration&) = delete;
 	bool Fill(Int_t Layer, Int_t EtaModule, Int_t PhiModule,
 			Double_t ClusterSize, Double_t Angle);
 	int Analyze(std::ofstream &logfile);
 	int Write();
 	int Read();
-	void PlotValidation(TCanvas *c1, std::string outname);
+	void PlotValidation(TCanvas *c1, const std::string& outname);
 	
 private:
 	int m_curLayer;

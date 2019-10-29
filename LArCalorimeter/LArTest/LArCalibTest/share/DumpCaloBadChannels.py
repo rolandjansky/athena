@@ -65,14 +65,6 @@ theDumper.FileName="list.txt"
 topSequence+=theDumper;
 
    
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=True
-theLArBadChannelTool.ASCIIFileName="/home/wlampl/LArCondPatcher/dead_dummy.txt"
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
-
-
 
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 

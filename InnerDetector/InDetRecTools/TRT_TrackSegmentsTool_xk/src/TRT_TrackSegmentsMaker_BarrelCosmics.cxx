@@ -70,7 +70,6 @@ StatusCode InDet::TRT_TrackSegmentsMaker_BarrelCosmics::initialize() {
   StatusCode sc = StatusCode::SUCCESS;
   
   // Initialize ReadHandle
-  ATH_CHECK(m_trtname.initialize());
   ATH_CHECK(m_driftCirclesName.initialize());
   // TRT
   if (detStore()->retrieve(m_trtid, "TRT_ID").isFailure()) {
@@ -155,7 +154,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<Id
   if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion()" << endmsg;
 
   clear();
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_driftCirclesName);
   if (not trtcontainer.isValid()) {
     msg(MSG::ERROR) << "m_trtcontainer is empty!!!" << endmsg;
     return;

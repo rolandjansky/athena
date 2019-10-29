@@ -5,7 +5,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
 
-viewAlgs, eventAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias')
+viewAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias')
 
 for viewAlg in viewAlgs:
         if "RoIs" in viewAlg.properties():

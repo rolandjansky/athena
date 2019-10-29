@@ -135,7 +135,15 @@ def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
           )
 
     #DQMD histos
-    dqmd_hist_path='DQMD/'
+    dqmd_hist_path='/LAr/DSPMonitoring/DQMD/'
+    darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
+    darray.defineHistogram('Ediff,Erange;DE_ranges', title='E_{online} - E_{offline} for all ranges : E_{offline} - E_{online} (MeV) : Energy range ',
+                           type='TH2F', path=dqmd_hist_path,
+                           xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
+                           ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
+                           #labels=?+lArDQGlobals.DSPRanges # how to put labels only on Y-axis ?
+          )
+    dqmd_hist_path='/LAr/DSPMonitoring/DQMD/'
     darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
     darray.defineHistogram('Ediff,Erange;DE_ranges', title='E_{online} - E_{offline} for all ranges : E_{offline} - E_{online} (MeV) : Energy range ',
                            type='TH2F', path=dqmd_hist_path,
@@ -144,14 +152,8 @@ def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                            #labels=?+lArDQGlobals.DSPRanges # how to put labels only on Y-axis ?
           )
 
-    Group.defineHistogram('Ediff,Erange;E_ranges_all', title='E_{online} - E_{offline} for all ranges : E_{offline} - E_{online} (MeV) : Energy range ',
-                           type='TH2F', path=dqmd_hist_path,
-                           xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
-                           ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
-                           #labels=?+lArDQGlobals.DSPRanges # how to put labels only on Y-axis ?
-          )
     #per partition, currently in one dir only
-    part_hist_path='perPartition/'
+    part_hist_path='/LAr/DSPMonitoring/perPartition/'
     darray.defineHistogram('Ediff;DE', title='E_{offline} - E_{online}:E_{offline} - E_{online}',
                            type='TH1F', path=part_hist_path,
                            xbins=lArDQGlobals.DSPEnergy_Bins, xmin=lArDQGlobals.DSPEnergy_Min, xmax=lArDQGlobals.DSPEnergy_Max)

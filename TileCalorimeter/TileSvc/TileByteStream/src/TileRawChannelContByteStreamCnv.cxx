@@ -103,6 +103,9 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
     cont->set_type (TileFragHash::OptFilterDsp);
   }
 
+  std::unordered_map<uint32_t,int> bsflags;
+  uint32_t flag;
+
   // iterate over all collections in a container and fill them
   for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
     TileRawChannelCollection* rawChannelCollection = cont->indexFindPtr (hash);
@@ -129,8 +132,37 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
       } else {
         m_decoder->fillCollection(robf[0], *rawChannelCollection, cont);
       }
+      flag = cont->get_bsflags();
+      auto result = bsflags.insert(std::pair<uint32_t, int>(flag, 1));
+      if (result.second == false) result.first->second++;
     } else {
-      rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);
+      ATH_MSG_DEBUG( "ROB  for " << ((isTMDB)?"TMDB ":"") << "drawer 0x" << MSG::hex << collID << MSG::dec << " not found in BS" );
+      uint32_t status = TileROD_Decoder::NO_ROB | TileROD_Decoder::CRC_ERR;
+      rawChannelCollection->setFragGlobalCRC(status);
+      ATH_MSG_DEBUG( "Status for " << ((isTMDB)?"TMDB ":"") << "drawer 0x" << MSG::hex << collID << " is 0x" << status << MSG::dec);
+    }
+  }
+
+  if (bsflags.size() > 1) {
+    int n=0;
+    for (const auto & elem : bsflags) {
+      if (elem.second > n) {
+        n = elem.second;
+        flag = elem.first;
+      }
+    }
+
+    if (flag != cont->get_bsflags()) {
+
+      uint32_t unit = ((flag & 0xC0000000) >> 30);
+      if ((flag & 0x30000000) < 0x30000000) unit += TileRawChannelUnit::OnlineOffset; // Online units in real data
+
+      ATH_MSG_DEBUG( "Changing units for " << ((isTMDB)?"TMDB ":"") << "RawChannelContainer from "
+                     << cont->get_unit() << " to " << unit << MSG::hex
+                     << " and BS flags from 0x" << cont->get_bsflags() << " to 0x" << flag << MSG::dec);
+
+      cont->set_unit((TileRawChannelUnit::UNIT)unit);
+      cont->set_bsflags(flag);
     }
   }
 

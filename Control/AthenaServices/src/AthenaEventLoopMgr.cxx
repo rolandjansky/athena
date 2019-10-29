@@ -316,6 +316,12 @@ StatusCode AthenaEventLoopMgr::initialize()
 
   CHECK( m_conditionsCleaner.retrieve() );
 
+  // Print if we override the event number using the one from secondary event
+  if (m_useSecondaryEventNumber)
+  {
+    info() << "Using secondary event number." << endmsg;
+  }
+
   return sc;
 }
 
@@ -646,24 +652,33 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
     
         // an option to override primary eventNumber with the secondary one in case of DoubleEventSelector
         if ( m_useSecondaryEventNumber ) {
+            unsigned long long eventNumberSecondary{};
             if ( !(pAttrList->exists("hasSecondaryInput") && (*pAttrList)["hasSecondaryInput"].data<bool>()) ) {
                 fatal() << "Secondary EventNumber requested, but secondary input does not exist!" << endmsg;
                 return StatusCode::FAILURE;
             }
             if ( pAttrList->exists("EventNumber_secondary") ) {
-                eventNumber = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
+                eventNumberSecondary = (*pAttrList)["EventNumber_secondary"].data<unsigned long long>();
             }
             else {
                 // try legacy EventInfo if secondary input did not have attribute list
                 // primary input should not have this EventInfo type
                 const EventInfo* pEventSecondary = eventStore()->tryConstRetrieve<EventInfo>();
                 if (pEventSecondary) {
-                    eventNumber = pEventSecondary->event_ID()->event_number();
+                    eventNumberSecondary = pEventSecondary->event_ID()->event_number();
                 }
                 else {
                     fatal() << "Secondary EventNumber requested, but it does not exist!" << endmsg;
                     return StatusCode::FAILURE;
                 }
+            }
+            if (eventNumberSecondary != 0) {
+                bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
+                                    0 == (m_nev % m_eventPrintoutInterval.value()));
+                if (doEvtHeartbeat) {
+                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "<<<===" << endmsg;
+                }
+                eventNumber = eventNumberSecondary;
             }
         }
     
@@ -1226,8 +1241,9 @@ StatusCode AthenaEventLoopMgr::installEventContext (EventContext& ctx,
   ctx.setEventID(pEvent);
   ctx.set(m_nev,0);
 
-  ctx.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
-                                                 conditionsRun) );
+  Atlas::setExtendedEventContext(ctx,
+                                 Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
+                                                              conditionsRun) );
   Gaudi::Hive::setCurrentContext( ctx );
 
   m_aess->reset( ctx );

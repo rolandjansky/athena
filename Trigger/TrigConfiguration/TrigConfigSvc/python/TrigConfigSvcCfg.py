@@ -37,16 +37,15 @@ def generateL1Menu( flags=None ):
     menuName = TriggerFlags.triggerMenuSetup() if flags is None else flags.Trigger.triggerMenuSetup
     log.info("Generating L1 menu %s", menuName)
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-    l1cfg = L1MenuConfig( menuName = menuName, outputFile = fileName )
-    log.info("Writing L1 menu file %s", fileName)
-    l1cfg.writeJSON()
-    # also still generate the old L1 xml
-
-
-    return fileName
+    l1cfg = L1MenuConfig( menuName = menuName )
+    outfile = l1cfg.writeJSON(outputFile = fileName)
+    if outfile is not None:
+        log.info("Wrote L1 menu file %s", outfile)
+    return outfile
 
 
 # configuration of L1ConfigSvc
+@memoize
 def getL1ConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaCommon.Logging import log
@@ -55,23 +54,32 @@ def getL1ConfigSvc( flags = None ):
     from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
     from AthenaCommon.AppMgr import theApp
     # generate menu file
-    generateL1Menu( flags=flags )
+    generatedFile = generateL1Menu( flags=flags )
 
     # configure config svc
     l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
-    l1XMLFile = findFileInXMLPATH( TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile )
+
     l1ConfigSvc.ConfigSource = "XML"
+    l1XMLFile = findFileInXMLPATH( TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile )
     l1ConfigSvc.XMLMenuFile = l1XMLFile
-    l1ConfigSvc.InputType = "file"
-    l1JsonFileName = getL1MenuFileName( flags )
-    l1ConfigSvc.JsonFileName = l1JsonFileName
-    theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     log.info( "Configured LVL1ConfigSvc with run 2 style input file : %s", l1XMLFile )
-    log.info( "Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFileName )
+
+    if generatedFile is None:
+        l1ConfigSvc.InputType = "none"
+        l1ConfigSvc.JsonFileName = ""
+        log.info( "Configured LVL1ConfigSvc with InputType='none'" )
+    else:
+        l1ConfigSvc.InputType = "file"
+        l1JsonFileName = generatedFile
+        l1ConfigSvc.JsonFileName = l1JsonFileName
+        log.info( "Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFileName )
+
+    theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     return l1ConfigSvc
 
 
 # configuration of HLTConfigSvc
+@memoize
 def getHLTConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaCommon.Logging import log
@@ -79,7 +87,7 @@ def getHLTConfigSvc( flags = None ):
     from AthenaCommon.AppMgr import theApp
     hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
     hltXMLFile = "None"
-    hltConfigSvc.ConfigSource = "Run3_Dummy"
+    hltConfigSvc.ConfigSource = "None"
     hltConfigSvc.XMLMenuFile = hltXMLFile
     hltConfigSvc.InputType = "file"
     hltJsonFileName = getHLTMenuFileName( flags )
@@ -89,14 +97,14 @@ def getHLTConfigSvc( flags = None ):
     log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
     return hltConfigSvc
 
-# provide both services in new JO
+# provide L1 config service in new JO
 def L1ConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     acc.addService( getL1ConfigSvc( flags ) )
     return acc
 
-# provide both services in new JO
+# provide HLT config service in new JO
 def HLTConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()

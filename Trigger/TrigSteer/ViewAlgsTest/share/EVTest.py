@@ -38,7 +38,7 @@ ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllCha
 l1Decoder.ctpUnpacker = ctpUnpacker
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="rois.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
-emUnpacker.ThresholdToChainMapping = ["EM7 : HLT_e8", "EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
+ThresholdToChainMapping = ["EM7 : HLT_e8", "EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
 
 l1Decoder.roiUnpackers = [emUnpacker]
 L1UnpackingSeq += l1Decoder
@@ -53,7 +53,7 @@ viewAlgsContainer = seqAND( "ViewAlgsContainer" )
 
 steps = [ parOR("step0Filtering"), parOR("step1InViewReco") ]
 steps[0] += seqFilter( "Step0EM", Inputs=["L1EM"], Outputs=["step0EM"],
-                      Chains=[ x.split(':')[-1].strip() for x in emUnpacker.ThresholdToChainMapping ] ) # all chains
+                      Chains=[ x.split(':')[-1].strip() for x in ThresholdToChainMapping ] ) # all chains
 
 
 from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg

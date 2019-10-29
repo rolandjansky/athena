@@ -81,9 +81,6 @@ class LArRawChannelGetter ( Configured )  :
                        "lowNoiseMG","highNoiseMG","unstableNoiseMG",
                        "lowNoiseLG","highNoiseLG","unstableNoiseLG"
                       ]
-                    #ToolSvc+=theLArRCBMasker
-                    from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                    ToolSvc+=LArBadChanTool()
                     theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
                     theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel]
                     ToolSvc+=theLArRawChannelBuilderToolBadChannel

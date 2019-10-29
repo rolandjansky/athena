@@ -243,7 +243,7 @@ namespace Muon {
     ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
       "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ToolHandle<MuonEDMPrinterTool> m_printer;
-    mutable ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool;
+    ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool;
     const MuonGM::MuonDetectorManager* m_detMgr;
 
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
@@ -251,7 +251,7 @@ namespace Muon {
     bool       m_doNtuple;
     TFile*     m_file;
     TTree*     m_tree;
-    mutable MuonHough::HitNtuple* m_ntuple;
+    mutable MuonHough::HitNtuple* m_ntuple ATLAS_THREAD_SAFE; // Marked as thread-safe because it's disabled when running multi-threaded
 
     SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames; 
     SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey;

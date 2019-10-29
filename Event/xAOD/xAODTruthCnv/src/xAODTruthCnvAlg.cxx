@@ -195,7 +195,13 @@ namespace xAODMaker {
 	    if (m_writeMetaData) {
 	      //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
 	      const EventStreamInfo* esi = nullptr;
-	      CHECK( m_inputMetaStore->retrieve(esi));
+	      std::vector<std::string> keys;
+	      m_inputMetaStore->keys<EventStreamInfo>(keys);
+	      if (keys.size() > 1) { // Multiple EventStreamInfo (default retrieve won't work), just take the first
+	        CHECK( m_inputMetaStore->retrieve(esi, keys[0]));
+	      } else {
+	        CHECK( m_inputMetaStore->retrieve(esi));
+	      }
 	      uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
                         
               ATH_CHECK( m_meta.maybeWrite (mcChannelNumber, *genEvt) );

@@ -1,4 +1,7 @@
-include("AthenaPoolDataModelTest/esdtoesd_base.py")
+import AthenaPoolCnvSvc.ReadAthenaPool
+from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+Stream1 = AthenaPoolOutputStream( "Stream1")
+Stream1.OutputFile = "ESDout.pool.root"
 
 svcMgr.EventSelector.InputCollections   = [ "/eos/atlas/atlascerngroupdisk/data-art/grid-output/21.0/Athena/x86_64-slc6-gcc62-opt/2018-12-08T2201/TrigAnalysisTest/test_physics_pp_v7_rdotoesdaod_grid/AOD.pool.root" ]
 #svcMgr.EventSelector.InputCollections   = [ "myESD.pool.root" ]

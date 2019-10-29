@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // DecisionHandling includes
 
@@ -22,27 +22,17 @@ DumpDecisions::DumpDecisions( const std::string& name,
   : AthReentrantAlgorithm( name, pSvcLocator ) 
 {}
 
-// Destructor
-///////////////
-DumpDecisions::~DumpDecisions() 
-{}
 
 // Athena Algorithm's Hooks
 ////////////////////////////
 StatusCode DumpDecisions::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
+  ATH_MSG_DEBUG ( "Initializing " << name() << "..." );
   CHECK( m_decisionKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode DumpDecisions::finalize() {
-  ATH_MSG_INFO ( "Finalizing " << name() << "..." );
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode DumpDecisions:: execute( const EventContext& ctx ) const {  
+StatusCode DumpDecisions:: execute( const EventContext& ctx ) const {
   using namespace TrigCompositeUtils;
   //  DecisionInput decisionInput;
   auto decisionInput = SG::makeHandle( m_decisionKey, ctx );

@@ -127,6 +127,10 @@ if TriggerFlags.doMT():
     from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
     svcMgr += getHLTConfigSvc()
 
+    from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+    svcMgr += TrigConfigSvc("TrigConfigSvc")
+    svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
+
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
     
@@ -228,19 +232,20 @@ for i in outSequence.getAllChildren():
 
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
 
+        ### Produce the trigger bits:
+        from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        topSequence += TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'WriteTrigDecisionToAOD' )
-        log.info('TrigDecision writing enabled')
+        bitsmakerTool = TriggerBitsMakerTool()
+        tdm = TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
+        tdm.BitsMakerTool = bitsmakerTool
+        topSequence += tdm
+        log.info('xTrigDecision writing enabled')
 
-        # Note: xAODMaker__TrigDecisionCnvAlg no longer needed. TrigDecisionMakerMT goes straight to xAOD
-        # Note: xAODMaker__TrigNavigationCnvAlg no longer needed. MT navigation is natively xAOD 
-        
-        # *** June 2019 TEMPORARY *** for use with TrigDecMakerMT until a proper config svc is available
-        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-        ServiceMgr += TrigConfigSvc("TrigConfigSvc")
-        ServiceMgr.TrigConfigSvc.PriorityList = ["run3_dummy", "ds", "xml"]
+        ### Produce the metadata:
+        from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+        md = TrigConf__xAODMenuWriterMT()
+        topSequence += md
+        log.info('TriggerMenu Metadata writing enabled')
 
         # Still need to produce Run-2 style L1 xAOD output
         topSequence += RoIBResultToAOD("RoIBResultToxAOD")
@@ -265,15 +270,15 @@ for i in outSequence.getAllChildren():
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
-from TrigDecisionTool.TrigDecisionToolConf import *
+
 
 if hasattr(ToolSvc, 'TrigDecisionTool'):
     if TriggerFlags.doMT():
-        ToolSvc.TrigDecisionTool.NavigationFormat = "TrigComposite"
-        # To pick up hacked config svc
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+        # No functional TDT in MT in RDOtoRDOTrigger
+        pass
     else:
     	# Causes TDT to use Run-1 style behaviour in this part of the transform
+        from TrigDecisionTool.TrigDecisionToolConf import *
         ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
         ToolSvc.TrigDecisionTool.UseAODDecision = True
 

@@ -14,12 +14,8 @@ TrigEgammaPrecisionCaloHypoAlgMT::TrigEgammaPrecisionCaloHypoAlgMT( const std::s
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigEgammaPrecisionCaloHypoAlgMT::~TrigEgammaPrecisionCaloHypoAlgMT() {}
 
 StatusCode TrigEgammaPrecisionCaloHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
-  
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_clustersKey.initialize() );
@@ -28,12 +24,7 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaPrecisionCaloHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit

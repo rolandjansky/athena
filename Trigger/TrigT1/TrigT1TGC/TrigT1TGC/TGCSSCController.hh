@@ -7,6 +7,7 @@
 
 #include "TrigT1TGC/TGCHighPtChipOut.hh"
 #include "TrigT1TGC/TGCSSCControllerOut.hh"
+#include "TrigT1TGC/TGCArguments.hh"
 
 namespace LVL1TGCTrigger {
 class TGCSectorLogic;
@@ -15,13 +16,15 @@ class TGCSectorLogic;
 
 class TGCSSCController {
 public:
-  TGCSSCController( const TGCSectorLogic* sL=0);  
+  TGCSSCController( TGCArguments*, const TGCSectorLogic* sL=0 );  
   virtual ~TGCSSCController(){} 
 
   TGCSSCControllerOut* distribute(TGCHighPtChipOut* wire[], TGCHighPtChipOut* strip);
   void setNumberOfWireHighPtBoard(int iData){m_NumberOfWireHighPtBoard = iData;};
   int getNumberOfWireHighPtBoard(){return m_NumberOfWireHighPtBoard;};
   void setRegion(TGCRegionType regionIn){ m_region=regionIn;};
+
+  TGCArguments* tgcArgs() const;
 
 private:
   const TGCSectorLogic* m_sectorLogic;
@@ -31,8 +34,11 @@ private:
   int getPhiPosInSSC(int chip, int block) const;
   int m_NumberOfWireHighPtBoard;
   TGCRegionType m_region;
+  TGCArguments* m_tgcArgs;
 };
-
+  inline TGCArguments* TGCSSCController::tgcArgs() const {
+    return m_tgcArgs;
+  }
 } //end of namespace bracket
 
 #endif

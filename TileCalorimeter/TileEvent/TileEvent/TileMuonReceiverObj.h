@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -41,17 +41,46 @@ class TileMuonReceiverObj {
 
   TileMuonReceiverObj( int id ) { m_id=id; }
 
-  TileMuonReceiverObj( int id, std::vector<bool> &decision)
-   { m_id=id; m_TileMuRcvDecision=decision; }
+  TileMuonReceiverObj( int id, const std::vector<bool> &decision)
+    : m_id(id),
+      m_TileMuRcvDecision(decision)
+  {
+  }
 
-  TileMuonReceiverObj( int id, std::vector<float> &thresholds)
-   { m_id=id; m_TileMuRcvThresholds=thresholds; }
+  TileMuonReceiverObj( int id, const std::vector<float> &thresholds)
+    : m_id(id),
+      m_TileMuRcvThresholds(thresholds)
+  {
+  }
 
-  TileMuonReceiverObj( int id, std::vector<float> &ene, std::vector<float> &time)
-   { m_id=id; m_TileMuRcvEne=ene; m_TileMuRcvTime=time; }
+  TileMuonReceiverObj( int id, const std::vector<float> &ene, const std::vector<float> &time)
+    : m_id(id),
+      m_TileMuRcvEne(ene),
+      m_TileMuRcvTime(time)
+   {
+   }
 
-  TileMuonReceiverObj( int id, std::vector<float> &ene, std::vector<float> &time, std::vector<bool> &decision)
-   { m_id=id; m_TileMuRcvEne=ene; m_TileMuRcvTime=time; m_TileMuRcvDecision=decision; }
+  TileMuonReceiverObj( int id, const std::vector<float> &ene, const std::vector<float> &time, const std::vector<bool> &decision)
+    : m_id(id),
+      m_TileMuRcvDecision(decision),
+      m_TileMuRcvEne(ene),
+      m_TileMuRcvTime(time)
+
+  {
+  }
+
+  TileMuonReceiverObj( int id,
+                       std::vector<float>&& ene,
+                       std::vector<float>&& time,
+                       std::vector<bool>&& decision,
+                       std::vector<float>&& thresholds)
+    : m_id(id),
+      m_TileMuRcvDecision(std::move(decision)),
+      m_TileMuRcvThresholds(std::move(thresholds)),
+      m_TileMuRcvEne(std::move(ene)),
+      m_TileMuRcvTime(std::move(time))
+  {
+  }
 
   // destructor
   //
@@ -59,16 +88,16 @@ class TileMuonReceiverObj {
   
   // set methods
   //
-  void Set(int id, std::vector<bool> &decision)
+  void Set(int id, const std::vector<bool> &decision)
    { m_id=id; m_TileMuRcvDecision=decision; }
 
-  void Set(int id, std::vector<float> &thresholds)
+  void Set(int id, const std::vector<float> &thresholds)
    { m_id=id; m_TileMuRcvThresholds=thresholds; }
 
-  void Set(int id, std::vector<float> &ene, std::vector<float> &time)
+  void Set(int id, const std::vector<float> &ene, const std::vector<float> &time)
    { m_id=id; m_TileMuRcvEne=ene; m_TileMuRcvTime=time; }
 
-  void Set(int id, std::vector<float> &ene, std::vector<float> &time, std::vector<bool> &decision)
+  void Set(int id, const std::vector<float> &ene, const std::vector<float> &time, const std::vector<bool> &decision)
    { m_id=id; m_TileMuRcvEne=ene; m_TileMuRcvTime=time; m_TileMuRcvDecision=decision; }
 
   // access methods

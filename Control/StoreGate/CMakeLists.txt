@@ -187,6 +187,12 @@ atlas_add_test( CondHandleKeyArray_test
    LINK_LIBRARIES StoreGateLib AthContainers TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( WriteCondHandle_test
+   SOURCES test/WriteCondHandle_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+ 
 atlas_add_test( WriteDecorHandleKeyArray_test
    SOURCES test/WriteDecorHandleKeyArray_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 

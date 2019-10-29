@@ -788,7 +788,7 @@ public:
   // It's an error if the non-key versions get called.
   virtual void persToTrans(const PERS* /*persObj*/,
                            TRANS* /*transObj*/,
-                           MsgStream& /*log*/) const override final
+                           MsgStream& /*log*/) const override /*final*/
   {
     throw std::runtime_error ("persToTrans called where persToTransWithKey required.");
   }
@@ -1081,6 +1081,9 @@ public:
   virtual void persToTrans(const PERS* persVect, TRANS* transVect, MsgStream &log);
   /// @copydoc TPPtrVectorCnv::transToPers()
   virtual void transToPers(const TRANS* transVect, PERS* persVect, MsgStream &log);
+
+  /// the TP converter used for vector elements
+  CONV 	m_elementCnv;
 };
 
 
@@ -1161,6 +1164,9 @@ public:
   virtual void transToPers(const TRANS* transVect, PERS* persVect, MsgStream &log) ;
 
   typedef typename TRANS::IDENTIFIABLE COLLECTION_t;
+
+  /// the TP converter used for vector elements
+  CONV 	m_elementCnv;
 };
 
 //---------------------------------------------------------------------------------
@@ -1183,6 +1189,9 @@ public:
   virtual void transToPers(const TRANS* transVect, PERS* persVect, MsgStream &log) ;
 
   typedef typename TRANS::IDENTIFIABLE COLLECTION_t;
+
+  /// the TP converter used for vector elements
+  CONV 	m_elementCnv;
 };
 
 

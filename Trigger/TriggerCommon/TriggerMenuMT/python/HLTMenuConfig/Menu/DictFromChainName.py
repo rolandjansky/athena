@@ -14,7 +14,7 @@ __doc__="Decoding of chain name into a dictionary"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
+logDict = logging.getLogger('TriggerMenuMT.menu.DictFromChainName')
 import re
 
 def getOverallL1item(chainName):
@@ -27,7 +27,15 @@ def getOverallL1item(chainName):
     assert '_L1' in chainName, 'ERROR IN CHAIN {}, missing L1 seed at the end i.e. _L1...' .format(chainName)
     # this assumes that the last string of a chain name is the overall L1 item
     cNameParts = chainName.split("_L1")
-    return 'L1_' + cNameParts[-1]
+    l1seed = 'L1_' + cNameParts[-1]
+    # For reference, remapping of L1seeds lived originally in LVL1MenuConfig/LVL1Menu/L1Seeds.py
+    # L1 collections can be read out from there in case they are needed again
+    if l1seed == 'L1_All':
+        return ''
+    if l1seed == 'L1_test': #Multiseeded chains are build like this
+        return 'L1_EM24VHI,L1_MU20'
+
+    return l1seed
 
 def getL1item(chainName):
     mainL1 = getOverallL1item(chainName)
@@ -77,8 +85,8 @@ def getEBPartFromParts( chainName, chainParts ):
     Checks if there is only one identifier
     """
     # ---- event building identifier ----
-    from EventBuildingInfo import AllowedEventBuildingIdentifiers
-    eventBuildTypes = set( AllowedEventBuildingIdentifiers ).intersection( chainParts )
+    from EventBuildingInfo import getAllEventBuildingIdentifiers
+    eventBuildTypes = set( getAllEventBuildingIdentifiers() ).intersection( chainParts )
     assert len(eventBuildTypes) <= 1, 'Chain {} has more than one Event Building identifier: {}, that is not supported'.format( chainName, eventBuildTypes)
     if eventBuildTypes:
         return eventBuildTypes.pop()

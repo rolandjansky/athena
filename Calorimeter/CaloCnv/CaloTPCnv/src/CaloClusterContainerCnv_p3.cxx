@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p3.h" 
@@ -23,8 +23,10 @@ void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3* pers
   trans->clear (SG::VIEW_ELEMENTS);
   trans->reserve(pers->m_vec.size());
 	  
-  if ( ! m_samplingDataContainerCnv.setIterator(&pers->m_samplingDataContainer,
-                                                pers->m_vec.size()))
+  CaloSamplingDataContainerCnv_p1::State samplingState;
+  if ( ! m_samplingDataContainerCnv.setState(&pers->m_samplingDataContainer,
+                                             pers->m_vec.size(),
+                                             samplingState))
   {
     REPORT_MESSAGE_WITH_CONTEXT(MSG::WARNING, "CaloClusterContainerCnv_p3")
       << "Not converting CaloClusterContainer.";
@@ -49,7 +51,8 @@ void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3* pers
     //Convert Cluster-quantities
     persToTrans(&(*itp),transCluster,log); 
     //Convert sampling data store
-    m_samplingDataContainerCnv.persToTrans(&(pers->m_samplingDataContainer),&(transCluster->m_dataStore));
+    m_samplingDataContainerCnv.persToTrans(&(pers->m_samplingDataContainer),&(transCluster->m_dataStore),
+                                           samplingState);
     
     //Convert moment store
     CaloClusterMomentStore::moment_store transStore;

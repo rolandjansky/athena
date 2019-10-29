@@ -24,6 +24,7 @@ Reco_tf.py \
 --inputRDOFile=${INPUT} \
 --outputAODFile=AOD.pool.root \
 --steering="doRDO_TRIG" \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

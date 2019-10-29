@@ -14,7 +14,7 @@
 #include "JetMonitoring/JetHistoPtTool.h"
 #include "JetMonitoring/JetHistoAttributeFiller.h"
 #include "JetMonitoring/JetHistoTriggEfficiency.h"
-#include "JetMonitoring/JetVarTool.h"
+#include "JetMonitoring/JetHistoVarTool.h"
 #include "JetMonitoring/JetHistoSelectSort.h"
 
 #include "JetMonitoring/JetSelectorAttributeRunII.h"
@@ -38,7 +38,7 @@ DECLARE_COMPONENT( JetHistoPtTool)
 DECLARE_COMPONENT( JetHistoTriggEfficiency)
 DECLARE_COMPONENT( JetHistoAttributeFiller)
 DECLARE_COMPONENT( JetHistoSelectSort)
-DECLARE_COMPONENT( JetVarTool)
+DECLARE_COMPONENT( JetHistoVarTool)
 
 DECLARE_COMPONENT( JetAttributeHisto )
 

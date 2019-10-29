@@ -8,20 +8,19 @@
 #define ITrigEgammaAnalysisBaseTool_H
 
 #include "AsgTools/IAsgTool.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IInterface.h"
-#include "TrigHLTMonitoring/IHLTMonTool.h"
-#include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
+//#include "GaudiKernel/ITHistSvc.h"
+//#include "GaudiKernel/IInterface.h"
+//#include "TrigHLTMonitoring/IHLTMonTool.h"
+//#include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 
 //#include "StoreGate/StoreGateSvc.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
+#include "TrigEgammaAnalysisTools/TrigEgammaInfo.h"
+#include "TrigEgammaAnalysisTools/IMonitoringGroupLookup.h"
 
-#include "TH1.h"
-#include "TH2.h"
-#include "TTree.h"
 #include <utility>
 
 
@@ -34,8 +33,8 @@ public:
   virtual StatusCode book()=0;
   virtual StatusCode execute()=0;
   virtual StatusCode finalize()=0;
-  virtual void setParent(IHLTMonTool *)=0;
-  virtual void setPlotTool(ToolHandle<ITrigEgammaPlotTool>)=0;
+//  virtual void setParent(IHLTMonTool *)=0;
+//  virtual void setPlotTool(ToolHandle<ITrigEgammaPlotTool>)=0;
   virtual void setDetail(bool)=0;
   virtual void setTP(bool)=0;
   virtual void setEmulation(bool)=0;
@@ -43,8 +42,9 @@ public:
   virtual void setAvgMu(const float, const float)=0;
   virtual void setPVertex(const float, const float)=0;
   virtual void setSGContainsRnn(bool)=0;
-  virtual void setSGContainsTrigPhoton(bool)=0; 
-  
+  virtual void setSGContainsTrigPhoton(bool)=0;
+  virtual void setMGLookup(SmartIF<IMonitoringGroupLookup> MGlookup) = 0;
+
   virtual StatusCode childInitialize(){return StatusCode::SUCCESS;};
   virtual StatusCode childBook(){return StatusCode::SUCCESS;};
   virtual StatusCode childExecute(){return StatusCode::SUCCESS;};

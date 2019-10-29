@@ -46,7 +46,8 @@ EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::s
   m_doBichsel(false),
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation
-  m_doPU(true)
+  m_doPU(true),
+  m_pixelID(nullptr)
 { 
 
   declareProperty("DeltaRayCut", m_DeltaRayCut = 117.);
@@ -71,16 +72,12 @@ StatusCode EnergyDepositionTool::initialize() {
   
   ATH_MSG_INFO("You are using EnergyDepositionTool for solid-state silicon detectors.");
 
+  ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
+
   //Setup distortions tool
   if (!m_disableDistortions) {
     ATH_MSG_DEBUG("Getting distortions tool");
-    if (!m_pixDistoTool.empty()) {
-      CHECK(m_pixDistoTool.retrieve());
-      ATH_MSG_DEBUG("Distortions tool retrieved");
-    }
-    else {
-      ATH_MSG_DEBUG("No distortions tool selected");
-    }
+    ATH_CHECK(m_distortionKey.initialize());
   }
 
   if(m_doBichsel){
@@ -317,14 +314,13 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, c
 void EnergyDepositionTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // If tool is NONE we apply no correction.
-  if (m_pixDistoTool.empty()) return;
   Amg::Vector3D dir(element->hitPhiDirection()*(xf-xi), element->hitEtaDirection()*(yf-yi), element->hitDepthDirection()*(zf-zi));
 
   Amg::Vector2D locposi = element->hitLocalToLocal(yi, xi);
   Amg::Vector2D locposf = element->hitLocalToLocal(yf, xf);
 
-  Amg::Vector2D newLocposi = m_pixDistoTool->correctSimulation(element->identify(), locposi, dir);
-  Amg::Vector2D newLocposf = m_pixDistoTool->correctSimulation(element->identify(), locposf, dir);
+  Amg::Vector2D newLocposi = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixelID->wafer_hash(element->identify()), locposi, dir);
+  Amg::Vector2D newLocposf = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixelID->wafer_hash(element->identify()), locposf, dir);
 
   // Extract new coordinates and convert back to hit frame.
   xi = newLocposi[Trk::x] * element->hitPhiDirection();

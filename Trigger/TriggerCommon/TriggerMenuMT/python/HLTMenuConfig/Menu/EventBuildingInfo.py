@@ -22,15 +22,11 @@ PartialEventBuildingIdentifiers = [
 
 # Data scouting identifiers and the corresponding HLT result ROBFragment module IDs
 # WARNING: Never change the module IDs during data taking!
+# WARNING: ID=0 is reserved for full HLT result
 DataScoutingIdentifiers = {
-  'JetDS': 5,
-  'PhotonDS': 6
+  'CostMonDS': 1,
+  'JetDS': 5
 }
-
-# Add DS identifiers to the allowed names
-AllowedEventBuildingIdentifiers = []
-AllowedEventBuildingIdentifiers.extend(PartialEventBuildingIdentifiers)
-AllowedEventBuildingIdentifiers.extend(DataScoutingIdentifiers.keys())
 
 
 def getDataScoutingResultID(name):
@@ -50,9 +46,13 @@ def getFullHLTResultID():
     return 0
 
 
+def getAllDataScoutingIdentifiers():
+    return DataScoutingIdentifiers.keys()
+
+
 def getAllPartialEventBuildingIdentifiers():
-    return DataScoutingIdentifiers.values()
+    return PartialEventBuildingIdentifiers
 
 
 def getAllEventBuildingIdentifiers():
-    return AllowedEventBuildingIdentifiers
+    return PartialEventBuildingIdentifiers + DataScoutingIdentifiers.keys()

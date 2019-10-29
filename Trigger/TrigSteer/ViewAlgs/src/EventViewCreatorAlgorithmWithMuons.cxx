@@ -27,8 +27,8 @@ EventViewCreatorAlgorithmWithMuons::~EventViewCreatorAlgorithmWithMuons() {}
 StatusCode EventViewCreatorAlgorithmWithMuons::initialize() {
 
   ATH_CHECK( EventViewCreatorAlgorithm::initialize() );
-  ATH_CHECK( m_inViewMuons.initialize() );
-  ATH_CHECK( m_inViewMuonCandidates.initialize() );
+  ATH_CHECK( m_inViewMuons.initialize(!m_doLateMu && !m_doFSRoI) );
+  ATH_CHECK( m_inViewMuonCandidates.initialize(!m_doLateMu && !m_doFSRoI) );
   ATH_CHECK( m_roisWriteHandleKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -48,6 +48,13 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = Atlas::getExtendedEventContext(context).conditionsRun();
+  double reta=0.;
+  double retap=0.;
+  double retam=0.;
+  double rphi=0.;
+  double rphip=0.;
+  double rphim=0.;
+  const xAOD::Muon *muon = nullptr;
 
   //map all RoIs that are stored
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;
@@ -99,16 +106,38 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 	for (auto input: inputLinks){
 	  const Decision* inputDecision = *input;
 
-	  // Retrieve muons ...
-	  ATH_MSG_DEBUG( "Checking there are muons linked to decision object" );
-	  TrigCompositeUtils::LinkInfo< xAOD::MuonContainer > muonELInfo = TrigCompositeUtils::findLink< xAOD::MuonContainer >( inputDecision,m_muonsLink );
-	  ATH_CHECK( muonELInfo.isValid() );
-	  const xAOD::Muon *muon = *muonELInfo.link;
-	  ATH_MSG_DEBUG( "Placing xAOD::MuonContainer " );
-	  ATH_MSG_DEBUG( "   -- pt="<< muon->p4().Et() <<" eta="<< muon->eta() << " muon="<< muon->phi() );
+	  if(m_doLateMu){
+	    // Retrieve late muon rois ...
+	    ATH_MSG_DEBUG( "Checking there are out-of-time rois linked to decision object" );
+	    TrigCompositeUtils::LinkInfo< TrigRoiDescriptorCollection > lateRoIELInfo = TrigCompositeUtils::findLink< TrigRoiDescriptorCollection >( inputDecision,m_lateRoIsLink );
+	    ATH_CHECK( lateRoIELInfo.isValid() );
+	    const TrigRoiDescriptor *lateRoI = *lateRoIELInfo.link;
+	    // parameters for RoI to record
+	    reta = lateRoI->eta();
+	    retap = lateRoI->etaPlus();
+	    retap = lateRoI->etaMinus();
+	    rphi = lateRoI->phi();
+	    rphip = lateRoI->phiPlus();
+	    rphip = lateRoI->phiMinus();
+	  }
+	  else{
+	    // Retrieve muons ...
+	    ATH_MSG_DEBUG( "Checking there are muons linked to decision object" );
+	    TrigCompositeUtils::LinkInfo< xAOD::MuonContainer > muonELInfo = TrigCompositeUtils::findLink< xAOD::MuonContainer >( inputDecision,m_muonsLink );
+	    ATH_CHECK( muonELInfo.isValid() );
+	    muon = *muonELInfo.link;
+	    ATH_MSG_DEBUG( "Placing xAOD::MuonContainer " );
+	    ATH_MSG_DEBUG( "   -- pt="<< muon->p4().Et() <<" eta="<< muon->eta() << " muon="<< muon->phi() );
 
-	  // create the RoI around muon
-	  auto roi = new TrigRoiDescriptor(muon->eta(), muon->eta()-m_roiEtaWidth, muon->eta()+m_roiEtaWidth, muon->phi(), muon->phi()-m_roiPhiWidth, muon->phi()+m_roiPhiWidth);
+	    // parameters for RoI around muon
+	    reta = muon->eta();
+	    retap = muon->eta()+m_roiEtaWidth;
+	    retap = muon->eta()-m_roiEtaWidth;
+	    rphi = muon->phi();
+	    rphip = muon->phi()+m_roiPhiWidth;
+	    rphip = muon->phi()-m_roiPhiWidth;
+	  }
+	  auto roi = new TrigRoiDescriptor(reta, retam, retap, rphi, rphim, rphip);
 	  roisWriteHandle->push_back( roi );
 	  const auto roiEL = ElementLink<TrigRoiDescriptorCollection>(*roisWriteHandle, roisWriteHandle->size() - 1, context);
 	  ATH_CHECK( roiEL.isValid() );
@@ -125,22 +154,18 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 	  ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
 	  ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
 	  ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), contexts.back() ) );
-	  ATH_CHECK( placeMuonInView( muon, viewVector->back(), contexts.back() ) );
+	  if(!m_doLateMu) ATH_CHECK( placeMuonInView( muon, viewVector->back(), contexts.back() ) );
 	}// loop over previous inputs
       }//Not FS view
     } // loop over decisions   
   }// loop over output keys
 
-  // debug option to reorder views
-  if ( m_reverseViews ) {
-    std::reverse( viewVector->begin(), viewVector->end() );
-  }
-
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
                                         m_viewNodeName,       // CF node to attach views to
                                         context,              // Source context
-                                        getScheduler() ) );
+                                        getScheduler(),
+                                        m_reverseViews ) );
 
   if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
   return StatusCode::SUCCESS;

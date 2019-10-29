@@ -881,7 +881,7 @@ namespace InDet
         if (myCandidate->chiSquared()<0 ||
             myCandidate->numberDoF()<0)
         {
-          msg(MSG::WARNING) << " Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate..." << endmsg;
+          msg(MSG::DEBUG) << " Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate..." << endmsg;
           delete myCandidate;
           myCandidate=0;
           continue;
@@ -2046,7 +2046,7 @@ namespace InDet
                                                                              myTwoTrackVerticesInJet,
                                                                              mySelectedTracksInJet);
       
-     myOutputInfo->getSVOwnership(true);
+     myOutputInfo->setSVOwnership(true);
 
 
      delete signalVertex;

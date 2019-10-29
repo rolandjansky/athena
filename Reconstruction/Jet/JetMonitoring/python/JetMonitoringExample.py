@@ -23,8 +23,7 @@ def jetMonitoringExampleConfig(inputFlags):
     # Declare a configuration dictionnary for a JetContainer
     from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
     #from JetMonitoring.JetStandardHistoSpecs import knownHistos
-
-    # Create a python dictionnary containing the configuration options related to 1 JetContainer.
+    
     # we use a specialized dictionnary (JetMonAlgSpec) which will be translated into the final C++ tool
     ak4conf = JetMonAlgSpec(
         "ak4lcMon",

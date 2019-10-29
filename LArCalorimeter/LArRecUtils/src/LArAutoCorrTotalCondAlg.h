@@ -53,7 +53,6 @@ private:
   bool m_NoPile;
   bool m_isMC;
   bool m_isSuperCell;
-  bool m_useMixedOFCOpt;
   int m_Nsamples;
   unsigned int m_firstSample;
   int m_deltaBunch;

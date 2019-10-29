@@ -39,8 +39,8 @@ if jetFlags.detailLevel()==JetContentDetail.Reduced:
     jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo_reduced", "lctopo_ungroomed", ghostArea=0.01, ptmin= 40000, ptminFilter=50000, calibOpt="none")
   if jetFlags.usePFlow():
     jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow_reduced", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 10000, calibOpt=calibopt+":pflow")
-  # if jetFlags.useTruth():
-  #   jtm.addJetFinder("AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ptmin= 5000)
+  if jetFlags.useTruth():
+    jtm.addJetFinder("AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ptmin= 5000)
 elif jetFlags.detailLevel()>=JetContentDetail.Full:
   if jetFlags.useTruth():
     jtm.addJetFinder("AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ptmin= 5000)

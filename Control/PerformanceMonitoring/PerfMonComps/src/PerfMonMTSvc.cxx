@@ -102,7 +102,7 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
    * for PerfMonMTSvc. There are some components before it. We miss them.
    * It should be fixed.
    */
-  if( compName != "PerfMonMTSvc" ){  
+  if( compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc" ){
     startSnapshotAud(stepName, compName);
 
     if( !isLoop() ) 
@@ -117,7 +117,7 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
 void PerfMonMTSvc::stopAud( const std::string& stepName,
                             const std::string& compName ) {
  
-  if( compName != "PerfMonMTSvc" ){
+  if( compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc" ){
     stopSnapshotAud(stepName, compName);
 
     if( !isLoop() ) 

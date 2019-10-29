@@ -14,10 +14,9 @@ TrigEFTauMVHypoAlgMT::TrigEFTauMVHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigEFTauMVHypoAlgMT::~TrigEFTauMVHypoAlgMT() {}
 
 StatusCode TrigEFTauMVHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
+
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_tauJetKey.initialize() );
   renounce( m_tauJetKey );// tau candidates are made in views, so they are not in the EvtStore: hide them
@@ -25,9 +24,6 @@ StatusCode TrigEFTauMVHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEFTauMVHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );

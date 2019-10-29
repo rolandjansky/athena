@@ -47,7 +47,6 @@
 // StoreGateSvc. must come before SGImplSvc.h
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/tools/SGImplSvc.h"
-#include "boost/foreach.hpp"
 
 using std::ostringstream;
 using std::setw;
@@ -1774,7 +1773,7 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
 
     // Handle copy conversions.
     {
-      BOOST_FOREACH(CLID copy_clid, bib->get_copy_conversions()) {
+      for (CLID copy_clid : bib->get_copy_conversions()) {
         if (m_pStore->addSymLink (copy_clid, dp).isFailure()) {
           warning() << "record_impl: Doing auto-symlinks for object with CLID "
                     << clid

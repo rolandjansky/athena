@@ -787,13 +787,17 @@ if __name__=="__main__":
 
     cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
     outstream = cfg.getEventAlgo("OutputStreamESD")
-    outstream.OutputLevel=DEBUG
+    # outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
 
+    # Show slots & events
+    # msgService = cfg.getService('MessageSvc')
+    # msgService.Format = "S:%s E:%e % F%48W%S%7W%R%T  %0W%M"
+
     # Fix for ATLASRECTS-5151
-    from MuonEventCnvTools.MuonEventCnvToolsConf import Muon__MuonEventCnvTool
-    cnvTool = Muon__MuonEventCnvTool(name='MuonEventCnvTool')
-    cnvTool.FixTGCs = True
+    from  TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool
+    cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
+    cnvTool.MuonCnvTool.FixTGCs = True 
     cfg.addPublicTool(cnvTool)
     
     # cfg.getService("StoreGateSvc").Dump = True

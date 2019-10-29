@@ -3,11 +3,11 @@
 */
 
 #include "SCT_Digitization.h"
-#include "SCT_DigitizationTool.h"
+#include "PileUpTools/IPileUpTool.h"
 
 //----------------------------------------------------------------------
 // Constructor with parameters:
-//---------------------------------------------------------------------- 
+//----------------------------------------------------------------------
 SCT_Digitization::SCT_Digitization(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
@@ -23,17 +23,9 @@ StatusCode SCT_Digitization::initialize() {
 
 //----------------------------------------------------------------------
 // Execute method:
-//---------------------------------------------------------------------- 
+//----------------------------------------------------------------------
 
 StatusCode SCT_Digitization::execute() {
   ATH_MSG_DEBUG("execute()");
   return m_sctDigitizationTool->processAllSubEvents();
-} 
-
-//----------------------------------------------------------------------//
-// Finalize method:                                                     //
-//----------------------------------------------------------------------//
-StatusCode SCT_Digitization::finalize() {
-  ATH_MSG_DEBUG("SCT_Digitization::finalize()");
-  return StatusCode::SUCCESS;
 }

@@ -116,7 +116,7 @@ namespace Muon {
       if(!simDataMap.isPresent()) continue;
       muonSimData.push_back(simDataMap.cptr());
     }
-    if(!m_hasCSC){
+    if(m_hasCSC){
       SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
       if(!cscSimDataMap.isValid()){
         ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");

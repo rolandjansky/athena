@@ -37,11 +37,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__ReadMeta
 svcMgr.MetaDataSvc.MetaDataTools += [ "AthPoolEx::ReadMeta" ]
 
-"""
-from EventBookkeeperTools.EventBookkeeperToolsConf import EventBookkeeperMetaDataTool
-svcMgr.MetaDataSvc.MetaDataTools += [ "EventBookkeeperMetaDataTool" ]
-"""
-
 svcMgr.EventSelector.InputCollections = [ "SimplePoolFile5.root" ]
 
 #PoolSvc.ReadCatalog = [ "mysqlcatalog_mysql://CollTester:CtAl_204@atlasdbdev.cern.ch:3306/CollectionTest" ]
