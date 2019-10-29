@@ -103,11 +103,21 @@ def makeTauAnalysisSequence( dataType, workingPoint,
         alg.efficiencyCorrectionsTool.TauSelectionTool = '%s/%s' % \
             ( selectionTool.getType(), selectionTool.getName() )
         alg.scaleFactorDecoration = 'tau_effSF' + postfix + '_%SYS%'
-        alg.scaleFactorDecorationRegex = '(^TAUS_TRUEELECTRON_EFF_.*)|(^TAUS_TRUEHADTAU_EFF_.*)'
+        alg.scaleFactorDecorationRegex = '(^TAUS_TRUEELECTRON_EFF_.*)' \
+                                         + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
+                                         + '|(^TAUS_TRUEHADTAU_EFF_RNNID.*)' \
+                                         + '|(^TAUS_TRUEHADTAU_EFF_JETID.*)' \
+                                         + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
+                                         + '|(^TAUS_TRUEHADTAU_EFF_ELEOLR.*)'
         alg.outOfValidity = 2 #silent
         alg.outOfValidityDeco = 'bad_eff' + postfix
         seq.append( alg, inputPropName = 'taus',
-                    affectingSystematics = '(^TAUS_TRUEELECTRON_EFF_.*)|(^TAUS_TRUEHADTAU_EFF_.*)',
+                    affectingSystematics = '(^TAUS_TRUEELECTRON_EFF_.*)' \
+                                           + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
+                                           + '|(^TAUS_TRUEHADTAU_EFF_RNNID.*)' \
+                                           + '|(^TAUS_TRUEHADTAU_EFF_JETID.*)' \
+                                           + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
+                                           + '|(^TAUS_TRUEHADTAU_EFF_ELEOLR.*)',
                     stageName = 'efficiency' )
 
     # Set up an algorithm used for debugging the tau selection:
