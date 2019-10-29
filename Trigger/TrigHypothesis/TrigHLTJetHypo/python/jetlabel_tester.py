@@ -68,8 +68,8 @@ if __name__ == '__main__':
     label = test_strings[index]
 
     setter = None
-    # setter = ConditionsToolSe#tterTree('toolSetter')
-    # setter = ConditionsToolSetterFlowNetwork('fnToolSetter')
+    unused_setter0 = ConditionsToolSetterTree('toolSetter')
+    unised_setter1 = ConditionsToolSetterFlowNetwork('fnToolSetter')
     
     tree = compile(label, setter=setter,  expand=True, do_dump=True)
 
