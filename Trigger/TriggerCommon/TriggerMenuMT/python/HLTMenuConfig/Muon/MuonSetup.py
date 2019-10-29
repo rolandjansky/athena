@@ -393,11 +393,11 @@ def muEFSARecoSequence( RoIs, name ):
   from AthenaCommon.AppMgr import ServiceMgr
   import AthenaCommon.CfgGetter as CfgGetter
 
-  from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
+  from AthenaCommon.CfgGetter import getPublicToolClone
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
-  from AthenaCommon.AppMgr import ToolSvc
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg
+  from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg
 
   muEFSARecoSequence = parOR("efmsViewNode_"+name)
 
@@ -410,9 +410,7 @@ def muEFSARecoSequence( RoIs, name ):
                                                                     ( 'Muon::TgcPrepDataContainer'      , 'StoreGateSvc+TGC_Measurements' ),
                                                                     ( 'Muon::RpcPrepDataContainer'      , 'StoreGateSvc+RPC_Measurements' ),
                                                                     ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements'),
-                                                                    ( 'Muon::CscPrepDataContainer'      , 'StoreGateSvc+CSC_Clusters') ] )
-
-                 )
+                                                                    ( 'Muon::CscPrepDataContainer'      , 'StoreGateSvc+CSC_Clusters') ] ))
    
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
   ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc")
@@ -426,49 +424,9 @@ def muEFSARecoSequence( RoIs, name ):
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
 
   theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
-
-
-  TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder" ,MuonSegmentCollection="MuonSegments")
-  TrackBuilder.TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
-
-  from AthenaCommon.Include import include
-  include("InDetBeamSpotService/BeamCondSvc.py" )
-  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
-
-  muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
-
-  muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-
-  muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-
-  xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg_"+name,
-                                                            TrackParticleCreator = muonParticleCreatorTool,
-                                                            TrackCollectionCnvTool=muonTrackCollectionCnvTool,
-                                                            RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
-                                                            TrackContainerName = "MuonSpectrometerTracks",
-                                                            xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
-                                                            ConvertTrackParticles = False,
-                                                            ConvertTracks = True)
-  theCaloEnergyTool = getPublicToolClone("TrigCaloEnergyToolSA_"+name, "MuidCaloEnergyTool", EnergyLossMeasurement=False, MopParametrization=True, TrackIsolation=False)
-
-  theCaloTSOS = getPublicToolClone("TrigCaloTrackStateOnSurfaceSA_"+name, "MuidCaloTrackStateOnSurface", CaloEnergyDeposit=theCaloEnergyTool, CaloEnergyParam=theCaloEnergyTool, Propagator ='TMEF_Propagator', MinRemainingEnergy= 200, ParamPtCut= 3000)
-  from MuidCaloScatteringTools.MuidCaloScatteringToolsConf import Rec__MuidMaterialEffectsOnTrackProvider
-  Rec__MuidMaterialEffectsOnTrackProvider.TSOSTool=theCaloTSOS
-
-
-  theTrackCleaner = getPublicToolClone("TrigMuonTrackCleanerSA_"+name, "MuonTrackCleaner", Fitter='TMEF_iPatFitter', SLFitter='TMEF_iPatFitter')
-
-  from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-  trkSummaryTool =  Trk__TrackSummaryTool( 'TrigMuonTrackSummarySA',MuonSummaryHelperTool=getPublicTool('MuonTrackSummaryHelperTool'), doSharedHits=False)
-  ToolSvc += Trk__TrackSummaryTool('TrigMuonTrackSummarySA')
-
-  theTrackQueryNoFit = getPublicToolClone("TrigMuonTrackQueryNoFitSA_"+name, "MuonTrackQuery", Fitter="")
-  theTrackBuilderTool = getPublicToolClone("TrigMuonSATrackBuilderSA_"+name,"CombinedMuonTrackBuilder", UseCaloTG = True, CaloTSOS=theCaloTSOS, CaloMaterialProvider='TMEF_TrkMaterialProviderTool', MuonHoleRecovery="",CaloEnergyParam=theCaloEnergyTool,MuonErrorOptimizer="", Fitter='TMEF_iPatFitter', MaterialAllocator="TMEF_MaterialAllocator", Propagator='TMEF_Propagator', LargeMomentumError=0.5, PerigeeAtSpectrometerEntrance=False, ReallocateMaterial=False, TrackSummaryTool=trkSummaryTool, Cleaner=theTrackCleaner,TrackQuery=theTrackQueryNoFit)
-
-
-  theCandidateTool = getPublicToolClone("MuonCandidateTool_SA"+name, "MuonCandidateTool", TrackBuilder=theTrackBuilderTool)
-
-  theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg_"+name,MuonCandidateTool=theCandidateTool,MuonCandidateLocation="MuonCandidates")
+  TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "MuonSegments", TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering"))
+  xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("TrigMuonStandaloneTrackParticleCnvAlg_"+name)
+  theMuonCandidateAlg=MuonCombinedMuonCandidateAlg("TrigMuonCandidateAlg_"+name)
 
 
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
