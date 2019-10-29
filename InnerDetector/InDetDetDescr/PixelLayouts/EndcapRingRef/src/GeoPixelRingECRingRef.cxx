@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "EndcapRingRef/GeoPixelRingECRingRef.h"
 #include "EndcapRingRef/PixelRingSupportXMLHelper.h"
 
@@ -13,6 +12,8 @@
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
+#include "GeoModelKernel/GeoCons.h"
+#include "GeoModelKernel/GeoPcon.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
@@ -41,7 +42,7 @@
 GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringRadius, double ringOuterRadius,
 					     double zOffset, double phiOffset,
 					     int ringSide, int numModules, std::string moduleType, 
-					     int diskId, int back_front, SplitMode mode)
+					   int diskId, int back_front, SplitMode mode, double inclination)
   : m_layer(iLayer),
     m_ring(iRing),
     m_ringId(-1),
@@ -55,11 +56,13 @@ GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringR
     m_moduleType(moduleType),
     m_diskId(diskId),
     m_front_back(back_front),
+    m_inclination(inclination),
     m_readoutRegion("EC"),
     m_readoutLayer(iLayer),
     m_readoutEta(iRing),
     m_pixelModuleSvc("PixelModuleSvc","PixelModuleSvc"),
-    m_pixelDesignSvc("PixelDesignSvc","PixelDesignSvc")
+    m_pixelDesignSvc("PixelDesignSvc","PixelDesignSvc")	
+
 {
   m_bPrebuild = false;
 }
@@ -70,12 +73,12 @@ GeoPixelRingECRingRef::~GeoPixelRingECRingRef()
 
 void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics ) 
 {
-
+  
   // Retrieve PixelModuleSvc (svc that builds and store the modules)
   StatusCode sc = m_pixelModuleSvc.retrieve();
   if(sc.isFailure())
-    basics->msgStream()<<MSG::WARNING<< "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;
-
+    basics->msgStream()<<MSG::WARNING<< "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;  
+ 
   m_pixelModuleSvc->initModuleMap(basics);
   m_pixelDesignSvc->initModuleMap(basics);
 
@@ -87,7 +90,7 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
 
   // Compute module radial min max size
   double rmin = m_radius;
-  double rmax = ComputeRMax(rmin, 0.01, ringModule->Length(), ringModule->Width());
+  double rmax = ComputeRMax(rmin, 0.01, ringModule->Length(), ringModule->Width(), m_inclination);
   // ... module thicknesses
   double thickHyb = ringModule->ThicknessN();
   double thickChip = ringModule->ThicknessP();
@@ -97,36 +100,34 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   m_ringRMin = rmin-0.001;
   m_ringRMax = rmax+0.001;
   
-  m_ringZMin = -std::max(thickHyb,thickChip) - 0.001;
-  m_ringZMax = std::max(thickHyb,thickChip) + 0.001;
+  m_ringZMin = -std::max(thickHyb,thickChip) - 0.001 - ringModule->getModuleSensorLength()*.5*sin(m_inclination);
+  m_ringZMax = std::max(thickHyb,thickChip) + 0.001 + ringModule->getModuleSensorLength()*.5*sin(m_inclination);
 
   // In case the sensor length is smaller than the module length...
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5;
+  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5*cos(m_inclination);
   double moduleHalfLength = ringModule->Length()*.5;
-  rmin = moduleRadius-moduleHalfLength;
+  rmin = moduleRadius-moduleHalfLength*cos(m_inclination);
   
   if(rmin<m_ringRMin) m_ringRMin = rmin-0.001;
   
-  m_ringZShift = (thickChip-m_halfLength);
+  m_ringZShift = (thickChip-m_halfLength)*cos(m_inclination);    
 
-  // coding scheme 300
-  //m_ringId = 2*m_ring;
-  //if(m_front_back==-1) m_ringId++;
-  // coding scheme 600
-  m_ringId = m_ring;
+  m_halfLength += ringModule->Length()/2.*sin(m_inclination);
+
+  m_ringId = m_ring; 
 
   m_bPrebuild = true;  
 }
 
-void GeoPixelRingECRingRef::readoutId(std::string region, int lay, int etaIndex )
+void GeoPixelRingECRingRef::readoutId(std::string region, int lay, int etaIndex ) 
 {
   m_readoutRegion = region;
   m_readoutLayer = lay;
-  m_readoutEta = etaIndex;
+  m_readoutEta = etaIndex; 
 }
 
-GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, int endcapSide )
+GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, int endcapSide, GeoFullPhysVol* envelope, double zshift )
 {
  // Check that the prebuild phase is done
   if(!m_bPrebuild) preBuild(basics);
@@ -141,19 +142,85 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
   double zModuleShift = m_ringZShift;
   double halflength = m_halfLength+.001;
   if(m_front_back==1) zModuleShift*=-1;
+  zModuleShift += zshift + ringModule->getModuleSensorLength()*.5*sin(m_inclination); 
 
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5;
+  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5*cos(m_inclination);
 
-  // build ring envelope
-  const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
-  std::ostringstream logStr;
-  logStr << "ringLog" << ((m_front_back==1)?"F":"B");
-  const GeoTube* ringTube = new GeoTube(m_ringRMin,m_ringRMax,halflength);
-  GeoLogVol* _ringLog = new GeoLogVol(logStr.str(),ringTube,air);
+  // build ring envelope if needed
+  GeoFullPhysVol* ringPhys = envelope;
+  
+  if (!ringPhys) {
+    const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
+    std::ostringstream logStr;
+    if (m_inclination!=0) logStr << "ringLogInclined_L"<<m_layer<<"_R"<<m_readoutEta;
+    else logStr << "ringLog" << ((m_front_back==1)?"F":"B");
+    
+    GeoLogVol* _ringLog = 0; 
+    if (m_inclination !=0)  {   
+      double thick = ringModule->Thickness()+fabs(zshift);
+      double Sphi  = 0.;
+      double Dphi  = 2*acos(-1.);
+      double tol = 0.5;
+      GeoPcon* pcone = new GeoPcon(Sphi,Dphi);
+      double h1 = (m_ringRMax-m_ringRMin)*tan(m_inclination);
+      pcone->addPlane(-thick-tol,m_ringRMax,m_ringRMax);
+      pcone->addPlane(+thick+tol,m_ringRMax-2*(thick+tol)/tan(m_inclination),m_ringRMax);
+      pcone->addPlane(-thick-tol+h1,m_ringRMin,m_ringRMin+2*(thick+tol)/tan(m_inclination));
+      pcone->addPlane(thick+tol+h1,m_ringRMin,m_ringRMin);
+      _ringLog = new GeoLogVol(logStr.str(),pcone,air);
+    } else {   
+      const GeoTube* ringTube = new GeoTube(m_ringRMin,m_ringRMax,halflength);
+      _ringLog = new GeoLogVol(logStr.str(),ringTube,air);
+    }
+    ringPhys = new GeoFullPhysVol(_ringLog);
 
-  GeoFullPhysVol* ringPhys = new GeoFullPhysVol(_ringLog);
+    // add ring supports for inclined ( built with the ring envelope for the forward part
+    if (m_inclination !=0)  {   
+    
+      int nbSvcSupport = ringHelper.getNbSupport(m_layer,m_ring);
+      
+      for (int iSvc = 0; iSvc < nbSvcSupport; iSvc++){
+	double thick = ringHelper.getRingSupportThickness(iSvc);
+	int nsectors = ringHelper.getRingSupportNSectors(iSvc);
+	double sphiSvc = ringHelper.getRingSupportSPhi(iSvc);
+	double dphiSvc = ringHelper.getRingSupportDPhi(iSvc);
+	std::string matName = ringHelper.getRingSupportMaterial(iSvc);	
+	
+	for (int i_sector = 0; i_sector < nsectors; i_sector++) {
+	  
+	  if ((360. / nsectors) < dphiSvc) {
+	    //ATH_MSG_WARNING("Arms will overlap. Do not implement them.");
+	    continue;
+	  }
+	  
+	  double Sphi  = (sphiSvc + 360. / nsectors * i_sector) * CLHEP::deg;
+	  double Dphi  = dphiSvc * CLHEP::deg;
+	  GeoPcon* pcone = new GeoPcon(Sphi,Dphi);
+	  
+	  double drH = m_ringRMax-m_ringRMin;
+	  pcone->addPlane(-0.5*thick,m_ringRMax,m_ringRMax);
+	  pcone->addPlane(+0.5*thick,m_ringRMax-thick/tan(m_inclination),m_ringRMax);
+	  pcone->addPlane(+drH*tan(m_inclination)-0.5*thick,m_ringRMin,m_ringRMin+thick/tan(m_inclination));
+	  pcone->addPlane(+drH*tan(m_inclination)+0.5*thick,m_ringRMin,m_ringRMin);
+	  
+	  const GeoShape* supCons = dynamic_cast<const GeoShape*>(pcone);
+	  
+	  double matVolume = supCons->volume();
+	  const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
+	  std::ostringstream supStr;
+	  supStr << "supLogInclined_L"<<m_layer<<"_R"<<m_readoutEta;
+	  GeoLogVol* _supLog = new GeoLogVol(supStr.str(),supCons,supMat);
+	  GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
+	  GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0.,0.));
+	  ringPhys->add(xform);
+	  ringPhys->add(supPhys);	   
+	}
+      }     // end ring support structures for inclined
+    } // end inclined
+  }
 
+  // modules
   int nmodules = m_numModules;
 
   // in case no modules are defined for the ring
@@ -191,25 +258,21 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
       if (phi> CLHEP::pi*CLHEP::rad) phi -= 2*CLHEP::pi*CLHEP::rad;
       if (phi<-CLHEP::pi*CLHEP::rad) phi += 2*CLHEP::pi*CLHEP::rad;
      
-   
       // Rotate the module to switch to a radial plane
-      HepGeom::Transform3D initModule = HepGeom::RotateY3D(90.*CLHEP::deg);
-      if(m_front_back==1 || m_ringSide<0 ) initModule = HepGeom::RotateX3D(180.*CLHEP::deg) * initModule;
+      HepGeom::Transform3D initModule=HepGeom::Transform3D();
+      if(m_front_back==1 || m_ringSide<0 ) initModule = HepGeom::RotateZ3D(180.*CLHEP::deg) * initModule;
+      initModule = HepGeom::RotateY3D(90.*CLHEP::deg + m_inclination)*initModule;
+      
+      HepGeom::Point3D<double> modulePos(moduleRadius*cos(phi),moduleRadius*sin(phi),zModuleShift);
+      HepGeom::Transform3D moduleTrf = HepGeom::Translate3D(modulePos)*HepGeom::RotateZ3D(phi)*initModule;
 
       // synchronize the sim/reco identification
       if (m_readoutRegion=="B" ) endcapId= endcapSide>0 ? 1 : -1;   
-      // coding scheme 300 
-      //m_ringId = 2*m_readoutEta;
-      //if(m_front_back==-1) m_ringId++;
-      // coding scheme 600
-      m_ringId = m_readoutEta;      
-
-      HepGeom::Point3D<double> modulePos(moduleRadius*cos(phi),moduleRadius*sin(phi),zModuleShift);
-      HepGeom::Transform3D moduleTrf = HepGeom::Translate3D(modulePos)*HepGeom::RotateZ3D(phi)*initModule;
+      m_ringId = m_readoutEta;
      
       // Build and place the module - 600 is the new geoTagId for ITk endcap ring sensors
       std::ostringstream modName;
-      modName<<"_"<<2*endcapSide<<"_"<<m_readoutLayer<<"_"<<phiId<<"_"<<m_ringId;
+      modName<<"_"<<2*endcapSide<<"_"<<m_readoutLayer<<"_"<<phiId<<"_"<<m_readoutEta;
       GeoAlignableTransform* xform = new GeoAlignableTransform(moduleTrf);
       GeoFullPhysVol * modulePhys = ringModule->Build(endcapId, m_readoutLayer, phiId, m_ringId, 600, modName.str());
 
@@ -234,10 +297,11 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
   return ringPhys;
 }
 
-std::pair<GeoVPhysVol*,GeoVPhysVol*> GeoPixelRingECRingRef::BuildSplit(const PixelGeoBuilderBasics* basics, int endcapSide ) 
+
+std::pair<GeoFullPhysVol*,GeoFullPhysVol*> GeoPixelRingECRingRef::BuildSplit(const PixelGeoBuilderBasics* basics, int endcapSide ) 
 {
-  GeoVPhysVol* _np = NULL;
-  std::pair<GeoVPhysVol*,GeoVPhysVol*> halfRingsAwayTwdBS = std::make_pair(_np,_np);
+  GeoFullPhysVol* _np = NULL;
+  std::pair<GeoFullPhysVol*,GeoFullPhysVol*> halfRingsAwayTwdBS = std::make_pair(_np,_np);
     
  // Check that the prebuild phase is done
   if(!m_bPrebuild)preBuild(basics); 
@@ -351,23 +415,18 @@ std::pair<GeoVPhysVol*,GeoVPhysVol*> GeoPixelRingECRingRef::BuildSplit(const Pix
       
       HepGeom::Point3D<double> modulePos(moduleRadius*cos(phi),moduleRadius*sin(phi),zModuleShift);
       HepGeom::Transform3D moduleTrf = HepGeom::Translate3D(modulePos)*HepGeom::RotateZ3D(phi)*initModule;  
-    
+
       // synchronize the sim/reco identification
       if (m_readoutRegion=="B" ) endcapId= endcapSide>0 ? 1 : -1;   
-      // coding scheme 300
-      //m_ringId = 2*m_readoutEta;
-      //if(m_front_back==-1) m_ringId++;
-
-      // coding scheme 600
-      m_ringId = m_readoutEta;  
-
+      m_ringId = m_readoutEta;
+  
       // Build and place the module - 600 is the new geoTagId for ITk endcap ring sensors
       std::ostringstream modName; 
       modName<<"_"<<2*endcapSide<<"_"<<m_readoutLayer<<"_"<<phiId<<"_"<<m_readoutEta;
       GeoAlignableTransform* xform = new GeoAlignableTransform(moduleTrf);
       GeoFullPhysVol * modulePhys = ringModule->Build(endcapId, m_readoutLayer, phiId, m_ringId, 600, modName.str());
       std::ostringstream ostr; 
-      ostr << "Layer" << m_readoutLayer << "_Sector" << m_ringId;
+      ostr << "Layer" << m_readoutLayer << "_Sector" << m_ringId << "_Module" << modName.str(); 
       
       if (isTwd) {
 	ringPhysTwdBS->add(new GeoNameTag(ostr.str()));
@@ -383,13 +442,13 @@ std::pair<GeoVPhysVol*,GeoVPhysVol*> GeoPixelRingECRingRef::BuildSplit(const Pix
       }
      
       // Build and store DetectorElement
+      if (m_readoutRegion=="B" ) endcapId= endcapSide>0 ? 1 : -1;
       Identifier idwafer = basics->getIdHelper()->wafer_id(endcapId, m_readoutLayer, phiId, m_readoutEta);
-
       InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, ringModuleDesign, 
-                    modulePhys, basics->getCommonItems());
+									    modulePhys, basics->getCommonItems());
       basics->getDetectorManager()->addDetectorElement(element);
-    
-    // Now store the xform by identifier: alignement studies
+      
+      // Now store the xform by identifier: alignement studies
       basics->getDetectorManager()->addAlignableTransform(0,idwafer,xform,modulePhys);
     }
   }
@@ -397,11 +456,10 @@ std::pair<GeoVPhysVol*,GeoVPhysVol*> GeoPixelRingECRingRef::BuildSplit(const Pix
   return halfRingsAwayTwdBS;
 }
 
-
-double GeoPixelRingECRingRef::ComputeRMax(double rMin, double safety, double moduleLength, double moduleWidth) 
+double GeoPixelRingECRingRef::ComputeRMax(double rMin, double safety, double moduleLength, double moduleWidth, double inclination) 
 {
   double xCorner = moduleWidth*.5;
-  double yCorner = rMin + moduleLength;
+  double yCorner = rMin + moduleLength*cos(inclination);
   
   double ringRmax = sqrt(xCorner*xCorner+yCorner*yCorner);
   return ringRmax + std::abs(safety);

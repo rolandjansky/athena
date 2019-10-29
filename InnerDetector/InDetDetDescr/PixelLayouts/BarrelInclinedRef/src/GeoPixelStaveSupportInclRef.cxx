@@ -63,12 +63,12 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   if(m_barrelTilt<0) yOffset=-yOffset;
   double ec_xOffset = staveDBHelper.getServiceECOffsetX();
   //catching old layouts before support width was correctly specified
-  if(width<0){
+  if(width<=0){
     width = m_barrelModule.Width()*.7;
     msg(MSG::DEBUG)<<"Special Case for old layouts! m_width set to"<<m_width<<" due via m_barrelModule->Width()*.7 - not to be relied on in new developments! Please set your stave support width correctly!"<<endreq;
   }
- 
   m_svcRouting = staveDBHelper.getSvcRoutingPos();
+  m_staveType = staveDBHelper.getStaveSupportType();
 
   double endcapRadialPos=m_endcapMaxRadialPos;
   if(m_svcRouting=="inner")endcapRadialPos=m_endcapMinRadialPos;
@@ -82,7 +82,10 @@ void GeoPixelStaveSupportInclRef::preBuild() {
 
     GeoBox * shape = new GeoBox(0.5*thickness, 0.5*width, 0.5*length);
     const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shape->volume(),"",matFudge);
-    GeoLogVol* logVol = new GeoLogVol("StaveSupport",shape,material);
+    std::ostringstream suppName; 
+    if (m_staveType=="Longeron") suppName<<m_staveType<<"_L"<<m_layer;
+    else suppName<<"StaveSupport_L"<<m_layer;
+    GeoLogVol* logVol = new GeoLogVol(suppName.str(),shape,material);
     
     m_thicknessP =  xOffset + 0.5*thickness;
     m_thicknessN =  -xOffset + 0.5*thickness;
@@ -137,7 +140,6 @@ void GeoPixelStaveSupportInclRef::preBuild() {
 
   //lateral junction  (between planar and end of stave)
   GeoBox* lat_box = new GeoBox(0.5*fabs(endcapRadialPos), 0.5*width, 0.5*thickness);
-
   HepGeom::Transform3D latA_trf(HepGeom::Translate3D(loc_xOffset,yOffset,zpos));
   lastShape = addShape(lastShape, lat_box, latA_trf); 
   HepGeom::Transform3D latC_trf(HepGeom::Translate3D(loc_xOffset,yOffset,-zpos));
@@ -145,7 +147,10 @@ void GeoPixelStaveSupportInclRef::preBuild() {
 
   double shapeVolume = middle_box->volume() + 2.0*( eos_box->volume() + lat_box->volume());
   const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shapeVolume,"",matFudge);
-  GeoLogVol* logVol = new GeoLogVol("StaveSupport",lastShape,material);
+  std::ostringstream suppName; 
+  if (m_staveType=="Longeron") suppName<<m_staveType<<"_L"<<m_layer;
+  else suppName<<"StaveSupport_L"<<m_layer;
+  GeoLogVol* logVol = new GeoLogVol(suppName.str(),lastShape,material);
   
   m_thicknessP =  xOffset_stave + 0.5*thickness;
   m_thicknessP_barrel = m_thicknessP;

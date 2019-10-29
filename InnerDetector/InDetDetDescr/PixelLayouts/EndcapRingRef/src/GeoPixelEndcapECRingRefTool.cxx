@@ -174,10 +174,9 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
   // Prebuild the endcap in case it is not already done
   if(!m_bPrebuild)preBuild(basics);
 
-  // links to material manager and msgstream
+  // link to material manager 
   m_matMgr = basics->matMgr();
-  m_msg = basics->msgStream();
-
+ 
   // Pixel general envelope XML reader
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
   m_endcapSide = side;

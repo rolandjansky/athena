@@ -120,19 +120,18 @@ class SLHC_Setup :
         print "******************************************************************************************"
         print "PixelGeoModel - import GeoPixelLayerInclRefTool"
         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-        geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
-        toolSvc+=geoLayerInnerTool
-
-##         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
-##         geoLayerOuterTool=GeoPixelLayerPlanarRefTool(name="OuterPixelLayerTool")
-##         toolSvc+=geoLayerOuterTool
-
+        geoLayerAlpineTool=GeoPixelLayerInclRefTool(name="AlpinePixelLayerTool")
+        toolSvc+=geoLayerAlpineTool
+        print "PixelGeoModel - import GeoPixelLayerPlanarRefTool"
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
+        geoLayerPlanarTool=GeoPixelLayerPlanarRefTool(name="PlanarPixelLayerTool")
+        toolSvc+=geoLayerPlanarTool
+       
         print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
         geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
-        geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
-#        geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
-        geoBarrelTool.MaxInnerLayerMax = 5
+        geoBarrelTool.PlanarPixelLayerTool = geoLayerPlanarTool
+        geoBarrelTool.AlpinePixelLayerTool = geoLayerAlpineTool
         geoBarrelTool.PixelServicesTool = serviceTool
         toolSvc+=geoBarrelTool
 

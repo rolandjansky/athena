@@ -1,6 +1,3 @@
-
-
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -166,7 +163,7 @@ void GeoPixelLadderInclRef::preBuild( ) {
 
   double maxTiltedModuleThick=0.; 
   // get the transition and endcap modules from moduelSvc
-  if(staveType.compare("Alpine")==0){
+  if(staveType.compare("Alpine")==0 && m_endcapModuleNumber>0){
     msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Get endcap module from svc : "<<m_endcapModuleType<<" / "<<staveType<<" "<<m_endcapModuleType<<"&"<<m_transitionModuleType<<endreq;
     m_endcapModule =  m_pixelModuleSvc->getModule(getBasics(),0,layerModuleIndex,m_endcapModuleType);
     m_endcapModuleDesign = m_pixelDesignSvc->getDesign(getBasics(),m_endcapModuleType);
@@ -207,10 +204,10 @@ void GeoPixelLadderInclRef::preBuild( ) {
   m_thicknessP =  serviceOffsetX + (0.5*staveSupportThick);
   if (ecRadialPos>0) m_thicknessP += ecRadialPos;
   
-  m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;//why do we need this safety factor added by hand? Can't we just put the correct value????
+  m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;//why do we need this safety factor added by hand? Can't we just put the correct value???? m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;   
   m_width  = m_staveDBHelpers[0]->getStaveSupportWidth();
   //catching old layouts before support width was correctly specified
-  if(m_width<0){
+  if(m_width<=0){
     m_width = m_barrelModule->Width()*.7;
     msg(MSG::DEBUG)<<"Special Case for old layouts! m_width set to"<<m_width<<" due via m_barrelModule->Width()*.7 - not to be relied on in new developments! Please set your stave support width correctly!"<<endreq;
   }
@@ -490,7 +487,9 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	     m_ladderShape = &shiftedBox;  
 	     
 	     const GeoMaterial* air = matMgr()->getMaterial("special::Ether");
-	     m_theLadder = new GeoLogVol("Ladder",m_ladderShape,air);
+	     std::ostringstream ladderName; 
+	     ladderName<<"_L"<<m_layer;
+	     m_theLadder = new GeoLogVol(ladderName.str(),m_ladderShape,air);
 	     
 	     ladderPhys = new GeoPhysVol(m_theLadder);
 	   }
@@ -556,6 +555,62 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 
    double zpos = zNegStavePos;
    if(bVerbose)std::cout<<"BARREL BEGIN : "<<zpos<<std::endl;
+
+   if(ladderPhys==0){
+     
+     if(m_minmaxDefined){
+       radiusMin = m_rmin; 
+       radiusMax = m_rmax; 
+     }
+          
+     // Evaluate layer radius 
+     HepGeom::Point3D<double> testPoint = m_localTrf*HepGeom::Point3D<double>(0.0, 0.0, 0.0);
+     double radiusLayer = sqrt( (testPoint.x()*testPoint.x())  +   (testPoint.y()*testPoint.y()) );
+     
+     double halfThickness  = 0.5*(radiusMax-radiusMin) ; 
+     double halfWidth      = (m_barrelModule->Width()+0.01)/2.0;
+     double shiftThickness = ((0.5*(radiusMax - radiusMin)) - (radiusLayer-radiusMin)) ;
+     double shiftWidth     = 0.0;
+     
+     // Take services into account (0 = svc X, 1 = svc Y, 2 = svcBoundBoxHalfThick (x), 3 = svcBoundingBoxHalfWidth (y)
+     // Construct dummy radial services block (never built, dimensions +/-10mm)
+     std::vector<double> svcBounds = ConstructAndPlaceModuleService(nbModuleSvc, -10.0, 10.0 , 0., ladderPhys, "barrel", false);
+     if (svcBounds.size() == 0) {
+       msg(MSG::ERROR) << "Error building dummy service module, Ladder envelope has incorrect size.  Attempting to recover..." << endmsg;
+     }
+     else {
+       if (svcBounds[0] + svcBounds[2] > shiftThickness + halfThickness){
+	 double extraThick = svcBounds[0] + svcBounds[2] - (shiftThickness + halfThickness);
+	 halfThickness  += 0.5*extraThick+0.5;
+	 shiftThickness += 0.5*extraThick+0.5; // Add 0.5mm for safety
+       }
+       else if (svcBounds[0] - svcBounds[2] < shiftThickness - halfThickness) {
+	 double extraThick = shiftThickness - halfThickness - (svcBounds[0] - svcBounds[2]);
+	 halfThickness  += 0.5*fabs(extraThick)+0.5;
+	 shiftThickness -= 0.5*fabs(extraThick)+0.5;
+       }
+       
+       if (svcBounds[1] + svcBounds[3] > shiftWidth + halfWidth){
+	 double extraWidth = svcBounds[1] + svcBounds[3] - (shiftWidth + halfWidth);
+	 halfWidth  += 0.5*extraWidth + 0.5;
+	 shiftWidth += 0.5*extraWidth + 0.5;
+       }
+       else if (svcBounds[1] - svcBounds[3] < shiftWidth - halfWidth) {
+	 double extraWidth = shiftWidth - halfWidth - (svcBounds[1] - svcBounds[3]);
+	 halfWidth  += fabs(0.5*extraWidth)+0.5;
+	 shiftWidth -= fabs(0.5*extraWidth)+0.5;
+	       }
+     }
+     
+     GeoBox * box = new GeoBox(halfThickness, halfWidth, m_length/2.);
+     const GeoShape & shiftedBox = (*box) << HepGeom::Translate3D(shiftThickness, shiftWidth, 0.0);
+     m_ladderShape = &shiftedBox;  
+     
+     const GeoMaterial* air = matMgr()->getMaterial("special::Ether");
+     m_theLadder = new GeoLogVol("Ladder",m_ladderShape,air);
+     
+     ladderPhys = new GeoPhysVol(m_theLadder);
+   }
 
    double zPosFinal;
    int iBarrelModuleCmpt = 0;
@@ -1059,6 +1114,7 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
     wg_matName<<matName<<"_"<<m_svcMaterialCmpt;
     
     msg(MSG::DEBUG) <<"Barrel module weighted service material : "<<matName<<"  "<<wg_matName.str()<<"   / sector : "<<m_sector<<endmsg;
+
     if(matName=="None") return 0;
     if (matMgr()->hasMaterial(wg_matName.str()))
       svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
@@ -1206,7 +1262,6 @@ std::vector<double> GeoPixelLadderInclRef:: ConstructAndPlaceModuleService(std::
     
     // Get service volume dimensions
     double svcHalfThick = m_moduleSvcThickness;
-    //Why the magic numbers here?????
     double svcHalfWidth = m_barrelModule->Width()*0.75*.25;
     if (type == "endcap") svcHalfThick *= 2.0; // = Barrel + Endcap service thickness
 

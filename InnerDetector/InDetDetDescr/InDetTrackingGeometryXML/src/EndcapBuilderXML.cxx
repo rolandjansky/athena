@@ -282,10 +282,6 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int cav
     int nsectors = layerTmp->nsectors.at(iring);
     double disc_thickness = layerTmp->thickness.at(iring); 
 
-     // position & bounds of the disc layer
-    Amg::Transform3D*  transf = new Amg::Transform3D;
-    (*transf) = Amg::Translation3D(0.,0.,zpos);
-
     ATH_MSG_DEBUG("  RING: building ring " << iring << " zpos=" << zpos <<  " thck="  << disc_thickness << " nsect=" << nsectors 
 		 << " innerR=" << innerR << " outerR=" << outerR << " cavernSide=" << cavernSide );
 
@@ -320,7 +316,11 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int cav
       zmin = std::min(zmin,el->center().z());
       zmax = std::max(zmax,el->center().z());
     }
-    
+
+    // position & bounds of the disc layer
+    Amg::Transform3D*  transf = new Amg::Transform3D;
+    (*transf) = Amg::Translation3D(0.,0.,zpos);   
+
     disc_thickness+=fabs(zmax-zmin);
     
     double halfPhiStep = TMath::Pi()/nsectors;
@@ -448,35 +448,18 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 
   m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,region,roLayer,iphi,roEta,0);
 
-  // create the transform parameters  
-  double phistep = 2*TMath::Pi()/nsectors;
-  double phi = phistep*(isector)+ mod0phioffset;
-  if(phi > TMath::Pi()) phi -= 2*TMath::Pi();
-  if(phi < -TMath::Pi()) phi += 2*TMath::Pi();
-  
-  // First the translation
-  double  r = ring_rmin + (ring_rmax-ring_rmin)/2.0; 
-  double dr = 0.; 
-  // default: create outer stereo module
-  double  z = zpos + 0.5*zoffset*pow(-1,isector) - zpos/fabs(zpos)*0.5*layerTmp->stereoSep;
-  double stereoO = layerTmp->stereoO;
-  double xshift = 0.;
-  double tilt = 0.;
-  double rot = 0.5*TMath::Pi();
-  
-  Amg::Vector3D centerOnModule(r*cos(phi), r*sin(phi), z);
-      
-  Amg::Transform3D transform = m_moduleProvider->getTransform(r,dr,xshift,z,stereoO,tilt,rot,phi,useDisc);    
-  Trk::TrkDetElementBase* planElement = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule, 
-												   transform, m_pixelCase, isBarrel, isOuterMost, debug,
-														useDisc, ring_rmin, ring_rmax, stereoO) );
+  Trk::TrkDetElementBase* planElement = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, Amg::Vector3D(), 
+														Amg::Transform3D(), m_pixelCase, isBarrel, isOuterMost, debug,
+														useDisc, ring_rmin, ring_rmax, layerTmp->stereoO) );
  
-  if (!planElement) ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the Planar Detector Element.");
+  if (!planElement)  {
+    ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the Planar Detector Element.");
+    return 0;
+  }
 
-
-  centerOnModule = Amg::Vector3D(planElement->surface().center().perp()*cos(planElement->surface().center().phi()),
-				 planElement->surface().center().perp()*sin(planElement->surface().center().phi()),
-				 planElement->surface().center().z());
+  Amg::Vector3D centerOnModule = Amg::Vector3D(planElement->surface().center().perp()*cos(planElement->surface().center().phi()),
+						planElement->surface().center().perp()*sin(planElement->surface().center().phi()),
+						planElement->surface().center().z());
   
   
   // Add outer stereo layer  // each element points to the other face
@@ -484,15 +467,9 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
  
     m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,region,roLayer,iphi,roEta,1);
 
-    // warning: add stereo module inside -- add stereo steparation
-    z += zpos/fabs(zpos)*layerTmp->stereoSep;
-    double stereoI = layerTmp->stereoI;
-    Amg::Vector3D centerOnModule_os(r*cos(phi), r*sin(phi), z);
-    
-    Amg::Transform3D transform_os = m_moduleProvider->getTransform(r,dr,xshift,z,stereoI,tilt,rot,phi,useDisc);    
-    Trk::TrkDetElementBase* planElement_os = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule_os, 
-													transform_os, m_pixelCase, isBarrel, isOuterMost,debug,
-														     useDisc, ring_rmin, ring_rmax, stereoI) );
+    Trk::TrkDetElementBase* planElement_os = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, Amg::Vector3D(), 
+														     Amg::Transform3D(), m_pixelCase, isBarrel, isOuterMost,debug,
+														     useDisc, ring_rmin, ring_rmax, layerTmp->stereoI) );
     
     
     m_moduleProvider->setFrontAndBackSides(planElement,planElement_os);
@@ -501,7 +478,7 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
     
   }
   
-   centersOnModule.push_back(centerOnModule);
+  centersOnModule.push_back(centerOnModule);
 
   return planElement;  
 }
