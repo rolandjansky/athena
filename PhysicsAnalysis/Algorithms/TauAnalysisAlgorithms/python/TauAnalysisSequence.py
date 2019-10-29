@@ -63,7 +63,7 @@ def makeTauAnalysisSequence( dataType, workingPoint,
     selectionTool = createPublicTool( 'TauAnalysisTools::TauSelectionTool',
                                       'TauSelectionTool' + postfix)
     selectionTool.ConfigPath = inputfile
-    seq.addPublicTool( selectionTool )
+    seq.addPublicTool( selectionTool, stageName = 'selection' )
 
     # Set up the tau truth matching algorithm:
     if rerunTruthMatching and dataType != 'data':
