@@ -131,7 +131,7 @@ atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
 
 #----------------------------------
 # List of menus to be created:
-atlas_build_lvl1_trigger_menu( LS2_v1 )
+atlas_build_lvl1_trigger_menu( Cosmic_pp_run3_v1 )
 
 
 
