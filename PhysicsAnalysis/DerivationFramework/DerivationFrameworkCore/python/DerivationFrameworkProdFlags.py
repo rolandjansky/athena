@@ -58,6 +58,19 @@ class WriteDAOD_PHYS2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYS2Stream)
 listAODtoDPD.append(WriteDAOD_PHYS2Stream.StreamName)
 
+class WriteDAOD_PHYSLITEStream(JobProperty):
+    """ DAOD_PHYSLITE - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PHYSLITE"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/PHYSLITE.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSLITEStream)
+listAODtoDPD.append(WriteDAOD_PHYSLITEStream.StreamName)
+
 class WriteDAOD_NANOStream(JobProperty):
     """ DAOD_NANO - prototype format for Run 3 """
     statusOn     = True
