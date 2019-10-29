@@ -7,7 +7,6 @@ PFLeptonSelector.selectElectrons = False
 
 from eflowRec.eflowRecConf import PFTrackSelector
 PFTrackSelector=PFTrackSelector("PFTrackSelector")
-
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())

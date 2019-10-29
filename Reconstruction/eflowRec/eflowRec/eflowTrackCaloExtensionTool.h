@@ -43,7 +43,7 @@ public:
   static const InterfaceID& interfaceID();
 
   virtual StatusCode initialize() override;
-  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track) const override;
+  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track, const int index = 0) const override;
   virtual StatusCode finalize() override;
 
 private:
@@ -52,6 +52,13 @@ private:
   ToolHandle<Trk::IParticleCaloExtensionTool> m_theTrackExtrapolatorTool;
 
   std::unique_ptr<Trk::TrackParametersIdHelper> m_trackParametersIdHelper;
+
+  //output particle calo extension collection
+  SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
+      "PFParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache"};
+
+  bool m_useOldCalo;
+
 
 };
 

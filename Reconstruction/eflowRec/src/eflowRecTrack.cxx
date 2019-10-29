@@ -19,7 +19,7 @@
 
 eflowRecTrack::eflowRecTrack(
     const ElementLink<xAOD::TrackParticleContainer>& trackElemLink,
-    const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool) :
+    const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool, unsigned int trackIndex) :
     m_trackId(-1), m_trackElemLink(trackElemLink), m_track(*trackElemLink), m_type(5),
     m_pull15(0.0),
     m_layerHED(-1),
@@ -28,7 +28,7 @@ eflowRecTrack::eflowRecTrack(
     m_isInDenseEnvironment(false),
     m_isSubtracted(false),
     m_hasBin(true),
-    m_trackCaloPoints(theTrackExtrapolatorTool->execute(m_track)) {
+    m_trackCaloPoints(theTrackExtrapolatorTool->execute(m_track, trackIndex)) {
   m_svcLoc = Gaudi::svcLocator();
   StatusCode status = m_svcLoc->service( "MessageSvc", m_msgSvc );  
   if ( status.isSuccess( ) ) m_mlog = std::make_unique<MsgStream>(m_msgSvc,"eflowRecTrack");

@@ -46,12 +46,12 @@ eflowTrackCaloPoints::eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk:
 
 eflowTrackCaloPoints::~eflowTrackCaloPoints() {
 
-  std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator itPars = m_trackParameters.begin();
-  std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator endPars = m_trackParameters.end();
+  // std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator itPars = m_trackParameters.begin();
+  // std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator endPars = m_trackParameters.end();
 
-  for (; itPars != endPars; ++itPars) {
-    delete itPars->second;
-  }
+  // for (; itPars != endPars; ++itPars) {
+  //   delete itPars->second;
+  // }
 }
 
 void eflowTrackCaloPoints::setEtaPhi(eflowCalo::LAYER lay, const Amg::Vector3D& vec) {

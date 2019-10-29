@@ -58,10 +58,20 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
 		    << m_theTrackExtrapolatorTool.typeAndName());
   }
 
+  ATH_CHECK(m_ParticleCacheKey.initialize());
+  
+  if (m_ParticleCacheKey.initialize().isFailure()) {
+    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace HeadCalo");
+    ATH_CHECK( m_theTrackExtrapolatorTool.retrieve() );
+    m_useOldCalo = true;
+  } else {
+    m_useOldCalo = false;
+  }
+
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track) const {
+std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track, const int index) const {
 
   ATH_MSG_VERBOSE(" Now running eflowTrackCaloExtensionTool");
 
@@ -69,19 +79,40 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
-  std::unique_ptr<Trk::CaloExtension> extension = m_theTrackExtrapolatorTool->caloExtension(*track);
-  if (extension.get()!=nullptr) {
+  SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
+  const Trk::CaloExtension * extension = nullptr;
+  ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
+
+  if (m_useOldCalo) {
+    /* If HeadCalo is unavailable, use the calo extension tool */
+    ATH_MSG_VERBOSE("Using the CaloExtensionTool");
+    extension = m_theTrackExtrapolatorTool->caloExtension(*track).release();
+  } else {
+    /*get the CaloExtension object*/
+    ATH_MSG_VERBOSE("Using the HeadCalo Cache");
+    SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
+    extension = (*particleCache)[index];
+    ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
+    // fromHeadCalo = true;
+    if( not extension ){
+      ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
+      // fromHeadCalo = false;
+      extension = m_theTrackExtrapolatorTool->caloExtension(*track).release();
+    }
+  }
+  
+  if (extension != nullptr) {
 
     /*extract the CurvilinearParameters*/
     const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = extension->caloLayerIntersections();
 
     /*fill the map*/
-    for (auto clParameter : clParametersVector) {
+    for (auto & clParameter : clParametersVector) {
       if (parametersMap[getLayer(clParameter)] == NULL) {
-        parametersMap[getLayer(clParameter)] = clParameter->clone();
+        parametersMap[getLayer(clParameter)] = clParameter;
       } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter->cIdentifier())) {
-        delete parametersMap[getLayer(clParameter)];
-        parametersMap[getLayer(clParameter)] = clParameter->clone();
+      //   delete parametersMap[getLayer(clParameter)];
+        parametersMap[getLayer(clParameter)] = clParameter;
       }
     }
     /*
@@ -91,6 +122,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     */
     
     return std::make_unique<eflowTrackCaloPoints>(parametersMap);
+
   }
   else{
     if (track->pt() > 3*Gaudi::Units::GeV) ATH_MSG_WARNING("TrackExtension failed for track with pt and eta " << track->pt() << " and " << track->eta());

@@ -27,7 +27,7 @@ Pure virtual base class, inherits from IAlgTool. Defines execute method which ta
 */
 class eflowTrackExtrapolatorBaseAlgTool : virtual public IAlgTool {
  public:
-  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track) const = 0;
+  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track, const Int_t index = 0) const = 0;  
 };
 
 #endif

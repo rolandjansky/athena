@@ -45,7 +45,7 @@ This class extends the information about a xAOD::Track. It stores an ElementLink
 class eflowRecTrack {
 public:
   eflowRecTrack(const ElementLink<xAOD::TrackParticleContainer>& trackElemLink,
-                const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool);
+                const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool, unsigned int trackIndex);
   eflowRecTrack(const eflowRecTrack& originalEflowRecTrack);
   eflowRecTrack& operator = (const eflowRecTrack& originalEflowRecTrack);
   virtual ~eflowRecTrack();

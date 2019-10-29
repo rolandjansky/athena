@@ -143,7 +143,8 @@ def getParticleCaloExtensionTool():
         return cached_instances[_name]
     
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-    tauParticleCaloExtensionTool=Trk__ParticleCaloExtensionTool(name = _name, Extrapolator = getAtlasExtrapolator())
+    
+    tauParticleCaloExtensionTool = Trk__ParticleCaloExtensionTool(name = _name, Extrapolator = getAtlasExtrapolator())
     
     ToolSvc += tauParticleCaloExtensionTool  
     cached_instances[_name] = tauParticleCaloExtensionTool
@@ -336,7 +337,8 @@ def getElectronVetoVars():
     from tauRecTools.tauRecToolsConf import TauElectronVetoVariables
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
                                                         CellCorrection = True,
-                                                        ParticleCaloExtensionTool = getParticleCaloExtensionTool())
+                                                        ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
+                                                        tauEVParticleCache = "ParticleCaloExtension")
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables
@@ -685,6 +687,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
+                                    tauParticleCache = "ParticleCaloExtension",
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm

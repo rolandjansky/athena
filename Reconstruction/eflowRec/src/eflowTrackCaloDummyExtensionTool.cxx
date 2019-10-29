@@ -194,7 +194,7 @@ StatusCode eflowTrackCaloDummyExtensionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloDummyExtensionTool::execute(const xAOD::TrackParticle* track) const {
+std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloDummyExtensionTool::execute(const xAOD::TrackParticle* track, const int index) const {
   msg(MSG::VERBOSE) << " Now running eflowTrackCaloDummyExtensionTool" << endmsg;
 
   float trackP = fabs(1./track->qOverP());

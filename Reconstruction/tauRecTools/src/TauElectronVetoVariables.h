@@ -7,6 +7,8 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 
 namespace Trk {
   class IParticleCaloExtensionTool;
@@ -44,6 +46,10 @@ public:
 
     bool m_doCellCorrection; //!< enable cell origin correction
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+    bool m_useOldCalo;
+    //output particle calo extension collection
+    SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
+      "tauEVParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauEV Algorithm"};
 };
 
 #endif
