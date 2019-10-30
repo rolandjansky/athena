@@ -204,13 +204,15 @@ void GeoPixelLadderInclRef::preBuild( ) {
   m_thicknessP =  serviceOffsetX + (0.5*staveSupportThick);
   if (ecRadialPos>0) m_thicknessP += ecRadialPos;
   
-  m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;//why do we need this safety factor added by hand? Can't we just put the correct value???? m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;   
+  m_length = m_staveDBHelpers[0]->getStaveSupportLength() + 0.01;//TODO: safety offset hardcoded, find a better solution  
   m_width  = m_staveDBHelpers[0]->getStaveSupportWidth();
   //catching old layouts before support width was correctly specified
-  if(m_width<=0){
+  if(m_width<0){
     m_width = m_barrelModule->Width()*.7;
     msg(MSG::DEBUG)<<"Special Case for old layouts! m_width set to"<<m_width<<" due via m_barrelModule->Width()*.7 - not to be relied on in new developments! Please set your stave support width correctly!"<<endreq;
   }
+  // malformed volume
+  if (m_width==0) msg(MSG::WARNING) <<"stave support width set to 0 for layer "<<m_layer<<" : is this intentional ? "<<endreq;
 
   if (m_staveDBHelpers[0]->getStaveSupportType() == "Standard" ) {
     m_staveSupport = new GeoPixelStaveSupportInclRef( getBasics(), m_layer, *m_barrelModule, m_barrelModuleTilt, 0., m_gapPlanarStave, ecMinRadialPos, ecMaxRadialPos, zEndOfNBarrelModulePos);
@@ -568,7 +570,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
      double radiusLayer = sqrt( (testPoint.x()*testPoint.x())  +   (testPoint.y()*testPoint.y()) );
      
      double halfThickness  = 0.5*(radiusMax-radiusMin) ; 
-     double halfWidth      = (m_barrelModule->Width()+0.01)/2.0;
+     double halfWidth      = (m_barrelModule->Width()+0.01)/2.0; //TODO: safety offset hardcoded, find a better solution 
      double shiftThickness = ((0.5*(radiusMax - radiusMin)) - (radiusLayer-radiusMin)) ;
      double shiftWidth     = 0.0;
      
@@ -1262,6 +1264,7 @@ std::vector<double> GeoPixelLadderInclRef:: ConstructAndPlaceModuleService(std::
     
     // Get service volume dimensions
     double svcHalfThick = m_moduleSvcThickness;
+    //Why the magic numbers here????? 
     double svcHalfWidth = m_barrelModule->Width()*0.75*.25;
     if (type == "endcap") svcHalfThick *= 2.0; // = Barrel + Endcap service thickness
 

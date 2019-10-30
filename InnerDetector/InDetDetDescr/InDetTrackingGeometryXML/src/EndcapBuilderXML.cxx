@@ -421,9 +421,6 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   
   // rings parameters
   int nsectors             = layerTmp->nsectors.at(iring);
-  double zpos              = cavernSide*layerTmp->ringpos.at(iring); 
-  double zoffset           = layerTmp->zoffset.at(iring); 
-  double mod0phioffset     = layerTmp->phioffset.at(iring);
   double ring_rmin         = layerTmp->outerRadius.at(iring);
   double ring_rmax         = layerTmp->innerRadius.at(iring);
   bool useDisc             = layerTmp->useDiscSurface;

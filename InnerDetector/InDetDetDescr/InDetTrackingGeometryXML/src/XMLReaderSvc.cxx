@@ -726,7 +726,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     double inclinedAngle = tmpinclination.at(0);
     tmpinclination.clear();
     for (unsigned int ir = 0 ; ir < nrings; ir++) tmpinclination.push_back(inclinedAngle);
-  } else {
+  } else if (tmpinclination.size()==0) {
     for (unsigned int ir = 0 ; ir < nrings; ir++) tmpinclination.push_back(0.);
   } 		
 
