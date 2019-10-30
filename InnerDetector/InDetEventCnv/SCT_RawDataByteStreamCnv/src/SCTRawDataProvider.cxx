@@ -160,7 +160,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   // copy decoding errorrs to the IDC container, TODO, move this code to converter
   for ( const std::pair<IdentifierHash, int>* hashErrorPair : *bsErrContainer ) {
-    bsIDCErrContainer->addOrDelete( std::make_unique<IDCInDetBSErrContainer::ErrorCode>(hashErrorPair->second),  hashErrorPair->first );
+    ATH_CHECK( bsIDCErrContainer->addOrDelete( std::make_unique<IDCInDetBSErrContainer::ErrorCode>(hashErrorPair->second),  hashErrorPair->first ) );
   }
 
 

@@ -7,8 +7,6 @@
 #define INDETBYTESTREAMERRORS_IDCINDETBSERRCONTAINER_H
 
 
-#include "Identifier/IdentifierHash.h"
-#include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h"
 #include "EventContainers/IdentifiableCache.h"
