@@ -104,7 +104,8 @@ class _PyAthenaBindingsCatalog(object):
             _msg = _PyAthenaBindingsCatalog.msg
             _msg.error("Problem registering callback for [%s]", klass)
             _msg.error("Exception: %s", err)
-        _PyAthenaBindingsCatalog.instances[klass] = lambda : None
+            cb = lambda : None  # noqa: E731
+        _PyAthenaBindingsCatalog.instances[klass] = cb
         return
 
     @staticmethod
