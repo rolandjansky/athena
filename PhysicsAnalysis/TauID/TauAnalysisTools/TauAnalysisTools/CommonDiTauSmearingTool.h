@@ -65,7 +65,6 @@ protected:
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::DiTauJet& xDiTau,
                                       double& dCorrectionFactor) const;
-  e_TruthMatchedParticleType checkTruthMatch(const xAOD::DiTauJet& xDiTau) const;
   void generateSystematicSets();
 
 };
