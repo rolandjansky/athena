@@ -131,12 +131,6 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
           m_TrkDetailedSelection->decision(*track, primaryVertex)    || 
           m_TrkDetailedSelection->decision(*track, (*vxContainer)[0]) ) {
         mask[track->index()] = true;
-        // if ( !(static_cast<bool>(m_TrkSelection->accept(*track, nullptr))) &&  m_TrkDetailedSelection->decision(*track, primaryVertex) ){//
-        //   ATH_MSG_WARNING("HEADCALODEBUG : Track index " << track->index() << " passed decision but not accept.");//
-        // }//
-        // if ( !(static_cast<bool>(m_TrkSelection->accept(*track, nullptr))) &&  m_TrkDetailedSelection->decision(*track, (*vxContainer)[0]) ){//
-        //   ATH_MSG_WARNING("HEADCALODEBUG : Track index " << track->index() << " passed decision but not accept. (0th elem).");//
-        // }//
       }
     }
 
