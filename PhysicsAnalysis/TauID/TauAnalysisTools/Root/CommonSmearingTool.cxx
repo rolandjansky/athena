@@ -230,7 +230,7 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
     return CP::CorrectionCode::Ok;
 
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     return CP::CorrectionCode::Ok;
   }
@@ -589,40 +589,4 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     }
   }
   return CP::CorrectionCode::Ok;
-}
-
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonSmearingTool::checkTruthMatch(const xAOD::TauJet& xTau) const
-{
-  // check if reco tau is a truth hadronic tau
-  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
-    ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first.");
-
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
-  const Link_t xTruthParticleLink = accTruthParticleLink(xTau);
-
-  // if there is no link, then it is a truth jet
-  e_TruthMatchedParticleType eTruthMatchedParticleType = TauAnalysisTools::TruthJet;
-
-  if (xTruthParticleLink.isValid())
-  {
-    const xAOD::TruthParticle* xTruthParticle = *xTruthParticleLink;
-    if (xTruthParticle->isTau())
-    {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
-      if ((bool)accIsHadronicTau(*xTruthParticle))
-      {
-        eTruthMatchedParticleType = TruthHadronicTau;
-      }
-    }
-    else if (xTruthParticle->isElectron())
-      eTruthMatchedParticleType = TruthElectron;
-    else if (xTruthParticle->isMuon())
-      eTruthMatchedParticleType = TruthMuon;
-  }
-  else
-    ATH_MSG_VERBOSE("Truth particle link is not valid");
-
-  return eTruthMatchedParticleType;
 }
