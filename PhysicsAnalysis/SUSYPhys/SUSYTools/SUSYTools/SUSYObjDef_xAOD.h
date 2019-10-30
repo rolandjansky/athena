@@ -150,6 +150,7 @@ namespace ST {
 
     const xAOD::Vertex* GetPrimVtx() const override final;
 
+    StatusCode BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const override final;
     StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "") override final;
@@ -577,9 +578,11 @@ namespace ST {
     double      m_muIsoHighPtThresh;
     std::string m_BtagWP;
     std::string m_BtagTagger;
+    std::string m_BtagTimeStamp;
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
+    std::string m_BtagTimeStamp_trkJet;
     double m_BtagMinPt_trkJet;
 
     //configurable cuts here
