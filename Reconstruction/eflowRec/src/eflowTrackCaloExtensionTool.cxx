@@ -71,7 +71,7 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track, const int index) const {
+std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track) const {
 
   ATH_MSG_VERBOSE(" Now running eflowTrackCaloExtensionTool");
 
@@ -82,6 +82,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
   const Trk::CaloExtension * extension = nullptr;
   std::unique_ptr<Trk::CaloExtension> uniqueExtension;
+  const int index = track->index();
   ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
 
   if (m_useOldCalo) {
@@ -108,7 +109,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = extension->caloLayerIntersections();
 
     /*fill the map*/
-    for (auto & clParameter : clParametersVector) {
+    for ( const Trk::CurvilinearParameters * clParameter : clParametersVector) {
       if (parametersMap[getLayer(clParameter)] == NULL) {
         parametersMap[getLayer(clParameter)] = clParameter;
       } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter->cIdentifier())) {

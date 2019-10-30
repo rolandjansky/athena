@@ -214,7 +214,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     }
 
     // loop over calo layers
-    for( auto & cur : clParametersVector ){
+    for( const Trk::CurvilinearParameters * cur : clParametersVector ){
       
       // only use entry layer
       if( !parsIdHelper.isEntryToVolume(cur->cIdentifier()) ) continue;

@@ -29,7 +29,7 @@
 
 namespace Trk 
 {
-  class CaloExtensionBuilderAlg : public AthAlgorithm//, virtual public ITrackSelectorTool
+  class CaloExtensionBuilderAlg : public AthAlgorithm::AthAlgorithm//, virtual public ITrackSelectorTool
   {
   public:
   /** @brief Default constructor*/

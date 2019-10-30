@@ -43,7 +43,7 @@ public:
   static const InterfaceID& interfaceID();
 
   virtual StatusCode initialize() override;
-  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track, const int index = 0) const override;
+  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track) const override;
   virtual StatusCode finalize() override;
 
 private:

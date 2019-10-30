@@ -194,10 +194,8 @@ StatusCode eflowTrackCaloDummyExtensionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloDummyExtensionTool::execute(const xAOD::TrackParticle* track, const int index) const {
+std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloDummyExtensionTool::execute(const xAOD::TrackParticle* track) const {
   msg(MSG::VERBOSE) << " Now running eflowTrackCaloDummyExtensionTool" << endmsg;
-
-  (void)index;  
 
   float trackP = fabs(1./track->qOverP());
   Amg::Vector3D dummyMom(trackP*cos(track->phi())*sin(track->theta()),
