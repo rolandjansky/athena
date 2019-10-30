@@ -8,12 +8,22 @@ if not hasattr( filtSeq, "DirectPhotonFilter" ):
 """
 DirectPhotonFilter = filtSeq.DirectPhotonFilter
 
-# Old method of pt cut - maintained for backwards compatibility
-# DirectPhotonFilter.Ptcut = 10000.
-
-DirectPhotonFilter.Ptmin = 10000.
-DirectPhotonFilter.Ptmax = 100000000.
-DirectPhotonFilter.Etacut = 2.50
 DirectPhotonFilter.NPhotons = 1
-DirectPhotonFilter.AllowSUSYDecay = False
+
+# apply cut inclusively for any photon in the event (False) or 
+# ordered by pT for the given number of photons (True, default)
+DirectPhotonFilter.OrderPhotons = True
+
+# if OrderPhotons=True: can contain multiple values for leading, subleading, ...
+# if OrderPhotons=False: the first value will be used for the inclusive cut
+DirectPhotonFilter.Ptmin = [ 10000. ]
+
+# optional, unlimited by default
+DirectPhotonFilter.Ptmax = [ 100000000. ]
+
+# eta range
+DirectPhotonFilter.Etacut = 2.50
+
+# Accept also prompt photons from SUSY decays
+DirectPhotonFilter.AllowSUSYDecay = True
 """
