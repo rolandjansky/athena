@@ -268,14 +268,14 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 {
   msg(MSG::DEBUG) << " in writeAlignTextFile " << endmsg;
   std::ofstream* outfile=0;
-  msg(MSG::INFO) << " --SALVA -- Write AlignableTransforms to text file: "<< file << endmsg;
+  msg(MSG::INFO) << "Writing AlignableTransforms to text file: "<< file << endmsg;
   outfile=new std::ofstream(file.c_str());
 
   int ntrans=0;
   int nobj=0;
 
   /** Loop over created AlignableTransforms */
-  msg(MSG::INFO) << " --SALVA to DEBUG-- Starting loop on AlignableTransforms " << endmsg;
+  msg(MSG::DEBUG) << " Starting the loop on AlignableTransforms " << endmsg;
   std::vector<std::string>::const_iterator iobj=m_alignobjs.begin();
   std::vector<std::string>::const_iterator iobjE=m_alignobjs.end();
   for (;iobj!=iobjE; ++iobj) {
@@ -1662,25 +1662,18 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
         const coral::AttributeList& atrlist=citr->second;
 	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
 
-	//if(citr->first != DBident && false) { // SALVA --> insert false: to be removed?
 	if (citr->first != DBident) { 
 	  ATH_MSG_INFO( "                 citr->first (" << citr->first << ") != DBident (" << DBident << ") --> lets continue");
 	  continue;
 	}
-	/* original code
-        if(citr->first!=DBident){
-          msg(MSG::DEBUG) << "tweakGlobalFolder fails due to identifier mismatch" << endmsg;
-          continue;
-	}
-	*/
         else {
-	  ATH_MSG_INFO( " -- SALVA -- goodmatch is TRUE -- structcount= " 
+	  ATH_MSG_DEBUG( " -- TRT structure identifiers " 
 			<< "\n                                 citr->first= " << citr->first
 			<< "\n                                 DBident    = " << DBident
 			<< "\n                                 bec        = " << bec 
 			<< "\n                                 ident      = " << ident 
 			<< "\n");
-          msg(MSG::INFO) << "Tweak Old global DB -- channel: " << citr->first
+          msg(MSG::DEBUG) << "Tweak Old global DB -- channel: " << citr->first
 			  << " ,bec: "    << atrlist2["bec"].data<int>()
                           << " ,layer: "  << atrlist2["layer"].data<int>()
 			  << " ,sector: " << atrlist2["sector"].data<int>()
@@ -1718,7 +1711,7 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
           atrlist2["psi"].data<float>()   = eulerangles[2] ;
 
 	  result = true;
-	  msg(MSG::DEBUG) << "Tweak New global DB -- channel: " << citr->first
+	  msg(MSG::INFO) << "Tweak New global DB -- channel: " << citr->first
 			  << " ,bec: "    << atrlist2["bec"].data<int>()
                           << " ,layer: "  << atrlist2["layer"].data<int>()
                           << " ,sector: " << atrlist2["sector"].data<int>()
@@ -1746,123 +1739,3 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
   else return StatusCode::FAILURE;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-StatusCode TRT_AlignDbSvc::tweakGlobalFolder_original(Identifier ident, Amg::Transform3D trans ) {
-
-  // find transform key, then set appropriate transform
-  const CondAttrListCollection* atrlistcol1=0;
-  CondAttrListCollection* atrlistcol2=0;
-  bool result = false;
-  std::string key="/TRT/AlignL1/TRT";
-  int bec = m_trtid->barrel_ec(ident);
-  // SALVA: original line --> const unsigned int DBident = bec*1000;
-  const unsigned int DBident = 1000+bec*100;
-  // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
-
-  ATH_MSG_INFO( " -- tweakGlobalFolder -- START ==> identifier " << ident 
-		<< "\n                                                    >> key: " << key 
-		<< "\n                                                    >> bec: " << bec 
-		<< "\n                                                    >> Target DBident= "<< DBident << "\n");
-
-  if (m_detStore->retrieve(atrlistcol1, key).isSuccess()) {
-    ATH_MSG_DEBUG( "tweakGlobalFolder ==> retrieved CondAttrListCollection (atrlistcol1) for key: " << key << " --> SUCCESS" );
-
-    // loop over objects in collection
-    atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
-
-    if (atrlistcol1!=0){
-      ATH_MSG_INFO( "tweakGlobalFolder ==> atrlistcol1->size()=  " << atrlistcol1->size());
-      int structcount = 0;
-      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
-	structcount++;
-	ATH_MSG_INFO( "tweakGlobalFolder ==> inside  for loop  ==> count " << structcount 
-		      << "\n                                   input             bec: " << bec
-		      << "\n                                   input           ident: " << ident
-		      << "\n                                   testing   citr->first: " << citr->first << "     target: " << DBident);
-        const coral::AttributeList& atrlist=citr->second;
-	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
-
-	//if(citr->first != DBident && false) { // SALVA --> insert false: to be removed?
-	if (citr->first != DBident) { 
-	  ATH_MSG_INFO( " structcount= " << structcount << "                 citr->first (" << citr->first << ") != DBident (" << DBident << ") --> lets continue");
-	  continue;
-	}
-        else { 
-	  /*
-	    bool goodmatch = false;
-	    if (bec == -1 && ident.getString().find("0x1200000000000000") == 0 && citr->second["bec"].data<int>() ==-1 && !goodmatch) goodmatch = true; // TRT barrel
-	    if (bec == -2 && ident.getString().find("0x1000000000000000") == 0 && citr->second["bec"].data<int>() ==-2 && !goodmatch) goodmatch = true; // TRT ECA
-	    if (bec ==  2 && ident.getString().find("0x1600000000000000") == 0 && citr->second["bec"].data<int>() == 2 && !goodmatch) goodmatch = true; // TRT ECC
-	    
-	    ATH_MSG_DEBUG( "       ident: " << ident << "      input bec= " << bec << "      test citr->second.bec=" << citr->second["bec"] << "   goodmatch ? " << goodmatch ); 
-	    if (goodmatch) {
-	  */
-	  if (true) continue;
-	  ATH_MSG_INFO( " -- SALVA -- goodmatch is TRUE -- structcount= " << structcount 
-			<< "\n                                 citr->first= " << citr->first
-			<< "\n                                 DBident    = " << DBident
-			<< "\n                                 bec        = " << bec 
-			<< "\n                                 ident      = " << ident 
-			<< "\n");
-	  
-          msg(MSG::INFO) << " -- SALVA -- Tweak Old global DB -- channel: " << citr->first
-			  << " ,bec: "    << atrlist2["bec"].data<int>()
-                          << " ,layer: "  << atrlist2["layer"].data<int>()
-			  << " ,sector: " << atrlist2["sector"].data<int>()
-                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
-                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
-                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
-                          << " ,phi: "    << atrlist2["phi"].data<float>()
-                          << " ,theta: "  << atrlist2["theta"].data<float>()
-                          << " ,psi: "    << atrlist2["psi"].data<float>() << endmsg;
-
-
-          // Follow same definitions as in TRT_AlignDbSvc.cxx                                                                                               
-	  CLHEP::Hep3Vector  oldtranslation(atrlist2["Tx"].data<float>(),atrlist2["Ty"].data<float>(),atrlist2["Tz"].data<float>());
-	  CLHEP::HepRotation oldrotation;
-	  oldrotation.set(atrlist["phi"].data<float>(),atrlist["theta"].data<float>(),atrlist["psi"].data<float>());
-	  HepGeom::Transform3D oldtransform(oldrotation, oldtranslation);
-	  	  
-          // get the new transform
-	  // HepGeom::Transform3D newtrans = Amg::EigenTransformToCLHEP(trans)*oldtrans;
-	  Amg::Transform3D newtrans = trans*Amg::CLHEPTransformToEigen(oldtransform);
-	  
-          // Extract the values we need to write to DB
-	  Amg::Vector3D shift=newtrans.translation();
-	  Amg::Vector3D eulerangles = newtrans.rotation().eulerAngles(2,0,2) ;                     
-	  //CLHEP::HepRotation rot=newtrans.getRotation();                                                                                           
-          atrlist2["Tx"].data<float>() = shift.x();
-          atrlist2["Ty"].data<float>() = shift.y();
-          atrlist2["Tz"].data<float>() = shift.z();
-          atrlist2["phi"].data<float>()   = eulerangles[0]/CLHEP::mrad ;
-          atrlist2["theta"].data<float>() = eulerangles[1]/CLHEP::mrad ;
-          atrlist2["psi"].data<float>()   = eulerangles[2]/CLHEP::mrad ;
-
-	  result = true;
-	  msg(MSG::INFO) << "Tweak New global DB -- channel: " << citr->first
-			  << " ,bec: "    << atrlist2["bec"].data<int>()
-                          << " ,layer: "  << atrlist2["layer"].data<int>()
-                          << " ,sector: " << atrlist2["sector"].data<int>()
-                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
-                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
-                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
-                          << " ,phi: "    << atrlist2["phi"].data<float>()
-                          << " ,theta: "  << atrlist2["theta"].data<float>()
-                          << " ,psi: "    << atrlist2["psi"].data<float>() << endmsg;
-
-        }
-      }
-    }
-    else {
-      ATH_MSG_ERROR("tweakGlobalFolder: cast fails for DBident " << DBident );
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    ATH_MSG_INFO( "tweakGlobalFolder ==> cannot retrieve CondAttrListCollection (atrlistcol1) for key: " << key << " --> FAILURE" );
-    return StatusCode::FAILURE;
-  }
-
-  if (result) return StatusCode::SUCCESS;
-  else return StatusCode::FAILURE;
-}
