@@ -59,16 +59,16 @@ namespace xAOD {
    //
 
    /// Accessor for the production vertex
-   static SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
-      prodVtxLinkAcc( "prodVtxLink" );
+   static const SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
+      acc_prodVtxLink( "prodVtxLink" );
    /// Accessor for the decay vertex
-   static SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
-      decayVtxLinkAcc( "decayVtxLink" );
+   static const SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
+      acc_decayVtxLink( "decayVtxLink" );
 
    bool TruthParticle_v1::hasProdVtx() const {
 
-      return ( prodVtxLinkAcc.isAvailable( *this ) &&
-               prodVtxLinkAcc( *this ).isValid() );
+      return ( acc_prodVtxLink.isAvailable( *this ) &&
+               acc_prodVtxLink( *this ).isValid() );
    }
 
    const TruthVertex* TruthParticle_v1::prodVtx() const {
@@ -82,8 +82,8 @@ namespace xAOD {
 
    bool TruthParticle_v1::hasDecayVtx() const {
 
-      return ( decayVtxLinkAcc.isAvailable( *this ) &&
-               decayVtxLinkAcc( *this ).isValid() );
+      return ( acc_decayVtxLink.isAvailable( *this ) &&
+               acc_decayVtxLink( *this ).isValid() );
    }
 
    const TruthVertex* TruthParticle_v1::decayVtx() const {
@@ -104,17 +104,17 @@ namespace xAOD {
    //
 
    // Accessor for links to parents
-   static SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
-      parentLinks( "parentLinks" );
+   static const SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
+      acc_parentLinks( "parentLinks" );
    // Accessor for links to children
-   static SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
-      childLinks( "childLinks" );
+   static const SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
+      acc_childLinks( "childLinks" );
 
    size_t TruthParticle_v1::nParents() const {
       if (hasProdVtx()){
         return prodVtx()->nIncomingParticles();
-      } else if ( parentLinks.isAvailable( *this ) ) {
-        return parentLinks( *this ).size();
+      } else if ( acc_parentLinks.isAvailable( *this ) ) {
+        return acc_parentLinks( *this ).size();
       }
       return 0;
    }
@@ -122,8 +122,8 @@ namespace xAOD {
    const TruthParticle_v1* TruthParticle_v1::parent( size_t i ) const {
       if (hasProdVtx()){
         return prodVtx()->incomingParticle( i );
-      } else if ( parentLinks.isAvailable( *this ) && i<parentLinks( *this ).size() ) {
-        return parentLinks( *this )[i].isValid() ? *(parentLinks( *this )[i]) : nullptr;
+      } else if ( acc_parentLinks.isAvailable( *this ) && i<acc_parentLinks( *this ).size() ) {
+        return acc_parentLinks( *this )[i].isValid() ? *(acc_parentLinks( *this )[i]) : nullptr;
       }
       return nullptr;
    }
@@ -131,8 +131,8 @@ namespace xAOD {
    size_t TruthParticle_v1::nChildren() const {
       if (hasDecayVtx()){
         return decayVtx()->nOutgoingParticles();
-      } else if ( childLinks.isAvailable( *this ) ) {
-        return childLinks( *this ).size();
+      } else if ( acc_childLinks.isAvailable( *this ) ) {
+        return acc_childLinks( *this ).size();
       }
       return 0;
    }
@@ -140,8 +140,8 @@ namespace xAOD {
    const TruthParticle_v1* TruthParticle_v1::child( size_t i ) const {
       if (hasDecayVtx()){
         return decayVtx()->outgoingParticle( i );
-      } else if ( childLinks.isAvailable( *this ) && i<childLinks( *this ).size() ) {
-        return childLinks( *this )[i].isValid() ? *(childLinks( *this )[i]) : nullptr;
+      } else if ( acc_childLinks.isAvailable( *this ) && i<acc_childLinks( *this ).size() ) {
+        return acc_childLinks( *this )[i].isValid() ? *(acc_childLinks( *this )[i]) : nullptr;
       }
       return nullptr;
    }
@@ -406,11 +406,11 @@ namespace xAOD {
 
    void TruthParticle_v1::toPersistent() {
 
-      if( prodVtxLinkAcc.isAvailableWritable( *this ) ) {
-         prodVtxLinkAcc( *this ).toPersistent();
+      if( acc_prodVtxLink.isAvailableWritable( *this ) ) {
+         acc_prodVtxLink( *this ).toPersistent();
       }
-      if( decayVtxLinkAcc.isAvailableWritable( *this ) ) {
-         decayVtxLinkAcc( *this ).toPersistent();
+      if( acc_decayVtxLink.isAvailableWritable( *this ) ) {
+         acc_decayVtxLink( *this ).toPersistent();
       }
       return;
    }
