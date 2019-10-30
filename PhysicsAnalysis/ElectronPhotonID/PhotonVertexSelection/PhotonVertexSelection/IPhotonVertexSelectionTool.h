@@ -29,6 +29,18 @@ namespace CP {
     ASG_TOOL_INTERFACE(CP::IPhotonVertexSelectionTool)
 
   public:
+    /// enum indicating where the tool has failed
+    enum FailType {
+      Unkown        = -99,  // Init value
+      NoFail        =   0,  // Ok to run the MVA algorithm
+      NoVxCont      =   1,  // No vertex container
+      NoEventInfo   =   2,  // No EventInfo
+      FailPointing  =   3,  // Calo pointing failed
+      FailEgamVect  =   4,  // No diphoton event
+      NoGdCandidate =   5,  // Pointing succeded but too distant from any other vertex
+      MatchedTrack  =   6,  // Conversion photon has a track attached to a primary/pileup vertex
+    };
+
     /// Given a list of photons, decorate vertex container with MVA variables
     virtual StatusCode decorateInputs(const xAOD::EgammaContainer &egammas) = 0;
 
@@ -46,7 +58,7 @@ namespace CP {
     virtual int getCase() const = 0;
 
     /// Return the last fail encountered
-    virtual int getFail() const = 0; // TODO: forbidden in Rel22, to be fixed
+    virtual FailType getFail() const = 0; // TODO: forbidden in Rel22, to be fixed
 
     /// Get possible vertex directly associated with photon conversions
     virtual const xAOD::Vertex* getPrimaryVertexFromConv(const xAOD::PhotonContainer *photons) const = 0;
