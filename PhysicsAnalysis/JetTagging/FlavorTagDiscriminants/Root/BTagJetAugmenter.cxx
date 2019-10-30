@@ -124,13 +124,7 @@ BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging* btag_ptr = jet.btagging();
-  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
-  const xAOD::BTagging& btag = *btag_ptr;
-
-  m_pt_uncalib(btag) = uncalibrated_jet.pt();
-  m_eta_uncalib(btag) = uncalibrated_jet.eta();
-  m_abs_eta_uncalib(btag) = std::abs(uncalibrated_jet.eta());
+  augmentBtagJes(jet, uncalibrated_jet);
 
   // pass off to calibrated jet function
   augment(jet);
@@ -152,6 +146,18 @@ void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
   m_ip3d_cu(btag) = std::log(m_ip3d_pc(btag) / m_ip3d_pu(btag));
   m_ip3d_bu(btag) = std::log(m_ip3d_pb(btag) / m_ip3d_pu(btag));
   m_ip3d_bc(btag) = std::log(m_ip3d_pb(btag) / m_ip3d_pc(btag));
+
+}
+void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
+                                      const xAOD::Jet &uncalib) {
+
+  const xAOD::BTagging* btag_ptr = target.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
+
+  pt_uncalib(btag) = uncalib.pt();
+  eta_uncalib(btag) = uncalib.eta();
+  abs_eta_uncalib(btag) = std::abs(uncalib.eta());
 
 }
 
