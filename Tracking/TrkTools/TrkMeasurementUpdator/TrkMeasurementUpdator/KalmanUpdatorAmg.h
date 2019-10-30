@@ -22,7 +22,7 @@
 // Eigen/Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
-
+#include <string_view>
 
 namespace Trk {
 
@@ -218,7 +218,7 @@ private:
     TrackParameters* convertToClonedTrackPars(const TrackParameters&,
                                               const AmgVector(5)&,
                                               const AmgSymMatrix(5)&,
-                                              int, bool, const std::string&) const;
+                                              int, bool, std::string_view) const;
                                                     
 
     // === note: any of the following log... method is only called if
