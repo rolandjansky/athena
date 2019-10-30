@@ -23,7 +23,8 @@ namespace hltonl {
     OUTPUT_SEND_FAILURE   = 9,
     AFTER_RESULT_SENT     = 10,
     COOL_UPDATE           = 11,
-    TIMEOUT               = 12
+    TIMEOUT               = 12,
+    RESULT_TRUNCATION     = 13
   };
 
   /// helper class to map HLT PSC error code on a string name or a int index
@@ -34,7 +35,7 @@ namespace hltonl {
   };
 
   /// helper function to print HLT PSC error code in human readable form 
-  std::string PrintPscErrorCode(hltonl::PSCErrorCode) ;
+  std::string PrintPscErrorCode(hltonl::PSCErrorCode);
 }
 
 inline hltonl::MapPscErrorCode::MapPscErrorCode() {
@@ -52,6 +53,7 @@ inline hltonl::MapPscErrorCode::MapPscErrorCode() {
   add(hltonl::PSCErrorCode::AFTER_RESULT_SENT,     "PSCErrorCode::AFTER_RESULT_SENT");
   add(hltonl::PSCErrorCode::COOL_UPDATE,           "PSCErrorCode::COOL_UPDATE");
   add(hltonl::PSCErrorCode::TIMEOUT,               "PSCErrorCode::TIMEOUT");
+  add(hltonl::PSCErrorCode::RESULT_TRUNCATION,     "PSCErrorCode::RESULT_TRUNCATION");
   // return values in case of invalid code
   invalidCode("UNDEFINED",-1);
 }

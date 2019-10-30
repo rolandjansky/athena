@@ -17,6 +17,7 @@
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "TestTools/initGaudi.h"
 #include "CoralBase/Blob.h"
+#include <algorithm>
 #include <iostream>
 #include <cassert>
 
@@ -49,6 +50,8 @@ void test1 (ISvcLocator* svcloc)
   
   coral::Blob blob (BunchGroupCondData::NBCID);
   uint8_t* bcids = static_cast<uint8_t*> (blob.startingAddress());
+  std::fill_n (bcids, BunchGroupCondData::NBCID, 0);
+  
   bcids[3] = 0xa1;
   bcids[5] = 0x65;
   bcids[7] = 0x9c;
