@@ -17,6 +17,7 @@
 
 // Isolation include(s):
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 
 namespace top {
@@ -35,6 +36,7 @@ namespace top {
 
     ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
     ToolHandleArray<CP::IIsolationSelectionTool> m_isolationTools;
+    ToolHandleArray<CP::IIsolationLowPtPLVTool> m_isolationToolsLowPtPLV;
 
     StatusCode setupIsolation();
   };
