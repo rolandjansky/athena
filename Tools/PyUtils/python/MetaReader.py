@@ -48,6 +48,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
     if mode not in ('tiny', 'lite', 'full', 'peeker'):
         raise NameError('Allowed values for "mode" parameter are: "tiny", "lite", "peeker" or "full"')
     msg.info('Current mode used: {0}'.format(mode))
+    msg.info('Current filenames: {0}'.format(filenames))
 
     if mode != 'full' and len(meta_key_filter) > 0:
         raise NameError('It is possible to use the meta_key_filter option only for full mode')
@@ -688,11 +689,15 @@ def promote_keys(meta_dict):
         for key in file_content:
             if key in md['metadata_items'] and regexEventStreamInfo.match(md['metadata_items'][key]):
                 md.update(md[key])
-                et = md['eventTypes'][0]
-                md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
+                
+                if len(md['eventTypes']):
+					et = md['eventTypes'][0]
+					md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
 
-                md['mc_channel_number'] = et.get('mc_channel_number', 0)
-                md['eventTypes'] = et['type']
+					md['mc_channel_number'] = et.get('mc_channel_number', 0)
+					md['eventTypes'] = et['type']
+					
+					
                 md['lumiBlockNumbers'] = md['lumiBlockNumbers']
                 md['processingTags'] = md[key]['processingTags']
 

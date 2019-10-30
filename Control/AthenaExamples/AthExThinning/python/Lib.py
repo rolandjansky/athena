@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthExThinning/python/Lib.py
 # @purpose: a set of Py-components to tests py-thinning
@@ -30,7 +30,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
         ## Datavector stuff
         import cppyy
         cppyy.loadDict("libAthExThinningEventDict")
-        from RootUtils import PyROOTFixes
+        from RootUtils import PyROOTFixes  # noqa: 401
         ## thinningsvc
         self.thinSvc = PyAthena.py_svc("ThinningSvc",
                                        createIf=True,
@@ -288,7 +288,7 @@ class PyReadNonThinnedData( PyAthena.Alg ):
         ## Datavector stuff
         import cppyy
         cppyy.loadDict("libAthExThinningEventDict")
-        from RootUtils import PyROOTFixes
+        from RootUtils import PyROOTFixes  # noqa: F401
         return StatusCode.Success
 
     def execute(self):

@@ -172,8 +172,13 @@ PyAthena::callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
     throw_py_exception();
   }
   
+#if PY_VERSION_HEX < 0x03000000
   if ( PyInt_Check( r ) || PyLong_Check(r) ) {
     StatusCode sc(PyInt_AS_LONG( r ));
+#else
+  if ( PyLong_Check( r ) ) {
+    StatusCode sc(PyLong_AS_LONG( r ));
+#endif
     Py_DECREF( r );
     return sc;
   }

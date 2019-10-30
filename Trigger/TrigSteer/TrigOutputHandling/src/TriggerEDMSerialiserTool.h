@@ -8,13 +8,17 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "xAODCore/AuxSelection.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
+#include "AthenaMonitoring/Monitored.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigSerializeTP/TrigSerTPTool.h"
 #include "Gaudi/Parsers/Factory.h" // Needed to declare less common Property types
 
+// Forward declarations
+class DataObject;
 
 /**
  * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
@@ -29,9 +33,6 @@
  *
  * For unpacking, the @see TriggerEDMDeserialiserAlg is used
  **/
-
-class DataObject; //!< Forward declaration
-
 class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 {
 
@@ -56,12 +57,19 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     "the main result, other IDs are used for data scouting."
   };
   Gaudi::Property<bool> m_saveDynamic { this, "SaveDynamic", true, "If false skips serialising of dynamic varaibles. Use for test purpose only." };
+  Gaudi::Property<std::map<uint16_t,uint32_t>> m_truncationThresholds {
+    this, "TruncationThresholds", {}, "HLT result truncation thresholds. Key is module ID, value is max size in bytes"
+  };
+  /// StoreGate key for the truncation debug info object
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_debugInfoWHKey {
+    this, "DebugInfoWHKey", "TruncationDebugInfo"
+  };
 
 
-  /// @class Address
-  /// Internal structure to keep configuration organised conveniently
-  ///
-
+  /**
+   * @class Address
+   * Internal structure to keep configuration organised conveniently
+   **/
   struct Address {
     enum Category { xAODInterface, xAODAux, OldTP, xAODDecoration, None };
     Address( const std::string& transType_,
@@ -88,7 +96,24 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     Category category;
     xAOD::AuxSelection sel = {}; //!< xAOD dynamic varaibles selection, relevant only for xAODAux category
 
+    const std::string transTypeName() const {return transType+"#"+key;}
+    const std::string persTypeName() const {return persType+"#"+key;}
   };
+
+  /**
+   * @class TruncationInfo
+   * Internal structure to keep information for truncation debugging
+   **/
+  struct TruncationInfo {
+    TruncationInfo(const Address* a, const size_t s, const bool r)
+    : addrPtr(a), size(s), recorded(r) {}
+    const Address* addrPtr{nullptr};
+    size_t size{0};
+    bool recorded{false};
+  };
+
+  /// Typedef for collection of TruncationInfo objects for full event
+  using TruncationInfoMap = std::unordered_map<uint16_t, std::vector<TruncationInfo>>;
 
   std::vector< Address > m_toSerialise; // postprocessed configuration info
 
@@ -100,7 +125,12 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool",
       "Tool to do Transient/Persistent conversion (Old EDM)"};
 
+  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 
+  /**
+   * Parse entry from m_collectionsToSerialize and add it to m_toSerialise
+   */
+  StatusCode addCollectionToSerialise(const std::string& typeKeyAuxIDs, std::vector<Address>& addressVec) const;
 
   /**
    * Given the ID if the collection (in address arg) insert basic streaming info into the buffer.
@@ -132,13 +162,28 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
    */
   StatusCode serialiseTPContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const;
 
-
-
   /**
    * Adds dynamic variables to the payload
    */
   StatusCode serialiseDynAux( DataObject* dObject, const Address& address, std::vector<uint32_t>& buffer, size_t& nDynWritten ) const;
 
+  /**
+   * Retrieve data from event store, serialise and fill the buffer
+   * using one of the specific serialise methods, depending on the data type
+   */
+  StatusCode serialise( const Address& address, std::vector<uint32_t>& buffer, SGImplSvc* evtStore ) const;
+
+  /**
+   * Try appending serialised data to HLT result. If data would exceed truncation threshold, don't add and flag the
+   * corresponding module ID as truncated.
+   * @return FAILURE in case the truncation threshold is undefined
+   */
+  StatusCode tryAddData(HLT::HLTResultMT& hltResult, const uint16_t id, const std::vector<uint32_t>& data) const;
+
+  /**
+   * Parse the truncation debug information, fill monitoring histograms, fill and record the debug info collection
+   */
+  StatusCode fillDebugInfo(const TruncationInfoMap& truncationInfoMap, xAOD::TrigCompositeContainer& debugInfoCont, HLT::HLTResultMT& resultToFill, SGImplSvc* evtStore) const;
 
   /**
    * Obtain version from the actaul type name

@@ -788,7 +788,7 @@ public:
   // It's an error if the non-key versions get called.
   virtual void persToTrans(const PERS* /*persObj*/,
                            TRANS* /*transObj*/,
-                           MsgStream& /*log*/) const override final
+                           MsgStream& /*log*/) const override /*final*/
   {
     throw std::runtime_error ("persToTrans called where persToTransWithKey required.");
   }
