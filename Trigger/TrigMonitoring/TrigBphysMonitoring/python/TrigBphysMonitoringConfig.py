@@ -11,8 +11,11 @@ containers = [
               "HLT_xAOD__TrigBphysContainer_L2BMuMuFex",  "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
               #"HLT_xAOD__TrigBphysContainer_L2BMuMuXFex", 
               "HLT_xAOD__TrigBphysContainer_EFBMuMuXFex",
-              "HLT_xAOD__TrigBphysContainer_L2MultiMuFex","HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
-              "HLT_xAOD__TrigBphysContainer_L2TrackMass", "HLT_xAOD__TrigBphysContainer_EFTrackMass"
+              #"HLT_xAOD__TrigBphysContainer_L2MultiMuFex",
+              "HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
+              #"HLT_xAOD__TrigBphysContainer_L2TrackMass",
+              "HLT_xAOD__TrigBphysContainer_MultiTrkFex",
+              "HLT_xAOD__TrigBphysContainer_EFTrackMass"
               ]
 if TriggerFlags.EDMDecodingVersion == 3 :
   # will add the MT version of TrigBphys containers once they are available in EDM
