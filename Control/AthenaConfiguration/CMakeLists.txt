@@ -9,7 +9,8 @@ atlas_subdir( AthenaConfiguration )
 find_package( six )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py python/iconfTool )
+atlas_install_python_modules( python/*.py python/iconfTool 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool )
 atlas_install_data( share/*.ref )
 
@@ -42,13 +43,6 @@ if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
                     SCRIPT python -m AthenaConfiguration.AllConfigFlags
                     POST_EXEC_SCRIPT nopost.sh )
 endif()
-
-
-# Check python syntax:
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
-   POST_EXEC_SCRIPT nopost.sh )
-
 
 # Test AppendToGlobal
 atlas_add_test( appendToGlobalTest

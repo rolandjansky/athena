@@ -29,7 +29,8 @@ atlas_add_component( SGComps src/*.h src/*.cxx src/components/*.cxx
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TestTools AthenaBaseComps AthenaKernel
    SGTools StoreGateLib SGtests GaudiKernel AthLinks AthContainers )
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Declare the test(s) of the package:
 atlas_add_test( SGFolder_test
