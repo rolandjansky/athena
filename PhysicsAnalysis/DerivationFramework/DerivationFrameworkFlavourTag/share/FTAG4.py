@@ -159,6 +159,7 @@ applySoftBtagging("softBtag", FTAG4Seq ) # SV tagger in VrtSecInclusive
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 addVRJets(FTAG4Seq)
+addVRJets(FTAG4Seq, training='201903')
 addHbbTagger(
     FTAG4Seq, ToolSvc,
     nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
@@ -238,7 +239,8 @@ if BTaggingFlags.Do2019Retraining:
             ["AntiKt4EMTopoJets_BTagging201810",
              "AntiKt4EMPFlowJets_BTagging201810",
              "AntiKt4EMPFlowJets_BTagging201903",
-              "BTagging_AntiKt4EMTopo_201810"]
+              "BTagging_AntiKt4EMTopo_201810",
+	      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"]
 
     FTAG4SlimmingHelper.AllVariables += \
             ["BTagging_AntiKt4EMTopo_201810",
@@ -247,9 +249,11 @@ if BTaggingFlags.Do2019Retraining:
              "BTagging_AntiKt4EMTopo_201810JFVtx",
              "BTagging_AntiKt4EMPFlow_201810JFVtx",
              "BTagging_AntiKt4EMPFlow_201903JFVtx",
+	     "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
              "AntiKt4EMTopoJets_BTagging201810",
              "AntiKt4EMPFlowJets_BTagging201810",
-             "AntiKt4EMPFlowJets_BTagging201903"]
+             "AntiKt4EMPFlowJets_BTagging201903",
+	     "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"]
     FTAG4SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex",
                                            "BTagging_AntiKt4EMPFlow_201810SecVtx.-vxTrackAtVertex",
                                            "BTagging_AntiKt4EMPFlow_201903SecVtx.-vxTrackAtVertex",
