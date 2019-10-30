@@ -220,6 +220,8 @@ std::unique_ptr<FillParamsCondData> make_fillParams()
   return params;
 }
 
+// need to keep the Algs around until the end or the CondSvc will complain
+std::vector<LuminosityCondAlg*> theAlgs;
 
 // run2
 void test1 (ISvcLocator* svcloc)
@@ -231,9 +233,10 @@ void test1 (ISvcLocator* svcloc)
   EventIDBase eid (1, 0, 0, 0, 20);
   ctx.setEventID (eid);
 
-  LuminosityCondAlg alg ("LuminosityCondAlg", svcloc);
-  alg.addRef();
-  assert( alg.sysInitialize().isSuccess() );
+  LuminosityCondAlg* alg = new LuminosityCondAlg("LuminosityCondAlg", svcloc);
+  theAlgs.push_back(alg);
+  alg->addRef();
+  assert( alg->sysInitialize().isSuccess() );
 
   Athena_test::DummyRCUSvc rcu;
   
@@ -251,7 +254,7 @@ void test1 (ISvcLocator* svcloc)
   assert( conditionStore->record (std::move (cc1), "testLumi") );
   assert( conditionStore->record (std::move (cc2), "testCalib") );
 
-  assert( alg.execute (ctx).isSuccess() );
+  assert( alg->execute (ctx).isSuccess() );
 
   CondCont<LuminosityCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "LuminosityCondData").isSuccess() );
@@ -293,9 +296,10 @@ void test2 (ISvcLocator* svcloc)
   EventIDBase eid (1, 0, 0, 0, 20);
   ctx.setEventID (eid);
 
-  LuminosityCondAlg alg ("LuminosityCondAlgRun1", svcloc);
-  alg.addRef();
-  assert( alg.sysInitialize().isSuccess() );
+  LuminosityCondAlg *alg = new LuminosityCondAlg ("LuminosityCondAlgRun1", svcloc);
+  theAlgs.push_back(alg);
+  alg->addRef();
+  assert( alg->sysInitialize().isSuccess() );
 
   Athena_test::DummyRCUSvc rcu;
   
@@ -331,7 +335,7 @@ void test2 (ISvcLocator* svcloc)
   assert( conditionStore->record (std::move (cc4), "testBunchGroupRun1") );
   assert( conditionStore->record (std::move (cc5), "testFillParamsRun1") );
 
-  assert( alg.execute (ctx).isSuccess() );
+  assert( alg->execute (ctx).isSuccess() );
 
   CondCont<LuminosityCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "LuminosityCondDataRun1").isSuccess() );
@@ -374,11 +378,12 @@ void test3 (ISvcLocator* svcloc)
   EventIDBase eid (1, 0, 0, 0, 20, 0);
   ctx.setEventID (eid);
 
-  LuminosityCondAlg alg ("LuminosityCondAlgMC", svcloc);
-  alg.addRef();
-  assert( alg.sysInitialize().isSuccess() );
+  LuminosityCondAlg *alg = new LuminosityCondAlg("LuminosityCondAlgMC", svcloc);
+  theAlgs.push_back(alg);
+  alg->addRef();
+  assert( alg->sysInitialize().isSuccess() );
 
-  assert( alg.execute (ctx).isSuccess() );
+  assert( alg->execute (ctx).isSuccess() );
 
   ServiceHandle<StoreGateSvc> conditionStore ("ConditionStore", "test");
   CondCont<LuminosityCondData>* ccout = nullptr;
@@ -411,9 +416,10 @@ void test4 (ISvcLocator* svcloc)
   EventIDBase eid (1, 0, 0, 0, 20);
   ctx.setEventID (eid);
 
-  LuminosityCondAlg alg ("LuminosityCondAlgMiss", svcloc);
-  alg.addRef();
-  assert( alg.sysInitialize().isSuccess() );
+  LuminosityCondAlg *alg = new LuminosityCondAlg ("LuminosityCondAlgMiss", svcloc);
+  theAlgs.push_back(alg);
+  alg->addRef();
+  assert( alg->sysInitialize().isSuccess() );
 
   Athena_test::DummyRCUSvc rcu;
   
@@ -431,7 +437,7 @@ void test4 (ISvcLocator* svcloc)
   assert( conditionStore->record (std::move (cc1), "testLumiMiss") );
   assert( conditionStore->record (std::move (cc2), "testCalibMiss") );
 
-  assert( alg.execute (ctx).isSuccess() );
+  assert( alg->execute (ctx).isSuccess() );
 
   CondCont<LuminosityCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "LuminosityCondDataMiss").isSuccess() );
@@ -475,5 +481,10 @@ int main()
   test2 (svcloc);
   test3 (svcloc);
   test4 (svcloc);
+
+  for ( auto &a : theAlgs) {
+    delete a;
+  }
+  
   return 0;
 }

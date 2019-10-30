@@ -102,12 +102,13 @@ StatusCode AthReentrantAlgorithm::sysInitialize() {
   }
   
   ServiceHandle<ICondSvc> cs("CondSvc",name());
-  if ( cs.retrieve().isFailure() ) {
-    ATH_MSG_WARNING("no CondSvc found: won't autoreg WriteCondHandles");
-    return StatusCode::SUCCESS;
-  }
   for (auto h : outputHandles()) {
     if (h->isCondition() && h->mode() == Gaudi::DataHandle::Writer) {
+      // do this inside the loop so we don't create the CondSvc until needed
+      if ( cs.retrieve().isFailure() ) {
+        ATH_MSG_WARNING("no CondSvc found: won't autoreg WriteCondHandles");
+        return StatusCode::SUCCESS;
+      }      
       if (cs->regHandle(this,*h).isFailure()) {
         sc = StatusCode::FAILURE;
         ATH_MSG_ERROR("unable to register WriteCondHandle " << h->fullKey()
