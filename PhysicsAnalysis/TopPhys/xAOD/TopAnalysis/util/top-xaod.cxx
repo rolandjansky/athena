@@ -625,6 +625,7 @@ int main(int argc, char** argv) {
       skippedEventsSoFar += entries < firstEvent ? entries : firstEvent;
     }
     unsigned int entry;
+    bool isFirst(true);
     for (entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {
       if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun()) break;
 
@@ -826,6 +827,20 @@ int main(int argc, char** argv) {
           top::Event topEvent = topEventMaker->makeTopEvent(currentSystematic);
           ///-- Apply event selection --///
           const bool passAnyEventSelection = eventSelectionManager.apply(topEvent, *currentSystematic);
+          // check if we are using actual mu for mc16d or mc16e
+          if (isFirst && topConfig->isMC()) {
+            const int runNumber = topEvent.m_info->runNumber();
+            if (runNumber >= 300000) {
+              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
+                (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
+                std::cout << "******************************************************************************************************\n";
+                std::cout << "\tWARNING: You are running over mc16d or mc16e samples but you are not using actual mu reweighting!\n";
+                std::cout << "\tYou are strongly advised to use the actual mu reweighting\n";
+                std::cout << "\tCheck: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n";
+                std::cout << "******************************************************************************************************\n";
+              }
+            }
+          }
           currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
           topEvent.m_saveEvent = passAnyEventSelection;
           ///-- Save event - we defer to eventSaver the decision to write or not --///
@@ -850,6 +865,20 @@ int main(int argc, char** argv) {
           top::Event topEvent = topEventMaker->makeTopEvent(currentSystematic);
           ///-- Apply event selection --///
           const bool passAnyEventSelection = eventSelectionManager.apply(topEvent, *currentSystematic);
+
+          // check if we are using actual mu for mc16d or mc16e
+          if (isFirst && topConfig->isMC()) {
+            const int runNumber = topEvent.m_info->runNumber();
+            std::cout << "RunNumber: " << runNumber << std::endl;
+            if (runNumber >= 300000) {
+              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
+                (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
+                std::cout << "WARNING: You are running over mc16d or mc16e samples but you are not using actual mu reweighting!\n";
+                std::cout << "You are strongly advised to use the actual mu reweighting\n";
+                std::cout << "Check: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n";
+              }
+            }
+          }
           currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
           topEvent.m_saveEvent = passAnyEventSelection;
           ///-- weights for matrix-method fakes estimate from IFF tools, only for nominal --///
@@ -917,6 +946,7 @@ int main(int argc, char** argv) {
 
       ///-- Needed for xAOD output, all systematics go into the same TTree --///
       eventSaver->saveEventToxAOD();
+      isFirst = false;
     } //loop over events in current file
     if (tracker) tracker->addInputFile(inputFile->GetName(), entry - firstEvent);
 
