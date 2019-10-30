@@ -181,7 +181,6 @@ private:
 
   std::string m_storeName;
 
-  StoreGateSvc* p_sgSvc{nullptr};
   ServiceHandle<StoreGateSvc> p_cndSvc;
   ServiceHandle<IIncidentSvc> p_incSvc;
   ServiceHandle<IProxyProviderSvc> p_PPSvc;

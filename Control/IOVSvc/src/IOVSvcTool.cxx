@@ -32,8 +32,6 @@
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "IOVEntry.h"
 #include "IOVSvc/IOVAddress.h"
@@ -151,8 +149,6 @@ IOVSvcTool::~IOVSvcTool() {
 StatusCode 
 IOVSvcTool::initialize() {
 
-  StatusCode status;
-
   static const bool CREATEIF(true);
 
   IIOVSvc* p_iovSvc(nullptr);
@@ -171,18 +167,6 @@ IOVSvcTool::initialize() {
   setProperty( iovSvcProp->getProperty("sortKeys") ).ignore();
   setProperty( iovSvcProp->getProperty("forceResetAtBeginRun") ).ignore();
   setProperty( iovSvcProp->getProperty("OutputLevel") ).ignore();
-
-  if (m_storeName == "StoreGateSvc") {
-    status = service("StoreGateSvc", p_sgSvc);
-  } else {
-    string sgn = "StoreGateSvc/" + m_storeName;
-    status = service(sgn,p_sgSvc);
-  }
-
-  if (status.isFailure()) {
-    ATH_MSG_ERROR("Unable to get the StoreGateSvc");
-    return status;
-  }
 
   int pri=100;
 
@@ -233,7 +217,7 @@ IOVSvcTool::initialize() {
 
   ATH_MSG_DEBUG("Tool initialized");
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 
 
