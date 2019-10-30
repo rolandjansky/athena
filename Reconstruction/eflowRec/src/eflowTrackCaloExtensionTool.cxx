@@ -61,7 +61,7 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
   ATH_CHECK(m_ParticleCacheKey.initialize());
   
   if (m_ParticleCacheKey.initialize().isFailure()) {
-    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace HeadCalo");
+    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace CaloExtensionBuilder");
     ATH_CHECK( m_theTrackExtrapolatorTool.retrieve() );
     m_useOldCalo = true;
   } else {
@@ -85,13 +85,13 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
 
   if (m_useOldCalo) {
-    /* If HeadCalo is unavailable, use the calo extension tool */
+    /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
     ATH_MSG_VERBOSE("Using the CaloExtensionTool");
     uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
     extension = uniqueExtension.get();
   } else {
     /*get the CaloExtension object*/
-    ATH_MSG_VERBOSE("Using the HeadCalo Cache");
+    ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
     SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
     extension = (*particleCache)[index];
     ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");

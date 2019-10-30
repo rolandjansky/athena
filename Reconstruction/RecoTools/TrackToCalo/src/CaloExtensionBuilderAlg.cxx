@@ -3,15 +3,15 @@
 */
 
 /********************************************************************
-NAME:     HeadCaloExtensionBuilder
-PACKAGE:  offline/Reconstruction/RecoTools/TrackToCalo/HeadCaloExtrapolationTool
+NAME:     CaloExtensionBuilderAlg
+PACKAGE:  offline/Reconstruction/RecoTools/TrackToCalo/CaloExtensionBuilderAlg
 
 Based on: offline/Reconstruction/egamma/egammaTrackTools/EMGSFCaloExtensionBuilder
 
 AUTHORS:  Anastopoulos/Capriles
 PURPOSE:  Performs Calo Extension for all selected tracks 
  **********************************************************************/
-#include "HeadCaloExtrapolationTool.h"
+#include "CaloExtensionBuilderAlg.h"
 //
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
@@ -31,13 +31,13 @@ PURPOSE:  Performs Calo Extension for all selected tracks
 #include <memory>
 
 
-Trk::HeadCaloExtensionBuilder::HeadCaloExtensionBuilder(const std::string& name, 
+Trk::CaloExtensionBuilderAlg::CaloExtensionBuilderAlg(const std::string& name, 
                                                     ISvcLocator* pSvcLocator):
     AthAlgorithm(name, pSvcLocator)
 {
 }
 
-StatusCode Trk::HeadCaloExtensionBuilder::initialize() 
+StatusCode Trk::CaloExtensionBuilderAlg::initialize() 
 {
     IToolSvc* myToolSvc;
 
@@ -80,11 +80,11 @@ StatusCode Trk::HeadCaloExtensionBuilder::initialize()
     return StatusCode::SUCCESS;
 }  
 
-StatusCode Trk::HeadCaloExtensionBuilder::HeadCaloExtensionBuilder::finalize(){ 
+StatusCode Trk::CaloExtensionBuilderAlg::CaloExtensionBuilderAlg::finalize(){ 
     return StatusCode::SUCCESS;
 }
 
-StatusCode Trk::HeadCaloExtensionBuilder::execute()
+StatusCode Trk::CaloExtensionBuilderAlg::execute()
 {
     // defining needed objects
     const xAOD::VertexContainer * vxContainer = 0;

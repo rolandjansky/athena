@@ -1,8 +1,8 @@
-## HeadCalo Stuff
+## CaloExtensionBuilderAlg Stuff
 # Defined as function such that the user can change the cut level and minPt
 
 
-def HeadCaloSetup( cutLevel = "TightPrimary", minPT = 100.0 ):
+def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
     try: 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
@@ -11,9 +11,9 @@ def HeadCaloSetup( cutLevel = "TightPrimary", minPT = 100.0 ):
         mlog.error("could not import TrkExTools.AtlasExtrapolator")
         print traceback.format_exc()
     try:
-        from TrackToCalo.TrackToCaloConf import Trk__HeadCaloExtensionBuilder as HeadCaloExtensionBuilder
+        from TrackToCalo.TrackToCaloConf import Trk__CaloExtensionBuilderAlg as CaloExtensionBuilderAlg
     except:
-        mlog.error("could not import TrackToCaloConf.Trk__HeadCaloExtensionBuilder")
+        mlog.error("could not import TrackToCaloConf.Trk__CaloExtensionBuilderAlg")
         print traceback.format_exc()
     try:
         from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
@@ -34,14 +34,14 @@ def HeadCaloSetup( cutLevel = "TightPrimary", minPT = 100.0 ):
 
     topSequence=AlgSequence()
     
-    theAtlasExtrapolator=AtlasExtrapolator(name = "HeadCaloAtlasExtrapolator")
+    theAtlasExtrapolator=AtlasExtrapolator(name = "CaloExtensionBuilderAtlasExtrapolator")
     theAtlasExtrapolator.DoCaloDynamic = False # this turns off dynamic
 
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = theAtlasExtrapolator)
     ToolSvc += pcExtensionTool
 
-    HeadTrackCaloExtensionTool = HeadCaloExtensionBuilder(LastCaloExtentionTool = pcExtensionTool)
-    TrackSelectionToolHC = InDet__InDetTrackSelectionTool(name            = "HeadCaloTrackSelectionTool",
+    CaloExtensionBuilderTool = CaloExtensionBuilderAlg(LastCaloExtentionTool = pcExtensionTool)
+    TrackSelectionToolHC = InDet__InDetTrackSelectionTool(name            = "CaloExtensionBuilderTrackSelectionTool",
                                                           minPt           = minPT,
                                                           CutLevel        = cutLevel)#,
                                                         #   maxD0           = 9999.*mm,
@@ -50,7 +50,7 @@ def HeadCaloSetup( cutLevel = "TightPrimary", minPT = 100.0 ):
                                                         #   minNSctHits     = 0,  # SCTHits + SCTDeadSensors
                                                         #   minNSiHits      = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
                                                         #   minNTrtHits     = 0)
-    TrackDetailedSelectionToolHC = InDet__InDetDetailedTrackSelectorTool(name = "HeadCaloDetailedTrackSelectionTool",
+    TrackDetailedSelectionToolHC = InDet__InDetDetailedTrackSelectorTool(name = "CaloExtensionBuilderDetailedTrackSelectionTool",
                                                                          pTMin                = minPT,
                                                                          IPd0Max              = 1.,
                                                                          IPz0Max              = 1.5, 
@@ -73,11 +73,11 @@ def HeadCaloSetup( cutLevel = "TightPrimary", minPT = 100.0 ):
     ToolSvc += TrackSelectionToolHC
     ToolSvc += TrackDetailedSelectionToolHC
 
-    HeadTrackCaloExtensionTool.TrkSelection         = TrackSelectionToolHC
-    HeadTrackCaloExtensionTool.TrkDetailedSelection = TrackDetailedSelectionToolHC
+    CaloExtensionBuilderTool.TrkSelection         = TrackSelectionToolHC
+    CaloExtensionBuilderTool.TrkDetailedSelection = TrackDetailedSelectionToolHC
 
-    ToolSvc += HeadTrackCaloExtensionTool.LastCaloExtentionTool
+    ToolSvc += CaloExtensionBuilderTool.LastCaloExtentionTool
 
-    topSequence += HeadTrackCaloExtensionTool
+    topSequence += CaloExtensionBuilderTool
 
     return True

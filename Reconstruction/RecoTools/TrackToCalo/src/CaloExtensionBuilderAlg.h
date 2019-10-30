@@ -5,7 +5,7 @@
 #ifndef REC_HEADCALOEXTRAPOLATIONTOOL_H
 #define REC_HEADCALOEXTRAPOLATIONTOOL_H
 /**
-  @class HeadCaloExtensionBuilder
+  @class CaloExtensionBuilderAlg
   Based on EMGSFCaloExtensionBuilder
   Algorithm which creates calo extension for all
   Track Particles
@@ -29,13 +29,11 @@
 
 namespace Trk 
 {
-  class HeadCaloExtensionBuilder : public AthAlgorithm//, virtual public ITrackSelectorTool
+  class CaloExtensionBuilderAlg : public AthAlgorithm//, virtual public ITrackSelectorTool
   {
   public:
   /** @brief Default constructor*/
-  HeadCaloExtensionBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-  /** Default destructor */
-  ~HeadCaloExtensionBuilder() {};
+  CaloExtensionBuilderAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
@@ -44,14 +42,14 @@ namespace Trk
   private:
   /** @brief the Calo Extension tool*/
   ToolHandle<Trk::IParticleCaloExtensionTool> m_particleCaloExtensionTool {this,
-      "LastCaloExtentionTool", "Trk::HeadCaloExtensionBuilderTool"};
+      "LastCaloExtentionTool", "Trk::CaloExtensionBuilderTool"};
   
   //Manages the track selection. It should be able to handle both pflow and tau selections
   ToolHandle<InDet::IInDetTrackSelectionTool> m_TrkSelection {this,
-      "TrkSelection", "TrkSelectionHeadCalo", "Tool that handles the track selection"};
+      "TrkSelection", "TrkSelectionCaloExtensionBuilder", "Tool that handles the track selection"};
 
   ToolHandle<Trk::ITrackSelectorTool> m_TrkDetailedSelection {this,
-      "TrkDetailedSelection", "TrkDetailedSelectionHeadCalo", "Tool that handles the detailed track selection"};
+      "TrkDetailedSelection", "TrkDetailedSelectionCaloExtensionBuilder", "Tool that handles the detailed track selection"};
 
   //output particle calo extension collection
   SG::WriteHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,

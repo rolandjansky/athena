@@ -57,22 +57,22 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
                                                           ParticleCaloCellAssociationTool=caloCellAssociationTool)
 
 #
-# functionality : HeadCalo setup to be used in tau and pflow
+# functionality : CaloExtensionBuilder setup to be used in tau and pflow
 #    
-pdr.flag_domain('headcalo')
+pdr.flag_domain('CaloExtensionBuilder')
 # if (recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and  DetFlags.haveRIO.Muon_allOn()) ) ) or 
 #     (jetOK and rec.doTau()) :
 if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau()) : #   or rec.readESD()
     try:
-        include( "TrackToCalo/HeadCalo_jobOptions.py" )
-        HeadCaloSetup("TightPrimary", 500.) #Arguments are cutLevel and minPt for track selection
+        include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
+        CaloExtensionBuilder("TightPrimary", 500.) #Arguments are cutLevel and minPt for track selection
     except Exception:
-    #     treatException("Could not set up HeadCalo. Taus and PFlow will crash !\n===>Switching taus and pflow off")
+    #     treatException("Could not set up CaloExtensionBuilder. Taus and PFlow will crash !\n===>Switching taus and pflow off")
     #     recAlgs.doEFlow=False
     #     rec.doTau=False
         pass
 # else :
-#     print("HeadCalo wont be setup. Logic failed.")
+#     print("CaloExtensionBuilder wont be setup. Logic failed.")
 
 #
 # functionality : energy flow

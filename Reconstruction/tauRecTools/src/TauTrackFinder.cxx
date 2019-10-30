@@ -18,7 +18,7 @@
 
 TauTrackFinder::TauTrackFinder(const std::string& name ) :
         TauRecToolBase(name),
-        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
+        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
         m_trackSelectorTool_tau(""),
         m_trackToVertexTool("Reco::TrackToVertex"),
         m_z0maxDelta(1000),
@@ -64,7 +64,7 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_ParticleCacheKey.initialize() );
 
     if (m_ParticleCacheKey.initialize().isFailure()) {
-      ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace HeadCalo");
+      ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace CaloExtensionBuilder");
       m_useOldCalo = true;
     } else {
       m_useOldCalo = false;
@@ -354,13 +354,13 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
                        << ", phi" << orgTrack->phi() );
 
         if (m_useOldCalo) {
-          /* If HeadCalo is unavailable, use the calo extension tool */
+          /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
           ATH_MSG_VERBOSE("Using the CaloExtensionTool");
           uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
           caloExtension = uniqueExtension.get();
         } else {
           /*get the CaloExtension object*/
-          ATH_MSG_VERBOSE("Using the HeadCalo Cache");
+          ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
           SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
           caloExtension = (*particleCache)[trackIndex];
           ATH_MSG_VERBOSE("Getting element " << trackIndex << " from the particleCache");
@@ -380,7 +380,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
             ATH_MSG_DEBUG("Scanning samplings");
             bool validECal = false;
             bool validHCal = false;
-            for( auto & cur : clParametersVector ){
+            for( const Trk::CurvilinearParameters * cur : clParametersVector ){
                 ATH_MSG_DEBUG("Sampling " << parsIdHelper.caloSample(cur->cIdentifier()) );
                 
                 // only use entry layer

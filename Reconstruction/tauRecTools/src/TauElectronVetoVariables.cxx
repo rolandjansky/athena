@@ -90,7 +90,7 @@ StatusCode TauElectronVetoVariables::initialize()
   ATH_CHECK( m_caloExtensionTool.retrieve() );
 
   if (m_ParticleCacheKey.initialize().isFailure()) {
-    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace HeadCalo");
+    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace CaloExtensionBuilder");
     ATH_CHECK( m_caloExtensionTool.retrieve() );
     m_useOldCalo = true;
   } else {
@@ -189,13 +189,13 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     trackIndex = orgTrack->index();
 
     if (m_useOldCalo) {
-      /* If HeadCalo is unavailable, use the calo extension tool */
+      /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
       ATH_MSG_VERBOSE("Using the CaloExtensionTool");
       uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
       caloExtension = uniqueExtension.get();
     } else {
       /*get the CaloExtension object*/
-      ATH_MSG_VERBOSE("Using the HeadCalo Cache");
+      ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
       SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
       caloExtension = (*particleCache)[trackIndex];
     }
