@@ -14,10 +14,8 @@ TrigTrackPreSelHypoAlgMT::TrigTrackPreSelHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigTrackPreSelHypoAlgMT::~TrigTrackPreSelHypoAlgMT() {}
 
 StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_fastTracksKey.initialize() );
   renounce( m_fastTracksKey );// tau candidates are made in views, so they are not in the EvtStore: hide them
@@ -25,11 +23,7 @@ StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTrackPreSelHypoAlgMT::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit

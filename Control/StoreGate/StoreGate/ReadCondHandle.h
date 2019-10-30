@@ -59,6 +59,7 @@ namespace SG {
 
     bool range(EventIDRange& r);
     bool range(const EventIDBase& t, EventIDRange& r) const;
+    const EventIDRange& getRange();
     
   private:
 
@@ -208,8 +209,9 @@ namespace SG {
       return retrieve();
     }
 
-    pointer_type obj(0);
-    if (! (m_cc->find(eid, obj) ) ) {
+    //    pointer_type obj(0);
+    const_pointer_type cobj(0);
+    if (! (m_cc->find(eid, cobj) ) ) {
       std::ostringstream ost;
       m_cc->list(ost);
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
@@ -221,7 +223,7 @@ namespace SG {
       return nullptr;
     }
   
-    const_pointer_type cobj = const_cast<const_pointer_type>( obj );
+    //    const_pointer_type cobj = const_cast<const_pointer_type>( obj );
 
     return cobj;
   }
@@ -264,6 +266,24 @@ namespace SG {
     return false;
   }
 
+  template <typename T>
+  const EventIDRange&
+  ReadCondHandle<T>::getRange() {
+
+    if (m_obj == 0) {
+      if (!initCondHandle()) {
+        throw std::runtime_error("ReadCondHandle: handle not initialized when doing getRange()");
+      }
+    }
+
+    if (!m_range) {
+        throw std::runtime_error("ReadCondHandle: range obj not set when doing getRange()");
+    }
+    return *m_range;
+
+  }
+
+  
   //---------------------------------------------------------------------------
   
   template <typename T>

@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkGeometry/MaterialPropertiesCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -63,6 +64,7 @@ void testit (const Trk::MaterialProperties& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   Trk::Material mat1 (1.5, 2.5, 3.5, 4.5, 5.5);
   testit (Trk::MaterialProperties (mat1, 2));
 

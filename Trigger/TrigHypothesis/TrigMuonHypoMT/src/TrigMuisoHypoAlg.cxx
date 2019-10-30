@@ -16,31 +16,16 @@ TrigMuisoHypoAlg::TrigMuisoHypoAlg( const std::string& name,
 {}
 
 
-TrigMuisoHypoAlg::~TrigMuisoHypoAlg() 
-{}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMuisoHypoAlg::initialize()
 {
-  ATH_MSG_INFO( "Initializing " << name());
-
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce( m_muIsoKey );
   ATH_CHECK( m_muIsoKey.initialize() );
 
-  return StatusCode::SUCCESS;
-}
-
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMuisoHypoAlg::finalize()
-{
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
   return StatusCode::SUCCESS;
 }
 

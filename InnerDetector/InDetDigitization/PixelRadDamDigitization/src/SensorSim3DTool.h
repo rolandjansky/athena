@@ -37,7 +37,7 @@ class SensorSim3DTool : public SensorSimTool {
     virtual StatusCode finalize();
     virtual ~SensorSim3DTool();
 
-    virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions);  
+    virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);  
     //Apply slim edge inefficiencies for IBL sensors
     virtual StatusCode applySlimEdges( double &energyPerStep, double &eta_drifted);
     virtual double getElectricField(double x, double y);

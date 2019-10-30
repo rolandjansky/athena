@@ -13,7 +13,6 @@
 ###############################################################
 from __future__ import print_function
 
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -282,12 +281,6 @@ class allowCOOLUpdates(_modifier):
     def postSetup(self):
         if hasattr(svcMgr,'HltEventLoopMgr'):
             svcMgr.HltEventLoopMgr.CoolUpdateTool.enable()
-            # Make sure relevant folders are marked as 'extensible'
-            for i, f in enumerate(svcMgr.IOVDbSvc.Folders):
-                if ('/Indet/Onl/Beampos' in f or '/TRIGGER/LUMI/HLTPrefLumi' in f) \
-                   and '<extensible/>' not in f:
-                    svcMgr.IOVDbSvc.Folders[i] += ' <extensible/>'
-                    log.info('IOVDbSvc folder %s not marked as extensible. Fixing this...', f)
 
 class useOracle(_modifier):
     """

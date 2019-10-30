@@ -46,8 +46,6 @@ theLArRCBMasker.ProblemsToMask=[
     "lowNoiseLG","highNoiseLG","unstableNoiseLG"
     ]
 ToolSvc+=theLArRCBMasker
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-ToolSvc+=LArBadChanTool()
 theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
 theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel]
 ToolSvc+=theLArRawChannelBuilderToolBadChannel

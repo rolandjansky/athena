@@ -230,6 +230,10 @@ private:
     this, "TimeoutDebugStreamName", "HltTimeout",
     "Debug stream name for events with HLT timeout"};
 
+  Gaudi::Property<std::string> m_truncationDebugStreamName{
+    this, "TruncationDebugStreamName", "TruncatedHLTResult",
+    "Debug stream name for events with HLT result truncation"};
+
   Gaudi::Property<std::string> m_sorPath{
     this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
 

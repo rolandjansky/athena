@@ -67,6 +67,16 @@ void checkThinned (const SG::ThinningDecisionBase& dec,
 }
 
 
+void checkThinned (const SG::ThinningDecisionBase& dec1,
+                   const SG::ThinningDecisionBase& dec2)
+{
+  assert (dec1.size() == dec2.size());
+  for (size_t i = 0; i < dec1.size(); i++) {
+    assert (dec1.thinned(i) == dec2.thinned(i));
+  }
+}
+
+
 void test1()
 {
   std::cout << "test1\n";
@@ -142,9 +152,36 @@ void test1()
              [&] (SG::ThinningDecisionBase& dec) { checkThinned (dec, v4); }
              );
 
+  SG::ThinningDecisionBase dec_v1 (dec.size());
+  dec_v1.thin (v1);
+  SG::ThinningDecisionBase dec_v2 (dec.size());
+  dec_v2.thin (v2);
+  SG::ThinningDecisionBase dec_v3 (dec.size());
+  dec_v3.thin (v3);
+  SG::ThinningDecisionBase dec_v4 (dec.size());
+  dec_v4.thin (v4);
+
+  logicTest (dec,
+             [&] (SG::ThinningDecisionBase& dec, bool flag, Op op)
+             { dec.thin(flag ? dec_v1 : dec_v3, op); },
+             [&] (SG::ThinningDecisionBase& dec) { checkThinned (dec, dec_v1); },
+             [&] (SG::ThinningDecisionBase& dec) { checkThinned (dec, dec_v3); }
+             );
+
+  logicTest (dec,
+             [&] (SG::ThinningDecisionBase& dec, bool flag, Op op)
+             { dec.keep(flag ? dec_v1 : dec_v3, op); },
+             [&] (SG::ThinningDecisionBase& dec) { checkThinned (dec, dec_v2); },
+             [&] (SG::ThinningDecisionBase& dec) { checkThinned (dec, dec_v4); }
+             );
+
   std::vector<bool> vx (10);
   EXPECT_EXCEPTION (std::out_of_range, dec.thin (vx));
   EXPECT_EXCEPTION (std::out_of_range, dec.keep (vx));
+
+  SG::ThinningDecisionBase dec_vx (10);
+  EXPECT_EXCEPTION (std::out_of_range, dec.thin (dec_vx));
+  EXPECT_EXCEPTION (std::out_of_range, dec.keep (dec_vx));
 
   dec.thin (v1);
   dec.buildIndexMap();

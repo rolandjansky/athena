@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_DUMPDECISIONS_H
 #define DECISIONHANDLING_DUMPDECISIONS_H 1
@@ -10,8 +10,6 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-
-
 class DumpDecisions
   : public ::AthReentrantAlgorithm
 { 
@@ -20,31 +18,19 @@ class DumpDecisions
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
+  /// Constructor with parameters:
   DumpDecisions( const std::string& name, ISvcLocator* pSvcLocator );
 
-  /// Destructor: 
-  virtual ~DumpDecisions(); 
-
   // Athena algorithm's Hooks
-  StatusCode initialize() override;
-  StatusCode execute( const EventContext& ctx ) const override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute( const EventContext& ctx ) const override;
+
  private: 
 
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionKey{ this, "Decisions", "Unspecified", "Input Decisions to dump" };
   Gaudi::Property<size_t> m_verbosityLevel{ "VerbosityLevel", 3, "3 - tries to print as much possible, 2 - only list of objects and their decisions, 1 - only list of active objects" };
 
-  /// Default constructor: 
-  DumpDecisions();
-
-
-  
-
-}; 
+};
 
 
 #endif //> !DECISIONHANDLING_DUMPDECISIONS_H

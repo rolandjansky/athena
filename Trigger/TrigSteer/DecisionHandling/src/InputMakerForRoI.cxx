@@ -19,23 +19,13 @@ InputMakerForRoI:: InputMakerForRoI( const std::string& name,
 : InputMakerBase( name, pSvcLocator ) {}
 
 
-InputMakerForRoI::~ InputMakerForRoI() {}
-
 StatusCode  InputMakerForRoI::initialize() {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-  
-  // specific:
   ATH_MSG_DEBUG("Will produce output RoI collections: " << m_RoIs);
   CHECK( m_RoIs.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode  InputMakerForRoI::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {  
+StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Executing " << name() << "..." );
   
   // call base class helper method to read input decisions, loop over them create outputs and connect them, returns with outputHandles filled
@@ -93,6 +83,3 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
 
   return StatusCode::SUCCESS;
 }
-
-
-

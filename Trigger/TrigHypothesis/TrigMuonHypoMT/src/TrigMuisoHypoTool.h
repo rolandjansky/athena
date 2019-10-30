@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUISOHYPO_TRIGMUISOHYPOTOOL_H 
-#define TRIGMUISOHYPO_TRIGMUISOHYPOTOOL_H 1
+#ifndef TRIGMUONHYPOMT_TRIGMUISOHYPOTOOL_H 
+#define TRIGMUONHYPOMT_TRIGMUISOHYPOTOOL_H 1
 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h" 
@@ -12,7 +12,6 @@
 
 
 class StoreGateSvc;
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

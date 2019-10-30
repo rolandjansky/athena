@@ -322,14 +322,14 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
   }//End truth
 
   //Now  Slim the TrK::Track for writing to disk   
-  Trk::Track* slimmed = m_slimTool->slim(*track);
+  std::unique_ptr<Trk::Track> slimmed = m_slimTool->slimCopy(*track);
   if(!slimmed){
     ATH_MSG_WARNING ("TrackSlimming failed");
     ElementLink<TrackCollection> dummy;
     aParticle->setTrackLink(dummy);     
   }else{
-    finalTracks->push_back(slimmed);
-    ElementLink<TrackCollection> trackLink( slimmed, *finalTracks);
+    finalTracks->push_back(std::move(slimmed));
+    ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1);
     aParticle->setTrackLink( trackLink );     
   }
   return StatusCode::SUCCESS;

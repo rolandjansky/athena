@@ -8,6 +8,7 @@
 #include "../PixelSiliconConditionsTestAlg.h"
 #include "../PixelOfflineCalibCondAlg.h"
 #include "../PixelReadoutSpeedAlg.h"
+#include "../PixelDistortionAlg.h"
 #include "../PixelCablingCondAlg.h"
 #include "../PixelHitDiscCnfgAlg.h"
 #include "../PixelAlignCondAlg.h"
@@ -23,6 +24,7 @@ DECLARE_COMPONENT( PixelTDAQCondAlg )
 DECLARE_COMPONENT( PixelSiliconConditionsTestAlg )
 DECLARE_COMPONENT( PixelOfflineCalibCondAlg )
 DECLARE_COMPONENT( PixelReadoutSpeedAlg )
+DECLARE_COMPONENT( PixelDistortionAlg )
 DECLARE_COMPONENT( PixelCablingCondAlg )
 DECLARE_COMPONENT( PixelHitDiscCnfgAlg )
 DECLARE_COMPONENT( PixelAlignCondAlg )

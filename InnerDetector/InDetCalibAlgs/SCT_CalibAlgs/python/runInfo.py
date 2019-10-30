@@ -35,7 +35,7 @@ def main( runNum=None, projectName='' ):
     #    RunCtrlDb = dbSvc.openDatabase( RunCtrlDB )
     try:
         RunCtrlDb = dbSvc.openDatabase( RunCtrlDB )
-    except Exception,e:
+    except Exception as e:
         print('Problem opening database', e)
         sys.exit(-1)
     
@@ -62,8 +62,8 @@ def main( runNum=None, projectName='' ):
         break
     RunCtrlDb.closeDatabase()
 
-    ts1 = SORTime/1000000000L
-    ts2 = EORTime/1000000000L
+    ts1 = SORTime/1000000000
+    ts2 = EORTime/1000000000
     
     #--- Detector mask
     mask= int (DetectorMask,16)

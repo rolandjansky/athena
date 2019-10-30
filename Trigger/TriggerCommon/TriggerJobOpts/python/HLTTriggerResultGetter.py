@@ -36,11 +36,11 @@ def  EDMDecodingVersion():
         from RecExConfig.ObjKeyStore import cfgKeyStore
 
         TriggerFlags.doMergedHLTResult = True
-        if cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_EF" ):          
+        if cfgKeyStore.isInInputFile( "HLT::HLTResult", "HLTResult_EF" ):
             TriggerFlags.EDMDecodingVersion = 1
             TriggerFlags.doMergedHLTResult = False
             log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
-        elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
+        elif cfgKeyStore.isInInputFile( "HLT::HLTResult", "HLTResult_HLT"):
             TriggerFlags.EDMDecodingVersion = 2
         elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTNav_Summary"):
             TriggerFlags.EDMDecodingVersion = 3

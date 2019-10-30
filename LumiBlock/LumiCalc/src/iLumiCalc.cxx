@@ -2,12 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "iLumiCalc.h"
+
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
-#include "iLumiCalc.h"
-#include <typeinfo>
-#include <TKey.h>
 #include "CollectionBase/CollectionService.h"
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/ICollectionMetadata.h"
@@ -17,11 +16,32 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "TList.h"
 #include "TObjString.h"
 #include "TString.h"
+#include <TKey.h>
 
+#include <typeinfo>
 #include <list>
 
 // ToDo: make this whole code in
 //       object oriented way...
+
+
+//______________________________________________________________
+void print_usage(){
+
+  std::cout << std::endl;
+  std::cout << " --->>> i L U M I C A L C <<<---"<< std::endl;
+  std::cout << std::endl;
+  std::cout << "iLumiCalc: this c++ program calculates integrated luminosity" << std::endl ;
+  std::cout << "by looping over a list of lumiblocks, given a set of input options." << std::endl;
+  std::cout << "Input file can be either an xml file, or a TAG file." << std::endl;
+  std::cout << std::endl;
+  std::cout << "Type: iLumiCalc --help for the complete list of options" << std::endl ;
+  std::cout << std::endl;
+  std::cout << "Further help: https://twiki.cern.ch/twiki/bin/view/Atlas/CoolLumiCalc"<< std::endl;
+  std::cout << std::endl;
+  exit(-1);
+
+}
 
 //______________________________________________________________________________
 int main(int argc, char * argv[]){
@@ -83,16 +103,16 @@ int main(int argc, char * argv[]){
   }
 
   // LAr noise bursts
-  bool lar = args_info.lar_flag;
+  bool uselar = args_info.lar_flag;
   std::string lartag = args_info.lartag_arg;
-  if (lar) {
+  if (uselar) {
     logger << Root::kINFO << "LAr noise burst inefficiency will be calculated from " << lartag << Root::GEndl;
   }
 
   // Online Beamspot validity
-  bool beamspot = args_info.beamspot_flag;
+  bool usebeamspot = args_info.beamspot_flag;
   std::string beamspottag = args_info.beamspottag_arg;
-  if (beamspot) {
+  if (usebeamspot) {
     logger << Root::kINFO << "Livetime will include online beamspot validity requirement from " << beamspottag << Root::GEndl;
   }
 
@@ -395,11 +415,11 @@ int main(int argc, char * argv[]){
 	    exit(-1);
 	  } else {
 	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
+	    iovc->push_back(iovr);  // Must put this in container first
 	    iovr->setStartRunNumber(runnumber[0]);
 	    iovr->setStartLumiBlockNumber(lbstart_val);
 	    iovr->setStopRunNumber(runnumber[0]);
 	    iovr->setStopLumiBlockNumber(lbend_val);
-	    iovc->push_back(iovr);
 	  }
 	}
 
@@ -411,11 +431,11 @@ int main(int argc, char * argv[]){
 	logger << Root::kINFO << "Runnumbers [" << *itrun <<  "]" << Root::GEndl;
 	logger << Root::kINFO << "lbstart-lbend [" << *itstart << "-" << *itend << "]" << Root::GEndl; 
 	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
+	    iovc->push_back(iovr);  // Must put this in container first
 	    iovr->setStartRunNumber(*itrun);
 	    iovr->setStartLumiBlockNumber(*itstart);
 	    iovr->setStopRunNumber(*itrun);
 	    iovr->setStopLumiBlockNumber(*itend);
-	    iovc->push_back(iovr);
       }
     }
 
@@ -696,8 +716,8 @@ int main(int argc, char * argv[]){
 	  lumicalc.MakeCollList(collisionlists);
           lumicalc.ScaleL1TrigRate(scalel1trigrate);
 	  lumicalc.UseLiveTrigger(uselivetrigger, livetrigger);
-	  lumicalc.UseLArNoiseDB(lar, lartag);
-	  lumicalc.UseBeamspot(beamspot, beamspottag);
+	  lumicalc.UseLArNoiseDB(uselar, lartag);
+	  lumicalc.UseBeamspot(usebeamspot, beamspottag);
 	  lumicalc.IntegrateLumi(iovc, (*it));
 	  logger << Root::kINFO << "--------------------------------------------" << Root::GEndl;
 

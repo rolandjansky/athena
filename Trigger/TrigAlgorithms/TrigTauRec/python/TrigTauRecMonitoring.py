@@ -116,8 +116,8 @@ def tauMonitoringCaloOnly():
    monTool.defineHistogram('dEtaEFTau_RoI, dPhiEFTau_RoI', path='EXPERT', type='TH2F', title="dEta vs dPhi in TrigTauRec FEX; Delta-eta; Delta-phi",
                                                            xbins=40 , xmin=-0.2, xmax=0.2,
                                                            ybins=40 , ymin=-0.2, ymax=0.2)
-   monTool.defineHistogram('EMRadius', type='TH1F', title="EF EMRadius; EM radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.)
-   monTool.defineHistogram('HadRadius', type='TH1F', title="EF HadRadius; Had radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.)
+   monTool.defineHistogram('EMRadius', path='EXPERT', type='TH1F', title="EF EMRadius; EM radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.)
+   monTool.defineHistogram('HadRadius', path='EXPERT', type='TH1F', title="EF HadRadius; Had radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.)
    monTool.defineHistogram('EtHad, EtEm', path='EXPERT', type='TH2F', title="EF Et had vs Em in TrigTauRecMerged FEX; Et Had (at EM scale) [GeV]; Et EM (at EM scale) [GeV]",
                                                 xbins=30, xmin=0., xmax=150.,
                                                 ybins=30, ymin=0., ymax=150.)
@@ -142,9 +142,9 @@ def tauMonitoringCaloOnly():
    monTool.defineHistogram('beamspot_x', path='EXPERT', type='TH1F', title="Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
    monTool.defineHistogram('beamspot_y', path='EXPERT', type='TH1F', title="Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
    monTool.defineHistogram('beamspot_z', path='EXPERT', type='TH1F', title="Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
-   monTool.defineHistogram('PhiL1', path='EXPORT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
-   monTool.defineHistogram('EtaL1', path='EXPORT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
-   monTool.defineHistogram('EtaL1, PhiL1', path='EXPORT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
+   monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+   monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",

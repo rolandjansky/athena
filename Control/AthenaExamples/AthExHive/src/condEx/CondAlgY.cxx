@@ -15,7 +15,6 @@
 CondAlgY::CondAlgY( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_cs("CondSvc",name),
   m_cds("ASCIICondDbSvc",name)
 {
 }
@@ -24,10 +23,6 @@ CondAlgY::~CondAlgY() {}
 
 StatusCode CondAlgY::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
-
-  if (m_cs.retrieve().isFailure()) {
-    ATH_MSG_ERROR("unable to retrieve CondSvc");
-  }
 
   if (m_cds.retrieve().isFailure()) {
     ATH_MSG_ERROR("unable to retrieve ASCIICondDbSvc");
@@ -43,18 +38,6 @@ StatusCode CondAlgY::initialize() {
 
   if (m_wch2.initialize().isFailure()) {
     ATH_MSG_ERROR("unable to initialize WriteCondHandle with key" << m_wch2.key() );
-    return StatusCode::FAILURE;
-  }
-
-  if (m_cs->regHandle(this, m_wch1).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wch1.fullKey() 
-                  << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-  if (m_cs->regHandle(this, m_wch2).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wch2.fullKey() 
-                  << " with CondSvc");
     return StatusCode::FAILURE;
   }
 

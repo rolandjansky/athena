@@ -209,8 +209,10 @@ if not 'CaliOFCFolder' in dir():
    else:
       CaliOFCFolder  = LArCalib_Flags.LArOFCCaliFolderXtlk
 
-
-rs=FolderTagResover(DBConnectionCOOL)
+if 'dbname' in dir():
+   rs=FolderTagResover(dbname=dbname)
+else:
+   rs=FolderTagResover()
 if not 'LArRampFolderOutputTag' in dir():
    LArRampFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArRampFolder)
 if not 'PedLArCalibFolderTag' in dir(): 
@@ -314,6 +316,12 @@ RampLog.info( " ======================================================== " )
 #######################################################################################
 
 include ("LArConditionsCommon/LArMinimalSetup.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+if SuperCells:
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  LArOnOffIdMappingSC()
+  LArCalibIdMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -386,8 +394,10 @@ if ( runAccumulator ) :
    # can be used as a skeleton if needed but                                                     #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
    #include("LArCalibProcessing/LArCalib_CalibrationPatterns.py")
-   if SuperCells:
-      ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+   ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+   #if SuperCells is False:
+   #   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
+
    include("./LArCalib_CalibrationPatterns.py")
 
 else :
@@ -411,8 +421,10 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
-MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    RampLog.info( "Read Bad Channels from Oracle DB")
@@ -424,7 +436,8 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLONL_LAR/" + conddb.dbname
       
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
@@ -449,8 +462,9 @@ condSeq+=theLArBadFebCondAlg
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
-include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
-topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
+if not SuperCells:
+   include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
+   topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
 if CheckBadEvents:
    from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
    theLArBadEventCatcher=LArBadEventCatcher()
@@ -537,7 +551,7 @@ if (CorrectBias or PeakOF or StripsXtalkCorr):
          RampLog.info( "Read OFC Cali from Oracle DB" )
       else :
          RampLog.info( "Read OFC Cali from SQLite file" )
-         
+
 if ( ReadPedFromCOOL ):
    if (CorrectBias or StripsXtalkCorr or PeakOF):
       PedestalFolder  = LArCalib_Flags.LArPedestalFolder
@@ -552,7 +566,6 @@ else:
       RampLog.info( "No PoolFileList found! Please list the POOL files containing Pedestal or read from COOL." )
       theApp.exit(-1)
 
-   
 if ( ReadOFCFromCOOL ):
    if PeakOF:
       if not 'CaliOFCTagSpec' in dir():
@@ -570,7 +583,6 @@ else:
          theApp.exit(-1)
 
 if ( len(PoolFileList)>0 ):
-      
    from AthenaCommon.ConfigurableDb import getConfigurable
    svcMgr += getConfigurable( "ProxyProviderSvc" )()
    svcMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
@@ -702,8 +714,8 @@ if ( ApplyAdHocCorrection ):
 #                                                                    #
 ######################################################################
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+#from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+#topSequence+=xAODMaker__EventInfoCnvAlg()
 
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.Thresholds import rampThr, rampThrFEB

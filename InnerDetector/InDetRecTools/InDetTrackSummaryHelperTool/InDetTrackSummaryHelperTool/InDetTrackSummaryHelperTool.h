@@ -103,7 +103,7 @@ namespace InDet {
     /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
     virtual void updateSharedHitCount(const Trk::Track& track,
                                       Trk::TrackSummary& summary) const override {
-      updateSharedHitCount(track,summary);
+      updateSharedHitCount(track,nullptr,summary);
     }
 
     /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */

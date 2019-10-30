@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    TrigRoiBuilderMT.h        
@@ -25,11 +25,9 @@ class TrigTauCaloRoiUpdaterMT : public AthAlgorithm {
 
  public:
   TrigTauCaloRoiUpdaterMT(const std::string&, ISvcLocator*);
-  ~TrigTauCaloRoiUpdaterMT();
-  
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
  private:
   Gaudi::Property< float > m_dRForCenter {this,"dRForCenter",0.2,"Delta R from the center of ROI"};

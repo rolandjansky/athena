@@ -234,25 +234,13 @@ class TestAlg (Alg):
 
     
 
-badchan_empty = make_bad_channel_tool ('masking_badchan_empty')
-ToolSvc += badchan_empty
-
-badchan2 = make_bad_channel_tool ('masking_badchan2', [(BADFEB1, 'deadAll')])
-ToolSvc += badchan2
-
-badchan3 = make_bad_channel_tool ('masking_badchan3', [(BADFEB3, 'inError')])
-ToolSvc += badchan3
-
-tool1 = LArBadFebMaskingTool ('tool1',
-                              badChannelTool = badchan_empty)
+tool1 = LArBadFebMaskingTool ('tool1')
 ToolSvc += tool1
 
-tool2 = LArBadFebMaskingTool ('tool2',
-                              badChannelTool = badchan2)
+tool2 = LArBadFebMaskingTool ('tool2')
 ToolSvc += tool2
 
-tool3 = LArBadFebMaskingTool ('tool3',
-                              badChannelTool = badchan3)
+tool3 = LArBadFebMaskingTool ('tool3')
 ToolSvc += tool3
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg

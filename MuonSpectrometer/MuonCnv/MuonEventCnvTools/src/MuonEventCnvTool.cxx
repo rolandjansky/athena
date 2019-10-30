@@ -93,7 +93,7 @@ void
 
 
 std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-    Muon::MuonEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const
+    Muon::MuonEventCnvTool::getLinks( Trk::RIO_OnTrack& rioOnTrack ) const
 {
     using namespace Trk;
     using namespace MuonGM;
@@ -116,8 +116,8 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
         if ( m_fixTGCs && !rioOnTrack.prepRawData() ) {
           // Okay, so we might have hit the nasty issue that the TGC EL is broken in some samples
           // Need to fix by pointing to the key defined here (assumung it has been configured correctly for this sample)
-          const Muon::TgcClusterOnTrack* tgc = dynamic_cast<const Muon::TgcClusterOnTrack*>(&rioOnTrack);
-          ElementLinkToIDC_TGC_Container& el = const_cast<ElementLinkToIDC_TGC_Container&>( tgc->m_rio );
+          Muon::TgcClusterOnTrack* tgc = dynamic_cast<Muon::TgcClusterOnTrack*>(&rioOnTrack);
+          ElementLinkToIDC_TGC_Container& el = tgc->m_rio;
           el.resetWithKeyAndIndex(m_tgcPrdKey.key(), el.index());
         }
       }else if(m_idHelperSvc->isMdt(id)){

@@ -59,7 +59,7 @@ MissingETData = ConfiguredMissingETData(
     UseCaloNoiseTool            = False,
     NSigmaCut                   = 2.0,
     UseBadChannelMasker         = False,
-    UseBadChannelTool           = False,
+    UseBadChannelTool           = False, # should not be used anymore
     )
 
 if MissingETData.getCaloCells == True:
@@ -80,24 +80,6 @@ if MissingETData.getCaloCells == True:
         MissingETData.CaloNoiseTool = theCaloNoiseTool
         #theCaloNoiseTool.OutputLevel = 1
 
-    if MissingETData.UseBadChannelTool == True:
-        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-        theLArBadChanTool=LArBadChanTool("LArBadChanTool")
-        theLArBadChanTool.OutputLevel=DEBUG
-        #can put in bad channels by hand in text files by setting this true and specifying names of text files, see LArBadChanTool documentation
-        theLArBadChanTool.ReadFromASCII=False
-        #have to specify the these names iff ReadFromASCII=True
-        #theLArBadChanTool.EMBAfile   = 'EMBA.txt'
-        #theLArBadChanTool.EMBCfile   = 'EMBC.txt'
-        #theLArBadChanTool.EMECAfile  = 'EMECA.txt'
-        #theLArBadChanTool.EMECCfile  = 'EMECC.txt'
-        #theLArBadChanTool.HECAfile   = 'HECA.txt'
-        #theLArBadChanTool.HECCfile   = 'HECC.txt'
-        #theLArBadChanTool.FCALAfile  = 'FCALA.txt'
-        #theLArBadChanTool.FCALCfile  = 'FCALC.txt'
-        #theLArBadChanTool.FEBfile    = 'FEB.txt'
-        ToolSvc+=theLArBadChanTool
-        MissingETData.BadChannelTool = theLArBadChanTool
     if MissingETData.UseBadChannelMasker == True:
         from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker 			           
         theLArMasker=LArBadChannelMasker("myLArMasker") 						           

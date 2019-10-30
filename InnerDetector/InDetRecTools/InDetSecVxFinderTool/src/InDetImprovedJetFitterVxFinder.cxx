@@ -2046,7 +2046,7 @@ namespace InDet
                                                                              myTwoTrackVerticesInJet,
                                                                              mySelectedTracksInJet);
       
-     myOutputInfo->getSVOwnership(true);
+     myOutputInfo->setSVOwnership(true);
 
 
      delete signalVertex;

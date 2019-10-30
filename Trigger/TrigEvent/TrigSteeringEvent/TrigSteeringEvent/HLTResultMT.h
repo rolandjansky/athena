@@ -38,7 +38,8 @@ namespace HLT {
                 boost::dynamic_bitset<uint32_t> hltPrescaledBits = boost::dynamic_bitset<uint32_t>(),
                 boost::dynamic_bitset<uint32_t> hltRerunBits = boost::dynamic_bitset<uint32_t>(),
                 std::unordered_map<uint16_t, std::vector<uint32_t> > data = {},
-                std::vector<uint32_t> status = {0});
+                std::vector<uint32_t> status = {0},
+                std::set<uint16_t> truncatedModuleIds = {});
 
 
     // ------------------------- Stream tags getters/setters -------------------
@@ -86,7 +87,8 @@ namespace HLT {
 
     /// Replace HLT rerun raw bits with the given bitset
     void setHltRerunBits(const boost::dynamic_bitset<uint32_t>& bitset);
-    
+
+
     // ------------------------- Serialised data getters/setters ---------------
 
     /** @brief Serialised data getter
@@ -148,6 +150,15 @@ namespace HLT {
                       });
 
 
+    // ------------------------- Truncation information ------------------------
+
+    /// Getter for the truncation information
+    const std::set<uint16_t>& getTruncatedModuleIds() const;
+
+    /// Add module ID to the list of truncated results
+    void addTruncatedModuleId(const uint16_t moduleId);
+
+
   private:
     // ------------------------- Private data members --------------------------
 
@@ -171,6 +182,10 @@ namespace HLT {
 
     /// First word is eformat::helper::Status, next words are optional error codes
     std::vector<uint32_t> m_status;
+
+    /// List of module IDs with truncation. Used only by the framework while creating the result.
+    /// It is not stored in ByteStream files.
+    std::set<uint16_t> m_truncatedModuleIds;
   };
 } // namespace HLT
 

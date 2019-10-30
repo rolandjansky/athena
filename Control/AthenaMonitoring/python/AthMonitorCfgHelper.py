@@ -164,7 +164,7 @@ class AthMonitorCfgHelperOld(object):
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
 
-    def addAlgorithm(self,algClassOrObj, name = None, *args, **kwargs):
+    def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
         '''
         Instantiate/add a monitoring algorithm
 
@@ -185,7 +185,7 @@ class AthMonitorCfgHelperOld(object):
         if issubclass(algClassOrObj, Configurable):
             if name is None:
                 raise TypeError('addAlgorithm with a class argument requires a name for the algorithm')
-            algObj = algClassOrObj(*args, **kwargs)
+            algObj = algClassOrObj(name, *args, **kwargs)
         else:
             algObj = algClassOrObj
         
