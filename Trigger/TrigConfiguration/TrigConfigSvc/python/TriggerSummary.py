@@ -1,4 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @author: Till Eifert <Till.Eifert@cern.ch>
 # @date:   October 2008
@@ -101,10 +102,10 @@ class PoolFile(object):
 
         self.poolFile = None
         dbFileName = whichdb.whichdb( fileName )
-        if not dbFileName in ( None, '' ):
-            print "## opening file [%s]..." % str(fileName)
+        if dbFileName not in ( None, '' ):
+            print("## opening file [%s]..." % str(fileName))
             db = shelve.open( fileName, 'r' )
-            print "## opening file [OK]"
+            print("## opening file [OK]")
             report = db['report']
             self._fileInfos = report['fileInfos']
 
@@ -115,9 +116,9 @@ class PoolFile(object):
             self.l2_global   = report['l2_global']
             self.ef_global   = report['ef_global']
         else:
-            print "## opening file [%s]..." % str(fileName)
+            print("## opening file [%s]..." % str(fileName))
             self.__openPoolFile( fileName )
-            print "## opening file [OK]"
+            print("## opening file [OK]")
             self.__processFile()
 
         return
@@ -127,34 +128,29 @@ class PoolFile(object):
         # our fellow Mac users
         oldArgs = sys.argv
         sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
-        print "## importing ROOT..."
+        print("## importing ROOT...")
         import ROOT
-        print "## importing ROOT... [DONE]"
-        # prevent ROOT from being too verbose
-        #rootMsg = ShutUp()
-        #rootMsg.mute()
+        print("## importing ROOT... [DONE]")
         ROOT.gErrorIgnoreLevel = ROOT.kFatal
-        #rootMsg.unMute()
         sys.argv = oldArgs
 
         poolFile = None
         try:
             #ROOT.TFile.SetReadStreamerInfo(False)
             poolFile = ROOT.TFile.Open( fileName, PoolOpts.READ_MODE )
-        except Exception, e:
-            rootMsg.unMute()
-            print "## Failed to open file [%s] !!" % fileName
-            print "## Reason:"
-            print e
-            print "## Bailing out..."
-            raise IOError, "Could not open file [%s]" % fileName
+        except Exception as e:
+            print("## Failed to open file [%s] !!" % fileName)
+            print("## Reason:")
+            print(e)
+            print("## Bailing out...")
+            raise IOError("Could not open file [%s]" % fileName)
 
         #rootMsg.unMute()
 
-        if poolFile == None:
-            print "## Failed to open file [%s] !!" % fileName
+        if poolFile is None:
+            print("## Failed to open file [%s] !!" % fileName)
             msg = "Could not open file [%s]" % fileName
-            raise IOError, msg
+            raise IOError(msg)
 
         self.poolFile = poolFile
         assert self.poolFile.IsOpen() and not self.poolFile.IsZombie(), "Invalid POOL file or a Zombie one" 
@@ -188,8 +184,8 @@ class PoolFile(object):
                 self.ef_chains += [PoolRecord(name=name, counter=chain.chain_counter(), evtsBeforePS=0, evtsAfterPS=0, \
                                                   evtsAfterPT=0, level=PoolOpts.level[3]) ]
             else:
-                print "will ignore chain (%s, %i) because the trigger level (=%s) is not set to either 'L2' or 'EF'" \
-                    % ( name, chain.chain_counter(), chain.level())
+                print("will ignore chain (%s, %i) because the trigger level (=%s) is not set to either 'L2' or 'EF'" \
+                    % ( name, chain.chain_counter(), chain.level()))
 
 
         return
@@ -207,24 +203,24 @@ class PoolFile(object):
         self._fileInfos['entries'] = nEntries
 
         ## next, try to get the trigger configuration from the MetaData TTree
-        print "## Reading trigger configuration from MetaData ..."
+        print("## Reading trigger configuration from MetaData ...")
         from TrigConfigSvc.TriggerConfigARA import TriggerConfigARA
         try:
             self.trigConf = TriggerConfigARA(self.poolFile)
-        except Exception, e:
-            print "## Caught exception [%s] !!" % str(e.__class__)
-            print "## What:",e
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception as e:
+            print("## Caught exception [%s] !!" % str(e.__class__))
+            print("## What:",e)
+            print(sys.exc_info()[0])
+            print(sys.exc_info()[1])
             pass
-        print "## Reading trigger configuration from MetaData ... [DONE]"
+        print("## Reading trigger configuration from MetaData ... [DONE]")
 
         ## get the transient tree
-        print "## Creating transient collection tree  ..."
+        print("## Creating transient collection tree  ...")
         import AthenaROOTAccess.transientTree
         def filter(dhe):
             if 'HLTResult' in dhe.token() or 'TrigDecision' in dhe.token() or 'EventInfo' in dhe.token():
-                print '+', dhe.token()
+                print('+', dhe.token())
                 return dhe
             return False
 
@@ -233,7 +229,7 @@ class PoolFile(object):
 
         branchNames = {}
         transientTree = AthenaROOTAccess.transientTree.makeTree(self.poolFile, branchNames = branchNames, dhfilt=filter)
-        print "## Creating transient collection tree  ... [DONE]"
+        print("## Creating transient collection tree  ... [DONE]")
 
         # figure out the name of the EventInfo branch (this may change from MC to MC and DATA)
         eventInfoBranchName = 'McEventInfo'
@@ -243,17 +239,18 @@ class PoolFile(object):
         del possible
 
         # from TrigSteering.Chain import Chain  #MN
+        import ROOT
         Chain = ROOT.HLT.Chain
 
         ## Branches that we're interested in: 
         EventInfo_br    = transientTree.GetBranch(eventInfoBranchName)        
         TrigDecision_br = transientTree.GetBranch("TrigDecision")
 
-        print "## Looping over all events now ..."
+        print("## Looping over all events now ...")
         isFirstEvent = True
         for i in xrange(transientTree.GetEntries()):
             if EventInfo_br.GetEntry(i) <= 0 or TrigDecision_br.GetEntry(i) <= 0 :
-                print ":: could not get entry #%i" % i
+                print(":: could not get entry #%i" % i)
                 break
             # update the trig conf. with these numbers:
             
@@ -290,7 +287,7 @@ class PoolFile(object):
                 l2Chains[aChain.getChainCounter()] =  aChain
 
             for chain in self.l2_chains:
-                if not l2Chains.has_key(chain.counter):
+                if chain.counter not in l2Chains:
                     continue
                 if l2Chains[ chain.counter ].chainPassedRaw():
                     chain.evtsBeforePS += 1
@@ -307,7 +304,7 @@ class PoolFile(object):
                 efChains[aChain.getChainCounter()] =  aChain
 
             for chain in self.ef_chains:
-                if not efChains.has_key(chain.counter):
+                if chain.counter not in efChains:
                     continue
                 if efChains[ chain.counter ].chainPassedRaw():
                     chain.evtsBeforePS += 1
@@ -319,7 +316,7 @@ class PoolFile(object):
 
 
 
-        print "## Looping over all events ... [DONE]"
+        print("## Looping over all events ... [DONE]")
 
         return
 
@@ -332,10 +329,10 @@ class PoolFile(object):
             ] )
 
     def checkFile(self, sorting = PoolRecord.Sorter.name):
-        print self.fileInfos()
-        print ""
-        print "Trigger configuration summary:"
-        print self.trigConf
+        print(self.fileInfos())
+        print("")
+        print("Trigger configuration summary:")
+        print(self.trigConf)
 
         ## sorting data
         if sorting in PoolRecord.Sorter.allowedValues():
@@ -347,48 +344,48 @@ class PoolFile(object):
             data3 = self.ef_chains
             data3.sort(key = operator.attrgetter(sorting) )
 
-        print ""
-        print "="*80
-        print PoolOpts.HDR_FORMAT % ( "ID",
+        print("")
+        print("="*80)
+        print(PoolOpts.HDR_FORMAT % ( "ID",
                                       "level",
                                       "Trigger name",
-                                      "Passed events:   raw, after PS, after PT/Veto")
-        print "="*80
+                                      "Passed events:   raw, after PS, after PT/Veto"))
+        print("="*80)
         for item in [self.l1_global, self.l2_global, self.ef_global]:
-            print PoolOpts.ROW_FORMAT_GLOBAL % (
+            print(PoolOpts.ROW_FORMAT_GLOBAL % (
                 item.level,
                 item.name,
                 item.evtsAfterPT
-                )
+                ))
 
-        print "-"*80
+        print("-"*80)
         for item in self.l1_items:
-            print PoolOpts.ROW_FORMAT % (
+            print(PoolOpts.ROW_FORMAT % (
                 item.counter,
                 item.level,
                 item.name,
                 item.evtsBeforePS, item.evtsAfterPS,
                 item.evtsAfterPT
-                )
-        print "-"*80
+                ))
+        print("-"*80)
         for chain in self.l2_chains:
-            print PoolOpts.ROW_FORMAT % (
+            print(PoolOpts.ROW_FORMAT % (
                 chain.counter,
                 chain.level,
                 chain.name,
                 chain.evtsBeforePS, chain.evtsAfterPS,
                 chain.evtsAfterPT
-                )
-        print "-"*80
+                ))
+        print("-"*80)
         for chain in self.ef_chains:
-            print PoolOpts.ROW_FORMAT % (
+            print(PoolOpts.ROW_FORMAT % (
                 chain.counter,
                 chain.level,
                 chain.name,
                 chain.evtsBeforePS, chain.evtsAfterPS,
                 chain.evtsAfterPT
-                )
-        print "="*80
+                ))
+        print("="*80)
 
         return
 
@@ -438,7 +435,6 @@ class PoolFile(object):
         if os.path.exists (fileName):
             os.unlink (fileName)
         o = csv.writer (open (fileName, 'w'))
-        nentries = self._fileInfos['entries']
         map (o.writerow,
              [ ['file name', self._fileInfos['name']],
                ['file size', self._fileInfos['size']],
@@ -467,8 +463,8 @@ class PoolFile(object):
             try:
                 self.poolFile.Close()
                 self.poolFile = None
-            except Exception,err:
-                print "WARNING:",err
+            except Exception as err:
+                print("WARNING:",err)
                 pass
 
     pass # class PoolFile
