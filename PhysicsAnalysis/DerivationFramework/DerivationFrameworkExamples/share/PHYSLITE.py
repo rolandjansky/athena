@@ -311,6 +311,7 @@ SeqPHYSLITE += CfgMgr.DerivationFramework__DerivationKernel(
    ThinningTools = thinningTools,
    )
 
+#print(SeqPHYSLITE)
 
 #====================================================================
 # CONTENT LIST  

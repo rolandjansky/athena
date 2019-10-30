@@ -72,7 +72,7 @@ StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
     //  definitely not be mixing MC samples, so this should be safe (will fall back to 0 above)
     if (evtStore()->contains<xAOD::EventInfo>("EventInfo")){
       const DataHandle<xAOD::EventInfo> eventInfo = nullptr;
-      CHECK( evtStore()->retrieve(eventInfo) );
+      CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
       mcChannelNumber = eventInfo->mcChannelNumber();
     }
 
