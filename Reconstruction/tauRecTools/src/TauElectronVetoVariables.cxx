@@ -184,13 +184,15 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 
     /*get the CaloExtension object*/
     const Trk::CaloExtension * caloExtension = nullptr;
+    std::unique_ptr<Trk::CaloExtension> uniqueExtension ;
     const xAOD::TrackParticle *orgTrack = pTau.track(0)->track();
     trackIndex = orgTrack->index();
 
     if (m_useOldCalo) {
       /* If HeadCalo is unavailable, use the calo extension tool */
       ATH_MSG_VERBOSE("Using the CaloExtensionTool");
-      caloExtension = m_caloExtensionTool->caloExtension(*orgTrack).release();
+      uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+      caloExtension = uniqueExtension.get();
     } else {
       /*get the CaloExtension object*/
       ATH_MSG_VERBOSE("Using the HeadCalo Cache");
@@ -200,7 +202,8 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     
     if( not caloExtension ){
       ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-      caloExtension = m_caloExtensionTool->caloExtension(*orgTrack).release();
+      uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+      caloExtension = uniqueExtension.get();
     }
 
     const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();

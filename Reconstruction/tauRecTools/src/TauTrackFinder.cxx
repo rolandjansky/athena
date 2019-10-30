@@ -335,6 +335,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
     //    for (unsigned int itr = 0; itr < 10 && itr < pTau.nAllTracks(); ++itr) {
     int trackIndex = -1;
     const Trk::CaloExtension * caloExtension = nullptr;
+    std::unique_ptr<Trk::CaloExtension> uniqueExtension ;
     for( xAOD::TauTrack* tauTrack : pTau.allTracks() ) {
         const xAOD::TrackParticle *orgTrack = tauTrack->track();
         trackIndex = orgTrack->index();
@@ -355,7 +356,8 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
         if (m_useOldCalo) {
           /* If HeadCalo is unavailable, use the calo extension tool */
           ATH_MSG_VERBOSE("Using the CaloExtensionTool");
-          caloExtension = m_caloExtensionTool->caloExtension(*orgTrack).release();
+          uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+          caloExtension = uniqueExtension.get();
         } else {
           /*get the CaloExtension object*/
           ATH_MSG_VERBOSE("Using the HeadCalo Cache");
@@ -364,7 +366,8 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
           ATH_MSG_VERBOSE("Getting element " << trackIndex << " from the particleCache");
           if( not caloExtension ){
             ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-            caloExtension = m_caloExtensionTool->caloExtension(*orgTrack).release();
+            uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+            caloExtension = uniqueExtension.get();
           }
         }
         const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();

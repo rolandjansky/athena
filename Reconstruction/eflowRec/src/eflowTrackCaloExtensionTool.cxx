@@ -81,23 +81,24 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   /*get the CaloExtension object*/
   SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
   const Trk::CaloExtension * extension = nullptr;
+  std::unique_ptr<Trk::CaloExtension> uniqueExtension;
   ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
 
   if (m_useOldCalo) {
     /* If HeadCalo is unavailable, use the calo extension tool */
     ATH_MSG_VERBOSE("Using the CaloExtensionTool");
-    extension = m_theTrackExtrapolatorTool->caloExtension(*track).release();
+    uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+    extension = uniqueExtension.get();
   } else {
     /*get the CaloExtension object*/
     ATH_MSG_VERBOSE("Using the HeadCalo Cache");
     SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
     extension = (*particleCache)[index];
     ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
-    // fromHeadCalo = true;
     if( not extension ){
       ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-      // fromHeadCalo = false;
-      extension = m_theTrackExtrapolatorTool->caloExtension(*track).release();
+      uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+      extension = uniqueExtension.get();
     }
   }
   
