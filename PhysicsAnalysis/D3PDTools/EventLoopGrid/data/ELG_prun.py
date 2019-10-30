@@ -8,10 +8,11 @@ import shlex
 
 def ELG_prun(sample) :
 
-    from pandatools import PandaToolsPkgInfo
-    if int(float(PandaToolsPkgInfo.release_version[2])) < 4 :
-        print "Need prun with JEDI support, try:"
-        print "    localSetupPandaClient currentJedi --noAthenaCheck"
+    try:
+        from pandatools import PandaToolsPkgInfo
+    except:
+        print "prun needs additional setup, try:"
+        print "    lsetup panda"
         return 99
 
     cmd = ["prun"]

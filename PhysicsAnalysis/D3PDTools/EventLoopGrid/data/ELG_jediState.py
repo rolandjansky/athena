@@ -3,11 +3,12 @@
 
 def ELG_jediState(sample) :
 
-    from pandatools import PandaToolsPkgInfo
-    if int(float(PandaToolsPkgInfo.release_version[2])) < 4 :
-        print "Need prun with JEDI support, try:"
-        print "    localSetupPandaClient currentJedi --noAthenaCheck"
-        return ''
+    try:
+        from pandatools import PandaToolsPkgInfo
+    except:
+        print "prun needs additional setup, try:"
+        print "    lsetup panda"
+        return 99
 
     jediTaskID = int(sample.getMetaDouble("nc_jediTaskID", 0))
 
