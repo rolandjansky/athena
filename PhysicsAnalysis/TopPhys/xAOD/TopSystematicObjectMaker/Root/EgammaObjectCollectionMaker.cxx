@@ -53,6 +53,9 @@ namespace top {
     m_isolationTool_HighPtCaloOnly("CP::IsolationTool_HighPtCaloOnly"),
     m_isolationTool_FCTight("CP::IsolationTool_FCTight"),
     m_isolationTool_FCLoose("CP::IsolationTool_FCLoose"),
+    m_isolationTool_PLVTight("CP::IsolationTool_PLVTight"),
+    m_isolationTool_PLVLoose("CP::IsolationTool_PLVLoose"),
+    m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
     m_isolationCorr("CP::IsolationCorrectionTool") {
     declareProperty("config", m_config);
 
@@ -76,6 +79,9 @@ namespace top {
     declareProperty("IsolationTool_HighPtCaloOnly", m_isolationTool_HighPtCaloOnly);
     declareProperty("IsolationTool_FCTight", m_isolationTool_FCTight);
     declareProperty("IsolationTool_FCLoose", m_isolationTool_FCLoose);
+    declareProperty("IsolationTool_PLVTight", m_isolationTool_PLVTight);
+    declareProperty("IsolationTool_PLVLoose", m_isolationTool_PLVLoose);
+    declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("IsolationCorrectionTool", m_isolationCorr);
   }
 
@@ -117,6 +123,9 @@ namespace top {
       top::check(m_isolationTool_TightTrackOnly.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowLoose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     }
 
     top::check(m_isolationCorr.retrieve(), "Failed to retrieve Isolation Correction Tool");
@@ -287,6 +296,8 @@ namespace top {
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly("AnalysisTop_Isol_TightTrackOnly");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowTight("AnalysisTop_Isol_PflowTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVTight("AnalysisTop_Isol_PLVTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVLoose("AnalysisTop_Isol_PLVLoose");
 
     const xAOD::EventInfo* eventInfo(nullptr);
 
@@ -381,6 +392,12 @@ namespace top {
         if (electron->isAvailable<float>("PromptLeptonVeto")) // r21
           electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonVeto") =
             (electron->auxdata<float>("PromptLeptonVeto") < -0.5) ? 1 : 0;
+
+	// New PLV: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTaggerIFF
+	// For PLV isolation, we need to compute additional variables in the low-pT regime (<12 GeV)
+	top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
+	AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
+	AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
       }
 
       ///-- set links to original objects- needed for MET calculation --///

@@ -97,7 +97,7 @@ namespace PMGTools
     StatusCode loadPOOLMetaData();
 
     /// Validate weight caches
-    StatusCode validateWeightLocationCaches() const;
+    StatusCode validateWeightLocationCaches();
 
     /// Clear caches
     void clearWeightLocationCaches();

@@ -91,6 +91,10 @@ else()
       SCRIPT athena.py
              AsgAnalysisAlgorithms/EventAlgorithmsTest_jobOptions.py - --data-type afii
       PROPERTIES TIMEOUT 600 )
+   atlas_add_test( GeneratorAlgsTestJob
+      SCRIPT athena.py
+               AsgAnalysisAlgorithms/GeneratorAlgorithmsTest_jobOptions.py - --data-type mc
+      PROPERTIES TIMEOUT 600 )
 
    if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
       atlas_add_test( OverlapRemovalTestJobData
@@ -104,10 +108,6 @@ else()
       atlas_add_test( OverlapRemovalTestJobFastSim
          SCRIPT athena.py
                 AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py - --data-type afii
-         PROPERTIES TIMEOUT 600 )
-      atlas_add_test( GeneratorAlgsTestJob
-         SCRIPT athena.py
-                AsgAnalysisAlgorithms/GeneratorAlgorithmsTest_jobOptions.py - --data-type mc
          PROPERTIES TIMEOUT 600 )
    endif()
 endif()

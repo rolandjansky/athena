@@ -89,7 +89,7 @@
     virtual StatusCode  initialize() override;
  
 
-    virtual int modify(xAOD::JetContainer& jetCont) const;
+    virtual int modify(xAOD::JetContainer& jetCont) const override;
 
     float getFJVT(const xAOD::Jet *jet,std::vector<TVector2> pileupMomenta) const;
     bool isForwardJet(const xAOD::Jet *jet) const;
@@ -141,7 +141,7 @@
     asg::AnaToolHandle<CP::WeightPFOTool> m_wpfotool;
     asg::AnaToolHandle<IJetCalibrationTool> m_pfoJES;
 
-    int getPV() const;
+    std::size_t getPV() const;
 
   };
 #endif //> !FORWARDJVTTOOL_JVT_FORWARDJVTTOOL_H

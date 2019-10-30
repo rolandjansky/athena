@@ -213,9 +213,7 @@ FAQ
 #. **Question:** I try to apply systematic variation running on derived samples,
    but I get an error like::
      
-     TauAnalysisTools::CommonSmearingTool::checkTruthMatch(const TauJet&) const): No truth match information available. Please run TauTruthMatchingTool first.
-     terminate called after throwing an instance of 'SG::ExcBadAuxVar'
-     what():  SG::ExcBadAuxVar: Attempt to retrieve nonexistent aux data item `::truthParticleLink' (894).
+     TauAnalysisTools::getTruthParticleType: No truth match information available. Please run TauTruthMatchingTool first.
 
    **Answer:** Did you follow instructions for adding truth information in
    derivations as described in `TauPreRecommendations2015 TWiki
@@ -233,9 +231,7 @@ FAQ
 #. **Question:** I try to apply systematic variation running on xAOD samples,
    but I get an error like::
      
-     TauAnalysisTools::CommonSmearingTool::checkTruthMatch(const TauJet&) const): No truth match information available. Please run TauTruthMatchingTool first.
-     terminate called after throwing an instance of 'SG::ExcBadAuxVar'
-     what():  SG::ExcBadAuxVar: Attempt to retrieve nonexistent aux data item `::truthParticleLink' (894).
+     TauAnalysisTools::getTruthParticleType: No truth match information available. Please run TauTruthMatchingTool first.
 
    **Answer:** If you have full access to the TruthParticle container, you can
    create a TruthTau container and the link to the matched truth taus by setting

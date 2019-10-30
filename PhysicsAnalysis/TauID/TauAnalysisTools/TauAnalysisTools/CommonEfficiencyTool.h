@@ -130,7 +130,6 @@ protected:
                                         double dVars[]
                                        );
 
-  e_TruthMatchedParticleType checkTruthMatch(const xAOD::TauJet& xTau) const;
   void generateSystematicSets();
 
 protected:
