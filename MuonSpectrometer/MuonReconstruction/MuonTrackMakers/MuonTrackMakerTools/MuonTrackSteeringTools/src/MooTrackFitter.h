@@ -9,11 +9,17 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TrkParameters/TrackParameters.h"
+// Misc
+#include "Identifier/Identifier.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
+#include "MuonIdHelpers/MuonStationIndex.h"
 
+// Tracking EDM
+#include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
+// Tools & tool interfaces
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMomentumEstimator.h"
@@ -26,17 +32,14 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
-
-#include "MuonIdHelpers/MuonStationIndex.h"
-
-#include "MuPatCandidateBase.h"
-#include "MuPatHit.h"
-
 #include "TrkDriftCircleMath/SegmentFinder.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"
-#include "Identifier/Identifier.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+
+// Local
+#include "MuPatCandidateBase.h"
+#include "MuPatHit.h"
+#include "MuPatHitTool.h"
 
 #include <set>
 
@@ -58,22 +61,22 @@ namespace Trk {
   class IPropagator;
   class Track;
   class MeasurementBase;
-  class PseudoMeasurementOnTrack;
+  // class PseudoMeasurementOnTrack;
   class Layer;
-  class ITrackSummaryHelperTool;
+  // class ITrackSummaryHelperTool;
 }
 
 namespace Muon {
   class MuonSegment;
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-  class IMuonTrackCleaner;
-  class MuPatHitTool;
-  class IMuonSegmentMomentumEstimator;
-  class IMuonTrackToSegmentTool;
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonSegmentInOverlapResolvingTool;
-  class IMuonHitSelector;
+//   class MuonEDMPrinterTool;
+//   class MuonIdHelperTool;
+//   class IMuonTrackCleaner;
+//   class MuPatHitTool;
+//   class IMuonSegmentMomentumEstimator;
+//   class IMuonTrackToSegmentTool;
+//   class IMdtDriftCircleOnTrackCreator;
+//   class IMuonSegmentInOverlapResolvingTool;
+//   class IMuonHitSelector;
   class MuPatCandidateBase;
   class MuPatTrack;
 }
@@ -194,7 +197,7 @@ namespace Muon {
     MooTrackFitter(const std::string&, const std::string&, const IInterface*);
     
     /** destructor */
-    ~MooTrackFitter();
+    ~MooTrackFitter() = default;
     
     /** initialize method, method taken from bass-class AlgTool */
     StatusCode initialize();
@@ -309,55 +312,55 @@ namespace Muon {
     ToolHandle<MuPatHitTool>                        m_hitHandler          {this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool"}; //!< hit handler
     ToolHandle<IMuonSegmentMomentumEstimator>       m_momentumEstimator   {this, "SegmentMomentum", "MuonSegmentMomentum/MuonSegmentMomentum"}; //!< tool to estimate track momentum
  
-    Trk::RunOutlierRemoval                          m_runOutlier;         //!< switch whether to run outlier logics or not
-    int                                             m_matEffects;         //!< type of material interaction in extrapolation
-    Trk::ParticleHypothesis                         m_ParticleHypothesis; //!< nomen est omen 
-    Trk::MagneticFieldProperties                    m_magFieldProperties; //!< magnetic field properties
+    Gaudi::Property<Trk::RunOutlierRemoval>         m_runOutlier          {this, "RunOutlier", false, "Switch whether to run outlier logics or not"};
+    Gaudi::Property<int>                            m_matEffects          {this, "MatEffects", 2, "type of material interaction in extrapolation"};
+    Trk::ParticleHypothesis                         m_ParticleHypothesis  ; //!< nomen est omen 
+    Trk::TrackInfo::TrackPatternRecoInfo m_patRecInfo {Trk::TrackInfo::Moore};
+    Trk::MagneticFieldProperties                    m_magFieldProperties  {Trk::FullField}; //!< magnetic field properties
     ToolHandle<MuonIdHelperTool>                    m_idHelperTool        {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //!< id helper tool
     ServiceHandle<IMuonEDMHelperSvc>                m_edmHelperSvc        {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< multi purpose helper tool
-    ToolHandle<MuonEDMPrinterTool>                  m_printer             {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //!< tool to print out EDM objects
-    ToolHandle<IMuonTrackToSegmentTool>             m_trackToSegmentTool  {this, "TrackToSegmentTool", "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"}; //!< helper tool to convert tracks into segments
-    ToolHandle<IMdtDriftCircleOnTrackCreator>       m_mdtRotCreator       {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtTubeHitOnTrackCreator"}; //!< mdt tube hit creator
+      "Handle to the service providing the IMuonEDMHelperSvc interface" }; //!< multi purpose helper tool
+    ToolHandle<MuonEDMPrinterTool>                  m_printer             {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"}; //!< tool to print out EDM objects
+    ToolHandle<IMuonTrackToSegmentTool>             m_trackToSegmentTool  {this, "TrackToSegmentTool", "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"};//!< helper tool to convert tracks into segments
+    ToolHandle<IMdtDriftCircleOnTrackCreator>       m_mdtRotCreator       {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtTubeHitOnTrackCreator"};//!< mdt tube hit creator
     ToolHandle<IMuonHitSelector>                    m_phiHitSelector      {this, "PhiHitSelector", "MuonPhiHitSelector/MuonPhiHitSelector"}; //!< tool to clean phi hits
     ToolHandle<IMuonTrackCleaner>                   m_cleaner             {this, "TrackCleaner", "Muon::MuonTrackCleaner/MuonTrackCleaner"};
     ToolHandle<IMuonSegmentInOverlapResolvingTool>  m_overlapResolver     {this, "SegmentInOverlapTool", "Muon::MuonSegmentInOverlapResolvingTool/MuonSegmentInOverlapResolvingTool"};
     ToolHandle<Trk::ITrackSummaryHelperTool>        m_trackSummaryTool    {this, "TrackSummaryTool", "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"}; //<! muon track summary helper
 
-    bool         m_slFit;              //<! perform sl fit
-    bool         m_slProp;             //<! perform sl propagation
-    bool         m_seedWithSegmentTheta; //<! seed with theta connecting first + last eta hit
-    bool         m_seedWithAvePhi;       //<! seed with average phi of all phi hits
-    bool         m_seedPhiWithEtaHits;   //<! seed phi from positions first last eta hit
-    bool         m_usePreciseHits;      //<! use actual measurement error
-    bool         m_usePrefit;           //<! use prefit 
-    bool         m_allowFirstFit;       //<! return the result of the prefit is final fit fails
-    double       m_pThreshold;          //<! momentum cut-off. Seeds below the threshold will not be fitted
-    bool         m_cosmics;             //<! special treatment for cosmics
-    bool         m_cleanPhiHits;        //<! special flag to switch off phi hit cleaning
-    unsigned int m_phiHitsMax;          //<! if more than maximum number of phi hits on pattern, no hits will be added
-    bool         m_seedAtStartOfTrack;  //<! provide seed parameters at the start of the track
-    bool         m_preciseFirstStation; //<! use precise hits in first station to stabalise the fit
+    Gaudi::Property<bool>                           m_slFit               {this, "SLFit", true, "Perform sl fit"};
+    Gaudi::Property<bool>                           m_slProp              {this, "SLProp", false, "Enable straight line propagation"};
+    Gaudi::Property<bool>                           m_seedWithSegmentTheta{this, "SeedWithSegmentTheta", true, "Seed with theta connecting first + last eta hit"};
+    Gaudi::Property<bool>                           m_seedWithAvePhi      {this, "SeedWithAvePhi", true, "Seed with average phi of all phi hits"};
+    Gaudi::Property<bool>                           m_seedPhiWithEtaHits  {this, "SeedPhiWithEtaHits", false, "Seed phi from positions first last eta hit"};
+    Gaudi::Property<bool>                           m_usePreciseHits      {this, "UsePreciseHits", false, "Use actual measurement error"};
+    Gaudi::Property<bool>                           m_usePrefit           {this, "UsePrefit", true, "Use prefit"}; 
+    Gaudi::Property<bool>                           m_allowFirstFit       {this, "AllowFirstFitResult", false, "Return the result of the prefit is final fit fails"}; 
+    Gaudi::Property<double>                         m_pThreshold          {this, "PThreshold", 500. , "Momentum cut-off. Seeds below the threshold will not be fitted"};//<! 
+    Gaudi::Property<bool>                           m_cosmics             {this, "Cosmics", false, "Special treatment for cosmics"};
+    Gaudi::Property<bool>                           m_cleanPhiHits        {this, "CleanPhiHits", true, "Special flag to switch off phi hit cleaning"};
+    Gaudi::Property<unsigned int>                   m_phiHitsMax          {this, "MaxPatternPhiHits", 40, "If more than maximum number of phi hits on pattern, no hits will be added"};
+    Gaudi::Property<bool>                           m_seedAtStartOfTrack  {this, "SeedAtStartOfTrack", true, "Provide seed parameters at the start of the track"};
+    Gaudi::Property<bool>                           m_preciseFirstStation {this, "UsePreciseHitsInFirstStation", false, "use precise hits in first station to stabalise the fit"}; 
 
-    double       m_openingAngleCut;  //<! cut on the maximum difference in phi between measurements on the track
-    double       m_preCleanChi2Cut;  //<! minimum chi2/ndof for a track to be passed to cleaner
-    double       m_chi2Cut;          //<! minimum chi2/ndof for a track to be accepted
+    Gaudi::Property<double>                         m_openingAngleCut     {this, "OpeningAngleCut", 0.3 , "cut on the maximum difference in phi between measurements on the track"};
+    Gaudi::Property<double>                         m_preCleanChi2Cut     {this, "PreCleaningReducedChi2Cut", 500., "minimum chi2/ndof for a track to be passed to cleaner"};
+    Gaudi::Property<double>                         m_chi2Cut             {this, "ReducedChi2Cut", 100., "minimum chi2/ndof for a track to be accepted"};
 
-    mutable std::atomic_uint m_nfits;
-    mutable std::atomic_uint m_nfailedExtractInital;
-    mutable std::atomic_uint m_nfailedMinMaxPhi;
-    mutable std::atomic_uint m_nfailedParsInital;
-    mutable std::atomic_uint m_nfailedExtractCleaning;
-    mutable std::atomic_uint m_nfailedFakeInitial;
-    mutable std::atomic_uint m_nfailedTubeFit;
-    mutable std::atomic_uint m_noPerigee;
-    mutable std::atomic_uint m_nlowMomentum;
-    mutable std::atomic_uint m_nfailedExtractPrecise;
-    mutable std::atomic_uint m_nfailedFakePrecise;
-    mutable std::atomic_uint m_nfailedFitPrecise;
-    mutable std::atomic_uint m_nsuccess;    
-    Trk::TrackInfo::TrackPatternRecoInfo m_patRecInfo;
+    mutable std::atomic_uint m_nfits {0};
+    mutable std::atomic_uint m_nfailedExtractInital {0};
+    mutable std::atomic_uint m_nfailedMinMaxPhi {0};
+    mutable std::atomic_uint m_nfailedParsInital {0};
+    mutable std::atomic_uint m_nfailedExtractCleaning {0};
+    mutable std::atomic_uint m_nfailedFakeInitial {0};
+    mutable std::atomic_uint m_nfailedTubeFit {0};
+    mutable std::atomic_uint m_noPerigee {0};
+    mutable std::atomic_uint m_nlowMomentum {0};
+    mutable std::atomic_uint m_nfailedExtractPrecise {0};
+    mutable std::atomic_uint m_nfailedFakePrecise {0};
+    mutable std::atomic_uint m_nfailedFitPrecise {0};
+    mutable std::atomic_uint m_nsuccess {0};    
 
     struct StationPhiData {
       unsigned int nphiHits;

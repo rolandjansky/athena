@@ -6,7 +6,6 @@
 #include "MuPatTrack.h"
 #include "MuPatSegment.h"
 #include "MuPatCandidateBase.h"
-#include "MuPatHitTool.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
@@ -57,37 +56,10 @@ namespace Muon {
 
   
   MooTrackFitter::MooTrackFitter(const std::string& t,const std::string& n,const IInterface* p)  :  
-    AthAlgTool(t,n,p),
-    m_magFieldProperties(Trk::FullField),
-    m_patRecInfo(Trk::TrackInfo::Moore)
+    AthAlgTool(t,n,p)
   {
 
     declareInterface<MooTrackFitter>(this);
-
-    declareProperty("PreCleaningReducedChi2Cut",m_preCleanChi2Cut = 500.,"minimum reduced chi2 for a track to be cleaned");
-    declareProperty("ReducedChi2Cut",m_chi2Cut = 100.,"minimum reduced chi2 for a track to be accepted");
-
-    declareProperty("SLProp",              m_slProp = false, "Enable straight line propagation");
-    declareProperty("SLFit",               m_slFit = true);
-    declareProperty("RunOutlier",          m_runOutlier = false);
-    declareProperty("MatEffects",          m_matEffects = 2);
-    declareProperty("SeedAtStartOfTrack",  m_seedAtStartOfTrack = true );
-    declareProperty("SeedWithAvePhi",      m_seedWithAvePhi = true );
-    declareProperty("SeedWithSegmentTheta",m_seedWithSegmentTheta = true );
-    declareProperty("SeedPhiWithEtaHits",  m_seedPhiWithEtaHits = false );
-    declareProperty("UsePreciseHits",      m_usePreciseHits = false );
-    declareProperty("UsePrefit",           m_usePrefit = true );
-    declareProperty("AllowFirstFitResult", m_allowFirstFit = false );
-    declareProperty("PThreshold",          m_pThreshold = 500. );
-    declareProperty("CleanPhiHits",        m_cleanPhiHits = true );
-    declareProperty("MaxPatternPhiHits",   m_phiHitsMax = 40 );
-    declareProperty("Cosmics",             m_cosmics = false );
-    declareProperty("OpeningAngleCut",     m_openingAngleCut = 0.3 );
-    declareProperty("UsePreciseHitsInFirstStation", m_preciseFirstStation = false );
-
-  }
-    
-  MooTrackFitter::~MooTrackFitter() {
   }
   
   StatusCode MooTrackFitter::initialize() {
@@ -112,20 +84,6 @@ namespace Muon {
     ATH_CHECK( m_trackToSegmentTool.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
     ATH_CHECK( m_phiHitSelector.retrieve() );
-
-    m_nfits=0;
-    m_nfailedExtractInital=0;
-    m_nfailedMinMaxPhi=0;
-    m_nfailedParsInital=0;
-    m_nfailedExtractCleaning=0;
-    m_nfailedFakeInitial=0;
-    m_nfailedTubeFit=0;
-    m_noPerigee=0;
-    m_nlowMomentum=0;
-    m_nfailedExtractPrecise=0;
-    m_nfailedFakePrecise=0;
-    m_nfailedFitPrecise=0;
-    m_nsuccess=0;
 
     return StatusCode::SUCCESS;
   }
