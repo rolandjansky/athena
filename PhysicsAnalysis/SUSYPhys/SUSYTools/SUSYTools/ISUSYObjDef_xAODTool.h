@@ -220,7 +220,8 @@ namespace ST {
     virtual StatusCode FillPhoton(xAOD::Photon& input, const float ptcut, const float etacut) = 0;
 
     virtual const xAOD::Vertex* GetPrimVtx() const = 0;
-
+    
+    virtual StatusCode BendBTaggingLinks(xAOD::JetContainer* , const std::string& bTagKey) const = 0;
     virtual StatusCode GetJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetTrackJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets,xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, const bool recordSG=true, const std::string& jetkey="") = 0;

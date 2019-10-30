@@ -170,9 +170,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muIsoHighPtThresh(-99.),
     m_BtagWP(""),
     m_BtagTagger(""),
+    m_BtagTimeStamp(""),
     m_BtagSystStrategy(""),
     m_BtagWP_trkJet(""),
     m_BtagTagger_trkJet(""),
+    m_BtagTimeStamp_trkJet(""),
     m_BtagMinPt_trkJet(-99.),
     //configurable cuts here
     m_eleBaselinePt(-99.),
@@ -463,10 +465,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "BtagTagger", m_BtagTagger);
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
+  declareProperty( "BtagTimeStamp", m_BtagTimeStamp); /// Time stamp of the b-tagging containers introduced in p3954
   declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
   declareProperty( "BtagTaggerTrkJet", m_BtagTagger_trkJet);
   declareProperty( "BtagWPTrkJet", m_BtagWP_trkJet);  //the one used in FillTrackJet() afterwards
-
+  declareProperty( "BtagTimeStampTrkJet", m_BtagTimeStamp_trkJet);  //the one used in FillTrackJet() afterwards
   //ELECTRONS
   declareProperty( "EleBaselinePt", m_eleBaselinePt);
   declareProperty( "ElePt", m_elePt);
@@ -598,7 +601,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_muonEfficiencyBMHighPtSFTool.declarePropertyFor( this, "MuonBadMuonHighPtScaleFactorsTool", "The MuonBadMuonHighPtSFTool" );
   m_muonTTVAEfficiencySFTool.declarePropertyFor( this, "MuonTTVAEfficiencyScaleFactorsTool", "The MuonTTVAEfficiencySFTool" );
   m_muonIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
-  m_muonHighPtIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
+  m_muonHighPtIsolationSFTool.declarePropertyFor( this, "MuonHighPtIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
   m_muonTriggerSFTool.declarePropertyFor( this, "MuonTriggerScaleFactorsTool", "The MuonTriggerSFTool" );
   //
   m_elecEfficiencySFTool_reco.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_reco", "The ElectronEfficiencyCorrectionTool for reconstruction SFs" );
@@ -1332,10 +1335,13 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root");
+  configFromFile(m_BtagTimeStamp, "Btag.TimeStamp", rEnv, "201810");
+  
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
+  configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "None");
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, 20e3);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);

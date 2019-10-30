@@ -67,10 +67,10 @@ namespace top {
                       "Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)",
                       "default");
     registerParameter("ElectronIsolation",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "Gradient");
     registerParameter("ElectronIsolationLoose",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");

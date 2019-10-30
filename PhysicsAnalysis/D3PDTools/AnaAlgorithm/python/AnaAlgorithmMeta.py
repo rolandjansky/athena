@@ -16,7 +16,7 @@ class AnaAlgorithmMeta ( object ):
     def __init__( self, stageName, affectingSystematics, inputPropName, outputPropName ):
 
         if not stageName in self.allowedStageNames() :
-            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
+            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
 
         self.stageName = stageName
 

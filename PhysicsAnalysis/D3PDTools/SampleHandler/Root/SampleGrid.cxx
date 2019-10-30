@@ -97,13 +97,27 @@ namespace SH
   doMakeFileList () const
   {
     RCU_READ_INVARIANT (this);
+    using namespace msgGridTools;
+
+    const char *downloadDir = getenv (downloadStageEnvVar().c_str());
 
     const std::string sampleName
       = meta()->castString (MetaFields::gridName, name());
     const std::string fileFilter
       = meta()->castString (MetaFields::gridFilter, MetaFields::gridFilter_default);
-    const std::string sourceOptions
-      = meta()->castString (MetaFields::gridSourceOptions);
-    return rucioDirectAccessGlob (sampleName, fileFilter, sourceOptions);
+
+    if (downloadDir)
+    {
+      ANA_MSG_DEBUG ("download dir set, trying download");
+      if (downloadDir[0] != '/')
+        throw std::runtime_error ("rucio download path in variable " + downloadStageEnvVar() + " should start with /");
+      return rucioCacheDatasetGlob (downloadDir, sampleName, fileFilter);
+    } else
+    {
+      ANA_MSG_DEBUG ("download dir not set, trying direct access");
+      const std::string sourceOptions
+        = meta()->castString (MetaFields::gridSourceOptions);
+      return rucioDirectAccessGlob (sampleName, fileFilter, sourceOptions);
+    }
   }
 }

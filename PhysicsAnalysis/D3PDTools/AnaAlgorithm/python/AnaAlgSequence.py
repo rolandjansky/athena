@@ -316,7 +316,7 @@ class AnaAlgSequence( AlgSequence ):
         self._algorithmMeta.insert( index, meta )
         return self
 
-    def addPublicTool( self, tool ):
+    def addPublicTool( self, tool, stageName = 'undefined' ):
         """Add a public tool to the job
 
         This function is here to provide a uniform interface with which
@@ -335,7 +335,7 @@ class AnaAlgSequence( AlgSequence ):
         except ImportError:
 
             # We're not, so let's remember this as a "normal" algorithm:
-            self.append( tool, inputPropName = None )
+            self.append( tool, inputPropName = None, stageName = stageName )
             pass
         return
 
@@ -380,7 +380,7 @@ class AnaAlgSequence( AlgSequence ):
         """
 
         if not stageName in self.allowedStageNames() :
-            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
+            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
 
         # safety check that we actually know the stages of all
         # algorithms

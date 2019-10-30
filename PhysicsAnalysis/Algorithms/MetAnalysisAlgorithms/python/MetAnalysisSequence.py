@@ -11,7 +11,7 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' )
     like:
 
        metSequence.configure( inputName = {
-                                 'jets'      : 'AntiKt4EMTopoJets_%SYS%',
+                                 'jets'      : 'AntiKt4EMPFlowJets_%SYS%',
                                  'electrons' : 'AnalysisElectrons_%SYS%',
                                  'photons'   : 'AnalysisPhotons_%SYS%',
                                  'muons'     : 'AnalysisMuons_%SYS%',
@@ -77,12 +77,13 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' )
     seq.append( alg, inputPropName = 'met' )
 
     # Set up the met significance algorithm:
-    alg = createAlgorithm( 'CP::MetSignificanceAlg', 'MetSignificanceAlg' + postfix )
-    addPrivateTool( alg, 'significanceTool', 'met::METSignificance' )
-    alg.significanceTool.SoftTermParam = 0
-    alg.significanceTool.TreatPUJets = True
-    alg.significanceTool.IsAFII = dataType == "afii"
-    seq.append( alg, inputPropName = 'met' )
+    if useFJVT:
+        alg = createAlgorithm( 'CP::MetSignificanceAlg', 'MetSignificanceAlg' + postfix )
+        addPrivateTool( alg, 'significanceTool', 'met::METSignificance' )
+        alg.significanceTool.SoftTermParam = 0
+        alg.significanceTool.TreatPUJets = True
+        alg.significanceTool.IsAFII = dataType == "afii"
+        seq.append( alg, inputPropName = 'met' )
 
     # Return the sequence:
     return seq

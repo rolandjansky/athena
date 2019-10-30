@@ -1260,9 +1260,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_MSG_WARNING("  *** HACK *** Treating LCTopoJets jets as EMTopo -- use at your own risk!");
     jetcollBTag = "AntiKt4EMTopoJets";
   }
+  if (!m_BtagTimeStamp.empty()) jetcollBTag += "_BTagging" + m_BtagTimeStamp;
 
   if (!m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
-    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
+    if (jetcollBTag.find("AntiKt4EMTopoJets") == std::string::npos && jetcollBTag.find("AntiKt4EMPFlowJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
     } else ATH_CHECK(m_btagSelTool.retrieve());
@@ -1296,6 +1297,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
  
 
   std::string trkjetcoll = m_defaultTrackJets;
+  std::string BTagColl_TrkJet = trkjetcoll;
+  if (!m_BtagTimeStamp_trkJet.empty()) BTagColl_TrkJet += "_BTagging"+m_BtagTimeStamp_trkJet;
+  
   if (!m_btagSelTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
     if (trkjetcoll != "AntiKt2PV0TrackJets" && trkjetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
       ATH_MSG_WARNING("** Only AntiKt2PV0TrackJets and AntiKtVR30Rmax4Rmin02TrackJets are supported with FTAG scale factors!");
@@ -1303,11 +1307,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
 
     toolName = "BTagSel_" + trkjetcoll + m_BtagWP_trkJet;
+    
     m_btagSelTool_trkJet.setTypeAndName("BTaggingSelectionTool/"+toolName);
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("TaggerName",     m_BtagTagger_trkJet ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("OperatingPoint", m_BtagWP_trkJet  ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("MinPt",          m_BtagMinPt_trkJet  ) );
-    ATH_CHECK( m_btagSelTool_trkJet.setProperty("JetAuthor",      trkjetcoll   ) );
+    ATH_CHECK( m_btagSelTool_trkJet.setProperty("JetAuthor",      BTagColl_TrkJet   ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_btagSelTool_trkJet.retrieve() );
@@ -1361,7 +1366,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("TaggerName",     m_BtagTagger_trkJet ) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("ScaleFactorFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("OperatingPoint", m_BtagWP_trkJet ) );
-    ATH_CHECK( m_btagEffTool_trkJet.setProperty("JetAuthor",      trkjetcoll ) );
+    ATH_CHECK( m_btagEffTool_trkJet.setProperty("JetAuthor",      BTagColl_TrkJet ) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("SystematicsStrategy", m_BtagSystStrategy ) );
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("EfficiencyBCalibrations",     MCshowerID   ));
     ATH_CHECK( m_btagEffTool_trkJet.setProperty("EfficiencyCCalibrations",     MCshowerID   ));

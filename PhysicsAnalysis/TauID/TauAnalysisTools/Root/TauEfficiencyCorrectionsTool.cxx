@@ -26,9 +26,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   , m_iRunNumber(0)
   , m_iMu(0)
   , m_tTauSelectionToolHandle("")
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   , m_tPRWTool("")
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   , m_tTauSelectionTool(0)
 {
   declareProperty( "EfficiencyCorrectionTypes",    m_vEfficiencyCorrectionTypes    = {} );
@@ -51,6 +49,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "RecommendationTag",            m_sRecommendationTag            = "2019-summer" );
   declareProperty( "TriggerName",                  m_sTriggerName                  = "" );
   declareProperty( "TriggerYear",                  m_sTriggerYear                  = "2016" );
+  declareProperty( "AutoTriggerYear",              m_bReadRandomRunNumber          = false );
   declareProperty( "TriggerSFMeasurement",         m_sTriggerSFMeasurement         = "combined" ); // "combined", "Ztauttau" or "ttbar"
   declareProperty( "UseTauSubstructure",           m_bUseTauSubstructure           = false );
 
@@ -68,9 +67,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "SkipTruthMatchCheck",          m_bSkipTruthMatchCheck          = false );
 
   declareProperty( "TauSelectionTool",             m_tTauSelectionToolHandle );
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   declareProperty( "PileupReweightingTool",        m_tPRWTool);
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
 
   declareProperty( "EventInfoName",                m_sEventInfoName                = "EventInfo" );
 }
@@ -247,10 +244,8 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
   if (m_bSkipTruthMatchCheck)
     ATH_MSG_WARNING("Truth match check will be skipped. This is ONLY FOR TESTING PURPOSE!");
 
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   if (!m_tPRWTool.empty())
     ATH_CHECK(m_tPRWTool.retrieve());
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
 
   if (!m_tTauSelectionToolHandle.empty())
   {
@@ -369,6 +364,14 @@ StatusCode TauEfficiencyCorrectionsTool::beginEvent()
   const xAOD::EventInfo* xEventInfo = 0;
   ATH_CHECK(evtStore()->retrieve(xEventInfo, m_sEventInfoName ));
   m_iMu = xEventInfo->averageInteractionsPerCrossing();
+
+  if (m_bReadRandomRunNumber)
+  {
+    // Reset the number at the beginning of event
+    m_iRunNumber = 0;
+    return StatusCode::SUCCESS;
+  }
+
   if (m_tPRWTool.empty())
     return StatusCode::SUCCESS;
 
@@ -463,6 +466,9 @@ CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const
   if (m_bIsData)
     return CP::CorrectionCode::Ok;
 
+  ANA_CHECK_SET_TYPE (CP::CorrectionCode);
+  ANA_CHECK(readRandomRunNumber());
+
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
   {
     double dToolEff = 1.;
@@ -489,6 +495,9 @@ CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( con
 {
   if (m_bIsData)
     return CP::CorrectionCode::Ok;
+
+  ANA_CHECK_SET_TYPE (CP::CorrectionCode);
+  ANA_CHECK(readRandomRunNumber());
 
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
   {
@@ -678,7 +687,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
 
     else if (iEfficiencyCorrectionType == SFTriggerHadTau)
     {
-      if (m_tPRWTool.empty())   // use single setup
+      if (!m_bReadRandomRunNumber && m_tPRWTool.empty())   // use single setup
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathTriggerHadTau.empty())
@@ -715,7 +724,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
         ATH_CHECK(tTool->setProperty("WP", ConvertTriggerIDToString(m_iIDLevel)));
         ATH_CHECK(tTool->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning));
       }
-      else                      // setup two tools
+      else // setup multiple tools
       {
         if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
 
@@ -886,7 +895,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2018_summer()
     }
     else if (iEfficiencyCorrectionType == SFTriggerHadTau)
     {
-      if (m_tPRWTool.empty())   // use single setup
+      if (!m_bReadRandomRunNumber && m_tPRWTool.empty())   // use single setup
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathTriggerHadTau.empty())
@@ -1069,8 +1078,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_mc16_prerec()
     }
     else if (iEfficiencyCorrectionType == SFTriggerHadTau)
     {
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
-      if (m_tPRWTool.empty())   // use single setup
+      if (!m_bReadRandomRunNumber && m_tPRWTool.empty())   // use single setup
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathTriggerHadTau.empty())
@@ -1108,8 +1116,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_mc16_prerec()
         ATH_CHECK(tTool->setProperty("WP", ConvertTriggerIDToString(m_iIDLevel)));
         ATH_CHECK(tTool->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning));
       }
-      else                      // setup two tools
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
+      else // setup multiple tools
       {
         if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
 
@@ -1255,8 +1262,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
     }
     else if (iEfficiencyCorrectionType == SFTriggerHadTau)
     {
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
-      if (m_tPRWTool.empty())   // use single setup
+      if (!m_bReadRandomRunNumber && m_tPRWTool.empty())   // use single setup
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathTriggerHadTau.empty())
@@ -1293,8 +1299,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
         ATH_CHECK(tTool->setProperty("WP", ConvertTriggerIDToString(m_iIDLevel)));
         ATH_CHECK(tTool->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning));
       }
-      else                      // setup two tools
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
+      else // setup multiple tools
       {
         if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
 
@@ -1444,8 +1449,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2016_fall()
     }
     else if (iEfficiencyCorrectionType == SFTriggerHadTau)
     {
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
-      if (m_tPRWTool.empty())   // use single setup
+      if (!m_bReadRandomRunNumber && m_tPRWTool.empty())   // use single setup
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathTriggerHadTau.empty())
@@ -1470,7 +1474,6 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2016_fall()
         ATH_CHECK(tTool->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning));
       }
       else                      // setup two tools
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
       {
         if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
 
@@ -1596,8 +1599,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2016_ichep()
     }
     else if (iEfficiencyCorrectionType == SFTriggerHadTau)
     {
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
-      if (m_tPRWTool.empty())   // use single setup
+      if (!m_bReadRandomRunNumber && m_tPRWTool.empty())   // use single setup
       {
         // only set vars if they differ from "", which means they have been configured by the user
         if (m_sInputFilePathTriggerHadTau.empty())
@@ -1618,7 +1620,6 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2016_ichep()
         ATH_CHECK(tTool->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning));
       }
       else                      // setup two tools
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
       {
         if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
 
@@ -1962,6 +1963,31 @@ std::string TauEfficiencyCorrectionsTool::GetTriggerSFMeasrementString()
   return sMeasurement;
 }
 
+StatusCode TauEfficiencyCorrectionsTool::readRandomRunNumber()
+{
+  if (m_bReadRandomRunNumber && m_iRunNumber == 0)
+  {
+    static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
+    const xAOD::EventInfo* eventInfo{};
+    if (!evtStore()->contains<xAOD::EventInfo>("EventInfo") || !evtStore()->retrieve(eventInfo, "EventInfo").isSuccess())
+    {
+      ANA_MSG_ERROR("Could not retrieve the xAOD::EventInfo with name EventInfo");
+      return StatusCode::FAILURE;
+    }
+
+    if (!acc_rnd.isAvailable(*eventInfo))
+    {
+      ANA_MSG_ERROR("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool beforehand in order to get period dependent SFs.");
+      return StatusCode::FAILURE;
+    }
+
+    m_iRunNumber = acc_rnd(*eventInfo);
+
+    ANA_MSG_VERBOSE("Read RandomRunNumber as " << m_iRunNumber);
+  }
+
+  return StatusCode::SUCCESS;
+}
 
 } // namespace TauAnalysisTools
 

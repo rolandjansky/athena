@@ -6,6 +6,7 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                 preselection = '',
+                                disableFJvt = False,
                                 globalSF = True,
                                 runSelection = True ):
     """Create a jet JVT analysis algorithm sequence
@@ -13,6 +14,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
+      disableFJvt -- Wether to disable forward JVT calculations
       globalSF -- Wether to calculate per event scale factors
       runSelection -- Wether to run selection
     """
@@ -46,24 +48,25 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
                     inputPropName = { 'jets' : 'particles',
                                       'eventInfo' : 'eventInfo' } )
 
-        alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
-        alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
-        alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
-        alg.scaleFactorInputDecorationRegex = fjvtSysts
-        alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
+        if not disableFJvt:
+            alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
+            alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
+            alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
+            alg.scaleFactorInputDecorationRegex = fjvtSysts
+            alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 
-        seq.append( alg,
-                    affectingSystematics = fjvtSysts,
-                    inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' } )
-
+            seq.append( alg,
+                        affectingSystematics = fjvtSysts,
+                        inputPropName = { 'jets' : 'particles',
+                                          'eventInfo' : 'eventInfo' } )
 
     if runSelection:
         cutlist.append('jvt_selection')
         cutlength.append(1)
-        
-        cutlist.append('fjvt_selection')
-        cutlength.append(1)
+
+        if not disableFJvt:
+            cutlist.append('fjvt_selection')
+            cutlength.append(1)
 
         # Set up an algorithm used for debugging the jet selection:
         alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetJvtCutFlowDumperAlg' )

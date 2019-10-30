@@ -584,3 +584,52 @@ void TauAnalysisTools::truthHadrons(const xAOD::TauJet* xTau, std::vector<const 
 
   return;  
 }
+
+//______________________________________________________________________________
+e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::TauJet& xTau)
+{
+  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
+  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
+    Error("TauAnalysisTools::getTruthParticleType", "No truth match information available. Please run TauTruthMatchingTool first.");
+
+  const xAOD::TruthParticle* xTruthParticle = xAOD::TauHelpers::getTruthParticle(&xTau);
+  if (xTruthParticle)
+  {
+    if (xTruthParticle->isTau())
+    {
+      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
+      if ((bool)accIsHadronicTau(*xTruthParticle))
+        return TruthHadronicTau;
+      else
+        return TruthLeptonicTau;
+    }
+    if (xTruthParticle->isMuon())
+      return TruthMuon;
+    if (xTruthParticle->isElectron())
+      return TruthElectron;
+  }
+  
+  // TODO: use const xAOD::Jet* xTruthJet = xAOD::TauHelpers::getLink<xAOD::Jet>(&xTau, "truthJetLink");
+  // currently it is unavailable as templated class is not in icc file
+  static SG::AuxElement::ConstAccessor< ElementLink< xAOD::JetContainer > > accTruthJetLink("truthJetLink");
+  const ElementLink< xAOD::JetContainer > lTruthParticleLink = accTruthJetLink(xTau);
+  if (lTruthParticleLink.isValid())
+    return TruthJet;
+
+  return Unknown;
+}
+
+//______________________________________________________________________________
+e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::DiTauJet& xDiTau)
+{
+  if (!xDiTau.isAvailable<char>("IsTruthHadronic"))
+    Error("TauAnalysisTools::getTruthParticleType", "No truth match information available. Please run DiTauTruthMatchingTool first");
+  static SG::AuxElement::Accessor<char> accIsTruthHadronic("IsTruthHadronic");
+
+  e_TruthMatchedParticleType eTruthMatchedParticleType = Unknown;
+
+  if (accIsTruthHadronic(xDiTau))
+    eTruthMatchedParticleType = TruthHadronicDiTau;
+
+  return eTruthMatchedParticleType;
+}

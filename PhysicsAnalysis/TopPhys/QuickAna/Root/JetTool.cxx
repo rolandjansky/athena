@@ -446,8 +446,10 @@ namespace ana
     switch (ret) {
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::JVT_SF" );
+      break;
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
+      break;
     default:
       ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
     }
@@ -455,8 +457,10 @@ namespace ana
     switch (ret_fjvt) {
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::fJVT_SF" );
+      break;
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::fJVT_SF" );
+      break;
     default:
       ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::fJVT_SF with value " << totalSF );
     }

@@ -21,6 +21,8 @@ inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
 
+jetContainer = "AntiKt4EMTopoJets"
+
 # Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
 theApp.EvtMax = 500
@@ -28,7 +30,7 @@ testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
 from JetAnalysisAlgorithms.JetAnalysisAlgorithmsTest import makeSequence
-algSeq = makeSequence (dataType)
+algSeq = makeSequence (dataType, jetContainer)
 print algSeq # For debugging
 
 # Add all algorithms from the sequence to the job.
@@ -37,7 +39,7 @@ athAlgSeq += algSeq
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "ANALYSIS DATAFILE='JetAnalysisAlgorithmsTest." + dataType + ".hist.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='JetAnalysisAlgorithmsTestPFlow." + dataType + ".hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:
