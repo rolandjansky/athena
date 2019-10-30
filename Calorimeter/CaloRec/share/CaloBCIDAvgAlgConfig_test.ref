@@ -1,4 +1,7 @@
-Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [atlas-work3/af41e7f170b] -- built on [2019-09-20T1552]
+Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libRIO, output: $ROOTDIR/lib/libRIO
+Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libCling, output: $ROOTDIR/lib/libCling
+PyRoot: Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libRootUtilsPyROOTDict, output: $ROOTDIR/lib/libRootUtilsPyROOTDict
+Py:Athena            INFO using release [WorkDir-22.0.7] [x86_64-centos7-gcc8-opt] [BCIDAlgMon.20191030/863a39e6bb] -- built on [2019-10-30T1411]
 --- data
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:MetaReader        INFO Current mode used: peeker
@@ -12,6 +15,7 @@ Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
 Py:ComponentAccumulator    INFO    \__ CaloBCIDAvgAlg (alg)
 Py:ComponentAccumulator    INFO        * BunchCrossingTool: BunchCrossingTool
 Py:ComponentAccumulator    INFO        * LuminosityCondDataKey: LuminosityCondData
+Py:ComponentAccumulator    INFO        * MonTool: 
 Py:ComponentAccumulator    INFO        * ShapeKey: LArShape32Sym
 Py:ComponentAccumulator    INFO        * isMC: False
 Py:ComponentAccumulator    INFO Condition Algorithms
@@ -34,12 +38,23 @@ Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
 Py:ComponentAccumulator    INFO TheApp properties
 --- mc
-Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
+Py:LArOFCCondAlgCfg    INFO  entering LArOFCCondAlgCfg
+Py:LArOFCCondAlgCfg    INFO  no pileup optimization
+Py:LArAutoCorrTotalCondAlgCfg    INFO  entering LArAutoCorrTotalCondAlgCfg
+Py:LArAutoCorrTotalCondAlgCfg    INFO Nsamples 5
+Py:LArAutoCorrTotalCondAlgCfg    INFO firstSample 0
+Py:LArAutoCorrTotalCondAlgCfg    INFO DeltaBunch 1 
+Py:LArAutoCorrTotalCondAlgCfg    INFO  no pileup noise in LArAutoCorrTotal 
+Py:LArAutoCorrTotalCondAlgCfg    INFO  entering LArAutoCorrTotalCondAlgCfg
+Py:LArAutoCorrTotalCondAlgCfg    INFO Nsamples 5
+Py:LArAutoCorrTotalCondAlgCfg    INFO firstSample 0
+Py:LArAutoCorrTotalCondAlgCfg    INFO DeltaBunch 1 
+Py:LArAutoCorrTotalCondAlgCfg    INFO  no pileup noise in LArAutoCorrTotal 
 Py:BunchCrossingTool    INFO Selecting MCBunchCrossingTool for this job
 Py:MCBunchCrossingTool    INFO Set the default values for the MCBunchCrossingTool configuration
-Py:ConfigurableDb    INFO Read module info for 5577 configurables from 49 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5588 configurables from 5 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  Athena-22.0.5
+EventInfoMgtInit: Got release version  Athena-22.0.7
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:MCBunchCrossingTool    INFO Adding folder to IOVDbSvc: /Digitization/Parameters
 Py:ComponentAccumulator    INFO Event Inputs
@@ -48,6 +63,7 @@ Py:ComponentAccumulator    INFO Top sequence 0
 Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
 Py:ComponentAccumulator    INFO    \__ CaloBCIDAvgAlg (alg)
 Py:ComponentAccumulator    INFO        * BunchCrossingTool: Trig::MCBunchCrossingTool/BunchCrossingTool
+Py:ComponentAccumulator    INFO        * MonTool: 
 Py:ComponentAccumulator    INFO        * ShapeKey: LArShapeSym
 Py:ComponentAccumulator    INFO        * isMC: True
 Py:ComponentAccumulator    INFO Condition Algorithms
@@ -77,6 +93,7 @@ Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
 Py:ComponentAccumulator    INFO    \__ CaloBCIDAvgAlg (alg)
 Py:ComponentAccumulator    INFO        * BunchCrossingTool: BunchCrossingTool
 Py:ComponentAccumulator    INFO        * LuminosityCondDataKey: LuminosityCondData
+Py:ComponentAccumulator    INFO        * MonTool: 
 Py:ComponentAccumulator    INFO        * ShapeKey: LArShape32Sym
 Py:ComponentAccumulator    INFO        * isMC: False
 Py:ComponentAccumulator    INFO Condition Algorithms

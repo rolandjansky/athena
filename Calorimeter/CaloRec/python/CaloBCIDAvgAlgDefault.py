@@ -32,7 +32,7 @@ def CaloBCIDAvgAlgDefault():
 
             topSequence+=CaloBCIDAvgAlg(isMC=False,
                                         LuminosityCondDataKey = lumiAlg.LuminosityOutputKey,
-                                        ShapeKey="LArShape32Sym")
+                                        ShapeKey="LArShape32Sym",MonTool="")
         else: #MC case
             from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
             from LArRecUtils.LArAutoCorrTotalCondAlgDefault import  LArAutoCorrTotalCondAlgDefault
@@ -49,6 +49,7 @@ def CaloBCIDAvgAlgDefault():
 
             topSequence+=CaloBCIDAvgAlg(isMC=True,
                                         LuminosityCondDataKey = '',
-                                        BunchCrossingTool = theBunchCrossingTool,ShapeKey="LArShapeSym")
+                                        BunchCrossingTool = theBunchCrossingTool,ShapeKey="LArShapeSym",
+                                        MonTool="")
             
     return 

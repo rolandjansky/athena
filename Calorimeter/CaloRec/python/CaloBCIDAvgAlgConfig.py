@@ -41,7 +41,7 @@ def CaloBCIDAvgAlgCfg (flags):
 
         alg = CaloBCIDAvgAlg (isMC = False,
                               LuminosityCondDataKey = lumiAlg.LuminosityOutputKey,
-                              ShapeKey = 'LArShape32Sym')
+                              ShapeKey = 'LArShape32Sym',MonTool="")
 
     else:
         from LArRecUtils.LArRecUtilsConfig import \
@@ -63,7 +63,7 @@ def CaloBCIDAvgAlgCfg (flags):
 
         alg = CaloBCIDAvgAlg (isMC = True,
                               BunchCrossingTool = theBunchCrossingTool,
-                              ShapeKey = 'LArShapeSym')
+                              ShapeKey = 'LArShapeSym',MonTool="")
 
     result.addEventAlgo (alg)
     return result
