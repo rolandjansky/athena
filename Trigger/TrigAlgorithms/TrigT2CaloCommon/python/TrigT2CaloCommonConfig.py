@@ -66,6 +66,16 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                     condSequence += LArOFCCondAlg (ReadKey="/LAR/ElecCalibFlat/OFC", WriteKey='LArOFC')
                     from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
                     CaloBCIDAvgAlgDefault()
+                    from AthenaCommon.AlgSequence import AlgSequence
+                    topSequence = AlgSequence()
+                    if not hasattr(topSequence,"CaloBCIDAvgAlg"):
+                       log.info('Cannot use timer for CaloBCIDAvgAlg')
+                    else:
+                       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+                       monTool = GenericMonitoringTool('MonTool')
+                       monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=80000)
+                       topSequence.CaloBCIDAvgAlg.MonTool = monTool
+                       log.info('using timer for CaloBCIDAvgAlg')
 
             else:
                 log.info('Disable HLT calo offset correction')
