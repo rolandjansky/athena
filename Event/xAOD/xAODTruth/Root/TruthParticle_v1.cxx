@@ -17,6 +17,9 @@
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
+// Accessor include:
+#include "AthContainers/AuxElement.h"
+
 // Local include(s):
 #include "xAODTruth/versions/TruthParticle_v1.h"
 #include "xAODTruth/TruthVertexContainer.h"
@@ -100,24 +103,47 @@ namespace xAOD {
    //                 Direct access to parents and children
    //
 
-   size_t TruthParticle_v1::nParents() const {
+   // Accessor for links to parents
+   static SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
+      parentLinks( "parentLinks" );
+   // Accessor for links to children
+   static SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
+      childLinks( "childLinks" );
 
-      return hasProdVtx() ? prodVtx()->nIncomingParticles() : 0;
+   size_t TruthParticle_v1::nParents() const {
+      if (hasProdVtx()){
+        return prodVtx()->nIncomingParticles();
+      } else if ( parentLinks.isAvailable( *this ) ) {
+        return parentLinks( *this ).size();
+      }
+      return 0;
    }
 
    const TruthParticle_v1* TruthParticle_v1::parent( size_t i ) const {
-
-      return hasProdVtx() ? prodVtx()->incomingParticle( i ) : 0;
+      if (hasProdVtx()){
+        return prodVtx()->incomingParticle( i );
+      } else if ( parentLinks.isAvailable( *this ) && i<parentLinks( *this ).size() ) {
+        return parentLinks( *this )[i].isValid() ? *(parentLinks( *this )[i]) : nullptr;
+      }
+      return nullptr;
    }
 
    size_t TruthParticle_v1::nChildren() const {
-
-      return hasDecayVtx() ? decayVtx()->nOutgoingParticles() : 0;
+      if (hasDecayVtx()){
+        return decayVtx()->nOutgoingParticles();
+      } else if ( childLinks.isAvailable( *this ) ) {
+        return childLinks( *this ).size();
+      }
+      return 0;
    }
 
    const TruthParticle_v1* TruthParticle_v1::child( size_t i ) const {
-
-      return hasDecayVtx() ? decayVtx()->outgoingParticle( i ) : 0;
+      if (hasDecayVtx()){
+        return decayVtx()->outgoingParticle( i );
+      } else if ( childLinks.isAvailable( *this ) && i<childLinks( *this ).size() ) {
+        return childLinks( *this )[i].isValid() ? *(childLinks( *this )[i]) : nullptr;
+      }
+      return nullptr;
    }
 
    //
