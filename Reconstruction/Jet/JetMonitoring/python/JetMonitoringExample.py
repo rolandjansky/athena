@@ -135,7 +135,7 @@ def jetMonitoringExampleConfig(inputFlags):
     #  this is done here.
     def defineHistoForJetTrigg(conf, parentAlg, monhelper , path):
         # create a monitoring group with the histo path starting from the parentAlg
-        group = monhelper.addGroup(parentAlg, conf.Group,  parentAlg.JetContainerName+'/')
+        group = monhelper.addGroup(parentAlg, conf.Group,  'Jets/'+parentAlg.JetContainerName)
         # define the histogram
         group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path='jetTrigg', xbins=100 , xmin=0, xmax=500000. ,)
 
