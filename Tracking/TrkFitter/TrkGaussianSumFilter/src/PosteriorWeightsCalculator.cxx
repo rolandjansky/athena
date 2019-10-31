@@ -52,8 +52,8 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
 {
 
   ATH_MSG_VERBOSE("Calculating Posterior Weights");
-
-  if (predictedState.empty()) {
+  const size_t predictedStateSize=predictedState.size();
+  if (predictedStateSize==0) {
     ATH_MSG_WARNING("Predicted state is empty... Exiting!");
     return nullptr;
   }
@@ -64,7 +64,8 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
 
   std::vector<double> componentDeterminantR;
   std::vector<double> componentChi2;
-
+  componentDeterminantR.reserve(predictedStateSize);
+  componentChi2.reserve(predictedStateSize);
   // Calculate chi2 and determinant of each component.
   double minimumChi2(10.e10); // Initalise high
 

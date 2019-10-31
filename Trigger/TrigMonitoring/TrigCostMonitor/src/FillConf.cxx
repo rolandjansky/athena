@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -78,7 +78,7 @@ namespace Trig
    }
 
    void addAllThresholds(const std::string &item_name,
-                         TrigConf::TriggerItemNode *node,
+                         const TrigConf::TriggerItemNode *node,
                          std::vector<TrigConfSeq> &svec, 
                          std::ostream &log) 
    {
@@ -102,7 +102,7 @@ namespace Trig
             svec.push_back(seq);
          }
          else {
-            TrigConf::TriggerThreshold *th = node->triggerThreshold();
+            const TrigConf::TriggerThreshold *th = node->triggerThreshold();
             if(th) {
                th_name = th->name();
                TrigConfSeq seq(TrigConf::HLTUtils::string2hash(th_name, "L1_THR"), 0, th_name);
