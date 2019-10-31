@@ -25,35 +25,55 @@ def mapThresholdToL1DecisionCollection(threshold):
         if threshold.startswith( thresholdType ):
             return l1Collection
 
-    log.error("Threshold "+ threshold + " not mapped to any Decision objects! Available are: " + str(mapThresholdToL1Decoder.values()))
+    log.error("Threshold "+ threshold + " not mapped to any Decision collection! Available are: " + str(mapThresholdToL1Decoder.values()))
 
+def mapThresholdToL1RoICollection(threshold):
+    """
+    Translates L1 threshold  name of the RoIDescriptor name in the L1Decoder unpacking tools
+    """
+    if threshold == "" or threshold == "FS":
+        return "HLT_FSRoI"
 
+    mapThresholdToL1Decoder = { "EM" : "HLT_EMRoIs",
+                                "MU" : "HLT_MURoIs",
+                                "J"  : "HLT_JETRoI",
+                                "TAU": "HLT_TAURoI",
+                                "XE" : "HLT_FSRoI",
+                                "XS" : "HLT_FSRoI",
+                                "TE" : "HLT_FSRoI" }
+
+    # remove actual threshold value from L1 threshold string
+    for thresholdType, l1Collection in mapThresholdToL1Decoder.iteritems():
+        if threshold.startswith( thresholdType ):
+            return l1Collection
+
+    log.error("Threshold "+ threshold + " not mapped to any ROI collection! Available are: " + str(mapThresholdToL1Decoder.values()))
 
 
 def createCaloRoIUnpackers():
     from L1Decoder.L1DecoderConf import EMRoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool, RerunRoIsUnpackingTool, TAURoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    emUnpacker = EMRoIsUnpackingTool(Decisions = "HLTNav_L1EM",
-                                     OutputTrigRoIs = recordable("HLT_EMRoIs"),
+    emUnpacker = EMRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("EM"),
+                                     OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("EM")),
                                      MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
 
     #            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
 
     emRerunUnpacker = RerunRoIsUnpackingTool("EMRerunRoIsUnpackingTool",
-                                             SourceDecisions="HLTNav_L1EM",
+                                             SourceDecisions=mapThresholdToL1DecisionCollection("EM"),
                                              Decisions="HLTNav_RerunL1EM" )
 
-    metUnpacker = METRoIsUnpackingTool(Decisions = "HLTNav_L1MET")
+    metUnpacker = METRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("XE"))
 
 
-    tauUnpacker = TAURoIsUnpackingTool(Decisions = "HLTNav_L1TAU",
+    tauUnpacker = TAURoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("TAU"),
                                        OutputTrigRoIs = recordable("HLT_TAURoI"))
 
     tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
 
-    jUnpacker = JRoIsUnpackingTool(Decisions = "HLTNav_L1J",
-                                   OutputTrigRoIs = recordable("HLT_JETRoI") )
+    jUnpacker = JRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("J"),
+                                   OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("J")) )
 
     jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
 
@@ -65,13 +85,13 @@ def createMuonRoIUnpackers():
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    muUnpacker = MURoIsUnpackingTool(Decisions = "HLTNav_L1MU",
-                                     OutputTrigRoIs = recordable("HLT_MURoIs"))
+    muUnpacker = MURoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("MU"),
+                                     OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")))
 
     muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 
     muRerunUnpacker =  RerunRoIsUnpackingTool("MURerunRoIsUnpackingTool",
-                                              SourceDecisions="HLTNav_L1MU",
+                                              SourceDecisions=mapThresholdToL1DecisionCollection("MU"),
                                               Decisions="HLTNav_RerunL1MU" )
     return [muUnpacker],[muRerunUnpacker]
 

@@ -41,10 +41,12 @@ if TriggerFlags.doCalo:
      #from TrigUpgradeTest.TestUtils import L1DecoderTest
      #l1DecoderTest=L1DecoderTest()
      #topSequence+=l1DecoderTest
+
+     from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
     
      from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
      algo1=HLTCaloCellMaker("testFastAlgo1")
-     algo1.RoIs="StoreGateSvc+HLT_EMRoIs"
+     algo1.RoIs=mapThresholdToL1RoICollection("EM")
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
      #algo1.roiMode=False
      algo1.OutputLevel=VERBOSE
@@ -60,7 +62,7 @@ if TriggerFlags.doCalo:
   algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")
   algo.OutputLevel=VERBOSE
 
-  algo.RoIs="StoreGateSvc+HLT_EMRoIs"
+  algo.RoIs=mapThresholdToL1RoICollection("EM")
   topSequence += algo
 
 

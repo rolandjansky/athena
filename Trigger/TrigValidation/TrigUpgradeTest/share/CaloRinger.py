@@ -30,15 +30,17 @@ if TriggerFlags.doCalo:
 
   if ( doHLTCaloTopo ) :
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-    recosequence, caloclusters = HLTFSTopoRecoSequence("HLT_FSRoI")
+    from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+    recosequence, caloclusters = HLTFSTopoRecoSequence(mapThresholdToL1RoICollection("FS"))
     steps+=recosequence
  
   if ( doL2Egamma ) :
 
      from TrigT2CaloCommon.CaloDef import createFastCaloSequence
+     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 
      filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
-     filterL1RoIsAlg.Input = ["HLTNav_L1EM"]
+     filterL1RoIsAlg.Input = [mapThresholdToL1DecisionCollection("EM")]
      filterL1RoIsAlg.Output = ["HLTNav_FilteredEMRoIDecisions"]
      filterL1RoIsAlg.Chains = [ "HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut" ]
      (fastCaloSequence, sequenceOut) = createFastCaloSequence(filterL1RoIsAlg.Output[0], doRinger=True, 

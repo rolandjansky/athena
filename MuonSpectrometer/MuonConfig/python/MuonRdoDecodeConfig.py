@@ -62,7 +62,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         RpcRdoToRpcPrepData.DoSeededDecoding = True
-        RpcRdoToRpcPrepData.RoIs = "HLT_MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
@@ -93,7 +94,8 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         TgcRdoToTgcPrepData.DoSeededDecoding = True
-        TgcRdoToTgcPrepData.RoIs = "HLT_MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        TgcRdoToTgcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(TgcRdoToTgcPrepData)
     return acc
@@ -126,7 +128,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         MdtRdoToMdtPrepData.DoSeededDecoding = True
-        MdtRdoToMdtPrepData.RoIs = "HLT_MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        MdtRdoToMdtPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(MdtRdoToMdtPrepData)
     return acc
@@ -159,7 +162,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         CscRdoToCscPrepData.DoSeededDecoding = True
-        CscRdoToCscPrepData.RoIs = "HLT_MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        CscRdoToCscPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(CscRdoToCscPrepData)
     return acc

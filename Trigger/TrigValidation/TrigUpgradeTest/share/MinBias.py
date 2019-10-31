@@ -7,11 +7,13 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
 
 viewAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias')
 
+from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+
 for viewAlg in viewAlgs:
         if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = "HLT_FSRoI"
+            viewAlg.RoIs = mapThresholdToL1RoICollection("FS")
         if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = "HLT_FSRoI"
+            viewAlg.roiCollectionName = mapThresholdToL1RoICollection("FS")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence  = AlgSequence()

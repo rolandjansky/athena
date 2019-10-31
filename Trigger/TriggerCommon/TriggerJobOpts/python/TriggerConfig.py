@@ -82,8 +82,8 @@ def collectL1DecoderDecisionObjects(l1decoder):
     __log.info("Collecting decision objects from L1 decoder instance")
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
     decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
-    # decisionObjects.add( l1decoder.FSDecisions ) # Crashes?
-    decisionObjects.add( "HLTNav_L1FS" ) # Hard-coded, but should be l1decoder.FSDecisions 
+    from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+    decisionObjects.add( mapThresholdToL1DecisionCollection("FS") ) # Include also Full Scan
     return decisionObjects
 
 def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
@@ -273,9 +273,9 @@ def triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg, offline=False
 
     # Add decision containers (navigation)
     for item in decObj:
-        dynamic = '.-'
+        dynamic = '.-' # Exclude dynamic
         if item in decObjFilterOut:
-            dynamic = '.remap_linkColKeys.remap_linkColIndices.'
+            dynamic = '.' # Include dynamic
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
         if typeName not in ItemModuleDict.keys():
@@ -347,9 +347,9 @@ def triggerPOOLOutputCfg(flags, decObj, decObjFilterOut, edmSet):
 
     # Add decision containers (navigation)
     for item in decObj:
-        dynamic = '.-'
+        dynamic = '.-' # Exclude dynamic
         if item in decObjFilterOut:
-            dynamic = '.remap_linkColKeys.remap_linkColIndices.'
+            dynamic = '.' # Include dynamic
         itemsToRecord.append('xAOD::TrigCompositeContainer#{:s}'.format(item))
         itemsToRecord.append('xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic))
 

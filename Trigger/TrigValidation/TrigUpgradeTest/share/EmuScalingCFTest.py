@@ -104,10 +104,9 @@ def process():
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker
 
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs="HLT_L1EMRoIs", Decisions="HLTNav_L1EM", ThresholdPrefix="EM" )
-    from TrigUpgradeTest.EmuStepProcessingConfig import thresholdToChains
-    emUnpacker.Decisions="HLTNav_L1EM"
+    from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection, mapThresholdToL1RoICollection
 
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs=mapThresholdToL1RoICollection("EM"), Decisions=mapThresholdToL1DecisionCollection("EM"), ThresholdPrefix="EM" )
   
     l1Decoder.roiUnpackers = [emUnpacker]
 
