@@ -1684,40 +1684,6 @@ class TopoAlgoDefLegacy:
                 tm.registerTopoAlgo(alg)
 
 
-        # FTK 
-        if not usev8:
-            algoList= [
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET},
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "MU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},   
-            ]
-        if usev8:
-            algoList= []
-
-        for x in algoList:
-
-            for k in x:
-                exec("%s = x[k]" % k)
-
-            toponame = "FTK-%s%ss1"  % ( otype, str(ocut) if not otype=="EM" else "20" )  # noqa: F821
-
-            log.debug("Define %s", toponame)
-            
-            inputList = otype + 's'  # noqa: F821
-
-            alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
-            currentAlgoId += 1
-            alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
-            alg.addgeneric('MaxTob', 1)
-            alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET', str(ocut)) # noqa: F821
-            alg.addvariable('EtaMin', minEta) # noqa: F821
-            alg.addvariable('EtaMax', maxEta) # noqa: F821
-            alg.addvariable('PhiMin', minPhi) # noqa: F821
-            alg.addvariable('PhiMax', maxPhi) # noqa: F821
-            tm.registerTopoAlgo(alg)
-
- 
       # LAR  ZEE
         if not usev8:
             algoList = [
