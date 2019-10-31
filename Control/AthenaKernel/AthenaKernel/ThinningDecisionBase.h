@@ -158,6 +158,30 @@ public:
 
 
   /**
+   * @brief Set the thinning state for the container from a bitmask.
+   * @param other Thinning state mask; should have the same size as the container.
+   *          Element @c ndx should be thinned if bit @c ndx is set in the map.
+   * @param op Logical operation for combining with existing thinning state.
+   *   Set --- Thin if @c flag is true.
+   *   And --- Thin if @c flag is true and element was originally thinned, else not.
+   *   Or  --- Thin if @c flag is true or element was originally thinned, else not.
+   */
+  void thin (const ThinningDecisionBase& other, Op op = Op::Set);
+
+
+  /**
+   * @brief Set the thinning state for the container from a bitmask.
+   * @param other Thinning state mask; should have the same size as the container.
+   *          Element @c ndx should be kept if bit @c ndx is set in the map.
+   * @param op Logical operation for combining with existing thinning state.
+   *   Set --- Keep if @c flag is true.
+   *   And --- Keep if @c flag is true and element was originally kept, else not.
+   *   Or  --- Keep if @c flag is true or element was originally kept, else not.
+   */
+  void keep (const ThinningDecisionBase& other, Op op = Op::Set);
+
+
+  /**
    * @brief Build the index map
    */
   void buildIndexMap();

@@ -22,7 +22,8 @@ atlas_add_component( AthExHelloWorld
 # Install files from the package:
 atlas_install_headers( AthExHelloWorld )
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/HelloWorldConfig.py )
+atlas_install_python_modules( python/HelloWorldConfig.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 atlas_add_test( AthExHelloWorld
     ENVIRONMENT THREADS=0

@@ -319,7 +319,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
       }
 
-      float PVx_low(-1.5), PVx_high(+1.5), PVy_low(-1.5), PVy_high(+1.5);
+      float PVx_low(-1.5), PVx_high(+1.5), PVy_low(-1.5), PVy_high(+1.5), PVz_low(-250.), PVz_high(+250.);
 
       // Shifter Folders
 
@@ -333,7 +333,7 @@ StatusCode HLTBjetMonTool::book(){
       addHistogram(new TH1F("nPV","Number of offline PV per event", 100, 0., 100.));
       addHistogram(new TH1F("PVx","offline xPV", 200, PVx_low, PVx_high));
       addHistogram(new TH1F("PVy","offline yPV", 200, PVy_low, PVy_high));
-      addHistogram(new TH1F("PVz","offline zPV", 200, -200., 200.));
+      addHistogram(new TH1F("PVz","offline zPV", 500, PVz_low, PVz_high));
 
       //    On-line SplitChains
       //      addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter/Online_SplitChains", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
@@ -346,16 +346,16 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nPV_tr_"+m_Shifter_jSplit.at(i)).c_str(),"Number of online PV per event for xPrimVtx", 101, -1., 100.));
 	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, PVx_low, PVx_high));
 	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, PVy_low, PVy_high));
-	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("nPV_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
 	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, PVx_low, PVx_high));
 	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, PVy_low, PVy_high));
-	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Shifter_jSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Shifter_jSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
-	addHistogram(new TH1F(("z0_"+m_Shifter_jSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("z0_"+m_Shifter_jSplit.at(i)).c_str(),"z0 of tracks", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("ed0_"+m_Shifter_jSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
 	addHistogram(new TH1F(("ez0_"+m_Shifter_jSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
 	addHistogram(new TH1F(("diffz0PV0_"+m_Shifter_jSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));
@@ -392,12 +392,12 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nPV_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of online PV per event", 101, -1., 100.));
 	addHistogram(new TH1F(("PVx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, PVx_low, PVx_high));
 	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, PVy_low, PVy_high));
-	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
+	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) zPV", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Shifter_jUnSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
-	addHistogram(new TH1F(("z0_"+m_Shifter_jUnSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("z0_"+m_Shifter_jUnSplit.at(i)).c_str(),"z0 of tracks", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("ed0_"+m_Shifter_jUnSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
 	addHistogram(new TH1F(("ez0_"+m_Shifter_jUnSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
 	addHistogram(new TH1F(("diffz0PV0_"+m_Shifter_jUnSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));
@@ -454,16 +454,16 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nPV_tr_"+m_Expert_jSplit.at(i)).c_str(),"Number of online PV per event for xPrimVtx", 101, -1., 100.));
 	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for xPrimVtx", 200, PVx_low, PVx_high));
 	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for xPrimVtx", 200, PVy_low, PVy_high));
-	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for xPrimVtx", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("nPV_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
 	addHistogram(new TH1F(("PVx_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) xPV for EFHistoPrmVtx", 200, PVx_low, PVx_high));
 	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, PVy_low, PVy_high));
-	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
+	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Expert_jSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Expert_jSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
-	addHistogram(new TH1F(("z0_"+m_Expert_jSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("z0_"+m_Expert_jSplit.at(i)).c_str(),"z0 of tracks", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("ed0_"+m_Expert_jSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
 	addHistogram(new TH1F(("ez0_"+m_Expert_jSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
 	addHistogram(new TH1F(("diffz0PV0_"+m_Expert_jSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));
@@ -498,12 +498,12 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nPV_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of online PV per event", 101, -1., 100.));
 	addHistogram(new TH1F(("PVx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) xPV", 200, PVx_low, PVx_high));
 	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, PVy_low, PVy_high));
-	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
+	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) zPV", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
 	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Expert_jUnSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
-	addHistogram(new TH1F(("z0_"+m_Expert_jUnSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
+	addHistogram(new TH1F(("z0_"+m_Expert_jUnSplit.at(i)).c_str(),"z0 of tracks", 500, PVz_low, PVz_high));
 	addHistogram(new TH1F(("ed0_"+m_Expert_jUnSplit.at(i)).c_str(),"err_d0 of tracks", 200, 0., 1.));
 	addHistogram(new TH1F(("ez0_"+m_Expert_jUnSplit.at(i)).c_str(),"err_z0 of tracks", 200, 0., 5.));
 	addHistogram(new TH1F(("diffz0PV0_"+m_Expert_jUnSplit.at(i)).c_str(),"z0 of tracks wrt 1st offline PV", 200, -10., 10.));

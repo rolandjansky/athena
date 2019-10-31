@@ -380,43 +380,65 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
   //Decide whether to try the opposite direction (cosmics)
   const double trkPhi = (!flip) ? candidatePerigee.parameters()[Trk::phi] : -candidatePerigee.parameters()[Trk::phi];
   const double trkEta = (!flip) ? candidatePerigee.eta() : -candidatePerigee.eta();
-  const double r_first=candidatePerigee.position().perp();
-  const double z_first=candidatePerigee.position().z();
-  
+  const double  z_perigee=candidatePerigee.position().z();
+  const double  r_perigee=candidatePerigee.position().perp();
+  const Amg::Vector3D PerigeeXYZPosition(candidatePerigee.position().x(),
+                                         candidatePerigee.position().y(),
+                                         z_perigee);
   //Cluster variables
-  const double clusterEta=cluster->etaBE(2);
+  const double clusterEta=cluster->eta();
   const bool isEndCap= !xAOD::EgammaHelpers::isBarrel(cluster);
   const double Et= cluster->e()/cosh(trkEta);
-  const double clusterPhi=cluster->phiBE(2);
+  const double clusterPhi=cluster->phi();
 
   //Avoid clusters with |eta| > 10 or Et less than 10 MeV
   if(fabs(clusterEta)>10.0 || Et <10){
     return false;
   }
- 
-  const double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
-  const double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
-  const double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
-    
-  const double deltaPhiStd = P4Helpers::deltaPhi(clusterPhi, trkPhi);
-  const double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
-  const double deltaPhi2 = P4Helpers::deltaPhi(clusterPhi, trkPhiCorr);
-  const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
-  const double deltaPhi2Track = P4Helpers::deltaPhi(clusterPhi, trkPhiCorrTrack);
-    
+   //Calculate the eta/phi of the cluster as would be seen from the perigee position of the Track
+  const Amg::Vector3D XYZClusterWrtTrackPerigee = CandidateMatchHelpers::approxXYZwrtPoint(*cluster,
+                                                                                           PerigeeXYZPosition,
+                                                                                           isEndCap);
+
+  const double clusterEtaCorrected=XYZClusterWrtTrackPerigee.eta(); 
   //check eta match . Both metrics need to fail in order to disgard the track
   if ( (fabs(clusterEta - trkEta) > 2.*m_broadDeltaEta) && 
-       (fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta)){
+       (fabs(clusterEtaCorrected- trkEta) > 2.*m_broadDeltaEta)){
     ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
-                  << trkEta << ", " << clusterEta <<", "<<etaclus_corrected<<")" );
+                  << trkEta << ", " << clusterEta <<", "<<clusterEtaCorrected<<")" );
     return false;
   }
+  //Calculate the possible rotation of the track 
+  //Once assuming the cluster Et being the better estimate (e.g big brem)
+  const double phiRotRescaled = CandidateMatchHelpers::PhiROT(Et,trkEta, 
+                                                              track->charge(),
+                                                              r_perigee,
+                                                              isEndCap)  ;
+  //And also assuming the track Pt being correct 
+  const double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),
+                                                           trkEta, 
+                                                           track->charge(),
+                                                           r_perigee,
+                                                           isEndCap)  ;
+  //
+  const double clusterPhiCorrected=XYZClusterWrtTrackPerigee.phi();   
+  //deltaPhi between the track and the cluster 
+  const double deltaPhiStd = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhi);
+  //deltaPhi between the track and the cluster accounting for rotation assuming cluster Et is a better estimator
+  const double trkPhiRescaled= P4Helpers::deltaPhi(trkPhi, phiRotRescaled);
+  const double deltaPhiRescaled = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiRescaled);
+  //deltaPhi between the track and the cluster accounting for rotation
+  const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+  const double deltaPhiTrack = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiCorrTrack);
+ 
   //It has to fail all phi metrics in order to be disgarded
-  if ( (fabs(deltaPhi2) > 2.*m_broadDeltaPhi) && 
-       (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) && 
+  if ( (fabs(deltaPhiRescaled) > 2.*m_broadDeltaPhi) && 
+       (fabs(deltaPhiTrack) > 2.*m_broadDeltaPhi) && 
        (fabs(deltaPhiStd) > 2.*m_broadDeltaPhi) ){
-    ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
-                  << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
+    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack , "
+                  <<"cluster phi corrected, cluster phi): ( " 
+                  << trkPhi << ", " << phiRotRescaled<< ", "<<phiRotTrack<< ", " 
+                  <<clusterPhiCorrected<<  ", " <<clusterPhi <<")" );
     return false;
   }
   //if not false returned we end up here

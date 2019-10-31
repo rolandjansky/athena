@@ -19,31 +19,16 @@ TrigMufastHypoAlg::TrigMufastHypoAlg( const std::string& name,
 {}
 
 
-TrigMufastHypoAlg::~TrigMufastHypoAlg() 
-{}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMufastHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muFastKey);
   ATH_CHECK(m_muFastKey.initialize());
- 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMufastHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 

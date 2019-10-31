@@ -795,23 +795,37 @@ IOVDbSvc::getKeyList() {
   return keys;
 }
 
+// temporary until clients are migrated to method just below
 bool IOVDbSvc::getKeyInfo(const std::string& key,std::string& foldername,
                           std::string& tag, IOVRange& range, bool& retrieved,
                           unsigned long long& bytesRead, float& readTime) {
+  IIOVDbSvc::KeyInfo info;
+  bool result = getKeyInfo(key, info);
+  foldername = info.foldername;
+  tag = info.tag;
+  range = info.range;
+  retrieved = info.retrieved;
+  bytesRead = info.bytesRead;
+  readTime = info.readTime;
+  return result;
+}
+
+bool IOVDbSvc::getKeyInfo(const std::string& key, IIOVDbSvc::KeyInfo& info) {
   // return information about given SG key
   // first attempt to find the folder object for this key
-  FolderMap::const_iterator itr=m_foldermap.find(key);
+  FolderMap::const_iterator itr = m_foldermap.find(key);
   if (itr!=m_foldermap.end()) {
-    IOVDbFolder* folder=itr->second;
-    foldername=folder->folderName();
-    tag=folder->resolvedTag();
-    range=folder->currentRange();
-    retrieved=folder->retrieved();
-    bytesRead=folder->bytesRead();
-    readTime=folder->readTime();
+    const IOVDbFolder* f=itr->second;
+    info.foldername = f->folderName();
+    info.tag = f->resolvedTag();
+    info.range = f->currentRange();
+    info.retrieved = f->retrieved();
+    info.bytesRead = f->bytesRead();
+    info.readTime = f->readTime();
+    info.extensible = f->extensible();
     return true;
   } else {
-    retrieved=false;
+    info.retrieved = false;
     return false;
   }
 }

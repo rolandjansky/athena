@@ -14,7 +14,7 @@ const int NumberOfInnerSBData = 8;
 class TGCInnerSB: public TGCSlaveBoard {
 
 public:
-  TGCInnerSB();
+  TGCInnerSB( TGCArguments* );
   virtual ~TGCInnerSB(){};
 
 protected:

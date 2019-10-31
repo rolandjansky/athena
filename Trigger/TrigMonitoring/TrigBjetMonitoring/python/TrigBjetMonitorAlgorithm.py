@@ -109,7 +109,7 @@ def TrigBjetMonConfig(inputFlags):
     BjetMonGroup.defineHistogram('Off_yVtx', title='Offline yVtx;yVtx;Events',
                                  path='Shifter/Offline',xbins=200,xmin=-1.5,xmax=+1.5)
     BjetMonGroup.defineHistogram('Off_zVtx', title='Offline zVtx;zVtx;Events',
-                                 path='Shifter/Offline',xbins=200,xmin=-200.0,xmax=+200.0)
+                                 path='Shifter/Offline',xbins=500,xmin=-250.0,xmax=+250.0)
 
     # Histograms which depend on the trigger chain
 
@@ -240,7 +240,9 @@ if __name__=='__main__':
     # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/legacy.AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/AOD.pool.root'
     # file to be run w/ doRun2 = False
-    file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
+    # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/build.AOD.pool.root'
+    file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/AOD.pool.root'
+    # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
     # file to be run w/ doRun2 = True
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_ST_240919/AOD.pool.root'
     # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-09-16T2129/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'

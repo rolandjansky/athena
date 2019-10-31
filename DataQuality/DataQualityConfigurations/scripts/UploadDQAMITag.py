@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # 10-Sep-2010, Peter Onyisi <ponyisi@cern.ch>
 #
@@ -13,6 +13,8 @@
 #            / collisions_*.hcfg
 #            / heavyions_*.hcfg
 
+from __future__ import print_function
+
 import sys, os
 
 AMI_TAG_PREFIX='h'
@@ -23,7 +25,7 @@ def get_current_config(amiclient):
     amicommand = ['SearchQuery', '''-sql="SELECT V_AMITags.tagType, V_AMITags.tagNumber FROM V_AMITags WHERE V_AMITags.tagType = 'h' ORDER BY V_AMITags.tagNumber DESC"''' 
                                  '-project="AMITags"', '-processingStep=production']
 
-    print amicommand
+    print (amicommand)
 
     result = amiclient.execute(amicommand, format='dict_object')
     resultlist = result.get_rows('Element_Info')
@@ -35,24 +37,24 @@ def get_current_config(amiclient):
 
     nextTag = latestTag[0] + str(int(latestTag[1:])+1)
 
-    print 'Latest AMI tag is', latestTag
-    print 'Will create AMI tag', nextTag
+    print ('Latest AMI tag is', latestTag)
+    print ('Will create AMI tag', nextTag)
     #latestTag='h7'
 
     amicommand = ['AMIGetAMITagInfo', '-amiTag='+latestTag]
 
     result = amiclient.execute(amicommand, format='dict_object')
-    print '----------'
-    #print result
-    #print result.get_rowset_types()
-    #sprint result.get_rows('amiTagInfo')
+    print ('----------')
+    #print (result)
+    #print (result.get_rowset_types())
+    #print (result.get_rows('amiTagInfo'))
     rv = result.get_rows('amiTagInfo')[0]
 
-    print
-    print '-------------------------------------'
-    print 'Info of current AMI tag ...'
+    print ()
+    print ('-------------------------------------')
+    print ('Info of current AMI tag ...')
     for key, val in rv.items():
-        print '  %s:' % key, val
+        print ('  %s:' % key, val)
     rv1 = {}
     for k, v in rv.items():
         rv1[k] = v.__str__()
@@ -83,7 +85,7 @@ def update_dict_for_configs_afs(updict, indir):
 
     basedir = os.path.abspath(indir)
 
-    print 'Looking for configurations in subdirectories of', indir
+    print ('Looking for configurations in subdirectories of', indir)
 
     types = ['minutes10', 'minutes30', 'run']
     searchparams = [('Cosmics', 'cosmics'), ('Collisions', 'collisions'),
@@ -93,25 +95,25 @@ def update_dict_for_configs_afs(updict, indir):
     filelist = []
 
     for dir1, fn in searchparams:
-        print dir1
+        print (dir1)
         filepathdict[dir1] = {}
         for t in types:
-            print '  ', t, '...',
+            print ('  ', t, '...',)
             fname = os.path.join(basedir, dir1,
                                 '%s_%s.current.hcfg' % (fn, t))
             if os.access(fname, os.R_OK):
-                print 'found,',
+                print ('found,',)
                 if os.path.islink(fname) and os.path.isfile(fname):
                     realname = os.readlink(fname)
                     if not os.path.isabs(realname):
                         realname = os.path.join(os.path.dirname(fname), realname)
-                    print 'is symlink to', realname
+                    print ('is symlink to', realname)
                     filepathdict[dir1][t] = realname
                     filelist.append(realname)
                 else:
-                    print 'but is not valid symlink'
+                    print ('but is not valid symlink')
             else:
-                print 'not found'
+                print ('not found')
         if filepathdict[dir1] == {}:
             del filepathdict[dir1]
 
@@ -127,12 +129,12 @@ def update_dict_for_configs_afs(updict, indir):
             except KeyError:
                 pass
 
-    print
-    print '-------------------------------------'
-    print 'File path dictionary to upload:'
-    print filepathdict
-    print '-------------------------------------'
-    print
+    print ()
+    print ('-------------------------------------')
+    print ('File path dictionary to upload:')
+    print (filepathdict)
+    print ('-------------------------------------')
+    print ()
 
     val = updict.get('phconfig', {})
     if isinstance(val, basestring):
@@ -145,7 +147,7 @@ def update_dict_for_configs_cvmfs(updict, indir):
   
     basedir = os.path.abspath(indir)
 
-    print 'Looking for configurations in subdirectories of', indir
+    print ('Looking for configurations in subdirectories of', indir)
 
     types = ['minutes10', 'run']
     searchparams = [('Cosmics', 'cosmics'), ('Collisions', 'collisions'),
@@ -155,18 +157,18 @@ def update_dict_for_configs_cvmfs(updict, indir):
     filelist = []
 
     for dir1, fn in searchparams:
-        print dir1
+        print (dir1)
         filepathdict[dir1] = {}
         for t in types:
-            print '  ', t, '...',
+            print ('  ', t, '...',)
             fname = os.path.join(basedir, '%s_%s.hcfg' % (fn, t))
             if os.access(fname, os.R_OK):
-                print 'found %s' % (dir1)
+                print ('found %s' % (dir1))
                 if os.path.isfile(fname):
                     filepathdict[dir1][t] = fname
                     filelist.append(fname)
             else:
-                print 'not found'
+                print ('not found')
         if filepathdict[dir1] == {}:
             del filepathdict[dir1]
 
@@ -182,12 +184,12 @@ def update_dict_for_configs_cvmfs(updict, indir):
             except KeyError:
                 pass
 
-    print
-    print '-------------------------------------'
-    print 'File path dictionary to upload:'
-    print filepathdict
-    print '-------------------------------------'
-    print
+    print ()
+    print ('-------------------------------------')
+    print ('File path dictionary to upload:')
+    print (filepathdict)
+    print ('-------------------------------------')
+    print ()
 
     val = updict.get('phconfig', {})
     if isinstance(val, basestring):
@@ -245,15 +247,15 @@ def upload_new_config(amiclient, nextTag, updict):
     for key, val in updict.items():
         amicommand.append('%s=%s' % (key, val))
 
-    print '-------------------------------------'
-    print 
-    print 'Now uploading new AMI tag'
-    print 'AMI command:', amicommand
+    print ('-------------------------------------')
+    print ()
+    print ('Now uploading new AMI tag')
+    print ('AMI command:', amicommand)
 
     result = amiclient.execute(amicommand)
-    print result
-    print
-    print 'Success!'
+    print (result)
+    print ()
+    print ('Success!')
 
 if __name__ == '__main__':
     import optparse
@@ -284,8 +286,8 @@ if __name__ == '__main__':
 #    try:
 #        from pyAMI.client import Client
 #    except ImportError:
-#        print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
-#        print "Will manually add ZSI and 4suite, then try again..."
+#        print ("WARNING unable to import AMI from pyAMI with standard $PYTHONPATH.")
+#        print ("Will manually add ZSI and 4suite, then try again...")
 #        import sys
 #        sys.path.insert(0,'/afs/cern.ch/atlas/offline/external/ZSI/2.1-a1/lib/python')
 #        sys.path.insert(0,'/afs/cern.ch/sw/lcg/external/4suite/1.0.2_python2.5/slc4_ia32_gcc34/lib/python2.5/site-packages')

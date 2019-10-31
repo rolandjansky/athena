@@ -18,6 +18,7 @@
 #endif
 
 // fixes 'dereferencing type-punned pointer will break strict-aliasing rules'
+#if PY_VERSION_HEX < 0x03000000
 #ifdef Py_True
 #undef Py_True
 #define Py_True ( (PyObject*)(void*)&_Py_TrueStruct )
@@ -25,6 +26,7 @@
 #ifdef Py_False
 #undef Py_False
 #define Py_False ( (PyObject*)(void*)&_Py_ZeroStruct )
+#endif
 #endif
 
 #define ObjectProxy_ASVOIDPTR(o) (TPython::ObjectProxy_AsVoidPtr(o))

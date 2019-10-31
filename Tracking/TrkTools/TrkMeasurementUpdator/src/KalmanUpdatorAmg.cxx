@@ -792,7 +792,7 @@ Trk::KalmanUpdatorAmg::convertToClonedTrackPars(const Trk::TrackParameters& TP,
                                                const AmgSymMatrix(5)& covPar,
                                                int sign,
                                                bool createFQoS,
-                                               const std::string& ndtext) const 
+                                               std::string_view ndtext) const 
 {
   
   Trk::TrackParameters* resultPar = 

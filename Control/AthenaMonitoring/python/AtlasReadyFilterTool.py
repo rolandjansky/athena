@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 # Set up the ATLAS Ready filter tool
 def GetAtlasReadyFilterTool():
    from AthenaCommon.Logging import logging

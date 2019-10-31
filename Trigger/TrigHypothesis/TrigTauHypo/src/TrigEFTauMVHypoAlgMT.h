@@ -20,14 +20,10 @@ class TrigEFTauMVHypoAlgMT : public ::HypoBase {
 
   TrigEFTauMVHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigEFTauMVHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private: 
-  TrigEFTauMVHypoAlgMT();
   ToolHandleArray< ITrigEFTauMVHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::TauJetContainer > m_tauJetKey { this, "taujetcontainer", "taujetcontainer", "taujets in view" };

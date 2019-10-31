@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: VarHandleBase.h 797637 2017-02-17 02:32:11Z ssnyder $
@@ -44,11 +44,7 @@ namespace Athena_test {
   void refCountTest(void);
 }
 namespace SG {
-#ifdef NDEBUG
-  const bool defaultQuiet = true;
-#else
-  const bool defaultQuiet = false;
-#endif
+  static constexpr bool defaultQuiet = false;
 
 
   /**

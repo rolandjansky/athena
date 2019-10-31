@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ namespace ExpressionParsing {
   void Compiler::operator()(ast::expression const& x) const
   {
     boost::apply_visitor(*this, x.first);
-    BOOST_FOREACH(ast::operation const& oper, x.rest)
+    for(ast::operation const& oper : x.rest)
     {
       (*this)(oper);
     }

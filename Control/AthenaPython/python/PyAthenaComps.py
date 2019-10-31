@@ -7,7 +7,6 @@
 from __future__ import print_function
 
 __doc__     = """Module containing a set of Python base classes for PyAthena"""
-__version__ = "$Revision: 1.12 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 ### data
@@ -22,9 +21,8 @@ __all__ = [ 'StatusCode',
             ]
 
 ### imports
-import sys
 from AthenaCommon.Logging import logging
-from AthenaCommon.Configurable  import *
+from AthenaCommon.Configurable  import *  # noqa: F401, F403
 from AthenaPython.Configurables import (CfgPyAlgorithm,
                                         CfgPyService,
                                         CfgPyAlgTool,

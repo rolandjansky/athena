@@ -13,7 +13,7 @@ echo "art-result: ${PIPESTATUS[0]}"
 python -m MuonConfig.MuonTrackBuildingConfig --run --threads=8 -o=ESD_8.pool.root  | tee temp2.log
 echo "art-result: ${PIPESTATUS[0]}"
 
-acmd diff-root --order-trees -mode=semi-detailed ESD_1.pool.root ESD_8.pool.root 
+acmd diff-root --order-trees --mode=semi-detailed ESD_1.pool.root ESD_8.pool.root 
 
 test_postProcessing_Errors.sh temp1.log
 test_postProcessing_Errors.sh temp2.log
