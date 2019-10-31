@@ -87,48 +87,19 @@ StatusCode MuPatTrackBuilder::execute()
 
   // Only run monitoring for online algorithms
   if ( not m_monTool.name().empty() ) {
-    std::vector<int>    ini_mstrksn(0);
-    std::vector<double> ini_mstrkspt(0);
-    std::vector<double> ini_mstrkseta(0);
-    std::vector<double> ini_mstrksphi(0);
-    auto mstrks_n     = Monitored::Collection("mstrks_n", ini_mstrksn);
-    auto mstrks_pt    = Monitored::Collection("mstrks_pt", ini_mstrkspt);
-    auto mstrks_eta   = Monitored::Collection("mstrks_eta", ini_mstrkseta);
-    auto mstrks_phi   = Monitored::Collection("mstrks_phi", ini_mstrksphi);
-
-    std::vector<int>    ini_mssegsn(0);
-    std::vector<double> ini_mssegseta(0);
-    std::vector<double> ini_mssegsphi(0);
-    auto mssegs_n     = Monitored::Collection("mssegs_n", ini_mssegsn);
-    auto mssegs_eta   = Monitored::Collection("mssegs_eta", ini_mssegseta);
-    auto mssegs_phi   = Monitored::Collection("mssegs_phi", ini_mssegsphi);
+    auto mstrks_n   = Monitored::Scalar<int>("mstrks_n", newtracks->size());
+    auto mstrks_pt  = Monitored::Collection("mstrks_pt", *newtracks,
+                      [](auto const& mstrk) {return mstrk->perigeeParameters()->momentum().perp()/1000.0;}); // pT converted to GeV
+    auto mstrks_eta = Monitored::Collection("mstrks_eta", *newtracks,
+                      [](auto const& mstrk) {return -log(tan(mstrk->perigeeParameters()->parameters()[Trk::theta] *0.5));});
+    auto mstrks_phi = Monitored::Collection("mstrks_phi", *newtracks,
+                      [](auto const& mstrk) {return mstrk->perigeeParameters()->parameters()[Trk::phi0];});
+    auto mssegs_n   = Monitored::Scalar<int>("mssegs_n", msc.size());
+    auto mssegs_eta = Monitored::Collection("mssegs_eta", msc, [](auto const& seg) {return seg->globalDirection().eta();});
+    auto mssegs_phi = Monitored::Collection("mssegs_phi", msc, [](auto const& seg) {return seg->globalDirection().phi();});
 
     auto monitorIt = Monitored::Group(m_monTool, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi, mssegs_n, mssegs_eta, mssegs_phi);
-
-    // MS-only extrapolated tracks
-    int count_mstrks = 0;
-    for (auto const& mstrk : *newtracks) {
-      count_mstrks++;
-      const Trk::Perigee* perigee = mstrk->perigeeParameters();
-      const Amg::Vector3D mom = perigee->momentum();
-      ini_mstrkspt.push_back(mom.perp()/1000.0); // Converted to GeV
-      double theta = perigee->parameters()[Trk::theta];
-      double eta = -log(tan(theta*0.5));
-      ini_mstrkseta.push_back(eta);
-      ini_mstrksphi.push_back(perigee->parameters()[Trk::phi0]);
-    }
-    ini_mstrksn.push_back(count_mstrks);
-
-    int count_mssegs = 0;
-    for (auto const& seg : msc) {
-      count_mssegs++;
-      ini_mssegseta.push_back(seg->globalDirection().eta());
-      ini_mssegsphi.push_back(seg->globalDirection().phi());      
-    }
-    ini_mssegsn.push_back(count_mssegs);
   }
-
-
 
   return StatusCode::SUCCESS;
 } // execute

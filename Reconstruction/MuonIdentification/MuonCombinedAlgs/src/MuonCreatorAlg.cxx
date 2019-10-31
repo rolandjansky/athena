@@ -152,64 +152,25 @@ StatusCode MuonCreatorAlg::execute()
 
   // Only run monitoring for online algorithms
   if ( not m_monTool.name().empty() ) {
-    // Variables to initialize and keep for monitoring
-    std::vector<int> ini_mun(0);
-    std::vector<double> ini_mupt(0);
-    std::vector<double> ini_mueta(0);
-    std::vector<double> ini_muphi(0);
-    std::vector<int> ini_satrksn(0);
-    std::vector<double> ini_satrkspt(0);
-    std::vector<double> ini_satrkseta(0);
-    std::vector<double> ini_satrksphi(0);
-    std::vector<int> ini_cbtrksn(0);
-    std::vector<double> ini_cbtrkspt(0);
-    std::vector<double> ini_cbtrkseta(0);
-    std::vector<double> ini_cbtrksphi(0);
+    // Monitoring histograms and variables
+    auto muon_n     = Monitored::Scalar<int>("muon_n", wh_muons->size());
+    auto muon_pt    = Monitored::Collection("muon_pt",    *(wh_muons.ptr()),  [](auto const& mu) {return mu->pt()/1000.0;}); // converted to GeV
+    auto muon_eta   = Monitored::Collection("muon_eta",   *(wh_muons.ptr()),  &xAOD::Muon_v1::eta);
+    auto muon_phi   = Monitored::Collection("muon_phi",   *(wh_muons.ptr()),  &xAOD::Muon_v1::phi);
 
-    // Monitoring histograms
-    auto muon_n       = Monitored::Collection("muon_n", ini_mun);
-    auto muon_pt      = Monitored::Collection("muon_pt", ini_mupt);
-    auto muon_eta     = Monitored::Collection("muon_eta", ini_mueta);
-    auto muon_phi     = Monitored::Collection("muon_phi", ini_muphi);
-    auto satrks_n     = Monitored::Collection("satrks_n", ini_satrksn);
-    auto satrks_pt    = Monitored::Collection("satrks_pt", ini_satrkspt);
-    auto satrks_eta   = Monitored::Collection("satrks_eta", ini_satrkseta);
-    auto satrks_phi   = Monitored::Collection("satrks_phi", ini_satrksphi);
-    auto cbtrks_n     = Monitored::Collection("cbtrks_n", ini_cbtrksn);
-    auto cbtrks_pt    = Monitored::Collection("cbtrks_pt", ini_cbtrkspt);
-    auto cbtrks_eta   = Monitored::Collection("cbtrks_eta", ini_cbtrkseta);
-    auto cbtrks_phi   = Monitored::Collection("cbtrks_phi", ini_cbtrksphi);
-    
+    auto satrks_n     = Monitored::Scalar<int>("satrks_n", wh_extrtp->size());
+    auto satrks_pt  = Monitored::Collection("satrks_pt",  *(wh_extrtp.ptr()), [](auto const& satrk) {return satrk->pt()/1000.0;}); // converted to GeV
+    auto satrks_eta = Monitored::Collection("satrks_eta", *(wh_extrtp.ptr()), &xAOD::TrackParticle_v1::eta);
+    auto satrks_phi = Monitored::Collection("satrks_phi", *(wh_extrtp.ptr()), &xAOD::TrackParticle_v1::phi);
+
+    auto cbtrks_n   = Monitored::Scalar<int>("cbtrks_n", wh_combtp->size());    
+    auto cbtrks_pt  = Monitored::Collection("cbtrks_pt",  *(wh_combtp.ptr()), [](auto const& cbtrk) {return cbtrk->pt()/1000.0;}); // converted to GeV
+    auto cbtrks_eta = Monitored::Collection("cbtrks_eta", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::eta);
+    auto cbtrks_phi = Monitored::Collection("cbtrks_phi", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::phi);
+
     auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt, cbtrks_eta, cbtrks_phi);
-    
-    // Muon
-    ini_mun.push_back(wh_muons->size());
-    for (auto const& muon : *(wh_muons.ptr())) {
-      ini_mupt.push_back(muon->pt()/1000.0); // converted to GeV
-      ini_mueta.push_back(muon->eta());
-      ini_muphi.push_back(muon->phi());
-    }
-
-    // Extrapolated tracks
-    int count_satrks = 0;
-    for (auto const& satrk : *(wh_extrtp.ptr())) {
-      count_satrks++;      
-      ini_satrkspt.push_back(satrk->pt()/1000.0); // converted to GeV
-      ini_satrkseta.push_back(satrk->eta());
-      ini_satrksphi.push_back(satrk->phi());
-    }
-    ini_satrksn.push_back(count_satrks);
-
-    // Combined tracks
-    int count_cbtrks = 0;
-    for (auto const& cbtrk : *(wh_combtp.ptr())) {
-      count_cbtrks++;
-	    ini_cbtrkspt.push_back(cbtrk->pt()/1000.0); // converted to GeV
-	    ini_cbtrkseta.push_back(cbtrk->eta());
-	    ini_cbtrksphi.push_back(cbtrk->phi());
-    }
-    ini_cbtrksn.push_back(count_cbtrks);
   }
+
   return StatusCode::SUCCESS;
 }
 
