@@ -21,15 +21,15 @@
 class DataObject;
 
 /**
- * @class TriggerEDMSerialiserTool is tool responsible for creation of HLT Result filled with streamed EDM collections
+ * @class TriggerEDMSerialiserTool
+ * @brief Tool responsible for filling an HLT result object with serialised EDM collections
  *
- * Its configuration is a list of EDM classes + keys + designation of dynamic varaibles.
- * Accordfing to this list objects are looked up in the main store and if found the
- * serialisation service is used to convert the collections into arrays of bytes.
- * Serialised data is wrapped info a vector of 32 bit integers and prefixed wiht header containing description of the payload (details may change).
- * Such fragments for subsequent collections are concatentated together to form EDM payload in the HLTResult.
- * The HLTResultMT has option to maintain several modules (designated to end up in separate ROBS) that can be filled.
- * That is also specified in the configuration as documented below.
+ * Its configuration is a list of EDM classes + keys + designation of dynamic variables + HLT result IDs. According to
+ * this list, objects are looked up in the main store and if found the serialisation service is used to convert the
+ * collections into arrays of bytes. Serialised data is wrapped info a vector of 32-bit integers and prefixed with
+ * header containing description of the payload (details may change). Such fragments for subsequent collections are
+ * concatenated together to form EDM payload in HLTResultMT. The HLTResultMT object stores serialised payload for all
+ * HLT result ROBs and all of them are filled together following the IDs in the configuration list.
  *
  * For unpacking, the @see TriggerEDMDeserialiserAlg is used
  **/
@@ -51,12 +51,15 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   friend StatusCode tester( TriggerEDMSerialiserTool* );
   Gaudi::Property< std::vector< std::string > > m_collectionsToSerialize {
     this, "CollectionsToSerialize", {},
-    "EDM streaming configuration \'collectionKeyType;module1,module2,module3\' where collectionKeyType is a string formatted like for "
-    "AthenaOutputStream, e.g. TYPE#SG.aux1.aux2..etc. The type has to be an exact type, i.e. with _vN not the alias "
-    "type. moduleIdVec is the vector of HLTResult ROB module IDs to which the collection should be written. ID=0 is "
-    "the main result, other IDs are used for data scouting."
+    "EDM streaming configuration \'collectionKeyType;module1,module2,module3\' where collectionKeyType is a string "
+    "formatted like for AthenaOutputStream, e.g. TYPE#SG.aux1.aux2..etc. For xAOD classes the typedef type should be "
+    "used and the _vN version number is automatically detected. For old T/P classes the persistent version has to be "
+    "given. Module IDs following the semicolon are the HLT result ROB module IDs to which the collection should be "
+    "written. ID=0 is the main result, other IDs are used for data scouting."
   };
-  Gaudi::Property<bool> m_saveDynamic { this, "SaveDynamic", true, "If false skips serialising of dynamic varaibles. Use for test purpose only." };
+  Gaudi::Property<bool> m_saveDynamic {
+    this, "SaveDynamic", true, "If false skips serialising of dynamic variables. Use for test purpose only."
+  };
   Gaudi::Property<std::map<uint16_t,uint32_t>> m_truncationThresholds {
     this, "TruncationThresholds", {}, "HLT result truncation thresholds. Key is module ID, value is max size in bytes"
   };
@@ -88,13 +91,13 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
       sel(sel_){}
 
     std::string transType;
-    std::string persType; // actuall versioned type
+    std::string persType; // actual versioned type
     CLID clid;
     std::string key;
     std::vector<uint16_t> moduleIdVec;
 
     Category category;
-    xAOD::AuxSelection sel = {}; //!< xAOD dynamic varaibles selection, relevant only for xAODAux category
+    xAOD::AuxSelection sel = {}; //!< xAOD dynamic variables selection, relevant only for xAODAux category
 
     const std::string transTypeName() const {return transType+"#"+key;}
     const std::string persTypeName() const {return persType+"#"+key;}
@@ -120,7 +123,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc",
       "Service to translate class name to CLID" };
   ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc",
-      "Service that translates transient to persistent respresenation" };
+      "Service to translate transient to persistent representation" };
 
   ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool",
       "Tool to do Transient/Persistent conversion (Old EDM)"};
@@ -133,12 +136,12 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   StatusCode addCollectionToSerialise(const std::string& typeKeyAuxIDs, std::vector<Address>& addressVec) const;
 
   /**
-   * Given the ID if the collection (in address arg) insert basic streaming info into the buffer.
+   * Given the ID of the collection (in address arg) insert basic streaming info into the buffer.
    */
   StatusCode makeHeader( const TriggerEDMSerialiserTool::Address& address, std::vector<uint32_t>& buffer  ) const;
 
   /**
-   * For copy bytest from the memory into the buffer converting from char[] to uint32_t[]
+   * Copy bytes from the memory into the buffer converting from char[] to uint32_t[]
    * This function is candidate to be made global function at some point
    * and we will need also readPayload function
    */
@@ -147,23 +150,23 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
 
   /**
    * Place inside the buffer the serialised container (can be either TP, xAOD)
-   * invloves simple involcation of serialiser
+   * involves simple invocation of serialiser
    */
   StatusCode serialiseContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const;
   /**
-   * Place inside the buffer serialised the xOAD Aux container
-   * invloves selection and recording of dynamic variables
+   * Place inside the buffer serialised the xAOD Aux container
+   * involves selection and recording of dynamic variables
    */
   StatusCode serialisexAODAuxContainer( void* data, const Address& address, std::vector<uint32_t>& buffer, SGImplSvc* evtStore ) const;
 
   /**
    * Place inside the buffer the serialised old type of container
-   * invloves T/P conversion
+   * involves T/P conversion
    */
   StatusCode serialiseTPContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const;
 
   /**
-   * Adds dynamic variables to the payload
+   * Add dynamic variables to the payload
    */
   StatusCode serialiseDynAux( DataObject* dObject, const Address& address, std::vector<uint32_t>& buffer, size_t& nDynWritten ) const;
 
@@ -186,7 +189,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   StatusCode fillDebugInfo(const TruncationInfoMap& truncationInfoMap, xAOD::TrigCompositeContainer& debugInfoCont, HLT::HLTResultMT& resultToFill, SGImplSvc* evtStore) const;
 
   /**
-   * Obtain version from the actaul type name
+   * Obtain version from the actual type name
    */
   std::string version( const std::string& name ) const;
 

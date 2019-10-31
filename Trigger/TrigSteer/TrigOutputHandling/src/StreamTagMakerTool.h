@@ -13,9 +13,6 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 
-// Gaudi includes
-#include "Gaudi/Parsers/Factory.h" // Needed to declare less common Property types
-
 // System includes
 #include <string>
 #include <map>
@@ -24,7 +21,7 @@
 
 /**
  * @class StreamTagMakerTool
- * @brief makes stream tags out of chain decisions
+ * @brief Makes stream tags out of chain decisions
  **/
 class StreamTagMakerTool : public extends<AthAlgTool, HLTResultMTMakerTool> {
 public:
