@@ -2285,14 +2285,16 @@ namespace top {
 
         if (m_config->isMC()) {
           m_softmu_SF_ID[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::nominal);
-          m_softmu_SF_ID_STAT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_UP);
-          m_softmu_SF_ID_STAT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_DOWN);
-          m_softmu_SF_ID_SYST_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_UP);
-          m_softmu_SF_ID_SYST_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_DOWN);
-          m_softmu_SF_ID_STAT_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_UP);
-          m_softmu_SF_ID_STAT_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_DOWN);
-          m_softmu_SF_ID_SYST_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_UP);
-          m_softmu_SF_ID_SYST_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN);
+          if (event.m_hashValue == m_config->nominalHashValue()) {
+            m_softmu_SF_ID_STAT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_UP);
+            m_softmu_SF_ID_STAT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_DOWN);
+            m_softmu_SF_ID_SYST_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_UP);
+            m_softmu_SF_ID_SYST_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_DOWN);
+            m_softmu_SF_ID_STAT_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_UP);
+            m_softmu_SF_ID_STAT_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_DOWN);
+            m_softmu_SF_ID_SYST_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_UP);
+            m_softmu_SF_ID_SYST_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN);
+          }
 
           static SG::AuxElement::Accessor<int> acc_mctt("truthType");
           static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
