@@ -115,19 +115,6 @@ class TrigRateMoniConfig20s(TrigRateMoni):
     def target(self):
         return [ "Online" ]    
 
-
-class TrigOpMonitor(TrigOpMoni):
-    """ Trigger operation monitor """
-    def __init__(self,name="TrigOpMonitor"):
-        super(TrigOpMonitor, self).__init__(name)
-        
-        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
-        LuminosityCondAlgDefault()
-
-
-    def target(self):
-        return [ "Online", "Validation" ]
-
 class TrigMemMonitor(TrigMemMoni):
     """ Memory monitor """
     def __init__(self,name="TrigMemMonitor"):
@@ -165,7 +152,6 @@ TrigSteerMonitorToolList = [  TrigRateMoniConfig20s(),   # leave first(!) so it 
                               TrigSignatureMoniConfigValidation(), TrigSignatureMoniConfigOnline(),
                               TrigTEMoniConfig(), 
                               TrigChainMoniConfig(),                                                            
-                              TrigOpMonitor(),
                               TrigMemMonitor(),
                               TrigROBMoniConfig(),
                               TrigCorMonitor() ]
