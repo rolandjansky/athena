@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -186,14 +186,23 @@ class LayerMaterialProperties;
                                          Trk::PropDirection dir) const;
 
        /** move the Layer */
-        void moveLayer( Amg::Transform3D& shift ) const;
+        virtual void moveLayer( Amg::Transform3D& shift ) override;
+        /** move the Layer */
+        virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
+           const_cast<PlaneLayer*>(this)->moveLayer(shift);
+        }
     
      private:
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeLayer(const VolumeBounds&, double) const {}      
-       
+       void resizeLayer(const VolumeBounds&, double) override{}      
        /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const {}
+       void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const override{}      
+ 
+       /** Resize the layer to the tracking volume - not implemented */ 
+       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) override {}
+       /** Resize the layer to the tracking volume - not implemented */ 
+       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, 
+                                                                    const Amg::Vector3D&, double) const override {}
 
                                                                    
   };
