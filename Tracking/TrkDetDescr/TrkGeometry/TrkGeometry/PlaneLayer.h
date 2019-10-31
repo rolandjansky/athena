@@ -194,9 +194,9 @@ class LayerMaterialProperties;
     
      private:
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeLayer(const VolumeBounds&, double) override{}      
+       virtual void resizeLayer(const VolumeBounds&, double) override{}      
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const override{}      
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const override{}      
  
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) override {}
