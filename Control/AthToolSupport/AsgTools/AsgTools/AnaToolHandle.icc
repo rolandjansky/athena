@@ -526,7 +526,7 @@ namespace asg
 	  ANA_MSG_ERROR ("trying to initialize ToolHandleArray property " << val_name << " with empty handle");
 	  return StatusCode::FAILURE;
 	}
-      
+
 	//strip the parent name
 	std::string tool_name = toolHandle.name();
 	tools.push_back (toolHandle.type() + "/" + tool_name);
@@ -1129,6 +1129,9 @@ namespace asg
     if (detail::hasPropertiesInCatalogue (fullName()))
       return detail::AnaToolHandleMode::USER;
 #endif
+
+    if (m_config.empty() && !m_handleUser->typeAndName().empty() && (m_handleUser->type() != this->type() || m_handleUser->name() != this->name()))
+      return detail::AnaToolHandleMode::USER;
 
     if (m_config.empty() && m_name.empty())
       return detail::AnaToolHandleMode::EMPTY;
