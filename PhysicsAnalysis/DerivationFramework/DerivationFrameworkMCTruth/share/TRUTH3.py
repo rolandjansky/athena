@@ -7,26 +7,10 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth
 # Add all the particle derivation tools
 # This sets up its own common kernel and adds the common tools to it
-from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles,addBSMAndDownstreamParticles,addLargeRJetD2,addBornLeptonCollection,addHardScatterCollection
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
 addStandardTruthContents()
-addWbosonsAndDownstreamParticles()
-addLargeRJetD2()
-# Special collection for BSM particles
-addBSMAndDownstreamParticles()
-# Special collection for Born leptons
-addBornLeptonCollection()
-# Special collection for hard scatter (matrix element) - save TWO extra generations of particles
-addHardScatterCollection(None,2)
 # Extra classifiers for the Higgs group
 import DerivationFrameworkHiggs.TruthCategories
-# Extra classifiers for the SUSY group
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3KernelSigAug",
-                                                             AugmentationTools = DecorateSUSYProcess("TRUTH3")
-                                                             )
 
 #==============================================================================
 # Set up stream
