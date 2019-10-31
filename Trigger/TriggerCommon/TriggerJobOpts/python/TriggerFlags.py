@@ -1176,7 +1176,7 @@ from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags   # noqa: F401
 
 ## add slices generation flags
 
-if doMT:
+if doMT():
     from TriggerJobOpts.SliceFlagsMT import *                                   # noqa: F401, F403
 else:
     from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
