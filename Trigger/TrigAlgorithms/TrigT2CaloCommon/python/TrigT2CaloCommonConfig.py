@@ -73,7 +73,7 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                     else:
                        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
                        monTool = GenericMonitoringTool('MonTool')
-                       monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=80000)
+                       monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=4000)
                        topSequence.CaloBCIDAvgAlg.MonTool = monTool
                        log.info('using timer for CaloBCIDAvgAlg')
 
