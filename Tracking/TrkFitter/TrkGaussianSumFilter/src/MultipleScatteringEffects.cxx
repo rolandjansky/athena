@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
-      MultipleScatterUpdator.cxx  -  description
+      MultipleScatteringEffects.cxx  -  description
       ------------------------------------------
 begin                : Tuesday 22nd January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Implementation code for multiple scatter updator
+author               : amorley
+email                : amorley@cern.ch
+decription           : Implementation code for multiple scatter effects
 *********************************************************************************/
 
-#include "TrkGaussianSumFilter/MultipleScatterUpdator.h"
+#include "TrkGaussianSumFilter/MultipleScatteringEffects.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkParameters/TrackParameters.h"
@@ -21,7 +21,7 @@ decription           : Implementation code for multiple scatter updator
 
 #include <cmath>
 
-Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type,
+Trk::MultipleScatteringEffects::MultipleScatteringEffects(const std::string& type,
                                                     const std::string& name,
                                                     const IInterface* parent)
   : AthAlgTool(type, name, parent)
@@ -31,10 +31,10 @@ Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type,
   declareProperty("MultipleScatterLogarithmicTermOn", m_multipleScatterLogTermOn);
 }
 
-Trk::MultipleScatterUpdator::~MultipleScatterUpdator() {}
+Trk::MultipleScatteringEffects::~MultipleScatteringEffects() {}
 
 StatusCode
-Trk::MultipleScatterUpdator::initialize()
+Trk::MultipleScatteringEffects::initialize()
 {
   ATH_CHECK(m_msUpdator.retrieve());
   ATH_MSG_DEBUG("Initialisation of " << name() << " was successful");
@@ -42,14 +42,14 @@ Trk::MultipleScatterUpdator::initialize()
 }
 
 StatusCode
-Trk::MultipleScatterUpdator::finalize()
+Trk::MultipleScatteringEffects::finalize()
 {
   ATH_MSG_DEBUG("Finalisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
 
 
-void Trk::MultipleScatterUpdator::compute(IMultiStateMaterialEffects::Cache& cache,
+void Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& cache,
                                                const ComponentParameters& componentParameters,
                                                const MaterialProperties& materialProperties,
                                                double pathLength,

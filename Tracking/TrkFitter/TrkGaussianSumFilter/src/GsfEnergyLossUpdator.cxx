@@ -94,13 +94,12 @@ void Trk::GsfEnergyLossUpdator::compute(IMultiStateMaterialEffects::Cache& cache
 
   // Calculate the pathlength encountered by the track
   double p = globalMomentum.mag();
-  double inverseMomentum = 1. / p;
-
   double m = s_particleMasses.mass[particleHypothesis];
   double E = sqrt(p * p + m * m);
   double beta = p / E;
 
   // Calculate energy loss values
+  //double inverseMomentum = 1. / p;
   //double momentumFractionLost = deltaE * inverseMomentum;
 
   double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);

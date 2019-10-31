@@ -50,7 +50,7 @@ public:
 private:
   ToolHandle<IMultiStateMaterialEffects> m_multipleScatterEffects{ this,
                                                             "MultipleScatteringEffects",
-                                                            "Trk::MultipleScatterUpdator/MultipleScatterEffects",
+                                                            "Trk::MultipleScatteringEffects/MultipleScatterEffects",
                                                                 "" };
   ToolHandle<IMultiStateMaterialEffects> m_energyLossEffects{ this,
                                                       "EnergyLossEffects",

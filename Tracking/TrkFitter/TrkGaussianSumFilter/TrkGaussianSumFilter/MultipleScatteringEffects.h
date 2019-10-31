@@ -1,19 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
-      MultipleScatterUpdator.h  -  description
+      MultipleScatteringEffects.h  -  description
       ----------------------------------------
 begin                : Tuesday 22nd January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
+author               : amorley
+email                : amorley at cern.ch
 decription           : Class for describing multiple scattering effects only.
-                       More or less duplication from Andi
 *********************************************************************************/
 
-#ifndef Trk_MultipleScatteringUpdator_H
-#define Trk_MultipleScatteringUpdator_H
+#ifndef Trk_MultipleScatteringEffects_H
+#define Trk_MultipleScatteringEffects_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -29,17 +28,17 @@ namespace Trk {
 class Layer;
 class MaterialProperties;
 
-class MultipleScatterUpdator
+class MultipleScatteringEffects
   : public AthAlgTool
   , virtual public IMultiStateMaterialEffects
 {
 
 public:
   /** Constructor with AlgTool parameters */
-  MultipleScatterUpdator(const std::string&, const std::string&, const IInterface*);
+  MultipleScatteringEffects(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~MultipleScatterUpdator();
+  virtual ~MultipleScatteringEffects();
 
   /** AlgTool initialise method */
   StatusCode initialize() override;
