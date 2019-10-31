@@ -35,7 +35,6 @@ The class TrkMultiComponentStateOnSurface handles this at present.
    - Trk::IMultiStateMaterialEffectsUpdator - for convolution of Trk::MultiStateMaterialEffects with an existing state
    - Trk::IMultiStateMaterialEffects - for determining the material effects based on a Trk::MultiComponentState object and material information
    - Trk::IMultiStateComponentMerger - for performing component reduction
-   - Trk::IGSFMaterialEffects - linear material effects
    All of these classes are pure virtual (with the exception of Trk::IMultiStateMaterialEffects - which provides some 
    implementation common to all material effects packages). From these are dervied the concrete classes:
 

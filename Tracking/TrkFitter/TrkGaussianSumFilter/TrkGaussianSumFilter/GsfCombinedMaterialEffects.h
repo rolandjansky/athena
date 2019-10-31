@@ -21,8 +21,6 @@ decription           : Class definition for consideration of multiple scatter an
 
 namespace Trk {
 
-class IGSFMaterialEffects;
-
 class GsfCombinedMaterialEffects
   : public AthAlgTool
   , virtual public IMultiStateMaterialEffects

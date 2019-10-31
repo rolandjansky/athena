@@ -13,7 +13,6 @@ decription           : Implementation code for GsfCombinedMaterialEffects class
 
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 
-#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
