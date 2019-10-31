@@ -91,9 +91,12 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
         truthgetters   += flavorgetters
         jtm.gettersMap["truth"]   = list(truthgetters)
 
+        # NB! This line works together with the next block. Some care is required here!
+        # If we build groomed jets, the jet code will automatically build ungroomed jets, so no need to add them separately
         #Large R ungroomed jets
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+        if objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+            from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+            addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
 
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
         #Large R jets

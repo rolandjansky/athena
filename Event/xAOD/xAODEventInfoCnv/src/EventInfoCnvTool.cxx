@@ -62,8 +62,9 @@ namespace xAODMaker {
       if( detStore()->contains< AthenaAttributeList >( INDET_BEAMPOS ) ) {
          m_beamCondSvcAvailable = true;
       } else {
-         ATH_MSG_WARNING( "Beam conditions service not available" );
-         ATH_MSG_WARNING( "Will not fill beam spot information into "
+         // This is normal in some cases, but tell the user anyway
+         ATH_MSG_INFO( "Beam conditions service not available" );
+         ATH_MSG_INFO( "Will not fill beam spot information into "
                           "xAOD::EventInfo" );
          m_beamCondSvcAvailable = false;
       }
