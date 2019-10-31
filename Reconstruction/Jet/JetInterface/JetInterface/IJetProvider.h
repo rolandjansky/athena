@@ -2,14 +2,17 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// IJetBuildTool.h
 
-#ifndef JETINTERFACE_IJETBUILDER_H
-#define JETINTERFACE_IJETBUILDER_H
+#ifndef JETINTERFACE_IJETPROVIDER_H
+#define JETINTERFACE_IJETPROVIDER_H
 
-
+///***********************************************
 /// IJetProvider is a dual-use tool interface for a tool
-/// that builds a jet collection.
+/// that builds a new jet collection :
+///  - running fastjet
+///  - grooming an existing JetContainer
+///  - shallow copying an existing JetContainer
+///  - ...
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/JetContainer.h"

@@ -1,9 +1,21 @@
+// this file is -*- C++ -*-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETREC_JETCLUSTERER_H
 #define JETREC_JETCLUSTERER_H
+///***********************************************
+///
+/// \class JetClusterer
+///
+/// Creates a new JetContainer by running fastjet on an input PseudoJetVector
+///
+/// This tool implements the IJetProvider interface. The JetContainer it returns is build by
+/// running a fastjet::ClusterSequence according to the tool's Properties (alg type, radius, ...)
+/// The ClusterSequence is run on an input PseudoJetVector which must be present in the event store (this PseudoJetVector key is also a Property of the tool).
+///
+
 
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -43,7 +55,7 @@ protected:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventinfokey{"EventInfo"};
 
   /// Handle Input PseudoJetContainer
-  SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets= {this, "InputPseudoJets", "inputpseudojet", "input constituents"};
+  SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets {this, "InputPseudoJets", "inputpseudojet", "input constituents"};
 
   /// used to build the key under which the final PJ will be stored in evtStore() 
   std::string m_finalPSeudoJets;
