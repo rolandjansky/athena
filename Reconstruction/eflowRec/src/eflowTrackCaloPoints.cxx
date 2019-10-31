@@ -29,11 +29,11 @@ double eflowTrackCaloPoints::defaultEta()  {return (double)m_defaultEtaPhiPair.f
 double eflowTrackCaloPoints::defaultPhi()  {return (double)m_defaultEtaPhiPair.second;}
 
 eflowTrackCaloPoints::eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk::TrackParameters*> trackParameters):
-  m_isEM1Barrel(trackParameters.begin()->first == eflowCalo::EMB1),m_trackParameters(trackParameters) {
+  m_isEM1Barrel(trackParameters.begin()->first == eflowCalo::EMB1) {
 
   /* Fill etaPhiPositions map */
-  std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator itPars = m_trackParameters.begin();
-  std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator endPars = m_trackParameters.end();
+  std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator itPars = trackParameters.begin();
+  std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator endPars = trackParameters.end();
   m_isEM2Barrel = false;
   for (; itPars != endPars; ++itPars) {
     setEtaPhi(itPars->first, parToPosition(itPars->second));
@@ -46,12 +46,6 @@ eflowTrackCaloPoints::eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk:
 
 eflowTrackCaloPoints::~eflowTrackCaloPoints() {
 
-  // std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator itPars = m_trackParameters.begin();
-  // std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator endPars = m_trackParameters.end();
-
-  // for (; itPars != endPars; ++itPars) {
-  //   delete itPars->second;
-  // }
 }
 
 void eflowTrackCaloPoints::setEtaPhi(eflowCalo::LAYER lay, const Amg::Vector3D& vec) {
@@ -71,11 +65,6 @@ const pair<float, float> eflowTrackCaloPoints::operator[] (eflowCaloENUM layer) 
 const eflowEtaPhiPosition& eflowTrackCaloPoints::getEtaPhiPos(eflowCalo::LAYER layer) const {
   std::map< eflowCalo::LAYER, eflowEtaPhiPosition>::const_iterator it = m_etaPhiPositions.find(layer);
   return (it == m_etaPhiPositions.end()) ? m_defaultEtaPhiPosition : it->second;
-}
-
-const Trk::TrackParameters* eflowTrackCaloPoints::getParameters(eflowCalo::LAYER layer) {
-  std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::const_iterator it = m_trackParameters.find(layer);
-  return (it == m_trackParameters.end()) ? 0 : it->second;
 }
 
 Amg::Vector3D eflowTrackCaloPoints::getPosition(eflowCalo::LAYER layer) {

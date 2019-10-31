@@ -75,7 +75,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
 
   ATH_MSG_VERBOSE(" Now running eflowTrackCaloExtensionTool");
 
-  /*make the map*/
+  /*Create a map to index the TrackParameters at calo (owned by the extension) wrt to layers*/
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
@@ -93,7 +93,6 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   } else {
     /*get the CaloExtension object*/
     ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
-    SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
     extension = (*particleCache)[index];
     ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
     if( not extension ){
@@ -108,12 +107,12 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     /*extract the CurvilinearParameters*/
     const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = extension->caloLayerIntersections();
 
-    /*fill the map*/
+     /*The parameters are owned by the CaloExtension so are handlel by it the eflowTrackCaloPoints does
+     * not take ownership */
     for ( const Trk::CurvilinearParameters * clParameter : clParametersVector) {
-      if (parametersMap[getLayer(clParameter)] == NULL) {
+      if (parametersMap[getLayer(clParameter)] == nullptr) {
         parametersMap[getLayer(clParameter)] = clParameter;
       } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter->cIdentifier())) {
-      //   delete parametersMap[getLayer(clParameter)];
         parametersMap[getLayer(clParameter)] = clParameter;
       }
     }
@@ -131,8 +130,6 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     parametersMap[eflowCalo::LAYER::Unknown] = nullptr;
     return std::make_unique<eflowTrackCaloPoints>(parametersMap);
   }
-
-
 }
 
 StatusCode eflowTrackCaloExtensionTool::finalize() {
