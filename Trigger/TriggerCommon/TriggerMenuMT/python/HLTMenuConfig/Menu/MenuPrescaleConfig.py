@@ -93,7 +93,16 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
-
+    elif menu_name.startswith('Cosmic_pp_run3_v1'):
+        log.info('Cosmic_pp_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.Cosmic_pp_run3_v1 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales
             
     else:
         log.fatal ('Menu with name %s is not known in this version of TriggerMenu! ', menu_name)
