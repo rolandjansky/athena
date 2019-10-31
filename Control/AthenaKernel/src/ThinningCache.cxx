@@ -99,6 +99,20 @@ void ThinningCache::addThinning (const std::string& key,
 
 
 /**
+ * @brief Lock all the @c ThinningDecisionBase objects that we own.
+ *
+ * This should be called after all thinning objects have been added,
+ * but before the cache is installed in the EventContext.
+ */
+void ThinningCache::lockOwned()
+{
+  for (const std::unique_ptr<ThinningDecisionBase>& dec : m_owned) {
+    dec->buildIndexMap();
+  }
+}
+
+
+/**
  * @brief Clear the cache.
  */
 void ThinningCache::clear()
@@ -140,8 +154,9 @@ void ThinningCache::merge (map_t::iterator oldThinningIt,
   }
   else {
     // We need to make a copy of the existing decision and enter it into the maps.
-    m_owned.push_back (std::make_unique<SG::ThinningDecisionBase> (*oldThinningIt->second));
+    m_owned.push_back (std::make_unique<SG::ThinningDecisionBase> (oldThinningIt->second->size()));
     oldThinning = m_owned.back().get();
+    oldThinning->thin (*oldThinningIt->second);
     oldThinningIt->second = oldThinning;
 
     for (sgkey_t sgkey : sgkeys) {

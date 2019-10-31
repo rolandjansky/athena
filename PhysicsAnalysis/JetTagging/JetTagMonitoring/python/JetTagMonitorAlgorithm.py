@@ -73,7 +73,7 @@ def JetTagMonitorConfig(inputFlags):
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
     #GeneralGroup = helper.addGroup(jetTagGeneral,'JetTagMonitor')
-    GeneralGroup = helper.addGroup(jetTagMonAlg,'JetTagMonitor')
+    GeneralGroup = helper.addGroup(jetTagMonAlg,'JetTagMonitor','JetTagging')
     #JetGroup = helper.addGroup(jetTagMonAlg,'JetTagMonitor')
     #AnotherGroup = helper.addGroup(anotherJetTagMonAlg,'JetTagMonitor')
 

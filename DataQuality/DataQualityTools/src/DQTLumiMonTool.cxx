@@ -11,7 +11,6 @@ DQTLumiMonTool::DQTLumiMonTool(const std::string& name, ISvcLocator* pSvcLocator
 DQTLumiMonTool::~DQTLumiMonTool() {}
 
 StatusCode DQTLumiMonTool::initialize(){
-    ATH_CHECK( m_EventInfoKey.initialize() );
     ATH_CHECK( m_VertexContainerKey.initialize() );
     ATH_CHECK( m_PixelClustersKey.initialize() );
     ATH_CHECK( m_PixelIDKey.initialize() );
@@ -22,7 +21,7 @@ StatusCode DQTLumiMonTool::fillHistograms(const EventContext& ctx) const {
     using namespace Monitored;
     auto group = getGroup("default");
 
-    RH<xAOD::EventInfo> eventInfo(m_EventInfoKey,ctx);
+    RH<xAOD::EventInfo> eventInfo{GetEventInfo(ctx)};
     if ( !eventInfo.isValid() ) {
         ATH_MSG_WARNING("Could not retrieve EventInfo.");
         return StatusCode::FAILURE;

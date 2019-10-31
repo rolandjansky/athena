@@ -1755,6 +1755,7 @@ StatusCode SCTCalib::getBSErrors() {
   const int N_ENDCAPS{2};
   boost::array<std::string, N_ENDCAPS> detectorStems = {{"/run_" + runnum.str() + "/SCT/SCTEC/errors/", "/run_" + runnum.str() + "/SCT/SCTEA/errors/"}}; //barrel stem unused here
   boost::array<IntStringMap::iterator, N_ENDCAPS> detectorIterators = {{ErrMap_C.begin(), ErrMap.begin()}};
+  boost::array<IntStringMap::iterator, N_ENDCAPS> detectorIteratorsE = {{ErrMap_C.end(), ErrMap.end()}};
   boost::array<std::string, N_ENDCAPS> detectorParts = {{"ECm", "ECp"}};
   std::string defecttype{""};
   std::string n_defect{""};
@@ -1782,10 +1783,11 @@ StatusCode SCTCalib::getBSErrors() {
             }
 
             IntStringMap::iterator errItr{detectorIterators[stemIndex]};
+            IntStringMap::iterator errItrE{detectorIteratorsE[stemIndex]};
             for (int iType{0}; iType < n_BSErrorType; ++iType) {
               float errorProb{0.};
               unsigned long long n_errors{0};
-              if (iType == errItr->first) {
+              if (errItr!=errItrE and iType == errItr->first) {
                 ostringstream streamHist;
                 //temporal fix: folder and histogram names should be Preamble
                 streamHist << errItr->second << "Errs" << "_" << iDisk << "_" << iSide;
@@ -1860,10 +1862,11 @@ StatusCode SCTCalib::getBSErrors() {
           SCT_SerialNumber sn{m_CablingTool->getSerialNumberFromHash(waferHash)};
           nErrLink_Barrel_module_serial[iLayer][iSide][iEta][iPhi] = sn.str();
           IntStringMap::iterator errItr{ErrMap.begin()};
+          IntStringMap::iterator errItrE{ErrMap.end()};
           for (int iType{0}; iType < n_BSErrorType; ++iType) {
             float errorProb{0.};
             unsigned long long n_errors{0};
-            if (iType == errItr->first) {
+            if (errItr!=errItrE and iType == errItr->first) {
               ostringstream streamHist;
               streamHist << "T" << errItr->second << "Errs" << "_" << iLayer << "_" << iSide;
               //histogram might or might not be inside a folder with the same name
