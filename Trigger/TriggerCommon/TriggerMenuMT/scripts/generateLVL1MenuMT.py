@@ -151,8 +151,6 @@ def main():
         if arg.lower().startswith("doftk"):
             FTKFlag = True
 
-    print 'sys.argv =',sys.argv
-
     if len(sys.argv)==1 or (len(sys.argv)==2 and FTKFlag):        
         
         #generateL1Menu(menu="Physics_pp_v7",doFTK=FTKFlag)
