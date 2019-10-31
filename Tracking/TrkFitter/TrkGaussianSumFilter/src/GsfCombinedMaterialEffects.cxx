@@ -105,9 +105,6 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
     cache_multipleScatter.deltaCovariances.push_back(std::move(newCov));
   }
 
-  std::vector<double> energyLoss_weights;
-  std::vector<double> energyLoss_deltaPs;
-
   /* ========================================================================
      Retrieve energy loss corrections
      ======================================================================== */
