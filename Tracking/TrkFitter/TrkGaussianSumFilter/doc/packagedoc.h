@@ -44,7 +44,6 @@ The class TrkMultiComponentStateOnSurface handles this at present.
    - Trk::GsfMaterialEffectsUpdator (Inherits from Trk::IMultiStateMaterialEffectsUpdator)
    - Trk::GsfCombinedMaterialEffects (Inherits from Trk::IMultiStateMaterialEffects)
    - Trk::GsfBetheHeitlerEffects (Inherits from Trk::IMultiStateMaterialEffects) - for the inclusion of Bethe-Heitler material effects
-   - Trk::MultiStateMaterialEffectsAdapter (Inherits from Trk::IMultiStateMaterialEffects) - for converting normal material effects to Trk::IMultiStateMaterialEffects
    - Trk::QuickCloseComponentsMultiStateMerger (Inherits from Trk::IMultiStateComponentMerger) - merges like components (preserves 1st and 2nd moment of Bethe-Heitler distribution)
    like components (preserves 1st and 2nd moment of Bethe-Heitler distribution)
    - Trk::LargestWeightsComponentMerger (Inherits from Trk::IMultiStateComponentMerger) - discards small weighted components (does NOT preserve 1st and 2nd moment of Bethe-Heitler distribution)

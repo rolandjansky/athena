@@ -101,7 +101,7 @@ void Trk::GsfEnergyLossUpdator::compute(IMultiStateMaterialEffects::Cache& cache
   double beta = p / E;
 
   // Calculate energy loss values
-  double momentumFractionLost = deltaE * inverseMomentum;
+  //double momentumFractionLost = deltaE * inverseMomentum;
 
   double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
 
