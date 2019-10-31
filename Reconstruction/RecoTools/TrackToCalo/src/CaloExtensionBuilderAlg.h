@@ -29,11 +29,10 @@
 
 namespace Trk 
 {
-  class CaloExtensionBuilderAlg : public AthAlgorithm::AthAlgorithm//, virtual public ITrackSelectorTool
+  class CaloExtensionBuilderAlg : public AthAlgorithm//, virtual public ITrackSelectorTool
   {
   public:
-  /** @brief Default constructor*/
-  CaloExtensionBuilderAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  using AthAlgorithm::AthAlgorithm;
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;

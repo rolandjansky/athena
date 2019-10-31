@@ -30,7 +30,7 @@ This class stores a map of calorimeter layers and track parameters (the result o
 class eflowTrackCaloPoints {
  public:
 
-  eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk::TrackParameters*> trackParameters);
+  eflowTrackCaloPoints(const std::map<eflowCalo::LAYER, const Trk::TrackParameters*> & trackParameters);
  eflowTrackCaloPoints() : m_isEM1Barrel(false), m_isEM2Barrel(false)  {}
   ~eflowTrackCaloPoints();
 

@@ -30,13 +30,6 @@ PURPOSE:  Performs Calo Extension for all selected tracks
 #include <cmath>
 #include <memory>
 
-
-Trk::CaloExtensionBuilderAlg::CaloExtensionBuilderAlg(const std::string& name, 
-                                                    ISvcLocator* pSvcLocator):
-    AthAlgorithm(name, pSvcLocator)
-{
-}
-
 StatusCode Trk::CaloExtensionBuilderAlg::initialize() 
 {
     IToolSvc* myToolSvc;
