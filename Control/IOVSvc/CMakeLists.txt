@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/AthContainersInterfaces
                           Database/PersistentDataModel
-                          Event/EventInfo
                           Event/xAOD/xAODEventInfo )
 
 # External dependencies:
@@ -30,7 +29,7 @@ atlas_add_library( IOVSvcLib
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools GaudiKernel StoreGateLib SGtests xAODEventInfo PersistentDataModel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools EventInfo )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_component( IOVSvc
                      src/components/*.cxx
