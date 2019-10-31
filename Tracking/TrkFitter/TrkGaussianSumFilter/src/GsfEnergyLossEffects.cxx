@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
-      GsfEnergyLossUpdator.cxx  -  description
+      GsfEnergyLossEffects.cxx  -  description
       ----------------------------------------
 begin                : Tuesday 22nd January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
+author               : amorley
+email                : amorley@cern.ch
 decription           : Implementation code for EnergyLossUpdator class
 *********************************************************************************/
 
-#include "TrkGaussianSumFilter/GsfEnergyLossUpdator.h"
+#include "TrkGaussianSumFilter/GsfEnergyLossEffects.h"
 
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
@@ -26,7 +26,7 @@ namespace {
 const Trk::ParticleMasses s_particleMasses{};
 }
 
-Trk::GsfEnergyLossUpdator::GsfEnergyLossUpdator(const std::string& type,
+Trk::GsfEnergyLossEffects::GsfEnergyLossEffects(const std::string& type,
                                                 const std::string& name,
                                                 const IInterface* parent)
   : AthAlgTool(type, name, parent)
@@ -35,10 +35,10 @@ Trk::GsfEnergyLossUpdator::GsfEnergyLossUpdator(const std::string& type,
   declareInterface<IMultiStateMaterialEffects>(this);
 }
 
-Trk::GsfEnergyLossUpdator::~GsfEnergyLossUpdator() {}
+Trk::GsfEnergyLossEffects::~GsfEnergyLossEffects() {}
 
 StatusCode
-Trk::GsfEnergyLossUpdator::initialize()
+Trk::GsfEnergyLossEffects::initialize()
 {
   if (m_EnergyLossUpdator.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_EnergyLossUpdator
@@ -52,14 +52,14 @@ Trk::GsfEnergyLossUpdator::initialize()
 }
 
 StatusCode
-Trk::GsfEnergyLossUpdator::finalize()
+Trk::GsfEnergyLossEffects::finalize()
 {
   ATH_MSG_INFO("Finalisation of " << name() << " was successful" );
   return StatusCode::SUCCESS;
 }
 
 
-void Trk::GsfEnergyLossUpdator::compute(IMultiStateMaterialEffects::Cache& cache,
+void Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache,
                                                const ComponentParameters& componentParameters,
                                                const MaterialProperties& materialProperties,
                                                double pathLength,

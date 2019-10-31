@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -54,7 +54,7 @@ private:
                                                                 "" };
   ToolHandle<IMultiStateMaterialEffects> m_energyLossEffects{ this,
                                                       "EnergyLossEffects",
-                                                      "Trk::GsfEnergyLossUpdator/GsfEnergyLossEffects",
+                                                      "Trk::GsfEnergyLossEffects/GsfEnergyLossEffects",
                                                       "" };
   ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{ this,
                                                                 "BetheHeitlerEffects",

@@ -8,7 +8,7 @@
 #include "TrkGaussianSumFilter/MultipleScatteringEffects.h"
 #include "TrkGaussianSumFilter/GsfBetheHeitlerEffects.h"
 #include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/GsfEnergyLossUpdator.h"
+#include "TrkGaussianSumFilter/GsfEnergyLossEffects.h"
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
 #include "TrkGaussianSumFilter/ForwardGsfFitter.h"
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
@@ -24,7 +24,7 @@ DECLARE_COMPONENT( Trk::GsfMaterialEffectsUpdator )
 DECLARE_COMPONENT( Trk::MultipleScatteringEffects )
 DECLARE_COMPONENT( Trk::GsfBetheHeitlerEffects )
 DECLARE_COMPONENT( Trk::GsfMeasurementUpdator )
-DECLARE_COMPONENT( Trk::GsfEnergyLossUpdator )
+DECLARE_COMPONENT( Trk::GsfEnergyLossEffects )
 DECLARE_COMPONENT( Trk::GaussianSumFitter )
 DECLARE_COMPONENT( Trk::ForwardGsfFitter )
 DECLARE_COMPONENT( Trk::GsfExtrapolator )

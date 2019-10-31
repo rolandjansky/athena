@@ -1,19 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
-      GsfEnergyLossUpdator.h  -  description
+      GsfEnergyLossEffects.h  -  description
       --------------------------------------
 begin                : Tuesday 22nd January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
+author               : amorley
+email                : amorley@cern.ch
 decription           : Class for describing energy loss effects only.
-                       More or less duplication from Andi
 *********************************************************************************/
 
-#ifndef TrkGsfEnergyLossUpdator_H
-#define TrkGsfEnergyLossUpdator_H
+#ifndef TrkGsfEnergyLossEffects_H
+#define TrkGsfEnergyLossEffects_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -29,17 +28,17 @@ namespace Trk {
 class Layer;
 class MaterialProperties;
 
-class GsfEnergyLossUpdator
+class GsfEnergyLossEffects
   : public AthAlgTool
   , virtual public IMultiStateMaterialEffects
 {
 
 public:
   /** Constructor with AlgTool parameters */
-  GsfEnergyLossUpdator(const std::string&, const std::string&, const IInterface*);
+  GsfEnergyLossEffects(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfEnergyLossUpdator();
+  virtual ~GsfEnergyLossEffects();
 
   /** AlgTool initialise method */
   StatusCode initialize() override final;
