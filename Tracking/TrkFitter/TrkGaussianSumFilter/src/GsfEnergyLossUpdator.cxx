@@ -32,7 +32,7 @@ Trk::GsfEnergyLossUpdator::GsfEnergyLossUpdator(const std::string& type,
   : AthAlgTool(type, name, parent)
 {
 
-  declareInterface<IGSFMaterialEffects>(this);
+  declareInterface<IMultiStateMaterialEffects>(this);
 }
 
 Trk::GsfEnergyLossUpdator::~GsfEnergyLossUpdator() {}
@@ -58,57 +58,34 @@ Trk::GsfEnergyLossUpdator::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<Trk::TrackParameters>
-Trk::GsfEnergyLossUpdator::update(const Trk::TrackParameters* trackParameters,
-                                  const Trk::Layer& layer,
-                                  Trk::PropDirection direction,
-                                  Trk::ParticleHypothesis,
-                                  Trk::MaterialUpdateMode) const
+
+void Trk::GsfEnergyLossUpdator::compute(IMultiStateMaterialEffects::Cache& cache,
+                                               const ComponentParameters& componentParameters,
+                                               const MaterialProperties& materialProperties,
+                                               double pathLength,
+                                               PropDirection direction,
+                                               ParticleHypothesis particleHypothesis) const
 {
+  // Reset the cache
+  cache.reset();
+  // Request track parameters from component parameters
+  const Trk::TrackParameters* trackParameters = componentParameters.first;
 
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
   if (!measuredCov) {
       ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
-      return std::unique_ptr<Trk::TrackParameters>(trackParameters->clone());
-  }
-  // Request the material properties
-  const Trk::MaterialProperties* materialProperties = layer.fullUpdateMaterialProperties(*trackParameters);
-
-  if (!materialProperties){
-    return std::unique_ptr<Trk::TrackParameters>(trackParameters->clone());
-  }
-  double pathLength =
-    layer.surfaceRepresentation().pathCorrection(trackParameters->position(), trackParameters->momentum()) *
-    materialProperties->thickness();
-   return this->update(*trackParameters, *materialProperties, pathLength, direction);
-}
-
-std::unique_ptr<Trk::TrackParameters>
-Trk::GsfEnergyLossUpdator::update(const TrackParameters& trackParameters,
-                                  const MaterialProperties& materialProperties,
-                                  double pathLength,
-                                  PropDirection direction,
-                                  ParticleHypothesis particle,
-                                  Trk::MaterialUpdateMode) const
-{
-
-  const AmgSymMatrix(5)* measuredCov = trackParameters.covariance();
-
-  if (!measuredCov) {
-      ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
-      return std::unique_ptr<Trk::TrackParameters>(trackParameters.clone());
+      return;
   }
 
-  AmgSymMatrix(5)* updatedCovarianceMatrix = new AmgSymMatrix(5)(*measuredCov);
 
   double pathcorrection = pathLength / materialProperties.thickness();
 
-  const Amg::VectorX& trackStateVector = trackParameters.parameters();
-  const Amg::Vector3D& globalMomentum = trackParameters.momentum();
+  const Amg::VectorX& trackStateVector = trackParameters->parameters();
+  const Amg::Vector3D& globalMomentum = trackParameters->momentum();
 
   EnergyLoss* energyLoss = m_EnergyLossUpdator->energyLoss(
-    materialProperties, globalMomentum.mag(), pathcorrection, direction, particle, true);
+    materialProperties, globalMomentum.mag(), pathcorrection, direction, particleHypothesis, true);
 
   // update for mean energy loss
   double deltaE = energyLoss ? energyLoss->deltaE() : 0;
@@ -119,7 +96,7 @@ Trk::GsfEnergyLossUpdator::update(const TrackParameters& trackParameters,
   double p = globalMomentum.mag();
   double inverseMomentum = 1. / p;
 
-  double m = s_particleMasses.mass[particle];
+  double m = s_particleMasses.mass[particleHypothesis];
   double E = sqrt(p * p + m * m);
   double beta = p / E;
 
@@ -129,14 +106,13 @@ Trk::GsfEnergyLossUpdator::update(const TrackParameters& trackParameters,
   double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
 
   // Update diagonal and off-diagonal covariance matrix elements
-  (*updatedCovarianceMatrix)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
+  std::unique_ptr<AmgSymMatrix(5)> deltaCov = std::make_unique<AmgSymMatrix(5)>();
+  deltaCov->setZero();
+  (*deltaCov)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
 
-  return std::unique_ptr<Trk::TrackParameters> (
-    trackParameters.associatedSurface().createTrackParameters(trackStateVector[Trk::locX],
-                                                              trackStateVector[Trk::locY],
-                                                              trackStateVector[Trk::phi],
-                                                              trackStateVector[Trk::theta],
-                                                              trackStateVector[Trk::qOverP] *
-                                                              (1. + momentumFractionLost),
-                                                              updatedCovarianceMatrix));
+
+  cache.weights.push_back(1.);
+  cache.deltaPs.push_back(deltaE);
+  cache.deltaCovariances.push_back(std::move(deltaCov));
+
 }

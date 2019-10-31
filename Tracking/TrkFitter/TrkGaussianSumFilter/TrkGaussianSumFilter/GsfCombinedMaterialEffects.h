@@ -48,13 +48,13 @@ public:
                        ParticleHypothesis = nonInteracting) const;
 
 private:
-  ToolHandle<IGSFMaterialEffects> m_multipleScatterEffects{ this,
-                                                            "MultipleScatteringUpdator",
-                                                            "Trk::MultipleScatterUpdator/MultipleScatterUpdator",
+  ToolHandle<IMultiStateMaterialEffects> m_multipleScatterEffects{ this,
+                                                            "MultipleScatteringEffects",
+                                                            "Trk::MultipleScatterUpdator/MultipleScatterEffects",
                                                                 "" };
-  ToolHandle<IGSFMaterialEffects> m_energyLossEffects{ this,
-                                                      "EnergyLossUpdator",
-                                                      "Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator",
+  ToolHandle<IMultiStateMaterialEffects> m_energyLossEffects{ this,
+                                                      "EnergyLossEffects",
+                                                      "Trk::GsfEnergyLossUpdator/GsfEnergyLossEffects",
                                                       "" };
   ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{ this,
                                                                 "BetheHeitlerEffects",

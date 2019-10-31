@@ -17,7 +17,7 @@ decription           : Class for describing multiple scattering effects only.
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkParameters/TrackParameters.h"
@@ -31,7 +31,7 @@ class MaterialProperties;
 
 class MultipleScatterUpdator
   : public AthAlgTool
-  , virtual public IGSFMaterialEffects
+  , virtual public IMultiStateMaterialEffects
 {
 
 public:
@@ -47,20 +47,12 @@ public:
   /** AlgTool finalise method */
   StatusCode finalize() override;
 
-  /** Layer based material effects update - track parameters given by pointer */
-  virtual std::unique_ptr<TrackParameters>  update(const TrackParameters* parameters,
-                                                   const Layer& layer,
-                                                   PropDirection direction = anyDirection,
-                                                   ParticleHypothesis particleHypothesis = nonInteracting,
-                                                   MaterialUpdateMode matmode = Trk::addNoise) const override final;
-
-  /** Material properties based effects update - track parameters are given by reference */
-  virtual std::unique_ptr<TrackParameters>  update(const TrackParameters&,
-                                                   const MaterialProperties&,
-                                                   double,
-                                                   PropDirection direction = anyDirection,
-                                                   ParticleHypothesis particleHypothesis = nonInteracting,
-                                                   MaterialUpdateMode matmode = Trk::addNoise) const override final;
+  virtual void compute(IMultiStateMaterialEffects::Cache&,
+                       const ComponentParameters&,
+                       const MaterialProperties&,
+                       double,
+                       PropDirection direction = anyDirection,
+                       ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
   ToolHandle<IMultipleScatteringUpdator> m_msUpdator{ this,

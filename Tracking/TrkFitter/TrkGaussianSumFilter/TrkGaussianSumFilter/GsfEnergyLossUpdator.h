@@ -20,7 +20,7 @@ decription           : Class for describing energy loss effects only.
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -31,7 +31,7 @@ class MaterialProperties;
 
 class GsfEnergyLossUpdator
   : public AthAlgTool
-  , virtual public IGSFMaterialEffects
+  , virtual public IMultiStateMaterialEffects
 {
 
 public:
@@ -47,20 +47,14 @@ public:
   /** AlgTool finalise method */
   StatusCode finalize() override final;
 
-  /** Layer based material effects update - track parameters given by pointer */
-  virtual std::unique_ptr<TrackParameters> update(const TrackParameters* parameters,
-                                                  const Layer& layer,
-                                                  PropDirection direction = anyDirection,
-                                                  ParticleHypothesis particleHypothesis = nonInteracting,
-                                                  MaterialUpdateMode matmode = Trk::addNoise) const override final;
 
-  /** Material properties based effects update - track parameters are given by reference */
-  virtual std::unique_ptr<TrackParameters> update(const TrackParameters&,
-                                                  const MaterialProperties&,
-                                                  double,
-                                                  PropDirection direction = anyDirection,
-                                                  ParticleHypothesis particleHypothesis = nonInteracting,
-                                                  MaterialUpdateMode matmode = Trk::addNoise) const override final;
+  virtual void compute(IMultiStateMaterialEffects::Cache&,
+                       const ComponentParameters&,
+                       const MaterialProperties&,
+                       double,
+                       PropDirection direction = anyDirection,
+                       ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+
 
 private:
   ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator{ this,
