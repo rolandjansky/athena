@@ -183,7 +183,7 @@ MuonChainParts = {
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','3layersEC'],
+    'addInfo'        : ['1step','idperf','3layersEC','cosmic'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     }

@@ -85,7 +85,7 @@ def findRequiredItemsFromXML():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1']
+    menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1','Cosmic_pp_run3_v1']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -148,6 +148,7 @@ def main():
     if len(sys.argv)==1:
         
         generateL1Menu(menu="LS2_v1" )
+        generateL1Menu(menu="Cosmic_pp_run3_v1")
         return 0
 
     
@@ -196,6 +197,11 @@ def main():
 
     if sys.argv[1].lower().startswith("ls"):
         menu = generateL1Menu(menu="LS2_v1")
+        menu.printCabling()
+        return 0
+
+    if sys.argv[1].lower().startswith("cosmic"):
+        menu = generateL1Menu(menu="Cosmic_pp_run3_v1")
         menu.printCabling()
         return 0
 
