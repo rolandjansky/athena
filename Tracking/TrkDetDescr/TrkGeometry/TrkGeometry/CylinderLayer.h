@@ -154,10 +154,10 @@ class IApproachDescriptor;
        } 
        
        /** Resize the layer to the tracking volume */ 
-       void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelope)  override;
+       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelope)  override;
   
        /** Resize the layer to the tracking volume */ 
-       void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelope) const override{
+       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelope) const override{
          const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(vBounds,cCenter,envelope);
        }
        

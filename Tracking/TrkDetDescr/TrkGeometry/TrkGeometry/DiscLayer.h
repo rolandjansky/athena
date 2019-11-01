@@ -129,10 +129,10 @@ namespace Trk {
        }        
      
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelop) override;
+       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelop) override;
 
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
+       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
                                                             const Amg::Vector3D& cCenter, 
                                                             double envelop) const override{
          const_cast<DiscLayer*> (this)->resizeAndRepositionLayer(vBounds,cCenter,envelop);
