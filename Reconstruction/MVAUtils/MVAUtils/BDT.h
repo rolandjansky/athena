@@ -9,13 +9,8 @@
 
 #include<vector>
 #include "TString.h"
-
 #include "MVAUtils/Node.h"
 
-namespace TMVA { 
-  class DecisionTreeNode; 
-  class MethodBDT; 
-}
 class TTree;
 
 namespace MVAUtils 
@@ -39,7 +34,6 @@ namespace MVAUtils
   {
   public:
     BDT(TTree *tree);
-    BDT(TMVA::MethodBDT *bdt, bool isRegression = true, bool useYesNoLeaf = false);
 
     /** return the number of trees in the forest */
     unsigned int GetNTrees() const { return m_forest.size(); }
@@ -75,27 +69,42 @@ namespace MVAUtils
     /** Return the values corresponding to m_pointers (or an empty vector) **/
     std::vector<float> GetValues() const;
 	
-    /** Return stored pointers (which are used by GetResponse with no args) **/
-    std::vector<float*> GetPointers() const { return m_pointers; }
 
-    /** Set the stored pointers so that one can use GetResponse with no args */
-    void SetPointers(std::vector<float*>& pointers) { m_pointers = pointers; }
-	
-    //dump out a TTree
-    TTree* WriteTree(TString name = "BDT");
-	
     //for debugging, print out tree or forest to stdout
     void PrintForest() const;
     void PrintTree(Node::index_t index) const;
+    //dump out a TTree
+    TTree* WriteTree(TString name = "BDT");
+	
+    /** Return stored pointers (which are used by GetResponse with no args)*/
+    std::vector<float*> GetPointers() const { return m_pointers; }
+
+    /* 
+     * Non const methods usefull for adaptors
+     */
+    /** Set the stored pointers so that one can use GetResponse with no args */
+    void SetPointers(const std::vector<float*>& pointers) { m_pointers = pointers; }
+	
+    /** Set the stored weights */
+    void SetWeights(const std::vector<float>& weights) { m_weights = weights; }
+	
+    /** Set the forest head nodes */
+    void SetForest(const std::vector<Node::index_t> forest) { m_forest = forest; }
+	  
+    /** Set the Nodes */
+    void SetNodes (const std::vector<Node> nodes) { m_nodes = nodes; }
+    
+    /** Set the offset */
+    void SetOffset (float offset) { m_offset = offset; }
+
+    /** Set the Sum of weights */
+    void SetSumWeights (float sumWeights) { m_sumWeights = sumWeights; }
 
   private:
 
     // create new tree from root file
     void newTree(const std::vector<int>& vars, const std::vector<float>& values);
 	
-    // create new tree from decision tree
-    void newTree(const TMVA::DecisionTreeNode *node, bool isRegression, bool useYesNoLeaf); 
-
 
     float GetTreeResponse(const std::vector<float>& values, Node::index_t index) const;
     float GetTreeResponse(const std::vector<float*>& pointers, Node::index_t index) const;
