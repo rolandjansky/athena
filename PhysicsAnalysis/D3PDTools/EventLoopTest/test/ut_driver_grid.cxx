@@ -14,7 +14,9 @@
 #include <RootCoreUtils/ShellExec.h>
 #include <SampleHandler/GridTools.h>
 #include <sstream>
+#include <sys/types.h>
 #include <time.h>
+#include <unistd.h>
 
 //
 // main program
