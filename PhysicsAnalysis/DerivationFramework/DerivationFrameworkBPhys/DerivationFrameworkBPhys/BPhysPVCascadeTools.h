@@ -47,7 +47,7 @@ namespace DerivationFramework {
        mutable bool          m_BScached;
        
   public:
-  
+       bool m_copyAllVertices;
        BPhysPVCascadeTools(CascadeTools *cascadeTools);
        BPhysPVCascadeTools(CascadeTools *cascadeTools,
                            const ServiceHandle<IBeamCondSvc> *beamSpotSvc);

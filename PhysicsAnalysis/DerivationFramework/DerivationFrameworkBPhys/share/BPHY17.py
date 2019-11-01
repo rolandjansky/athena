@@ -1,104 +1,203 @@
 #====================================================================
 # BPHY17.py
-# This an example job options script showing how to set up a 
-# derivation of the data using the derivation framework.  
-# It requires the reductionConf flag BPHY17 in Reco_tf.py   
+# This an example job options script showing how to set up a
+# derivation of the data using the derivation framework.
+# It requires the reductionConf flag BPHY17 in Reco_tf.py
 #====================================================================
 
-# Set up common services and job object. 
+# Set up common services and job object.
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
-isSimulation = False
-if globalflags.DataSource()=='geant4':
-    isSimulation = True
-
+isSimulation = globalflags.DataSource()=='geant4'
 print isSimulation
 
 #====================================================================
-# AUGMENTATION TOOLS 
+# AUGMENTATION TOOLS
 #====================================================================
 ## 1/ setup vertexing tools and services
 include("DerivationFrameworkBPhys/configureVertexing.py")
 BPHY17_VertexTools = BPHYVertexTools("BPHY17")
 
-#--------------------------------------------------------------------
-## 2/ Setup the vertex fitter tools (e.g. JpsiFinder, JpsiPlus1Track, etc).
-##    These are general tools independent of DerivationFramework that do the 
-##    actual vertex fitting and some pre-selection.
-from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
-BPHY17JpsiFinder = Analysis__JpsiFinder(
-    name                        = "BPHY17JpsiFinder",
-    OutputLevel                 = INFO,
-    muAndMu                     = True,
-    muAndTrack                  = False,
-    TrackAndTrack               = False,
-    assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-  invMassUpper                = 100000.0,
-    invMassLower                = 0.0,
-    Chi2Cut                     = 200.,
-    oppChargesOnly	            = True,
-    atLeastOneComb              = True,
-    useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
-    muonCollectionKey           = "Muons",
-    TrackParticleCollection     = "InDetTrackParticles",
-    V0VertexFitterTool          = BPHY17_VertexTools.TrkV0Fitter, # V0 vertex fitter
-    useV0Fitter                 = False, # if False a TrkVertexFitterTool will be used
-    TrkVertexFitterTool         = BPHY17_VertexTools.TrkVKalVrtFitter, # VKalVrt vertex fitter
-    TrackSelectorTool           = BPHY17_VertexTools.InDetTrackSelectorTool,
-    ConversionFinderHelperTool  = BPHY17_VertexTools.InDetConversionHelper,
-    VertexPointEstimator        = BPHY17_VertexTools.VtxPointEstimator,
-    useMCPCuts                  = False )
+from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+InDetTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool(name = "BPHY17_CascadeTrackSelectorTool",
+        pTMin                = 1000.0,
+        IPd0Max              = 10000.0,
+        IPz0Max              = 10000.0,
+        z0Max                = 10000.0,
+        sigIPd0Max           = 10000.0,
+        sigIPz0Max           = 10000.0,
+        d0significanceMax    = -1.,
+        z0significanceMax    = -1.,
+        etaMax               = 9999.,
+        useTrackSummaryInfo  = True,
+        nHitBLayer           = 0,
+        nHitPix              = 1,
+        nHitBLayerPlusPix    = 1,
+        nHitSct              = 2,
+        nHitSi               = 3,
+        nHitTrt              = 0,
+        nHitTrtHighEFractionMax = 10000.0,
+        useSharedHitInfo     = False,
+        useTrackQualityInfo  = True,
+        fitChi2OnNdfMax      = 10000.0,
+        TrtMaxEtaAcceptance  = 1.9,
+        TrackSummaryTool     = BPHY17_VertexTools.InDetTrackSummaryTool,
+        Extrapolator         = BPHY17_VertexTools.InDetExtrapolator
+       )
 
-ToolSvc += BPHY17JpsiFinder
-print      BPHY17JpsiFinder
+ToolSvc += InDetTrackSelectorTool
+print InDetTrackSelectorTool
 
-#--------------------------------------------------------------------
-## 3/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
-##    These Augmentation tools add output vertex collection(s) into the StoreGate and add basic 
-##    decorations which do not depend on the vertex mass hypothesis (e.g. lxy, ptError, etc).
-##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
-##    Reco tool is the JpsiFinder mass window is wide enough.
+#BPHY17_VertexTools.TrkVKalVrtFitter.OutputLevel = DEBUG
 
-from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
-BPHY17_Reco_mumu = DerivationFramework__Reco_mumu(
-  name                   = "BPHY17_Reco_mumu",
-  JpsiFinder             = BPHY17JpsiFinder,
-  OutputVtxContainerName = "BPHY17OniaCandidates",
-  PVContainerName        = "PrimaryVertices",
-  RefPVContainerName     = "BPHY17RefittedPrimaryVertices",
-  RefitPV                = True,
-  MaxPVrefit             = 100000,
-  DoVertexType           = 7)
-  
-ToolSvc += BPHY17_Reco_mumu
-print BPHY17_Reco_mumu
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Cascade3Plus1
+BPHY17BsDsPi            = DerivationFramework__Cascade3Plus1(
+    name                    = "BPHY17BsDsPi",
+    TrackMassHyp            = [ 493.677, 493.677, 139.57018, 139.57018 ],
+    PTCutPerTrack           = [ 0,0,1500, 1500],
+    HypothesisName          = "Bs",
+    Track3Name              = "Ds",
+    TrackSelectorTool       = InDetTrackSelectorTool,
+    TrkVertexFitterTool     = BPHY17_VertexTools.TrkVKalVrtFitter,
+    PVContainerName          = "PrimaryVertices",
+    RefitPV                 = True,
+    #OutputLevel             = DEBUG,
+    RefPVContainerName      = "BPHY17RefittedPrimaryVertices",
+    CascadeVertexCollections= ["BPHY17CascadeVtx1", "BPHY17CascadeVtx2"],
+    ThreeVertexOutputContainer = "BPHY17DsKaonVertexes", EliminateBad3Tracksfrom4Track = True,
+    ThreeTrackChi2NDF = 6,
+    TwoTrackMassMin	= 1009.0,
+    TwoTrackMassMax	= 1031.0,
+    ThreeTrackMassMin = 1800.47,
+    ThreeTrackMassMax = 2100.0,
+    FourTrackMassMin = 5100.0,
+    FourTrackMassMax = 5600.0,
+    ThreeTracksMass	= 1968.47,
+    FourTracksMass	= 5366.79,
+    Chi2NDFCut     = 10,
+    FourTrackMassFinalMin = 5150.,
+    FourTrackMassFinalMax = 5650.0,
+    ThreeTrackMassConstraint = False,
+    CopyAllVertices  = False
+    )
 
-#--------------------------------------------------------------------
-## 4/ setup the vertex selection and augmentation tool(s). These tools decorate the vertices with
-##    variables that depend on the vertex mass hypothesis, e.g. invariant mass, proper decay time, etc.
-##    Property HypothesisName is used as a prefix for these decorations.
-##    They also perform tighter selection, flagging the vertecis that passed. The flag is a Char_t branch
-##    named "passed_"+HypothesisName. It is used later by the "SelectEvent" and "Thin_vtxTrk" tools
-##    to determine which events and candidates should be kept in the output stream.
-##    Multiple instances of the Select_* tools can be used on a single input collection as long as they 
-##    use different "HypothesisName" flags.
+ToolSvc += BPHY17BsDsPi
+print BPHY17BsDsPi
+
+###
+BPHY17BsDsPiMuons            = DerivationFramework__Cascade3Plus1(
+    name                    = "BPHY17BsDsPiMuons",
+    TrackMassHyp            = [ 105.658374, 105.658374, 139.57018, 139.57018 ],
+    PTCutPerTrack           = [ 0,0,1500, 1500],
+    HypothesisName          = "Bs",
+    Track3Name              = "Ds",
+    TrackSelectorTool       = InDetTrackSelectorTool,
+    TrkVertexFitterTool     = BPHY17_VertexTools.TrkVKalVrtFitter,
+    PVContainerName          = "PrimaryVertices",
+    RefitPV                 = True,
+    #OutputLevel             = DEBUG,
+    RefPVContainerName      = "BPHY17RefittedPrimaryVerticesMuons",
+    CascadeVertexCollections= ["BPHY17CascadeMuonVtx1", "BPHY17CascadeMuonVtx2"],
+    ThreeVertexOutputContainer = "BPHY17DsMuonVertexes", EliminateBad3Tracksfrom4Track = True,
+    ThreeTrackChi2NDF = 10,
+    TwoTrackMassMin     =  860.0,
+    TwoTrackMassMax     = 1180.0,
+    ThreeTrackMassMin = 1800.47,
+    ThreeTrackMassMax = 2100.0,
+    FourTrackMassMin = 5100.0,
+    FourTrackMassMax = 5550.0,
+    ThreeTracksMass	= 1968.47,
+    FourTracksMass	= 5366.79,
+    Chi2NDFCut     = 10,
+    FourTrackMassFinalMin = 5150.,
+    FourTrackMassFinalMax = 5500.0,
+    ThreeTrackMassConstraint = False,
+    UseMuonsForTracks = [0, 1],
+    CopyAllVertices  = False
+    )
+
+ToolSvc += BPHY17BsDsPiMuons
+print BPHY17BsDsPiMuons
+
+###
+BPHY17BsDsMuSemiLepMuons            = DerivationFramework__Cascade3Plus1(
+    name                    = "BPHY17BsDsMuSemiLepMuons",
+    TrackMassHyp            = [ 105.658374, 105.658374, 139.57018, 105.658374 ],
+    PTCutPerTrack           = [ 0,0,1500, 0],
+    HypothesisName          = "Bs",
+    Track3Name              = "Ds",
+    TrackSelectorTool       = InDetTrackSelectorTool,
+    TrkVertexFitterTool     = BPHY17_VertexTools.TrkVKalVrtFitter,
+    PVContainerName          = "PrimaryVertices",
+    RefitPV                 = True,
+    #OutputLevel             = DEBUG,
+    RefPVContainerName      = "BPHY17RefittedPrimaryVerticesMuonsSemiLep",
+    CascadeVertexCollections= ["BPHY17CascadeMuonSemiLepVtx1", "BPHY17CascadeMuonSemiLepVtx2"],
+    ThreeVertexOutputContainer = "BPHY17DsMuonSemiLepVertexes", EliminateBad3Tracksfrom4Track = True,
+    ThreeTrackChi2NDF = 10,
+    TwoTrackMassMin     =  860.0,
+    TwoTrackMassMax     = 1180.0,
+    ThreeTrackMassMin = 1800.47,
+    ThreeTrackMassMax = 2100.0,
+    FourTrackMassMin = 0.,
+    FourTrackMassMax = 999999.0,
+    ThreeTracksMass	= 1968.47,
+    FourTracksMass	= 5366.79,
+    Chi2NDFCut     = 10,
+    FourTrackMassFinalMin = 0,
+    FourTrackMassFinalMax = 999999.0,
+    ThreeTrackMassConstraint = False,
+    UseMuonsForTracks = [0, 1, 3],
+    CopyAllVertices  = False
+    )
+
+ToolSvc += BPHY17BsDsMuSemiLepMuons
+print BPHY17BsDsMuSemiLepMuons
+
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
+BPHY17_Select_DsPhiKK = DerivationFramework__Select_onia2mumu(
+  name                       = "BPHY17_Select_DsPhiKK",
+  HypothesisName             = "DsPhiKK",
+  InputVtxContainerName      = BPHY17BsDsPi.ThreeVertexOutputContainer,
+  TrkMasses                  = [493.677, 493.677, 139.57018],
+  VtxMassHypo                = 1968.47,
+  MassMin                    = 1000.0,
+  MassMax                    = 3000.0, Do3d = False, DoVertexType = 1,
+  Chi2Max                    = 200)
 
-## a/ augment and select Jpsi->mumu candidates
-BPHY17_Select_B2mumu = DerivationFramework__Select_onia2mumu(
-  name                  = "BPHY17_Select_B2mumu",
-  HypothesisName        = "Bmumu",
-  InputVtxContainerName = "BPHY17OniaCandidates",
-  VtxMassHypo           = 5366.79,
-  MassMin               = 4000.0,
-  MassMax               = 7000.0,
-  Chi2Max               = 200,
-  DoVertexType          = 7)
-  
-ToolSvc += BPHY17_Select_B2mumu
-print BPHY17_Select_B2mumu
+ToolSvc += BPHY17_Select_DsPhiKK
+print      BPHY17_Select_DsPhiKK
+
+BPHY17_Select_DsPhiMM = DerivationFramework__Select_onia2mumu(
+  name                       = "BPHY17_Select_DsPhiMM",
+  HypothesisName             = "DsPhiMM",
+  InputVtxContainerName      = BPHY17BsDsPiMuons.ThreeVertexOutputContainer,
+  TrkMasses                  = [105.658374, 105.658374, 139.57018],
+  VtxMassHypo                = 1968.47,
+  MassMin                    = 1000.0,
+  MassMax                    = 3000.0, Do3d = False, DoVertexType = 1,
+  Chi2Max                    = 200)
+
+ToolSvc += BPHY17_Select_DsPhiMM
+print      BPHY17_Select_DsPhiMM
+
+
+BPHY17_Select_DsPhiMMSemi = DerivationFramework__Select_onia2mumu(
+  name                       = "BPHY17_Select_DsPhiMMSemi",
+  HypothesisName             = "DsPhiMMSemiLep",
+  InputVtxContainerName      = BPHY17BsDsMuSemiLepMuons.ThreeVertexOutputContainer,
+  TrkMasses                  = [105.658374, 105.658374, 139.57018],
+  VtxMassHypo                = 1968.47,
+  MassMin                    = 1000.0,
+  MassMax                    = 3000.0, Do3d = False, DoVertexType = 1,
+  Chi2Max                    = 200)
+
+ToolSvc += BPHY17_Select_DsPhiMMSemi
+print      BPHY17_Select_DsPhiMMSemi
+
+###
 
 #--------------------------------------------------------------------
 ## 5/ select the event. We only want to keep events that contain certain vertices which passed certain selection.
@@ -107,48 +206,36 @@ print BPHY17_Select_B2mumu
 ##       "ContainerName.passed_HypoName > count"
 ##
 ##    where "ContainerName" is output container form some Reco_* tool, "HypoName" is the hypothesis name setup in some "Select_*"
-##    tool and "count" is the number of candidates passing the selection you want to keep. 
+##    tool and "count" is the number of candidates passing the selection you want to keep.
 
-expression = "count(BPHY17OniaCandidates.passed_Bmumu) > 0"
+expression = "count(%s.x > -999) > 0" % BPHY17BsDsPi.CascadeVertexCollections[0]
+expression += " || count(%s.x > -999) > 0" % BPHY17BsDsPiMuons.CascadeVertexCollections[0]
+expression += " || count(%s.x > -999) > 0" % BPHY17BsDsPi.ThreeVertexOutputContainer
+expression += " || count(%s.x > -999) > 0" % BPHY17BsDsPiMuons.ThreeVertexOutputContainer
+expression += " || count(%s.x > -999) > 0" % BPHY17BsDsMuSemiLepMuons.CascadeVertexCollections[0]
+expression += " || count(%s.x > -999) > 0" % BPHY17BsDsMuSemiLepMuons.ThreeVertexOutputContainer
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 BPHY17_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY17_SelectEvent",
                                                                 expression = expression)
 ToolSvc += BPHY17_SelectEvent
 print BPHY17_SelectEvent
 
-#--------------------------------------------------------------------
-## 6/ track and vertex thinning. We want to remove all reconstructed secondary vertices
-##    which hasn't passed any of the selections defined by (Select_*) tools.
-##    We also want to keep only tracks which are associates with either muons or any of the
-##    vertices that passed the selection. Multiple thinning tools can perform the 
-##    selection. The final thinning decision is based OR of all the decisions (by default,
-##    although it can be changed by the JO).
-
-## a) thining out vertices that didn't pass any selection and idetifying tracks associated with 
-##    selected vertices. The "VertexContainerNames" is a list of the vertex containers, and "PassFlags"
-##    contains all pass flags for Select_* tools that must be satisfied. The vertex is kept is it 
-##    satisfy any of the listed selections.
+MyVertexCollections = BPHY17BsDsPi.CascadeVertexCollections + BPHY17BsDsPiMuons.CascadeVertexCollections + BPHY17BsDsMuSemiLepMuons.CascadeVertexCollections + \
+                 [ BPHY17BsDsPi.ThreeVertexOutputContainer, BPHY17BsDsPiMuons.ThreeVertexOutputContainer, BPHY17BsDsMuSemiLepMuons.ThreeVertexOutputContainer ]
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
-BPHY17Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
-  name                       = "BPHY17Thin_vtxTrk",
+BPHY17_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
+  name                       = "BPHY17_thinningTool_Tracks",
   ThinningService            = "BPHY17ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BPHY17OniaCandidates"],
-  PassFlags                  = ["passed_Bmumu"] )
+  IgnoreFlags = True,
+  VertexContainerNames       = MyVertexCollections,
+  PassFlags                  = ["passed_DsPhiMM", "passed_DsPhiKK"] )
 
-ToolSvc += BPHY17Thin_vtxTrk
+ToolSvc += BPHY17_thinningTool_Tracks
 
-## b) thinning out tracks that are not attached to muons. The final thinning decision is based on the OR operation
-##    between decision from this and the previous tools.
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-BPHY17MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "BPHY17MuonTPThinningTool",
-                                                                         ThinningService         = "BPHY17ThinningSvc",
-                                                                         MuonKey                 = "Muons",
-                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += BPHY17MuonTPThinningTool
 
-# Added by ASC
 # Only save truth informtion directly associated with Onia
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY17TruthThinTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY17TruthThinTool",
@@ -161,13 +248,13 @@ print BPHY17TruthThinTool
 
 
 #====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
-## 7/ IMPORTANT bit. Don't forget to pass the tools to the DerivationKernel! If you don't do that, they will not be 
+## 7/ IMPORTANT bit. Don't forget to pass the tools to the DerivationKernel! If you don't do that, they will not be
 ##    be executed!
 
 # Added by ASC
-BPHY17ThinningTools = [BPHY17Thin_vtxTrk, BPHY17MuonTPThinningTool]
+BPHY17ThinningTools = [BPHY17_thinningTool_Tracks]
 if globalflags.DataSource()=='geant4':
     BPHY17ThinningTools.append(BPHY17TruthThinTool)
 
@@ -175,13 +262,14 @@ if globalflags.DataSource()=='geant4':
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY17Kernel",
-   AugmentationTools = [BPHY17_Reco_mumu, BPHY17_Select_B2mumu],
+   AugmentationTools = [BPHY17BsDsPi, BPHY17BsDsPiMuons, BPHY17BsDsMuSemiLepMuons, BPHY17_Select_DsPhiKK, BPHY17_Select_DsPhiMM, BPHY17_Select_DsPhiMMSemi],
    SkimmingTools     = [BPHY17_SelectEvent],
-   ThinningTools     = BPHY17ThinningTools
+   ThinningTools     = BPHY17ThinningTools,
+#   OutputLevel             = DEBUG
    )
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_BPHY17Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_BPHY17Stream )
@@ -196,7 +284,7 @@ svcMgr += createThinningSvc( svcName="BPHY17ThinningSvc", outStreams=[evtStream]
 
 
 #====================================================================
-# Slimming 
+# Slimming
 #====================================================================
 
 # Added by ASC
@@ -206,36 +294,22 @@ AllVariables = []
 StaticContent = []
 
 # Needed for trigger objects
-BPHY17SlimmingHelper.IncludeMuonTriggerContent = True
-BPHY17SlimmingHelper.IncludeBPhysTriggerContent = True
-
+BPHY17SlimmingHelper.IncludeBPhysTriggerContent = False
+BPHY17SlimmingHelper.IncludeMuonTriggerContent = False
 ## primary vertices
 AllVariables += ["PrimaryVertices"]
-StaticContent += ["xAOD::VertexContainer#BPHY17RefittedPrimaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#BPHY17RefittedPrimaryVerticesAux."]
+
+for f in MyVertexCollections + [BPHY17BsDsPi.RefPVContainerName, BPHY17BsDsPiMuons.RefPVContainerName + BPHY17BsDsMuSemiLepMuons.RefPVContainerName ]:
+   StaticContent += ["xAOD::VertexContainer#%s"        %                 f]
+   StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % f]
 
 ## ID track particles
 AllVariables += ["InDetTrackParticles"]
-
-## combined / extrapolated muon track particles 
-## (note: for tagged muons there is no extra TrackParticle collection since the ID tracks
-##        are store in InDetTrackParticles collection)
-AllVariables += ["CombinedMuonTrackParticles"]
-AllVariables += ["ExtrapolatedMuonTrackParticles"]
-
-## muon container
 AllVariables += ["Muons"]
 
-## Jpsi candidates 
-StaticContent += ["xAOD::VertexContainer#%s"        % BPHY17_Reco_mumu.OutputVtxContainerName]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY17_Reco_mumu.OutputVtxContainerName]
-## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY17_Reco_mumu.OutputVtxContainerName]
-
-# Added by ASC
 # Truth information for MC only
 if isSimulation:
-    AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
+    AllVariables += ["TruthEvents","TruthParticles","TruthVertices"]
 
 BPHY17SlimmingHelper.AllVariables = AllVariables
 BPHY17SlimmingHelper.StaticContent = StaticContent
