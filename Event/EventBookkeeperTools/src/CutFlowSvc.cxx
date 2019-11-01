@@ -392,7 +392,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID )
   double evtWeight=1.0;
 
   const xAOD::EventInfo* evtInfo = 0;
-  StatusCode sc = m_eventStore->retrieve(evtInfo);
+  StatusCode sc = m_eventStore->retrieve(evtInfo,"EventInfo");
   if ( sc.isFailure() || NULL == evtInfo ) {
     ATH_MSG_WARNING("Could not retrieve EventInfo from StoreGate  ");
     evtWeight=-1000.;
