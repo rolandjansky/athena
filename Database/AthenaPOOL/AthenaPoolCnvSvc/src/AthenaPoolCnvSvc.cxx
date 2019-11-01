@@ -441,6 +441,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          }
          IConverter* DHcnv = converter(ClassID_traits<DataHeader>::ID());
          bool dataHeaderSeen = false;
+         std::string dataHeaderID;
          while (num > 0 && strncmp(placementStr, "release", 7) != 0) {
             std::string objName = "ALL";
             if (m_useDetailChronoStat.value()) {
@@ -457,6 +458,8 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             className = className.substr(7, className.find(']') - 7);
             RootType classDesc = RootType::ByName(className);
             void* obj = nullptr;
+            std::ostringstream oss2;
+            oss2 << std::dec << num;
             std::string::size_type len = m_metadataContainerProp.value().size();
             if (len > 0 && contName.substr(0, len) == m_metadataContainerProp.value()
 		            && contName.substr(len, 1) == "(") {
@@ -474,9 +477,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   }
                   m_metadataClient = num;
                }
-               std::ostringstream oss2;
-               oss2 << std::dec << num;
-	       // Retrieve MetaDataSvc
+ 	       // Retrieve MetaDataSvc
 	       ServiceHandle<IMetadataTransition> metadataTransition("MetaDataSvc", name());
 	       ATH_CHECK(metadataTransition.retrieve());
 	       if(!metadataTransition->shmProxy(std::string(placementStr) + "[NUM=" + oss2.str() + "]").isSuccess()) {
@@ -492,13 +493,12 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   // Write object
                   Placement placement;
                   placement.fromString(placementStr); placementStr = nullptr;
-                  const Token* token = this->registerForWrite(&placement, obj, classDesc);
+                  std::unique_ptr<Token> token( registerForWrite(&placement, obj, classDesc) );
                   if (token == nullptr) {
                      ATH_MSG_ERROR("Failed to write Data for: " << className);
                      return abortSharedWrClients(num);
                   }
                   tokenStr = token->toString();
-                  delete token; token = nullptr;
 
                   if (className == "DataHeader_p6") {
                      // Found DataHeader
@@ -510,6 +510,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                         return abortSharedWrClients(num);
                      }
                      dataHeaderSeen = true;
+                     dataHeaderID = token->contID() + "/" + oss2.str();
                   } else if( dataHeaderSeen ) {
                      dataHeaderSeen = false;
                      // next object after DataHeader - may be a DataHeaderForm
@@ -517,14 +518,15 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                      if( className == "DataHeaderForm_p6") {
                         // Tell DataHeaderCnv that it should use a new DHForm 
                         GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
-                                               tokenStr, placement.auxString());
+                                               tokenStr, dataHeaderID);
                         if (!DHcnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
                            ATH_MSG_ERROR("Failed updateRepRefs for obj = " << tokenStr);
                            return abortSharedWrClients(num);
                         }
                      } else {
                         // Tell DataHeaderCnv that it should use the old DHForm 
-                        if( !DHcnv->updateRepRefs(nullptr, nullptr).isSuccess() ) {
+                        GenericAddress address(0,0, "", dataHeaderID);
+                        if( !DHcnv->updateRepRefs(&address, nullptr).isSuccess() ) {
                            ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
                            return abortSharedWrClients(num);
                         }
@@ -555,7 +557,8 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          }
          if( dataHeaderSeen ) {
             // DataHeader was the last object, need to tell the converter there is no DHForm coming
-            if( !DHcnv->updateRepRefs(nullptr, nullptr).isSuccess() ) {
+            GenericAddress address(0,0, "", dataHeaderID);
+            if( !DHcnv->updateRepRefs( &address, nullptr ).isSuccess() ) {
                ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
                return abortSharedWrClients(-1);
             }
