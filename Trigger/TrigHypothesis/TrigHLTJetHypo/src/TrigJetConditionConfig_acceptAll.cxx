@@ -18,3 +18,13 @@ ConditionMT TrigJetConditionConfig_acceptAll::getCondition() const {
 }
 
 
+
+bool TrigJetConditionConfig_acceptAll::addToCapacity(std::size_t cap) {
+  m_capacity  += cap;
+  return true;
+}
+
+
+std::size_t TrigJetConditionConfig_acceptAll::capacity() const {
+  return m_capacity;
+}

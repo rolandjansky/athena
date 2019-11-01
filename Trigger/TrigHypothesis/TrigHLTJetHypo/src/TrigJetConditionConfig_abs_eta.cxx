@@ -37,4 +37,11 @@ StatusCode TrigJetConditionConfig_abs_eta::checkVals() const {
   return StatusCode::SUCCESS;
 }
 
+bool TrigJetConditionConfig_abs_eta::addToCapacity(std::size_t) {
+  return false;
+}
+
+std::size_t TrigJetConditionConfig_abs_eta::capacity() const {
+  return getCondition()->capacity();
+}
 

@@ -11,6 +11,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetConditionConfig_dijet_mass,
     TrigJetConditionConfig_dijet_deta,
     TrigJetConditionConfig_dijet_dphi,
+    TrigJetConditionConfig_qjet_mass,
     TrigJetConditionConfig_moment,
     TrigJetConditionConfig_smc,
     TrigJetHypoToolConfig_flownetwork,
@@ -47,6 +48,7 @@ class ConditionsToolSetterTree(object):
             'djmass': [TrigJetConditionConfig_dijet_mass, 0],
             'djdphi': [TrigJetConditionConfig_dijet_dphi, 0],
             'djdeta': [TrigJetConditionConfig_dijet_deta, 0],
+            'qjmass': [TrigJetConditionConfig_qjet_mass, 0],
             'momwidth': [TrigJetConditionConfig_moment, 0],
             'smc': [TrigJetConditionConfig_smc, 0],
             'compound': [TrigJetConditionConfig_compound, 0],
@@ -73,6 +75,7 @@ class ConditionsToolSetterTree(object):
             'simple': self._mod_leaf,
             'etaet': self._mod_leaf,
             'dijet': self._mod_leaf,
+            'qjet': self._mod_leaf,
         }
 
         # map conaining parent child ids for the node
@@ -136,8 +139,8 @@ class ConditionsToolSetterTree(object):
         node.tool = tool
 
     def _mod_combgen(self, node):
-        """Set the HypoConfigTool instance for the 'not' scenario
-        this takes a single predicate"""
+        """Set the HypoConfigTool instance for the combgen or partgeen scenario
+        these take different condifiguration tools."""
 
         config_tool = self._get_tool_instance(node.scenario)  
 
@@ -149,8 +152,9 @@ class ConditionsToolSetterTree(object):
         # construct the matcher.
         config_tool.children = [child.tool for child in node.children]
 
+        nodestr = 'n%dp%d' % (node.node_id, node.parent_id)
+        helper_tool = self._get_tool_instance('combgen_helper', extra=nodestr)
 
-        helper_tool = self._get_tool_instance('combgen_helper')
         helper_tool.HypoConfigurer = config_tool
 
         helper_tool.node_id = node.node_id
@@ -220,7 +224,9 @@ class ConditionsToolSetterTree(object):
         compound_condition_tools = self._make_compound_condition_tools(node)
         config_tool.conditionMakers = compound_condition_tools
 
-        helper_tool = self._get_tool_instance('helper')
+        nodestr = 'n%dp%d' % (node.node_id, node.parent_id)
+        helper_tool = self._get_tool_instance('helper', extra=nodestr)
+
         helper_tool.HypoConfigurer = config_tool
         helper_tool.node_id = node.node_id
         helper_tool.parent_id = node.parent_id
