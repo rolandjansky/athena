@@ -40,7 +40,7 @@ def generateL1Menu(menu, cmdline):
         checkResult = os.system("get_files -xmls -symlink LVL1config.dtd > /dev/null")
         checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
         if checkResult == 0:
-            log.info("XML file %s is conform with LVL1config.dtd" % outfilename)
+            log.info("XML file %s is conform with LVL1config.dtd", outfilename)
         else:
             log.error("The XML does not follow the document type definition LVL1config.dtd")
 
@@ -70,7 +70,7 @@ def main():
             if not isinstance(menu,list):
                 menu = [menu]
             for m in menu:
-                l1menu = generateL1Menu(menu=m, cmdline=cmdline)
+                generateL1Menu(menu=m, cmdline=cmdline)
             break
 
     return 0
