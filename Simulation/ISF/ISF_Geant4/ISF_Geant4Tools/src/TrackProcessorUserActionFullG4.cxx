@@ -75,7 +75,6 @@ namespace G4UA{
       m_entryLayerMap["MUONQ02::MUONQ02"] = m_config.truthVolLevel+1;
       m_entryLayerMap["IDET::IDET"]       = m_config.truthVolLevel+1;
 
-      ::iGeant4::ISFG4GeoHelper::checkVolumeDepth( G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume() , m_config.truthVolLevel);
     }
 
     void TrackProcessorUserActionFullG4::ISFSteppingAction(const G4Step* aStep, ISF::ISFParticle *curISP)
