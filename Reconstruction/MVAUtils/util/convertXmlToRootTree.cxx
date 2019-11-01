@@ -3,9 +3,9 @@
 */
 
 #include "MVAUtils/BDT.h"
+#include "MVAUtils/TMVAToMVAUtils.h"
 #include "TMVA/Reader.h"
 #include "TMVA/MethodBDT.h"
-#include "TMVAToMVAUtils.h"
 
 #include <TString.h>
 #include <TXMLEngine.h>

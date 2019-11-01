@@ -10,7 +10,7 @@ atlas_depends_on_subdirs(
   Control/CxxUtils )
 
 # External dependencies for main lib:
-find_package( ROOT COMPONENTS Tree Core RIO)
+find_package( ROOT COMPONENTS Tree TMVA XMLIO Core MathCore RIO)
 
 # Component(s) in the package:
 atlas_add_library( MVAUtils
@@ -24,10 +24,7 @@ atlas_add_dictionary( MVAUtilsDict
                       MVAUtils/selection.xml
                       LINK_LIBRARIES egammaMVACalibLib )
 	      
-	      
 # External ROOT dependencies for utils :
-find_package( ROOT COMPONENTS Tree TMVA XMLIO Core MathCore RIO)
-#
 atlas_add_executable( convertXmlToRootTree util/convertXmlToRootTree.cxx
 		      INCLUDE_DIRS MVAUtils ${ROOT_INCLUDE_DIRS}
 		      LINK_LIBRARIES MVAUtils CxxUtils ${ROOT_LIBRARIES})

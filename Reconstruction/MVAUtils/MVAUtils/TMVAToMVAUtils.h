@@ -85,7 +85,7 @@ void newTree(const TMVA::DecisionTreeNode *node,
   }
 }
 
-std::unique_ptr<MVAUtils::BDT> convert(TMVA::MethodBDT* bdt, bool isRegression, bool useYesNoLeaf){
+std::unique_ptr<MVAUtils::BDT> convert(TMVA::MethodBDT* bdt, bool isRegression = true, bool useYesNoLeaf = false){
 
   float sumWeights=0; 
   float offset=bdt->GetBoostWeights().size() ? bdt->GetBoostWeights()[0] : 0.;  
