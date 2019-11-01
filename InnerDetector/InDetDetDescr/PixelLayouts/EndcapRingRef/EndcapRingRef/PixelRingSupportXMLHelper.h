@@ -35,6 +35,15 @@ class PixelRingSupportXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   std::vector<double> getLayerSupportRadiusAtIndex(int index) const;
   std::vector<double> getLayerSupportZAtIndex(int index) const;
   std::string getLayerSupportMaterialAtIndex(int index) const;
+
+  std::vector<int> getNbShellSupportIndex(int layer);
+  std::vector<double> getLayerShellRadius(int layer) const;
+  std::vector<double> getLayerShellZBounds(int layer) const;
+  std::vector<double> getCorrugatedShellZClearance(int layer) const;
+  double getCorrugatedCableClearance(int layer) const;
+  double getCorrugatedShellDepth(int layer) const;
+  double getLayerShellThickness(int layer) const;
+  std::string getLayerShellMaterial(int layer) const;
   
  private:
   int m_ringGeoIndex;

@@ -254,6 +254,7 @@ namespace InDet {
     std::vector<int>         nsectors;
     std::vector<std::string> splitMode;
     std::vector<double>      splitOffset;
+    std::vector<double>      inclination;   
     std::vector<std::string> readoutRegion;     // xml input
     std::vector<int>         readoutLayer;      // xml input
     std::vector<int>         readoutEta;        // calculated

@@ -61,6 +61,7 @@ class GeoPixelLayerECRingRefTool : virtual public IGeoPixelEndcapLayerTool, publ
   std::vector<GeoPixelRingECRingRef> m_ringListF;
   std::vector<GeoPixelRingECRingRef> m_ringListB;
   std::vector<double> m_ringPos;
+  std::vector<double> m_ringFBzshift;
 
   double getValueFromVector(std::vector<double> v, int i);
   int getValueFromVector(std::vector<int> v, int i);

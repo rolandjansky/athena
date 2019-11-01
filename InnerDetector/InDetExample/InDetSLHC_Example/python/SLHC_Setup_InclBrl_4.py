@@ -289,87 +289,29 @@ class SLHC_Setup :
         #validTool.PixelServicesTool = serviceTool
         #toolSvc+=validTool
         
-        if SLHC_Flags.LayoutOption == "InclinedAlternative":
-          print "******************************************************************************************"
-          print "PixelGeoModel - import GeoPixelLayerInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-          geoLayerOuterTool=GeoPixelLayerInclRefTool(name="OuterPixelLayerTool")
-          toolSvc+=geoLayerOuterTool
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
-          geoLayerInnerTool=GeoPixelLayerPlanarRefTool(name="InnerPixelLayerTool")
-          toolSvc+=geoLayerInnerTool
+        print "PixelGeoModel - import GeoPixelLayerInclRefTool"
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
+        geoLayerAlpineTool=GeoPixelLayerInclRefTool(name="AlpinePixelLayerTool")
+        toolSvc+=geoLayerAlpineTool
+        print "PixelGeoModel - import GeoPixelLayerPlanarRefTool"
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
+        geoLayerPlanarTool=GeoPixelLayerPlanarRefTool(name="PlanarPixelLayerTool")
+        toolSvc+=geoLayerPlanarTool
   
-          print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
-          geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
-          geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
-          geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
-          geoBarrelTool.MaxInnerLayerMax = 2
-          geoBarrelTool.PixelServicesTool = serviceTool
-          toolSvc+=geoBarrelTool
-        
-        elif SLHC_Flags.LayoutOption == "Light":
-          print "******************************************************************************************"
-          print "PixelGeoModel - import GeoPixelLayerInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-          geoLayerOuterTool=GeoPixelLayerInclRefTool(name="OuterPixelLayerTool")
-          toolSvc+=geoLayerOuterTool
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
-          geoLayerInnerTool=GeoPixelLayerPlanarRefTool(name="InnerPixelLayerTool")
-          toolSvc+=geoLayerInnerTool
-  
-          print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
-          geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
-          geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
-          geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
-          geoBarrelTool.MaxInnerLayerMax = 2
-          geoBarrelTool.PixelServicesTool = serviceTool
-          toolSvc+=geoBarrelTool
-        
-        elif SLHC_Flags.LayoutOption == "InclinedDuals" :
-          print "******************************************************************************************"
-          print "PixelGeoModel - import GeoPixelLayerInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-          geoLayerOuterTool=GeoPixelLayerInclRefTool(name="OuterPixelLayerTool")
-          toolSvc+=geoLayerOuterTool
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-          geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
-          toolSvc+=geoLayerInnerTool
-  
-          print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
-          geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
-          geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
-          geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
-          geoBarrelTool.MaxInnerLayerMax = 2
-          geoBarrelTool.PixelServicesTool = serviceTool
-          toolSvc+=geoBarrelTool
-        else :
-          print "******************************************************************************************"
-          print "PixelGeoModel - import GeoPixelLayerInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-          geoLayerOuterTool=GeoPixelLayerInclRefTool(name="OuterPixelLayerTool")
-          toolSvc+=geoLayerOuterTool
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
-          geoLayerInnerTool=GeoPixelLayerPlanarRefTool(name="InnerPixelLayerTool")
-          toolSvc+=geoLayerInnerTool
-  
-          print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
-          from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
-          geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
-          geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
-          geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
-          geoBarrelTool.MaxInnerLayerMax = 2
-          geoBarrelTool.PixelServicesTool = serviceTool
-          toolSvc+=geoBarrelTool
+        print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
+        geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
+        geoBarrelTool.PlanarPixelLayerTool = geoLayerPlanarTool
+        geoBarrelTool.AlpinePixelLayerTool = geoLayerAlpineTool
+        geoBarrelTool.PixelServicesTool = serviceTool
+        toolSvc+=geoBarrelTool
         
         print "******************************************************************************************"
         print "PixelGeoModel - import GeoPixelLayerECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelLayerECRingRefTool
         geoECLayerTool=GeoPixelLayerECRingRefTool(name="GeoPixelLayerECRingRefTool")
         toolSvc+=geoECLayerTool
-        
+ 
         print "PixelGeoModel - import GeoPixelEndcapECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelEndcapECRingRefTool
         geoEndcapTool=GeoPixelEndcapECRingRefTool(name="GeoPixelEndcapECRingRefTool")

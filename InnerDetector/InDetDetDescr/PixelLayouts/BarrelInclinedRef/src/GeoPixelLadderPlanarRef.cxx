@@ -53,10 +53,10 @@ GeoPixelLadderPlanarRef::GeoPixelLadderPlanarRef(const PixelGeoBuilderBasics* ba
 
   StatusCode sc = m_IDserviceTool.retrieve(); 
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
+    ATH_MSG_ERROR("Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built.");
   }
   else{
-    msg(MSG::INFO) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
+    ATH_MSG_INFO("Service builder tool retrieved: " << m_IDserviceTool);
   }
 
   // Build stave support and module
@@ -96,9 +96,9 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   // Get access to the service that defines the modules
   StatusCode sc = m_pixelModuleSvc.retrieve();
   if(sc.isFailure())
-      msg(MSG::INFO) << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << endreq;
+    ATH_MSG_ERROR( "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built.");
   else 
-      msg(MSG::INFO) << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << endreq;
+    ATH_MSG_INFO( "Pixel module builder tool retrieved: " << m_pixelModuleSvc);
 
    m_pixelModuleSvc->initModuleMap(getBasics());
    m_pixelDesignSvc->initModuleMap(getBasics());
@@ -106,7 +106,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   // Access stave description xml file				
   PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
-  printf("************** BUILD LADDER for layer  %d\n", m_layer);
+  ATH_MSG_DEBUG("************** BUILD LADDER for layer "<< m_layer);
 
   std::string staveType = m_staveTmp->type;
 
@@ -124,10 +124,10 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   m_staggerSign =  staveDBHelper.getStaggerSign();
   m_moduleCenterShift =  staveDBHelper.getCenterShift();
 
-  msg(MSG::INFO)<<"-- Barrel modules : "<<m_barrelModuleNumber<<" "<<m_barrelModuleType<<" / "<<staveType<<"  "<<m_barrelModuleDZ<<endreq;
+  ATH_MSG_DEBUG("-- Barrel modules : "<<m_barrelModuleNumber<<" "<<m_barrelModuleType<<" / "<<staveType<<"  "<<m_barrelModuleDZ);
 
   //  double phiOfSTaveZero = 0.;
-  msg(MSG::INFO)<<"xxxxxxxxxxxxx Get barrel module from builder : "<<m_barrelModuleType<<" / "<<staveType<<endreq;
+  ATH_MSG_DEBUG("xxxxxxxxxxxxx Get barrel module from builder : "<<m_barrelModuleType<<" / "<<staveType);
   m_barrelModule = m_pixelModuleSvc->getModule(getBasics(),0,m_layer,m_barrelModuleType);
   m_barrelModuleDesign = m_pixelDesignSvc->getDesign(getBasics(),m_barrelModuleType);
 
@@ -141,7 +141,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   // ----------------------------------------------------------------------------
   // Stave support service thickness
   // ----------------------------------------------------------------------------
-  msg(MSG::INFO)<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<endreq;
+  ATH_MSG_DEBUG("xxxxxxxxxxxxx Build stave support for layer : "<<m_layer);
   m_staveSupport = new GeoPixelStaveSupportInclRef(getBasics(),m_layer, *m_barrelModule); 
 
   // stave support thicknesses & width
@@ -170,9 +170,11 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   m_ladderShape = &shiftedBox;  
 
   const GeoMaterial* air = matMgr()->getMaterial("std::Air");
-  m_theLadder = new GeoLogVol("Ladder",m_ladderShape,air);
+  std::ostringstream ladderName; 
+  ladderName<<"_L"<<m_layer;
+  m_theLadder = new GeoLogVol(ladderName.str(),m_ladderShape,air);
 
-  msg(MSG::INFO)<<"LADDER size LxWxT "<<m_length<<" "<<m_width<<"  "<<2.*halfThickness<<endreq;
+  ATH_MSG_INFO("LADDER size LxWxT "<<m_length<<" "<<m_width<<"  "<<2.*halfThickness);
 
   // ----------------------------------------------------------------------------
   // Register the number of mopdules defined for a stave
@@ -300,7 +302,7 @@ GeoVPhysVol* GeoPixelLadderPlanarRef::Build() {
       
       // Build and place the module
       std::ostringstream nameTag; 
-      nameTag << "ModuleBrl" << etaModule;
+      nameTag << "ModuleBrl_L" <<m_layer<<"_"<<etaModule;
       GeoNameTag * tag = new GeoNameTag(nameTag.str());
       HepGeom::Transform3D modTrans = (m_staveSupport->getSvcRoutingPos()=="inner") ? 
 	   HepGeom::RotateZ3D(180.*CLHEP::deg)*HepGeom::Transform3D(rm,modulepos) : HepGeom::Transform3D(rm,modulepos);
