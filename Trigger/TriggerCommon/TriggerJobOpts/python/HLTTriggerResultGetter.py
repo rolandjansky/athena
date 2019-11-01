@@ -26,17 +26,23 @@ def  EDMDecodingVersion():
         import eformat
         from libpyeformat_helper import SubDetector
         bs = eformat.istream(inputFileName)
-        hltRobs = [robf for robf in bs[0].robs()[0] if robf.rob_source_id().subdetector_id()==SubDetector.TDAQ_HLT]
+
         rodVersionM = -1
         rodVersionL = -1
-        if len(hltRobs) == 0:
-            log.warning("Cannot determine HLT ROD version from input file, falling back to runNumber-based decision")
-        else:
-            rodVersionM = hltRobs[0].rod_minor_version() >> 8
-            rodVersionL = hltRobs[0].rod_minor_version() & 0xFF
-            log.debug("HLT ROD minor version from input file is %d.%d", rodVersionM, rodVersionL)
+        # Do an empty loop over all robs to work around memory allocation problem ATR-20480
+        for robf in bs[0].robs()[0]:
+            pass
+        # Find the first HLT ROBFragment in the first event
+        for robf in bs[0].robs()[0]:
+            if robf.rob_source_id().subdetector_id()==SubDetector.TDAQ_HLT:
+                rodVersionM = robf.rod_minor_version() >> 8
+                rodVersionL = robf.rod_minor_version() & 0xFF
+                log.debug("HLT ROD minor version from input file is %d.%d", rodVersionM, rodVersionL)
+                break
 
-        if rodVersionM >= 1:
+        if rodVersionM < 0 or rodVersionL < 0:
+            log.warning("Cannot determine HLT ROD version from input file, falling back to runNumber-based decision")
+        elif rodVersionM >= 1:
             TriggerFlags.EDMDecodingVersion = 3
             log.info("Decoding version set to 3, because running on BS file with HLT ROD version %d.%d", rodVersionM, rodVersionL)
             return
@@ -71,15 +77,24 @@ def  EDMDecodingVersion():
     else:
         # POOL files: decide based on HLT output type present in file
         from RecExConfig.ObjKeyStore import cfgKeyStore
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        cfgKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+
         TriggerFlags.doMergedHLTResult = True
         if cfgKeyStore.isInInputFile( "HLT::HLTResult", "HLTResult_EF" ):
             TriggerFlags.EDMDecodingVersion = 1
             TriggerFlags.doMergedHLTResult = False
-            log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
+            log.info("Decoding version set to 1, because HLTResult_EF found in POOL file")
         elif cfgKeyStore.isInInputFile( "HLT::HLTResult", "HLTResult_HLT"):
             TriggerFlags.EDMDecodingVersion = 2
+            log.info("Decoding version set to 2, because HLTResult_HLT found in POOL file")
         elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTNav_Summary"):
             TriggerFlags.EDMDecodingVersion = 3
+            log.info("Decoding version set to 3, because HLTNav_Summary found in POOL file")
+        elif rec.readAOD() and cfgKeyStore.isInInputFile( "xAOD::TrigNavigation", "TrigNavigation"):
+            # If running on AOD input (e.g. for monitoring), there is not HLTResult, so check for TrigNavigation
+            TriggerFlags.EDMDecodingVersion = 2
+            log.info("Decoding version set to 2, because TrigNavigation found in POOL file")
         elif rec.readRDO():
             # If running Trigger on RDO input (without previous trigger result), choose Run-2 or Run-3 based on doMT
             if TriggerFlags.doMT():
@@ -91,7 +106,6 @@ def  EDMDecodingVersion():
         else:
             log.warning("Cannot recognise HLT EDM format, leaving default TriggerFlags.EDMDecodingVersion=%d", TriggerFlags.EDMDecodingVersion())
 
-        log.info("EDMDecoding set to %s based on HLT output type in POOL file", TriggerFlags.EDMDecodingVersion )
 
 class xAODConversionGetter(Configured):
     def configure(self):
@@ -383,6 +397,17 @@ class HLTTriggerResultGetter(Configured):
                 tdt = TrigDecisionGetterRun2()  # noqa: F841
             else:
                 tdt = TrigDecisionGetter()  # noqa: F841
+
+        # Temporary hack to add Run-3 navigation to ESD and AOD
+        if (rec.doESD() or rec.doAOD()) and TriggerFlags.EDMDecodingVersion() == 3:
+            # The hack with wildcards is needed for BS->ESD because we don't know the exact keys
+            # of HLT navigation containers before unpacking them from the BS event.
+            objKeyStore._store['streamESD'].allowWildCard(True)
+            objKeyStore._store['streamAOD'].allowWildCard(True)
+            objKeyStore.addManyTypesStreamESD(['xAOD::TrigCompositeContainer#HLTNav*',
+                                               'xAOD::TrigCompositeAuxContainer#HLTNav*'])
+            objKeyStore.addManyTypesStreamAOD(['xAOD::TrigCompositeContainer#HLTNav*',
+                                               'xAOD::TrigCompositeAuxContainer#HLTNav*'])
 
         # TrigJetRec additions
         if rec.doWriteESD():
