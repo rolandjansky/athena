@@ -273,6 +273,11 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += DFCommonTruthDressedWZQGLabelTool
         augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
+    # SUSY signal decorations
+    from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+    if IsSUSYSignal():
+        from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
+        augmentationToolsList += [DecorateSUSYProcess('MCTruthCommon')]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -295,6 +300,16 @@ def addStandardTruthContents(kernel=None,
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
     # Add back the navigation contect for the collections we want
     addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"])
+    # Some more additions for standard TRUTH3
+    addWbosonsAndDownstreamParticles(kernel)
+    addLargeRJetD2(kernel)
+    # Special collection for BSM particles
+    addBSMAndDownstreamParticles(kernel)
+    # Special collection for Born leptons
+    addBornLeptonCollection(kernel)
+    # Special collection for hard scatter (matrix element) - save TWO extra generations of particles
+    addHardScatterCollection(kernel,2)
+
 
 def addParentAndDownstreamParticles(kernel=None,
                                     generations=1,
@@ -556,8 +571,13 @@ def addTruth3ContentToSlimmerTool(slimmer):
         "TruthBottom",
         "TruthTop",
         "TruthBoson",
+        "BornLeptons",
         "TruthWbosonWithDecayParticles",
         "TruthWbosonWithDecayVertices",
+        "TruthBSMWithDecayParticles",
+        "TruthBSMWithDecayVertices",
+        "HardScatterParticles",
+        "HardScatterVertices",
     ]
     slimmer.ExtraVariables += [
         "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",

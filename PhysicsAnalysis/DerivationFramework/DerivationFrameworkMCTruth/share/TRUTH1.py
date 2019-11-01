@@ -7,19 +7,10 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth
 # Add all the particle derivation tools
 # This sets up its own common kernel and adds the common tools to it
-from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addLargeRJetD2
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
 addStandardTruthContents()
-addLargeRJetD2()
 # Extra classifiers for the Higgs group
 import DerivationFrameworkHiggs.TruthCategories
-# Extra classifiers for the SUSY group
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3KernelSigAug",
-                                                             AugmentationTools = DecorateSUSYProcess("TRUTH3")
-                                                             )
 
 #==============================================================================
 # HEAVY FLAVOR DECORATIONS (ttbar)
