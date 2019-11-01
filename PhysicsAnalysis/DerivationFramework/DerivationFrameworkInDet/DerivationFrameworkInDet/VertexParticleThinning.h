@@ -15,8 +15,13 @@
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-namespace ExpressionParsing {
+namespace ExpressionParsing 
+{
   class ExpressionParser;
+}
+namespace InDet
+{
+  class IInDetTrackSelectionTool;
 }
 
 class IThinningSvc;
@@ -33,11 +38,17 @@ namespace DerivationFramework {
 
     private:
       ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntot, m_npass;
+      mutable unsigned int m_ntot, m_npass; // TODO: fix mutable r22; issue is that doThinning() is a const function
+      mutable unsigned int m_nVtxTot,m_nVtxPass; // TODO: fix mutable r22; issue is that doThinning() is a const function
       std::string m_vertexSGKey, m_inDetSGKey, m_selectionString;
+      ToolHandle< InDet::IInDetTrackSelectionTool > m_trkSelTool;
+      unsigned int m_minGoodTracks; // Minimum number of tracks in a vertex passing TrackSelectionTool
       bool m_and;
       ExpressionParsing::ExpressionParser *m_parser;
+
+
   }; 
 }
 
 #endif // DERIVATIONFRAMEWORK_JETTRACKPARTICLETHINNING_H
+
