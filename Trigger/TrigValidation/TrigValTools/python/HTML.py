@@ -144,7 +144,7 @@ class TAG:
         if isinstance(other,str):
             return TEXT(other)+self
         else:
-            raise ValueError,"Can't concatenate %s and instance" %other
+            raise ValueError("Can't concatenate %s and instance" %other)
 
     def __mul__(self,n):
         """Replicate self n times"""

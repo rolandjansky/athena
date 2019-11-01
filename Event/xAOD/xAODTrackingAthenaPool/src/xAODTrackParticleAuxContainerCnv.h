@@ -18,10 +18,12 @@
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
 #include "xAODTrackParticleAuxContainerCnv_v2.h"
 #include "xAODTrackParticleAuxContainerCnv_v3.h"
+#include "xAODTrackParticleAuxContainerCnv_v4.h"
 
 
 /// Base class for the converter
 typedef T_AthenaPoolAuxContainerCnv<xAOD::TrackParticleAuxContainer,
+                                    xAODTrackParticleAuxContainerCnv_v4,
                                     xAODTrackParticleAuxContainerCnv_v3,
                                     xAODTrackParticleAuxContainerCnv_v2,
                                     xAODTrackParticleAuxContainerCnv_v1>

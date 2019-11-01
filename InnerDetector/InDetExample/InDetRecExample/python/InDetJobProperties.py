@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -1242,7 +1242,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBeamGas              , True )
        self.checkThenSet(self.doBeamHalo             , True )
        self.checkThenSet(self.doParticleCreation     , True )
-       self.checkThenSet(self.doTRTPhaseCalculation  , True )
+       self.checkThenSet(self.doTRTPhaseCalculation  , False)
        self.checkThenSet(self.doTRTStandalone        , True)
        self.checkThenSet(self.doForwardTracks        , False)
        self.checkThenSet(self.doxKalman              , False)
@@ -1581,8 +1581,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doxKalman              , False)
        self.checkThenSet(self.doiPatRec              , False)
        # --- enable phase for collisions by default
-       self.checkThenSet(self.doTRTPhaseCalculation  , True )       
-
+       self.checkThenSet(self.doTRTPhaseCalculation  , False )
+       
        # --- new setup for MinBias tracking
        if self.doMinBias():
           # --- run TRT only tracking over the entire detector

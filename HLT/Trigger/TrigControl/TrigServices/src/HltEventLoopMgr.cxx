@@ -121,16 +121,17 @@ StatusCode HltEventLoopMgr::initialize()
   updateDFProps();
 
   // print properties
-  ATH_MSG_INFO(" ---> ApplicationName         = " << m_applicationName);
-  ATH_MSG_INFO(" ---> HardTimeout             = " << m_hardTimeout.value());
-  ATH_MSG_INFO(" ---> SoftTimeoutFraction     = " << m_softTimeoutFraction.value());
-  ATH_MSG_INFO(" ---> SoftTimeoutValue        = " << m_softTimeoutValue);
-  ATH_MSG_INFO(" ---> MaxFrameworkErrors      = " << m_maxFrameworkErrors.value());
-  ATH_MSG_INFO(" ---> FwkErrorDebugStreamName = " << m_fwkErrorDebugStreamName.value());
-  ATH_MSG_INFO(" ---> AlgErrorDebugStreamName = " << m_algErrorDebugStreamName.value());
-  ATH_MSG_INFO(" ---> TimeoutDebugStreamName  = " << m_timeoutDebugStreamName.value());
-  ATH_MSG_INFO(" ---> EventContextWHKey       = " << m_eventContextWHKey.key());
-  ATH_MSG_INFO(" ---> EventInfoRHKey          = " << m_eventInfoRHKey.key());
+  ATH_MSG_INFO(" ---> ApplicationName           = " << m_applicationName);
+  ATH_MSG_INFO(" ---> HardTimeout               = " << m_hardTimeout.value());
+  ATH_MSG_INFO(" ---> SoftTimeoutFraction       = " << m_softTimeoutFraction.value());
+  ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue);
+  ATH_MSG_INFO(" ---> MaxFrameworkErrors        = " << m_maxFrameworkErrors.value());
+  ATH_MSG_INFO(" ---> FwkErrorDebugStreamName   = " << m_fwkErrorDebugStreamName.value());
+  ATH_MSG_INFO(" ---> AlgErrorDebugStreamName   = " << m_algErrorDebugStreamName.value());
+  ATH_MSG_INFO(" ---> TimeoutDebugStreamName    = " << m_timeoutDebugStreamName.value());
+  ATH_MSG_INFO(" ---> TruncationDebugStreamName = " << m_truncationDebugStreamName.value());
+  ATH_MSG_INFO(" ---> EventContextWHKey         = " << m_eventContextWHKey.key());
+  ATH_MSG_INFO(" ---> EventInfoRHKey            = " << m_eventInfoRHKey.key());
 
   ATH_CHECK( m_jobOptionsSvc.retrieve() );
   const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
@@ -1015,6 +1016,9 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     case hltonl::PSCErrorCode::TIMEOUT:
       hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true});
       break;
+    case hltonl::PSCErrorCode::RESULT_TRUNCATION:
+      hltResultWH->addStreamTag({m_truncationDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      break;
     default:
       hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
       break;
@@ -1069,8 +1073,10 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   // Finish handling the failed event
   //----------------------------------------------------------------------------
 
-  // Unless this is a timeout or processing (i.e. algorithm) failure, increment the number of framework failures
-  if (errorCode != hltonl::PSCErrorCode::TIMEOUT && errorCode != hltonl::PSCErrorCode::PROCESSING_FAILURE) {
+  // Unless this is a timeout, truncation or processing (i.e. algorithm) failure, increment the number of framework failures
+  if (errorCode != hltonl::PSCErrorCode::TIMEOUT
+      && errorCode != hltonl::PSCErrorCode::RESULT_TRUNCATION
+      && errorCode != hltonl::PSCErrorCode::PROCESSING_FAILURE) {
     if ( (++m_nFrameworkErrors)>m_maxFrameworkErrors.value() ) {
       ATH_MSG_ERROR("Failure with PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode)
         << " was successfully handled, but the number of tolerable framework errors for this HltEventLoopMgr instance,"
@@ -1229,6 +1235,11 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     if (!hltResultDO) markFailed();
     HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the HLTResult DataObject",
                          hltonl::PSCErrorCode::NO_HLT_RESULT, *thisFinishedEvtContext);
+
+    // Check for result truncation
+    if (!hltResult->getTruncatedModuleIds().empty()) markFailed();
+    HLT_DRAINSCHED_CHECK(sc, "HLT result truncation",
+                         hltonl::PSCErrorCode::RESULT_TRUNCATION, *thisFinishedEvtContext);
 
     // Convert the HLT result to the output data format
     IOpaqueAddress* addr = nullptr;

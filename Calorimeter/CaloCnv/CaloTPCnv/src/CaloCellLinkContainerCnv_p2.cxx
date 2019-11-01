@@ -12,6 +12,9 @@
 
 #include "AthLinks/ElementLink.h"
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
+#include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/errorcheck.h"
 
 #include "AthenaKernel/IThinningSvc.h"
@@ -211,6 +214,8 @@ CaloCellLinkContainerCnv_p2::transToPersWithKey (const CaloCellLinkContainer* tr
   IThinningSvc * thinningSvc = IThinningSvc::instance();
   const bool thinning = thinningSvc && thinningSvc->thinningOccurred();
 
+  const SG::ThinningCache* thinningCache = SG::getThinningCache();
+
   // Declare this outside the loop to save on memory allocations.
   std::vector<cell_t> cells;
   for (unsigned int iCluster = 0; iCluster < nclus; ++iCluster) {
@@ -262,6 +267,25 @@ CaloCellLinkContainerCnv_p2::transToPersWithKey (const CaloCellLinkContainer* tr
 	     //			       << " cell index changed from  "<< index << " to " <<persIdx <<endmsg ;
             index = persIdx;
 	  }
+      }
+
+      // Handle thinning.
+      if (thinningCache){
+        const SG::ThinningDecisionBase* dec =
+          thinningCache->thinning (citer->first.key());
+        if (dec) {
+          size_t persIdx = dec->index (index);
+
+          if( SG::ThinningDecisionBase::RemovedIdx == persIdx ) {
+            // Cell index has been thinned away; skip all cells.
+            cells.clear();
+            break; 
+
+          }else
+	  {
+            index = persIdx;
+	  }
+        }
       }
 
       SG::sgkey_t key = citer->first.key();

@@ -13,7 +13,6 @@ def parseCmdLine():
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="count", default=0)
     parser.add_argument("-x", "--xml", dest="writeXML", help="enable xml file creation (currently not implemented)", action="store_true", default=False)
     parser.add_argument("--destdir", dest="dest", help="directory for output files", default = "./")
-    parser.add_argument("--ftk", help="include FTK chains in the menu", action="store_true")
     return parser.parse_args()
     
 
@@ -28,8 +27,6 @@ def generateL1Menu(menu, cmdline):
     # setup
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.triggerMenuSetup = menu
-    TriggerFlags.doFTK = cmdline.ftk
-    log.info("doFTK: %s " % TriggerFlags.doFTK())
 
     # L1 menu generation
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig

@@ -199,7 +199,10 @@ def TrigInDetCondConfig( flags ):
   acc.merge( mfsc )
   return acc
 
-def TrigInDetConfig( flags, roisKey="EMRoIs" ):
+def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
+  #If signature specified add suffix to the name of each algorithms
+  signature =  "_" + signatureName if signatureName else ''
+
   acc = ComponentAccumulator()
   acc.merge(TrigInDetCondConfig(flags))
 
@@ -211,18 +214,18 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
     #Pixel
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
-    InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder")
+    InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
     acc.addPublicTool(InDetPixelRodDecoder)
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
-    InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool",
+    InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool"+ signature,
                                                              Decoder = InDetPixelRodDecoder)
     acc.addPublicTool(InDetPixelRawDataProviderTool)
 
 
     # load the PixelRawDataProvider
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
-    InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
+    InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
                                                      RDOKey       = InDetKeys.PixelRDOs(),
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
 
@@ -236,17 +239,17 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder")
+    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder"+ signature)
     acc.addPublicTool(InDetSCTRodDecoder)
 
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
-    InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
+    InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool"+ signature,
                                                          Decoder = InDetSCTRodDecoder)
     acc.addPublicTool(InDetSCTRawDataProviderTool)
 
     # load the SCTRawDataProvider
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
-    InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
+    InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider"+ signature,
                                                  RDOKey       = InDetKeys.SCT_RDOs(),
                                                  ProviderTool = InDetSCTRawDataProviderTool, )
 
@@ -258,7 +261,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
     # load the SCTEventFlagWriter
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTEventFlagWriter
-    InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter")
+    InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter"+ signature)
 
     acc.addEventAlgo(InDetSCTEventFlagWriter)
 
@@ -269,7 +272,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
     acc.addService(InDetTRTCalDbSvc)
 
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
+    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc"+ signature)
     acc.addService(InDetTRTStrawStatusSummarySvc)
 
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
@@ -278,14 +281,14 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
     acc.addPublicTool(InDetTRTRodDecoder)
 
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
-    InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
+    InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool"+ signature,
                                                          Decoder = InDetTRTRodDecoder)
     acc.addPublicTool(InDetTRTRawDataProviderTool)
 
 
     # load the TRTRawDataProvider
     from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
-    InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
+    InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider"+ signature,
                                                  RDOKey       = "TRT_RDOs",
                                                  ProviderTool = InDetTRTRawDataProviderTool)
     InDetTRTRawDataProvider.isRoI_Seeded = True
@@ -296,13 +299,13 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
   #Pixel clusterisation
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool")
+  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool"+ signature)
 
   acc.addPublicTool(InDetClusterMakerTool)
 
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool",
+  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool"+ signature,
                                                   globalPosAlg            = InDetClusterMakerTool,
                                                   MinimalSplitSize        = 0,
                                                   MaximalSplitSize        = 49,
@@ -312,11 +315,11 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
   acc.addPublicTool(InDetMergedPixelsTool)
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
-  InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder")
+  InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder"+ signature)
   acc.addPublicTool(InDetPixelGangedAmbiguitiesFinder)
 
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
-  InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
+  InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization"+ signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
@@ -335,7 +338,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool")
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool"+ signature)
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   condTools = []
@@ -344,7 +347,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
     if condTool not in condTools:
       if condTool != InDetSCT_FlaggedConditionTool.getFullName():
         condTools.append(condTool)
-  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged"+ signature)
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
@@ -353,7 +356,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
   # --- SCT_ClusteringTool (public)
   #
   from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
-  InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
+  InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool"+ signature,
                                                       globalPosAlg      = InDetClusterMakerTool,
                                                       conditionsTool    = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   #
@@ -361,7 +364,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
   #
 
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
-  InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
+  InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization"+ signature,
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
@@ -377,12 +380,12 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
   #Space points and FTF
 
   from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
-  InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
+  InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
   acc.addPublicTool(InDetSiSpacePointMakerTool)
 
   from AthenaCommon.DetFlags import DetFlags
   from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
-  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
+  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder"+ signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = "PixelTrigClusters",
                                                                     SCT_ClustersName       = "SCT_TrigClusters",
@@ -418,13 +421,13 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
   return acc
 
-def indetInViewRecoCfg( flags, viewMakerName ):
+def indetInViewRecoCfg( flags, viewMakerName, signature='' ):
   """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now 
   There would certainly be additional algorithms
   """  
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )
-  algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs )
+  algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs, signatureName=signature )
 
   reco.mergeReco( algAcc )  
   return reco

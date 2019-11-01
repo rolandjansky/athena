@@ -17,7 +17,7 @@ class TGCHitPattern;
 
 class TGCDoubletSB: public TGCSlaveBoard {
 public:
-  TGCDoubletSB();
+  TGCDoubletSB( TGCArguments* );
   virtual ~TGCDoubletSB();
 
 protected:

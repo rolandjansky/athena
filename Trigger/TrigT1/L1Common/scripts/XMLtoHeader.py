@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 import os.path
 import sys
 import getopt
@@ -25,7 +25,7 @@ for opt,arg in opts:
     elif opt in ['-o','--outputNames']:
         outputNames = arg
     else:
-        print "option %s not known.." % opt
+        print("option %s not known.." % opt)
         
         
         
@@ -46,7 +46,6 @@ if 'L1Common' in os.path.basename(outputNames):
     versionDict = {'v0':'Before long shutdown I (before 2015)', 'v1': 'Version after long shutdown I'}
     
     
-versionDict.keys().sort()
 #print versionDict.keys()
 message_missingElement = 'Concerning child #{number}: Sorry, no {element} specified. This is a necessary element. Please make sure to specify it in the config file.'
 
@@ -69,7 +68,7 @@ for child in root:
     if child.find('name') is None:
         #print message_missingElement.format(number=childIndex, element='name')
         exit(1)
-    elif child.find('name').text[1:-1] in nameVersionsDict.keys():
+    elif child.find('name').text[1:-1] in nameVersionsDict:
         nameVersionsDict[child.find('name').text[1:-1]].append(child.attrib['ns'])
     else:
         versionList = [child.attrib['ns']]
@@ -77,7 +76,7 @@ for child in root:
 
 #print nameVersionsDict
 staticList = [] #parameters that didn't change so far
-for name in nameVersionsDict.keys():
+for name in nameVersionsDict:
     if len(nameVersionsDict[name])==1:
         staticList.append(name)
     for vers in nameVersionsDict[name]:
@@ -93,7 +92,7 @@ for name in nameVersionsDict.keys():
 numChangeVersionDict = {}
 numChangeVersionDict['v0'] = 0
 changedParameterNames = []
-for v in versionDict.keys()[1:]:
+for v in list(versionDict)[1:]:
     childIndex = 0
     for child in root:
         childIndex +=1
@@ -166,7 +165,7 @@ def CreateFiles(time):
     #-------------------------------------------------------
     # write one file/one constructor part for each version
     #-------------------------------------------------------
-    for v in versionDict.keys():
+    for v in versionDict:
         
         if (v!='v0'):
             changedValuesDict[v] = []
@@ -190,7 +189,7 @@ def CreateFiles(time):
             childIndex=childIndex+1
             #print 'looking at child #', childIndex
             
-            if child.attrib['ns'] not in versionDict.keys():
+            if child.attrib['ns'] not in versionDict:
                 #print 'Version ID ', child.attrib['ns'], ' not recognised. Should be one of ', versionDict.keys()
                 exit(1)
             
@@ -218,15 +217,15 @@ def CreateFiles(time):
             #get latest version of parameter for the required CTP version
             #-------------------------------------------------------------
             
-            if versionDict.keys().index( child.attrib['ns'] )>versionDict.keys().index(v):
+            if list(versionDict).index( child.attrib['ns'] )>list(versionDict).index(v):
                 #print 'Version (' , child.attrib['ns'] , ') is beyond what we are looking for right now (' , v, ') . Skipping.' 
                 continue
             
             tmp_v=v
             while tmp_v not in nameVersionsDict[child.find('name').text[1:-1]]:
                 #print tmp_v, 'is not contained in ', nameVersionsDict[child.find('name').text[1:-1]]
-                index = versionDict.keys().index(tmp_v)
-                tmp_v=versionDict.keys()[index-1]
+                index = list(versionDict).index(tmp_v)
+                tmp_v = list(versionDict)[index-1]
                 #print '--> Going to write ' , tmp_v , ' instead'
             
             if tmp_v!='v0':
@@ -348,7 +347,7 @@ def CreateFiles(time):
     #dumpString += '        s << \"|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\" << std::endl;\n\n';
     dumpString += '        return s.str();\n\n    }'
 
-    nVersions = len(versionDict.keys())
+    nVersions = len(versionDict)
    
     #access function
     selection= '        if (version>=' + str(nVersions)+') {\n';
@@ -358,7 +357,7 @@ def CreateFiles(time):
 
     
     versionInt = 1
-    for v in changedValuesDict.keys():
+    for v in changedValuesDict:
         selection += '        if (version==' + str(versionInt) + ' ) {\n'
         for pair in changedValuesDict[v]:
             if ',' in pair[1]:
@@ -374,7 +373,7 @@ def CreateFiles(time):
             
         selection += '        }\n\n'
         versionInt+=1
-        numberOfChanges = len(changedValuesDict.keys())
+        numberOfChanges = len(changedValuesDict)
         
    
     baseHeader.write(protectedString+'\n\n')

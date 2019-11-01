@@ -46,25 +46,26 @@ Trk::PosteriorWeightsCalculator::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<Trk::MultiComponentState>
+std::unique_ptr<std::vector<Trk::ComponentParameters>>
 Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedState,
                                          const MeasurementBase& measurement) const
 {
 
   ATH_MSG_VERBOSE("Calculating Posterior Weights");
-
-  if (predictedState.empty()) {
+  const size_t predictedStateSize=predictedState.size();
+  if (predictedStateSize==0) {
     ATH_MSG_WARNING("Predicted state is empty... Exiting!");
     return nullptr;
   }
 
   ATH_MSG_VERBOSE("State for update is valid!");
 
-  std::unique_ptr<Trk::MultiComponentState> returnMultiComponentState = std::make_unique<Trk::MultiComponentState>();
-
+  std::unique_ptr< std::vector<Trk::ComponentParameters> > returnMultiComponentState = std::make_unique<std::vector<Trk::ComponentParameters> >();
   std::vector<double> componentDeterminantR;
   std::vector<double> componentChi2;
-
+  returnMultiComponentState->reserve(predictedStateSize);
+  componentDeterminantR.reserve(predictedStateSize);
+  componentChi2.reserve(predictedStateSize);
   // Calculate chi2 and determinant of each component.
   double minimumChi2(10.e10); // Initalise high
 
@@ -179,7 +180,7 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
       updatedWeight = 1e-10;
 
     ATH_MSG_VERBOSE(" Prior Weight: " << priorWeight << "  Updated Weight:  " << updatedWeight);
-    Trk::ComponentParameters componentWithNewWeight(component->first->clone(), updatedWeight);
+    Trk::ComponentParameters componentWithNewWeight(component->first, updatedWeight);
     returnMultiComponentState->push_back(componentWithNewWeight);
     sumWeights += updatedWeight;
   }

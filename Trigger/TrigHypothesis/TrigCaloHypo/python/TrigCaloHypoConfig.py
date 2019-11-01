@@ -18,34 +18,14 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
 
         self.Etcut = ef_thr
         self.BadFEBCut=3
-        if 'COMP200' not in conddb.GetInstance() and not conddb.isMC:
-           if not hasattr(svcMgr.ToolSvc, "KnownBADFEBsTool"):
-              theBadFebTool=LArBadChanLegacyTool("KnownBADFEBsTool")
-              theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownBADFEBs"
-              havefolder=False
-              for fld in conddb.iovdbsvc.Folders:
-                 if "KnownBADFEBs" in fld: havefolder=True
-              pass
-              if not havefolder:
-                 conddb.addFolder("LAR_ONL","/LAR/BadChannels/KnownBADFEBs")   
-              svcMgr.ToolSvc+=theBadFebTool
-           else:
-              theBadFebTool=svcMgr.ToolSvc.KnownBADFEBsTool
-           if not hasattr(svcMgr.ToolSvc, "KnownMNBFEBsTool"):
-              theMNBFebTool=LArBadChanLegacyTool("KnownMNBFEBsTool")
-              theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
-              havefolder=False
-              for fld in conddb.iovdbsvc.Folders:
-                 if "KnownMNBFEBs" in fld: havefolder=True
-              pass
-              if not havefolder:
-                 conddb.addFolder("LAR_ONL","/LAR/BadChannels/KnownMNBFEBs")   
-              svcMgr.ToolSvc+=theMNBFebTool
-           else:
-              theMNBFebTool=svcMgr.ToolSvc.KnownMNBFEBsTool
-           theLArNoisyROTool=LArNoisyROTool(SaturatedCellTightCut=20,MNBLooseCut=5,MNBTightCut=17,KnownBADFEBsTool=theBadFebTool,KnownMNBFEBsTool=theMNBFebTool)
-        else:   
-           theLArNoisyROTool=LArNoisyROTool(SaturatedCellTightCut=20,MNBLooseCut=5,MNBTightCut=17)
+        from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+        conddb.addFolder(LAR_ONL,"/LAR/BadChannels/KnownBADFEBs", className="AthenaAttributeList")
+        conddb.addFolder(LAR_ONL,"/LAR/BadChannels/KnownMNBFEBs", className="AthenaAttributeList")
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq+=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey="/LAR/BadChannels/KnownBADFEBs",WriteKey="LArKnownBadFEBs")
+        condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="/LAR/BadChannels/KnownMNBFEBs",WriteKey="LArKnownMNBFEBs")
+        theLArNoisyROTool=LArNoisyROTool(SaturatedCellTightCut=20,MNBLooseCut=5,MNBTightCut=17)
         self.NoiseTool = theLArNoisyROTool
 
 from TrigCaloHypo.TrigCaloHypoConf import TrigL2JetHypo

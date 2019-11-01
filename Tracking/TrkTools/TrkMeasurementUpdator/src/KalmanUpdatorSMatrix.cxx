@@ -1229,7 +1229,7 @@ Trk::KalmanUpdatorSMatrix::convertToClonedTrackPars(const Trk::TrackParameters& 
                                                     const SCovMatrix5& covpar,
                                                     const int& sign,
                                                     const bool& createFQoS,
-                                                    const std::string& ndtext) const {
+                                                    std::string_view ndtext) const {
   AmgSymMatrix(5)* C = new AmgSymMatrix(5);
   C->setZero();
   for (int i=0; i<5; ++i) {

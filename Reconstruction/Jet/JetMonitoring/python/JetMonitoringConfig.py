@@ -333,7 +333,7 @@ class HistoSpec(ToolSpec):
         hargs.update( **self.hargs) # overwrite by user-given args if any
         
         # we create one group for each histoFiller : self.groupName() are unique within a JetMonitoringAlg
-        group = monhelper.addGroup(parentAlg, self.groupName(), parentAlg.JetContainerName+'/')
+        group = monhelper.addGroup(parentAlg, self.groupName(), 'Jets/'+parentAlg.JetContainerName)
 
         # define the variables used by this tool
         #  we encode as 'varx,vary;alias' as requested ny standard monitoring config, see

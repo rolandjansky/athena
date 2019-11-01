@@ -122,8 +122,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
 	cdv->updateCaloIterators();
       }
-      ATH_MSG_INFO ("Producing "<<cdv->size()<<" cells");
-      clN=cdv->size();
+      ATH_MSG_DEBUG ("REGTEST: Producing "<<cdv->size()<<" cells");
       auto ss = cellContainer.record( std::move(cdv) );
       ATH_CHECK( ss );
 

@@ -94,6 +94,7 @@ atlas_add_test( VectorElementLinkCnv_p1_test
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/DataModelAthenaPool_jobOptions.py )
 

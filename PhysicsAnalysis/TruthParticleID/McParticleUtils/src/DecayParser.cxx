@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -10,6 +10,7 @@
 
 // Python includes
 #include "Python.h"
+#include "RootUtils/PyGetString.h"
 
 // STL includes
 #include <iostream>
@@ -160,14 +161,22 @@ void DecayParser::parse( const std::string& inputCmd )
 
   PyObject *sc = PyTuple_GET_ITEM (res, 0);
   Py_XINCREF (sc);
+#if PY_MAJOR_VERSION < 3
   if (!sc || !PyInt_Check (sc)) {
+#else
+  if (!sc || !PyLong_Check (sc)) {
+#endif
     Py_XDECREF (sc);
     Py_DECREF  (res);
     std::string error = "corrupted return code";
     throw std::runtime_error (error);
   }
 
+#if PY_MAJOR_VERSION < 3
   Py_ssize_t status = PyInt_AsSsize_t (sc);
+#else
+  Py_ssize_t status = PyLong_AsSsize_t (sc);
+#endif
   if (status != 0) {
     Py_DECREF (sc);
     Py_DECREF (res);
@@ -409,7 +418,7 @@ py_to_cpp (PyObject* candidates,
 	return false;
       }
 
-      parsed[i][j] = std::string(PyString_AS_STRING(pdgid));
+      parsed[i][j] = RootUtils::PyGetString (pdgid).first;
     }
 
     Py_DECREF (cand);

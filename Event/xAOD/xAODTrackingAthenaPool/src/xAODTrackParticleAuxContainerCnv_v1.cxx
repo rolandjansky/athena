@@ -17,6 +17,9 @@
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
+
+// Amg include
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 	
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
@@ -66,6 +69,8 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v1* oldObj,
   unsigned int index=0;
   float x,y;
   uint8_t numberOfBLayerHits=0,numberOfBLayerSharedHits=0,numberOfBLayerOutliers=0,numberOfBLayerSplitHits=0,expectBLayerHit=0;
+  std::vector<float> covMatrixVec;
+
   for( size_t i = 0; i < oldInt.size(); ++i ) {
     index=0;
     if (oldInt[ i ]->indexOfParameterAtPosition (index, xAOD::FirstMeasurement)){
@@ -116,6 +121,19 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v1* oldObj,
       newInt[ i ]->setSummaryValue( expectBLayerHit ,xAOD::expectInnermostPixelLayerHit);
       
     }
+
+
+    static SG::AuxElement::ConstAccessor< std::vector<float> > definingParametersCovMatrixAcc( "definingParametersCovMatrix" );
+
+    if( definingParametersCovMatrixAcc.isAvailable( *( oldInt[ i ] ) ) ) {
+
+      covMatrixVec = definingParametersCovMatrixAcc( *( oldInt[ i ] ) );
+      xAOD::ParametersCovMatrix_t cov;
+      Amg::expand( covMatrixVec.begin(), covMatrixVec.end(),cov );
+      newInt[ i ]->setDefiningParametersCovMatrix(cov);
+
+    }
+
   }
   
   // FIXME - what do we do about the identifier?

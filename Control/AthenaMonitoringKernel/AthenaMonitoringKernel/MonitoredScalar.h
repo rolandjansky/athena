@@ -26,6 +26,7 @@ namespace Monitored {
    *   auto phi = Monitored::Scalar("phi", 4.2);                                                        // deduced double
    *   auto eta = Monitored::Scalar<float>("eta", 0);                                                   // explicit float
    *   auto theta = Monitored::Scalar<double>("theta", 0.0, [](double value) { return value * 1000; }); // with transformation
+   *   auto z = Monitored::Scalar<double>("theta", []() { return 2.5; });                               // fetch the content dynamically
    * \endcode
    */
   template <class T> class Scalar : public IMonitoredVariable {
@@ -37,11 +38,20 @@ namespace Monitored {
         m_value(defaultValue),
         m_valueTransform()
     {}
+
     Scalar(std::string name, const T& defaultValue, std::function<double(const T&)> valueTransform) :
         IMonitoredVariable(std::move(name)),
         m_value(defaultValue),
         m_valueTransform(valueTransform)
     {}
+
+    Scalar(std::string name, std::function<T()> generator) :
+        IMonitoredVariable(std::move(name)),
+	m_value(0),
+	m_valueTransform(),
+	m_valueGenerator( generator )
+    {}
+
     Scalar(Scalar&&) = default;
     Scalar(Scalar const&) = delete;
 
@@ -62,7 +72,7 @@ namespace Monitored {
     T operator--(int) { return m_value--; }
 
     const std::vector<double> getVectorRepresentation() const override {
-      return { convertToDouble( m_value, m_valueTransform ) };
+      return { convertToDouble( m_value, m_valueTransform, m_valueGenerator ) };
     }
 
     std::vector<std::string> getStringVectorRepresentation() const override{
@@ -76,6 +86,7 @@ namespace Monitored {
   private:
     T m_value;
     std::function<double(const T&)> m_valueTransform;
+    std::function<T()> m_valueGenerator;
 
     template< typename U, typename = typename std::enable_if< std::is_constructible<std::string, U>::value >::type >
     std::string convertToString( const U& value ) const {
@@ -87,14 +98,14 @@ namespace Monitored {
       return "";
     }
 
-    template< typename U, typename F,  typename = typename std::enable_if< !std::is_convertible<double, U>::value >::type >
-    double convertToDouble( const U&, F  ) const {
+    template< typename U, typename Transformer, typename Generator,  typename = typename std::enable_if< !std::is_convertible<double, U>::value >::type >
+      double convertToDouble( const U&, Transformer, Generator  ) const {
       return 0;
     }
 
-    template< typename U, typename F, typename = typename std::enable_if< std::is_convertible<double, U>::value >::type, typename = void >
-    double convertToDouble(const U& value, F f ) const {
-      return f ? f(value) : static_cast<double>(value);
+    template< typename U, typename Transformer, typename Generator, typename = typename std::enable_if< std::is_convertible<double, U>::value >::type, typename = void >
+      double convertToDouble(const U& value, Transformer t, Generator g ) const {      
+      return  ( g ? static_cast<double>(g()) : t ? t(value) : static_cast<double>(value) );
     }
 
 

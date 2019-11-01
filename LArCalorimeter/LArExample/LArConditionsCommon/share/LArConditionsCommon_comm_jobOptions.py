@@ -45,7 +45,7 @@ if larCondFlags.LArForceIOVRunNumber.statusOn and larCondFlags.LArForceIOVRunNum
 #Hack following the Online/Offline split of the BadChannel database:
 #Online applications read from COOLONL_LAR/COMP200, folder /LAR/BadChannels/BadChannels
 #Offline applications read from COOLOFL_LAR/COMP200, folder /LAR/BadChannelsOfl/BadChannels
-#But SG key(=Folder name) is expected to be the same in both cases (default set in LArBadChanTool.cxx)
+#But SG key(=Folder name) is expected to be the same in both cases 
 #Solution: Re-key the object when reading from offline DB
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" ) #Needed by BC cond alog
 rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"

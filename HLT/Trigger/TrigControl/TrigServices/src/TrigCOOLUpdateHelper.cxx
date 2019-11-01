@@ -24,6 +24,8 @@
 #include "CTPfragment/CTPExtraWordsFormat.h"
 #include "CTPfragment/Issue.h"
 
+#include <algorithm>
+
 //=========================================================================
 // Standard methods
 //=========================================================================
@@ -78,24 +80,26 @@ StatusCode TrigCOOLUpdateHelper::readFolderInfo()
   m_folderInfo.clear();
   // Loop over all keys registered with IOVDbSvc
   for (const std::string& key : m_iovDbSvc->getKeyList()) {
-    std::string foldername, tag;
-    IOVRange range;
-    bool retrieved;
-    unsigned long long bytesRead;
-    float readTime;
 
     // Get folder name and CLID for each key
-    bool found = m_iovDbSvc->getKeyInfo(key, foldername, tag, range,
-                                        retrieved, bytesRead, readTime);
-
-    if ( !found || m_folderInfo.find(foldername)!=m_folderInfo.end() )
+    IIOVDbSvc::KeyInfo info;
+    if ( !m_iovDbSvc->getKeyInfo(key, info) ||
+         m_folderInfo.find(info.foldername)!=m_folderInfo.end() )
       continue;
     
     CLID clid = detStore()->clid(key);
     if (clid!=CLID_NULL)
-      m_folderInfo.insert({foldername, FolderInfo(clid, key)});
+      m_folderInfo.insert({info.foldername, FolderInfo{clid, key}});
     else
       ATH_MSG_ERROR("Cannot find CLID for " << key);
+
+    // If the folder is in the allowed list, make sure it is marked "extensible"
+    if (std::find(m_folders.begin(), m_folders.end(), info.foldername)!=m_folders.end() &&
+        not info.extensible) {
+      ATH_MSG_ERROR("IOVDBSvc folder " << info.foldername << " is not marked as </extensible>. "
+                    "Remove it from the allowed 'Folders' property or mark it as extensible.");
+      return StatusCode::FAILURE;
+    }
   }
 
   if (!m_coolFolderName.empty()) {
@@ -189,16 +193,15 @@ StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
 StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
 {
   // Loop over folders to be updated
-  std::map<CTPfragment::FolderIndex, FolderUpdate>::iterator f = m_folderUpdates.begin();
-  for (; f!=m_folderUpdates.end(); ++f) {
+  for (auto& [idx, f] : m_folderUpdates) {
           
-    if (f->second.needsUpdate) {
+    if (f.needsUpdate) {
       std::string folderName;
-      if (getFolderName(f->second.folderIndex, folderName).isFailure()) {
+      if (getFolderName(f.folderIndex, folderName).isFailure()) {
         continue;  // On purpose not a failure
       }
 
-      ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock " << f->second.lumiBlock
+      ATH_MSG_INFO("Reload of COOL folder " << folderName << " for IOV change in lumiblock " << f.lumiBlock
                    << ". Current event: "  << ctx.eventID());
               
       if ( hltCoolUpdate(folderName, ctx).isFailure() ) {
@@ -206,7 +209,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
         return StatusCode::FAILURE;
       }
       // All OK
-      f->second.needsUpdate = false;
+      f.needsUpdate = false;
     }      
   }
   
@@ -218,6 +221,12 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, co
   if ( m_iovSvc==nullptr || m_coolFolderName.empty() ) {
     ATH_MSG_DEBUG("Passive mode. Not updating COOL folders");
     return StatusCode::SUCCESS;
+  }
+
+  if (std::find(m_folders.begin(), m_folders.end(), folderName)==m_folders.end()) {
+    ATH_MSG_ERROR("Received request to update COOL folder '" << folderName
+                  << "' but this folder is not in the allowed list:" << m_folders);
+    return StatusCode::FAILURE;
   }
 
   auto mon_t = Monitored::Timer("TIME_CoolFolderUpdate");

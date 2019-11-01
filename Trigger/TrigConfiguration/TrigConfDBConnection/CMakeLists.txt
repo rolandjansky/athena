@@ -6,10 +6,10 @@
 atlas_subdir( TrigConfDBConnection )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system
-   OPTIONAL_COMPONENTS python python27 )
 find_package( Frontier_Client )
 find_package( PythonLibs )
+find_package( Boost COMPONENTS filesystem thread system
+              OPTIONAL_COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR} )
 
 # Component(s) in the package:
 atlas_add_library( TrigConfDBConnection
@@ -31,5 +31,5 @@ atlas_add_executable( TriggerFrontierClientTest
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${FRONTIER_CLIENT_LIBRARIES} ${PYTHON_LIBRARIES} TrigConfDBConnection )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )

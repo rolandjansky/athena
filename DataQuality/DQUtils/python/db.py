@@ -427,7 +427,7 @@ class Databases(object):
         folderset_path = dirname(folder_name)
         try:
             db.getFolderSet(folderset_path)
-        except Exception, error:
+        except Exception as error:
             caught_error = "Folder set %s not found" % folderset_path
             if caught_error not in error.args[0]:
                 raise

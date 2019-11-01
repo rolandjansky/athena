@@ -4,7 +4,7 @@
 # art-type: build
 # art-include: master/Athena
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering import Test, Step, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Input import get_input
 
 # Delete any previous bytestream file
@@ -13,8 +13,8 @@ ex_rm.type = 'other'
 ex_rm.input = ''
 ex_rm.executable = 'rm'
 ex_rm.args = '-f beamspot._0001.data'
-ex_rm.perfmon = False
-ex_rm.imf = False
+ex_rm.auto_report_result = False  # Do not set art-result for this step
+ex_rm.output_stream = Step.Step.OutputStream.STDOUT_ONLY  # Do not create a log file for this step
 
 # Create new bytestream file
 ex_bs = ExecStep.ExecStep('create_bs')
@@ -22,8 +22,6 @@ ex_bs.type = 'other'
 ex_bs.input = ''
 ex_bs.executable = 'python'
 ex_bs.args = '-m TrigP1Test.BeamSpotUpdate -n 50 -o beamspot %s' % get_input('data').paths[0]
-ex_bs.perfmon = False
-ex_bs.imf = False
 
 # Run athenaHLT
 ex = ExecStep.ExecStep()

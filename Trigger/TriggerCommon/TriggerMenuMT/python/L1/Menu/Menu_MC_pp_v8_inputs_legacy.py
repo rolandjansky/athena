@@ -224,8 +224,6 @@ def defineLegacyMenu():
                         TopoMenuDef( "0DR04-MU6ab-CJ25ab",    outputbits = 7  ),
                         TopoMenuDef( "10MINDPHI-CJ20ab-XE50", outputbits = 8  ),
                         TopoMenuDef( "0DR24-2CMU4ab",         outputbits = 9  ),
-                        TopoMenuDef( "FTK-J100s1",            outputbits = 10 ),
-                        TopoMenuDef( "FTK-MU10s1",            outputbits = 15 )
                     ]
                 },
                 {
@@ -242,7 +240,6 @@ def defineLegacyMenu():
                         TopoMenuDef( "LATE-MU10s1",           outputbits = 10 ),
                         TopoMenuDef( "SC111-CJ15ab.ETA26",    outputbits = 11 ),
                         TopoMenuDef( "SC85-CJ15ab.ETA26",     outputbits = 12 ),
-                        TopoMenuDef( "FTK-EM20s1",            outputbits = 13 )
                     ]
                 },
                 {

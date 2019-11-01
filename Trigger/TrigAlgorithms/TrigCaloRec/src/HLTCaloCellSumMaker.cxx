@@ -50,7 +50,7 @@ StatusCode HLTCaloCellSumMaker::execute( const EventContext& context ) const {
   }
   float sum=0.;
   for(auto c : *roiCollection ) {sum+=c->et(); cc++;}
-  ATH_MSG_INFO ( "Executing " << name() << "..." << "RoIToSum Single : " << cc << " " << sum );
+  ATH_MSG_DEBUG ( "REGTEST: Executing " << name() << "... size : " << cc << "; Energy Et Sum : " << sum );
 
   } else {
   auto roisHandle = SG::makeHandle( m_cellContainerVKey, context );
@@ -61,8 +61,8 @@ StatusCode HLTCaloCellSumMaker::execute( const EventContext& context ) const {
   for(const CaloCellContainer* roiDescriptor : *roiCollection ) {
 	if ( roiDescriptor->size() > 0 ) {
 	float sum=0.;
-	for(auto c : *roiDescriptor ) sum+=c->et();
-	ATH_MSG_INFO ( "Executing " << name() << "..." << "RoIToSum : " << cc++ << " " << roiDescriptor->size() << " " << roiDescriptor->at(0)->eta() << " " << sum );
+	for(auto c : *roiDescriptor ) {sum+=c->et(); cc++;}
+	ATH_MSG_DEBUG("REGTEST: Executing " << name() << "; size : " << cc << "; Energy ET Sum : " << sum );
 	} else { ATH_MSG_INFO( "empty container"); }
 
   }

@@ -19,7 +19,7 @@ public:
   TGCWireTripletSB(const TGCWireTripletSB& right);
   TGCWireTripletSB& operator=(const TGCWireTripletSB& right);
 
-  TGCWireTripletSB();
+  TGCWireTripletSB( TGCArguments* );
   virtual ~TGCWireTripletSB(){};
 
 protected:

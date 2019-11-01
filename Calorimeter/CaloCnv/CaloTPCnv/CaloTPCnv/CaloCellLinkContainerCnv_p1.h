@@ -35,6 +35,16 @@ public:
                            MsgStream &log) const override;
 
 
+  // TEMPORARY: Until trigger serialization is fixed.
+  using base_class::persToTrans;
+  void persToTrans (const CaloCellLinkContainer_p1* pers,
+                    CaloCellLinkContainer* trans,
+                    MsgStream &log) const override
+  {
+    persToTransWithKey (pers, trans, "", log);
+  }
+
+
 private:
   NavigableCnv_p1< Navigable<CaloCellContainer,double>,float > m_converter;
 };

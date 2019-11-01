@@ -20,6 +20,7 @@
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
 #include "xAODTrackParticleAuxContainerCnv_v2.h"
 #include "xAODTrackParticleAuxContainerCnv_v3.h"
+#include "xAODTrackParticleAuxContainerCnv_v4.h"
 
 // EDM include(s):
 #include "xAODTracking/TrackParticleContainer.h"

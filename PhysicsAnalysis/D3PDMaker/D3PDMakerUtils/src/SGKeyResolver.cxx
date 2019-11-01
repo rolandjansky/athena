@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file D3PDMakerUtils/src/SGKeyResolver.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,7 +13,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "boost/tokenizer.hpp"
-#include "boost/foreach.hpp"
 
 
 namespace D3PD {
@@ -68,7 +65,7 @@ std::string SGKeyResolver::key()
 
   // First see if any existing proxies match the keys.
   std::vector<const SG::DataProxy*> proxies = m_sg->proxies();
-  BOOST_FOREACH (const SG::DataProxy* & p, proxies) {
+  for (const SG::DataProxy* & p : proxies) {
     if (p->transientID (m_clid) &&
         std::find (keys.begin(), keys.end(), p->name()) != keys.end())
     {
@@ -85,7 +82,7 @@ std::string SGKeyResolver::key()
   // If we haven't found one, try retrieving proxies individually.
   // This can call to the proxy providers.
   if (!m_haveKey) {
-    BOOST_FOREACH (std::string& key, keys) {
+    for (std::string& key : keys) {
       m_usedKey = key;
       if (m_sg->proxy (m_clid, m_usedKey)) {
         m_haveKey = true;

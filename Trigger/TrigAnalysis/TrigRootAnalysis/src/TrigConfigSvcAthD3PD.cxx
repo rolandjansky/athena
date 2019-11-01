@@ -66,9 +66,8 @@ namespace D3PD {
       ServiceHandle< IIncidentSvc > incidentSvc( "IncidentSvc", name() );
       CHECK( incidentSvc.retrieve() );
       incidentSvc->addListener( this, IncidentType::BeginEvent );
-      // Unfortunately this type of incident is never fired by the D3PD
-      // reading services:
-      //  incidentSvc->addListener( this, IncidentType::BeginInputFile );
+      // Unfortunately Begin Input File incident is never fired by the D3PD
+      // reading services
 
       //
       // Get the input file list. This is a bit ugly, but we need to get

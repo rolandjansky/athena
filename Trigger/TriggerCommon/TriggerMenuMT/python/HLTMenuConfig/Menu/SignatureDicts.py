@@ -700,7 +700,7 @@ BeamspotChainParts = {
     'location'       : ['vtx'],
     'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
     'hypo'           : [],
-    'l2IDAlg'        : ['L2StarB','trkfast','FTK','FTKRefit'],
+    'l2IDAlg'        : ['L2StarB','trkfast'],
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : 'beamspot',

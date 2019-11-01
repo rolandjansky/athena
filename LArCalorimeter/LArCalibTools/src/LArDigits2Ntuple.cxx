@@ -12,11 +12,12 @@
 LArDigits2Ntuple::LArDigits2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
   LArCond2NtupleBase(name, pSvcLocator),
   m_ipass(0),
-  m_event(0), m_FTlist(0)
+  m_event(0), m_FTlist(0), m_fillBCID(false)
 {
   declareProperty("ContainerKey",m_contKey);
   declareProperty("NSamples",m_Nsamples=32);
   declareProperty("FTlist",m_FTlist);
+  declareProperty("FillBCID",m_fillBCID);
   m_ntTitle="LArDigits";
   m_ntpath="/NTUPLES/FILE1/LARDIGITS"+m_contKey;
 
@@ -60,6 +61,15 @@ StatusCode LArDigits2Ntuple::initialize()
       return sc;
     }
   
+  if(m_fillBCID){
+    sc=m_nt->addItem("BCID",m_bcid);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'BCID' failed" );
+      return sc;
+    }
+  }
+  
+  ATH_CHECK(m_evtInfoKey.initialize() );
 
   m_ipass = 0;
 
@@ -77,15 +87,12 @@ StatusCode LArDigits2Ntuple::execute()
   ATH_MSG_DEBUG( "in execute" ); 
 
   m_event++;
-  unsigned long thisevent;
-  const EventInfo* eventInfo;
-  if (evtStore()->retrieve(eventInfo,"ByteStreamEventInfo").isFailure()) {
-      ATH_MSG_WARNING( " Cannot access to event info " );
-      thisevent=m_event;
-  } else {
-      thisevent = eventInfo->event_ID()->event_number();
-  }
-  
+  unsigned long long thisevent;
+  unsigned long thisbcid=0;
+  SG::ReadHandle<xAOD::EventInfo> evt (m_evtInfoKey);
+  thisevent = evt->eventNumber();
+  if(m_fillBCID) thisbcid = evt->bcid();
+
   const LArDigitContainer* DigitContainer = NULL;
   sc=evtStore()->retrieve(DigitContainer,m_contKey);  
   if (sc!=StatusCode::SUCCESS) {
@@ -127,6 +134,8 @@ StatusCode LArDigits2Ntuple::execute()
      }
 
      m_IEvent=thisevent;
+     if(m_fillBCID) m_bcid = thisbcid;
+
      fillFromIdentifier((*it)->hardwareID());      
      if(m_FTlist.size() > 0) { // should do a selection
         if(std::find(std::begin(m_FTlist), std::end(m_FTlist), m_FT) == std::end(m_FTlist)) { // is our FT in list ?

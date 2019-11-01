@@ -11,14 +11,11 @@
 #include <iostream>
 
 namespace LVL1TGCTrigger {
-
-extern   bool g_SHPT_ORED;
-
   
 //constructor 
-TGCSSCController::TGCSSCController(const TGCSectorLogic* sL) 
+TGCSSCController::TGCSSCController(TGCArguments* tgcargs, const TGCSectorLogic* sL) 
   :m_sectorLogic(sL), m_NumberOfWireHighPtBoard(0),
-   m_region(FORWARD)
+   m_region(FORWARD), m_tgcArgs(tgcargs)
 { 
 } 
 
@@ -74,7 +71,7 @@ TGCSSCControllerOut* TGCSSCController::distribute(TGCHighPtChipOut* wire[], TGCH
         int oredChamber=-1;
         if (chamberNo==4) oredChamber= 3;
 	if (chamberNo==3) oredChamber= 4;
-        if (g_SHPT_ORED && (oredChamber>0)) {
+        if (tgcArgs()->SHPT_ORED() && (oredChamber>0)) {
 	  if(!out->hasHitPhi(oredChamber, PhiPosInSSC)){
 	    out->setPhi(oredChamber, PhiPosInSSC, iPhi); 
 	    out->setDPhi(oredChamber, PhiPosInSSC,strip->getDev(chip,iCandidate));

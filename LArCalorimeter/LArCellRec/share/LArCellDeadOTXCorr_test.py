@@ -60,30 +60,6 @@ BADFEBS2 = [[(0, 1, 12,  3), 'deadReadout'],  # tt  0.2 2.5 (below noise)
 ###########################################################################
 
 
-# feb file format:
-# barrel_ec pos_neg feedthrough slot flags
-#  0       1       12      4  deadAll
-#  1       0       16      9 deadReadout deadAll
-# badfebs is a list of (barrel_ec, pos_neg, feedthrough, slot) tuples
-def make_bad_channel_tool (name, badfebs = []):
-    from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-    febfile = ''
-    if badfebs:
-        febfile = name + '.badfebs'
-        f = open (febfile, 'w')
-        for (feb, err) in badfebs:
-            print >> f, feb[0], feb[1], feb[2], feb[3], err
-        f.close()
-    return LArBadChanTool (name,
-                           ReadFromASCII = True,
-                           WriteEmptyFolders = True,
-                           CoolFolder = '',
-                           ComplementaryCoolFolder = '',
-                           CoolMissingFEBsFolder = '',
-                           FEBfile = febfile)
-
-
-###########################################################################
 
 
 def make_calo_cells (detStore):
@@ -403,18 +379,10 @@ class TestAlg (Alg):
         return -1
 
 
-badchan_empty = make_bad_channel_tool ('deadotx_badchan_empty')
-ToolSvc += badchan_empty
-
-badchan2 = make_bad_channel_tool ('deadotx_badchan2', BADFEBS2)
-ToolSvc += badchan2
-
 tool1 = LArCellDeadOTXCorrToolDefault ('tool1')
-tool1.badChannelTool = badchan_empty
 ToolSvc += tool1
 
 tool2 = LArCellDeadOTXCorrToolDefault ('tool2')
-tool2.badChannelTool = badchan2
 ToolSvc += tool2
 #tool2.useL1CaloDB = True
 
