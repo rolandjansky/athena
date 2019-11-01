@@ -110,12 +110,12 @@ def getMAGBOXMBPL12(name="MAGBOXMBPL12", **kwargs):
     # Subtraction Solid - has to be a better way to do this!!
     kwargs.setdefault("NumberOfHoles", 1)
     kwargs.setdefault("HoleNames", ['MBPL12HOLE'])
-    kwargs.setdefault("Hole_dX",   [2670.]);
-    kwargs.setdefault("Hole_dY",   [261.]);
-    kwargs.setdefault("Hole_dZ",   [56.]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [0]);
-    kwargs.setdefault("HolePosZ",  [0]);
+    kwargs.setdefault("Hole_dX",   [2670.])
+    kwargs.setdefault("Hole_dY",   [261.])
+    kwargs.setdefault("Hole_dZ",   [56.])
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [0])
+    kwargs.setdefault("HolePosZ",  [0])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def getMBPL12(name="MBPL12", **kwargs):
@@ -142,12 +142,12 @@ def getMAGBOXMBPL13(name="MAGBOXMBPL13", **kwargs):
     # Subtraction Solid - has to be a better way to do this!!
     kwargs.setdefault("NumberOfHoles", 1)
     kwargs.setdefault("HoleNames", ['MBPL13HOLE'])
-    kwargs.setdefault("Hole_dX",   [2670.]);
-    kwargs.setdefault("Hole_dY",   [56.]);
-    kwargs.setdefault("Hole_dZ",   [261.]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [0]);
-    kwargs.setdefault("HolePosZ",  [0]);
+    kwargs.setdefault("Hole_dX",   [2670.])
+    kwargs.setdefault("Hole_dY",   [56.])
+    kwargs.setdefault("Hole_dZ",   [261.])
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [0])
+    kwargs.setdefault("HolePosZ",  [0])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def getMBPL13(name="MBPL13", **kwargs):
@@ -174,12 +174,12 @@ def getMAGBOXMBPSID(name="MAGBOXMBPSID", **kwargs):
     # Subtraction Solid - has to be a better way to do this!!
     kwargs.setdefault("NumberOfHoles", 1)
     kwargs.setdefault("HoleNames", ['MBPSIDHOLE'])
-    kwargs.setdefault("Hole_dX",   [1690.]);
-    kwargs.setdefault("Hole_dY",   [161.]);
-    kwargs.setdefault("Hole_dZ",   [116.]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [0]);
-    kwargs.setdefault("HolePosZ",  [0]);
+    kwargs.setdefault("Hole_dX",   [1690.])
+    kwargs.setdefault("Hole_dY",   [161.])
+    kwargs.setdefault("Hole_dZ",   [116.])
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [0])
+    kwargs.setdefault("HolePosZ",  [0])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def getMBPSID(name="MBPSID", **kwargs):
@@ -200,12 +200,12 @@ def getMAGBOXMBPL(name="MAGBOXMBPL", **kwargs):
     # Subtraction Solid - has to be a better way to do this!!
     kwargs.setdefault("NumberOfHoles", 1)
     kwargs.setdefault("HoleNames", ['MBPLHOLE'])
-    kwargs.setdefault("Hole_dX",   [26700.]);
-    kwargs.setdefault("Hole_dY",   [56.]);
-    kwargs.setdefault("Hole_dZ",   [261.]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [0]);
-    kwargs.setdefault("HolePosZ",  [0]);
+    kwargs.setdefault("Hole_dX",   [26700.])
+    kwargs.setdefault("Hole_dY",   [56.])
+    kwargs.setdefault("Hole_dZ",   [261.])
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [0])
+    kwargs.setdefault("HolePosZ",  [0])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def getMBPL(name="MBPL", **kwargs):
@@ -226,12 +226,12 @@ def getMAGBOXMBPS2(name="MAGBOXMBPS2", **kwargs):
     # Subtraction Solid - has to be a better way to do this!!
     kwargs.setdefault("NumberOfHoles", 1)
     kwargs.setdefault("HoleNames", ['MBPS2HOLE'])
-    kwargs.setdefault("Hole_dX",   [1690.]);
-    kwargs.setdefault("Hole_dY",   [56.]);
-    kwargs.setdefault("Hole_dZ",   [261.]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [0]);
-    kwargs.setdefault("HolePosZ",  [0]);
+    kwargs.setdefault("Hole_dX",   [1690.])
+    kwargs.setdefault("Hole_dY",   [56.])
+    kwargs.setdefault("Hole_dZ",   [261.])
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [0])
+    kwargs.setdefault("HolePosZ",  [0])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def getMBPS2(name="MBPS2", **kwargs):
@@ -260,12 +260,12 @@ def getDUMPCONCRETE(name="DUMPCONCRETE", **kwargs):
     kwargs.setdefault("Material", 'Concrete')
     kwargs.setdefault("NumberOfHoles", 2)
     kwargs.setdefault("HoleNames", ['DUMPCONCRETEHOLE1','DUMPCONCRETEHOLE2'])
-    kwargs.setdefault("Hole_dX",   [1601.,1601.]);
-    kwargs.setdefault("Hole_dY",   [500.,800.]);
-    kwargs.setdefault("Hole_dZ",   [800.,400.]);
-    kwargs.setdefault("HolePosX",  [0.,0.]);
-    kwargs.setdefault("HolePosY",  [800.,-400.]);
-    kwargs.setdefault("HolePosZ",  [0.,0.]);
+    kwargs.setdefault("Hole_dX",   [1601.,1601.])
+    kwargs.setdefault("Hole_dY",   [500.,800.])
+    kwargs.setdefault("Hole_dZ",   [800.,400.])
+    kwargs.setdefault("HolePosX",  [0.,0.])
+    kwargs.setdefault("HolePosY",  [800.,-400.])
+    kwargs.setdefault("HolePosZ",  [0.,0.])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def getDUMPIRON(name="DUMPIRON", **kwargs):
@@ -276,12 +276,12 @@ def getDUMPIRON(name="DUMPIRON", **kwargs):
     kwargs.setdefault("Material", 'Iron')
     kwargs.setdefault("NumberOfHoles", 3)
     kwargs.setdefault("HoleNames", ['DUMPIRONHOLE1','DUMPIRONCORNER1','DUMPIRONCORNER2'])
-    kwargs.setdefault("Hole_dX",   [1604.,1604.,1604.]);
-    kwargs.setdefault("Hole_dY",   [400.,100.,100.]);
-    kwargs.setdefault("Hole_dZ",   [400.,200.,200.]);
-    kwargs.setdefault("HolePosX",  [0.,0.,0.]);
-    kwargs.setdefault("HolePosY",  [0.,-501.,-501.]);
-    kwargs.setdefault("HolePosZ",  [0.,601.,-601.]);
+    kwargs.setdefault("Hole_dX",   [1604.,1604.,1604.])
+    kwargs.setdefault("Hole_dY",   [400.,100.,100.])
+    kwargs.setdefault("Hole_dZ",   [400.,200.,200.])
+    kwargs.setdefault("HolePosX",  [0.,0.,0.])
+    kwargs.setdefault("HolePosY",  [0.,-501.,-501.])
+    kwargs.setdefault("HolePosZ",  [0.,601.,-601.])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def getDUMP(name="DUMP", **kwargs):
@@ -349,8 +349,6 @@ def getCTB_WorldEnvelope(name="CTB_World", **kwargs):
         SubDetectorList=["CTBMode2_IDET","CTB_MUON"]
     else:
         SubDetectorList=['CTB_IDET','CTB_MUON','BeamPipe1','BeamPipe2','MYLAREQUIV']
-    if not DetFlags.Muon_on():
-        pass
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
