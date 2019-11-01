@@ -1,6 +1,3 @@
-Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libRIO, output: $ROOTDIR/lib/libRIO
-Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libCling, output: $ROOTDIR/lib/libCling
-PyRoot: Error in <TSystem::ExpandFileName>: input: $ROOTDIR/lib/libRootUtilsPyROOTDict, output: $ROOTDIR/lib/libRootUtilsPyROOTDict
 Py:Athena            INFO using release [WorkDir-22.0.7] [x86_64-centos7-gcc8-opt] [BCIDAlgMon.20191030/863a39e6bb] -- built on [2019-10-30T1411]
 --- data
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
