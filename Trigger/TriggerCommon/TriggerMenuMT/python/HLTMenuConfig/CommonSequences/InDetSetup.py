@@ -17,6 +17,7 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTRDOCacheKey     = "SctRDOCache"
+  SCTBSErrCacheKey   = "SctBSErrCache"
   PixRDOCacheKey     = "PixRDOCache"
 
 
@@ -90,7 +91,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = rois
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
-    
+    InDetSCTRawDataProvider.BSErrCacheKey = InDetCacheNames.SCTBSErrCacheKey
 
     viewAlgs.append(InDetSCTRawDataProvider)
 
