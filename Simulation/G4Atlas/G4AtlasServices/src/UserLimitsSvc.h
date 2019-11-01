@@ -1,28 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASTOOLS_USERLIMITSTOOL_H
-#define G4ATLASTOOLS_USERLIMITSTOOL_H
+#ifndef G4ATLASTOOLS_USERLIMITSSVC_H
+#define G4ATLASTOOLS_USERLIMITSSVC_H
 
 // Base classes
-#include "G4AtlasInterfaces/IUserLimitsTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "G4AtlasInterfaces/IUserLimitsSvc.h"
+#include "AthenaBaseComps/AthService.h"
 
 // STL library
 #include <string>
 #include <vector>
 
-/** @class UserLimitsTool UserLimitsTool.h "G4AtlasTools/UserLimitsTool.h"
+/** @class UserLimitsSvc UserLimitsSvc.h "G4AtlasTools/UserLimitsSvc.h"
  *
  *  Concrete Tool to apply G4 User Limits
  */
 
-class UserLimitsTool final : public extends<AthAlgTool, IUserLimitsTool> {
+class UserLimitsSvc final : public extends<AthService, IUserLimitsSvc> {
  public:
   // Standard constructor and destructor
-  UserLimitsTool(const std::string& type, const std::string& name, const IInterface *parent);
-  ~UserLimitsTool() {}
+  UserLimitsSvc(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~UserLimitsSvc() = default;
 
   virtual StatusCode initialize() override final;
 
@@ -46,4 +46,4 @@ class UserLimitsTool final : public extends<AthAlgTool, IUserLimitsTool> {
   std::vector<std::string> m_logicalVolumes;
 };
 
-#endif //G4ATLASTOOLS_USERLIMITSTOOL_H
+#endif //G4ATLASTOOLS_USERLIMITSSVC_H

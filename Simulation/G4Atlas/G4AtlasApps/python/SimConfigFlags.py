@@ -43,6 +43,9 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.G4Version", "geant4.10.1.patch03.atlas02")
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
+    scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
+    scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
+    scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics
 
     #For G4AtlasToolsConfig
     scf.addFlag('Sim.RecordStepInfo',False) 

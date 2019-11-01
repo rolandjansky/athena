@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASINTERFACES_IPHYSICSLISTTOOL_H
-#define G4ATLASINTERFACES_IPHYSICSLISTTOOL_H
+#ifndef G4ATLASINTERFACES_IPHYSICSLISTSVC_H
+#define G4ATLASINTERFACES_IPHYSICSLISTSVC_H
 
-#include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/IService.h"
 
 class G4VUserPhysicsList;
 
-/** @class IPhysicsListTool IPhysicsListTool.h "G4AtlasInterfaces/IPhysicsListTool.h"
+/** @class IPhysicsListSvc IPhysicsListSvc.h "G4AtlasInterfaces/IPhysicsListSvc.h"
  *
  *  Abstract interface to Geant4 Physics list classes
  *
@@ -17,13 +17,13 @@ class G4VUserPhysicsList;
  *  @date   2014-10-01
  */
 
-class IPhysicsListTool : virtual public IAlgTool
+class IPhysicsListSvc : virtual public IService
 {
 public:
-  IPhysicsListTool() {}
-  virtual ~IPhysicsListTool() {}
+  IPhysicsListSvc() {}
+  virtual ~IPhysicsListSvc() {}
   /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IPhysicsListTool, 1, 0);
+  DeclareInterfaceID(IPhysicsListSvc, 1, 0);
 
   /** Build the physics list.  This method should be called when G4 is ready
       for the initialization of the physics list */
@@ -42,4 +42,4 @@ public:
   virtual void SetPhysicsOptions() = 0 ;
 
 };
-#endif
+#endif // G4ATLASINTERFACES_IPHYSICSLISTSVC_H

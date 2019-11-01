@@ -3,7 +3,7 @@
 */
 
 // class header
-#include "UserLimitsTool.h"
+#include "UserLimitsSvc.h"
 
 // Geant4 includes used in functions
 #include "G4LogicalVolume.hh"
@@ -13,8 +13,8 @@
 // STL library
 #include <boost/tokenizer.hpp>
 #include <limits>
-UserLimitsTool::UserLimitsTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent)
+UserLimitsSvc::UserLimitsSvc( const std::string& name, ISvcLocator* pSvcLocator )
+  : base_class(name,pSvcLocator)
   , m_MaxStep(-1.)
   , m_MinEkine(-1.)
   , m_MaxTrackLength(-1.)
@@ -32,9 +32,9 @@ UserLimitsTool::UserLimitsTool(const std::string& type, const std::string& name,
 }
 
 // Athena method, called at initialization time
-StatusCode UserLimitsTool::initialize()
+StatusCode UserLimitsSvc::initialize()
 {
-  ATH_MSG_INFO(" initializing UserLimitsTool "<<name() );
+  ATH_MSG_INFO(" initializing UserLimitsSvc "<<name() );
   G4LogicalVolumeStore& lvs=*(G4LogicalVolumeStore::GetInstance());
   
   ATH_MSG_INFO("G4LogicalVolumeStore size: " << lvs.size());
@@ -45,10 +45,10 @@ StatusCode UserLimitsTool::initialize()
   ATH_MSG_INFO("G4LogicalVolumeStore unique size: " << volumes.size());
 
   // Define with a configurable string which string comparison fucntion to use
-  using function_t = bool (UserLimitsTool::*) (const std::string& pattern, const std::string logicalVolume) const;
+  using function_t = bool (UserLimitsSvc::*) (const std::string& pattern, const std::string logicalVolume) const;
   std::map<std::string, function_t> funcMap;
-  funcMap.emplace("isMatch", &UserLimitsTool::isMatch);
-  funcMap.emplace("contains", &UserLimitsTool::contains);
+  funcMap.emplace("isMatch", &UserLimitsSvc::isMatch);
+  funcMap.emplace("contains", &UserLimitsSvc::contains);
 
   // Call Limit setting methods here:
   std::vector<std::string>::const_iterator volumeItr(m_logicalVolumes.begin());
@@ -85,12 +85,12 @@ StatusCode UserLimitsTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool UserLimitsTool::contains(const std::string& pattern, const std::string logicalVolume) const
+bool UserLimitsSvc::contains(const std::string& pattern, const std::string logicalVolume) const
 {
     return (logicalVolume.find(pattern) != std::string::npos);
 }
 
-bool UserLimitsTool::isMatch(const std::string& a,const std::string b) const
+bool UserLimitsSvc::isMatch(const std::string& a,const std::string b) const
 {
   // straightforward cases
   if (a=="*") return true;

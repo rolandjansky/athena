@@ -18,7 +18,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 // G4Atlas includes
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IPhysicsListSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
@@ -87,7 +87,7 @@ private:
 
   /// Handle to the physics list tool.
   /// Not ideal, because we can't configure this.
-  ToolHandle<IPhysicsListTool> m_physListTool;
+  ServiceHandle<IPhysicsListSvc> m_physListSvc;
 
   /// Handle to the fast sim tool.
   /// Not ideal, because we can't configure this.
