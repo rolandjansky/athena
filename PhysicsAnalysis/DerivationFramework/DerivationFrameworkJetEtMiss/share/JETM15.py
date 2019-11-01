@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import *
 #
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -277,6 +278,10 @@ addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm15Seq, "JETM15", ptmi
 addConstModJets("AntiKt", 1.0, "EMPFlow", ["CS", "SK"], jetm15Seq, "JETM15", ptmin=40000, 
                     ptminFilter=50000)
 
+# add VR jets
+addVRJets(jetm15Seq)
+addVRJets(jetm15Seq,training='201903')
+
 # Now we can run the UFO building taking our unified PFlow container as input
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
 emufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CHS")
@@ -361,7 +366,7 @@ JETM15SlimmingHelper.AppendToDictionary = {
   "AntiKt10LCTopoCSSKJets"   :   "xAOD::JetContainer"        ,
   "AntiKt10LCTopoCSSKJetsAux.":   "xAOD::JetAuxContainer"        ,
   "AntiKt10LCTopoJets"   :   "xAOD::JetContainer"        ,
-  "AntiKt10LCTopoJetsAux.":   "xAOD::JetAuxContainer"        ,
+  "AntiKt10LCTopoJetsAux.":   "xAOD::JetAuxContainer"        
 }
 
 JETM15SlimmingHelper.SmartCollections = [
@@ -379,6 +384,8 @@ JETM15SlimmingHelper.SmartCollections = [
   "BTagging_AntiKt4EMPFlow_201810",
   "BTagging_AntiKt4EMPFlow_201903",
   "BTagging_AntiKt4EMTopo_201810",                                         
+  "BTagging_AntiKtVR30Rmax4Rmin02Track",
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 ]
 
