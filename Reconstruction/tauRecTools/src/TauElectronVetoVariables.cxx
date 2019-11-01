@@ -198,12 +198,12 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
       ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
       SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
       caloExtension = (*particleCache)[trackIndex];
-    }
-    
-    if( not caloExtension ){
-      ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
-      uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
-      caloExtension = uniqueExtension.get();
+      ATH_MSG_VERBOSE("Getting element " << trackIndex << " from the particleCache");
+      if( not caloExtension ){
+        ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
+        uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+        caloExtension = uniqueExtension.get();
+      }
     }
 
     const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
