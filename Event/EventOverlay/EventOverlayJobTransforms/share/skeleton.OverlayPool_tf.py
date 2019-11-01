@@ -39,10 +39,10 @@ if hasattr(runArgs,"inputHITSFile"):
 else:
     raise RuntimeError ("No input HITS file defined")
 
-if hasattr(runArgs,"outputRDOFile"): 
+if hasattr(runArgs,"outputRDOFile"):
     athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
     OverlayCollection = runArgs.outputRDOFile
-    
+
 if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
     overlayFlags.doSignal=False
     SignalCollection = "NONE"
@@ -90,17 +90,17 @@ else:
 
     DetFlags.digitize.LVL1_setOff()
 
-## Tidy up NSW DetFlags: temporary measure
-DetFlags.sTGC_setOff()
-DetFlags.Micromegas_setOff()
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
+if hasattr(runArgs,"geometryVersion") or not globalflags.DetDescrVersion.isDefault():
+    ## Tidy up NSW DetFlags
+    ## only do this if we can be sure globalflags.DetDescrVersion has been configured.
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+    if CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]:
+        DetFlags.sTGC_setOff()
+        DetFlags.Micromegas_setOff()
 
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-if not MuonGeometryFlags.hasCSC():
-    DetFlags.CSC_setOff()
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if not MuonGeometryFlags.hasCSC():
+        DetFlags.CSC_setOff()
 
 DetFlags.Print()
 
