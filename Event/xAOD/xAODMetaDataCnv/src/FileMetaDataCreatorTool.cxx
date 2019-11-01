@@ -41,6 +41,7 @@ namespace xAODMaker {
         m_md(), m_mdAux() {
 
       declareProperty( "OutputKey", m_outputKey = "FileMetaData" );
+      declareProperty( "isEVNT", m_isEVNT = false , "Set true for appropriate warnings when running on EVNT" );
    }
 
    StatusCode FileMetaDataCreatorTool::start() {
@@ -188,7 +189,7 @@ namespace xAODMaker {
                        al[ "GeoAtlas" ].data< std::string >() ) );
          }
          else {
-           ATH_MSG_WARNING("Did not find GeoAtlas in TagInfo setting to none");
+           if (!m_isEVNT) ATH_MSG_WARNING("Did not find GeoAtlas in TagInfo setting to none");
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::geometryVersion,
                                        "none" ) );
          }
@@ -197,7 +198,7 @@ namespace xAODMaker {
                        al[ "IOVDbGlobalTag" ].data< std::string >() ) );
          }
          else {
-           ATH_MSG_WARNING("Did not find IOVDbGlobalTag in TagInfo setting to none");
+           if (!m_isEVNT) ATH_MSG_WARNING("Did not find IOVDbGlobalTag in TagInfo setting to none");
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::conditionsTag,
                                        "none" ) );
          }

@@ -47,7 +47,8 @@ else:
         if not batmanaugtool in batmanaug.AugmentationTools:
             batmanaug.AugmentationTools.append(batmanaugtool)
     else:
-        dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
+        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
 
 ######################
 

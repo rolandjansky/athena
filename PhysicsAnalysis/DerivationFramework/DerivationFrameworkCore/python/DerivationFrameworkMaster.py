@@ -52,14 +52,17 @@ athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 from RecExConfig.InputFilePeeker import inputFileSummary
 if inputFileSummary is not None:
-	if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
-		svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
-	
+    if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
+        svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
+    
 # Set up the metadata tool:
 if not globalflags.InputFormat=="bytestream":
-	ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
-							      OutputLevel = 2 )
-	svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+    # Extra config: make sure if we are using EVNT that we don't try to check sim/digi/reco metadata 
+    from RecExConfig.ObjKeyStore import objKeyStore
+    ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
+                                  isEVNT = objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ),
+                                  OutputLevel = 2 )
+    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
 
 # Set up stream auditor
 if not hasattr(svcMgr, 'DecisionSvc'):
@@ -94,4 +97,4 @@ if globalflags.DataSource()=='geant4':
         print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
 
 def buildFileName(derivationStream):
-    return derivationStream.FileName    
+    return derivationStream.FileName
