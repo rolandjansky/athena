@@ -1463,8 +1463,7 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
     // only consider trigger-matched tags to avoid bias on probes                                                     
     bool matched = false;
     for (const auto chain: m_Z_mm_trigger) {
-      //if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {                                                
-      if (m_muTrigMatchTool->match(tagmu, chain)) {
+      if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {                                                
         matched=true;
         break;
       }
@@ -1496,8 +1495,7 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
       }
 
       for (const auto chain: m_Z_mm_trigger) {
-        //if (m_muTrigMatchTool->match(probemu, chain) || ! m_doTrigger) {                                            
-        if (m_muTrigMatchTool->match(probemu, chain)) {
+        if (m_muTrigMatchTool->match(probemu, chain) || ! m_doTrigger) {                                            
           matched=true;
           break;
         }
@@ -1559,7 +1557,7 @@ void DQTGlobalWZFinderTool::doMuonTruthEff(std::vector<const xAOD::Muon*>& goodm
 	break;
       }
     }
-    // m_mcmatch->Fill(match);
+    m_mcmatch->Fill(match);
   }
 }
 
@@ -1831,79 +1829,68 @@ void DQTGlobalWZFinderTool::setDQTGlobalWZFinderBranches(){
 
 
 bool DQTGlobalWZFinderTool::checkTruthElectron(const xAOD::Electron* elec){
-
+  // Check if input electron originates froma ZBoson 
   unsigned int iTypeOfPart;
   unsigned int iPartOrig;
-
   bool truthMatched = false;
-
   const xAOD::TruthParticle* lastElTruth = xAOD::EgammaHelpers::getBkgElectronMother(elec);
+
   if( lastElTruth ){
     auto res = m_truthClassifier->particleTruthClassifier(lastElTruth);
     iTypeOfPart = res.first;
     iPartOrig   = res.second;
-
+    // (type = IsoElectron and origin = ZBoson) or origin FSRPhoton  
     if((iTypeOfPart == 2 && iPartOrig == 13) || (iPartOrig == 40)){
       truthMatched = true;
     }
   }
 
   return truthMatched;
-
 }
 
 
 bool DQTGlobalWZFinderTool::checkTruthMuon(const xAOD::Muon* muon){
+  // Check if input muon originates froma ZBoson 
   bool truthMatched = false;
-  
   std::pair<unsigned int, unsigned int> res;
   ParticleDef partDef;
-
   res=m_truthClassifier->particleTruthClassifier(muon);
-
   unsigned int iTypeOfPart = res.first;
   unsigned int iPartOrig   = res.second;
-
   const auto* thePart = m_truthClassifier->getGenPart();
   
   if(thePart){
     int partpdgID = thePart->absPdgId();
-
+    // (type = IsoMuon and origin = ZBoson)
     if(iTypeOfPart == 6 && iPartOrig == 13){
       truthMatched = true;
     }
   }
 
   return truthMatched;
-
 }
 
 
 
 bool DQTGlobalWZFinderTool::checkTruthTrack(const xAOD::TrackParticle* trk){
+  // Check if input track originates froma ZBoson 
   bool truthMatched = false;
-
   std::pair<unsigned int, unsigned int> res;
   ParticleDef partDef;
-
   res=m_truthClassifier->particleTruthClassifier(trk);
-
   unsigned int iTypeOfPart = res.first;
   unsigned int iPartOrig   = res.second;
-
   const auto* thePart = m_truthClassifier->getGenPart();
 
   if(thePart){
     int partpdgID = thePart->absPdgId();
-
+    // (type = IsoMuon and origin ZBoson)
     if(iTypeOfPart == 6 && iPartOrig == 13){
-      //if(partpdgID == 13 && iPartOrig == 13){
         truthMatched = true;
     }
-
   }
-  return truthMatched;
 
+  return truthMatched;
 }
 
 //----------------------------------------------------------------------------------
