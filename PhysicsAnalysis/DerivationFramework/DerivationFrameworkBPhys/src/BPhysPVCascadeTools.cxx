@@ -18,7 +18,7 @@
 
 DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(CascadeTools *cascadeTools) :
   m_cascadeTools(cascadeTools), m_beamSpotSvc(nullptr), m_PV_minNTracks(0),
-  m_BScached(false)
+  m_BScached(false), m_copyAllVertices(true)
 {
 }
 
@@ -26,7 +26,7 @@ DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(CascadeTools *casc
                                                 const ServiceHandle<IBeamCondSvc>
                                                 *beamSpotSvc) :
   m_cascadeTools(cascadeTools), m_beamSpotSvc(beamSpotSvc), m_PV_minNTracks(0),
-  m_BScached(false)
+  m_BScached(false), m_copyAllVertices(true)
 {
 }
 
@@ -288,7 +288,7 @@ StatusCode DerivationFramework::BPhysPVCascadeTools::FillCandwithRefittedVertice
            const xAOD::Vertex* oldPV = GoodPVs.at(i);
            // when set to false this will return null when a new vertex is not required
 //           ATH_MSG_DEBUG("old PV x " << oldPV->x() << " y " << oldPV->y() << " z " << oldPV->z());
-           const xAOD::Vertex* refPV = pvRefitter->refitVertex(oldPV, exclTrk, true);
+           const xAOD::Vertex* refPV = pvRefitter->refitVertex(oldPV, exclTrk, m_copyAllVertices);
 //           if (refPV) ATH_MSG_DEBUG("ref PV x " << refPV->x() << " y " << refPV->y() << " z " << refPV->z());
            exitCode.push_back(pvRefitter->getLastExitCode());
            // we want positioning to match the goodPrimaryVertices
