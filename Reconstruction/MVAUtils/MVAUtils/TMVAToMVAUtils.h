@@ -107,13 +107,7 @@ std::unique_ptr<MVAUtils::BDT> convert(TMVA::MethodBDT* bdt, bool isRegression =
     }
     newTree((*it)->GetRoot(), isRegression, useYesNoLeaf,nodes);      
   }
-  std::unique_ptr<MVAUtils::BDT> MVAUtils_bdt;
-  MVAUtils_bdt->SetOffset(offset);
-  MVAUtils_bdt->SetSumWeights(sumWeights); 
-  MVAUtils_bdt->SetForest(forest); 
-  MVAUtils_bdt->SetWeights(weights);
-  MVAUtils_bdt->SetNodes(nodes); 
-  return MVAUtils_bdt;
+ return std::make_unique<MVAUtils::BDT>(offset,sumWeights,forest,weights,nodes);
 }  
 }
 #endif

@@ -1,7 +1,5 @@
-// dear emacs, this is really -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MVAUtils_BDT_H
@@ -33,7 +31,30 @@ namespace MVAUtils
   class BDT
   {
   public:
+
+    BDT(float offset,
+        float sumWeights,
+        const std::vector<Node::index_t>& forest,
+        const std::vector<float>& weights,
+        const std::vector<Node>& nodes): 
+      m_offset(offset),
+      m_sumWeights(sumWeights),
+      m_forest(forest),
+      m_weights(weights),
+      m_nodes(nodes){
+      }
+
     BDT(TTree *tree);
+
+    /*
+     * disable everything else and default the dtor
+     * */
+    BDT() = delete;
+    BDT (const BDT&) = delete;
+    BDT& operator=(const BDT&) = delete;
+    BDT (BDT&&) = delete;
+    BDT& operator=(BDT&&) = delete;
+    ~BDT()=default; 
 
     /** return the number of trees in the forest */
     unsigned int GetNTrees() const { return m_forest.size(); }
@@ -66,46 +87,25 @@ namespace MVAUtils
     std::vector<float> GetMultiResponse(const std::vector<float*>& pointers, unsigned int numClasses) const;
     std::vector<float> GetMultiResponse(unsigned int numClasses) const;
 	
-    /** Return the values corresponding to m_pointers (or an empty vector) **/
-    std::vector<float> GetValues() const;
-	
-
     //for debugging, print out tree or forest to stdout
     void PrintForest() const;
     void PrintTree(Node::index_t index) const;
     //dump out a TTree
     TTree* WriteTree(TString name = "BDT");
 	
+    /** Return the values corresponding to m_pointers (or an empty vector) **/
+    std::vector<float> GetValues() const;
+	
     /** Return stored pointers (which are used by GetResponse with no args)*/
     std::vector<float*> GetPointers() const { return m_pointers; }
 
-    /* 
-     * Non const methods usefull for adaptors
-     */
-    /** Set the stored pointers so that one can use GetResponse with no args */
+    /** Set the stored pointers so that one can use GetResponse with no args non-const not MT safe*/
     void SetPointers(const std::vector<float*>& pointers) { m_pointers = pointers; }
 	
-    /** Set the stored weights */
-    void SetWeights(const std::vector<float>& weights) { m_weights = weights; }
-	
-    /** Set the forest head nodes */
-    void SetForest(const std::vector<Node::index_t> forest) { m_forest = forest; }
-	  
-    /** Set the Nodes */
-    void SetNodes (const std::vector<Node> nodes) { m_nodes = nodes; }
-    
-    /** Set the offset */
-    void SetOffset (float offset) { m_offset = offset; }
-
-    /** Set the Sum of weights */
-    void SetSumWeights (float sumWeights) { m_sumWeights = sumWeights; }
-
   private:
 
-    // create new tree from root file
+    // create new tree 
     void newTree(const std::vector<int>& vars, const std::vector<float>& values);
-	
-
     float GetTreeResponse(const std::vector<float>& values, Node::index_t index) const;
     float GetTreeResponse(const std::vector<float*>& pointers, Node::index_t index) const;
 
@@ -113,9 +113,8 @@ namespace MVAUtils
     float m_sumWeights; //!< the sumOfBoostWeights--no need to recompute each call
     std::vector<Node::index_t> m_forest; //!< indices of the top-level nodes of each tree
     std::vector<float> m_weights; //!< boost weights
-    std::vector<float*> m_pointers; //!< where vars to cut on can be set (but can also be passed)
     std::vector<Node> m_nodes; //!< where the nodes of the forest are stored
-	
+    std::vector<float*> m_pointers; //!< where vars to cut on can be set (but can also be passed) 
   };
 }
 

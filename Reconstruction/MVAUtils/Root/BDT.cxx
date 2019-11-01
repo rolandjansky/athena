@@ -17,27 +17,24 @@ BDT::BDT(TTree *tree)
 {
     std::vector<int> *vars = 0;
     std::vector<float> *values = 0;
-    
     tree->SetBranchAddress("offset", &m_offset);
     tree->SetBranchAddress("vars", &vars);
-    tree->SetBranchAddress("values", &values);
-    
+    tree->SetBranchAddress("values", &values);   
     for (int i = 0; i < tree->GetEntries(); ++i)
     {
-	tree->GetEntry(i);
-	assert (vars);
-	assert (values);
-	m_forest.push_back(m_nodes.size());
-	newTree(*vars, *values);
-	m_weights.push_back(m_offset);
-	m_sumWeights+=m_offset;
+      tree->GetEntry(i);
+      assert (vars);
+      assert (values);
+      m_forest.push_back(m_nodes.size());
+      newTree(*vars, *values);
+      m_weights.push_back(m_offset);
+      m_sumWeights+=m_offset;
     }
     
     m_offset = m_weights[0];//original use of m_offset
 
     delete vars;
     delete values;
-
 }
 
 
@@ -60,7 +57,7 @@ void BDT::newTree(const std::vector<int>& vars, const std::vector<float>& values
       auto currParent = parent.top();
       // if right has not been visited, next will be right
       if (currParent >= 0) {
-	right[currParent] = i+1-currParent;
+        right[currParent] = i+1-currParent;
       }
       parent.pop();
     }
@@ -225,8 +222,8 @@ TTree* BDT::WriteTree(TString name)
       auto end = static_cast<Node::index_t>(nodeSize);
       if (i+1 < forSize) end = m_forest[i+1];
       for(auto j = beg; j < end; ++j) {
-	vars.push_back(m_nodes[j].GetVar());
-	values.push_back(m_nodes[j].GetVal());
+        vars.push_back(m_nodes[j].GetVar());
+        values.push_back(m_nodes[j].GetVal());
       }
       m_offset = m_weights[i];
       tree->Fill();
@@ -247,7 +244,6 @@ void BDT::PrintForest() const
   }
     
 }
-
 /** For debugging only:
   * Print the tree in a way that can compare implementations
   * Using pre-order search for now
