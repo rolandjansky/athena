@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Cosmics slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-__author__  = 'A. Cerri, after X. Wu example'
-__version__="$Revision: 1.40 $"
+
 __doc__="Cosmic slice specific flags  "
 
 
@@ -455,16 +454,17 @@ class EFPayload(JobProperty):
 _flags.append(EFPayload)
 
 # create container
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-class CosmicSlice(JobPropertyContainer, CommonSliceHelper):
+
+class CosmicSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Cosmic Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(CosmicSlice)
 
 # add add common slice flags
-TriggerFlags.CosmicSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
+#TriggerFlags.CosmicSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.CosmicSlice.add_JobProperty(flag)

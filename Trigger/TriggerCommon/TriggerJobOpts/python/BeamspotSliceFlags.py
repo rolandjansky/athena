@@ -1,12 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Beamspot slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-__author__  = ''
-__version__="$Revision: 1.4 $"
 __doc__="Beamspot slice specific flags  "
 
 _flags = [] 
@@ -20,16 +18,15 @@ _flags.append(signatures)
 
 
 # create container
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
-class BeamspotSlice(JobPropertyContainer, CommonSliceHelper):
+class BeamspotSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Beamspot Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(BeamspotSlice)
 
 # add add common slice flags
-TriggerFlags.BeamspotSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
+#TriggerFlags.BeamspotSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.BeamspotSlice.add_JobProperty(flag)

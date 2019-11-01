@@ -1,14 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ HeavyIon slice specific flags  """
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
 
-__author__  = 'R. Kwee, B. Demirkoz, T.Bold, T.Kohno, W. H. Bell'
-__version__="$Revision: 1.18 $"
 __doc__="Minimum Bias slice specific flags  "
 
 #
@@ -37,14 +35,14 @@ class signatures(JobProperty):
 _flags.append(signatures)
 
 # create container
-class HeavyIonSlice(JobPropertyContainer, CommonSliceHelper):
+class HeavyIonSlice(JobPropertyContainer, CommonSignatureHelper):
     """ HeavyIon Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(HeavyIonSlice)
 
 # add add common slice flags
-TriggerFlags.HeavyIonSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
+#TriggerFlags.HeavyIonSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.HeavyIonSlice.add_JobProperty(flag)

@@ -3,10 +3,9 @@
 """ MinBias slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-__author__  = 'R. Kwee, B. Demirkoz, T.Bold, T.Kohno, W. H. Bell'
-__version__="$Revision: 1.18 $"
+
 __doc__="Minimum Bias slice specific flags  "
 
 #
@@ -35,14 +34,14 @@ class signatures(JobProperty):
 _flags.append(signatures)
 
 # create container
-class MinBiasSlice(JobPropertyContainer, CommonSliceHelper):
+class MinBiasSlice(JobPropertyContainer, CommonSignatureHelper):
     """ MinBias Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(MinBiasSlice)
 
 # add add common slice flags
-TriggerFlags.MinBiasSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
+#TriggerFlags.MinBiasSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.MinBiasSlice.add_JobProperty(flag)
