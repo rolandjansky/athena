@@ -1,14 +1,12 @@
 
 /*
-
-  Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Package : MdtRawDataMonitoring
 // Author:   N. Benekos(Illinois) - G. Dedes(MPI) - Orin Harris (University of Washington) 
 // Author:   M. Biglietti (INFN Roma3)
-// Sept. 2007
 //
 // DESCRIPTION:
 // Subject: MDT-->Offline Muon Data Quality

@@ -1,5 +1,5 @@
 #                                                           
-#Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration                                                                                           
+#Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # 
 
 NumberOfHitsInBAInnerPerMultiLayer_ADCCut_labelx=['BIA1', 'BIA2', 'BIA3', 'BIA4', 'BIA5', 'BIA6', 'BIA7', 'BIA8']
