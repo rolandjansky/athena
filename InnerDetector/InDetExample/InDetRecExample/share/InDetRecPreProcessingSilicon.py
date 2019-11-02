@@ -54,7 +54,7 @@ if InDetFlags.doPRDFormation():
       clusterSplitProbTool = None
       clusterSplitterTool  = None
       #
-      # --- do we use new splittig or not ?
+      # --- do we use new splitting or not ?
       #
       if InDetFlags.doPixelClusterSplitting():
          #
@@ -80,26 +80,6 @@ if InDetFlags.doPRDFormation():
 
             # --- remember this prob tool  
             clusterSplitProbTool = NnPixelClusterSplitProbTool
-            
-            # --- new NN splitter
-            if InDetFlags.doSLHC():
-                from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitter as PixelClusterSplitter
-            else:
-                from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitter as PixelClusterSplitter
-            NnPixelClusterSplitter=PixelClusterSplitter(name                                = "NnPixelClusterSplitter",
-                                                                 NnClusterizationFactory             = NnClusterizationFactory,
-                                                                 ThresholdSplittingIntoTwoClusters   = 0.5, # temp.
-                                                                 ThresholdSplittingIntoThreeClusters = 0.25, # temp.
-                                                                 SplitOnlyOnBLayer                   = False,
-                                                                 useBeamSpotInfo                     = useBeamConstraint)
-
-            
-            ToolSvc += NnPixelClusterSplitter
-            if (InDetFlags.doPrintConfigurables()):
-              print NnPixelClusterSplitter
-
-            # remember splitter tool  
-            clusterSplitterTool = NnPixelClusterSplitter
             
 
          #
@@ -131,8 +111,6 @@ if InDetFlags.doPRDFormation():
                                                       SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
       # assign the tools if there are any                                                
       if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
-      if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
-
       
       ToolSvc += InDetMergedPixelsTool
       if (InDetFlags.doPrintConfigurables()):
