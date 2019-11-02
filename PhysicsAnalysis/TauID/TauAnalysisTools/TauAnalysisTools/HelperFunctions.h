@@ -25,8 +25,13 @@
 
 // EDM include(s):
 #include "xAODTau/TauJet.h"
+#include "xAODTau/TauxAODHelpers.h"
+#include "xAODTau/DiTauJet.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
+
+// Local include(s):
+#include "TauAnalysisTools/Enums.h"
 
 namespace TauAnalysisTools
 {
@@ -44,6 +49,10 @@ double caloTauP(const xAOD::TauJet& xTau);
 double tauP(const xAOD::TauJet& xTau);
 double tauEta(const xAOD::TauJet& xTau);
 double tauAbsEta(const xAOD::TauJet& xTau);
+double finalTauPt(const xAOD::TauJet& xTau);
+double finalTauEta(const xAOD::TauJet& xTau);
+double finalTauAbsEta(const xAOD::TauJet& xTau);
+double finalTauP(const xAOD::TauJet& xTau);
 double tauLeadTrackEta(const xAOD::TauJet& xTau);
 double truthDecayMode(const xAOD::TauJet& xTau);
 const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau);
@@ -57,6 +66,8 @@ void correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& 
 void truthHadrons(const xAOD::TruthParticle* xTruthTau, std::vector<const xAOD::TruthParticle*>& vChargedHadrons, std::vector<const xAOD::TruthParticle*>& vNeutralHadrons);
 void truthHadrons(const xAOD::TauJet* xTau, std::vector<const xAOD::TruthParticle*>& vChargedHadrons, std::vector<const xAOD::TruthParticle*>& vNeutralHadrons);
 
+e_TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau);
+e_TruthMatchedParticleType getTruthParticleType(const xAOD::DiTauJet& xDiTau);
 }
 
 #endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H

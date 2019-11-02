@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 // $Id: TopObjectSelection.h 810745 2017-09-29 14:03:01Z iconnell $
 #ifndef ANALYSISTOP_TOPOBJECTSELECTONTOOLS_TOPOBJECTSELECTION_H
 #define ANALYSISTOP_TOPOBJECTSELECTONTOOLS_TOPOBJECTSELECTION_H
 
 /**
-  * @author John Morris <john.morris@cern.ch>
-  * 
-  * @brief TopObjectSelection
-  *   Selects top objects according to the ObjectLoaderBase type
-  * 
-  * $Revision: 810745 $
-  * $Date: 2017-09-29 15:03:01 +0100 (Fri, 29 Sep 2017) $
-  * 
-  **/ 
+ * @author John Morris <john.morris@cern.ch>
+ *
+ * @brief TopObjectSelection
+ *   Selects top objects according to the ObjectLoaderBase type
+ *
+ * $Revision: 810745 $
+ * $Date: 2017-09-29 15:03:01 +0100 (Fri, 29 Sep 2017) $
+ *
+ **/
 
 // system include(s):
 #include <memory>
@@ -31,6 +31,7 @@
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
 #include "TopObjectSelectionTools/FwdElectronSelectionBase.h"
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
+#include "TopObjectSelectionTools/SoftMuonSelectionBase.h"
 #include "TopObjectSelectionTools/JetSelectionBase.h"
 #include "TopObjectSelectionTools/TauSelectionBase.h"
 #include "TopObjectSelectionTools/PhotonSelectionBase.h"
@@ -46,21 +47,24 @@
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "TopEvent/Event.h"
 
+#include "xAODMuon/MuonContainer.h"
+#include "xAODJet/JetContainer.h"
+
 // forward declare
-namespace xAOD{
+namespace xAOD {
   class SystematicEvent;
 }
 
 namespace top {
-class TopConfig;
+  class TopConfig;
 
 /**
  * @brief Configure the object selection used in the analysis.  The user should
  * be able to configure this, or if they really really want to, then overload it
  * with a class based on TopObjectSelection and load that at run time. Crazy.
  */
-class TopObjectSelection : public asg::AsgTool {
-public:
+  class TopObjectSelection: public asg::AsgTool {
+  public:
     /**
      * @brief Setup the object selection at the start of the run.
      *
@@ -68,16 +72,16 @@ public:
      * of information about what the user wants (which containers to load for
      * example).  Note that it's not a smart pointer (yet) because of root5
      * restrictions on dynamic class loading.
-     * 
+     *
      */
-    explicit TopObjectSelection( const std::string& name );
-    virtual ~TopObjectSelection(){}
+    explicit TopObjectSelection(const std::string& name);
+    virtual ~TopObjectSelection() {}
 
     // Delete Standard constructors
     TopObjectSelection(const TopObjectSelection& rhs) = delete;
     TopObjectSelection(TopObjectSelection&& rhs) = delete;
-    TopObjectSelection& operator=(const TopObjectSelection& rhs) = delete; 
-    
+    TopObjectSelection& operator = (const TopObjectSelection& rhs) = delete;
+
     StatusCode initialize();
 
     /**
@@ -98,8 +102,8 @@ public:
      * TopObjectSelectionTools).
      */
     void electronSelection(ElectronSelectionBase* ptr);
-    
-    
+
+
     /**
      * @brief Set the code used to select forward electrons.
      *
@@ -121,17 +125,28 @@ public:
      * TopObjectSelectionTools).
      */
     void muonSelection(MuonSelectionBase* ptr);
-    
-     /**
-     * @brief Set the code used to select taus.
+
+    /**
+     * @brief Set the code used to select soft muons.
      *
      * Note that nullptr means that no selection will be applied (so all
      * muons will be accepted).
      *
-     * @param ptr The code used to perform the muon selection (see
+     * @param ptr The code used to perform the soft muon selection (see
      * TopObjectSelectionTools).
      */
-    void tauSelection(TauSelectionBase* ptr);   
+    void softmuonSelection(SoftMuonSelectionBase* ptr);
+
+    /**
+     * @brief Set the code used to select taus.
+     *
+     * Note that nullptr means that no selection will be applied (so all
+     * taus will be accepted).
+     *
+     * @param ptr The code used to perform the taus selection (see
+     * TopObjectSelectionTools).
+     */
+    void tauSelection(TauSelectionBase* ptr);
 
     /**
      * @brief Set the code used to select jets.
@@ -154,7 +169,7 @@ public:
      * TopObjectSelectionTools).
      */
     void photonSelection(PhotonSelectionBase* ptr);
-    
+
 
     /**
      * @brief Set the code used to select large jets.
@@ -166,7 +181,7 @@ public:
      * TopObjectSelectionTools).
      */
     void largeJetSelection(JetSelectionBase* ptr);
-    
+
     /**
      * @brief Set the code used to select track jets.
      *
@@ -176,7 +191,7 @@ public:
      * @param ptr The code used to perform the track jets selection (see
      * TopObjectSelectionTools).
      */
-    void trackJetSelection(JetSelectionBase* ptr);    
+    void trackJetSelection(JetSelectionBase* ptr);
 
     /**
      * @brief Set the code used to perform the overlap removal.  At the moment
@@ -195,40 +210,41 @@ public:
      * @param os Where you would like the output printing to, presumably std::cout?
      */
     virtual void print(std::ostream& os) const;
-    
+
     /**
      * @brief or prehaps you'd like the AsgTool print function
      */
     virtual void print() const;
-
-private:
+  private:
     void applySelectionPreOverlapRemoval();
     void applySelectionPreOverlapRemovalPhotons();
     void applySelectionPreOverlapRemovalElectrons();
     void applySelectionPreOverlapRemovalFwdElectrons();
     void applySelectionPreOverlapRemovalMuons();
+    void applySelectionPreOverlapRemovalSoftMuons();
     void applySelectionPreOverlapRemovalTaus();
     void applySelectionPreOverlapRemovalJets();
     void applySelectionPreOverlapRemovalLargeRJets();
     void applySelectionPreOverlapRemovalTrackJets();
-    
-    virtual StatusCode applyOverlapRemoval();  
-    virtual StatusCode applyOverlapRemoval(const bool isLoose,const std::string& sgKey);
+
+    virtual StatusCode applyOverlapRemoval();
+    virtual StatusCode applyOverlapRemoval(const bool isLoose, const std::string& sgKey);
     virtual StatusCode applyOverlapRemoval(xAOD::SystematicEvent* currentSystematic);
-  
-    void applyTightSelectionPostOverlapRemoval( const xAOD::IParticleContainer* xaod , std::vector<unsigned int>& indices );
-    void trackJetOverlapRemoval(const  xAOD::IParticleContainer* xaod_el, 
-                                const  xAOD::IParticleContainer* xaod_mu,
-                                const  xAOD::IParticleContainer* xaod_tjet,
+
+    void applyTightSelectionPostOverlapRemoval(const xAOD::IParticleContainer* xaod,
+                                               std::vector<unsigned int>& indices);
+    void trackJetOverlapRemoval(const xAOD::IParticleContainer* xaod_el,
+                                const xAOD::IParticleContainer* xaod_mu,
+                                const xAOD::IParticleContainer* xaod_tjet,
                                 std::vector<unsigned int>& goodElectrons,
                                 std::vector<unsigned int>& goodMuons,
-                                std::vector<unsigned int>& goodTrackJets);  
+                                std::vector<unsigned int>& goodTrackJets);
 
     void decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-					 const xAOD::JetContainer* xaod_jet,
-					 std::vector<unsigned int>& goodMuons,
-					 std::vector<unsigned int>& goodJets);
-  
+                                         const xAOD::JetContainer* xaod_jet,
+                                         std::vector<unsigned int>& goodMuons,
+                                         std::vector<unsigned int>& goodJets);
+
     /**
      * @brief Pointer to the configuration object so we can check which objects
      * were requested in the config file.
@@ -237,12 +253,15 @@ private:
 
     ///Electron selection code - can load user defined classes
     std::unique_ptr<top::ElectronSelectionBase> m_electronSelection;
-    
+
     ///Fwd Electron selection code - can load user defined classes
     std::unique_ptr<top::FwdElectronSelectionBase> m_fwdElectronSelection;
 
     ///Muon selection code - can load user defined classes
     std::unique_ptr<top::MuonSelectionBase> m_muonSelection;
+
+    ///Soft Muon selection code - can load user defined classes
+    std::unique_ptr<top::SoftMuonSelectionBase> m_softmuonSelection;
 
     ///Tau selection code - can load user defined classes
     std::unique_ptr<top::TauSelectionBase> m_tauSelection;
@@ -250,45 +269,42 @@ private:
     ///Jet selection code - can load user defined classes
     std::unique_ptr<top::JetSelectionBase> m_jetSelection;
 
-    ///Photon selection code - can load user defined classes                                                                                                         
+    ///Photon selection code - can load user defined classes
     std::unique_ptr<top::PhotonSelectionBase> m_photonSelection;
 
 
     ///Large-R jet selection code - can load user defined classes
     std::unique_ptr<top::JetSelectionBase> m_largeJetSelection;
-    
+
     ///Track jet selection code - can load user defined classes
-    std::unique_ptr<top::JetSelectionBase> m_trackJetSelection;    
+    std::unique_ptr<top::JetSelectionBase> m_trackJetSelection;
 
     ///Overlap removal that runs after all object selection
     std::unique_ptr<top::OverlapRemovalBase> m_overlapRemovalToolPostSelection;
-    
+
     //Electron In Jet Subtraction
     std::unique_ptr<top::ElectronInJetSubtractionCollectionMaker> m_electronInJetSubtractor;
-    
+
     // Pass selection strings
     const std::string m_passPreORSelection;
     const std::string m_passPreORSelectionLoose;
     // the following two are used to give failing JVT jets a lower priority in the OR
     const std::string m_ORToolDecoration;
     const std::string m_ORToolDecorationLoose;
-    
+
     // Do we need to request loose lepton selection
     bool m_doLooseCuts;
-    
+
     // do decorate the jets with the b-tagging flags
-    std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
-    std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
-    
-    // do decorate the large-R jets with the boosted-tagging flags 
-    // and decorate jets with TAccept object containing detailed tag result informaiton
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendation2017#TAcceptUsageSection
-    std::unordered_map<std::string,ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
-    
+    std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelTools;
+    std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_trkjet_btagSelTools;
+
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;
     // Function to decorate event info
     void decorateEventInfoPostOverlapRemoval(int, bool);
-};
+    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
+                                std::vector<unsigned int>& goodJets);
+  };
 }
 #endif

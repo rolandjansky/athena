@@ -567,6 +567,9 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt2LCTopoJets.GhostBQuarksFinal",
                                       "AntiKt2LCTopoJets.GhostTrack",
                                       "AntiKt2LCTopoJets.GhostTrackCount",
+                                      "BTagging_AntiKt4EMTopo_201810.JetVertexCharge_discriminant",
+                                      "BTagging_AntiKt4EMPFlow_201810.JetVertexCharge_discriminant",
+                                      "BTagging_AntiKt4EMPFlow_201903.JetVertexCharge_discriminant",
                                       "Photons."+NewTrigVars["Photons"]
                                       ]
 

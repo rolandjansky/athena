@@ -69,7 +69,6 @@ public:
                               const xAOD::DiTauJet& xDiTau,
                               double& dEfficiencyScaleFactor) const;
 
-  e_TruthMatchedParticleType checkTruthMatch(const xAOD::DiTauJet& xDiTau) const;
   void generateSystematicSets();
 
   bool m_bSFIsAvailable;

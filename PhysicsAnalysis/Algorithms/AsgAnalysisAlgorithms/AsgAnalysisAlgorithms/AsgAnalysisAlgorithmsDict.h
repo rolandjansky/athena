@@ -23,6 +23,7 @@
 #include <AsgAnalysisAlgorithms/ObjectCutFlowHistAlg.h>
 #include <AsgAnalysisAlgorithms/OverlapRemovalAlg.h>
 #include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
+#include <AsgAnalysisAlgorithms/PMGTruthWeightAlg.h>
 #include <AsgAnalysisAlgorithms/SysListDumperAlg.h>
 #include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 #include <AsgAnalysisAlgorithms/TreeFillerAlg.h>

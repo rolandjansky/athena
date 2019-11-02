@@ -132,7 +132,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::EgammaCalibrationAndSmearingTool' )
-    alg.calibrationAndSmearingTool.ESModel = 'es2017_R21_v1'
+    alg.calibrationAndSmearingTool.ESModel = 'es2018_R21_v0'
     alg.calibrationAndSmearingTool.decorrelationModel = '1NP_v1'
     if dataType == 'afii':
         alg.calibrationAndSmearingTool.useAFII = 1

@@ -242,6 +242,68 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializeDefault()
     return zdcDataAnalyzer;
 }
 
+std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2015G4()
+{
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples;
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
+    ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCut;
+    ZDCDataAnalyzer::ZDCModuleBoolArray  fixTau1Arr, fixTau2Arr;
+
+    const int   peakSample = 4;
+    const float peak2ndDerivThreshHG = -12;
+    const float peak2ndDerivThreshLG = -10;
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {{{4.000, 4.000, 4.000, 4.000},
+                                                     {4.000, 4.000, 4.000, 4.000}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau2Arr = {{{25.36, 25.05, 25.43, 25.60},
+                                                     {25.11, 25.08, 25.18, 25.48}}};
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{57.31, 57.28, 57.30, 57.28},
+                                                  {57.28, 57.29, 57.31, 57.33}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{57.31, 57.28, 57.30, 57.28},
+                                                  {57.28, 57.29, 57.31, 57.33}}};
+
+    // Delta T0 cut
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG  = {{{-10, -10, -10, -10}, {-10, -10, -10, -10}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{ 10,  10,  10,  10}, { 10,  10,  10,  10}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG  = {{{-10, -10, -10, -10}, {-10, -10, -10, -10}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{ 10,  10,  10,  10}, { 10,  10,  10,  10}}};
+
+    for (size_t side : {0, 1}) {
+        for (size_t module : {0, 1, 2, 3}) {
+            fixTau1Arr[side][module] = true;
+            fixTau2Arr[side][module] = true;
+
+            peak2ndDerivMinSamples[side][module] = peakSample;
+            peak2ndDerivMinThresholdsHG[side][module] = peak2ndDerivThreshHG;
+            peak2ndDerivMinThresholdsLG[side][module] = peak2ndDerivThreshLG;
+
+            chisqDivAmpCut[side][module] = 15;
+        }
+    }
+
+    ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC  = {{{{ 800,  800,  800,  800}}, {{ 800,  800,  800,  800}}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{  10,   10,   10,   10}}, {{  10,   10,   10,   10}}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC  = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
+
+    m_deltaTSample = 12.5;
+
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), 7, m_deltaTSample, 0, "FermiExp", peak2ndDerivMinSamples,
+        peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly));
+
+    // Open up tolerances on the position of the peak for now
+    //
+    zdcDataAnalyzer->SetPeak2ndDerivMinTolerances(1);
+
+    zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
+    zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0HG, t0LG);
+    zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
+
+    zdcDataAnalyzer->SetFitTimeMax(85);
+
+    return zdcDataAnalyzer;
+}
+
 std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 {
     //
@@ -251,7 +313,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples;
     ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
     ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCut;
-    ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
+    ZDCDataAnalyzer::ZDCModuleBoolArray  fixTau1Arr, fixTau2Arr;
 
     //  For now we allow the tau values to be controlled by the job properties until they are better determined
     //
@@ -274,9 +336,9 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
                                                 }};
 
     // Delta T0 cut
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG  = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{8, 8, 8, 11}, {8, 10, 8, 12}}};
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG  = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{8, 8, 8, 11}, {8, 10, 8, 12}}};
 
 
@@ -296,6 +358,28 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
     ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
+
+    std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
+    slewingParamsHG[0][0] = {0, 0, 0, 0};
+    slewingParamsHG[0][1] = { -4.780244e-01, -7.150874e-02, 4.614585e-02,  8.015731e-04};
+    slewingParamsHG[0][2] = { -5.253412e-01, -5.718167e-02, 5.243121e-02,  2.128398e-03};
+    slewingParamsHG[0][3] = { -5.773952e-01, -5.687478e-02, 4.564267e-02,  1.462294e-03};
+
+    slewingParamsHG[1][0] = { 7.105115e-01, -3.686143e-02, 7.727447e-02,  5.924152e-03};
+    slewingParamsHG[1][1] = { 4.052120e-02,  4.450686e-03, 8.031615e-02,  4.038097e-03};
+    slewingParamsHG[1][2] = { 3.389476e-02, -2.056782e-02, 4.805321e-02, -2.627999e-03};
+    slewingParamsHG[1][3] = { 2.069765e-01, -2.890419e-02, 6.084375e-02,  3.742011e-03};
+
+    slewingParamsLG[0][0] = {0, 0, 0, 0};
+    slewingParamsLG[0][1] = { -1.632547e+00, -4.827813e-01, -1.379131e-01, -2.522607e-02};
+    slewingParamsLG[0][2] = { -7.254288e+00, -5.454064e+00, -1.619126e+00, -1.739665e-01};
+    slewingParamsLG[0][3] = { -1.548400e+01, -1.277708e+01, -3.729333e+00, -3.700458e-01};
+
+    slewingParamsLG[1][0] = {  1.142767e-01, -3.608906e-02,  9.642735e-02, -3.097043e-03};
+    slewingParamsLG[1][1] = { -5.615388e-01, -1.655047e-02,  8.327350e-02, -4.231348e-03};
+    slewingParamsLG[1][2] = { -7.370728e-01, -2.887482e-02,  8.293875e-02, -4.482743e-03};
+    slewingParamsLG[1][3] = { -1.270636e+00, -2.791777e-01, -5.807295e-02, -2.332612e-02};
 
     //  Construct the data analyzer
     //
@@ -324,7 +408,8 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 
     zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting
-    //  }
+    zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
     return zdcDataAnalyzer;
 }
@@ -378,6 +463,28 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
     ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
+    std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
+    slewingParamsHG[0][0] = { -1.335560e-01, -6.071869e-03, 5.858193e-02,  2.473300e-03};
+    slewingParamsHG[0][1] = { -1.223062e-01, -4.379469e-02, 4.452285e-02,  2.130210e-03};
+    slewingParamsHG[0][2] = { -1.021415e-01, -4.254239e-02, 4.939866e-02,  3.849738e-03};
+    slewingParamsHG[0][3] = { -8.234056e-02, -3.938803e-02, 4.689029e-02,  2.784816e-03};
+
+    slewingParamsHG[1][0] = { -1.640979e-01, -2.780350e-02, 5.755065e-02, -4.244651e-04};
+    slewingParamsHG[1][1] = { -1.422324e-01,  2.663803e-02, 7.295366e-02,  3.740496e-03};
+    slewingParamsHG[1][2] = { -9.858124e-02, -2.426132e-02, 4.895967e-02,  2.291393e-03};
+    slewingParamsHG[1][3] = { -1.070401e-01, -2.256383e-03, 5.833770e-02,  2.255208e-03};
+
+    slewingParamsLG[0][0] = { -2.588446e-01, -3.241086e-02, 7.828661e-02,  1.945547e-03};
+    slewingParamsLG[0][1] = { -3.112495e-01, -7.419508e-02, 6.825776e-02,  2.148860e-03};
+    slewingParamsLG[0][2] = { -3.470650e-01, -5.836748e-02, 6.204396e-02,  1.550421e-03};
+    slewingParamsLG[0][3] = { -4.485435e-01, -4.603790e-02, 5.944799e-02, -1.174585e-03};
+
+    slewingParamsLG[1][0] = { -3.291676e-01, -4.023732e-02, 8.608755e-02, -3.958167e-03};
+    slewingParamsLG[1][1] = { -2.608969e-01, -2.129786e-03, 6.930791e-02, -4.141910e-03};
+    slewingParamsLG[1][2] = { -2.505712e-01, -2.195804e-02, 5.137261e-02, -4.058378e-03};
+    slewingParamsLG[1][3] = { -5.083206e-01,  3.776601e-02, 1.284275e-01,  1.014067e-02};
+
     //  Construct the data analyzer
     //
     //  We adopt hard-coded values for the number of samples and the frequency which we kept fixed for all physics data
@@ -410,6 +517,8 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting, requested by BAC 4/6/19
+    zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
+    // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
     return zdcDataAnalyzer;
 }
@@ -671,6 +780,9 @@ StatusCode ZdcAnalysisTool::initialize()
     }
     else if (m_configuration == "PbPb2018") {
         m_zdcDataAnalyzer = initializePbPb2018();
+    }
+    else if (m_configuration == "PbPb2015G4") {
+      m_zdcDataAnalyzer = initializePbPb2015G4();
     }
     else {
         ATH_MSG_ERROR("Unknown configuration: "  << m_configuration);

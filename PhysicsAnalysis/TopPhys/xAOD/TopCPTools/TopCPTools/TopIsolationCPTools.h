@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPCPTOOLS_TOPISOLATIONCPTOOLS_H_
 #define TOPCPTOOLS_TOPISOLATIONCPTOOLS_H_
@@ -17,31 +17,29 @@
 
 // Isolation include(s):
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 
 namespace top {
+  class TopConfig;
 
-class TopConfig;
+  class IsolationCPTools final: public asg::AsgTool {
+  public:
+    explicit IsolationCPTools(const std::string& name);
+    virtual ~IsolationCPTools() {}
 
-class IsolationCPTools final : public asg::AsgTool {
- public:
-  explicit IsolationCPTools(const std::string& name);
-  virtual ~IsolationCPTools() {}
+    StatusCode initialize();
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
-  StatusCode initialize();
+    std::string m_isolationCalibFile;
 
- private:
-  std::shared_ptr<top::TopConfig> m_config;
+    ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
+    ToolHandleArray<CP::IIsolationSelectionTool> m_isolationTools;
+    ToolHandleArray<CP::IIsolationLowPtPLVTool> m_isolationToolsLowPtPLV;
 
-  int m_release_series = 24;  // Default to 2.4
-
-  std::string m_isolationCalibFile;
-
-  ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
-  ToolHandleArray<CP::IIsolationSelectionTool> m_isolationTools;
-
-  StatusCode setupIsolation();
-};
+    StatusCode setupIsolation();
+  };
 }  // namespace top
 
 #endif  // TOPCPTOOLS_TOPISOLATIONCPTOOLS_H_

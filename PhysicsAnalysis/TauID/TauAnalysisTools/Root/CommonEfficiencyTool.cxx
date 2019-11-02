@@ -69,8 +69,8 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   : asg::AsgTool( sName )
   , m_mSF(nullptr)
   , m_sSystematicSet(0)
-  , m_fX(&caloTauPt)
-  , m_fY(&caloTauEta)
+  , m_fX(&finalTauPt)
+  , m_fY(&finalTauEta)
   , m_sSFHistName("sf")
   , m_bNoMultiprong(false)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
@@ -174,7 +174,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   }
 
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;
@@ -496,8 +496,8 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
   m_mSF->clear();
 
   // initialize function pointer
-  m_fX = &caloTauPt;
-  m_fY = &caloTauEta;
+  m_fX = &finalTauPt;
+  m_fY = &finalTauEta;
 
   TKey *kKey;
   TIter itNext(fFile.GetListOfKeys());
@@ -511,9 +511,9 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
       TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
-      if (sTitle == "P")
+      if (sTitle == "P" || sTitle == "PFinalCalib")
       {
-        m_fX = &caloTauP;
+        m_fX = &finalTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
       if (sTitle == "TruthDecayMode")
@@ -536,7 +536,7 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &caloTauAbsEta;
+        m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
       continue;
@@ -793,46 +793,4 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
   // evaluate TFunction and set scale factor
   dEfficiencyScaleFactor = fFunc->Eval(dPt, dEta);
   return CP::CorrectionCode::Ok;
-}
-
-/*
-  Check the type of truth particle, previously matched with the
-  TauTruthMatchingTool. The type to match was parsed from the input file in
-  CommonEfficiencyTool::generateSystematicSets()
-*/
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonEfficiencyTool::checkTruthMatch(const xAOD::TauJet& xTau) const
-{
-
-  // check if reco tau is a truth hadronic tau
-  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
-    ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first");
-
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
-  const Link_t xTruthParticleLink = accTruthParticleLink(xTau);
-
-  // if there is no link, then it is a truth jet
-  e_TruthMatchedParticleType eTruthMatchedParticleType = TauAnalysisTools::TruthJet;
-
-  if (xTruthParticleLink.isValid())
-  {
-    const xAOD::TruthParticle* xTruthParticle = *xTruthParticleLink;
-    if (xTruthParticle->isTau())
-    {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
-      if ((bool)accIsHadronicTau(*xTruthParticle))
-      {
-        eTruthMatchedParticleType = TruthHadronicTau;
-      }
-    }
-    else if (xTruthParticle->isElectron())
-      eTruthMatchedParticleType = TruthElectron;
-    else if (xTruthParticle->isMuon())
-      eTruthMatchedParticleType = TruthMuon;
-  }
-  else
-    ATH_MSG_VERBOSE("Truth particle link is not valid");
-
-  return eTruthMatchedParticleType;
 }

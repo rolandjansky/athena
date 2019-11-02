@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPTOPCORRECTIONTOOLS_H__
 #define TOPTOPCORRECTIONTOOLS_H__
@@ -8,16 +8,10 @@
 #include "TopConfiguration/TopConfig.h"
 #include <string>
 
-namespace top{
-
+namespace top {
   // Functions useful for b-tagging systematic name mapping
   std::string bTagNamedSystCheck(std::shared_ptr<top::TopConfig>, const std::string, const std::string, bool);
-  std::string betterBtagNamedSyst (const std::string);
-
-
-
-
-
+  std::string betterBtagNamedSyst(const std::string);
 }
 
 #endif

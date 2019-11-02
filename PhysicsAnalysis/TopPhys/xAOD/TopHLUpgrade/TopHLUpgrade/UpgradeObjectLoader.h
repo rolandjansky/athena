@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef _TOP_UPGRADEOBJECTLOADER_H_
 #define _TOP_UPGRADEOBJECTLOADER_H_
@@ -27,15 +27,12 @@ namespace top {
 }
 
 namespace top {
-
-  class UpgradeObjectLoader : public asg::AsgTool {
-
+  class UpgradeObjectLoader: public asg::AsgTool {
   public:
-
     /*!
      * @brief Constructor of loader tool.
      */
-    UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> & cfg );
+    UpgradeObjectLoader(const std::shared_ptr<top::TopConfig>& cfg);
 
     /*!
      * @brief Destructor of loader tool.
@@ -51,18 +48,16 @@ namespace top {
      * @return ParticleLevelEvent object.
      */
     ParticleLevelEvent load();
-    
+
     /*!
      * @brief Function that can be used to test whether the UpgradeObjectLoader
      *  is active. The loader is set to inactive if the names of the truth
      *  collections are unavailable. This is determined at construction.
      */
-    bool active() const { return m_active; }
-    
+    bool active() const {return m_active;}
   private:
-
     // The global config object
-    const std::shared_ptr<top::TopConfig> & m_config;
+    const std::shared_ptr<top::TopConfig>& m_config;
 
     // pointer to smearing function object
     std::unique_ptr<UpgradePerformanceFunctionsxAOD> m_upgrade;
@@ -109,9 +104,7 @@ namespace top {
 
     // Photon selector tool
     std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Photon;
-
   };//class UpgradeObjectLoader
-
 }//namespace top
 
 #endif //_TOP_UPGRADEOBJECTLOADER_H_

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Example standalone executable using TEvent (from POOL or xAODRootAccess) to read an xAOD
@@ -84,10 +84,12 @@ int main(int argc, char *argv[])
 #endif
   ANA_MSG_INFO("Opened file: " << fileName);
 
+  // Hack to load the file
+  event.getEntries();
+
   // Create the truth weight tool:
   ANA_MSG_INFO("Creating PMGTruthWeightTool...");
 #ifdef XAOD_STANDALONE
-  ANA_MSG_INFO("Creating PMGTruthWeightTool...");
   asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > weightTool;
   ASG_SET_ANA_TOOL_TYPE(weightTool, PMGTools::PMGTruthWeightTool);
   weightTool.setName("PMGTruthWeightTool");

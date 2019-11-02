@@ -26,9 +26,24 @@ def IsSUSYSignal():
     mc_channel_number = fileinfo.mc_channel_number[0]
     if mc_channel_number==0: mc_channel_number = fileinfo.run_number[0]
 
-    # https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/share/Blocks.list
-    issusy = (370000 <= mc_channel_number < 405000) or (406000 <= mc_channel_number < 410000) \
-             or (436000 <= mc_channel_number < 439000) or (448000 <= mc_channel_number < 449000)
+    import os
+    if not os.access('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/Blocks.list',os.R_OK):
+      # Do it the old-fashioned way
+      # https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/share/Blocks.list
+      issusy = (370000 <= mc_channel_number < 405000) or (406000 <= mc_channel_number < 410000) \
+               or (436000 <= mc_channel_number < 439000) or (448000 <= mc_channel_number < 450000)
+    else:
+      # Automatic detection based on cvmfs
+      issusy = False
+      blocks = open('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/Blocks.list','r')
+      for l in blocks.readlines():
+        if not 'SUSY' in l: continue
+        myrange = l.split()[0].replace('DSID','').replace('xxx','000',1).replace('xxx','999',1)
+        low = int(myrange.split('-')[0])
+        high = int(myrange.split('-')[1]) if '-' in myrange else int(myrange.replace('000','999'))
+        if low <= mc_channel_number and mc_channel_number <= high:
+          issusy=True
+          break
     print "DecorateSUSYProcess: fileinfo.mc_channel_number", mc_channel_number, "is SUSY:", issusy
     return issusy
   else:

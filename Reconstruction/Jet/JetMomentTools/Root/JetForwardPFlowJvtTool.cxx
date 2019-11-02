@@ -131,7 +131,7 @@
     std::vector<TVector2> pileupMomenta;
 
     // -- Retrieve PV index if not provided by user
-    int pv_index = (pvind==-1) ? getPV() : pvind;
+    const std::size_t pv_index = (pvind==-1) ? getPV() : std::size_t(pvind);
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
@@ -175,7 +175,7 @@
         }
       }
       pileupMomenta.push_back(vertex_met);
-      if(vertices!=-1 && vx->index()==vertices) break;
+      if(vertices!=-1 && int(vx->index())==vertices) break;
     }
     return pileupMomenta;
   }
@@ -191,7 +191,7 @@
 
   void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
     
-    int pv_index = (m_pvind==-1) ? getPV() : m_pvind;
+    const std::size_t pv_index = (m_pvind==-1) ? getPV() : std::size_t (m_pvind);
 
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
@@ -279,12 +279,14 @@
     return Rpt;
   }
 
-  int JetForwardPFlowJvtTool::getPV() const{
+  std::size_t JetForwardPFlowJvtTool::getPV() const{
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
       ATH_MSG_ERROR("Unable to retrieve primary vertex container");
-      return StatusCode::FAILURE;
+      // this almost certainly isn't what we should do here, the
+      // caller doesn't check this for errors
+      return 0;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
       for(const xAOD::Vertex *vx : *vxCont) {
@@ -292,7 +294,9 @@
       }
     }
     ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
-    return StatusCode::FAILURE;
+    // this almost certainly isn't what we should do here, the
+    // caller doesn't check this for errors
+    return 0;
   }
 
   StatusCode JetForwardPFlowJvtTool::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {

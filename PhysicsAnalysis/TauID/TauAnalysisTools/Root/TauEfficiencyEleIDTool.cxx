@@ -33,7 +33,7 @@ CP::CorrectionCode TauEfficiencyEleIDTool::getEfficiencyScaleFactor(const xAOD::
     double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   // check which true state is requestet
-  if (checkTruthMatch(xTau) != m_eCheckTruth)
+  if (getTruthParticleType(xTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;

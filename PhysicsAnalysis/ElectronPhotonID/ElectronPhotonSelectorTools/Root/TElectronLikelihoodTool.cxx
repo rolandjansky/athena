@@ -332,10 +332,10 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	  
 	  char pdfdir[256];
 	  snprintf(pdfdir,256,"%s/%s",vstr.c_str(),sig_bkg.c_str());
-	  char pdf[256];
-	  snprintf(pdf,256,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
-	  char pdf_newname[256];
-	  snprintf(pdf_newname,256,"%s_%s_%s_LHtool_copy_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
+	  char pdf[282];
+	  snprintf(pdf,sizeof(pdf),"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
+	  char pdf_newname[300];
+	  snprintf(pdf_newname,sizeof(pdf_newname),"%s_%s_%s_LHtool_copy_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
 
 	  if (!m_pdfFile->GetListOfKeys()->Contains(vstr.c_str())){
 	    ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
@@ -352,8 +352,8 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	  if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
 	    //std::cout << "Info: using 7 GeV bin in place of 4 GeV bin." << std::endl;
 	    getBinName( binname, et_tmp+1, eta_tmp );
-	    snprintf(pdf,256,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
-	    snprintf(pdf_newname,256,"%s_%s_%s_LHtool_copy4GeV_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
+	    snprintf(pdf,sizeof(pdf),"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
+	    snprintf(pdf_newname,sizeof(pdf_newname),"%s_%s_%s_LHtool_copy4GeV_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
 	  }
 	  if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
 	    TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));

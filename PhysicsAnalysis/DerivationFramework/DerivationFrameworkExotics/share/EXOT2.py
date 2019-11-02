@@ -77,6 +77,11 @@ if DerivationFrameworkIsMonteCarlo:
     ToolSvc += EXOT2MCThinningTool
     thinningTools += EXOT2MCThinningTool
 
+
+import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
+if DerivationFrameworkIsMonteCarlo: 
+    MCTruthCommon.addStandardTruthContents()
+
 #further truth thinning to ensure useful parton info
 if DerivationFrameworkIsMonteCarlo:
     truth_cond_jets = "(((abs(TruthParticles.pdgId) > 0) && (abs(TruthParticles.pdgId) <= 7) || (abs(TruthParticles.pdgId) == 21)) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
@@ -139,7 +144,7 @@ EXOT2SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
 TrigJetCleaningVars = '.ECPSFraction.N90Constituents.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterCenterLambda.LeadingClusterSecondR.CentroidR.OotFracClusters5.OotFracClusters10.Timing.GhostTruthAssociationFraction'
 TruthAssociationVars = '.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount'
 
-EXOT2SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt.eta.phi.m","AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"+TruthAssociationVars+TrigJetCleaningVars,"PrimaryVertices.trackParticleLinks.x.y.z.vertexType.neutralParticleLinks"
+EXOT2SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt.eta.phi.m","AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"+TruthAssociationVars+TrigJetCleaningVars,"PrimaryVertices.trackParticleLinks.x.y.z.vertexType.neutralParticleLinks","AntiKt4EMPFlowJets"+TruthAssociationVars
                                       ]
 
 EXOT2SlimmingHelper.AllVariables = ["TruthEvents",

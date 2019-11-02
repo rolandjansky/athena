@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EVENTTOOLS_H_
 #define EVENTTOOLS_H_
@@ -20,11 +20,11 @@
  */
 
 namespace xAOD {
-class IParticle;
+  class IParticle;
 }
 
 namespace top {
-class Event;
+  class Event;
 
 /**
  * @brief Print an error message and terminate if thingToCheck is false.
@@ -37,7 +37,7 @@ class Event;
  * @param thingToCheck The thing to check.  If it's false then print the error
  * message and quit.
  */
-void check(bool thingToCheck, const std::string& usefulFailureMessage);
+  void check(bool thingToCheck, const std::string& usefulFailureMessage);
 
 /**
  * @brief Calculate the delta-r distance between two particles (e.g. an Electron
@@ -50,7 +50,7 @@ void check(bool thingToCheck, const std::string& usefulFailureMessage);
  * @param p2 The second particle of the two.
  * @return delta-R metric.
  */
-double deltaR(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
+  double deltaR(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
 
 /**
  * @brief Calculate delta-phi between two particles (e.g. an Electron and a
@@ -60,7 +60,7 @@ double deltaR(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
  * @param p2 The second particle of the two.
  * @return Signed delta-phi in radians.
  */
-double deltaPhi(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
+  double deltaPhi(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
 
 /**
  * @brief Calculate the transverse mass of the W from the charged lepton and
@@ -70,7 +70,7 @@ double deltaPhi(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
  *
  * @return The calculated value, obviously.
  */
-double mwt(const xAOD::IParticle& lepton, const xAOD::MissingET& met);
+  double mwt(const xAOD::IParticle& lepton, const xAOD::MissingET& met);
 
 /**
  * @brief HT calculation.
@@ -80,7 +80,7 @@ double mwt(const xAOD::IParticle& lepton, const xAOD::MissingET& met);
  *
  * @return The HT value.
  */
-double ht(const top::Event& event);
+  double ht(const top::Event& event);
 
 /**
  * @brief Calculate the invariant mass of two particles.
@@ -93,14 +93,14 @@ double ht(const top::Event& event);
  *
  * @return The invariant mass of the pair.
  */
-double invariantMass(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
+  double invariantMass(const xAOD::IParticle& p1, const xAOD::IParticle& p2);
 
 /**
  * @brief Is this event MC simulation (True) or data (False)?
  *
  * @return True if the event is MC simulation.
  */
-bool isSimulation(const top::Event& event);
+  bool isSimulation(const top::Event& event);
 
 /**
  * @brief Used when sorting the e, mu, jet, tau containers after CP corrections.
@@ -112,17 +112,16 @@ bool isSimulation(const top::Event& event);
  * @param p2 The second particle of the two.
  *
  */
-bool descendingPtSorter(const xAOD::IParticle* p0, const xAOD::IParticle* p1);
+  bool descendingPtSorter(const xAOD::IParticle* p0, const xAOD::IParticle* p1);
 
 /**
  * @brief Function used to create poisson weights (mean of 1) for bootstrapping
- * 
+ *
  * @param nreplicas The number of replicas to fill (corresponds to size of output vector)
  * @param eventNumber The event number used to seed TRandom3
  * @param mcChannelNumber The DSID of MC event used to seed TRandom3
  */
-std::vector<int> calculateBootstrapWeights(int nreplicas, int eventNumber, int mcChannelNumber);
-
+  std::vector<int> calculateBootstrapWeights(int nreplicas, int eventNumber, int mcChannelNumber);
 }
 
 #endif

@@ -23,11 +23,13 @@ namespace DerivationFramework {
       //!< Helper function to add truth particles to a collection
       static int addTruthParticle(const xAOD::TruthParticle& oldPart, xAOD::TruthParticleContainer* partCont,
                           xAOD::TruthVertexContainer* vertCont, std::vector<int>& seenParticles,
-                          const int generations);
+                          const int generations, bool includeVertex=true);
       //!< Helper function to add truth vertices to a collection
       static int addTruthVertex( const xAOD::TruthVertex& oldVert, xAOD::TruthParticleContainer* partCont,
                           xAOD::TruthVertexContainer* vertCont, std::vector<int>& seenParticles,
                           const int generations);
+      //!< Helper function to set up a truth particle based on an old particle
+      static xAOD::TruthParticle* setupTruthParticle(const xAOD::TruthParticle& oldPart, xAOD::TruthParticleContainer* partCont);
   }; 
 }
 

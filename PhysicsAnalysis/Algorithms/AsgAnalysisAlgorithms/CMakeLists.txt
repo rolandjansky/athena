@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
    Event/xAOD/xAODCore
    Event/xAOD/xAODJet
@@ -74,6 +75,9 @@ if( XAOD_STANDALONE )
   atlas_add_test( OverlapRemovalTestJobFastSim
      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type afii --unit-test
      PROPERTIES TIMEOUT 600 )
+  atlas_add_test( GeneratorAlgsTestJobFullSim
+     SCRIPT GeneratorAlgorithmsTest_eljob.py --data-type mc --unit-test
+     PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( EventAlgsTestJobData
       SCRIPT athena.py
@@ -86,6 +90,10 @@ else()
    atlas_add_test( EventAlgsTestJobFastSim
       SCRIPT athena.py
              AsgAnalysisAlgorithms/EventAlgorithmsTest_jobOptions.py - --data-type afii
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( GeneratorAlgsTestJob
+      SCRIPT athena.py
+               AsgAnalysisAlgorithms/GeneratorAlgorithmsTest_jobOptions.py - --data-type mc
       PROPERTIES TIMEOUT 600 )
 
    if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )

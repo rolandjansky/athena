@@ -72,6 +72,11 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 
   ATH_MSG_VERBOSE( "Starting FillPhoton on ph with pre-calibration pt=" << input.pt() );
 
+  if ( !input.caloCluster() ) {
+     ATH_MSG_WARNING( "FillPhoton: no caloCluster found: " << input.caloCluster() );
+     return StatusCode::SUCCESS;
+  }
+
   if (m_debug) {
     ATH_MSG_INFO( "PHOTON eta: " << input.eta() );
     ATH_MSG_INFO( "PHOTON phi: " << input.phi() );

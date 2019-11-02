@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPCPTOOLS_TOPGHOSTTRACKCPTOOLS_H_
 #define TOPCPTOOLS_TOPGHOSTTRACKCPTOOLS_H_
@@ -25,42 +25,47 @@
 
 
 namespace top {
+  class TopConfig;
 
-class TopConfig;
+  class GhostTrackCPTools final: public asg::AsgTool {
+  public:
+    explicit GhostTrackCPTools(const std::string& name);
+    virtual ~GhostTrackCPTools() {}
 
-class GhostTrackCPTools final : public asg::AsgTool {
- public:
-  explicit GhostTrackCPTools(const std::string& name);
-  virtual ~GhostTrackCPTools() {}
+    StatusCode initialize();
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
-  StatusCode initialize();
+    std::vector<std::uint32_t> m_runPeriods;
 
- private:
-  std::shared_ptr<top::TopConfig> m_config;
+    const std::string m_smearingToolName {
+      "top::GhostTrackCPTools::InDetTrackSmearingTool"
+    };
+    const std::string m_biasToolPrefix {
+      "top::GhostTrackCPTools::InDetTrackBiasingTool"
+    };
+    const std::string m_truthOriginToolName {
+      "top::GhostTrackCPTools::InDetTrackTruthOriginTool"
+    };
+    const std::string m_truthFilterToolName {
+      "top::GhostTrackCPTools::InDetTrackTruthFilterTool"
+    };
+    const std::string m_jetTrackFilterToolName {
+      "top::GhostTrackCPTools::JetTrackFilterTool"
+    };
 
-  int m_release_series = 24;  // Default to 2.4
+    ToolHandle<InDet::InDetTrackSmearingTool>      m_smearingTool;
+    ToolHandle<InDet::InDetTrackTruthOriginTool>   m_truthOriginTool;
+    ToolHandle<InDet::InDetTrackTruthFilterTool>   m_truthFilterTool;
+    ToolHandle<InDet::JetTrackFilterTool>          m_jetTrackFilterTool;
 
-  std::vector<std::uint32_t> m_runPeriods;
+    std::vector<ToolHandle<InDet::InDetTrackBiasingTool> > m_biasingTool;
 
-  const std::string m_smearingToolName{"top::GhostTrackCPTools::InDetTrackSmearingTool"};
-  const std::string m_biasToolPrefix{"top::GhostTrackCPTools::InDetTrackBiasingTool"};
-  const std::string m_truthOriginToolName{"top::GhostTrackCPTools::InDetTrackTruthOriginTool"};
-  const std::string m_truthFilterToolName{"top::GhostTrackCPTools::InDetTrackTruthFilterTool"};
-  const std::string m_jetTrackFilterToolName{"top::GhostTrackCPTools::JetTrackFilterTool"};
-
-  ToolHandle<InDet::InDetTrackSmearingTool>      m_smearingTool;
-  ToolHandle<InDet::InDetTrackTruthOriginTool>   m_truthOriginTool;
-  ToolHandle<InDet::InDetTrackTruthFilterTool>   m_truthFilterTool;
-  ToolHandle<InDet::JetTrackFilterTool>          m_jetTrackFilterTool;
-
-  std::vector<ToolHandle<InDet::InDetTrackBiasingTool> > m_biasingTool;
-
-  StatusCode setupSmearingTool();
-  StatusCode setupBiasingTools();
-  StatusCode setupTruthFilterTool();
-  StatusCode setupJetTrackFilterTool();
-
-};
+    StatusCode setupSmearingTool();
+    StatusCode setupBiasingTools();
+    StatusCode setupTruthFilterTool();
+    StatusCode setupJetTrackFilterTool();
+  };
 }  // namespace top
 
 #endif  // TOPCPTOOLS_TOPGHOSTTRACKCPTOOLS_H_

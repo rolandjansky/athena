@@ -1,0 +1,31 @@
+{
+    "node_name": "node_0",
+    "subjet": {
+        "collection": "GhostVR30Rmax4Rmin02TrackJetGhostTag",
+        "pt_threshold": 0.0,
+		"variables":["JetFitter_N2Tpair", "JetFitter_dRFlightDir", "JetFitter_deltaeta", "JetFitter_deltaphi", "JetFitter_energyFraction", "JetFitter_mass", "JetFitter_massUncorr", "JetFitter_nSingleTracks", "JetFitter_nTracksAtVtx", "JetFitter_nVTX", "JetFitter_significance3d","SV1_L3d", "SV1_Lxy", "SV1_N2Tpair", "SV1_NGTinSvx", "SV1_deltaR", "SV1_dstToMatLay", "SV1_efracsvx", "SV1_masssvx", "SV1_significance3d","rnnip_pb", "rnnip_pc", "rnnip_ptau", "rnnip_pu"] 
+	},
+    "types": {
+        "regexes": [
+            {
+                "regex": "^(IP[23]D_|SV[12]_|rnnip_)p(b|c|u|tau)",
+                "type": "double"
+            },
+            {
+                "regex": "^(JetFitter_|SV1_)[Nn]",
+                "type": "int"
+            },
+            {
+                "regex": "^(JetFitter_|SV1_)",
+                "type": "float"
+            }
+        ]
+    },
+    "outputs": {
+        "decoration_map": {
+			"QCDScore": "MassDecoXbbScoreQCD",
+			"HiggsScore": "MassDecoXbbScoreHiggs",
+			"TopScore": "MassDecoXbbScoreTop"
+		}
+    }
+}

@@ -5,10 +5,7 @@
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
-def makeSequence (dataType) :
-
-    # config parameters
-    jetContainer = "AntiKt4EMTopoJets"
+def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
     algSeq = AlgSequence()
 
@@ -21,7 +18,7 @@ def makeSequence (dataType) :
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
     jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
     from FTagAnalysisAlgorithms.FTagAnalysisSequence import makeFTagAnalysisSequence
-    makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True )
+    makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True, legacyRecommendations = True )
     jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 
     # Add the sequence to the job:

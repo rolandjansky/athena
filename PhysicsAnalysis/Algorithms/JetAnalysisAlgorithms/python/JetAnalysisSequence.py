@@ -149,8 +149,10 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     return seq
 
 def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
-                                   jetInput, postfix = '', runJvtUpdate = True,
-                                   runJvtEfficiency = True,
+                                   jetInput, postfix = '', 
+                                   runJvtUpdate = True, runFJvtUpdate = True,
+                                   runJvtSelection = True, runFJvtSelection = True,
+                                   runJvtEfficiency = True, runFJvtEfficiency = True,
                                    reduction = "Global", JEROption = "Simple"):
     """Add algorithms for the R=0.4 jets.
 
@@ -163,8 +165,11 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         jetInput -- The type of input used, read from the collection name.
         postfix -- String to be added to the end of all public names.
         runJvtUpdate -- Determines whether or not to update JVT on the jets
-        runJvtEfficiency -- Determines whether or not to recalculate the JVT
-                            efficiency
+        runFJvtUpdate -- Determines whether or not to update forward JVT on the jets
+        runJvtSelection -- Determines whether or not to run JVT selection on the jets
+        runFJvtSelection -- Determines whether or not to run forward JVT selection on the jets
+        runJvtEfficiency -- Determines whether or not to calculate the JVT efficiency
+        runFJvtEfficiency -- Determines whether or not to calculate the forward JVT efficiency
         reduction -- Which NP reduction scheme should be used (All, Global, Category, Scenario)
         JEROption -- Which variant of the reduction should be used (All, Full, Simple). Note that not all combinations of reduction and JEROption are valid!
     """
@@ -226,6 +231,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'selection' )
 
+    if runFJvtUpdate :
         alg = createAlgorithm( 'CP::JetModifierAlg', 'JetModifierAlg'+postfix )
         addPrivateTool( alg, 'modifierTool', 'JetForwardJvtTool')
         alg.modifierTool.OutputDec = "passFJVT" #Output decoration
@@ -239,17 +245,22 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
 
     # Set up the jet efficiency scale factor calculation algorithm
     # Change the truthJetCollection property to AntiKt4TruthWZJets if preferred
-    if runJvtEfficiency:
+    if runJvtSelection :
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg'+postfix )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-        alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
-        alg.efficiencyTool.WorkingPoint = 'Medium'
+        if jetInput == 'EMPFlow':
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root'
+            alg.efficiencyTool.MaxPtForJvt = 60e3
+        else:
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
+            alg.efficiencyTool.MaxPtForJvt = 120e3
+        alg.efficiencyTool.WorkingPoint = 'Tight' if jetInput == 'EMPFlow' else 'Medium'
         alg.selection = 'jvt_selection'
         alg.scaleFactorDecoration = 'jvt_effSF_%SYS%'
         alg.scaleFactorDecorationRegex = jvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
-        if dataType == 'data':
+        if not runJvtEfficiency or dataType == 'data':
             alg.scaleFactorDecoration = ''
             alg.truthJetCollection = ''
         alg.outOfValidity = 2
@@ -257,7 +268,8 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets',
                     affectingSystematics = jvtSysts, stageName = 'selection' )
-            
+
+    if runFJvtSelection :
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'ForwardJvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
         alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/fJvtSFFile.root'
@@ -269,7 +281,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.scaleFactorDecorationRegex = fjvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
-        if dataType == 'data':
+        if not runFJvtEfficiency or dataType == 'data':
             alg.scaleFactorDecoration = ''
             alg.truthJetCollection = ''
         alg.outOfValidity = 2
@@ -277,7 +289,6 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets',
                     affectingSystematics = fjvtSysts, stageName = 'selection')
-        pass
 
     # Return the sequence:
     return seq, cutlist, cutlength

@@ -19,6 +19,7 @@ from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from RecExConfig.InputFilePeeker import inputFileSummary
 
 ### Set up stream
 streamName  = derivationFlags.WriteDAOD_SUSY6Stream.StreamName
@@ -37,6 +38,13 @@ DecorationTools     = []
 SeqSUSY6 = CfgMgr.AthSequencer("SeqSUSY6")
 DerivationFrameworkJob += SeqSUSY6
 
+### Toggle soft-pion outputs and thinning
+doSoftPion = False
+if 'tag_info' in inputFileSummary:
+  if 'AMITag' in inputFileSummary['tag_info']:
+    AMITag = inputFileSummary['tag_info']['AMITag']
+    if 'r11571' in AMITag or 'r11620' in AMITag:
+      doSoftPion = True
 
 #====================================================================
 # Trigger navigation thinning
@@ -55,11 +63,44 @@ SUSY6ThinningHelper.AppendToStream( SUSY6Stream )
 # THINNING TOOLS 
 #====================================================================
 
+if doSoftPion:
+
+  from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+  InDetTrackletSelectionTool = InDet__InDetTrackSelectionTool(name           = "InDetTrackletSelectionTool",
+                                                             CutLevel        = "NoCut", 
+                                                             minPt           = 5000.0,
+                                                             maxD0           = 10.0,
+                                                             maxZ0SinTheta   = 10.0 )
+
+  ToolSvc += InDetTrackletSelectionTool 
+
+  # Vertex thinning; keep associated tracks
+  from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+  vertexParticleThinningTool = DerivationFramework__VertexParticleThinning(name                   = "VertexParticleThinning",
+                                                                           ThinningService        = SUSY6ThinningHelper.ThinningSvc(),
+                                                                           TrackSelectionTool     = InDetTrackletSelectionTool,
+                                                                           MinGoodTracks          = 1,
+                                                                           VertexKey              = "VrtSecDecay",
+                                                                           InDetTrackParticlesKey = "InDetTrackParticles" )
+
+  ToolSvc += vertexParticleThinningTool
+  thinningTools.append(vertexParticleThinningTool)
+
+  from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+  SUSY6TrackletThinningTool = DerivationFramework__TrackParticleThinning(name                   = "SUSY6TrackletThinningTool",
+                                                                         ThinningService        = SUSY6ThinningHelper.ThinningSvc(),
+                                                                         TrackSelectionTool     = InDetTrackletSelectionTool,
+                                                                         InDetTrackParticlesKey = "InDetPixelPrdAssociationTrackParticles")
+
+  ToolSvc += SUSY6TrackletThinningTool
+  thinningTools.append(SUSY6TrackletThinningTool)
+
+
 # Dedicated track-thinning for pixel dE/dx calibration using pT < 10 GeV tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__PixeldEdxTrackParticleThinning
 pixeldEdxThinningTool = DerivationFramework__PixeldEdxTrackParticleThinning(name                   = "PixeldEdxTrackParticleThinning",
-                                                                            ThinningService        = SUSY6ThinningHelper.ThinningSvc(),
-                                                                            InDetTrackParticlesKey = "InDetTrackParticles" )
+                                                                              ThinningService        = SUSY6ThinningHelper.ThinningSvc(),
+                                                                              InDetTrackParticlesKey = "InDetTrackParticles" )
 ToolSvc += pixeldEdxThinningTool
 thinningTools.append(pixeldEdxThinningTool)
 
@@ -130,6 +171,7 @@ ToolSvc += SUSY6TauTracksThinningTool
 thinningTools.append(SUSY6TauTracksThinningTool)
 
 # Forward track thinning (remove everything)
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 forwardTrackThinner = DerivationFramework__TrackParticleThinning(name                   = "forwardTrackThinner",
                                                                  ThinningService        = SUSY6ThinningHelper.ThinningSvc(),
                                                                  SelectionString        = "InDetForwardTrackParticles.pt < 0.*GeV",
@@ -321,6 +363,7 @@ AugmentationTools.append(SUSY6_TrackParticleCaloCellDecorator)
 #====================================================================
 
 if DerivationFrameworkIsMonteCarlo:
+
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY6TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY6TruthThinningTool",
                                                        ThinningService              = SUSY6ThinningHelper.ThinningSvc(),
@@ -344,6 +387,7 @@ if DerivationFrameworkIsMonteCarlo:
                                                        PreserveAncestors            = True, 
                                                        PreserveGeneratorDescendants = False,
                                                        SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
+
   ToolSvc += SUSY6TruthThinningTool
   thinningTools.append(SUSY6TruthThinningTool)
 
@@ -494,6 +538,9 @@ SUSY6SlimmingHelper.AllVariables = [
   "TruthParticles",
   "TruthVertices"
 ]
+
+if doSoftPion:
+  SUSY6SlimmingHelper.AllVariables += ['VrtSecDecay']
 
 SUSY6SlimmingHelper.ExtraVariables = SUSY6ExtraVariables
 

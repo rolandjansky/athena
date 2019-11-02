@@ -15,7 +15,8 @@ if ("EventInfo#McEventInfo" not in inputFileSummary['eventdata_itemsList']) and 
 
 # Decide what kind of input HepMC container we are dealing with
 if ("McEventCollection#GEN_EVENT" in inputFileSummary['eventdata_itemsList']):
-    DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
+    if not hasattr(DerivationFrameworkJob,'GEN_EVNT2xAOD'):
+        DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
 elif ("McEventCollection#TruthEvent" in inputFileSummary['eventdata_itemsList']):
     if not hasattr(DerivationFrameworkJob,'GEN_AOD2xAOD'):
         DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")

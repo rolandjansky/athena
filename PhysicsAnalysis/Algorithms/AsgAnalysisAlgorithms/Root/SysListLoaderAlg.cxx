@@ -9,6 +9,8 @@
 // includes
 //
 
+#include <regex>
+
 #include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 
 #include <AsgTools/MessageCheck.h>
@@ -28,6 +30,7 @@ namespace CP
   {
     declareProperty ("systematicsName", m_systematicsName, "the name of the systematics in the event store");
     declareProperty ("systematicsList", m_systematicsList, "the list of systematics to run");
+    declareProperty ("systematicsRegex", m_systematicsRegex, "systematics filter regex");
     declareProperty ("sigmaRecommended", m_sigmaRecommended, "the sigma with which to run recommended systematics");
   }
 
@@ -112,10 +115,17 @@ namespace CP
         CP::MakeSystematicsVector sys;
         sys.setSigma (m_sigmaRecommended);
         sys.calc (recommended);
+
+        std::regex expr (m_systematicsRegex);
         for (const CP::SystematicSet& mysys : sys.result(""))
         {
-          ANA_MSG_INFO ("configuring systematic: " << mysys.name());
-          m_systematicsVector.push_back (mysys);
+          if (!regex_match (mysys.name(), expr))
+          {
+            ANA_MSG_INFO ("skipping systematic: " << mysys.name());
+          } else {
+            ANA_MSG_INFO ("configuring systematic: " << mysys.name());
+            m_systematicsVector.push_back (mysys);
+          }
         }
       }
     }

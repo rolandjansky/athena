@@ -339,7 +339,8 @@ if BTaggingFlags.Do2019Retraining:
                                          "BTagging_AntiKt4EMTopo_201810JFVtx",
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201810",
-                                         "AntiKt4EMPFlowJets_BTagging201903"]
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"]
     FTAG1SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex"]
 else:
     FTAG1SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow",

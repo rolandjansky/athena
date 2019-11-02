@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 // Filename: UpgradeLeptonObjectSelector.h
 // Description:
@@ -15,7 +15,6 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 namespace top {
-  
   class UpgradeLeptonObjectSelector
     : public ObjectSelectorBase<xAOD::TruthParticle> {
   public:
@@ -24,21 +23,19 @@ namespace top {
     // will be default constructed for the trivial constructor of the object
     // selector.
     struct Options {
-    Options( double ptMin = 25.e3,
-	     double etaMax = 2.5 ) :
-      pt_min( ptMin ),
-	eta_max( etaMax ) {}
-      double  pt_min;
-      double  eta_max;
-      
+      Options(double ptMin = 25.e3,
+              double etaMax = 2.5) :
+        pt_min(ptMin),
+        eta_max(etaMax) {}
+      double pt_min;
+      double eta_max;
     };
   public:
-    UpgradeLeptonObjectSelector( Options opt = Options() );
-    virtual bool apply( const xAOD::TruthParticle & truthParticle );
+    UpgradeLeptonObjectSelector(Options opt = Options());
+    virtual bool apply(const xAOD::TruthParticle& truthParticle);
   private:
     Options m_opt;
   };
-  
 }
 
 #endif /* _TOP_UPGRADE_LEPTONOBJECTSELECTOR_H_ */
