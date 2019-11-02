@@ -46,14 +46,13 @@ namespace MVAUtils
 
     BDT(TTree *tree);
 
-    /*
-     * disable everything else and default the dtor
-     * */
+    /** Disable default ctor and copy*/
     BDT() = delete;
     BDT (const BDT&) = delete;
     BDT& operator=(const BDT&) = delete;
-    BDT (BDT&&) = delete;
-    BDT& operator=(BDT&&) = delete;
+    /** default move ctor, move assignment and dtor*/
+    BDT (BDT&&) = default;
+    BDT& operator=(BDT&&) = default;
     ~BDT()=default; 
 
     /** return the number of trees in the forest */
