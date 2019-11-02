@@ -318,9 +318,6 @@ StatusCode EventSelectorByteStream::stop() {
          FileIncident endInputFileIncident(name(), "EndInputFile", "stop");
          m_incidentSvc->fireIncident(endInputFileIncident);
       }
-      // Fire LastInputFile incident
-      FileIncident lastInputFileIncident(name(), "LastInputFile", "stop");
-      m_incidentSvc->fireIncident(lastInputFileIncident);
    }
    return(StatusCode::SUCCESS);
 }

@@ -54,7 +54,7 @@ public:
   StatusCode preFinalize();
   StatusCode preExecute();
   StatusCode postExecute();
-  /// Incident service handle listening for LastInputFile
+  /// Incident service handle listening for Begin/End InputFile incidents
   void handle(const Incident& incident);
     
   /// Connect to the output stream

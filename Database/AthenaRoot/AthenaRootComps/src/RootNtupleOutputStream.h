@@ -128,7 +128,7 @@ private:
   IDataSelector* selectedObjects() {
     return &m_objects;
   }
-  /// Incident service handle listening for LastInputFile
+  /// Incident service handle listening for MetaDataStop
   void handle(const Incident& incident);
 };
 

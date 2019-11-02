@@ -180,7 +180,6 @@ StatusCode AthenaSummarySvc::initialize() {
 
   int pri=100;
   p_incSvc->addListener( this, "BeginInputFile", pri, true);
-  p_incSvc->addListener( this, "FailInputFile", pri, true);
   p_incSvc->addListener( this, "EndInputFile", pri, true);
   p_incSvc->addListener( this, "BeginOutputFile", pri, true);
   p_incSvc->addListener( this, "FailOutputFile", pri, true);
@@ -199,7 +198,6 @@ StatusCode AthenaSummarySvc::initialize() {
   p_incSvc->addListener( this, "EndFile", pri, true );
 
   p_incSvc->addListener( this, "FirstInputFile", pri, true );
-  p_incSvc->addListener( this, "LastInputFile", pri, true );
 
   vector<string>::const_iterator itr;
   for (itr=m_extraInc.value().begin(); itr != m_extraInc.value().end(); ++itr) {
@@ -383,8 +381,6 @@ AthenaSummarySvc::handle(const Incident &inc) {
 
   if (inc.type() == "BeginInputFile" || inc.type() == "BeginFile") {
     m_inputFilesRead.push_back( fileName );
-  } else if (inc.type() == "FailInputFile") {
-    m_inputFilesError.push_back( fileName );
   } else if (inc.type() == "BeginOutputFile") {
     m_outputFiles.push_back( fileName );
   } else if (inc.type() == "FailOutputFile") {
@@ -458,11 +454,6 @@ AthenaSummarySvc::createASCII( std::ofstream& ofs ) {
   
   ofs << "Files read: " << m_inputFilesRead.size() << std::endl;
   for (itr=m_inputFilesRead.begin(); itr != m_inputFilesRead.end(); ++itr) {
-    ofs << "  " << *itr << endl;
-  }
-  
-  ofs << "File Read error: " << m_inputFilesError.size() << std::endl;
-  for (itr=m_inputFilesError.begin(); itr != m_inputFilesError.end(); ++itr) {
     ofs << "  " << *itr << endl;
   }
   
@@ -599,13 +590,6 @@ AthenaSummarySvc::createDict( std::ofstream& ofd) {
     f += *itr;
   }
   files.add("read",f);
-
-  f.clear();
-  for (itr=m_inputFilesError.begin(); itr != m_inputFilesError.end(); ++itr) {
-    if (f.length() > 0) { f += ","; }
-    f += *itr;
-  }
-  files.add("read error",f);
 
   f.clear();
   for (itr=m_outputFiles.begin(); itr != m_outputFiles.end(); ++itr) {

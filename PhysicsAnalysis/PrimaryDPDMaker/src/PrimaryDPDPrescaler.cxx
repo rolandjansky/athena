@@ -105,7 +105,6 @@ StatusCode PrimaryDPDPrescaler::initialize()
   ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
   incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
-  //incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
 
   ResetSelfDescription(); 
 
