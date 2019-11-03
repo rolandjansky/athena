@@ -503,8 +503,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         int pdgid2 = 0;
 
         if( objTool.FindSusyHP(pdgid1, pdgid2) != StatusCode::SUCCESS ){
-          Error(APP_NAME, "--- SOMETHING IS WRONG WITH THE SUSY PROC FINDING... ---");
-          return StatusCode::FAILURE;
+          Warning(APP_NAME, "SUSY Proc finding failed. Normal for non-SUSY samples, big problem for SUSY samples.");
         }
 
         if( pdgid1!=0 && pdgid2!=0){ //(just to avoid warnings)
