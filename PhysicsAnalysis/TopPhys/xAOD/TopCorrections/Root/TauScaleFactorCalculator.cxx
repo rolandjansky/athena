@@ -40,6 +40,8 @@ namespace top {
     // Tau-electron overlap removal up/down, true hadtau
 
     for (auto tauSFpair : top::tauSF_name) {
+      if (m_config->tauSFDoRNNID() == false && tauSFpair.second.Contains("RNN")) continue;
+      if (m_config->tauSFDoBDTID() == false && tauSFpair.second.Contains("JETID")) continue;
       m_syst_map[tauSFpair.second.Data()] = CP::SystematicSet(tauSFpair.second.Data());
     }
 

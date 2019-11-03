@@ -1167,6 +1167,14 @@ namespace top {
       if (!m_configFixed) m_tau_configuration_loose.eleOLR = do_tau_ele_olr;
     }
 
+    inline virtual void tauSFDoRNNID(bool do_tau_rnn_id) {
+      if (!m_configFixed) m_tau_configuration.doRNNID = do_tau_rnn_id;
+    }
+
+    inline virtual void tauSFDoBDTID(bool do_tau_bdt_id) {
+      if (!m_configFixed) m_tau_configuration.doBDTID = do_tau_bdt_id;
+    }
+
     inline virtual void tauJetConfigFile(const std::string& s) {
       if (!m_configFixed) m_tau_configuration.fileName = s;
     }
@@ -1231,6 +1239,14 @@ namespace top {
     // Applying new tau energy calibration
     inline bool applyTauMVATES() {
       return true;
+    }
+
+    inline bool tauSFDoRNNID() const {
+      return m_tau_configuration.doRNNID;
+    }
+
+    inline bool tauSFDoBDTID() const {
+      return m_tau_configuration.doBDTID;
     }
 
     // photon getters
@@ -1967,7 +1983,9 @@ namespace top {
       // see
       // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst
       // for supported WPs
-      std::string jetIDWP = "Medium";
+      std::string jetIDWP = "RNNMedium";
+      bool doRNNID = true;
+      bool doBDTID = false;
       // the electron BDTWP
       std::string eleBDTWP = "Medium";
       bool substructureSF = false;
