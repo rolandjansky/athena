@@ -227,11 +227,11 @@ namespace top {
     registerParameter("TauJetIDWP",
                       "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
                       "Default Medium.",
-                      "Medium");
+                      "RNNMedium");
     registerParameter("TauJetIDWPLoose",
                       "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
                       "Default None.",
-                      "Medium");
+                      "RNNMedium");
     registerParameter("TauEleBDTWP",
                       "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
@@ -263,6 +263,12 @@ namespace top {
     registerParameter("ApplyTauMVATES",
                       "Apply new Tau energy calibration based on substructure information and regression. Must be True. Deprecated.",
                       "True");
+    registerParameter("TauSFDoRNNID",
+                      "Save SF for RNN tau ID True/False",
+                      "True");
+    registerParameter("TauSFDoBDTID",
+                      "Save SF for BDT tau ID True/False",
+                      "False");
 
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) ", "Nominal");
 
