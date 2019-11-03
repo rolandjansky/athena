@@ -26,6 +26,8 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
+  # Extra classifiers for the Higgs group
+  import DerivationFrameworkHiggs.TruthCategories
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_PHYSLITEStream.StreamName
@@ -381,25 +383,11 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "TauTracks.pt.eta.phi.flagSet.trackLinks.bdtScores",
   "AnalysisJets_NOSYS.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink",
   "BTagging_AntiKt4EMTopo.MV2c10_discriminant",
-  "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
-  "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"
   ]
 
 if DerivationFrameworkIsMonteCarlo:
-   PHYSLITESlimmingHelper.AllVariables = [
-      "MET_Truth",
-      "MET_TruthRegions",
-      "TruthElectrons",
-      "TruthMuons",
-      "TruthPhotons",
-      "TruthTaus",
-      "TruthNeutrinos",
-      "TruthBSM",
-      "TruthTop",
-      "TruthBoson",
-      "TruthWbosonWithDecayParticles",
-      "TruthWbosonWithDecayVertices"
-   ]
+    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+    addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
 
