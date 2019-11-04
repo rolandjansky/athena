@@ -30,8 +30,8 @@ TrigSignatureMoniMT                                 INFO HLT_4mu4_L14MU4        
 TrigSignatureMoniMT                                 INFO HLT_4mu4_L14MU4 decisions                         0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_5j70_0eta240_L14J20       20        20        0         0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_5j70_0eta240_L14J20 decisions                    0         0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_beamspot_allTE_trkfast_L1J1520        20        20        0         0         0         0         0         20        
-TrigSignatureMoniMT                                 INFO HLT_beamspot_allTE_trkfast_L1J15 decisions                    20        0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J1520        20        20        20        0         0         0         0         20        
+TrigSignatureMoniMT                                 INFO HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15 decisions                    20        20        0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_costmonitor_CostMonDS_L1All20        20        20        20        0         0         0         0         20        
 TrigSignatureMoniMT                                 INFO HLT_costmonitor_CostMonDS_L1All decisions                    20        20        0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_e26_etcut_L1EM22VHI       20        20        1         1         1         0         0         0         1         
