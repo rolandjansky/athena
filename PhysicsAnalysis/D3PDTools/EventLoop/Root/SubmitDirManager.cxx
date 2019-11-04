@@ -56,11 +56,11 @@ namespace EL
     }
 
 
-
-    ManagerOrder SubmitDirManager ::
+ 
+    std::pair<Detail::ManagerOrder,std::string> SubmitDirManager ::
     getManagerOrder () const noexcept
     {
-      return ManagerOrder::SUBMIT_DIR;
+      return std::make_pair (ManagerOrder::SUBMIT_DIR, "");
     }
 
 

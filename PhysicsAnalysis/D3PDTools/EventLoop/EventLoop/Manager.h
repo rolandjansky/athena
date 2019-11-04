@@ -11,6 +11,9 @@
 
 #include <EventLoop/Global.h>
 
+#include <string>
+#include <utility>
+
 class StatusCode;
 
 namespace EL
@@ -53,11 +56,21 @@ namespace EL
       virtual ~Manager () noexcept = default;
 
 
-      /// \brief get the order of this manager
+      /// \brief get the order/name of this manager
+      ///
+      /// This is both used to identify the manager we are looking at,
+      /// and to make sure they get executed in the right order.  It
+      /// is a mistake to load two managers that report the same order.
+      ///
+      /// This is a pair of an enum that defines the absolute order of
+      /// managers, and a string that identifies the stream that this
+      /// manager belongs to.  If this manager is not specific to a
+      /// stream this should be the empty stream.
+      ///
       /// \par Guarantee
       ///   no-fail
     public:
-      virtual Detail::ManagerOrder
+      virtual std::pair<Detail::ManagerOrder,std::string>
       getManagerOrder () const noexcept = 0;
 
 

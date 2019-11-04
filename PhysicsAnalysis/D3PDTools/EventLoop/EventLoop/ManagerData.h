@@ -165,7 +165,7 @@ namespace EL
 
 
       /// \brief the list of managers to run
-      std::map<ManagerOrder,std::unique_ptr<Manager> > managers;
+      std::map<std::pair<ManagerOrder,std::string>,std::unique_ptr<Manager> > managers;
 
       /// \brief add the given manager
       /// \par Guarantee
