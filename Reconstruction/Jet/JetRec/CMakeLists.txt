@@ -40,7 +40,7 @@ find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_library( JetRecLib
-  JetRec/*.h Root/*.cxx
+  JetRec/*.h Root/*.h Root/*.cxx
   PUBLIC_HEADERS JetRec
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
@@ -90,6 +90,12 @@ atlas_add_test(PseudoJetContainerTrigger
 atlas_add_test(ExtractorUnitTests
   SOURCES
     test/ExtractorTest.cxx
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+
+atlas_add_test(JetClustererTest
+  SOURCES
+    test/JetClustererTest.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
   
