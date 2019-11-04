@@ -51,6 +51,8 @@ def makePublicTool(tool_creator) :
             if len(args) > 1 :
                 raise Exception('Too many positional arguments')
             tool = tool_creator(name, **kwargs)
+            if tool is None :
+                return None
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.the_name()))
             ToolSvc += tool
