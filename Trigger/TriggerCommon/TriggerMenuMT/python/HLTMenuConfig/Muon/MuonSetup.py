@@ -435,6 +435,9 @@ def muEFSARecoSequence( RoIs, name ):
   xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("TrigMuonStandaloneTrackParticleCnvAlg_"+name)
   theMuonCandidateAlg=MuonCombinedMuonCandidateAlg("TrigMuonCandidateAlg_"+name)
 
+  # Monitoring tool for MuonTrackMakerAlgs in SA
+  from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
+  TrackBuilder.MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name)
 
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
   theTrackQueryNoFit = getPublicToolClone("TrigMuonTrackQueryNoFitSA", "MuonTrackQuery", Fitter="")
@@ -443,7 +446,12 @@ def muEFSARecoSequence( RoIs, name ):
   msMuonName = muNames.EFSAName
   if 'FS' in name:
     msMuonName = muNamesFS.EFSAName
+
   themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName,ExtrapolatedLocation = "HLT_MSExtrapolatedMuons_"+name, MSOnlyExtrapolatedLocation = "HLT_MSOnlyExtrapolatedMuons_"+name )
+
+  # Monitoring tool for MuonCreatorAlg in SA
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
+  themuoncreatoralg.MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgSA_"+name)
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
@@ -603,6 +611,10 @@ def muEFCBRecoSequence( RoIs, name ):
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
   themuoncbcreatoralg.CombinedLocation = "HLT_CBCombinedMuon_"+name
+
+  # Monitoring tool for MuonCreatorAlg in CB
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
+  themuoncbcreatoralg.MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgCB_"+name)
 
   #Add all algorithms
   efAlgs.append(theIndetCandidateAlg)
