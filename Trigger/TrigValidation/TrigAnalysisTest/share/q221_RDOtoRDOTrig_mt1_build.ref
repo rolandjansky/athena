@@ -50,28 +50,30 @@ TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3 decisions                    140       140       185       185       0         0
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2019        19        15        0         0         0         0         0         15
 TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    39        0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j175_gsc225_bmv2c1040_split_L1J1004         4         0         0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j175_gsc225_bmv2c1040_split_L1J100 decisions                    0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j225_gsc275_bmv2c1060_split_L1J1004         4         0         0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j225_gsc275_bmv2c1060_split_L1J100 decisions                    0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j225_gsc300_bmv2c1070_split_L1J1004         4         0         0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j225_gsc300_bmv2c1070_split_L1J100 decisions                    0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j225_gsc360_bmv2c1077_split_L1J1004         4         0         0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j225_gsc360_bmv2c1077_split_L1J100 decisions                    0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j175_ftf_gsc225_bmv2c1040_split_L1J1004         4         0         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j175_ftf_gsc225_bmv2c1040_split_L1J100 decisions                    0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j225_ftf_gsc275_bmv2c1060_split_L1J1004         4         0         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j225_ftf_gsc275_bmv2c1060_split_L1J100 decisions                    0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j225_ftf_gsc300_bmv2c1070_split_L1J1004         4         0         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j225_ftf_gsc300_bmv2c1070_split_L1J100 decisions                    0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j225_ftf_gsc360_bmv2c1077_split_L1J1004         4         0         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j225_ftf_gsc360_bmv2c1077_split_L1J100 decisions                    0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20      19        19        0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20 decisions                    0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J75_31ETA493         3         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J75_31ETA49 decisions                    0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split_L1J2019        19        19        18        18        0         0         0         18
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_bmv2c1070_split_L1J20 decisions                    69        48        48        0         0         0
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split_L1J2019        19        19        18        18        0         0         0         18
-TrigSignatureMoniMT                                INFO HLT_j35_gsc45_boffperf_split_L1J20 decisions                    69        48        48        0         0         0
+TrigSignatureMoniMT                                INFO HLT_j35_ftf_gsc45_bmv2c1070_split_L1J2019        19        19        19        18        18        0         0         18
+TrigSignatureMoniMT                                INFO HLT_j35_ftf_gsc45_bmv2c1070_split_L1J20 decisions                    19        68        46        46        0         0
+TrigSignatureMoniMT                                INFO HLT_j35_ftf_gsc45_boffperf_split_L1J2019        19        19        19        18        18        0         0         18
+TrigSignatureMoniMT                                INFO HLT_j35_ftf_gsc45_boffperf_split_L1J20 decisions                    19        68        46        46        0         0
 TrigSignatureMoniMT                                INFO HLT_j420_L1J100               4         4         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j420_L1J100 decisions                         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20                19        19        0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j420_L1J20 decisions                          0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j45_L1J15                 20        20        18        0         0         0         0         0         18
 TrigSignatureMoniMT                                INFO HLT_j45_L1J15 decisions                           18        0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_L1J15             20        20        18        0         0         0         0         0         18
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_L1J15 decisions                       18        0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J1004         4         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J100 decisions                    0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 19        19        0         0         0         0         0         0         0
@@ -90,6 +92,8 @@ TrigSignatureMoniMT                                INFO HLT_j80_j60_L1J15       
 TrigSignatureMoniMT                                INFO HLT_j80_j60_L1J15 decisions                       13        0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j85_L1J20                 19        19        13        0         0         0         0         0         13
 TrigSignatureMoniMT                                INFO HLT_j85_L1J20 decisions                           13        0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j85_ftf_L1J20             19        19        13        0         0         0         0         0         13
+TrigSignatureMoniMT                                INFO HLT_j85_ftf_L1J20 decisions                       13        0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_mu10_lateMu_L1MU10        10        10        0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_mu10_lateMu_L1MU10 decisions                    0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_mu20_ivar_L1MU6           10        10        10        5         3         0         0         0         3

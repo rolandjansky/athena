@@ -115,7 +115,7 @@ JetChainParts = {
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
-    'trkopt'       : [],
+    'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
     'hypoScenario' : ['simple', 'vbenf',
                       'vbenfSEP30etSEP34mass35SEP50fbet',
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass'],

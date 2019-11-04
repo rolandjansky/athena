@@ -14,7 +14,7 @@ from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 # fragments generating configuration will be functions in New JO, 
 # so let's make them functions already now
 #----------------------------------------------------------------
-def bjetSequenceCfg_j( flags ):    
+def bjetSequenceCfg_j( flags ):
     return getBJetSequence('j')
 
 def bjetSequenceCfg_gsc( flags ):    
@@ -30,7 +30,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -62,6 +62,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
     def getBjetSequence_j(self):
         stepName = "Step1_bjet"
         log.debug("Configuring step " + stepName)
+        
         bjetSeq = RecoFragmentsPool.retrieve( bjetSequenceCfg_j, None ) # the None will be used for flags in future
         return ChainStep(stepName, [bjetSeq])
 

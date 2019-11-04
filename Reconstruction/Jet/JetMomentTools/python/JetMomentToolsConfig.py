@@ -14,6 +14,30 @@ jetmomentlog = Logging.logging.getLogger('JetMomentToolsConfig')
 from JetRecTools import JetRecToolsConfig
 from JetMomentTools import JetMomentToolsConf
 
+# May need to specify non-standard tracking collections, e.g. for trigger
+# Testing code -- move to another module and perhaps allow extensions
+# e.g. in a dedicated trigger collections module to keep online/offline
+# code more factorised
+trackcolls = {
+    "":"InDetTrackParticles",
+    "ftf":"HLT_xAODTracks_FS",
+}
+
+vertexcolls = {
+    "":"PrimaryVertices",
+    "ftf":"HLT_EFHistoPrmVtx"
+}
+
+tvacolls = {
+    "":"JetTrackVtxAssoc",
+    "ftf":"JetTrackVtxAssoc_ftf"
+}
+
+assoctracks = {
+    "":"GhostTrack",
+    "ftf":"GhostTrack_ftf"
+}
+
 def getCaloQualityTool():
     caloqual = JetMomentToolsConf.JetCaloQualityTool(
       "caloqual",
@@ -66,41 +90,51 @@ def getConstitFourMomTool(jetdef):
     return cfourmom
 
 # Jet vertex fraction with selection.
-def getJVFTool():
+def getJVFTool(modspec=""):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool()
 
     jvf = JetMomentToolsConf.JetVertexFractionTool(
         "jvf",
-        VertexContainer = "PrimaryVertices",
-        AssociatedTracks = "GhostTrack",
-        TrackVertexAssociation = "JetTrackVtxAssoc",
-        TrackParticleContainer  = "JetSelectedTracks",
+        VertexContainer = vertexcolls[modspec],
+        AssociatedTracks = assoctracks[modspec],
+        TrackVertexAssociation = tvacolls[modspec],
+        TrackParticleContainer  = trackcolls[modspec],
         TrackSelector = jettrackselloose,
     )
     return jvf
 
 
-def getTrackMomentsTool():
+# Jet vertex fraction with selection.
+def getJVTTool(modspec=""):
+
+    jvt = JetMomentToolsConf.JetVertexTaggerTool(
+        "jvt",
+        VertexContainer = vertexcolls[modspec],
+    )
+    return jvt
+
+
+def getTrackMomentsTool(modspec=""):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool()
 
     trackmoments = JetMomentToolsConf.JetTrackMomentsTool(
         "trkmoms",
-        VertexContainer = "PrimaryVertices",
-        AssociatedTracks = "GhostTrack",
-        TrackVertexAssociation = "JetTrackVtxAssoc",
+        VertexContainer = vertexcolls[modspec],
+        AssociatedTracks = assoctracks[modspec],
+        TrackVertexAssociation = tvacolls[modspec],
         TrackMinPtCuts = [500, 1000],
         TrackSelector = jettrackselloose
     )
     return trackmoments
 
-def getTrackSumMomentsTool():
+def getTrackSumMomentsTool(modspec=""):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool()
 
     tracksummoments = JetMomentToolsConf.JetTrackSumMomentsTool(
         "trksummoms",
-        VertexContainer = "PrimaryVertices",
-        AssociatedTracks = "GhostTrack",
-        TrackVertexAssociation = "JetTrackVtxAssoc",
+        VertexContainer = vertexcolls[modspec],
+        AssociatedTracks = assoctracks[modspec],
+        TrackVertexAssociation = tvacolls[modspec],
         RequireTrackPV = True,
         TrackSelector = jettrackselloose
     )
