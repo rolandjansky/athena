@@ -87,6 +87,12 @@ atlas_add_test( DelayedConditionsCleanerSvc_test
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( ThinningCacheTool_test
+   SOURCES test/ThinningCacheTool_test.cxx
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
+   EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:=" 
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 atlas_add_test( TestStopRun
    SCRIPT test/TestStopRun.sh
    EXTRA_PATTERNS "Warning in <TFile::Init>: no StreamerInfo found|SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO"
