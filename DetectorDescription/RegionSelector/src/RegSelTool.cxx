@@ -18,14 +18,10 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-// ??
 // ???
 #include "RegionSelector/StoreGateRS_ClassDEF.h"
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h"
 
-
-//#include <pthread.h>
-//static pthread_mutex_t regselsvcmutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 //! Constructor
@@ -44,18 +40,13 @@ RegSelTool::~RegSelTool() { }
 
 
 StatusCode RegSelTool::initialize() {
-
-  //  ATH_CHECK( AthService::initialize() ); 
-  
-  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
-
+  ATH_MSG_INFO( "Initializing " << name() );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode RegSelTool::finalize() {
   ATH_MSG_INFO( "Finalizing " << name() );
-  //  return AthService::finalize();
   return StatusCode::SUCCESS;
 }
 
@@ -68,7 +59,7 @@ bool RegSelTool::handle() {
 
 // new RegionSelector interface for the Innner Detector 
 
-void RegSelTool::getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modules ) {
+void RegSelTool::getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modules ) const {
   modules.clear();
   RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
   if ( m_lookuptable ) m_lookuptable->getRoIData( roitmp, modules );
@@ -83,7 +74,7 @@ void RegSelTool::getRoIData( const IRoiDescriptor& roi, std::vector<const RegSel
 
 /// standard roi
 
-void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) {
+void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
 
   if ( roi.composite() ) {
     idlist.clear();
@@ -102,7 +93,7 @@ void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHa
 
 /// standard roi for specific layer
 
-void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) {
+void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
 
   if ( roi.composite() ) { 
     idlist.clear();
@@ -128,7 +119,7 @@ void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<
 
 /// standard roi
 
-void RegSelTool::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) {
+void RegSelTool::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
 
   if ( roi.composite() ) { 
     roblist.clear();
@@ -145,7 +136,7 @@ void RegSelTool::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& ro
 
 /// standard roi for specific layer
 
-void RegSelTool::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist )  {
+void RegSelTool::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
 
   if ( roi.composite() ) { 
     roblist.clear();
@@ -168,25 +159,25 @@ void RegSelTool::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<u
 
 /// full scan hashid 
 
-void RegSelTool::HashIDList( std::vector<IdentifierHash>& idlist ) {
+void RegSelTool::HashIDList( std::vector<IdentifierHash>& idlist ) const {
   if ( m_lookuptable ) m_lookuptable->getHashList( idlist ); 
 }
 
 /// fullscan hashid for specific layer 
 
-void RegSelTool::HashIDList( long layer, std::vector<IdentifierHash>& idlist ) {
+void RegSelTool::HashIDList( long layer, std::vector<IdentifierHash>& idlist ) const {
   if ( m_lookuptable ) m_lookuptable->getHashList( layer, idlist ); 
 }
 
 /// full scan robid
 
-void RegSelTool::ROBIDList( std::vector<uint32_t>& roblist ) {
+void RegSelTool::ROBIDList( std::vector<uint32_t>& roblist ) const {
   if ( m_lookuptable ) m_lookuptable->getRobList( roblist ); 
 }
 
 /// fullscan robid for specific layer 
 
-void RegSelTool::ROBIDList( long layer, std::vector<uint32_t>& roblist ) {
+void RegSelTool::ROBIDList( long layer, std::vector<uint32_t>& roblist ) const {
   if ( m_lookuptable ) m_lookuptable->getRobList( layer, roblist ); 
 }
 

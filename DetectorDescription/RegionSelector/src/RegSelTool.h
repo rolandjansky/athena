@@ -38,66 +38,59 @@ class RegSelTool : public extends<AthAlgTool, IRegSelTool> {
 
  public:
 
-  /** @c Standard constructor for tool ???.
+  /** @c Standard constructor for tool (obviously).
    */
   RegSelTool( const std::string& type, const std::string& name, const IInterface* parent );
 
   //! Destructor.
   virtual ~RegSelTool() override;
 
-  /** @c queryInterface only needed for Gaudi services ????
-   */
-  //  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF); // ???
-
 
   //! @method initialize, loads lookup tables for retrieve %Identifier %Hash and ROBID 
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   //! @method finalize, deletes lookup table from memory
-  StatusCode finalize() override;
+  virtual StatusCode finalize() override;
   
 
   //! @method handle, handles the actual lookup table
   bool handle(); 
-
-  //! @method reinitialise, reinitialise everything if needed
-  bool reinitialise();
 
 
   /// IRegSlTool interface ...
 
   // Interface inherited from IRegSelTool service
 
-  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist );
+  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const;
 
-  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist);
+  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist) const;
    
-  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist );
+  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const;
 
-  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist );
+  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const;
 
    
 protected:
 
   // full scan
-  void HashIDList( std::vector<IdentifierHash>& idlist );  
+  void HashIDList( std::vector<IdentifierHash>& idlist ) const;  
 
   // full scan for a specific layer
-  void HashIDList( long layer, std::vector<IdentifierHash>& idlist );
+  void HashIDList( long layer, std::vector<IdentifierHash>& idlist ) const;
      
 
   // Methods to obtain the rob id list
 
   // full scan
-  void ROBIDList( std::vector<uint32_t>& roblist );
+  void ROBIDList( std::vector<uint32_t>& roblist ) const;
 
   // full scan by layer
-  void ROBIDList( long layer, std::vector<uint32_t>& roblist );
+  void ROBIDList( long layer, std::vector<uint32_t>& roblist ) const;
 
 
   // get list of modules
   
-  void getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modulelist );
+  void getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modulelist ) const;
 
 private:
 

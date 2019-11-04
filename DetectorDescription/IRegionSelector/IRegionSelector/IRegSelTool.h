@@ -17,11 +17,11 @@
 #include "Identifier/IdentifierHash.h"
 #include <vector>
 #include <stdint.h>
+
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "GaudiKernel/IAlgTool.h"
 
 
-// static const InterfaceID IID_IRegSelTool("IRegSelTool",  , ); 
 
 /**
  * @class IRegSelTool
@@ -33,7 +33,7 @@ class IRegSelTool : virtual public IAlgTool {
 public: 
 
   /// InterfaceID
-  DeclareInterfaceID( IRegSelTool, 1, 0 ); /// ???? 
+  DeclareInterfaceID( IRegSelTool, 1, 0 ); 
 
     
   /// IdentifierHash methods
@@ -45,7 +45,7 @@ public:
     \param IRoiDescriptor \c \b roi, the IRoiDescriptor for the roi, all enabled elements in the roi are found.
     \return std::vector<IdentifierHash> which is a list of non-repeated  %Identifier %Hash numbers.
   */
-  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) = 0;
+  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const = 0;
   
 
   //! HashIDList interface declaration. %return list of non-repeated IdentifierHash
@@ -54,7 +54,7 @@ public:
     \param IRoiDescriptor \c \b roi, the IRoiDescriptor for the roi, all enabled elements in the roi are found.
     \return std::vector<IdentifierHash> which is a list of non-repeated Offline %Identifier %Hash numbers.
   */
-  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) = 0; 
+  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const = 0; 
    
    
   /// Rob identifier methods methods
@@ -65,7 +65,7 @@ public:
     \return std::vector<uint32_t> which is a list of non-repeated ROBID numbers.
   */
 
-  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) = 0; 
+  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const = 0; 
 
 
   //! ROBIDList interface declaration. This interface can be used by the ID subdetectors. %A list of non-repeated ROBIDs (uint_32_t) is returned by a reference.
@@ -75,56 +75,8 @@ public:
     \return std::vector<uint32_t> which is a list of non-repeated ROBID numbers.
   */
   
-  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) = 0;   
-  
-    
-
-// since these methods are all protected, they shouldn;t be in the interface, since 
-// folk will not be able to use them - but will leve them im for the time being
-//  
-// protected:
-
-//   /// Fullscan methods - when not specifying RoI 
-//   /// These are protected, since the roidescriptor now has a Fullscan flag, 
-//   /// so the normal RoI descriptors should be used to flag this, and then 
-//   /// call the full scan methods internally 
-
-//   //! HashIDList interface declaration. %return list of non-repeated IdentifierHash
-//   /*!
-//     \return std::vector<IdentifierHash> which is a list of non-repeated Offline %Identifier %Hash numbers for the complete subdetector.
-//   */
-//   virtual void HashIDList( std::vector<IdentifierHash>& idlist ) = 0;
-
-
-//   //! HashIDList interface declaration. %return list of non-repeated IdentifierHash
-//   /*!
-//     \param long   \c \b layer, long int to decide which layer within the detector.
-//     \return std::vector<IdentifierHash> which is a list of non-repeated Offline %Identifier %Hash numbers for the complete subdetector.
-//   */
-//   virtual void HashIDList( long layer, std::vector<IdentifierHash>& idlist ) = 0;
-
-
-//   /// Again, fullscan methods that return the list for the entire detector sub component
-//   /// These are protected, since the RoiDescriptor contains the fullscan flag, and so 
-//   /// a full scan instance is accessed by passing in a fullscan RoiDescriptor and we want 
-//   /// to discourage any other use pattern 
-  
-//   //! ROBIDList interface declaration. This interface can be used by the ID subdetectors. %A list of non-repeated ROBIDs (uint_32_t) is returned by a reference.
-//   /*!
-//     \return std::vector<uint32_t> which is a list of non-repeated ROBID numbers for the complete subdetector. 
-//   */
-
-//   virtual void ROBIDList( std::vector<uint32_t>& roblist ) = 0; 
-
-
-//  //! ROBIDList interface declaration. This interface can be used by the ID subdetectors. %A list of non-repeated ROBIDs (uint_32_t) is returned by a reference.
-//   /*!
-//     \param long   \c \b layer, long int to decide which layer within the detector.
-//     \return std::vector<uint32_t> which is a list of non-repeated ROBID numbers.
-//   */
-
-//   virtual void ROBIDList( long layer, std::vector<uint32_t>& roblist ) = 0; 
-
+  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const = 0;   
+   
 };
 
 
