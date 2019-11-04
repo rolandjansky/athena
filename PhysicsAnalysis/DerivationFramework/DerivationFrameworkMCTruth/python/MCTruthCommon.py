@@ -116,7 +116,13 @@ def addTruthJetsAOD(kernel=None, decorationDressing=None):
     if decorationDressing is not None:
         from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthDressedWZJets
         addAntiKt4TruthDressedWZJets(kernel,'TRUTH')
-    addAntiKt10TruthJets(kernel,"TRUTH")
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+        #Large R jets
+        from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
+        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
+                       algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
+    elif not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets"):
+        addAntiKt10TruthJets(kernel,"TRUTH")
 
 # Helper for adding truth jet collections
 def addTruthJets(kernel=None, decorationDressing=None):
