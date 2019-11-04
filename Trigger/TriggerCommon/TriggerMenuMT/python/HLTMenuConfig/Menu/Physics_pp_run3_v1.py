@@ -105,7 +105,7 @@ def setupMenu():
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = [
-        ChainProp(name='HLT_beamspot_allTE_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
+        ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
         #ChainProp(name='HLT_beamspot_activeTE_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
         #ChainProp(name='HLT_beamspot_trkFS_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
     ]
