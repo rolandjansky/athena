@@ -3,7 +3,7 @@
 """ Bjet slice specific flags  """
 
 from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer
-from TriggerMenu.menu.CommonSignatureHelper import CommonSignatureHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 __author__  = 'T. Bold'
 __version__="$Revision: 1.31 $"
