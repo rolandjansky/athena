@@ -298,7 +298,7 @@ def muFastRecoSequence( RoIs ):
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 
-  muFastAlg.RecMuonRoI = "RecMURoIs"
+  muFastAlg.RecMuonRoI = "HLT_RecMURoIs"
   muFastAlg.MuRoIs = RoIs
   muFastAlg.MuonL2SAInfo = muNames.L2SAName
   muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
@@ -465,7 +465,8 @@ def muEFSARecoSequence( RoIs, name ):
   for efAlg in efAlgs:
       if "RoIs" in efAlg.properties():
         if name == "FS":
-          efAlg.RoIs = "FSRoI"
+          from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+          efAlg.RoIs = mapThresholdToL1RoICollection("FS")
         else:
           efAlg.RoIs = RoIs
       muEFSARecoSequence += efAlg

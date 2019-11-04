@@ -32,12 +32,13 @@ class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase {
   virtual StatusCode start() override;
   
  private: 
+  // Used indirectly to place the HLT JSON object into the DetStore
   ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "TrigConf::HLTConfigSvc/HLTConfigSvc", ""};
 
 
   ///@{ @name Properties
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
-    this, "OutputTrigRoIs", "EMRoIs", "Name of the RoIs object produced by the unpacker"};
+    this, "OutputTrigRoIs", "HLT_EMRoIs", "Name of the RoIs object produced by the unpacker"};
 
   Gaudi::Property<float> m_roIWidth{"RoIWidth", 0.1, "Size of RoI in eta/ phi"};
 

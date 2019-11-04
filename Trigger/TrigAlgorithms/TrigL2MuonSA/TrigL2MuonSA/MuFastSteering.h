@@ -244,11 +244,11 @@ class MuFastSteering : public HLT::FexAlgo,
 
   //ReadHandle MURoIs
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
-	this, "MuRoIs", "MURoIs", "Name of the input data from L1Decoder"};
+	this, "MuRoIs", "HLT_MURoIs", "Name of the input data from L1Decoder"};
 
   //ReadHandle RecMuonRoIs
   SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_recRoiCollectionKey{
-	this, "RecMuonRoI", "RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
+	this, "RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
   SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey{
