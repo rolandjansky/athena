@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.SystemOfUnits import *
+from AthenaCommon.SystemOfUnits import mm, cm, m
+from past.builtins import xrange
 
 def getBeamPipeGeoDetectorTool(name='BeamPipe', **kwargs):
     kwargs.setdefault("DetectorName", "BeamPipe")
@@ -66,7 +67,7 @@ def getIDETEnvelope(name="IDET", **kwargs):
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
     isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
-    isRUN1 = not (isRUN2 or isUpgrade)
+    #isRUN1 = not (isRUN2 or isUpgrade)
 
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
@@ -149,9 +150,9 @@ def getCosmicShortCut(name="CosmicShortCut", **kwargs):
 def generateSubDetectorList():
     SubDetectorList=[]
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
+    from AthenaCommon.BeamFlags import beamFlags
     if simFlags.SimulateCavern.get_Value():
-        if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR"):
+        if beamFlags.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR"):
             SubDetectorList += ['CosmicShortCut']
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.Muon_on():
@@ -176,7 +177,6 @@ def getATLAS(name="Atlas", **kwargs):
     kwargs.setdefault("DetectorName", "Atlas")
     kwargs.setdefault("NSurfaces", 18)
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
     from AthenaCommon.DetFlags import DetFlags
     ## InnerRadii
     innerRadii = [0.0] * 18
@@ -189,7 +189,7 @@ def getATLAS(name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    AtlasOuterR3 =  1501.
+    #AtlasOuterR3 =  1501.
     if not DetFlags.Muon_on() and not simFlags.SimulateCavern.get_Value():
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
@@ -214,7 +214,7 @@ def getATLAS(name="Atlas", **kwargs):
             for i in xrange(4, 14):
                 outerRadii[i] = routValue
         else:
-            raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldRRange must be > %f. Current value %f' % max(AtlasOuterR1, AtlasOuterR2), routValue)
+            raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldRRange must be > %f. Current value %f' , max(AtlasOuterR1, AtlasOuterR2), routValue)
     kwargs.setdefault("OuterRadii", outerRadii)
 
     ## ZSurfaces
@@ -226,8 +226,7 @@ def getATLAS(name="Atlas", **kwargs):
 
     if simFlags.WorldZRange.statusOn:
         if simFlags.WorldZRange.get_Value() < 26046.:
-              AtlasG4Eng.G4Eng.log.error('')
-              raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldZRange must be > 26046. Current value: %f' % simFlags.WorldZRange.get_Value())
+              raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldZRange must be > 26046. Current value: %f' , simFlags.WorldZRange.get_Value())
         zSurfaces[17] =  simFlags.WorldZRange.get_Value() + 100.
         zSurfaces[16] =  simFlags.WorldZRange.get_Value() + 50.
         zSurfaces[15] =  simFlags.WorldZRange.get_Value() + 50.
@@ -266,12 +265,12 @@ def getCavernWorld(name="Cavern", **kwargs):
     # Subtraction Solid - has to be a better way to do this!!
     kwargs.setdefault("NumberOfHoles", 1)
     kwargs.setdefault("HoleNames", ['BelowCavern'])
-    kwargs.setdefault("Hole_dX",   [bedrockDX]);
-    kwargs.setdefault("Hole_dY",   [41000]);
-    kwargs.setdefault("Hole_dZ",   [bedrockDZ]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [-58300]);
-    kwargs.setdefault("HolePosZ",  [0]);
+    kwargs.setdefault("Hole_dX",   [bedrockDX])
+    kwargs.setdefault("Hole_dY",   [41000])
+    kwargs.setdefault("Hole_dZ",   [bedrockDZ])
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [-58300])
+    kwargs.setdefault("HolePosZ",  [0])
     kwargs.setdefault("SubDetectors", ['CavernInfra', 'Atlas'])
     return CfgMgr.BoxEnvelope(name, **kwargs)
 

@@ -202,11 +202,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
       m_decodedRdoCollVec.clear(); // The information of decoded RDO in the previous event is cleared. 
     }
     else {
-      // FIXME: This needs to be redone to work properly with MT.
-      if (Gaudi::Hive::currentContext().slot() > 1) {
-        ATH_MSG_ERROR ( "TgcRdoToCscPrepDataTool doesn't yet work with MT." );
-        return StatusCode::FAILURE;
-      }
       const TgcPrepDataContainer* tgcPrepDataContainer_c = nullptr;
       ATH_CHECK( evtStore()->retrieve (tgcPrepDataContainer_c, m_outputprepdataKeys[ibc].key()) );
       m_tgcPrepDataContainer[ibc] = const_cast<TgcPrepDataContainer*> (tgcPrepDataContainer_c);
@@ -267,11 +262,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
       }
     } else {
       ATH_MSG_DEBUG("TGC CoinData Container is already in StoreGate");
-      // FIXME: This needs to be redone to work properly with MT.
-      if (Gaudi::Hive::currentContext().slot() > 1) {
-        ATH_MSG_ERROR ( "TgcRdoToCscPrepDataTool doesn't yet work with MT." );
-        return StatusCode::FAILURE;
-      }
       const TgcCoinDataContainer* tgcCoinDataContainer_c = nullptr;
       ATH_CHECK( evtStore()->retrieve (tgcCoinDataContainer_c, m_outputCoinKeys[ibc].key()) );
       m_tgcCoinDataContainer[ibc] = const_cast<TgcCoinDataContainer*> (tgcCoinDataContainer_c);

@@ -69,6 +69,7 @@ jetmomentmods = {
                                    helperfn=JetMomentToolsConfig.getJVFTool,
                                    prereqs = ["mod:TrackMoments"] ),
     "JVT":             JetModifier("JetVertexTaggerTool", "jvt",
+                                   helperfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ]),
     "OriginSetPV":     JetModifier("JetOriginCorrectionTool", "origin_setpv",
                                    prereqs = [ "mod:JVF" ]),

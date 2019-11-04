@@ -67,7 +67,8 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
 
     if forTrigger:
         # Configure the RAW data provider for ROI access
-        RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        RpcRawDataProvider.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(RpcRawDataProvider, primary=True)
     return acc

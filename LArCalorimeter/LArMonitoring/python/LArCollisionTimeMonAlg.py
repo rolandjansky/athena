@@ -27,8 +27,9 @@ def LArCollisionTimeMonConfig(inputFlags):
 
     from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
     # FIXME when bunch crossing tool config is improved
-    larCollTimeMonAlg.BunchCrossingTool = BunchCrossingTool(inputFlags.Common.bunchCrossingSource)
-
+    bct =  BunchCrossingTool(inputFlags.Common.bunchCrossingSource)
+    cfg.addPublicTool(bct)
+    larCollTimeMonAlg.BunchCrossingTool = bct
 
     collTimeGroup = helper.addGroup(
         larCollTimeMonAlg,

@@ -53,6 +53,10 @@ namespace InDet {
 
     bool isInitialized() const;
 
+    // Cached pointers to collections in StoreGate
+    const InDet::PixelClusterContainer* pixcontainer = nullptr;
+    const InDet::SCT_ClusterContainer* sctcontainer = nullptr;
+
     SiTrajectory_xk& trajectory();
     Trk::TrackInfo& trackinfo();
     InDet::SiTools_xk& tools();

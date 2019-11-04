@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import sys,os
 
@@ -8,12 +8,10 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 
-def generateL1Menu(menu, useTopoMenu="MATCH"):    
+from AthenaCommon.Logging import logging
+log = logging.getLogger("generateLVL1MenuMT")
 
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger("TriggerConfigLVL1")
-    log.setLevel(logging.INFO)
-    logging.getLogger("TriggerMenuMT.LVL1.Lvl1Menu").setLevel(logging.INFO)
+def generateL1Menu(menu, useTopoMenu="MATCH"):    
 
     # what menu to build
     TF.triggerMenuSetup = menu
@@ -31,7 +29,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     checkResult = os.system("get_files -xmls -symlink LVL1config.dtd > /dev/null")
     checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
     if checkResult == 0:
-        log.info("XML file %s is conform with LVL1config.dtd" % outfilename)
+        log.info("XML file %s is conform with LVL1config.dtd", outfilename)
     else:
         log.error("The XML does not follow the document type definition LVL1config.dtd")
         
@@ -40,10 +38,6 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
 
 def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger("TriggerConfigLVL1")
-    log.setLevel(logging.INFO)
-    
     fullname = None
 
     if '/' in menu:
@@ -51,7 +45,7 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
     
     import os
     for path in os.environ['XMLPATH'].split(':'):
-        if not 'TriggerMenuXML' in os.listdir(path):
+        if 'TriggerMenuXML' not in os.listdir(path):
             continue
         if menu in os.listdir("%s/TriggerMenuXML/" % path):
             fullname = "%s/TriggerMenuXML/%s" % (path,menu)
@@ -62,7 +56,7 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
         tpcl1.writeXML()
         return tpcl1.menu
     else:
-        print "Did not find file %s" % menu
+        log.error("Did not find file %s", menu)
         return None
 
 
@@ -77,13 +71,11 @@ def findUnneededRun2():
         TF.triggerMenuSetup = menu
         tpcl1 = TriggerConfigLVL1()
 
-        print set(tpcl1.registeredItems.keys()) - set(Lvl1Flags.items())
+        log.info(set(tpcl1.registeredItems.keys()) - set(Lvl1Flags.items()))
 
 
 
 def findRequiredItemsFromXML():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
     menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1', 'Physics_pp_run3_v1', 'PhysicsP1_pp_run3_v1', 'MC_pp_run3_v1', 'Cosmic_pp_run3_v1']
 
@@ -99,7 +91,7 @@ def findRequiredItemsFromXML():
         r = L1MenuXMLReader(xmlfile)
         allItems.update( [x['name'] for x in r.getL1Items()] )
         allThrs.update( [x['name'] for x in r.getL1Thresholds()] )
-        print menu, len(allItems), len(allThrs)
+        log.info('%s %d %d', menu, len(allItems), len(allThrs))
 
     from pickle import dump
     f = open("L1Items.pickle","w")
@@ -120,12 +112,12 @@ def findUnneededRun1(what="items"):
     else:
         unneeded = sorted(list(set( tpcl1.registeredThresholds.keys() ) - allThrs))
 
-    print "==> unneeded ",what,":",len(unneeded)
+    log.info("==> unneeded %s:%d", what, len(unneeded))
 
     import re
     p = re.compile('.*$')
 
-    print [x for x in unneeded if p.match(x)]
+    log.info([x for x in unneeded if p.match(x)])
 
 def findFreeCTPIDs(menu):
     from pickle import load
@@ -133,9 +125,9 @@ def findFreeCTPIDs(menu):
     [menus,allItems,allThrs] = load(f)
 
     TF.triggerMenuSetup = menu
-    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
+    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )  # noqa: F841
 
-    print set(Lvl1Flags.CtpIdMap().keys()) - allItems
+    log.info(set(Lvl1Flags.CtpIdMap().keys()) - allItems)
 
 
     

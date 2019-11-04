@@ -298,7 +298,7 @@ def muFastRecoSequence( RoIs ):
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 
-  muFastAlg.RecMuonRoI = "RecMURoIs"
+  muFastAlg.RecMuonRoI = "HLT_RecMURoIs"
   muFastAlg.MuRoIs = RoIs
   muFastAlg.MuonL2SAInfo = muNames.L2SAName
   muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
@@ -312,10 +312,17 @@ def muFastRecoSequence( RoIs ):
 
 def muonIDFastTrackingSequence( RoIs, name ):
 
-  from AthenaCommon.CFElements import parOR
+  # ATR-20453
+  # Until such time as FS and RoI collections do not interfere, a hacky fix
+  #from AthenaCommon.CFElements import parOR
+  from AthenaCommon.CFElements import seqAND
 
   viewNodeName=name+"FastIDViewNode"
-  muonIDFastTrackingSequence = parOR(viewNodeName)
+
+  # ATR-20453
+  # Until such time as FS and RoI collections do not interfere, a hacky fix
+  #muonIDFastTrackingSequence = parOR(viewNodeName)
+  muonIDFastTrackingSequence = seqAND(viewNodeName)
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
@@ -428,6 +435,9 @@ def muEFSARecoSequence( RoIs, name ):
   xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("TrigMuonStandaloneTrackParticleCnvAlg_"+name)
   theMuonCandidateAlg=MuonCombinedMuonCandidateAlg("TrigMuonCandidateAlg_"+name)
 
+  # Monitoring tool for MuonTrackMakerAlgs in SA
+  from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
+  TrackBuilder.MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name)
 
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
   theTrackQueryNoFit = getPublicToolClone("TrigMuonTrackQueryNoFitSA", "MuonTrackQuery", Fitter="")
@@ -436,7 +446,12 @@ def muEFSARecoSequence( RoIs, name ):
   msMuonName = muNames.EFSAName
   if 'FS' in name:
     msMuonName = muNamesFS.EFSAName
+
   themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName,ExtrapolatedLocation = "HLT_MSExtrapolatedMuons_"+name, MSOnlyExtrapolatedLocation = "HLT_MSOnlyExtrapolatedMuons_"+name )
+
+  # Monitoring tool for MuonCreatorAlg in SA
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
+  themuoncreatoralg.MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgSA_"+name)
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
@@ -450,7 +465,8 @@ def muEFSARecoSequence( RoIs, name ):
   for efAlg in efAlgs:
       if "RoIs" in efAlg.properties():
         if name == "FS":
-          efAlg.RoIs = "FSRoI"
+          from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+          efAlg.RoIs = mapThresholdToL1RoICollection("FS")
         else:
           efAlg.RoIs = RoIs
       muEFSARecoSequence += efAlg
@@ -596,6 +612,10 @@ def muEFCBRecoSequence( RoIs, name ):
   themuoncbcreatoralg.ExtrapolatedLocation = "CBExtrapolatedMuons"
   themuoncbcreatoralg.MSOnlyExtrapolatedLocation = "CBMSOnlyExtrapolatedMuons"
   themuoncbcreatoralg.CombinedLocation = "HLT_CBCombinedMuon_"+name
+
+  # Monitoring tool for MuonCreatorAlg in CB
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
+  themuoncbcreatoralg.MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgCB_"+name)
 
   #Add all algorithms
   efAlgs.append(theIndetCandidateAlg)
@@ -766,9 +786,15 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
 def efmuisoRecoSequence( RoIs, Muons ):
 
-  from AthenaCommon.CFElements import parOR, seqAND
+  # ATR-20453
+  # Until such time as FS and RoI collections do not interfere, a hacky fix
+  #from AthenaCommon.CFElements import parOR
+  from AthenaCommon.CFElements import seqAND
 
-  efmuisoRecoSequence = parOR("efmuIsoViewNode")
+  # ATR-20453
+  # Until such time as FS and RoI collections do not interfere, a hacky fix
+  #efmuisoRecoSequence = parOR("efmuIsoViewNode")
+  efmuisoRecoSequence = seqAND("efmuIsoViewNode")
 
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   viewAlgs = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)

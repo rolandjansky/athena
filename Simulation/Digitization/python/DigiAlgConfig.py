@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -139,7 +140,7 @@ def getGeantinoTruthInDetPileUpTools():
     PileUpToolsList = []
     unsupportedKeys = ['doFastPixelDigi', 'doLightPixelDigi', 'doSmearedPixelDigi', 'doFastSCT_Digi', 'doFastTRT_Digi']
     if not set(unsupportedKeys).isdisjoint(set(digitizationFlags.experimentalDigi())):
-        print "DigiAlgConfig.py ERROR The following digitizationFlags.experimentalDigi settings are not supported when digiSteeringConf is set to", digitizationFlags.digitSteeringConf.get_Value(), ": ", str(unsupportedKeys), " and will be ignored."
+        print("DigiAlgConfig.py ERROR The following digitizationFlags.experimentalDigi settings are not supported when digiSteeringConf is set to", digitizationFlags.digitSteeringConf.get_Value(), ": ", str(unsupportedKeys), " and will be ignored.")
     if DetFlags.digitize.BCM_on():
         PileUpToolsList += [ "BCM_DigitizationTool" ]
     if DetFlags.digitize.pixel_on():

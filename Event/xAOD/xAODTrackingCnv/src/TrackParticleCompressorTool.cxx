@@ -51,6 +51,7 @@ namespace xAODMaker {
    TrackParticleCompressorTool::compress( xAOD::TrackParticle& tp ) const {
 
      xAOD::ParametersCovMatrix_t covMatrix = tp.definingParametersCovMatrix();
+     tp.setDefiningParametersCovMatrix(covMatrix); //Separate diag and offdiag cov matrix vectors may not have been set before
      if(m_useOffDiagCompr) tp.compressDefiningParametersCovMatrixOffDiag();
 
      //Check if determinant got negative after compression

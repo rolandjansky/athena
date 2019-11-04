@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 
@@ -15,9 +16,9 @@ def generateFastSimulationList():
         ## Shower parameterization overrides the calibration hit flag
         if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
                 and simFlags.CalibrationRun.statusOn and simFlags.CalibrationRun.get_Value() in ['LAr','LAr+Tile','DeadLAr']:
-            print 'getFastSimulationMasterTool FATAL :: You requested both calibration hits and frozen showers / parameterization in the LAr.'
-            print '  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.'
-            print '  Please try again with a different value of simFlags.LArParameterization or simFlags.CalibrationRun '
+            print ('getFastSimulationMasterTool FATAL :: You requested both calibration hits and frozen showers / parameterization in the LAr.')
+            print ('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+            print ('  Please try again with a different value of simFlags.LArParameterization or simFlags.CalibrationRun ')
             raise RuntimeError('Configuration not allowed')
         if simFlags.LArParameterization() > 0:
             #FIXME If we're only using Frozen Showers in the FCAL do we really need to set up the EMB and EMEC as well?
@@ -25,7 +26,7 @@ def generateFastSimulationList():
             if simFlags.LArParameterization.get_Value() > 1:
                  FastSimulationList += ['DeadMaterialShower']
         elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
-            print "getFastSimulationMasterTool INFO No Frozen Showers"
+            print ("getFastSimulationMasterTool INFO No Frozen Showers")
     if DetFlags.Muon_on():
         if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and\
                 not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
@@ -122,7 +123,6 @@ def generateMuonSensitiveDetectorList():
     SensitiveDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.simulate.Muon_on():
-        from G4AtlasApps.SimFlags import simFlags
         from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() == 'cosmics':
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetectorCosmics' ]
