@@ -46,7 +46,7 @@ namespace ConfigHTT {
 
 }
 
-map < TString, IJetCalibrationTool* > caCalibTools;
+std::map < TString, IJetCalibrationTool* > caCalibTools;
 JetFromPseudojet* jetFromPJ = nullptr;
 
 IJetCalibrationTool* calibTool(const std::string & alg, const std::string & radius, const std::string & input, bool debug = true){
@@ -57,7 +57,7 @@ IJetCalibrationTool* calibTool(const std::string & alg, const std::string & radi
 
   if( caCalibTools.find(jetAlgo) != caCalibTools.end() ) {
     if( debug )
-      cout<<"Use pre-initialized calibration tool: "<< jetAlgo <<endl;
+      std::cout<<"Use pre-initialized calibration tool: "<< jetAlgo <<std::endl;
     return caCalibTools.at(jetAlgo);
   } else {
     TString config = "CamKt_JES_HTT.config"; //Path to global config used to initialize the tool
@@ -66,8 +66,12 @@ IJetCalibrationTool* calibTool(const std::string & alg, const std::string & radi
 
     const std::string name = "HTTSubjetcalib"+alg+radius; 
     //Call the constructor. The default constructor can also be used if the arguments are set with python configuration instead
-    JetCalibrationTool *myJES = new JetCalibrationTool(name, jetAlgo, config, calibSeq, isData);
-  
+    //JetCalibrationTool *myJES = new JetCalibrationTool(name, jetAlgo, config, calibSeq, isData);
+    JetCalibrationTool *myJES = new JetCalibrationTool(name);
+    myJES->setProperty("JetCollection", jetAlgo);
+    myJES->setProperty("ConfigFile", config);
+    myJES->setProperty("CalibSequence", calibSeq);
+    myJES->setProperty("IsData", isData);
     //Initialize the tool
     HTT_CHECK(myJES->initializeTool(name));
     
@@ -87,7 +91,7 @@ HEPTopTagger * configHTTTool(const std::string & treename="",const std::string &
     //jetFromPJ->msg().setLevel(MSG::VERBOSE); 
     HTT_CHECK(jetFromPJ->initialize());
   } else {
-    cout<<"Use pre-initialized tool: jetbuild"<<endl;
+    std::cout<<"Use pre-initialized tool: jetbuild"<<std::endl;
   }
 
 
@@ -172,7 +176,7 @@ JetRecTool * buildFullHTTagger(const std::string & treename="",
 
   ToolHandleArray<IPseudoJetGetter> getterArray;
   // Create a PseudoJet builder.
-  cout << "Creating pseudojet builder." << endl;
+  std::cout << "Creating pseudojet builder." << std::endl;
   PseudoJetGetter* lcgetter = new PseudoJetGetter("lcget");
   //ToolStore::put(lcgetter);
   HTT_CHECK(lcgetter->setProperty("InputContainer", "CaloCalTopoClusters"));
@@ -194,10 +198,10 @@ JetRecTool * buildFullHTTagger(const std::string & treename="",
     //jetFromPJ->msg().setLevel(MSG::VERBOSE);
     HTT_CHECK(jetFromPJ->initialize());
   } else {
-    cout<<"Use pre-initialized tool: jetbuild"<<endl;
+    std::cout<<"Use pre-initialized tool: jetbuild"<<std::endl;
   }
 
-  cout << "Creating jet finder." << endl;
+  std::cout << "Creating jet finder." << std::endl;
   JetFinder* finder = new JetFinder("CamKt15Finder");
   //ToolStore::put(finder);
   HTT_CHECK(finder->setProperty("JetAlgorithm", "CamKt"));
@@ -230,9 +234,9 @@ JetRecTool * buildFullHTTagger(const std::string & treename="",
   const char * CAJets_HTT = CAJets_HTT_container ;
 
 
-  cout << "Creating jetrec tool." << endl;
+  std::cout << "Creating jetrec tool." << std::endl;
   JetRecTool* fullJetTool = new JetRecTool("FullJetRecTool");
-  cout << "container string " << CAJets_HTT << endl;
+  std::cout << "container string " << CAJets_HTT << std::endl;
   HTT_CHECK(fullJetTool->setProperty("OutputContainer", CAJets_HTT ));
   HTT_CHECK(fullJetTool->setProperty("PseudoJetGetters", getterArray));
   HTT_CHECK(fullJetTool->setProperty("JetFinder", ToolHandle<IJetFinder>(finder)));
@@ -241,7 +245,7 @@ JetRecTool * buildFullHTTagger(const std::string & treename="",
   fullJetTool->msg().setLevel(ConfigHTT::myMSGlev);
   HTT_CHECK(fullJetTool->initialize());
 
-  cout << "ok fullJetTool " << endl;
+  std::cout << "ok fullJetTool " << std::endl;
 
   return fullJetTool;
 }
