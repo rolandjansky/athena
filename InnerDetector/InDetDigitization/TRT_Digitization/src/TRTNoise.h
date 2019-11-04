@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTNOISE_H
-#define TRTNOISE_H
+#ifndef TRT_DIGITIZATION_TRTNOISE_H
+#define TRT_DIGITIZATION_TRTNOISE_H
 
 #include <vector>
 #include <set>
@@ -40,17 +40,17 @@ public:
    * Constructor
    */
   TRTNoise( const TRTDigSettings*,
-	    const InDetDD::TRT_DetectorManager*,
+            const InDetDD::TRT_DetectorManager*,
             CLHEP::HepRandomEngine* noiseRndmEngine,
             CLHEP::HepRandomEngine* elecNoiseRndmEngine,
             CLHEP::HepRandomEngine* elecProcRndmEngine,
-	    TRTDigCondBase* digcond,
-	    TRTElectronicsProcessing * ep,
-	    TRTElectronicsNoise * electronicsnoise,
-	    const TRT_ID* trt_id,
-	    int UseGasMix,
-	    ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
-	  );
+            TRTDigCondBase* digcond,
+            TRTElectronicsProcessing * ep,
+            TRTElectronicsNoise * electronicsnoise,
+            const TRT_ID* trt_id,
+            int UseGasMix,
+            ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
+            );
 
   /**
    * Append noise digits to list of digits from proper hits. @n
@@ -64,13 +64,13 @@ public:
    *                    noise digit to already hit straw.
    */
   void appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect,
-				      const std::set<int>& sim_hitids,
+                                      const std::set<int>& sim_hitids,
                                       CLHEP::HepRandomEngine* noiseRndmEngine) ;
 
 
   void appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect,
-					  const std::set<Identifier>& simhitsIdentifiers,
-					  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc,
+                                          const std::set<Identifier>& simhitsIdentifiers,
+                                          ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc,
                                           CLHEP::HepRandomEngine* noiseRndmEngine);
 
   void sortDigits(std::vector<TRTDigit>& digitVect);
@@ -80,7 +80,7 @@ public:
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
- private:
+private:
 
   const TRTDigSettings* m_settings;
   const InDetDD::TRT_DetectorManager* m_detmgr;
@@ -129,12 +129,12 @@ public:
    * @param noiseamp:      noise amplitudes, all straws
    */
   void ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
-			      const std::vector<float>& noiseamps,
-			      const std::vector<int>& strawType,
+                              const std::vector<float>& noiseamps,
+                              const std::vector<int>& strawType,
                               CLHEP::HepRandomEngine* noiseRndmEngine,
                               CLHEP::HepRandomEngine* elecNoiseRndmEngine,
                               CLHEP::HepRandomEngine* elecProcRndmEngine
-			    );
+                              );
 
   const TRT_ID* m_id_helper;
   /** Length of noise digit pool @c m_digitPool */
@@ -145,8 +145,8 @@ public:
   std::vector<unsigned int> m_digitPool;
 
   double simulateNoiseFrequency( const unsigned int& totalNumberOfTests,
-				 const double& electronicsNoiseAmplitude,
-				 double lowthreshold = -1.0 );
+                                 const double& electronicsNoiseAmplitude,
+                                 double lowthreshold = -1.0 );
 
   /**
    * Return @a y value corresponding to input @a x value from LUT
@@ -158,9 +158,9 @@ public:
    * @param max_x:     highest tabulated @a x value
    */
   float useLookupTable(const float& x,
-		       const std::vector<float>& y_given_x,
-		       const float & min_x,
-		       const float & max_x);
+                       const std::vector<float>& y_given_x,
+                       const float & min_x,
+                       const float & max_x);
 
   /**
    * Invert look-up-table: Go from tabulated @a y values vs. equidistantly
@@ -174,11 +174,11 @@ public:
    * @param max_y:     higher @a y value (output)
    */
   void makeInvertedLookupTable( const std::vector<float>& y_given_x,
-  				const float & min_x,
-  				const float & max_x,
-  				std::vector<float>& x_given_y,
-  				float & min_y,
-  				float & max_y );
+                                const float & min_x,
+                                const float & max_x,
+                                std::vector<float>& x_given_y,
+                                float & min_y,
+                                float & max_y );
   /**
    * Refined noise treatment by allowing for event-by-event fluctuations in
    * the low threshold settings. This is done by smearing of a LUT giving noise
@@ -197,12 +197,12 @@ public:
    * @param number_new_bins: LUT is expanded to this number of bins (input)
    */
   void evolve_LT2AmpVsNL_to_include_LTfluct( std::vector<float>& nl_given_lt2na,
-  					     const float & min_lt2na,
-  					     const float & max_lt2na,
-  					     const float relativeLTFluct,
-  					     float & new_min_lt2na,
-  					     float & new_max_lt2na,
-  					     const unsigned int& number_new_bins );
+                                             const float & min_lt2na,
+                                             const float & max_lt2na,
+                                             const float relativeLTFluct,
+                                             float & new_min_lt2na,
+                                             float & new_max_lt2na,
+                                             const unsigned int& number_new_bins );
   mutable Athena::MsgStreamMember m_msg;
 
   Identifier getStrawIdentifier (int hitID);

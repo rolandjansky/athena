@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
- ////////////////////////////////////
+////////////////////////////////////
 //                                  //
 //  Class: TRT_ScaledDriftTimeData  //
 //                                  //
@@ -10,10 +10,10 @@
 //                                  //
 //  First Version: January 2006     //
 //                                  //
- ////////////////////////////////////
+////////////////////////////////////
 
-#ifndef TRT_SCALEDDRIFTTIMEDATA_H
-#define TRT_SCALEDDRIFTTIMEDATA_H
+#ifndef TRT_DIGITIZATION_TRT_SCALEDDRIFTTIMEDATA_H
+#define TRT_DIGITIZATION_TRT_SCALEDDRIFTTIMEDATA_H
 
 #include "TRT_Digitization/ITRT_DriftTimeData.h"
 
