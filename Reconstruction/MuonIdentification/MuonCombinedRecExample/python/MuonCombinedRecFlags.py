@@ -192,7 +192,7 @@ class MuonCombinedRec(JobPropertyContainer):
             # Algorithms for CaloMuonCollection
             setDefault(self.doCaloTrkMuId,self.doAOD())
             # Algorithms for MuGirlLowBetaCollection
-            setDefault(self.doMuGirlLowBeta,self.doAOD())
+            setDefault(self.doMuGirlLowBeta,(self.doAOD() and self.doMuGirl()))
 
         #else: # collisions
             # Algorithms for CaloMuonCollection
