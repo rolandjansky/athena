@@ -2,7 +2,7 @@
 
 """ Flags for monitoring chains """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 _flags = []

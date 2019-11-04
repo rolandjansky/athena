@@ -2,10 +2,8 @@
 
 """ HeavyIon slice specific flags  """
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
-from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
 
 __doc__="Minimum Bias slice specific flags  "
 

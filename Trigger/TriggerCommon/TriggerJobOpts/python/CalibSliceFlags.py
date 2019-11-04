@@ -2,7 +2,7 @@
 
 """ Calib slice specific flags  """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 
