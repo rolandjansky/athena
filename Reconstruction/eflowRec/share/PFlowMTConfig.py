@@ -2,9 +2,6 @@ from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
 topSequence += PFLeptonSelector
 
-PFLeptonSelector.electronID = "LHMedium"
-PFLeptonSelector.selectElectrons = False
-
 from eflowRec.eflowRecConf import PFTrackSelector
 PFTrackSelector=PFTrackSelector("PFTrackSelector")
 

@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools
                           Control/StoreGate
+                          Control/RootUtils
                           TestPolicy )
 
 # External dependencies:
@@ -32,7 +33,7 @@ atlas_add_library( McParticleUtils
                    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${CPPUNIT_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaKernel AthContainers EventKernel GaudiKernel AnalysisUtilsLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaKernel AthContainers EventKernel GaudiKernel AnalysisUtilsLib StoreGateLib SGtests RootUtils
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${PYTHON_LIBRARIES} ${CLHEP_LIBRARIES} ${CPPUNIT_LIBRARIES} )
 
 # Install files from the package:

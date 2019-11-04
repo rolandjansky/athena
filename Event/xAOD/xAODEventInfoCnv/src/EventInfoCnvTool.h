@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventInfoCnvTool.h 793565 2017-01-23 22:00:14Z leggett $
@@ -16,7 +16,7 @@
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
 // Beam condition include(s):
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 // Luminosity include(s):
 #include "LumiBlockData/LuminosityCondData.h"
@@ -63,7 +63,7 @@ namespace xAODMaker {
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
       /// Connection to the beam spot service
-      ServiceHandle< IBeamCondSvc > m_beamCondSvc;
+      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
       SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
       { this, "LumiDataKey", "", "SG key for luminosity data" };

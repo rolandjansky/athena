@@ -260,13 +260,13 @@ private:
     const MuonGM::MdtReadoutElement*            m_detEl;
 
     /** This angle is the position of the point of closest approach in cylindrical coordinates, and is needed to construct the global position*/
-    mutable float                               m_localAngle;
+    float 	                                m_localAngle;
     
     /** This is the position of the point of closest approach, in the local z coord (i.e. along the wire), and is needed to construct the global position*/
-    mutable float                               m_positionAlongWire;
+    float                                       m_positionAlongWire;
 
     /** This is the drift time used to obtain the drift radius */
-    mutable float                               m_driftTime;
+    float                                       m_driftTime;
     
     /** Records information about the 'strategy' used by Muon::MdtDriftCircleOnTrackCreator to make this object.*/    
     MuonDriftCircleErrorStrategy                m_errorStrategy;

@@ -30,7 +30,10 @@ class PartitionsGrouper: public IJetGrouper{
  public:
   PartitionsGrouper(const std::vector<std::size_t>& mults);
   std::vector<HypoJetGroupVector> group(HypoJetIter&,
-                           HypoJetIter&) const override;
+					HypoJetIter&) const override;
+  
+  std::optional<HypoJetGroupVector> next(HypoJetIter&,
+					 HypoJetIter&) const override;
   std::string getName() const override; 
   std::string toString() const override;
  private:

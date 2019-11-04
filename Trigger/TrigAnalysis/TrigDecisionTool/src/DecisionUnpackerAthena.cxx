@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgTools/AsgToolsConf.h"
@@ -9,11 +9,7 @@
 
 
 #ifndef XAOD_ANALYSIS
-//there is no better way????
-#define private public
 #include "TrigSteeringEvent/Lvl1Result.h"
-#undef private
-
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavStructure/TrigNavStructure.h"
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
@@ -35,9 +31,13 @@ namespace Trig {
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
       ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
-      item->m_passBP = result.isPassedBeforePrescale(ctpid);
-      item->m_passAP = result.isPassedAfterPrescale(ctpid);
-      item->m_passAV = result.isPassedAfterVeto(ctpid);
+      bool passBP = result.isPassedBeforePrescale(ctpid);
+      bool passAP = result.isPassedAfterPrescale(ctpid);
+      bool passAV = result.isPassedAfterVeto(ctpid);
+      LVL1CTP::Lvl1Item itemNew (item->name(), item->hashId(),
+                                 passBP, passAP, passAV,
+                                 item->prescaleFactor());
+      *item = std::move (itemNew);
       itemsByName[item->name()] = item;
     }
     return StatusCode::SUCCESS;

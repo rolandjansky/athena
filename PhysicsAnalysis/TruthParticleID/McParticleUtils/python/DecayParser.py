@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: McParticleUtils/python/DecayParser.py
 # @purpose: implement the parsing/tokenization of decay-patterns' strings
 # @author:  Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 import re
 
@@ -16,7 +18,7 @@ def py_parse (cmd):
     cmd = re.sub(pattern=" ",
                  repl="",
                  string=cmd)
-##     print "=> [%s]"%cmd
+##     print ("=> [%s]"%cmd)
 
     if cmd == _decay_arrow:
         # special case of a single arrow without any parent nor child:
@@ -25,7 +27,7 @@ def py_parse (cmd):
     buf = cmd.split (_decay_arrow)
     assert (len(buf)==2)
     
-##     print "==> buf:",buf
+##     print ("==> buf:",buf)
     parents = process_block (buf[0])
     children= process_block (buf[1])
     
@@ -39,14 +41,14 @@ def process_block (cmd):
 
 
 if __name__ == "__main__":
-    print ":"*80
-    print "::: tests..."
+    print (":"*80)
+    print ("::: tests...")
     for cmd in ("-1|-2|-3|-4|-5|-6|21 + 1|2|3|4|5|6|21 -> ",
                 "-> 91|92|94"
                 ):
-        print "::: testing [%s]..." % cmd
-        print "::: result:",py_parse (cmd)
+        print ("::: testing [%s]..." % cmd)
+        print ("::: result:",py_parse (cmd))
 
-    print "::: bye."
-    print ":"*80
+    print ("::: bye.")
+    print (":"*80)
     

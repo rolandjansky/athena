@@ -29,7 +29,7 @@ StatusCode CombinationsHelperTool::initialize() {
   
   m_grouper  = m_config->getJetGrouper();
   m_matcher = m_config->getMatcher();
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -50,7 +50,7 @@ CombinationsHelperTool::collectData(const std::string& setuptime,
 				  pass,
 				  exetime + setuptime
 				  );
-
+  
   collector->collect(name(), helperInfo);
 }
 
@@ -64,7 +64,7 @@ struct HypoJetSelector{
   }
   
   bool operator()(pHypoJet j){
-
+    
     if(m_conditions.empty()){return true;}
     
     std::vector<pHypoJet> v{j};
@@ -81,8 +81,8 @@ struct HypoJetSelector{
   const ConditionsMT& m_conditions;
   const std::unique_ptr<ITrigJetHypoInfoCollector>& m_collector;
 };
- 
- 
+
+
 bool
 CombinationsHelperTool::pass(HypoJetVector& jets,
 			     xAODJetCollector& jetCollector,
@@ -94,6 +94,12 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   JetTrigTimer exeTimer;
   JetTrigTimer setupTimer;
   
+  if(collector){
+    std::string msg = "No of jets " + std::to_string(jets.size());
+    collector->collect(name(), msg);
+  }
+
+    
   setupTimer.start();
 
   auto end_iter = jets.end();
@@ -116,7 +122,11 @@ CombinationsHelperTool::pass(HypoJetVector& jets,
   exeTimer.start();
 
   bool passed{false};
-  
+
+  if(collector){
+    collector->collect(name(),
+		       "size jetGroupsVec " + std::to_string(jetGroupsVec.size()));
+  }
   for(auto& jetGroupVec : jetGroupsVec){
     ATH_MSG_DEBUG("No of groups" << jetGroupVec.size());
 

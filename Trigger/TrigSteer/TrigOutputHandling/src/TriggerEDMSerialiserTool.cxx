@@ -249,7 +249,7 @@ StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data,
   std::vector<uint32_t>& buffer,
   SGImplSvc* evtStore) const
 {
-  ATH_MSG_DEBUG("xAOD Aux Contianer");
+  ATH_MSG_DEBUG("xAOD Aux Container");
   ATH_CHECK( serialiseContainer( data, address, buffer ) );
   size_t baseSize = buffer.size();
   if ( not m_saveDynamic )
@@ -268,7 +268,7 @@ StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data,
 
 StatusCode TriggerEDMSerialiserTool::serialiseTPContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const {
 
-  ATH_MSG_DEBUG("TP Contianer, converting from: " <<  address.transType << " to " << address.persType  );
+  ATH_MSG_DEBUG("TP Container, converting from: " <<  address.transType << " to " << address.persType  );
   std::string converterPersistentType;
   void * persistent = m_tpTool->convertTP( address.transType,  data, converterPersistentType );
   ATH_CHECK( persistent != 0 );

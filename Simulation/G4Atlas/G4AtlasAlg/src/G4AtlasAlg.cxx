@@ -120,15 +120,15 @@ StatusCode G4AtlasAlg::initialize()
 void G4AtlasAlg::initializeOnce()
 {
   // Assign physics list
-  if(m_physListTool.retrieve().isFailure()) {
-    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  if(m_physListSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListSvc!");
   }
 
   // Create the (master) run manager
   if(m_useMT) {
 #ifdef G4MULTITHREADED
     auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
-    m_physListTool->SetPhysicsList();
+    m_physListSvc->SetPhysicsList();
     // Worker Thread initialization used to create worker run manager on demand.
     // @TODO use this class to pass any configuration to worker run manager.
     runMgr->SetUserInitialization( new G4AtlasUserWorkerThreadInitialization );
@@ -140,14 +140,14 @@ void G4AtlasAlg::initializeOnce()
   // Single-threaded run manager
   else {
     auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
-    m_physListTool->SetPhysicsList();
+    m_physListSvc->SetPhysicsList();
     runMgr->SetRecordFlux( m_recordFlux, std::make_unique<G4AtlasFluxRecorder>() );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
     runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
     runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-    runMgr->SetPhysListTool(m_physListTool.typeAndName() );
+    runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
   }
 
   // G4 user interface commands

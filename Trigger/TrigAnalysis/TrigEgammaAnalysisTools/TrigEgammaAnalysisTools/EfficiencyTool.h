@@ -15,16 +15,16 @@ class EfficiencyTool
 public:
 
   EfficiencyTool( const std::string& myname );
-  virtual ~EfficiencyTool() {};
+  ~EfficiencyTool() {};
 
-  virtual StatusCode childInitialize() override;
-  virtual StatusCode childBook() override;
-  virtual StatusCode childExecute() override;
-  virtual StatusCode childFinalize() override;
-  virtual StatusCode toolExecute(const std::string,const TrigInfo,std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs) override;
-  virtual void setDetail(bool doDetail) override;
-  virtual void setTP(bool tp) override;
-  virtual void setEmulation(bool doEmu) override;
+  StatusCode childInitialize();
+  StatusCode childBook();
+  StatusCode childExecute();
+  StatusCode childFinalize();
+  StatusCode toolExecute(const std::string,const TrigInfo,std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs);
+  void setDetail(bool doDetail){ m_detailedHists = doDetail; }
+  void setTP(bool tp){ m_tp = tp; }
+  void setEmulation(bool doEmu){ m_doEmulation = doEmu;}
 
 private:
 
@@ -33,7 +33,7 @@ protected:
   void inefficiency(const std::string&,const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,
                     const asg::AcceptData& acceptData);
   void fillInefficiency(const std::string&,const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *,
-                        const asg::AcceptData& acceptData);
+                        const asg::AcceptData& acceptData); 
   bool analyseIsEM(const xAOD::Electron *,const std::string);
   bool analyseIsEMLH(const xAOD::Electron *,const std::string/*,const std::bitset<4>*/);
    /*! Include more detailed histograms */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -103,8 +103,12 @@ PyObject* PyAthenaEventLoopMgr::setManager( PyObject* mgr )
    }
 
 // hand the python side its interfaces
-   PyObject* pyself = PyCObject_FromVoidPtr( (void*)static_cast< IEventSeek* >( this ), nullptr );
+   PyObject* pyself = PyCapsule_New( (void*)static_cast< IEventSeek* >( this ), nullptr, nullptr );
+#if PY_MAJOR_VERSION < 3
    PyObject* method = PyString_FromString( "_installServices" );
+#else
+   PyObject* method = PyUnicode_FromString( "_installServices" );
+#endif
    PyObject* result = PyObject_CallMethodObjArgs( mgr, method, pyself, 0 );
    Py_DECREF( method );
    Py_DECREF( pyself );
@@ -189,7 +193,7 @@ StatusCode PyAthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx)
    if ( m_manager != nullptr )
    {
    // forward call, if python side manager available
-     PyObject* pycontext = PyCObject_FromVoidPtr ( const_cast<EventContext*>(&ctx), nullptr);
+     PyObject* pycontext = PyCapsule_New ( const_cast<EventContext*>(&ctx), nullptr, nullptr);
       PyObject* result = PyObject_CallMethod( m_manager, execalgs,
                                               (char*)"O", pycontext);
       Py_DECREF (pycontext);
@@ -200,12 +204,21 @@ StatusCode PyAthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx)
 	  return StatusCode::FAILURE;
       }
 
+#if PY_MAJOR_VERSION < 3
       if ( PyInt_Check( result ) || PyLong_Check( result ) )
       {
 	 StatusCode sc = StatusCode( (int) PyInt_AS_LONG( result ) );
          Py_DECREF( result );
          return sc;
       }
+#else
+      if ( PyLong_Check( result ) )
+      {
+	 StatusCode sc = StatusCode( (int) PyLong_AS_LONG( result ) );
+         Py_DECREF( result );
+         return sc;
+      }
+#endif
 
    // FIXME: allow python result to be a statuscode
       MsgStream log( msgSvc(), name() );

@@ -24,7 +24,7 @@
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IPhysicsListSvc.h"
 #include "CxxUtils/checker_macros.h"
 
 // ISF includes
@@ -144,8 +144,8 @@ namespace iGeant4
     ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc{this, "DetGeoSvc", "DetectorGeometrySvc", ""};
     /// Service to convert ISF_Particles into a G4Event
     ServiceHandle<ISF::IInputConverter> m_inputConverter{this, "InputConverter", "ISF_InputConverter", ""};
-    /// Physics List Tool
-    PublicToolHandle<IPhysicsListTool> m_physListTool{this, "PhysicsListTool", "PhysicsListToolBase", ""};
+    /// Physics List Service
+    ServiceHandle<IPhysicsListSvc> m_physListSvc{this, "PhysicsListSvc", "PhysicsListSvc", ""};
     /// Sensitive Detector Master Tool
     PublicToolHandle<ISensitiveDetectorMasterTool> m_senDetTool{this, "SenDetMasterTool", "SensitiveDetectorMasterTool", ""};
     /// Fast Simulation Master Tool

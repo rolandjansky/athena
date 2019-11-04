@@ -35,9 +35,7 @@ class IIOVDbSvc;
  * Struct to hold CLID <-> folder name mapping
  */
 struct FolderInfo {
-  FolderInfo() : clid(CLID_NULL) {}
-  FolderInfo(const CLID& cl, const std::string& k) : clid(cl), key(k) {}
-  CLID clid;
+  CLID clid{CLID_NULL};
   std::string key;
 };
 

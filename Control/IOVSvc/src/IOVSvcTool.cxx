@@ -32,8 +32,6 @@
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "IOVEntry.h"
 #include "IOVSvc/IOVAddress.h"
@@ -43,6 +41,7 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <stdexcept>
+#include <atomic>
 
 using SG::DataProxy;
 using SG::TransientAddress;
@@ -58,7 +57,7 @@ std::string toUpper(const std::string& str) {
 }
 
 namespace {
-  bool s_firstRun(true);
+  std::atomic<bool> s_firstRun(true);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -151,8 +150,6 @@ IOVSvcTool::~IOVSvcTool() {
 StatusCode 
 IOVSvcTool::initialize() {
 
-  StatusCode status;
-
   static const bool CREATEIF(true);
 
   IIOVSvc* p_iovSvc(nullptr);
@@ -171,18 +168,6 @@ IOVSvcTool::initialize() {
   setProperty( iovSvcProp->getProperty("sortKeys") ).ignore();
   setProperty( iovSvcProp->getProperty("forceResetAtBeginRun") ).ignore();
   setProperty( iovSvcProp->getProperty("OutputLevel") ).ignore();
-
-  if (m_storeName == "StoreGateSvc") {
-    status = service("StoreGateSvc", p_sgSvc);
-  } else {
-    string sgn = "StoreGateSvc/" + m_storeName;
-    status = service(sgn,p_sgSvc);
-  }
-
-  if (status.isFailure()) {
-    ATH_MSG_ERROR("Unable to get the StoreGateSvc");
-    return status;
-  }
 
   int pri=100;
 
@@ -233,7 +218,7 @@ IOVSvcTool::initialize() {
 
   ATH_MSG_DEBUG("Tool initialized");
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 
 

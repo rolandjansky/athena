@@ -93,7 +93,7 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
 
   DecisionIDContainer passRawIDs; //!< The chains which returned a positive decision
   DecisionIDContainer prescaledIDs; //!< The chains which did not run due to being prescaled out
-  DecisionIDContainer rerunIDs; //!< The chains which were activate only in the rerun (not physics decisions)
+  DecisionIDContainer rerunIDs; //!< The chains which were activated only in the rerun (not physics decisions)
 
   // Read the sets of chain IDs
   for (const Decision* decisionObject : *chainsHandle) {
@@ -178,7 +178,7 @@ StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID cha
   boost::dynamic_bitset<uint32_t>& resultToFill) const
 {
   auto mappingIter = m_mapping.find( chain );
-  // each chain has to have stream
+  // each chain has to have the counter
   if( mappingIter == m_mapping.end() ) {
     ATH_MSG_ERROR("Each chain has to have the bit/counter associated whereas the " << HLT::Identifier( chain ) << " does not" );
     return StatusCode::FAILURE;

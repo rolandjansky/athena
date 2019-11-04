@@ -34,14 +34,14 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
 
    # Configure HLT result monitoring histograms
    m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
-   m.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result construction in;[micro seccond]',
+   m.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result making;Time [us];Events',
                                              xbins=100, xmin=0, xmax=1000 ),
-                            defineHistogram( 'nstreams', path='EXPERT', type='TH1F', title='number of streams',
+                            defineHistogram( 'nstreams', path='EXPERT', type='TH1F', title='Number of streams;Number of streams;Events',
                                              xbins=60, xmin=0, xmax=60 ),
-                            defineHistogram( 'nfrags', path='EXPERT', type='TH1F', title='number of HLT results',
+                            defineHistogram( 'nfrags', path='EXPERT', type='TH1F', title='Number of HLT results (module IDs);Number of results;Events',
                                              xbins=10, xmin=0, xmax=10 ),
-                            defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT Result size;4B words',
-                                             xbins=100, xmin=-1, xmax=999 ) ] # 1000 k span
+                            defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT result size;Size [kB];Events',
+                                             xbins=101, xmin=-10, xmax=1000 ) ]
    
    
    return m
