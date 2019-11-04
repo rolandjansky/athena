@@ -169,7 +169,6 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
 
         if muonCombinedRecFlags.doMuGirl():
             topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
-            #topSequence += getAlgorithm("MuGirlAlg") 
             if muonCombinedRecFlags.doMuGirlLowBeta():
                 topSequence += getAlgorithm("MuGirlStauAlg")
 
