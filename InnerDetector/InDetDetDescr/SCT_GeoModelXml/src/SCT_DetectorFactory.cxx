@@ -117,9 +117,11 @@ void SCT_DetectorFactory::create(GeoPhysVol *world) {
 //   Add the tree-top to the detector manager. This also makes it appear as SCT in VP1.
 //   It is probably the last (most recently added) thing in the world PV so loop from the
 //   back looking for our subdetector name.
+   
 //
     unsigned int nChildren = world->getNChildVols();
-    for (int iChild = nChildren - 1; iChild; --iChild) {
+
+    for (int iChild = nChildren - 1; iChild>=0; --iChild) {
         if (world->getNameOfChildVol(iChild) == "SCT") {
             // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
             // the & takes its address.

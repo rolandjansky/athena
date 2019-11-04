@@ -387,13 +387,13 @@ class SLHC_Setup :
         toolSvc+=geoEnvelopeTool
 
         print "******************************************************************************************"
-
-        pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
-        pixelTool.Alignable = False
-        pixelTool.FastBuildGeoModel = True
-        pixelTool.ConfigGeoAlgTool = True
-        pixelTool.ReadXMLFromDB = bReadXMLfromDB
-        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
+        if hasattr(svcMgr.GeoModelSvc.DetectorTools, 'PixelDetectorTool'):
+            pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
+            pixelTool.Alignable = False
+            pixelTool.FastBuildGeoModel = True
+            pixelTool.ConfigGeoAlgTool = True
+            pixelTool.ReadXMLFromDB = bReadXMLfromDB
+            pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
         
 
     def search_file(self,filename, search_path):
