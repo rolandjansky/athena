@@ -8,7 +8,8 @@ EXOT9AllVariables = [
     "TruthVertices",
     "MET_Truth",
     "ExtrapolatedMuonTrackParticles",
-    "CombinedMuonTrackParticles"
+    "CombinedMuonTrackParticles",
+    "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht"
 ]
 
 EXOT9SmartCollections = [
