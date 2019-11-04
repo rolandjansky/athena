@@ -201,7 +201,7 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
    * Given the extension calculate the deta/dphi for the layers
    */
   if(!didExtension){
-    ATH_MSG_INFO("Could not create an extension from " << extrapFrom 
+    ATH_MSG_DEBUG("Could not create an extension from " << extrapFrom 
                  <<  " for a track with : "
                  << " Track Pt " <<trkPB->pt()
                  << " Track Eta " <<trkPB->eta()
