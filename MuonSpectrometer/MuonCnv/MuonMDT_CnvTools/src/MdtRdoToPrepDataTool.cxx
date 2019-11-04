@@ -176,12 +176,6 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
 
 Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer()
 {
-  // FIXME: This needs to be redone to work properly with MT.
-  if (Gaudi::Hive::currentContext().slot() > 1) {
-    ATH_MSG_ERROR ( "MdtRdoToPrepDataTool doesn't yet work with MT." );
-    return FAILED;
-  }
-
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
 
