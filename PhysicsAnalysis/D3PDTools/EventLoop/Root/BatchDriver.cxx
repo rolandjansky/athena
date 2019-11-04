@@ -488,13 +488,14 @@ namespace EL
         std::unique_ptr<TFile> file
           (TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ"));
         RCU_ASSERT_SOFT (file.get() != 0);
-        std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
-        RCU_ASSERT_SOFT (config.get() != 0);
+        data.batchJob.reset (dynamic_cast<BatchJob*>(file->Get ("job")));
+        RCU_ASSERT_SOFT (data.batchJob.get() != 0);
+        data.job = &data.batchJob->job;
 
-        bool merged = mergeHists (data.submitDir, *config);
+        bool merged = mergeHists (data.submitDir, *data.batchJob);
         if (merged)
         {
-          diskOutputSave (data.submitDir, config->job);
+          diskOutputSave (data);
         }
         data.retrieved = true;
         data.completed = merged;
