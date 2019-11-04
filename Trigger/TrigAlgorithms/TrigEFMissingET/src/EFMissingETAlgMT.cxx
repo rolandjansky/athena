@@ -98,7 +98,7 @@ StatusCode EFMissingETAlgMT::execute( const EventContext& context ) const {
 
   auto monitorIt = Monitored::Group( m_monTool,
 					    totalTimer, loopTimer,
-					    EF_MEx_log, EF_MEy_log, EF_MEz_log, EF_MET_log, EF_ME_log, EF_ME_log, EF_SumE_log,
+					    EF_MEx_log, EF_MEy_log, EF_MEz_log, EF_MET_log, EF_ME_log, EF_SumEt_log, EF_SumE_log,
 					    EF_MEx_lin, EF_MEy_lin, EF_MEz_lin, EF_MET_lin, EF_ME_lin, EF_SumEt_lin, EF_SumE_lin, 
 					    EF_XS, EF_MET_phi);
     
