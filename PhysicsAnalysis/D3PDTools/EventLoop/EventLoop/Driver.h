@@ -175,36 +175,6 @@ namespace EL
     // semi-public interface
     //
 
-    /// \brief make the name of the merged output data file
-    ///
-    /// This is optional, but it is convenient for drivers to put
-    /// these files into the same location.
-    ///
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II
-  public:
-    static std::string
-    mergedOutputName (const std::string& location, const OutputStream& output,
-		      const std::string& sample);
-
-
-    /// \brief create all the output directories for merged outputs
-    ///
-    /// This is optional, but it is convenient for drivers that want
-    /// to keep their outputs locally.
-    ///
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   out of memory II\n
-    ///   i/o errors
-  public:
-    static void
-    mergedOutputMkdir (const std::string& location, const Job& job);
-
-
     /// \brief create and save a sample handler assuming we created
     ///   all the merged files at the requested locations
     ///
@@ -218,7 +188,7 @@ namespace EL
     ///   i/o errors
   public:
     static void
-    mergedOutputSave (const std::string& location, const Job& job);
+    mergedOutputSave (Detail::ManagerData& data);
 
 
     /// \brief make the output sample handler for the given job or
@@ -234,7 +204,7 @@ namespace EL
     ///   i/o errors
   public:
     static void
-    diskOutputSave (const std::string& location, const Job& job);
+    diskOutputSave (Detail::ManagerData& data);
 
 
     /// \brief this flag is set to true when the wait() function is

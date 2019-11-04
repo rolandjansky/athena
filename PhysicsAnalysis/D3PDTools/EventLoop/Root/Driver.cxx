@@ -260,41 +260,18 @@ namespace EL
 
 
 
-  std::string Driver ::
-  mergedOutputName (const std::string& location, const OutputStream& output,
-		    const std::string& sample)
-  {
-    return location + "/data-" + output.label() + "/" + sample + ".root";
-  }
-
-
-
   void Driver ::
-  mergedOutputMkdir (const std::string& location, const Job& job)
+  mergedOutputSave (Detail::ManagerData& data)
   {
-    for (Job::outputIter out = job.outputBegin(), end = job.outputEnd();
-	 out != end; ++ out)
-    {
-      const std::string dir = location + "/data-" + out->label();
-      if (gSystem->MakeDirectory (dir.c_str()) != 0)
-	RCU_THROW_MSG ("failed to create directory " + dir);
-    }
-  }
-
-
-
-  void Driver ::
-  mergedOutputSave (const std::string& location, const Job& job)
-  {
-    for (Job::outputIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++ out)
+    for (Job::outputIter out = data.job->outputBegin(),
+	   end = data.job->outputEnd(); out != end; ++ out)
     {
       const std::string name
-	= location + "/data-" + out->label();
+	= data.submitDir + "/data-" + out->label();
 
       SH::SampleHandler sh;
-      for (SH::SampleHandler::iterator sample = job.sampleHandler().begin(),
-	     end = job.sampleHandler().end(); sample != end; ++ sample)
+      for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin(),
+	     end = data.job->sampleHandler().end(); sample != end; ++ sample)
       {
 	const std::string name2 = name + "/" + (*sample)->name() + ".root";
 	std::unique_ptr<SH::SampleLocal> mysample
@@ -302,25 +279,25 @@ namespace EL
 	mysample->add (name2);
 	sh.add (mysample.release());
       }
-      sh.fetch (job.sampleHandler());
-      sh.save (location + "/output-" + out->label());
+      sh.fetch (data.job->sampleHandler());
+      sh.save (data.submitDir + "/output-" + out->label());
     }
   }
 
 
 
   void Driver ::
-  diskOutputSave (const std::string& location, const Job& job)
+  diskOutputSave (Detail::ManagerData& data)
   {
     SH::SampleHandler sh_hist;
-    sh_hist.load (location + "/hist");
+    sh_hist.load (data.submitDir + "/hist");
 
-    for (Job::outputIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++ out)
+    for (Job::outputIter out = data.job->outputBegin(),
+	   end = data.job->outputEnd(); out != end; ++ out)
     {
       SH::SampleHandler sh;
-      for (SH::SampleHandler::iterator sample = job.sampleHandler().begin(),
-	     end = job.sampleHandler().end(); sample != end; ++ sample)
+      for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin(),
+	     end = data.job->sampleHandler().end(); sample != end; ++ sample)
       {
 	SH::Sample *histSample = sh_hist.get ((*sample)->name());
 	RCU_ASSERT (histSample != 0);
@@ -340,8 +317,8 @@ namespace EL
 	mysample->meta()->fetch (*out->options());
 	sh.add (mysample.release());
       }
-      sh.fetch (job.sampleHandler());
-      sh.save (location + "/output-" + out->label());
+      sh.fetch (data.job->sampleHandler());
+      sh.save (data.submitDir + "/output-" + out->label());
     }
   }
 
