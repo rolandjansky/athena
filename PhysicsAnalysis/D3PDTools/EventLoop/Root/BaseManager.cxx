@@ -29,10 +29,10 @@ namespace EL
 {
   namespace Detail
   {
-    Detail::ManagerOrder BaseManager ::
+    std::pair<Detail::ManagerOrder,std::string> BaseManager ::
     getManagerOrder () const noexcept
     {
-      return ManagerOrder::BASE;
+      return std::make_pair (ManagerOrder::BASE, "");
     }
 
 

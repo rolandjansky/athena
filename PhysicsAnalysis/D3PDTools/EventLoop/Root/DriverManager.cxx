@@ -26,10 +26,10 @@ namespace EL
 {
   namespace Detail
   {
-    Detail::ManagerOrder DriverManager ::
+    std::pair<Detail::ManagerOrder,std::string> DriverManager ::
     getManagerOrder () const noexcept
     {
-      return ManagerOrder::DRIVER;
+      return std::make_pair (ManagerOrder::DRIVER, "");
     }
 
 
