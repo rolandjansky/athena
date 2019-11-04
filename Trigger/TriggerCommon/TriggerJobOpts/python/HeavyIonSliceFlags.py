@@ -30,8 +30,6 @@ class signatures(JobProperty):
         ]
 
 
-    
-    
 _flags.append(signatures)
 
 # create container

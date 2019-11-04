@@ -454,8 +454,6 @@ class EFPayload(JobProperty):
 _flags.append(EFPayload)
 
 # create container
-from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
-
 
 class CosmicSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Cosmic Slice Flags """

@@ -3,7 +3,7 @@
 """ Bjet slice specific flags  """
 
 from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
+from TriggerMenu.menu.CommonSignatureHelper import CommonSignatureHelper
 
 __author__  = 'T. Bold'
 __version__="$Revision: 1.31 $"
@@ -23,14 +23,14 @@ _flags.append(signatures)
 
 # create container
 
-class BjetSlice(JobPropertyContainer, CommonSliceHelper):
+class BjetSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Bjet Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(BjetSlice)
 
 # add add common slice flags
-TriggerFlags.BjetSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
+#TriggerFlags.BjetSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.BjetSlice.add_JobProperty(flag)

@@ -3,7 +3,7 @@
 """ Tau slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from TriggerJobOpts.CommonSignatureHelper import CommonSliceHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 __doc__="Tau slice specific flags  "
 

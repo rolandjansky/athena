@@ -3,7 +3,7 @@
 """ EnhancedBias slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper, AllowedList
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 __doc__="EnhancedBias slice specific flags  "
 

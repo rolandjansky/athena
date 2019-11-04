@@ -46,7 +46,6 @@ _flags.append(signatures)
 
 
 # create container
-#from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 class BphysicsSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Bphysics Slice Flags """
