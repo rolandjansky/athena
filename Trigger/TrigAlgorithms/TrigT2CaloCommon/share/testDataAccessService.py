@@ -42,7 +42,8 @@ if TriggerFlags.doCalo:
      #l1DecoderTest=L1DecoderTest()
      #topSequence+=l1DecoderTest
     
-     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
+     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
      algo1=HLTCaloCellMaker("testFastAlgo1")
      algo1.RoIs="StoreGateSvc+EMRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
@@ -64,12 +65,3 @@ if TriggerFlags.doCalo:
   topSequence += algo
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
-generateJSON()
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags    
-hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
-from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc, findFileInXMLPATH
-hltJsonFile = findFileInXMLPATH(hltJsonFile)
-svcMgr += HLTConfigSvc()
-svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile

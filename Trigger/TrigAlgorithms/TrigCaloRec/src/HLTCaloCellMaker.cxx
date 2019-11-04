@@ -16,6 +16,7 @@
 
 #include "HLTCaloCellMaker.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
+#include "AthenaMonitoring/Monitored.h"
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
@@ -44,10 +45,14 @@ StatusCode HLTCaloCellMaker::initialize() {
   ATH_CHECK( m_tileEMScaleKey.initialize() );
   ATH_CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
+  if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
+
+  auto timer = Monitored::Timer("TIME_exec");
+  auto clN = Monitored::Scalar  ("Cells_N",-999.0);
 
   auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
   if ( not roisHandle.isValid() ) {
@@ -64,6 +69,10 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
     SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
     auto cdv = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+    auto clET = Monitored::Collection ("Cells_eT",*cdv,getCellPt);
+    auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
+    auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
+    auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
@@ -73,6 +82,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::LARFCAL);
 	cdv->setHasCalo(CaloCell_ID::TILE);
 	cdv->updateCaloIterators();
+        clN=cdv->size();
 	
       } else {
 	// TT EM PART
@@ -126,10 +136,19 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
+        auto clET = Monitored::Collection ("Cells_eT",*c,getCellPt);
+        auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
+        auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
+        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
+        clN=c->size();
 	cellContainerV->push_back( c.release()->asDataVector() );
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
+        auto clET = Monitored::Collection ("Cells_eT",*c,getCellPt);
+        auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
+        auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
+        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 
         // TT EM PART
         for(int sampling=0;sampling<4;sampling++){
@@ -167,6 +186,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         }
         c->setHasCalo(CaloCell_ID::LARFCAL);
         c->updateCaloIterators();
+        clN=c->size();
 	cellContainerV->push_back( c.release()->asDataVector() );
       }
     }
