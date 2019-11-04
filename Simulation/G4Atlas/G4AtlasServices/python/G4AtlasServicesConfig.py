@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
-from AthenaCommon import CfgMgr, CfgGetter
-#from G4AtlasApps.SimFlags import simFlags
-#from AthenaCommon.BeamFlags import jobproperties
+from AthenaCommon import CfgMgr
 
 def getReducedStepSizeUserLimitsSvc(name="ReducedStepSizeUserLimitsSvc", **kwargs):
     from AthenaCommon.SystemOfUnits import millimeter
@@ -73,7 +72,6 @@ def getATLAS_RegionCreatorList():
 
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.BeamFlags import jobproperties
     if simFlags.SimulateCavern.get_Value():
         regionCreatorList += ['SX1PhysicsRegionTool', 'BedrockPhysicsRegionTool', 'CavernShaftsConcretePhysicsRegionTool']
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
@@ -97,9 +95,9 @@ def getATLAS_RegionCreatorList():
             ## Shower parameterization overrides the calibration hit flag
             if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
                     and simFlags.CalibrationRun.statusOn and simFlags.CalibrationRun.get_Value() in ['LAr','LAr+Tile','DeadLAr']:
-                print 'You requested both calibration hits and frozen showers / parameterization in the LAr.'
-                print '  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.'
-                print '  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(simFlags.CalibrationRun.get_Value())+')'
+                print ('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+                print ('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+                print ('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(simFlags.CalibrationRun.get_Value())+')')
                 raise RuntimeError('Configuration not allowed')
             if simFlags.LArParameterization() > 0:
                 regionCreatorList += ['EMBPhysicsRegionTool', 'EMECPhysicsRegionTool',
@@ -163,7 +161,7 @@ def getTB_RegionCreatorList():
 
 #########################################################################
 def getStandardFieldSvc(name="StandardField", **kwargs):
-    import MagFieldServices.SetupField
+    import MagFieldServices.SetupField  # noqa: F401
     kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc") # TODO This should probably be based on simFlags.MagneticField?
     #kwargs.setdefault("FieldOn", True)
     return CfgMgr.StandardFieldSvc(name, **kwargs)
@@ -307,7 +305,6 @@ def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList())
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList())
     else:
-        from AthenaCommon.BeamFlags import jobproperties
         if simFlags.SimulateCavern.get_Value():
             kwargs.setdefault("World", 'Cavern')
         else:

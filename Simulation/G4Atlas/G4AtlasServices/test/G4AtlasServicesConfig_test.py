@@ -2,6 +2,7 @@
 """Run tests on G4AtlasServicesConfigNew
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 """
 
 if __name__ == '__main__':
@@ -58,4 +59,4 @@ if __name__ == '__main__':
   cfg.store(f) 
   f.close()
 
-  print "-----------------finished----------------------"
+  print ("-----------------finished----------------------")
