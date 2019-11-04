@@ -732,7 +732,10 @@ class readLVL1configFromXML(JobProperty):
         import os
         log = logging.getLogger( 'TriggerFlags.readLVL1configFromXML' )
 
-        import TriggerMenu.l1.Lvl1Flags  # noqa: F401
+        if TriggerFlags.doMT():
+            import TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags  # noqa: F401
+        else:
+            import TriggerMenu.l1.Lvl1Flags  # noqa: F401
         
         if self.get_Value() is False:
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()

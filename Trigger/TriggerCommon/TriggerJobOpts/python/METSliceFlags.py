@@ -27,7 +27,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(METSlice)
 
 # add add common slice flags
-#TriggerFlags.METSlice.import_JobProperties('TriggerMenu.menu.CommonSignatureFlags')
+#TriggerFlags.METSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.METSlice.add_JobProperty(flag)

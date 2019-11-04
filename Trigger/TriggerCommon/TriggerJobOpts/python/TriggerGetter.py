@@ -8,7 +8,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.Configured import Configured 
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-from TriggerMenu.menu.GenerateMenu import GenerateMenu
 
 log = logging.getLogger( "TriggerGetter.py" )
 
@@ -50,6 +49,8 @@ class TriggerGetter(Configured):
         if TF.doMT():
             log.info("configuring MT Trigger, actually nothing happens for now")
             return True
+        else: #GenerateMenu imports slice flags, which are Menu/MenuMT dependent
+            from TriggerMenu.menu.GenerateMenu import GenerateMenu
         
         willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()
