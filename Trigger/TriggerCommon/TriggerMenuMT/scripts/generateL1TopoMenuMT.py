@@ -1,10 +1,9 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
-from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags import L1TopoFlags
 
 def generateL1TopoMenu(menu):
 

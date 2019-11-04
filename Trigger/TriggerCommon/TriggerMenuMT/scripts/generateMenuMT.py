@@ -1,19 +1,19 @@
-#!/bin/env python
-
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # import flags
-include("TrigUpgradeTest/testHLT_MT.py")
+include("TrigUpgradeTest/testHLT_MT.py")  # noqa: F821
 
 #################################
 # Configure L1Decoder
 #################################
 
 # provide a minimal menu information
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 if globalflags.InputFormat.is_bytestream():
-   topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG
+   from AthenaCommon.Constants import DEBUG
+   topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG  # noqa: ATL900
 
 
 
