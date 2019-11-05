@@ -239,7 +239,7 @@ GetReference( std::string& groupName, std::string& name )
     parent = m_top_level;
     } */
   
-  std::auto_ptr<const HanConfigAssessor> a(GetAssessor( groupName, name ));
+  std::unique_ptr<const HanConfigAssessor> a(GetAssessor( groupName, name ));
   if (!a.get()) return 0;
   std::string refName( a->GetAlgRefName() );
   if( refName != "" ) {
@@ -340,7 +340,7 @@ Visit( const MiniConfigTreeNode* node ) const
   if( fileName != "" && name != "" && name != "same_name" ) {
     fileName = SplitReference(node->GetAttribute("location"), fileName);
     std::string refInfo = node->GetAttribute("info");
-    std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
+    std::unique_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
     if( key == 0 ) {
       std::cerr << "HanConfig::RefVisitor::Visit(): Reference not found: \"" << name << "\"\n";
@@ -672,7 +672,7 @@ Visit( const MiniConfigTreeNode* node ) const
     return;
   
   const MiniConfigTreeNode* grandparent = parent->GetParent();
-  std::auto_ptr<HanConfigGroup> alloc( new HanConfigGroup() );
+  auto alloc = std::make_unique<HanConfigGroup>();
   HanConfigGroup* reg = (grandparent==0) ? m_root : alloc.get();
   
   std::string regName( node->GetName() );
