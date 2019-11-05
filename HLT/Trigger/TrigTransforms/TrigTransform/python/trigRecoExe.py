@@ -17,7 +17,7 @@ import subprocess
 from PyJobTransforms.trfExe import athenaExecutor
 
 #imports for preExecute
-from PyJobTransforms.trfUtils import asetupReport, cvmfsDBReleaseCheck
+from PyJobTransforms.trfUtils import asetupReport, cvmfsDBReleaseCheck, lineByLine
 import PyJobTransforms.trfEnv as trfEnv
 import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
@@ -195,8 +195,27 @@ class trigRecoExecutor(athenaExecutor):
             
     def postExecute(self):
                 
-        #TODO
-        #need to check for HLTMPPU.*Child Issue in the log file and throw an error message if there so we catch that the child died
+        #Adding check for HLTMPPU.*Child Issue in the log file
+        #   Throws an error message if there so we catch that the child died
+        #   Also sets the return code of the mother process to mark the job as failed
+        #   Is based on trfValidation.scanLogFile
+        log = self._logFileName
+        msg.debug('Now scanning logfile {0}'.format(log))
+        # Using the generator so that lines can be grabbed by subroutines if needed for more reporting
+        try:
+            myGen = lineByLine(log, substepName=self._substep)
+        except IOError as e:
+            msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
+        for line, lineCounter in myGen:
+            # Check to see if any of the hlt children had an issue
+            if 'Child Issue' in line > -1:
+                try:
+                    signal = int((re.search('signal ([0-9]*)', line)).group(1))
+                except AttributeError:
+                    #text signal not found so just return 0
+                    signal = 0
+                msg.error('Detected issue with HLTChild, setting mother return code to %s' % (signal) )
+                self._rc = signal
 
         msg.info("Check for expert-monitoring.root file")
         #the BS-BS step generates the files:
