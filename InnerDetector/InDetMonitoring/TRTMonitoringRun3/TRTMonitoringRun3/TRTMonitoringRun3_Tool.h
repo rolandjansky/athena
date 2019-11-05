@@ -247,7 +247,8 @@ private:
 	const InDetDD::TRT_DetectorManager* m_mgr;
 
 	// Data handles
-    SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey       {this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
+	// Will come back when raw monitoring added
+	//    SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey       {this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
 	SG::ReadHandleKey<TrackCollection>     m_trackCollectionKey    {this, "TRTTracksObjectName", "Tracks", "Name of tracks container"};
 	SG::ReadHandleKey<TrackCollection>     m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
 	
