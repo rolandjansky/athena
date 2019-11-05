@@ -212,5 +212,5 @@ def getStreamRDO_ItemList(log):
 
     if DetFlags.writeRDOPool.any_on():
         # Pool Output
-        StreamRDO_ItemList+=["EventInfo#*"];
+        StreamRDO_ItemList+=["EventInfo#*"]
     return StreamRDO_ItemList

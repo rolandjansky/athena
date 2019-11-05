@@ -77,7 +77,6 @@ LArRODMonAlg::initialize() {
   ATH_CHECK(m_channelKey_fromDigits.initialize());
   ATH_CHECK(m_channelKey_fromBytestream.initialize());
   ATH_CHECK(m_digitContainerKey.initialize());
-  ATH_CHECK(m_eventInfoKey.initialize());
 
   ATH_CHECK(m_keyOFC.initialize());
   ATH_CHECK(m_keyShape.initialize());
@@ -150,7 +149,7 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
   auto lb = Monitored::Scalar<int>("LBN",0);
   auto sweetc = Monitored::Scalar<float>("Sweetc",1.);
 
-  SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_eventInfoKey, ctx);
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo{GetEventInfo(ctx)};
 
   SG::ReadCondHandle<ILArPedestal>    pedestalHdl{m_keyPedestal, ctx};
   const ILArPedestal* pedestals=*pedestalHdl;

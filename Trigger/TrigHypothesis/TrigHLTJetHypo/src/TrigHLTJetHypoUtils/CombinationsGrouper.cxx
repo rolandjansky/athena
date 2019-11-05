@@ -31,6 +31,25 @@ CombinationsGrouper::group(HypoJetIter& begin, HypoJetIter& end) const {
   return std::vector<HypoJetGroupVector>{hjgv};
 }
 
+std::optional<HypoJetGroupVector>
+CombinationsGrouper::next(HypoJetIter& begin, HypoJetIter& end) const {
+  HypoJetGroupVector hjgv;
+  
+  // create a combinations generator. Used to select the jets
+  // to be tested by the condition objects
+  CombinationsGen combgen(end-begin, m_groupSize);
+  
+  auto combs = combgen.next();
+  if (combs.second == false){
+    std::optional<HypoJetGroupVector>();
+  }
+  
+  HypoJetVector v;
+  for(auto i : combs.first){ v.push_back(*(begin + i));}
+  
+  return std::make_optional<HypoJetGroupVector>(hjgv);
+}
+
 std::string CombinationsGrouper::getName() const {
   return "CombinationsGrouper";
 }

@@ -125,10 +125,10 @@ void iGeant4::G4TransportTool::initializeOnce()
     throw std::runtime_error("G4RunManagerHelper::g4RunManager() returned nullptr.");
   }
 
-  if(m_physListTool.retrieve().isFailure()) {
-    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  if(m_physListSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListSvc!");
   }
-  m_physListTool->SetPhysicsList();
+  m_physListSvc->SetPhysicsList();
 
   m_pRunMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
   m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
@@ -136,7 +136,7 @@ void iGeant4::G4TransportTool::initializeOnce()
   m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
   m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
   m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-  m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
+  m_pRunMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 

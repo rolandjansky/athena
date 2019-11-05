@@ -17,6 +17,20 @@ std::vector<HypoJetGroupVector> SingleJetGrouper::group(HypoJetIter& begin,
   return std::vector<HypoJetGroupVector>{hjgv};
 }
 
+std::optional<HypoJetGroupVector>
+SingleJetGrouper::next(HypoJetIter& begin,
+		       HypoJetIter& end
+		       ) const {
+  HypoJetGroupVector hjgv;
+  for(; begin != end; ++begin){
+    HypoJetVector v;
+    v.push_back(*begin);
+    hjgv.push_back(v);
+  }
+  
+  return std::make_optional<HypoJetGroupVector>(hjgv);
+}
+
 std::string SingleJetGrouper::getName() const {
   return "SingleJetGrouper";
 }

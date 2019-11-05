@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 import time
 
@@ -8,9 +8,9 @@ def getFrontierCursor(url, schema, loglevel = logging.INFO):
     log = logging.getLogger( "TrigConfFrontier.py" )
     log.setLevel(loglevel)
     try:
-        from TrigConfDBConnection import frontier_client
+        from TrigConfDBConnection import frontier_client  # noqa: F401
         return FrontierCursor2( url = url, schema = schema)
-    except:
+    except Exception:
         log.warning("Couldn't import frontier_client from TrigConfDBConnection, falling back to pure python implementation without proper url resolution")
         return FrontierCursor( url = url, schema = schema)
         
@@ -23,9 +23,9 @@ class FrontierCursor2:
         self.refreshFlag = refreshFlag
         from TrigConfDBConnection import frontier_client as fc
         fc.init("PyFrontier","debug")
-        log.debug("Frontier URL      : %s" % self.url)
-        log.debug("Schema            : %s" % self.schema)
-        log.debug("Refresh cache     : %s" % self.refreshFlag)
+        log.debug("Frontier URL      : %s", self.url)
+        log.debug("Schema            : %s", self.schema)
+        log.debug("Refresh cache     : %s", self.refreshFlag)
 
     @classmethod
     def resolvebindvars(cls, query, bindvars):
@@ -35,7 +35,7 @@ class FrontierCursor2:
         import re
         varsextract = re.findall(':([A-z0-9]*)',query)
         values = map(bindvars.get, varsextract)
-        log.debug("Resolving bound variable %r with %r" % (varsextract,values))
+        log.debug("Resolving bound variable %r with %r", varsextract,values)
         appendix = ":".join([str(v) for v in values])
         queryWithQuestionMarks = re.sub(':[A-z0-9]*','?', query)
         query = queryWithQuestionMarks + ':' + appendix
@@ -54,8 +54,8 @@ class FrontierCursor2:
                 query = query.replace(":%s" % var,"%s" % val)
             else:
                 query = query.replace(":%s" % var,"%r" % val)
-            log.debug("Resolving bound variable '%s' with %r" % (var,val))
-        log.debug("Resolved query: %s" % query)
+            log.debug("Resolving bound variable '%s' with %r", var,val)
+        log.debug("Resolved query: %s", query)
         return query
 
     def execute(self, query, bindvars={}):
@@ -64,7 +64,7 @@ class FrontierCursor2:
             
         from TrigConfDBConnection import frontier_client as fc
         log = logging.getLogger( "TrigConfFrontier.py" )
-        log.debug("Executing query : %s" % query)
+        log.debug("Executing query : %s", query)
 
         conn = fc.Connection(self.url)
         session = fc.Session(conn)
@@ -73,7 +73,7 @@ class FrontierCursor2:
         conn.setReload(doReload)
         
         queryStart = time.localtime()
-        log.debug("Query started: %s" % time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
+        log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
         t1 = time.time()
         req = fc.Request("frontier_request:1:DEFAULT", fc.encoding_t.BLOB)
@@ -95,9 +95,9 @@ class FrontierCursor2:
         queryEnd = time.localtime()
         
         self.result = [r for r in session.getRecords2()]
-        log.debug("Query ended: %s" % time.strftime("%m/%d/%y %H:%M:%S %Z", queryEnd))
-        log.debug("Query time: %s seconds" % (t2-t1))
-        log.debug("Result size: %i entries" % len(self.result))
+        log.debug("Query ended: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryEnd))
+        log.debug("Query time: %s seconds", (t2-t1))
+        log.debug("Result size: %i entries", len(self.result))
             
     def fetchall(self):
         return self.result
@@ -113,7 +113,6 @@ Refresh cache:  %s""" % (self.url, self.schema, self.refreshFlag)
     
 class FrontierCursor:
     def __init__(self, url, schema, refreshFlag=False, doDecode=True, retrieveZiplevel="zip"):
-        log = logging.getLogger( "TrigConfFrontier.py" )
         if url.startswith('('):
             self.servertype, self.url  = FrontierCursor.getServerUrls(url)[0]
             self.url += "/Frontier"
@@ -133,7 +132,7 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
     @classmethod
     def getServerUrls(cls, frontier_servers):
         from re import findall
-        return findall('\((serverurl)=(.*?)\)',frontier_servers)
+        return findall(r'\((serverurl)=(.*?)\)',frontier_servers)
 
     @classmethod
     def testUrl(cls, url):
@@ -148,9 +147,9 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
             query = FrontierCursor2.replacebindvars(query,bindvars)
         
         log = logging.getLogger( "TrigConfFrontier.py" )
-        log.debug("Using Frontier URL: %s" % self.url)
-        log.debug("Refresh cache     : %s" % self.refreshFlag)
-        log.debug("Query             : %s" % query)
+        log.debug("Using Frontier URL: %s", self.url)
+        log.debug("Refresh cache     : %s", self.refreshFlag)
+        log.debug("Query             : %s", query)
         
         import base64, zlib, urllib2, time
 
@@ -168,16 +167,16 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
         request.add_header("X-Frontier-Id", frontierId)
 
         queryStart = time.localtime()
-        log.debug("Query started: %s" % time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
+        log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
         t1 = time.time()
         result = urllib2.urlopen(request,None,10).read()
         t2 = time.time()
 
         queryEnd = time.localtime()
-        log.debug("Query ended: %s" % time.strftime("%m/%d/%y %H:%M:%S %Z", queryEnd))
-        log.debug("Query time: %s [seconds]" % (t2-t1))
-        log.debug("Result size: %i [seconds]" % len(result))
+        log.debug("Query ended: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryEnd))
+        log.debug("Query time: %s [seconds]", (t2-t1))
+        log.debug("Result size: %i [seconds]", len(result))
         self.result = result
 
     def fetchall(self):
@@ -188,7 +187,7 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
     def decodeResult(self):
         log = logging.getLogger( "TrigConfFrontier.py" )
         from xml.dom.minidom import parseString
-        import base64,zlib, curses.ascii
+        import base64, zlib, curses.ascii
         #print "Query result:\n", self.result
         dom = parseString(self.result)
         dataList = dom.getElementsByTagName("data")
@@ -220,7 +219,6 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                         firstRow = firstRow.replace(c, ' ')
                 fields = [x for i,x in enumerate(firstRow.split()) if i%2==0]
                 types = [x for i,x in enumerate(firstRow.split()) if i%2==1]
-                Nfields = len(fields)
                 ptypes = []
                 for t in types:
                     if t.startswith("NUMBER"):
@@ -232,9 +230,9 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                         ptypes.append(str)
 
 
-                log.debug("Fields      : %r" % fields)
-                log.debug("DB Types    : %r" % types)
-                log.debug("Python Types: %r" % ptypes)
+                log.debug("Fields      : %r", fields)
+                log.debug("DB Types    : %r", types)
+                log.debug("Python Types: %r", ptypes)
                 
                 row = str(row[endFirstRow+1:])
 
@@ -264,7 +262,6 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
 
 
 def testConnection():
-    import os
     log = logging.getLogger( "TrigConfFrontier.py::testConnection()" )
     log.setLevel(logging.DEBUG)
 
@@ -328,10 +325,10 @@ TE2CP.HTE2CP_ALGORITHM_COUNTER DESC"""
 def testBindVarResolution():
     query = "SELECT :bar WHERE :foo = :bar sort by :ups asc, :foo"
     bindvars = {"foo": 500, "bar": 8, "ups": 42 }
-    print "Query"
-    print query
-    print "is translated to"
-    print FrontierCursor2.resolvebindvars(query, bindvars)
+    print("Query")
+    print(query)
+    print("is translated to")
+    print(FrontierCursor2.resolvebindvars(query, bindvars))
 
     
 if __name__=="__main__":

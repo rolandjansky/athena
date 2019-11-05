@@ -108,7 +108,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
   ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
 
-  // for each accepted chain lookup the map of chainID -> ST
+  // for each accepted chain look up the map of chainID -> ST
   for ( DecisionID chain: passRawIDs ) {
 
     // Note: The default is to NOT allow rerun chains to add a stream tag
@@ -154,7 +154,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
 StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEBInfoWriterToolBase::PEBInfo>& map, const EventContext& ctx) const {
   for (const auto& key: m_pebDecisionKeys) {
     // Retrieve the decision container
-    auto handle = SG::makeHandle(key, ctx); //TODO: pass EventContext& explicitly here
+    auto handle = SG::makeHandle(key, ctx);
     if (not handle.isValid())  {
       ATH_MSG_DEBUG("Missing input " <<  key.key() << " likely rejected");
       continue;

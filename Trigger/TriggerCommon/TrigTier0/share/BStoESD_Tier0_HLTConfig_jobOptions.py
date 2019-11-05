@@ -3,8 +3,16 @@
 # For DATA reconstruction
 ##############################################################
 
+# Configuration depends on TriggerFlags.configForStartup():
+#   HLTonlineNoL1Thr : Everything is taken from COOL, except LVL1ConfigSvc for thresholds
+#   HLToffline       : HLT is ran offline, configuration is read from XML/JSON files
+#   HLTonline        : Normal running, everything is taken from COOL
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+
 # First check is HLT psk is ok, if not, turn trigger off.
-include( "TrigTier0/TriggerConfigCheckHLTpsk.py" )
+if tf.configForStartup() != 'HLToffline':
+    include( "TrigTier0/TriggerConfigCheckHLTpsk.py" )
 
 if rec.doTrigger():
     
@@ -13,20 +21,12 @@ if rec.doTrigger():
         from ByteStreamCnvSvcBase. ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
         ServiceMgr += ByteStreamAddressProviderSvc()
 
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
     tf.readBS=True # needed in HLTTriggerGetter - do not understand why it is not
     # true by default when globalflags.InputFormat = 'bytestream'
     tf.doLVL1= False # needed to not rerun the trigger
     tf.doEF= False # needed to not rerun the trigger
     tf.doLVL2 = False  # needed to not rerun the trigger
     tf.configurationSourceList = ['ds']
-
-
-    #HLTonlineNoL1Thr : Everything is taken from COOL, except LVL1ConfigSvc for thresholds
-    #HLToffline       : HLT is ran offline. Needs to specify the .xml files
-    #HLTonline        : Normal running, everything is taken from COOL
-
-    tf.configForStartup= "HLTonlineNoL1Thr"
 
     try:
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

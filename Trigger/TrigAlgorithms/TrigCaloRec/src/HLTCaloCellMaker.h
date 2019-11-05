@@ -31,6 +31,7 @@
 #include "CaloEvent/CaloConstCellContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TileConditions/TileEMScale.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 
 class ITrigCaloDataAccessSvc;
@@ -55,7 +56,14 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
         { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 
 	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
+	ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 	bool m_roiMode;
+
+        // just to help with monitoring
+        static inline double getCellPt(const CaloCell* aCell){
+          if(!aCell) return -999.0;
+          return aCell->et();
+        }
 };
 
 #endif

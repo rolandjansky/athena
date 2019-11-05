@@ -34,3 +34,10 @@ StatusCode TrigJetConditionConfig_et::checkVals() const {
   return StatusCode::SUCCESS;
 }
 
+bool TrigJetConditionConfig_et::addToCapacity(std::size_t) {
+  return false;
+}
+
+std::size_t TrigJetConditionConfig_et::capacity() const {
+  return getCondition()->capacity();
+}

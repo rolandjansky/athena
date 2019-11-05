@@ -28,7 +28,7 @@ PartitionsGrouper::group(HypoJetIter& begin,
 
     HypoJetGroupVector hjgv;
     for(const auto& iv : *p){
-      // iv is a vector if indices
+      // iv is a vector of indices
       HypoJetVector hjv;
       for(const auto i : iv) {
 	// i is an index
@@ -41,8 +41,35 @@ PartitionsGrouper::group(HypoJetIter& begin,
   }
 
   return result;
-
 }
+
+
+std::optional<HypoJetGroupVector>
+PartitionsGrouper::next(HypoJetIter& begin,
+			HypoJetIter& end) const {
+
+  auto pg = PartitionsGen(end-begin, m_mults);
+
+  auto p = pg.next();
+  
+  if(!p.has_value()){
+    return std::optional<HypoJetGroupVector>();
+  }
+
+  HypoJetGroupVector hjgv;
+  for(const auto& iv : *p){
+    // iv is a vector of indices
+    HypoJetVector hjv;
+    for(const auto i : iv) {
+      // i is an index
+      hjv.push_back(*(begin + i));
+    }
+    hjgv.push_back(hjv);
+  }
+  
+  return std::make_optional<HypoJetGroupVector>(hjgv);
+}
+
 
 std::string PartitionsGrouper::getName() const {
   return "PartitionsGrouper";

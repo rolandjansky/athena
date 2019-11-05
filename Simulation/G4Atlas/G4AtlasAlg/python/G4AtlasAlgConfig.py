@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 
@@ -19,7 +20,7 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         ## default false
         kwargs.setdefault('FlagAbortedEvents' ,simFlags.FlagAbortedEvents.get_Value())
         if simFlags.FlagAbortedEvents.get_Value() and simFlags.KillAbortedEvents.get_Value():
-            print 'WARNING When G4AtlasAlg.FlagAbortedEvents is True G4AtlasAlg.KillAbortedEvents should be False!!! Setting G4AtlasAlg.KillAbortedEvents = False now!'
+            print('WARNING When G4AtlasAlg.FlagAbortedEvents is True G4AtlasAlg.KillAbortedEvents should be False!!! Setting G4AtlasAlg.KillAbortedEvents = False now!')
             kwargs.setdefault('KillAbortedEvents' ,False)
     if hasattr(simFlags, 'KillAbortedEvents') and simFlags.KillAbortedEvents.statusOn:
         ## default true

@@ -9,7 +9,7 @@ def getStepArrayBM(name="StepArrayBM", **kwargs):
     kwargs.setdefault('SignalPattern', digitizationFlags.SignalPatternForSteppingCache.get_Value())
 
     from PileUpComps.PileUpCompsConf import StepArrayBM
-    return StepArrayBM(name, **kwargs);
+    return StepArrayBM(name, **kwargs)
 
 
 def getFixedArrayBM(name="FixedArrayBM", **kwargs):
@@ -18,7 +18,7 @@ def getFixedArrayBM(name="FixedArrayBM", **kwargs):
     kwargs.setdefault('T0Offset', digitizationFlags.FixedT0BunchCrossing.get_Value() )
 
     from PileUpComps.PileUpCompsConf import FixedArrayBM
-    return FixedArrayBM(name, **kwargs);
+    return FixedArrayBM(name, **kwargs)
 
 
 def getArrayBM(name="ArrayBM", **kwargs):
@@ -28,53 +28,53 @@ def getArrayBM(name="ArrayBM", **kwargs):
     digitizationFlags.rndmSeedList.addSeed( "BEAMINT", 678, 91011 )
 
     from PileUpComps.PileUpCompsConf import ArrayBM
-    return ArrayBM(name, **kwargs);
+    return ArrayBM(name, **kwargs)
 
 def getGenericBackgroundEventSelector(name="GenericBackgroundEventSelector", **kwargs):
     kwargs.setdefault('KeepInputFilesOpen', True)
     kwargs.setdefault('ProcessMetadata', False)
 
     from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import EventSelectorAthenaPool
-    return EventSelectorAthenaPool(name, **kwargs);
+    return EventSelectorAthenaPool(name, **kwargs)
 
 def getLowPtMinBiasEventSelector(name="LowPtMinBiasEventSelector", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('InputCollections', digitizationFlags.LowPtMinBiasInputCols())
 
-    return getGenericBackgroundEventSelector(name, **kwargs);
+    return getGenericBackgroundEventSelector(name, **kwargs)
 
 
 def getHighPtMinBiasEventSelector(name="HighPtMinBiasEventSelector", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('InputCollections', digitizationFlags.HighPtMinBiasInputCols())
 
-    return getGenericBackgroundEventSelector(name, **kwargs);
+    return getGenericBackgroundEventSelector(name, **kwargs)
 
 
 def getcavernEventSelector(name="cavernEventSelector", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('InputCollections', digitizationFlags.cavernInputCols())
 
-    return getGenericBackgroundEventSelector(name, **kwargs);
+    return getGenericBackgroundEventSelector(name, **kwargs)
 
 
 def getBeamGasEventSelector(name="BeamGasEventSelector", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('InputCollections', digitizationFlags.beamGasInputCols())
 
-    return getGenericBackgroundEventSelector(name, **kwargs);
+    return getGenericBackgroundEventSelector(name, **kwargs)
 
 
 def getBeamHaloEventSelector(name="BeamHaloEventSelector", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault('InputCollections', digitizationFlags.beamHaloInputCols())
 
-    return getGenericBackgroundEventSelector(name, **kwargs);
+    return getGenericBackgroundEventSelector(name, **kwargs)
 
 
 def getMinBiasCache(name="MinBiasCache", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    from AthenaCommon.BeamFlags import jobproperties
+    from AthenaCommon.BeamFlags import beamFlags
     kwargs.setdefault('CollPerXing', (digitizationFlags.numberOfLowPtMinBias() + digitizationFlags.numberOfHighPtMinBias()) )
     kwargs.setdefault('FractionOfCache1Collisions', (digitizationFlags.numberOfLowPtMinBias()/(digitizationFlags.numberOfLowPtMinBias() + digitizationFlags.numberOfHighPtMinBias())))
     from Digitization import PileUpEventType
@@ -84,7 +84,7 @@ def getMinBiasCache(name="MinBiasCache", **kwargs):
     kwargs.setdefault('Cache1EventSelector', getService('LowPtMinBiasEventSelector') )
     kwargs.setdefault('Cache2ReadDownscaleFactor', 1)
     kwargs.setdefault('Cache2EventSelector', getService('HighPtMinBiasEventSelector') )
-    kwargs.setdefault('OccupationFraction', float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value()))
+    kwargs.setdefault('OccupationFraction', float(digitizationFlags.bunchSpacing.get_Value())/float(beamFlags.bunchSpacing.get_Value()))
 
     kwargs.setdefault('RndmGenSvc', digitizationFlags.rndmSvc())
     kwargs.setdefault('RndmStreamName', "PileUpCollXingStream")
@@ -93,14 +93,14 @@ def getMinBiasCache(name="MinBiasCache", **kwargs):
 
 def getLowPtMinBiasCache(name="LowPtMinBiasCache", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    from AthenaCommon.BeamFlags import jobproperties
+    from AthenaCommon.BeamFlags import beamFlags
     kwargs.setdefault('CollPerXing', digitizationFlags.numberOfLowPtMinBias() )
     from Digitization import PileUpEventType
     kwargs.setdefault('PileUpEventType', PileUpEventType.MinimumBias ) # may need to have a separate type in the future
     if (digitizationFlags.doXingByXingPileUp() or digitizationFlags.SignalPatternForSteppingCache.statusOn):
         kwargs.setdefault('ReadDownscaleFactor', 1 )
     kwargs.setdefault('EventSelector', getService('LowPtMinBiasEventSelector') )
-    kwargs.setdefault('OccupationFraction', float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value()) )
+    kwargs.setdefault('OccupationFraction', float(digitizationFlags.bunchSpacing.get_Value())/float(beamFlags.bunchSpacing.get_Value()) )
 
     kwargs.setdefault('RndmGenSvc', digitizationFlags.rndmSvc() )
     kwargs.setdefault('RndmStreamName', "PileUpCollXingStream" )
@@ -113,13 +113,13 @@ def getLowPtMinBiasCache(name="LowPtMinBiasCache", **kwargs):
 
 def getHighPtMinBiasCache(name="HighPtMinBiasCache", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    from AthenaCommon.BeamFlags import jobproperties
+    from AthenaCommon.BeamFlags import beamFlags
     kwargs.setdefault('CollPerXing', digitizationFlags.numberOfHighPtMinBias() )
     from Digitization import PileUpEventType
     kwargs.setdefault('PileUpEventType', PileUpEventType.HighPtMinimumBias ) # may need to have a separate type in the future
     kwargs.setdefault('ReadDownscaleFactor', 1 )
     kwargs.setdefault('EventSelector', getService('HighPtMinBiasEventSelector') )
-    kwargs.setdefault('OccupationFraction', float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value()) )
+    kwargs.setdefault('OccupationFraction', float(digitizationFlags.bunchSpacing.get_Value())/float(beamFlags.bunchSpacing.get_Value()) )
 
     kwargs.setdefault('RndmGenSvc', digitizationFlags.rndmSvc() )
     kwargs.setdefault('RndmStreamName', "PileUpCollXingStream" )
@@ -132,7 +132,7 @@ def getHighPtMinBiasCache(name="HighPtMinBiasCache", **kwargs):
 
 def getCavernCache(name="CavernCache", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    from AthenaCommon.BeamFlags import jobproperties
+    from AthenaCommon.BeamFlags import beamFlags
     kwargs.setdefault('CollPerXing', digitizationFlags.numberOfCavern() )
     kwargs.setdefault('CollDistribution', "Fixed" )
     from Digitization import PileUpEventType
@@ -140,7 +140,7 @@ def getCavernCache(name="CavernCache", **kwargs):
     if (digitizationFlags.doXingByXingPileUp() or digitizationFlags.SignalPatternForSteppingCache.statusOn):
         kwargs.setdefault('ReadDownscaleFactor', 1 )
     # Cavern Background Cache Should Ignore Bunch Structure
-    OccupationFraction =  float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value())
+    OccupationFraction =  float(digitizationFlags.bunchSpacing.get_Value())/float(beamFlags.bunchSpacing.get_Value())
     if digitizationFlags.BeamIntensityPattern.statusOn :
         kwargs.setdefault('IgnoreBeamInt', digitizationFlags.cavernIgnoresBeamInt.get_Value() )
         if digitizationFlags.cavernIgnoresBeamInt.get_Value():
@@ -159,7 +159,6 @@ def getCavernCache(name="CavernCache", **kwargs):
 
 def getBeamGasCache(name="BeamGasCache", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    from AthenaCommon.BeamFlags import jobproperties
     kwargs.setdefault('IgnoreBeamLumi', True )
     kwargs.setdefault('CollPerXing', digitizationFlags.numberOfBeamGas() )
     from Digitization import PileUpEventType
@@ -179,7 +178,6 @@ def getBeamGasCache(name="BeamGasCache", **kwargs):
 
 def getBeamHaloCache(name="BeamHaloCache", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    from AthenaCommon.BeamFlags import jobproperties
     kwargs.setdefault('IgnoreBeamLumi', True )
     kwargs.setdefault('CollPerXing', digitizationFlags.numberOfBeamHalo() )
     from Digitization import PileUpEventType

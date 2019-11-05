@@ -20,6 +20,7 @@
 #include "TrigT2CaloCommon/phiutils.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "AthenaMonitoring/Monitored.h"
 
 class ISvcLocator;
 
@@ -35,11 +36,20 @@ StatusCode T2CaloEgammaReFastAlgo::initialize()
   ATH_CHECK(m_clusterContainerKey.initialize());
   ATH_CHECK(m_roiCollectionKey.initialize());
   ATH_CHECK( m_bcidAvgKey.initialize() );
+  if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 {
+
+  auto timer = Monitored::Timer("TIME_exec");
+  auto clET = Monitored::Scalar("TrigEMCluster_eT",-999.0);
+  auto clHET = Monitored::Scalar("TrigEMCluster_had1",-999.0);
+  auto clEta = Monitored::Scalar("TrigEMCluster_eta",-999.0);
+  auto clPhi = Monitored::Scalar("TrigEMCluster_phi",-999.0);
+  auto clReta = Monitored::Scalar("TrigEMCluster_rEta",-999.0);
+  auto monitoring = Monitored::Group( m_monTool, timer, clET, clHET, clEta, clPhi, clReta);
 
   SG::WriteHandle<xAOD::TrigEMClusterContainer> trigEmClusterCollection(m_clusterContainerKey, context);
   ATH_CHECK( trigEmClusterCollection.record(std::make_unique<xAOD::TrigEMClusterContainer>(),
@@ -184,6 +194,12 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
       ATH_MSG_DEBUG(std::hex << " REGTEST: roiWord = 0x" << ptrigEmCluster->RoIword()
                              << std::dec);
     }
+    // my monitoring
+    clET = ptrigEmCluster->et()*1e-3;
+    clHET = ptrigEmCluster->ehad1()*1e-3;
+    clEta = ptrigEmCluster->eta();
+    clPhi = ptrigEmCluster->phi();
+    if ( ptrigEmCluster->e277() > 0.01 ) clReta = ptrigEmCluster->e237()/ptrigEmCluster->e277();
 
   } // end of roiCollection iterator
 

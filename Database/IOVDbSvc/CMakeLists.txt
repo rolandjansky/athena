@@ -32,7 +32,7 @@ find_package( CORAL COMPONENTS CoralBase )
 find_package( ROOT COMPONENTS Core )
 find_package( Boost COMPONENTS unit_test_framework )
 find_package( nlohmann_json )
-find_package( CURL REQUIRED )
+find_package( CURL )
 
 # Component(s) in the package:
 atlas_add_library( IOVDbSvcLib

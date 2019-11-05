@@ -30,14 +30,14 @@ void fill( xAOD::TrackParticle& tp ) {
 
    tp.setDefiningParameters( 1.0, 2.0, 1.23, 0.5, 0.25 );
 
-   static const float covMatrix[ 15 ] = {
-      1.0, 1.0, 1.0, 1.0, 1.0,
-      2.0, 2.0, 2.0, 2.0, 2.0,
-      3.0, 3.0, 3.0, 3.0, 3.0
-   };
-   static const std::vector< float >
-      covMatrixVec( covMatrix, covMatrix + 15 );
-   tp.setDefiningParametersCovMatrixVec( covMatrixVec );
+   xAOD::ParametersCovMatrix_t covMatrix;
+   covMatrix <<
+      1.0, 2.0,  3.0,  4.0,  5.0,
+      2.0, 4.0,  6.0,  8.0,  10.0,
+      3.0, 6.0,  9.0,  12.0, 15.0,
+      4.0, 8.0,  12.0, 16.0, 20.0,
+      5.0, 10.0, 15.0, 20.0, 25.0;
+   tp.setDefiningParametersCovMatrix( covMatrix );
 
    tp.setParametersOrigin( 0.0, 1.0, 2.0 );
 
@@ -67,8 +67,14 @@ void print( const xAOD::TrackParticle& tp ) {
    std::cout << "d0 = " << tp.d0() << ", z0 = " << tp.z0()
              << ", phi0 = " << tp.phi0() << ", theta = " << tp.theta()
              << ", qOverP = " << tp.qOverP() << std::endl;
-   std::cout << "definingParametersCovMatrixVec = "
-             << tp.definingParametersCovMatrixVec() << std::endl;
+   std::cout << "definingParametersCovMatrixDiag = "
+             << tp.definingParametersCovMatrixDiagVec() << std::endl;
+   std::cout << "definingParametersCovMatrixOffDiag = "
+             << tp.definingParametersCovMatrixOffDiagVec() << std::endl;
+   std::cout << "definingParametersCovMatrix =\n"
+             << tp.definingParametersCovMatrix() << std::endl;
+   std::cout << "definingParametersCovMatrixFilled =\n"
+             << tp.definingParametersCovMatrixFilled() << std::endl;
    std::cout << "vx = " << tp.vx() << ", vy = " << tp.vy()
              << ", vz = " << tp.vz() << std::endl;
    std::cout << "numberOfParameters = " << tp.numberOfParameters() << std::endl;

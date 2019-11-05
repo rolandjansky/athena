@@ -18,6 +18,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LumiBlockData/LuminosityCondData.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 class CaloBCIDAvgAlg : public AthReentrantAlgorithm {
 public:
@@ -48,6 +49,8 @@ private:
 
   //Tool Handles:
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  // For online monitoring purposes
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
   //Other Properties
   Gaudi::Property<bool> m_isMC{this,"isMC",false,"Real data or MC"};

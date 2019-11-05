@@ -25,7 +25,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # So, import package conf modules rather than a dozen individual classes
 from JetRec import JetRecConf
 
-__all__ = ["JetRecCfg", "resolveDependencies"]
+__all__ = ["JetRecCfg", "resolveDependencies", "JetInputCfg"]
 
 ########################################################################
 # Top-level function for running jet finding

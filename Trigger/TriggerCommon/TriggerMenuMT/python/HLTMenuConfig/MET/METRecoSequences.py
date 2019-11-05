@@ -126,7 +126,7 @@ def metJetAthSequence(ConfigFlags):
 def metJetRecoSequence(RoIs = 'FSJETRoI'):
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
-    jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjes"}
+    jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjes", "trkopt": "notrk"}
     (jetSeq, sequenceOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
 
 

@@ -85,12 +85,15 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             from InDetRecExample.InDetJobProperties import InDetFlags
             from tauRec.tauRecFlags import jobproperties
             doMVATrackClassification = jobproperties.tauRecFlags.tauRecMVATrackClassification()
+            doRNNTrackClassification = jobproperties.tauRecFlags.tauRecRNNTrackClassification()
 
             if InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA))
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
             if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
+            if not doMVATrackClassification and doRNNTrackClassification:
+                tools.append(taualgs.getTauTrackRNNClassifier())
             if jobproperties.Beam.beamType()!="cosmics":
                 tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             tools.append(taualgs.getCellVariables())

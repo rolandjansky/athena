@@ -24,6 +24,9 @@ class Tree{
   std::size_t size() const;
   const std::vector<std::size_t>& leaves() const;
   const std::vector<std::size_t>& firstGeneration() const;
+
+  std::size_t depth(std::size_t) const;
+
  private:
   std::vector<std::size_t> m_parents;
   std::vector<std::vector<std::size_t>> m_children;
