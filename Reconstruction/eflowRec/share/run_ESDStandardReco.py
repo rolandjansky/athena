@@ -22,4 +22,3 @@ athenaCommonFlags.EvtMax=10
 #Run pflopw jet finding - this cannot be enabled via reconstruction flags currently! (without enabling other things we don't want)
 UserAlgs = ["eflowRec/jetAlgs.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
-
