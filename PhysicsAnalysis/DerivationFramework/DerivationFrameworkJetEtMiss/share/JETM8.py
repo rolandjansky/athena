@@ -280,14 +280,24 @@ from JetRec.JetRecConf import PseudoJetGetter
 ufopjgetter     = PseudoJetGetter("ufoPJGetter", InputContainer="CHSUFO", OutputContainer="CHSUFOPJ", Label="UFO", SkipNegativeEnergy=True)
 csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="UFO", SkipNegativeEnergy=True)
 
-jtm+=ufopjgetter
 jtm+=csskufopjgetter
+csskufogetters = [csskufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
 
+jtm+=ufopjgetter
 
 chsufogetters = [ufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
 csskufogetters = [csskufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
 addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = csskufogetters, constmods=["CSSK"])
 addStandardJets("AntiKt", 1.0, "UFOCHS", ptmin=40000, ptminFilter=50000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = chsufogetters, constmods=["CHS"])
+
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
+  addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
+  addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
+
+addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False, mods="tcc_groomed")
+addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
+addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
 
 
 #====================================================================
@@ -332,6 +342,9 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "AntiKt4EMPFlowJets_BTagging201903",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
+                                        "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
+                                        "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
                                         "BTagging_AntiKt4EMTopo_201810",
                                         "BTagging_AntiKt4EMPFlow_201810",
                                         "BTagging_AntiKt4EMPFlow_201903",
