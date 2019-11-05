@@ -192,7 +192,7 @@ class MuonCombinedRec(JobPropertyContainer):
             # Algorithms for CaloMuonCollection
             setDefault(self.doCaloTrkMuId,self.doAOD())
             # Algorithms for MuGirlLowBetaCollection
-            setDefault(self.doMuGirlLowBeta,(self.doAOD() and self.doMuGirl()))
+            setDefault(self.doMuGirlLowBeta,self.doAOD())
 
         #else: # collisions
             # Algorithms for CaloMuonCollection
@@ -211,6 +211,8 @@ class MuonCombinedRec(JobPropertyContainer):
         setDefault(self.doTrackPerformance,    muonRecFlags.doTrackPerformance())
         setDefault(self.TrackPerfDebugLevel,   muonRecFlags.TrackPerfDebugLevel())
         setDefault(self.TrackPerfSummaryLevel, muonRecFlags.TrackPerfSummaryLevel())
+
+        if not self.doMuGirl(): setDefault(self.doMuGirlLowBeta, False)
 
     def doAnyMuons(self):
         """Are we running any algorithm that produces Analysis::MuonContainer? Read-only."""
