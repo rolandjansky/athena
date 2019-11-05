@@ -1829,7 +1829,7 @@ void DQTGlobalWZFinderTool::setDQTGlobalWZFinderBranches(){
 
 
 bool DQTGlobalWZFinderTool::checkTruthElectron(const xAOD::Electron* elec){
-  // Check if input electron originates froma ZBoson 
+  // Check if input electron originates from a ZBoson, following EGamma recipe 
   unsigned int iTypeOfPart;
   unsigned int iPartOrig;
   bool truthMatched = false;
@@ -1850,7 +1850,7 @@ bool DQTGlobalWZFinderTool::checkTruthElectron(const xAOD::Electron* elec){
 
 
 bool DQTGlobalWZFinderTool::checkTruthMuon(const xAOD::Muon* muon){
-  // Check if input muon originates froma ZBoson 
+  // Check if input muon originates from a ZBoson 
   bool truthMatched = false;
   std::pair<unsigned int, unsigned int> res;
   ParticleDef partDef;
@@ -1873,7 +1873,7 @@ bool DQTGlobalWZFinderTool::checkTruthMuon(const xAOD::Muon* muon){
 
 
 bool DQTGlobalWZFinderTool::checkTruthTrack(const xAOD::TrackParticle* trk){
-  // Check if input track originates froma ZBoson 
+  // Check if input track originates from a ZBoson 
   bool truthMatched = false;
   std::pair<unsigned int, unsigned int> res;
   ParticleDef partDef;
