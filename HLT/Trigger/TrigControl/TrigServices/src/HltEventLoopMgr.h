@@ -86,27 +86,27 @@ public:
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
-  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt);
-  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
+  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt) override;
+  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt) override;
   ///@}
 
   /**
    * Implementation of IEventProcessor::executeRun which calls IEventProcessor::nextEvent
    * @param maxevt number of events to process, -1 means all
    */
-  virtual StatusCode executeRun(int maxevt=-1);
+  virtual StatusCode executeRun(int maxevt=-1) override;
 
   /**
    * Implementation of IEventProcessor::nextEvent which implements the event loop
    * @param maxevt number of events to process, -1 means all
    */
-  virtual StatusCode nextEvent(int maxevt=-1);
+  virtual StatusCode nextEvent(int maxevt=-1) override;
 
   /**
    * Implementation of IEventProcessor::executeEvent which processes a single event
    * @param ctx the current EventContext
    */
-  virtual StatusCode executeEvent( EventContext &&ctx );
+  virtual StatusCode executeEvent( EventContext &&ctx ) override;
 
   /**
    * create an Event Context object
@@ -116,7 +116,7 @@ public:
   /**
    * Implementation of IEventProcessor::stopRun (obsolete for online runnning)
    */
-  virtual StatusCode stopRun();
+  virtual StatusCode stopRun() override;
 
 private:
   // ------------------------- Helper types ------------------------------------
