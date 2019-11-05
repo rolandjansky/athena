@@ -174,7 +174,7 @@ class TestTestBeam(unittest.TestCase):
 
 
     def test___G4AtlasAlg_ListOfSetProperties(self):
-        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListTool', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'Verbosities']
+        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListSvc', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'Verbosities']
         g4atlasalg = self._job_config_dict['G4AtlasAlg']
         actual_list = g4atlasalg.keys()
         expected_property_value_sorted = sorted(expected_list)
@@ -208,9 +208,9 @@ class TestTestBeam(unittest.TestCase):
         self._assert_Algorithm_property_equal('G4AtlasAlg', 'FastSimMasterTool', expected_tool_name)
 
 
-    def test___G4AtlasAlg_PhysicsListTool_setCorrectly(self):
-        expected_tool_name = 'PhysicsListToolBase/PhysicsListToolBase'
-        self._assert_Algorithm_property_equal('G4AtlasAlg', 'PhysicsListTool', expected_tool_name)
+    def test___G4AtlasAlg_PhysicsListSvc_setCorrectly(self):
+        expected_tool_name = 'PhysicsListSvc'
+        self._assert_Algorithm_property_equal('G4AtlasAlg', 'PhysicsListSvc', expected_tool_name)
 
 
     def test___G4AtlasAlg_SenDetMasterTool_setCorrectly(self):

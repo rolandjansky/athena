@@ -57,10 +57,6 @@ StatusCode tester( TriggerEDMSerialiserTool* ser) {
     return StatusCode::SUCCESS;
 }
 
-/*StatusCode tester( TriggerEDMDeserialiserAlg* ser) {
-  return StatusCode::SUCCESS;
-}
-*/
 int main() {
   using namespace std;
   ISvcLocator* pSvcLoc;

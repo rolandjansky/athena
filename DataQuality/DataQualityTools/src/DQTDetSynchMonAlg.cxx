@@ -59,7 +59,6 @@ DQTDetSynchMonAlg::~DQTDetSynchMonAlg()
 //----------------------------------------------------------------------------------
 StatusCode DQTDetSynchMonAlg::initialize() {
 //----------------------------------------------------------------------------------
-  ATH_CHECK( m_EventInfoKey.initialize() );
   ATH_CHECK( m_InDetTimeCollectionKeys.initialize() );
   ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
   ATH_CHECK( m_TileDigitsContainerKey.initialize() );

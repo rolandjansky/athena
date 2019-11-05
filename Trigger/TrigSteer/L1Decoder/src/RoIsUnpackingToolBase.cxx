@@ -41,14 +41,14 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
     for ( const std::string& th: thresholds ) {
       counter++;
       if ( filter(th) ) {
-	m_thresholdToChainMapping[ HLT::Identifier( th ) ].push_back(  HLT::Identifier( chain.name() ) );
-	ATH_MSG_DEBUG( "Associating " << chain.name() << " with threshold " << th );
-	if ( thresholds.size() > 1 ) {
-	  std::string legName = createLegName( chain.name(), counter);
-	  m_thresholdToChainMapping[ HLT::Identifier(th) ].push_back( HLT::Identifier( legName ) );
-	  m_legToChainMapping.insert( std::make_pair( HLT::Identifier( legName ),  HLT::Identifier( chain.name() ) ) );
-	  ATH_MSG_INFO( "Associating additional chain leg " << legName << " with threshold " << th );
-	}
+        m_thresholdToChainMapping[ HLT::Identifier( th ) ].push_back(  HLT::Identifier( chain.name() ) );
+        ATH_MSG_DEBUG( "Associating " << chain.name() << " with threshold " << th );
+        if ( thresholds.size() > 1 ) {
+          std::string legName = createLegName( chain.name(), counter);
+          m_thresholdToChainMapping[ HLT::Identifier(th) ].push_back( HLT::Identifier( legName ) );
+          m_legToChainMapping.insert( std::make_pair( HLT::Identifier( legName ),  HLT::Identifier( chain.name() ) ) );
+          ATH_MSG_INFO( "Associating additional chain leg " << legName << " with threshold " << th );
+        }
       }
     }
   }

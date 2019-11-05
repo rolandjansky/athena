@@ -82,6 +82,11 @@ def setupMenu():
         ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
 
+        ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
+
+        # Intentionally omitted for now, to be implemented later
+        #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
@@ -93,9 +98,8 @@ def setupMenu():
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
-        #ATR-20049
-        ChainProp(name="HLT_j35_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j35_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_ftf_gsc45_boffperf_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j35_ftf_gsc45_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
     ] 
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [

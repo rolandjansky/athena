@@ -1,3 +1,4 @@
+CaloTPCnv/CaloCellLinkContainerCnv_p2
 test1
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
 Cluster 0
@@ -1492,3 +1493,4 @@ Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
 CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Missing cell container name
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
 CaloCellLinkCon...WARNING FILE:LINE (void CaloCellLinkContainerCnv_p2::persToTransWithKey(const CaloCellLinkContainer_p2*, CaloCellLinkContainer*, const std::string&, MsgStream&) const): Discarding cluster cells
+test_thinning

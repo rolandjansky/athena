@@ -11,10 +11,10 @@
 #include "PATCore/AcceptData.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
-//#include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
+#include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
-//#include "TrigHLTMonitoring/IHLTMonTool.h"
+#include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockData/LuminosityCondData.h"
 #include "xAODTruth/TruthParticle.h"
@@ -23,35 +23,24 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
-//#include "xAODEgamma/EgammaxAODHelpers.h"
-//#include "xAODEgamma/ElectronAuxContainer.h"
-//#include "xAODTrigRinger/TrigRingerRings.h"
-//#include "xAODTrigRinger/TrigRingerRingsContainer.h"
-//#include "xAODTrigRinger/TrigRNNOutput.h"
-//#include "xAODTrigRinger/TrigRNNOutputContainer.h"
-//#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODEgamma/ElectronAuxContainer.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRNNOutput.h"
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigger/TrigPassBits.h"
-//#include "xAODEgamma/PhotonAuxContainer.h"
-//#include "xAODCaloRings/RingSet.h"
-//#include "xAODCaloRings/RingSetContainer.h"
-#include "xAODCaloRings/CaloRings.h"
-#include "xAODCaloRings/CaloRingsContainer.h"
-#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
+#include "xAODCaloRings/RingSet.h"                     
+#include "xAODCaloRings/RingSetContainer.h"            
+#include "xAODCaloRings/CaloRings.h"                   
+#include "xAODCaloRings/CaloRingsContainer.h"          
+#include "xAODCaloRings/tools/getCaloRingsDecorator.h" 
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
-#include "TH1.h"
-#include "TH2.h"
-#include "TTree.h"
-
-#include <memory>
-#include "TrigEgammaAnalysisTools/TH1Wrapper.h"
-#include "TrigEgammaAnalysisTools/TH2Wrapper.h"
-
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "TrigEgammaAnalysisTools/IMonitoringGroupLookup.h"
 
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
@@ -61,35 +50,31 @@ ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)
 public:
 
   TrigEgammaAnalysisBaseTool( const std::string& myname);
-  virtual ~TrigEgammaAnalysisBaseTool() {};
+  ~TrigEgammaAnalysisBaseTool() {};
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode book() override;
-  virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
+  StatusCode initialize() ;
+  StatusCode book() ;
+  StatusCode execute() ;
+  StatusCode finalize() ;
   template<class T, class B> std::unique_ptr<xAOD::TrigPassBits> createBits(const T* CONT, const B* BITS);
   template<class T> std::unique_ptr<xAOD::TrigPassBits> getBits(const HLT::TriggerElement* te,const T* CONT);
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
   template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
-  template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>,
+  template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, 
                                                         float &, bool usePassbits=true,const std::string key="");
   // Interface class methods needed to pass information to additional tools or to set common tools
-  //void setParent(IHLTMonTool *parent) override { m_parent = parent;};
-  //void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool) override {m_plot=tool;}
-  virtual void setMGLookup(SmartIF<IMonitoringGroupLookup> MGlookup) override;
-
-  virtual void setDetail(bool detail) override;
-  virtual void setTP(bool tp) override;
-  virtual void setEmulation(bool doEmu) override;
-  virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool) override;
-  virtual void setPVertex(const float onvertex, const float ngoodvertex) override;
-  virtual void setAvgMu(const float onlmu, const float offmu) override;  //For tools called by tools
-
-  virtual void setSGContainsRnn(bool contains) override;
-  virtual void setSGContainsTrigPhoton(bool contains) override;
-
-
-  //* Deperatated methods to be removed later *//
+  void setParent(IHLTMonTool *parent)  { m_parent = parent;};
+  void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool)  {m_plot=tool;}
+  void setDetail(bool detail)  {m_detailedHists=detail;}
+  void setTP(bool tp)  {m_tp=tp;}
+  void setEmulation(bool doEmu)  {m_doEmulation=doEmu;}
+  void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool)  {m_emulationTool=tool;}
+  void setPVertex(const float onvertex, const float ngoodvertex)  {m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
+  void setAvgMu(const float onlmu, const float offmu)  {m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
+  
+  void setSGContainsRnn(bool contains)  {m_sgContainsRnn=contains;}
+  void setSGContainsTrigPhoton(bool contains)  {m_sgContainsTrigPhoton=contains;}
+  
   // Set current MonGroup
   void cd(const std::string &dir);
   // Accessor members
@@ -97,27 +82,16 @@ public:
   void addHistogram(TH1 *h, const std::string &dir = "");
   void addHistogram(TH2 *h, const std::string &dir = "");
   void addTree(TTree *t, const std::string &dir = "");
-  //* *************************************** *//
 
-
-  ToolHandle<GenericMonitoringTool> findGroup( const std::string& name ) const;
-  std::unique_ptr<TrigEgammaAnalysisTools::TH1Wrapper> hist1(const ToolHandle<GenericMonitoringTool>& mgHandle, const std::string &histName);
-  std::unique_ptr<TrigEgammaAnalysisTools::TH2Wrapper> hist2(const ToolHandle<GenericMonitoringTool>& mgHandle, const std::string &histName);
-  // Transitional methods
-  std::unique_ptr<TrigEgammaAnalysisTools::TH1Wrapper> hist1(const std::string &histName/*, const std::string &dir = ""*/);
-  std::unique_ptr<TrigEgammaAnalysisTools::TH2Wrapper> hist2(const std::string &histName/*, const std::string &dir = ""*/);
+  TH1 *hist1(const std::string &histName, const std::string &dir = "");
+  TH2 *hist2(const std::string &histName, const std::string &dir = "");
   TTree *tree(const std::string &treeName, const std::string &dir = "");
-
-  //* Deperatated methods to be removed later *//
   void setLabels(TH1* histo, const std::vector<std::string>& labels);
-  void setLabels(std::unique_ptr<TrigEgammaAnalysisTools::TH1Wrapper> /*histo*/, const std::vector<std::string>& /*labels*/) {}; // explicitely do nothing
-  void setLabels(std::unique_ptr<TrigEgammaAnalysisTools::TH2Wrapper> /*histo*/, const std::vector<std::string>& /*labels*/) {}; // explicitely do nothing
-  //* *************************************** *//
-
+  
   virtual void print() const;
-
+  
 private:
-
+  
   /*! Property update handlers */
   void updateDetail(Property& p);
   void updateAltBinning(Property& p);
@@ -135,32 +109,30 @@ private:
   /*! Helper strings for trigger level analysis */
   static const std::vector<std::string> m_trigLevel;
   static const std::map<std::string,std::string> m_trigLvlMap;
-
+  
   /*! Cache pileup info */
   float m_onlmu;
   float m_offmu;
-  float m_nGoodVertex;
+  float m_nGoodVertex; 
   float m_nPVertex;
-
+  
   /*! Hook to check for RNN features in SG */
   bool m_sgContainsRnn;
   bool m_sgContainsTrigPhoton;
-  // Properties
+  // Properties  
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
   ToolHandle<Trig::ITrigEgammaEmulationTool> m_emulationTool;
-  //ToolHandle<ITrigEgammaPlotTool> m_plot;
+  ToolHandle<ITrigEgammaPlotTool> m_plot;
 
-  ToolHandle<GenericMonitoringTool> m_TMPgroupHandle;
-  SmartIF<IMonitoringGroupLookup> m_MGlookup;
 
 protected:
   // Methods
   ///*! Offline isEM Selectors */
-  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;//{this,"ElectronIsEMSelector",{}};
+  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
   /*! Offline LH Selectors */
-  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool;//{this,"ElectronLikelihoodTool",{}};
-  ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool;//{this,"ElectronLHVLooseTool", ""};
+  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool;
+  ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool;
   /*! Simple setter to pick up correct probe PID for given trigger */
   void parseTriggerName(const std::string,const std::string, bool&, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
   /*! Split double object trigger in two simple object trigger */
@@ -170,7 +142,7 @@ protected:
 
   /*! Check if electron fulfils isolation criteria */
   bool isIsolated(const xAOD::Electron*, const std::string);
-  bool isPrescaled(const std::string);
+  bool isPrescaled(const std::string); 
 
   std::string getProbePid(const std::string);// {return m_offProbeTightness;}
   /*! book common histograms for analysis */
@@ -178,12 +150,12 @@ protected:
 
   void setTrigInfo(const std::string);
   void setTrigEmulation(){m_forceTrigEmulation=true;};
-
+  
   TrigInfo getTrigInfo(const std::string);
   std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
-
+ 
   float dR(const float, const float, const float, const float);
-
+  
   /*! Helper functions now part of base class */
   float getEta2(const xAOD::Egamma* eg);
   float getEt(const xAOD::Electron* eg);
@@ -210,12 +182,12 @@ protected:
   void calculatePileupPrimaryVertex();
   float getNPVtx(){return m_nPVertex;}
   float getNGoodVertex(){return m_nGoodVertex;}
-
+ 
   /* Protection for Holders not in AOD */
   bool getSGContainsRnn() { return m_sgContainsRnn;}
   bool getSGContainsTrigPhoton() { return m_sgContainsTrigPhoton;}
 
-  /* trig rings and offline rings helper method for feature extraction from xaod */
+  /* trig rings and offline rings helper method for feature extraction from xaod */ 
   bool getCaloRings( const xAOD::Electron *, std::vector<float> & );
   bool getTrigCaloRings( const xAOD::TrigEMCluster *, std::vector<float> & );
   void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
@@ -226,7 +198,7 @@ protected:
   MonteCarlo::PDGID pdgid(const xAOD::Egamma *, const xAOD::TruthParticleContainer *,const xAOD::TruthParticle *&);
 
   /*! Retrieve ToolHandles */
-  //ITrigEgammaPlotTool *plot(){return nullptr; }//&*m_plot;}
+  ITrigEgammaPlotTool *plot(){return &*m_plot;}
   Trig::TrigDecisionTool *tdt(){return &*m_trigdec;};
   Trig::ITrigEgammaMatchingTool *match(){return &*m_matchTool;}
   Trig::ITrigEgammaEmulationTool *emulation(){return &*m_emulationTool;}
@@ -239,21 +211,21 @@ protected:
   // AcceptInfo/Data
   const asg::AcceptInfo& getAccept() const {return m_accept;}
   asg::AcceptData setAccept(const HLT::TriggerElement *,const TrigInfo);
-
+  
   //Class Members
   // Athena services
   StoreGateSvc * m_storeGate;
   ITHistSvc* m_histsvc;
-  //IHLTMonTool *m_parent;
+  IHLTMonTool *m_parent;
 
   // ToolHandles
-  ToolHandleArray<ITrigEgammaAnalysisBaseTool> m_tools{this,"Tools",{}};
+  ToolHandleArray<ITrigEgammaAnalysisBaseTool> m_tools;
   /*! Luminosity data */
   SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey;
   //{ (AthAlgTool*)this, "LuminosityCondDataKey", "LuminosityCondData", "", "" };
   /*! Online Lumi tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
-
+  
   /*! Set Jpsiee */
   bool m_doJpsiee;
   /*! TP Trigger Analysis */
@@ -283,30 +255,30 @@ protected:
   /*! default probe pid for trigitems that don't have pid in their name */
   std::string m_defaultProbePid;
 
-  /*! C Macros for plotting */
+  /*! C Macros for plotting */  
 #define GETTER(_name_) float getShowerShape_##_name_(const xAOD::Egamma* eg);
   GETTER(e011)
-      GETTER(e132)
+      GETTER(e132)    
       GETTER(e237)
       GETTER(e277)
-      GETTER(ethad)
-      GETTER(ethad1)
+      GETTER(ethad)       
+      GETTER(ethad1)    
       GETTER(weta1)
       GETTER(weta2)
       GETTER(f1)
-      GETTER(e2tsts1)
+      GETTER(e2tsts1) 
       GETTER(emins1)
       GETTER(emaxs1)
       GETTER(wtots1)
-      GETTER(fracs1)
-      GETTER(Reta)
-      GETTER(Rphi)
-      GETTER(f3)
+      GETTER(fracs1)   
+      GETTER(Reta)  
+      GETTER(Rphi)    
+      GETTER(f3)  
       GETTER(f3core)
       GETTER(Eratio)
       GETTER(Rhad)
-      GETTER(Rhad1)
-      GETTER(DeltaE)
+      GETTER(Rhad1)  
+      GETTER(DeltaE)    
 #undef GETTER
 
 
@@ -314,44 +286,44 @@ protected:
 #define GETTER(_name_) float getIsolation_##_name_(const xAOD::Electron* eg);
       GETTER(ptcone20)
       GETTER(ptcone30)
-      GETTER(ptcone40)
+      GETTER(ptcone40)    
       GETTER(ptvarcone20)
       GETTER(ptvarcone30)
-      GETTER(ptvarcone40)
-#undef GETTER
+      GETTER(ptvarcone40)    
+#undef GETTER    
 #define GETTER(_name_) float getIsolation_##_name_(const xAOD::Egamma* eg);
       GETTER(etcone20)
       GETTER(etcone30)
-      GETTER(etcone40)
+      GETTER(etcone40)    
       GETTER(topoetcone20)
       GETTER(topoetcone30)
-      GETTER(topoetcone40)
-#undef GETTER
-      // GETTERs for CaloCluster monitoring
+      GETTER(topoetcone40)   
+#undef GETTER    
+      // GETTERs for CaloCluster monitoring   
 #define GETTER(_name_) float getCluster_##_name_(const xAOD::Egamma* eg);
       GETTER(et)
       GETTER(phi)
-      GETTER(eta)
+      GETTER(eta)   
 #undef GETTER
 
-      // GETTERs for Track monitoring
+      // GETTERs for Track monitoring   
 #define GETTER(_name_) float getTrack_##_name_(const xAOD::Electron* eg);
       GETTER(pt)
       GETTER(phi)
-      GETTER(eta)
-      GETTER(d0)
-      GETTER(z0)
+      GETTER(eta)   
+      GETTER(d0)  
+      GETTER(z0)    
 #undef GETTER
 
 
-      // GETTERs for Track details monitoring
+      // GETTERs for Track details monitoring    
 #define GETTER(_name_) float getTrackSummary_##_name_(const xAOD::Electron* eg);
-      GETTER(numberOfInnermostPixelLayerHits)
-      GETTER(numberOfInnermostPixelLayerOutliers)
+      GETTER(numberOfInnermostPixelLayerHits) 
+      GETTER(numberOfInnermostPixelLayerOutliers) 
       GETTER(numberOfPixelHits)
       GETTER(numberOfPixelOutliers)
-      GETTER(numberOfSCTHits)
-      GETTER(numberOfSCTOutliers)
+      GETTER(numberOfSCTHits)    
+      GETTER(numberOfSCTOutliers)    
       GETTER(numberOfTRTHits)
       GETTER(numberOfTRTHighThresholdHits)
       GETTER(numberOfTRTHighThresholdOutliers)
@@ -365,37 +337,37 @@ protected:
 #define GETTER(_name_) float getTrackSummaryFloat_##_name_(const xAOD::Electron* eg);
       GETTER(eProbabilityComb)
       GETTER(eProbabilityHT)
-      GETTER(pixeldEdx)
+      GETTER(pixeldEdx)    
 #undef GETTER
 
       // GETTERs for Calo-Track monitoring
 #define GETTER(_name_) float getCaloTrackMatch_##_name_(const xAOD::Electron* eg);
       GETTER(deltaEta0)
       GETTER(deltaPhi0)
-      GETTER(deltaPhiRescaled0)
+      GETTER(deltaPhiRescaled0)    
       GETTER(deltaEta1)
       GETTER(deltaPhi1)
-      GETTER(deltaPhiRescaled1)
+      GETTER(deltaPhiRescaled1)    
       GETTER(deltaEta2)
       GETTER(deltaPhi2)
-      GETTER(deltaPhiRescaled2)
+      GETTER(deltaPhiRescaled2)    
       GETTER(deltaEta3)
       GETTER(deltaPhi3)
-      GETTER(deltaPhiRescaled3)
-#undef GETTER
+      GETTER(deltaPhiRescaled3) 
+#undef GETTER    
 };
-/** Main feature of the code
+/** Main feature of the code 
  * templates the TE to get a feature
  * or find the passing TE
  * **********************/
 
 // Attempt to create a unique_ptr from existing xAOD::TrigPassBits
-// crashes at container_clid and AuxVectorData line 424(359)
+// crashes at container_clid and AuxVectorData line 424(359) 
 // when retrieving the cached auxid variable from store
 // Assuming my attempt to utilise smart pointers breaks the caching of aux data in ESDtoAOD.
 //
 // Instead template the conversion and always create transient passBit
-template<class CONT, class BITS>
+template<class CONT, class BITS> 
 std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::createBits(const CONT* container, const BITS* passbits){
     ATH_MSG_DEBUG("Converting "<< ClassID_traits< BITS >::ID() );
     std::unique_ptr<xAOD::TrigPassBits> xbits(new xAOD::TrigPassBits());
@@ -415,7 +387,7 @@ std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::createBits(cons
 
 }
 
-template<class CONT>
+template<class CONT> 
 std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::getBits(const HLT::TriggerElement* te,const CONT* container){
     // For conversion of 2015/2016 data
     const TrigPassBits *bits = getFeature<TrigPassBits>(te);
@@ -428,7 +400,7 @@ std::unique_ptr< xAOD::TrigPassBits> TrigEgammaAnalysisBaseTool::getBits(const H
     const xAOD::TrigPassBits *xbits=getFeature<xAOD::TrigPassBits>(te);
     if(xbits){
         ATH_MSG_DEBUG("create bits xAOD to xAOD");
-        return createBits<CONT,xAOD::TrigPassBits>(container,xbits);
+        return createBits<CONT,xAOD::TrigPassBits>(container,xbits); 
     }
     else
         return nullptr;
@@ -459,14 +431,14 @@ const T1* TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::
     const auto *cont=getFeature<T2>(pairObj.second,key);
     if(cont==nullptr) return nullptr;
     std::unique_ptr<xAOD::TrigPassBits> bits = getBits<T2>(pairObj.second,cont);
-
-    if(usePassbits){
+    
+    if(usePassbits){ 
         if(bits==nullptr) return nullptr;
     }
     const T1 *cl = nullptr;
-    float dr=0.;
+    float dr=0.; 
     for(const auto& obj : *cont){
-        if( usePassbits && !bits->isPassing(obj,cont) ) continue;
+        if( usePassbits && !bits->isPassing(obj,cont) ) continue; 
         if(obj==nullptr) continue;
         dr=dR(eta,phi,obj->eta(),obj->phi());
         if ( dr<dRmax){

@@ -10,6 +10,8 @@ import JetRecoConfiguration
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
     strtemp = "{recoAlg}_{dataType}_{calib}_{jetCalib}"
+    if jetRecoDict["trkopt"] != "notrk":
+        strtemp += "_{trkopt}"
     return strtemp.format(**jetRecoDict)
 
 # Configure reco from a dict of options
@@ -103,6 +105,14 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         (topoClusterSequence, clustersKey) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence,RoIs)
         recoSeq += topoClusterSequence
 
+        # Set up tracking sequence -- may need to reorganise or relocate
+        # depending on how we want to handle HLT preselection
+        trkcolls = None
+        if jetRecoDict["trkopt"] != "notrk":
+            from JetTrackingConfig import JetTrackingSequence
+            (jettrkseq, trkcolls) = RecoFragmentsPool.retrieve( JetTrackingSequence, None, trkopt=jetRecoDict["trkopt"], RoIs=RoIs)
+            recoSeq += jettrkseq
+
         # Potentially add particle flow reconstruction
         # Work in progress
         if jetRecoDict["dataType"] == "pf":
@@ -115,18 +125,6 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         if doConstitMods:
             from JetRecConfig.ConstModHelpers import getConstitModAlg
             recoSeq += getConstitModAlg(jetDef.inputdef,"HLT")
-        
-        # chosen jet collection
-        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
-        sequenceOut = recordable(jetsFullName)
-
-        from JetRecConfig import JetRecConfig
-        # Import the standard jet modifiers as defined for offline
-        # We can add/configure these differently if desired. In particular,
-        # we could define a TriggerJetMods module if settings need to
-        # diverge substantially e.g. track/vertex collections
-        calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource)
-        jetModList = calibMods
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
@@ -135,6 +133,27 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # Basic list of PseudoJets is just the constituents
         # Append ghosts (tracks) if desired
         pjs = [constitPJKey]
+        if trkcolls:
+            pjs.append(trkcolls["GhostTracks"])
+        
+        # chosen jet collection
+        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
+        if jetRecoDict["trkopt"] != "notrk":
+            jetsFullName += "_{}".format(jetRecoDict["trkopt"])
+        sequenceOut = recordable(jetsFullName)
+
+        from JetRecConfig import JetRecConfig
+        jetModList = []
+        if jetRecoDict["trkopt"] != "notrk":
+            trkMods = JetRecoConfiguration.defineTrackMods(jetRecoDict["trkopt"])
+            jetModList += trkMods
+
+        # Import the standard jet modifiers as defined for offline
+        # We can add/configure these differently if desired. In particular,
+        # we could define a TriggerJetMods module if settings need to
+        # diverge substantially e.g. track/vertex collections
+        calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource)
+        jetModList += calibMods
 
         if "sub" in jetRecoDict["jetCalib"]:
             # Add the event shape alg if needed for area subtraction

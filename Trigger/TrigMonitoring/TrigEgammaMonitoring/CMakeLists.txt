@@ -11,12 +11,15 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigAnalysis/TrigEgammaAnalysisTools
-                          Control/AthenaMonitoring )
+			  Control/AthenaMonitoring )
+
+# External dependencies:
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 atlas_add_component( TrigEgammaMonitoring
                      src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES TrigEgammaAnalysisToolsLib GaudiKernel AthenaMonitoringLib )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaMonitoringLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -34,7 +34,7 @@ public:
   static const InterfaceID& interfaceID() { return IID_PosteriorWeightsCalculator; };
 
   /** Method to compute the state weights after measurement update */
-  virtual std::unique_ptr<MultiComponentState> weights(const MultiComponentState&, const MeasurementBase&) const = 0;
+  virtual std::unique_ptr<std::vector<Trk::ComponentParameters>> weights(const MultiComponentState&, const MeasurementBase&) const = 0;
 };
 
 } // end Trk namespace

@@ -34,8 +34,8 @@ if TriggerFlags.doCalo:
          if unpack.name() is "JRoIsUnpackingTool":
              L1JetDecisions=unpack.Decisions
 
-
-     inputRoIs="FSRoI"
+     from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+     inputRoIs=mapThresholdToL1RoICollection("FS")
      hypoDecisions=L1JetDecisions
 
      addFiltering=True

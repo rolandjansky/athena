@@ -21,7 +21,8 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       return
 
    def enable(self, folders = ['/Indet/Onl/Beampos',
-                               '/TRIGGER/LUMI/HLTPrefLumi']):
+                               '/TRIGGER/LUMI/HLTPrefLumi',
+                               '/TRIGGER/HLT/PrescaleKey']):
       """Enable COOL folder updates for given folders (only use this for data)"""
       
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr

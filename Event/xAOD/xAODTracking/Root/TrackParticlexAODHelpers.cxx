@@ -14,8 +14,7 @@ namespace xAOD {
     if (!tp) {
       throw std::runtime_error("Invalid TrackParticle pointer.");
     }
-    static const SG::AuxElement::Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
-    if( !acc.isAvailable( *tp ) ) {
+    if( tp->definingParametersCovMatrixFilled() != xAOD::FullCovMatrixAvailable ) {
       throw std::runtime_error("TrackParticle without covariance matrix for the defining parameters.");
     }
   }
@@ -23,8 +22,7 @@ namespace xAOD {
 
   bool TrackingHelpers::hasValidCov(const xAOD::TrackParticle *tp) {
     if (!tp) return false;
-    static const SG::AuxElement::Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
-    if( !acc.isAvailable( *tp ) ) return false;
+    if( tp->definingParametersCovMatrixFilled() != xAOD::FullCovMatrixAvailable ) return false;
     return true;
   }
 
@@ -32,8 +30,8 @@ namespace xAOD {
     inline double _d0significance(const xAOD::TrackParticle *tp, double d0_uncert_beam_spot_2) {
       checkTPAndDefiningParamCov(tp);
       double d0 = tp->d0();
-      // elements in definingParametersCovMatrixVec should be : sigma_d0^2, sigma_d0_z0, sigma_z0^2
-      double sigma_d0 = tp->definingParametersCovMatrixVec().at(0);
+      // elements in definingParametersCovMatrixDiagVec should be : sigma_d0^2, sigma_z0^2
+      double sigma_d0 = tp->definingParametersCovMatrixDiagVec().at(0);
       if (sigma_d0<=0.) {
         throw std::runtime_error("TrackParticle with zero or negative d0 uncertainty.");
       }
@@ -61,8 +59,8 @@ namespace xAOD {
         }
         z0 -= vx->z();
     }
-    // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_z0_z0, sigma_z0^2
-    double sigma_z0 = tp->definingParametersCovMatrixVec().at(2);
+    // elements in definingParametersCovMatrixVec should be : sigma_d0^2, sigma_z0^2
+    double sigma_z0 = tp->definingParametersCovMatrixDiagVec().at(1);
     if (sigma_z0<=0.) {
       throw std::runtime_error("TrackParticle with zero or negative z0 uncertainty.");
     }
@@ -71,7 +69,7 @@ namespace xAOD {
 
   double TrackingHelpers::pTErr2(const xAOD::TrackParticle *tp) {
     checkTPAndDefiningParamCov(tp);
-    if (!hasValidCovQoverP(tp) || tp->definingParametersCovMatrixVec().size()<15 ) {
+    if (!hasValidCovQoverP(tp)) {
       throw std::runtime_error("TrackParticle without covariance matrix for defining parameters or the covariance matrix is wrong dimensionality.");
     }
     if (std::abs(tp->qOverP())<0) {

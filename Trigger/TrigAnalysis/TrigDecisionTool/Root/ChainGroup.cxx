@@ -535,8 +535,8 @@ vector<string>
 Trig::ChainGroup::getListOfThresholds() const {
 
    set<string> s;   // using a set makes the items in the result vector unique
-   std::stack<TrigConf::TriggerItemNode*> nodes;
-   TrigConf::TriggerItemNode* node;
+   std::stack<const TrigConf::TriggerItemNode*> nodes;
+   const TrigConf::TriggerItemNode* node;
 
    BOOST_FOREACH( const TrigConf::TriggerItem* item, m_confItems ) {
       nodes.push( item->topNode() );
@@ -746,8 +746,8 @@ Trig::ChainGroup::features(unsigned int condition) const {
    BOOST_FOREACH(const TrigConf::TriggerItem* item, m_confItems) {
 
       std::set< std::string > threshold_names;
-      std::stack<TrigConf::TriggerItemNode*>nodes;
-      TrigConf::TriggerItemNode*node;
+      std::stack<const TrigConf::TriggerItemNode*>nodes;
+      const TrigConf::TriggerItemNode*node;
 
       threshold_names.clear();
       //node = item->topNode();

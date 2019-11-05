@@ -3,7 +3,9 @@
 */
 
 // author: Riccardo.Maria.Bianchi@cern.ch
-// major updates: Aug 2018
+// major updates: 
+// - Aug 2018 - Riccardo Maria BIANCHI
+// - Sep 2018 - Riccardo Maria BIANCHI
 
 // local includes
 #include "GeoWrite/DumpGeoModelActionLocal.h"
@@ -535,44 +537,6 @@ void DumpGeoModelActionLocal::handleTransform(const GeoTransform* node)
 
     unsigned int parentCopyN = getLatestParentCopyNumber(parentId, parentType);
 
-	// // check the volume position in the geometry tree
-	// GeoNodePath* path = getPath();
-	// unsigned int len = path->getLength();
-	// qDebug() << "length: " << len;
-	//
-	// // reset the number of visited node, if len is different than before
-	// if (len > m_len) {
-	// 	m_len_nChild = 0;
-	// 	m_len = len;
-	// }
-	// // update number of visited nodes if len is the same as before
-	// else {
-	// 	++m_len_nChild;
-	// }
-	//
-	//
-	// QVariant parentId = "NULL";
-	// QVariant trId;
-	//
-	//
-	// // get the parent volume, if this is not the Root volume
-	// const GeoVPhysVol* parentNode = nullptr;
-	// if (len > 1) {
-	// 	parentNode = path->getItem(len-1); // i=(len-1) gives you the parent VPhysVol
-	// 	QString parentAddress = getAddressStringFromPointer(parentNode);
-	// 	qDebug() << "parent's address:" << parentNode;
-	//
-	// 	if (isAddressStored(parentAddress))
-	// 		parentId = getStoredIdFromAddress(parentAddress);
-	// 	else {
-	// 		// qFatal("FATAL ERROR!!! - The parent node of this child should has been stored in the DB already, but it was not found!!");
-	// 		qWarning() << "The parent node of this transform seems to not having be stored in the DB yet. [It is normal if the transformation is used for example only in the definition of a 'GeoShapeShift' instance]";
-	// 	}
-	// 	qDebug() << "- parent's LogVol name:" << QString::fromStdString(parentNode->getLogVol()->getName());
-	// } else{
-	// 	qWarning() << "ERROR!! Len == 1, but this cannot be the Root volume!";
-	// }
-
 	/*
 	 * STORE THE OBJECT IN THE DB AND ITS PLACE WITHIN THE TREE
 	 */
@@ -705,10 +669,67 @@ QVariant DumpGeoModelActionLocal::storeShape(const GeoShape* shape)
 //______________________________________________________________________
 QVariant DumpGeoModelActionLocal::storeMaterial(const GeoMaterial* mat)
 {
-	const QString matName = QString::fromStdString(mat->getName());
-	qDebug() << "storeMaterial() - material name:" << matName << ", address:" << mat;
+	const QString matName = QString::fromStdString(mat->getName());   //The name of the material.
+	const QString matID = QString::number(mat->getID());              //Gives an integral identifier for the material.For convenience.
+	const QString matDensity = QString::number(mat->getDensity());	  //The density of the material.
+	const unsigned int numElements = mat->getNumElements();
+
+	const QString matNumElements = QString::number(numElements);
+	qDebug() << "storeMaterial() - material name:" << matName
+			<< ", address:" << mat
+			<< ", matID:" << matID
+			<< ", matDensity:" << matDensity
+	        << ", matNumElements:" << matNumElements;
+
+	// loop over the elements composing the material
+	QString matElements;
+	QStringList matElementsList;
+	for (unsigned int i=0; i < numElements; i++) {
+
+		//Gets the i-th element.
+	  const GeoElement* element = mat->getElement(i);
+	  std::string elName = element->getName();
+	  /*
+	  std::cout << "\t element n. " << i << std::endl;
+	  std::cout << "\t element address: " << element << std::endl;
+	  std::cout << "\t element name: " << elName << std::endl;
+	  */
+
+	  // Store the element and get its DataBase ID
+	  QVariant elementId = storeElement(element);
+
+	  //Gets the fraction by weight of the i-th element
+	  const QString elementFraction = QString::number( mat->getFraction(i) );
+
+	  qDebug() << "\t--> element ID: " << elementId.toString() << " - getFraction:" << elementFraction;
+
+	  matElementsList << elementId.toString() + ":" + elementFraction;
+	}
+	matElements = matElementsList.join(";");
+
+	qDebug() << "\t==> material's elements:" << matElements;
+
 	// store the material in the DB and returns the ID
-	return storeObj(mat, matName);
+	return storeObj(mat, matName, matDensity, matElements);
+}
+
+//_______________________________________________________________________
+QVariant DumpGeoModelActionLocal::storeElement(const GeoElement* el)
+{
+	//	The name of the element, e.g. "Carbon".
+	const QString elName = QString::fromStdString(el->getName());
+
+	//	The chemical symbol for the element, e.g. C, O, S, Na....
+	const QString elSymbol = QString::fromStdString(el->getSymbol());
+
+	//	The atomic number Z for the material.
+	const QString elZ = QString::number(el->getZ());
+
+	//	The average atomic mass for the element.
+	const QString elA = QString::number(el->getA());
+
+	// store the material in the DB and returns the ID
+	return storeObj(el, elName, elSymbol, elZ, elA);
 }
 
 //_______________________________________________________________________
@@ -793,6 +814,7 @@ void DumpGeoModelActionLocal::handleReferencedVPhysVol (const GeoVPhysVol *vol)
 		m_unconnectedTree = true;
 	}
 
+    // *** FOR DEBUG ***
 	// // counting children
 	// unsigned int nChildren = vol->getNChildVols();
 	// qDebug() << "number of child physical volumes:" << nChildren;
@@ -803,7 +825,7 @@ void DumpGeoModelActionLocal::handleReferencedVPhysVol (const GeoVPhysVol *vol)
 	// vol->exec(&cv);
 	// int nChildCount = cv.getCount();
 	// qDebug() << "number of child volumes:" << nChildCount;
-
+    // *****************
 
 
 	// check if this object has been stored already
@@ -1078,10 +1100,9 @@ void DumpGeoModelActionLocal::showMemoryMap()
 }
 
 
-
-QVariant DumpGeoModelActionLocal::storeObj(const GeoMaterial* pointer, const QString name)
+QVariant DumpGeoModelActionLocal::storeObj(const GeoMaterial* pointer, const QString name, const QString density, const QString elements)
 {
-	qDebug() << "DumpGeoModelActionLocal::storeObj(GeoMaterial*) - name:" << name << "address:" << pointer;
+	qDebug() << "DumpGeoModelActionLocal::storeObj(GeoMaterial*) - name:" << name << "- address:" << pointer << "- density:" << density << "- elements:" << elements;
 
 	QString address = getAddressStringFromPointer( pointer );
 	QVariant materialId;
@@ -1089,8 +1110,7 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoMaterial* pointer, const QSt
 	if (! isAddressStored(address)) {
 		qDebug() << "New Material! Storing it...";
 
-		// materialId = m_dbManager->addMaterial(name);
-		materialId = addMaterial(name);
+		materialId = addMaterial(name, density, elements);
 
 		storeAddress( address, materialId );
 	}
@@ -1100,6 +1120,28 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoMaterial* pointer, const QSt
 	}
 	qDebug() << "materialId:" << materialId;
 	return materialId;
+}
+
+QVariant DumpGeoModelActionLocal::storeObj(const GeoElement* pointer, const QString name, const QString symbol, const QString elZ, const QString elA)
+{
+	qDebug() << "DumpGeoModelActionLocal::storeObj(GeoElement*) - name:" << name << "address:" << pointer << " - symbol: " << symbol << " - elZ: " << elZ << " - elA: " << elA;
+
+	QString address = getAddressStringFromPointer( pointer );
+	QVariant elementId;
+
+	if (! isAddressStored(address)) {
+		qDebug() << "New Element! Storing it...";
+
+		elementId = addElement(name, symbol, elZ, elA);
+
+		storeAddress( address, elementId );
+	}
+	else {
+		qDebug() << "Element node stored already. Getting ID from the memory map...";
+		elementId = getStoredIdFromAddress(address);
+	}
+	qDebug() << "elementId:" << elementId;
+	return elementId;
 }
 
 
@@ -1113,7 +1155,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoShape* pointer, const QStrin
 	if (! isAddressStored(address)) {
 		qDebug() << "New Shape! Storing it...";
 
-		// shapeId = m_dbManager->addShape(name, parameters);
 		shapeId = addShape(name, parameters);
 
 		storeAddress( address, shapeId);
@@ -1136,7 +1177,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoLogVol* pointer, const QStri
 	if (! isAddressStored(address)) {
 		qDebug() << "New LogVol! Storing it...";
 
-		// logvolId = m_dbManager->addLogVol(name, shapeId, materialId);
 		logvolId = addLogVol(name, shapeId, materialId);
 
 		storeAddress( address, logvolId );
@@ -1160,7 +1200,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoPhysVol* pointer, const QVar
 	if (! isAddressStored(address)) {
 		qDebug() << "New PhysVol! Storing it...";
 
-		// physvolId = m_dbManager->addPhysVol(logvolId, parentId, isRootVolume);
 		physvolId = addPhysVol(logvolId, parentId, isRootVolume);
 
 		storeAddress( address, physvolId );
@@ -1183,7 +1222,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoFullPhysVol* pointer, const 
 	if (! isAddressStored(address)) {
 		qDebug() << "New FullPhysVol! Storing it...";
 
-		// physvolId = m_dbManager->addFullPhysVol(logvolId, parentId, isRootVolume);
 		physvolId = addFullPhysVol(logvolId, parentId, isRootVolume);
 
 		storeAddress( address, physvolId );
@@ -1206,7 +1244,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoSerialDenominator* pointer, 
 	if (! isAddressStored(address)) {
 		qDebug() << "New SerialDenominator! Storing it...";
 
-		// id = m_dbManager->addSerialDenominator(baseName);
 		id = addSerialDenominator(baseName);
 
 		storeAddress( address, id );
@@ -1230,7 +1267,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoSerialTransformer* pointer, 
 	if (! isAddressStored(address)) {
 		qDebug() << "New SerialTransformer! Storing it...";
 
-		// id = m_dbManager->addSerialTransformer(functionId, volId, volType, copies);
 		id = addSerialTransformer(functionId, volId, volType, copies);
 
 		storeAddress( address, id );
@@ -1253,7 +1289,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoXF::Function* pointer, const
 	if (! isAddressStored(address)) {
 		qDebug() << "New GeoXF::Function! Storing it...";
 
-		// id = m_dbManager->addFunction(expression);
 		id = addFunction(expression);
 
 		storeAddress( address, id );
@@ -1277,7 +1312,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoTransform* pointer, std::vec
 	if (! isAddressStored(address)) {
 		qDebug() << "New GeoXF::Function! Storing it...";
 
-		// id = m_dbManager->addTransform( QVector<double>::fromStdVector(parameters) );
 		id = addTransform( parameters );
 
 		storeAddress( address, id );
@@ -1301,7 +1335,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoAlignableTransform* pointer,
 	if (! isAddressStored(address)) {
 		qDebug() << "New GeoXF::Function! Storing it...";
 
-		// id = m_dbManager->addAlignableTransform( QVector<double>::fromStdVector(parameters) );
 		id = addAlignableTransform( parameters );
 
 		storeAddress( address, id );
@@ -1325,7 +1358,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoNameTag* pointer, const QStr
 	if (! isAddressStored(address)) {
 		qDebug() << "New SerialDenominator! Storing it...";
 
-		// id = m_dbManager->addNameTag(name);
 		id = addNameTag(name);
 
 		storeAddress( address, id );
@@ -1338,18 +1370,6 @@ QVariant DumpGeoModelActionLocal::storeObj(const GeoNameTag* pointer, const QStr
 	return id;
 }
 
-/*
-// OLD // FIXME: to be removed when all objects will be migrated to the new version
-void DumpGeoModelActionLocal::storeChildPosition(const QVariant parentId, const QString parentType, const QVariant childId, const unsigned int childPos, const QString childType)
-{
-	qDebug() << "DumpGeoModelActionLocal::storeChildPosition()";
-	// m_dbManager->addChildPosition(parentId, parentType, childId, childPos, childType);
-	// if ()
-	addChildPosition(parentId, parentType, childId, childPos, childType);
-	return;
-}
-*/
-// NEW
 void DumpGeoModelActionLocal::storeChildPosition(const QVariant parentId, const QString parentType, const QVariant childId, const unsigned int parentCopyN, const unsigned int childPos, const QString childType, const unsigned int childCopyN)
 {
 	qDebug() << "DumpGeoModelActionLocal::storeChildPosition()";
@@ -1365,12 +1385,21 @@ unsigned int DumpGeoModelActionLocal::addRecord(std::vector<QStringList>* contai
 	return idx;
 }
 
-QVariant DumpGeoModelActionLocal::addMaterial(const QString name)
+QVariant DumpGeoModelActionLocal::addMaterial(const QString name, const QString density, const QString elements)
 {
-	qDebug() << "DumpGeoModelActionLocal::addMaterial(QString*) - name:" << name;
+	qDebug() << "DumpGeoModelActionLocal::addMaterial(QString*) - name:" << name << "- density:" << density << "- elements:" << elements;
 	std::vector<QStringList>* container = &m_materials;
 	QStringList values;
-	values << name;
+	values << name << density << elements;
+	return QVariant( addRecord(container, values) );
+}
+
+QVariant DumpGeoModelActionLocal::addElement(const QString name, const QString symbol, const QString elZ, const QString elA)
+{
+	qDebug() << "DumpGeoModelActionLocal::addElement(QString*) - name:" << name << "- symbol: " << symbol << "- elZ:" << elZ << "- elA:" << elA;
+	std::vector<QStringList>* container = &m_elements;
+	QStringList values;
+	values << name << symbol << elZ << elA;
 	return QVariant( addRecord(container, values) );
 }
 
@@ -1500,23 +1529,6 @@ QVariant DumpGeoModelActionLocal::addLogVol(const QString &name, const QVariant 
 	return QVariant( addRecord(container, values) );
 }
 
-/*
-// OLD // FIXME: to be removed when all objects will be migrated to the new version
-void DumpGeoModelActionLocal::addChildPosition(const QVariant parentId, const QString parentType, const QVariant childId, const unsigned int childPos, const QString childType)
-{
-	std::vector<QStringList>* container = &m_childrenPositions;
-
-	QString parentTableID = getIdFromNodeType(parentType);
-	QString childTableID = getIdFromNodeType(childType);
-
-	QStringList values;
-	values << parentId.toString() << parentTableID << QString("") << QString::number(childPos) << childTableID << childId.toString() << QString("");
-	addRecord(container, values);
-	return;
-}
-*/
-
-// NEW
 void DumpGeoModelActionLocal::addChildPosition(const QVariant parentId, const QString parentType, const QVariant childId, const unsigned int parentCopyN, const unsigned int childPos, const QString childType, const unsigned int childCopyN)
 {
 	std::vector<QStringList>* container = &m_childrenPositions;
@@ -1537,6 +1549,7 @@ void DumpGeoModelActionLocal::saveToDB()
     std::cout << "saving to file: " << m_dbpath.toStdString() << std::endl;
 
 	m_dbManager->addListOfRecords("GeoMaterial", m_materials);
+	m_dbManager->addListOfRecords("GeoElement", m_elements);
 	m_dbManager->addListOfRecords("GeoNameTag", m_nameTags);
 	m_dbManager->addListOfRecords("GeoAlignableTransform", m_alignableTransforms);
 	m_dbManager->addListOfRecords("GeoTransform", m_transforms);
@@ -1583,6 +1596,14 @@ QVariant DumpGeoModelActionLocal::getStoredIdFromAddress(QString address)
 QString DumpGeoModelActionLocal::getAddressStringFromPointer(const GeoMaterial* pointer)
 {
 	qDebug() << "DumpGeoModelActionLocal::getAddressStringFromPointer(GeoMaterial*)";
+	std::ostringstream oss;
+	oss << pointer;
+	return getQStringFromOss(oss);
+}
+// get pointer string
+QString DumpGeoModelActionLocal::getAddressStringFromPointer(const GeoElement* pointer)
+{
+	qDebug() << "DumpGeoModelActionLocal::getAddressStringFromPointer(GeoElement*)";
 	std::ostringstream oss;
 	oss << pointer;
 	return getQStringFromOss(oss);
@@ -1667,352 +1688,4 @@ QString DumpGeoModelActionLocal::getQStringFromOss(std::ostringstream &oss)
 }
 
 
-//bool DumpGeoModelActionLocal::isObjectStored(const GeoMaterial* pointer)
-//{
-//	qDebug() << "DumpGeoModelActionLocal::isObjectStored(const GeoMaterial*)";
-//	return isAddressStored(getAddressStringFromPointer( pointer) );
-//}
-//
-//bool DumpGeoModelActionLocal::isObjectStored(const GeoGraphNode* pointer)
-//{
-//	qDebug() << "DumpGeoModelActionLocal::isObjectStored(const GeoGraphNode*)";
-////	return isAddressStored(address);
-//}
 
-
-
-// void DumpGeoModelActionLocal::handlePhysVol (const GeoPhysVol *vol)
-// {
-// 	qDebug() << "\nDumpGeoModelActionLocal::handlePhysVol(GeoPhysVol*)";
-//
-// 	// get the address string for the current volume
-// 	QString address = getAddressStringFromPointer( vol );
-//
-// 	// variables used to persistify the object
-// 	QVariant parentId;
-// 	QVariant physId;
-//
-// 	// check the volume position in the geometry tree
-// 	GeoNodePath* path = getPath();
-// 	unsigned int len = path->getLength();
-// 	qDebug() << "length: " << len;
-// 	//	std::cout << "path: " << path << std::endl;
-//
-// //	const GeoVPhysVol* parentNode;
-//
-// 	// this below is performed until the root volume is found, then "length" is not used anymore,
-// 	// because not updated when recursively visiting PhysVols
-// 	bool getParentNode = true;
-// 	bool storeRootVolume = false;
-// 	if ( ! m_rootVolumeFound) {
-// 		if (len > 1) {
-// 			getParentNode = true;
-// 		} else{
-// 			qDebug() << "This is the Root volume!";
-// 			m_rootVolumeFound = true;
-// 			storeRootVolume = true;
-// 			getParentNode = false;
-// 		}
-// 	} else {
-// 		getParentNode = true;
-// 	}
-//
-// 	// get the parent volume, if this is not the Root volume
-// 	if (getParentNode) {
-//
-// 		const GeoPhysVol* parentNode = dynamic_cast<const GeoPhysVol*>( &(*(vol->getParent() )));
-//
-// 		if (parentNode) {
-// 			QString parentAddress = getAddressStringFromPointer(parentNode);
-// 			qDebug() << "parent's address:" << parentNode;
-//
-// 			if (isAddressStored(parentAddress))
-// 				parentId = getStoredIdFromAddress(parentAddress);
-// 			//		else
-// 			//			qFatal("FATAL ERROR!!! - The parent node of this child should has been stored in the DB already, but it was not found!!");
-//
-// 			qDebug() << "parent's LogVol name:" << QString::fromStdString(parentNode->getLogVol()->getName());
-// 		}
-// 		else {
-// 			qDebug() << "NULL parent node!!";
-// 		}
-// 	}
-//
-// 	// counting children
-// 	unsigned int nChildren = vol->getNChildVols();
-// 	qDebug() << "number of child physical volumes:" << nChildren;
-// 	qDebug() << "[number of PhysVol and SerialTransformer child nodes:" << vol->getNChildVolAndST() << "]";
-//
-// 	GeoCountVolAction cv;
-// 	cv.setDepthLimit(1);
-// 	vol->exec(&cv);
-// 	int nChildCount = cv.getCount();
-// 	qDebug() << "number of child volumes:" << nChildCount;
-//
-//
-//
-// 	// check if this object has been stored already
-// 	if (! isAddressStored(address)) {
-//
-// 		qDebug() << "New PhysVol, storing it...";
-//
-// 		/*
-// 		 * PhysVol features:
-// 		 * - 1 parent PhysVol (if any)
-// 		 * - 1 LogVol
-// 		 * - 1 Material
-// 		 * - 1 Shape
-// 		 */
-//
-// 		// Note: PhysVol has no name. Its LogVol has a name.
-// 		//	  const std::string name = vol->getLogVol()->getName();
-//
-// 		// LOGVOL
-// 		const GeoLogVol* logVol = vol->getLogVol();
-// 		const QString logName = QString::fromStdString(logVol->getName());
-// 		qDebug() << "LogVol name:"  << logName;
-//
-//
-// 		// MATERIAL
-// 		const GeoMaterial * mat = vol->getLogVol()->getMaterial();
-// 		const QString matName = QString::fromStdString(mat->getName());
-// 		qDebug() << "material name:" << matName << ", address:" << mat;
-//
-//
-// 		// SHAPE
-// 		const GeoShape * shape = vol->getLogVol()->getShape();
-// 		const QString shapeType = QString::fromStdString(shape->type());
-// 		qDebug() << "shape name:" << shapeType  << ", address:" << shape;
-//
-// 		// shape parameters
-// 		QString shapePars = "";
-// 		if (shapeType == "Box") {
-// 			QStringList pars;
-// 			const GeoBox* box = dynamic_cast<const GeoBox*>(shape);
-// 			pars << "XHalfLength=" + QString::number(box->getXHalfLength()) ;
-// 			pars << "YHalfLength=" + QString::number(box->getYHalfLength()) ;
-// 			pars << "ZHalfLength=" + QString::number(box->getZHalfLength()) ;
-// 			shapePars = pars.join(";");
-// 		}
-//
-// 		/*
-// 		 * STORE THE OBJECTS IN THE DB
-// 		 */
-//
-// 		// store/get the Material object into/from the DB
-// 		QVariant matId;
-// 		matId = storeObj(mat, matName);
-//
-// 		// store/get the Shape object into/from the DB
-// 		QVariant shapeId;
-// 		shapeId = storeObj(shape, shapeType, shapePars);
-//
-// 		// store/get the LogVol object into/from the DB
-// 		QVariant logvolId;
-// 		logvolId = storeObj(logVol, logName, shapeId, matId);
-//
-// 		// store the PhysVol volume into the DB
-// 		physId = storeObj(vol, logvolId, parentId, storeRootVolume); // with parent info
-// 		qDebug() << "PhysVol stored. Id:" << physId.toString();
-//
-// 	} else {
-// 		//	qDebug() << "Volume stored already. It is a shared volume. Taking ID from memory map and moving to its physical children...";
-// 		qDebug() << "Volume stored already. It is a shared volume. Taking ID from memory map...";
-// 		physId = getStoredIdFromAddress(address);
-// 		qDebug() << "PhysVol Id:" << physId;
-// 	}
-//
-//
-// 	// store the parent-child relationship in the DB
-// 	storeChildPosition(parentId, physId, getChildPosition( parentId.toUInt() ), "GeoPhysVol");
-//
-
-	/* Now we need to loop over children, to be sure all volumes are take.
-	 That's because it seems that the action only goes to children that are 'attached'
-	 to the tree with a parent-child relationship. For example I have a pInnerPassive PhysVol
-	 added to a pPassive PhysVol; the latter is refeneced in a SerialTransformer.
-	 pPassive is visited because of our implementation of the handleSerialTrasformer() method,
-	 but the pInnerPassive is never visited.
-	 */
-	//	if (nChildren > 0) {
-	//		qDebug() << "Looping over the children...";
-	//
-	//		for (unsigned int i=0; i<nChildren; ++i) {
-	//
-	//			unsigned int childPos = i;
-	//
-	//			// get the name of the i-th child volume
-	//			QString childName =  QString::fromStdString(vol->getNameOfChildVol(i));
-	//			qDebug() << "\t" << i << " childName:" << childName;
-	//
-	//			//	Returns the i-th child volume
-	//
-	//			// GEOPHYSVOL child
-	//			if ( dynamic_cast<const GeoPhysVol*>( &(*(vol->getChildVol(i) ))) ) {
-	//				qDebug() << "\t\t" << "the child" << i << "is a GeoPhysVol";
-	//				const GeoVPhysVol *childVolV = &(*(vol->getChildVol(i)));
-	//				const GeoPhysVol* childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
-	//
-	//				handlePhysVol(childVol); // recursive call
-	//
-	//			} else {
-	//				qCritical("\t\tERROR!! the child is not a persistified volume/node!!!");
-	//				return;
-	//			}
-	//		}
-	//	}
-
-	//	if (nChildren > 0) {
-	//		for (unsigned int i=0; i<nChildren; ++i) {
-	//
-	//			unsigned int childPos = i;
-	//
-	//			// get the name of the i-th child volume
-	//			QString childName =  QString::fromStdString(vol->getNameOfChildVol(i));
-	//			qDebug() << "\t" << i << " childName:" << childName;
-	//
-	//			//	Returns the i-th child volume
-	//
-	//			// GEOPHYSVOL child
-	//			if ( dynamic_cast<const GeoPhysVol*>( &(*(vol->getChildVol(i) ))) ) {
-	//				qDebug() << "\t\t" << "the child" << i << "is a GeoPhysVol";
-	//				const GeoVPhysVol *childVolV = &(*(vol->getChildVol(i)));
-	//				const GeoPhysVol* childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
-	//
-	//
-	//				// check if child volume has been stored already. If not, store it.
-	//				if ( ! isAddressStored( getAddressStringFromPointer( childVol )) ) {
-	//
-	//					// MATERIAL
-	//					const GeoMaterial * mat = childVol->getLogVol()->getMaterial();
-	//					const QString matName = QString::fromStdString(mat->getName());
-	//					qDebug() << "Child material name:" << matName;
-	//
-	//					// SHAPE
-	//					const GeoShape * shape = childVol->getLogVol()->getShape();
-	//					const QString shapeType = QString::fromStdString(shape->type());
-	//					qDebug() << "Child shape name:" << shapeType;
-	//
-	//					// LOGVOL
-	//					const GeoLogVol* logVol = childVol->getLogVol();
-	//					const QString logName = QString::fromStdString(logVol->getName());
-	//					qDebug() << "Child LogVol name:"  << logName;
-	//
-	//
-	//					/*
-	//					 * STORE THE OBJECTS IN THE DB
-	//					 */
-	//
-	//					// store the Material object in the DB
-	//					QVariant child_matId = storeObj(mat, matName);
-	//
-	//					// store the Shape object in the DB
-	//					QVariant child_shapeId = storeObj(shape, shapeType);
-	//
-	//					// store the LogVol volume in the DB
-	//					QVariant child_logvolId = storeObj(logVol, logName, child_shapeId, child_matId);
-	//
-	//					// store the PhysVol volume in the DB
-	//					storeObj(childVol, child_logvolId, physId);
-	//
-	//					// store the parent-child relationship in the DB
-	//					storeChildPosition(physId, childVol, childPos);
-	//
-	//				} else {
-	//					qDebug() << "Child volume stored already. Moving to the next one...";
-	//				}
-	//
-	//			}
-	//			// GeoSerialDenominator child
-	//			else if ( dynamic_cast<const GeoSerialDenominator*>( &(*(vol->getChildVol(i) ))) ) {
-	//				qDebug() << "\t\t" << "the child" << i << "is a GeoSerialDenominator";
-	//				//qWarning() << "\t\t" << "to be implemented!!!";
-	//				const GeoVPhysVol *childVolV = &(*(vol->getChildVol(i)));
-	//				const GeoSerialDenominator* childVol = dynamic_cast<const GeoSerialDenominator*>(childVolV);
-	//
-	//				std::string baseNameStr = childVol->getBaseName();
-	//				QString baseName = QString::fromStdString(baseNameStr);
-	//
-	//				QString address = getAddressStringFromPointer( childVol );
-	//
-	//				qDebug() << "base name:" << baseName << "address:" << address;
-	//
-	//				QVariant sdId;
-	//
-	//				// check if this object has been stored already
-	//				if (! isAddressStored(address)) {
-	//					// store the SerialDenominator object in the DB
-	//					qDebug() << "New SerialDenominator, storing it...";
-	//					sdId = storeObj(childVol, baseName);
-	//					qDebug() << "SerialDenominator stored. Id:" << sdId.toString();
-	//
-	//				} else {
-	//					sdId = getStoredIdFromAddress(address);
-	//					qDebug() << "SerialDenominator already stored in the DB. Got id:" << sdId.toString();
-	//				}
-	//
-	//				// store the parent-child relationship in the DB
-	//				storeChildPosition(physId, childVol, childPos);
-	//
-	//			}
-	//			// GEOFULLPHYSVOL child
-	//			else if ( dynamic_cast<const GeoFullPhysVol*>( &(*(vol->getChildVol(i) ))) ) {
-	//				qDebug() << "\t\t" << "the child" << i << "is a GeoFullPhysVol";
-	//				qWarning() << "\t\t" << "to be implemented!!!";
-	//				//				const GeoVFullPhysVol *childVolV = &(*(vol->getChildVol(i)));
-	//				//				const GeoFullPhysVol* childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
-	//			}
-	//			else {
-	//				qCritical("\t\tERROR!! the child is not a persistified volume/node!!!");
-	//				return;
-	//			}
-	//
-	//
-	//			// examples:
-	//			//const GeoVPhysVol *child=&(*(pv->getChildVol(i)));
-	//			//
-	//			//if ( dynamic_cast<const GeoLogVol*>( &(*(vol->getChildVol(i) ))) )
-	//			//	qDebug() << "\t\t" << "the child" << i << "is a GeoLogVol";
-	//
-	//
-	//
-	//			/*
-	//				unsigned int nchildvol = pvc->getNChildVols();
-	//				     int lgg = 0;
-	//				     int llay = 0;
-	//				     std::string::size_type npos;
-	//				     for (unsigned ich=0; ich<nchildvol; ++ich) {
-	//				       PVConstLink pc = pvc->getChildVol(ich);
-	//				       std::string childname = (pc->getLogVol())->getName();
-	//				       if ((npos = childname.find("layer")) != std::string::npos ) {
-	//				         llay ++;
-	//				         //std::cerr<<" navigating RPC named "
-	//				         //       <<tname<<" child "
-	//				         //       <<ich<<" is a layer with tag "<<llay<<std::endl;
-	//				         unsigned int nch1 = pc->getNChildVols();
-	//				         lgg = 0;
-	//				         for (unsigned ngv=0; ngv<nch1; ++ngv) {
-	//				           PVConstLink pcgv = pc->getChildVol(ngv);
-	//				           std::string childname1 = (pcgv->getLogVol())->getName();
-	//				           if ((npos = childname1.find("gas volume")) != std::string::npos ) {
-	//				         lgg ++;
-	//				         //std::cerr<<" navigating RPC named "
-	//				         //       <<tname<<" child "
-	//				         //       <<ngv<<" is a gas volume  with tag "<<lgg<<std::endl;
-	//				         PVConstLink pcgg = pcgv->getChildVol(0);
-	//				         HepGeom::Transform3D trans = pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)*pcgv->getXToChildVol(0);
-	//				         m_Xlg[llay-1][lgg-1] = Amg::CLHEPTransformToEigen(trans);
-	//				           }
-	//				         }
-	//				       }
-	//				     }
-	//			 */
-	//
-	//		}
-	//	}
-
-
-	//	else {
-	//		qDebug() << "Object stored already. Moving to next one...";
-	//	}
-// }

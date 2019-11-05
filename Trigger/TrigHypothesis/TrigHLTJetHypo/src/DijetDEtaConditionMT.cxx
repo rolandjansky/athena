@@ -42,8 +42,8 @@ DijetDEtaConditionMT::isSatisfied(const HypoJetVector& ips,
    if(collector){
      std::stringstream ss0;
      const void* address = static_cast<const void*>(this);
-     ss0 << "DijetDEtaConditionMT: " << address 
-	 << " adeta "  << adeta
+     ss0 << "DijetDEtaConditionMT: (" << address 
+	 << ") adeta "  << adeta
 	 <<  " pass: " <<std::boolalpha << pass <<  " jet group: \n";
 
      std::stringstream ss1;

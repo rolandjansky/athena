@@ -3,6 +3,7 @@
 """Run tests on G4PhysicsRegionConfig configuration
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -74,4 +75,4 @@ if __name__ == '__main__':
   cfg.store(f) 
   f.close()
 
-  print "-----------------finished----------------------"
+  print("-----------------finished----------------------")

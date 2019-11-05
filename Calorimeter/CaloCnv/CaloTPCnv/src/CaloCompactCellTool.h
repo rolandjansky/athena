@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTPCNV_CALOCOMPACTCELLTOOL_H
@@ -21,6 +21,9 @@
 
 
 class IChronoStatSvc;
+namespace SG {
+  class ThinningDecisionBase;
+}
 
 class CaloCompactCellTool
 {
@@ -46,6 +49,7 @@ class CaloCompactCellTool
 
   StatusCode getPersistent(const CaloCellContainer & theCellContainer,
 			   CaloCompactCellContainer * theCompactContainer,
+                           const SG::ThinningDecisionBase* dec,
 			   int theVersion = VERSION_LATEST);
   // fills a CaloCompactCellContainer ; caller has the responsibility
   // of creating and deleting the object again

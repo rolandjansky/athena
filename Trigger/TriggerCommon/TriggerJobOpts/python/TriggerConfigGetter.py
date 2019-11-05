@@ -66,7 +66,7 @@ class TriggerConfigGetter(Configured):
         if rec.readESD() or rec.readAOD(): # and globalflags.DataSource()=='data':  # need this for MC as well
             protectedInclude("TrigTier0/TriggerConfigCheckMetadata.py")
 
-        if rec.readRDO() and globalflags.InputFormat()=='bytestream' and globalflags.DataSource()=='data':
+        if rec.readRDO() and globalflags.InputFormat()=='bytestream' and globalflags.DataSource()=='data' and TriggerFlags.configForStartup()!='HLToffline':
             protectedInclude("TrigTier0/TriggerConfigCheckHLTpsk.py")
 
         log.info("The following flags are set:")
@@ -226,38 +226,56 @@ class TriggerConfigGetter(Configured):
         log.info("Need to create temporary cool file? : %r", self.makeTempCool)
 
         log.info('Creating the Trigger Configuration Services')
-        self.svc = SetupTrigConfigSvc()
 
-        #set the merged system
-        #self.svc.doMergedHLT = TriggerFlags.doHLT() 
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-        if 'xml' in self.ConfigSrcList or self.makeTempCool:
-            # sets them if plain XML reading is to be used
-            self.svc.l1topoXmlFile = TriggerFlags.outputL1TopoConfigFile()  # generated in python
-            self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
-            self.svc.hltXmlFile    = TriggerFlags.outputHLTconfigFile()     # generated in python
-            if TriggerFlags.readL1TopoConfigFromXML():
-                self.svc.l1topoXmlFile  = TriggerFlags.inputL1TopoConfigFile() # given XML
-            if TriggerFlags.readLVL1configFromXML():
-                self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
-            if TriggerFlags.readHLTconfigFromXML():
-                self.svc.hltXmlFile  = TriggerFlags.inputHLTconfigFile()   # given XML
+        ########################################################################
+        # START OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
+        ########################################################################
+        from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
+        EDMDecodingVersion()  # In most use cases this needs to be called much earlier than in HLTTriggerResultGetter
 
+        if TriggerFlags.EDMDecodingVersion() >= 3:
+            # Run-3 Trigger Configuration Services
+            from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+            svcMgr += getL1ConfigSvc()
+            svcMgr += getHLTConfigSvc()
 
+            # Needed for TrigConf::xAODMenuWriterMT
+            from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+            svcMgr += TrigConfigSvc("TrigConfigSvc")
+            svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
-        ### preparations are done!
-        try:
-            self.svc.SetStates( self.ConfigSrcList )
-        except Exception as ex:
-            log.error( 'Failed to set state of TrigConfigSvc to %r', self.ConfigSrcList )
         else:
-            log.info('The following configuration services will be tried: %r', self.ConfigSrcList )
+            # non-MT (Run-2) Trigger Configuration
+            self.svc = SetupTrigConfigSvc()
 
+            if 'xml' in self.ConfigSrcList or self.makeTempCool:
+                # sets them if plain XML reading is to be used
+                self.svc.l1topoXmlFile = TriggerFlags.outputL1TopoConfigFile()  # generated in python
+                self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
+                self.svc.hltXmlFile    = TriggerFlags.outputHLTconfigFile()     # generated in python
+                if TriggerFlags.readL1TopoConfigFromXML():
+                    self.svc.l1topoXmlFile  = TriggerFlags.inputL1TopoConfigFile() # given XML
+                if TriggerFlags.readLVL1configFromXML():
+                    self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
+                if TriggerFlags.readHLTconfigFromXML():
+                    self.svc.hltXmlFile  = TriggerFlags.inputHLTconfigFile()   # given XML
 
-        try:
-            self.svc.InitialiseSvc()
-        except Exception as ex:
-            log.error( 'Failed to activate TrigConfigSvc: %r', ex )
+            try:
+                self.svc.SetStates( self.ConfigSrcList )
+            except Exception as ex:
+                log.error( 'Failed to set state of TrigConfigSvc to %r', self.ConfigSrcList )
+            else:
+                log.info('The following configuration services will be tried: %r', self.ConfigSrcList )
+
+            try:
+                self.svc.InitialiseSvc()
+            except Exception as ex:
+                log.error( 'Failed to activate TrigConfigSvc: %r', ex )
+        ########################################################################
+        # END OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
+        ########################################################################
 
         if self.readTriggerDB:
             log.info( "Using TriggerDB connection '%s'", TriggerFlags.triggerDbConnection() )
@@ -270,7 +288,7 @@ class TriggerConfigGetter(Configured):
         if self.makeTempCool:
             TrigCoolDbConnection = self.setupTempCOOLWriting(TrigCoolDbConnection)
 
-        if 'ds' in self.ConfigSrcList or self.writeESDAOD:
+        if ('ds' in self.ConfigSrcList or self.writeESDAOD) and TriggerFlags.configForStartup()!='HLToffline':
             self.setupCOOLReading(TrigCoolDbConnection)
 
         if hasattr(svcMgr, 'DSConfigSvc'):
@@ -446,8 +464,12 @@ class TriggerConfigGetter(Configured):
         # Add the algorithm creating the trigger configuration metadata for
         # the output:
         try: 
-            from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
-            topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
+            if TriggerFlags.EDMDecodingVersion() <= 2:
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
+                topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
+            else:
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+                topAlgs += TrigConf__xAODMenuWriterMT()
 
             # The metadata objects to add to the output:
             metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",

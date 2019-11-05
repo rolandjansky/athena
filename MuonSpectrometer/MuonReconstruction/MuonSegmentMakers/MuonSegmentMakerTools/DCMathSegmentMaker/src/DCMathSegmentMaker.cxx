@@ -102,7 +102,6 @@ namespace Muon {
     declareProperty("MuonCompetingClustersCreator",     m_compClusterCreator);
     declareProperty("IdHelper", m_idHelperTool);
     declareProperty("EDMPrinter", m_printer);
-    declareProperty("EDMHelper", m_edmHelperSvc);    
     declareProperty("MdtSegmentFinder",     m_segmentFinder);
     declareProperty("SegmentFitter", m_segmentFitter);
     declareProperty("SegmentSelector", m_segmentSelectionTool);

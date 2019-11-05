@@ -264,7 +264,9 @@ for i in outSequence.getAllChildren():
         from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
         hypos = collectHypos( findSubSequence(topSequence, "HLTAllSteps") )
         filters = collectFilters( findSubSequence(topSequence, "HLTAllSteps") )
-        decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
+        decObj = collectDecisionObjects( hypos, filters, 
+            findAlgorithm(topSequence, "L1Decoder"), 
+            findAlgorithm(topSequence, "DecisionSummaryMakerAlg") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]

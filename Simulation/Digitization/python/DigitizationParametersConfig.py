@@ -73,7 +73,7 @@ def writeDigitizationMetadata(ConfigFlags):
                 digiDets.append(det)
         else:
             logDigitizationWriteMetadata.info("No flag called '%s' found in ConfigFlags", attrname)
-    logDigitizationWriteMetadata.info("Setting 'DigitizedDetectors' = %s" % repr(digiDets))
+    logDigitizationWriteMetadata.info("Setting 'DigitizedDetectors' = %s" , repr(digiDets))
     dbFiller.addDigitParam('DigitizedDetectors', repr(digiDets))
 
     #-------------------------------------------------

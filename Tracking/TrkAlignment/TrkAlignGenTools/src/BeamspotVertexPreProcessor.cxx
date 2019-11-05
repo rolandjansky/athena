@@ -7,7 +7,7 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "TrkAlignEvent/AlignTrack.h"
 #include "TrkAlignEvent/AlignVertex.h"
 #include "TrkVertexOnTrack/VertexOnTrack.h"
@@ -53,7 +53,6 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_trkSelector("")
   , m_BSTrackSelector("")
   , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-  , m_beamCondSvc("BeamCondSvc",name)
   , m_PVContainerName("PrimaryVertices")
   , m_runOutlierRemoval(false)
   , m_selectVertices(true)
@@ -164,11 +163,8 @@ StatusCode BeamspotVertexPreProcessor::initialize()
     ATH_MSG_INFO("Retrieved " << m_extrapolator);
 
     // configure beam-spot conditions service
-    if (m_beamCondSvc.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve beamspot service "<<m_beamCondSvc<<endmsg;
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Retrieved " << m_beamCondSvc);
+    ATH_CHECK(m_beamSpotKey.initialize());
+
 
     // configure beam-spot track selector if requested
     if(m_doBSTrackSelection) {
@@ -520,17 +516,17 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
 const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Track* track) const{
 
   const VertexOnTrack * vot = nullptr;
-
-  Amg::Vector3D  bpos = m_beamCondSvc->beamPos();
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey }; 
+  Amg::Vector3D  bpos = beamSpotHandle->beamPos();
   ATH_MSG_DEBUG("beam spot: "<<bpos);
   float beamSpotX = bpos.x();
   float beamSpotY = bpos.y();
   float beamSpotZ = bpos.z();
-  float beamTiltX = m_beamCondSvc->beamTilt(0);
-  float beamTiltY = m_beamCondSvc->beamTilt(1);
-  float beamSigmaX = m_BSScalingFactor * m_beamCondSvc->beamSigma(0);
-  float beamSigmaY = m_BSScalingFactor * m_beamCondSvc->beamSigma(1);
-  //float beamSigmaZ = m_scalingFactor * m_beamCondSvc->beamSigma(2);
+  float beamTiltX = beamSpotHandle->beamTilt(0);
+  float beamTiltY = beamSpotHandle->beamTilt(1);
+  float beamSigmaX = m_BSScalingFactor * beamSpotHandle->beamSigma(0);
+  float beamSigmaY = m_BSScalingFactor * beamSpotHandle->beamSigma(1);
+  //float beamSigmaZ = m_scalingFactor * beamSpotHandle->beamSigma(2);
 
   ATH_MSG_DEBUG("running refit with beam-spot");
 
@@ -606,17 +602,17 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
 
 void BeamspotVertexPreProcessor::provideVtxBeamspot(const AlignVertex* b, AmgSymMatrix(3)* q, Amg::Vector3D* v) const {
 
-
-  Amg::Vector3D bpos = m_beamCondSvc->beamPos();
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Amg::Vector3D bpos = beamSpotHandle->beamPos();
   ATH_MSG_DEBUG("beam spot: "<<bpos);
   float beamSpotX = bpos.x();
   float beamSpotY = bpos.y();
   float beamSpotZ = bpos.z();
-  float beamTiltX = m_beamCondSvc->beamTilt(0);
-  float beamTiltY = m_beamCondSvc->beamTilt(1);
-  float beamSigmaX = m_BSScalingFactor * m_beamCondSvc->beamSigma(0);
-  float beamSigmaY = m_BSScalingFactor * m_beamCondSvc->beamSigma(1);
-  float beamSigmaZ = m_BSScalingFactor * m_beamCondSvc->beamSigma(2);
+  float beamTiltX = beamSpotHandle->beamTilt(0);
+  float beamTiltY = beamSpotHandle->beamTilt(1);
+  float beamSigmaX = m_BSScalingFactor * beamSpotHandle->beamSigma(0);
+  float beamSigmaY = m_BSScalingFactor * beamSpotHandle->beamSigma(1);
+  float beamSigmaZ = m_BSScalingFactor * beamSpotHandle->beamSigma(2);
 
 
   float z0 = b->originalPosition()->z();

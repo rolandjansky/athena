@@ -18,12 +18,6 @@ from TrigEgammaMonitoring.TrigEgammaMonitoringConfigRun3 import TrigEgammaMonToo
 def TrigEgammaMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
-    ### STEP 1 ###
-    # Define one top-level monitoring algorithm. The new configuration
-    # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
-
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -35,21 +29,12 @@ def TrigEgammaMonConfig(inputFlags):
 
     montoolCfg.bookHistograms(histogramsRoot, helper)
 
-    from AthenaCommon.AppMgr import ToolSvc
-
-    result.addService(ToolSvc)
-    ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     # and the sequence containing the created algorithms. If we haven't called
-    # any configuration other than the AthMonitorCfgHelper here, then we can
+    # any configuration other than the AthMonitorCfgHelper here, then we can 
     # just return directly (and not create "result" above)
-    #return helper.result()
-
-    # # Otherwise, merge with result object and return
-    acc = helper.result()
-    result.merge(acc)
-    return result
-
+    return helper.result()
+    
 if __name__=='__main__':
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -67,11 +52,11 @@ if __name__=='__main__':
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'TrigEgammaMonitorOutput.root'
-
+    
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))

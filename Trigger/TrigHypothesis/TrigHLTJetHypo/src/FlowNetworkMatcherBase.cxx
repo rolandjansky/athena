@@ -59,17 +59,25 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
      the sink.
   */
 
+  if(collector){
+    collector->collect("FlowNetworkMatcherBase", "matching starts");
+  }
+
   if(!m_nConditions){
     if(collector){
       collector->collect("FlowNetworkMatcherBase", "No conditions configured");
     }
     return std::make_optional<bool>(false);
   }
-
   // Determine jet group - condition satisfaction.
 
   auto iter_diff = groups_e - groups_b;  // number of jet groups
-  if (iter_diff < 0){return std::optional<bool>();}  // must be postive
+  if (iter_diff < 0){
+    if(collector){
+      collector->collect("FlowNetworkMatcherBase", "Negative number of jets");
+    }
+    return std::optional<bool>();
+  }  // must be postive
 
   std::map<int, pHypoJet> nodeToJet; 
 
@@ -107,35 +115,41 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
     ss << **G;
     collector->collect("MaximumBipartiteGroupsMatcher - after", ss.str());
   }
-  
+
+
   auto edges = (*G)->edges();
  
   bool pass = std::round(ff.value()) == m_totalCapacity;
+
   if(collector){
     std::string msg("FordFulkerson pass status: ");
     msg += pass ? "true" : "false";
-    msg += " total capacity: " + std::to_string(m_totalCapacity); 
+    msg += " total capacity: " + std::to_string(m_totalCapacity) + " flow: "
+      +std::to_string(std::round(ff.value())); 
+
     collector -> collect("MaximumBipartiteGroupsMatcher", msg);
   }
   // loop over edges, figure out if it is a condition - jet edge
   // figure out if it the jet is used (flow == 1)
   // add the jet to passing_jets. As this is a set, duplicates
   // will be removed (each edge appears twice in G).
-  
+
   HypoJetVector passing_jets;
-  auto iter = std::partition(edges.begin(),
-                             edges.end(),
-                             [V](const auto& edge){return edge->to() == V-1 and
-                                                   std::round(edge->flow()) == 1;});
 
+  auto iter =
+    std::partition(edges.begin(),
+		   edges.end(),
+		   [V](const auto& edge){return edge->to() == V-1 and
+					 std::round(edge->flow()) == 1;});
+  
   std::transform(edges.begin(),
-                 iter,
-                 std::back_inserter(passing_jets),
-                 [&nodeToJet](const auto& edge){return nodeToJet[edge->from()];});
-
-
+                  iter,
+		 std::back_inserter(passing_jets),
+		 [&nodeToJet](const auto& edge){
+		   return nodeToJet[edge->from()];});
+  
   jetCollector.addJets(passing_jets.cbegin(), passing_jets.cend());
-	       
+  
   return std::make_optional<bool>(pass);
   
 }
