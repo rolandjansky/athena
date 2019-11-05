@@ -207,11 +207,13 @@ StatusCode HltEventLoopMgr::initialize()
   //----------------------------------------------------------------------------
   // Setup the HLT ROB Data Provider Service when configured
   //----------------------------------------------------------------------------
-  m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-  if (m_hltROBDataProviderSvc.isValid())
-    ATH_MSG_INFO("A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
-  else
-    ATH_MSG_INFO("No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
+  if (m_hltROBDataProviderSvc.get()) {
+    m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
+    if (m_hltROBDataProviderSvc.isValid())
+      ATH_MSG_INFO("A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
+    else
+      ATH_MSG_INFO("No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
+  }
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
