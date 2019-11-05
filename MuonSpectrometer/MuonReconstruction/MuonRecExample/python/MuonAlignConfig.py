@@ -66,7 +66,7 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
 # here define if I-lines (CSC internal alignment) are enabled
 if muonAlignFlags.UseIlines: 
     MuonDetectorTool.EnableCscInternalAlignment = True
-    if conddb.dbdata == 'COMP200' and 'HLT' in globalflags.ConditionsTag() :
+    if 'HLT' in globalflags.ConditionsTag() :
         logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
         MuonDetectorTool.UseIlinesFromGM = True
     else :
