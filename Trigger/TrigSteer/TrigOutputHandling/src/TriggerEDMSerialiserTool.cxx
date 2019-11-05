@@ -5,6 +5,7 @@
 #include <cstring>
 #include <boost/core/demangle.hpp>
 #include <boost/algorithm/string.hpp>
+#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/StorableConversions.h"
@@ -16,6 +17,13 @@
 #include "TrigSerializeResult/StringSerializer.h"
 
 #include "TriggerEDMSerialiserTool.h"
+
+#include <numeric>
+
+namespace {
+  // Special module ID used internally to store total result size limit in the truncation threshold map
+  constexpr uint16_t fullResultTruncationID = std::numeric_limits<uint16_t>::max();
+}
 
 TriggerEDMSerialiserTool::TriggerEDMSerialiserTool( const std::string& type,
 						    const std::string& name,
@@ -34,6 +42,39 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
   for ( const std::string& typeKeyAuxIDs : m_collectionsToSerialize.value() ) {
     ATH_CHECK(addCollectionToSerialise(typeKeyAuxIDs, m_toSerialise));
   }
+
+  // Retrieve the total result size limit from DataFlowConfig which is a special object
+  // used online to hold DF properties passed from TDAQ to HLT as run parameters
+  SmartIF<IJobOptionsSvc> jobOptionsSvc = service<IJobOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
+  if (!jobOptionsSvc.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve JobOptionsSvc, will not update the EventSizeHardLimitMB property");
+  }
+  else {
+    const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_MaxEventSizeMB");
+    if (prop && m_eventSizeHardLimitMB.assign(*prop)) {
+      ATH_MSG_DEBUG("Updated EventSizeHardLimitMB to " << m_eventSizeHardLimitMB.value()
+                    << " from DataFlowConfig.DF_MaxEventSizeMB");
+    }
+    else {
+      ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_MaxEventSizeMB from JobOptionsSvc. This is fine if running "
+                    << "offline, but should not happen online. Leaving EventSizeHardLimitMB="
+                    << m_eventSizeHardLimitMB.value());
+    }
+  }
+
+  // Add the total result size limit to truncation threshold map
+  if (m_eventSizeHardLimitMB >= 0) {
+    if (m_fullResultTruncationFrac > 1.0) {
+      ATH_MSG_ERROR("Fraction cannot be > 1.0, but FullResultTruncationFrac is set to " << m_fullResultTruncationFrac);
+      return StatusCode::FAILURE;
+    }
+    float totalResultSizeLimitBytes = m_fullResultTruncationFrac * m_eventSizeHardLimitMB * 1024. * 1024.;
+    m_truncationThresholds[fullResultTruncationID] = static_cast<uint32_t>(totalResultSizeLimitBytes);
+  }
+  else {
+    m_truncationThresholds[fullResultTruncationID] = std::numeric_limits<uint32_t>::max();
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -374,18 +415,31 @@ StatusCode TriggerEDMSerialiserTool::tryAddData(HLT::HLTResultMT& hltResult,
     return StatusCode::FAILURE;
   }
 
+  // Size in this module
   const uint32_t currentSizeBytes = hltResult.getSerialisedData().count(id)==0
                                     ? 0 : hltResult.getSerialisedData().at(id).size()*sizeof(uint32_t);
+  // Total size
+  size_t currentTotalSizeWords = 0;
+  for (const auto& [id, data] : hltResult.getSerialisedData()) currentTotalSizeWords += data.size();
+  const uint32_t currentTotalSizeBytes = currentTotalSizeWords*sizeof(uint32_t);
+  // Size to be added
   const uint32_t extraSizeBytes = data.size()*sizeof(uint32_t);
-  if (currentSizeBytes+extraSizeBytes < m_truncationThresholds.value().at(id)) {
+
+  if (currentTotalSizeBytes+extraSizeBytes > m_truncationThresholds.value().at(fullResultTruncationID)) {
+    // The data doesn't fit, flag the full result as truncated
+    ATH_MSG_DEBUG("Skipping adding data to result with module ID " << id << " because of full-result truncation");
+    hltResult.addTruncatedModuleId(fullResultTruncationID);
+    hltResult.addTruncatedModuleId(id);
+  }
+  else if (currentSizeBytes+extraSizeBytes > m_truncationThresholds.value().at(id)) {
+    // The data doesn't fit, flag this module's result as truncated
+    ATH_MSG_DEBUG("Skipping adding data to truncated result with module ID " << id);
+    hltResult.addTruncatedModuleId(id);
+  }
+  else {
     // The data fits, so add it to the result
     ATH_MSG_DEBUG("Adding data to result with module ID " << id);
     hltResult.addSerialisedData(id, data);
-  }
-  else {
-    // The data doesn't fit, flag the result as truncated
-    ATH_MSG_DEBUG("Skipping adding data to truncated result with module ID " << id);
-    hltResult.addTruncatedModuleId(id);
   }
   return StatusCode::SUCCESS;
 }
@@ -394,6 +448,15 @@ StatusCode TriggerEDMSerialiserTool::fillDebugInfo(const TruncationInfoMap& trun
                                                    xAOD::TrigCompositeContainer& debugInfoCont,
                                                    HLT::HLTResultMT& resultToFill,
                                                    SGImplSvc* evtStore) const {
+  // If full result truncation happened, flag all results as truncated to produce debug info for all
+  if (resultToFill.getTruncatedModuleIds().count(fullResultTruncationID)>0) {
+    ATH_MSG_ERROR("HLT result truncation on total size! Limit of "
+                  << m_truncationThresholds.value().at(fullResultTruncationID)/1024./1024.
+                  << " MB exceeded. Flagging all module IDs as truncated.");
+    for (const auto& [id, data] : resultToFill.getSerialisedData()) {
+      resultToFill.addTruncatedModuleId(id);
+    }
+  }
   // Loop over truncation info and fill histograms and debug info objects
   for (const auto& [id, truncationInfoVec] : truncationInfoMap) {
     if (resultToFill.getTruncatedModuleIds().count(id)>0) {
@@ -405,8 +468,8 @@ StatusCode TriggerEDMSerialiserTool::fillDebugInfo(const TruncationInfoMap& trun
       xAOD::TrigComposite::Accessor<std::vector<std::string>> typeNameVec("typeName");
       xAOD::TrigComposite::Accessor<std::vector<uint32_t>> sizeVec("size");
       xAOD::TrigComposite::Accessor<std::vector<char>> isRecordedVec("isRecorded");
-      std::pair<std::string, size_t> largestRecorded;
-      std::pair<std::string, size_t> largestDropped;
+      std::pair<std::string, size_t> largestRecorded{"None", 0};
+      std::pair<std::string, size_t> largestDropped{"None", 0};
       moduleId(*debugInfoThisModule) = id;
       uint32_t sizeSum = 0;
       for (const TruncationInfo& truncationInfo : truncationInfoVec) {
