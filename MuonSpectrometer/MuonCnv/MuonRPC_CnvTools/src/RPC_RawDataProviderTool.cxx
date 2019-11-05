@@ -179,11 +179,6 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   RpcPadContainer* pad = 0;
   RpcSectorLogicContainer* logic = 0;
 
-  // logic for run-2 (not thread safe mode)
-  if (Gaudi::Hive::currentContext().slot() > 1) {
-    ATH_MSG_FATAL ( "RPC_RawDataProviderTool is in legacy run2 mode, but you are trying to run with > 1 thread. You must switch the mode" );
-    return StatusCode::FAILURE;
-  }
   // here we have to check if the container is already present and if it is we retrieve from SG
   if (rdoContainerHandle.isPresent()) {
     const RpcPadContainer* pad_c;

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgGetter,CfgMgr,Logging
+from AthenaCommon import CfgMgr
 
 # Common methods to return default UserAction(Tool)s
 
