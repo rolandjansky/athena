@@ -329,12 +329,13 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
 
   // FALLBACK POINT: Crisis if extrapolation fails here... As per extrapolation to volume boundary, in emergency revert
   // to extrapolateDirectly
-
-  auto buff_extrapolateDirectlyFallbacks = m_extrapolateDirectlyFallbacks.buffer();
+ 
+  //if we end up going nowhere, we do not own the current state  
   if (destinationState == currentState) {
     destinationState = nullptr;
   }
 
+  //or we failed to reach the target  
   if (destinationState && &((*(destinationState->begin())).first->associatedSurface()) != &surface) {
     ATH_MSG_DEBUG("Failed to reach destination surface  ... reached some other surface");
     if (destinationState != currentState)
@@ -342,6 +343,9 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
     destinationState = nullptr;
   }
 
+  //Gaudi counter buffer
+  auto buff_extrapolateDirectlyFallbacks = m_extrapolateDirectlyFallbacks.buffer();
+ 
   if (!destinationState) {
     ATH_MSG_DEBUG("extrapolateInsideVolume() failed... falling back to direct propagation");
     destinationState =
@@ -859,13 +863,16 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
                                                                           boundaryCheck,
                                                                           particleHypothesis);
 
-    // Memory clean-up
-    if (returnState && returnState != currentState && currentState != &multiComponentState) {
+    /* Memory clean-up
+     * Here we can delete the currentState except if it still points to the input which we do not own 
+     * or is the same as returnState which we want to return 
+     */
+    if (currentState && currentState != &multiComponentState && returnState!=currentState) {
       delete currentState;
+      currentState=nullptr;
     }
 
-    returnState = returnState ? returnState : currentState;
-
+    returnState = returnState ? returnState : nullptr;
     // Set the information for the current layer, surface, tracking volume
     setRecallInformation(cache, surface, *destinationLayer, trackingVolume);
 
@@ -877,10 +884,14 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
 
   Trk::MultiComponentState* returnState =
     multiStatePropagate(propagator, *currentState, surface, direction, boundaryCheck, particleHypothesis);
-
-  // Memory clean-up
-  if (returnState && returnState != currentState && currentState != &multiComponentState)
-    delete currentState;
+  /* Memory clean-up
+   * Here we can delete the currentState except if it still points to the input which we do not own 
+   * or is the same as returnState which we want to return 
+   */
+    if (currentState && currentState != &multiComponentState && returnState!=currentState) {
+      delete currentState;
+      currentState=nullptr;
+    }
 
   // No destination layer exists so layer recall method cannot be used and should be reset
   resetRecallInformation(cache);
