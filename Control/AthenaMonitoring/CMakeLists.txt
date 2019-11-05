@@ -63,10 +63,11 @@ atlas_add_library(
 
 atlas_add_component(
     AthenaMonitoring
-    src/*.cxx src/components/*.cxx
+    src/components/*.cxx
     INCLUDE_DIRS
         ${CORAL_INCLUDE_DIRS}
     LINK_LIBRARIES
+        AthenaMonitoringLib
         AthenaMonitoringKernelLib
         LumiBlockData
         LWHists
