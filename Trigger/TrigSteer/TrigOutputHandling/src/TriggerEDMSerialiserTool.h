@@ -63,6 +63,15 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   Gaudi::Property<std::map<uint16_t,uint32_t>> m_truncationThresholds {
     this, "TruncationThresholds", {}, "HLT result truncation thresholds. Key is module ID, value is max size in bytes"
   };
+  Gaudi::Property<int> m_eventSizeHardLimitMB {
+    this, "EventSizeHardLimitMB", -1,
+    "Hard limit for output event size in megabytes. Set automatically in initialize from run parameters. "
+    "In partition, it corresponds to DCM sbaBlockSize_MiB. Value <0 means no limit."
+  };
+  Gaudi::Property<float> m_fullResultTruncationFrac {
+    this, "FullResultTruncationFrac", 0.8,
+    "Fraction of EventSizeHardLimitMB which defines the limit on the total size of HLT output (sum of all modules)"
+  };
   /// StoreGate key for the truncation debug info object
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_debugInfoWHKey {
     this, "DebugInfoWHKey", "TruncationDebugInfo"

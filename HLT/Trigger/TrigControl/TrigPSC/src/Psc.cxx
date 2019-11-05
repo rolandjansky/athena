@@ -381,6 +381,17 @@ bool psc::Psc::configure(const ptree& config)
               <<" number of Sub Det IDs read from OKS = " << m_config->enabled_SubDets.size());
   }
 
+  // Write the maximum HLT output size into the JobOptions Catalogue
+  if (std::string opt = m_config->getOption("MAXEVENTSIZEMB"); !opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue("DataFlowConfig",
+      IntegerProperty("DF_MaxEventSizeMB", std::stoi(opt)));
+    if ( sc.isFailure() ) {
+      ERS_PSC_ERROR("psc::Psc::configure: Error could not write DF_MaxEventSizeMB in JobOptions Catalogue");
+      return false;
+    }
+    ERS_DEBUG(1,"psc::Psc::configure: Wrote DF_MaxEventSizeMB=" << opt << " in JobOptions Catalogue");
+  }
+
   // Write configuration for HLT muon calibration infrastructure in JobOptions catalogue
   if ( (m_config->getOption("MUONCALBUFFERNAME") != "NONE") && (m_config->getOption("MUONCALBUFFERNAME") != "") ) {
     std::map<std::string, std::string>  muoncal_properties;
