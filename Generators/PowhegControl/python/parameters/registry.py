@@ -2,6 +2,7 @@
 
 import atlas_common
 import collections
+import itertools
 from ..decorators import Singleton
 
 
@@ -107,6 +108,7 @@ class Registry(object):
         self.add_default("Deltak_gam", 0, description="Delta_K(Gamma)")
         self.add_default("deltar", -1, description="[-1:use Powheg default]")
         self.add_default("diagCKM", 0, description="which CKM matrix to use [0:normal CKM; 1:diagonal CKM]")
+        self.add_default("dim6", 0, description="for (SM)EFT processes, whether to include dimension-6 operators [0:do not include; 1:include]")
         self.add_default("Dmass", atlas_common.mass.d, name="mass_d", description="d-quark mass in GeV")
         self.add_default("DMgDM", 1.0, name="gDM", description="X-Xbar-med coupling")
         self.add_default("DMgSM", 1.0, name="gSM", description="q-q-med coupling")
@@ -141,6 +143,7 @@ class Registry(object):
         self.add_default("fakevirt", 0, description="set virtual amplitude proportional to Born amplitude when generating grids - DO NOT USE when generating events. [1:enabled]")
         self.add_default("fakevirtuals", 0, description="generate the grid with fake virtuals. [1:enabled]")
         self.add_default("fastbtlbound", 1, description="use fast btilde bound. [0: disabled; 1: enabled]")
+        self.add_default("fcnc", 0, description="include tree-level flavour-changing neutral currents [0:no; 1:yes]")
         self.add_default("ffltest", -1, description="[-1:use Powheg default]")
         self.add_default("fin1", -1, description="PDG ID for final state weakinos. [neu10 = 1000022, neu20 = 1000023, neu30 = 1000025, neu40 = 1000035, cha1+ = 1000024, cha2+ = 1000037]")
         self.add_default("fin2", -1, description="PDG ID for final state weakinos. [neu10 = 1000022, neu20 = 1000023, neu30 = 1000025, neu40 = 1000035, cha1+ = 1000024, cha2+ = 1000037]")
@@ -206,6 +209,7 @@ class Registry(object):
         self.add_default("Lambda_gam", 0, description="Lambda(gamma)")
         self.add_default("lambda_z", 0, description="Lambda(Z)")
         self.add_default("lambdaHHH", 1, description="coupling modifier for trilinear Higgs coupling. [SM: 1]")
+        self.add_default("LambdaNP", 1000.0, description="new-physics scale in (SM)EFT in GeV")
         self.add_default("largecorrfact", -1, description="[-1:use Powheg default]")
         self.add_default("lepaslight", -1, description="[-1:use Powheg default]")
         self.add_default("lhans1", 260000, name="PDF", description="PDF set for hadron 1. [LHAPDF numbering]")
@@ -547,6 +551,26 @@ class Registry(object):
         self.add_default("ZZvvqq", 0, hidden=True, description="ZZ decay mode: Z->qq Z->nunu. [1:enabled]")
         self.add_default("ZZvvtautau", 0, hidden=True, description="ZZ decay mode: Z->tautau Z->nunu. [1:enabled]")
         self.add_default("ZZvvvv", 0, hidden=True, description="ZZ decay mode: Z->nunu Z->nunu. [1:enabled]")
+        # SMEFT operator coefficients, all set to zero by default
+        for coefficient_name in ["ReGEw", "ImGEw", "ReGEe", "ImGEe"]:
+            self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
+        for coefficient in ["ReGUw_{flavours}", "ImGUw_{flavours}", "ReGUe_{flavours}", "ImGUe_{flavours}", "ReLeQu3_{flavours}", "ImLeQu3_{flavours}", "ReLeQu_{flavours}", "ImLeQu_{flavours}"]:
+            for flavours in ["{}{}".format(*x) for x in itertools.product(["u", "c", "t"], repeat=2)]:
+                coefficient_name = coefficient.format(flavours=flavours)
+                self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
+        for coefficient in ["ReGDw_{flavours}", "ImGDw_{flavours}", "ReGDe_{flavours}", "ImGDe_{flavours}", "ReLedQ_{flavours}", "ImLedQ_{flavours}"]:
+            for flavours in ["{}{}".format(*x) for x in itertools.product(["d", "s", "b"], repeat=2)]:
+                coefficient_name = coefficient.format(flavours=flavours)
+                self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
+        for coefficient in ["QphiU_{flavours}", "Uphi_{flavours}", "QLu_{flavours}", "Ceu_{flavours}", "CLu_{flavours}"]:
+            for flavours in ["uu", "uc", "ut", "cc", "ct", "tt"]:
+                coefficient_name = coefficient.format(flavours=flavours)
+                self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
+        for coefficient in ["QphiD_{flavours}", "Dphi_{flavours}", "QLd_{flavours}", "Ced_{flavours}", "CLd_{flavours}", "Qe_{flavours}"]:
+            for flavours in ["dd", "ds", "db", "ss", "sb", "bb"]:
+                coefficient_name = coefficient.format(flavours=flavours)
+                self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
+
 
 
     def add_default(self, keyword, value, name=None, hidden=False, frozen=False, description=""):
