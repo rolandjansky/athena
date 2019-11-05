@@ -600,9 +600,9 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
   }
 
   // Clean up memory used by the combiner
-  combinedState = 0;
+  combinedState = nullptr;
 
-  const Trk::MultiComponentState* nextState = 0;
+  const Trk::MultiComponentState* nextState = nullptr;
 
   // If an associated surface can be found, extrapolation within the tracking volume is mandatory
   // This will take extrapolate to the last layer in the volume
@@ -626,7 +626,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
 
   combinedState = currentState->begin()->first->clone(); // m_stateCombiner->combine( *currentState );
 
-  const Trk::TrackingVolume* nextVolume = 0;
+  const Trk::TrackingVolume* nextVolume = nullptr;
   const Trk::TrackParameters* navigationParameters = cache.m_stateAtBoundarySurface.navigationParameters
                                                        ? cache.m_stateAtBoundarySurface.navigationParameters
                                                        : combinedState;
@@ -691,9 +691,9 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
     // Get layer associated with boundary surface.
     const Trk::TrackParameters* paramsAtBoundary = nextNavigationCell.parametersOnBoundary;
     const Trk::Layer* layerAtBoundary =
-      (paramsAtBoundary) ? (paramsAtBoundary->associatedSurface()).materialLayer() : 0;
-    const Trk::TrackParameters* matUpdatedParameters = 0;
-    const Trk::MultiComponentState* matUpdatedState = 0;
+      (paramsAtBoundary) ? (paramsAtBoundary->associatedSurface()).materialLayer() : nullptr;
+    const Trk::TrackParameters* matUpdatedParameters = nullptr;
+    const Trk::MultiComponentState* matUpdatedState = nullptr;
 
     if (nextVolume && layerAtBoundary) {
 
@@ -828,8 +828,8 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
     currentState = reducedState ? reducedState : updatedState;
   }
 
-  // Memory clean-up
-  combinedState = 0;
+  // Reset combined state target
+  combinedState = nullptr;
 
   if (destinationLayer) {
     // If there are intermediate layers then additional extrapolations need to be done
@@ -871,8 +871,6 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
       delete currentState;
       currentState=nullptr;
     }
-
-    returnState = returnState ? returnState : nullptr;
     // Set the information for the current layer, surface, tracking volume
     setRecallInformation(cache, surface, *destinationLayer, trackingVolume);
 
@@ -1315,8 +1313,7 @@ Trk::GsfExtrapolator::initialiseNavigation(Cache& cache,
   // Empty the garbage bin
   ATH_MSG_DEBUG("Destination to surface [r,z] [" << surface.center().perp() << ",\t" << surface.center().z() << ']');
   emptyGarbageBins(cache);
-  const Trk::TrackParameters* combinedState =
-    multiComponentState.begin()->first; // m_stateCombiner->combine( multiComponentState );
+  const Trk::TrackParameters* combinedState = multiComponentState.begin()->first; 
   /* =============================================
      Look for current volume
      ============================================= */
