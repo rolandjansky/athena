@@ -30,7 +30,7 @@ This class stores a map of calorimeter layers and track parameters (the result o
 class eflowTrackCaloPoints {
  public:
 
-  eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk::TrackParameters*> trackParameters);
+  eflowTrackCaloPoints(const std::map<eflowCalo::LAYER, const Trk::TrackParameters*> & trackParameters);
  eflowTrackCaloPoints() : m_isEM1Barrel(false), m_isEM2Barrel(false)  {}
   ~eflowTrackCaloPoints();
 
@@ -60,7 +60,6 @@ class eflowTrackCaloPoints {
 
   Amg::Vector3D parToPosition(const Trk::TrackParameters* extrapolatedParameters);
   Amg::Vector3D parToDirection(const Trk::TrackParameters* extrapolatedParameters);
-  const Trk::TrackParameters* getParameters(eflowCalo::LAYER layer);
 
   bool m_isEM1Barrel;
   bool m_isEM2Barrel;
@@ -76,7 +75,6 @@ class eflowTrackCaloPoints {
   static const std::pair<float, float>  m_defaultEtaPhiPair;
   static const eflowEtaPhiPosition m_defaultEtaPhiPosition;
 
-  std::map<eflowCalo::LAYER, const Trk::TrackParameters*> m_trackParameters;
   std::map<eflowCalo::LAYER, Amg::Vector3D > m_positions;
   std::map<eflowCalo::LAYER, Amg::Vector3D > m_directions;
   std::map<eflowCalo::LAYER, eflowEtaPhiPosition>  m_etaPhiPositions;
