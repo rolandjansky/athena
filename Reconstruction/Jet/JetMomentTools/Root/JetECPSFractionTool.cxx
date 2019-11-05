@@ -49,7 +49,7 @@ double JetECPSFractionTool::energyFraction(const xAOD::Jet& jet) const {
     const PFO* ppfl = dynamic_cast<const PFO*>(ppar);
     const CaloCluster* pclu = nullptr;
     if ( ppfl != nullptr ) {
-      if ( ppfl->charge() == 0 ) {
+      if ( fabs(ppfl->charge()) < FLT_MIN ) {
         pclu = ppfl->cluster(0);  // Assume PFO has exactly one cluster.
         if ( pclu != nullptr ) ATH_MSG_VERBOSE("  Constituent is a PFO pointing to a cluster");
         else ATH_MSG_WARNING("  Constituent is cluster-based PFO but the cluster is not found.");

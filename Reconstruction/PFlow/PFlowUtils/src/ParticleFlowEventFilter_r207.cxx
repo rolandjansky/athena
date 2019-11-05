@@ -31,7 +31,7 @@ StatusCode ParticleFlowEventFilter_r207::execute(){
         const xAOD::IParticle* theRawConstituent = aConstituent->rawConstituent();
         if (theRawConstituent){
           const xAOD::PFO* thePFO = dynamic_cast<const xAOD::PFO*>(theRawConstituent);
-          if (thePFO->charge() != 0) {
+          if (fabs(thePFO->charge()) > FLT_MIN) {
             if (thePFO->pt() < 30000) weight = 1.0;
             else if (thePFO->pt() >= 30000 && thePFO->pt() < 60000) weight = (1.0 - (thePFO->pt()-30000)/30000);
 

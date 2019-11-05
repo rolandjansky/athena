@@ -625,7 +625,7 @@ namespace xAOD {
       if (obj->type()==xAOD::Type::TrackParticle) trkOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
       else if (obj->type()==xAOD::Type::ParticleFlow) {
 	const PFO* pfo = static_cast<const PFO*>(obj);
-	if(fabs(pfo->charge())>1e-9) {
+	if(fabs(pfo->charge())>FLT_MIN) {
 	  // apply cPFO weight if present, only for the inclusive PFO sum
 	  if (m_override.find(obj)!=m_override.end()) {
 	    calOverlaps[bm] += m_override[obj];

@@ -169,7 +169,7 @@ namespace met {
 
     // One loop over PFOs
     for(const auto& pfo : *constits.pfoCont) {
-      if(fabs(pfo->charge())>1e-9) {
+      if(fabs(pfo->charge())>FLT_MIN) {
 	// get charged PFOs by matching the muon ID track
 	// We set a small -ve pt for cPFOs that were rejected
 	// by the ChargedHadronSubtractionTool

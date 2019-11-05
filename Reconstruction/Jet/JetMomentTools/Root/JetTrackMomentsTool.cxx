@@ -98,7 +98,7 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
     size_t numConstit = jet.numConstituents();
     for ( size_t i=0; i<numConstit; i++ ) {
       const xAOD::PFO* constit = dynamic_cast<const xAOD::PFO*>(jet.rawConstituent(i));
-      if (0.0 != constit->charge()){
+      if (fabs(constit->charge()) > FLT_MIN){
         const xAOD::TrackParticle *thisTrack = constit->track(0);//by construction xAOD::PFO can only have one track, in eflowRec usage                                                                                                                                             
         pflowTracks.push_back(thisTrack);
       }//we have a charged PFO                                                                                                                                                                                                                                                      

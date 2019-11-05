@@ -50,7 +50,7 @@ namespace CaloConstitHelpers {
     virtual ~PFOExtractor(){}
     virtual bool valid(JetConstitIterator & it ) {
       const xAOD::PFO* pfo = dynamic_cast<const xAOD::PFO*>(it->rawConstituent());
-      if (pfo!=0) return (pfo->charge() ==0. );
+      if (pfo!=0) return (fabs(pfo->charge()) < FLT_MIN );
       return false;
     }
 

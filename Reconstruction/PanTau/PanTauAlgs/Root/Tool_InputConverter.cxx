@@ -96,7 +96,7 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     //! ==================================================
     //! Check whether neutral input pfo has pion mass (it may have if xAOD is being reprocessed)
     //! If it does, make it massless again and use that
-    if(pfo->charge() == 0 && pfo->m() != 0) {
+    if(fabs(pfo->charge()) < FLT_MIN && fabs(pfo->m()) > 0.0) {
         TLorentzVector tlvUpdate; 
         PanTau::SetP4EEtaPhiM( tlvUpdate, pfo->e(), pfo->eta(), pfo->phi(), 0);
         pfo->setP4(tlvUpdate.Pt(), pfo->eta(), pfo->phi(), 0);

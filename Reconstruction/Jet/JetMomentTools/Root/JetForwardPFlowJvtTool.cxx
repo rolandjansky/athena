@@ -196,13 +196,13 @@
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
-      if (pfo->charge()!=0) { 
+      if (fabs(pfo->charge())>FLT_MIN) { 
         if (vx.index()==pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
         if (vx.index()!=pv_index && &vx!=pfo->track(0)->vertex()) continue;
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
-      else if (fabs(pfo->eta())<m_neutMaxRap && pfo->charge()==0 && pfo->eEM()>0)
+      else if (fabs(pfo->eta())<m_neutMaxRap && fabs(pfo->charge())<FLT_MIN && pfo->eEM()>0)
       { 
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
       }

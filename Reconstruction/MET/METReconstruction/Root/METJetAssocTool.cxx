@@ -112,7 +112,7 @@ namespace met {
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
           const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
 	  ATH_MSG_VERBOSE("Jet constituent PFO, pt :" << pfo->pt() << ", charge: " << pfo->charge());
-          if (fabs(pfo->charge())>1e-9 && (!m_cleanChargedPFO || isGoodEoverP(pfo->track(0)))) {
+          if (fabs(pfo->charge())>FLT_MIN && (!m_cleanChargedPFO || isGoodEoverP(pfo->track(0)))) {
 	    ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
 	    selectedTracks.push_back(pfo);
 	  }
@@ -157,7 +157,7 @@ namespace met {
     jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
 
     for(const auto& pfo : *constits.pfoCont) {
-      if (fabs(pfo->charge())>1e-9) {
+      if (fabs(pfo->charge())>FLT_MIN) {
 	const TrackParticle* pfotrk = pfo->track(0);
 	for(const auto& trk : jettracks) {
 	  if (trk==pfotrk) {
