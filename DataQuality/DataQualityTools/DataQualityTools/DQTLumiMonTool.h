@@ -30,7 +30,7 @@ private:
 
     RHK<xAOD::VertexContainer> m_VertexContainerKey {this, "VertexContainerKey", "PrimaryVertices", ""};
     RHK<InDet::PixelClusterContainer> m_PixelClustersKey {this, "PixelClustersKey", "PixelClusters", ""};
-    RHK<PixelID> m_PixelIDKey {this, "PixelIDKey", "PixelID", ""};
+    RHK<PixelID> m_PixelIDKey {this, "PixelIDKey", "DetectorStore+PixelID", ""};
 
     GP<float> m_tightTrackWeight {this, "TightTrackWeight", 0.01};
     GP<int> m_tightNTracks {this, "TightNTracks", 4};
