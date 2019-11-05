@@ -8,7 +8,9 @@ atlas_subdir( TrigPartialEventBuilding )
 # Declare the package's dependencies
 atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/DecisionHandling
-                          Trigger/TrigEvent/TrigSteeringEvent )
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          PRIVATE
+                          Control/CxxUtils )
 
 # Component(s) in the package
 atlas_add_library( TrigPartialEventBuildingLib

@@ -46,7 +46,7 @@ def pebInfoWriterTool(name, eventBuildType):
     if 'LArPEB' in eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.DetNames = ['PIXEL', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD']
-        # TODO: tool.MaxRoIsPerEvent = 5
+        tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
         tool.addCTPResultToROBList()  # add the CTP result to the list
     elif 'RPCPEBSecondaryReadout' in eventBuildType:
