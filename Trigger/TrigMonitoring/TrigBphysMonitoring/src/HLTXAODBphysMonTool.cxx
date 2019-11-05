@@ -503,13 +503,13 @@ StatusCode HLTXAODBphysMonTool::fillTriggers(){
               getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, "L2BMuMuFex");
 
             const std::vector< LinkInfo<xAOD::MuonContainer> > fc_muonsEF = 
-              getTDT()->features<xAOD::MuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg, "muonsEF");
+              getTDT()->features<xAOD::MuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesOfType, "muonsEF");
 
             const std::vector< LinkInfo<xAOD::L2StandAloneMuonContainer> > fc_muonsL2SA = 
-              getTDT()->features<xAOD::L2StandAloneMuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg, "muonsSA");
+              getTDT()->features<xAOD::L2StandAloneMuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesOfType, "muonsSA");
 
             const std::vector< LinkInfo<xAOD::L2CombinedMuonContainer> > fc_muonsL2CB = 
-              getTDT()->features<xAOD::L2CombinedMuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg, "muonsCB");          
+              getTDT()->features<xAOD::L2CombinedMuonContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesOfType, "muonsCB");          
 
             ATH_MSG_DEBUG(  "Trigger(): number of L2 Bphys: " << fc_bphysL2.size() );
             for (const auto& bphys: fc_bphysL2){
@@ -1626,7 +1626,7 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
     } else { // TriggerComposite
 
         const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphys = 
-          getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesPerLeg); // Get EF and L2
+          getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, "", TrigDefs::allFeaturesOfType); // Get EF and L2
 
         const std::vector< LinkInfo<xAOD::TrigBphysContainer> > fc_bphysEF = 
           getTDT()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics, labelEF);
