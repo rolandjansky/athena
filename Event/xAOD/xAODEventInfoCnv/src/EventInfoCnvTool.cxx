@@ -93,8 +93,7 @@ namespace xAODMaker {
       } 
       
       // Try to access the beam conditions service:
-      if( m_beamCondSvcAvailable )
-        ATH_CHECK(m_beamSpotKey.initialize(SG::AllowEmpty));
+      ATH_CHECK(m_beamSpotKey.initialize(m_beamCondSvcAvailable));
 
       CHECK( m_lumiDataKey.initialize (SG::AllowEmpty) );
 #else
