@@ -153,6 +153,7 @@ StatusCode xAODRingSetConfWriter::searchAndCopyCLID(
   // Now loop retrieving them and recording on the outputContainer:
   for ( const auto &key : ringConfKeys ) 
   {
+    if (key[0] == ';' && key[3] == ';') continue; // ignore versioned keys
     ATH_MSG_VERBOSE( "Attempting to copy " << key );
 
     // Check if this meta isn't already available in output, if so, do not copy it:
