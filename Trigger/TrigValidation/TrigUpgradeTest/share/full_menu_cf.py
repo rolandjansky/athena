@@ -180,26 +180,31 @@ if opt.doBjetSlice == True:
           makeChain(name='HLT_j35_gsc45_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2] )
         ]
     testChains += bjetChains
-    
+
+"""
+Commenting out tau chains for now    
 ##################################################################
 # tau chains
 ##################################################################
 if opt.doTauSlice == True:
-  from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
-  step1=ChainStep("Step1_tau", [getTauSequence('calo')])
-  step1MVA=ChainStep("Step1MVA_tau", [getTauSequence('calo_mva')])
-  #This runs the tau-preselection(TP) step
-  step2TP=ChainStep("Step2TP_tau", [getTauSequence('track_core')])
-  #This runs the EFTauMV hypo on top of fast tracks 
-  step2PT=ChainStep("Step2PT_tau", [getTauSequence('precision')])
+    from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
+
+    step1=ChainStep("Step1_tau", [getTauSequence('calo')])
+    step1MVA=ChainStep("Step1MVA_tau", [getTauSequence('calo_mva')])
+
+    #This runs the tau-preselection(TP) step
+    step2TP=ChainStep("Step2TP_tau", [getTauSequence('track_core')])
+
+    #This runs the EFTauMV hypo on top of fast tracks 
+    step2PT=ChainStep("Step2PT_tau", [getTauSequence('precision')])    
   
-  
-  tauChains  = [
-      makeChain(name='HLT_tau0_perf_ptonly_L1TAU12',              L1Thresholds=["TAU12"], ChainSteps=[step1, step2] ),
-      makeChain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM',      L1Thresholds=["TAU12IM"],  ChainSteps=[step1, step2TP] ),
-      makeChain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', L1Thresholds=["TAU20IM"], ChainSteps=[step1MVA, step2PT]),
+    tauChains  = [
+          makeChain(name='HLT_tau0_perf_ptonly_L1TAU12',              L1Thresholds=["TAU12"], ChainSteps=[step1, step2] ),
+          makeChain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM',      L1Thresholds=["TAU12IM"],  ChainSteps=[step1, step2TP] ),
+          makeChain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', L1Thresholds=["TAU20IM"], ChainSteps=[step1MVA, step2PT])
       ]
-  testChains += tauChains
+    testChains += tauChains
+"""
 
 ##################################################################
 # MET chains

@@ -75,8 +75,9 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_TAURoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_RoiForTau',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUCaloViews'),
-    ('TrigRoiDescriptorCollection#HLT_RoiForID2',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUIDViews'),
+    ('TrigRoiDescriptorCollection#HLT_RoiForID2',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUFTFCoreViews'),
     ('TrigRoiDescriptorCollection#HLT_RoiForID1',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUID2Views'),
+    ('TrigRoiDescriptorCollection#HLT_RoiForID',                   'BS ESD AODFULL AODSLIM',  'Steer', 'inViews = TAUIDViews'),
 
     ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'CostMonDS ESD', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.slot.roi.start.stop.', 'CostMonDS ESD', 'Steer'),

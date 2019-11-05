@@ -92,7 +92,6 @@ if opt.doEmptyMenu is True:
 else:
     for s in slices:
         setattr(opt, s, True)
-    opt.doTauSlice =False #Wait for ATR-17399
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
 # This is temporary and will be re-worked for after M3.5
