@@ -12,6 +12,7 @@ msg = logging.getLogger("PyJobTransforms." + __name__)
 import os
 import fnmatch
 import re
+import subprocess
 
 from PyJobTransforms.trfExe import athenaExecutor
 
@@ -194,31 +195,48 @@ class trigRecoExecutor(athenaExecutor):
             
     def postExecute(self):
                 
+        #TODO
+        #need to check for HLTMPPU.*Child Issue in the log file and throw an error message if there so we catch that the child died
+
         msg.info("Check for expert-monitoring.root file")
         #the BS-BS step generates the files:
         #   expert-monitoring.root (from mother process)
         #   athenaHLT_workers/*/expert-monitoring.root (from child processes)        
         #to save on panda it needs to be renamed via the outputHIST_HLTMONFile argument
         expectedFileName = 'expert-monitoring.root'
-        #first check argument is in dictionary as a requested output
+
+        #first check athenaHLT step actually completed
         if self._rc != 0:
             msg.info('HLT step failed (with status %s) so skip HIST_HLTMON filename check' % self._rc)
+        #next check argument is in dictionary as a requested output
         elif 'outputHIST_HLTMONFile' in self.conf.argdict:
+
             #rename the mother file
-            #os.rename(expectedFileName, 'expert-monitoring-mother.root')
-            #merge worker files
-            #subprocess.call(cmd, shell=True)        
-             
-            #check file is created
+            expectedMotherFileName = 'expert-monitoring-mother.root'
             if(os.path.isfile(expectedFileName)):
-                msg.info('Renaming %s to %s' % (expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0]) ) 
+                msg.info('Renaming %s to %s' % (expectedFileName, expectedMotherFileName) )
                 try:
-                    os.rename(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0])
+                    os.rename(expectedFileName, expectedMotherFileName)
                 except OSError, e:
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                        'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
+                        'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, expectedMotherFileName, e))
             else:
-                msg.error('HLTMON argument defined %s but %s not created' % (self.conf.argdict['outputHIST_HLTMONFile'].value[0], expectedFileName ))
+                msg.error('HLTMON argument defined but mother %s not created' % (expectedFileName ))
+
+            #merge worker files
+            expectedWorkerFileName = 'athenaHLT_workers/athenaHLT-01/' + expectedFileName
+            if(os.path.isfile(expectedWorkerFileName) and os.path.isfile(expectedMotherFileName)):
+                msg.info('Merging worker and mother %s files to %s' % (expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0]) )
+                try:
+                    #have checked that at least one worker file exists
+                    cmd = 'hadd ' + self.conf.argdict['outputHIST_HLTMONFile'].value[0] + ' athenaHLT_workers/*/expert-monitoring.root expert-monitoring-mother.root'
+                    subprocess.call(cmd, shell=True)
+                except OSError, e:
+                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                        'Exception raised when merging worker and mother {0} files to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
+            else:
+                msg.error('HLTMON argument defined %s but worker %s not created' % (self.conf.argdict['outputHIST_HLTMONFile'].value[0], expectedFileName ))
+
         else:
             msg.info('HLTMON argument not defined so skip %s check' % expectedFileName)
         
@@ -286,7 +304,9 @@ class trigRecoExecutor(athenaExecutor):
             if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
                 fileNameDbg= self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value                
                 msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
-                
+
+            #TODO add merging of mother and child debug files
+
             if(os.path.isfile(fileNameDbg[0])):
                 #keep filename if not defined
                 msg.info('Will use file created  in PreRun step {0}'.format(fileNameDbg) )

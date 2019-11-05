@@ -96,7 +96,7 @@ def getTranslated(runArgs,name,substep,first,output):
         item = "--{0}={1}"
         if(type(v)==list):
             v=''.join(v) 
-    optionList.append(item.format(k,v))
+        optionList.append(item.format(k,v))
 
     return optionList
 
