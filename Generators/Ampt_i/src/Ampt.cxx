@@ -42,7 +42,6 @@
 
 namespace {
   static IAtRndmGenSvc *p_AtRndmGenSvc;
-//  static std::string hijing_stream = "HIJING_INIT";
   static std::string ampt_stream = "AMPT_INIT";
 }
 
@@ -52,7 +51,6 @@ extern "C"
 
   float atl_ran_( int* )
   {
-    //CLHEP::HepRandomEngine* engine = p_AtRndmGenSvc->GetEngine(hijing_stream);
     CLHEP::HepRandomEngine* engine = p_AtRndmGenSvc->GetEngine(ampt_stream);
     return (float) CLHEP::RandFlat::shoot(engine);
   }
@@ -88,10 +86,6 @@ extern "C"
 
   int invflv_(int*);
 }
-
-//------------------------------------------------------------------
-
-//Atlas_HEPEVT* Ampt::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 //------------------------------------------------------------------
 
@@ -168,7 +162,6 @@ Ampt::Ampt(const std::string& name, ISvcLocator* pSvcLocator) :
       declareProperty("dShadow", m_dshadow = 1.0); // Factor used to modify nuclear shadowing
       declareProperty("iPhiRP", m_iphirp = 0); // Flag for random orientation of reaction plane (D=0,no; 1,yes)
 
-//    (m_storeGate = 0;
 }
 
 //------------------------------------------------------------------
@@ -207,18 +200,16 @@ StatusCode Ampt::genInitialize()
       return RndmStatus;
     }   
 
-    // Save the AMPT_INIT stream seeds....
+    // Get the AMPT_INIT stream seeds....
     CLHEP::HepRandomEngine* engine = p_AtRndmGenSvc->GetEngine(ampt_stream);
     const long*       sip       =       engine->getSeeds();
     long       int       si1       =       sip[0];
     long       int       si2       =       sip[1];
 
     // ... and set them back to the stream for proper save
-     //p_AtRndmGenSvc->CreateStream(si1, si2, hijing_stream);
-     p_AtRndmGenSvc->CreateStream(si1, si2, ampt_stream);
+    p_AtRndmGenSvc->CreateStream(si1, si2, ampt_stream);
 
-    std::cout << "LEBEDEV RANDOM: " << sip << " " << si1 << " " << si2 << std::endl;
-    std::cout << "LEBEDEV RANDOM: " << ampt_stream << std::endl;
+    ATH_MSG_DEBUG( " Initial Random Numbers: " << sip << " " << si1 << " " << si2 << endreq );
  
     // set up COMMON blocks
     m_anim.isoft() = m_isoft;
@@ -238,8 +229,8 @@ StatusCode Ampt::genInitialize()
     m_coal.dpcoal() = m_dpcoal;
     m_coal.drcoal() = m_drcoal;
     // m_ihjsed
-    //m_rndf77.nseed() = m_nseed; // Random seed for HIJING
-    m_rndf77.nseed() = si2;
+    //m_rndf77.nseed() = m_nseed; // Fixed random seed for HIJING
+    m_rndf77.nseed() = si2;       // Get initial random seed from AMPT_INIT stream in joboptions file
     m_rndm3.iseedp() = m_iseedp;
     m_resdcy.iksdcy() = m_iksdcy;
     m_phidcy.iphidcy() = m_iphidcy;
@@ -268,11 +259,11 @@ StatusCode Ampt::genInitialize()
     if(m_isoft==1)      { amptvn = "  1.26t7 (Default)    "; }
     else if(m_isoft==4) { amptvn = "2.26t7 (StringMelting)"; }
     else                { amptvn = "   Test-Only          "; }
-    std::cout << " ##################################################" << std::endl;
-    std::cout << " #      AMPT (A Multi-Phase Transport) model      #" << std::endl;
-    std::cout << " #         Version " << amptvn << "         #"       << std::endl;
-    std::cout << " #               10/28/2016                       #" << std::endl;
-    std::cout << " ##################################################" << std::endl;
+    ATH_MSG_INFO(" ##################################################" << endreq );
+    ATH_MSG_INFO(" #      AMPT (A Multi-Phase Transport) model      #" << endreq );
+    ATH_MSG_INFO(" #         Version " << amptvn << "         #"       << endreq );
+    ATH_MSG_INFO(" #               10/28/2016                       #" << endreq );
+    ATH_MSG_INFO(" ##################################################" << endreq );
 
 // turn on warning messages in nohup.out when an event is repeated:
     m_hiparnt.ihpr2(10) = 1;  
@@ -287,18 +278,19 @@ StatusCode Ampt::genInitialize()
     float IAmax = std::max(m_iap,m_iat);
     m_smearz.smearh() = 1.2*pow(IAmax,0.3333)/(m_efrm/2./0.938);
 
+  // If requested, write AMPT output in original txt format
   if(m_writeAmpt) {
     // check if "ana" output directory exists
     // if not, create and open output files
     struct stat st;
     if(stat("ana",&st) == 0) {
       if(st.st_mode & (S_IFDIR != 0)) {
-        std::cout << " LEBEDEV ana exists and is a directory." << std::endl;
+        ATH_MSG_INFO(" ana exists and is a directory.");
       }
     } else {
       const int dir_err = mkdir("ana", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
       if (-1 == dir_err) {
-        std::cerr << "Error creating output ana directory!" << std::endl;
+        ATH_MSG_ERROR("Error creating output ana directory!");
         exit(1);
       }
     }
@@ -317,22 +309,15 @@ StatusCode Ampt::genInitialize()
     ATH_MSG_INFO(" Calling HIJSET... ");
     hijset_(&m_efrm, frame, proj, targ, &m_iap, &m_izp, &m_iat, &m_izt);
 
-      ATH_MSG_INFO( "\n=================================================\n"
-           << "  HIJING initialization results: \n"  
-           << "    Total sigma     = " << m_hiparnt.hint1(13) << " mb\n"
-           << "    Inelastic sigma = " << m_hiparnt.hint1(12) << " mb\n"
-           << "    Jet sigma       = " << m_hiparnt.hint1(11) << " mb\n"
-           << "=================================================\n" );
+    ATH_MSG_INFO( "\n=================================================\n"
+               << "  HIJING initialization results: \n"  
+               << "    Total sigma     = " << m_hiparnt.hint1(13) << " mb\n"
+               << "    Inelastic sigma = " << m_hiparnt.hint1(12) << " mb\n"
+               << "    Jet sigma       = " << m_hiparnt.hint1(11) << " mb\n"
+               << "===================================================\n" );
 
     ATH_MSG_INFO(" Calling INIZPC... ");
     inizpc_();
-
-/*
-  //HepMC::HEPEVT_Wrapper::set_sizeof_int(4);
-  HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof(int));
-  HepMC::HEPEVT_Wrapper::set_sizeof_real(8);
-  HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);
-*/
 
     return StatusCode::SUCCESS;
 }
@@ -343,7 +328,6 @@ StatusCode Ampt::callGenerator()
 {
   ATH_MSG_DEBUG( " Ampt generating event # " << m_events << endreq );
 
-  //CLHEP::HepRandomEngine* engine = p_AtRndmGenSvc->GetEngine(hijing_stream);
   CLHEP::HepRandomEngine* engine = p_AtRndmGenSvc->GetEngine(ampt_stream);
   const long* s = engine->getSeeds();
   m_seeds.clear();
@@ -351,19 +335,16 @@ StatusCode Ampt::callGenerator()
   m_seeds.push_back(s[1]);
 
 
-// this is supposed to be set to 1 at the beginning of the last event in AROUT common block
-//   IOUT = 1
-
   ATH_MSG_DEBUG(" Calling HIJING... ");
     const char* frame = m_frame8.c_str();
-    hijing_(frame, &m_bmin, &m_bmax);
+      hijing_(frame, &m_bmin, &m_bmax);
 
 // The number of particles in the hijing output
   m_arprnt.iaint2(1) = m_himain1.natt();
 
 // evaluate Npart (from primary NN collisions) for both proj and targ:
   ATH_MSG_DEBUG(" Calling GETNP... " << endreq );
-  getnp_();
+    getnp_();
 
 // switch for final parton fragmentation
   if(m_hiparnt.ihpr2(20) != 0 ) {
@@ -401,45 +382,6 @@ StatusCode Ampt::callGenerator()
       return  StatusCode::FAILURE;
     }
 
-// Fill HEPEVT cvommon block
-/*
-//  The number of particles produced by Hijing
-  int numHijingPart = m_himain1.natt();
-//  The number of particles in the Ampt output
-  int numAmptPart = m_hbt.nlast();
-  std::cout << "LEBEDEV # of particles = " << numHijingPart << " " << numAmptPart << std::endl;
-
-   s_atlas_HEPEVT->nevhep() = m_events;
-   s_atlas_HEPEVT->nhep() = numAmptPart;
-
-   std::cout << "LEBEDEV looping over " << numAmptPart << " particles." << std::endl;
-   for (int i = 1; i <= numAmptPart; ++i) {
-
-    int id = m_hbt.lblast(i);
-    int myid = invflv_(&id);
-    float px = m_hbt.plast(1,i);
-    float py = m_hbt.plast(2,i);
-    float pz = m_hbt.plast(3,i);
-    float pt = sqrt(px*px+py*py);
-    float mass = m_hbt.plast(4,i);
-    float ee = sqrt(mass*mass+pt*pt+pz*pz);
-    //std::cout << i << "   " << myid << " " << pt << " " << mass << std::endl;
-
-     s_atlas_HEPEVT->isthep(i) = 1; // stable particle
-     s_atlas_HEPEVT->idhep(i)  = myid;   // particle ID
-     s_atlas_HEPEVT->vhep(1,i) = m_hbt.xlast(1,i);  // particle origin vertex 4-vector components
-     s_atlas_HEPEVT->vhep(2,i) = m_hbt.xlast(2,i);
-     s_atlas_HEPEVT->vhep(3,i) = m_hbt.xlast(3,i);
-     s_atlas_HEPEVT->vhep(4,i) = m_hbt.xlast(4,i);
-     s_atlas_HEPEVT->phep(1,i) = m_hbt.plast(1,i);  // momentum 4-vector components
-     s_atlas_HEPEVT->phep(2,i) = m_hbt.plast(2,i);
-     s_atlas_HEPEVT->phep(3,i) = m_hbt.plast(3,i);
-     s_atlas_HEPEVT->phep(4,i) = ee;
-     s_atlas_HEPEVT->phep(5,i) = m_hbt.plast(4,i);  // mass
-
-   }
-*/
-
   ATH_MSG_DEBUG( " Ampt generating done.  \n" );
   return StatusCode::SUCCESS;
 }
@@ -456,8 +398,6 @@ StatusCode Ampt::genFinalize()
   outfile1.close();
   outfile2.close();
 
-//  m_hepmcio->clear();
-  
     ATH_MSG_INFO( "===> Ampt Ending.  \n" );
     return StatusCode::SUCCESS;
 }
@@ -591,12 +531,6 @@ StatusCode Ampt::fillEvtAmpt(HepMC::GenEvent* evt)
 {
   ATH_MSG_INFO( " AMPT Filing...  \n" );
 
-/*
-  store_Atlas_HEPEVT();
-  HepMC::IO_HEPEVT hepio;
-  hepio.fill_next_event(evt);
-*/
-
   evt->set_event_number( m_events );
 
   evt->set_random_states(m_seeds);
@@ -632,18 +566,6 @@ StatusCode Ampt::fillEvtAmpt(HepMC::GenEvent* evt)
        sigmainel     );        // sigma_inel_NN
 
   evt->set_heavy_ion(ion); 
-  std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
-
-/*
-// Vectors that will keep track of where particles originate from and die
-  std::vector<int> partOriginVertex_vec;
-  std::vector<int> partDecayVertex_vec;
-  std::vector<HepMC::GenParticle*> particleHepPartPtr_vec;
-
-  partOriginVertex_vec.assign(numHijingPart, 0);
-  partDecayVertex_vec.assign(numHijingPart, -1);
-  particleHepPartPtr_vec.assign(numHijingPart, (HepMC::GenParticle*) 0);
-*/
 
 // Vector that will keep pointers to generated vertices
   std::vector<HepMC::GenVertex*> vertexPtrVec;
@@ -689,12 +611,10 @@ StatusCode Ampt::fillEvtAmpt(HepMC::GenEvent* evt)
   int numHijingPart = m_himain1.natt();
 //  The number of particles in the Ampt output
   int numAmptPart = m_hbt.nlast();
-  std::cout << "LEBEDEV # of particles HIJING/AMPT = " << numHijingPart << " " << numAmptPart << std::endl;
+
+  ATH_MSG_DEBUG( " Number of particles HIJING/AMPT = " << numHijingPart << " " << numAmptPart << endreq );
 
   int particleVertexIndex = 0;
-
-//  std::cout << "HIJING particles: " << std::endl;
-//  for(int i=1; i<100; i++) { std::cout << "hij " << i << " " << m_himain2.katt(i,1) << " " << m_himain2.patt(i,1) << " " << m_himain2.patt(i,2) << " " << m_himain2.patt(i,3) << std::endl; }
 
 // loop over all particles in event
   int numGoodAmptPart = 0;
@@ -704,7 +624,18 @@ StatusCode Ampt::fillEvtAmpt(HepMC::GenEvent* evt)
     int myid = invflv_(&id);
     float px = m_hbt.plast(1,i);
     float py = m_hbt.plast(2,i);
+    float pz = m_hbt.plast(3,i);
+    float pt = sqrt(px*px+py*py);
+    float mass = m_hbt.plast(4,i);
+    float ee = sqrt(mass*mass+pt*pt+pz*pz);
+      CLHEP::HepLorentzVector partP4(px, py, pz, ee);
+
     if((myid==2212 || myid==2112) && px==0. && py==0.) continue; // skip beam particles
+
+    if(abs(myid)==423 || abs(myid)==513 || abs(myid)==42 || abs(myid)==413 || abs(myid)==433) {
+       continue; // skip "bad" pdg id which crash reconstruction
+    }
+
     numGoodAmptPart++;
 
     if( m_rand || m_sel ){ // Shift the particle vertex if it is not at zero
@@ -714,6 +645,11 @@ StatusCode Ampt::fillEvtAmpt(HepMC::GenEvent* evt)
       m_hbt.xlast(4,i) += newVertex(3);
     }
 
+    float vx = m_hbt.xlast(1,i);
+    float vy = m_hbt.xlast(2,i);
+    float vz = m_hbt.xlast(3,i);
+    if(fabs(vx)>999. || fabs(vy)>999. || fabs(vz)>999.) continue; // remove particles outside GEANT World volume
+
 // particle origin vertex
     CLHEP::HepLorentzVector particleStart(m_hbt.xlast(1,i),m_hbt.xlast(2,i),m_hbt.xlast(3,i),m_hbt.xlast(4,i));
       HepMC::GenVertex* newVertex_p = new HepMC::GenVertex(particleStart);
@@ -721,45 +657,23 @@ StatusCode Ampt::fillEvtAmpt(HepMC::GenEvent* evt)
             particleVertexIndex = vertexPtrVec.size() - 1;
 
 // the particle itself
-//    int id = m_hbt.lblast(i);
-//    int myid = invflv_(&id);
-//    float px = m_hbt.plast(1,i);
-//    float py = m_hbt.plast(2,i);
-    float pz = m_hbt.plast(3,i);
-    float pt = sqrt(px*px+py*py);
-    float mass = m_hbt.plast(4,i);
-    float ee = sqrt(mass*mass+pt*pt+pz*pz);
       int partId = myid;
       int partStat = 1;
-      CLHEP::HepLorentzVector partP4(px, py, pz, ee);
       HepMC::GenParticle* newParticle_p = new HepMC::GenParticle(partP4, partId, partStat);
-
-//   if(numGoodAmptPart<100) { std::cout << i << " " << myid << " " << px << " " << py << " " << pz << std::endl; }
 
 // add particle to its vertex
         vertexPtrVec[particleVertexIndex]->add_particle_out(newParticle_p);
 
   } // end loop over all particles
 
-  std::cout << "LEBEDEV Number of non-beam AMPT particles = " << numGoodAmptPart << std::endl;
-  std::cout << "LEBEDEV number of vertices = " << vertexPtrVec.size() << std::endl;
-
 // Now loop over all vertices and add them to the event
   for (unsigned int iv = 0; iv < vertexPtrVec.size(); iv++) { evt->add_vertex(vertexPtrVec[iv]); }
 
 // Convert CLHEP::cm->CLHEP::mm and CLHEP::GeV->CLHEP::MeV
    GeVToMeV(evt);
-
-//  std::cout << "==================== evt->print() ==========================" << std::endl;
 //  evt->print();
 
-  std::cout << "LEBEDEV Number of vertices in HepMC " <<  evt->vertices_size() << std::endl;
-  std::cout << "LEBEDEV Number of particles in HepMC " <<  evt->particles_size() << std::endl;
-
   if(m_writeHepMC) { m_hepmcio->write_event(evt); }
-
-//  std::cout << "====== HepMC::HEPEVT_Wrapper::print_hepevt() ===============" << std::endl;
-//  HepMC::HEPEVT_Wrapper::print_hepevt();
 
   ATH_MSG_INFO( " AMPT Filing Done.  \n" );
   return StatusCode::SUCCESS;
@@ -808,31 +722,6 @@ CLHEP::HepLorentzVector Ampt::randomizeVertex()
 }
 
 
-
-
-//------------------------------------------------------------------
-
-/*
-void Ampt::store_Atlas_HEPEVT() {
-  ATH_MSG_INFO("atlas_HEPEVT params: "
-                << "nhep=" << s_atlas_HEPEVT->nhep() << ", "
-                << "isthep(10)=" << s_atlas_HEPEVT->isthep(10) << ", "
-                << "idhep(10)=" << s_atlas_HEPEVT->idhep(10) << ", "
-                << "jmohep(1,10)=" << s_atlas_HEPEVT->jmohep(1,10) << ", "
-                << "jdahep(2,10)=" << s_atlas_HEPEVT->jdahep(2,10));
-  s_atlas_HEPEVT->fill();
-  Atlas_HEPEVT* ahep = new Atlas_HEPEVT();
-  *(ahep) = *(s_atlas_HEPEVT);
-  std::string keyid = "GEN_EVENT";
-  StatusCode sc = evtStore()->record(ahep, keyid);
-  if (!sc.isSuccess()) {
-    ATH_MSG_INFO("Could not record Atlas_HEPEVT");
-  }
-  else {
-    ATH_MSG_INFO("Successfully recorded Atlas_HEPEVT");
-  }
-}
-*/
 
 
 

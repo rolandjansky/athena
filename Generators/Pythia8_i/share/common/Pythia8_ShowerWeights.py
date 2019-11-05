@@ -8,17 +8,15 @@
 # test below checks the Pythia8 release and also verifies that the Pythia_i
 # tag is recent enought to store the shower weights.
 
-
-cmak_sys = os.getenv('CMAKE_PREFIX_PATH')
-if cmak_sys:
-   ver = 'Pythia8-0230'
-   print "cmake system"
+if "PYTHIA8VER" in os.environ:
+  verph8str = str(os.environ['PYTHIA8VER'])[:3]
+  verph8 = int(verph8str)
+  print("verph8 ", verph8)
 else:
-  ver =  os.popen("cmt show versions External/Pythia8").read()
-parsed = ver.split(" ")
-pieces = parsed[1].split("-")
+  print("PYTHIA8VER not available !!! assuming version 2.40")
+  verph8 = 240
 
-if int(pieces[2])>=26:
+if (verph8 >= 226):
    if "ShowerWeightNames" in genSeq.Pythia8.__slots__.keys():
       print "Initalizing Shower Weights from Pythia8_ShowerWeights.py"
       if("NNPDF" in evgenConfig.tune):
@@ -140,6 +138,6 @@ if int(pieces[2])>=26:
    else:
       print "Pythia8_i version too old for shower weights"
 else:
-   print "No shower weights since not supported in Pythia8.2",pieces[2]
+   print "No shower weights since not supported in Pythia8.",verph8
 
 

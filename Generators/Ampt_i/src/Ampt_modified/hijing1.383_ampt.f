@@ -564,7 +564,7 @@ C                                suffered
 
 clin-5/22/01 write impact parameter:
         bimp=bb
-        write(6,*) '#impact parameter,nlop,ncolt=',bimp,nlop,ncolt
+C        write(6,*) '#impact parameter,nlop,ncolt=',bimp,nlop,ncolt
 
         IF(NCOLT.EQ.0) THEN
            NLOP=NLOP+1
@@ -1866,11 +1866,11 @@ clin-4/19/01 soft3:
          IF(IHPR2(10).NE.0) 
      &        WRITE(6,*) 'Energy not conserved, repeat the event'
 c                call lulist(1)
-         write(6,*) 'violated:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
+C         write(6,*) 'violated:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
          GO TO 50
         ENDIF
-        write(6,*) 'satisfied:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
-        write(6,*) ' '
+C        write(6,*) 'satisfied:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
+C        write(6,*) ' '
 c
 clin-4/2012 write out initial transverse positions of initial nucleons:
 c        write(94,*) IAEVT,MISS,IHNT2(1),IHNT2(3),bimp
@@ -1901,23 +1901,29 @@ clin-4/2012-end
 C
 C
 C
-        SUBROUTINE HIJSET(EFRM,FRAME,PROJ,TARG,IAP,IZP,IAT,IZT)
+      SUBROUTINE HIJSET(EFRM,FRAME,PROJ,TARG,IAP,IZP,IAT,IZT)
         CHARACTER FRAME*4,PROJ*4,TARG*4,EFRAME*4
         DOUBLE PRECISION  DD1,DD2,DD3,DD4
         COMMON/HSTRNG/NFP(300,15),PP(300,15),NFT(300,15),PT(300,15)
-      SAVE /HSTRNG/
+        SAVE /HSTRNG/
         COMMON/hjcrdn/YP(3,300),YT(3,300)
-      SAVE /hjcrdn/
+        SAVE /hjcrdn/
         COMMON/HPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
-      SAVE /HPARNT/
+        SAVE /HPARNT/
         COMMON/HIJDAT/HIDAT0(10,10),HIDAT(10)
-      SAVE /HIJDAT/
+        SAVE /HIJDAT/
+        COMMON/RNDF77/NSEED
+        SAVE /RNDF77/
+
         COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
-      SAVE /LUDAT1/
+        SAVE /LUDAT1/
         EXTERNAL FNKICK,FNKC2,FNSTRU,FNSTRM,FNSTRS
 cc        SAVE   
 
         CALL TITLE
+
+        call srand(NSEED)
+
         IHNT2(1)=IAP
         IHNT2(2)=IZP
         IHNT2(3)=IAT
@@ -3651,7 +3657,7 @@ c     because more attempts may be needed:
 c                IF(MISS.LT.50) GO TO 155
                 if(pttrig.gt.0) then
                    if(MISS.LT.maxmiss) then
-                write(6,*) 'Failed to generate minijet Pt>',pttrig,'GeV'
+C                write(6,*) 'Failed to generate minijet Pt>',pttrig,'GeV'
                       GO TO 155
                    endif
                 else

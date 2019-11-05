@@ -235,7 +235,8 @@ class Hw7ConfigMerging(hw7Config.Hw7Config):
       GoSam_path = os.environ['GOSAM_PATH']
     except:
       # \todo Get rid of this and just use the environment variable `GOSAMPATH`
-      GoSam_path = '/afs/.cern.ch/sw/lcg/external/MCGenerators_lcgcmt67c/gosam/2.0.3/x86_64-slc6-gcc47-opt'
+      GoSam_path = '/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/gosam/2.0.4/x86_64-slc6-gcc62-opt'
+      os.environ["LD_LIBRARY_PATH"]="/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/gosam/2.0.4/x86_64-slc6-gcc62-opt/lib:"+os.environ["LD_LIBRARY_PATH"]
       athMsgLog.warn(hw7Utils.ansi_format_warning("Falling back to hard-coded GoSam installation location at '{}' - please ensure that the GOSAM_PATH environment variable is correctly set".format(GoSam_path)))
     if not os.path.isfile(os.path.join(GoSam_path, 'bin', 'gosam.py')):
       athMsgLog.warn(hw7Utils.ansi_format_warning("The GoSam installation can't be found from $GOSAMPATH = {}, so don't be surprised if your run crashes in you are using matrix elements from GoSam in Herwig7 / Matchbox. Please ensure that the location exists, that you have permissions to access it and that it contains the script 'bin/gosam.py'".format(GoSam_path)))
@@ -243,7 +244,8 @@ class Hw7ConfigMerging(hw7Config.Hw7Config):
     try:
       OpenLoops_path= os.environ['OPENLOOPS_PATH']
     except:
-      OpenLoops_path = '/afs/.cern.ch/sw/lcg/releases/MCGenerators/openloops/1.3.1-1f1f6/x86_64-slc6-gcc49-opt'
+      OpenLoops_path = '/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt'
+      os.environ["LD_LIBRARY_PATH"]="/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/lib:"+os.environ["LD_LIBRARY_PATH"]
       athMsgLog.warn(hw7Utils.ansi_format_warning("Falling back to hard-coded OPENLOOPS installation location at '{}' - please ensure that the OPENLOOPS_PATH environment variable is correctly set".format(OpenLoops_path)))
     if not os.path.isdir(os.path.join(OpenLoops_path, "proclib")):
       athMsgLog.warn(hw7Utils.ansi_format_warning("The OpenLoops process libraries can't be found from $OPENLOOPS_PATH = {}".format(OpenLoops_path)))

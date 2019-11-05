@@ -103,13 +103,16 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
 
     mglog.info('Finished process generation at '+str(time.asctime()))
 
-    if ''==thedir:
-        directories = os.listdir( os.getcwd() )
-        for adir in sorted(directories):
-            if 'PROC' in adir: thedir=adir
-
-    if not os.access('%s/SubProcesses/subproc.mg'%thedir,os.R_OK):
-        raise RuntimeError('No diagrams for this process in dir='+str(thedir))
+    thedir = None
+    for adir in sorted(glob.glob( os.getcwd()+'/*PROC*' ),reverse=True):
+        print 'Testing',adir
+        if os.access('%s/SubProcesses/subproc.mg'%adir,os.R_OK):
+            if thedir==None: thedir=adir
+            else:
+                mglog.warning('Additional possible process directory, '+adir+' found. Had '+thedir)
+                mglog.warning('Likely this is because you did not run from a clean directory, and this may cause errors later.')
+    if thedir==None:
+        raise RuntimeError('No diagrams for this process in dir='+str(thedir)+' from list: '+str(sorted(glob.glob(os.getcwd()+'/*PROC*'),reverse=True)))
 
     # Special catch related to path setting and using afs
     import os
@@ -118,7 +121,7 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     option_paths = {}
     for l in in_config.readlines():
         for o in needed_options:
-            if o+' =' in l.split('#')[0]:
+            if o+' =' in l.split('#')[0] and 'MCGenerators' in l.split('#')[0]:
                 old_path = l.split('#')[0].split('=')[1].strip().split('MCGenerators')[1]
                 old_path = old_path[ old_path.find('/') : ]
                 if o =='lhapdf' and 'LHAPATH' in os.environ:
@@ -130,6 +133,10 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
                     # Patch for stupid naming problem
                     old_path.replace('gosam_contrib','gosam-contrib')
                 option_paths[o] = os.environ['MADPATH'].split('madgraph5amc')[0]+old_path
+            # Check to see if the option has been commented out
+            if o+' =' in l and o+' =' not in l.split('#')[0]:
+                mglog.info('Option '+o+' appears commented out in the config file')
+
     in_config.close()
     for o in needed_options:
         if not o in option_paths: mglog.warning('Path for option '+o+' not found in original config')
@@ -147,7 +154,7 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
         for l in data:
             written = False
             for o in needed_options:
-                if o+' =' in l.split('#')[0]:
+                if o+' =' in l.split('#')[0] and o in option_paths:
                     modified.write( o +' = '+option_paths[o]+'\n' )
                     written = True
                     break
@@ -247,6 +254,31 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
     # Check if process is NLO or LO
     isNLO=is_NLO_run(proc_dir=proc_dir)
+
+    # use f2py2 if f2py not available
+    if reweight_card_loc is not None:
+        from distutils.spawn import find_executable
+        if find_executable('f2py') is not None:
+            mglog.info('Found f2py, can run reweighting.')
+        elif find_executable('f2py2') is not None:
+            mglog.info('f2py is called f2py2 on this machine, will update configuration')
+            if isNLO:
+                config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
+            else:
+                config_card=proc_dir+'/Cards/me5_configuration.txt'
+            shutil.move(config_card,config_card+'.old')
+            oldcard = open(config_card+'.old','r')
+            newcard = open(config_card,'w')
+            for line in oldcard:
+                if 'f2py_compiler' in line:
+                    newcard.write(' f2py_compiler = f2py2\n')
+                else:
+                    newcard.write(line)
+            oldcard.close()
+            newcard.close()
+        else:
+            mglog.error('Could not find f2py or f2py2, needed for reweighting')
+            return 1
 
     if grid_pack:
         #Running in gridpack mode
@@ -2430,20 +2462,25 @@ def run_card_consistency_check(isNLO=False,path='.'):
     for k,v in mydict.iteritems():
         mglog.info( '"%s" = %s'%(k,v) )
 
+    if is_version_or_newer([2,5,0]):
+        # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
+        if is_version_or_newer([2,6,1]):
+            if not checkSetting('event_norm','average',mydict):
+                modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'average'})
+        # Only needed for 2.5.0 to 2.6.0 to battle problem with inconsistent event weights [AGENE-1542]
+        # Will likely cause Pythia to calculate the wrong cross section [AGENE-1725]
+        else:
+            if not isNLO and checkSettingIsTrue('use_syst',mydict):
+                if not checkSetting('event_norm','sum',mydict):
+                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
+                    mglog.warning("Setting 'event_norm' to 'sum' -- this will mean the cross section calculated by Pythia is most likely wrong.")
+
     if not isNLO:
         #Check CKKW-L setting
         if float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
             log='Bad combination of settings for CKKW-L merging! ktdurham=%s and ickkw=%s.'%(mydict['ktdurham'],mydict['ickkw'])
             mglog.error(log)
             raise RuntimeError(log)
-
-        version = getMadGraphVersion() # avoiding code duplication
-        # Only needed for 2.5.0 and later
-        if int(version.split('.')[0])>=2 and int(version.split('.')[1])>=5:
-            #event_norm must be "sum" for use_syst to work
-            if mydict['use_syst'].replace('.','').lower() in ['t','true']:
-                if 'event_norm' not in mydict or mydict['event_norm']!="sum":
-                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
 
         # Check if user is trying to use deprecated syscalc arguments with the other systematics script
         if is_version_or_newer([2,6,2]) and (not 'systematics_program' in mydict or mydict['systematics_program']=='systematics'):

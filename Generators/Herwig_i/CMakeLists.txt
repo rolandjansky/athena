@@ -30,7 +30,7 @@ find_package( Jimmy )
 find_package( Lhapdf )
 find_package( GSL )
 
-add_definitions(-DHWVERSION="${HERWIG_VERSION}")
+add_definitions(-DHWVERSION="${HERWIG_LCGVERSION}")
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()

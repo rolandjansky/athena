@@ -1,25 +1,57 @@
 from MadGraphControl.MadGraphUtils import *
 import re
+include("MC15JobOptions/VLQCouplingCalculator.py")
+include("MC15JobOptions/lhe_hacker.py")
+import subprocess
+import sys
+# import lheparser
 
 reMass = int(re.findall(r'\d+',re.findall(r'\d+LH',runArgs.jobConfig[0])[0])[0])
-
 reKappa = int(re.findall(r'\d+', runArgs.jobConfig[0])[-1])
-
 runArgs.mass = reMass
 runArgs.kappa = reKappa*0.01
 
-#Figure out what kind of process we have (from file name)
-runArgs.proc = "add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > Z tt, Z > ferm ferm, tt > ferm ferm bb)"
 
+def rewtcardmaker(m, K):
+    #print m
+    #print K_grid
+    launch_line = "launch --rwgt_name="
+    tagname = ('M' + str(int(m/100)) + 'K{0:03d}').format(int(K*100))
+    if float(m) == float(reMass) and float(K) == float(int(runArgs.kappa*100)/100.0):
+        return [False, tagname]
+    f = open("reweight_card.dat", "w")
+    print tagname
+    c = VLQCouplingCalculator(float(m), 'T')
+    c.setKappaxi(K, 0.5, 0.25)
+    gamma = c.getGamma()
+    print K, gamma
+    f.write(launch_line + tagname + '\n')
+    f.write('\tset KT ' + str(K) + '\n')
+    f.write('\tset MTP ' + str(m) + '\n')
+    f.write('\tset WTP ' + str(gamma) + '\n')
+    f.flush()
+    f.close()
+    return [True, tagname]
+
+
+M_grid = [reMass-100., reMass]
+K_grid = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6]
+rewtcardmaker(reMass,0.5)
+
+MAX_TRIAL = 50
+
+##Figure out what kind of process we have (from file name)
+runArgs.proc = "add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > z tt, z > ferm ferm, tt > ferm ferm bb)"
+#runArgs.proc = "add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > z tt)"
 
 print ("Mass:  ", runArgs.mass)
 print ("Kappa: ", runArgs.kappa)
 print ("Proc:  ", runArgs.proc)
 
 
-fcard = open('proc_card_mg5.dat','w')
+fcard = open('proc_card_mg5_fullDecay.dat','w')
 fcard.write("""
-import model VLQ_UFO
+import model /cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/VLQ_UFO
 
 define p = g u c d s u~ c~ d~ s~ 
 define j = g u c d s u~ c~ d~ s~
@@ -31,13 +63,27 @@ define VLQ = tp tp~
 %s 
 output -f
 """%(runArgs.proc))
+fcard.close()
 
+fcard = open('proc_card_mg5_minDecay.dat','w')
+fcard.write("""
+import model /cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/VLQ_UFO
 
+define p = g u c d s u~ c~ d~ s~ 
+define j = g u c d s u~ c~ d~ s~
+define bb = b b~
+define WW = w+ w-
+define tt = t t~
+define ferm = ve vm vt ve~ vm~ vt~ mu- ta- e- mu+ ta+ e+ u c d s u~ c~ d~ s~
+define VLQ = tp tp~
+%s 
+output -f
+"""%("add process p p > j VLQ bb / tp tp~ p t t~ y y~ bp bp~ x x~ z h a, (VLQ > z tt)"))
 
-fcard.flush()
+fcard.close()
 
+process_dir_fullDecay = new_process(card_loc='proc_card_mg5_fullDecay.dat')
 
-process_dir = new_process()
 if hasattr(runArgs,'ecmEnergy'):
     beamEnergy = runArgs.ecmEnergy / 2.
 else:
@@ -63,20 +109,18 @@ extras = { 'lhe_version'   : '3.0',
            'etal'          :  -1.0,
            'etaj'          :  -1.0,
            'etaa'          :  -1.0,
-
-
- 
 }
+
 safe_factor = 1.1
-build_run_card(run_card_old=get_default_runcard(proc_dir=process_dir), run_card_new='run_card.dat', nevts=runArgs.maxEvents * safe_factor, rand_seed=runArgs.randomSeed, beamEnergy=beamEnergy, xqcut=0., extras=extras)
+build_run_card(run_card_old=get_default_runcard(proc_dir=process_dir_fullDecay), run_card_new='run_card.dat', nevts=runArgs.maxEvents * safe_factor, rand_seed=runArgs.randomSeed, beamEnergy=beamEnergy, xqcut=0., extras=extras)
 
 
-if not os.access(process_dir+'/Cards/param_card.dat',os.R_OK):
+if not os.access(process_dir_fullDecay+'/Cards/param_card.dat',os.R_OK):
     print 'ERROR: Could not get param card'
 elif os.access('param_card.dat',os.R_OK):
     print 'ERROR: Old run card in the current directory.  Dont want to clobber it.  Please move it first.'
 else:
-    oldcard = open(process_dir+'/Cards/param_card.dat','r')
+    oldcard = open(process_dir_fullDecay+'/Cards/param_card.dat','r')
     newcard = open('param_card.dat','w')
     for line in oldcard:
         if ' # MX ' in line:
@@ -151,11 +195,11 @@ else:
             newcard.write('   23 0.000000e+00 # zetaYsR \n')
         elif ' # zetaYbR ' in line:
             newcard.write('   24 0.000000e+00 # zetaYbR \n')
-        elif ' # xitpw   ' in line:
+        elif '# xitpw' in line:
             newcard.write('   1 5.000000e-01 # xitpw \n')
-        elif ' # xitpz   ' in line:
+        elif '# xitpz' in line:
             newcard.write('   2 2.500000e-01 # xitpz \n')
-        elif ' # xitpt   ' in line:
+        elif '# xitph' in line:
             newcard.write('   3 2.500000e-01 # xitph \n') 
 # set some sm parameters to atlas defaults
         elif ' # MB ' in line:
@@ -175,25 +219,101 @@ else:
 
 
 runName='run_01'
-generate(run_card_loc='./run_card.dat',param_card_loc='./param_card.dat',run_name=runName,proc_dir=process_dir)
+#generate(run_card_loc='./run_card.dat',param_card_loc='./param_card.dat',run_name=runName+'_fullDecay',proc_dir=process_dir_fullDecay)
+trial_count = 0
 
-arrange_output(run_name=runName,proc_dir=process_dir,outputDS=runName+'._00001.events.tar.gz')  
+while os.path.exists(process_dir_fullDecay + '/Events/' + runName + '_fullDecay/unweighted_events.lhe.gz') == False and os.path.exists(process_dir_fullDecay + '/Events/' + runName + '_fullDecay/unweighted_events.lhe') == False and trial_count < MAX_TRIAL:
+    generate(run_card_loc='./run_card.dat',param_card_loc='./param_card.dat',run_name=runName+'_fullDecay',proc_dir=process_dir_fullDecay)
+    trial_count += 1
 
-
-runArgs.inputGeneratorFile=runName+'._00001.events.tar.gz'
-
-
-include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
-include("Pythia8_i/Pythia8_MadGraph.py")
+arrange_output(run_name=runName+'_fullDecay',proc_dir=process_dir_fullDecay,outputDS=runName+'_fullDecay._00001.events.tar.gz',saveProcDir=True)
 
 
-evgenConfig.description = "MadGraph+Pythia8 production JO with NNPDF30LN and A15NNPDF23LO for VLQ single Y to Wb with Y produced via W"
+process_dir_minDecay = new_process(card_loc='proc_card_mg5_minDecay.dat')
+#generate(run_card_loc='./run_card.dat',param_card_loc='./param_card.dat',run_name=runName+'_minDecay',proc_dir=process_dir_minDecay)
+trial_count = 0
+
+while os.path.exists(process_dir_minDecay + '/Events/' + runName + '_minDecay/unweighted_events.lhe') == False and os.path.exists(process_dir_minDecay + '/Events/' + runName + '_minDecay/unweighted_events.lhe.gz') == False and trial_count < MAX_TRIAL:
+    generate(run_card_loc='./run_card.dat',param_card_loc='./param_card.dat',reweight_card_loc='./reweight_card.dat',run_name=runName+'_minDecay',proc_dir=process_dir_minDecay)
+    trial_count += 1
+
+arrange_output(run_name=runName+'_minDecay',proc_dir=process_dir_minDecay,outputDS=runName+'_minDecay._00001.events.tar.gz',saveProcDir=True)  
+
+
+#runName='run_01'
+#process_dir_fullDecay = 'PROC_VLQ_UFO_0'
+#process_dir_minDecay = 'PROC_VLQ_UFO_1'
+#Refurbishing
+
+status = lhe_hacker(lhe_minDecay=process_dir_minDecay+'/Events/run_01_minDecay/unweighted_events.lhe', lhe_fullDecay=process_dir_fullDecay+'/Events/run_01_fullDecay/unweighted_events.lhe',vlq='T',decay='Z')
+status_2 = False
+ME_script = open('script.txt','w')
+ME_script.write('''
+reweight run_RWT -f
+done
+''')
+#for ii in range(31):
+#    ME_script.write('done\n')
+
+ME_script.flush()
+ME_script.close()
+if status:
+    subprocess.call('mkdir -p ' + process_dir_minDecay+'/Events/run_RWT/', shell=True)
+    subprocess.call('cp unweighted_events.lhe ' + process_dir_minDecay+'/Events/run_RWT/', shell=True)
+    for m in M_grid:
+        for K in K_grid:
+            [is_ok, tagname] = rewtcardmaker(m,K)
+            if is_ok:
+                subprocess.call('cp reweight_card.dat ' + process_dir_minDecay+'/Cards/', shell=True)
+                did_it_work = False
+                trial_count = 0
+                while not did_it_work and trial_count < MAX_TRIAL:
+                    trial_count += 1
+                    subprocess.call('cp reweight_card.dat ' + process_dir_minDecay+'/Cards/', shell=True)
+                    subprocess.call('export CC=gcc && ' + process_dir_minDecay + '/bin/madevent script.txt -f', shell=True)
+                    sys.stdout.flush()
+                    try: 
+                        subprocess.call('gunzip ' + process_dir_minDecay + '/Events/run_RWT/unweighted_events.lhe.gz', shell=True)
+                        print "found gzipped file in run_RWT and unzipped it"
+                    except:
+                        print "did not find gzipped file. Already unzipped?"
+                        pass
+                    thisfile = open(process_dir_minDecay + '/Events/run_RWT/unweighted_events.lhe' , 'r')
+                    for line in thisfile:
+                        if "<weight id='" + tagname +"'" in line:
+                            print tagname, " reweighting worked"
+                            did_it_work = True
+                            break
+                        else:
+                            continue
+                    if not did_it_work:
+                        print tagname, " reweighting did not work. Retrying!"
+                    sys.stdout.flush()
+                        
+    status_2 = placeback(lhe_fullDecay=process_dir_fullDecay+'/Events/run_01_fullDecay/unweighted_events.lhe',lhe_reweighted=process_dir_minDecay+'/Events/run_RWT/unweighted_events.lhe')
+    if status_2:
+        subprocess.call('tar -czf tmp_final_events.events.tar.gz tmp_final_events.events', shell=True)
+
+if status and status_2:
+    runArgs.inputGeneratorFile='final_events.events.tar.gz'
+else:
+    runArgs.inputGeneratorFile=runName+'_fullDecay._00001.events.tar.gz'
+
+#runName = 'run_01'
+#evgenConfig.inputfilecheck = runName                                                                                                                                    
+#runArgs.inputGeneratorFile=runName+'._00001.events.tar.gz' 
+
+include("MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
+include("MC15JobOptions/Pythia8_MadGraph.py")
+
+
+evgenConfig.description = "MadGraph+Pythia8 production JO with NNPDF30LN and A15NNPDF23LO for VLQ single T to Zt with T produced via W"
 
 evgenConfig.keywords = ["BSM", "BSMtop", "exotic"]
 
-evgenConfig.process = "Y_Wb"
+evgenConfig.process = "T_Zt"
 
-evgenConfig.contact =  ['fschenck@cern.ch']
+evgenConfig.contact =  ['fschenck@cern.ch,avik.roy@cern.ch']
 
 evgenConfig.minevents = 5000
 

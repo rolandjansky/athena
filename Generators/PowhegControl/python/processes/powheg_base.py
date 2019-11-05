@@ -19,6 +19,24 @@ class PowhegBase(Configurable):
     @author Stefan Richter  <stefan.richter@cern.ch>
     """
 
+    def manually_set_openloops_paths(self):
+        '''
+        Manual fix for OpenLoops libraries path, avoiding issues when /afs not available
+        This is NOT a viable long-term solution and should be made obsolete after the migration
+        away from AFS is more advanced.
+        '''
+        import os
+        logger.warning("Applying manual, hard-coded fixes for OpenLoops library paths")
+        logger.info("OpenLoopsPath (before) = {0}".format(os.getenv('OpenLoopsPath')))
+        logger.debug("LD_LIBRARY_PATH (before) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
+        OLPath = os.path.dirname(self.executable)+"/obj-gfortran"
+        os.environ['OpenLoopsPath'] = OLPath
+        ldpath = os.getenv('LD_LIBRARY_PATH')
+        ldpath_new = OLPath+ ":" + OLPath + "/proclib:" + ldpath
+        os.environ['LD_LIBRARY_PATH'] = ldpath_new
+        logger.info("OpenLoopsPath (after) = {0}".format(os.getenv('OpenLoopsPath')))
+        logger.debug("LD_LIBRARY_PATH (after) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
+
     def __init__(self, base_directory, version, executable_name, cores, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
         """! Constructor.
 

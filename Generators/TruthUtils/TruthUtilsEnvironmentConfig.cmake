@@ -5,13 +5,13 @@
 #
 
 # Set the environment variable(s):
-find_package( HepUtils )
+find_package( HEPUtils )
 find_package( MCUtils )
 
 if( HEPUTILS_FOUND AND MCUTILS_FOUND )
   set( TRUTHUTILSENVIRONMENT_ENVIRONMENT 
-        FORCESET MCUTILSVER ${MCUTILS_VERSION} 
-        FORCESET HEPUTILSVER ${HEPUTILS_VERSION} )
+        FORCESET MCUTILSVER ${MCUTILS_LCGVERSION} 
+        FORCESET HEPUTILSVER ${HEPUTILS_LCGVERSION} )
 endif()
 
 # Silently declare the module found:

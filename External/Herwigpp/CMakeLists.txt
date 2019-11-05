@@ -23,7 +23,7 @@ if( NOT HERWIG3_FOUND )
 endif()
 
 # Install files from the package:
-set( herwig_datadir "${HERWIG3_ROOT}/share/Herwig" )
+set( herwig_datadir "${HERWIG3_LCGROOT}/share/Herwig" )
 if( NOT IS_DIRECTORY ${herwig_datadir} )
    message( WARNING "Can't access directory ${herwig_datadir}" )
    return()

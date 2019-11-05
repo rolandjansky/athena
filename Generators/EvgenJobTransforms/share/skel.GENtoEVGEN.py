@@ -60,8 +60,7 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Generate')
-
+evgenLog = logging.getLogger('Gen_tf')
 
 ##==============================================================
 ## Run arg handling
@@ -130,7 +129,7 @@ theApp.EvtMax = -1
 
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
-#postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
+#postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = False
@@ -209,8 +208,8 @@ dsid = os.path.basename(dsid_param)
 #Jodir = dsid[:3]+'xxx'
 #JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
 #JoCvmfsDsid = os.path.join(JoCvmfsPath, dsid)
-#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc16') and f.endswith('.py'))]
-jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc16') and f.endswith('.py'))]
+#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc') and f.endswith('.py'))]
+jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
 #print "JO file ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
@@ -218,6 +217,7 @@ if len(jofiles) !=1:
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
+
 joparts = (os.path.basename(jofile)).split(".")
 #jo = runArgs.jobConfig[0]
 #jofile = os.path.basename(jo)
@@ -226,28 +226,13 @@ joparts = (os.path.basename(jofile)).split(".")
 officialJO = False
 if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:]):
     officialJO = True
-    ## Check that the JO does not appear to be an old one, since we can't use those
-    if int(joparts[0][2:]) < 14:
-        evgenLog.error("MC14 (or later) job option scripts are needed to work with Generate_tf!")
-        evgenLog.error(jo + " will not be processed: please rename or otherwise update to a >= MC14 JO.")
-        sys.exit(1)
     ## Check that there are exactly 4 name parts separated by '.': MCxx, DSID, physicsShort, .py
     if len(joparts) != 3:
-        evgenLog.error(jofile + " name format is wrong: must be of the form MC<xx>.<physicsShort>.py: please rename.")
+        evgenLog.error(jofile + " name format is wrong: must be of the form mc.<physicsShort>.py: please rename.")
         sys.exit(1)
-    ## Check the DSID part of the name
-    #jo_dsidpart = joparts[1]
-    #try:
-    #    jo_dsidpart = int(jo_dsidpart)
-    #    if runArgs.runNumber != jo_dsidpart:
-    #        raise Exception()
-    #except:
-    #    evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % 
-#(str(runArgs.runNumber), jo_dsidpart))
-    #    sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
-    if len(jo_physshortpart) > 60:
+    if len(jo_physshortpart) > 50:
         evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
@@ -256,6 +241,13 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
         evgenLog.error(jofile + " has too few physicsShort fields separated by '_': should contain <generators>(_<tune+PDF_if_available>)_<process>. Please rename.")
         sys.exit(1)
     ## NOTE: a further check on physicsShort consistency is done below, after fragment loading
+    check_jofiles="/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/scripts/check_jo_consistency.py"
+    if os.path.exists(check_jofiles):
+        include(check_jofiles)
+        check_naming(os.path.basename(jofile))
+    else:
+        evgenLog.error("check_jo_consistency.py not found")
+        sys.exit(1)
 
 ## Include the JO fragment
 include(jofile)
@@ -270,6 +262,7 @@ evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION ****************
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
+evgenLog.info(".transform =                  Gen_tf")
 
 ## Sort and check generator name / JO name consistency
 ##
@@ -324,58 +317,58 @@ if gen_require_steering(gennames):
         raise RuntimeError("'EvtGen' found in job options name, please set '--steering=afterburn'")
 
 
-## Check that the evgenConfig.minevents setting is acceptable
-## minevents defines the production event sizes and must be sufficiently "round"    
+## Check that the evgenConfig.nEventsPerJob setting is acceptable
+## nEventsPerJob defines the production event sizes and must be sufficiently "round"    
 rounding = 0
 if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
    multiInput = 0
    
-if evgenConfig.minevents < 1:
-    raise RunTimeError("evgenConfig.minevents must be at least 1")
+if evgenConfig.nEventsPerJob < 1:
+    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
 else:
-    allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
-    msg = "evgenConfig.minevents = %d: " % evgenConfig.minevents
+    allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
+    msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
 #    if multiInput !=0 :
-#        dummy_minevents = evgenConfig.minevents*(multiInput)
-#        evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(dummy_minevents))
-#        evgenConfig.minevents = dummy_minevents
+#        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
+#        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob))
+#        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
 
-    if evgenConfig.minevents >= 1000 and evgenConfig.minevents % 1000 != 0:
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0:
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        rest1000 = evgenConfig.minevents % 1000
+#        rest1000 = evgenConfig.nEventsPerJob % 1000
 #        if multiInput !=0 :
 #            rounding=1
 #            if rest1000 < 1000-rest1000:
-#                evgenLog.info('Replacing minevents '+str(evgenConfig.minevents)+' with roundeded '+str(evgenConfig.minevents-rest1000))
-#                evgenConfig.minevents = evgenConfig.minevents-rest1000
+#                evgenLog.info('Replacing nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with roundeded '+str(evgenConfig.nEventsPerJob-rest1000))
+#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
 #            else:
-#                evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(evgenConfig.minevents-rest1000+1000))
-#                evgenConfig.minevents = evgenConfig.minevents-rest1000+1000
+#                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
+#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
 #        else:    
-           msg += "minevents in range >= 1000 must be a multiple of 1000"
+           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000"
            raise RuntimeError(msg)
-    elif evgenConfig.minevents < 1000 and evgenConfig.minevents not in allowed_minevents_lt1000:
+    elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
 #        if multiInput !=0:
 #           rounding=1
-#           round_minevents=min(allowed_minevents_lt1000,key=lambda x:abs(x-evgenConfig.minevents))
-#           evgenLog.info('Replacing minevents lt 1000 '+str(evgenConfig.minevents)+' with rounded '+str(round_minevents))
-#           evgenConfig.minevents=round_minevents
+#           round_nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
+#           evgenLog.info('Replacing nEventsPerJob lt 1000 '+str(evgenConfig.nEventsPerJob)+' with rounded '+str(round_nEventsPerJob))
+#           evgenConfig.nEventsPerJob=round_nEventsPerJob
 #        else:
-           msg += "minevents in range <= 1000 must be one of %s" % allowed_minevents_lt1000
+           msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
 #    else:
-#    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
-    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1  else runArgs.maxEvents
+#    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
+    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "MC15JobOptions/evgenkeywords.txt"
+    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
     kwpath = None
     for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
@@ -407,7 +400,7 @@ if evgenConfig.keywords:
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "MC15JobOptions/CategoryList.txt"
+    lkwfile = "EvgenJobTransforms/CategoryList.txt"
     lkwpath = None
     for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
@@ -650,7 +643,7 @@ def mk_symlink(srcfile, dstfile):
 ## Find and symlink dat and event files, so they are available via the name expected by the generator
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
+        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
@@ -758,6 +751,8 @@ if _checkattr("hardPDF"):
     print "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
 if _checkattr("softPDF"):
     print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
+if _checkattr("nEventsPerJob"):
+    print "MetaData: %s = %s" % ("nEventsPerJob", evgenConfig.nEventsPerJob)
 if _checkattr("keywords"):
     print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())      
 if _checkattr("categories"):
@@ -786,7 +781,7 @@ print "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
 
 from PyJobTransformsCore.runargs import RunArguments
 runPars = RunArguments()
-runPars.minevents = evgenConfig.minevents
+runPars.nEventsPerJob = evgenConfig.nEventsPerJob
 runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
 with open("config.pickle", 'w') as f:
     import cPickle
@@ -796,4 +791,4 @@ with open("config.pickle", 'w') as f:
 ##==============================================================
 ## Get ready to run...
 ##==============================================================
-evgenLog.debug("****************** STARTING EVENT GENERATION *****************")
+evgenLog.info("****************** STARTING EVENT GENERATION *****************")

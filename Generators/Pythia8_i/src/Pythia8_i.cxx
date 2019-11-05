@@ -420,7 +420,14 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
   evt->weights().clear();
 
-  std::vector<string>::const_iterator id = m_weightIDs.begin();
+// For Giancalo's fix   std::vector<string>::const_iterator id = m_weightIDs.begin();
+// save as Default the usual pythia8 weight/LHEF event one
+  if (m_lheFile!="") evt->weights()["Default"]=m_pythia.info.eventWeightLHEF * mergingWeight;
+  else evt->weights()["Default"]=eventWeight;;
+  if(m_internal_event_number == 1)  m_weightIDs.push_back("Default");
+
+  std::vector<string>::const_iterator id = m_weightIDs.begin()+1;
+// end of Giancalo's fix
 
   if(m_pythia.info.getWeightsDetailedSize() != 0){
     for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();

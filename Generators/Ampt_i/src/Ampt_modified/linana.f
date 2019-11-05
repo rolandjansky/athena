@@ -50,7 +50,6 @@ clin-2/2012:
       SAVE   /phiHJ/
 c
 
-c LEBEDEV
 c      OPEN (16, FILE = 'ana/ampt.dat', STATUS = 'UNKNOWN')
 c      OPEN (14, FILE = 'ana/zpc.dat', STATUS = 'UNKNOWN')
 c      OPEN (16, FILE = 'ana/ampt.dat', STATUS = 'OLD')

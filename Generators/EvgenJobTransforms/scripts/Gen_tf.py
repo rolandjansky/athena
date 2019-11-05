@@ -22,10 +22,10 @@ ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup',
 
 class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for event generation jobs"
-
-    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", 
-substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
+    def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
         athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
+#    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
+#        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
 
     def preExecute(self, input=set(), output=set()):
         "Get input tarball, unpack and set up env if an evgenJobOpts arg was provided."
@@ -53,12 +53,12 @@ substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
         ## Handle locating of evgen job options / fragments, either from a tarball or CVMFS
         # read the JO directory
         os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-        CommonCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common'
+        CommonCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common'
         os.environ["JOBOPTSEARCHPATH"] = CommonCvmfsDir+":"+os.environ["JOBOPTSEARCHPATH"]
 #        msg.info("Using JOBOPTSEARCHPATH = '%s'" % os.environ["LOCAL_INSTALL_DIR"])
         dsidparam = (self._trf.argdict["jobConfig"].value).values()[0][0]
         # Adding cvmfs path to JOBOPTSEARCHPATH
-        BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
+        BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/"
 #        msg.info("!! Base cvmfs path = '%s'" % BaseCvmfsPath)
 
         if len(dsidparam)==6 and dsidparam.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
@@ -172,7 +172,16 @@ def move_files(main_dir,tmp_dir,whitelist):
 
 def getTransform():
     exeSet = set()
-    exeSet.add(EvgenExecutor(name="generate"))
+    msg.info("Transform arguments %s" % sys.argv[1:])
+    if "--outputEVNTFile" in str(sys.argv[1:]):
+       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT"]))
+       msg.info("Output EVNT file")
+    elif "--outputTXTFile" in str(sys.argv[1:]):
+       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoTXT.py", inData=["inNULL"], outData=["TXT"]))
+       msg.info("Output TXT file")
+    else:
+       msg.error("Output cannot be recognised")
+
     exeSet.add(EvgenExecutor(name="afterburn", skeleton="EvgenJobTransforms/skeleton.ABtoEVGEN.py", inData=["EVNT_Pre"], outData=["EVNT"]))
     exeSet.add(athenaExecutor(name = "AODtoDPD", skeletonFile = "PATJobTransforms/skeleton.AODtoDPD_tf.py",
                               substep = "a2d", inData = ["EVNT"], outData = ["NTUP_TRUTH"], perfMonFile = "ntuple_AODtoDPD.pmon.gz"))
@@ -186,6 +195,7 @@ def getTransform():
 @sigUsrStackTrace
 def main():
     msg.info("This is %s" % sys.argv[0])
+
     main_dir = os.getcwd()
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])

@@ -7,7 +7,7 @@ lhefGenerators = ["Lhef", # generic name: prefer to use the names below
                   "aMcAtNlo", "McAtNlo", "Powheg", "PowHel", "MadGraph", "CompHep", "CalcHep","Geneva",
                   "Whizard", "MCFM", "JHU", "MEtop", "Charybdis", "Charybdis2", "BCVEGPY", "Dire4Pythia8", 
                   "BlackMax", "QBH", "gg2ww", "gg2zz", "gg2vv", "HvyN", "VBFNLO", "FPMC", "ProtosLHEF",
-                  "BCVEGPY"]
+                  "BCVEGPY", "STRINGS"]
 
 ## A more general list of generators which provide partonic input, including non-LHEF ones
 inputGenerators = lhefGenerators + ["Alpgen", "Protos"]
@@ -27,7 +27,7 @@ mainGenerators += ["Exhume", "Phojet", "Epos", "QGSJet"]
 mainGenerators += ["ParticleGenerator", "ParticleGun"]
 mainGenerators += ["CosmicGenerator", "BeamHaloGenerator"]
 ## Heavy ion generators
-mainGenerators += ["Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
+mainGenerators += ["Superchic","Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
 ## Misc generators
 mainGenerators += ["AcerMC", "TopRex", "LPair"]
 ## Reading in fully-formed events
@@ -42,7 +42,7 @@ afterburnerGenerators = ["Photos", "Photospp", "Tauola", "TauolaPP", "Tauolapp",
 knownGenerators = inputGenerators + mainGenerators + afterburnerGenerators
 
 ## Note which generators should NOT be sanity tested by the TestHepMC alg
-notesthepmcGenerators = ["ParticleDecayer", "ParticleGun", "CosmicGenerator", "BeamHaloGenerator", "FPMC",
+notesthepmcGenerators = ["Superchic","ParticleDecayer", "ParticleGun", "CosmicGenerator", "BeamHaloGenerator", "FPMC",
                          "Hijing", "Hydjet", "Starlight", "PythiaRhad"]
 
 ## Generators with no flexibility/concept of a tune or PDF choice
@@ -122,14 +122,17 @@ class EvgenConfig(TransformConfig):
     doNotSaveItems = ListOfStrings("List of StreamEVGEN items to NOT save in output file - note occurs BEFORE extraSaveItems are added")
     extraSaveItems = ListOfStrings("List of extra StreamEVGEN items to save in output file - note occurs AFTER doNotSaveItems are removed")
     inputFilesPerJob = Integer("number of input files per job",0, AllowedExpression("value >= 0"))
+    nEventsPerJob = Integer("number of input events per job",0, AllowedExpression("value >= 0"))
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)
         self.contact = ["MC group"]
         self.auxfiles = ["PDGTABLE.MeV", "pdt.table", "DECAY.DEC", "Bdecays0.dat", "Bs2Jpsiphi.DEC","G4particle_whitelist.txt","susyParticlePdgid.txt"]
-        self.minevents = 5000
+        self.nEventsPerJob = 10000
         self.maxeventsstrategy = "ABORT"
         self.specialConfig = "NONE"
+# for the sake of Generate_tf leave minevents for a while
+        self.minevents = 5000
 
     ## Explicitly block MC11/12 settings of efficiency, input*base, or weighting attrs
     def __setattr__(self, name, value):

@@ -168,7 +168,7 @@ def reweighter(process, weight_groups, powheg_LHE_output):
 
     # Rename all weights
     for weight in weight_list:
-        FileParser(powheg_LHE_output).text_replace(".* id='{}' .*".format(weight.ID), "<weight id='{}'> {} </weight>".format(weight.ID, weight.name))
+        FileParser(powheg_LHE_output).text_replace(".* id='{}' .*".format(weight.ID), "<weight id='{weight_id}'>{weight_name}</weight>".format(weight_id=weight.ID, weight_name=weight.name))
 
     # Correct LHE version identification; otherwise Pythia will treat all files as v1
     FileParser(powheg_LHE_output).text_replace('LesHouchesEvents version="1.0"', 'LesHouchesEvents version="3.0"')

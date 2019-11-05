@@ -9,7 +9,7 @@ find_package( Tauolapp )
 
 if( TAUOLAPP_FOUND )
   set( TAUOLAPPENVIRONMENT_ENVIRONMENT 
-        FORCESET TAUOLAPPVER ${TAUOLAPP_VERSION})
+        FORCESET TAUOLAPPVER ${TAUOLAPP_LCGVERSION})
 endif()
 
 # Silently declare the module found:
