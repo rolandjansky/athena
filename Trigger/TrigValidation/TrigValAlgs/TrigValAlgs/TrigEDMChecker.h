@@ -13,6 +13,8 @@
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 
+#include "xAODTracking/TrackParticleContainer.h"
+
 #include "AthenaKernel/IClassIDSvc.h"
 
 #include "StoreGate/ReadHandleKey.h"
@@ -216,6 +218,7 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
 
    ServiceHandle< ::IClassIDSvc > m_clidSvc;
 
+   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_muonTracksKey{ this, "MuonTracksKey", "HLT_xAODTracks_Muon"};
    SG::ReadHandleKey< xAOD::TrigNavigation > m_navigationHandleKey{ this, "TrigNavigation", "TrigNavigation", "" };
    SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{ this, "Decisions", "RoIDecisions", "Decisions created from TEs" };
    ToolHandle< HLT::Navigation > m_navigationTool{ this, "NavigationTool", "HLT::Navigation/Navigation", "" };

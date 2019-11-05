@@ -248,6 +248,7 @@ StatusCode TrigEDMChecker::initialize() {
     m_trigDec->ExperimentalAndExpertMethods()->enable();
     ATH_MSG_INFO("TDT Executing with navigation format: " << m_trigDec->getNavigationFormat());
   }
+  ATH_CHECK(m_muonTracksKey.initialize(m_doTDTCheck));
 
 	return StatusCode::SUCCESS;
 }
@@ -4044,6 +4045,23 @@ StatusCode TrigEDMChecker::dumpTDT() {
       }
     }
   }
+  // Check associateToEventView helper function
+  std::vector< LinkInfo<xAOD::MuonContainer> > muons = m_trigDec->features<xAOD::MuonContainer>("HLT_mu6_idperf_L1MU6", TrigDefs::Physics, "HLT_MuonsCB_RoI");
+  SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackRH(m_muonTracksKey);
+  const xAOD::TrackParticleContainer* muonTrackContainer = muonTrackRH.cptr();
+  for (const LinkInfo<xAOD::MuonContainer>& mu : muons) {
+    // Note: auto here referes to type std::pair< xAOD::TrackParticleContainer::const_iterator, xAOD::TrackParticleContainer::const_iterator>
+    const auto roiTrackItPair = m_trigDec->associateToEventView<xAOD::TrackParticle>(m_muonTracksKey, mu);
+    const xAOD::TrackParticleContainer::const_iterator startIt = roiTrackItPair.first;
+    const xAOD::TrackParticleContainer::const_iterator stopIt  = roiTrackItPair.second;
+    ATH_MSG_INFO("Muon pT: " << (*mu.link)->pt() << " is from the same ROI as tracks with index " 
+      << std::distance(muonTrackContainer->begin(), startIt) << "-" << std::distance(muonTrackContainer->begin(), stopIt) 
+      << ", which is " << std::distance(startIt, stopIt) << " tracks, out of " << muonTrackContainer->size() << " total tracks.");
+    for (xAOD::TrackParticleContainer::const_iterator it = startIt; it != stopIt; ++it) {
+      ATH_MSG_VERBOSE(" -- Track " << std::distance(startIt, it) << " in this ROI, pT: " << (*it)->pt() );
+    }
+  }
+
   ATH_MSG_INFO( "REGTEST ==========END of TDT DUMP===========" );
   return StatusCode::SUCCESS;
 }
