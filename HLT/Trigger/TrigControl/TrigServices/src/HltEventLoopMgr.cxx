@@ -45,6 +45,7 @@
 
 // System includes
 #include <sstream>
+#include <string>
 
 // =============================================================================
 // Helper macros, typedefs and constants
@@ -856,7 +857,7 @@ const coral::AttributeList& HltEventLoopMgr::getSorAttrList() const
     // corresponding to the SOR should contain one single AttrList). Since
     // that's required by code ahead but not checked at compile time, we
     // explicitly guard against any potential future mistake with this check
-    throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + sor->size());
+    throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + std::to_string(sor->size()));
   }
 
   const auto & soral = sor->begin()->second;
