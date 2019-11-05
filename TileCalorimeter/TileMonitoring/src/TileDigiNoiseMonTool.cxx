@@ -233,7 +233,7 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
       unsigned int nRequiredChannels(TileCalibUtils::MAX_CHAN - nBadOrDisconnectedChannels);
       if (digitsCollection->size() < nRequiredChannels) continue;
 
-      bool checkDQ(true);
+      bool checkDQ = true;
 
       int fragId = digitsCollection->identify();
       if (std::binary_search(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end(), fragId)) {
