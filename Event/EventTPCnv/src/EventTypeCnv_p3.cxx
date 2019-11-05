@@ -13,7 +13,8 @@
 void EventTypeCnv_p3::transToPers(const EventType* trans, EventType_p3* pers, MsgStream &) {
    pers->m_bit_mask          = trans->m_bit_mask;
    pers->m_user_type         = trans->m_user_type;
-   pers->m_mc_event_weights  = std::vector<float>(0); // Wipe event weights, as they've been set in the xAOD::EventInfo
+   //pers->m_mc_event_weights  = std::vector<float>(trans->m_mc_event_weights.size(),0.0); // Wipe event weights, as they've been set in the xAOD::EventInfo
+   pers->m_mc_event_weights  = std::vector<float>(1,0.0); // Wipe event weights, as they've been set in the xAOD::EventInfo
    pers->m_mc_channel_number = trans->m_mc_channel_number;
    pers->m_mc_event_number   = trans->m_mc_event_number;
 }
