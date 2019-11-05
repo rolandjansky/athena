@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # TauCommon.py
@@ -6,6 +6,8 @@
 # results into SG. These may then be accessed along the train.
 #********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from AthenaCommon import Logging
+dftaulog = Logging.logging.getLogger('TauCommon')
 
 #====================================================================
 # MAKE TAU ENUMS AVAILABLE
@@ -72,3 +74,49 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauCom
                                                                          AugmentationTools = DFCommonTauWrapperTools)
 
 
+
+#=======================================
+# Low-pt di-tau reconstruction
+#=======================================
+def addDiTauLowPt():
+
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,"DFCommonDiTauLowPtBuilder"):
+        return
+
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+    addCHSPFlowObjects()
+
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+    from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+    addStandardJets("AntiKt", 1.0, "EMPFlow", ptmin=40000, ptminFilter=50000, mods="pflow_ungroomed", calibOpt="none", algseq=DerivationFrameworkJob, outputGroup="TauCommon")
+
+    import DiTauRec.DiTauAlgorithmsHolder as DiTauAlgs
+    from DiTauRec.DiTauRecConf import DiTauBuilder
+    
+    ditauTools = []
+    ditauTools.append(DiTauAlgs.getSeedJetBuilder("AntiKt10EMPFlowJets"))
+    ditauTools.append(DiTauAlgs.getElMuFinder())
+    ditauTools.append(DiTauAlgs.getSubjetBuilder())
+    ditauTools.append(DiTauAlgs.getVertexFinder())
+    ditauTools.append(DiTauAlgs.getDiTauTrackFinder())
+    ditauTools.append(DiTauAlgs.getIDVarCalculator(False))
+
+    for tool in ditauTools:
+        if not hasattr(ToolSvc,tool.name()):
+            ToolSvc += tool            
+    
+    DiTauLowPtBuilder = DiTauBuilder(name="DFCommonDiTauLowPtBuilder",
+                                     DiTauContainer="DiTauJetsLowPt",
+                                     DiTauAuxContainer="DiTauJetsLowPtAux.",
+                                     SeedJetName="AntiKt10EMPFlowJets",
+                                     minPt=50000,
+                                     maxEta=2.5,
+                                     Rjet=1.0,
+                                     Rsubjet=0.2,
+                                     Rcore=0.1,
+                                     Tools=ditauTools)
+    ToolSvc += DiTauLowPtBuilder
+    DerivationFrameworkJob += DiTauLowPtBuilder
+
+    dftaulog.info( "Low-pt di-tau building has been scheduled")

@@ -103,15 +103,13 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       TauTracksKey           = "TauTracks")
 ToolSvc += PHYSTauTPThinningTool
 
-#====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#====================================================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool,
-                                                                                        PHYSTauJetsThinningTool,PHYSTauTPThinningTool],
-                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
+# ID tracks associated with high-pt di-tau
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__DiTauTrackParticleThinning
+PHYSDiTauTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSDiTauTPThinningTool",
+                                                                          ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                          DiTauKey                = "DiTauJets",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += PHYSDiTauTPThinningTool
 
 #====================================================================
 # JET/MET   
@@ -130,7 +128,40 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=DerivationFrameworkI
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname="QGTaggerToolPFAlg")
 
+#====================================================================
+# Tau   
+#====================================================================
 
+# Schedule low-pt di-tau reconstruction (needs AntiKt2PV0TrackJets)
+from DerivationFrameworkTau.TauCommon import addDiTauLowPt
+addDiTauLowPt()
+
+# Low-pt di-tau thinning
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
+                                                                        ThinningService = PHYSThinningHelper.ThinningSvc(),
+                                                                        ContainerName   = "DiTauJetsLowPt",
+                                                                        SelectionString = "DiTauJetsLowPt.nSubjets > 1")
+ToolSvc += PHYSDiTauLowPtThinningTool
+
+# ID tracks associated with low-pt ditau
+PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSDiTauLowPtTPThinningTool",
+                                                                               ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                               DiTauKey                = "DiTauJetsLowPt",
+                                                                               InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                               SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
+ToolSvc += PHYSDiTauLowPtTPThinningTool
+
+#====================================================================
+# CREATE THE DERIVATION KERNEL ALGORITHM   
+#====================================================================
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
+                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool,
+                                                                                        PHYSTauJetsThinningTool,PHYSTauTPThinningTool,
+                                                                                        PHYSDiTauTPThinningTool,PHYSDiTauLowPtThinningTool,PHYSDiTauLowPtTPThinningTool],
+                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
 
 
 #====================================================================
@@ -164,10 +195,10 @@ if (DerivationFrameworkIsMonteCarlo):
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 PHYSSlimmingHelper = SlimmingHelper("PHYSSlimmingHelper")
 
-PHYSSlimmingHelper.SmartCollections = ["Electrons", 
-                                       "Photons", 
-                                       "Muons", 
-                                       "PrimaryVertices", 
+PHYSSlimmingHelper.SmartCollections = ["Electrons",
+                                       "Photons",
+                                       "Muons",
+                                       "PrimaryVertices",
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
@@ -177,7 +208,9 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
-                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",      
+                                       "DiTauJets",
+                                       "DiTauJetsLowPt",
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        "AntiKt4TruthWZJets",
                                        "AntiKt4TruthJets"
                                       ]
