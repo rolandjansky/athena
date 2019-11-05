@@ -61,6 +61,7 @@ Update:  Sep 18, 2005 P Loch
 #include <vector>
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/checker_macros.h"
 
 
 class CaloCell ; 
@@ -70,11 +71,11 @@ class CaloCluster;
 struct CaloClusterSignalState;
 
 
-class CaloCluster :  public CaloCompositeKineBase,
-		     public CaloCompositeCellBase<CaloClusterNavigable>,
-		     virtual public INavigable4Momentum,
-                     public ISignalState,
-                     public AthenaBarCodeBase
+class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
+                            public CaloCompositeCellBase<CaloClusterNavigable>,
+		                        virtual public INavigable4Momentum,
+                            public ISignalState,
+                            public AthenaBarCodeBase
 {
 
  public:
@@ -463,7 +464,7 @@ class CaloCluster :  public CaloCompositeKineBase,
   CaloClusterLinkTemplate<CaloShowerContainer>::link_type data_link_type;
 
   /*! \brief Internal error return for real numbers */
-  static double m_errorValue;
+  static const double m_errorValue;
 
   /*!{\ brief Cached Stores */
   CaloSamplingData                    m_dataStore;   /*!< sampling data */
