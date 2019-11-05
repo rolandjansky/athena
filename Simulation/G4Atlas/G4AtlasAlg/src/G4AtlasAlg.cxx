@@ -25,6 +25,9 @@
 #include "G4StackManager.hh"
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
+#include "G4VUserPhysicsList.hh"
+#include "G4VModularPhysicsList.hh"
+#include "G4ParallelWorldPhysics.hh"
 
 // CLHEP includes
 #include "CLHEP/Random/RandomEngine.h"
@@ -50,18 +53,6 @@ static std::once_flag releaseGeoModelOnceFlag;
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty( "Dll", m_libList);
-  declareProperty( "Physics", m_physList);
-  declareProperty( "FieldMap", m_fieldMap);
-  declareProperty( "RandomGenerator", m_rndmGen);
-  declareProperty( "ReleaseGeoModel", m_releaseGeoModel);
-  declareProperty( "RecordFlux", m_recordFlux);
-  declareProperty( "KillAbortedEvents", m_killAbortedEvents);
-  declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
-  declareProperty("G4Commands", m_g4commands, "Commands to send to the G4UI");
-  // Multi-threading specific settings
-  declareProperty("MultiThreading", m_useMT, "Multi-threading specific settings");
-
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
 }
@@ -72,10 +63,6 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode G4AtlasAlg::initialize()
 {
   ATH_MSG_DEBUG("Start of initialize()");
-
-  // Input/Ouput Keys
-  ATH_CHECK( m_inputTruthCollectionKey.initialize());
-  ATH_CHECK( m_outputTruthCollectionKey.initialize());
 
   // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
@@ -92,25 +79,24 @@ StatusCode G4AtlasAlg::initialize()
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
 
-  // FIXME TOO EARLY???
-  ATH_CHECK(m_g4atlasSvc.retrieve());
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
 
+  // Truth
   ATH_CHECK( m_truthRecordSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF TruthRecordSvc : " << m_truthRecordSvc.typeAndName() );
   ATH_CHECK( m_geoIDSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF GeoIDSvc       : " << m_geoIDSvc.typeAndName() );
 
-  ATH_CHECK(m_inputConverter.retrieve());
-
-  ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
-
-
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
 
-  ATH_CHECK(m_senDetTool.retrieve());
-  ATH_CHECK(m_fastSimTool.retrieve());
+  // I/O
+  ATH_CHECK( m_inputTruthCollectionKey.initialize());
+  ATH_CHECK( m_outputTruthCollectionKey.initialize());
+
+  ATH_CHECK(m_inputConverter.retrieve());
 
   ATH_MSG_DEBUG("End of initialize()");
   return StatusCode::SUCCESS;
@@ -181,10 +167,39 @@ void G4AtlasAlg::initializeOnce()
     commandLog(returnCode, g4command);
   }
 
-  // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
-  /// @todo Reinstate or delete?! This can't actually be called from the Py algs
-  //ATH_MSG_INFO("Firing initialization of G4!!!");
-  //initializeG4();
+  // Code from G4AtlasSvc
+  auto* rm = G4RunManager::GetRunManager();
+  if(!rm) {
+    throw std::runtime_error("Run manager retrieval has failed");
+  }
+  rm->Initialize();     // Initialization differs slightly in multi-threading.
+  // TODO: add more details about why this is here.
+  if(!m_useMT && rm->ConfirmBeamOnCondition()) {
+    rm->RunInitialization();
+  }
+
+  ATH_MSG_INFO( "retireving the Detector Geometry Service" );
+  if(m_detGeoSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS DetectorGeometrySvc!");
+  }
+
+  if(m_userLimitsSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS UserLimitsSvc!");
+  }
+
+  if (m_activateParallelGeometries) {
+    G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physListSvc->GetPhysicsList());
+    if (!thePhysicsList) {
+      throw std::runtime_error("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");
+    }
+#if G4VERSION_NUMBER >= 1010
+    std::vector<std::string>& parallelWorldNames=m_detGeoSvc->GetParallelWorldNames();
+    for (auto& it: parallelWorldNames) {
+      thePhysicsList->RegisterPhysics(new G4ParallelWorldPhysics(it,true));
+    }
+#endif
+  }
+
   return;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4AtlasAlg_H
@@ -25,7 +25,7 @@
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListSvc.h"
-#include "G4AtlasInterfaces/IG4AtlasSvc.h"
+#include "G4AtlasInterfaces/IUserLimitsSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // ISF includes
@@ -94,8 +94,8 @@ private:
 
   /// @name Configurable Properties
   /// @{
-  bool m_killAbortedEvents{false};
-  bool m_flagAbortedEvents{false};
+  Gaudi::Property<bool> m_killAbortedEvents{this, "KillAbortedEvents", false, ""};
+  Gaudi::Property<bool> m_flagAbortedEvents{this, "FlagAbortedEvents", false, ""};
   SG::ReadHandleKey<McEventCollection>    m_inputTruthCollectionKey{this, "InputTruthCollection", "BeamTruthEvent", "Input hard scatter collection"}; //!< input hard scatter collection
   SG::WriteHandleKey<McEventCollection>   m_outputTruthCollectionKey{this, "OutputTruthCollection", "TruthEvent", "Output hard scatter truth collection"};//!< output hard scatter truth collection
   /// Central Truth Service
@@ -109,20 +109,21 @@ private:
 
   /// @name Configurable Properties (common with TransportTool)
   /// @{
-  std::string m_libList{""};
-  std::string m_physList{""};
-  std::string m_fieldMap{""};
-  std::string m_rndmGen{"athena"};
-  bool m_releaseGeoModel{true};
-  bool m_recordFlux{false};
+  Gaudi::Property<std::string> m_libList{this, "Dll", "", ""};
+  Gaudi::Property<std::string> m_physList{this, "Physics", "", ""};
+  Gaudi::Property<std::string> m_fieldMap{this, "FieldMap", "", ""};
+  Gaudi::Property<std::string> m_rndmGen{this, "RandomGenerator", "athena", ""};
+  Gaudi::Property<bool> m_releaseGeoModel{this, "ReleaseGeoModel", true, ""};
+  Gaudi::Property<bool> m_recordFlux{this, "RecordFlux", false, ""};
   /// Commands to send to the G4 UI
-  std::vector<std::string> m_g4commands;
+  Gaudi::Property<std::vector<std::string> > m_g4commands{this, "G4Commands", {}, "Commands to send to the G4UI"};
   /// Activate multi-threading configuration
-  bool m_useMT{false};
+  Gaudi::Property<bool> m_useMT{this,"MultiThreading",  false, "Multi-threading specific settings"};
+  Gaudi::Property<bool> m_activateParallelGeometries{this, "ActivateParallelWorlds", false, "Toggle on/off the G4 parallel geometry system"};
   /// Random number service
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "AtRndmGenSvc", "AthRNGSvc", ""}; // TODO rename property
-  /// G4Atlas Service - handles G4 initialization
-  ServiceHandle<IG4AtlasSvc> m_g4atlasSvc{this, "G4AtlasSvc", "G4AtlasSvc", ""};
+  ///
+  ServiceHandle<IUserLimitsSvc> m_userLimitsSvc{this, "UserLimitsSvc", "UserLimitsSvc", ""};
   /// User Action Service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc{this, "UserActionSvc", "G4UA::UserActionSvc", ""};
   /// Detector Geometry Service (builds G4 Geometry)
