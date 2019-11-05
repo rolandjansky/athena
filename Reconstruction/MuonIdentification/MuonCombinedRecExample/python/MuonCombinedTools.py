@@ -14,6 +14,7 @@ beamFlags = jobproperties.Beam
 
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs): 
     if beamFlags.beamType() == 'cosmics':
@@ -95,10 +96,15 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
-    kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
-    # kwargs.setdefault("OutwardsTrackBuilder", getPublicTool("OutwardsCombinedMuonTrackBuilder") )
+    from AthenaCommon.AppMgr import ToolSvc
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
+        TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
+        ToolSvc += TrigMuonPropagator
+        kwargs.setdefault("TrackBuilder",         getPublicToolClone("TrigMuonTrackBuilder", "CombinedMuonTrackBuilder", Propagator=TrigMuonPropagator) )
+    else:
+        kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )
-    # kwargs.setdefault("MuonRecovery",         getPublicTool("MuidMuonRecovery") )
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
                          
