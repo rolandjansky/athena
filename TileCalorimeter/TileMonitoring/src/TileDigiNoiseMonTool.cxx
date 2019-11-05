@@ -248,8 +248,8 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
         
         //        if (isDisconnected(ros, drawer, channel)) continue;
         
-        if ( (checkDQ && !m_DQstatus->isAdcDQgood(ros, drawer, channel, adc))
-             || !m_beamInfo->isChanDCSgood(ros, drawer, channel) ) continue;
+        if ( (checkDQ && !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc)))
+             || !(m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
 
         if ( m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad() ) continue;
         
