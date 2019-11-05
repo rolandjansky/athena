@@ -63,6 +63,11 @@ if __name__=='__main__':
         cfg = MainServicesThreadedCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
+    if ConfigFlags.Concurrency.NumThreads > 0:
+        from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+        beginseq = cfg.getSequence("AthBeginSeq")
+        beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
+    
     # load DQ
     from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
     dq = AthenaMonitoringCfg(ConfigFlags)
