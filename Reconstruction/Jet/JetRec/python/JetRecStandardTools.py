@@ -88,6 +88,7 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMa
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import QwTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SoftDropObservablesTool
 try:
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
   jtm.haveShowerDeconstructionTool = True
@@ -842,6 +843,8 @@ if jtm.haveShowerDeconstructionTool:
 
 #Q jets
 jtm += QwTool("qw")
+
+jtm += SoftDropObservablesTool("softdropobservables")
 
 # Remove constituents (useful for truth jets in evgen pile-up file)
 jtm += JetConstitRemover("removeconstit")
