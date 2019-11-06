@@ -247,6 +247,13 @@ namespace top {
                                              "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat"),
                  "Failed to set ConfigFile for m_TaggerForJES");
       top::check(m_TaggerForJES->setProperty("DSID", m_config->getDSID()), "Failed to set DSID for m_TaggerForJet");
+      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
+      if (m_config->getDerivationStream() == "PHYS") {
+        top::check(m_TaggerForJES->setProperty("TruthWBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_TaggerForJES->setProperty("TruthZBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_TaggerForJES->setProperty("TruthHBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_TaggerForJES->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_TaggerForJet");
+      }
       top::check(m_TaggerForJES->initialize(), "Failed to initialize m_TaggerForJES");
     }
 
