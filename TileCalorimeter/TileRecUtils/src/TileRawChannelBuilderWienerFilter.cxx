@@ -39,27 +39,6 @@ const InterfaceID& TileRawChannelBuilderWienerFilter::interfaceID() {
 
 #define TILE_WienerFilterBUILDERVERBOSE false
 
-// initialize Wiener coefficients ( ZeroBias <mu>=40 )
-const float TileRawChannelBuilderWienerFilter::m_gfcWiener[8] = {
-  -0.194081,
-  0.467562,
-  -1.25846,
-  2.18528,
-  -1.2648,
-  0.63341,
-  -0.276375,
-  -14.2093
-};
-const float TileRawChannelBuilderWienerFilter::m_ofcWiener[7][8] = {
-  {0.04382, -0.999, 0.5212, 1.179, -0.8052, 0.4123, -0.1756, -5.393},
-  {0.1806, 0.02539, -1.253, 2.187, -1.254, 0.6214, -0.2732, -14.53},
-  {-0.3267, 0.6014, -1.346, 2.224, -1.258, 0.6043, -0.276, -14.41},
-  {-0.1914, 0.4693, -1.246, 2.169, -1.243, 0.6191, -0.2633, -15.15},
-  {-0.1831, 0.4734, -1.253, 2.241, -1.424, 0.9173, -0.5364, -15.43},
-  {-0.2245, 0.5627, -1.398, 2.433, -1.722, 1.204, -0.5617, -15.26},
-  {-0.2367, 0.617, -1.502, 2.539, -1.729, 0.7092, -0.1435, -14.15}
-};
-
 TileRawChannelBuilderWienerFilter::TileRawChannelBuilderWienerFilter(const std::string& type,
     const std::string& name, const IInterface *parent)
   : TileRawChannelBuilder(type, name, parent)
@@ -72,6 +51,7 @@ TileRawChannelBuilderWienerFilter::TileRawChannelBuilderWienerFilter(const std::
   , m_t0SamplePosition(0)
   , m_maxTime(0.0)
   , m_minTime(0.0)
+  , m_weights(0)
 {
   //declare interfaces
   declareInterface< TileRawChannelBuilder >( this );
@@ -97,7 +77,6 @@ TileRawChannelBuilderWienerFilter::TileRawChannelBuilderWienerFilter(const std::
 TileRawChannelBuilderWienerFilter::~TileRawChannelBuilderWienerFilter() {
 }
 
-
 StatusCode TileRawChannelBuilderWienerFilter::initialize() {
 
   ATH_MSG_INFO( "initialize()" );
@@ -106,6 +85,10 @@ StatusCode TileRawChannelBuilderWienerFilter::initialize() {
 
   // init in superclass
   ATH_CHECK( TileRawChannelBuilder::initialize() );
+
+  // get pointer to weights (loaded by the InfoLoader in TileInfo, from TileWienerFilterWeights)
+  m_weights = m_tileInfo->getWienerFilterWeights();
+  ATH_MSG_DEBUG( "Weights loaded" );
 
   if (m_maxIterations != 1) m_correctTimeNI = false;
 
@@ -391,23 +374,25 @@ double TileRawChannelBuilderWienerFilter::filter(int ros, int drawer, int channe
     m_nConst++;
 
   } else {
-    float weights[8];
+    double weights[8];
     memset(weights, 0, sizeof(weights));
 
     int bcidIndex = getBCIDIndex();
 
-    if (ros > 1 && channel == 1 && bcidIndex >= 0) {
-      ATH_MSG_VERBOSE( "Switch to optimal mode");
-      for (int wi = 0; wi < 8; wi++) {
-        weights[wi] = m_ofcWiener[bcidIndex][wi];
+    // check if it is E3 or E4 cells and if the BCID is available
+    if (ros > 2 && (channel == 0 || channel == 1) && bcidIndex > -1) {
+      ATH_MSG_VERBOSE( "Switch to optimal weights");
+      for (unsigned int i = 0; i < 8; i++) {
+        weights[i] = m_weights->optimalWeights[bcidIndex][i];
       }
     } else {
-      ATH_MSG_VERBOSE( "Switch to general mode");
-      for (int wi = 0; wi < 8; wi++) {
-        weights[wi] = m_gfcWiener[wi];
+      ATH_MSG_VERBOSE( "Switch to general weights");
+      for (unsigned int i = 0; i < 8; i++) {
+        weights[i] = m_weights->generalWeights[ros-1][channel][i];
       }
     }
 
+    // apply filter
     for (unsigned int i = 0; i < m_digits.size(); i++) {
       amplitude += weights[i] * m_digits[i]; // Wiener coefs
     }

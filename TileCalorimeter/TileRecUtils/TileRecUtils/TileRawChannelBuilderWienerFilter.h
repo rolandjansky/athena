@@ -24,6 +24,7 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 
 // Atlas includes
+#include "TileConditions/TileWienerFilterWeights.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 #include <vector>
@@ -101,11 +102,9 @@ class TileRawChannelBuilderWienerFilter: public TileRawChannelBuilder {
     double m_maxTime; //!< max allowed time = 25*(m_nSamples-1)/2
     double m_minTime; //!< min allowed time = -25*(m_nSamples-1)/2
 
+    TileWienerFilterWeightsStruct *m_weights; //!< structure for Wiener Filter weights
 
     std::vector<float> m_digits;
-
-    static const float m_gfcWiener[8]; //!< Wiener General weights
-    static const float m_ofcWiener[7][8]; //!< Wiener Optimal weights
 };
 
 #endif
