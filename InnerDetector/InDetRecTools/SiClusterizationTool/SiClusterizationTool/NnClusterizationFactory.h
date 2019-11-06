@@ -129,19 +129,6 @@ namespace InDet {
                                       int sizeX,
                                       int sizeY);
 
-
-  std::vector<double> assembleInputRunI(NNinput& input,
-                                      int sizeX,
-                                      int sizeY);
-
-
-
-  std::vector<double> assembleInputRunII(NNinput& input,
-                                      int sizeX,
-                                      int sizeY);
-
-
-
     std::vector<Amg::Vector2D> getPositionsFromOutput(std::vector<double> & output,
 						      NNinput & input,
 						      const InDet::PixelCluster& pCluster,
@@ -176,7 +163,6 @@ namespace InDet {
 
     bool m_useToT;
     bool m_addIBL;
-    bool m_doRunI;
 
     bool m_useRecenteringNNWithouTracks;
     bool m_useRecenteringNNWithTracks;
