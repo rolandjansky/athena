@@ -13,7 +13,7 @@ class ForceIDConditionsAlg : public AthReentrantAlgorithm {
 
   virtual StatusCode initialize() override;
   
-  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode execute(const EventContext&) const override { return StatusCode::SUCCESS; };
 
  protected:
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
