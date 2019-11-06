@@ -60,15 +60,13 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
                                                                       useRecenteringNNWithTracks = False,
                                                                       correctLorShiftBarrelWithoutTracks = 0,
                                                                       correctLorShiftBarrelWithTracks = 0.030,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      LoadWithTrackNetwork = True)
+                                                                      LoadTTrainedNetworks   = True)
 
         else:
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      LoadNoTrackNetwork   = True,
                                                                       useToT = InDetFlags.doNNToTCalibration(),
-                                                                      LoadWithTrackNetwork = True)
+                                                                      LoadTTrainedNetworks = True)
                
         ToolSvc += NnClusterizationFactory
 

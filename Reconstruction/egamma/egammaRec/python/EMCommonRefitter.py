@@ -45,15 +45,13 @@ else :
                                                                   useRecenteringNNWithTracks = False,
                                                                   correctLorShiftBarrelWithoutTracks = 0,
                                                                   correctLorShiftBarrelWithTracks = 0.030,
-                                                                  LoadNoTrackNetwork   = True,
-                                                                  LoadWithTrackNetwork = True)
+                                                                  LoadTTrainedNetworks   = True)
         
     else:
       egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
                                                                   NetworkToHistoTool   = egNeuralNetworkToHistoTool,
-                                                                  LoadNoTrackNetwork   = True,
                                                                   useToT = InDetFlags.doNNToTCalibration(),
-                                                                  LoadWithTrackNetwork = True)               
+                                                                  LoadTTrainedNetworks   = True)               
     ToolSvc += egNnClusterizationFactory 
       
   #End of do cluster splitting       
