@@ -115,7 +115,7 @@ class CaloBinDescriptor
   std::vector<T> m_bins;
 
   /*! \brief Out-of-range marker (convention) */
-  static size_t m_outOfRange;  
+  static const size_t m_outOfRange;  
 };
 
 template<typename T>
@@ -134,7 +134,7 @@ CaloBinDescriptor<T>::operator=(const CaloBinDescriptor& theBins)
 }
 
 template<typename T>
-size_t CaloBinDescriptor<T>::m_outOfRange = size_t(-1);
+const size_t CaloBinDescriptor<T>::m_outOfRange = size_t(-1);
 
 template<typename T>
 CaloBinDescriptor<T>::CaloBinDescriptor(const std::vector<T>& theBins)

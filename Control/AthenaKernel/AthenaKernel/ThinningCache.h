@@ -85,6 +85,16 @@ public:
                     const ThinningDecisionBase* thinning,
                     bool unique = false);
 
+
+  /**
+   * @brief Lock all the @c ThinningDecisionBase objects that we own.
+   *
+   * This should be called after all thinning objects have been added,
+   * but before the cache is installed in the EventContext.
+   */
+  void lockOwned();
+
+
   /**
    * @brief Clear the cache.
    */

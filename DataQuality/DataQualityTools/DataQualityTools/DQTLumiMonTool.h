@@ -28,7 +28,6 @@ private:
     template <class T> using RHK = SG::ReadHandleKey<T>;
     template <class T> using GP = Gaudi::Property<T>;
 
-    RHK<xAOD::EventInfo> m_EventInfoKey {this, "EventInfoKey", "EventInfo", ""};
     RHK<xAOD::VertexContainer> m_VertexContainerKey {this, "VertexContainerKey", "PrimaryVertices", ""};
     RHK<InDet::PixelClusterContainer> m_PixelClustersKey {this, "PixelClustersKey", "PixelClusters", ""};
     RHK<PixelID> m_PixelIDKey {this, "PixelIDKey", "PixelID", ""};

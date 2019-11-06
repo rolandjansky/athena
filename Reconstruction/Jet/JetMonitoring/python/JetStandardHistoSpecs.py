@@ -206,7 +206,7 @@ _knownHistos = [
 def defineHistoForLeadingJets(conf, parentAlg, monhelper, path):                               
     
     # helpfor that generates the monitoring group#
-    group = monhelper.addGroup(parentAlg, conf.Group,  parentAlg.JetContainerName+'/')
+    group = monhelper.addGroup(parentAlg, conf.Group,  'Jets/'+parentAlg.JetContainerName)
     path = 'standardHistos'
     group.defineHistogram('dEta;leadJetsDEta', path=path, xbins=100, xmin=-5, xmax=5)   
     group.defineHistogram('dPhi;leadJetsDPhi', path=path, xbins=100, xmin=-3, xmax=3)   

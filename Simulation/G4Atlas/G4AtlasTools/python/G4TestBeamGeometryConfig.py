@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm
@@ -132,7 +133,7 @@ def getTileTB_CALOEnvelope(name="TileTB_CALO", **kwargs):
             DeltaF=0.0
             DeltaZ=-sign*math.fabs(z)
     else:
-        print 'Tile table rotation: ERROR unknown rotation mode'
+        print ('Tile table rotation: ERROR unknown rotation mode')
         raise ValueError('UNKNOWN MODE - NEITHER ETA NOR THETA AND Z ARE SET')
     kwargs.setdefault("RotateZ",PhiZ)
     kwargs.setdefault("RotateY",ThetaY)

@@ -728,7 +728,10 @@ if __name__=="__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    # from AthenaConfiguration.TestDefaults import defaultTestFiles
+    # ConfigFlags.Input.Files = defaultTestFiles.ESD
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
+    
 
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
@@ -740,7 +743,6 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryCSC   = True     
     ConfigFlags.Detector.GeometryRPC   = True 
     
-    ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Output.ESDFileName=args.output
     
     from AthenaCommon.Constants import DEBUG

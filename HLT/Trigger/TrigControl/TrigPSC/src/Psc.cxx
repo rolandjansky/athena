@@ -15,6 +15,7 @@
 #include "TrigPSC/PscIssues.h"
 #include "TrigPSC/Utils.h"
 #include "TrigKernel/ITrigEventLoopMgr.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "eformat/ROBFragment.h"
 #include "ers/ers.h"
@@ -39,6 +40,8 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
+#include <locale>
+#include <codecvt>
 
 #include <boost/property_tree/xml_parser.hpp>
 
@@ -186,7 +189,38 @@ bool psc::Psc::configure(const ptree& config)
       }
 
       // init the sys.argv...
+#if PY_MAJOR_VERSION < 3
       PySys_SetArgv(System::argc(),System::argv());
+#else
+  auto wargsinit = 
+    []() { std::vector<std::wstring> wargs;
+           int argc = System::argc();
+           char** argv = System::argv();
+           wargs.reserve (argc);
+           using convert_t = std::codecvt_utf8<wchar_t>;
+           std::wstring_convert<convert_t, wchar_t> strconverter;
+           for (int i=0; i < argc; ++i) {
+             wargs.push_back (strconverter.from_bytes (argv[i]));
+           }
+           return wargs;
+  };
+  static const std::vector<std::wstring> wargs = wargsinit();
+
+  auto wargvinit =
+    [](const std::vector<std::wstring>& wargs)
+      { std::vector<const wchar_t*> wargv;
+        int argc = System::argc();
+        for (int i=0; i < argc; ++i) {
+          wargv.push_back (wargs[i].data());
+        }
+        return wargv;
+  };
+  static const std::vector<const wchar_t*> wargv = wargvinit (wargs);
+
+  // Bleh --- python takes non-const argv pointers.
+  wchar_t** wargv_nc ATLAS_THREAD_SAFE = const_cast<wchar_t**> (wargv.data());
+  PySys_SetArgv(System::argc(), wargv_nc);
+#endif
     }
     else {
       ERS_DEBUG(1,"Python interpreter already initialized");
@@ -200,7 +234,11 @@ bool psc::Psc::configure(const ptree& config)
       if ( optmap ) {
         std::map<std::string,std::string>::const_iterator iter;
         for (iter=m_config->optmap.begin(); iter!=m_config->optmap.end(); ++iter) {
+#if PY_MAJOR_VERSION < 3
           PyObject* v = PyString_FromString(iter->second.c_str());
+#else
+          PyObject* v = PyUnicode_FromString(iter->second.c_str());
+#endif
           std::vector<char> writable(iter->first.size() + 1);
           std::copy(iter->first.begin(), iter->first.end(), writable.begin());
           PyMapping_SetItemString(optmap, &writable[0], v);
@@ -341,6 +379,17 @@ bool psc::Psc::configure(const ptree& config)
 
     ERS_DEBUG(1,"psc::Psc::configure: Wrote configuration for enabled sub detectors in JobOptions Catalogue: "
               <<" number of Sub Det IDs read from OKS = " << m_config->enabled_SubDets.size());
+  }
+
+  // Write the maximum HLT output size into the JobOptions Catalogue
+  if (std::string opt = m_config->getOption("MAXEVENTSIZEMB"); !opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue("DataFlowConfig",
+      IntegerProperty("DF_MaxEventSizeMB", std::stoi(opt)));
+    if ( sc.isFailure() ) {
+      ERS_PSC_ERROR("psc::Psc::configure: Error could not write DF_MaxEventSizeMB in JobOptions Catalogue");
+      return false;
+    }
+    ERS_DEBUG(1,"psc::Psc::configure: Wrote DF_MaxEventSizeMB=" << opt << " in JobOptions Catalogue");
   }
 
   // Write configuration for HLT muon calibration infrastructure in JobOptions catalogue

@@ -18,7 +18,13 @@ def jetDictFromString(jet_def_string):
         "recoAlg":  jetalg,
         "dataType": inputtype,
         "calib":    clusterscale,
-        "jetCalib": jetcalib
+        "jetCalib": jetcalib,
+        # Default to this for now pending further development.
+        # Ideally it'd be better to deprecate this and instead
+        # take the defaults from SignatureDicts for most
+        # purposes, but this can wait until the needs of clients
+        # are more clear.
+        "trkopt" :  "notrk"
     }
     return jetRecoDict
 

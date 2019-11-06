@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // initPyInterpreter.cxx 
@@ -21,9 +21,14 @@
 #define Py_False ( (PyObject*)(void*)&_Py_ZeroStruct )
 #endif
 
+#include "CxxUtils/checker_macros.h"
+
 // gaudi
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/StatusCode.h"
+
+#include <locale>
+#include <codecvt>
 
 namespace {
   /// helper function to capture the boilerplate code for user friendly
@@ -70,7 +75,38 @@ initPyInterpreter()
   }
 
   // init the sys.argv...
-  PySys_SetArgv(System::argc(),System::argv());
+#if PY_MAJOR_VERSION < 3
+  PySys_SetArgv(System::argc(), System::argv());
+#else
+  auto wargsinit = 
+    []() { std::vector<std::wstring> wargs;
+           int argc = System::argc();
+           char** argv = System::argv();
+           wargs.reserve (argc);
+           using convert_t = std::codecvt_utf8<wchar_t>;
+           std::wstring_convert<convert_t, wchar_t> strconverter;
+           for (int i=0; i < argc; ++i) {
+             wargs.push_back (strconverter.from_bytes (argv[i]));
+           }
+           return wargs;
+  };
+  static const std::vector<std::wstring> wargs = wargsinit();
+
+  auto wargvinit =
+    [](const std::vector<std::wstring>& wargs)
+      { std::vector<const wchar_t*> wargv;
+        int argc = System::argc();
+        for (int i=0; i < argc; ++i) {
+          wargv.push_back (wargs[i].data());
+        }
+        return wargv;
+  };
+  static const std::vector<const wchar_t*> wargv = wargvinit (wargs);
+
+  // Bleh --- python takes non-const argv pointers.
+  wchar_t** wargv_nc ATLAS_THREAD_SAFE = const_cast<wchar_t**> (wargv.data());
+  PySys_SetArgv(System::argc(), wargv_nc);
+#endif
   return StatusCode::SUCCESS;
 }
 

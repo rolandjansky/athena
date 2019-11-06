@@ -41,10 +41,10 @@ private:
 
   ///@{ @name Properties
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
-    this, "OutputTrigRoIs", "TAURoIs", "Name of the RoIs object produced by the unpacker"};
+    this, "OutputTrigRoIs", "HLT_TAURoIs", "Name of the RoIs object produced by the unpacker"};
 
   SG::WriteHandleKey< DataVector<LVL1::RecEmTauRoI> > m_recRoIsKey{
-    this, "OutputRecRoIs", "RecTAURoIs", "Name of the RoIs object produced by the unpacker"};
+    this, "OutputRecRoIs", "HLT_RecTAURoIs", "Name of the RoIs object produced by the unpacker"};
 
   Gaudi::Property<float>            m_roIWidth{this, "RoIWidth", 0.1, "Size of RoI in eta/ phi"};
   ///@}

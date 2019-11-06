@@ -34,9 +34,10 @@
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
 #include "egammaMVACalibAnalysis/egammaMVACalib.h"
-#include "MVAUtils/BDT.h"
 #include "PathResolver/PathResolver.h"
 
+#include "MVAUtils/BDT.h"
+#include "MVAUtils/TMVAToMVAUtils.h"
 using namespace MVAUtils;
 
 #define CHECK_SETUPBDT(EXP) { \
@@ -1509,12 +1510,11 @@ void egammaMVACalib::addReaderInfoToArrays(TMVA::Reader *reader,
 
   TMVA::MethodBDT* tbdt = dynamic_cast<TMVA::MethodBDT*>(reader->FindMVA("BDTG"));
   assert(tbdt);
-  BDT *bdt = new BDT(tbdt);
+  std::unique_ptr<BDT> bdt = TMVAToMVAUtils::convert(tbdt);
   TTree *tree = bdt->WriteTree(Form("BDT%d", index));
 
   variables->AddAtAndExpand(new TObjString(*vars), index);
   trees->AddAtAndExpand(tree, index);
-  delete bdt;
 }
 
 

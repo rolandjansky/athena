@@ -11,7 +11,6 @@ DQTBackgroundMon::DQTBackgroundMon( const std::string& name, ISvcLocator* pSvcLo
 DQTBackgroundMon::~DQTBackgroundMon() {}
 
 StatusCode DQTBackgroundMon::initialize() {
-    ATH_CHECK( m_EventInfoKey.initialize() );
     ATH_CHECK( m_RawInfoSummaryForTagKey.initialize() );
     ATH_CHECK( m_LArCollisionTimeKey.initialize() );
     ATH_CHECK( m_MBTSCollisionTimeKey.initialize() );
@@ -34,7 +33,7 @@ StatusCode DQTBackgroundMon::fillHistograms( const EventContext& ctx ) const {
     auto unpairIso = Scalar<bool>("unpairIso",false);
     auto unpairNonIso = Scalar<bool>("unpairNonIso",false);
 
-    RH<xAOD::EventInfo> eventInfo(m_EventInfoKey,ctx);
+    RH<xAOD::EventInfo> eventInfo{GetEventInfo(ctx)};
     RH<RawInfoSummaryForTag> rawInfo(m_RawInfoSummaryForTagKey,ctx);
     RH<LArCollisionTime> tps(m_LArCollisionTimeKey,ctx);
     RH<MBTSCollisionTime> mbtsTime(m_MBTSCollisionTimeKey,ctx);

@@ -30,6 +30,7 @@ public:
 
 
 private:
+  // TODO Remove if HLTConfigSvc and LVL1ConfigSvc are no longer needed to put the HLTTriggerMenu and L1Menu in the DetectorStore
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc{this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", ""};
   ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "TrigConf::HLTConfigSvc/HLTConfigSvc", ""};
   

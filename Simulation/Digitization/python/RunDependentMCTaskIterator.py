@@ -130,7 +130,7 @@ class taskIterator(object):
 
     def next(self):
         self.donejob = []
-        if (self.current == None):  self.current = self.taskit.next()
+        if (self.current is None):  self.current = self.taskit.next()
         to_do = self.step
         while True:
             if (to_do == 0) : return self.offset, self.current

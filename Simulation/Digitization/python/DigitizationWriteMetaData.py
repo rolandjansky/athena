@@ -180,11 +180,11 @@ def writeDigitizationMetadata():
         attrname = det+"_on"
         checkfn = getattr(DetFlags.digitize, attrname, None)
         if checkfn is None:
-            logDigitizationWriteMetadata.info("No attribute '%s' found on DetFlags.digitize" % attrname)
+            logDigitizationWriteMetadata.info("No attribute '%s' found on DetFlags.digitize" , attrname)
             continue
         if checkfn():
             digiDets.append(det)
-    logDigitizationWriteMetadata.info("Setting 'DigitizedDetectors' = %s" % repr(digiDets))
+    logDigitizationWriteMetadata.info("Setting 'DigitizedDetectors' = %s" , repr(digiDets))
     dbFiller.addDigitParam('DigitizedDetectors', repr(digiDets))
 
     #-------------------------------------------------

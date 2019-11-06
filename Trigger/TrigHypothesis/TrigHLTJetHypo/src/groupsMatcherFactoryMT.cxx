@@ -38,13 +38,15 @@ groupsMatcherFactoryMT_Partitions (ConditionsMT&& conditions){
 
 std::unique_ptr<IGroupsMatcherMT> 
 groupsMatcherFactoryMT_Unified (ConditionsMT&& conditions,
-				const std::vector<std::size_t>& treeVec){
+				const std::vector<std::size_t>& treeVec,
+				const std::vector<std::vector<int>>& sharedNodes){
   
   if (conditions.size() == 1) {
     return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
   } else {
     return std::make_unique<UnifiedFlowNetworkMatcher>(std::move(conditions),
-						       treeVec);
+						       treeVec,
+						       sharedNodes);
   }
   
 }

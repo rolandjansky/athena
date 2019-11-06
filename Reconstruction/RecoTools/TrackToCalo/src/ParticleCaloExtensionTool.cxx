@@ -102,6 +102,7 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
                                                                const std::vector<bool>& mask,
                                                                CaloExtensionCollection& caloextensions) const{
   const size_t numparticles=particles.size();   
+  
   if(mask.size()!=numparticles){
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
     return StatusCode::FAILURE;

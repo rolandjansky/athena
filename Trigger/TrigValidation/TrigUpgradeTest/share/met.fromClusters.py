@@ -60,8 +60,10 @@ hypoAlg = MissingETHypoAlgMT("METHypoAlg")
 hypoAlg.HypoTools=[makeMETHypoTool()]
 hypoAlg.METContainerKey=metAlg.METContainerKey
 
+from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+
 hypoAlg.OutputLevel = DEBUG
-hypoAlg.HypoInputDecisions = "L1MET"
+hypoAlg.HypoInputDecisions = mapThresholdToL1DecisionCollection("XE")
 hypoAlg.HypoOutputDecisions = "EFMETDecisions"
 topSequence += hypoAlg
 

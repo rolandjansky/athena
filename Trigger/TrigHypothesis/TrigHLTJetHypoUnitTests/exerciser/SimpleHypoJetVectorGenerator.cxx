@@ -71,7 +71,7 @@ SimpleHypoJetVectorGenerator::get() const{
     std::uniform_real_distribution<double> eta_distribution(-m_bkgd_etamax,
 							    m_bkgd_etamax);
     
-    std::uniform_real_distribution<double> en_distribution(0.,
+    std::uniform_real_distribution<double> en_distribution(5.,
 							   m_bkgd_etmax);
 
     

@@ -102,7 +102,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
   size_t  buffSize = m_initialSerialisationBufferSize;
   std::unique_ptr<char[]> buff( new char[buffSize] );
 
-  // returns a char* buffer that is at minimum as bg as specified in the argument
+  // returns a char* buffer that is at minimum as large as specified in the argument
   auto resize = [&]( size_t neededSize )  {
 		  if ( neededSize > buffSize ) {
 		    buffSize = neededSize;
@@ -223,7 +223,7 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
 		 << (isxAODInterfaceContainer ?" xAOD Interface Container":"" ) 
 		 << (isxAODAuxContainer ?" xAOD Aux Container ":"" ) 
 		 << ( isDecoration ? " xAOD Decoration" : "") 
-		 << ( isTPContainer ? " T/P Contianer " : "") );
+		 << ( isTPContainer ? " T/P Container " : "") );
   
   const std::vector<bool> typeOfContainer( { isxAODInterfaceContainer, isxAODAuxContainer, isDecoration, isTPContainer } );			     
   const size_t count = std::count( typeOfContainer.begin(), typeOfContainer.end(), true );
@@ -231,12 +231,12 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
     ATH_MSG_ERROR( "Could not recognise the kind of container " << transientTypeName );
     return StatusCode::FAILURE;
   } else if (count > 1 ) {
-    ATH_MSG_ERROR( "Ambigous container kind deduced from the transient type name " << transientTypeName );
+    ATH_MSG_ERROR( "Ambiguous container kind deduced from the transient type name " << transientTypeName );
     ATH_MSG_ERROR( "Recognised type as: " 
 		   << (isxAODInterfaceContainer ?" xAOD Interface Context":"" ) 
 		   << (isxAODAuxContainer ?" xAOD Aux Container ":"" ) 
 		   << ( isDecoration ? " xAOD Decoration" : "") 
-		   << ( isTPContainer ? " T/P Contianer " : "") );
+		   << ( isTPContainer ? " T/P Container " : "") );
     return StatusCode::FAILURE;    
   }
   return StatusCode::SUCCESS;
@@ -260,6 +260,6 @@ size_t TriggerEDMDeserialiserAlg::dataSize( TriggerEDMDeserialiserAlg::PayloadIt
 void TriggerEDMDeserialiserAlg::toBuffer( TriggerEDMDeserialiserAlg::PayloadIterator start, char* buffer ) const {
   // move to the beginning of the buffer memory
   PayloadIterator dataStart =  start + NameOffset + nameLength(start) + 1 /*skip size*/;
-  // we rely on continous memory layout of std::vector ...
+  // we rely on continuous memory layout of std::vector ...
   std::memcpy( buffer, &(*dataStart), dataSize( start ) );
 }

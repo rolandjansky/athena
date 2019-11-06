@@ -1,7 +1,7 @@
 #include "MdtRawDataMonitoring/MdtRawDataValAlg.h"
-//#include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
-//#include "MdtRawDataMonitoring/MuonEventInfoMonTool.h"
+#include "MdtRawDataMonitoring/MdtRawDataMonAlg.h"
  
 DECLARE_COMPONENT( MdtRawDataValAlg )   
+DECLARE_COMPONENT( MdtRawDataMonAlg )   
 //DECLARE_COMPONENT( MuonEventInfoMonTool )
    

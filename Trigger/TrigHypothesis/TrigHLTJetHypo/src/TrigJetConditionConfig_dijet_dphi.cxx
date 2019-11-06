@@ -42,3 +42,11 @@ StatusCode TrigJetConditionConfig_dijet_dphi::checkVals() const {
   }
   return StatusCode::SUCCESS;
 }
+
+bool TrigJetConditionConfig_dijet_dphi::addToCapacity(std::size_t) {
+  return false;
+}
+
+std::size_t TrigJetConditionConfig_dijet_dphi::capacity() const {
+  return getCondition()->capacity();
+}

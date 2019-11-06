@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TriggerD3PDMaker/src/TriggerBitFillerTool.cxx
  * @author Haifeng Li <Haifeng.Li@cern.ch>, sss
@@ -16,7 +14,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "boost/foreach.hpp"
 #include <algorithm>
 
 
@@ -111,7 +108,7 @@ StatusCode TriggerBitFillerTool::book()
  */
 StatusCode TriggerBitFillerTool::fill ()
 {
-  BOOST_FOREACH (const TrigNameMap::value_type& b, m_trigNameMap) {
+  for (const TrigNameMap::value_type& b : m_trigNameMap) {
     *b.second = m_trigDec->isPassed (b.first);
   }
 

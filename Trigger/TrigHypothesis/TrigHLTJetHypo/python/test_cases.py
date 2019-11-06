@@ -19,7 +19,45 @@ test_strings = [
     'simple([(100momwidth200)])', # jet moment condition
     
     # from HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20:
-    'and([]simple([(30et,500neta)(30et,peta500)])combgen([(10et)]dijet([(34djmass,26djdphi)])simple([(10et)(20et)])))'
+    'and([]simple([(30et,500neta)(30et,peta500)])combgen([(10et)]dijet([(34djmass,26djdphi)])simple([(10et)(20et)])))',
+    'qjet([(34qjmass)])',
+    """partgen([]simple([(neta)(peta)])
+                 combgen([]
+                         qjet([(qjmass)])
+                         partgen([]
+                                 combgen([] 
+                                         dijet([(djmass)])
+                                         simple([(10et)(11et)]))
+                                 combgen([] 
+                                         dijet([(djmass)])
+                                         simple([(12et)(13et)])))))""",
+
+    'and([]simple([(30et,500neta)(30et,peta500)])combgen([(10et)]dijet([(34djmass,26djdphi)])simple([(10et)(20et)])))',
+    'qjet([(34qjmass)])',
+    """partgen([]simple([(neta)(peta)])
+                 combgen([]
+                         qjet([(qjmass)])
+                         partgen([]
+                                 combgen([] 
+                                         dijet([(80djmass90)])
+                                         simple([(84et)(84et)]))
+                                 combgen([] 
+                                         dijet([(81djmass91)])
+                                         simple([(84et)(84et)])))))""",
+
+        """partgen([]
+                 partgen([]
+                         simple([(neta)(peta)])
+                        )             
+                 combgen([]
+                         qjet([(175qjmass177)])
+                         partgen([]
+                                 combgen([] 
+                                         dijet([(79djmass90)])
+                                         simple([(82et)(83et)]))
+                                 combgen([] 
+                                         dijet([(79djmass91)])
+                                         simple([(82et)(83et)])))))""",
 ]
 
 

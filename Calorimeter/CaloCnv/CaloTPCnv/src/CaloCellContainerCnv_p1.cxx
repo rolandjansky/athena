@@ -6,6 +6,8 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCompactCellContainer.h"
 #include "CaloCompactCellTool.h"
+#include "AthenaKernel/getThinningCache.h"
+
 
 CaloCellContainerCnv_p1::CaloCellContainerCnv_p1 () {}
 
@@ -25,11 +27,15 @@ void CaloCellContainerCnv_p1::persToTransWithKey(const CaloCompactCellContainer*
 
 void CaloCellContainerCnv_p1::transToPersWithKey(const CaloCellContainer* trans,
                                                  CaloCompactCellContainer* pers,
-                                                 const std::string& /*key*/,
+                                                 const std::string& key,
                                                  MsgStream& log) const
 {
   CaloCompactCellTool compactCellTool;
-  if (compactCellTool.getPersistent(*trans,pers,CaloCompactCellTool::VERSION_LATEST).isFailure()) {
+
+  if (compactCellTool.getPersistent (*trans,
+                                     pers,
+                                     SG::getThinningDecision (key),
+                                     CaloCompactCellTool::VERSION_LATEST).isFailure()) {
     log << MSG::ERROR << " CaloCellContainerCnv_p1: Could not get persistent" << endmsg;
   }
 }
