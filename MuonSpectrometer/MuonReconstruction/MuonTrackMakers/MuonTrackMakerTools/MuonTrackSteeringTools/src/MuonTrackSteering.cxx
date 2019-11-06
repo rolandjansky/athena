@@ -325,7 +325,6 @@ namespace Muon {
           continue;
         }
 
-
         MuPatSegment* segInfo = m_candidateTool->createSegInfo( *newseg );
 
         // check whether segment of good quality AND that its quality is equal or better than the input segments
@@ -397,7 +396,7 @@ namespace Muon {
       }
     }
 
-    // loop over entries in second station as add unassociated entries to candidate entries
+    // loop over entries in second station and add unassociated entries to candidate entries
     for( unsigned int i=0;i<wasMatched2.size(); ++i ){
       if( !wasMatched2[i] ) {
         stationVec.push_back( ch2[i] );

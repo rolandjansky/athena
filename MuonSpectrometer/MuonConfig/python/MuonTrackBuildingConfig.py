@@ -188,8 +188,8 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     
     kwargs.setdefault("SegmentExtender", "") #FIXME If this is always empty, can it be removed?
     
-    from AthenaCommon.Constants import VERBOSE
-    mu_pat_cand_tool = Muon__MuPatCandidateTool(name, OutputLevel=VERBOSE, **kwargs)
+    # from AthenaCommon.Constants import VERBOSE
+    mu_pat_cand_tool = Muon__MuPatCandidateTool(name, **kwargs)
     result.setPrivateTools(mu_pat_cand_tool)
     return result
     
@@ -386,8 +386,9 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryCSC   = True     
     ConfigFlags.Detector.GeometryRPC   = True 
         
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.ESD
+    # from AthenaConfiguration.TestDefaults import defaultTestFiles
+    # ConfigFlags.Input.Files = defaultTestFiles.ESD
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
     ConfigFlags.Output.ESDFileName=args.output
 
     # from AthenaCommon.Constants import DEBUG
@@ -408,7 +409,7 @@ if __name__=="__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    log.debug('About to set up Muon Track Building.')    
+    log.debug('About to set up Muon Track Building.')        
     acc = MuonTrackBuildingCfg(ConfigFlags)
     cfg.merge(acc)
     
@@ -432,7 +433,7 @@ if __name__=="__main__":
     
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
-
+    
     cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
     
     outstream = cfg.getEventAlgo("OutputStreamESD")
@@ -460,6 +461,7 @@ if __name__=="__main__":
     f=open("MuonTrackBuilding.pkl","w")
     cfg.store(f)
     f.close()
-
+    
     if args.run:
         cfg.run(20)
+        

@@ -148,7 +148,6 @@ namespace Muon {
 
      mutable SegCol m_segmentsToDelete;
      mutable TrkVec m_tracksToDelete;
-     mutable TrkCollVec m_trktracksToDelete;
      mutable std::vector<const MuonSegment*>  m_constsegmentsToDelete;
     
     std::vector<const MuonTrackSteeringStrategy*> m_strategies;
