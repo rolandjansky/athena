@@ -437,15 +437,19 @@ JETM15SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.m.taste' ]
 
 JETM15SlimmingHelper.AppendToDictionary["CSSKChargedParticleFlowObjects"]='xAOD::PFOContainer'
 JETM15SlimmingHelper.AppendToDictionary["CSSKChargedParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+JETM15SlimmingHelper.ExtraVariables.append('CSSKChargedParticleFlowObjects.pt.eta.phi.m.e.charge.matchedToPV')
 
 JETM15SlimmingHelper.AppendToDictionary["CSSKNeutralParticleFlowObjects"]='xAOD::PFOContainer'
 JETM15SlimmingHelper.AppendToDictionary["CSSKNeutralParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+JETM15SlimmingHelper.ExtraVariables.append('CSSKNeutralParticleFlowObjects.pt.eta.phi.m.e.charge')
 
 JETM15SlimmingHelper.AppendToDictionary["CHSChargedParticleFlowObjects"]='xAOD::PFOContainer'
 JETM15SlimmingHelper.AppendToDictionary["CHSChargedParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+JETM15SlimmingHelper.ExtraVariables.append('CHSChargedParticleFlowObjects.pt.eta.phi.m.e.charge.matchedToPV')
 
 JETM15SlimmingHelper.AppendToDictionary["CHSNeutralParticleFlowObjects"]='xAOD::PFOContainer'
 JETM15SlimmingHelper.AppendToDictionary["CHSNeutralParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+JETM15SlimmingHelper.ExtraVariables.append('CHSNeutralParticleFlowObjects.pt.eta.phi.m.e.charge')
 
 JETM15SlimmingHelper.AllVariables  += ["LCOriginTopoClusters", "LCOriginCSSKTopoClusters", "CSSKNeutralParticleFlowObjects", "CSSKChargedParticleFlowObjects", "TrackCaloClustersCombinedAndNeutral", "CHSChargedParticleFlowObjects", "CHSNeutralParticleFlowObjects"]
 JETM15SlimmingHelper.ExtraVariables.append("AntiKt4EMTopoJets.btaggingLink")
