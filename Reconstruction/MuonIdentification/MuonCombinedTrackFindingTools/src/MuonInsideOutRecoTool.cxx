@@ -75,7 +75,8 @@ namespace MuonCombined {
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
     ATH_CHECK(m_trackAmbiguityResolver.retrieve());
-    ATH_CHECK(m_vertexKey.initialize());
+    //trigger does not use primary vertex
+    if(!m_vertexKey.empty()) ATH_CHECK(m_vertexKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -239,25 +240,27 @@ namespace MuonCombined {
     float bs_z = 0.;
  
     const xAOD::Vertex* matchedVertex = nullptr;
-    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
-    if (!vertices.isValid())
-    {
-      ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
-    }
-    else
-    {
-      for ( const auto& vx : *vertices )
-      {
-	for ( const auto& tpLink : vx->trackParticleLinks() )
+    if(!m_vertexKey.empty()){
+      SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+      if (!vertices.isValid())
 	{
-	  if (*tpLink == &idTrackParticle)
-	  {
-	    matchedVertex = vx;
-	    break;
-	  }
-	  if (matchedVertex) break;
+	  ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
 	}
-      }
+      else
+	{
+	  for ( const auto& vx : *vertices )
+	    {
+	      for ( const auto& tpLink : vx->trackParticleLinks() )
+		{
+		  if (*tpLink == &idTrackParticle)
+		    {
+		      matchedVertex = vx;
+		      break;
+		    }
+		  if (matchedVertex) break;
+		}
+	    }
+	}
     }
     if(matchedVertex) {
       bs_x = matchedVertex->x();

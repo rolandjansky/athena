@@ -14,6 +14,7 @@ beamFlags = jobproperties.Beam
 
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs): 
     if beamFlags.beamType() == 'cosmics':
@@ -96,10 +97,10 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
 
 def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
-    # kwargs.setdefault("OutwardsTrackBuilder", getPublicTool("OutwardsCombinedMuonTrackBuilder") )
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )
-    # kwargs.setdefault("MuonRecovery",         getPublicTool("MuidMuonRecovery") )
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("VertexContainer", "")
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
                          
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
