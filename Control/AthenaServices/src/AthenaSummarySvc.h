@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENASUMSVC_H
@@ -101,9 +101,6 @@ private:
   std::list<std::string> m_inputFilesError;
   std::list<std::string> m_outputFiles;
   std::list<std::string> m_outputFilesError;
-
-  std::list<std::string> m_tagFilesRead;
-  std::list<std::string> m_tagFilesError;
 
   std::map< std::string, std::map<std::string, int> > m_extraIncidents;
   std::vector< std::pair<std::string, std::string> > m_extraInfo;
