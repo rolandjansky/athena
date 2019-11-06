@@ -199,11 +199,6 @@ int TEvent::getEntry( long entry ) {
    return (out.isSuccess()) ? 0 : -1;
 }
 
-std::string TEvent::retrieveIOVMetadata(const std::string& folder, const std::string& key) {
-  if(!m_evtLoop.isSet()) { if(m_evtLoop.retrieve().isFailure()) return ""; }
-  return AAH::retrieveMetadata(folder,key,inputMetaStore());
-}
-
   //python bindings
 
   PyObject* TEvent::retrieve( PyObject* tp, PyObject* pykey )

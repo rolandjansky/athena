@@ -86,19 +86,6 @@ namespace asg {
       virtual StatusCode sysInitialize();
 
 
-      /// Helper function to access IOVMetaDataContainer information held in
-      /// the MetaDataStore
-      /// For non athena environments, this will just return StatusCode::FAILURE
-      ///
-      /// Note that having this function here is very bad design. :-( For now
-      /// it's marked as deprecated, but Will needs to put replacement code into
-      /// AthenaBaseComps to replace this...
-      ///
-      template< typename T >
-      StatusCode retrieveMetadata( const std::string& folder,
-                                   const std::string& key,
-                                   T& out ) __attribute__ ((deprecated));
-
    protected:
       /// @name Callback functions helping in metadata reading/writing
       /// @{
@@ -150,8 +137,5 @@ namespace asg {
    }
 
 } // namespace asg
-
-// Include the template implementation(s):
-#include "AsgTools/AsgMetadataTool.icc"
 
 #endif // ASGTOOLS_ASGMETADATATOOL_H
