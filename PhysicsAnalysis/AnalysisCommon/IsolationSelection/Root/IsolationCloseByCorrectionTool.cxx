@@ -535,14 +535,17 @@ namespace CP {
             const xAOD::CaloCluster* cluster = getCluster(par);
             //At the moment no cluster associated with muons is in the derivations
             int nSample = 0;
-            float etaT = 0.0, phiT = 0.0;
+            float etaT = 0.0, phiT = 0.0, dphiT = 0.0;
             if (cluster) {
                 for (unsigned int i = 0; i < CaloSampling::Unknown; i++) {
                     auto s = static_cast<CaloSampling::CaloSample>(i);
                     if (cluster->hasSampling(s)) {
                         ATH_MSG_VERBOSE("Sampling: " << i << "eta-phi (" << cluster->etaSample(s) << ", " << cluster->phiSample(s) << ")");
                         etaT += cluster->etaSample(s);
-                        phiT += cluster->phiSample(s);
+                        if(nSample == 0)
+                          phiT = cluster->phiSample(s);
+                        else 
+                          dphiT += xAOD::P4Helpers::deltaPhi( cluster->phiSample(s), phiT );
                         ++nSample;
                     }
                 }
@@ -550,7 +553,7 @@ namespace CP {
             if (nSample > 0) {
                 ATH_MSG_DEBUG("Eta, phi before sampling: " << eta << ", " << phi << " and after sampling: " << etaT / nSample << ", " << phiT / nSample);
                 eta = etaT / nSample;
-                phi = phiT / nSample;
+                phi = phiT + dphiT / nSample;
             }
         } else if (isEgamma(par)) {
             const xAOD::CaloCluster* cluster = getCluster(par);
