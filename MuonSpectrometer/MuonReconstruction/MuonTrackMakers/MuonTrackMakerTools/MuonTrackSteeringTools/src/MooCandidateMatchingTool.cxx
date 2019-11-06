@@ -157,7 +157,8 @@ namespace Muon {
     ATH_CHECK( m_magFieldSvc.retrieve() );
     ATH_CHECK( m_segmentMatchingTool.retrieve() );
     ATH_CHECK( m_segmentMatchingToolTight.retrieve() );
-
+    ATH_CHECK( m_candidateTool.retrieve() );
+    
     return StatusCode::SUCCESS;
   }
 
