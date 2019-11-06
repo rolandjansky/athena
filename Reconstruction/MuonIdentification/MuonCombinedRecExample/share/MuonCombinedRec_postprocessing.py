@@ -20,9 +20,11 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
 
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
     fcols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
-    cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks","MuGirlCombinedTracks","MuGirlMETracks","MuGirlStauCombinedTracks"]
-    if not muonCombinedRecFlags.doMuGirlLowBetaMuonCollection:
-        cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks","MuGirlCombinedTracks","MuGirlMETracks"]
+    cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks"]
+    if muonCombinedRecFlags.doMuGirl():
+        cols += ["MuGirlCombinedTracks","MuGirlMETracks"]
+        if muonCombinedRecFlags.doMuGirlLowBeta():
+            cols += ["MuGirlStauCombinedTracks"]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
     topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
     topSequence.MuonCombinedDetailedTrackTruthMaker.DetailedTrackTruthNames = fcols
