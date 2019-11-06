@@ -76,7 +76,8 @@ def findUnneededRun2():
 
 
 def findRequiredItemsFromXML():
-    menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1','Cosmic_pp_run3_v1']
+    
+    menus = ['Physics_pp_v7','MC_pp_v7','LS2_v1', 'Physics_pp_run3_v1', 'PhysicsP1_pp_run3_v1', 'MC_pp_run3_v1', 'Cosmic_pp_run3_v1']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -139,6 +140,9 @@ def main():
     if len(sys.argv)==1:
         
         generateL1Menu(menu="LS2_v1" )
+        generateL1Menu(menu="Physics_pp_run3_v1" )
+        generateL1Menu(menu="PhysicsP1_pp_run3_v1" )
+        generateL1Menu(menu="MC_pp_run3_v1" )
         generateL1Menu(menu="Cosmic_pp_run3_v1")
         return 0
 
@@ -147,6 +151,21 @@ def main():
         readL1MenuFromXML(sys.argv[1])
         return 0
     
+    if sys.argv[1].lower().startswith("physics_pp_run3_v1"):
+        menu = generateL1Menu(menu="Physics_pp_run3_v1")
+        menu.printCabling()
+        return 0
+
+    if sys.argv[1].lower().startswith("physicsp1_pp_run3_v1"):
+        menu = generateL1Menu(menu="PhysicsP1_pp_run3_v1")
+        menu.printCabling()
+        return 0
+
+    if sys.argv[1].lower().startswith("mc_pp_run3_v1"):
+        menu = generateL1Menu(menu="MC_pp_run3_v1")
+        menu.printCabling()
+        return 0
+
     if sys.argv[1].lower().startswith("phy6"):
         menu = generateL1Menu(menu="Physics_pp_v6")
         if printCabling:
