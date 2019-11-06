@@ -150,6 +150,12 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
         kwargs.setdefault("AlignmentErrorAngleX", 0.004)
         kwargs.setdefault("AlignmentErrorAngleY", 0.002)
 
+    acc=MuPatCandidateToolCfg(flags)
+    cand_tool = acc.getPrimary()
+    result.merge(acc)
+    result.addPublicTool(cand_tool)
+    kwargs.setdefault("MuPatCandidateTool",       cand_tool) 
+    
     moo_cand_matching_tool = Muon__MooCandidateMatchingTool(name,**kwargs)
     result.setPrivateTools(moo_cand_matching_tool)
     return result

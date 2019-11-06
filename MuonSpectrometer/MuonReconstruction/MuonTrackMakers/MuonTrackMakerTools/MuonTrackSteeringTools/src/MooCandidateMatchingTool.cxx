@@ -99,7 +99,6 @@ namespace Muon {
       m_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
       m_segmentMatchingToolTight("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"),
       m_magFieldSvc("AtlasFieldSvc",n),
-      m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool"),
       m_goodSegmentMatches(0),
       m_goodSegmentMatchesTight(0),
       m_segmentMatches(0),

@@ -173,7 +173,9 @@ def MooCandidateMatchingTool(name,extraFlags=None,**kwargs):
         kwargs.setdefault("AlignmentErrorPosY", 5.0)
         kwargs.setdefault("AlignmentErrorAngleX", 0.004)
         kwargs.setdefault("AlignmentErrorAngleY", 0.002)
-
+                tool = 
+    kwargs.setdefault("MuPatCandidateTool", getPublicTool("MuPatCandidateTool"))
+    
     return CfgMgr.Muon__MooCandidateMatchingTool(name,**kwargs)
 
 
