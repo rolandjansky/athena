@@ -130,9 +130,8 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
                            "Shape":("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape",LArShapeSymAlg),
                            "MinBiasAvc":("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg),
                            "MphysOverMcal":("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal","LArMphysOverMcal",LArMPhysOverMcalSymAlg),
-                           "HVScaleCorr" : ("LArHVScaleCorrComplete", '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None) 
+                           "HVScaleCorr" : ("LArHVScaleCorrComplete", '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None)
                        }
-
 
     result=ComponentAccumulator()
     #Add cabling
@@ -151,7 +150,7 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
         if calg is not None:
             result.addCondAlgo(calg(ReadKey=key,WriteKey=key+"Sym"))
 
-        result.merge(addFolderList(ConfigFlags,folderlist))
+    result.merge(addFolderList(ConfigFlags,folderlist))
     return result
         
 
