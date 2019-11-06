@@ -464,7 +464,9 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, "TRT_FakeConditions");
+  rngWrapper->setSeed( "TRT_FakeConditions", Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = *rngWrapper;
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
   CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
@@ -603,7 +605,9 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, "TRT_FakeConditions");
+  rngWrapper->setSeed( "TRT_FakeConditions", Gaudi::Hive::currentContext() );
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = *rngWrapper;
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
   CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
