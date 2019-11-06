@@ -34,7 +34,7 @@ def getOption(runArgs,name, substep, first, output):
     tfToAthenaHLT['DBserver'] = 'db-server'
     tfToAthenaHLT['DBsmkey'] = 'smk'
     tfToAthenaHLT['DBhltpskey'] = 'hltpsk'
-    tfToAthenaHLT['DBlvl1pskey'] = 'l1psk'
+    tfToAthenaHLT['DBl1pskey'] = 'l1psk'
     ## Some arguments need specific code so aren't included here
     # save-output = outputBSFile (or filled by default in multi step tf)
     

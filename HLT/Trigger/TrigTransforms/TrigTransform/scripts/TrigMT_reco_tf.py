@@ -2,8 +2,9 @@
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-## TrigMT_tf_reco.py - based on PyJobTransforms/Reco_tf.py now stored here:
-## https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/RecJobTransforms/trunk/scripts
+## TrigMT_reco_tf.py
+## - based on PyJobTransforms/Reco_tf.py
+## Documentation on the twiki https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerTransform
 
 import sys
 import time
@@ -43,9 +44,9 @@ def getTransform():
     executorSet = set()
         
     #BSRDOtoRAW is new option for trigger transform
-    #now setup to run athenaHLT, so TODO is to remove:
-    #writeBS BSRDOInput EvtMax from AthenaCommon...  athenaCommonFlags....
-    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TrigUpgradeTest/full_menu.py', 
+    #runs primarily using athenaHLT
+    #literalRunargs used for when running with athena
+    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TrigUpgradeTest/full_menu.py',
                                      exe = 'athenaHLT.py',
                                      substep = 'b2r', tryDropAndReload = False,
                                      inData = ['BS_RDO', 'RDO'], outData = ['BS', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'], 
@@ -92,8 +93,6 @@ def getTransform():
                                    perfMonFile = 'ntuple_AODtoDPD.pmon.gz'))
     executorSet.add(athenaExecutor(name = 'AODtoTAG', skeletonFile = 'RecJobTransforms/skeleton.AODtoTAG_tf.py',
                                    inData = ['AOD'], outData = ['TAG'],))
-#     executorSet.add(athenaExecutor(name = 'AODtoHIST', skeletonFile = 'RecJobTransforms/skeleton.FROM_PETER.py',
-#                                    inData = ['AOD'], outData = ['HIST_AOD'],))
     executorSet.add(reductionFrameworkExecutor(name = 'AODtoRED', skeletonFile = 'PATJobTransforms/skeleton.AODtoRED_tf.py',
                                    substep = 'a2r', inData = ['AOD'], outData = ['DAOD_RED']))
     executorSet.add(reductionFrameworkExecutorNTUP(name = 'NTUPtoRED', skeletonFile = 'PATJobTransforms/skeleton.NTUPtoRED_tf.py',
@@ -101,7 +100,8 @@ def getTransform():
     
     trf = transform(executor = executorSet, description = 'Trigger transform to run HLT_standalone, followed by'
                     ' general purpose ATLAS reconstruction transform. Input to HLT_Standalone is inputBS_RDOFile'
-                    ' with outputs of RDO, ESD, AOD or DPDs. For more details on reco_tf, see:'
+                    ' with outputs of RDO, ESD, AOD or DPDs. For more details see:'
+                    ' https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerTransform or for reco_tf, see:'
                     ' https://twiki.cern.ch/twiki/bin/viewauth/Atlas/RecoTf')
     
     #add arguments as donw in reco_tf
@@ -133,7 +133,7 @@ def getTransform():
 #        
 #    except ImportError:
 #        msg.warning('Failed to import simulation/digitisation arguments. These substeps will not be available.')
-    
+
     #now add specific trigger arguments
     #  putting this last makes them appear last in the help so easier to find
     addTriggerArgs(trf.parser)
@@ -147,13 +147,11 @@ def addTriggerArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('Trigger', 'Specific options related to the trigger configuration used for reprocessing')
     
-    #new for trigger transform
-    #now setup to run athenaHLT, so TODO is to remove:testPhysicsV4 and writeBS
-    #TODO: testPhysicsV4 needs deleting as causes double menu loading but left in for now to not add conflicts to the panda tag page
-    parser.add_argument('--testPhysicsV4', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                          help='Please do not use this command, to be deleted', group='Trigger')
+    #arguments specific for trigger transform
+    #writeBS used in literal arguments when running HLT step in athena (not athenaHLT)
     parser.add_argument('--writeBS', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                           help='Needed if running BSRDO to BS step in athena (default: True)', group='Trigger', default=trfArgClasses.argBool(True, runarg=True))
+    #input BS file for the HLT step (name just to be unique identifier)
     parser.add_argument('--inputBS_RDOFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input', runarg=True, type='bs'),
                         help='Input bytestream file', group='Trigger')
@@ -161,39 +159,38 @@ def addTriggerArgs(parser):
     parser.add_argument('--outputBSFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output', runarg=True, type='bs'),
                         help='Output bytestream file', group='Trigger')
+    #HLT out histogram file, if defined renames expert-monitoring file that is produced automatically
     parser.add_argument('--outputHIST_HLTMONFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
                         help='Output HLTMON file', group='Trigger')    
-    #NTUP_TRIG is added as is not available in ATLASP1HLT, but is available in the reco release
-    #hence can be used later in a ATLASP1HLT job if switch releases
+    #NTUP_TRIG is used for COST monitoring - used in the reco release
     parser.add_argument('--outputNTUP_TRIGFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
                         help='D3PD output NTUP_TRIG file (can be made in substeps e2d,a2d)', group='Trigger')
-    #NTUP_COST is added as is not available in ATLASP1HLT, but is available in the reco release
-    #hence can be used later in a ATLASP1HLT job if switch releases
+    #NTUP_COST is used for COST monitoring - used in the reco release
     parser.add_argument('--outputNTUP_TRIGCOSTFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
                         help='D3PD output NTUP_TRIGCOST file', group='Trigger')
-    #NTUP_RATE is added as is not available in ATLASP1HLT, but is available in the reco release
-    #hence can be used later in a ATLASP1HLT job if switch releases
+    #NTUP_RATE is used for COST monitoring - used in the reco release
     parser.add_argument('--outputNTUP_TRIGRATEFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
                         help='D3PD output NTUP_TRIGRATE file', group='Trigger')
-    #NTUP_TRIGEBWGHT is added as is not available in ATLASP1HLT, but is available in the reco release
-    #hence can be used later in a ATLASP1HLT job if switch releases
+    #NTUP_TRIGEBWGHT is used for COST monitoring - used in the reco release
     parser.add_argument('--outputNTUP_TRIGEBWGHTFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
                         help='D3PD output NTUP_TRIGEBWGHT file', group='Trigger')
+    #Trigger Configuration String as used in reco Steps
     parser.add_argument('--triggerConfig', nargs='+', metavar='substep=TRIGGERCONFIG',
                         type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True, separator='='),
                         help='Trigger Configuration String. '
 			'N.B. This argument uses EQUALS (=) to separate the substep name from the value.', group='Trigger')
+    #precommand for athenaHLT aka -c
     parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help='precommand for athenaHLT aka -c', group='Trigger')
+    #postcommand for athenaHLT aka -C
     parser.add_argument('--postcommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help='postcommand for athenaHLT aka -C', group='Trigger')
-    parser.add_argument('--eventmodifier', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
-                        help='event-modifier for athenaHLT aka -Z', group='Trigger')
+    #For prodsys to make sure uses inputBS_RDOFile rather than inputBSFile when running the b2r step
     parser.add_argument('--prodSysBSRDO', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='For prodsys to make sure uses inputBS_RDOFile rather than inputBSFile when running the b2r step', group='Trigger')
 
@@ -202,24 +199,16 @@ def addTriggerDBArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('TriggerDB', 'Specific options related to the trigger DB')
     
-    #TODO add short forms and help messages
-        
-    parser.add_argument('--jobOptionSvcType', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='jobOptionSvcType aka -J', group='TriggerDB')
     parser.add_argument('--useDB', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='useDB', group='TriggerDB')
-    parser.add_argument('--DBtype', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='DBtype', group='TriggerDB')
+                        help='read from DB for athenaHLT aka use-database', group='TriggerDB')
     parser.add_argument('--DBserver', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='DBserver', group='TriggerDB')
+                        help='DB name: aka athenaHLT db-server', group='TriggerDB')
     parser.add_argument('--DBsmkey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='DBsmkey', group='TriggerDB')
+                        help='DB SMK', group='TriggerDB')
     parser.add_argument('--DBhltpskey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='DBhltpskey', group='TriggerDB')
-    parser.add_argument('--DBlvl1pskey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='DBlvl1pskey', group='TriggerDB')
-    parser.add_argument('--DBextra', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='DBextra', group='TriggerDB')
+                        help='DB hltpskey', group='TriggerDB')
+    parser.add_argument('--DBl1pskey', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='DB l1pskey', group='TriggerDB')
 
 
 def addDebugArgs(parser):
