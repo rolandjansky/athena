@@ -98,10 +98,7 @@ void Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache
   double E = sqrt(p * p + m * m);
   double beta = p / E;
 
-  // Calculate energy loss values
-  //double inverseMomentum = 1. / p;
-  //double momentumFractionLost = deltaE * inverseMomentum;
-
+  // Calculate energy loss values uncertainty
   double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
 
   // Update diagonal and off-diagonal covariance matrix elements
