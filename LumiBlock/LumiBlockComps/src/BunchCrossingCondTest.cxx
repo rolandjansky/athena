@@ -63,6 +63,10 @@ void BunchCrossingCondTest::printInfo(const BunchCrossingCondData* bccd, unsigne
       << ", isBeam1="<< bccd->isBeam1(bcid)  << ", isBeam2=" <<bccd->isBeam2(bcid);
   out << ", distFront=" << bccd->distanceFromFront(bcid) 
       << ", distTail= " << bccd->distanceFromTail(bcid);
+
+  out << ", gapBefore=" << bccd->gapBeforeTrain(bcid)
+      << ", gapAfter=" << bccd->gapAfterTrain(bcid);
+
   out << std::endl;
   
 }

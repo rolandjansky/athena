@@ -122,3 +122,63 @@ unsigned BunchCrossingCondData::countColliding(int from, int to) const {
   }
   return ncoll;
 }
+
+
+int BunchCrossingCondData::gapBeforeTrain( bcid_type bcid,
+					   BunchDistanceType type) const {
+
+  const bunchTrain_t* bt=findTrain(bcid);
+  if (bt==nullptr) {
+    return -1;
+  }
+
+  int index=bt->m_first-1;
+  if (index<0) {
+    index=m_MAX_BCID-1;
+  }
+
+  int result=0;
+  
+  while (!m_luminous.test(index) && result<m_MAX_BCID) {
+    result++;
+    index--;
+    if (index<0) {
+      index=m_MAX_BCID-1;
+    }
+  }
+
+  if (type==NanoSec) {
+    result*=m_BUNCH_SPACING;
+  }
+
+  return result;
+}
+
+
+
+int BunchCrossingCondData::gapAfterTrain( bcid_type bcid,
+					  BunchDistanceType type) const {
+  const bunchTrain_t* bt=findTrain(bcid);
+  if (bt==nullptr) {
+    return -1;
+  }
+
+  int index=bt->m_last+1;
+  if (index>=m_MAX_BCID) {
+    index=0;
+  }
+  int result=0;
+  while (!m_luminous.test(index) && result<m_MAX_BCID) {
+    result++;
+    index++;
+    if (index>=m_MAX_BCID) {
+      index=0;
+    }
+  }
+
+ if (type==NanoSec) {
+    result*=m_BUNCH_SPACING;
+  }
+
+ return result;
+}

@@ -92,7 +92,6 @@ public:
    */
   bool isBeam2(const bcid_type bcid ) const;
 
- 
   /// Enumeration specifying the units in which to expect the bunch distance type
   /**
    * To make it clear for the following functions what units to interpret their
@@ -106,6 +105,43 @@ public:
     FilledBunches
   };
 
+  /// Gap before the train this BCID is in
+  /**
+   * Get the gap that's between the train that the specified BCID is in, and
+   * the previous train. This is a useful number for some jet/MET studies.
+   *
+   * Note that the function doesn't work with the FilledBunches type, as the
+   * size of the gaps doesn't have to be a multiple of the bunch distance
+   * within the trains.
+   *
+   * Returns "-1" when there's no right answer to the question. (BCID not
+   * part of a train.)
+   *
+   * @param bcid The bcid whose train should be investigated
+   * @param type The type of the requested return value
+   * @returns The gap before the train of the specified bcid
+   */
+  int gapBeforeTrain( bcid_type bcid = 0,
+		      BunchDistanceType type = NanoSec ) const;
+  /// Gap after the train this BCID is in
+  /**
+   * Get the gap that's between the train that the specified BCID is in, and
+   * the next train. This is a useful number for some jet/MET studies.
+   *
+   * Note that the function doesn't work with the FilledBunches type, as the
+   * size of the gaps doesn't have to be a multiple of the bunch distance
+   * within the trains.
+   *
+   * Returns "-1" when there's no right answer to the question. (BCID not
+   * part of a train.)
+   *
+   * @param bcid The bcid whose train should be investigated
+   * @param type The type of the requested return value
+   * @returns The gap after the train of the specified bcid
+   */
+  int gapAfterTrain( bcid_type bcid = 0,
+		     BunchDistanceType type = NanoSec ) const;
+ 
   /// The distance of the specific bunch crossing from the front of the train
   /**
    * Get the distance of the specified bunch crossing from the front of the

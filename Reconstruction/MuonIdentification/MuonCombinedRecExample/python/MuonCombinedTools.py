@@ -96,11 +96,17 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
-    kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
+    from AthenaCommon.AppMgr import ToolSvc
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk__IntersectorWrapper as Propagator
+        TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
+        ToolSvc += TrigMuonPropagator
+        kwargs.setdefault("TrackBuilder",         getPublicToolClone("TrigMuonTrackBuilder", "CombinedMuonTrackBuilder", Propagator=TrigMuonPropagator) )
+        kwargs.setdefault("VertexContainer", "")
+    else:
+        kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
-        kwargs.setdefault("VertexContainer", "")
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
                          
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
