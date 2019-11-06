@@ -18,10 +18,6 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_xml_pixStaves("PixelStaves.xml"),
   m_xml_pixBarrelLayers("PixelBarrelLayers.xml"),
   m_xml_pixEndcapLayers("PixelEndcapLayers.xml"),
-  m_xml_sctmodules("SCTModules.xml"),
-  m_xml_sctStaves("SCTStaves.xml"),
-  m_xml_sctBarrelLayers("SCTBarrelLayers.xml"),
-  m_xml_sctEndcapLayers("SCTEndcapLayers.xml"),
   m_xml_SLHCVersion("SLHC"),
   m_doPix(true),
   m_doSCT(true),
@@ -34,10 +30,6 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("XML_PixelStaves",       m_xml_pixStaves);
   declareProperty("XML_PixelBarrelLayers", m_xml_pixBarrelLayers);
   declareProperty("XML_PixelEndcapLayers", m_xml_pixEndcapLayers);
-  declareProperty("XML_SCTModules",        m_xml_sctmodules);
-  declareProperty("XML_SCTStaves",         m_xml_sctStaves);
-  declareProperty("XML_SCTBarrelLayers",   m_xml_sctBarrelLayers);
-  declareProperty("XML_SCTEndcapLayers",   m_xml_sctEndcapLayers);
   declareProperty("XML_SLHCVersion",       m_xml_SLHCVersion);
   declareProperty("doPix",                 m_doPix);
   declareProperty("doSCT",                 m_doSCT);
@@ -85,20 +77,6 @@ StatusCode InDet::XMLReaderSvc::initialize()
     ATH_MSG_INFO("Reading Pixel Endcap Layer templates");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapRing");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapDisc");
-  }
-  if(m_doSCT and not m_isGMX) {
-    // WARNING: read front-end chips BEFORE modules
-    ATH_MSG_INFO("Reading SCT FrontEndChip templates");
-    parseFile(m_xml_sctmodules.c_str(),"SCTModules","FrontEndChip");
-    ATH_MSG_INFO("Reading SCT Module templates");
-    parseFile(m_xml_sctmodules.c_str(),"SCTModules","Module");
-    ATH_MSG_INFO("Reading SCT Stave templates");
-    parseFile(m_xml_sctStaves.c_str(),"SCTStaves","SCTStave");
-    ATH_MSG_INFO("Reading SCT Barrel Layer templates");
-    parseFile(m_xml_sctBarrelLayers.c_str(),"SCTBarrelLayers","SCTBarrelLayer");
-    ATH_MSG_INFO("Reading SCT Endcap Layer templates");
-    parseFile(m_xml_sctEndcapLayers.c_str(),"SCTEndcapLayers","SCTEndcapRing");
-    parseFile(m_xml_sctEndcapLayers.c_str(),"SCTEndcapLayers","SCTEndcapDisc");
   }
 
   if(!TerminateXML()) {
