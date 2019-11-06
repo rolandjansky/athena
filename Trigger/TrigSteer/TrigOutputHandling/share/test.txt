@@ -15,7 +15,7 @@ ToolSvc.serialiser.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer#EMClu
 ToolSvc.serialiser.TruncationThresholds={0: 10000000, 1: 10000000};
 
 ToolSvc.serialiser.TrigSerTPTool.TPMap = {"TrigRoiDescriptorCollection" : "TrigRoiDescriptorCollection_p3"};
-ToolSvc.serialiser.TrigSerTPTool.Outputlevel=1;
+ToolSvc.serialiser.TrigSerTPTool.OutputLevel=1;
 
 ToolSvc.schemaTest.OutputLevel=1;
 ToolSvc.schemaTest.SaveDynamic=0;

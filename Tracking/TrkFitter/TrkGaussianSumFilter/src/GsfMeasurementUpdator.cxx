@@ -188,7 +188,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
   }
 
   // Calculate the weight of each component after the measurement
-  std::unique_ptr<Trk::MultiComponentState> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
+  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
                                                                                                         measurement);
 
   if (!stateWithNewWeights) {
@@ -311,7 +311,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
   }
 
   // Calculate the weight of each component after the measurement
-  std::unique_ptr<Trk::MultiComponentState> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
+  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
                                                                                                        measurement);
 
   if (!stateWithNewWeights) {

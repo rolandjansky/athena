@@ -7,6 +7,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <string>
+#include <optional>
 
 class IJetGrouper{
   public:
@@ -24,6 +25,8 @@ class IJetGrouper{
    */
   virtual std::vector<HypoJetGroupVector> group(HypoJetIter&,
 						HypoJetIter&) const = 0;
+  virtual std::optional<HypoJetGroupVector> next(HypoJetIter&,
+						 HypoJetIter&) const = 0;
   virtual std::string toString() const = 0; 
   virtual std::string getName() const = 0; 
 };

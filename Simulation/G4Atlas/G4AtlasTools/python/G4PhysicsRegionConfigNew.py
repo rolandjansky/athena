@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 from G4AtlasTools.G4AtlasToolsConf import RegionCreator
 
 # Beampipe Regions

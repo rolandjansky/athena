@@ -929,12 +929,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
                                                   std::vector<IdentifierHash>& idWithDataVect, // filled with IDs of created PrepRawData collections
                                                   IdContext& rpcContext)
 {
-  // FIXME: This needs to be redone to work properly with MT.
-  if (Gaudi::Hive::currentContext().slot() > 1) {
-    ATH_MSG_ERROR ( "RpcRdoToCscPrepDataTool doesn't yet work with MT." );
-    return StatusCode::FAILURE;
-  }
-
   ATH_MSG_DEBUG("***************** Start of processPad eta/phiview "
 		<<processingetaview<<"/"<<processingphiview
 		<<" ---# of coll.s with data until now is "<<idWithDataVect.size());

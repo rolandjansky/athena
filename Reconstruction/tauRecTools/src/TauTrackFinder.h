@@ -8,7 +8,9 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "ITrackToVertex/ITrackToVertex.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -112,6 +114,9 @@ private:
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+    //output particle calo extension collection
+    SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
+      "tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
     
     //-------------------------------------------------------------
     //! Input parameters for algorithm
@@ -135,6 +140,7 @@ private:
 
     bool m_bypassSelector;
     bool m_bypassExtrapolator;
+    bool m_useOldCalo;
 
     //-------------------------------------------------------------
     // Sets of EM/Had samplings for track extrapolation 

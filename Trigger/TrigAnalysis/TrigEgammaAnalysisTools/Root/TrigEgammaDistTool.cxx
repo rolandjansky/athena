@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -51,7 +51,7 @@ StatusCode TrigEgammaDistTool::childFinalize(){
 StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo info,
         std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs){
     ATH_MSG_DEBUG("Executing Distribution for " << basePath);
-
+  
     // Require that at least 1 offline selected object in event
     // Trigger distributions not entirely dependent from offline analysis
     //
@@ -78,7 +78,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
         }
     }
     else {
-
+        
         for(const auto pairObj : pairObjs){
             fillShowerShapes(dir+"Offline",pairObj.first); // Fill Offline shower shapes
             if(xAOD::EgammaHelpers::isElectron(pairObj.first)) { // Fill offline tracking
@@ -266,7 +266,7 @@ void TrigEgammaDistTool::fillEFCalo(const std::string &dir, const xAOD::CaloClus
     ATH_MSG_DEBUG("Energy " << clus->e()/1.e3);
     ATH_MSG_DEBUG("eta " << clus->eta());
     ATH_MSG_DEBUG("phi " << clus->phi());
-
+    
     double tmpeta = -999.;
     if(!clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta))
         tmpeta=-999.;
@@ -275,7 +275,7 @@ void TrigEgammaDistTool::fillEFCalo(const std::string &dir, const xAOD::CaloClus
         tmpphi=-999.;
     ATH_MSG_DEBUG("etacalo " << tmpeta);
     ATH_MSG_DEBUG("phicalo " << tmpphi);
-
+    
     hist1("energyBE0")->Fill(clus->energyBE(0)/1.e3);
     hist1("energyBE1")->Fill(clus->energyBE(1)/1.e3);
     hist1("energyBE2")->Fill(clus->energyBE(2)/1.e3);
@@ -345,24 +345,26 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string &dir,const xAOD::Ega
             hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
             hist1("topoetcone40_shift_rel")->Fill((getIsolation_topoetcone40(eg)-2450)/eg->pt());
         }
-        // Fill the LH discriminant for LH tight medium and loose -> Not working *YET* in master. I'll keep it here so I can uncomment when fixed
-        // ATH_MSG_DEBUG("Computing the lh discriminant!");
-        // auto ctx = Gaudi::Hive::currentContext() ;
-        // try {
-        //     hist1("lhtight_discriminant")->Fill(m_electronLHTool[0]->calculate(ctx, eg));
-        //     hist1("lhmedium_discriminant")->Fill(m_electronLHTool[1]->calculate(ctx, eg));
-        //     hist1("lhloose_discriminant")->Fill(m_electronLHTool[2]->calculate(ctx, eg));
-        // } catch(const ValidationException &e) {
-        //     ATH_MSG_WARNING("Exception thrown: " << e.msg() << " not computing lh discriminants!");
-        // } catch(...) {
-        //     ATH_MSG_WARNING("Unknown exception caught, while computing lh discriminants!. Ignoring");
-        // }
+	// Fill the LH discriminant for LH tight medium and loose -> Not working *YET* in master. I'll keep it here so I can uncomment when fixed
+	// ATH_MSG_DEBUG("Computing the lh discriminant!");
+	// auto ctx = Gaudi::Hive::currentContext() ;
+	// try {
+	//     hist1("lhtight_discriminant")->Fill(m_electronLHTool[0]->calculate(ctx, eg));
+	//     hist1("lhmedium_discriminant")->Fill(m_electronLHTool[1]->calculate(ctx, eg));
+	//     hist1("lhloose_discriminant")->Fill(m_electronLHTool[2]->calculate(ctx, eg));
+	// } catch(const ValidationException &e) {
+	//     ATH_MSG_WARNING("Exception thrown: " << e.msg() << " not computing lh discriminants!");
+	// } catch(...) {
+	//     ATH_MSG_WARNING("Unknown exception caught, while computing lh discriminants!. Ignoring");
+	// }
 
+
+        
     }
 }
 
 void TrigEgammaDistTool::fillTracking(const std::string &dir, const xAOD::Electron *eg){
-    cd(dir);
+    cd(dir);  
     ATH_MSG_DEBUG("Fill tracking");
     if(!eg) ATH_MSG_WARNING("Electron pointer fails");
     else {
@@ -382,14 +384,14 @@ void TrigEgammaDistTool::fillTracking(const std::string &dir, const xAOD::Electr
         hist1("deta2")->Fill(getCaloTrackMatch_deltaEta2(eg));
         hist1("dphi2")->Fill(getCaloTrackMatch_deltaPhi2(eg));
         hist1("dphiresc")->Fill(getCaloTrackMatch_deltaPhiRescaled2(eg));
-
-
+        
+        
         hist1("eprobht")->Fill(getTrackSummaryFloat_eProbabilityHT(eg));
         hist1("npixhits")->Fill(getTrackSummary_numberOfPixelHits(eg));
         hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(eg));
         hist1("charge")->Fill(eg->charge());
         hist1("ptcone20")->Fill(getIsolation_ptcone20(eg)/1e3);
-
+        
         hist1("ptvarcone20")->Fill(getIsolation_ptvarcone20(eg)/1e3);
         // Quantities directly from tracks
         ATH_MSG_DEBUG("Get track Quantities");
@@ -405,12 +407,4 @@ void TrigEgammaDistTool::fillTracking(const std::string &dir, const xAOD::Electr
         }
 
     }
-}
-
-void TrigEgammaDistTool::setDetail(bool doDetail) {
-    m_detailedHists = doDetail;
-}
-
-void TrigEgammaDistTool::setTP(bool tp) {
-    m_tp = tp;
 }

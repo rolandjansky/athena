@@ -18,9 +18,10 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h" 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include <atomic>
 
@@ -30,7 +31,7 @@ class SCT_ID;
 
 namespace InDet{
 
-    class CacheCreator : public AthReentrantAlgorithm 
+    class CacheCreator : public AthReentrantAlgorithm
     {
     public:
 
@@ -55,6 +56,8 @@ namespace InDet{
           {this, "SpacePointCacheSCT", ""};
         SG::WriteHandleKey<SCT_RDO_Cache>      m_SCTRDOCacheKey
           {this, "SCTRDOCacheKey", ""};
+	SG::WriteHandleKey<IDCInDetBSErrContainer_Cache> m_SCTBSErrCacheKey
+	  {this, "SCTBSErrCacheKey", ""};
         SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey
           {this, "PixRDOCacheKey", ""};
         BooleanProperty m_disableTRT{this, "disableTRT", false};

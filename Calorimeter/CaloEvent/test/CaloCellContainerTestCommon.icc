@@ -17,6 +17,9 @@
 
 #include "TestTools/random.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 
 //using Athena_test::randi;
 Athena_test::URNG stlrand;

@@ -84,11 +84,10 @@ def setupMenu():
     ]
 
     TriggerFlags.BjetSlice.signatures = [
-        #ATR-20049
-        ChainProp(name="HLT_j175_gsc225_bmv2c1040_split_L1J100", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j225_gsc275_bmv2c1060_split_L1J100", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j225_gsc300_bmv2c1070_split_L1J100", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j225_gsc360_bmv2c1077_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j175_ftf_gsc225_bmv2c1040_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j225_ftf_gsc275_bmv2c1060_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j225_ftf_gsc300_bmv2c1070_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j225_ftf_gsc360_bmv2c1077_split_L1J100", groups=SingleBjetGroup),
     ] 
 
     TriggerFlags.TauSlice.signatures = [
@@ -105,7 +104,7 @@ def setupMenu():
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = [
-        ChainProp(name='HLT_beamspot_allTE_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
+        ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
         #ChainProp(name='HLT_beamspot_activeTE_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
         #ChainProp(name='HLT_beamspot_trkFS_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
     ]

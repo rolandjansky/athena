@@ -4,7 +4,9 @@
 
 // Misc includes
 #include <bitset>
+#include <cassert>
 #include <vector>
+#include <stdexcept>
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -119,7 +121,7 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, theta)
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, qOverP)
 
-  const DefiningParameters_t TrackParticle_v1::definingParameters() const{
+  DefiningParameters_t TrackParticle_v1::definingParameters() const{
     DefiningParameters_t tmp;
     tmp << d0() , z0() , phi0() , theta() , qOverP();
     return tmp;
@@ -150,7 +152,13 @@ namespace xAOD {
     return;
   }
 
+  static const SG::AuxElement::Accessor< std::vector< float > >
+    accCovMatrixDiag( "definingParametersCovMatrixDiag" );
+  static const SG::AuxElement::Accessor< std::vector< float > >
+    accCovMatrixOffDiag( "definingParametersCovMatrixOffDiag" );
+
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
+
 #ifndef XAOD_STANDALONE
     // reset perigee cache if existing
     if(m_perigeeParameters.isValid()) {
@@ -158,28 +166,234 @@ namespace xAOD {
     }
 #endif // not XAOD_STANDALONE
 
-    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
-    Amg::compress(cov,acc(*this));
+    // Extract the diagonal elements from the matrix.
+    std::vector< float > diagVec;
+    diagVec.reserve( cov.rows() );
+    for( int i = 0; i < cov.rows(); ++i ) {
+      diagVec.push_back( cov( i, i ) );
+    }
+    // Set the variable.
+    setDefiningParametersCovMatrixDiagVec( diagVec );
+
+    // Extract the off-diagonal elements from the matrix.
+    std::vector< float > offDiagVec;
+    offDiagVec.reserve( ( ( cov.rows() - 1 ) * cov.rows() ) / 2 );
+    for( int i = 1; i < cov.rows(); ++i ) {
+      for( int j = 0; j < i; ++j ) {
+        float offDiagCoeff = (cov( i, i )>0 && cov( j, j )>0) ? cov( i, j )/sqrt(cov( i, i )*cov( j, j )) : 0;
+        offDiagVec.push_back( offDiagCoeff );
+      }
+    }
+    // Set the variable.
+    setDefiningParametersCovMatrixOffDiagVec( offDiagVec );
+
+    return;
   }
 
   const xAOD::ParametersCovMatrix_t TrackParticle_v1::definingParametersCovMatrix() const {
+
+        // Set up the result matrix.
     xAOD::ParametersCovMatrix_t cov;
-    const std::vector<float>& covVec = definingParametersCovMatrixVec();
-    if( !covVec.empty() ) Amg::expand( covVec.begin(), covVec.end(),cov );
-    else cov.setIdentity();
+    cov.setZero();
+
+    // Set the diagonal elements of the matrix.
+    if( accCovMatrixDiag.isAvailable( *this ) &&
+        ( static_cast< int >( accCovMatrixDiag( *this ).size() ) == cov.rows() ) ) {
+
+        // Access the "raw" variable.
+        const std::vector< float >& diagVec = accCovMatrixDiag( *this );
+        // Set the diagonal elements using the raw variable.
+        for( int i = 0; i < cov.rows(); ++i ) {
+          cov( i, i ) = diagVec[ i ];
+        }
+    } else {
+      // If the variable is not available/set, set the matrix to identity.
+      cov.setIdentity();
+    }
+
+    bool offDiagCompr = definingParametersCovMatrixOffDiagCompr();
+
+    // Set the off-diagonal elements of the matrix.
+    if(!offDiagCompr){
+
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) ==
+	    ( ( ( cov.rows() - 1 ) * cov.rows() ) / 2 ) ) ) {
+
+	// Access the "raw" variable.
+	const std::vector< float >& offDiagVec = accCovMatrixOffDiag( *this );
+	// Set the off-diagonal elements using the raw variable.
+	std::size_t vecIndex = 0;
+	for( int i = 1; i < cov.rows(); ++i ) {
+	  for( int j = 0; j < i; ++j, ++vecIndex ) {
+	    cov.fillSymmetric( i, j, offDiagVec[ vecIndex ]*sqrt(cov(i,i)*cov(j,j)) );
+	  }
+	}
+      }
+
+    }
+
+    else{ //Compressed case
+
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == m_covMatrixOffDiagVecComprSize ) ) {
+	// Access the "raw" variable.
+	const std::vector< float >& offDiagVec = accCovMatrixOffDiag( *this );
+	// Set the off-diagonal elements using the raw variable.
+	cov.fillSymmetric( d0_index, phi_index,
+			   offDiagVec[d0_phi_index]*sqrt(cov(d0_index,d0_index)*cov(phi_index,phi_index)) );
+	cov.fillSymmetric( z0_index, th_index,
+			   offDiagVec[z0_th_index]*sqrt(cov(z0_index,z0_index)*cov(th_index,th_index)) );
+	cov.fillSymmetric( d0_index, qp_index,
+			   offDiagVec[d0_qp_index]*sqrt(cov(d0_index,d0_index)*cov(qp_index,qp_index)) );
+	cov.fillSymmetric( z0_index, qp_index,
+			   offDiagVec[z0_qp_index]*sqrt(cov(z0_index,z0_index)*cov(qp_index,qp_index)) );
+	cov.fillSymmetric( phi_index, qp_index,
+			   offDiagVec[phi_qp_index]*sqrt(cov(phi_index,phi_index)*cov(qp_index,qp_index)) );
+	cov.fillSymmetric( th_index, qp_index,
+			   offDiagVec[th_qp_index]*sqrt(cov(th_index,th_index)*cov(qp_index,qp_index)) );
+
+      }
+
+    }
+
+
+    // Return the filled matrix.
     return cov;
+
   }
 
-  const std::vector<float>& TrackParticle_v1::definingParametersCovMatrixVec() const {
-  // Can't use AUXSTORE_PRIMITIVE_SETTER_AND_GETTER since I have to add Vec to the end of setDefiningParametersCovMatrix to avoid clash.
-    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
-    return acc(*this);
+  ParametersCovMatrixFilled_t TrackParticle_v1::definingParametersCovMatrixFilled() const {
+
+    // Create the result matrix.
+    ParametersCovMatrixFilled_t result;
+    result.setZero();
+
+    // Check if the diagonal elements are available.
+    if( accCovMatrixDiag.isAvailable( *this ) &&
+        ( static_cast< int >( accCovMatrixDiag( *this ).size() ) == result.rows() ) ) {
+
+      result.setIdentity();
+    }
+
+    bool offDiagCompr = definingParametersCovMatrixOffDiagCompr();
+
+    if(!offDiagCompr){
+
+      // Check if the off-diagonal elements are available.
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) ==
+	    ( ( result.rows() * ( result.rows() - 1 ) ) / 2 ) ) ) {
+
+	for( int i = 1; i < result.rows(); ++i ) {
+	  for( int j = 0; j < i; ++j ) {
+	    result.fillSymmetric( i, j, true );
+	  }
+	}
+      }
+
+    }
+
+    else{
+
+      if( accCovMatrixOffDiag.isAvailable( *this ) &&
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == m_covMatrixOffDiagVecComprSize ) ){
+
+	result.fillSymmetric( d0_index, phi_index, true );
+	result.fillSymmetric( z0_index, th_index, true );
+	result.fillSymmetric( d0_index, qp_index, true );
+	result.fillSymmetric( z0_index, qp_index, true );
+	result.fillSymmetric( phi_index, qp_index, true );
+	result.fillSymmetric( th_index, qp_index, true );
+
+      }
+
+    }
+
+    // Return the object.
+    return result;
   }
+
+  const std::vector< float >& TrackParticle_v1::definingParametersCovMatrixDiagVec() const {
+
+    return accCovMatrixDiag( *this );
+  }
+
+  const std::vector< float >& TrackParticle_v1::definingParametersCovMatrixOffDiagVec() const {
+
+    return accCovMatrixOffDiag( *this );
+  }
+
+  std::vector<float> TrackParticle_v1::definingParametersCovMatrixVec() const {
+
+    std::vector< float > vec;
+    AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(definingParametersCovMatrix());
+    Amg::compress(*cov,vec);
+    return vec;
+
+  }
+
+  void TrackParticle_v1::setDefiningParametersCovMatrixDiagVec( const std::vector< float >& vec ) {
+
+    if( vec.size() != ParametersCovMatrix_t::RowsAtCompileTime ){
+      throw std::runtime_error("Setting track definingParametersCovMatrixDiag with vector of size "+std::to_string(vec.size())+" instead of expected "+std::to_string(ParametersCovMatrix_t::RowsAtCompileTime)+" is not supported");
+    }
+
+    accCovMatrixDiag( *this ) = vec;
+    return;
+  }
+
+  void TrackParticle_v1::setDefiningParametersCovMatrixOffDiagVec( const std::vector< float >& vec ) {
+
+    bool offDiagCompr = definingParametersCovMatrixOffDiagCompr();
+
+    unsigned int uncompr_size = ( ( ( ParametersCovMatrix_t::RowsAtCompileTime - 1 ) *
+				    ParametersCovMatrix_t::RowsAtCompileTime ) / 2 );
+    unsigned int size = offDiagCompr ? m_covMatrixOffDiagVecComprSize : uncompr_size;
+
+    if( !(vec.size() == size || vec.size() == uncompr_size) ){ //If off-diagonal elements are already compressed, can either set with uncompressed or compressed vector
+      throw std::runtime_error("Setting track definingParametersCovMatrixOffDiag with vector of size "+std::to_string(vec.size())+" instead of expected "+std::to_string(size)+" or "+std::to_string(uncompr_size)+" is not supported");
+    }
+
+    accCovMatrixOffDiag( *this ) = vec;
+    return;
+  }
+
+  bool TrackParticle_v1::definingParametersCovMatrixOffDiagCompr() const {
+
+    bool flag = false;
+    if(accCovMatrixOffDiag.isAvailable( *this )) flag = (static_cast< int >(accCovMatrixOffDiag( *this ).size())==m_covMatrixOffDiagVecComprSize);
+    return flag;
+  }
+
+  void TrackParticle_v1::compressDefiningParametersCovMatrixOffDiag() {
+
+    ParametersCovMatrix_t cov = definingParametersCovMatrix();
+    std::vector< float > offDiagVecCompr;
+    offDiagVecCompr.resize(m_covMatrixOffDiagVecComprSize);
+
+    offDiagVecCompr[d0_phi_index] = cov(d0_index, phi_index) / sqrt(cov(d0_index,d0_index)*cov(phi_index,phi_index));
+    offDiagVecCompr[z0_th_index] = cov(z0_index, th_index) / sqrt(cov(z0_index,z0_index)*cov(th_index,th_index));
+    offDiagVecCompr[d0_qp_index] = cov(d0_index, qp_index) / sqrt(cov(d0_index,d0_index)*cov(qp_index,qp_index));
+    offDiagVecCompr[z0_qp_index] = cov(z0_index, qp_index) / sqrt(cov(z0_index,z0_index)*cov(qp_index,qp_index));
+    offDiagVecCompr[phi_qp_index] = cov(phi_index, qp_index) / sqrt(cov(phi_index,phi_index)*cov(qp_index,qp_index));
+    offDiagVecCompr[th_qp_index] = cov(th_index, qp_index) / sqrt(cov(th_index,th_index)*cov(qp_index,qp_index));
+
+    accCovMatrixOffDiag( *this ) = offDiagVecCompr;
+    return;
+
+  }
+
+
+  //Old schema compatibility
 
   void TrackParticle_v1::setDefiningParametersCovMatrixVec(const std::vector<float>& cov){
-  // Can't use AUXSTORE_PRIMITIVE_SETTER_AND_GETTER since I have to add Vec to the end of setDefiningParametersCovMatrix to avoid clash.
-    static const Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
-    acc(*this)=cov;
+
+    xAOD::ParametersCovMatrix_t covMatrix;
+    if( !cov.empty() ) Amg::expand( cov.begin(), cov.end(),covMatrix );
+    else covMatrix.setIdentity();
+    setDefiningParametersCovMatrix( covMatrix );
+
   }
 
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, vx)

@@ -44,12 +44,13 @@ class L1EmulationTest(L1Decoder):
         self.ctpUnpacker = ctpUnpacker
         self += ctpUnpacker
 
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
             emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                                     Decisions = "EMRoIDecisions",
-                                                    OutputTrigRoIs = "EMRoIs",
+                                                    OutputTrigRoIs = mapThresholdToL1RoICollection("EM"),
                                                     OutputLevel = self.getDefaultProperty("OutputLevel"))
             self.roiUnpackers += [emUnpacker]
             print emUnpacker
@@ -59,7 +60,7 @@ class L1EmulationTest(L1Decoder):
         if TriggerFlags.doMuon():
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
                                                     Decisions = "MURoIDecisions",
-                                                    OutputTrigRoIs = "MURoIs",
+                                                    OutputTrigRoIs = mapThresholdToL1RoICollection("MU"),
                                                     OutputLevel=self.getDefaultProperty("OutputLevel"))
             self.roiUnpackers += [muUnpacker]
 

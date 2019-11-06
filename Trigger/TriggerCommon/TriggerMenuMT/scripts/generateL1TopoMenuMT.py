@@ -1,10 +1,9 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
-from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags import L1TopoFlags
 
 def generateL1TopoMenu(menu):
 
@@ -31,9 +30,12 @@ def main():
         #generateL1TopoMenu(menu="MC_pp_v7")
         #generateL1TopoMenu(menu="Physics_pp_v7")
         generateL1TopoMenu(menu="LS2_v1" )
+        generateL1TopoMenu(menu="Physics_pp_run3_v1" )
+        generateL1TopoMenu(menu="PhysicsP1_pp_run3_v1" )
+        generateL1TopoMenu(menu="MC_pp_run3_v1" )
         return 0
 
-    if sys.argv[1] in ["LS2_v1","Physics_pp_v7", "MC_pp_v7"]: # explicit names for TMXML nightly
+    if sys.argv[1] in ["LS2_v1","Physics_pp_v7", "MC_pp_v7", "Physics_pp_run3_v1", "PhysicsP1_pp_run3_v1", "MC_pp_run3_v1"]: # explicit names for TMXML nightly
         generateL1TopoMenu(menu=sys.argv[1])
         return 0
 

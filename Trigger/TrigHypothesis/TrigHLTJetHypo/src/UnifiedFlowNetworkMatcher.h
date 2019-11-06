@@ -25,7 +25,8 @@ public virtual IGroupsMatcherMT, private FlowNetworkMatcherBase {
 
 public:
   UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
-			    const std::vector<std::size_t>& treeVec);
+			    const std::vector<std::size_t>& treeVec,
+			    const std::vector<std::vector<int>>&);
   
   ~UnifiedFlowNetworkMatcher(){}
   virtual std::string toString() const override;

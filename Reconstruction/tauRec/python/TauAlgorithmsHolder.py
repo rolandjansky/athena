@@ -143,7 +143,8 @@ def getParticleCaloExtensionTool():
         return cached_instances[_name]
     
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-    tauParticleCaloExtensionTool=Trk__ParticleCaloExtensionTool(name = _name, Extrapolator = getAtlasExtrapolator())
+    
+    tauParticleCaloExtensionTool = Trk__ParticleCaloExtensionTool(name = _name, Extrapolator = getAtlasExtrapolator())
     
     ToolSvc += tauParticleCaloExtensionTool  
     cached_instances[_name] = tauParticleCaloExtensionTool
@@ -336,7 +337,8 @@ def getElectronVetoVars():
     from tauRecTools.tauRecToolsConf import TauElectronVetoVariables
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
                                                         CellCorrection = True,
-                                                        ParticleCaloExtensionTool = getParticleCaloExtensionTool())
+                                                        ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
+                                                        tauEVParticleCache = "ParticleCaloExtension")
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables
@@ -685,6 +687,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
+                                    tauParticleCache = "ParticleCaloExtension",
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
@@ -804,6 +807,36 @@ def getTauTrackClassifier():
     myTauTrackClassifier = TauTrackClassifier( name = _name,
                                                Classifiers = [_BDT_TTCT_ITFT_0, _BDT_TTCT_ITFT_0_0, _BDT_TTCT_ITFT_0_1] )
     #ToolSvc += TauTrackClassifier #only add to tool service sub tools to your tool, the main tool will be added via TauRecConfigured
+    cached_instances[_name] = myTauTrackClassifier 
+
+    return myTauTrackClassifier
+
+########################################################################                                                                                                             
+#            
+def getTauTrackRNNClassifier():
+    _name = sPrefix + 'TauTrackRNNClassifier'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackRNNClassifier as TauTrackRNNClassifier
+    from tauRecTools.tauRecToolsConf import tauRecTools__TrackRNN as TrackRNN
+
+    import cppyy
+    cppyy.loadDictionary('xAODTau_cDict')
+
+    _RNN= TrackRNN(name = _name + "_0",
+                   InputWeightsPath = tauFlags.tauRecRNNTrackClassificationConfig()[0],
+                   calibFolder = tauFlags.tauRecToolsCVMFSPath(), 
+                   )
+
+    ToolSvc += _RNN
+    cached_instances[_RNN.name] = _RNN
+    
+    # create tool alg
+    myTauTrackClassifier = TauTrackRNNClassifier( name = _name,
+                                               Classifiers = [_RNN] )
     cached_instances[_name] = myTauTrackClassifier 
 
     return myTauTrackClassifier

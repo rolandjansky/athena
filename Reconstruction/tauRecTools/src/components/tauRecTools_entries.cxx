@@ -29,6 +29,7 @@
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/TauTrackClassifier.h"
+#include "tauRecTools/TauTrackRNNClassifier.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "tauRecTools/TauPi0ClusterScaler.h"
 #include "tauRecTools/TauPi0ScoreCalculator.h"
@@ -69,7 +70,9 @@ DECLARE_COMPONENT( TauBuilderTool )
 DECLARE_COMPONENT( MvaTESVariableDecorator )
 DECLARE_COMPONENT( MvaTESEvaluator )
 DECLARE_COMPONENT( tauRecTools::TauTrackClassifier )
+DECLARE_COMPONENT( tauRecTools::TauTrackRNNClassifier )
 DECLARE_COMPONENT( tauRecTools::TrackMVABDT )
+DECLARE_COMPONENT( tauRecTools::TrackRNN )
 DECLARE_COMPONENT( CombinedP4FromRecoTaus )
 DECLARE_COMPONENT( TauTrackFilter )
 DECLARE_COMPONENT( TauGenericPi0Cone )

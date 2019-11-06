@@ -414,7 +414,7 @@ class CaloTowerSeg
 
   // Can get rid of this when we move to the new CaloDetDescr
   // in which all CaloPhiRange methods are static.
-  static CaloPhiRange s_range;
+  static const CaloPhiRange s_range;
 };
 
 // ----------------------------------------

@@ -118,10 +118,10 @@ if jobproperties.AthenaCommonFlags.PoolHitsOutput.statusOn :
     TBDetDescrLoader.OutputLevel = 5
 
 ## Explicitly create DetectorGeometrySvc - temporary fix
-from AthenaCommon.CfgGetter import getService, getPublicTool
+from AthenaCommon.CfgGetter import getService
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr += getService('DetectorGeometrySvc')
-ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
+ServiceMgr += getService('PhysicsListSvc')
 
 ## TBSimSkeleton._do_metadata
 from G4AtlasApps.G4Atlas_Metadata import createTBSimulationParametersMetadata

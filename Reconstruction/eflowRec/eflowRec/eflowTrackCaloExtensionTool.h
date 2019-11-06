@@ -53,6 +53,13 @@ private:
 
   std::unique_ptr<Trk::TrackParametersIdHelper> m_trackParametersIdHelper;
 
+  //output particle calo extension collection
+  SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
+      "PFParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache"};
+
+  bool m_useOldCalo;
+
+
 };
 
 inline const InterfaceID& eflowTrackCaloExtensionTool::interfaceID() {

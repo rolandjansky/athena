@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: $
@@ -34,8 +34,8 @@ namespace xAOD {
     inline
     double d0significanceUnsafe(const xAOD::TrackParticle *tp) {
       double d0 = tp->d0();
-      // elements in definingParametersCovMatrixVec should be : sigma_d0^2, sigma_d0_z0, sigma_z0^2
-      double sigma_d0 = std::sqrt( tp->definingParametersCovMatrixVec()[0] );
+      // elements in definingParametersCovMatrixDiagVec should be : sigma_d0^2, sigma_z0^2
+      double sigma_d0 = std::sqrt( tp->definingParametersCovMatrixDiagVec()[0] );
       return d0/sigma_d0;
     }
 
@@ -79,8 +79,7 @@ namespace xAOD {
     inline
     double d0significanceUnsafe(const xAOD::TrackParticle *tp, double beam_sigma_x,double beam_sigma_y, double beam_sigma_xy) {
       double d0 = tp->d0();
-      // elements in definingParametersCovMatrixVec should be : sigma_d0^2, sigma_d0_z0, sigma_z0^2
-      double sigma_d0 = std::sqrt( tp->definingParametersCovMatrixVec()[0] + d0UncertaintyBeamSpot2(tp->phi(),beam_sigma_x, beam_sigma_y, beam_sigma_xy) );
+      double sigma_d0 = std::sqrt( tp->definingParametersCovMatrixDiagVec()[0] + d0UncertaintyBeamSpot2(tp->phi(),beam_sigma_x, beam_sigma_y, beam_sigma_xy) );
       return d0/sigma_d0;
     }
 
@@ -101,8 +100,7 @@ namespace xAOD {
     inline
     double z0significanceUnsafe(const xAOD::TrackParticle *tp) {
       double z0 = tp->z0() + tp->vz();
-      // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_d0_z0, sigma_z0^2
-      double sigma_z0 = std::sqrt( tp->definingParametersCovMatrixVec()[2] );
+      double sigma_z0 = std::sqrt( tp->definingParametersCovMatrixDiagVec()[1] );
       return z0/sigma_z0;
     }
 
@@ -120,8 +118,7 @@ namespace xAOD {
       // use z0 relative to the given primary vertex.
       double z0 = tp->z0() + tp->vz() - vx->z();
 
-      // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_d0_z0, sigma_z0^2
-      double sigma_z0 = std::sqrt( tp->definingParametersCovMatrixVec()[2] );
+      double sigma_z0 = std::sqrt( tp->definingParametersCovMatrixDiagVec()[1] );
       return z0/sigma_z0;
     }
 
@@ -135,8 +132,7 @@ namespace xAOD {
     inline
     bool hasValidCovD0(const xAOD::TrackParticle *tp ) {
           if (hasValidCov(tp)) {
- 	     if  ( !tp->definingParametersCovMatrixVec().empty()
-                   && tp->definingParametersCovMatrixVec()[0]>0.) {
+	     if  (tp->definingParametersCovMatrixDiagVec()[0]>0.) {
                 return true;
              }
           }
@@ -148,8 +144,7 @@ namespace xAOD {
     inline
     bool hasValidCovZ0(const xAOD::TrackParticle *tp) {
           if (hasValidCov(tp)) {
-             if  ( ! ( tp->definingParametersCovMatrixVec().size() > 2 )
-                   && ( tp->definingParametersCovMatrixVec()[2] > 0. ) ) {
+             if  ( tp->definingParametersCovMatrixDiagVec()[1] > 0. ) {
                 return true;
              }
           }
@@ -161,9 +156,8 @@ namespace xAOD {
     inline
     bool hasValidCovD0andZ0( const xAOD::TrackParticle *tp) {
           if (hasValidCov(tp)) {
-             if  ( ! ( tp->definingParametersCovMatrixVec().size() > 2 ) 
-                   && ( tp->definingParametersCovMatrixVec()[0] > 0. )
-                   && ( tp->definingParametersCovMatrixVec()[2] > 0. ) ) {
+             if  ( ( tp->definingParametersCovMatrixDiagVec()[0] > 0. )
+                   && ( tp->definingParametersCovMatrixDiagVec()[1] > 0. ) ) {
                 return true;
              }
           }
@@ -181,7 +175,7 @@ namespace xAOD {
     inline
     bool checkPVReference(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx, const double max_pv_dxy_sqr=0.5*0.5) {
         if (hasValidCovD0(tp) && vx) {
-	     return std::abs( sqr(vx->x())+ sqr(vx->y())) <  max_pv_dxy_sqr * tp->definingParametersCovMatrixVec()[0];
+	     return std::abs( sqr(vx->x())+ sqr(vx->y())) <  max_pv_dxy_sqr * tp->definingParametersCovMatrixDiagVec()[0];
         }
         return false;
     }
@@ -243,15 +237,14 @@ namespace xAOD {
       //                      ? pt / tan( tp->theta() )
       //                      : 0 )
 
-      
-      const std::vector<float>&cov= tp->definingParametersCovMatrixVec();
-      // elements in definingParametersCovMatrixVec should be : 0: sigma_d0^2,
-      //                                                        1: sigma_d0_z0,  sigma_z0^2,
-      //                                                        3: sigma_d0_phi, sigma_z0_phi, sigma_phi^2
-      //                                                        6: sigma_d0_th,  sigma_z0_th,  sigma_phi_th, sigma_th^2
-      //                                                       10: sigma_d0_qp,  sigma_z0_qp,  sigma_phi_qp, sigma_th_qp, sigma_qp^2
+      auto cov = tp->definingParametersCovMatrix();
+      // elements in definingParametersCovMatrix should be : 0: sigma_d0^2,
+      //                                                     1: sigma_d0_z0,  sigma_z0^2,
+      //                                                     3: sigma_d0_phi, sigma_z0_phi, sigma_phi^2
+      //                                                     6: sigma_d0_th,  sigma_z0_th,  sigma_phi_th, sigma_th^2
+      //                                                    10: sigma_d0_qp,  sigma_z0_qp,  sigma_phi_qp, sigma_th_qp, sigma_qp^2
 
-      double pt_err2 = diff_qp * (diff_qp * cov[14] + diff_theta * cov[13] ) + sqr(diff_theta) * cov[9];
+      double pt_err2 = diff_qp * (diff_qp * cov(4, 4) + diff_theta * cov(3, 4) ) + sqr(diff_theta) * cov(3, 3);
       return pt_err2;
     }
 
@@ -268,7 +261,7 @@ namespace xAOD {
     inline
     bool hasValidCovQoverP(const xAOD::TrackParticle *tp ) {
           if (hasValidCov(tp)) {
- 	     if  ( tp->definingParametersCovMatrixVec().size()>=15 && std::abs(tp->qOverP())>0.) {
+             if  (std::abs(tp->qOverP())>0.) {
                 return true;
              }
           }

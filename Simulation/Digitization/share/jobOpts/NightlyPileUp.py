@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Job options file to run PileUp. Need Digitization.py
@@ -154,5 +155,5 @@ svcMgr.PoolSvc.AttemptCatalogPatch = True
 #--------------------------------------------------------------
 jobproperties.print_JobProperties()
 from AthenaCommon.AlgSequence import AlgSequence
-print AlgSequence()
-print ServiceMgr
+print (AlgSequence())
+print (ServiceMgr)

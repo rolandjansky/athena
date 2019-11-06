@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TriggerD3PDMaker/src/TriggerObjectDecisionFillerToolImpl.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,7 +16,6 @@
 #include "TrigObjectMatching/TrigMatchTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaKernel/errorcheck.h"
-#include "boost/foreach.hpp"
 #include <algorithm>
 
 

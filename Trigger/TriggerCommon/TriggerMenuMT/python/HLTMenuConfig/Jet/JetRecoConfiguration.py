@@ -9,6 +9,13 @@
 
 from JetRecConfig.JetDefinition import JetConstit, xAODType, JetDefinition
 
+# Extract the jet reco dict from the chainDict
+def extractRecoDict(chainParts):
+    # interpret the reco configuration only
+    # eventually should just be a subdict in the chainDict
+    recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','cleaning']
+    return { key:chainParts[key] for key in recoKeys }
+
 # Define the jet constituents to be interpreted by JetRecConfig
 # When actually specifying the reco, clustersKey should be
 # set, but default to None to allow certain checks, in particular
@@ -27,11 +34,13 @@ def defineJetConstit(jetRecoDict,clustersKey=None):
         jetConstit = JetConstit( xAODType.CaloCluster, constitMods )
         if clustersKey is not None:
             jetConstit.rawname = clustersKey
+            if jetRecoDict["dataType"]=="tc":
+                jetConstit.inputname = clustersKey
         # apply constituent pileup suppression
+        if "cs" in jetRecoDict["dataType"]:
+            constitMods.append("CS")
         if "sk" in jetRecoDict["dataType"]:
             constitMods.append("SK")
-        elif clustersKey is not None:
-            jetConstit.inputname = clustersKey
     return jetConstit
 
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
@@ -63,6 +72,14 @@ from JetRecConfig.StandardJetMods import jetmoddict
 # Make generating the list a bit more comprehensible
 def getModSpec(modname,modspec=''):
     return (jetmoddict[modname],str(modspec))
+
+def defineTrackMods(trkopt):
+    trkmods = [
+        (jetmoddict["TrackMoments"],trkopt),
+        (jetmoddict["JVF"],trkopt),
+        (jetmoddict["JVT"],trkopt)
+    ]
+    return trkmods
 
 # Translate calib specification into something understood by
 # the calibration config helper

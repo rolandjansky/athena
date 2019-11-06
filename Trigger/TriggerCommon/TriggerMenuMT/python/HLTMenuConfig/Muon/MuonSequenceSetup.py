@@ -19,6 +19,9 @@ muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonCombinedRecFlags.doCaloTrkMuId = False
 muonCombinedRecFlags.printSummary = False
+muonCombinedRecFlags.doSiAssocForwardMuons = False
+muonCombinedRecFlags.doStatisticalCombination = False
+muonCombinedRecFlags.doCombinedFit = True
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
