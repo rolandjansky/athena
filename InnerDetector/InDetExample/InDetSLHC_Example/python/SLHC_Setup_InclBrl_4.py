@@ -1,15 +1,13 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 """ SLHC_Setup
     Python module to hold storegate keys of InDet objects.
 """
 
-__author__ =   "A. Salzburger"
-__version__=   "$Revision: 1.13 $"
-__doc__    =   "SLHC_PathSetting"
-__all__    = [ "SLHC_PathSetting" ]
-
 import os
 from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+from AthenaCommon.DetFlags import DetFlags
 
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 auto_isGMX = (SLHC_Flags.doGMX()) or (CommonGeometryFlags.StripGeoType() == "GMX") 
@@ -329,13 +327,13 @@ class SLHC_Setup :
         toolSvc+=geoEnvelopeTool
 
         print "******************************************************************************************"
-
-        pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
-        pixelTool.Alignable = False
-        pixelTool.FastBuildGeoModel = True
-        pixelTool.ConfigGeoAlgTool = True
-        pixelTool.ReadXMLFromDB = bReadXMLfromDB
-        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
+        if DetFlags.pixel_on():
+            pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
+            pixelTool.Alignable = False
+            pixelTool.FastBuildGeoModel = True
+            pixelTool.ConfigGeoAlgTool = True
+            pixelTool.ReadXMLFromDB = bReadXMLfromDB
+            pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
         
 
     def search_file(self,filename, search_path):
