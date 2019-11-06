@@ -229,7 +229,7 @@ namespace top {
           }
         }
         ///-- Isolation selection --///
-        static SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
+        static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
         char passIsol_FixedCutTight(0);
         char passIsol_FixedCutTightCaloOnly(0);
         char passIsol_FixedCutLoose(0);
@@ -283,15 +283,15 @@ namespace top {
   }
 
   StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal) {
-    static SG::AuxElement::ConstAccessor<float> ptvarcone20_TightTTVA_pt1000("ptvarcone20_TightTTVA_pt1000");
-    static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
-    static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt500("ptvarcone30_TightTTVALooseCone_pt500");
-    static SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
-    static SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
-    static SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
-    static SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
-    static SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
-    static SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone20_TightTTVA_pt1000("ptvarcone20_TightTTVA_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt500("ptvarcone30_TightTTVALooseCone_pt500");
+    static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
+    static const SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
+    static const SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTight("AnalysisTop_Isol_FCTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
