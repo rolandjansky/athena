@@ -188,5 +188,5 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         # runs over outputs and create xAODMuon collection
         topSequence += getAlgorithm("MuonCreatorAlg")
         
-        if muonCombinedRecFlags.doMuGirlLowBeta():
+        if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")
