@@ -17,6 +17,7 @@
 #include "TrigSerializeResult/StringSerializer.h"
 
 #include "TriggerEDMSerialiserTool.h"
+#include "TriggerEDMCLIDs.h"
 
 #include <numeric>
 

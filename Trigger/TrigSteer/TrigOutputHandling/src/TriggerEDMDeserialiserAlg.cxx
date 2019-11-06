@@ -19,7 +19,7 @@
 #include "RootUtils/Type.h"
 
 #include "TriggerEDMDeserialiserAlg.h"
-
+#include "TriggerEDMCLIDs.h"
 
 class TriggerEDMDeserialiserAlg::WritableAuxStore : public SG::AuxStoreInternal {
 public:
