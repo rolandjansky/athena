@@ -25,6 +25,7 @@
 #include "CTPfragment/Issue.h"
 
 #include <algorithm>
+#include <sstream>
 
 //=========================================================================
 // Standard methods
@@ -294,7 +295,9 @@ StatusCode TrigCOOLUpdateHelper::scheduleFolderUpdates(const EventContext& ctx)
     for (std::size_t i=0; i<l1_extraPayload.size(); ++i) {
       msg() << " " << l1_extraPayload[i];
     }
-    msg() << ctp_payload << endmsg;
+    std::ostringstream out;
+    out << ctp_payload;
+    msg() << out.str() << endmsg;
   }
 
   // Loop over potential new folder updates
