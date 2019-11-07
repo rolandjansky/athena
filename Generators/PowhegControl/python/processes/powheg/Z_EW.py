@@ -150,6 +150,7 @@ class Z_EW(PowhegV2):
         self.add_keyword("rwl_format_rwgt")
         self.add_keyword("rwl_group_events")
         self.add_keyword("s2eff")
+        self.add_keyword("use-s2effin")
         self.add_keyword("scheme")
         self.add_keyword("SI_inputfile")
         self.add_keyword("SI_kt2minqed")
