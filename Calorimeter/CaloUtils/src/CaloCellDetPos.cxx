@@ -20,7 +20,7 @@ CaloCellDetPos::~CaloCellDetPos()
 {}
 
 bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam, double etaAtlas, 
-                                    double phiAtlas, double& etaDet, double& phiDet)
+                                    double phiAtlas, double& etaDet, double& phiDet) const
 {
 
   const CaloDetDescrManager* calo_mgr;
@@ -39,7 +39,7 @@ bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam, double etaAtlas
 }
 
 bool CaloCellDetPos::getAtlasPosition(CaloCell_ID::CaloSample sam, double etaDet, 
-                                      double phiDet, double& etaAtlas, double& phiAtlas)
+                                      double phiDet, double& etaAtlas, double& phiAtlas) const
 {
 
   const CaloDetDescrManager* calo_mgr;
