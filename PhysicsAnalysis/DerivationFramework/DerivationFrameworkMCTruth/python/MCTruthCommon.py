@@ -239,6 +239,7 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthTopTool,
                               DFCommonTruthBosonTool,
                               DFCommonTruthBSMTool,
+                              DFCommonTruthForwardProtonTool,
                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
@@ -536,6 +537,7 @@ def addLargeRJetD2(kernel=None):
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
                                                           AugmentationTools = [TruthD2Decorator] )
 
+
 def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, doMuons=True):
     # Sets up modifiers to move pointers to old truth collections to new mini truth collections
     # Ensure that we are adding it to something
@@ -580,6 +582,7 @@ def addTruth3ContentToSlimmerTool(slimmer):
         "TruthBottom",
         "TruthTop",
         "TruthBoson",
+        "TruthForwardProtons",
         "BornLeptons",
         "TruthWbosonWithDecayParticles",
         "TruthWbosonWithDecayVertices",
