@@ -156,8 +156,6 @@ TEST_F( ZDC_PixelSDtest, AddHit )
 int main( int argc, char** argv ) {
 
   auto g=new GaudiEnvironment;
-//  std::unique_ptr<GaudiEnvironment> p(new GaudiEnvironment);
-//  std::unique_ptr<GaudiEnvironment> p = std::make_unique<GaudiEnvironment>();
   ::testing::AddGlobalTestEnvironment(g);
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();

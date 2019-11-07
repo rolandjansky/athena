@@ -18,6 +18,9 @@
 
 #include "DerivedG4Process.h"
 
+//In this function, the reasons why I use 'new' to define objects instead of using smart pointers are as follows:
+// 1. this function aims to set environment for test code, which means the objects that were defined in the function should exist throughout the whole code running. Therefore, defining the objects with 'new' can meet the requirement. If I define them with smart pointer, they will be destruct once they are out of scope.
+// 2. this function will only be used in the unit test code for testing the sensitive detector classes based on G4VSensitiveDetector. So it will never be responsible for memory leaks in production jobs.
 void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydeposit, G4String& physicalname, G4String& logicalname1, G4int& copyno, G4ThreeVector& preStepPos, G4ThreeVector& postStepPos, G4double& globaltime0/*for preSP*/, G4double& kineticenergy0/*for preSP*/, G4double& velocity0/*for preSP*/, G4double& globaltime/*for track*/, G4double& kineticenergy/*for track*/, G4double& globaltime1/*for postSP*/, G4double& kineticenergy1/*for postSP*/, G4double& velocity1/*for postSP*/, G4double& steplength, G4double& charge, G4int& encoding, G4int& antiencoding, G4String& astring, G4ProcessType& atype, G4String& nop1, G4String& nop2, G4String& nop3)
 {
 //decorate sp with the variable called TotalEnergyDeposit
@@ -79,13 +82,13 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
 //end
 
 //decorate sp with a G4Track object
-G4double Charge = charge;
-G4int Encoding = encoding;
-G4int Antiencoding = antiencoding;
-G4String NOP1 = nop1;
-G4String NOP2 = nop2;
-G4String NOP3 = nop3;
-G4ParticleDefinition* particle = new G4ParticleDefinition(NOP1,         0.0*MeV,       0.0*MeV,         Charge,//para
+  G4double Charge = charge;
+  G4int Encoding = encoding;
+  G4int Antiencoding = antiencoding;
+  G4String NOP1 = nop1;
+  G4String NOP2 = nop2;
+  G4String NOP3 = nop3;
+  G4ParticleDefinition* particle = new G4ParticleDefinition(NOP1,         0.0*MeV,       0.0*MeV,         Charge,//para
                     2,              -1,            -1,
                     0,               0,             0,
               NOP2,               0,             0,          Encoding,//para
