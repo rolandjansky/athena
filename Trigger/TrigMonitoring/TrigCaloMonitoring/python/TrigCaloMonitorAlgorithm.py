@@ -139,12 +139,12 @@ def TrigCaloMonConfig(inputFlags):
 
     for i in range(len(algs)):
 
-        print(i)
         # Set properties
         algs[i].OFFContainer = 'CaloCalTopoClusters'
         algs[i].MonGroupName = 'TrigCaloMonitor'
         algs[i].HLTTypes = []
         algs[i].OFFTypes = []
+        algs[i].HLThighET= 5000.0
         algs[i].HLTMinET = 500.0
         algs[i].OFFMinET = 500.0
         algs[i].MatchType = False
@@ -155,23 +155,43 @@ def TrigCaloMonConfig(inputFlags):
 
         # Declare HLT histograms
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_num',title='Number of HLT Clusters; Num Clusters; Entries',
-				path=path_names[i],xbins=101,xmin=-10.0,xmax=2010.0)
+				path=path_names[i]+'/HLT_Clusters',xbins=101,xmin=-10.0,xmax=2010.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_eta,HLT_phi',title='Number of HLT Clusters; #eta; #phi; ', type='TH2F',
-				path=path_names[i],xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
+				path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_et',title='HLT Clusters E_{T}; E_{T} [GeV]; Entries',
-				path=path_names[i],xbins=100,xmin=0.0,xmax=100.0)
+				path=path_names[i]+'/HLT_Clusters',xbins=100,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_eta',title='HLT Clusters #eta; #eta; Entries',
-				path=path_names[i],xbins=50,xmin=-5.0,xmax=5.0)
+				path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-5.0,xmax=5.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_phi',title='HLT Cluster #phi; #phi; Entries',
-				path=path_names[i],xbins=64,xmin=-3.14153,xmax=3.14153)
+				path=path_names[i]+'/HLT_Clusters',xbins=64,xmin=-3.14153,xmax=3.14153)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_type',title='HLT Cluster Type; Size Enum; Entries',
-				path=path_names[i],xbins=16,xmin=0.5,xmax=16.5)
+				path=path_names[i]+'/HLT_Clusters',xbins=16,xmin=0.5,xmax=16.5)
 	TopoCaloClustersMonGroup[i].defineHistogram('HLT_time',title='HLT Cluster time; time; Entries',
-				path=path_names[i],xbins=60,xmin=-10.0,xmax=10.0)
-	TopoCaloClustersMonGroup[i].defineHistogram('HLT_time,HLT_et',title='Number of HLT Clusters; E_{T} [GeV]; Time', type='TProfile',
-				path=path_names[i],xbins=100,xmin=0.0,xmax=100.0)
+				path=path_names[i]+'/HLT_Clusters',xbins=60,xmin=-10.0,xmax=10.0)
+	TopoCaloClustersMonGroup[i].defineHistogram('HLT_et,HLT_time',title='Number of HLT Clusters; E_{T} [GeV]; Time', type='TProfile',
+				path=path_names[i]+'/HLT_Clusters',xbins=100,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_size',title='HLT Cluster Size; Number of Cells; Entries',
-				path=path_names[i],xbins=91,xmin=-10.0,xmax=1810.0)
+				path=path_names[i]+'/HLT_Clusters',xbins=91,xmin=-10.0,xmax=1810.0)
+
+        # Declare high-ET HLT histograms
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_num',title='Number of high-E_{T} HLT Clusters; Num Clusters; Entries',
+				path=path_names[i]+'/HLT_Clusters',xbins=101,xmin=-10.0,xmax=2010.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_eta,HLT_high_et_phi',title='Number of high-E_{T} HLT Clusters; #eta; #phi; ', type='TH2F',
+				path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_et',title='high-E_{T} HLT Clusters E_{T}; E_{T} [GeV]; Entries',
+				path=path_names[i]+'/HLT_Clusters',xbins=100,xmin=0.0,xmax=100.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_eta',title='high-E_{T} HLT Clusters #eta; #eta; Entries',
+				path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-5.0,xmax=5.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_phi',title='high-E_{T} HLT Cluster #phi; #phi; Entries',
+				path=path_names[i]+'/HLT_Clusters',xbins=64,xmin=-3.14153,xmax=3.14153)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_type',title='high-E_{T} HLT Cluster Type; Size Enum; Entries',
+				path=path_names[i]+'/HLT_Clusters',xbins=16,xmin=0.5,xmax=16.5)
+	TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_time',title='high-E_{T} HLT Cluster time; time; Entries',
+				path=path_names[i]+'/HLT_Clusters',xbins=60,xmin=-10.0,xmax=10.0)
+	TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_et,HLT_high_et_time',title='Number of high-E_{T} HLT Clusters; E_{T} [GeV]; Time', type='TProfile',
+				path=path_names[i]+'/HLT_Clusters',xbins=100,xmin=0.0,xmax=100.0)
+        TopoCaloClustersMonGroup[i].defineHistogram('HLT_high_et_size',title='high-E_{T} HLT Cluster Size; Number of Cells; Entries',
+				path=path_names[i]+'/HLT_Clusters',xbins=91,xmin=-10.0,xmax=1810.0)
 
         # Declare OFF histograms
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_num',title='Number of OFF Clusters; Num Clusters; Entries',
@@ -186,7 +206,7 @@ def TrigCaloMonConfig(inputFlags):
 				path=path_names[i],xbins=64,xmin=-3.14153,xmax=3.14153)
 	TopoCaloClustersMonGroup[i].defineHistogram('OFF_time',title='OFF Cluster time; time; Entries',
 				path=path_names[i],xbins=75,xmin=-25.0,xmax=25.0)
-	TopoCaloClustersMonGroup[i].defineHistogram('OFF_time,OFF_et',title='Number of OFF Clusters; E_{T} [GeV]; Time', type='TProfile',
+	TopoCaloClustersMonGroup[i].defineHistogram('OFF_et,OFF_time',title='Number of OFF Clusters; E_{T} [GeV]; Time', type='TProfile',
 				path=path_names[i],xbins=100,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_type',title='HLT Cluster Type; Size Enum; Entries',
 				path=path_names[i],xbins=16,xmin=0.5,xmax=16.5)
@@ -204,7 +224,7 @@ def TrigCaloMonConfig(inputFlags):
 				path=path_names[i],xbins=64,xmin=-3.14153,xmax=3.14153)
 	TopoCaloClustersMonGroup[i].defineHistogram('OFF_no_HLT_match_time',title='OFF Cluster time (No HLT Matches); time; Entries',
 				path=path_names[i],xbins=75,xmin=-25.0,xmax=25.0)
-	TopoCaloClustersMonGroup[i].defineHistogram('OFF_no_HLT_match_time,OFF_no_HLT_match_et',title='Number of OFF Clusters (No HLT Matches); E_{T} [GeV]; Time', type='TProfile',
+	TopoCaloClustersMonGroup[i].defineHistogram('OFF_no_HLT_match_et,OFF_no_HLT_match_time',title='Number of OFF Clusters (No HLT Matches); E_{T} [GeV]; Time', type='TProfile',
 				path=path_names[i],xbins=100,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_no_HLT_match_type',title='OFF Cluster Type (No HLT Matches); Size Enum; Entries',
 				path=path_names[i],xbins=16,xmin=0.5,xmax=16.5)
@@ -222,7 +242,7 @@ def TrigCaloMonConfig(inputFlags):
 				path=path_names[i],xbins=64,xmin=-3.14153,xmax=3.14153)
 	TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_time',title='OFF Cluster time (With HLT Matches); time; Entries',
 				path=path_names[i],xbins=75,xmin=-25.0,xmax=25.0)
-	TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_time,OFF_with_HLT_match_et',title='Number of OFF Clusters (With HLT Matches); E_{T} [GeV]; Time', type='TProfile',
+	TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_et,OFF_with_HLT_match_time',title='Number of OFF Clusters (With HLT Matches); E_{T} [GeV]; Time', type='TProfile',
 				path=path_names[i],xbins=100,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_type',title='OFF Cluster Type (With HLT Matches); Size Enum; Entries',
 				path=path_names[i],xbins=16,xmin=0.5,xmax=16.5)

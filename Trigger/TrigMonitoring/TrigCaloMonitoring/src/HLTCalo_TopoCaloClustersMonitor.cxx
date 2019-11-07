@@ -13,6 +13,7 @@ HLTCalo_TopoCaloClustersMonitor::HLTCalo_TopoCaloClustersMonitor( const std::str
 
   declareProperty("HLTTypes",  m_HLT_types);
   declareProperty("OFFTypes",  m_OFF_types);
+  declareProperty("HLThighET", m_HLT_high_et = 5000.0);
   declareProperty("HLTMinET",  m_HLT_min_et  = -1.0);
   declareProperty("OFFMinET",  m_OFF_min_et  = -1.0);
   declareProperty("MatchType", m_match_types = false);
@@ -52,6 +53,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   // HLT CLUSTERS //
   //////////////////
 
+  // All HLT clusters
   unsigned int n_hlt_clusters = 0;
   std::vector<float> vec_hlt_et, vec_hlt_eta, vec_hlt_phi, vec_hlt_size, vec_hlt_time;
   std::vector<int> vec_hlt_type;
@@ -63,6 +65,19 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   auto HLT_type = Monitored::Collection("HLT_type", vec_hlt_type);
   auto HLT_size = Monitored::Collection("HLT_size", vec_hlt_size);
   auto HLT_time = Monitored::Collection("HLT_time", vec_hlt_time);
+
+  // Only High-ET clusters
+  unsigned int n_hlt_high_et_clusters = 0;
+  std::vector<float> vec_hlt_high_et_et, vec_hlt_high_et_eta, vec_hlt_high_et_phi, vec_hlt_high_et_size, vec_hlt_high_et_time;
+  std::vector<int> vec_hlt_high_et_type;
+
+  auto HLT_high_et_num = Monitored::Scalar<int>("HLT_high_et_num",0);
+  auto HLT_high_et_et = Monitored::Collection("HLT_high_et_et", vec_hlt_high_et_et);
+  auto HLT_high_et_eta = Monitored::Collection("HLT_high_et_eta", vec_hlt_high_et_eta);
+  auto HLT_high_et_phi = Monitored::Collection("HLT_high_et_phi", vec_hlt_high_et_phi);
+  auto HLT_high_et_type = Monitored::Collection("HLT_high_et_type", vec_hlt_high_et_type);
+  auto HLT_high_et_size = Monitored::Collection("HLT_high_et_size", vec_hlt_high_et_size);
+  auto HLT_high_et_time = Monitored::Collection("HLT_high_et_time", vec_hlt_high_et_time);
 
   // Loop over HLT clusters
 
@@ -89,11 +104,28 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 		vec_hlt_size.push_back(hlt_cluster->auxdata<int>("nCells"));
 	}
 
+	// high-ET clusters
+	if (hlt_cluster->et() > m_HLT_high_et) {
+
+		++n_hlt_high_et_clusters;
+
+		vec_hlt_high_et_et.push_back(hlt_cluster->et() * 0.001);
+		vec_hlt_high_et_eta.push_back(hlt_cluster->eta());
+		vec_hlt_high_et_phi.push_back(hlt_cluster->phi());
+		vec_hlt_high_et_type.push_back(hlt_cluster->clusterSize());
+		vec_hlt_high_et_time.push_back(hlt_cluster->time());
+		if (hlt_cluster->isAvailable<int>("nCells")) {
+			vec_hlt_high_et_size.push_back(hlt_cluster->auxdata<int>("nCells"));
+		}
+
+	}
+
   } // End loop over HLT clusters
 
   HLT_num = n_hlt_clusters;
+  HLT_high_et_num = n_hlt_high_et_clusters;
 
-  fill(m_mongroup_name, HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_time, HLT_type, HLT_size);
+  fill(m_mongroup_name, HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_time, HLT_type, HLT_size, HLT_high_et_num, HLT_high_et_et, HLT_high_et_eta, HLT_high_et_phi, HLT_high_et_time, HLT_high_et_type, HLT_high_et_size);
 
   //////////////////
   // OFF CLUSTERS //
