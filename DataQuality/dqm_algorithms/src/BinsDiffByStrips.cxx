@@ -972,7 +972,7 @@ if(name_flag==1) {
 
   resultList->SetOwner(true);
  
-  result->object_ =  (std::auto_ptr<TObject>)(TObject*)(resultList);
+  result->object_ =  (boost::shared_ptr<TObject>)(TObject*)(resultList);
   
 
   if( doChiSquaredTest ) {

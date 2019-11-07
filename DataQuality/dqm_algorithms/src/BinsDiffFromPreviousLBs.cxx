@@ -160,7 +160,7 @@ dqm_algorithms::BinsDiffFromPreviousLBs::execute(const std::string &  name,
   else count = n_lbs;
 
   result->tags_["NBins"] = count;
-  result->object_ =  (std::auto_ptr<TObject>)(TObject*)(resulthisto);
+  result->object_ =  (boost::shared_ptr<TObject>)(TObject*)(resulthisto);
 
   ERS_DEBUG(1,"Number of bins " << nsigmas << " Sigma away from average of "<< bin_threshold << " is " << count);
   ERS_DEBUG(1,"Green threshold: "<< gthreshold << " bin(s);   Red threshold : " << rthreshold << " bin(s) ");
