@@ -192,9 +192,9 @@ void TrigSignatureMoniMT::updatePublished(unsigned int duration) const {
 
   ATH_MSG_DEBUG( "Publishing Rate Histogram and Reset" );
 
-  m_rateHistogram->Reset();
+  m_rateHistogram->Reset("ICES");
   m_rateHistogram->Add(m_rateBufferHistogram.get(), 1./duration);
-  m_rateBufferHistogram->Reset();
+  m_rateBufferHistogram->Reset("ICES");
 }
 
 void TrigSignatureMoniMT::callback() const {

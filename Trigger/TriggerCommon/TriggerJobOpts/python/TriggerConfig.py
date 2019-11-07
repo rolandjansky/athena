@@ -79,16 +79,15 @@ def collectFilters( steps ):
 
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
-    __log.info("Collecting decision objects from L1 decoder instance")
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
     decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FS") ) # Include also Full Scan
+    __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
     return decisionObjects
 
 def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     decisionObjects = set()
-    __log.info("Collecting decision objects from hypos")
     for step, stepHypos in hypos.iteritems():
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s ",
@@ -103,23 +102,24 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
                     decisionObjects.add( hypoAlg.HypoInputDecisions )
                 if outputs:
                     decisionObjects.add( hypoAlg.HypoOutputDecisions )
+    __log.info("Collecting %i decision objects from hypos", len(decisionObjects))
     return decisionObjects
 
 def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
     decisionObjects = set()
-    __log.info("Collecting decision objects from filters")
     for step, stepFilters in filters.iteritems():
         for filt in stepFilters:
             if inputs:
                 decisionObjects.update( filt.Input )
             if outputs:
                 decisionObjects.update( filt.Output )
+    __log.info("Collecting %i decision objects from filters", len(decisionObjects))
     return decisionObjects
 
 def collectHLTSummaryDecisionObjects(hltSummary):
     decisionObjects = set()
-    __log.info("Collecting decision objects from hltSummary")
-    decisionObjects.update( hltSummary.DecisionsSummaryKey )
+    decisionObjects.add( hltSummary.DecisionsSummaryKey )
+    __log.info("Collecting %i decision objects from hltSummary", len(decisionObjects))
     return decisionObjects
 
 def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
