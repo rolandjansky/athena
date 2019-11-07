@@ -53,7 +53,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   //////////////////
 
   unsigned int n_hlt_clusters = 0;
-  std::vector<float> vec_hlt_et, vec_hlt_eta, vec_hlt_phi, vec_hlt_size;
+  std::vector<float> vec_hlt_et, vec_hlt_eta, vec_hlt_phi, vec_hlt_size, vec_hlt_time;
   std::vector<int> vec_hlt_type;
 
   auto HLT_num = Monitored::Scalar<int>("HLT_num",0);
@@ -62,6 +62,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   auto HLT_phi = Monitored::Collection("HLT_phi", vec_hlt_phi);
   auto HLT_type = Monitored::Collection("HLT_type", vec_hlt_type);
   auto HLT_size = Monitored::Collection("HLT_size", vec_hlt_size);
+  auto HLT_time = Monitored::Collection("HLT_time", vec_hlt_time);
 
   // Loop over HLT clusters
 
@@ -83,6 +84,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 	vec_hlt_eta.push_back(hlt_cluster->eta());
 	vec_hlt_phi.push_back(hlt_cluster->phi());
 	vec_hlt_type.push_back(hlt_cluster->clusterSize());
+	vec_hlt_time.push_back(hlt_cluster->time());
 	if (hlt_cluster->isAvailable<int>("nCells")) {
 		vec_hlt_size.push_back(hlt_cluster->auxdata<int>("nCells"));
 	}
@@ -91,7 +93,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 
   HLT_num = n_hlt_clusters;
 
-  fill(m_mongroup_name, HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_type, HLT_size);
+  fill(m_mongroup_name, HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_time, HLT_type, HLT_size);
 
   //////////////////
   // OFF CLUSTERS //
@@ -102,41 +104,45 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   unsigned int n_off_clusters_with_match = 0;
 
   // OFF cluster
-  std::vector<float> vec_off_et, vec_off_eta, vec_off_phi;
+  std::vector<float> vec_off_et, vec_off_eta, vec_off_phi, vec_off_time;
   std::vector<int> vec_off_type;
 
   auto OFF_num = Monitored::Scalar<int>("OFF_num",0);
   auto OFF_et = Monitored::Collection("OFF_et", vec_off_et);
   auto OFF_eta = Monitored::Collection("OFF_eta", vec_off_eta);
   auto OFF_phi = Monitored::Collection("OFF_phi", vec_off_phi);
+  auto OFF_time = Monitored::Collection("OFF_time", vec_off_time);
   auto OFF_type = Monitored::Collection("OFF_type", vec_off_type);
 
   // OFF cluster without HLT match
-  std::vector<float> vec_off_no_hlt_match_et, vec_off_no_hlt_match_eta, vec_off_no_hlt_match_phi;
+  std::vector<float> vec_off_no_hlt_match_et, vec_off_no_hlt_match_eta, vec_off_no_hlt_match_phi, vec_off_no_hlt_match_time;
   std::vector<int> vec_off_no_hlt_match_type;
 
   auto OFF_no_HLT_match_num = Monitored::Scalar<int>("OFF_no_HLT_match_num",0);
   auto OFF_no_HLT_match_et = Monitored::Collection("OFF_no_HLT_match_et", vec_off_no_hlt_match_et);
   auto OFF_no_HLT_match_eta = Monitored::Collection("OFF_no_HLT_match_eta", vec_off_no_hlt_match_eta);
   auto OFF_no_HLT_match_phi = Monitored::Collection("OFF_no_HLT_match_phi", vec_off_no_hlt_match_phi);
+  auto OFF_no_HLT_match_time = Monitored::Collection("OFF_no_HLT_match_time", vec_off_no_hlt_match_time);
   auto OFF_no_HLT_match_type = Monitored::Collection("OFF_no_HLT_match_type", vec_off_no_hlt_match_type);
 
   // OFF cluster with HLT match
-  std::vector<float> vec_off_with_hlt_match_et, vec_off_with_hlt_match_eta, vec_off_with_hlt_match_phi;
+  std::vector<float> vec_off_with_hlt_match_et, vec_off_with_hlt_match_eta, vec_off_with_hlt_match_phi, vec_off_with_hlt_match_time;
   std::vector<int> vec_off_with_hlt_match_type;
 
   auto OFF_with_HLT_match_num = Monitored::Scalar<int>("OFF_with_HLT_match_num",0);
   auto OFF_with_HLT_match_et = Monitored::Collection("OFF_with_HLT_match_et", vec_off_with_hlt_match_et);
   auto OFF_with_HLT_match_eta = Monitored::Collection("OFF_with_HLT_match_eta", vec_off_with_hlt_match_eta);
   auto OFF_with_HLT_match_phi = Monitored::Collection("OFF_with_HLT_match_phi", vec_off_with_hlt_match_phi);
+  auto OFF_with_HLT_match_time = Monitored::Collection("OFF_with_HLT_match_time", vec_off_with_hlt_match_time);
   auto OFF_with_HLT_match_type = Monitored::Collection("OFF_with_HLT_match_type", vec_off_with_hlt_match_type);
 
   // OFF clusters vs. HLT clusters
-  std::vector<float> vec_hlt_vs_off_minimum_delta_r, vec_hlt_vs_off_delta_eta, vec_hlt_vs_off_delta_phi, vec_hlt_vs_off_resolution, vec_hlt_match_et;
+  std::vector<float> vec_hlt_vs_off_minimum_delta_r, vec_hlt_vs_off_delta_eta, vec_hlt_vs_off_delta_phi, vec_hlt_vs_off_delta_time, vec_hlt_vs_off_resolution, vec_hlt_match_et;
 
   auto HLT_vs_OFF_minimum_delta_r = Monitored::Collection("HLT_vs_OFF_minimum_delta_r", vec_hlt_vs_off_minimum_delta_r);
   auto HLT_vs_OFF_delta_eta = Monitored::Collection("HLT_vs_OFF_delta_eta", vec_hlt_vs_off_delta_eta);
   auto HLT_vs_OFF_delta_phi = Monitored::Collection("HLT_vs_OFF_delta_phi", vec_hlt_vs_off_delta_phi);
+  auto HLT_vs_OFF_delta_time = Monitored::Collection("HLT_vs_OFF_delta_time", vec_hlt_vs_off_delta_time);
   auto HLT_vs_OFF_resolution = Monitored::Collection("HLT_vs_OFF_resolution", vec_hlt_vs_off_resolution);
   auto HLT_match_et = Monitored::Collection("HLT_match_et", vec_hlt_match_et);
 
@@ -161,6 +167,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 	vec_off_et.push_back(off_cluster->et()*0.001);
 	vec_off_eta.push_back(off_cluster->eta());
 	vec_off_phi.push_back(off_cluster->phi());
+	vec_off_time.push_back(off_cluster->time());
 	vec_off_type.push_back(off_cluster->clusterSize());
 
 	// matching HLT clusters to OFF clusters
@@ -199,6 +206,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 		vec_off_no_hlt_match_et.push_back(off_cluster->et()*0.001);
 		vec_off_no_hlt_match_eta.push_back(off_cluster->eta());
 		vec_off_no_hlt_match_phi.push_back(off_cluster->phi());
+		vec_off_no_hlt_match_time.push_back(off_cluster->time());
 		vec_off_no_hlt_match_type.push_back(off_cluster->clusterSize());
 
 	}
@@ -211,12 +219,14 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 		vec_off_with_hlt_match_et.push_back(off_cluster->et()*0.001);
 		vec_off_with_hlt_match_eta.push_back(off_cluster->eta());
 		vec_off_with_hlt_match_phi.push_back(off_cluster->phi());
+		vec_off_with_hlt_match_time.push_back(off_cluster->time());
 		vec_off_with_hlt_match_type.push_back(off_cluster->clusterSize());
 		vec_hlt_match_et.push_back(hlt_match->et() * 0.001);
 
 		vec_hlt_vs_off_resolution.push_back(((off_cluster->et() - hlt_match->et()) / off_cluster->et()) * 100);
 		vec_hlt_vs_off_delta_eta.push_back(off_cluster->eta() - hlt_match->eta());
 		vec_hlt_vs_off_delta_phi.push_back(calculateDeltaPhi(off_cluster->phi(), hlt_match->phi()));
+		vec_hlt_vs_off_delta_time.push_back(off_cluster->time() - hlt_match->time());
 
 	}
 
@@ -227,7 +237,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   OFF_no_HLT_match_num = n_off_clusters_no_match;
   OFF_with_HLT_match_num = n_off_clusters_with_match;
 
-  fill(m_mongroup_name, OFF_num, OFF_et, OFF_eta, OFF_phi, OFF_type, OFF_no_HLT_match_num, HLT_vs_OFF_minimum_delta_r, OFF_no_HLT_match_et, OFF_no_HLT_match_eta, OFF_no_HLT_match_phi, OFF_no_HLT_match_type, OFF_with_HLT_match_num, OFF_with_HLT_match_et, HLT_match_et, OFF_with_HLT_match_eta, OFF_with_HLT_match_phi, OFF_with_HLT_match_type, HLT_vs_OFF_resolution, HLT_vs_OFF_delta_eta, HLT_vs_OFF_delta_phi);
+  fill(m_mongroup_name, OFF_num, OFF_et, OFF_eta, OFF_phi, OFF_time, OFF_type, OFF_no_HLT_match_num, HLT_vs_OFF_minimum_delta_r, OFF_no_HLT_match_et, OFF_no_HLT_match_eta, OFF_no_HLT_match_phi, OFF_no_HLT_match_time, OFF_no_HLT_match_type, OFF_with_HLT_match_num, OFF_with_HLT_match_et, HLT_match_et, OFF_with_HLT_match_eta, OFF_with_HLT_match_phi, OFF_with_HLT_match_time, OFF_with_HLT_match_type, HLT_vs_OFF_resolution, HLT_vs_OFF_delta_eta, HLT_vs_OFF_delta_phi, HLT_vs_OFF_delta_time);
 
   return StatusCode::SUCCESS;
 }
