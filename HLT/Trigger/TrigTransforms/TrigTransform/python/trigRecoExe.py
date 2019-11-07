@@ -212,8 +212,8 @@ class trigRecoExecutor(athenaExecutor):
                 try:
                     signal = int((re.search('signal ([0-9]*)', line)).group(1))
                 except AttributeError:
-                    #text signal not found so just return 0
-                    signal = 0
+                    #signal not found in message, so return 1 to highlight failure
+                    signal = 1
                 msg.error('Detected issue with HLTChild, setting mother return code to %s' % (signal) )
                 self._rc = signal
 
