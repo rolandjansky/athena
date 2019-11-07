@@ -83,17 +83,13 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
     const xAOD::VertexContainer * vxContainer = 0;
     const xAOD::Vertex*         primaryVertex = 0;
 
-    bool vertexContainerAvailable = true;
-
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrkPartContainerKey);
 
     // checking for tracks and vertices being read correctly
     if (!vertexInHandle.isValid()) {
-      vertexContainerAvailable = false;
-      ATH_MSG_WARNING ("Could not retrieve vertex container: " << vertexInHandle.key());
-    } else {
-      vxContainer = vertexInHandle.cptr();
+      ATH_MSG_ERROR ("Could not retrieve VertexContainer with key " << vertexInHandle.key());
+      return StatusCode::FAILURE;
     }
     if(!tracks.isValid()) {
         ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "<< m_TrkPartContainerKey.key());
@@ -101,7 +97,8 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
     }
 
     // picking primary vertex
-    if (vxContainer != 0 && vxContainer->size()>0) {
+    vxContainer = vertexInHandle.cptr();
+    if (vxContainer->size()>0) {
       // simple loop through and get the primary vertex
       xAOD::VertexContainer::const_iterator vxIter    = vxContainer->begin();
       xAOD::VertexContainer::const_iterator vxIterEnd = vxContainer->end();
@@ -112,8 +109,6 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
             break;
         }
       }
-    } else {
-      vertexContainerAvailable = false;
     }
     ATH_MSG_VERBOSE("size of VxPrimaryContainer is: "  << vxContainer->size() );
 
@@ -125,14 +120,9 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
     CaloExtensionCollection* ptrPart=lastCache.ptr();
     std::vector<bool> mask (ptrTracks->size(),false);
     for (auto track: *tracks){
-      //PFlow Selection
-      if( static_cast<bool>(m_TrkSelection->accept(*track, nullptr))) {
-        mask[track->index()] = true;
-      }
-      //Subset of Tau Selection 
-      //These ifs could not be together because it would fail q220 tests
-      if (vertexContainerAvailable && (m_TrkDetailedSelection->decision(*track, primaryVertex)    || 
-          m_TrkDetailedSelection->decision(*track, (*vxContainer)[0]) ) ){
+      if( static_cast<bool>(m_TrkSelection->accept(*track, nullptr)) || 
+          m_TrkDetailedSelection->decision(*track, primaryVertex)    || 
+          m_TrkDetailedSelection->decision(*track, (*vxContainer)[0]) ) {
         mask[track->index()] = true;
       }
     }
