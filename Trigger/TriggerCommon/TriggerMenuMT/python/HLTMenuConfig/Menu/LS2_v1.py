@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup
 
 
 def setupMenu():
@@ -62,7 +62,16 @@ def setupMenu():
         ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # PhotonChains------------
+        # these are to debug photon working points should be removed in production
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
+        ChainProp(name='HLT_g5_loose_L1EM3', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g5_medium_L1EM3', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g5_tight_L1EM3', groups=SinglePhotonGroup),
+        # Primary photon chains
+        ChainProp(name='HLT_g140_loose_L1EM24VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_2g20_tight_L12EM20VH', groups=MultiPhotonGroup),
+
 
         # ATR-19360
         ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
