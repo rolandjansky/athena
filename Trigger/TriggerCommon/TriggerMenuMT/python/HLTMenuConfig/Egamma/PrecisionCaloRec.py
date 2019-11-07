@@ -20,10 +20,8 @@ def precisionCaloRecoSequence(DummyFlag, RoIs):
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
                                           name = 'TrigEgammaTopoClusterCopier'+RoIs ,
-                                          #InputTopoCollection=jobproperties.egammaRecFlags.inputTopoClusterCollection(),
                                           InputTopoCollection= "caloclusters",
                                           OutputTopoCollection=precisionCaloMenuDefs.precisionCaloClusters,
-                                          #OutputTopoCollection="ClustersName",
                                           OutputTopoCollectionShallow="tmp_"+precisionCaloMenuDefs.precisionCaloClusters,
                                           doAdd = False )
 
