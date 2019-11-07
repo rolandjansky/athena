@@ -108,6 +108,7 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
         TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
         ToolSvc += TrigMuonPropagator
         kwargs.setdefault("TrackBuilder",         getPublicToolClone("TrigMuonTrackBuilder", "CombinedMuonTrackBuilder", Propagator=TrigMuonPropagator) )
+        kwargs.setdefault("VertexContainer", "")
     else:
         kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )

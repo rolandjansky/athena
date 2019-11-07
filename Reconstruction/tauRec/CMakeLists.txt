@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/tauEvent )
 
 # External dependencies:
-find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( tauRecLib

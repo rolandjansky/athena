@@ -40,7 +40,8 @@ class CaloCellDetPos
    * @param  double etaDet   : estimated eta detector in nominal calo frame
    * @param  double phiDet   : estimated phi detector in nominal calo frame
    */
-  bool getDetPosition(CaloCell_ID::CaloSample sam , double etaAtlas, double phiAtlas, double & etaDet, double & phiDet);
+  bool getDetPosition(CaloCell_ID::CaloSample sam , double etaAtlas, double phiAtlas, 
+                      double & etaDet, double & phiDet) const;
 
 
   /**
@@ -52,7 +53,8 @@ class CaloCellDetPos
    * @param  double phiAtlas : estimated phi detector in aligned Atlas frame
    */
 
-  bool getAtlasPosition(CaloCell_ID::CaloSample sam , double etaDet, double phiDet, double & etaAtlas, double & phiAtlas);
+  bool getAtlasPosition(CaloCell_ID::CaloSample sam , double etaDet, double phiDet, 
+                        double & etaAtlas, double & phiAtlas) const;
 
   private:
 

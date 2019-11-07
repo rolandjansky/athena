@@ -423,6 +423,7 @@ def muEFSARecoSequence( RoIs, name ):
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
 
   theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
+  theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
   from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
   TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "MuonSegments", 
                                           TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering"), 
@@ -441,6 +442,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
+  efAlgs.append( theSegmentCnvAlg )
   efAlgs.append( TrackBuilder )
   efAlgs.append( xAODTrackParticleCnvAlg )
   efAlgs.append( theMuonCandidateAlg )
@@ -475,7 +477,10 @@ def muEFCBRecoSequence( RoIs, name ):
   muEFCBRecoSequence = parOR("efcbViewNode_"+name)
   #Need ID tracking related objects and MS tracks from previous steps
   ViewVerifyMS = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
-  ViewVerifyMS.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates') ]
+  ViewVerifyMS.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  
+                              ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
+                              ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
+                              ( 'xAOD::MuonSegmentContainer' , 'StoreGateSvc+MuonSegments' ) ]
   muEFCBRecoSequence += ViewVerifyMS
   if "FS" in name:
     #Need to run tracking for full scan chains
@@ -590,7 +595,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
 
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
+    theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
     efAlgs.append(theSegmentFinderAlg)
+    efAlgs.append(theSegmentCnvAlg)
 
     # need to run precisions tracking for late muons, since we don't run it anywhere else
     TrackCollection="TrigFastTrackFinder_Tracks_MuonLate" 
@@ -624,7 +631,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
                                        ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                        ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
+                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec'),
+                                       ( 'xAOD::MuonSegmentContainer' , 'StoreGateSvc+MuonSegments' )]
     efmuInsideOutRecoSequence += ViewVerifyInsideOut
 
 

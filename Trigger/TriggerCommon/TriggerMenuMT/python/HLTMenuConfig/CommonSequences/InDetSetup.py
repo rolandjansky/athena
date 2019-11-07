@@ -48,7 +48,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
     InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool" + signature,
-                                                             Decoder = InDetPixelRodDecoder)
+                                                             Decoder = InDetPixelRodDecoder,
+                                                             checkLVL1ID = False)
     ToolSvc += InDetPixelRawDataProviderTool
 
     if (InDetTrigFlags.doPrintConfigurables()):
