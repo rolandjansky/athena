@@ -33,20 +33,26 @@ public:
     copyNo = CopyNo;
   }
   
-  G4bool IsMany() const final {return true;}
-  G4bool IsReplicated() const final {return true;}
-  G4bool IsParameterised() const final {return true;}
-  G4VPVParameterisation* GetParameterisation() const final {return nullptr;}  
+  G4bool IsMany() const final { return true; }
+
+  G4bool IsReplicated() const final { return true; }
+
+  G4bool IsParameterised() const final { return true; }
+
+  G4VPVParameterisation* GetParameterisation() const final { return nullptr; }  
+
   void GetReplicationData(EAxis& axis, G4int& nReplicas, G4double& width, G4double& offset, G4bool& consuming) const final
-{
-  axis = (EAxis)1;
-  nReplicas = 0;
-  width = 0.0;
-  offset = 0.0;
-  consuming = true;
-}
-  G4bool  IsRegularStructure() const final {return true;}
-  G4int  GetRegularStructureId() const final {return 0;}
+  {
+    axis = (EAxis)1;
+    nReplicas = 0;
+    width = 0.0;
+    offset = 0.0;
+    consuming = true;
+  }
+
+  G4bool  IsRegularStructure() const final { return true; }
+
+  G4int  GetRegularStructureId() const final { return 0; }
 
   G4int copyNo;
 
