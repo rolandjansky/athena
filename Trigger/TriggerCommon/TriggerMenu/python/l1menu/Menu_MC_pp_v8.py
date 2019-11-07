@@ -617,6 +617,7 @@ def defineMenu():
         'L1_gLJ100',
         'L1_gLJ120',
         'L1_gLJ140',
+        'L1_gLJ160',
         'L1_gLJ180',
         'L1_jJ85_3jJ30',
        # multi jet forward
@@ -1134,6 +1135,7 @@ def defineMenu():
         'L1_gLJ100' : 77,
         'L1_gLJ120' : 79,
         'L1_gLJ140' : 129,
+        'L1_gLJ160' : 227,
         'L1_gLJ180' : 195,
         'L1_jJ85_3jJ30' : 128,
         'L1_J20.31ETA49' : 103,
