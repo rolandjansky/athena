@@ -46,6 +46,7 @@ TRUTH1SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer
                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthForwardProtons':'xAOD::TruthParticleContainer','TruthForwardProtonsAux':'xAOD::TruthParticleAuxContainer',
                                            'AntiKt2TruthChargedJets':'xAOD::JetContainer','AntiKt2TruthChargedJetsAux':'xAOD::JetAuxContainer',
                                            'AntiKt4TruthDressedWZJets':'xAOD::JetContainer','AntiKt4TruthDressedWZJetsAux':'xAOD::JetAuxContainer',
                                            'AntiKt10TruthJets':'xAOD::JetContainer','AntiKt10TruthJetsAux':'xAOD::JetAuxContainer',
