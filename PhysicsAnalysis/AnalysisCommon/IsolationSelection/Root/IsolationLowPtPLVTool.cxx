@@ -27,9 +27,9 @@ namespace CP {
   IsolationLowPtPLVTool::IsolationLowPtPLVTool(const std::string& toolName) :
     asg::AsgTool(toolName){
     // Decorator for scores
-    declareProperty( "MuonCalibFile", m_muonCalibFile = "IsolationCorrections/v4/TMVAClassification_BDT_Muon_LowPtPromptLeptonTagger_20181001.weights.xml", 
+    declareProperty( "MuonCalibFile", m_muonCalibFile = "IsolationCorrections/v5/TMVAClassification_BDT_Muon_LowPtPromptLeptonTagger_20191107.weights.xml", 
 		     "XML file holding the TMVA configuration for muons" );
-    declareProperty( "ElecCalibFile", m_elecCalibFile = "IsolationCorrections/v4/TMVAClassification_BDT_Electron_LowPtPromptLeptonTagger_20181001.weights.xml", 
+    declareProperty( "ElecCalibFile", m_elecCalibFile = "IsolationCorrections/v5/TMVAClassification_BDT_Electron_LowPtPromptLeptonTagger_20191107.weights.xml", 
 		     "XML file holding the TMVA configuration for electrons");
     declareProperty( "MuonMethodName", m_muonMethodName = "LowPtPLT_Muon", "Method name for electron LowPtPLV" );
     declareProperty( "ElecMethodName", m_elecMethodName = "LowPtPLT_Elec", "Method name for muon LowPtPLV" );
@@ -44,21 +44,21 @@ namespace CP {
     std::string fullPathToFile_Elec = PathResolverFindCalibFile(m_elecCalibFile);
 
     static const std::array< std::string, N_VARIABLES > BDT_vars_Muon {
-      "CorrPtvarcone30/Pt/1000",
-      "CorrTopoetcone20/Pt",
-      "PLTInput_PtRel",
-      "PLTInput_PtFrac",
-      "PLTInput_DRlj",
-      "PLTInput_TrackJetNTrack"
-    };
+      "TrackJetNTrack",
+      "PtRel",
+      "PtFrac",
+      "DRlj",
+      "TopoEtCone20Rel",
+      "PtVarCone30Rel"
+	};
 
     static const std::array< std::string, N_VARIABLES > BDT_vars_Elec {
-      "CorrPtvarcone20/Pt/1000",
-      "CorrTopoetcone20/Pt",
-      "PLTInput_PtRel",
-      "PLTInput_PtFrac",
-      "PLTInput_DRlj",
-      "PLTInput_TrackJetNTrack"
+      "TrackJetNTrack",
+      "PtRel",
+      "PtFrac",
+      "DRlj",
+      "TopoEtCone20Rel",
+      "PtVarCone20Rel"
     };
 
     for (int i=0; i<N_VARIABLES; i++){
@@ -138,7 +138,7 @@ namespace CP {
       return StatusCode::FAILURE;
     }
 
-    int TrackJetNTrack = s_acc_TrackJetNTrack(Particle);
+    short TrackJetNTrack = s_acc_TrackJetNTrack(Particle);
     float DRlj         = s_acc_DRlj(Particle);
     float PtRel        = s_acc_PtRel(Particle);
     float PtFrac       = s_acc_PtFrac(Particle);
@@ -151,22 +151,22 @@ namespace CP {
 
     if (Particle.type() == xAOD::Type::ObjectType::Muon){
       ptvarcone30  = s_acc_ptvarcone30(Particle);
-      m_varTMVA_Muon[0] = topoetcone20/pt;
-      m_varTMVA_Muon[1] = ptvarcone30/pt;
-      m_varTMVA_Muon[2] = PtRel;
-      m_varTMVA_Muon[3] = PtFrac;
-      m_varTMVA_Muon[4] = DRlj;
-      m_varTMVA_Muon[5] = TrackJetNTrack;
+      m_varTMVA_Muon[0] = TrackJetNTrack;
+      m_varTMVA_Muon[1] = PtRel;
+      m_varTMVA_Muon[2] = PtFrac;
+      m_varTMVA_Muon[3] = DRlj;
+      m_varTMVA_Muon[4] = topoetcone20/pt;
+      m_varTMVA_Muon[5] = ptvarcone30/pt;
       score = m_TMVAReader_Muon->EvaluateMVA(m_muonMethodName);
     }
     else if (Particle.type() == xAOD::Type::ObjectType::Electron){
       ptvarcone20  = s_acc_ptvarcone20(Particle);
-      m_varTMVA_Elec[0] = topoetcone20/pt;
-      m_varTMVA_Elec[1] = ptvarcone20/pt;
-      m_varTMVA_Elec[2] = PtRel;
-      m_varTMVA_Elec[3] = PtFrac;
-      m_varTMVA_Elec[4] = DRlj;
-      m_varTMVA_Elec[5] = TrackJetNTrack;
+      m_varTMVA_Elec[0] = TrackJetNTrack;
+      m_varTMVA_Elec[1] = PtRel;
+      m_varTMVA_Elec[2] = PtFrac;
+      m_varTMVA_Elec[3] = DRlj;
+      m_varTMVA_Elec[4] = topoetcone20/pt;
+      m_varTMVA_Elec[5] = ptvarcone20/pt;
       score =  m_TMVAReader_Elec->EvaluateMVA(m_elecMethodName);
     }
     else {
