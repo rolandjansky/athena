@@ -168,17 +168,10 @@ else:
     #DetFlags.overlay.LAr_setOff()
     DetFlags.overlay.Truth_setOn()
 
-## Tidy up NSW DetFlags: temporary measure
-DetFlags.sTGC_setOff()
-DetFlags.Micromegas_setOff()
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
-
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-if not MuonGeometryFlags.hasCSC():
-    DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 
 DetFlags.Print()
 

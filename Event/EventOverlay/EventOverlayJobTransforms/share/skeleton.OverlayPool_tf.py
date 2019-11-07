@@ -90,17 +90,10 @@ else:
 
     DetFlags.digitize.LVL1_setOff()
 
-if hasattr(runArgs,"geometryVersion") or not globalflags.DetDescrVersion.isDefault():
-    ## Tidy up NSW DetFlags
-    ## only do this if we can be sure globalflags.DetDescrVersion has been configured.
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-    if CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]:
-        DetFlags.sTGC_setOff()
-        DetFlags.Micromegas_setOff()
-
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-    if not MuonGeometryFlags.hasCSC():
-        DetFlags.CSC_setOff()
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 
 DetFlags.Print()
 

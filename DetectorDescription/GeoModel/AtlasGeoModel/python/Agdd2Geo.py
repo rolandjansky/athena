@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.DetFlags import DetFlags
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 if ( DetFlags.detdescr.Muon_on() ):
@@ -15,9 +14,7 @@ if ( DetFlags.detdescr.Muon_on() ):
         ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
         AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
 
-    Run3NSW = CommonGeometryFlags.Run() in ["RUN3"]
-    Run4NSW = CommonGeometryFlags.Run() in ["RUN4"] and not MuonGeometryFlags.hasCSC() # assumes RUN4 layouts will be symmetric
-    if Run3NSW or Run4NSW:
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
             ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
             AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def generateFastSimulationList():
     FastSimulationList=[]
@@ -128,16 +129,14 @@ def generateMuonSensitiveDetectorList():
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetectorCosmics' ]
             if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetectorCosmics' ]
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetectorCosmics' ]
-            if DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetectorCosmics' ]
+            if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetectorCosmics' ]
         else:
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetector' ]
             if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetector' ]
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetector' ]
-            if DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetector' ]
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if CommonGeometryFlags.Run()=="RUN3" :
-            if DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
-            if DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
+            if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetector' ]
+        if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
+        if MuonGeometryFlags.hasMM() and DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
     return SensitiveDetectorList
 
 def generateEnvelopeSensitiveDetectorList():

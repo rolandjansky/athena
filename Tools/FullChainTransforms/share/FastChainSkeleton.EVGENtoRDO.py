@@ -21,7 +21,7 @@ fast_chain_log.info( str(runArgs) )
 
 from AthenaCommon import CfgGetter
 import AthenaCommon.SystemOfUnits as Units
-
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ### Start of Sim
 
@@ -294,10 +294,9 @@ if checkHGTDOff is not None:
     ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if CommonGeometryFlags.Run()=="RUN3":
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
+if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
+if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
+if muonRecFlags.doMicromegas() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMicromegas = False
 
 #if simFlags.ForwardDetectors.statusOn:
 #    if DetFlags.geometry.FwdRegion_on():
@@ -776,8 +775,7 @@ if ISF_Flags.UsingGeant4():
     if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
         ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
         AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-    if CommonGeometryFlags.Run()=="RUN3" :
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
             ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
             AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
