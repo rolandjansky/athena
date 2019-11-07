@@ -1,10 +1,10 @@
 #!/bin/sh
-#
+
 # art-description: Run AFII simulation and full digitization of an MC16a ttbar sample with 2016a geometry and conditions, 25ns pile-up
 # art-type: grid
 # art-include: 21.3/Athena
 # art-include: master/Athena
-# art-output: mc16a_ttbar.RDO.pool.root
+# art-output: *.root
 # art-output: config.txt
 
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
@@ -35,12 +35,18 @@ FastChain_tf.py \
     --numberOfLowPtMinBias '44.3839246425' \
     --numberOfCavernBkg 0 \
     --imf False
-echo "art-result: $? EVNTtoRDO step"
 
 # Add Reco step?
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? regression"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc EVNTtoRDO"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
+echo  "art-result: $rc2 regression"
 
