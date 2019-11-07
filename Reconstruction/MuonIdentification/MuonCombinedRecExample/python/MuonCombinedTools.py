@@ -48,9 +48,12 @@ def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwa
    return idCandTool
 
 def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
+    else:
+        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
     if beamFlags.beamType() == 'cosmics':
@@ -71,14 +74,17 @@ def InDetCandidateTool(name="InDetCandidateTool",**kwargs ):
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
-
-    getPublicTool("MuonMomentumBalanceSignificanceTool")
-    getPublicTool("MuonScatteringAngleSignificanceTool")
-    getPublicTool("MuonCaloParticleCreator")
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault('MakeTrackAtMSLink',True)
+        kwargs.setdefault("FillTimingInformation",False)
+        kwargs.setdefault("MuonSelectionTool", "")
+    else:
+        getPublicTool("MuonMomentumBalanceSignificanceTool")
+        getPublicTool("MuonScatteringAngleSignificanceTool")
+        getPublicTool("MuonCaloParticleCreator")
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
-    # kwargs.setdefault("CaloNoiseTool", getPublicTool("CaloNoiseToolDefault") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def MuonCandidateTool(name="MuonCandidateTool",**kwargs):

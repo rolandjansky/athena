@@ -213,8 +213,6 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
     kwargs.setdefault("MdtRotCreator"                 , getPublicTool("MdtDriftCircleOnTrackCreator") )
-    kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )
-    kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
     kwargs.setdefault("CleanCombined"                 , True )
     kwargs.setdefault("CleanStandalone"               , True )
     kwargs.setdefault("BadFitChi2"                    , 2.5 )
@@ -227,9 +225,20 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("Vertex2DSigmaRPhi"             , 100.*mm )
     kwargs.setdefault("Vertex3DSigmaRPhi"             , 6.*mm )
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
-    kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
     kwargs.setdefault("UseCaloTG"                     , False )
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
+
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
+
+        kwargs.setdefault("Propagator"                    , ToolSvc.AtlasRungeKuttaPropagator)
+        kwargs.setdefault("SLPropagator"                  , ToolSvc.AtlasRungeKuttaPropagator)
+    else:
+        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
+        kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )
+        kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
+
 
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("MdtRotCreator" ,  "" )

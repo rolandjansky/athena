@@ -20,6 +20,7 @@ from AthenaCommon.Logging import log
 
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 ###############################################################################
 ### Configure MuGirlTag###
@@ -40,6 +41,8 @@ def TrigMuGirlTagTool( name='TrigMuGirlTagTool', **kwargs ):
    return MuGirlTagToolBase(name=name,configureForTrigger=True,doStau=True,**kwargs)
 
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
+   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+      kwargs.setdefault("VertexContainer", "")
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
