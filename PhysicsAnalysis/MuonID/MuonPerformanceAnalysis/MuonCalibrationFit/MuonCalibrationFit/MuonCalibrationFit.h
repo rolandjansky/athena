@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalibrationFit_h
@@ -41,7 +41,6 @@
 #include <GaudiKernel/MsgStream.h>
 
 #include <boost/range/irange.hpp>
-#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 
 #include "MuonCalibrationFit/Regions.h"
