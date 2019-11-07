@@ -53,6 +53,21 @@ public:
   virtual void ThisWorkerReady() override final {};
   virtual void ThisWorkerEndEventLoop() override final {};
 
+  /// Configure the detector geometry service handle
+  void SetDetGeoSvc(const std::string& typeAndName) {
+    m_detGeoSvc.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Fast Simulation Master Tool handle
+  void SetFastSimMasterTool(const std::string& typeAndName) {
+    m_fastSimTool.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Physics List Tool handle
+  void SetPhysListSvc(const std::string& typeAndName) {
+    m_physListSvc.setTypeAndName(typeAndName);
+  }
+
 protected:
 
   /// Initialize the G4 geometry on the master

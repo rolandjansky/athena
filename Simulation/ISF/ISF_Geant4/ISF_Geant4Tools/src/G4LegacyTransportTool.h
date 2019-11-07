@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_GEANT4TOOLS_TRANSPORTTOOL_H
-#define ISF_GEANT4TOOLS_TRANSPORTTOOL_H
+#ifndef ISF_GEANT4TOOLS_G4LEGACYTRANSPORTTOOL_H
+#define ISF_GEANT4TOOLS_G4LEGACYTRANSPORTTOOL_H
 
 // STL headers
 #include <string>
@@ -48,7 +48,7 @@ namespace HepMC {
 namespace iGeant4
 {
 
-  /** @class G4TransportTool
+  /** @class G4LegacyTransportTool
 
       Geant4 AlgTool to create a ISFParticle at a volume entry/exit
       - universal transport tool
@@ -56,14 +56,14 @@ namespace iGeant4
       @author Robert Harrington
   */
 
-  class G4TransportTool : public ISF::BaseSimulatorTool {
+  class G4LegacyTransportTool : public ISF::BaseSimulatorTool {
 
   public:
     /** Constructor */
-    G4TransportTool(const std::string&,const std::string&,const IInterface*);
+    G4LegacyTransportTool(const std::string&,const std::string&,const IInterface*);
 
     /** Destructor */
-    virtual ~G4TransportTool () = default;
+    virtual ~G4LegacyTransportTool () = default;
 
     /** AlgTool initialize method */
     virtual StatusCode initialize() override final;
@@ -122,8 +122,8 @@ namespace iGeant4
     mutable SG::SlotSpecificObj<Slot> m_slots ATLAS_THREAD_SAFE;
     Gaudi::Property<std::string> m_mcEventCollectionName{this, "McEventCollection", "TruthEvent", ""};
     /// Helper Tool to provide G4RunManager
-    // PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};
-    // G4AtlasRunManager    *m_pRunMgr{};
+    PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};
+    G4AtlasRunManager    *m_pRunMgr{};
 
     Gaudi::Property<std::string> m_libList{this, "Dll", "", ""};
     Gaudi::Property<std::string> m_physList{this, "Physics", "", ""};
@@ -159,4 +159,4 @@ namespace iGeant4
 }
 
 
-#endif // ISF_GEANT4TOOLS_TRANSPORTTOOL_H
+#endif // ISF_GEANT4TOOLS_G4LEGACYTRANSPORTTOOL_H

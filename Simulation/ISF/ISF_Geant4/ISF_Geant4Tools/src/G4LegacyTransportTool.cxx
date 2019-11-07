@@ -3,12 +3,9 @@
 */
 
 // class header
-#include "TransportTool.h"
+#include "G4LegacyTransportTool.h"
 
 //package includes
-#include "G4AtlasAlg/G4AtlasMTRunManager.h"
-#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
-#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
 #include "G4AtlasAlg/G4AtlasRunManager.h"
 #include "ISFFluxRecorder.h"
 
@@ -20,7 +17,6 @@
 
 // Athena classes
 #include "GeneratorObjects/McEventCollection.h"
-#include "GaudiKernel/IThreadInitTool.h"
 
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/EventInformation.h"
@@ -54,7 +50,7 @@ static std::once_flag initializeOnceFlag;
 static std::once_flag finalizeOnceFlag;
 
 //________________________________________________________________________
-iGeant4::G4TransportTool::G4TransportTool(const std::string& type,
+iGeant4::G4LegacyTransportTool::G4LegacyTransportTool(const std::string& type,
                                           const std::string& name,
                                           const IInterface*  parent )
   : ISF::BaseSimulatorTool(type, name, parent)
@@ -64,7 +60,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& type,
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::initialize()
+StatusCode iGeant4::G4LegacyTransportTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize");
 
@@ -82,10 +78,10 @@ StatusCode iGeant4::G4TransportTool::initialize()
 
   // One-time initialization
   try {
-    std::call_once(initializeOnceFlag, &iGeant4::G4TransportTool::initializeOnce, this);
+    std::call_once(initializeOnceFlag, &iGeant4::G4LegacyTransportTool::initializeOnce, this);
   }
   catch(const std::exception& e) {
-    ATH_MSG_ERROR("Failure in iGeant4::G4TransportTool::initializeOnce: " << e.what());
+    ATH_MSG_ERROR("Failure in iGeant4::G4LegacyTransportTool::initializeOnce: " << e.what());
     return StatusCode::FAILURE;
   }
 
@@ -101,47 +97,32 @@ StatusCode iGeant4::G4TransportTool::initialize()
 }
 
 //________________________________________________________________________
-void iGeant4::G4TransportTool::initializeOnce()
+void iGeant4::G4LegacyTransportTool::initializeOnce()
 {
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
 
+  if (m_g4RunManagerHelper.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize G4RunManagerHelper!");
+  }
+  ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
+  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : nullptr;
+  if (!m_pRunMgr) {
+    throw std::runtime_error("G4RunManagerHelper::g4RunManager() returned nullptr.");
+  }
+
   if(m_physListSvc.retrieve().isFailure()) {
     throw std::runtime_error("Could not initialize ATLAS PhysicsListSvc!");
   }
+  m_physListSvc->SetPhysicsList();
 
-  // Create the (master) run manager
-  if(m_useMT) {
-#ifdef G4MULTITHREADED
-    auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
-    m_physListSvc->SetPhysicsList();
-    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-    runMgr->SetPhysListSvc( m_physListSvc.typeAndName() );
-    // Worker Thread initialization used to create worker run manager on demand.
-    std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
-      std::make_unique<G4AtlasUserWorkerThreadInitialization>();
-    workerInit->SetUserActionSvc( m_userActionSvc.typeAndName() );
-    workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-    workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
-    workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
-    runMgr->SetUserInitialization( workerInit.release() );
-#else
-    throw std::runtime_error("Trying to use multi-threading in non-MT build!");
-#endif
-  }
-  // Single-threaded run manager
-  else {
-    auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
-    m_physListSvc->SetPhysicsList();
-    runMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
-    runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-    runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
-    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-    runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
-    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-    runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
-  }
+  m_pRunMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
+  m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
+  m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+  m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+  m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
+  m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+  m_pRunMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
@@ -209,16 +190,16 @@ void iGeant4::G4TransportTool::initializeOnce()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::finalize()
+StatusCode iGeant4::G4LegacyTransportTool::finalize()
 {
-  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool finalized  ++++++++++++");
+  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4LegacyTransportTool finalized  ++++++++++++");
 
   // One time finalization
   try {
-    std::call_once(finalizeOnceFlag, &iGeant4::G4TransportTool::finalizeOnce, this);
+    std::call_once(finalizeOnceFlag, &iGeant4::G4LegacyTransportTool::finalizeOnce, this);
   }
   catch(const std::exception& e) {
-    ATH_MSG_ERROR("Failure in iGeant4::G4TransportTool::finalizeOnce: " << e.what());
+    ATH_MSG_ERROR("Failure in iGeant4::G4LegacyTransportTool::finalizeOnce: " << e.what());
     return StatusCode::FAILURE;
   }
 
@@ -242,16 +223,17 @@ StatusCode iGeant4::G4TransportTool::finalize()
 }
 
 //________________________________________________________________________
-void iGeant4::G4TransportTool::finalizeOnce()
+void iGeant4::G4LegacyTransportTool::finalizeOnce()
 {
   ATH_MSG_DEBUG("\t terminating the current G4 run");
-  auto runMgr = G4RunManager::GetRunManager();
-  runMgr->RunTermination();
+
+  m_pRunMgr->RunTermination();
+
   return;
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const {
+StatusCode iGeant4::G4LegacyTransportTool::simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const {
 
   // give a screen output that you entered Geant4SimSvc
   ATH_MSG_VERBOSE( "Particle " << isp << " received for simulation." );
@@ -268,7 +250,7 @@ StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF:
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const {
+StatusCode iGeant4::G4LegacyTransportTool::simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const {
 
   ATH_MSG_DEBUG (name() << ".simulateVector(...) : Received a vector of " << particles.size() << " particles for simulation.");
   /** Process ParticleState from particle stack */
@@ -279,24 +261,8 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
   }
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
-  bool abort = false;
-  // Worker run manager
-  // Custom class has custom method call: ProcessEvent.
-  // So, grab custom singleton class directly, rather than base.
-  // Maybe that should be changed! Then we can use a base pointer.
-  if(m_useMT) {
-#ifdef G4MULTITHREADED
-    auto* workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
-    abort = workerRM->ProcessEvent(inputEvent);
-#else
-    ATH_MSG_ERROR("Trying to use multi-threading in non-MT build!");
-    return StatusCode::FAILURE;
-#endif
-  }
-  else {
-    auto* workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
-    abort = workerRM->ProcessEvent(inputEvent);
-  }
+  bool abort = m_pRunMgr->ProcessEvent(inputEvent);
+
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
     //ATH_MSG_WARNING("Simulation will now go on to the next event ");
@@ -339,23 +305,9 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::setupEvent()
+StatusCode iGeant4::G4LegacyTransportTool::setupEvent()
 {
   ATH_MSG_DEBUG ( "setup Event" );
-
-#ifdef G4MULTITHREADED
-  // In some rare cases, TBB may create more physical worker threads than
-  // were requested via the pool size.  This can happen at any time.
-  // In that case, those extra threads will not have had the thread-local
-  // initialization done, leading to a crash.  Try to detect that and do
-  // the initialization now if needed.
-  if (m_useMT && G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume() == nullptr)
-  {
-    ToolHandle<IThreadInitTool> ti ("G4ThreadInitTool", nullptr);
-    ATH_CHECK( ti.retrieve() );
-    ti->initThread();
-  }
-#endif
 
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
@@ -375,7 +327,7 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::releaseEvent()
+StatusCode iGeant4::G4LegacyTransportTool::releaseEvent()
 {
   ATH_MSG_DEBUG ( "release Event" );
   /** @todo : strip hits of the tracks ... */
@@ -422,7 +374,7 @@ StatusCode iGeant4::G4TransportTool::releaseEvent()
 
 //________________________________________________________________________
 // Act as particle broker for G4 secondaries
-void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
+void iGeant4::G4LegacyTransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
 {
   ATH_MSG_VERBOSE( "Caught secondary particle push() from Geant4" );
 
@@ -432,7 +384,7 @@ void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFP
 }
 
 //________________________________________________________________________
-HepMC::GenEvent* iGeant4::G4TransportTool::genEvent(McEventCollection* mcEventCollection) const
+HepMC::GenEvent* iGeant4::G4LegacyTransportTool::genEvent(McEventCollection* mcEventCollection) const
 {
 
   if(!mcEventCollection) {
@@ -454,7 +406,7 @@ HepMC::GenEvent* iGeant4::G4TransportTool::genEvent(McEventCollection* mcEventCo
 }
 
 //________________________________________________________________________
-void iGeant4::G4TransportTool::commandLog(int returnCode, const std::string& commandString) const
+void iGeant4::G4LegacyTransportTool::commandLog(int returnCode, const std::string& commandString) const
 {
   switch(returnCode) {
   case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;

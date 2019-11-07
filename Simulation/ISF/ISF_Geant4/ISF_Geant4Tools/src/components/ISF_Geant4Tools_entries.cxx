@@ -1,4 +1,5 @@
 #include "../TransportTool.h"
+#include "../G4LegacyTransportTool.h"
 #include "../TrackProcessorUserActionPassBackTool.h"
 #include "../TrackProcessorUserActionFullG4Tool.h"
 #include "../MCTruthUserActionTool.h"
@@ -10,6 +11,7 @@
 //arranged alphabetically, as this now determines the order in which
 //genConf is run.
 DECLARE_COMPONENT( iGeant4::G4TransportTool )
+DECLARE_COMPONENT( iGeant4::G4LegacyTransportTool )
 DECLARE_COMPONENT( G4UA::iGeant4::TrackProcessorUserActionPassBackTool )
 DECLARE_COMPONENT( G4UA::iGeant4::TrackProcessorUserActionFullG4Tool )
 DECLARE_COMPONENT( G4UA::iGeant4::MCTruthUserActionTool )
