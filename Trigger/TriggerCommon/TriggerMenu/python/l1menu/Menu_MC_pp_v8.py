@@ -112,6 +112,10 @@ def defineMenu():
         'jJ40', 'jJ50', 'jJ85', 'jJ100',
         'jJ15.31ETA49', 'jJ20.31ETA49', 'jJ75.31ETA49', 
 
+        #large R jets from gFEX
+        'gLJ100', 'gLJ120', 'gLJ140', 'gLJ160', 'gLJ180',
+
+        #'jLJ100', 'jLJ120, jLJ140, jLJ160, jLJ180
         #---------------------
         # SLOT 8 / CON 2 (EN1)
         #---------------------
@@ -609,6 +613,11 @@ def defineMenu():
         'L1_jJ25.0ETA23_2jJ15.31ETA49',
         'L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49',
         'L1_jJ75.31ETA49',
+        #ATR-20408: gFEX
+        'L1_gLJ100',
+        'L1_gLJ120',
+        'L1_gLJ140',
+        'L1_gLJ180',
         'L1_jJ85_3jJ30',
        # multi jet forward
         "L1_J25.0ETA23_2J15.31ETA49",
@@ -1121,6 +1130,11 @@ def defineMenu():
         'L1_jJ25.0ETA23_2jJ15.31ETA49' : 125,
         'L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49' : 126,
         'L1_jJ75.31ETA49' : 127,
+        #ATR-20408: gFEX
+        'L1_gLJ100' : 77,
+        'L1_gLJ120' : 79,
+        'L1_gLJ140' : 129,
+        'L1_gLJ180' : 195,
         'L1_jJ85_3jJ30' : 128,
         'L1_J20.31ETA49' : 103,
         'L1_J30.31ETA49' : 104,

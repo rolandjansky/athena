@@ -626,6 +626,13 @@ class ItemDef:
         #LVL1MenuItem('L1_J100.31ETA49').setLogic( J10031ETA49 & physcond).setTriggerType(TT.calo)   # noqa: F821
         LVL1MenuItem('L1_jJ75.31ETA49').setLogic( jJ7531ETA49 & physcond).setTriggerType(TT.calo)      # noqa: F821
 
+        #ATR-20408: gFEX
+        if '_v8' in TriggerFlags.triggerMenuSetup() :
+            LVL1MenuItem('L1_gLJ100'  ).setLogic( gLJ100 & physcond).setTriggerType(TT.calo)    # noqa: F821
+            LVL1MenuItem('L1_gLJ120'  ).setLogic( gLJ120 & physcond).setTriggerType(TT.calo)    # noqa: F821
+            LVL1MenuItem('L1_gLJ140'  ).setLogic( gLJ140 & physcond).setTriggerType(TT.calo)    # noqa: F821
+            LVL1MenuItem('L1_gLJ160'  ).setLogic( gLJ160 & physcond).setTriggerType(TT.calo)    # noqa: F821
+            LVL1MenuItem('L1_gLJ180'  ).setLogic( gLJ180 & physcond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_J10_UNPAIRED_ISO'   ).setLogic( J10 & unpaired_isocond   ).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J10_UNPAIRED_NONISO').setLogic( J10 & unpaired_nonisocond).setTriggerType(TT.calo)    # noqa: F821
