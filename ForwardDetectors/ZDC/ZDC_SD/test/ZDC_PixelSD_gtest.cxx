@@ -87,7 +87,7 @@ TEST_F( ZDC_PixelSDtest, ProcessHits )
   sd2.StartOfAthenaEvent();
   sd2.ProcessHits(&sp, &th);
 
-  ASSERT_FLOAT_EQ(sd2.m_Edep_Cherenkov_Pixel[1][1][78], 2.2452348e-05); //Based on my setting, Side=1, Module=1, Pixel_No=78, so m_Edep_Cherenkov_Pixel[1][1][78] was accumulated and finally it should be 2.2452348e-05
+  ASSERT_FLOAT_EQ(sd2.m_Edep_Cherenkov_Pixel[1][1][78], 2.2452348e-05); //Based on my setting, Side=1, Module=1, Pixel_No=78, so m_Edep_Cherenkov_Pixel[1][1][78] was accumulated and finally it should be 2.2452348e-05.
   ASSERT_EQ(sd2.m_NPhoton_Cherenkov_Pixel[1][1][78], 7); //Likewise, based on my setting, Side=1, Module=1, Pixel_No=78, so m_NPhoton_Cherenkov_Pixel[1][1][78] was accumulated and finally it should be 7
 }
 
