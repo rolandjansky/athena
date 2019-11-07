@@ -395,7 +395,8 @@ class ThresholdDef:
         # Thresholds from Large-R gJet from gFEX
         if '_v8' in TriggerFlags.triggerMenuSetup():
             for thrV in [100, 120, 140, 160, 180]:
-                tc.registerThr('gLJ%i' % thrV, 'JET', run=3).addThrValue(thrV)        
+                tc.registerThr('gLJ%i' % thrV, 'JET', run=3).addThrValue(thrV) 
+                tc.registerThr('jLJ%i' % thrV, 'JET', run=3).addThrValue(thrV)       
 
 
         # JB and JF
