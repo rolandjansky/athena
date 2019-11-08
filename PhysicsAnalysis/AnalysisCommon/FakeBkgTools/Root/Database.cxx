@@ -507,13 +507,13 @@ void Database::addDimension(EfficiencyTable& table, unsigned paramUID, const Str
     if(!contents) return;
     auto& param = m_params[paramUID];
     const bool integer = param.integer();
-    const std::string fp = "(?:[0-9]+\\.)?[0-9]+(?:[Ee][+-]?[0-9]+)?";
+    const std::string fp = "[+-]?[0-9]*\\.?[0-9]+(?:[Ee][+-]?[0-9]+)?";
     const std::string pattern = "^\\s*\\[\\s*(?:(?:-inf\\s*,\\s*|-?)inf|(?:-inf\\s*,\\s*)?" 
         + fp + "(?:\\s*,\\s*" + fp + ")*(?:\\s*,\\s*inf)?)\\s*\\]\\s*$";
     if(!std::regex_match(contents.ptr, contents.endptr, std::regex(pattern)))
     {
         /// Also accept a simpler syntax for integers (e.g. nJets = "2")
-        if(!integer || !std::regex_match(contents.ptr, contents.endptr, std::regex("\\s*[0-9]+\\s*")))
+        if(!integer || !std::regex_match(contents.ptr, contents.endptr, std::regex("\\s*[+-]?[0-9]+\\s*")))
         {
             throw(XmlError(contents) << "invalid format for the range of the parameter " << param.name);
         }
