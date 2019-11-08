@@ -26,7 +26,6 @@
 #include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
