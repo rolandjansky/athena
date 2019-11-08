@@ -153,6 +153,11 @@ athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
 
+# Set default doL1Sim option depending on input type (if not set explicitly)
+if 'doL1Sim' not in globals():
+    opt.doL1Sim = globalflags.DataSource != 'data'
+    log.info('Setting default doL1Sim=%s because globalflags.DataSource=%s', opt.doL1Sim, globalflags.DataSource())
+
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
 #-------------------------------------------------------------
