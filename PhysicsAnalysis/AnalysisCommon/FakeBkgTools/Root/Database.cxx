@@ -545,6 +545,8 @@ void Database::addDimension(EfficiencyTable& table, unsigned paramUID, const Str
             if(i==0 || i==(dim.nBounds-1))
             {
                 ss.clear();
+                ss.unget(); /// the stream might have consumed the leading '-' in its failed attempt to read a number, so recover it
+                ss.clear();
                 std::string x_s;
                 ss >> x_s;
                 if(x_s=="inf" || x_s=="-inf")
