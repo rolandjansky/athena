@@ -948,7 +948,7 @@ bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
 
 StatusCode AthenaOutputStream::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
-   // For 'write on finalize', we set up listener for 'LastInputFile'
+   // For 'write on finalize', we set up listener for 'MetaDataStop' and 'UpdateOutputFile'
    // and perform write at this point. This happens at 'stop' of the
    // event selector. RDS 04/2010
    // Set to be listener for end of event
