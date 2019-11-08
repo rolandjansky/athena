@@ -1,4 +1,4 @@
-from AthenaCommon.Constants import ERROR,DEBUG
+from AthenaCommon.Constants import ERROR
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
