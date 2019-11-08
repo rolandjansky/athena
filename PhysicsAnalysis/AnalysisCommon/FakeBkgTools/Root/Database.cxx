@@ -67,7 +67,7 @@ bool Database::fillEfficiencies(ParticleData& pd, const xAOD::IParticle& p, cons
     /// Loop over all the type of efficiencies (real, fake, fake factor) that were requested to be filled
     for(int wt=0;wt<N_EFFICIENCY_TYPES;++wt)
     {
-		EfficiencyType wantedType = static_cast<EfficiencyType>(wt);
+        EfficiencyType wantedType = static_cast<EfficiencyType>(wt);
         if(!m_typesToFill[wantedType]) continue; 
         Efficiency* eff = selectEfficiency(pd, p, wantedType); /// pointer to the proper member of ParticleData that needs to be filled 
         if(!eff) continue;
@@ -440,7 +440,7 @@ void Database::addTables(const StringRef& particle, const AttributesMap& attribu
             if(tag == "TH1")
             {
                 if(!source) throw(XmlError(tag) << "histograms can only be imported inside <ROOT>...</ROOT> blocks!");
-                if(!subattributes.at("TH1/X")) throw(XmlError(tag) << "the attribute 'X' should be specified (as well as 'Y' for 2D histograms)");
+                if(!subattributes.at("TH1/X")) throw(XmlError(tag) << "the attribute 'X' should be specified (as well as 'Y' for 2D histograms, 'Z' for 3D histograms)");
                 auto name = subcontents.trim();
                 hist = static_cast<const TH1*>(source->Get(name.c_str()));
                 if(!hist) throw(XmlError(subcontents) << "can't find any histogram named \"" << name << "\" in the file " << source->GetName());
@@ -448,7 +448,7 @@ void Database::addTables(const StringRef& particle, const AttributesMap& attribu
                 if(inputType!=InputType::CORRECTION && (norm && norm!="none"))
                     throw(XmlError(norm) << "normalization of input histograms is only accepted for 'input=\"correction\"'");
                 float scale = getNormalizationFactor(hist, type, norm, subcontents);
-                importNominalTH1(hist, type, subattributes.at("TH1/X"), subattributes.at("TH1/Y"), scale, statMode, globalStatUID, subcontents);
+                importNominalTH1(hist, type, subattributes.at("TH1/X"), subattributes.at("TH1/Y"), subattributes.at("TH1/Z"), scale, statMode, globalStatUID, subcontents);
             }
             else m_tables[type].emplace_back();
             auto& table = m_tables[type].back();
@@ -710,6 +710,7 @@ void Database::resetAttributes(AttributesMap& attributes)
     attributes["muon/stat"];
     attributes["TH1/X"];
     attributes["TH1/Y"];
+    attributes["TH1/Z"];
     attributes["TH1/label"];
     attributes["bin/label"];
     attributes["TH1/norm"]; /// for now only a TH1 attribute
@@ -732,6 +733,7 @@ void Database::importDefaultROOT(std::string filename)
     const std::string prefix = "^(FakeFactor|FakeEfficiency|RealEfficiency)", suffix = "_([[:w:]][^_]+)(__[[:w:]]+)?$";
     const std::regex rxTH1(prefix + "_(el|mu|tau)" + suffix);
     const std::regex rxTH2(prefix + "2D_(el|mu|tau)_([[:alnum:]]+)" + suffix);
+    const std::regex rxTH3(prefix + "3D_(el|mu|tau)_([[:alnum:]]+)_([[:alnum:]]+)" + suffix);
     
     filename = PathResolverFindCalibFile(filename);
     TFile* file = TFile::Open(filename.c_str(), "READ");
@@ -757,6 +759,7 @@ void Database::importDefaultROOT(std::string filename)
             unsigned nDims = 0;
             if(keyType=="TH1F" || keyType=="TH1D") nDims = 1 * std::regex_match(key->GetName(), mr, rxTH1);
             else if(keyType=="TH2F" || keyType=="TH2D") nDims = 2 * std::regex_match(key->GetName(), mr, rxTH2);
+            else if(keyType=="TH3F" || keyType=="TH3D") nDims = 3 * std::regex_match(key->GetName(), mr, rxTH3);
             else continue;
             if(nDims < 1) throw(GenericError() << "don't know what to do with histogram named \"" << key->GetName() << "\" (please check naming conventions)");
             TH1* hist = static_cast<TH1*>(key->ReadObj());
@@ -772,7 +775,8 @@ void Database::importDefaultROOT(std::string filename)
             {
                 StringRef paramX = StringRef(mr[3].first, mr[3].second);
                 StringRef paramY = (nDims>1) ? StringRef(mr[4].first, mr[4].second) : StringRef();
-                importNominalTH1(hist, type, paramX, paramY, 1.f, StatMode::PER_BIN, dummy, nullStream);
+                StringRef paramZ = (nDims>2) ? StringRef(mr[5].first, mr[5].second) : StringRef();
+                importNominalTH1(hist, type, paramX, paramY, paramZ, 1.f, StatMode::PER_BIN, dummy, nullStream);
                 m_tables[type].back().inputType = InputType::CENTRAL_VALUE;
             }
             else if(step==1 && systTH1) importSystTH1(hist, type, mr[nDims+3].str().substr(2));
@@ -826,7 +830,7 @@ float Database::getNormalizationFactor(const TH1* hist, EfficiencyType type, con
     return 1.f;
 }
 
-void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY, 
+void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY,  const StringRef& paramZ, 
         float scale, StatMode statMode, unsigned short& globalStatUID, const StringRef& xmlStream)
 {
     const bool useDefaults = !xmlStream;
@@ -835,7 +839,7 @@ void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const Stri
     m_tables[type].emplace_back();
     auto& table = m_tables[type].back();
 
-    const int nDims = paramY? 2 : 1;
+    const int nDims = paramZ? 3 : paramY? 2 : 1;
     if(hist->GetDimension() != nDims)
     {
         if(xmlStream) throw(XmlError(xmlStream) << "histogram " << hist->GetName() << " doesn't have the expected dimension");
@@ -845,8 +849,8 @@ void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const Stri
     /// Parameters and ranges
     for(int j=0;j<nDims;++j)
     {
-        std::string name = (j? paramY : paramX).str();
-        const TAxis* axis = j? hist->GetYaxis() : hist->GetXaxis();
+        std::string name = ((j==2)? paramZ : (j==1)? paramY : paramX).str();
+        const TAxis* axis = (j==2)? hist->GetZaxis() : (j==1)? hist->GetYaxis() : hist->GetXaxis();
         if(useDefaults && name == "eta" && axis->GetBinLowEdge(1) >= 0) name = "|eta|";
         table.m_dimensions.emplace_back();
         auto& dim = table.m_dimensions.back();
@@ -888,16 +892,18 @@ void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const Stri
     if(statMode==StatMode::GLOBAL && !globalStatUID) globalStatUID = addStat(type, xmlStream);
     const unsigned xmax = table.m_dimensions.front().nBounds;
     const unsigned ymax = table.m_dimensions.size()>1? table.m_dimensions[1].nBounds : 2;
+    const unsigned zmax = table.m_dimensions.size()>2? table.m_dimensions[2].nBounds : 2;
     for(unsigned x=1;x<xmax;++x)
     for(unsigned y=1;y<ymax;++y)
+    for(unsigned z=1;z<zmax;++z)
     {
         table.m_efficiencies.emplace_back();
         auto& eff = table.m_efficiencies.back();
-        eff.nominal = scale * hist->GetBinContent(x, y);
+        eff.nominal = scale * hist->GetBinContent(x, y, z);
         if(statMode != StatMode::NONE)
         {
             uint16_t uid = (statMode==StatMode::GLOBAL)? globalStatUID : addStat(type, xmlStream);
-            float err = hist->GetBinError(x, y);
+            float err = hist->GetBinError(x, y, z);
             FakeBkgTools::Uncertainty uncdata{scale*err, scale*err};
             eff.uncertainties.emplace(uid, uncdata);
         }
@@ -910,7 +916,8 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
     auto& table = m_tables[type].back();
     const int xmax = table.m_dimensions.front().nBounds;
     const int ymax = table.m_dimensions.size()>1? table.m_dimensions[1].nBounds : 2;
-    if(xmax!=hist->GetNbinsX()+1 || ymax!=hist->GetNbinsY()+1)
+    const int zmax = table.m_dimensions.size()>1? table.m_dimensions[2].nBounds : 2;
+    if(xmax!=hist->GetNbinsX()+1 || ymax!=hist->GetNbinsY()+1 || zmax!=hist->GetNbinsZ()+1)
     {
         throw(GenericError() << "binning mismatch between the nominal histogram and " << hist->GetName());
     }
@@ -931,8 +938,9 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
     auto eff = table.m_efficiencies.begin();
     for(int x=1;x<xmax;++x)
     for(int y=1;y<ymax;++y)
+    for(int z=1;z<zmax;++z)
     {
-        float err = hist->GetBinContent(x, y);
+        float err = hist->GetBinContent(x, y, z);
         FakeBkgTools::Uncertainty uncdata{err, err};
         if(!eff->uncertainties.emplace(uid, uncdata).second)
         {
