@@ -43,9 +43,6 @@
 #include <algorithm>
 #include <utility>
 
-#include "CxxUtils/checker_macros.h"
-ATLAS_CHECK_FILE_THREAD_SAFETY;
-
 namespace Muon {
 
   //----------------------------------------------------------------------------------------------------------
