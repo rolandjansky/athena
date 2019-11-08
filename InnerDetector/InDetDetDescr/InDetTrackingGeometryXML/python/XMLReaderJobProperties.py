@@ -22,14 +22,6 @@ class PixelEndcapLayout(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'UNDEFINED'
-class SCTBarrelLayout(JobProperty):
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'UNDEFINED'
-class SCTEndcapLayout(JobProperty):
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'UNDEFINED'
 class doPix(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -87,8 +79,6 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
         self.PixelBarrelLayout = kwargs["PixelBarrelLayout"]
         if kwargs["PixelEndcapLayout"]!=None: 
             self.PixelEndcapLayout = kwargs["PixelEndcapLayout"]
-        self.SCTBarrelLayout = kwargs["SCTBarrelLayout"]
-        self.SCTEndcapLayout = kwargs["SCTEndcapLayout"]
         self.doPix  = kwargs["doPix"]
         self.doSCT  = kwargs["doSCT"]
         self.isGMX  = kwargs["isGMX"]
@@ -127,7 +117,6 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
 
     def dump(self):
         print "Pixel = ", self.PixelBarrelLayout(), " ", self.PixelEndcapLayout()
-        print "SCT   = ", self.SCTBarrelLayout(), " ", self.SCTEndcapLayout()
         print "ID    =>  doPixel ", self.doPix,"  doSCT ",self.doSCT, "  isGMX ",self.isGMX, "  addBCL ",self.addBCL
         print "splitBarrel  : ", self.splitBarrelLayers()
         print "isRingLayout : ", self.isRingLayout()
@@ -139,8 +128,6 @@ jobproperties.add_Container(XMLReaderFlags_JobProperties)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(IdDictFileName)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(PixelBarrelLayout)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(PixelEndcapLayout)
-jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(SCTBarrelLayout)
-jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(SCTEndcapLayout)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doPix)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doSCT)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(isGMX)

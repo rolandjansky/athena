@@ -63,10 +63,6 @@ class SLHC_Setup_XMLReader :
         PIXENDCAPFILE = str(kwargs["PixelLayout"]) + "_PixelEndcap.xml"
         if kwargs.has_key("PixelEndcapLayout"): PIXENDCAPFILE = str(kwargs["PixelEndcapLayout"]) + "_PixelEndcap.xml"
         
-        SCTMODULEFILE = "ITK_SCTModules.xml"
-        SCTSTAVEFILE  = str(kwargs["SCTLayout"]) + "_SCTStave.xml"
-        SCTBARRELFILE = str(kwargs["SCTLayout"]) + "_SCTBarrel.xml"
-        SCTENDCAPFILE = str(kwargs["SCTLayout"]) + "_SCTEndcap.xml"
 
         ## ###### Setup dictionary file to use  ######
         ## dictDir = os.path.dirname(dictionaryFileName)
@@ -101,17 +97,13 @@ class SLHC_Setup_XMLReader :
 
             pixBarrelLayout = pathName+"/"+str(PIXBARRELFILE)
             pixEndcapLayout = pathName+"/"+str(PIXENDCAPFILE)
-            stripBarrelLayout = pathName+"/"+str(SCTBARRELFILE)
-            stripEndcapLayout = pathName+"/"+str(SCTENDCAPFILE)
 
         else:
 
             pixBarrelLayout = find_file_env(str(PIXBARRELFILE),'DATAPATH')
             pixEndcapLayout = find_file_env(str(PIXENDCAPFILE),'DATAPATH')
-            stripBarrelLayout = find_file_env(str(SCTBARRELFILE),'DATAPATH')
-            stripEndcapLayout = find_file_env(str(SCTENDCAPFILE),'DATAPATH')
 
-            fileList = [pixBarrelLayout,pixEndcapLayout,stripBarrelLayout,stripEndcapLayout]
+            fileList = [pixBarrelLayout,pixEndcapLayout]
 
             if None in fileList:
                 if SLHC_Flags.UseLocalGeometry():
@@ -125,8 +117,6 @@ class SLHC_Setup_XMLReader :
         # need to set these in the interface to use kwargs syntax
         XMLReaderFlags.setValuesFromSetup( PixelBarrelLayout = pixBarrelLayout,
                                            PixelEndcapLayout = pixEndcapLayout,
-                                           SCTBarrelLayout = stripBarrelLayout,
-                                           SCTEndcapLayout = stripEndcapLayout,
                                            doPix = kwargs["doPix"],
                                            doSCT = kwargs["doSCT"],
 					   isGMX = kwargs["isGMX"],
@@ -155,11 +145,6 @@ class SLHC_Setup_XMLReader :
             xmlReader.XML_PixelBarrelLayers = XMLReaderFlags.PixelBarrelLayout()
             if XMLReaderFlags.PixelEndcapLayout()!='UNDEFINED' :
                 xmlReader.XML_PixelEndcapLayers = XMLReaderFlags.PixelEndcapLayout()
-            ###### Setup XML files for SCT ######
-            xmlReader.XML_SCTModules      = find_file_env(str(SCTMODULEFILE),'DATAPATH')
-            xmlReader.XML_SCTStaves       = find_file_env(str(SCTSTAVEFILE),'DATAPATH')
-            xmlReader.XML_SCTBarrelLayers = XMLReaderFlags.SCTBarrelLayout()
-            xmlReader.XML_SCTEndcapLayers = XMLReaderFlags.SCTEndcapLayout()
             
         else:
 
@@ -169,11 +154,6 @@ class SLHC_Setup_XMLReader :
             xmlReader.XML_PixelBarrelLayers = pathName+"/"+str(PIXBARRELFILE)
             if XMLReaderFlags.PixelEndcapLayout()!='UNDEFINED' :
                 xmlReader.XML_PixelEndcapLayers = pathName+"/"+str(PIXENDCAPFILE)
-            ###### Setup XML files for SCT ######
-            xmlReader.XML_SCTModules      = pathName+"/"+str(SCTMODULEFILE)
-            xmlReader.XML_SCTStaves       = pathName+"/"+str(SCTSTAVEFILE)
-            xmlReader.XML_SCTBarrelLayers = pathName+"/"+str(SCTBARRELFILE)
-            xmlReader.XML_SCTEndcapLayers = pathName+"/"+str(SCTENDCAPFILE)
             
         from AthenaCommon.AppMgr import theApp
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
