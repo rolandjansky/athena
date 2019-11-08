@@ -16,6 +16,7 @@
 #include <SampleHandler/MetaObject.h>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -152,6 +153,12 @@ namespace EL
       /// \brief whether we have/use a shared file system
     public:
       bool sharedFileSystem {true};
+
+      /// \brief the list of successful, failed, unknown batch segments
+    public:
+      std::set<std::size_t> batchJobSuccess;
+      std::set<std::size_t> batchJobFailure;
+      std::set<std::size_t> batchJobUnknown;
 
 
       /// \brief the current \ref ManagerStep

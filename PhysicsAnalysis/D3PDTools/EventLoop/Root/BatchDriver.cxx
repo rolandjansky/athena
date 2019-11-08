@@ -418,6 +418,63 @@ namespace EL
       }
       break;
 
+    case Detail::ManagerStep::readConfigResubmit:
+    case Detail::ManagerStep::readConfigRetrieve:
+      {
+        ANA_MSG_INFO ("retrieving batch job in location " << data.submitDir);
+
+        std::unique_ptr<TFile> file
+          {TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ")};
+        if (file == nullptr || file->IsZombie())
+        {
+          ANA_MSG_ERROR ("failed to read config.root");
+          return ::StatusCode::FAILURE;
+        }
+        data.batchJob.reset (dynamic_cast<BatchJob*>(file->Get ("job")));
+        if (data.batchJob == nullptr)
+        {
+          ANA_MSG_ERROR ("failed to get job object from config.root");
+          return ::StatusCode::FAILURE;
+        }
+        data.job = &data.batchJob->job;
+      }
+      break;
+
+    case Detail::ManagerStep::batchJobStatusResubmit:
+    case Detail::ManagerStep::batchJobStatusRetrieve:
+      {
+	for (std::size_t job = 0; job != data.batchJob->segments.size(); ++ job)
+	{
+	  std::ostringstream completedFile;
+	  completedFile << data.submitDir << "/status/completed-" << job;
+          const bool hasCompleted =
+            (gSystem->AccessPathName (completedFile.str().c_str()) == 0);
+
+	  std::ostringstream failFile;
+	  failFile << data.submitDir << "/status/fail-" << job;
+          const bool hasFail =
+            (gSystem->AccessPathName (failFile.str().c_str()) == 0);
+
+          if (hasCompleted)
+          {
+            if (hasFail)
+            {
+              ANA_MSG_ERROR ("sub-job " << job << " reported both success and failure");
+              return ::StatusCode::FAILURE;
+            } else
+              data.batchJobSuccess.insert (job);
+          } else
+          {
+            if (hasFail)
+              data.batchJobFailure.insert (job);
+            else
+              data.batchJobUnknown.insert (job);
+          }
+        }
+        ANA_MSG_INFO ("current job status: " << data.batchJobSuccess.size() << " success, " << data.batchJobFailure.size() << " failure, " << data.batchJobUnknown.size() << " running/unknown");
+      }
+      break;
+
     case Detail::ManagerStep::batchPreResubmit:
       {
         bool all_missing = false;
@@ -430,33 +487,15 @@ namespace EL
           return ::StatusCode::FAILURE;
         }
 
-        std::unique_ptr<TFile> file
-          (TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ"));
-        if (file == nullptr || file->IsZombie())
-        {
-          ANA_MSG_ERROR ("failed to read config.root");
-          return ::StatusCode::FAILURE;
-        }
-        std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
-        if (config == nullptr)
-        {
-          ANA_MSG_ERROR ("failed to get job object from config.root");
-          return ::StatusCode::FAILURE;
-        }
-
-        for (std::size_t segment = 0; segment != config->segments.size(); ++ segment)
+        for (std::size_t segment = 0; segment != data.batchJob->segments.size(); ++ segment)
         {
           if (all_missing)
           {
-            std::ostringstream completed_file;
-            completed_file << data.submitDir << "/status/completed-" << segment;
-            if (gSystem->AccessPathName (completed_file.str().c_str()) != 0)
+            if (data.batchJobSuccess.find (segment) == data.batchJobSuccess.end())
               data.batchJobIndices.push_back (segment);
           } else
           {
-            std::ostringstream fail_file;
-            fail_file << data.submitDir << "/status/fail-" << segment;
-            if (gSystem->AccessPathName (fail_file.str().c_str()) == 0)
+            if (data.batchJobFailure.find (segment) != data.batchJobFailure.end())
               data.batchJobIndices.push_back (segment);
           }
         }
@@ -477,22 +516,13 @@ namespace EL
           command << " " << data.submitDir << "/status/done-" << segment;
           RCU::Shell::exec (command.str());
         }
-        data.options = *config->job.options();
+        data.options = *data.batchJob->job.options();
       }
       break;
 
     case Detail::ManagerStep::doRetrieve:
       {
-        ANA_MSG_DEBUG ("retrieving batch job in location " << data.submitDir);
-
-        std::unique_ptr<TFile> file
-          (TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ"));
-        RCU_ASSERT_SOFT (file.get() != 0);
-        data.batchJob.reset (dynamic_cast<BatchJob*>(file->Get ("job")));
-        RCU_ASSERT_SOFT (data.batchJob.get() != 0);
-        data.job = &data.batchJob->job;
-
-        bool merged = mergeHists (data.submitDir, *data.batchJob);
+        bool merged = mergeHists (data);
         if (merged)
         {
           diskOutputSave (data);
@@ -663,8 +693,7 @@ namespace EL
 
 
   bool BatchDriver ::
-  mergeHists (const std::string& location,
-	      const BatchJob& config)
+  mergeHists (Detail::ManagerData& data)
   {
     using namespace msgEventLoop;
 
@@ -675,7 +704,7 @@ namespace EL
     // a lot of time on this now (06 Feb 19).
     std::unique_ptr<SH::DiskOutput> origHistOutputMemory;
     const SH::DiskOutput *origHistOutput = nullptr;
-    for (auto iter = config.job.outputBegin(), end = config.job.outputEnd();
+    for (auto iter = data.job->outputBegin(), end = data.job->outputEnd();
          iter != end; ++ iter)
     {
       if (iter->label() == Job::histogramStreamName)
@@ -684,64 +713,49 @@ namespace EL
     if (origHistOutput == nullptr)
     {
       origHistOutputMemory = std::make_unique<SH::DiskOutputLocal>
-        (location + "/fetch/hist-");
+        (data.submitDir + "/fetch/hist-");
       origHistOutput = origHistOutputMemory.get();
     }
     RCU_ASSERT (origHistOutput != nullptr);
 
     bool result = true;
 
-    ANA_MSG_DEBUG ("merging histograms in location " << location);
+    ANA_MSG_DEBUG ("merging histograms in location " << data.submitDir);
 
     RCU_ASSERT (config.njobs_old.size() == config.samples.size());
-    for (std::size_t sample = 0, end = config.samples.size();
+    for (std::size_t sample = 0, end = data.batchJob->samples.size();
 	 sample != end; ++ sample)
     {
-      const BatchSample& mysample (config.samples[sample]);
+      const BatchSample& mysample (data.batchJob->samples[sample]);
 
       std::ostringstream output;
-      output << location << "/hist-" << config.samples[sample].name << ".root";
+      output << data.submitDir << "/hist-" << data.batchJob->samples[sample].name << ".root";
       if (gSystem->AccessPathName (output.str().c_str()) != 0)
       {
-        ANA_MSG_VERBOSE ("merge files for sample " << config.samples[sample].name);
+        ANA_MSG_VERBOSE ("merge files for sample " << data.batchJob->samples[sample].name);
 
 	bool complete = true;
 	std::vector<std::string> input;
 	for (std::size_t segment = mysample.begin_segments,
 	       end = mysample.end_segments; segment != end; ++ segment)
 	{
-	  const BatchSegment& mysegment = config.segments[segment];
+	  const BatchSegment& mysegment = data.batchJob->segments[segment];
 
 	  const std::string hist_file = origHistOutput->targetURL
             (mysegment.sampleName, mysegment.segmentName, ".root");
 
-	  std::ostringstream completed_file;
-	  completed_file << location << "/status/completed-" << segment;
-	  std::ostringstream fail_file;
-	  fail_file << location << "/status/fail-" << segment;
-	  std::ostringstream done_file;
-	  done_file << location << "/status/done-" << segment;
-
-          const bool hasCompleted =
-            (gSystem->AccessPathName (completed_file.str().c_str()) == 0);
-          const bool hasFail =
-            (gSystem->AccessPathName (fail_file     .str().c_str()) == 0);
-          const bool hasDone =
-            (gSystem->AccessPathName (done_file     .str().c_str()) == 0);
-
-          ANA_MSG_VERBOSE ("merge segment " << segment << " completed=" << hasCompleted << " done=" << hasDone << " fail=" << hasFail);
+          ANA_MSG_VERBOSE ("merge segment " << segment << " completed=" << (data.batchJobSuccess.find(segment)!=data.batchJobSuccess.end()) << " fail=" << (data.batchJobFailure.find(segment)!=data.batchJobFailure.end()) << " unknown=" << (data.batchJobUnknown.find(segment)!=data.batchJobUnknown.end()));
 
 	  input.push_back (hist_file);
 
-	  if (gSystem->AccessPathName (fail_file     .str().c_str()) == 0)
+	  if (data.batchJobFailure.find(segment)!=data.batchJobFailure.end())
 	  {
 	    std::ostringstream message;
 	    message << "subjob " << segment << "/" << mysegment.fullName
 		    << " failed";
-	    message << std::endl << "found " << fail_file.str();
 	    RCU_THROW_MSG (message.str());
 	  }
-	  else if (gSystem->AccessPathName (completed_file.str().c_str()) != 0)
+	  else if (data.batchJobSuccess.find(segment)==data.batchJobSuccess.end())
 	    complete = false, result = false;
 	}
 	if (complete)
@@ -749,26 +763,26 @@ namespace EL
 	  RCU::hadd (output.str(), input);
 
 	  // Merge output data directories
-	  for (Job::outputIter out = config.job.outputBegin(),
-		 end = config.job.outputEnd(); out != end; ++ out)
+	  for (Job::outputIter out = data.batchJob->job.outputBegin(),
+		 end = data.batchJob->job.outputEnd(); out != end; ++ out)
 	    {
 	      output.str("");
-	      output << location << "/data-" << out->label();
+	      output << data.submitDir << "/data-" << out->label();
 
 	      if(gSystem->AccessPathName(output.str().c_str()))
 		gSystem->mkdir(output.str().c_str(),true);
 
 
-	      output << "/" << config.samples[sample].name << ".root";
+	      output << "/" << data.batchJob->samples[sample].name << ".root";
 
 	      std::vector<std::string> input;
 	      for (std::size_t segment = mysample.begin_segments,
 		     end = mysample.end_segments; segment != end; ++ segment)
 		{
-		  const BatchSegment& mysegment = config.segments[segment];
+		  const BatchSegment& mysegment = data.batchJob->segments[segment];
 
 		  const std::string infile =
-		    location + "/fetch/data-" + out->label() + "/" + mysegment.fullName + ".root";
+		    data.submitDir + "/fetch/data-" + out->label() + "/" + mysegment.fullName + ".root";
 
 		  input.push_back (infile);
 		}
