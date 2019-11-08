@@ -2,22 +2,22 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "DataQualityTools/DQTLumiMonTool.h"
+#include "DataQualityTools/DQTLumiMonAlg.h"
 
-DQTLumiMonTool::DQTLumiMonTool(const std::string& name, ISvcLocator* pSvcLocator)
+DQTLumiMonAlg::DQTLumiMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
 : AthMonitorAlgorithm(name,pSvcLocator)
 {}
 
-DQTLumiMonTool::~DQTLumiMonTool() {}
+DQTLumiMonAlg::~DQTLumiMonAlg() {}
 
-StatusCode DQTLumiMonTool::initialize(){
+StatusCode DQTLumiMonAlg::initialize(){
     ATH_CHECK( m_VertexContainerKey.initialize() );
     ATH_CHECK( m_PixelClustersKey.initialize() );
     ATH_CHECK( m_PixelIDKey.initialize() );
     return AthMonitorAlgorithm::initialize();
 }
 
-StatusCode DQTLumiMonTool::fillHistograms(const EventContext& ctx) const {
+StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
     using namespace Monitored;
     auto group = getGroup("default");
 

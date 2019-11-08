@@ -131,5 +131,5 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
     )
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
-    from DataQualityTools.DQTLumiMonTool import DQTLumiMonAlgConfig
+    from DataQualityTools.DQTLumiMonAlg import DQTLumiMonAlgConfig
     topSequence += DQTLumiMonAlgConfig(DQMonFlags, isOld=True)

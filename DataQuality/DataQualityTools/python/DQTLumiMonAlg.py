@@ -16,9 +16,9 @@ def DQTLumiMonAlgConfig(flags, isOld=False):
     return helper.result()
 
 def DQTLumiMonAlgConfigByTriggerChain(helper, triggerChain='', triggerPath=''):
-    from .DataQualityToolsConf import DQTLumiMonTool
+    from .DataQualityToolsConf import DQTLumiMonAlg
+    monAlg = helper.addAlgorithm(DQTLumiMonAlg, 'DQTLumiMonAlg'+triggerPath)
 
-    monAlg = helper.addAlgorithm(DQTLumiMonTool, 'DQTLumiMonTool'+triggerPath)
     if triggerChain:
         monAlg.TriggerChain = triggerChain
         if not triggerPath:

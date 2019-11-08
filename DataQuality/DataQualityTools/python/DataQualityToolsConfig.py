@@ -5,7 +5,7 @@
 def DataQualityToolsConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from .DQTDataFlowMonAlg import DQTDataFlowMonAlgConfig
-    from .DQTLumiMonTool import DQTLumiMonAlgConfig
+    from .DQTLumiMonAlg import DQTLumiMonAlgConfig
     from .DQTBackgroundMon import DQTBackgroundMonAlgConfig
     from .DQTDetSynchMonAlg import DQTDetSynchMonAlgConfig
 
