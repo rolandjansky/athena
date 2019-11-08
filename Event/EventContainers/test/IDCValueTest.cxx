@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <limits>
+#include <cassert>
 
 typedef IdentifiableValueCache<int, std::numeric_limits<int>::min()> int100cache;
 typedef IdentifiableValueContainer<int, std::numeric_limits<int>::min()> int100container;
@@ -14,7 +15,7 @@ int main(){
    auto *cache = new int100cache(100);
    auto *container = new int100container(cache);
    auto *container2 = new int100container(cache);
-   static_assert(cache->emptyValue() == std::numeric_limits<int>::min());
+   assert(cache->emptyValue() == std::numeric_limits<int>::min());
    if(container->maxSize()!= 100) std::abort();
    if(!container->setOrDrop(50, 29)) std::abort();
    if(!container->setOrDrop(51, -29)) std::abort();

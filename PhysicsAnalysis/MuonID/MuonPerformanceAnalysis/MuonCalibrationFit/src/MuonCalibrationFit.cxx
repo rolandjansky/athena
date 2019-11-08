@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibrationFit/MuonCalibrationFit.h"
@@ -366,27 +366,27 @@ double MuonCalibrationFit::GetChiSquare( const double* par ) {
 void MuonCalibrationFit::DoMonitoringPlots( const double* par ) {
   //::: Data
   std::vector< std::string > names = m_CurrentTemplate->GetMonitoredVariables();
-  BOOST_FOREACH( Tools::Info theInfo, *m_DataSingleInfo ) {
+  for( Tools::Info theInfo : *m_DataSingleInfo ) {
     for( auto name: names ) {
       m_CurrentTemplate->FillMonitoredVariable( Type::Data, name, theInfo.GetFirst( name ), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.GetMass(), theInfo.IsOS, 1, true ); 
       m_CurrentTemplate->FillMonitoredVariable( Type::Data, name, theInfo.GetSecond( name ), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.GetMass(), theInfo.IsOS, 1, false ); 
     }
   }
-  BOOST_FOREACH( Tools::Info theInfo, *m_DataBothInfo ) {
+  for( Tools::Info theInfo : *m_DataBothInfo ) {
     for( auto name: names ) {
       m_CurrentTemplate->FillMonitoredVariable( Type::Data, name, theInfo.GetFirst( name ), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.GetMass(), theInfo.IsOS, 1, true ); 
       m_CurrentTemplate->FillMonitoredVariable( Type::Data, name, theInfo.GetSecond( name ), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.GetMass(), theInfo.IsOS, 1, true ); 
     }
   }
   //::: Background
-  BOOST_FOREACH( Tools::Info theInfo, *m_BackgroundSingleInfo ) {
+  for( Tools::Info theInfo : *m_BackgroundSingleInfo ) {
     if( ! theInfo.IsOS ) continue;
     for( auto name: names ) {
       m_CurrentTemplate->FillMonitoredVariable( Type::Background, name, theInfo.GetFirst( name ), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.GetMass(), theInfo.IsOS, theInfo.Weight, true ); 
       m_CurrentTemplate->FillMonitoredVariable( Type::Background, name, theInfo.GetSecond( name ), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.GetMass(), theInfo.IsOS, theInfo.Weight, false ); 
     }
   }
-  BOOST_FOREACH( Tools::Info theInfo, *m_BackgroundBothInfo ) {
+  for( Tools::Info theInfo : *m_BackgroundBothInfo ) {
     if( ! theInfo.IsOS ) continue;
     for( auto name: names ) {
       m_CurrentTemplate->FillMonitoredVariable( Type::Background, name, theInfo.GetFirst( name ), std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ), theInfo.GetMass(), theInfo.IsOS, theInfo.Weight, true ); 
@@ -396,7 +396,7 @@ void MuonCalibrationFit::DoMonitoringPlots( const double* par ) {
   //::: MonteCarlo
   //::: Single Muon Correction
   TRandom3 rand_gen( 2988100123 );
-  BOOST_FOREACH( Tools::Info theInfo, *m_MonteCarloSingleInfo ) {
+  for( Tools::Info theInfo : *m_MonteCarloSingleInfo ) {
     if( ! theInfo.IsOS ) continue;
     double rnd = rand_gen.Gaus( 0, 1 );
     for( auto name: names ) {
@@ -405,7 +405,7 @@ void MuonCalibrationFit::DoMonitoringPlots( const double* par ) {
     }
   }
   //::: Double Muon Correction
-  BOOST_FOREACH( Tools::Info theInfo, *m_MonteCarloBothInfo ) {
+  for( Tools::Info theInfo : *m_MonteCarloBothInfo ) {
     if( ! theInfo.IsOS ) continue;
     double rnd1 = rand_gen.Gaus( 0, 1 );
     double rnd2 = rand_gen.Gaus( 0, 1 );
@@ -921,7 +921,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
   if( ! m_FilledData ) {
     //::: Data
     m_CurrentTemplate->ClearData();
-    BOOST_FOREACH( Tools::Info theInfo, *m_DataSingleInfo ) {
+    for( Tools::Info theInfo : *m_DataSingleInfo ) {
       if( ! theInfo.IsOS ) continue;
       float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
@@ -940,7 +940,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
       //::: Rho 
       m_CurrentTemplate->FillRho( Type::Data, theInfo.GetRho().first, theInfo.First_Mu_pt );
     }
-    BOOST_FOREACH( Tools::Info theInfo, *m_DataBothInfo ) {
+    for( Tools::Info theInfo : *m_DataBothInfo ) {
       if( ! theInfo.IsOS ) continue;
       float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
@@ -958,7 +958,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
     }
     //::: Background
     m_CurrentTemplate->ClearBackground();
-    BOOST_FOREACH( Tools::Info theInfo, *m_BackgroundSingleInfo ) {
+    for( Tools::Info theInfo : *m_BackgroundSingleInfo ) {
       if( ! theInfo.IsOS ) continue;
       float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
@@ -975,7 +975,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
       //::: Rho 
       m_CurrentTemplate->FillRho( Type::Background, theInfo.GetRho().first, theInfo.First_Mu_pt, theInfo.Weight );
     }
-    BOOST_FOREACH( Tools::Info theInfo, *m_BackgroundBothInfo ) {
+    for( Tools::Info theInfo : *m_BackgroundBothInfo ) {
       if( ! theInfo.IsOS ) continue;
       float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.First_Mu_pt, theInfo.Second_Mu_pt ) : std::max( theInfo.First_Mu_pt, theInfo.Second_Mu_pt );
       //::://::://:::
@@ -996,7 +996,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
   //::: MonteCarlo
   //::: Single Muon Correction
   TRandom3 rand_gen( 2988100123 );
-  BOOST_FOREACH( Tools::Info theInfo, *m_MonteCarloSingleInfo ) {
+  for( Tools::Info theInfo : *m_MonteCarloSingleInfo ) {
     if( ! theInfo.IsOS ) continue;
     //std::cout << "GREP ME ====== " << int( TMath::Abs( theInfo.Gamma ) * 1000000 ) << std::endl;
     for( int index = 0; index < m_NumRandomValues; index++ ) {
@@ -1018,7 +1018,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
     }
   }
   //::: Double Muon Correction
-  BOOST_FOREACH( Tools::Info theInfo, *m_MonteCarloBothInfo ) {
+  for( Tools::Info theInfo : *m_MonteCarloBothInfo ) {
     if( ! theInfo.IsOS ) continue;
     //std::cout << "GREP ME ====== " << int( TMath::Abs( theInfo.Gamma ) * 1000000 ) << std::endl;
     //TRandom2 rand_gen( int( TMath::Abs( theInfo.Gamma ) * 1000000 ) );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoConfig/L1TopoConfigOutputList.h"
@@ -13,9 +13,6 @@
 using namespace std;
 using namespace TXC;
 
-
-set<string> triggernames;
-set<unsigned int> triggercounters;
 
 void
 TriggerLine::calcCounter() { 
@@ -36,11 +33,11 @@ L1TopoConfigOutputList::addOutputListElement(const OutputListElement & output) {
 void
 L1TopoConfigOutputList::addTriggerLine(const TriggerLine & trigger) {
 
-   auto insname = triggernames.insert(trigger.name());
+   auto insname = m_triggernames.insert(trigger.name());
    if(!insname.second)
       TCS_EXCEPTION("Trigger line '" << trigger.name() << "' has been defined more than once");
 
-   auto inscount = triggercounters.insert(trigger.counter());
+   auto inscount = m_triggercounters.insert(trigger.counter());
    if(!inscount.second) {
       string triggerWithSameCounter("");
       for(auto & tl : m_triggerlines)

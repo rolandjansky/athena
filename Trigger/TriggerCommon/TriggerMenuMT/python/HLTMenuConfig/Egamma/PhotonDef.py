@@ -53,7 +53,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "etcut": etcut_sequence,
             "etcutetcut": etcut_sequence,
+            "loose": photon_sequence,
             "medium": photon_sequence,
+            "tight": photon_sequence,
         }
         
         ## This needs to be configured by the Egamma Developer!!

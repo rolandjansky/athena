@@ -22,6 +22,7 @@ PixelRawDataProviderTool::PixelRawDataProviderTool(const std::string& type, cons
 {
   declareProperty("LVL1CollectionName",m_LVL1CollectionKey);
   declareProperty("BCIDCollectionName",m_BCIDCollectionKey);
+  declareProperty("checkLVL1ID", m_checkLVL1ID = true);
   declareInterface<IPixelRawDataProviderTool>(this);   
 }
 
@@ -58,7 +59,7 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 #endif
 
   //    are we working on a new event ?
-  bool isNewEvent = ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID);
+  bool isNewEvent = m_checkLVL1ID ? ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID) : true;
   if (isNewEvent) {
     m_LVL1Collection = SG::makeHandle(m_LVL1CollectionKey);
     ATH_CHECK(m_LVL1Collection.record(std::make_unique<InDetTimeCollection>()));

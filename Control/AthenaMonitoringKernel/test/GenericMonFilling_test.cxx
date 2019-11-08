@@ -234,7 +234,7 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
 
   resetHists( histSvc );
   {
-    int testVal = 0.2;
+    int testVal = 0;
     auto eta = Monitored::Scalar<int>( "Eta", [&](){ return testVal; } ); // some generator
     auto monitorIt = Monitored::Group( monTool, eta );
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CavernBkgGenerator/GenerateCavernBkg.h"
@@ -24,7 +24,7 @@ extern "C" {
 
 
 GenerateCavernBkg::GenerateCavernBkg(const string& name, ISvcLocator* pSvcLocator)
-  : GenModule(name, pSvcLocator), m_mcEvtColl(0)
+  : GenModule(name, pSvcLocator)
 {
   declareProperty("InputFile",  m_infile="fvpn21n.dat");
 }

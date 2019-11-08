@@ -45,6 +45,7 @@
 
 // System includes
 #include <sstream>
+#include <string>
 
 // =============================================================================
 // Helper macros, typedefs and constants
@@ -206,13 +207,11 @@ StatusCode HltEventLoopMgr::initialize()
   //----------------------------------------------------------------------------
   // Setup the HLT ROB Data Provider Service when configured
   //----------------------------------------------------------------------------
-  if ( &*m_robDataProviderSvc ) {
-    m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-    if (m_hltROBDataProviderSvc.isValid())
-      ATH_MSG_INFO("A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
-    else
-      ATH_MSG_INFO("No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
-  }
+  m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( m_robDataProviderSvc.get() );
+  if (m_hltROBDataProviderSvc.isValid())
+    ATH_MSG_INFO("A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
+  else
+    ATH_MSG_INFO("No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -856,7 +855,7 @@ const coral::AttributeList& HltEventLoopMgr::getSorAttrList() const
     // corresponding to the SOR should contain one single AttrList). Since
     // that's required by code ahead but not checked at compile time, we
     // explicitly guard against any potential future mistake with this check
-    throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + sor->size());
+    throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + std::to_string(sor->size()));
   }
 
   const auto & soral = sor->begin()->second;
