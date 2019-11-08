@@ -732,7 +732,10 @@ class readLVL1configFromXML(JobProperty):
         import os
         log = logging.getLogger( 'TriggerFlags.readLVL1configFromXML' )
 
-        import TriggerMenu.l1.Lvl1Flags  # noqa: F401
+        if TriggerFlags.doMT():
+            import TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags  # noqa: F401
+        else:
+            import TriggerMenu.l1.Lvl1Flags  # noqa: F401
         
         if self.get_Value() is False:
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
@@ -1177,7 +1180,13 @@ from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags   # noqa: F401
 
 ## add slices generation flags
 
-from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
+if doMT():
+    log.info("TriggerFlags importing SliceFlagsMT"  )
+    from TriggerJobOpts.SliceFlagsMT import *                                   # noqa: F401, F403
+else:
+    log.info("TriggerFlags importing SliceFlags (non-MT)"  )
+    from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
+
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags      # noqa: F401
 from TrigTier0.NtupleProdFlags              import NtupleProductionFlags  # noqa: F401
 

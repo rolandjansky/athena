@@ -59,7 +59,7 @@ class LVL1MenuItem(object):
         log.error("Setter: item priority not used anymore, replaced by complex_deadtime")
 
     def addMonitor(self, flag, frequency):
-        from TriggerMenu.l1menu.MonitorDef import MonitorDef
+        from TriggerMenuMT.LVL1MenuConfig.LVL1Menu.MonitorDef import MonitorDef
         if frequency == MonitorDef.LOW_FREQ:
             self.monitorsLF |= flag
         if frequency == MonitorDef.HIGH_FREQ:

@@ -1,38 +1,37 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-""" Jet slice specific flags  """
+""" MET slice specific flags  """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from AthenaCommon.JobProperties import jobproperties # noqa: F401
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-__doc__="Jet slice specific flags  "
+# create container
+__doc__="MET slice specific flags  "
 
 
 _flags = []
 
 class signatures(JobProperty):
-    """ signatures in Jet slice """
+    """ signatures in MET slice """
     statusOn=True
     allowedTypes=['list']
     StoredValue   = []
-    
+
 _flags.append(signatures)
 
 
-class JetSlice(JobPropertyContainer, CommonSignatureHelper):
-    """ Jet Slice Flags """
+class METSlice(JobPropertyContainer, CommonSignatureHelper):
+    """ MET Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.add_Container(JetSlice)
+TriggerFlags.add_Container(METSlice)
 
 # add add common slice flags
-#TriggerFlags.JetSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
+#TriggerFlags.METSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
-    TriggerFlags.JetSlice.add_JobProperty(flag)
+    TriggerFlags.METSlice.add_JobProperty(flag)
 del _flags
 
 # make an alias
-JetSliceFlags = TriggerFlags.JetSlice
-
+METSliceFlags = TriggerFlags.METSlice
