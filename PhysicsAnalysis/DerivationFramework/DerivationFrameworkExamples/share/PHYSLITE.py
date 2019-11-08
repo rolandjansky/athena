@@ -209,7 +209,6 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
 addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=DerivationFrameworkIsMonteCarlo)
 
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSLITE,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
 
 #====================================================================
@@ -225,7 +224,7 @@ addVRJets(SeqPHYSLITE)
 from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
 addRecommendedXbbTaggers(SeqPHYSLITE, ToolSvc)
 
-FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = SeqPHYSLITE)
+FlavorTagInit(JetCollections  = [ 'AntiKt4EMPFlowJets'], Sequencer = SeqPHYSLITE)
 
 
 #==============================================================================
@@ -294,7 +293,7 @@ print( tauSequence ) # For debugging
 # Add the sequence to the job:                                                                                     
 SeqPHYSLITE += tauSequence
 
-jetContainer = "AntiKt4EMTopoJets"
+jetContainer = 'AntiKt4EMPFlowJets_BTagging201903'
 
 # Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
@@ -336,7 +335,6 @@ PHYSLITESlimmingHelper.IncludeMinBiasTriggerContent = True
 PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
                                          'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
-                                         'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',
                                          'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
@@ -357,14 +355,13 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'AnalysisPhotons_NOSYSAux':'xAOD::PhotonAuxContainer',
                                          'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 
                                          'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
-                                         'AntiKt4EMTopoJets':'xAOD::JetContainer'
                                          }
 
 # Leaving these as smart collections
 
 PHYSLITESlimmingHelper.SmartCollections = [
   "InDetTrackParticles",
-  "PrimaryVertices"
+  "PrimaryVertices",
   ]
 
 # Variables to save, per object type
@@ -382,7 +379,10 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "AnalysisTauJets_NOSYS.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.ele_match_lhscore.ele_olr_pass.electronLink.IsVeryLoose.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
   "TauTracks.pt.eta.phi.flagSet.trackLinks.bdtScores",
   "AnalysisJets_NOSYS.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink",
-  "BTagging_AntiKt4EMTopo.MV2c10_discriminant",
+  "BTagging_AntiKt4EMPFlow_201903.MV2c10_discriminant",
+  "MET_Core_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
+  "MET_Reference_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
+  "METAssoc_AntiKt4EMPFlow."
   ]
 
 if DerivationFrameworkIsMonteCarlo:
