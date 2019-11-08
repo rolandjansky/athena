@@ -356,6 +356,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double split12 = m_split12->result(correctedJet);
             double split23 = m_split23->result(correctedJet);
             double qw = m_qw->result(correctedJet);
+	    
+	    double D2 = -1;
+
+            double vECF1 = m_ECF1->result(correctedJet);
+            double vECF2 = m_ECF2->result(correctedJet);
+            double vECF3 = m_ECF3->result(correctedJet);
+            if (fabs(vECF2) > 1e-8) D2 = vECF3 * pow(vECF1, 3) / pow(vECF2, 3);
+            else D2 = -999.0;
+	    
 
             // now attach the results to the original jet
             rcjet->auxdecor<float>("Tau32_clstr") = tau32;
@@ -371,16 +380,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             rcjet->auxdecor<float>("Qw_clstr") = qw;
 
             rcjet->auxdecor<float>("nconstituent_clstr") = clusters.size();
+	    
+	    rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
+            rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
+            rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
+            rcjet->auxdecor<float>("D2_clstr") = D2;
+	    
           } // end of if useJSS
 
           if (m_useAdditionalJSS) {
-            double D2 = -1;
-
-            double vECF1 = m_ECF1->result(correctedJet);
-            double vECF2 = m_ECF2->result(correctedJet);
-            double vECF3 = m_ECF3->result(correctedJet);
-            if (fabs(vECF2) > 1e-8) D2 = vECF3 * pow(vECF1, 3) / pow(vECF2, 3);
-            else D2 = -999.0;
 
             // MlB's t/H discriminators
             // E = (a*n) / (b*m)
@@ -407,12 +415,6 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             if (fabs(gECF441) > 1e-12) {
               L5 = gECF422 / (pow(gECF441, (1.0)));
             }
-
-
-            rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
-            rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
-            rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
-            rcjet->auxdecor<float>("D2_clstr") = D2;
 
             rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
             rcjet->auxdecor<float>("gECF461_clstr") = gECF461;
