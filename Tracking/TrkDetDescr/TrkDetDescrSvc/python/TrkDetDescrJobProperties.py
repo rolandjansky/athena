@@ -36,7 +36,7 @@ class MaterialSource(JobProperty) :
     """ Material Steering """
     statusOn      = True
     allowedTypes  = ['str']
-    allowedValues = ['COOL','Input','None']
+    allowedValues = ['COOL','Input','MaterialOnFly','None']
     StoredValue   = 'COOL'
 
 class MaterialStoreGateKey(JobProperty) :

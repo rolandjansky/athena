@@ -201,6 +201,9 @@ namespace InDet {
       std::vector<const Trk::Layer*> checkZoverlap(std::vector<const Trk::Layer*>& lays) const; 
       const Trk::Layer* mergeDiscLayers(std::vector<const Trk::Layer*>& dlays) const;
 
+      /** material retrieval from GM */
+      void addGMmaterial(const Trk::TrackingVolume*& enclosedDetector ) const;
+
       // helper tools for the geometry building
       ToolHandleArray<Trk::ILayerProvider>           m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
       ToolHandle<Trk::ITrackingVolumeCreator>        m_trackingVolumeCreator;   //!< Helper Tool to create TrackingVolumes
@@ -235,6 +238,8 @@ namespace InDet {
       std::string                                    m_namespace;                //!< identificaton namespace 
       // ID container                                                            
       std::string                                    m_exitVolume;                //!< the final ID container             
+      // material-on-fly option
+      bool                                             m_materialOnFly;            //! switch for material retrieval from GM 
   };
 
   inline void StagedTrackingGeometryBuilder::checkForInsert(std::vector<double>& radii, double radius) const {

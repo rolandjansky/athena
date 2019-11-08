@@ -13,6 +13,10 @@ TrkDetFlags.InDetTrackingGeometryBuilderName = 'InDetTrackingGeometryBuilder'
 # init FastGeoModel geometry builder
 from InDetTrackingGeometryXML.ConfiguredSLHC_InDetTrackingGeometryXMLBuilder import ConfiguredSLHC_InDetTrackingGeometryXMLBuilder
 GeometryBuilder = ConfiguredSLHC_InDetTrackingGeometryXMLBuilder(name='InDetTrackingGeometryBuilder')
+if TrkDetFlags.MaterialSource() is 'MaterialOnFly' :
+    GeometryBuilder.MaterialOnFly=True
+else :
+    GeometryBuilder.MaterialOnFly=False
 ToolSvc += GeometryBuilder
 
 # load the tracking geometry service
