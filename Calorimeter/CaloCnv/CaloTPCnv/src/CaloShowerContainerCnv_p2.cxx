@@ -8,13 +8,9 @@
 #include "CaloEvent/CaloShowerContainer.h"
 #include "AthenaKernel/errorcheck.h"
 
-CaloShowerContainerCnv_p2::CaloShowerContainerCnv_p2()
-{
-}
-
-void CaloShowerContainerCnv_p2::persToTrans(const CaloShowerContainer_p2* pers,
-                                            CaloShowerContainer* trans,
-					    MsgStream&) const
+void CaloShowerContainerCnv_p2::persToTrans (const CaloShowerContainer_p2* pers,
+                                             CaloShowerContainer* trans,
+                                             MsgStream&) const
 {
   CaloClusterMomentContainer_p1::const_iterator momentStoreIterator;
   CaloSamplingDataContainerCnv_p1::State samplingState;
@@ -43,9 +39,10 @@ void CaloShowerContainerCnv_p2::persToTrans(const CaloShowerContainer_p2* pers,
   }
 }
 
-void CaloShowerContainerCnv_p2::transToPers(const CaloShowerContainer* trans,
-                                            CaloShowerContainer_p2* pers,
-                                            MsgStream& log) const
+
+void CaloShowerContainerCnv_p2::transToPers (const CaloShowerContainer* trans,
+                                             CaloShowerContainer_p2* pers,
+                                             MsgStream& log) const
 { 
   pers->m_nClusters=trans->size();
   CaloShowerContainer::const_iterator it=trans->begin();
@@ -63,51 +60,3 @@ void CaloShowerContainerCnv_p2::transToPers(const CaloShowerContainer* trans,
     m_samplingContainerCnv.transToPers(&((*it)->getSamplingStore()),&(pers->m_samplingDataContainer),log);
   }
 }
-
-
-/** Convert persistent object representation to transient
-    @param pers [IN] void* pointer to the persistent object
-    @param trans [OUT] void* pointer to the empty transient object
-    @param log [IN] output message stream
-*/
-void CaloShowerContainerCnv_p2::persToTransUntyped(const void* pers,
-                                                   void* trans,
-                                                   MsgStream& log)
-{
-  persToTrans (reinterpret_cast<const CaloShowerContainer_p2*> (pers),
-               reinterpret_cast<CaloShowerContainer*> (trans),
-               log);
-}
-
-
-/** Convert transient object representation to persistent
-    @param trans [IN] void* pointer to the transient object
-    @param pers [OUT] void* pointer to the empty persistent object
-    @param log [IN] output message stream
-*/  
-void CaloShowerContainerCnv_p2::transToPersUntyped(const void* trans,
-                                                   void* pers,
-                                                   MsgStream& log)
-{
-  transToPers (reinterpret_cast<const CaloShowerContainer*> (trans),
-               reinterpret_cast<CaloShowerContainer_p2*> (pers),
-               log);
-}
-
-
-/** return C++ type id of the transient class this converter is for
-    @return std::type_info&
-*/
-const std::type_info& CaloShowerContainerCnv_p2::transientTInfo() const
-{
-  return typeid (CaloShowerContainer);
-}
-
-/** return C++ type id of the persistent class this converter is for
-    @return std::type_info&
-*/
-const std::type_info& CaloShowerContainerCnv_p2::persistentTInfo() const
-{
-  return typeid (CaloShowerContainer_p2);
-}
-

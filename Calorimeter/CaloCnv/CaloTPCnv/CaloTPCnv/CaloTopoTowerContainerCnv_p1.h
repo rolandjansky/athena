@@ -11,55 +11,36 @@
 //std::vector<unsigned int> m_caloRegions;
 //#include <algorithm>
 #include "CaloTPCnv/CaloTowerSegCnv_p1.h"
-#include "AthenaPoolCnvSvc/ITPConverter.h"
+#include "CaloTPCnv/CaloTopoTowerContainer_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModelAthenaPool/DataLinkCnv_p1.h"
 #include "AthLinks/DataLink.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloTowerContainer.h"
+#include "CaloEvent/CaloTopoTowerContainer.h"
 
 class CaloTopoTowerContainer;
 class CaloTopoTowerContainer_p1;
 
 class CaloTopoTowerContainerCnv_p1
-  : public ITPCnvBase
+  : public T_AthenaPoolTPCnvConstBase<CaloTopoTowerContainer, CaloTopoTowerContainer_p1>
 {
 public:
-  typedef CaloTopoTowerContainer Trans_t;
-  typedef CaloTopoTowerContainer_p1 Pers_t;
+  using base_class::transToPers;
+  using base_class::persToTrans;
 
 
-  virtual ~CaloTopoTowerContainerCnv_p1() {}
+  virtual
+  void persToTrans (const CaloTopoTowerContainer_p1*,
+                    CaloTopoTowerContainer*,
+                    MsgStream& msg) const override;
 
-  void persToTrans(const CaloTopoTowerContainer_p1*, CaloTopoTowerContainer*,MsgStream& msg) const;
-  void transToPers(const CaloTopoTowerContainer*, CaloTopoTowerContainer_p1*,MsgStream& msg) const;
 
-  /** Convert persistent object representation to transient
-      @param pers [IN] void* pointer to the persistent object
-      @param trans [OUT] void* pointer to the empty transient object
-      @param log [IN] output message stream
-  */
-  virtual void persToTransUntyped(const void* pers, void* trans,
-                                  MsgStream& log) override;
-
-  /** Convert transient object representation to persistent
-      @param trans [IN] void* pointer to the transient object
-      @param pers [OUT] void* pointer to the empty persistent object
-      @param log [IN] output message stream
-  */  
-  virtual void transToPersUntyped(const void* trans, void* pers,
-                                  MsgStream& log) override;
-
-  /** return C++ type id of the transient class this converter is for
-      @return std::type_info&
-  */
-  virtual const std::type_info& transientTInfo() const override;
-
-  /** return C++ type id of the persistent class this converter is for
-      @return std::type_info&
-  */
-  virtual const std::type_info& persistentTInfo() const override;
+  virtual
+  void transToPers (const CaloTopoTowerContainer*,
+                    CaloTopoTowerContainer_p1*,
+                    MsgStream& msg) const override;
 
 
 private:
@@ -67,8 +48,6 @@ private:
   DataLinkCnv_p1<DataLink<CaloCellContainer> > m_cells;
   DataLinkCnv_p1<DataLink<CaloClusterContainer> > m_clusters;
   DataLinkCnv_p1<DataLink<CaloTowerContainer> > m_towers;
-
-
 };
 
 

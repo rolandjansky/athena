@@ -15,6 +15,7 @@
 #include "CaloEvent/CaloCellLinkContainer.h"
 #include "CaloTPCnv/CaloClusterContainer_p1.h"
 
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 #include "AthLinks/ElementLink.h"
 
@@ -23,18 +24,25 @@ class CaloCluster;
 
 
 
-class CaloClusterContainerCnv_p1 {
+class CaloClusterContainerCnv_p1
+  : public T_AthenaPoolTPCnvConstBase<CaloClusterContainer, CaloClusterContainer_p1>
+{
 public:
-  typedef CaloClusterContainer Trans_t;
-  typedef CaloClusterContainer_p1 Pers_t;
+  using base_class::transToPers;
+  using base_class::persToTrans;
 
 
-  CaloClusterContainerCnv_p1() {};
-  ~CaloClusterContainerCnv_p1() {}; 
+  virtual
+  void persToTrans (const CaloClusterContainer_p1* pers,
+                           CaloClusterContainer* trans,
+                           MsgStream &log) const override;
 
 
-  void persToTrans(const CaloClusterContainer_p1*, CaloClusterContainer*, MsgStream &log) const;
-  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p1*, MsgStream &log) const;
+  virtual
+  void transToPers (const CaloClusterContainer* trans,
+                    CaloClusterContainer_p1* pers,
+                    MsgStream &log) const override;
+
 
 private:
   //Conversion function for individual clusters (called in a loop over the container)

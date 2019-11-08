@@ -8,30 +8,14 @@
 #include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
-// void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers, 
-// 					     CaloClusterContainer* trans,
-// 					     unsigned long long ievt) 
-// {
-    
-//     // Check whether event number has increased, if so we need to reset data pools
-//     static unsigned long long lastEvent = 0;
-//     if (lastEvent != ievt) {
-// 	m_resetDataPool = true;
-// 	lastEvent = ievt;
-//     }
-//     MsgStream log(0, "CaloClusterContainer_p2" );
-//     persToTrans(pers, trans, log);
-// }
 
-    
-
-void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers, 
-					     CaloClusterContainer* trans,
-                                             MsgStream &log)
+void CaloClusterContainerCnv_p2::persToTrans (const CaloClusterContainer_p2* pers, 
+                                              CaloClusterContainer* trans,
+                                              MsgStream &log) const
 {
   // reset element link converters, and provide container name lookup table
-  m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);
-  m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
+  ShowerLinkState showerLinkState (pers->m_linkNames);
+  CellLinkState cellLinkState (pers->m_linkNames);
 
   // Use data pool for clusters to avoid calling constructor for each event
   DataPool<CaloCluster> clusters;
@@ -64,7 +48,10 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers
     //... not any more... 
 
     //Convert Cluster-quantities
-    persToTrans(&(*itp),transCluster,log);
+    persToTrans(&(*itp),transCluster,
+                showerLinkState,
+                cellLinkState,
+                log);
     //Convert sampling data store
     m_samplingDataContainerCnv.persToTrans(&(pers->m_samplingDataContainer),&(transCluster->m_dataStore),
                                            samplingState);
@@ -80,13 +67,13 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers
 }
 
 
-void CaloClusterContainerCnv_p2::transToPers(const CaloClusterContainer* trans, 
-					     CaloClusterContainer_p2* pers,
-                                             MsgStream &log)
+void CaloClusterContainerCnv_p2::transToPers (const CaloClusterContainer* trans, 
+                                              CaloClusterContainer_p2* pers,
+                                              MsgStream &log) const
 {
   // reset element link converters, and provide container name lookup table
-  m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);
-  m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
+  ShowerLinkState showerLinkState (pers->m_linkNames);
+  CellLinkState cellLinkState (pers->m_linkNames);
 
   pers->m_vec.resize(trans->size());
   CaloClusterContainer_p2::iterator itp=pers->m_vec.begin();
@@ -104,7 +91,10 @@ void CaloClusterContainerCnv_p2::transToPers(const CaloClusterContainer* trans,
     //CaloClusterChangeSignalState statechange (*it, P4SignalState::CALIBRATED);
     P4SignalState::State oldstate=(*it)->signalState();
     (*it)->setSignalState(P4SignalState::CALIBRATED);
-    transToPers(*it,&(*itp),log);
+    transToPers(*it,&(*itp),
+                showerLinkState,
+                cellLinkState,
+                log);
     m_samplingDataContainerCnv.transToPers(&((*it)->m_dataStore),&(pers->m_samplingDataContainer),log);
     m_momentContainerCnv.transToPers(&((*it)->m_momentStore),&(pers->m_momentContainer));
     (*it)->setSignalState(oldstate); //Change back to org signal state
@@ -116,7 +106,9 @@ void CaloClusterContainerCnv_p2::transToPers(const CaloClusterContainer* trans,
 
 void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2::CaloCluster_p* pers, 
 					     CaloCluster* trans,
-                                             MsgStream& log)
+                                             ShowerLinkState& showerLinkState,
+                                             CellLinkState& cellLinkState,
+                                             MsgStream& log) const
 {
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
   trans->setBasicEnergy (pers->m_basicSignal);
@@ -134,8 +126,8 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2::Calo
 
   //Convert base class and element links
   m_P4EEtaPhiMCnv.persToTrans(&pers->m_P4EEtaPhiM,(P4EEtaPhiM*)trans,log);
-  m_showerElementLinkCnv.persToTrans(&pers->m_dataLink,&trans->m_dataLink,log);
-  m_cellElementLinkCnv.persToTrans(&pers->m_cellLink,&trans->m_cellLink,log);
+  m_showerElementLinkCnv.persToTrans(showerLinkState, pers->m_dataLink, trans->m_dataLink,log);
+  m_cellElementLinkCnv.persToTrans(cellLinkState, pers->m_cellLink, trans->m_cellLink,log);
   trans->setAthenaBarCode (IAthenaBarCode::UNDEFINEDBARCODE);
  
 }
@@ -145,7 +137,9 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2::Calo
 
 void CaloClusterContainerCnv_p2::transToPers(const CaloCluster* trans, 
 					     CaloClusterContainer_p2::CaloCluster_p* pers,
-                                             MsgStream& log)
+                                             ShowerLinkState& showerLinkState,
+                                             CellLinkState& cellLinkState,
+                                             MsgStream& log) const
 {
   pers->m_basicSignal=trans->getBasicEnergy();
   pers->m_time=trans->getTime();
@@ -159,42 +153,6 @@ void CaloClusterContainerCnv_p2::transToPers(const CaloCluster* trans,
  
   //Convert base class and element links
   m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);
-  m_showerElementLinkCnv.transToPers(&trans->m_dataLink,&pers->m_dataLink,log);
-  m_cellElementLinkCnv.transToPers(&trans->m_cellLink,&pers->m_cellLink,log);
+  m_showerElementLinkCnv.transToPers(showerLinkState, trans->m_dataLink, pers->m_dataLink,log);
+  m_cellElementLinkCnv.transToPers(cellLinkState, trans->m_cellLink, pers->m_cellLink,log);
 }
-
-
-void CaloClusterContainerCnv_p2::persToTransUntyped(const void* pers,
-                                                    void* trans,
-                                                    MsgStream& log)
-{
-  persToTrans (reinterpret_cast<const CaloClusterContainer_p2*>(pers),
-               reinterpret_cast<CaloClusterContainer*>(trans),
-               log);
-}
-
-
-void CaloClusterContainerCnv_p2::transToPersUntyped(const void* trans,
-                                                    void* pers,
-                                                    MsgStream& log)
-{
-  transToPers (reinterpret_cast<const CaloClusterContainer*>(trans),
-               reinterpret_cast<CaloClusterContainer_p2*>(pers),
-               log);
-}
-
-
-const std::type_info& CaloClusterContainerCnv_p2::transientTInfo() const
-{
-  return typeid (CaloClusterContainer);
-}
-
-  /** return C++ type id of the persistent class this converter is for
-      @return std::type_info&
-  */
-const std::type_info& CaloClusterContainerCnv_p2::persistentTInfo() const
-{
-  return typeid (CaloClusterContainer_p2);
-}
-
-
