@@ -496,65 +496,57 @@ std::string BaseFakeBkgTool::getUncertaintyDescription(const CP::SystematicVaria
 
 bool BaseFakeBkgTool::isSystematicUncertainty(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return Database::isSystUID(UID);
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
 bool BaseFakeBkgTool::isStatisticalUncertainty(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return Database::isStatUID(UID);
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
 bool BaseFakeBkgTool::affectsElectrons(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return getListOfEfficienciesAffectedBy(UID).find("electron") != std::string::npos;
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
 bool BaseFakeBkgTool::affectsMuons(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return getListOfEfficienciesAffectedBy(UID).find("muon") != std::string::npos;
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
 bool BaseFakeBkgTool::affectsTaus(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return getListOfEfficienciesAffectedBy(UID).find("tau") != std::string::npos;
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
 bool BaseFakeBkgTool::affectsRealEfficiencies(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return getListOfEfficienciesAffectedBy(UID).find("real eff") != std::string::npos;
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
 bool BaseFakeBkgTool::affectsFakeEfficiencies(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return getListOfEfficienciesAffectedBy(UID).find("fake eff") != std::string::npos;
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
 bool BaseFakeBkgTool::affectsFakeFactors(const CP::SystematicVariation& systematic) const
 {
-    auto UID = identifyCpSystematicVariation(systematic).first;
+    uint16_t UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return getListOfEfficienciesAffectedBy(UID).find("fake factor") != std::string::npos;
-    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }
 
