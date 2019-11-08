@@ -54,6 +54,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   //////////////////
 
   unsigned int n_hlt_clusters = 0;
+  unsigned int n_hlt_barrel_high_et_clusters = 0;
   unsigned int n_hlt_clusters_no_match = 0;
   unsigned int n_hlt_clusters_with_match = 0;
 
@@ -70,7 +71,6 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   auto HLT_time = Monitored::Collection("HLT_time", vec_hlt_time);
 
   // Only High-ET clusters
-  unsigned int n_hlt_barrel_high_et_clusters = 0;
   std::vector<float> vec_hlt_barrel_high_et_et, vec_hlt_barrel_high_et_eta, vec_hlt_barrel_high_et_phi, vec_hlt_barrel_high_et_size, vec_hlt_barrel_high_et_time;
   std::vector<int> vec_hlt_barrel_high_et_type;
 
@@ -390,8 +390,6 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 	OFF_no_HLT_match_type, OFF_with_HLT_match_num, OFF_with_HLT_match_et, HLT_match_et, OFF_with_HLT_match_eta, OFF_with_HLT_match_phi, OFF_with_HLT_match_time,
 	OFF_with_HLT_match_type, OFF_vs_HLT_resolution, OFF_vs_HLT_delta_eta, OFF_vs_HLT_delta_phi, OFF_vs_HLT_delta_time
   );
-
-
 
   return StatusCode::SUCCESS;
 }
