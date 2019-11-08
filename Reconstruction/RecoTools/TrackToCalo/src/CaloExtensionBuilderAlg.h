@@ -60,22 +60,22 @@ namespace Trk
   ToolHandle<Trk::IParticleCaloExtensionTool> m_particleCaloExtensionTool {this,
       "LastCaloExtentionTool", "Trk::CaloExtensionBuilderTool"};
   
-  //Manages the track selection. It should be able to handle both pflow and tau selections
+  ///Manages the track selection. It should be able to handle both pflow and tau selections
   ToolHandle<InDet::IInDetTrackSelectionTool> m_TrkSelection {this,
       "TrkSelection", "TrkSelectionCaloExtensionBuilder", "Tool that handles the track selection"};
 
   ToolHandle<Trk::ITrackSelectorTool> m_TrkDetailedSelection {this,
       "TrkDetailedSelection", "TrkDetailedSelectionCaloExtensionBuilder", "Tool that handles the detailed track selection"};
 
-  /** output particle calo extension collection */
+  ///output particle calo extension collection 
   SG::WriteHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
       "ParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache"};
 
-  //input Track collection and vertex
+  ///input Track collection and vertex
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkPartContainerKey {this,
       "TrkPartContainerName", "InDetTrackParticles", "Container of tracks"};
 
-  //input Vertex collection
+  ///input Vertex collection
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,
       "vertexInputContainer", "PrimaryVertices", "input vertex container key"};
 
