@@ -50,7 +50,7 @@ public:
   typedef IMultiComponentStateAssembler::Cache Cache;
 
   /** Resets the AlgTool */
-  virtual bool reset(Cache& cache) const override final;
+  virtual void reset(Cache& cache) const override final;
 
   /** Print the status of the assembler */
   virtual void status(const Cache& cache) const override final;
