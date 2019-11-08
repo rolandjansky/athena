@@ -26,6 +26,8 @@ float yield, statUp, statDown;
 ATH_CHECK(tool->getTotalYield(yield, statUp, statDown));
 ```
 
+The types of particles currently supported are xAOD::Electron, xAOD::Muon and xAOD::TauJet. 
+
 All these methods rely on auxiliary measurements (efficiencies for prompt/fake leptons to satisfy a tighter selection, or the closely-related fake factors). These must be performed independently and provided as input to the tool (ROOT or XML files) via the property `"InputFiles"`. There is a large flexibility in the parametrization of these efficiencies (and their uncertainties) as function of kinematic variables. 
 
 Some of the methods (fake factor, asymptotic matrix tool) are in addition able to provide event-by-event weights, e.g. to store into ROOT ntuples. One can use this feature through the dedicated interface `CP::ILinearFakeBkgTool` which they also derive from:

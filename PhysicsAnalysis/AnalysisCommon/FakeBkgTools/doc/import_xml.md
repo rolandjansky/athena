@@ -53,7 +53,7 @@ Similarly, systematic uncertainties must be be defined before being used. This c
 
 The attribute is mandatory. The following values are supported:
 
-+ `affects = "electron", "muon", "real-efficiency", "fake-efficiency", "fake-factor"` as well as combinations of the latter such as `"electron-real-efficiency"`.
++ `affects = "electron", "muon", "tau", "real-efficiency", "fake-efficiency", "fake-factor"` as well as combinations of the latter such as `"electron-real-efficiency"`.
 
 The attribute `affects` may contain several comma-separated values; in this case the affected categories will correspond to the union of the attribute values, not the intersection. For example, to declare a systematic uncertainty affecting only the electron real efficiency, one should specify `"electron-real-efficiency"` and not `"electron, real-efficiency"`. 
 
@@ -71,7 +71,7 @@ Note that `stat`is a reserved keyword and consequently can't be used.
 
 ## Tables of efficiencies
 
-Efficiencies are tabulated between `<electron>` or `<muon>` markups (refered to as _particle element_ in the following) defining the measurement type. 
+Efficiencies are tabulated between `<electron>`, `<muon>` or `<tau>` markups (refered to as _particle element_ in the following) defining the measurement type. 
 
 ```xml
 <electron type="fake-factor" input="central-value">
