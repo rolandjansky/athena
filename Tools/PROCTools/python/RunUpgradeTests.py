@@ -93,7 +93,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     if q == "r2":
         geotag = "ATLAS-P2-ITK-17-06-00"
         layoutoption = "InclinedAlternative"
-        inputfile = "/afs/cern.ch/work/n/nstyles/public/InclinedAlternative_HITS.root"
+        inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/InclinedAlternative_HITS.root"
 
     logging.info("Running clean "+q+" \"Reco_tf.py --AMI "+q+" ("+geotag+","+layoutoption+") --imf False "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
@@ -119,7 +119,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, nosetup=False):
     if q == "r2":
         geotag = "ATLAS-P2-ITK-17-06-00"
         layoutoption = "InclinedAlternative"
-        inputfile = "/afs/cern.ch/work/n/nstyles/public/InclinedAlternative_HITS.root"
+        inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/InclinedAlternative_HITS.root"
 
     logging.info("Running patched "+q+" ("+geotag+","+layoutoption+") \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
@@ -607,12 +607,10 @@ def main():
         qTestsToRun = {}
         if RunSim:
             qTestsToRun = {
-            's1':['EVNTtoHITS'],
             's2':['EVNTtoHITS']
             }
         else:
             qTestsToRun = {
-            'r1':[ 'HITtoRDO','RAWtoESD','ESDtoAOD'],
             'r2':[ 'HITtoRDO','RAWtoESD','ESDtoAOD']
             }          
             
@@ -744,11 +742,11 @@ def main():
                 if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
 
-            if RunPatchedOnly: continue  # Performance checks against static references not possible
-    
-            if 'r1' in q: 
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):
                     All_Tests_Passed = False
+
+            if RunPatchedOnly: continue  # Performance checks against static references not possible
+    
             
             if not RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"msec/event"  ,4,0.4,CleanRunHeadDir,UniqName):
                 All_Tests_Passed = False
