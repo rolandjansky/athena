@@ -7,6 +7,7 @@
 #include "FakeBkgTools/Database.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODMuon/Muon.h"
+#include "xAODTau/TauJet.h"
 #include "SelectionHelpers/ISelectionAccessor.h"
 
 #ifndef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
@@ -179,6 +180,7 @@ StatusCode BaseFakeBkgTool::addEvent(const xAOD::IParticleContainer& iparticles,
         {
             case xAOD::Type::Electron: d.charge = static_cast<const xAOD::Electron&>(p).charge(); break;
             case xAOD::Type::Muon: d.charge = static_cast<const xAOD::Muon&>(p).charge(); break;
+            case xAOD::Type::Tau: d.charge = static_cast<const xAOD::TauJet&>(p).charge(); break;
             default:
                 ATH_MSG_WARNING("unknown particle type, setting charge to 0");
                 d.charge = 0;
@@ -520,6 +522,14 @@ bool BaseFakeBkgTool::affectsMuons(const CP::SystematicVariation& systematic) co
 {
     auto UID = identifyCpSystematicVariation(systematic).first;
     if(UID) return getListOfEfficienciesAffectedBy(UID).find("muon") != std::string::npos;
+    ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
+    return false;
+}
+
+bool BaseFakeBkgTool::affectsTaus(const CP::SystematicVariation& systematic) const
+{
+    auto UID = identifyCpSystematicVariation(systematic).first;
+    if(UID) return getListOfEfficienciesAffectedBy(UID).find("tau") != std::string::npos;
     ATH_MSG_WARNING("Systematic variation " + systematic.name() + " is not recognized by BaseFakeBkgTool");
     return false;
 }

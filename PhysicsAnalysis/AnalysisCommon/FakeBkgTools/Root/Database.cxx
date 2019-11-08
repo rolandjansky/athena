@@ -219,7 +219,7 @@ void Database::importXML(std::string filename)
     while(stream.length())
     {
         readNextTag(stream, tag, attributes, contents);
-        if(tag=="electron" || tag=="muon") addTables(tag, attributes, contents);
+        if(tag=="electron" || tag=="muon" || tag=="tau") addTables(tag, attributes, contents);
         else if(tag=="param") addParams(tag, contents, attributes);
         else if(tag=="syst") addSysts(tag, contents, attributes);
         else if(tag=="ROOT") importCustomROOT(tag, contents, attributes);
@@ -383,10 +383,13 @@ void Database::addSysts(const StringRef& tag, const StringRef& contents, const A
         int matched = 0;
         if(targetMatches("electron", "real-efficiency")) { affects.set(ELECTRON_REAL_EFFICIENCY); ++matched; }
         if(targetMatches("muon", "real-efficiency")) { affects.set(MUON_REAL_EFFICIENCY); ++matched; }
+        if(targetMatches("tau", "real-efficiency")) { affects.set(TAU_REAL_EFFICIENCY); ++matched; }
         if(targetMatches("electron", "fake-efficiency")) { affects.set(ELECTRON_FAKE_EFFICIENCY); ++matched; }
         if(targetMatches("muon", "fake-efficiency")) { affects.set(MUON_FAKE_EFFICIENCY); ++matched; }
+        if(targetMatches("tau", "fake-efficiency")) { affects.set(TAU_FAKE_EFFICIENCY); ++matched; }
         if(targetMatches("electron", "fake-factor")) { affects.set(ELECTRON_FAKE_FACTOR); ++matched; }
         if(targetMatches("muon", "fake-factor")) { affects.set(MUON_FAKE_FACTOR); ++matched; }
+        if(targetMatches("tau", "fake-factor")) { affects.set(TAU_FAKE_FACTOR); ++matched; }
         if(!matched) throw(XmlError(tag) << "the value \"" << target << "\" specified for the attribute \"affects\" is not recognized");
     }
     if(affects.none()) throw(XmlError(tag) << "missing or empty attribute \"affects\"");
@@ -420,6 +423,8 @@ void Database::addTables(const StringRef& particle, const AttributesMap& attribu
         "real-efficiency", MUON_REAL_EFFICIENCY, "fake-efficiency", MUON_FAKE_EFFICIENCY, "fake-factor", MUON_FAKE_FACTOR);
     else if(particle == "electron") type = getAttribute(particle, attributes, "type", 
         "real-efficiency", ELECTRON_REAL_EFFICIENCY, "fake-efficiency", ELECTRON_FAKE_EFFICIENCY, "fake-factor", ELECTRON_FAKE_FACTOR);
+    else if(particle == "tau") type = getAttribute(particle, attributes, "type", 
+        "real-efficiency", TAU_REAL_EFFICIENCY, "fake-efficiency", TAU_FAKE_EFFICIENCY, "fake-factor", TAU_FAKE_FACTOR);
     else throw(XmlError(particle) << "unexpected error: unsupported particle type " << particle.str());
     auto statMode = attributes.at(particle.str()+"/stat") ? getAttribute(particle, attributes, "stat", 
         "global", StatMode::GLOBAL, "per-bin", StatMode::PER_BIN, "none", StatMode::NONE) : StatMode::UNSPECIFIED;
@@ -688,7 +693,7 @@ void Database::importCustomROOT(const StringRef& rootTag, const StringRef& conte
     {
         resetAttributes(subattributes);
         readNextTag(stream, tag, subattributes, subcontents);
-        if(tag=="electron" || tag=="muon") addTables(tag, subattributes, subcontents, file);
+        if(tag=="electron" || tag=="muon" || tag=="tau") addTables(tag, subattributes, subcontents, file);
         else throw(XmlError(stream) << "unknown/unexpected XML tag \"" << tag << "\"");
     }
     
@@ -702,12 +707,12 @@ void Database::resetAttributes(AttributesMap& attributes)
     attributes["param/type"];
     attributes["param/level"];
     attributes["syst/affects"];
-    attributes["electron/type"];
-    attributes["electron/input"];
-    attributes["electron/stat"];
-    attributes["muon/type"];
-    attributes["muon/input"];
-    attributes["muon/stat"];
+    for(const std::string& p : {"electron", "muon", "tau"})
+    {
+        attributes[p + "/type"];
+        attributes[p + "/input"];
+        attributes[p + "/stat"];
+    }
     attributes["TH1/X"];
     attributes["TH1/Y"];
     attributes["TH1/Z"];
@@ -766,9 +771,9 @@ void Database::importDefaultROOT(std::string filename)
             /// Efficiency type
             std::string sss = mr[1].str() + "-" + mr[2].str();
             auto type = getAttribute(StringRef(sss.data(), sss.length()),
-                "FakeFactor-el", ELECTRON_FAKE_FACTOR, "FakeFactor-mu", MUON_FAKE_FACTOR, // "FakeFactor-tau", TAU_FAKE_FACTOR,
-                "FakeEfficiency-el", ELECTRON_FAKE_EFFICIENCY, "FakeEfficiency-mu", MUON_FAKE_EFFICIENCY, // "FakeEfficiency-tau", TAU_FAKE_EFFICIENCY,
-                "RealEfficiency-el", ELECTRON_REAL_EFFICIENCY, "RealEfficiency-mu", MUON_REAL_EFFICIENCY // "RealEfficiency-tau", TAU_REAL_EFFICIENCY
+                "FakeFactor-el", ELECTRON_FAKE_FACTOR, "FakeFactor-mu", MUON_FAKE_FACTOR, "FakeFactor-tau", TAU_FAKE_FACTOR,
+                "FakeEfficiency-el", ELECTRON_FAKE_EFFICIENCY, "FakeEfficiency-mu", MUON_FAKE_EFFICIENCY, "FakeEfficiency-tau", TAU_FAKE_EFFICIENCY,
+                "RealEfficiency-el", ELECTRON_REAL_EFFICIENCY, "RealEfficiency-mu", MUON_REAL_EFFICIENCY, "RealEfficiency-tau", TAU_REAL_EFFICIENCY
                 );
             bool systTH1 = (mr[mr.size()-1].str() != "");
             if(step==0 && !systTH1)
@@ -995,6 +1000,11 @@ Efficiency* Database::selectEfficiency(ParticleData& pd, const xAOD::IParticle& 
         else if(type==MUON_FAKE_EFFICIENCY) return &pd.fake_efficiency;
         else if(type==MUON_REAL_EFFICIENCY) return &pd.real_efficiency;
         break;
+      case xAOD::Type::Tau:
+        if(type==TAU_FAKE_FACTOR) return &pd.fake_factor;
+        else if(type==TAU_FAKE_EFFICIENCY) return &pd.fake_efficiency;
+        else if(type==TAU_REAL_EFFICIENCY) return &pd.real_efficiency;
+        break;
       default:;
     }
     return nullptr;
@@ -1008,13 +1018,16 @@ auto Database::selectTypesToFill(Client client) -> std::bitset<N_EFFICIENCY_TYPE
     {
         result[ELECTRON_REAL_EFFICIENCY] = true;
         result[MUON_REAL_EFFICIENCY] = true;
+        result[TAU_REAL_EFFICIENCY] = true;
         result[ELECTRON_FAKE_EFFICIENCY] = true;
         result[MUON_FAKE_EFFICIENCY] = true;
+        result[TAU_FAKE_EFFICIENCY] = true;
     }
     if(client==Client::FAKE_FACTOR || client==Client::ALL_METHODS)
     {
         result[ELECTRON_FAKE_FACTOR] = true;
         result[MUON_FAKE_FACTOR] = true;
+        result[TAU_FAKE_FACTOR] = true;
     }
     if(result.none()) throw(GenericError() << "unrecognized client type, implementation incomplete");
     return result;
@@ -1029,8 +1042,10 @@ Database::EfficiencyType Database::getSourceType(EfficiencyType wantedType) cons
         {
           case ELECTRON_FAKE_EFFICIENCY: return ELECTRON_FAKE_FACTOR;
           case MUON_FAKE_EFFICIENCY: return MUON_FAKE_FACTOR;
+          case TAU_FAKE_EFFICIENCY: return TAU_FAKE_FACTOR;
           case ELECTRON_FAKE_FACTOR: return ELECTRON_FAKE_EFFICIENCY;
           case MUON_FAKE_FACTOR: return MUON_FAKE_EFFICIENCY;
+          case TAU_FAKE_FACTOR: return TAU_FAKE_EFFICIENCY;
           default:;
         }
     }
@@ -1057,6 +1072,9 @@ std::string Database::getTypeAsString(EfficiencyType type)
         case MUON_REAL_EFFICIENCY: return "real efficiency (muons)";
         case MUON_FAKE_EFFICIENCY: return "fake efficiency (muons)";
         case MUON_FAKE_FACTOR: return "fake factor (muons)";
+        case TAU_REAL_EFFICIENCY: return "real efficiency (taus)";
+        case TAU_FAKE_EFFICIENCY: return "fake efficiency (taus)";
+        case TAU_FAKE_FACTOR: return "fake factor (taus)";
         default:;
     }
     return "???";

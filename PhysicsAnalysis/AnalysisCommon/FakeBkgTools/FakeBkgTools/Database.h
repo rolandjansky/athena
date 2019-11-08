@@ -47,6 +47,9 @@ public:
         MUON_REAL_EFFICIENCY,
         MUON_FAKE_EFFICIENCY,
         MUON_FAKE_FACTOR,
+        TAU_REAL_EFFICIENCY,
+        TAU_FAKE_EFFICIENCY,
+        TAU_FAKE_FACTOR,
         N_EFFICIENCY_TYPES
     };
     
