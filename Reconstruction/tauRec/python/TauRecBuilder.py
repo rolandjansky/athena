@@ -29,7 +29,6 @@ _outputKey = "TauJets"
 _outputAuxType = "xAOD::TauJetAuxContainer"
 _outputAuxKey = "TauJetsAux."
 _track_collection = "InDetTrackParticles"
-_jet_collection = "AntiKt4LCTopoJets"
 
 ################################################################################
 ## @class TauRecCoreBuilder
@@ -79,7 +78,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         tools = []
         try:
-            tools.append(taualgs.getJetSeedBuilder(_jet_collection))
+            tools.append(taualgs.getJetSeedBuilder(seed_collection_name=tauFlags.tauRecSeedJetCollection()))
 
             # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
             from InDetRecExample.InDetJobProperties import InDetFlags
