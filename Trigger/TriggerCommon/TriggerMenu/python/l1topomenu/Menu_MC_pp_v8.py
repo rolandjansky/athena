@@ -21,7 +21,6 @@ def defineMenu():
         TopoOutput( algoname='2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=0, fpga=0, clock=0, firstbit=1 ),
         TopoOutput( algoname='INVM_DPHI_NFF',                               module=0, fpga=0, clock=0, firstbit=2 ), # 4 bits
         TopoOutput( algoname='0INVM10-3MU4ab',                              module=0, fpga=0, clock=0, firstbit=6 ),
-        TopoOutput( algoname='CEP-CJ50s6ETA21',                             module=0, fpga=0, clock=0, firstbit=7 ),
         TopoOutput( algoname='CEP_CJ',                                      module=0, fpga=0, clock=0, firstbit=8 ), # 2 bits
 
         # module: 1, FPGA: 1

@@ -2166,19 +2166,4 @@ class TopoAlgoDef:
                 alg.addvariable('MinET1', minET, bitid)# noqa: F821
             tm.registerAlgo(alg)
 
-        if usev8:            
-            x = 50
-            toponame = "CEP-CJ%is6ETA21" % x 
-            log.info("Define %s" % toponame)
-            
-            inputList = ['CJsETA21']
-            
-            alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1 # noqa: F821
-            alg.addgeneric('InputWidth', HW.InputWidthJET) # noqa: F821
-            alg.addgeneric('MaxTob', HW.InputWidthJET)       # noqa: F821
-            alg.addgeneric('NumResultBits', 1) # noqa: F821
-            alg.addvariable('MinET1', x) # noqa: F821
-            alg.addvariable('MinXi', 13000.0*0.02) # noqa: F821
-            alg.addvariable('MaxXi', 13000.0*0.05) # noqa: F821
-            tm.registerAlgo(alg)
         
