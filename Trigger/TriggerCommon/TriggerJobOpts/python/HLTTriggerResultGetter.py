@@ -29,11 +29,8 @@ def  EDMDecodingVersion():
 
         rodVersionM = -1
         rodVersionL = -1
-        # Do an empty loop over all robs to work around memory allocation problem ATR-20480
-        for robf in bs[0].robs()[0]:
-            pass
         # Find the first HLT ROBFragment in the first event
-        for robf in bs[0].robs()[0]:
+        for robf in bs[0]:
             if robf.rob_source_id().subdetector_id()==SubDetector.TDAQ_HLT:
                 rodVersionM = robf.rod_minor_version() >> 8
                 rodVersionL = robf.rod_minor_version() & 0xFF

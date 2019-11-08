@@ -509,6 +509,8 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderWienerFilter.TimeCorrection          = False # don't need correction after iterations
                 theTileRawChannelBuilderWienerFilter.DSPContainer            = TileRawChannelContainerDSP
 
+                ServiceMgr.TileInfoLoader.LoadWienerFilterWeights            = True
+
                 mlog.info(" adding now TileRawChannelBuilderWienerFilter to the algorithm: %s", theTileRawChannelMaker.name())
 
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderWienerFilter]

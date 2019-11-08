@@ -69,7 +69,7 @@ def MuonGeoModelCfg(flags):
         # here define if I-lines (CSC internal alignment) are enabled
         if flags.Muon.Align.UseILines: 
             detTool.EnableCscInternalAlignment = True
-            if flags.IOVDb.DatabaseInstance == 'COMP200' and 'HLT' in flags.IOVDb.GlobalTag:
+            if 'HLT' in flags.IOVDb.GlobalTag:
                 #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
                 MuonAlign.ILinesFromCondDB = False
                 detTool.UseIlinesFromGM = True

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -95,17 +95,26 @@ namespace Trk {
     
       /** getting the MaterialProperties back - for post-update*/ 
       double  postUpdateMaterialFactor(const Trk::TrackParameters& par, Trk::PropDirection dir) const override;
-    
+   
       /** move the Layer */
-      void moveLayer(Amg::Transform3D& shift) const override;
+      virtual void moveLayer(Amg::Transform3D& shift) override;
+
+      /** move the Layer */
+      virtual void moveLayer ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& shift) const override{
+       const_cast<ConeLayer*>(this)->moveLayer(shift); 
+      };
 
     private:
       /** Resize the layer to the tracking volume - not (yet) supported for ConeLayer */ 
-      void resize(const VolumeBounds&, double) const {}
+     void resize(const VolumeBounds&, double) const {}
+ 
+     /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 
+     virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)  override {}       
+
       
-       /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 
-       void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const override {}       
-       
+    /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 
+    virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                                const Amg::Vector3D&, double) const override {}       
       
   };
  

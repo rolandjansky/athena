@@ -367,16 +367,19 @@ if __name__=="__main__":
     
     from argparse import ArgumentParser    
     parser = ArgumentParser()
-    parser.add_argument("-t", "--threads", dest="threads", type=int,
+    parser.add_argument("-t", "--threads", type=int,
                         help="number of threads", default=1)
                         
-    parser.add_argument("-o", "--output", dest="output", default='newESD.pool.root',
+    parser.add_argument("-o", "--output", default='newESD.pool.root',
                         help="write ESD to FILE", metavar="FILE")
                         
     parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
                         action="store_true")
+
+    parser.add_argument("--forceclone", help="Override default cloneability of algorithms to force them to run in parallel",
+                        action="store_true")
                         
-    args = parser.parse_args()
+    args = parser.parse_args()    
     
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -409,6 +412,8 @@ if __name__=="__main__":
     if args.run:
         from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
         cfg = MainServicesThreadedCfg(ConfigFlags)
+        msgService = cfg.getService('MessageSvc')
+        msgService.Format = "S:%s E:%e % F%58W%S%7W%R%T  %0W%M"
     else:
         cfg=ComponentAccumulator()
     
@@ -419,7 +424,8 @@ if __name__=="__main__":
     acc = MuonTrackBuildingCfg(ConfigFlags)
     cfg.merge(acc)
     
-    if args.threads>1:
+    if args.threads>1 and args.forceclone:
+        log.info('Forcing track building cardinality to be equal to '+str(args.threads))
         # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
         from GaudiHive.GaudiHiveConf import AlgResourcePool
         cfg.addService(AlgResourcePool( OverrideUnClonable=True ) )
@@ -446,21 +452,11 @@ if __name__=="__main__":
     # outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
     
-    # Show slots & events
-    # msgService = cfg.getService('MessageSvc')
-    # msgService.Format = "S:%s E:%e % F%48W%S%7W%R%T  %0W%M"
-    # msgService.OutputLevel=DEBUG
-    
     # Fix for ATLASRECTS-5151
     from  TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool
     cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
     cnvTool.MuonCnvTool.FixTGCs = True
     cfg.addPublicTool(cnvTool)
-    
-    # from MuonEventCnvTools.MuonEventCnvToolsConf import Muon__MuonEventCnvTool
-    # cnvTool = Muon__MuonEventCnvTool(name='MuonEventCnvTool')
-    # cnvTool.FixTGCs = True
-    # cfg.addPublicTool(cnvTool)
     
     cfg.printConfig(withDetails = True, summariseProps = True)
               

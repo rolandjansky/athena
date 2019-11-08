@@ -34,6 +34,7 @@ function (datamodel_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
                   PROPERTIES TIMEOUT 300
+                  EXTRA_PATTERNS "has different type than the branch"
                   ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-03"
                    )
   if( ARG_DEPENDS )

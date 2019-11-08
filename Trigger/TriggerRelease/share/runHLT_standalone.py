@@ -393,12 +393,14 @@ if BSRDOInput!=None:
         athenaCommonFlags.BSRDOInput=[BSRDOInput]
     else:
         athenaCommonFlags.BSRDOInput=BSRDOInput
+    athenaCommonFlags.FilesInput = athenaCommonFlags.BSRDOInput()
 elif PoolRDOInput!=None:    
     globalflags.InputFormat='pool'
     if type(PoolRDOInput)==type(''):
         athenaCommonFlags.PoolRDOInput=[PoolRDOInput]
     else:
         athenaCommonFlags.PoolRDOInput=PoolRDOInput
+    athenaCommonFlags.FilesInput = athenaCommonFlags.PoolRDOInput()
 
 # Conditions and geometry tag
 if globalflags.InputFormat.is_pool() and (setDetDescr==None or setGlobalTag==None):

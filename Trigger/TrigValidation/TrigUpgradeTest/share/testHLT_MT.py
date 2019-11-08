@@ -76,8 +76,6 @@ for option in defaultOptions:
 
 
 import re
-from MuonRecExample.MuonAlignFlags import muonAlignFlags
-muonAlignFlags.UseIlines = False
 
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
