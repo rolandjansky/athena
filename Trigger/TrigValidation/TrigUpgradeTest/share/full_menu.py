@@ -8,10 +8,6 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
-# Set the menu name
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.triggerMenuSetup = "LS2_v1"
-
 ##################################################################
 # Include the common configuration
 ##################################################################
