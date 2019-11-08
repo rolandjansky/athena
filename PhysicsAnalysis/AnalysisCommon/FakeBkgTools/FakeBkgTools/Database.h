@@ -47,6 +47,9 @@ public:
         MUON_REAL_EFFICIENCY,
         MUON_FAKE_EFFICIENCY,
         MUON_FAKE_FACTOR,
+        TAU_REAL_EFFICIENCY,
+        TAU_FAKE_EFFICIENCY,
+        TAU_FAKE_FACTOR,
         N_EFFICIENCY_TYPES
     };
     
@@ -184,8 +187,8 @@ protected:
     void addValues(const StringRef& contents, EfficiencyTable& table, EfficiencyType type, StatMode statMode, unsigned short& globalStatUID);
     
     /// Methods used to load from ROOT files
-    void importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY, float scale, 
-            StatMode statMode, unsigned short& globalStatUID, const StringRef& xmlStream);
+    void importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY, const StringRef& paramZ, 
+            float scale, StatMode statMode, unsigned short& globalStatUID, const StringRef& xmlStream);
     void importSystTH1(const TH1* hist, EfficiencyType type, const std::string& sysname);
     float getWeightedAverage(const TH1* hist, const StringRef& xmlStream);
     float getNormalizationFactor(const TH1* hist, EfficiencyType type, const StringRef& norm, const StringRef& xmlStream);
