@@ -120,17 +120,17 @@ namespace Trig {
        * Note: This is a RUN 3 (and on) function.
        * @param[in] eventStore Event store pointer. To migrate to readHandles with the rest of the TDT soon
        * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::includeFailedDecisions are supported.
-       * @param[in] container Optional requirement to return only features within the specificed container name. Not checked if not specified. 
-       * @param[in] featureCollectionMode For oneFeaturePerLeg, stop exploring each route through the navigation once one matching feature has been found.
-       * @param[in] featureName Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
+       * @param[in] containerSGKey Optional requirement to return only features within the specified container name. Not checked if not specified. 
+       * @param[in] featureCollectionMode For lastFeatureOfType, stop exploring each route through the navigation once one matching feature has been found.
+       * @param[in] navElementLinkKey Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
        * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
        **/  
       template<class CONTAINER>
       std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
                 unsigned int condition = TrigDefs::Physics,
-                const std::string& container = "",
-                const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
-                const std::string& featureName = "feature") const;
+                const std::string& containerSGKey = "",
+                const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,
+                const std::string& navElementLinkKey = "feature") const;
 
       // 
       const std::vector< std::string >& patterns() const {return m_patterns;}
