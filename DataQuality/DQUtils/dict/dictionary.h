@@ -13,6 +13,7 @@
 #ifdef _XOPEN_SOURCE
 # undef _XOPEN_SOURCE
 #endif
+// Following needed to avoid deprecated/removed "register" keyword
 #define register
 #include <Python.h>
 #undef register

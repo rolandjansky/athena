@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
+
 # art-description: test for job configuration ttFC_fastSim_fulldigi (Sim/Digi job)
 # art-type: grid
-#
-# specify branches of athena that are being targeted:
-#
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: master/Athena
 # art-output: config.txt
+# art-output: *.root
+# art-output: dcube
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -27,17 +27,20 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
     --imf False
 
-echo "art-result: $? EVNTtoRDO step"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc EVNTtoRDO"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? regression"
-#add an additional payload from the job (corollary file).
-# art-output: RDO_truth.root
+echo  "art-result: $rc2 regression"
+
+
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fastSim_fullDigi RDO_truth.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/RDOTruthCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RDO_TruthPlots_Refs/test_ttFC_fastSim_fullDigi.sh
 
-
-
-# art-output: dcube/
-echo  "art-result: $? histcomp"
+echo  "art-result: $? dcubeHistComp"

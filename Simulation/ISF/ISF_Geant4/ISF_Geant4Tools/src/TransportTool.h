@@ -122,8 +122,8 @@ namespace iGeant4
     mutable SG::SlotSpecificObj<Slot> m_slots ATLAS_THREAD_SAFE;
     Gaudi::Property<std::string> m_mcEventCollectionName{this, "McEventCollection", "TruthEvent", ""};
     /// Helper Tool to provide G4RunManager
-    PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};
-    G4AtlasRunManager    *m_pRunMgr{};
+    // PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};
+    // G4AtlasRunManager    *m_pRunMgr{};
 
     Gaudi::Property<std::string> m_libList{this, "Dll", "", ""};
     Gaudi::Property<std::string> m_physList{this, "Physics", "", ""};

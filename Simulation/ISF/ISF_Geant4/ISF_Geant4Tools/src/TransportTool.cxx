@@ -6,6 +6,9 @@
 #include "TransportTool.h"
 
 //package includes
+#include "G4AtlasAlg/G4AtlasMTRunManager.h"
+#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
+#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
 #include "G4AtlasAlg/G4AtlasRunManager.h"
 #include "ISFFluxRecorder.h"
 
@@ -17,6 +20,7 @@
 
 // Athena classes
 #include "GeneratorObjects/McEventCollection.h"
+#include "GaudiKernel/IThreadInitTool.h"
 
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/EventInformation.h"
@@ -102,27 +106,42 @@ void iGeant4::G4TransportTool::initializeOnce()
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
 
-  if (m_g4RunManagerHelper.retrieve().isFailure()) {
-    throw std::runtime_error("Could not initialize G4RunManagerHelper!");
-  }
-  ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
-  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : nullptr;
-  if (!m_pRunMgr) {
-    throw std::runtime_error("G4RunManagerHelper::g4RunManager() returned nullptr.");
-  }
-
   if(m_physListSvc.retrieve().isFailure()) {
     throw std::runtime_error("Could not initialize ATLAS PhysicsListSvc!");
   }
-  m_physListSvc->SetPhysicsList();
 
-  m_pRunMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
-  m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-  m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
-  m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-  m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
-  m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-  m_pRunMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
+  // Create the (master) run manager
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+    m_physListSvc->SetPhysicsList();
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListSvc( m_physListSvc.typeAndName() );
+    // Worker Thread initialization used to create worker run manager on demand.
+    std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
+      std::make_unique<G4AtlasUserWorkerThreadInitialization>();
+    workerInit->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
+    workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
+    runMgr->SetUserInitialization( workerInit.release() );
+#else
+    throw std::runtime_error("Trying to use multi-threading in non-MT build!");
+#endif
+  }
+  // Single-threaded run manager
+  else {
+    auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+    m_physListSvc->SetPhysicsList();
+    runMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
+    runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
+    runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
+  }
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
@@ -226,9 +245,8 @@ StatusCode iGeant4::G4TransportTool::finalize()
 void iGeant4::G4TransportTool::finalizeOnce()
 {
   ATH_MSG_DEBUG("\t terminating the current G4 run");
-
-  m_pRunMgr->RunTermination();
-
+  auto runMgr = G4RunManager::GetRunManager();
+  runMgr->RunTermination();
   return;
 }
 
@@ -261,8 +279,24 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
   }
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
-  bool abort = m_pRunMgr->ProcessEvent(inputEvent);
-
+  bool abort = false;
+  // Worker run manager
+  // Custom class has custom method call: ProcessEvent.
+  // So, grab custom singleton class directly, rather than base.
+  // Maybe that should be changed! Then we can use a base pointer.
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto* workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+    abort = workerRM->ProcessEvent(inputEvent);
+#else
+    ATH_MSG_ERROR("Trying to use multi-threading in non-MT build!");
+    return StatusCode::FAILURE;
+#endif
+  }
+  else {
+    auto* workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
+    abort = workerRM->ProcessEvent(inputEvent);
+  }
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
     //ATH_MSG_WARNING("Simulation will now go on to the next event ");
@@ -308,6 +342,20 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
 StatusCode iGeant4::G4TransportTool::setupEvent()
 {
   ATH_MSG_DEBUG ( "setup Event" );
+
+#ifdef G4MULTITHREADED
+  // In some rare cases, TBB may create more physical worker threads than
+  // were requested via the pool size.  This can happen at any time.
+  // In that case, those extra threads will not have had the thread-local
+  // initialization done, leading to a crash.  Try to detect that and do
+  // the initialization now if needed.
+  if (m_useMT && G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume() == nullptr)
+  {
+    ToolHandle<IThreadInitTool> ti ("G4ThreadInitTool", nullptr);
+    ATH_CHECK( ti.retrieve() );
+    ti->initThread();
+  }
+#endif
 
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.

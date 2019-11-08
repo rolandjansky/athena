@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -13,9 +13,6 @@ decription           : Implementation code for GsfCombinedMaterialEffects class
 
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 
-#include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
-
-#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
@@ -96,13 +93,7 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
      ======================================================================== */
 
   IMultiStateMaterialEffects::Cache cache_multipleScatter;
-  Trk::MultiStateMaterialEffectsAdapter::compute(cache_multipleScatter,
-                                                 m_multipleScatterEffects,
-                                                 componentParameters,
-                                                 materialProperties,
-                                                 pathLength,
-                                                 direction,
-                                                 particleHypothesis);
+  m_multipleScatterEffects->compute(cache_multipleScatter, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
 
   // Protect if there are no new components
   if (cache_multipleScatter.weights.empty()) {
@@ -113,9 +104,6 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
     newCov->setZero();
     cache_multipleScatter.deltaCovariances.push_back(std::move(newCov));
   }
-
-  std::vector<double> energyLoss_weights;
-  std::vector<double> energyLoss_deltaPs;
 
   /* ========================================================================
      Retrieve energy loss corrections
@@ -131,13 +119,8 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
   } else if (particleHypothesis != nonInteracting) {
     ATH_MSG_VERBOSE("Considering standard energy loss effects");
 
-    Trk::MultiStateMaterialEffectsAdapter::compute(cache_energyLoss,
-                                                   m_energyLossEffects,
-                                                   componentParameters,
-                                                   materialProperties,
-                                                   pathLength,
-                                                   direction,
-                                                   particleHypothesis);
+    m_energyLossEffects->compute(cache_energyLoss, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
+
   }
 
   // Protect if there are no new components

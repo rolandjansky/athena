@@ -75,6 +75,8 @@ public:
   /// Implements empty finalize (implementation required by AthAlgorithm)
   StatusCode finalize() override;
 
+  bool isClonable() const override { return true; }
+
 private:
   /// Returns the simulator to use for the given particle
   const ISimulatorTool& identifySimulator(const ISF::ISFParticle& particle) const;

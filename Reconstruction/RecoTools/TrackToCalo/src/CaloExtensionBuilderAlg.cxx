@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -40,7 +40,7 @@ StatusCode Trk::CaloExtensionBuilderAlg::initialize()
 
     ATH_CHECK(m_ParticleCacheKey.initialize());
     ATH_CHECK(m_TrkPartContainerKey.initialize());
-    ATH_CHECK(m_vertexInputContainer.initialize());
+    ATH_CHECK(m_vertexInputContainer.initialize(SG::AllowEmpty));
 
     if (service("ToolSvc", myToolSvc).isFailure()) {
         ATH_MSG_WARNING(" Tool Service Not Found");
@@ -80,37 +80,40 @@ StatusCode Trk::CaloExtensionBuilderAlg::CaloExtensionBuilderAlg::finalize(){
 StatusCode Trk::CaloExtensionBuilderAlg::execute()
 {
     // defining needed objects
-    const xAOD::VertexContainer * vxContainer = 0;
-    const xAOD::Vertex*         primaryVertex = 0;
+    const xAOD::VertexContainer * vxContainer = nullptr;
+    const xAOD::Vertex*         primaryVertex = nullptr;
 
-    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
-    SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrkPartContainerKey);
+    if (!m_vertexInputContainer.empty()) {
+      SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
 
-    // checking for tracks and vertices being read correctly
-    if (!vertexInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-      return StatusCode::FAILURE;
+      // checking for vertices being read correctly
+      if (!vertexInHandle.isValid()) {
+        ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+        return StatusCode::FAILURE;
+      }
+
+      // picking primary vertex
+      vxContainer = vertexInHandle.cptr();
+      if (vxContainer->size()>0) {
+        // simple loop through and get the primary vertex
+        xAOD::VertexContainer::const_iterator vxIter    = vxContainer->begin();
+        xAOD::VertexContainer::const_iterator vxIterEnd = vxContainer->end();
+        for ( size_t ivtx = 0; vxIter != vxIterEnd; ++vxIter, ++ivtx ){
+          // the first and only primary vertex candidate is picked
+          if ( (*vxIter)->vertexType() ==  xAOD::VxType::PriVtx){
+            primaryVertex = (*vxIter);
+            break;
+          }
+        }
+      }
+      ATH_MSG_VERBOSE("size of VxPrimaryContainer is: "  << vxContainer->size() );
     }
+
+    SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrkPartContainerKey);
     if(!tracks.isValid()) {
         ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "<< m_TrkPartContainerKey.key());
         return StatusCode::FAILURE;
     }
-
-    // picking primary vertex
-    vxContainer = vertexInHandle.cptr();
-    if (vxContainer->size()>0) {
-      // simple loop through and get the primary vertex
-      xAOD::VertexContainer::const_iterator vxIter    = vxContainer->begin();
-      xAOD::VertexContainer::const_iterator vxIterEnd = vxContainer->end();
-      for ( size_t ivtx = 0; vxIter != vxIterEnd; ++vxIter, ++ivtx ){
-	    // the first and only primary vertex candidate is picked
-        if ( (*vxIter)->vertexType() ==  xAOD::VxType::PriVtx){
-            primaryVertex = (*vxIter);
-            break;
-        }
-      }
-    }
-    ATH_MSG_VERBOSE("size of VxPrimaryContainer is: "  << vxContainer->size() );
 
     // creating and saving the calo extension collection
     SG::WriteHandle<CaloExtensionCollection> lastCache(m_ParticleCacheKey); 
@@ -121,8 +124,8 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
     std::vector<bool> mask (ptrTracks->size(),false);
     for (auto track: *tracks){
       if( static_cast<bool>(m_TrkSelection->accept(*track, nullptr)) || 
-          m_TrkDetailedSelection->decision(*track, primaryVertex)    || 
-          m_TrkDetailedSelection->decision(*track, (*vxContainer)[0]) ) {
+          (primaryVertex && m_TrkDetailedSelection->decision(*track, primaryVertex))    || 
+          (vxContainer && m_TrkDetailedSelection->decision(*track, (*vxContainer)[0])) ) {
         mask[track->index()] = true;
       }
     }
