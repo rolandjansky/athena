@@ -90,7 +90,7 @@ namespace EL
     /// failures: out of memory II
     /// failures: i/o errors
   private:
-    static bool mergeHists (const std::string& location, const BatchJob& config);
+    static bool mergeHists (Detail::ManagerData& data);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"
