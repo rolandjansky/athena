@@ -28,9 +28,8 @@ class VBF_osWW(PowhegV2):
     :code:PowhegConfig.ww_res_type = 0`.
 
     If you use this process for a publication, please cite:
-    https://arxiv.org/abs/hep-ph/0603177
     https://arxiv.org/abs/1301.1695
-    https://arxiv.org/abs/1002.2581
+    as well as the usual Powheg(Box) publications
 
     @author Stefan Richter  <stefan.richter@cern.ch>
     """
