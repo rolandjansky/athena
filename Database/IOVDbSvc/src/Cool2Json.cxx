@@ -28,6 +28,7 @@
 #include "AthenaPoolUtilities/CondAttrListVecAddress.h"
 #include "FolderTypes.h"
 #include "IOVDbStringFunctions.h"
+#include "Base64Codec.h"
 
 namespace {
   std::string     
@@ -74,7 +75,7 @@ namespace IOVDbNamespace {
   std::string 
   Cool2Json::description() const{
     std::string saneXml=sanitiseXml(m_desc);
-    return "\"node_description\" : \""+saneXml+"\"\n";
+    return "\"node_description\" : \""+saneXml+"\"";
   }
 
   std::string 
@@ -130,7 +131,7 @@ namespace IOVDbNamespace {
       default:
         result+=" a_data_value";
       }
-      if (sep.empty()) sep=",\n";
+      if (sep.empty()) sep=",";
       result+="}";
     }
     result+="]";
@@ -214,17 +215,22 @@ namespace IOVDbNamespace {
     attr.toOutputStream(os);
     const std::string native=os.str();
     const bool stringPayload=(native.find(" (string) ") != std::string::npos);
+    const bool blobPayload=(native.find(" (blob) ") != std::string::npos);
     //take away anything between brackets in the original
     const std::string regex=R"delim( \(.*\))delim";
     const std::string deleted= deleteRegex(native,regex);
     const std::string sep(" : ");
     const auto separatorPosition = deleted.find(sep);
     const std::string payloadOnly=deleted.substr(separatorPosition+3);
-    if (stringPayload) return quote(payloadOnly);
+    if (stringPayload) return quote(sanitiseJsonString(payloadOnly));
+    if (blobPayload){
+      return quote(IOVDbNamespace::base64Encode(attr.data<coral::Blob>()));
+    }
     std::string result(payloadOnly);
     if (result=="NULL"){
       result="null";
     }
+    
     return result;
   }
   
@@ -238,7 +244,7 @@ namespace IOVDbNamespace {
       os+=delimiter;
       os+=jsonAttribute(atrlist[i]);
     }
-    os+="]\n";
+    os+="]";
     return os;
   }
 }
