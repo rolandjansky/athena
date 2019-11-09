@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_ATLASSTACKINGACTIONTOOL_H
@@ -50,6 +50,9 @@ namespace G4UA
 
       /// Configuration parameters
       AthenaStackingAction::Config m_config;
+
+      /// Use the debug version of the stacking action
+      bool m_useDebugAction;
 
   }; // class AthenaStackingActionTool
 
