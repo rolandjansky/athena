@@ -3,7 +3,6 @@
 */
 
 #include "LumiBlockComps/CreateLumiBlockCollectionFromFile.h"
-#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"

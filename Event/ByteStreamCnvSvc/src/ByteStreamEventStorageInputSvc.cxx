@@ -11,9 +11,7 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "EventStorage/pickDataReader.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/Property.h"
 
 #include "PersistentDataModel/DataHeader.h"
@@ -44,7 +42,6 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
         m_evtInFile(0),
 	m_sgSvc("StoreGateSvc", name),
 	m_mdSvc("StoreGateSvc/InputMetaDataStore", name),
-	m_incidentSvc("IncidentSvc", name),
         m_attlistsvc("ByteStreamAttListMetadataSvc", name),
         m_robProvider("ROBDataProviderSvc", name),
 	m_sequential(false),
@@ -77,11 +74,6 @@ StatusCode ByteStreamEventStorageInputSvc::initialize() {
    // Retrieve InputMetaDataStore
    if (!m_mdSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get InputMetaDataStore.");
-      return(StatusCode::FAILURE);
-   }
-   // Retrieve IncidentSvc
-   if (!m_incidentSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get IncidentSvc.");
       return(StatusCode::FAILURE);
    }
    // Retrieve AttListSvc
@@ -127,9 +119,6 @@ StatusCode ByteStreamEventStorageInputSvc::finalize() {
   
    if (!m_sgSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release StoreGateSvc");
-   }
-   if (!m_incidentSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release IncidentSvc");
    }
    if (!m_robProvider.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release rob data provider");
