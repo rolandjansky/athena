@@ -850,15 +850,7 @@ def getMadGraphVersion():
 def setupFastjet(isNLO, proc_dir=None):
 
     mglog.info('Path to fastjet install dir:%s'%os.environ['FASTJETPATH'])
-
-
-    getfjconfig = subprocess.Popen(['get_files','-data','fastjet-config'])
-    getfjconfig.wait()
-    #Get custom fastjet-config
-    if not os.access(os.getcwd()+'/fastjet-config',os.X_OK):
-        mglog.error('Failed to get fastjet-config from MadGraphControl')
-        return 1
-    fastjetconfig = os.getcwd()+'/fastjet-config'
+    fastjetconfig = os.environ['FASTJETPATH']+'/bin/fastjet-config'
 
     mglog.info('fastjet-config --version:      %s'%str(subprocess.Popen([fastjetconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
     mglog.info('fastjet-config --prefix:       %s'%str(subprocess.Popen([fastjetconfig, '--prefix'],stdout = subprocess.PIPE).stdout.read().strip()))
